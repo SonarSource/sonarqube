@@ -1,0 +1,133 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders with edit permission 1`] = `
+<div>
+  <div
+    className="quality-profile-grid"
+  >
+    <div
+      className="quality-profile-grid-left"
+    >
+      <ProfileRules
+        exporters={Array []}
+        onRequestFail={[Function]}
+        organization="org"
+        profile={
+          Object {
+            "actions": Object {
+              "edit": true,
+            },
+          }
+        }
+        profiles={Array []}
+        updateProfiles={[Function]}
+      />
+      <ProfileExporters
+        exporters={Array []}
+        onRequestFail={[Function]}
+        organization="org"
+        profile={
+          Object {
+            "actions": Object {
+              "edit": true,
+            },
+          }
+        }
+        profiles={Array []}
+        updateProfiles={[Function]}
+      />
+      <ProfilePermissions
+        organization="org"
+        profile={
+          Object {
+            "actions": Object {
+              "edit": true,
+            },
+          }
+        }
+      />
+    </div>
+    <div
+      className="quality-profile-grid-right"
+    >
+      <ProfileInheritance
+        exporters={Array []}
+        onRequestFail={[Function]}
+        organization="org"
+        profile={
+          Object {
+            "actions": Object {
+              "edit": true,
+            },
+          }
+        }
+        profiles={Array []}
+        updateProfiles={[Function]}
+      />
+      <ProfileProjects
+        exporters={Array []}
+        onRequestFail={[Function]}
+        organization="org"
+        profile={
+          Object {
+            "actions": Object {
+              "edit": true,
+            },
+          }
+        }
+        profiles={Array []}
+        updateProfiles={[Function]}
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`renders without permissions 1`] = `
+<div>
+  <div
+    className="quality-profile-grid"
+  >
+    <div
+      className="quality-profile-grid-left"
+    >
+      <ProfileRules
+        exporters={Array []}
+        onRequestFail={[Function]}
+        organization="org"
+        profile={Object {}}
+        profiles={Array []}
+        updateProfiles={[Function]}
+      />
+      <ProfileExporters
+        exporters={Array []}
+        onRequestFail={[Function]}
+        organization="org"
+        profile={Object {}}
+        profiles={Array []}
+        updateProfiles={[Function]}
+      />
+    </div>
+    <div
+      className="quality-profile-grid-right"
+    >
+      <ProfileInheritance
+        exporters={Array []}
+        onRequestFail={[Function]}
+        organization="org"
+        profile={Object {}}
+        profiles={Array []}
+        updateProfiles={[Function]}
+      />
+      <ProfileProjects
+        exporters={Array []}
+        onRequestFail={[Function]}
+        organization="org"
+        profile={Object {}}
+        profiles={Array []}
+        updateProfiles={[Function]}
+      />
+    </div>
+  </div>
+</div>
+`;

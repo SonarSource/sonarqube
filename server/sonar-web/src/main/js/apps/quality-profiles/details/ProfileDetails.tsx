@@ -26,7 +26,6 @@ import ProfilePermissions from './ProfilePermissions';
 import { Exporter, Profile } from '../types';
 
 interface Props {
-  canAdmin: boolean;
   exporters: Exporter[];
   onRequestFail: (reasong: any) => void;
   organization: string | null;
@@ -36,18 +35,17 @@ interface Props {
 }
 
 export default function ProfileDetails(props: Props) {
+  const { profile } = props;
   return (
     <div>
       <div className="quality-profile-grid">
         <div className="quality-profile-grid-left">
           <ProfileRules {...props} />
           <ProfileExporters {...props} />
-          {props.canAdmin &&
-          !props.profile.isBuiltIn && (
-            <ProfilePermissions
-              organization={props.organization || undefined}
-              profile={props.profile}
-            />
+          {profile.actions &&
+          profile.actions.edit &&
+          !profile.isBuiltIn && (
+            <ProfilePermissions organization={props.organization || undefined} profile={profile} />
           )}
         </div>
         <div className="quality-profile-grid-right">
