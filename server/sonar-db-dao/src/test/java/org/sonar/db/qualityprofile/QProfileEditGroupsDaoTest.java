@@ -24,11 +24,17 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
+import org.sonar.db.Pagination;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.sonar.db.qualityprofile.SearchGroupsQuery.ANY;
+import static org.sonar.db.qualityprofile.SearchGroupsQuery.IN;
+import static org.sonar.db.qualityprofile.SearchGroupsQuery.OUT;
+import static org.sonar.db.qualityprofile.SearchGroupsQuery.builder;
 
 public class QProfileEditGroupsDaoTest {
 
@@ -54,6 +60,140 @@ public class QProfileEditGroupsDaoTest {
     assertThat(underTest.exists(db.getSession(), profile, anotherGroup)).isFalse();
     assertThat(underTest.exists(db.getSession(), anotherProfile, group)).isFalse();
     assertThat(underTest.exists(db.getSession(), anotherProfile, anotherGroup)).isFalse();
+  }
+
+  @Test
+  public void countByQuery() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization);
+    GroupDto group1 = db.users().insertGroup(organization);
+    GroupDto group2 = db.users().insertGroup(organization);
+    GroupDto group3 = db.users().insertGroup(organization);
+    db.qualityProfiles().addGroupPermission(profile, group1);
+    db.qualityProfiles().addGroupPermission(profile, group2);
+
+    assertThat(underTest.countByQuery(db.getSession(), builder()
+      .setOrganization(organization)
+      .setProfile(profile)
+      .setMembership(ANY).build()))
+      .isEqualTo(3);
+
+    assertThat(underTest.countByQuery(db.getSession(), builder()
+      .setOrganization(organization)
+      .setProfile(profile)
+      .setMembership(IN).build()))
+      .isEqualTo(2);
+
+    assertThat(underTest.countByQuery(db.getSession(), builder()
+      .setOrganization(organization)
+      .setProfile(profile)
+      .setMembership(OUT).build()))
+      .isEqualTo(1);
+  }
+
+  @Test
+  public void selectByQuery() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization);
+    GroupDto group1 = db.users().insertGroup(organization);
+    GroupDto group2 = db.users().insertGroup(organization);
+    GroupDto group3 = db.users().insertGroup(organization);
+    db.qualityProfiles().addGroupPermission(profile, group1);
+    db.qualityProfiles().addGroupPermission(profile, group2);
+
+    assertThat(underTest.selectByQuery(db.getSession(), builder()
+      .setOrganization(organization)
+      .setProfile(profile)
+      .setMembership(ANY).build(), Pagination.all()))
+      .extracting(GroupMembershipDto::getGroupId, GroupMembershipDto::isSelected)
+      .containsExactlyInAnyOrder(
+        tuple(group1.getId(), true),
+        tuple(group2.getId(), true),
+        tuple(group3.getId(), false));
+
+    assertThat(underTest.selectByQuery(db.getSession(), builder()
+        .setOrganization(organization)
+        .setProfile(profile)
+        .setMembership(IN).build(),
+      Pagination.all()))
+      .extracting(GroupMembershipDto::getGroupId, GroupMembershipDto::isSelected)
+      .containsExactlyInAnyOrder(tuple(group1.getId(), true), tuple(group2.getId(), true));
+
+    assertThat(underTest.selectByQuery(db.getSession(), builder()
+        .setOrganization(organization)
+        .setProfile(profile)
+        .setMembership(OUT).build(),
+      Pagination.all()))
+      .extracting(GroupMembershipDto::getGroupId, GroupMembershipDto::isSelected)
+      .containsExactlyInAnyOrder(tuple(group3.getId(), false));
+  }
+
+  @Test
+  public void selectByQuery_search_by_name() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization);
+    GroupDto group1 = db.users().insertGroup(organization, "sonar-users-project");
+    GroupDto group2 = db.users().insertGroup(organization, "sonar-users-qprofile");
+    GroupDto group3 = db.users().insertGroup(organization, "sonar-admin");
+    db.qualityProfiles().addGroupPermission(profile, group1);
+    db.qualityProfiles().addGroupPermission(profile, group2);
+    db.qualityProfiles().addGroupPermission(profile, group3);
+
+    assertThat(underTest.selectByQuery(db.getSession(), builder()
+        .setOrganization(organization)
+        .setProfile(profile)
+        .setMembership(IN)
+        .setQuery("project").build(),
+      Pagination.all()))
+      .extracting(GroupMembershipDto::getGroupId)
+      .containsExactlyInAnyOrder(group1.getId());
+
+    assertThat(underTest.selectByQuery(db.getSession(), builder()
+        .setOrganization(organization)
+        .setProfile(profile)
+        .setMembership(IN)
+        .setQuery("UserS").build(),
+      Pagination.all()))
+      .extracting(GroupMembershipDto::getGroupId)
+      .containsExactlyInAnyOrder(group1.getId(), group2.getId());
+  }
+
+  @Test
+  public void selectByQuery_with_paging() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization);
+    GroupDto group1 = db.users().insertGroup(organization, "group1");
+    GroupDto group2 = db.users().insertGroup(organization, "group2");
+    GroupDto group3 = db.users().insertGroup(organization, "group3");
+    db.qualityProfiles().addGroupPermission(profile, group1);
+    db.qualityProfiles().addGroupPermission(profile, group2);
+
+    assertThat(underTest.selectByQuery(db.getSession(), builder()
+        .setOrganization(organization)
+        .setProfile(profile)
+        .setMembership(ANY)
+        .build(),
+      Pagination.forPage(1).andSize(1)))
+      .extracting(GroupMembershipDto::getGroupId)
+      .containsExactly(group1.getId());
+
+    assertThat(underTest.selectByQuery(db.getSession(), builder()
+        .setOrganization(organization)
+        .setProfile(profile)
+        .setMembership(ANY)
+        .build(),
+      Pagination.forPage(3).andSize(1)))
+      .extracting(GroupMembershipDto::getGroupId)
+      .containsExactly(group3.getId());
+
+    assertThat(underTest.selectByQuery(db.getSession(), builder()
+        .setOrganization(organization)
+        .setProfile(profile)
+        .setMembership(ANY)
+        .build(),
+      Pagination.forPage(1).andSize(10)))
+      .extracting(GroupMembershipDto::getGroupId)
+      .containsExactly(group1.getId(), group2.getId(), group3.getId());
   }
 
   @Test
