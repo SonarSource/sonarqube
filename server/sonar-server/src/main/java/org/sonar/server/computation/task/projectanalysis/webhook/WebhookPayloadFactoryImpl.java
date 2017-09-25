@@ -20,7 +20,9 @@
 package org.sonar.server.computation.task.projectanalysis.webhook;
 
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.net.URLEncoder;
 import java.util.Date;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
@@ -34,6 +36,7 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
 
+import static java.lang.String.format;
 import static org.sonar.core.config.WebhookProperties.ANALYSIS_PROPERTY_PREFIX;
 
 @ComputeEngineSide
@@ -56,7 +59,7 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
       writeTask(writer, analysis.getCeTask());
       writeDates(writer, analysis, system2);
       writeProject(analysis, writer, analysis.getProject());
-      analysis.getBranch().ifPresent(b -> writeBranch(writer, b));
+      analysis.getBranch().ifPresent(b -> writeBranch(writer, analysis.getProject(), b));
       writeQualityGate(writer, analysis.getQualityGate());
       writeAnalysisProperties(writer, analysis.getScannerContext());
       writer.endObject().close();
@@ -79,6 +82,7 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
       .beginObject()
       .prop("key", project.getKey())
       .prop("name", analysis.getProject().getName())
+      .prop("url", projectUrlOf(project))
       .endObject();
   }
 
@@ -99,14 +103,32 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
       .prop("status", ceTask.getStatus().toString());
   }
 
-  private void writeBranch(JsonWriter writer, Branch branch) {
+  private void writeBranch(JsonWriter writer, Project project, Branch branch) {
     writer
       .name("branch")
       .beginObject()
       .prop("name", branch.getName().orElse(null))
       .prop("type", branch.getType().name())
       .prop("isMain", branch.isMain())
+      .prop("url", branchUrlOf(project, branch))
       .endObject();
+  }
+
+  private String projectUrlOf(Project project) {
+    return format("%s/project/dashboard?id=%s", server.getPublicRootUrl(), encode(project.getKey()));
+  }
+
+  private String branchUrlOf(Project project, Branch branch) {
+    if (branch.getType() == Branch.Type.LONG) {
+      if (branch.isMain()) {
+        return projectUrlOf(project);
+      }
+      return format("%s/project/dashboard?branch=%s&id=%s",
+        server.getPublicRootUrl(), encode(branch.getName().orElse("")), encode(project.getKey()));
+    } else {
+      return format("%s/project/issues?branch=%s&id=%s&resolved=false",
+        server.getPublicRootUrl(), encode(branch.getName().orElse("")), encode(project.getKey()));
+    }
   }
 
   private static void writeQualityGate(JsonWriter writer, @Nullable QualityGate gate) {
@@ -136,6 +158,14 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
       writer
         .endArray()
         .endObject();
+    }
+  }
+
+  private static String encode(String toEncode) {
+    try {
+      return URLEncoder.encode(toEncode, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalStateException("Encoding not supported", e);
     }
   }
 }
