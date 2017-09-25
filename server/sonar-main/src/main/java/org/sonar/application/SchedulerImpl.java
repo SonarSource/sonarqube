@@ -59,6 +59,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   private final NodeLifecycle nodeLifecycle = new NodeLifecycle();
 
   private final CountDownLatch keepAlive = new CountDownLatch(1);
+  private final AtomicBoolean firstWaitingEsLog = new AtomicBoolean(true);
   private final AtomicBoolean restartRequested = new AtomicBoolean(false);
   private final AtomicBoolean restartDisabled = new AtomicBoolean(false);
   private final EnumMap<ProcessId, SQProcess> processesById = new EnumMap<>(ProcessId.class);
@@ -121,7 +122,13 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
 
   private void tryToStartWeb() {
     SQProcess process = processesById.get(ProcessId.WEB_SERVER);
-    if (process == null || !isEsClientStartable()) {
+    if (process == null) {
+      return;
+    }
+    if (!isEsClientStartable()) {
+      if (firstWaitingEsLog.getAndSet(false)) {
+        LOG.info("Waiting for Elasticsearch to be up and running");
+      }
       return;
     }
     if (appState.isOperational(ProcessId.WEB_SERVER, false)) {
