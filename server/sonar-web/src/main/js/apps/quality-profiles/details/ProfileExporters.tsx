@@ -53,19 +53,22 @@ export default class ProfileExporters extends React.PureComponent<Props> {
     }
 
     return (
-      <div className="quality-profile-box quality-profile-exporters">
-        <header className="big-spacer-bottom">
-          <h2>{translate('quality_profiles.exporters')}</h2>
-        </header>
-        <ul>
-          {exportersForLanguage.map(exporter => (
-            <li key={exporter.key} data-key={exporter.key} className="spacer-top">
-              <a href={this.getExportUrl(exporter)} target="_blank">
-                {exporter.name}
-              </a>
-            </li>
-          ))}
-        </ul>
+      <div className="boxed-group quality-profile-exporters">
+        <h2>{translate('quality_profiles.exporters')}</h2>
+        <div className="boxed-group-inner">
+          <ul>
+            {exportersForLanguage.map((exporter, index) => (
+              <li
+                key={exporter.key}
+                data-key={exporter.key}
+                className={index > 0 ? 'spacer-top' : undefined}>
+                <a href={this.getExportUrl(exporter)} target="_blank">
+                  {exporter.name}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     );
   }

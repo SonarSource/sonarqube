@@ -101,7 +101,7 @@ export default class ProfilesList extends React.PureComponent<Props> {
         )}
 
         {languagesToShow.map(languageKey => (
-          <div key={languageKey} className="quality-profile-box quality-profiles-table">
+          <div key={languageKey} className="boxed-group boxed-group-inner quality-profiles-table">
             <table data-language={languageKey} className="data zebra zebra-hover">
               {profilesToShow[languageKey] != null &&
                 this.renderHeader(languageKey, profilesToShow[languageKey].length)}
