@@ -10,7 +10,7 @@
   <groupId>org.sonarsource.sonarqube</groupId>
   <artifactId>sonarqube</artifactId>
   <packaging>pom</packaging>
-  <version>5.6.7-SNAPSHOT</version>
+  <version>5.6.7</version>
   <name>SonarQube</name>
   <url>http://www.sonarqube.org/</url>
   <description>Open source platform for continuous inspection of code quality</description>
@@ -997,7 +997,7 @@
     <connection>scm:git:git@github.com:SonarSource/sonarqube.git</connection>
     <developerConnection>scm:git:git@github.com:SonarSource/sonarqube.git</developerConnection>
     <url>https://github.com/SonarSource/sonarqube</url>
-    <tag>HEAD</tag>
+    <tag>5.6.7</tag>
   </scm>
 
   <ciManagement>
