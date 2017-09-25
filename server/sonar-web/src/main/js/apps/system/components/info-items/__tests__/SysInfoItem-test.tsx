@@ -51,10 +51,10 @@ it('should render object correctly', () => {
 
 it('should render `true`', () => {
   const wrapper = mount(<SysInfoItem name="test" value={true} />);
-  expect(wrapper.find('.icon-check')).toHaveLength(1);
+  expect(wrapper.find('CheckIcon')).toHaveLength(1);
 });
 
 it('should render `false`', () => {
   const wrapper = mount(<SysInfoItem name="test" value={false} />);
-  expect(wrapper.find('.icon-delete')).toHaveLength(1);
+  expect(wrapper.find('CloseIcon')).toHaveLength(1);
 });
