@@ -266,7 +266,8 @@ public class SearchAction implements QProfileWsAction {
       profileBuilder.setIsBuiltIn(profile.isBuiltIn());
 
       profileBuilder.setActions(SearchWsResponse.Actions.newBuilder()
-        .setEdit(true)
+        // add a bit of "dynamic" to the mock
+        .setEdit(profile.getLanguage().equals("java"))
         .setSetAsDefault(false)
         .setCopy(false));
     }
