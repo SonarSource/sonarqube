@@ -29,10 +29,17 @@ exports[`should render correctly 1`] = `
     health="RED"
     healthCause="foo"
   />
-  <StatusIndicator
-    color="red"
-    size="big"
-  />
+  <Tooltip
+    overlay="system.current_health_of_x.Foo"
+    placement="left"
+  >
+    <span>
+      <StatusIndicator
+        color="red"
+        size="big"
+      />
+    </span>
+  </Tooltip>
 </div>
 `;
 

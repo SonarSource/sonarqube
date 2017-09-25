@@ -42,9 +42,11 @@ export const LOGS_LEVELS = ['INFO', 'DEBUG', 'TRACE'];
 export const HA_FIELD = 'High Availability';
 export const HEALTH_FIELD = 'Health';
 export const HEALTHCAUSES_FIELD = 'Health Causes';
+export const PLUGINS_FIELD = 'Plugins';
+export const SETTINGS_FIELD = 'Settings';
 
 export function ignoreInfoFields(sysInfoObject: SysValueObject): SysValueObject {
-  return omit(sysInfoObject, [HEALTH_FIELD, HEALTHCAUSES_FIELD, 'Name', 'Settings']);
+  return omit(sysInfoObject, [HEALTH_FIELD, HEALTHCAUSES_FIELD, 'Name', SETTINGS_FIELD]);
 }
 
 export function getHealth(sysInfoObject: SysValueObject): HealthType {
@@ -55,18 +57,21 @@ export function getHealthCauses(sysInfoObject: SysValueObject): string[] {
   return sysInfoObject[HEALTHCAUSES_FIELD] as string[];
 }
 
-export function getLogsLevel(sysInfoObject: SysValueObject): string {
-  if (sysInfoObject['Web Logging']) {
+export function getLogsLevel(sysInfoObject?: SysValueObject): string {
+  if (!sysInfoObject) {
+    return LOGS_LEVELS[0];
+  }
+  if (sysInfoObject['Web Logging'] || sysInfoObject['Compute Engine Logging']) {
     return sortBy(
       [
-        (sysInfoObject as NodeInfo)['Compute Engine Logging']['Logs Level'],
-        (sysInfoObject as NodeInfo)['Web Logging']['Logs Level']
+        getLogsLevel((sysInfoObject as NodeInfo)['Web Logging']),
+        getLogsLevel((sysInfoObject as NodeInfo)['Compute Engine Logging'])
       ],
       logLevel => LOGS_LEVELS.indexOf(logLevel)
     )[1];
   }
   if (sysInfoObject['System']) {
-    return (sysInfoObject as SysInfo)['System']['Logs Level'];
+    return getLogsLevel((sysInfoObject as SysInfo)['System']);
   }
   return (sysInfoObject['Logs Level'] || LOGS_LEVELS[0]) as string;
 }
@@ -110,9 +115,9 @@ export function getClusterMainCardSection(sysInfoData: ClusterSysInfo): SysValue
     ...sysInfoData['System'],
     ...omit(sysInfoData, [
       'Application Nodes',
-      'Plugins',
+      PLUGINS_FIELD,
       'Search Nodes',
-      'Settings',
+      SETTINGS_FIELD,
       'Statistics',
       'System'
     ])
@@ -126,7 +131,7 @@ export function getStandaloneMainSections(sysInfoData: SysInfo): SysValueObject 
       sysInfoData,
       (value, key) =>
         value == null ||
-        ['Plugins', 'Settings', 'Statistics', 'System'].includes(key) ||
+        [PLUGINS_FIELD, SETTINGS_FIELD, 'Statistics', 'System'].includes(key) ||
         key.startsWith('Compute Engine') ||
         key.startsWith('Search') ||
         key.startsWith('Web')

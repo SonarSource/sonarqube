@@ -19,6 +19,8 @@
  */
 import * as React from 'react';
 import { map } from 'lodash';
+import CheckIcon from '../../../../components/icons-components/CheckIcon';
+import CloseIcon from '../../../../components/icons-components/CloseIcon';
 import HealthItem from './HealthItem';
 import { HealthType, SysValue, SysValueObject } from '../../../../api/system';
 import { HEALTH_FIELD } from '../../utils';
@@ -29,7 +31,7 @@ interface Props {
 }
 
 export default function SysInfoItem({ name, value }: Props): JSX.Element {
-  if (name === HEALTH_FIELD) {
+  if (name === HEALTH_FIELD || name === 'State') {
     return <HealthItem className="no-margin" health={value as HealthType} />;
   }
   if (value instanceof Array) {
@@ -47,9 +49,9 @@ export default function SysInfoItem({ name, value }: Props): JSX.Element {
 
 function BooleanItem({ value }: { value: boolean }) {
   if (value) {
-    return <i className="icon-check" />;
+    return <CheckIcon />;
   } else {
-    return <i className="icon-delete" />;
+    return <CloseIcon />;
   }
 }
 
