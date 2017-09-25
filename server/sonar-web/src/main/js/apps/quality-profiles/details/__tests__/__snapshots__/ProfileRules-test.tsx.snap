@@ -2,7 +2,7 @@
 
 exports[`should render the quality profiles rules with sonarway comparison 1`] = `
 <div
-  className="boxed-group"
+  className="boxed-group quality-profile-rules"
 >
   <div
     className="quality-profile-rules-distribution"

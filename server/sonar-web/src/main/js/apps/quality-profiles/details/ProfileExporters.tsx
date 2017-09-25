@@ -53,7 +53,7 @@ export default class ProfileExporters extends React.PureComponent<Props> {
     }
 
     return (
-      <div className="boxed-group">
+      <div className="boxed-group quality-profile-exporters">
         <h2>{translate('quality_profiles.exporters')}</h2>
         <div className="boxed-group-inner">
           <ul>

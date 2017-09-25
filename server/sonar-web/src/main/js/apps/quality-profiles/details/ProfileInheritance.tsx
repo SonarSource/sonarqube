@@ -119,7 +119,7 @@ export default class ProfileInheritance extends React.PureComponent<Props, State
     const extendsBuiltIn = ancestors != null && ancestors.some(profile => profile.isBuiltIn);
 
     return (
-      <div className="boxed-group">
+      <div className="boxed-group quality-profile-inheritance">
         {this.props.canAdmin &&
         !this.props.profile.isBuiltIn && (
           <div className="boxed-group-actions">

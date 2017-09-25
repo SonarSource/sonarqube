@@ -128,7 +128,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <div className="boxed-group">
+      <div className="boxed-group quality-profile-projects">
         {this.props.canAdmin &&
         !this.props.profile.isDefault && (
           <div className="boxed-group-actions">

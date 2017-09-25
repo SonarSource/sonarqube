@@ -148,7 +148,7 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
     );
 
     return (
-      <div className="boxed-group">
+      <div className="boxed-group quality-profile-rules">
         <div className="quality-profile-rules-distribution">
           <table className="data condensed">
             <thead>
