@@ -67,6 +67,8 @@ public class ScmChangedFilesProviderTest {
   @Test
   public void testNoScmProvider() {
     when(branchConfiguration.isShortLivingBranch()).thenReturn(true);
+    when(branchConfiguration.branchTarget()).thenReturn("target");
+
     ScmChangedFiles scmChangedFiles = provider.provide(scmConfiguration, branchConfiguration, inputModuleHierarchy);
 
     assertThat(scmChangedFiles.get()).isNull();
@@ -117,6 +119,7 @@ public class ScmChangedFilesProviderTest {
 
     when(scmConfiguration.provider()).thenReturn(legacy);
     when(branchConfiguration.isShortLivingBranch()).thenReturn(true);
+    when(branchConfiguration.branchTarget()).thenReturn("target");
 
     ScmChangedFiles scmChangedFiles = provider.provide(scmConfiguration, branchConfiguration, inputModuleHierarchy);
 
