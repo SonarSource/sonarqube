@@ -32,5 +32,11 @@
     )
   </insert>
 
+  <delete id="delete" parameterType="map">
+    delete from qprofile_edit_groups
+    where qprofile_uuid = #{qProfileUuid, jdbcType=VARCHAR}
+    and group_id = #{groupId, jdbcType=INTEGER}
+  </delete>
+
 </mapper>
 
