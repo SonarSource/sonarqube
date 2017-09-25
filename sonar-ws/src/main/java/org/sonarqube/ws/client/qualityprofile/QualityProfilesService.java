@@ -23,6 +23,7 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.QualityProfiles.CopyWsResponse;
 import org.sonarqube.ws.QualityProfiles.CreateWsResponse;
+import org.sonarqube.ws.QualityProfiles.SearchGroupsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchUsersResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.ShowResponse;
@@ -49,6 +50,7 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_USER;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_RESTORE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH_GROUPS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH_USERS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SET_DEFAULT;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SHOW;
@@ -227,5 +229,18 @@ public class QualityProfilesService extends BaseService {
       .setParam(PARAM_QUALITY_PROFILE, request.getQualityProfile())
       .setParam(PARAM_LANGUAGE, request.getLanguage())
       .setParam(PARAM_GROUP, request.getGroup()));
+  }
+
+  public SearchGroupsResponse searchGroups(SearchGroupsRequest request) {
+    return call(
+      new GetRequest(path(ACTION_SEARCH_GROUPS))
+        .setParam(PARAM_ORGANIZATION, request.getOrganization())
+        .setParam(PARAM_QUALITY_PROFILE, request.getQualityProfile())
+        .setParam(PARAM_LANGUAGE, request.getLanguage())
+        .setParam(TEXT_QUERY, request.getQuery())
+        .setParam(SELECTED, request.getSelected())
+        .setParam(PAGE, request.getPage())
+        .setParam(PAGE_SIZE, request.getPageSize()),
+      SearchGroupsResponse.parser());
   }
 }

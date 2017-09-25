@@ -19,9 +19,11 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.util.List;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.Pagination;
 import org.sonar.db.user.GroupDto;
 
 public class QProfileEditGroupsDao implements Dao {
@@ -34,6 +36,14 @@ public class QProfileEditGroupsDao implements Dao {
 
   public boolean exists(DbSession dbSession, QProfileDto profile, GroupDto group) {
     return mapper(dbSession).selectByQProfileAndGroup(profile.getKee(), group.getId()) != null;
+  }
+
+  public int countByQuery(DbSession dbSession, SearchGroupsQuery query){
+    return mapper(dbSession).countByQuery(query);
+  }
+
+  public List<GroupMembershipDto> selectByQuery(DbSession dbSession, SearchGroupsQuery query, Pagination pagination){
+    return mapper(dbSession).selectByQuery(query, pagination);
   }
 
   public void insert(DbSession dbSession, QProfileEditGroupsDto dto) {
