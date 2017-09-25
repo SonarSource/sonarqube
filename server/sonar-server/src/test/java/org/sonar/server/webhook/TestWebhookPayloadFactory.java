@@ -17,17 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.webhook;
+package org.sonar.server.webhook;
 
-import org.sonar.core.platform.Module;
+import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
+import org.sonar.server.computation.task.projectanalysis.webhook.WebhookPayloadFactory;
 
-public class WebhookModule extends Module {
+public class TestWebhookPayloadFactory implements WebhookPayloadFactory {
+
+  private static final String FAKE_JSON = "{\"payload\": true}";
+
   @Override
-  protected void configureModule() {
-    add(
-      WebhookCallerImpl.class,
-      WebhookDeliveryStorage.class,
-      WebhookPayloadFactoryImpl.class,
-      WebhookPostTask.class);
+  public WebhookPayload create(PostProjectAnalysisTask.ProjectAnalysis analysis) {
+    return new WebhookPayload(analysis.getProject().getKey(), FAKE_JSON);
   }
 }

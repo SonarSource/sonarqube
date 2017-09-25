@@ -20,6 +20,7 @@
 package org.sonar.server.computation.task.projectanalysis.webhook;
 
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
+import org.sonar.server.webhook.WebhookPayload;
 
 @FunctionalInterface
 public interface WebhookPayloadFactory {

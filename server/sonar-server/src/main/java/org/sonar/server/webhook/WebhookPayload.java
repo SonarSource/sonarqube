@@ -17,18 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.webhook;
+package org.sonar.server.webhook;
 
-public interface WebhookCaller {
+import javax.annotation.concurrent.Immutable;
 
-  /**
-   * Call webhook by sending a HTTP(S) POST request containing
-   * the JSON payload.
-   * <br/>
-   * Errors are silently ignored. They don't generate logs or
-   * throw exceptions. The error status is stored in the
-   * returned {@link WebhookDelivery}.
-   */
-  WebhookDelivery call(Webhook webhook, WebhookPayload payload);
+import static java.util.Objects.requireNonNull;
 
+@Immutable
+public class WebhookPayload {
+
+  private final String projectKey;
+  private final String json;
+
+  public WebhookPayload(String projectKey, String json) {
+    this.projectKey = requireNonNull(projectKey);
+    this.json = requireNonNull(json);
+  }
+
+  public String getProjectKey() {
+    return projectKey;
+  }
+
+  public String getJson() {
+    return json;
+  }
 }

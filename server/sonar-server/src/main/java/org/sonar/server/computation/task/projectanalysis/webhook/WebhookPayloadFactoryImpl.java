@@ -35,6 +35,7 @@ import org.sonar.api.ce.posttask.ScannerContext;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.server.webhook.WebhookPayload;
 
 import static java.lang.String.format;
 import static org.sonar.core.config.WebhookProperties.ANALYSIS_PROPERTY_PREFIX;

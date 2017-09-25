@@ -17,8 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.webhook.ws;
+package org.sonar.server.webhook;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.concurrent.Immutable;
 
+import static java.util.Objects.requireNonNull;
+
+@Immutable
+public class Webhook {
+
+  private final String componentUuid;
+  private final String ceTaskUuid;
+  private final String name;
+  private final String url;
+
+  public Webhook(String componentUuid, String ceTaskUuid, String name, String url) {
+    this.componentUuid = requireNonNull(componentUuid);
+    this.ceTaskUuid = requireNonNull(ceTaskUuid);
+    this.name = requireNonNull(name);
+    this.url = requireNonNull(url);
+  }
+
+  public String getComponentUuid() {
+    return componentUuid;
+  }
+
+  public String getCeTaskUuid() {
+    return ceTaskUuid;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public String getUrl() {
+    return url;
+  }
+}

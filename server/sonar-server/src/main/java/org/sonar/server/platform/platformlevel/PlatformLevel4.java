@@ -219,6 +219,7 @@ import org.sonar.server.util.TypeValidationModule;
 import org.sonar.server.view.index.ViewIndex;
 import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
+import org.sonar.server.webhook.WebhookModule;
 import org.sonar.server.webhook.ws.WebhooksWsModule;
 import org.sonar.server.ws.DeprecatedPropertiesWsFilter;
 import org.sonar.server.ws.WebServiceEngine;
@@ -529,6 +530,7 @@ public class PlatformLevel4 extends PlatformLevel {
       RootWsModule.class,
 
       // webhooks
+      WebhookModule.class,
       WebhooksWsModule.class,
 
       // Http Request ID
