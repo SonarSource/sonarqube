@@ -36,6 +36,7 @@ import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.SELECTED;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ADD_GROUP;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ADD_PROJECT;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ADD_USER;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_CHANGE_PARENT;
@@ -54,6 +55,7 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_COMPARE_TO_SONAR_WAY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_FROM_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_GROUP;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
@@ -208,5 +210,13 @@ public class QualityProfilesService extends BaseService {
         .setParam(PAGE, request.getPage())
         .setParam(PAGE_SIZE, request.getPageSize()),
       SearchUsersResponse.parser());
+  }
+
+  public void addGroup(AddGroupRequest request) {
+    call(new PostRequest(path(ACTION_ADD_GROUP))
+      .setParam(PARAM_ORGANIZATION, request.getOrganization())
+      .setParam(PARAM_QUALITY_PROFILE, request.getQualityProfile())
+      .setParam(PARAM_LANGUAGE, request.getLanguage())
+      .setParam(PARAM_GROUP, request.getGroup()));
   }
 }
