@@ -37,6 +37,7 @@ public class DbVersion66 implements DbVersion {
       .add(1808, "Add branch column to projects table", AddBranchColumnToProjectsTable.class)
       .add(1809, "Populate project_branches with existing main branches", PopulateMainProjectBranches.class)
       .add(1810, "Create table qprofile_edit_users", CreateTableQProfileEditUsers.class)
+      .add(1811, "Create table qprofile_edit_groups", CreateTableQProfileEditGroups.class)
     ;
   }
 }
