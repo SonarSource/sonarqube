@@ -100,7 +100,6 @@ public class TaskActionTest {
     assertThat(taskResponse.getTask().getComponentName()).isEqualTo(project.name());
     assertThat(taskResponse.getTask().hasExecutionTimeMs()).isFalse();
     assertThat(taskResponse.getTask().getLogs()).isFalse();
-    assertThat(taskResponse.getTask().getIncremental()).isFalse();
   }
 
   @Test
@@ -123,37 +122,6 @@ public class TaskActionTest {
     assertThat(task.getAnalysisId()).isEqualTo(activityDto.getAnalysisUuid());
     assertThat(task.getExecutionTimeMs()).isEqualTo(500L);
     assertThat(task.getLogs()).isFalse();
-  }
-
-  @Test
-  public void incremental_on_queued_task() {
-    logInAsRoot();
-
-    ComponentDto project = db.components().insertPrivateProject();
-    CeQueueDto queueDto = createAndPersistQueueTask(project);
-    insertCharacteristic(queueDto, "incremental", "true");
-
-    WsCe.TaskResponse taskResponse = ws.newRequest()
-      .setParam("id", SOME_TASK_UUID)
-      .executeProtobuf(WsCe.TaskResponse.class);
-
-    assertThat(taskResponse.getTask().getIncremental()).isTrue();
-  }
-
-  @Test
-  public void incremental_on_archived_task() {
-    logInAsRoot();
-
-    ComponentDto project = db.components().insertPrivateProject();
-    db.components().insertSnapshot(project, s -> s.setIncremental(true));
-    CeActivityDto activity = createAndPersistArchivedTask(project);
-    insertCharacteristic(activity, "incremental", "true");
-
-    WsCe.TaskResponse taskResponse = ws.newRequest()
-      .setParam("id", SOME_TASK_UUID)
-      .executeProtobuf(WsCe.TaskResponse.class);
-
-    assertThat(taskResponse.getTask().getIncremental()).isTrue();
   }
 
   @Test

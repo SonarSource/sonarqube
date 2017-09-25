@@ -51,7 +51,6 @@ import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.INCREMENTAL_KEY;
 import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT;
@@ -110,7 +109,6 @@ public class ComponentActionTest {
       .extracting(WsCe.Task::getOrganization)
       .containsOnly(organization.getKey());
     assertThat(response.getCurrent().getOrganization()).isEqualTo(organization.getKey());
-    assertThat(response.getCurrent().getIncremental()).isFalse();
   }
 
   @Test
@@ -160,44 +158,6 @@ public class ComponentActionTest {
     // T3 is the latest task executed on PROJECT_1 ignoring Canceled ones
     assertThat(response.hasCurrent()).isTrue();
     assertThat(response.getCurrent().getId()).isEqualTo("T3");
-  }
-
-  @Test
-  public void incremental_analysis_by_component_key() {
-    ComponentDto project = db.components().insertPrivateProject();
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
-    SnapshotDto incrementalAnalysis = db.components().insertSnapshot(project, s -> s.setIncremental(true));
-    CeActivityDto activity = insertActivity("T1", project, SUCCESS, incrementalAnalysis);
-    insertCharacteristic(activity, INCREMENTAL_KEY, "true");
-
-    WsCe.ProjectResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
-      .executeProtobuf(WsCe.ProjectResponse.class);
-
-    assertThat(response.getCurrent())
-      .extracting(WsCe.Task::getId, WsCe.Task::getIncremental)
-      .containsExactlyInAnyOrder("T1", true);
-  }
-
-  @Test
-  public void incremental_on_in_queue_analysis() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
-    userSession.addProjectPermission(UserRole.USER, project);
-    CeQueueDto queue1 = insertQueue("T1", project, IN_PROGRESS);
-    insertCharacteristic(queue1, INCREMENTAL_KEY, "true");
-    CeQueueDto queue2 = insertQueue("T2", project, PENDING);
-    insertCharacteristic(queue2, INCREMENTAL_KEY, "true");
-
-    WsCe.ProjectResponse response = ws.newRequest()
-      .setParam(PARAM_COMPONENT, project.getKey())
-      .executeProtobuf(WsCe.ProjectResponse.class);
-
-    assertThat(response.getQueueList())
-      .extracting(WsCe.Task::getId, WsCe.Task::getIncremental)
-      .containsOnly(
-        tuple("T1", true),
-        tuple("T2", true));
   }
 
   @Test
@@ -256,20 +216,17 @@ public class ComponentActionTest {
     CeQueueDto shortLivingBranchQueue = insertQueue("Short", project, PENDING);
     insertCharacteristic(shortLivingBranchQueue, BRANCH_KEY, shortLivingBranch.getBranch());
     insertCharacteristic(shortLivingBranchQueue, BRANCH_TYPE_KEY, SHORT.name());
-    CeQueueDto incrementalQueue = insertQueue("Incremental", project, PENDING);
-    insertCharacteristic(incrementalQueue, INCREMENTAL_KEY, "true");
 
     WsCe.ProjectResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, longLivingBranch.getKey())
       .executeProtobuf(WsCe.ProjectResponse.class);
 
     assertThat(response.getQueueList())
-      .extracting(WsCe.Task::getId, WsCe.Task::getComponentKey, WsCe.Task::getBranch, WsCe.Task::getBranchType, WsCe.Task::getIncremental)
+      .extracting(WsCe.Task::getId, WsCe.Task::getComponentKey, WsCe.Task::getBranch, WsCe.Task::getBranchType)
       .containsOnly(
-        tuple("Main", project.getKey(), "", Common.BranchType.UNKNOWN_BRANCH_TYPE, false),
-        tuple("Long", longLivingBranch.getKey(), longLivingBranch.getBranch(), Common.BranchType.LONG, false),
-        tuple("Short", shortLivingBranch.getKey(), shortLivingBranch.getBranch(), Common.BranchType.SHORT, false),
-        tuple("Incremental", project.getKey(), "", Common.BranchType.UNKNOWN_BRANCH_TYPE, true));
+        tuple("Main", project.getKey(), "", Common.BranchType.UNKNOWN_BRANCH_TYPE),
+        tuple("Long", longLivingBranch.getKey(), longLivingBranch.getBranch(), Common.BranchType.LONG),
+        tuple("Short", shortLivingBranch.getKey(), shortLivingBranch.getBranch(), Common.BranchType.SHORT));
   }
 
   @Test

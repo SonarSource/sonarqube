@@ -35,7 +35,6 @@ import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +59,7 @@ public class InputComponentStoreTest {
     DefaultInputModule rootModule = TestInputFileBuilder.newDefaultInputModule(rootDef);
     DefaultInputModule subModule = TestInputFileBuilder.newDefaultInputModule(moduleDef);
 
-    InputComponentStore cache = new InputComponentStore(rootModule, mock(DefaultAnalysisMode.class), mock(BranchConfiguration.class));
+    InputComponentStore cache = new InputComponentStore(rootModule, mock(BranchConfiguration.class));
     cache.put(subModule);
 
     DefaultInputFile fooFile = new TestInputFileBuilder(rootModuleKey, "src/main/java/Foo.java")
@@ -104,7 +103,7 @@ public class InputComponentStoreTest {
 
   static class InputComponentStoreTester extends InputComponentStore {
     InputComponentStoreTester() throws IOException {
-      super(TestInputFileBuilder.newDefaultInputModule("root", temp.newFolder()), mock(DefaultAnalysisMode.class), mock(BranchConfiguration.class));
+      super(TestInputFileBuilder.newDefaultInputModule("root", temp.newFolder()), mock(BranchConfiguration.class));
     }
 
     InputFile addFile(String moduleKey, String relpath, String language) {

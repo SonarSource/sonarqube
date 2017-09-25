@@ -29,7 +29,6 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.component.ComponentKeys;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.scan.branch.BranchParamsValidator;
 import org.sonar.scanner.scan.branch.DefaultBranchParamsValidator;
 
@@ -40,16 +39,14 @@ import org.sonar.scanner.scan.branch.DefaultBranchParamsValidator;
 public class ProjectReactorValidator {
   private final AnalysisMode mode;
   private final BranchParamsValidator branchParamsValidator;
-  private final DefaultAnalysisMode analysisFlags;
 
-  public ProjectReactorValidator(AnalysisMode mode, DefaultAnalysisMode analysisFlags, BranchParamsValidator branchParamsValidator) {
+  public ProjectReactorValidator(AnalysisMode mode, BranchParamsValidator branchParamsValidator) {
     this.mode = mode;
-    this.analysisFlags = analysisFlags;
     this.branchParamsValidator = branchParamsValidator;
   }
 
-  public ProjectReactorValidator(AnalysisMode mode, DefaultAnalysisMode analysisFlags) {
-    this(mode, analysisFlags, new DefaultBranchParamsValidator());
+  public ProjectReactorValidator(AnalysisMode mode) {
+    this(mode, new DefaultBranchParamsValidator());
   }
 
   public void validate(ProjectReactor reactor) {
@@ -65,7 +62,7 @@ public class ProjectReactorValidator {
 
     String deprecatedBranchName = reactor.getRoot().getBranch();
 
-    branchParamsValidator.validate(validationMessages, deprecatedBranchName, analysisFlags.isIncremental());
+    branchParamsValidator.validate(validationMessages, deprecatedBranchName);
     validateBranch(validationMessages, deprecatedBranchName);
 
     if (!validationMessages.isEmpty()) {

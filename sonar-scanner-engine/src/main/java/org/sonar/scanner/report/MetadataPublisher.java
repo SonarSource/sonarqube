@@ -26,7 +26,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.config.Configuration;
 import org.sonar.scanner.ProjectAnalysisInfo;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerPlugin;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.cpd.CpdSettings;
@@ -46,18 +45,16 @@ public class MetadataPublisher implements ReportPublisherStep {
   private final ProjectAnalysisInfo projectAnalysisInfo;
   private final InputModuleHierarchy moduleHierarchy;
   private final CpdSettings cpdSettings;
-  private final DefaultAnalysisMode mode;
   private final ScannerPluginRepository pluginRepository;
   private final BranchConfiguration branchConfiguration;
 
   public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, Configuration settings,
-    ModuleQProfiles qProfiles, CpdSettings cpdSettings, DefaultAnalysisMode mode, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration) {
+    ModuleQProfiles qProfiles, CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration) {
     this.projectAnalysisInfo = projectAnalysisInfo;
     this.moduleHierarchy = moduleHierarchy;
     this.settings = settings;
     this.qProfiles = qProfiles;
     this.cpdSettings = cpdSettings;
-    this.mode = mode;
     this.pluginRepository = pluginRepository;
     this.branchConfiguration = branchConfiguration;
   }
@@ -71,8 +68,7 @@ public class MetadataPublisher implements ReportPublisherStep {
       // Here we want key without branch
       .setProjectKey(rootDef.getKey())
       .setCrossProjectDuplicationActivated(cpdSettings.isCrossProjectDuplicationEnabled())
-      .setRootComponentRef(rootProject.batchId())
-      .setIncremental(mode.isIncremental());
+      .setRootComponentRef(rootProject.batchId());
 
     settings.get(ORGANIZATION).ifPresent(builder::setOrganizationKey);
 

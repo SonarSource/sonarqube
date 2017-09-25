@@ -24,10 +24,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
-import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.VisitException;
 import org.sonar.server.computation.task.projectanalysis.duplication.DetailedTextBlock;
 import org.sonar.server.computation.task.projectanalysis.duplication.Duplicate;
@@ -55,47 +54,24 @@ public class LoadDuplicationsFromReportStepTest {
     builder(PROJECT, ROOT_REF)
       .addChildren(
         builder(FILE, FILE_1_REF).build(),
-        builder(FILE, FILE_2_REF).build()
-      )
-      .build()
-    );
+        builder(FILE, FILE_2_REF).build())
+      .build());
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
   @Rule
   public DuplicationRepositoryRule duplicationRepository = DuplicationRepositoryRule.create(treeRootHolder);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-  @Rule
-  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
-  private LoadDuplicationsFromReportStep underTest = new LoadDuplicationsFromReportStep(treeRootHolder, reportReader, duplicationRepository, analysisMetadataHolder);
+  private LoadDuplicationsFromReportStep underTest = new LoadDuplicationsFromReportStep(treeRootHolder, reportReader, duplicationRepository);
 
   @Test
   public void verify_description() {
     assertThat(underTest.getDescription()).isEqualTo("Load inner file and in project duplications");
   }
-  
-  @Test
-  public void skip_if_incremental_analysis() {
-    analysisMetadataHolder.setIncrementalAnalysis(true);
-    reportReader.putDuplications(FILE_2_REF, createDuplication(singleLineTextRange(LINE), createInnerDuplicate(LINE + 1)));
-
-    underTest.execute();
-
-    assertNoDuplication(FILE_2_REF);
-  }
-
-  @Test
-  public void loads_no_duplications_if_reader_has_no_duplication() {
-    analysisMetadataHolder.setIncrementalAnalysis(false);
-    underTest.execute();
-
-    assertNoDuplication(FILE_1_REF);
-  }
 
   @Test
   public void loads_duplication_without_otherFileRef_as_inner_duplication() {
-    analysisMetadataHolder.setIncrementalAnalysis(false);
     reportReader.putDuplications(FILE_2_REF, createDuplication(singleLineTextRange(LINE), createInnerDuplicate(LINE + 1)));
 
     underTest.execute();
@@ -106,7 +82,6 @@ public class LoadDuplicationsFromReportStepTest {
 
   @Test
   public void loads_duplication_with_otherFileRef_as_inProject_duplication() {
-    analysisMetadataHolder.setIncrementalAnalysis(false);
     reportReader.putDuplications(FILE_1_REF, createDuplication(singleLineTextRange(LINE), createInProjectDuplicate(FILE_2_REF, LINE + 1)));
 
     underTest.execute();
@@ -117,7 +92,6 @@ public class LoadDuplicationsFromReportStepTest {
 
   @Test
   public void loads_multiple_duplications_with_multiple_duplicates() {
-    analysisMetadataHolder.setIncrementalAnalysis(false);
     reportReader.putDuplications(
       FILE_2_REF,
       createDuplication(
@@ -128,8 +102,7 @@ public class LoadDuplicationsFromReportStepTest {
         createInProjectDuplicate(FILE_1_REF, OTHER_LINE)),
       createDuplication(
         singleLineTextRange(OTHER_LINE + 80),
-        createInnerDuplicate(LINE), createInnerDuplicate(LINE + 10))
-      );
+        createInnerDuplicate(LINE), createInnerDuplicate(LINE + 10)));
 
     underTest.execute();
 
@@ -141,18 +114,14 @@ public class LoadDuplicationsFromReportStepTest {
         new InProjectDuplicate(file1Component, singleLineTextBlock(LINE + 10))),
       duplication(
         singleLineDetailedTextBlock(2, OTHER_LINE),
-        new InProjectDuplicate(file1Component, singleLineTextBlock(OTHER_LINE))
-      ),
+        new InProjectDuplicate(file1Component, singleLineTextBlock(OTHER_LINE))),
       duplication(
         singleLineDetailedTextBlock(3, OTHER_LINE + 80),
-        new InnerDuplicate(singleLineTextBlock(LINE)), new InnerDuplicate(singleLineTextBlock(LINE + 10))
-      )
-      );
+        new InnerDuplicate(singleLineTextBlock(LINE)), new InnerDuplicate(singleLineTextBlock(LINE + 10))));
   }
 
   @Test
   public void loads_never_consider_originals_from_batch_on_same_lines_as_the_equals() {
-    analysisMetadataHolder.setIncrementalAnalysis(false);
     reportReader.putDuplications(
       FILE_2_REF,
       createDuplication(
@@ -160,8 +129,7 @@ public class LoadDuplicationsFromReportStepTest {
         createInnerDuplicate(LINE + 1), createInnerDuplicate(LINE + 2), createInProjectDuplicate(FILE_1_REF, LINE + 2)),
       createDuplication(
         singleLineTextRange(LINE),
-        createInnerDuplicate(LINE + 2), createInnerDuplicate(LINE + 3), createInProjectDuplicate(FILE_1_REF, LINE + 2))
-      );
+        createInnerDuplicate(LINE + 2), createInnerDuplicate(LINE + 3), createInProjectDuplicate(FILE_1_REF, LINE + 2)));
 
     underTest.execute();
 
@@ -170,19 +138,15 @@ public class LoadDuplicationsFromReportStepTest {
       duplication(
         singleLineDetailedTextBlock(1, LINE),
         new InnerDuplicate(singleLineTextBlock(LINE + 1)), new InnerDuplicate(singleLineTextBlock(LINE + 2)),
-        new InProjectDuplicate(file1Component, singleLineTextBlock(LINE + 2))
-      ),
+        new InProjectDuplicate(file1Component, singleLineTextBlock(LINE + 2))),
       duplication(
         singleLineDetailedTextBlock(2, LINE),
         new InnerDuplicate(singleLineTextBlock(LINE + 2)), new InnerDuplicate(singleLineTextBlock(LINE + 3)),
-        new InProjectDuplicate(file1Component, singleLineTextBlock(LINE + 2))
-      )
-      );
+        new InProjectDuplicate(file1Component, singleLineTextBlock(LINE + 2))));
   }
 
   @Test
   public void loads_duplication_with_otherFileRef_throws_IAE_if_component_does_not_exist() {
-    analysisMetadataHolder.setIncrementalAnalysis(false);
     int line = 2;
     reportReader.putDuplications(FILE_1_REF, createDuplication(singleLineTextRange(line), createInProjectDuplicate(666, line + 1)));
 
@@ -194,7 +158,6 @@ public class LoadDuplicationsFromReportStepTest {
 
   @Test
   public void loads_duplication_with_otherFileRef_throws_IAE_if_references_itself() {
-    analysisMetadataHolder.setIncrementalAnalysis(false);
     int line = 2;
     reportReader.putDuplications(FILE_1_REF, createDuplication(singleLineTextRange(line), createInProjectDuplicate(FILE_1_REF, line + 1)));
 

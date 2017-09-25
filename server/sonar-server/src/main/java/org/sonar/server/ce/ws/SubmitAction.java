@@ -19,13 +19,10 @@
  */
 package org.sonar.server.ce.ws;
 
-import static org.sonar.server.ws.WsUtils.checkRequest;
-
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -35,6 +32,8 @@ import org.sonar.server.computation.queue.ReportSubmitter;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsCe;
+
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class SubmitAction implements CeWsAction {
 
@@ -96,7 +95,7 @@ public class SubmitAction implements CeWsAction {
       .createParam(PARAM_ANALYSIS_CHARACTERISTIC)
       .setRequired(false)
       .setDescription("Optional characteristic of the analysis. Can be repeated to define multiple characteristics.")
-      .setExampleValue("incremental=true")
+      .setExampleValue("branchType=long")
       .setSince("6.6");
   }
 

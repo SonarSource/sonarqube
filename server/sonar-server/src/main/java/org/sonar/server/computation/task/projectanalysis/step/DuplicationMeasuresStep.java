@@ -19,12 +19,8 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import javax.annotation.Nullable;
-
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.duplication.DuplicationMeasures;
-import org.sonar.server.computation.task.projectanalysis.duplication.IncrementalDuplicationMeasures;
 import org.sonar.server.computation.task.step.ComputationStep;
 
 /**
@@ -33,22 +29,10 @@ import org.sonar.server.computation.task.step.ComputationStep;
  * This step must be executed after {@link CommentMeasuresStep} as it depends on {@link CoreMetrics#COMMENT_LINES}
  */
 public class DuplicationMeasuresStep implements ComputationStep {
-  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final DuplicationMeasures defaultDuplicationMeasures;
-  private final IncrementalDuplicationMeasures incrementalDuplicationsMeasures;
 
-  public DuplicationMeasuresStep(AnalysisMetadataHolder analysisMetadataHolder, DuplicationMeasures defaultDuplicationMeasures,
-    @Nullable IncrementalDuplicationMeasures incrementalDuplicationMeasures) {
-    this.analysisMetadataHolder = analysisMetadataHolder;
+  public DuplicationMeasuresStep(DuplicationMeasures defaultDuplicationMeasures) {
     this.defaultDuplicationMeasures = defaultDuplicationMeasures;
-    this.incrementalDuplicationsMeasures = incrementalDuplicationMeasures;
-  }
-
-  /**
-   * Constructor used by Pico in Views where no IncrementalDuplicationMeasures is available.
-   */
-  public DuplicationMeasuresStep(AnalysisMetadataHolder analysisMetadataHolder, DuplicationMeasures defaultDuplicationMeasures) {
-    this(analysisMetadataHolder, defaultDuplicationMeasures, null);
   }
 
   @Override
@@ -58,10 +42,6 @@ public class DuplicationMeasuresStep implements ComputationStep {
 
   @Override
   public void execute() {
-    if (analysisMetadataHolder.isIncrementalAnalysis()) {
-      incrementalDuplicationsMeasures.execute();
-    } else {
-      defaultDuplicationMeasures.execute();
-    }
+    defaultDuplicationMeasures.execute();
   }
 }

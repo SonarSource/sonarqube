@@ -68,7 +68,6 @@ import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
 import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
-import static org.sonar.db.ce.CeTaskCharacteristicDto.INCREMENTAL_KEY;
 import static org.sonar.db.component.BranchType.LONG;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_QUERY;
@@ -116,7 +115,6 @@ public class ActivityActionTest {
     assertThat(task.hasAnalysisId()).isFalse();
     assertThat(task.getExecutionTimeMs()).isEqualTo(500L);
     assertThat(task.getLogs()).isFalse();
-    assertThat(task.getIncremental()).isFalse();
 
     task = activityResponse.getTasks(1);
     assertThat(task.getId()).isEqualTo("T1");
@@ -124,7 +122,6 @@ public class ActivityActionTest {
     assertThat(task.getComponentId()).isEqualTo(project1.uuid());
     assertThat(task.getLogs()).isFalse();
     assertThat(task.getOrganization()).isEqualTo(org1.getKey());
-    assertThat(task.getIncremental()).isFalse();
   }
 
   @Test
@@ -341,78 +338,6 @@ public class ActivityActionTest {
       .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
 
     assertThat(result.getTasksCount()).isEqualTo(2);
-  }
-
-  @Test
-  public void incremental_analysis_on_single_project() {
-    ComponentDto project = db.components().insertPrivateProject();
-    SnapshotDto incrementalAnalysis = db.components().insertSnapshot(project, s -> s.setIncremental(true));
-    CeActivityDto activity = insertActivity("T1", project, SUCCESS, incrementalAnalysis);
-    insertCharacteristic(activity, INCREMENTAL_KEY, "true");
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-
-    ActivityResponse activityResponse = call(ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, project.uuid()));
-
-    assertThat(activityResponse.getTasksList())
-      .extracting(Task::getId, Task::getIncremental)
-      .containsExactlyInAnyOrder(tuple("T1", true));
-  }
-
-  @Test
-  public void incremental_analysis_on_search_text() {
-    ComponentDto project = db.components().insertPrivateProject();
-    SnapshotDto incrementalAnalysis = db.components().insertSnapshot(project, s -> s.setIncremental(true));
-    SnapshotDto standardAnalysis = db.components().insertSnapshot(project, s -> s.setIncremental(false));
-    CeActivityDto incrementalTask = insertActivity("T1", project, SUCCESS, incrementalAnalysis);
-    insertCharacteristic(incrementalTask, INCREMENTAL_KEY, "true");
-    insertActivity("T2", project, SUCCESS, standardAnalysis);
-    logInAsSystemAdministrator();
-
-    ActivityResponse activityResponse = call(ws.newRequest()
-      .setParam(PARAM_COMPONENT_QUERY, project.name()));
-
-    assertThat(activityResponse.getTasksList())
-      .extracting(Task::getId, Task::getIncremental)
-      .containsExactlyInAnyOrder(
-        tuple("T1", true),
-        tuple("T2", false));
-  }
-
-  @Test
-  public void incremental_analysis_on_search_uuid() {
-    ComponentDto project = db.components().insertPrivateProject();
-    SnapshotDto incrementalAnalysis = db.components().insertSnapshot(project, s -> s.setIncremental(true));
-    CeActivityDto activity = insertActivity("T1", project, SUCCESS, incrementalAnalysis);
-    insertCharacteristic(activity, INCREMENTAL_KEY, "true");
-    logInAsSystemAdministrator();
-
-    ActivityResponse activityResponse = call(ws.newRequest()
-      .setParam(PARAM_COMPONENT_QUERY, "T1"));
-
-    assertThat(activityResponse.getTasksList())
-      .extracting(Task::getId, Task::getIncremental)
-      .containsExactlyInAnyOrder(tuple("T1", true));
-  }
-
-  @Test
-  public void incremental_on_in_queue_analysis() {
-    ComponentDto project = db.components().insertPrivateProject();
-    CeQueueDto queue1 = insertQueue("T1", project, PENDING);
-    insertCharacteristic(queue1, INCREMENTAL_KEY, "true");
-    CeQueueDto queue2 = insertQueue("T2", project, IN_PROGRESS);
-    insertCharacteristic(queue2, INCREMENTAL_KEY, "true");
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-
-    ActivityResponse activityResponse = call(ws.newRequest()
-      .setParam(PARAM_COMPONENT_ID, project.uuid())
-      .setParam("status", "PENDING,FAILED,IN_PROGRESS"));
-
-    assertThat(activityResponse.getTasksList())
-      .extracting(Task::getId, Task::getIncremental)
-      .containsExactlyInAnyOrder(
-        tuple("T1", true),
-        tuple("T2", true));
   }
 
   @Test

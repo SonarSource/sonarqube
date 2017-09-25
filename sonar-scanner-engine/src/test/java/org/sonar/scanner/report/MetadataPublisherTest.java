@@ -88,7 +88,7 @@ public class MetadataPublisherTest {
     when(inputModuleHierarchy.root()).thenReturn(rootModule);
     analysisMode = mock(DefaultAnalysisMode.class);
     branches = mock(BranchConfiguration.class);
-    underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, settings.asConfig(), qProfiles, cpdSettings, analysisMode,
+    underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, settings.asConfig(), qProfiles, cpdSettings,
       pluginRepository, branches);
   }
 
@@ -110,7 +110,6 @@ public class MetadataPublisherTest {
     assertThat(metadata.getAnalysisDate()).isEqualTo(1234567L);
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
-    assertThat(metadata.getIncremental()).isFalse();
     assertThat(metadata.getQprofilesPerLanguage()).containsOnly(entry("java", org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile.newBuilder()
       .setKey("q1")
       .setName("Q1")

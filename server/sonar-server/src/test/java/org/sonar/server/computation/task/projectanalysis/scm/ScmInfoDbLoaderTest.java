@@ -37,7 +37,6 @@ import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetada
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
 import org.sonar.server.computation.task.projectanalysis.component.MergeBranchComponentUuids;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepositoryImpl.NoScmInfo;
 import org.sonar.server.computation.task.projectanalysis.source.SourceHashRepositoryImpl;
@@ -77,25 +76,9 @@ public class ScmInfoDbLoaderTest {
   private ScmInfoDbLoader underTest = new ScmInfoDbLoader(analysisMetadataHolder, dbTester.getDbClient(), sourceHashRepository, mergeBranchComponentUuids);
 
   @Test
-  public void dont_check_hash_for_unmodified_files_incremental_analysis() {
-    analysisMetadataHolder.setIncrementalAnalysis(true);
-    analysisMetadataHolder.setBranch(null);
-    analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
-
-    addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1));
-
-    Component file = builder(Component.Type.FILE, FILE_REF).setKey("FILE_KEY").setUuid("FILE_UUID").setStatus(Status.SAME).build();
-    ScmInfo scmInfo = underTest.getScmInfoFromDb(file);
-    assertThat(scmInfo.getAllChangesets()).hasSize(1);
-
-    assertThat(logTester.logs(TRACE)).containsOnly("Reading SCM info from db for file 'FILE_UUID'");
-  }
-
-  @Test
   public void returns_ScmInfo_from_DB_if_hashes_are_the_same() throws Exception {
     analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
     analysisMetadataHolder.setBranch(null);
-    analysisMetadataHolder.setIncrementalAnalysis(false);
 
     addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1));
     addFileSourceInReport(1);
@@ -110,7 +93,6 @@ public class ScmInfoDbLoaderTest {
   public void read_from_merge_branch_if_no_base() {
     analysisMetadataHolder.setBaseAnalysis(null);
     analysisMetadataHolder.setBranch(branch);
-    analysisMetadataHolder.setIncrementalAnalysis(false);
     String mergeFileUuid = "mergeFileUuid";
 
     when(mergeBranchComponentUuids.getUuid(FILE.getKey())).thenReturn(mergeFileUuid);
@@ -126,7 +108,6 @@ public class ScmInfoDbLoaderTest {
   public void returns_absent_when_branch_and_source_is_different() {
     analysisMetadataHolder.setBaseAnalysis(null);
     analysisMetadataHolder.setBranch(branch);
-    analysisMetadataHolder.setIncrementalAnalysis(false);
     String mergeFileUuid = "mergeFileUuid";
 
     when(mergeBranchComponentUuids.getUuid(FILE.getKey())).thenReturn(mergeFileUuid);
@@ -141,7 +122,6 @@ public class ScmInfoDbLoaderTest {
   public void returns_absent_when__hashes_are_not_the_same() throws Exception {
     analysisMetadataHolder.setBaseAnalysis(baseProjectAnalysis);
     analysisMetadataHolder.setBranch(null);
-    analysisMetadataHolder.setIncrementalAnalysis(false);
 
     addFileSourceInReport(1);
     addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1) + "_different");

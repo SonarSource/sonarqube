@@ -50,11 +50,9 @@ import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualityprofile.QualityProfile;
 
-import static java.util.stream.Collectors.toMap;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Maps.transformValues;
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static java.util.stream.Collectors.toMap;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 /**
@@ -87,7 +85,6 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     loadMetadata(reportMetadata);
     Organization organization = loadOrganization(reportMetadata);
     loadProject(reportMetadata, organization);
-    loadIncrementalMode(reportMetadata);
     loadQualityProfiles(reportMetadata, organization);
     branchLoader.load(reportMetadata);
   }
@@ -139,10 +136,6 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
       return null;
     }
     return pluginInfo.getBasePlugin();
-  }
-
-  private void loadIncrementalMode(ScannerReport.Metadata reportMetadata) {
-    analysisMetadata.setIncrementalAnalysis(reportMetadata.getIncremental());
   }
 
   /**

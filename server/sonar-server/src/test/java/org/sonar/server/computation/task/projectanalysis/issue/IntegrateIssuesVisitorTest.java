@@ -19,17 +19,8 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
-
+import com.google.common.base.Optional;
 import java.util.List;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -55,7 +46,6 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
 import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.server.computation.task.projectanalysis.component.MergeBranchComponentUuids;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
@@ -66,7 +56,14 @@ import org.sonar.server.computation.task.projectanalysis.issue.filter.IssueFilte
 import org.sonar.server.computation.task.projectanalysis.qualityprofile.ActiveRulesHolderRule;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepositoryRule;
 
-import com.google.common.base.Optional;
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
 
 public class IntegrateIssuesVisitorTest {
 
@@ -144,30 +141,8 @@ public class IntegrateIssuesVisitorTest {
     trackingDelegator = new IssueTrackingDelegator(shortBranchTracker, mergeBranchTracker, tracker, analysisMetadataHolder);
     treeRootHolder.setRoot(PROJECT);
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
-    when(analysisMetadataHolder.isIncrementalAnalysis()).thenReturn(false);
-    when(analysisMetadataHolder.getBranch()).thenReturn(java.util.Optional.of(new DefaultBranchImpl()));
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
-    underTest = new IntegrateIssuesVisitor(issueCache, issueLifecycle, issueVisitors, issuesLoader, analysisMetadataHolder, trackingDelegator);
-  }
-
-  @Test
-  public void process_issues_on_incremental_mode() {
-    when(analysisMetadataHolder.isIncrementalAnalysis()).thenReturn(true);
-
-    Component file = builder(Component.Type.FILE, FILE_REF)
-      .setKey(FILE_KEY)
-      .setUuid(FILE_UUID)
-      .setStatus(Status.SAME)
-      .build();
-
-    addBaseIssue(RuleTesting.XOO_X1);
-
-    underTest.visitAny(file);
-
-    verify(issueLifecycle).doAutomaticTransition(defaultIssueCaptor.capture());
-    assertThat(defaultIssueCaptor.getValue().ruleKey().rule()).isEqualTo("x1");
-
-    assertThat(newArrayList(issueCache.traverse())).hasSize(1);
+    underTest = new IntegrateIssuesVisitor(issueCache, issueLifecycle, issueVisitors, trackingDelegator);
   }
 
   @Test

@@ -76,14 +76,14 @@ public class PersistAnalysisStep implements ComputationStep {
 
     @Override
     public void visitProject(Component project) {
-      SnapshotDto snapshot = createAnalysis(analysisMetadataHolder.getUuid(), project, true, analysisMetadataHolder.isIncrementalAnalysis());
+      SnapshotDto snapshot = createAnalysis(analysisMetadataHolder.getUuid(), project, true);
       updateSnapshotPeriods(snapshot);
       persist(snapshot, dbSession);
     }
 
     @Override
     public void visitView(Component view) {
-      SnapshotDto snapshot = createAnalysis(analysisMetadataHolder.getUuid(), view, false, false);
+      SnapshotDto snapshot = createAnalysis(analysisMetadataHolder.getUuid(), view, false);
       updateSnapshotPeriods(snapshot);
       persist(snapshot, dbSession);
     }
@@ -98,13 +98,12 @@ public class PersistAnalysisStep implements ComputationStep {
       snapshotDto.setPeriodDate(period.getSnapshotDate());
     }
 
-    private SnapshotDto createAnalysis(String snapshotUuid, Component component, boolean setVersion, boolean incremental) {
+    private SnapshotDto createAnalysis(String snapshotUuid, Component component, boolean setVersion) {
       String componentUuid = component.getUuid();
       return new SnapshotDto()
         .setUuid(snapshotUuid)
         .setVersion(setVersion ? component.getReportAttributes().getVersion() : null)
         .setComponentUuid(componentUuid)
-        .setIncremental(incremental)
         .setLast(false)
         .setStatus(SnapshotDto.STATUS_UNPROCESSED)
         .setCreatedAt(analysisDate)

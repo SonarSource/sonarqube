@@ -19,13 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.util.Arrays;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,10 +34,8 @@ import org.sonar.db.source.FileSourceDto.Type;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType;
-import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
 import org.sonar.server.computation.task.projectanalysis.component.FileAttributes;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
@@ -56,6 +48,11 @@ import org.sonar.server.computation.task.projectanalysis.scm.Changeset;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.source.SourceLinesRepositoryRule;
 import org.sonar.server.computation.task.step.ComputationStep;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PersistFileSourcesStepTest extends BaseStepTest {
 
@@ -84,8 +81,6 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public SourceLinesRepositoryRule fileSourceRepository = new SourceLinesRepositoryRule();
   @Rule
   public DuplicationRepositoryRule duplicationRepository = DuplicationRepositoryRule.create(treeRootHolder);
-  @Rule
-  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule().setIncrementalAnalysis(false);
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession session = dbTester.getSession();
@@ -96,7 +91,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void setup() {
     when(system2.now()).thenReturn(NOW);
     underTest = new PersistFileSourcesStep(dbClient, system2, treeRootHolder, reportReader, fileSourceRepository, scmInfoRepository,
-      duplicationRepository, analysisMetadataHolder);
+      duplicationRepository);
   }
 
   @Override
@@ -126,15 +121,6 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(data.getLines(0).getSource()).isEqualTo("line1");
     assertThat(data.getLines(1).getLine()).isEqualTo(2);
     assertThat(data.getLines(1).getSource()).isEqualTo("line2");
-  }
-
-  @Test
-  public void dont_persist_unchanged_sources_if_incremental() {
-    analysisMetadataHolder.setIncrementalAnalysis(true);
-    initIncrementalReport(2);
-
-    underTest.execute();
-    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
   }
 
   @Test
@@ -471,58 +457,6 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(past);
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(NOW);
     assertThat(fileSourceDto.getRevision()).isNull();
-  }
-
-  private void initIncrementalReport(int numberOfLines) {
-    treeRootHolder.setRoot(ReportComponent
-      .builder(Component.Type.PROJECT, 1)
-      .setUuid(PROJECT_UUID)
-      .setKey(PROJECT_KEY)
-      .addChildren(
-        ReportComponent
-          .builder(Component.Type.MODULE, 2)
-          .setUuid("MODULE")
-          .setKey("MODULE_KEY")
-          .addChildren(
-            ReportComponent
-              .builder(Component.Type.FILE, FILE1_REF)
-              .setUuid(FILE1_UUID)
-              .setKey("MODULE_KEY:src/Foo.java")
-              .setFileAttributes(new FileAttributes(false, null, numberOfLines))
-              .setStatus(Status.CHANGED)
-              .build())
-          .build(),
-        ReportComponent
-          .builder(Component.Type.FILE, FILE2_REF)
-          .setUuid(FILE2_UUID)
-          .setKey("MODULE_KEY:src/Foo2.java")
-          .setStatus(Status.SAME).build())
-      .build());
-
-    reportReader.putComponent(ScannerReport.Component.newBuilder()
-      .setRef(1)
-      .setType(ComponentType.PROJECT)
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(ScannerReport.Component.newBuilder()
-      .setRef(2)
-      .setType(ComponentType.MODULE)
-      .addChildRef(FILE1_REF)
-      .build());
-    reportReader.putComponent(ScannerReport.Component.newBuilder()
-      .setRef(FILE1_REF)
-      .setType(ComponentType.FILE)
-      .setLines(numberOfLines)
-      .build());
-    reportReader.putComponent(ScannerReport.Component.newBuilder()
-      .setRef(FILE2_REF)
-      .setType(ComponentType.FILE)
-      .setLines(numberOfLines)
-      .build());
-
-    for (int i = 1; i <= numberOfLines; i++) {
-      fileSourceRepository.addLine(FILE1_REF, "line" + i);
-    }
   }
 
   private void initBasicReport(int numberOfLines) {

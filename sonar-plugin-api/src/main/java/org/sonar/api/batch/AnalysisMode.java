@@ -37,9 +37,4 @@ public interface AnalysisMode {
 
   boolean isPublish();
 
-  /**
-   * When incremental analysis is enabled (means not all files of a project are analyzed)
-   * @since 6.6
-   */
-  boolean isIncremental();
 }

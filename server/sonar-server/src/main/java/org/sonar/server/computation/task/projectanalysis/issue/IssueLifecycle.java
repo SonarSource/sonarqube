@@ -33,7 +33,6 @@ import org.sonar.server.issue.workflow.IssueWorkflow;
  * Sets the appropriate fields when an issue is :
  * <ul>
  *   <li>newly created</li>
- *   <li>reused in incremental analysis</li>
  *   <li>merged the related base issue</li>
  *   <li>relocated (only manual issues)</li>
  * </ul>

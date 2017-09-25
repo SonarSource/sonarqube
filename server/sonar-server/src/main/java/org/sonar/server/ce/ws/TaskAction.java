@@ -74,7 +74,6 @@ public class TaskAction implements CeWsAction {
       .setResponseExample(getClass().getResource("task-example.json"))
       .setSince("5.2")
       .setChangelog(
-        new Change("6.6", "field \"incremental\" is added"),
         new Change("6.6", "fields \"branch\" and \"branchType\" added"))
       .setHandler(this);
 

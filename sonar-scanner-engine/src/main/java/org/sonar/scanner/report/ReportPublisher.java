@@ -44,7 +44,6 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -78,18 +77,16 @@ public class ReportPublisher implements Startable {
   private final ReportPublisherStep[] publishers;
   private final Server server;
   private final BranchConfiguration branchConfiguration;
-  private final DefaultAnalysisMode analysisFlags;
 
   private Path reportDir;
   private ScannerReportWriter writer;
 
-  public ReportPublisher(Configuration settings, ScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher, DefaultAnalysisMode analysisFlags,
+  public ReportPublisher(Configuration settings, ScannerWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher,
     InputModuleHierarchy moduleHierarchy, GlobalAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers, BranchConfiguration branchConfiguration) {
     this.settings = settings;
     this.wsClient = wsClient;
     this.server = server;
     this.contextPublisher = contextPublisher;
-    this.analysisFlags = analysisFlags;
     this.moduleHierarchy = moduleHierarchy;
     this.analysisMode = analysisMode;
     this.temp = temp;
@@ -180,10 +177,6 @@ public class ReportPublisher implements Startable {
       .setParam("projectName", moduleHierarchy.root().getOriginalName())
       .setParam("projectBranch", moduleHierarchy.root().getBranch())
       .setPart("report", filePart);
-
-    if (analysisFlags.isIncremental()) {
-      post.setParam(CHARACTERISTIC, "incremental=true");
-    }
 
     String branchName = branchConfiguration.branchName();
     if (branchName != null) {

@@ -37,10 +37,8 @@ import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
@@ -71,10 +69,9 @@ public class PersistFileSourcesStep implements ComputationStep {
   private final SourceLinesRepository sourceLinesRepository;
   private final ScmInfoRepository scmInfoRepository;
   private final DuplicationRepository duplicationRepository;
-  private final AnalysisMetadataHolder analysisMetadataHolder;
 
   public PersistFileSourcesStep(DbClient dbClient, System2 system2, TreeRootHolder treeRootHolder, BatchReportReader reportReader, SourceLinesRepository sourceLinesRepository,
-    ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository, AnalysisMetadataHolder analysisMetadataHolder) {
+    ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.treeRootHolder = treeRootHolder;
@@ -82,7 +79,6 @@ public class PersistFileSourcesStep implements ComputationStep {
     this.sourceLinesRepository = sourceLinesRepository;
     this.scmInfoRepository = scmInfoRepository;
     this.duplicationRepository = duplicationRepository;
-    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   @Override
@@ -118,12 +114,8 @@ public class PersistFileSourcesStep implements ComputationStep {
 
     @Override
     public void visitFile(Component file) {
-      if (analysisMetadataHolder.isIncrementalAnalysis() && file.getStatus() == Status.SAME) {
-        return;
-      }
-
       try (CloseableIterator<String> linesIterator = sourceLinesRepository.readLines(file);
-           LineReaders lineReaders = new LineReaders(reportReader, scmInfoRepository, duplicationRepository, file)) {
+        LineReaders lineReaders = new LineReaders(reportReader, scmInfoRepository, duplicationRepository, file)) {
         ComputeFileSourceData computeFileSourceData = new ComputeFileSourceData(linesIterator, lineReaders.readers(), file.getFileAttributes().getLines());
         ComputeFileSourceData.Data fileSourceData = computeFileSourceData.compute();
         persistSource(fileSourceData, file.getUuid(), lineReaders.getLatestChange());

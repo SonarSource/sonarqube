@@ -19,37 +19,27 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
-import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
-
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.Component.Status;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
 import org.sonar.server.util.cache.DiskCache;
+
+import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 
 public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
 
   private final IssueCache issueCache;
   private final IssueLifecycle issueLifecycle;
   private final IssueVisitors issueVisitors;
-  private final ComponentIssuesLoader issuesLoader;
-  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final IssueTrackingDelegator issueTracking;
 
-  public IntegrateIssuesVisitor(IssueCache issueCache, IssueLifecycle issueLifecycle, IssueVisitors issueVisitors, ComponentIssuesLoader issuesLoader,
-    AnalysisMetadataHolder analysisMetadataHolder, IssueTrackingDelegator issueTracking) {
+  public IntegrateIssuesVisitor(IssueCache issueCache, IssueLifecycle issueLifecycle, IssueVisitors issueVisitors, IssueTrackingDelegator issueTracking) {
     super(CrawlerDepthLimit.FILE, POST_ORDER);
     this.issueCache = issueCache;
     this.issueLifecycle = issueLifecycle;
     this.issueVisitors = issueVisitors;
-    this.issuesLoader = issuesLoader;
-    this.analysisMetadataHolder = analysisMetadataHolder;
     this.issueTracking = issueTracking;
   }
 
@@ -58,25 +48,15 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     try (DiskCache<DefaultIssue>.DiskAppender cacheAppender = issueCache.newAppender()) {
       issueVisitors.beforeComponent(component);
 
-      if (isIncremental(component)) {
-        // no tracking needed, simply re-use existing issues
-        List<DefaultIssue> issues = issuesLoader.loadForComponentUuid(component.getUuid());
-        reuseOpenIssues(component, issues, cacheAppender);
-      } else {
-        TrackingResult tracking = issueTracking.track(component);
-        fillNewOpenIssues(component, tracking.newIssues(), cacheAppender);
-        fillExistingOpenIssues(component, tracking.issuesToMerge(), cacheAppender);
-        closeIssues(component, tracking.issuesToClose(), cacheAppender);
-        copyIssues(component, tracking.issuesToCopy(), cacheAppender);
-      }
+      TrackingResult tracking = issueTracking.track(component);
+      fillNewOpenIssues(component, tracking.newIssues(), cacheAppender);
+      fillExistingOpenIssues(component, tracking.issuesToMerge(), cacheAppender);
+      closeIssues(component, tracking.issuesToClose(), cacheAppender);
+      copyIssues(component, tracking.issuesToCopy(), cacheAppender);
       issueVisitors.afterComponent(component);
     } catch (Exception e) {
       throw new IllegalStateException(String.format("Fail to process issues of component '%s'", component.getKey()), e);
     }
-  }
-
-  private boolean isIncremental(Component component) {
-    return analysisMetadataHolder.isIncrementalAnalysis() && component.getStatus() == Status.SAME;
   }
 
   private void fillNewOpenIssues(Component component, Iterable<DefaultIssue> issues, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
@@ -92,12 +72,6 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
       DefaultIssue base = entry.getValue();
       issueLifecycle.copyExistingOpenIssue(raw, base);
       process(component, raw, cacheAppender);
-    }
-  }
-
-  private void reuseOpenIssues(Component component, Collection<DefaultIssue> issues, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
-    for (DefaultIssue issue : issues) {
-      process(component, issue, cacheAppender);
     }
   }
 

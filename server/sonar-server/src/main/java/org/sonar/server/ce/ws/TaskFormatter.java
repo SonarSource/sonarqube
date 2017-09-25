@@ -89,7 +89,6 @@ public class TaskFormatter {
     builder.setSubmittedAt(formatDateTime(new Date(dto.getCreatedAt())));
     setNullable(dto.getStartedAt(), builder::setStartedAt, DateUtils::formatDateTime);
     setNullable(computeExecutionTimeMs(dto), builder::setExecutionTimeMs);
-    setIncremental(builder, dto.getUuid(), componentDtoCache);
     setBranch(builder, dto.getUuid(), componentDtoCache);
     return builder.build();
   }
@@ -119,7 +118,6 @@ public class TaskFormatter {
     if (analysisUuid != null) {
       builder.setAnalysisId(analysisUuid);
     }
-    setIncremental(builder, dto.getUuid(), componentDtoCache);
     setBranch(builder, dto.getUuid(), componentDtoCache);
     setNullable(analysisUuid, builder::setAnalysisId);
     setNullable(dto.getSubmitterLogin(), builder::setSubmitterLogin);
@@ -142,11 +140,6 @@ public class TaskFormatter {
     builder.setComponentKey(componentDto.getKey());
     builder.setComponentName(componentDto.name());
     builder.setComponentQualifier(componentDto.qualifier());
-    return builder;
-  }
-
-  private static WsCe.Task.Builder setIncremental(WsCe.Task.Builder builder, String taskUuid, DtoCache componentDtoCache) {
-    builder.setIncremental(componentDtoCache.hasIncrementalCharacteristic(taskUuid));
     return builder;
   }
 
@@ -241,12 +234,6 @@ public class TaskFormatter {
       OrganizationDto organizationDto = organizationsByUuid.get(organizationUuid);
       checkState(organizationDto != null, "Organization with uuid '%s' not found", organizationUuid);
       return organizationDto.getKey();
-    }
-
-    boolean hasIncrementalCharacteristic(String taskUuid) {
-      return characteristicsByTaskUuid.get(taskUuid).stream()
-        .filter(c -> c.getKey().equals(CeTaskCharacteristicDto.INCREMENTAL_KEY))
-        .anyMatch(c -> c.getValue().equals("true"));
     }
 
     Optional<String> getBranchName(String taskUuid) {

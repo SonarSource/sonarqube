@@ -21,15 +21,14 @@ package org.sonar.scanner.scan.filesystem;
 
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 public class InputComponentStoreProvider extends ProviderAdapter {
   private InputComponentStore store;
 
-  public InputComponentStore provide(InputModuleHierarchy hierarchy, DefaultAnalysisMode analysisFlags, BranchConfiguration branchConfiguration) {
+  public InputComponentStore provide(InputModuleHierarchy hierarchy, BranchConfiguration branchConfiguration) {
     if (store == null) {
-      store = new InputComponentStore(hierarchy.root(), analysisFlags, branchConfiguration);
+      store = new InputComponentStore(hierarchy.root(), branchConfiguration);
     }
     return store;
   }

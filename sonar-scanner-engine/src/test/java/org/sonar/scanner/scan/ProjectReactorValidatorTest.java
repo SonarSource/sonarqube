@@ -28,7 +28,6 @@ import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -39,14 +38,12 @@ public class ProjectReactorValidatorTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private AnalysisMode mode;
-  private DefaultAnalysisMode analysisFlags;
   private ProjectReactorValidator validator;
 
   @Before
   public void prepare() {
     mode = mock(AnalysisMode.class);
-    analysisFlags = mock(DefaultAnalysisMode.class);
-    validator = new ProjectReactorValidator(mode, analysisFlags);
+    validator = new ProjectReactorValidator(mode);
   }
 
   @Test

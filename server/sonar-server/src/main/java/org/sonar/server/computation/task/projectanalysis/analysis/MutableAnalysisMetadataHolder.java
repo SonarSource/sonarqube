@@ -41,11 +41,6 @@ public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
   MutableAnalysisMetadataHolder setAnalysisDate(long date);
 
   /**
-   * @throws IllegalStateException if it has already been set
-   */
-  MutableAnalysisMetadataHolder setIncrementalAnalysis(boolean isIncrementalAnalysis);
-
-  /**
    * @throws IllegalStateException if baseAnalysis has already been set
    */
   MutableAnalysisMetadataHolder setBaseAnalysis(@Nullable Analysis baseAnalysis);

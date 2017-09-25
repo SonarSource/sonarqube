@@ -30,9 +30,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
@@ -95,37 +93,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     when(baseAnalysis.getUuid()).thenReturn(BASE_ANALYSIS_UUID);
     analysisMetadataHolder.setUuid(ANALYSIS_UUID);
     analysisMetadataHolder.setBaseAnalysis(baseAnalysis);
-    analysisMetadataHolder.setIncrementalAnalysis(false);
     underTest = new PersistCrossProjectDuplicationIndexStep(crossProjectDuplicationStatusHolder, dbClient, treeRootHolder, analysisMetadataHolder, reportReader);
-  }
-
-  @Test
-  public void copy_base_analysis_in_incremental_mode() {
-    when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
-    analysisMetadataHolder.setIncrementalAnalysis(true);
-    DuplicationUnitDto dup = new DuplicationUnitDto();
-    dup.setAnalysisUuid(BASE_ANALYSIS_UUID);
-    dup.setComponentUuid(FILE_2_UUID);
-    dup.setEndLine(0);
-    dup.setHash("asd");
-    dup.setStartLine(0);
-    dup.setId(1);
-    dup.setIndexInFile(1);
-    try (DbSession session = dbTester.getSession()) {
-      dbClient.duplicationDao().insert(session, dup);
-      session.commit();
-    }
-    assertThat(dbTester.countRowsOfTable("duplications_index")).isEqualTo(1);
-    underTest.execute();
-
-    Map<String, Object> dto = dbTester.selectFirst("select HASH, START_LINE, END_LINE, INDEX_IN_FILE, COMPONENT_UUID, ANALYSIS_UUID "
-      + "from duplications_index where analysis_uuid = '" + ANALYSIS_UUID + "'");
-    assertThat(dto.get("HASH")).isEqualTo("asd");
-    assertThat(dto.get("START_LINE")).isEqualTo(0L);
-    assertThat(dto.get("END_LINE")).isEqualTo(0L);
-    assertThat(dto.get("INDEX_IN_FILE")).isEqualTo(0L);
-    assertThat(dto.get("COMPONENT_UUID")).isEqualTo(FILE_2.getUuid());
-    assertThat(dto.get("ANALYSIS_UUID")).isEqualTo(ANALYSIS_UUID);
   }
 
   @Test

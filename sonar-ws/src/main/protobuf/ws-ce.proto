@@ -89,9 +89,8 @@ message Task {
   optional string scannerContext = 18;
   optional bool hasScannerContext = 19;
   optional string organization = 20;
-  optional bool incremental = 21;
-  optional string branch = 22;
-  optional sonarqube.ws.commons.BranchType branchType = 23;
+  optional string branch = 21;
+  optional sonarqube.ws.commons.BranchType branchType = 22;
 }
 
 enum TaskStatus {
