@@ -21,7 +21,9 @@ package org.sonar.server.platform.monitoring.cluster;
 
 import com.hazelcast.core.Member;
 import com.hazelcast.core.MemberSelector;
+import com.hazelcast.nio.Address;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Collection;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,6 +43,8 @@ import static org.mockito.Mockito.when;
 
 
 public class AppNodesInfoLoaderImplTest {
+
+  private static final InetAddress AN_ADDRESS = InetAddress.getLoopbackAddress();
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -62,6 +66,7 @@ public class AppNodesInfoLoaderImplTest {
 
     NodeInfo successfulNodeInfo = findNode(nodes, "foo");
     assertThat(successfulNodeInfo.getName()).isEqualTo("foo");
+    assertThat(successfulNodeInfo.getHost()).hasValue(AN_ADDRESS.getHostAddress());
     assertThat(successfulNodeInfo.getErrorMessage()).isEmpty();
     assertThat(successfulNodeInfo.getSections()).hasSize(1);
 
@@ -84,8 +89,9 @@ public class AppNodesInfoLoaderImplTest {
   }
 
   private Member newMember(String name) {
-    Member member = mock(Member.class, Mockito.RETURNS_DEEP_STUBS);
+    Member member = mock(Member.class, Mockito.RETURNS_MOCKS);
     when(member.getStringAttribute(HazelcastMember.Attribute.NODE_NAME.getKey())).thenReturn(name);
+    when(member.getAddress()).thenReturn(new Address(AN_ADDRESS, 6789));
     return member;
   }
 }

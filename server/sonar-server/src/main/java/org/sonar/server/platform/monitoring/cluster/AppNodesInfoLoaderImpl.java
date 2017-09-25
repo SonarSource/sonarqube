@@ -54,7 +54,11 @@ public class AppNodesInfoLoaderImpl implements AppNodesInfoLoader {
     DistributedAnswer<ProtobufSystemInfo.SystemInfo> distributedAnswer = hzMember.call(ProcessInfoProvider::provide, memberSelector, DISTRIBUTED_TIMEOUT_MS);
     for (Member member : distributedAnswer.getMembers()) {
       String nodeName = member.getStringAttribute(NODE_NAME.getKey());
-      NodeInfo nodeInfo = nodesByName.computeIfAbsent(nodeName, NodeInfo::new);
+      NodeInfo nodeInfo = nodesByName.computeIfAbsent(nodeName, name -> {
+        NodeInfo info = new NodeInfo(name);
+        info.setHost(member.getAddress().getHost());
+        return info;
+      });
       completeNodeInfo(distributedAnswer, member, nodeInfo);
     }
     return nodesByName.values();
