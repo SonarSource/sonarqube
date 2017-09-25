@@ -33,7 +33,6 @@ import { Profile } from '../types';
 const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
 
 interface Props {
-  canAdmin: boolean;
   organization: string | null;
   profile: Profile;
 }
@@ -181,7 +180,8 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
             </tbody>
           </table>
 
-          {this.props.canAdmin &&
+          {profile.actions &&
+          profile.actions.edit &&
           !profile.isBuiltIn && (
             <div className="text-right big-spacer-top">
               <Link to={activateMoreUrl} className="button js-activate-rules">
