@@ -24,7 +24,9 @@ import { HealthType } from '../../../../../api/system';
 
 it('should render correctly', () => {
   expect(
-    shallow(<HealthItem biggerHealth={true} health={HealthType.RED} healthCauses={['foo']} />)
+    shallow(
+      <HealthItem biggerHealth={true} name="Foo" health={HealthType.RED} healthCauses={['foo']} />
+    )
   ).toMatchSnapshot();
 });
 

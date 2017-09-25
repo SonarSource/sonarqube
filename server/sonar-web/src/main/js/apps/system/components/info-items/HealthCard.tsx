@@ -71,6 +71,7 @@ export default class HealthCard extends React.PureComponent<Props, State> {
               className="pull-right spacer-left"
               health={health}
               healthCauses={this.props.healthCauses}
+              name={this.props.name}
             />
           )}
           {showLogLevelWarning && (
