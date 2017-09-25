@@ -42,9 +42,11 @@ export const LOGS_LEVELS = ['INFO', 'DEBUG', 'TRACE'];
 export const HA_FIELD = 'High Availability';
 export const HEALTH_FIELD = 'Health';
 export const HEALTHCAUSES_FIELD = 'Health Causes';
+export const PLUGINS_FIELD = 'Plugins';
+export const SETTINGS_FIELD = 'Settings';
 
 export function ignoreInfoFields(sysInfoObject: SysValueObject): SysValueObject {
-  return omit(sysInfoObject, [HEALTH_FIELD, HEALTHCAUSES_FIELD, 'Name', 'Settings']);
+  return omit(sysInfoObject, [HEALTH_FIELD, HEALTHCAUSES_FIELD, 'Name', SETTINGS_FIELD]);
 }
 
 export function getHealth(sysInfoObject: SysValueObject): HealthType {
@@ -110,9 +112,9 @@ export function getClusterMainCardSection(sysInfoData: ClusterSysInfo): SysValue
     ...sysInfoData['System'],
     ...omit(sysInfoData, [
       'Application Nodes',
-      'Plugins',
+      PLUGINS_FIELD,
       'Search Nodes',
-      'Settings',
+      SETTINGS_FIELD,
       'Statistics',
       'System'
     ])
@@ -126,7 +128,7 @@ export function getStandaloneMainSections(sysInfoData: SysInfo): SysValueObject 
       sysInfoData,
       (value, key) =>
         value == null ||
-        ['Plugins', 'Settings', 'Statistics', 'System'].includes(key) ||
+        [PLUGINS_FIELD, SETTINGS_FIELD, 'Statistics', 'System'].includes(key) ||
         key.startsWith('Compute Engine') ||
         key.startsWith('Search') ||
         key.startsWith('Web')
