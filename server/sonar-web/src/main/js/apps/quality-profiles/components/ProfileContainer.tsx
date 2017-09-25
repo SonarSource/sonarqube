@@ -24,7 +24,6 @@ import ProfileHeader from '../details/ProfileHeader';
 import { Profile } from '../types';
 
 interface Props {
-  canAdmin: boolean;
   children: React.ReactElement<any>;
   location: {
     pathname: string;
@@ -87,7 +86,6 @@ export default class ProfileContainer extends React.PureComponent<Props> {
       <div id="quality-profile">
         <Helmet title={profile.name} />
         <ProfileHeader
-          canAdmin={this.props.canAdmin}
           onRequestFail={this.props.onRequestFail}
           organization={organization}
           profile={profile}

@@ -31,7 +31,6 @@ it('should render ProfileHeader', () => {
   const updateProfiles = jest.fn();
   const output = shallow(
     <ProfileContainer
-      canAdmin={false}
       location={{ pathname: '', query: { language: 'js', name: 'fake' } }}
       onRequestFail={jest.fn()}
       organization={null}
@@ -44,7 +43,6 @@ it('should render ProfileHeader', () => {
   const header = output.find(ProfileHeader);
   expect(header.length).toBe(1);
   expect(header.prop('profile')).toBe(targetProfile);
-  expect(header.prop('canAdmin')).toBe(false);
   expect(header.prop('updateProfiles')).toBe(updateProfiles);
 });
 
@@ -55,7 +53,6 @@ it('should render ProfileNotFound', () => {
   ];
   const output = shallow(
     <ProfileContainer
-      canAdmin={false}
       location={{ pathname: '', query: { language: 'js', name: 'random' } }}
       onRequestFail={jest.fn()}
       organization={null}
@@ -73,7 +70,6 @@ it('should render Helmet', () => {
   const updateProfiles = jest.fn();
   const output = shallow(
     <ProfileContainer
-      canAdmin={false}
       location={{ pathname: '', query: { language: 'js', name: 'First Profile' } }}
       onRequestFail={jest.fn()}
       organization={null}

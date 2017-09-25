@@ -26,7 +26,6 @@ import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
 
 interface Props {
-  canAdmin: boolean;
   organization: string | null;
   profile: Profile;
   updateProfiles: () => Promise<void>;
@@ -127,10 +126,12 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
   }
 
   render() {
+    const { profile } = this.props;
     return (
       <div className="boxed-group quality-profile-projects">
-        {this.props.canAdmin &&
-        !this.props.profile.isDefault && (
+        {profile.actions &&
+        profile.actions.edit &&
+        !profile.isDefault && (
           <div className="boxed-group-actions">
             <button className="js-change-projects" onClick={this.handleChangeClick}>
               {translate('quality_profiles.change_projects')}
@@ -145,7 +146,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
         <div className="boxed-group-inner">
           {this.state.loading ? (
             <i className="spinner" />
-          ) : this.props.profile.isDefault ? (
+          ) : profile.isDefault ? (
             this.renderDefault()
           ) : (
             this.renderProjects()
@@ -156,7 +157,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
           <ChangeProjectsForm
             onClose={this.closeForm}
             organization={this.props.organization}
-            profile={this.props.profile}
+            profile={profile}
           />
         )}
       </div>
