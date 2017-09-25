@@ -33,14 +33,6 @@ public interface HazelcastMember extends AutoCloseable {
 
   enum Attribute {
     /**
-     * The key of the hostname attribute of a member
-     */
-    HOSTNAME("HOSTNAME"),
-    /**
-     * The key of the ips list attribute of a member
-     */
-    IP_ADDRESSES("IP_ADDRESSES"),
-    /**
      * The key of the node name attribute of a member
      */
     NODE_NAME("NODE_NAME"),

@@ -39,13 +39,6 @@ public interface NetworkUtils {
   String getHostname();
 
   /**
-   * Identifying the IPs addresses
-   *
-   * @return "ipv4_1, ipv4_2"
-   */
-  String getIPAddresses();
-
-  /**
    * Converts a text representation of an IP address or host name to
    * a {@link InetAddress}.
    * If text value references an IPv4 or IPv6 address, then DNS is

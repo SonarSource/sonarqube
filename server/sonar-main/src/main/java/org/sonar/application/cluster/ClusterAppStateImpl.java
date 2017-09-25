@@ -51,8 +51,6 @@ import org.sonar.process.cluster.NodeType;
 import org.sonar.process.cluster.hz.HazelcastMember;
 
 import static java.lang.String.format;
-import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.HOSTNAME;
-import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.IP_ADDRESSES;
 import static org.sonar.process.cluster.hz.HazelcastMember.Attribute.NODE_TYPE;
 import static org.sonar.process.cluster.hz.HazelcastObjects.CLUSTER_NAME;
 import static org.sonar.process.cluster.hz.HazelcastObjects.LEADER;
@@ -189,8 +187,7 @@ public class ClusterAppStateImpl implements ClusterAppState {
     if (leaderId != null) {
       Optional<Member> leader = hzMember.getCluster().getMembers().stream().filter(m -> m.getUuid().equals(leaderId)).findFirst();
       if (leader.isPresent()) {
-        return Optional.of(
-          format("%s (%s)", leader.get().getStringAttribute(HOSTNAME.getKey()), leader.get().getStringAttribute(IP_ADDRESSES.getKey())));
+        return Optional.of(leader.get().getAddress().getHost());
       }
     }
     return Optional.empty();
