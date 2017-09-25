@@ -44,6 +44,7 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_CREATE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DEACTIVATE_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DELETE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_GROUP;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_PROJECT;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_USER;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_RESTORE;
@@ -214,6 +215,14 @@ public class QualityProfilesService extends BaseService {
 
   public void addGroup(AddGroupRequest request) {
     call(new PostRequest(path(ACTION_ADD_GROUP))
+      .setParam(PARAM_ORGANIZATION, request.getOrganization())
+      .setParam(PARAM_QUALITY_PROFILE, request.getQualityProfile())
+      .setParam(PARAM_LANGUAGE, request.getLanguage())
+      .setParam(PARAM_GROUP, request.getGroup()));
+  }
+
+  public void removeGroup(RemoveGroupRequest request) {
+    call(new PostRequest(path(ACTION_REMOVE_GROUP))
       .setParam(PARAM_ORGANIZATION, request.getOrganization())
       .setParam(PARAM_QUALITY_PROFILE, request.getQualityProfile())
       .setParam(PARAM_LANGUAGE, request.getLanguage())

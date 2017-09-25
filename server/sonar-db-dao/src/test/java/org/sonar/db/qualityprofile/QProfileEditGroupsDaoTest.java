@@ -71,4 +71,17 @@ public class QProfileEditGroupsDaoTest {
       entry("createdAt", NOW));
   }
 
+  @Test
+  public void deleteByQProfileAndGroup() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization);
+    GroupDto group = db.users().insertGroup(organization);
+    db.qualityProfiles().addGroupPermission(profile, group);
+    assertThat(underTest.exists(db.getSession(), profile, group)).isTrue();
+
+    underTest.deleteByQProfileAndGroup(db.getSession(), profile, group);
+
+    assertThat(underTest.exists(db.getSession(), profile, group)).isFalse();
+  }
+
 }
