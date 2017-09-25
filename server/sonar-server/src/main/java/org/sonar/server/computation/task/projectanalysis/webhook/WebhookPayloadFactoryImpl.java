@@ -21,6 +21,7 @@ package org.sonar.server.computation.task.projectanalysis.webhook;
 
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Date;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.ce.posttask.Branch;
@@ -30,6 +31,7 @@ import org.sonar.api.ce.posttask.Project;
 import org.sonar.api.ce.posttask.QualityGate;
 import org.sonar.api.ce.posttask.ScannerContext;
 import org.sonar.api.platform.Server;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
 
 import static org.sonar.core.config.WebhookProperties.ANALYSIS_PROPERTY_PREFIX;
@@ -38,9 +40,11 @@ import static org.sonar.core.config.WebhookProperties.ANALYSIS_PROPERTY_PREFIX;
 public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
 
   private final Server server;
+  private final System2 system2;
 
-  public WebhookPayloadFactoryImpl(Server server) {
+  public WebhookPayloadFactoryImpl(Server server, System2 system2) {
     this.server = server;
+    this.system2 = system2;
   }
 
   @Override
@@ -50,7 +54,7 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
       writer.beginObject();
       writeServer(writer);
       writeTask(writer, analysis.getCeTask());
-      analysis.getAnalysisDate().ifPresent(date -> writer.propDateTime("analysedAt", date));
+      writeDates(writer, analysis, system2);
       writeProject(analysis, writer, analysis.getProject());
       analysis.getBranch().ifPresent(b -> writeBranch(writer, b));
       writeQualityGate(writer, analysis.getQualityGate());
@@ -62,6 +66,20 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
 
   private void writeServer(JsonWriter writer) {
     writer.prop("serverUrl", server.getPublicRootUrl());
+  }
+
+  private static void writeDates(JsonWriter writer, PostProjectAnalysisTask.ProjectAnalysis analysis, System2 system2) {
+    analysis.getAnalysisDate().ifPresent(date -> writer.propDateTime("analysedAt", date));
+    writer.propDateTime("changedAt", analysis.getAnalysisDate().orElseGet(() -> new Date(system2.now())));
+  }
+
+  private void writeProject(PostProjectAnalysisTask.ProjectAnalysis analysis, JsonWriter writer, Project project) {
+    writer
+      .name("project")
+      .beginObject()
+      .prop("key", project.getKey())
+      .prop("name", analysis.getProject().getName())
+      .endObject();
   }
 
   private static void writeAnalysisProperties(JsonWriter writer, ScannerContext scannerContext) {
@@ -81,16 +99,7 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
       .prop("status", ceTask.getStatus().toString());
   }
 
-  private static void writeProject(PostProjectAnalysisTask.ProjectAnalysis analysis, JsonWriter writer, Project project) {
-    writer
-      .name("project")
-      .beginObject()
-      .prop("key", project.getKey())
-      .prop("name", analysis.getProject().getName())
-      .endObject();
-  }
-
-  private static void writeBranch(JsonWriter writer, Branch branch) {
+  private void writeBranch(JsonWriter writer, Branch branch) {
     writer
       .name("branch")
       .beginObject()
