@@ -152,3 +152,15 @@ message SearchUsersResponse {
     optional bool selected = 4;
   }
 }
+
+// WS api/qualityprofiles/search_groups
+message SearchGroupsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated Group groups = 2;
+
+  message Group {
+    optional string name = 1;
+    optional string description = 2;
+    optional bool selected = 3;
+  }
+}
