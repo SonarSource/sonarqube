@@ -21,6 +21,7 @@ package org.sonarqube.tests;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import org.sonarqube.tests.analysis.AnalysisEsResilienceTest;
 import org.sonarqube.tests.authorisation.SystemPasscodeTest;
 import org.sonarqube.tests.ce.CeShutdownTest;
 import org.sonarqube.tests.ce.CeWorkersTest;
@@ -64,6 +65,7 @@ import org.sonarqube.tests.user.UserEsResilienceTest;
   OnboardingTest.class,
   BuiltInQualityProfilesNotificationTest.class,
   ActiveRuleEsResilienceTest.class,
+  AnalysisEsResilienceTest.class,
   RuleEsResilienceTest.class,
   UserEsResilienceTest.class,
   TelemetryUploadTest.class,
