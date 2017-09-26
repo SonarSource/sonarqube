@@ -44,8 +44,8 @@ public class PluginLoaderTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  PluginClassloaderFactory classloaderFactory = mock(PluginClassloaderFactory.class);
-  PluginLoader loader = new PluginLoader(new FakePluginExploder(), classloaderFactory);
+  private PluginClassloaderFactory classloaderFactory = mock(PluginClassloaderFactory.class);
+  private PluginLoader loader = new PluginLoader(new FakePluginExploder(), classloaderFactory);
 
   @Test
   public void instantiate_plugin_entry_point() {
@@ -148,40 +148,31 @@ public class PluginLoaderTest {
   }
 
   @Test
-  public void plugin_is_recognised_as_priviledge_if_key_is_views_and_extends_no_other_plugin_and_runs_in_compatibility_mode() throws IOException {
-    PluginInfo views = create52PluginInfo("views");
+  public void plugin_is_recognised_as_privileged_if_key_is_views_and_extends_no_other_plugins() throws IOException {
+    PluginInfo governance = createPluginInfo("governance");
 
-    Collection<PluginClassLoaderDef> defs = loader.defineClassloaders(ImmutableMap.of("views", views));
-
-    assertThat(defs.iterator().next().isPrivileged()).isTrue();
-  }
-
-  @Test
-  public void plugin_is_recognised_as_priviledge_if_key_is_devcockpit_and_extends_no_other_plugin_and_runs_in_compatibility_mode() throws IOException {
-    PluginInfo views = create52PluginInfo("devcockpit");
-
-    Collection<PluginClassLoaderDef> defs = loader.defineClassloaders(ImmutableMap.of("views", views));
+    Collection<PluginClassLoaderDef> defs = loader.defineClassloaders(ImmutableMap.of("governance", governance));
 
     assertThat(defs.iterator().next().isPrivileged()).isTrue();
   }
 
   @Test
-  public void plugin_is_not_recognised_as_system_extension_if_key_is_views_and_extends_another_plugin() throws IOException {
-    PluginInfo foo = create52PluginInfo("foo");
-    PluginInfo views = create52PluginInfo("views")
+  public void plugin_is_not_recognised_as_system_extension_if_key_is_governance_and_extends_another_plugin() throws IOException {
+    PluginInfo foo = createPluginInfo("foo");
+    PluginInfo governance = createPluginInfo("governance")
       .setBasePlugin("foo");
 
-    Collection<PluginClassLoaderDef> defs = loader.defineClassloaders(ImmutableMap.of("foo", foo, "views", views));
+    Collection<PluginClassLoaderDef> defs = loader.defineClassloaders(ImmutableMap.of("foo", foo, "governance", governance));
 
     assertThat(defs).extracting("compatibilityMode").containsOnly(false, false);
   }
 
-  private PluginInfo create52PluginInfo(String pluginKey) throws IOException {
+  private PluginInfo createPluginInfo(String pluginKey) throws IOException {
     File jarFile = temp.newFile();
     return new PluginInfo(pluginKey)
       .setJarFile(jarFile)
       .setMainClass("org.foo." + pluginKey + "Plugin")
-      .setMinimalSqVersion(Version.create("5.2"));
+      .setMinimalSqVersion(Version.create("6.6"));
   }
 
   /**
