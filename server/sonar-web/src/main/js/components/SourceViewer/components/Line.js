@@ -39,6 +39,8 @@ type Props = {|
   displayDuplications: boolean,
   displayFiltered: boolean,
   displayIssues: boolean,
+  displayIssueLocationsCount?: boolean;
+  displayIssueLocationsLink?: boolean;
   duplications: Array<number>,
   duplicationsCount: number,
   filtered: boolean | null,
@@ -147,6 +149,8 @@ export default class Line extends React.PureComponent {
         )}
 
         <LineCode
+          displayIssueLocationsCount={this.props.displayIssueLocationsCount}
+          displayIssueLocationsLink={this.props.displayIssueLocationsLink}
           highlightedLocationMessage={this.props.highlightedLocationMessage}
           highlightedSymbols={this.props.highlightedSymbols}
           issues={this.props.issues}

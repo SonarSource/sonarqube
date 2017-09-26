@@ -24,6 +24,8 @@ import Issue from '../../issue/Issue';
 
 /*::
 type Props = {
+  displayIssueLocationsCount?: boolean;
+  displayIssueLocationsLink?: boolean;
   issues: Array<IssueType>,
   onIssueChange: IssueType => void,
   onIssueClick: (issueKey: string) => void,
@@ -43,6 +45,8 @@ export default class LineIssuesList extends React.PureComponent {
       <div className="issue-list">
         {issues.map(issue => (
           <Issue
+            displayLocationsCount={this.props.displayIssueLocationsCount}
+            displayLocationsLink={this.props.displayIssueLocationsLink}
             issue={issue}
             key={issue.key}
             onChange={this.props.onIssueChange}

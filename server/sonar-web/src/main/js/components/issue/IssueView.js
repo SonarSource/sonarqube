@@ -31,6 +31,8 @@ import { deleteIssueComment, editIssueComment } from '../../api/issues';
 type Props = {|
   checked?: boolean,
   currentPopup: ?string,
+  displayLocationsCount?: boolean;
+  displayLocationsLink?: boolean;
   issue: Issue,
   onAssign: string => void,
   onChange: Issue => void,
@@ -87,8 +89,10 @@ export default class IssueView extends React.PureComponent {
         role="listitem"
         tabIndex={0}>
         <IssueTitleBar
-          issue={issue}
           currentPopup={this.props.currentPopup}
+          displayLocationsCount={this.props.displayLocationsCount}
+          displayLocationsLink={this.props.displayLocationsLink}
+          issue={issue}
           onFail={this.props.onFail}
           onFilter={this.props.onFilter}
           togglePopup={this.props.togglePopup}

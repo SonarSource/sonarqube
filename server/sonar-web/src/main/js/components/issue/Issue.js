@@ -25,23 +25,25 @@ import IssueView from './IssueView';
 import { onFail } from '../../store/rootActions';
 import { setIssueAssignee } from '../../api/issues';
 import { updateIssue } from './actions';
-/*:: import type { Issue } from './types'; */
+/*:: import type { Issue as IssueType } from './types'; */
 
 /*::
 type Props = {|
   checked?: boolean,
-  issue: Issue,
-  onChange: Issue => void,
+  displayLocationsCount?: boolean;
+  displayLocationsLink?: boolean;
+  issue: IssueType,
+  onChange: IssueType => void,
   onCheck?: string => void,
   onClick: string => void,
-  onFilter?: (property: string, issue: Issue) => void,
-  onPopupToggle: (issue: string, popupName: string, open: ?boolean ) => void,
+  onFilter?: (property: string, issue: IssueType) => void,
+  onPopupToggle: (issue: string, popupName: string, open: ?boolean) => void,
   openPopup: ?string,
   selected: boolean
 |};
 */
 
-export default class BaseIssue extends React.PureComponent {
+export default class Issue extends React.PureComponent {
   /*:: props: Props; */
 
   static contextTypes = {
@@ -49,6 +51,8 @@ export default class BaseIssue extends React.PureComponent {
   };
 
   static defaultProps = {
+    displayLocationsCount: true,
+    displayLocationsLink: true,
     selected: false
   };
 
@@ -142,17 +146,19 @@ export default class BaseIssue extends React.PureComponent {
   render() {
     return (
       <IssueView
-        issue={this.props.issue}
         checked={this.props.checked}
+        currentPopup={this.props.openPopup}
+        displayLocationsCount={this.props.displayLocationsCount}
+        displayLocationsLink={this.props.displayLocationsLink}
+        issue={this.props.issue}
         onAssign={this.handleAssignement}
         onCheck={this.props.onCheck}
         onClick={this.props.onClick}
         onFail={this.handleFail}
         onFilter={this.props.onFilter}
         onChange={this.props.onChange}
-        togglePopup={this.togglePopup}
-        currentPopup={this.props.openPopup}
         selected={this.props.selected}
+        togglePopup={this.togglePopup}
       />
     );
   }

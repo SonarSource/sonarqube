@@ -4,7 +4,9 @@ exports[`render issues list 1`] = `
 <div
   className="issue-list"
 >
-  <BaseIssue
+  <Issue
+    displayLocationsCount={true}
+    displayLocationsLink={true}
     issue={
       Object {
         "key": "foo",
@@ -15,7 +17,9 @@ exports[`render issues list 1`] = `
     openPopup={null}
     selected={true}
   />
-  <BaseIssue
+  <Issue
+    displayLocationsCount={true}
+    displayLocationsLink={true}
     issue={
       Object {
         "key": "bar",

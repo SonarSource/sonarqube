@@ -39,6 +39,12 @@ const issue = {
   secondaryLocations: []
 };
 
+const issueWithLocations = {
+  ...issue,
+  flows: [[{}, {}, {}], [{}, {}]],
+  secondaryLocations: [{}, {}]
+};
+
 it('should render the titlebar correctly', () => {
   const element = shallow(
     <IssueTitleBar issue={issue} currentPopup={null} onFail={jest.fn()} togglePopup={jest.fn()} />
@@ -60,16 +66,8 @@ it('should render the titlebar with the filter', () => {
 });
 
 it('should count all code locations', () => {
-  const issueWithLocations = {
-    ...issue,
-    flows: [[{}, {}, {}], [{}, {}]],
-    secondaryLocations: [{}, {}]
-  };
-  const element = shallow(<IssueTitleBar issue={issueWithLocations} />);
-  expect(
-    element
-      .find('LocationIndex')
-      .children()
-      .text()
-  ).toBe('7');
+  const element = shallow(
+    <IssueTitleBar displayLocationsCount={true} issue={issueWithLocations} />
+  );
+  expect(element.find('LocationIndex')).toMatchSnapshot();
 });
