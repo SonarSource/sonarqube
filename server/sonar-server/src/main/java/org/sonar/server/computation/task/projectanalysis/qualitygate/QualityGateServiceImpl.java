@@ -20,14 +20,18 @@
 package org.sonar.server.computation.task.projectanalysis.qualitygate;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import java.util.Collection;
 import java.util.Objects;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
+
+import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_GREATER_THAN;
 
 public class QualityGateServiceImpl implements QualityGateService {
 
@@ -41,6 +45,9 @@ public class QualityGateServiceImpl implements QualityGateService {
 
   @Override
   public Optional<QualityGate> findById(long id) {
+    if (id == SHORT_LIVING_BRANCHES_QUALITY_GATE) {
+      return Optional.of(buildShortLivingBranchHardcodedQualityGate());
+    }
     try (DbSession dbSession = dbClient.openSession(false)) {
       QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectById(dbSession, id);
       if (qualityGateDto == null) {
@@ -61,6 +68,16 @@ public class QualityGateServiceImpl implements QualityGateService {
       .collect(MoreCollectors.toList(dtos.size()));
 
     return new QualityGate(qualityGateDto.getId(), qualityGateDto.getName(), conditions);
+  }
+
+  private QualityGate buildShortLivingBranchHardcodedQualityGate() {
+    return new QualityGate(
+      SHORT_LIVING_BRANCHES_QUALITY_GATE,
+      "Hardcoded short living branch quality gate",
+      ImmutableList.of(
+        new Condition(metricRepository.getByKey(CoreMetrics.NEW_BUGS_KEY), OPERATOR_GREATER_THAN, "0", null, true),
+        new Condition(metricRepository.getByKey(CoreMetrics.NEW_VULNERABILITIES_KEY), OPERATOR_GREATER_THAN, "0", null, true),
+        new Condition(metricRepository.getByKey(CoreMetrics.NEW_CODE_SMELLS_KEY), OPERATOR_GREATER_THAN, "0", null, true)));
   }
 
 }

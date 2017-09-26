@@ -68,6 +68,10 @@ public class QualityGateEventsStep implements ComputationStep {
 
   @Override
   public void execute() {
+    // no notification on short living branch as there is no real Quality Gate on those
+    if (analysisMetadataHolder.isShortLivingBranch()) {
+      return;
+    }
     new DepthTraversalTypeAwareCrawler(
       new TypeAwareVisitorAdapter(CrawlerDepthLimit.PROJECT, ComponentVisitor.Order.PRE_ORDER) {
         @Override

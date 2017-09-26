@@ -19,8 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import static org.apache.commons.lang.StringUtils.isBlank;
-
+import com.google.common.base.Optional;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -31,7 +30,7 @@ import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGate
 import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGateService;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-import com.google.common.base.Optional;
+import static org.apache.commons.lang.StringUtils.isBlank;
 
 /**
  * This step retrieves the QualityGate and stores it in
@@ -58,7 +57,12 @@ public class LoadQualityGateStep implements ComputationStep {
   @Override
   public void execute() {
     if (analysisMetadataHolder.isShortLivingBranch()) {
-      qualityGateHolder.setNoQualityGate();
+      Optional<QualityGate> qualityGate = qualityGateService.findById(QualityGateService.SHORT_LIVING_BRANCHES_QUALITY_GATE);
+      if (qualityGate.isPresent()) {
+        qualityGateHolder.setQualityGate(qualityGate.get());
+      } else {
+        throw new IllegalStateException("Failed to retrieve hardcoded short living branch Quality Gate");
+      }
       return;
     }
     Configuration config = configRepository.getConfiguration();
