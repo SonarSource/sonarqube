@@ -225,14 +225,12 @@ public class ComponentActionTest {
     ComponentDto main = componentDbTester.insertMainBranch(organization, p -> p.setName("Sample"), p -> p.setDbKey("sample"));
     userSession.addProjectPermission(UserRole.USER, main);
 
-    ComponentDto dirDto = newDirectory(main, "src");
-    componentDbTester.insertComponent(dirDto);
+    ComponentDto dirDto = componentDbTester.insertComponent(newDirectory(main, "src"));
 
-    ComponentDto fileDto = newFileDto(main, dirDto)
+    ComponentDto fileDto = componentDbTester.insertComponent(newFileDto(main, dirDto)
       .setUuid("abcd")
       .setName("Main.xoo")
-      .setDbKey("sample:src/Main.xoo");
-    componentDbTester.insertComponent(fileDto);
+      .setDbKey("sample:src/Main.xoo"));
 
     executeAndVerify(fileDto.getDbKey(), "return_component_info_when_file_on_master.json");
   }
@@ -245,14 +243,12 @@ public class ComponentActionTest {
     ComponentDto branch = componentDbTester.insertProjectBranch(project, b -> b.setKey("feature1"));
     userSession.addProjectPermission(UserRole.USER, project);
 
-    ComponentDto dirDto = newDirectory(branch, "src");
-    componentDbTester.insertComponent(dirDto);
+    ComponentDto dirDto = componentDbTester.insertComponent(newDirectory(branch, "src"));
 
-    ComponentDto fileDto = newFileDto(branch, dirDto)
+    ComponentDto fileDto = componentDbTester.insertComponent(newFileDto(branch, dirDto)
       .setUuid("abcd")
       .setName("Main.xoo")
-      .setDbKey("sample:src/Main.xoo");
-    componentDbTester.insertComponent(fileDto);
+      .setDbKey("sample:src/Main.xoo"));
 
     String json = ws.newRequest()
       .setParam("componentKey", fileDto.getDbKey())
