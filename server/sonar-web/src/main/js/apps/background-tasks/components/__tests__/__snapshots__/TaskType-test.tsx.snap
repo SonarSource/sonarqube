@@ -9,14 +9,3 @@ exports[`renders 1`] = `
   ]
 </span>
 `;
-
-exports[`renders 2`] = `
-<span
-  className="display-inline-block note"
->
-  [
-  background_task.type.REPORT
-   - incremental
-  ]
-</span>
-`;

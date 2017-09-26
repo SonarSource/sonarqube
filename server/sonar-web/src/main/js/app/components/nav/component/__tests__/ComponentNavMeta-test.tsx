@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavMeta from '../ComponentNavMeta';
-import { Branch, BranchType, ShortLivingBranch, LongLivingBranch } from '../../../../types';
+import { BranchType, ShortLivingBranch, LongLivingBranch } from '../../../../types';
 
 const component = {
   analysisDate: '2017-01-02T00:00:00.000Z',
@@ -31,19 +31,6 @@ const component = {
   qualifier: 'TRK',
   version: '0.0.1'
 };
-
-it('renders incremental badge', () => {
-  check(true);
-  check(false);
-
-  function check(incremental: boolean) {
-    expect(
-      shallow(
-        <ComponentNavMeta branch={{} as Branch} component={component} incremental={incremental} />
-      ).find('IncrementalBadge')
-    ).toHaveLength(incremental ? 1 : 0);
-  }
-});
 
 it('renders status of short-living branch', () => {
   const branch: ShortLivingBranch = {

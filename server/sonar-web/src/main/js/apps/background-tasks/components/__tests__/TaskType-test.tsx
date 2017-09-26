@@ -23,5 +23,4 @@ import TaskType from '../TaskType';
 
 it('renders', () => {
   expect(shallow(<TaskType type="REPORT" />)).toMatchSnapshot();
-  expect(shallow(<TaskType incremental={true} type="REPORT" />)).toMatchSnapshot();
 });
