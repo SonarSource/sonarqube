@@ -43,7 +43,7 @@ public class BranchTest {
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
   @Rule
-  public Tester tester = new Tester(orchestrator);
+  public Tester tester = new Tester(orchestrator).disableOrganizations();
 
   @Test
   public void list_branches_contains_main_branch() {
