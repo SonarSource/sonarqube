@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import IncrementalBadge from './IncrementalBadge';
 import BranchStatus from '../../../../components/common/BranchStatus';
 import { Branch, Component } from '../../../types';
 import Tooltip from '../../../../components/controls/Tooltip';
@@ -30,7 +29,6 @@ import { isShortLivingBranch } from '../../../../helpers/branches';
 interface Props {
   branch?: Branch;
   component: Component;
-  incremental?: boolean;
   isInProgress?: boolean;
   isFailed?: boolean;
   isPending?: boolean;
@@ -101,14 +99,6 @@ export default function ComponentNavMeta(props: Props) {
 
   if (props.component.version && !shortBranch) {
     metaList.push(<li key="version">Version {props.component.version}</li>);
-  }
-
-  if (props.incremental) {
-    metaList.push(
-      <li key="incremental">
-        <IncrementalBadge />
-      </li>
-    );
   }
 
   return (

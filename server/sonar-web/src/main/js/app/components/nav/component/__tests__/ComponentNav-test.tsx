@@ -67,14 +67,7 @@ it('loads status', () => {
 });
 
 it('renders', () => {
-  const wrapper = shallow(
-    <ComponentNav branches={[]} component={component} location={{}} />
-  );
-  wrapper.setState({
-    incremental: true,
-    isFailed: true,
-    isInProgress: true,
-    isPending: true
-  });
+  const wrapper = shallow(<ComponentNav branches={[]} component={component} location={{}} />);
+  wrapper.setState({ isFailed: true, isInProgress: true, isPending: true });
   expect(wrapper).toMatchSnapshot();
 });

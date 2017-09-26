@@ -34,7 +34,7 @@ export default function TaskComponent({ task }: Props) {
     return (
       <td>
         <span className="note">{task.id}</span>
-        <TaskType incremental={task.incremental} type={task.type} />
+        <TaskType type={task.type} />
       </td>
     );
   }
@@ -62,7 +62,7 @@ export default function TaskComponent({ task }: Props) {
         </Link>
       )}
 
-      <TaskType incremental={task.incremental} type={task.type} />
+      <TaskType type={task.type} />
     </td>
   );
 }

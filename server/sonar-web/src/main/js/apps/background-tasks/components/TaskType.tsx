@@ -21,16 +21,14 @@ import * as React from 'react';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  incremental?: boolean;
   type: string;
 }
 
-export default function TaskType({ incremental, type }: Props) {
+export default function TaskType({ type }: Props) {
   return (
     <span className="display-inline-block note">
       {'['}
       {translate('background_task.type', type)}
-      {incremental && ` - ${translate('incremental')}`}
       {']'}
     </span>
   );

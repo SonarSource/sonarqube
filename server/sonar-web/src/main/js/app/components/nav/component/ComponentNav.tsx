@@ -38,7 +38,6 @@ interface Props {
 }
 
 interface State {
-  incremental?: boolean;
   isFailed?: boolean;
   isInProgress?: boolean;
   isPending?: boolean;
@@ -65,8 +64,7 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
         this.setState({
           isPending: r.queue.some((task: any) => task.status === STATUSES.PENDING),
           isInProgress: r.queue.some((task: any) => task.status === STATUSES.IN_PROGRESS),
-          isFailed: r.current && r.current.status === STATUSES.FAILED,
-          incremental: r.current && r.current.incremental
+          isFailed: r.current && r.current.status === STATUSES.FAILED
         });
       }
     });
@@ -111,7 +109,6 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
         <ComponentNavMeta
           branch={this.props.currentBranch}
           component={this.props.component}
-          incremental={this.state.incremental}
           isInProgress={this.state.isInProgress}
           isFailed={this.state.isFailed}
           isPending={this.state.isPending}

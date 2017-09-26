@@ -28,7 +28,6 @@ export interface Task {
   executedAt?: string;
   executionTimeMs?: number;
   hasScannerContext?: boolean;
-  incremental?: boolean;
   id: string;
   organization?: string;
   startedAt?: string;
