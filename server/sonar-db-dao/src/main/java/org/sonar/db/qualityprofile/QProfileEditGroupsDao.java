@@ -42,7 +42,7 @@ public class QProfileEditGroupsDao implements Dao {
     return mapper(dbSession).countByQuery(query);
   }
 
-  public List<QProfileEditGroupMembershipDto> selectByQuery(DbSession dbSession, SearchGroupsQuery query, Pagination pagination){
+  public List<GroupMembershipDto> selectByQuery(DbSession dbSession, SearchGroupsQuery query, Pagination pagination){
     return mapper(dbSession).selectByQuery(query, pagination);
   }
 

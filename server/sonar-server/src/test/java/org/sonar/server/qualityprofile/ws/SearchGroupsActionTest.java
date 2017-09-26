@@ -190,12 +190,31 @@ public class SearchGroupsActionTest {
   }
 
   @Test
+  public void group_without_description() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO));
+    GroupDto group = db.users().insertGroup(newGroupDto().setDescription(null).setOrganizationUuid(organization.getUuid()));
+    db.qualityProfiles().addGroupPermission(profile, group);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+
+    SearchGroupsResponse response = ws.newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
+      .setParam(PARAM_LANGUAGE, XOO)
+      .setParam(SELECTED, "all")
+      .executeProtobuf(SearchGroupsResponse.class);
+
+    assertThat(response.getGroupsList()).extracting(SearchGroupsResponse.Group::getName, SearchGroupsResponse.Group::hasDescription)
+      .containsExactlyInAnyOrder(tuple(group.getName(), false));
+  }
+
+  @Test
   public void paging_search() {
     OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO));
+    GroupDto group3 = db.users().insertGroup(organization, "group3");
     GroupDto group1 = db.users().insertGroup(organization, "group1");
     GroupDto group2 = db.users().insertGroup(organization, "group2");
-    GroupDto group3 = db.users().insertGroup(organization, "group3");
     db.qualityProfiles().addGroupPermission(profile, group1);
     db.qualityProfiles().addGroupPermission(profile, group2);
     userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);

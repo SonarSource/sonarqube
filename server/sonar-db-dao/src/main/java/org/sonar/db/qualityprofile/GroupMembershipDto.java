@@ -19,28 +19,18 @@
  */
 package org.sonar.db.qualityprofile;
 
-public class QProfileEditGroupMembershipDto {
+public class GroupMembershipDto {
 
-  private String name;
-  private String description;
+  private int groupId;
   // Set by MyBatis
   private String uuid;
 
-  public String getName() {
-    return name;
+  public int getGroupId() {
+    return groupId;
   }
 
-  public QProfileEditGroupMembershipDto setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public QProfileEditGroupMembershipDto setDescription(String description) {
-    this.description = description;
+  public GroupMembershipDto setGroupId(int groupId) {
+    this.groupId = groupId;
     return this;
   }
 

@@ -105,27 +105,27 @@ public class QProfileEditGroupsDaoTest {
       .setOrganization(organization)
       .setProfile(profile)
       .setMembership(ANY).build(), Pagination.all()))
-      .extracting(QProfileEditGroupMembershipDto::getName, QProfileEditGroupMembershipDto::getDescription, QProfileEditGroupMembershipDto::isSelected)
+      .extracting(GroupMembershipDto::getGroupId, GroupMembershipDto::isSelected)
       .containsExactlyInAnyOrder(
-        tuple(group1.getName(), group1.getDescription(), true),
-        tuple(group2.getName(), group2.getDescription(), true),
-        tuple(group3.getName(), group3.getDescription(), false));
+        tuple(group1.getId(), true),
+        tuple(group2.getId(), true),
+        tuple(group3.getId(), false));
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setOrganization(organization)
         .setProfile(profile)
         .setMembership(IN).build(),
       Pagination.all()))
-      .extracting(QProfileEditGroupMembershipDto::getName, QProfileEditGroupMembershipDto::isSelected)
-      .containsExactlyInAnyOrder(tuple(group1.getName(), true), tuple(group2.getName(), true));
+      .extracting(GroupMembershipDto::getGroupId, GroupMembershipDto::isSelected)
+      .containsExactlyInAnyOrder(tuple(group1.getId(), true), tuple(group2.getId(), true));
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setOrganization(organization)
         .setProfile(profile)
         .setMembership(OUT).build(),
       Pagination.all()))
-      .extracting(QProfileEditGroupMembershipDto::getName, QProfileEditGroupMembershipDto::isSelected)
-      .containsExactlyInAnyOrder(tuple(group3.getName(), false));
+      .extracting(GroupMembershipDto::getGroupId, GroupMembershipDto::isSelected)
+      .containsExactlyInAnyOrder(tuple(group3.getId(), false));
   }
 
   @Test
@@ -145,8 +145,8 @@ public class QProfileEditGroupsDaoTest {
         .setMembership(IN)
         .setQuery("project").build(),
       Pagination.all()))
-      .extracting(QProfileEditGroupMembershipDto::getName)
-      .containsExactlyInAnyOrder(group1.getName());
+      .extracting(GroupMembershipDto::getGroupId)
+      .containsExactlyInAnyOrder(group1.getId());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setOrganization(organization)
@@ -154,8 +154,8 @@ public class QProfileEditGroupsDaoTest {
         .setMembership(IN)
         .setQuery("UserS").build(),
       Pagination.all()))
-      .extracting(QProfileEditGroupMembershipDto::getName)
-      .containsExactlyInAnyOrder(group1.getName(), group2.getName());
+      .extracting(GroupMembershipDto::getGroupId)
+      .containsExactlyInAnyOrder(group1.getId(), group2.getId());
   }
 
   @Test
@@ -174,8 +174,8 @@ public class QProfileEditGroupsDaoTest {
         .setMembership(ANY)
         .build(),
       Pagination.forPage(1).andSize(1)))
-      .extracting(QProfileEditGroupMembershipDto::getName)
-      .containsExactly(group1.getName());
+      .extracting(GroupMembershipDto::getGroupId)
+      .containsExactly(group1.getId());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setOrganization(organization)
@@ -183,8 +183,8 @@ public class QProfileEditGroupsDaoTest {
         .setMembership(ANY)
         .build(),
       Pagination.forPage(3).andSize(1)))
-      .extracting(QProfileEditGroupMembershipDto::getName)
-      .containsExactly(group3.getName());
+      .extracting(GroupMembershipDto::getGroupId)
+      .containsExactly(group3.getId());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setOrganization(organization)
@@ -192,8 +192,8 @@ public class QProfileEditGroupsDaoTest {
         .setMembership(ANY)
         .build(),
       Pagination.forPage(1).andSize(10)))
-      .extracting(QProfileEditGroupMembershipDto::getName)
-      .containsExactly(group1.getName(), group2.getName(), group3.getName());
+      .extracting(GroupMembershipDto::getGroupId)
+      .containsExactly(group1.getId(), group2.getId(), group3.getId());
   }
 
   @Test

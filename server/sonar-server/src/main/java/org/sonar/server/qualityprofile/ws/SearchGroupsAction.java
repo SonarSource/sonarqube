@@ -23,18 +23,19 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualityprofile.GroupMembershipDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.qualityprofile.QProfileEditGroupMembershipDto;
 import org.sonar.db.qualityprofile.SearchGroupsQuery;
+import org.sonar.db.user.GroupDto;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.client.qualityprofile.SearchUsersRequest;
@@ -46,6 +47,7 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.server.ws.WebService.SelectionMode.ALL;
 import static org.sonar.api.server.ws.WebService.SelectionMode.DESELECTED;
 import static org.sonar.api.server.ws.WebService.SelectionMode.fromParam;
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.db.Pagination.forPage;
@@ -117,10 +119,17 @@ public class SearchGroupsAction implements QProfileWsAction {
         .setMembership(MEMBERSHIP.get(fromParam(wsRequest.getSelected())))
         .build();
       int total = dbClient.qProfileEditGroupsDao().countByQuery(dbSession, query);
-      List<QProfileEditGroupMembershipDto> groups = dbClient.qProfileEditGroupsDao().selectByQuery(dbSession, query, forPage(wsRequest.getPage()).andSize(wsRequest.getPageSize()));
+      List<GroupMembershipDto> groupMemberships = dbClient.qProfileEditGroupsDao().selectByQuery(dbSession, query,
+        forPage(wsRequest.getPage()).andSize(wsRequest.getPageSize()));
+      Map<Integer, GroupDto> groupsById = dbClient.groupDao().selectByIds(dbSession,
+        groupMemberships.stream().map(GroupMembershipDto::getGroupId).collect(MoreCollectors.toList()))
+        .stream()
+        .collect(MoreCollectors.uniqueIndex(GroupDto::getId));
       writeProtobuf(
         QualityProfiles.SearchGroupsResponse.newBuilder()
-          .addAllGroups(groups.stream().map(toGroup()).collect(toList()))
+          .addAllGroups(groupMemberships.stream()
+            .map(groupsMembership -> toGroup(groupsById.get(groupsMembership.getGroupId()), groupsMembership.isSelected()))
+            .collect(toList()))
           .setPaging(buildPaging(wsRequest, total)).build(), request, response);
     }
   }
@@ -137,13 +146,12 @@ public class SearchGroupsAction implements QProfileWsAction {
       .build();
   }
 
-  private static Function<QProfileEditGroupMembershipDto, QualityProfiles.SearchGroupsResponse.Group> toGroup() {
-    return user ->
-      QualityProfiles.SearchGroupsResponse.Group.newBuilder()
-        .setName(user.getName())
-        .setDescription(user.getDescription())
-        .setSelected(user.isSelected())
-        .build();
+  private static QualityProfiles.SearchGroupsResponse.Group toGroup(GroupDto group, boolean isSelected) {
+    QualityProfiles.SearchGroupsResponse.Group.Builder builder = QualityProfiles.SearchGroupsResponse.Group.newBuilder()
+      .setName(group.getName())
+      .setSelected(isSelected);
+    setNullable(group.getDescription(), builder::setDescription);
+    return builder.build();
   }
 
   private static Common.Paging buildPaging(SearchUsersRequest wsRequest, int total) {

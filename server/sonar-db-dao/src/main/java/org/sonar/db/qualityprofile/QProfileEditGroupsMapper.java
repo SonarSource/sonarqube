@@ -29,7 +29,7 @@ public interface QProfileEditGroupsMapper {
 
   int countByQuery(@Param("query") SearchGroupsQuery query);
 
-  List<QProfileEditGroupMembershipDto> selectByQuery(@Param("query") SearchGroupsQuery query, @Param("pagination") Pagination pagination);
+  List<GroupMembershipDto> selectByQuery(@Param("query") SearchGroupsQuery query, @Param("pagination") Pagination pagination);
 
   void insert(@Param("dto") QProfileEditGroupsDto dto, @Param("now") long now);
 
