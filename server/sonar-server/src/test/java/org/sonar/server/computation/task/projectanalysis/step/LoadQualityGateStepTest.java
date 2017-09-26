@@ -19,16 +19,8 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
+import com.google.common.base.Optional;
 import java.util.Collections;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,7 +32,13 @@ import org.sonar.server.computation.task.projectanalysis.qualitygate.MutableQual
 import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGate;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGateService;
 
-import com.google.common.base.Optional;
+import static java.lang.String.format;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class LoadQualityGateStepTest {
 
@@ -61,10 +59,14 @@ public class LoadQualityGateStepTest {
   }
 
   @Test
-  public void skip_in_short_living_branches() {
+  public void add_hardcoded_QG_on_short_living_branch() {
     when(analysisMetadataHolder.isShortLivingBranch()).thenReturn(true);
+    QualityGate qualityGate = mock(QualityGate.class);
+    when(qualityGateService.findById(QualityGateService.SHORT_LIVING_BRANCHES_QUALITY_GATE)).thenReturn(Optional.of(qualityGate));
+
     underTest.execute();
-    verifyNoQualityGate();
+
+    assertThat(mutableQualityGateHolder.getQualityGate().get()).isSameAs(qualityGate);
   }
 
   @Test
