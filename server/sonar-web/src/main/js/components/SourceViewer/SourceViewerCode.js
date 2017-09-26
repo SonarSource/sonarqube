@@ -38,6 +38,8 @@ const ZERO_LINE = {
 export default class SourceViewerCode extends React.PureComponent {
   /*:: props: {|
     displayAllIssues: boolean,
+    displayIssueLocationsCount?: boolean;
+    displayIssueLocationsLink?: boolean;
     duplications?: Array<Duplication>,
     duplicationsByLine: { [number]: Array<number> },
     duplicatedFiles?: Array<{ key: string }>,
@@ -152,6 +154,8 @@ export default class SourceViewerCode extends React.PureComponent {
         displayDuplications={displayDuplications}
         displayFiltered={displayFiltered}
         displayIssues={displayIssues}
+        displayIssueLocationsCount={this.props.displayIssueLocationsCount}
+        displayIssueLocationsLink={this.props.displayIssueLocationsLink}
         duplications={this.getDuplicationsForLine(line)}
         duplicationsCount={duplicationsCount}
         filtered={filtered}

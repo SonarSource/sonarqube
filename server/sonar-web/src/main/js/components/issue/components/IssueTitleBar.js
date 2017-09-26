@@ -33,8 +33,10 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 /*::
 type Props = {|
-  issue: Issue,
   currentPopup: ?string,
+  displayLocationsCount?: boolean;
+  displayLocationsLink?: boolean;
+  issue: Issue,
   onFail: Error => void,
   onFilter?: (property: string, issue: Issue) => void,
   togglePopup: (string, boolean | void) => void
@@ -62,8 +64,7 @@ export default function IssueTitleBar(props /*: Props */) {
     </Tooltip>
   );
 
-  // dirty trick :(
-  const onIssuesPage = document.getElementById('issues-page') != null;
+  const displayLocations = props.displayLocationsCount && locationsCount > 0;
 
   const issueUrl = getComponentIssuesUrl(issue.project, { issues: issue.key, open: issue.key });
 
@@ -96,14 +97,14 @@ export default function IssueTitleBar(props /*: Props */) {
                   </span>
                 </li>
               )}
-              {locationsCount > 0 && (
+              {displayLocations && (
                 <li className="issue-meta">
-                  {onIssuesPage ? (
-                    locationsBadge
-                  ) : (
+                  {props.displayLocationsLink ? (
                     <Link onClick={stopPropagation} target="_blank" to={issueUrl}>
                       {locationsBadge}
                     </Link>
+                  ) : (
+                    locationsBadge
                   )}
                 </li>
               )}

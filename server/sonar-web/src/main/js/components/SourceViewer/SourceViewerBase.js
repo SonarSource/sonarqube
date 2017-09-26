@@ -57,6 +57,8 @@ type Props = {
   branch?: string,
   component: string,
   displayAllIssues: boolean,
+  displayIssueLocationsCount?: boolean;
+  displayIssueLocationsLink?: boolean;
   filterLine?: (line: SourceLine) => boolean,
   highlightedLine?: number,
   highlightedLocations?: Array<FlowLocation>,
@@ -134,6 +136,8 @@ export default class SourceViewerBase extends React.PureComponent {
 
   static defaultProps = {
     displayAllIssues: false,
+    displayIssueLocationsCount: true,
+    displayIssueLocationsLink: true,
     loadComponent,
     loadIssues,
     loadSources
@@ -581,6 +585,8 @@ export default class SourceViewerBase extends React.PureComponent {
     return (
       <SourceViewerCode
         displayAllIssues={this.props.displayAllIssues}
+        displayIssueLocationsCount={this.props.displayIssueLocationsCount}
+        displayIssueLocationsLink={this.props.displayIssueLocationsLink}
         duplications={this.state.duplications}
         duplicationsByLine={this.state.duplicationsByLine}
         duplicatedFiles={this.state.duplicatedFiles}
