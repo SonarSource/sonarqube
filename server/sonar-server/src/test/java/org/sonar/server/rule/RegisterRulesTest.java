@@ -190,10 +190,11 @@ public class RegisterRulesTest {
     // register many rules
     execute(context -> {
       RulesDefinition.NewRepository repo = context.createRepository("fake", "java");
-      IntStream.range(0, numberOfRules).forEach(i ->
-        repo.createRule(randomAlphanumeric(5))
-        .setName(randomAlphanumeric(20))
-        .setHtmlDescription(randomAlphanumeric(20)));
+      IntStream.range(0, numberOfRules)
+        .mapToObj(i -> "rule-" + i)
+        .forEach(ruleKey -> repo.createRule(ruleKey)
+          .setName(randomAlphanumeric(20))
+          .setHtmlDescription(randomAlphanumeric(20)));
       repo.done();
     });
 
