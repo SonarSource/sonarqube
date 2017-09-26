@@ -25,11 +25,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.notifications.Notification;
+import org.sonar.db.component.BranchType;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
+import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.analysis.Project;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.event.Event;
 import org.sonar.server.computation.task.projectanalysis.event.EventRepository;
@@ -46,6 +49,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.Level.ERROR;
@@ -77,7 +81,8 @@ public class QualityGateEventsStepTest {
   private MeasureRepository measureRepository = mock(MeasureRepository.class);
   private EventRepository eventRepository = mock(EventRepository.class);
   private NotificationService notificationService = mock(NotificationService.class);
-  private QualityGateEventsStep underTest = new QualityGateEventsStep(treeRootHolder, metricRepository, measureRepository, eventRepository, notificationService, analysisMetadataHolder);
+  private QualityGateEventsStep underTest = new QualityGateEventsStep(treeRootHolder, metricRepository, measureRepository, eventRepository, notificationService,
+    analysisMetadataHolder);
 
   @Before
   public void setUp() {
@@ -197,8 +202,10 @@ public class QualityGateEventsStepTest {
 
   @Test
   public void no_event_created_if_base_ALERT_STATUS_measure_but_status_is_the_same() {
-    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(OK_QUALITY_GATE_STATUS).createNoValue()));
-    when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(OK_QUALITY_GATE_STATUS).createNoValue()));
+    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric))
+      .thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(OK_QUALITY_GATE_STATUS).createNoValue()));
+    when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric))
+      .thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(OK_QUALITY_GATE_STATUS).createNoValue()));
 
     underTest.execute();
 
@@ -219,7 +226,8 @@ public class QualityGateEventsStepTest {
 
   private void verify_event_created_if_base_ALERT_STATUS_measure_exists_and_status_has_changed(Measure.Level previousAlertStatus,
     QualityGateStatus newQualityGateStatus, String expectedLabel) {
-    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(newQualityGateStatus).createNoValue()));
+    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric))
+      .thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(newQualityGateStatus).createNoValue()));
     when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(
       of(Measure.newMeasureBuilder().setQualityGateStatus(new QualityGateStatus(previousAlertStatus)).createNoValue()));
 
@@ -259,7 +267,8 @@ public class QualityGateEventsStepTest {
       }
     });
 
-    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(WARN_QUALITY_GATE_STATUS).createNoValue()));
+    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric))
+      .thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(WARN_QUALITY_GATE_STATUS).createNoValue()));
     when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(
       of(Measure.newMeasureBuilder().setQualityGateStatus(new QualityGateStatus(ERROR)).createNoValue()));
 
@@ -280,7 +289,8 @@ public class QualityGateEventsStepTest {
   public void verify_branch_name_is_not_set_in_notification_when_main() {
     analysisMetadataHolder.setBranch(new DefaultBranchImpl());
 
-    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(WARN_QUALITY_GATE_STATUS).createNoValue()));
+    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, alertStatusMetric))
+      .thenReturn(of(Measure.newMeasureBuilder().setQualityGateStatus(WARN_QUALITY_GATE_STATUS).createNoValue()));
     when(measureRepository.getBaseMeasure(PROJECT_COMPONENT, alertStatusMetric)).thenReturn(
       of(Measure.newMeasureBuilder().setQualityGateStatus(new QualityGateStatus(ERROR)).createNoValue()));
 
@@ -297,4 +307,22 @@ public class QualityGateEventsStepTest {
     reset(measureRepository, eventRepository, notificationService);
   }
 
+  @Test
+  public void no_alert_on_short_living_branches() {
+    Branch shortBranch = mock(Branch.class);
+    when(shortBranch.getType()).thenReturn(BranchType.SHORT);
+    analysisMetadataHolder.setBranch(shortBranch);
+    TreeRootHolder treeRootHolder = mock(TreeRootHolder.class);
+    MetricRepository metricRepository = mock(MetricRepository.class);
+    MeasureRepository measureRepository = mock(MeasureRepository.class);
+    EventRepository eventRepository = mock(EventRepository.class);
+    NotificationService notificationService = mock(NotificationService.class);
+
+    QualityGateEventsStep underTest = new QualityGateEventsStep(treeRootHolder, metricRepository, measureRepository,
+      eventRepository, notificationService, analysisMetadataHolder);
+
+    underTest.execute();
+
+    verifyZeroInteractions(treeRootHolder, metricRepository, measureRepository, eventRepository, notificationService);
+  }
 }
