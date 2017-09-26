@@ -50,9 +50,9 @@ export default BaseFacet.extend({
     const languages = languagesQuery != null ? languagesQuery.split(',') : [];
     const lang = languages.length === 1 ? languages[0] : null;
     const values = this.options.app.qualityProfiles
-      .filter(profile => (lang != null ? profile.lang === lang : true))
+      .filter(profile => (lang != null ? profile.language === lang : true))
       .map(profile => ({
-        extra: that.options.app.languages[profile.lang],
+        extra: that.options.app.languages[profile.language],
         isBuiltIn: profile.isBuiltIn,
         label: profile.name,
         val: profile.key

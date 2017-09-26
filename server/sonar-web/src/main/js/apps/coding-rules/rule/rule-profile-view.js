@@ -164,12 +164,13 @@ export default Marionette.ItemView.extend({
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
       parent,
+      actions: this.model.get('actions') || {},
       canWrite: this.options.app.canWrite,
       parameters: this.enhanceParameters(parent),
       templateKey: this.options.rule.get('templateKey'),
       isTemplate: this.options.rule.get('isTemplate'),
-      profilePath: this.getProfilePath(this.model.get('lang'), this.model.get('name')),
-      parentProfilePath: parent && this.getProfilePath(parent.lang, parent.name)
+      profilePath: this.getProfilePath(this.model.get('language'), this.model.get('name')),
+      parentProfilePath: parent && this.getProfilePath(parent.language, parent.name)
     };
   }
 });
