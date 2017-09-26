@@ -48,8 +48,41 @@ public class WebHooksImpl implements WebHooks {
   }
 
   @Override
-  public void sendProjectAnalysisUpdate(Configuration configuration, Analysis analysis, Supplier<WebhookPayload> payloadSupplier) {
-    List<Webhook> webhooks = loadWebhooks(analysis, configuration);
+  public boolean isEnabled(Configuration config) {
+    return readWebHooksFrom(config)
+      .findAny()
+      .isPresent();
+  }
+
+  private static Stream<NameUrl> readWebHooksFrom(Configuration config) {
+    return Stream.concat(
+      getWebhookProperties(config, WebhookProperties.GLOBAL_KEY).stream(),
+      getWebhookProperties(config, WebhookProperties.PROJECT_KEY).stream())
+      .map(
+        webHookProperty -> {
+          String name = config.get(format(WEBHOOK_PROPERTY_FORMAT, webHookProperty, WebhookProperties.NAME_FIELD)).orElse(null);
+          String url = config.get(format(WEBHOOK_PROPERTY_FORMAT, webHookProperty, WebhookProperties.URL_FIELD)).orElse(null);
+          if (name == null || url == null) {
+            return null;
+          }
+          return new NameUrl(name, url);
+        })
+      .filter(Objects::nonNull);
+  }
+
+  private static List<String> getWebhookProperties(Configuration config, String propertyKey) {
+    String[] webhookIds = config.getStringArray(propertyKey);
+    return Arrays.stream(webhookIds)
+      .map(webhookId -> format(WEBHOOK_PROPERTY_FORMAT, propertyKey, webhookId))
+      .limit(MAX_WEBHOOKS_PER_TYPE)
+      .collect(MoreCollectors.toList(webhookIds.length));
+  }
+
+  @Override
+  public void sendProjectAnalysisUpdate(Configuration config, Analysis analysis, Supplier<WebhookPayload> payloadSupplier) {
+    List<Webhook> webhooks = readWebHooksFrom(config)
+      .map(nameUrl -> new Webhook(analysis.getProjectUuid(), analysis.getCeTaskUuid(), nameUrl.getName(), nameUrl.getUrl()))
+      .collect(MoreCollectors.toList());
     if (webhooks.isEmpty()) {
       return;
     }
@@ -63,31 +96,6 @@ public class WebHooksImpl implements WebHooks {
     deliveryStorage.purge(analysis.getProjectUuid());
   }
 
-  private List<Webhook> loadWebhooks(Analysis analysis, Configuration config) {
-    return Stream.concat(
-      getWebhookProperties(config, WebhookProperties.GLOBAL_KEY).stream(),
-      getWebhookProperties(config, WebhookProperties.PROJECT_KEY).stream())
-      .map(
-        webHookProperty -> {
-          String name = config.get(format(WEBHOOK_PROPERTY_FORMAT, webHookProperty, WebhookProperties.NAME_FIELD)).orElse(null);
-          String url = config.get(format(WEBHOOK_PROPERTY_FORMAT, webHookProperty, WebhookProperties.URL_FIELD)).orElse(null);
-          if (name != null && url != null) {
-            return new Webhook(analysis.getProjectUuid(), analysis.getCeTaskUuid(), name, url);
-          }
-          return null;
-        })
-      .filter(Objects::nonNull)
-      .collect(MoreCollectors.toList());
-  }
-
-  private static List<String> getWebhookProperties(Configuration config, String propertyKey) {
-    String[] webhookIds = config.getStringArray(propertyKey);
-    return Arrays.stream(webhookIds)
-      .map(webhookId -> format(WEBHOOK_PROPERTY_FORMAT, propertyKey, webhookId))
-      .limit(MAX_WEBHOOKS_PER_TYPE)
-      .collect(MoreCollectors.toList(webhookIds.length));
-  }
-
   private static void log(WebhookDelivery delivery) {
     Optional<String> error = delivery.getErrorMessage();
     if (error.isPresent()) {
@@ -96,6 +104,24 @@ public class WebHooksImpl implements WebHooks {
     } else {
       LOGGER.debug("Sent webhook '{}' | url={} | time={}ms | status={}",
         delivery.getWebhook().getName(), delivery.getWebhook().getUrl(), delivery.getDurationInMs().orElse(-1), delivery.getHttpStatus().orElse(-1));
+    }
+  }
+
+  private static final class NameUrl {
+    private final String name;
+    private final String url;
+
+    private NameUrl(String name, String url) {
+      this.name = name;
+      this.url = url;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public String getUrl() {
+      return url;
     }
   }
 }
