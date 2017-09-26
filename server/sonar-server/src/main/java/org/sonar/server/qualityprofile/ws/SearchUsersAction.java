@@ -23,7 +23,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
@@ -34,8 +33,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonar.db.qualityprofile.QProfileEditUserMembershipDto;
 import org.sonar.db.qualityprofile.SearchUsersQuery;
+import org.sonar.db.qualityprofile.UserMembershipDto;
+import org.sonar.db.user.UserDto;
+import org.sonar.server.issue.ws.AvatarResolver;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.QualityProfiles.SearchUsersResponse;
 import org.sonarqube.ws.client.qualityprofile.SearchUsersRequest;
@@ -47,8 +48,10 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.api.server.ws.WebService.SelectionMode.ALL;
 import static org.sonar.api.server.ws.WebService.SelectionMode.DESELECTED;
 import static org.sonar.api.server.ws.WebService.SelectionMode.fromParam;
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.qualityprofile.SearchUsersQuery.ANY;
 import static org.sonar.db.qualityprofile.SearchUsersQuery.IN;
@@ -68,11 +71,13 @@ public class SearchUsersAction implements QProfileWsAction {
   private final DbClient dbClient;
   private final QProfileWsSupport wsSupport;
   private final Languages languages;
+  private final AvatarResolver avatarResolver;
 
-  public SearchUsersAction(DbClient dbClient, QProfileWsSupport wsSupport, Languages languages) {
+  public SearchUsersAction(DbClient dbClient, QProfileWsSupport wsSupport, Languages languages, AvatarResolver avatarResolver) {
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
     this.languages = languages;
+    this.avatarResolver = avatarResolver;
   }
 
   @Override
@@ -118,10 +123,15 @@ public class SearchUsersAction implements QProfileWsAction {
         .setMembership(MEMBERSHIP.get(fromParam(wsRequest.getSelected())))
         .build();
       int total = dbClient.qProfileEditUsersDao().countByQuery(dbSession, query);
-      List<QProfileEditUserMembershipDto> users = dbClient.qProfileEditUsersDao().selectByQuery(dbSession, query, forPage(wsRequest.getPage()).andSize(wsRequest.getPageSize()));
+      List<UserMembershipDto> usersMembership = dbClient.qProfileEditUsersDao().selectByQuery(dbSession, query,
+        forPage(wsRequest.getPage()).andSize(wsRequest.getPageSize()));
+      Map<Integer, UserDto> usersById = dbClient.userDao().selectByIds(dbSession, usersMembership.stream().map(UserMembershipDto::getUserId).collect(toList()))
+        .stream().collect(uniqueIndex(UserDto::getId));
       writeProtobuf(
         SearchUsersResponse.newBuilder()
-          .addAllUsers(users.stream().map(toUser()).collect(toList()))
+          .addAllUsers(usersMembership.stream()
+            .map(userMembershipDto -> toUser(usersById.get(userMembershipDto.getUserId()), userMembershipDto.isSelected()))
+            .collect(toList()))
           .setPaging(buildPaging(wsRequest, total)).build(), request, response);
     }
   }
@@ -138,13 +148,14 @@ public class SearchUsersAction implements QProfileWsAction {
       .build();
   }
 
-  private static Function<QProfileEditUserMembershipDto, SearchUsersResponse.User> toUser() {
-    return user ->
-      SearchUsersResponse.User.newBuilder()
-        .setLogin(user.getLogin())
-        .setName(user.getName())
-        .setSelected(user.isSelected())
-        .build();
+  private SearchUsersResponse.User toUser(UserDto user, boolean isSelected) {
+    SearchUsersResponse.User.Builder builder = SearchUsersResponse.User.newBuilder()
+      .setLogin(user.getLogin())
+      .setName(user.getName())
+      .setSelected(isSelected);
+    setNullable(user.getEmail(), e -> builder.setAvatar(avatarResolver.create(user)));
+    return builder
+      .build();
   }
 
   private static Common.Paging buildPaging(SearchUsersRequest wsRequest, int total) {

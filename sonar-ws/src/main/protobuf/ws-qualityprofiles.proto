@@ -148,7 +148,8 @@ message SearchUsersResponse {
   message User {
     optional string login = 1;
     optional string name = 2;
-    optional bool selected = 3;
+    optional string avatar = 3;
+    optional bool selected = 4;
   }
 }
 

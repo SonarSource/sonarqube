@@ -19,22 +19,22 @@
   </select>
 
   <select id="countByQuery" resultType="int">
-    select count(u.login)
+    select count(u.id)
     <include refid="sqlSelectByQuery" />
   </select>
 
-  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileEditUserMembershipDto">
-    SELECT u.login as login, u.name as name, qeu.uuid as uuid
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.qualityprofile.UserMembershipDto">
+    SELECT u.id as userId, u.name as name, qeu.uuid as uuid
     <include refid="sqlSelectByQuery"/>
     ORDER BY u.name ASC
     LIMIT #{pagination.pageSize,jdbcType=INTEGER}
     OFFSET #{pagination.offset,jdbcType=INTEGER}
   </select>
 
-  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileEditUserMembershipDto" databaseId="mssql">
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.qualityprofile.UserMembershipDto" databaseId="mssql">
     select * from (
     select row_number() over(order by u.name asc) as number,
-      u.login as login, u.name as name, qeu.uuid as uuid
+      u.id as userId, u.name as name, qeu.uuid as uuid
       <include refid="sqlSelectByQuery" />
     ) as query
     where
@@ -42,10 +42,10 @@
     order by query.name asc
   </select>
 
-  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileEditUserMembershipDto" databaseId="oracle">
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.qualityprofile.UserMembershipDto" databaseId="oracle">
     select * from (
       select rownum as rn, t.* from (
-        select u.login as login, u.name as name, qeu.uuid as uuid
+        select u.id as userId, u.name as name, qeu.uuid as uuid
         <include refid="sqlSelectByQuery"/>
         order by u.name ASC
       ) t

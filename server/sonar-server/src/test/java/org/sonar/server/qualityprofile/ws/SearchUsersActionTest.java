@@ -31,6 +31,9 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.issue.ws.AvatarResolver;
+import org.sonar.server.issue.ws.AvatarResolverImpl;
+import org.sonar.server.issue.ws.FakeAvatarResolver;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
@@ -65,8 +68,9 @@ public class SearchUsersActionTest {
   public DbTester db = DbTester.create();
 
   private QProfileWsSupport wsSupport = new QProfileWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db));
+  private AvatarResolver avatarResolver = new FakeAvatarResolver();
 
-  private WsActionTester ws = new WsActionTester(new SearchUsersAction(db.getDbClient(), wsSupport, LANGUAGES));
+  private WsActionTester ws = new WsActionTester(new SearchUsersAction(db.getDbClient(), wsSupport, LANGUAGES, avatarResolver));
 
   @Test
   public void test_definition() {
@@ -80,10 +84,12 @@ public class SearchUsersActionTest {
 
   @Test
   public void test_example() {
+    avatarResolver = new AvatarResolverImpl();
+    ws = new WsActionTester(new SearchUsersAction(db.getDbClient(), wsSupport, LANGUAGES, avatarResolver));
     OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO));
-    UserDto user1 = db.users().insertUser(u -> u.setLogin("admin").setName("Administrator"));
-    UserDto user2 = db.users().insertUser(u -> u.setLogin("george.orwell").setName("George Orwell"));
+    UserDto user1 = db.users().insertUser(u -> u.setLogin("admin").setName("Administrator").setEmail("admin@email.com"));
+    UserDto user2 = db.users().insertUser(u -> u.setLogin("george.orwell").setName("George Orwell").setEmail("george@orwell.com"));
     db.organizations().addMember(organization, user1);
     db.organizations().addMember(organization, user2);
     db.qualityProfiles().addUserPermission(profile, user1);
@@ -98,15 +104,15 @@ public class SearchUsersActionTest {
       .execute()
       .getInput();
 
-    assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(result);
+    assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
   @Test
   public void search_all_users() {
     OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO));
-    UserDto user1 = db.users().insertUser();
-    UserDto user2 = db.users().insertUser();
+    UserDto user1 = db.users().insertUser(u -> u.setEmail("user1@email.com"));
+    UserDto user2 = db.users().insertUser(u -> u.setEmail("user2@email.com"));
     db.organizations().addMember(organization, user1);
     db.organizations().addMember(organization, user2);
     db.qualityProfiles().addUserPermission(profile, user1);
@@ -119,10 +125,10 @@ public class SearchUsersActionTest {
       .setParam(SELECTED, "all")
       .executeProtobuf(SearchUsersResponse.class);
 
-    assertThat(response.getUsersList()).extracting(SearchUsersResponse.User::getLogin, SearchUsersResponse.User::getName, SearchUsersResponse.User::getSelected)
+    assertThat(response.getUsersList()).extracting(SearchUsersResponse.User::getLogin, SearchUsersResponse.User::getName, SearchUsersResponse.User::getAvatar, SearchUsersResponse.User::getSelected)
       .containsExactlyInAnyOrder(
-        tuple(user1.getLogin(), user1.getName(), true),
-        tuple(user2.getLogin(), user2.getName(), false));
+        tuple(user1.getLogin(), user1.getName(), "user1@email.com_avatar", true),
+        tuple(user2.getLogin(), user2.getName(), "user2@email.com_avatar", false));
   }
 
   @Test
@@ -220,12 +226,32 @@ public class SearchUsersActionTest {
   }
 
   @Test
+  public void user_without_email() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO));
+    UserDto user = db.users().insertUser(u -> u.setEmail(null));
+    db.organizations().addMember(organization, user);
+    db.qualityProfiles().addUserPermission(profile, user);
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+
+    SearchUsersResponse response = ws.newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
+      .setParam(PARAM_LANGUAGE, XOO)
+      .setParam(SELECTED, "all")
+      .executeProtobuf(SearchUsersResponse.class);
+
+    assertThat(response.getUsersList()).extracting(SearchUsersResponse.User::getLogin, SearchUsersResponse.User::hasAvatar)
+      .containsExactlyInAnyOrder(tuple(user.getLogin(), false));
+  }
+
+  @Test
   public void paging_search() {
     OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO));
-    UserDto user1 = db.users().insertUser(u -> u.setName("user1"));
     UserDto user2 = db.users().insertUser(u -> u.setName("user2"));
     UserDto user3 = db.users().insertUser(u -> u.setName("user3"));
+    UserDto user1 = db.users().insertUser(u -> u.setName("user1"));
     db.organizations().addMember(organization, user1);
     db.organizations().addMember(organization, user2);
     db.organizations().addMember(organization, user3);

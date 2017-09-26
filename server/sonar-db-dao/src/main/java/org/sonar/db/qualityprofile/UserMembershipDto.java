@@ -19,28 +19,18 @@
  */
 package org.sonar.db.qualityprofile;
 
-public class QProfileEditUserMembershipDto {
+public class UserMembershipDto {
 
-  private String login;
-  private String name;
+  private int userId;
   // Set by MyBatis
   private String uuid;
 
-  public String getName() {
-    return name;
+  public int getUserId() {
+    return userId;
   }
 
-  public QProfileEditUserMembershipDto setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  public String getLogin() {
-    return login;
-  }
-
-  public QProfileEditUserMembershipDto setLogin(String login) {
-    this.login = login;
+  public UserMembershipDto setUserId(int userId) {
+    this.userId = userId;
     return this;
   }
 

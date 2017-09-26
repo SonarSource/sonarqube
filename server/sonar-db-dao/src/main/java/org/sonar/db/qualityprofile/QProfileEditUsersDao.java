@@ -42,7 +42,7 @@ public class QProfileEditUsersDao implements Dao {
     return mapper(dbSession).countByQuery(query);
   }
 
-  public List<QProfileEditUserMembershipDto> selectByQuery(DbSession dbSession, SearchUsersQuery query, Pagination pagination){
+  public List<UserMembershipDto> selectByQuery(DbSession dbSession, SearchUsersQuery query, Pagination pagination){
     return mapper(dbSession).selectByQuery(query, pagination);
   }
 

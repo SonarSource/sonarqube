@@ -111,27 +111,27 @@ public class QProfileEditUsersDaoTest {
       .setOrganization(organization)
       .setProfile(profile)
       .setMembership(ANY).build(), Pagination.all()))
-      .extracting(QProfileEditUserMembershipDto::getLogin, QProfileEditUserMembershipDto::getName, QProfileEditUserMembershipDto::isSelected)
+      .extracting(UserMembershipDto::getUserId, UserMembershipDto::isSelected)
       .containsExactlyInAnyOrder(
-        tuple(user1.getLogin(), user1.getName(), true),
-        tuple(user2.getLogin(), user2.getName(), true),
-        tuple(user3.getLogin(), user3.getName(), false));
+        tuple(user1.getId(), true),
+        tuple(user2.getId(), true),
+        tuple(user3.getId(), false));
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setOrganization(organization)
         .setProfile(profile)
         .setMembership(IN).build(),
       Pagination.all()))
-      .extracting(QProfileEditUserMembershipDto::getLogin, QProfileEditUserMembershipDto::isSelected)
-      .containsExactlyInAnyOrder(tuple(user1.getLogin(), true), tuple(user2.getLogin(), true));
+      .extracting(UserMembershipDto::getUserId, UserMembershipDto::isSelected)
+      .containsExactlyInAnyOrder(tuple(user1.getId(), true), tuple(user2.getId(), true));
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setOrganization(organization)
         .setProfile(profile)
         .setMembership(OUT).build(),
       Pagination.all()))
-      .extracting(QProfileEditUserMembershipDto::getLogin, QProfileEditUserMembershipDto::isSelected)
-      .containsExactlyInAnyOrder(tuple(user3.getLogin(), false));
+      .extracting(UserMembershipDto::getUserId, UserMembershipDto::isSelected)
+      .containsExactlyInAnyOrder(tuple(user3.getId(), false));
   }
 
   @Test
@@ -154,8 +154,8 @@ public class QProfileEditUsersDaoTest {
         .setMembership(IN)
         .setQuery("user2").build(),
       Pagination.all()))
-      .extracting(QProfileEditUserMembershipDto::getLogin)
-      .containsExactlyInAnyOrder(user2.getLogin());
+      .extracting(UserMembershipDto::getUserId)
+      .containsExactlyInAnyOrder(user2.getId());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setOrganization(organization)
@@ -163,8 +163,8 @@ public class QProfileEditUsersDaoTest {
         .setMembership(IN)
         .setQuery("joh").build(),
       Pagination.all()))
-      .extracting(QProfileEditUserMembershipDto::getLogin)
-      .containsExactlyInAnyOrder(user1.getLogin(), user2.getLogin());
+      .extracting(UserMembershipDto::getUserId)
+      .containsExactlyInAnyOrder(user1.getId(), user2.getId());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setOrganization(organization)
@@ -172,8 +172,8 @@ public class QProfileEditUsersDaoTest {
         .setMembership(IN)
         .setQuery("Doe").build(),
       Pagination.all()))
-      .extracting(QProfileEditUserMembershipDto::getLogin)
-      .containsExactlyInAnyOrder(user1.getLogin(), user3.getLogin());
+      .extracting(UserMembershipDto::getUserId)
+      .containsExactlyInAnyOrder(user1.getId(), user3.getId());
   }
 
   @Test
@@ -195,8 +195,8 @@ public class QProfileEditUsersDaoTest {
         .setMembership(ANY)
         .build(),
       Pagination.forPage(1).andSize(1)))
-      .extracting(QProfileEditUserMembershipDto::getLogin)
-      .containsExactly(user1.getLogin());
+      .extracting(UserMembershipDto::getUserId)
+      .containsExactly(user1.getId());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setOrganization(organization)
@@ -204,8 +204,8 @@ public class QProfileEditUsersDaoTest {
         .setMembership(ANY)
         .build(),
       Pagination.forPage(3).andSize(1)))
-      .extracting(QProfileEditUserMembershipDto::getLogin)
-      .containsExactly(user3.getLogin());
+      .extracting(UserMembershipDto::getUserId)
+      .containsExactly(user3.getId());
 
     assertThat(underTest.selectByQuery(db.getSession(), builder()
         .setOrganization(organization)
@@ -213,8 +213,8 @@ public class QProfileEditUsersDaoTest {
         .setMembership(ANY)
         .build(),
       Pagination.forPage(1).andSize(10)))
-      .extracting(QProfileEditUserMembershipDto::getLogin)
-      .containsExactly(user1.getLogin(), user2.getLogin(), user3.getLogin());
+      .extracting(UserMembershipDto::getUserId)
+      .containsExactly(user1.getId(), user2.getId(), user3.getId());
   }
 
   @Test
