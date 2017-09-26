@@ -50,6 +50,61 @@ public class WebHooksImplTest {
   private final WebHooksImpl underTest = new WebHooksImpl(caller, deliveryStorage);
 
   @Test
+  public void isEnabled_returns_false_if_no_webHoolds() {
+    assertThat(underTest.isEnabled(settings.asConfig())).isFalse();
+  }
+
+  @Test
+  public void isEnabled_returns_true_if_one_valid_global_webhook() {
+    settings.setProperty("sonar.webhooks.global", "1");
+    settings.setProperty("sonar.webhooks.global.1.name", "First");
+    settings.setProperty("sonar.webhooks.global.1.url", "http://url1");
+
+    assertThat(underTest.isEnabled(settings.asConfig())).isTrue();
+  }
+
+  @Test
+  public void isEnabled_returns_false_if_only_one_global_webhook_without_url() {
+    settings.setProperty("sonar.webhooks.global", "1");
+    settings.setProperty("sonar.webhooks.global.1.name", "First");
+
+    assertThat(underTest.isEnabled(settings.asConfig())).isFalse();
+  }
+
+  @Test
+  public void isEnabled_returns_false_if_only_one_global_webhook_without_name() {
+    settings.setProperty("sonar.webhooks.global", "1");
+    settings.setProperty("sonar.webhooks.global.1.url", "http://url1");
+
+    assertThat(underTest.isEnabled(settings.asConfig())).isFalse();
+  }
+
+  @Test
+  public void isEnabled_returns_true_if_one_valid_project_webhook() {
+    settings.setProperty("sonar.webhooks.project", "1");
+    settings.setProperty("sonar.webhooks.project.1.name", "First");
+    settings.setProperty("sonar.webhooks.project.1.url", "http://url1");
+
+    assertThat(underTest.isEnabled(settings.asConfig())).isTrue();
+  }
+
+  @Test
+  public void isEnabled_returns_false_if_only_one_project_webhook_without_url() {
+    settings.setProperty("sonar.webhooks.project", "1");
+    settings.setProperty("sonar.webhooks.project.1.name", "First");
+
+    assertThat(underTest.isEnabled(settings.asConfig())).isFalse();
+  }
+
+  @Test
+  public void isEnabled_returns_false_if_only_one_project_webhook_without_name() {
+    settings.setProperty("sonar.webhooks.project", "1");
+    settings.setProperty("sonar.webhooks.project.1.url", "http://url1");
+
+    assertThat(underTest.isEnabled(settings.asConfig())).isFalse();
+  }
+
+  @Test
   public void do_nothing_if_no_webhooks() {
     underTest.sendProjectAnalysisUpdate(settings.asConfig(), new WebHooks.Analysis(PROJECT_UUID, "#1"), () -> mock);
 
