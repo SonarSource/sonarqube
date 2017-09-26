@@ -132,8 +132,10 @@ export default ModalForm.extend({
     const inactiveProfiles = this.options.app.qualityProfiles.filter(
       profile => !activeQualityProfiles.findWhere({ key: profile.key })
     );
+    // choose QP which a user can administrate, which are the same language and which are not built-in
     return inactiveProfiles
-      .filter(profile => profile.lang === lang)
+      .filter(profile => profile.actions && profile.actions.edit)
+      .filter(profile => profile.language === lang)
       .filter(profile => !profile.isBuiltIn);
   },
 
