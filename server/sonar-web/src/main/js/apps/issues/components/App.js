@@ -152,6 +152,7 @@ export default class App extends React.PureComponent {
 
     if (openIssue != null && openIssue.key !== this.state.selected) {
       this.setState({
+        locationsNavigator: false,
         selected: openIssue.key,
         selectedFlowIndex: null,
         selectedLocationIndex: null
