@@ -94,8 +94,8 @@
               <goal>install-node-and-yarn</goal>
             </goals>
             <configuration>
-              <nodeVersion>v8.4.0</nodeVersion>
-              <yarnVersion>v0.27.5</yarnVersion>
+              <nodeVersion>v8.5.0</nodeVersion>
+              <yarnVersion>v1.1.0</yarnVersion>
             </configuration>
           </execution>
           <execution>
