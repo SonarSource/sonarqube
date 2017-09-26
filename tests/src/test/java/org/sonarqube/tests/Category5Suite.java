@@ -36,7 +36,7 @@ import org.sonarqube.tests.serverSystem.SystemStateTest;
 import org.sonarqube.tests.settings.ElasticsearchSettingsTest;
 import org.sonarqube.tests.settings.LicensesPageTest;
 import org.sonarqube.tests.settings.SettingsTestRestartingOrchestrator;
-import org.sonarqube.tests.startup.StartupIndexation;
+import org.sonarqube.tests.startup.StartupIndexationTest;
 import org.sonarqube.tests.telemetry.TelemetryOptOutTest;
 import org.sonarqube.tests.telemetry.TelemetryUploadTest;
 import org.sonarqube.tests.updateCenter.UpdateCenterTest;
@@ -78,7 +78,7 @@ import org.sonarqube.tests.user.UserEsResilienceTest;
 
   // elasticsearch
   ElasticsearchSettingsTest.class,
-  StartupIndexation.class,
+  StartupIndexationTest.class,
   SystemPasscodeTest.class
 })
 public class Category5Suite {
