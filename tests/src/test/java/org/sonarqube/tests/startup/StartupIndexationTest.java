@@ -41,7 +41,7 @@ import org.sonarqube.ws.client.user.SearchRequest;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.pluginArtifact;
 
-public class StartupIndexation {
+public class StartupIndexationTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule
