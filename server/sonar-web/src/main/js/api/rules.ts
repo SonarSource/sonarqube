@@ -18,6 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON, RequestData } from '../helpers/request';
+import throwGlobalError from '../app/utils/throwGlobalError';
+
+export interface GetRulesAppResponse {
+  respositories: Array<{ key: string; language: string; name: string }>;
+}
+
+export function getRulesApp(): Promise<GetRulesAppResponse> {
+  return getJSON('/api/rules/app').catch(throwGlobalError);
+}
 
 export function searchRules(data: RequestData) {
   return getJSON('/api/rules/search', data);
