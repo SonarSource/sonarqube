@@ -31,6 +31,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateTesting;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.NotFoundException;
@@ -182,6 +183,22 @@ public class DeleteActionTest {
       .execute();
 
     assertThat(db.countRowsOfTable("perm_templates_groups")).isEqualTo(0);
+  }
+
+  @Test
+  public void delete_qprofile_permissions() throws Exception {
+    addAdminToDefaultOrganization();
+    insertDefaultGroupOnDefaultOrganization();
+    GroupDto group = db.users().insertGroup();
+    QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
+    db.qualityProfiles().addGroupPermission(profile, group);
+    loginAsAdminOnDefaultOrganization();
+
+    newRequest()
+      .setParam("id", group.getId().toString())
+      .execute();
+
+    assertThat(db.countRowsOfTable("qprofile_edit_groups")).isZero();
   }
 
   @Test
