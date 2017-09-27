@@ -19,6 +19,7 @@
  */
 package org.sonar.server.webhook;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.Objects.requireNonNull;
@@ -28,12 +29,14 @@ public class Webhook {
 
   private final String componentUuid;
   private final String ceTaskUuid;
+  private final String analysisUuid;
   private final String name;
   private final String url;
 
-  public Webhook(String componentUuid, String ceTaskUuid, String name, String url) {
+  public Webhook(String componentUuid, String ceTaskUuid, String analysisUuid, String name, String url) {
     this.componentUuid = requireNonNull(componentUuid);
-    this.ceTaskUuid = requireNonNull(ceTaskUuid);
+    this.ceTaskUuid = ceTaskUuid;
+    this.analysisUuid = requireNonNull(analysisUuid);
     this.name = requireNonNull(name);
     this.url = requireNonNull(url);
   }
@@ -42,6 +45,7 @@ public class Webhook {
     return componentUuid;
   }
 
+  @CheckForNull
   public String getCeTaskUuid() {
     return ceTaskUuid;
   }
@@ -52,5 +56,9 @@ public class Webhook {
 
   public String getUrl() {
     return url;
+  }
+
+  public String getAnalysisUuid() {
+    return analysisUuid;
   }
 }

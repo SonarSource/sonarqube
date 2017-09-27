@@ -17,26 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v67;
 
+import java.sql.SQLException;
+import java.sql.Types;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class AddAnalysisUuidToWebhookDeliveriesTest {
 
-public class DbVersion67Test {
+  private static final String TABLE = "webhook_deliveries";
 
-  private DbVersion67 underTest = new DbVersion67();
+  @Rule
+  public final CoreDbTester db = CoreDbTester.createForSchema(AddAnalysisUuidToWebhookDeliveriesTest.class, "initial.sql");
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private AddAnalysisUuidToWebhookDeliveries underTest = new AddAnalysisUuidToWebhookDeliveries(db.database());
 
   @Test
-  public void migrationNumber_starts_at_1830() {
-    verifyMinimumMigrationNumber(underTest, 1830);
+  public void add_column() throws SQLException {
+    underTest.execute();
+
+    db.assertColumnDefinition(TABLE, "analysis_uuid", Types.VARCHAR, 40, true);
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 2);
-  }
+  public void migration_is_not_reentrant() throws SQLException {
+    underTest.execute();
 
+    expectedException.expect(IllegalStateException.class);
+
+    underTest.execute();
+  }
 }

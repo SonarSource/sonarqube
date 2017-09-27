@@ -106,7 +106,7 @@ public class WebHooksImplTest {
 
   @Test
   public void do_nothing_if_no_webhooks() {
-    underTest.sendProjectAnalysisUpdate(settings.asConfig(), new WebHooks.Analysis(PROJECT_UUID, "#1"), () -> mock);
+    underTest.sendProjectAnalysisUpdate(settings.asConfig(), new WebHooks.Analysis(PROJECT_UUID, "1", "#1"), () -> mock);
 
     assertThat(caller.countSent()).isEqualTo(0);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).isEmpty();
@@ -123,7 +123,7 @@ public class WebHooksImplTest {
     caller.enqueueSuccess(NOW, 200, 1_234);
     caller.enqueueFailure(NOW, new IOException("Fail to connect"));
 
-    underTest.sendProjectAnalysisUpdate(settings.asConfig(), new WebHooks.Analysis(PROJECT_UUID, "#1"), () -> mock);
+    underTest.sendProjectAnalysisUpdate(settings.asConfig(), new WebHooks.Analysis(PROJECT_UUID, "1", "#1"), () -> mock);
 
     assertThat(caller.countSent()).isEqualTo(2);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Sent webhook 'First' | url=http://url1 | time=1234ms | status=200");
@@ -139,7 +139,7 @@ public class WebHooksImplTest {
     settings.setProperty("sonar.webhooks.project.1.url", "http://url1");
     caller.enqueueSuccess(NOW, 200, 1_234);
 
-    underTest.sendProjectAnalysisUpdate(settings.asConfig(), new WebHooks.Analysis(PROJECT_UUID, "#1"), () -> mock);
+    underTest.sendProjectAnalysisUpdate(settings.asConfig(), new WebHooks.Analysis(PROJECT_UUID, "1", "#1"), () -> mock);
 
     assertThat(caller.countSent()).isEqualTo(1);
     assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Sent webhook 'First' | url=http://url1 | time=1234ms | status=200");
@@ -166,7 +166,7 @@ public class WebHooksImplTest {
       });
     settings.setProperty(property, IntStream.range(1, 15).mapToObj(String::valueOf).collect(Collectors.joining(",")));
 
-    underTest.sendProjectAnalysisUpdate(settings.asConfig(), new WebHooks.Analysis(PROJECT_UUID, "#1"), () -> mock);
+    underTest.sendProjectAnalysisUpdate(settings.asConfig(), new WebHooks.Analysis(PROJECT_UUID, "1", "#1"), () -> mock);
 
     assertThat(caller.countSent()).isEqualTo(10);
     assertThat(logTester.logs(LoggerLevel.DEBUG).stream().filter(log -> log.contains("Sent"))).hasSize(10);
