@@ -194,4 +194,10 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
     return prop != null && prop.getType() == BranchType.SHORT;
   }
 
+  public boolean isLongLivingBranch() {
+    checkState(this.branch.isInitialized(), "Branch has not been set");
+    Branch prop = branch.getProperty();
+    return prop != null && prop.getType() == BranchType.LONG;
+  }
+
 }

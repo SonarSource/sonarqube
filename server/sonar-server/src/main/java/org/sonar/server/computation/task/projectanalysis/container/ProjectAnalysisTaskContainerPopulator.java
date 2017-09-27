@@ -64,6 +64,7 @@ import org.sonar.server.computation.task.projectanalysis.issue.IssueCache;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueCounter;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueCreationDateCalculator;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueLifecycle;
+import org.sonar.server.computation.task.projectanalysis.issue.IssueStatusCopier;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueTrackingDelegator;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueVisitors;
 import org.sonar.server.computation.task.projectanalysis.issue.IssuesRepositoryVisitor;
@@ -78,6 +79,7 @@ import org.sonar.server.computation.task.projectanalysis.issue.RuleTagsCopier;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleTypeCopier;
 import org.sonar.server.computation.task.projectanalysis.issue.ScmAccountToUser;
 import org.sonar.server.computation.task.projectanalysis.issue.ScmAccountToUserLoader;
+import org.sonar.server.computation.task.projectanalysis.issue.ResolvedShortBranchIssuesFactory;
 import org.sonar.server.computation.task.projectanalysis.issue.ShortBranchTrackerExecution;
 import org.sonar.server.computation.task.projectanalysis.issue.TrackerBaseInputFactory;
 import org.sonar.server.computation.task.projectanalysis.issue.TrackerExecution;
@@ -250,6 +252,8 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       BaseIssuesLoader.class,
       IssueTrackingDelegator.class,
       BranchPersister.class,
+      ResolvedShortBranchIssuesFactory.class,
+      IssueStatusCopier.class,
 
       // filemove
       SourceSimilarityImpl.class,

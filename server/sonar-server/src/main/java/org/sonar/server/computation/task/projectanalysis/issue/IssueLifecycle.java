@@ -76,6 +76,11 @@ public class IssueLifecycle {
     }
   }
 
+  public void copyResolution(DefaultIssue raw, DefaultIssue shortBranchIssue) {
+    raw.setResolution(shortBranchIssue.resolution());
+    raw.setStatus(shortBranchIssue.status());
+  }
+
   public void mergeExistingOpenIssue(DefaultIssue raw, DefaultIssue base) {
     raw.setKey(base.key());
     raw.setNew(false);
