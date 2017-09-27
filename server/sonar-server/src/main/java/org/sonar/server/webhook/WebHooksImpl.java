@@ -81,7 +81,7 @@ public class WebHooksImpl implements WebHooks {
   @Override
   public void sendProjectAnalysisUpdate(Configuration config, Analysis analysis, Supplier<WebhookPayload> payloadSupplier) {
     List<Webhook> webhooks = readWebHooksFrom(config)
-      .map(nameUrl -> new Webhook(analysis.getProjectUuid(), analysis.getCeTaskUuid(), nameUrl.getName(), nameUrl.getUrl()))
+      .map(nameUrl -> new Webhook(analysis.getProjectUuid(), analysis.getCeTaskUuid(), analysis.getAnalysisUuid(), nameUrl.getName(), nameUrl.getUrl()))
       .collect(MoreCollectors.toList());
     if (webhooks.isEmpty()) {
       return;
