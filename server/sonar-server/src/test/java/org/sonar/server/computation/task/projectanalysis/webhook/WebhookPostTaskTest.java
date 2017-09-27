@@ -84,7 +84,13 @@ public class WebhookPostTaskTest {
       .execute();
 
     ArgumentCaptor<Supplier> supplierCaptor = ArgumentCaptor.forClass(Supplier.class);
-    verify(webHooks).sendProjectAnalysisUpdate(same(configuration), eq(new WebHooks.Analysis(project.getUuid(), ceTask.getId())), supplierCaptor.capture());
+    verify(webHooks)
+      .sendProjectAnalysisUpdate(
+        same(configuration),
+        eq(new WebHooks.Analysis(project.getUuid(),
+          "",
+          ceTask.getId())),
+        supplierCaptor.capture());
 
     assertThat(supplierCaptor.getValue().get()).isSameAs(webhookPayload);
 

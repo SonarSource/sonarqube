@@ -40,6 +40,7 @@ public class WebhookDbTesting {
       .setUuid(randomAlphanumeric(40))
       .setComponentUuid(randomAlphanumeric(40))
       .setCeTaskUuid(randomAlphanumeric(40))
+      .setAnalysisUuid(randomAlphanumeric(40))
       .setName(randomAlphanumeric(10))
       .setUrl(randomAlphanumeric(10))
       .setDurationMs(nextInt())

@@ -20,23 +20,28 @@
 
 package org.sonar.server.platform.db.migration.version.v66;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class UpdateCeTaskUuidColumnToNullableOnWebhookDeliveries extends DdlChange {
 
-public class DbVersion66Test {
+  public static final String TABLE_WEBHOOK_DELIVERIES = "webhook_deliveries";
 
-  private DbVersion66 underTest = new DbVersion66();
-
-  @Test
-  public void migrationNumber_starts_at_1801() {
-    verifyMinimumMigrationNumber(underTest, 1801);
+  public UpdateCeTaskUuidColumnToNullableOnWebhookDeliveries(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 14);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AlterColumnsBuilder(getDialect(), TABLE_WEBHOOK_DELIVERIES)
+      .updateColumn(VarcharColumnDef.newVarcharColumnDefBuilder()
+        .setColumnName("ce_task_uuid")
+        .setLimit(40)
+        .setIsNullable(true)
+        .build())
+      .build());
   }
-
 }

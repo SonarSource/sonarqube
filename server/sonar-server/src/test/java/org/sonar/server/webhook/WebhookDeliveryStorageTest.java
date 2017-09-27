@@ -20,6 +20,7 @@
 package org.sonar.server.webhook;
 
 import java.io.IOException;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -28,10 +29,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.webhook.WebhookDeliveryDto;
-import org.sonar.server.webhook.Webhook;
-import org.sonar.server.webhook.WebhookDelivery;
-import org.sonar.server.webhook.WebhookDeliveryStorage;
-import org.sonar.server.webhook.WebhookPayload;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -105,7 +102,7 @@ public class WebhookDeliveryStorageTest {
 
   private static WebhookDelivery.Builder newBuilderTemplate() {
     return new WebhookDelivery.Builder()
-      .setWebhook(new Webhook("COMPONENT1", "TASK1", "Jenkins", "http://jenkins"))
+      .setWebhook(new Webhook("COMPONENT1", "TASK1", RandomStringUtils.randomAlphanumeric(40),"Jenkins", "http://jenkins"))
       .setPayload(new WebhookPayload("my-project", "{json}"))
       .setAt(1_000_000L)
       .setHttpStatus(200)
