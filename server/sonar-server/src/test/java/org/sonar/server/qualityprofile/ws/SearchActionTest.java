@@ -34,9 +34,12 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -61,8 +64,8 @@ import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class SearchActionTest {
 
@@ -81,7 +84,7 @@ public class SearchActionTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private QProfileWsSupport qProfileWsSupport = new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider);
 
-  private SearchAction underTest = new SearchAction(LANGUAGES, dbClient, qProfileWsSupport, new ComponentFinder(dbClient, null));
+  private SearchAction underTest = new SearchAction(userSession, LANGUAGES, dbClient, qProfileWsSupport, new ComponentFinder(dbClient, null));
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -130,7 +133,7 @@ public class SearchActionTest {
 
   @Test
   public void empty_when_no_language_installed() {
-    WsActionTester ws = new WsActionTester(new SearchAction(new Languages(), dbClient, qProfileWsSupport, new ComponentFinder(dbClient, null)));
+    WsActionTester ws = new WsActionTester(new SearchAction(userSession, new Languages(), dbClient, qProfileWsSupport, new ComponentFinder(dbClient, null)));
     db.qualityProfiles().insert(db.getDefaultOrganization());
 
     SearchWsResponse result = call(ws.newRequest());
@@ -307,7 +310,7 @@ public class SearchActionTest {
 
   @Test
   public void empty_when_filtering_on_project_and_no_language_installed() {
-    WsActionTester ws = new WsActionTester(new SearchAction(new Languages(), dbClient, qProfileWsSupport, new ComponentFinder(dbClient, null)));
+    WsActionTester ws = new WsActionTester(new SearchAction(userSession, new Languages(), dbClient, qProfileWsSupport, new ComponentFinder(dbClient, null)));
     db.qualityProfiles().insert(db.getDefaultOrganization());
     ComponentDto project = db.components().insertPrivateProject();
     QProfileDto profileOnXoo1 = db.qualityProfiles().insert(db.getDefaultOrganization(), q -> q.setLanguage(XOO1.getKey()));
@@ -318,6 +321,63 @@ public class SearchActionTest {
       .setParam(PARAM_DEFAULTS, "true"));
 
     assertThat(result.getProfilesList()).isEmpty();
+  }
+
+  @Test
+  public void actions_when_user_is_global_qprofile_administer() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto customProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO1.getKey()));
+    QProfileDto builtInProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO1.getKey()).setIsBuiltIn(true));
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
+
+    SearchWsResponse result = call(ws.newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey()));
+
+    assertThat(result.getProfilesList()).extracting(QualityProfile::getKey, qp -> qp.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault())
+      .containsExactlyInAnyOrder(
+        tuple(customProfile.getKee(), true, true, true),
+        tuple(builtInProfile.getKee(), false, true, true));
+    assertThat(result.getActions().getCreate()).isTrue();
+  }
+
+  @Test
+  public void actions_when_user_can_edit_profile() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile1 = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO1.getKey()));
+    QProfileDto profile2 = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO2.getKey()));
+    QProfileDto profile3 = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO2.getKey()));
+    QProfileDto builtInProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO2.getKey()).setIsBuiltIn(true));
+    UserDto user = db.users().insertUser();
+    GroupDto group = db.users().insertGroup(organization);
+    db.qualityProfiles().addUserPermission(profile1, user);
+    db.qualityProfiles().addGroupPermission(profile3, group);
+    userSession.logIn(user).setGroups(group);
+
+    SearchWsResponse result = call(ws.newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey()));
+
+    assertThat(result.getProfilesList()).extracting(QualityProfile::getKey, qp -> qp.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault())
+      .containsExactlyInAnyOrder(
+        tuple(profile1.getKee(), true, false, false),
+        tuple(profile2.getKee(), false, false, false),
+        tuple(profile3.getKee(), true, false, false),
+        tuple(builtInProfile.getKee(), false, false, false));
+    assertThat(result.getActions().getCreate()).isFalse();
+  }
+
+  @Test
+  public void actions_when_not_logged_in() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO1.getKey()));
+    userSession.anonymous();
+
+    SearchWsResponse result = call(ws.newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey()));
+
+    assertThat(result.getProfilesList()).extracting(QualityProfile::getKey, qp -> qp.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault())
+      .containsExactlyInAnyOrder(tuple(profile.getKee(), false, false, false));
+    assertThat(result.getActions().getCreate()).isFalse();
   }
 
   @Test
@@ -408,18 +468,19 @@ public class SearchActionTest {
 
   @Test
   public void json_example() {
+    OrganizationDto organization = db.organizations().insertForKey("My Organization");
     // languages
     Language cs = newLanguage("cs", "C#");
     Language java = newLanguage("java", "Java");
     Language python = newLanguage("py", "Python");
     // profiles
-    QProfileDto sonarWayCs = db.qualityProfiles().insert(db.getDefaultOrganization(),
+    QProfileDto sonarWayCs = db.qualityProfiles().insert(organization,
       p -> p.setName("Sonar way").setKee("AU-TpxcA-iU5OvuD2FL3").setIsBuiltIn(true).setLanguage(cs.getKey()));
-    QProfileDto myCompanyProfile = db.qualityProfiles().insert(db.getDefaultOrganization(),
+    QProfileDto myCompanyProfile = db.qualityProfiles().insert(organization,
       p -> p.setName("My Company Profile").setKee("iU5OvuD2FLz").setLanguage(java.getKey()));
-    QProfileDto myBuProfile = db.qualityProfiles().insert(db.getDefaultOrganization(),
+    QProfileDto myBuProfile = db.qualityProfiles().insert(organization,
       p -> p.setName("My BU Profile").setKee("AU-TpxcA-iU5OvuD2FL1").setParentKee(myCompanyProfile.getKee()).setLanguage(java.getKey()));
-    QProfileDto sonarWayPython = db.qualityProfiles().insert(db.getDefaultOrganization(),
+    QProfileDto sonarWayPython = db.qualityProfiles().insert(organization,
       p -> p.setName("Sonar way").setKee("AU-TpxcB-iU5OvuD2FL7").setIsBuiltIn(true).setLanguage(python.getKey()));
     db.qualityProfiles().setAsDefault(sonarWayCs, myCompanyProfile, sonarWayPython);
     // rules
@@ -440,12 +501,17 @@ public class SearchActionTest {
       .forEach(rule -> db.qualityProfiles().activateRule(sonarWayCs, rule));
     // project
     range(0, 7)
-      .mapToObj(i -> db.components().insertPrivateProject())
+      .mapToObj(i -> db.components().insertPrivateProject(organization))
       .forEach(project -> db.qualityProfiles().associateWithProject(project, myBuProfile));
+    // User
+    UserDto user = db.users().insertUser();
+    db.qualityProfiles().addUserPermission(sonarWayCs, user);
+    db.qualityProfiles().addUserPermission(myBuProfile, user);
+    userSession.logIn(user);
 
-    underTest = new SearchAction(new Languages(cs, java, python), dbClient, qProfileWsSupport, new ComponentFinder(dbClient, null));
+    underTest = new SearchAction(userSession, new Languages(cs, java, python), dbClient, qProfileWsSupport, new ComponentFinder(dbClient, null));
     ws = new WsActionTester(underTest);
-    String result = ws.newRequest().execute().getInput();
+    String result = ws.newRequest().setParam(PARAM_ORGANIZATION, organization.getKey()).execute().getInput();
     assertJson(result).ignoreFields("ruleUpdatedAt", "lastUsed", "userUpdatedAt")
       .isSimilarTo(ws.getDef().responseExampleAsString());
   }
