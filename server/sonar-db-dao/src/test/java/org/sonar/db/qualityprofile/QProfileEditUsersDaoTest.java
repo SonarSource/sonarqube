@@ -19,8 +19,10 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.sql.SQLException;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
@@ -35,6 +37,7 @@ import static org.sonar.db.qualityprofile.SearchUsersQuery.ANY;
 import static org.sonar.db.qualityprofile.SearchUsersQuery.IN;
 import static org.sonar.db.qualityprofile.SearchUsersQuery.OUT;
 import static org.sonar.db.qualityprofile.SearchUsersQuery.builder;
+import static org.sonar.test.ExceptionCauseMatcher.hasType;
 
 public class QProfileEditUsersDaoTest {
 
@@ -42,6 +45,8 @@ public class QProfileEditUsersDaoTest {
 
   private System2 system2 = new TestSystem2().setNow(NOW);
 
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(system2);
 
@@ -82,15 +87,15 @@ public class QProfileEditUsersDaoTest {
       .isEqualTo(3);
 
     assertThat(underTest.countByQuery(db.getSession(), builder()
-        .setOrganization(organization)
-        .setProfile(profile)
-        .setMembership(IN).build()))
+      .setOrganization(organization)
+      .setProfile(profile)
+      .setMembership(IN).build()))
       .isEqualTo(2);
 
     assertThat(underTest.countByQuery(db.getSession(), builder()
-        .setOrganization(organization)
-        .setProfile(profile)
-        .setMembership(OUT).build()))
+      .setOrganization(organization)
+      .setProfile(profile)
+      .setMembership(OUT).build()))
       .isEqualTo(1);
   }
 
@@ -218,6 +223,25 @@ public class QProfileEditUsersDaoTest {
   }
 
   @Test
+  public void selectQProfileUuidsByOrganizationAndUser() {
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    QProfileDto profile1 = db.qualityProfiles().insert(organization);
+    QProfileDto profile2 = db.qualityProfiles().insert(organization);
+    QProfileDto anotherProfile = db.qualityProfiles().insert(anotherOrganization);
+    UserDto user1 = db.users().insertUser(u -> u.setName("user1"));
+    UserDto user2 = db.users().insertUser(u -> u.setName("user2"));
+    db.qualityProfiles().addUserPermission(profile1, user1);
+    db.qualityProfiles().addUserPermission(profile2, user1);
+    db.qualityProfiles().addUserPermission(anotherProfile, user1);
+
+    assertThat(underTest.selectQProfileUuidsByOrganizationAndUser(db.getSession(), organization, user1))
+      .containsExactlyInAnyOrder(profile1.getKee(), profile2.getKee())
+      .doesNotContain(anotherProfile.getKee());
+    assertThat(underTest.selectQProfileUuidsByOrganizationAndUser(db.getSession(), organization, user2)).isEmpty();
+  }
+
+  @Test
   public void insert() {
     underTest.insert(db.getSession(), new QProfileEditUsersDto()
       .setUuid("ABCD")
@@ -230,6 +254,23 @@ public class QProfileEditUsersDaoTest {
       entry("userId", 100L),
       entry("qProfileUuid", "QPROFILE"),
       entry("createdAt", NOW));
+  }
+
+  @Test
+  public void fail_to_insert_same_row_twice() {
+    underTest.insert(db.getSession(), new QProfileEditUsersDto()
+      .setUuid("UUID-1")
+      .setUserId(100)
+      .setQProfileUuid("QPROFILE")
+    );
+
+    expectedException.expectCause(hasType(SQLException.class));
+
+    underTest.insert(db.getSession(), new QProfileEditUsersDto()
+      .setUuid("UUID-2")
+      .setUserId(100)
+      .setQProfileUuid("QPROFILE")
+    );
   }
 
   @Test
