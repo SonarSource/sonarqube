@@ -41,4 +41,6 @@ public interface QProfileEditUsersMapper {
   void deleteByQProfiles(@Param("qProfileUuids") Collection<String> qProfileUuids);
 
   void deleteByUser(@Param("userId") int userId);
+
+  void deleteByOrganizationAndUser(@Param("organizationUuid") String organizationUuid, @Param("userId") int userId);
 }
