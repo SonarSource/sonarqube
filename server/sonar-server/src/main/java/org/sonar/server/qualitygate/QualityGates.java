@@ -44,7 +44,6 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
 import static java.lang.String.format;
-import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
@@ -179,8 +178,7 @@ public class QualityGates {
     }
   }
 
-  public void dissociateProject(DbSession dbSession, Long qGateId, ComponentDto project) {
-    getNonNullQgate(qGateId);
+  public void dissociateProject(DbSession dbSession, ComponentDto project) {
     checkProjectAdmin(project);
     propertiesDao.deleteProjectProperty(SONAR_QUALITYGATE_PROPERTY, project.getId(), dbSession);
     dbSession.commit();

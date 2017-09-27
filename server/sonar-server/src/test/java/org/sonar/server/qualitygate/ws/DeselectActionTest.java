@@ -24,6 +24,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.MetricFinder;
+import org.sonar.api.server.ws.Change;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -43,6 +45,7 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
@@ -75,6 +78,33 @@ public class DeselectActionTest {
   }
 
   @Test
+  public void definition() {
+    WebService.Action def = ws.getDef();
+
+    assertThat(def.description()).isNotEmpty();
+    assertThat(def.isPost()).isTrue();
+    assertThat(def.since()).isEqualTo("4.3");
+    assertThat(def.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactly(
+      tuple("6.6", "The parameter 'gateId' was removed")
+    );
+
+    assertThat(def.params()).extracting(WebService.Param::key)
+      .containsExactlyInAnyOrder("projectId", "projectKey");
+
+    WebService.Param projectId = def.param("projectId");
+    assertThat(projectId.isRequired()).isFalse();
+    assertThat(projectId.deprecatedSince()).isEqualTo("6.1");
+    assertThat(projectId.description()).isNotEmpty();
+    assertThat(projectId.exampleValue()).isNotEmpty();
+
+    WebService.Param projectKey = def.param("projectKey");
+    assertThat(projectKey.isRequired()).isFalse();
+    assertThat(projectKey.since()).isEqualTo("6.1");
+    assertThat(projectKey.description()).isNotEmpty();
+    assertThat(projectKey.exampleValue()).isNotEmpty();
+  }
+
+  @Test
   public void deselect_by_id() throws Exception {
     logInAsRoot();
 
@@ -83,7 +113,7 @@ public class DeselectActionTest {
     associateProjectToQualityGate(project.getId(), gateId);
     associateProjectToQualityGate(anotherProject.getId(), gateId);
 
-    callById(gateId, project.getId());
+    callById(project.getId());
 
     assertDeselected(project.getId());
     assertSelected(gateId, anotherProject.getId());
@@ -96,7 +126,7 @@ public class DeselectActionTest {
     String gateId = String.valueOf(gate.getId());
     associateProjectToQualityGate(project.getId(), gateId);
 
-    callByUuid(gateId, project.uuid());
+    callByUuid(project.uuid());
 
     assertDeselected(project.getId());
   }
@@ -108,7 +138,7 @@ public class DeselectActionTest {
     String gateId = String.valueOf(gate.getId());
     associateProjectToQualityGate(project.getId(), gateId);
 
-    callByKey(gateId, project.getDbKey());
+    callByKey(project.getDbKey());
 
     assertDeselected(project.getId());
   }
@@ -120,16 +150,9 @@ public class DeselectActionTest {
 
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
-    callByKey(gateId, project.getDbKey());
+    callByKey(project.getDbKey());
 
     assertDeselected(project.getId());
-  }
-
-  @Test
-  public void fail_when_no_quality_gate() throws Exception {
-    expectedException.expect(NotFoundException.class);
-
-    callByKey("-1", project.getDbKey());
   }
 
   @Test
@@ -138,7 +161,7 @@ public class DeselectActionTest {
 
     expectedException.expect(NotFoundException.class);
 
-    callById(gateId, 1L);
+    callById(1L);
   }
 
   @Test
@@ -147,7 +170,7 @@ public class DeselectActionTest {
 
     expectedException.expect(NotFoundException.class);
 
-    callByKey(gateId, "unknown");
+    callByKey("unknown");
   }
 
   @Test
@@ -156,7 +179,7 @@ public class DeselectActionTest {
     userSession.anonymous();
 
     expectedException.expect(ForbiddenException.class);
-    callByKey(gateId, project.getDbKey());
+    callByKey(project.getDbKey());
   }
 
   @Test
@@ -167,7 +190,7 @@ public class DeselectActionTest {
 
     expectedException.expect(ForbiddenException.class);
 
-    callByKey(gateId, project.getDbKey());
+    callByKey(project.getDbKey());
   }
 
   @Test
@@ -178,7 +201,7 @@ public class DeselectActionTest {
 
     expectedException.expect(ForbiddenException.class);
 
-    callByKey(gateId, project.getDbKey());
+    callByKey(project.getDbKey());
   }
 
   @Test
@@ -192,7 +215,7 @@ public class DeselectActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
 
-    callByKey(gateId, branch.getDbKey());
+    callByKey(branch.getDbKey());
   }
 
   @Test
@@ -206,7 +229,7 @@ public class DeselectActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage(format("Component id '%s' not found", branch.uuid()));
 
-    callByUuid(gateId, branch.uuid());
+    callByUuid(branch.uuid());
   }
 
   private QualityGateDto insertQualityGate() {
@@ -216,23 +239,20 @@ public class DeselectActionTest {
     return gate;
   }
 
-  private void callByKey(String gateId, String projectKey) {
+  private void callByKey(String projectKey) {
     ws.newRequest()
-      .setParam("gateId", String.valueOf(gateId))
       .setParam("projectKey", projectKey)
       .execute();
   }
 
-  private void callById(String gateId, Long projectId) {
+  private void callById(Long projectId) {
     ws.newRequest()
-      .setParam("gateId", String.valueOf(gateId))
       .setParam("projectId", String.valueOf(projectId))
       .execute();
   }
 
-  private void callByUuid(String gateId, String projectUuid) {
+  private void callByUuid(String projectUuid) {
     ws.newRequest()
-      .setParam("gateId", String.valueOf(gateId))
       .setParam("projectId", projectUuid)
       .execute();
   }

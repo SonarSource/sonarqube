@@ -21,6 +21,7 @@ package org.sonar.server.qualitygate.ws;
 
 import com.google.common.base.Optional;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -30,7 +31,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.qualitygate.QualityGates;
-import org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters;
 
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_ID;
@@ -54,15 +54,12 @@ public class DeselectAction implements QualityGatesWsAction {
       .setDescription("Remove the association of a project from a quality gate. Require Administer Quality Gates permission")
       .setPost(true)
       .setSince("4.3")
-      .setHandler(this);
-
-    action.createParam(QualityGatesWsParameters.PARAM_GATE_ID)
-      .setDescription("Quality Gate id")
-      .setRequired(true)
-      .setExampleValue("23");
+      .setHandler(this)
+      .setChangelog(new Change("6.6", "The parameter 'gateId' was removed"));
 
     action.createParam(PARAM_PROJECT_ID)
-      .setDescription("Project id. Project id as an numeric value is deprecated since 6.1")
+      .setDescription("Project id")
+      .setDeprecatedSince("6.1")
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
 
     action.createParam(PARAM_PROJECT_KEY)
@@ -75,7 +72,7 @@ public class DeselectAction implements QualityGatesWsAction {
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto project = getProject(dbSession, request.param(PARAM_PROJECT_ID), request.param(PARAM_PROJECT_KEY));
-      qualityGates.dissociateProject(dbSession, QualityGatesWs.parseId(request, QualityGatesWsParameters.PARAM_GATE_ID), project);
+      qualityGates.dissociateProject(dbSession, project);
       response.noContent();
     }
   }
