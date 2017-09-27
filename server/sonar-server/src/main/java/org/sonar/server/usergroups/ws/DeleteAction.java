@@ -72,6 +72,7 @@ public class DeleteAction implements UserGroupsWsAction {
       removeGroupPermissions(dbSession, group);
       removeFromPermissionTemplates(dbSession, group);
       removeGroupMembers(dbSession, group);
+      dbClient.qProfileEditGroupsDao().deleteByGroup(dbSession, group);
       dbClient.groupDao().deleteById(dbSession, group.getId());
 
       dbSession.commit();
