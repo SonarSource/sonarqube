@@ -19,8 +19,10 @@
  */
 package org.sonar.server.webhook;
 
-import java.util.Objects;
+import com.google.common.base.Objects;
 import java.util.function.Supplier;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.config.Configuration;
 
 import static java.util.Objects.requireNonNull;
@@ -44,18 +46,25 @@ public interface WebHooks {
   final class Analysis {
     private final String projectUuid;
     private final String ceTaskUuid;
+    private final String analysisUuid;
 
-    public Analysis(String projectUuid, String ceTaskUuid) {
+    public Analysis(String projectUuid, String analysisUuid, @Nullable  String ceTaskUuid) {
       this.projectUuid = requireNonNull(projectUuid, "projectUuid can't be null");
-      this.ceTaskUuid = requireNonNull(ceTaskUuid, "ceTaskUuid can't be null");
+      this.analysisUuid = requireNonNull(analysisUuid, "analysisUuid can't be null");
+      this.ceTaskUuid = ceTaskUuid;
     }
 
     public String getProjectUuid() {
       return projectUuid;
     }
 
+    @CheckForNull
     public String getCeTaskUuid() {
       return ceTaskUuid;
+    }
+
+    public String getAnalysisUuid() {
+      return analysisUuid;
     }
 
     @Override
@@ -63,16 +72,18 @@ public interface WebHooks {
       if (this == o) {
         return true;
       }
-      if (o == null || getClass() != o.getClass()) {
+      if (!(o instanceof Analysis)) {
         return false;
       }
       Analysis analysis = (Analysis) o;
-      return projectUuid.equals(analysis.projectUuid) && ceTaskUuid.equals(analysis.ceTaskUuid);
+      return Objects.equal(projectUuid, analysis.projectUuid) &&
+        Objects.equal(ceTaskUuid, analysis.ceTaskUuid) &&
+        Objects.equal(analysisUuid, analysis.analysisUuid);
     }
 
     @Override
     public int hashCode() {
-      return Objects.hash(projectUuid, ceTaskUuid);
+      return Objects.hashCode(projectUuid, ceTaskUuid, analysisUuid);
     }
   }
 }
