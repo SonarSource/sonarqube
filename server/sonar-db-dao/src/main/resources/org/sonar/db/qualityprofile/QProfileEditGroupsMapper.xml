@@ -9,12 +9,14 @@
     qeg.qprofile_uuid as "qProfileUuid"
   </sql>
 
-  <select id="selectByQProfileAndGroup" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileEditGroupsDto">
+  <select id="selectByQProfileAndGroups" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileEditGroupsDto">
     select
     <include refid="sqlColumns"/>
     from qprofile_edit_groups qeg
     where
-    qeg.group_id = #{groupId, jdbcType=INTEGER}
+    <foreach collection="groupIds" open="(" close=")" item="groupId" separator=" or ">
+      qeg.group_id = #{groupId, jdbcType=INTEGER}
+    </foreach>
     and qeg.qprofile_uuid = #{qProfileUuid, jdbcType=VARCHAR}
   </select>
 

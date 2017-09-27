@@ -19,7 +19,6 @@
  */
 package org.sonar.db.qualityprofile;
 
-import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -30,6 +29,8 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
@@ -62,6 +63,9 @@ public class QProfileEditGroupsDaoTest {
     assertThat(underTest.exists(db.getSession(), profile, anotherGroup)).isFalse();
     assertThat(underTest.exists(db.getSession(), anotherProfile, group)).isFalse();
     assertThat(underTest.exists(db.getSession(), anotherProfile, anotherGroup)).isFalse();
+    assertThat(underTest.exists(db.getSession(), profile, asList(group, anotherGroup))).isTrue();
+    assertThat(underTest.exists(db.getSession(), profile, singletonList(anotherGroup))).isFalse();
+    assertThat(underTest.exists(db.getSession(), profile, emptyList())).isFalse();
   }
 
   @Test
@@ -219,7 +223,7 @@ public class QProfileEditGroupsDaoTest {
       .doesNotContain(anotherProfile.getKee());
     assertThat(underTest.selectQProfileUuidsByOrganizationAndGroups(db.getSession(), organization, asList(group1, group2, group3)))
       .containsExactlyInAnyOrder(profile1.getKee(), profile2.getKee());
-    assertThat(underTest.selectQProfileUuidsByOrganizationAndGroups(db.getSession(), organization, Collections.emptyList())).isEmpty();
+    assertThat(underTest.selectQProfileUuidsByOrganizationAndGroups(db.getSession(), organization, emptyList())).isEmpty();
   }
 
   @Test

@@ -85,7 +85,11 @@ public class SearchUsersAction implements QProfileWsAction {
     WebService.NewAction action = context
       .createAction(ACTION_SEARCH_USERS)
       .setDescription("List the users that are allowed to edit a Quality Profile.<br>" +
-        "Requires the 'Administer Quality Profiles' permission or the ability to edit the quality profile.")
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "  <li>'Administer Quality Profiles'</li>" +
+        "  <li>Edit right on the specified quality profile</li>" +
+        "</ul>")
       .setHandler(this)
       .setInternal(true)
       .addSearchQuery("freddy", "names", "logins")
@@ -132,7 +136,8 @@ public class SearchUsersAction implements QProfileWsAction {
           .addAllUsers(usersMembership.stream()
             .map(userMembershipDto -> toUser(usersById.get(userMembershipDto.getUserId()), userMembershipDto.isSelected()))
             .collect(toList()))
-          .setPaging(buildPaging(wsRequest, total)).build(), request, response);
+          .setPaging(buildPaging(wsRequest, total)).build(),
+        request, response);
     }
   }
 

@@ -35,6 +35,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -58,15 +59,15 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 public class ActivateRuleActionTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create();
+  public DbTester db = DbTester.create();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private DbClient dbClient = dbTester.getDbClient();
+  private DbClient dbClient = db.getDbClient();
   private RuleActivator ruleActivator = mock(RuleActivator.class);
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(dbTester));
+  private QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(db));
 
   private WsActionTester ws = new WsActionTester(new ActivateRuleAction(dbClient, ruleActivator, userSession, wsSupport));
 
@@ -75,8 +76,8 @@ public class ActivateRuleActionTest {
 
   @Before
   public void before() {
-    defaultOrganization = dbTester.getDefaultOrganization();
-    organization = dbTester.organizations().insert();
+    defaultOrganization = db.getDefaultOrganization();
+    organization = db.organizations().insert();
   }
 
   @Test
@@ -92,7 +93,7 @@ public class ActivateRuleActionTest {
   }
 
   @Test
-  public void should_fail_if_not_logged_in() {
+  public void fail_if_not_logged_in() {
     TestRequest request = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_RULE, RuleTesting.newRule().getKey().toString())
@@ -104,9 +105,9 @@ public class ActivateRuleActionTest {
   }
 
   @Test
-  public void should_fail_if_not_organization_quality_profile_administrator() {
-    userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
-    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+  public void fail_if_not_organization_quality_profile_administrator() {
+    userSession.logIn(db.users().insertUser());
+    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
     TestRequest request = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_RULE, RuleTesting.newRuleDto().getKey().toString())
@@ -119,9 +120,9 @@ public class ActivateRuleActionTest {
 
   @Test
   public void fail_activate_if_built_in_profile() {
-    userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
+    userSession.logIn(db.users().insertUser()).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
 
-    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(defaultOrganization, profile -> profile.setIsBuiltIn(true).setName("Xoo profile").setLanguage("xoo"));
+    QProfileDto qualityProfile = db.qualityProfiles().insert(defaultOrganization, profile -> profile.setIsBuiltIn(true).setName("Xoo profile").setLanguage("xoo"));
     TestRequest request = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_RULE, RuleTesting.newRuleDto().getKey().toString())
@@ -136,7 +137,7 @@ public class ActivateRuleActionTest {
   @Test
   public void activate_rule_in_default_organization() {
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, defaultOrganization);
-    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(defaultOrganization);
+    QProfileDto qualityProfile = db.qualityProfiles().insert(defaultOrganization);
     RuleKey ruleKey = RuleTesting.randomRuleKey();
     TestRequest request = ws.newRequest()
       .setMethod("POST")
@@ -160,7 +161,7 @@ public class ActivateRuleActionTest {
   @Test
   public void activate_rule_in_specific_organization() {
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
-    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
     RuleKey ruleKey = RuleTesting.randomRuleKey();
     TestRequest request = ws.newRequest()
       .setMethod("POST")
@@ -178,5 +179,25 @@ public class ActivateRuleActionTest {
     assertThat(captor.getValue().getRuleKey()).isEqualTo(ruleKey);
     assertThat(captor.getValue().getSeverity()).isEqualTo(Severity.BLOCKER);
     assertThat(captor.getValue().isReset()).isFalse();
+  }
+
+  @Test
+  public void as_qprofile_editor() {
+    UserDto user = db.users().insertUser();
+    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+    db.qualityProfiles().addUserPermission(qualityProfile, user);
+    userSession.logIn(user);
+    RuleKey ruleKey = RuleTesting.randomRuleKey();
+
+    ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_RULE, ruleKey.toString())
+      .setParam(PARAM_KEY, qualityProfile.getKee())
+      .setParam("severity", "BLOCKER")
+      .setParam("params", "key1=v1;key2=v2")
+      .setParam("reset", "false")
+      .execute();
+
+    verify(ruleActivator).activateAndCommit(any(DbSession.class), any(RuleActivation.class), any(QProfileDto.class));
   }
 }

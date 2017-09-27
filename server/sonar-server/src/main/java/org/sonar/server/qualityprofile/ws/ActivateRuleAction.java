@@ -28,6 +28,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
@@ -36,8 +37,8 @@ import org.sonar.server.user.UserSession;
 import static java.lang.String.format;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULE;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARAMS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARAMS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RESET;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SEVERITY;
@@ -60,7 +61,11 @@ public class ActivateRuleAction implements QProfileWsAction {
     WebService.NewAction activate = controller
       .createAction(ACTION_ACTIVATE_RULE)
       .setDescription("Activate a rule on a Quality Profile.<br> " +
-        "Requires to be logged in and the 'Administer Quality Profiles' permission.")
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "  <li>'Administer Quality Profiles'</li>" +
+        "  <li>Edit right on the specified quality profile</li>" +
+        "</ul>")
       .setHandler(this)
       .setPost(true)
       .setSince("4.4");
@@ -96,8 +101,8 @@ public class ActivateRuleAction implements QProfileWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String profileKey = request.mandatoryParam(PARAM_KEY);
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
-      wsSupport.checkPermission(dbSession, profile);
-      wsSupport.checkNotBuiltInt(profile);
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
+      wsSupport.checkCanEdit(dbSession, organization, profile);
       RuleActivation activation = readActivation(request);
       ruleActivator.activateAndCommit(dbSession, activation, profile);
     }

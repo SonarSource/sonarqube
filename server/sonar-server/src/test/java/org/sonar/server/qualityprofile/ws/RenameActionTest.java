@@ -32,6 +32,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -50,7 +51,7 @@ public class RenameActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -65,8 +66,8 @@ public class RenameActionTest {
   @Before
   public void setUp() {
     TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-    QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSessionRule, defaultOrganizationProvider);
-    RenameAction underTest = new RenameAction(dbClient, userSessionRule, wsSupport);
+    QProfileWsSupport wsSupport = new QProfileWsSupport(dbClient, userSession, defaultOrganizationProvider);
+    RenameAction underTest = new RenameAction(dbClient, userSession, wsSupport);
     ws = new WsActionTester(underTest);
 
     organization = db.organizations().insert();
@@ -112,7 +113,7 @@ public class RenameActionTest {
   public void allow_same_name_in_different_organizations() {
     OrganizationDto organizationX = db.organizations().insert();
     OrganizationDto organizationY = db.organizations().insert();
-    userSessionRule.logIn()
+    userSession.logIn()
       .addPermission(ADMINISTER_QUALITY_PROFILES, organizationX);
 
     QProfileDto qualityProfile1 = QualityProfileTesting.newQualityProfileDto()
@@ -136,6 +137,34 @@ public class RenameActionTest {
   }
 
   @Test
+  public void allow_100_characters_as_name_and_not_more() throws Exception {
+    logInAsQProfileAdministrator();
+    String qualityProfileKey = createNewValidQualityProfileKey();
+
+    String a100charName = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
+    call(qualityProfileKey, a100charName);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Name is too long (>100 characters)");
+
+    String a101charName = "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901";
+    call(qualityProfileKey, a101charName);
+  }
+
+  @Test
+  public void as_qprofile_editor() {
+    QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
+    UserDto user = db.users().insertUser();
+    db.qualityProfiles().addUserPermission(qualityProfile, user);
+    userSession.logIn(user);
+
+    call(qualityProfile.getKee(), "the new name");
+
+    QProfileDto reloaded = db.getDbClient().qualityProfileDao().selectByUuid(db.getSession(), qualityProfile.getKee());
+    assertThat(reloaded.getName()).isEqualTo("the new name");
+  }
+
+  @Test
   public void fail_if_parameter_profile_is_missing() throws Exception {
     logInAsQProfileAdministrator();
 
@@ -156,10 +185,10 @@ public class RenameActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_profile_administrator() throws Exception {
+  public void fail_if_not_profile_administrator() throws Exception {
     OrganizationDto organizationX = db.organizations().insert();
     OrganizationDto organizationY = db.organizations().insert();
-    userSessionRule.logIn()
+    userSession.logIn(db.users().insertUser())
       .addPermission(ADMINISTER_QUALITY_PROFILES, organizationX);
 
     QProfileDto qualityProfile = QualityProfileTesting.newQualityProfileDto()
@@ -174,7 +203,7 @@ public class RenameActionTest {
   }
 
   @Test
-  public void throw_UnauthorizedException_if_not_logged_in() throws Exception {
+  public void fail_if_not_logged_in() throws Exception {
     expectedException.expect(UnauthorizedException.class);
     expectedException.expectMessage("Authentication is required");
 
@@ -199,21 +228,6 @@ public class RenameActionTest {
     expectedException.expect(BadRequestException.class);
 
     call(qualityProfileKey, "the new name");
-  }
-
-  @Test
-  public void allow_100_characters_as_name_and_not_more() throws Exception {
-    logInAsQProfileAdministrator();
-    String qualityProfileKey = createNewValidQualityProfileKey();
-
-    String a100charName = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
-    call(qualityProfileKey, a100charName);
-
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Name is too long (>100 characters)");
-
-    String a101charName = "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901";
-    call(qualityProfileKey, a101charName);
   }
 
   @Test
@@ -263,9 +277,7 @@ public class RenameActionTest {
   }
 
   private void logInAsQProfileAdministrator() {
-    userSessionRule
-      .logIn()
-      .addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.logIn(db.users().insertUser()).addPermission(ADMINISTER_QUALITY_PROFILES, organization);
   }
 
   private void call(@Nullable String key, @Nullable String name) {

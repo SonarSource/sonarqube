@@ -28,13 +28,13 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_09;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_PROJECT;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT;
@@ -61,7 +61,12 @@ public class RemoveProjectAction implements QProfileWsAction {
     NewAction action = controller.createAction(ACTION_REMOVE_PROJECT)
       .setSince("5.2")
       .setDescription("Remove a project's association with a quality profile.<br> " +
-        "Requires to be logged in and the 'Administer Quality Profiles' permission.")
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "  <li>'Administer Quality Profiles'</li>" +
+        "  <li>Edit right on the specified quality profile</li>" +
+        "  <li>Administer right on the specified project</li>" +
+        "</ul>")
       .setPost(true)
       .setHandler(this);
     QProfileReference.defineParams(action, languages);
@@ -85,7 +90,8 @@ public class RemoveProjectAction implements QProfileWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto project = loadProject(dbSession, request);
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.from(request));
-
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
+      checkPermissions(dbSession, organization, profile, project);
       if (!profile.getOrganizationUuid().equals(project.getOrganizationUuid())) {
         throw new IllegalArgumentException("Project and Quality profile must have the same organization");
       }
@@ -100,15 +106,14 @@ public class RemoveProjectAction implements QProfileWsAction {
   private ComponentDto loadProject(DbSession dbSession, Request request) {
     String projectKey = request.param(PARAM_PROJECT);
     String projectUuid = request.param(PARAM_PROJECT_UUID);
-    ComponentDto project = componentFinder.getByUuidOrKey(dbSession, projectUuid, projectKey, ComponentFinder.ParamNames.PROJECT_UUID_AND_PROJECT);
-    checkAdministrator(project);
-    return project;
+    return componentFinder.getByUuidOrKey(dbSession, projectUuid, projectKey, ComponentFinder.ParamNames.PROJECT_UUID_AND_PROJECT);
   }
 
-  private void checkAdministrator(ComponentDto project) {
-    if (!userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, project.getOrganizationUuid()) &&
-      !userSession.hasComponentPermission(UserRole.ADMIN, project)) {
-      throw new ForbiddenException("Insufficient privileges");
+  private void checkPermissions(DbSession dbSession, OrganizationDto organization, QProfileDto profile, ComponentDto project) {
+    if (wsSupport.canEdit(dbSession, organization, profile) || userSession.hasComponentPermission(UserRole.ADMIN, project)) {
+      return;
     }
+
+    throw insufficientPrivilegesException();
   }
 }
