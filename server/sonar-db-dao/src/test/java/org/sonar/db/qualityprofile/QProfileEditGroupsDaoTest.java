@@ -277,4 +277,27 @@ public class QProfileEditGroupsDaoTest {
     assertThat(underTest.exists(db.getSession(), anotherProfile, group1)).isTrue();
   }
 
+  @Test
+  public void deleteByGroup() {
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    QProfileDto profile1 = db.qualityProfiles().insert(organization);
+    QProfileDto profile2 = db.qualityProfiles().insert(organization);
+    QProfileDto profile3 = db.qualityProfiles().insert(organization);
+    QProfileDto anotherProfile = db.qualityProfiles().insert(anotherOrganization);
+    GroupDto group1 = db.users().insertGroup(organization);
+    GroupDto group2 = db.users().insertGroup(organization);
+    db.qualityProfiles().addGroupPermission(profile1, group1);
+    db.qualityProfiles().addGroupPermission(profile2, group2);
+    db.qualityProfiles().addGroupPermission(profile3, group1);
+    db.qualityProfiles().addGroupPermission(anotherProfile, group1);
+
+    underTest.deleteByGroup(db.getSession(), group1);
+
+    assertThat(underTest.exists(db.getSession(), profile1, group1)).isFalse();
+    assertThat(underTest.exists(db.getSession(), profile2, group2)).isTrue();
+    assertThat(underTest.exists(db.getSession(), profile3, group1)).isFalse();
+    assertThat(underTest.exists(db.getSession(), anotherProfile, group1)).isFalse();
+  }
+
 }
