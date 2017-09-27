@@ -30,6 +30,7 @@ import org.sonar.db.Pagination;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
@@ -286,4 +287,26 @@ public class QProfileEditUsersDaoTest {
     assertThat(underTest.exists(db.getSession(), profile, user)).isFalse();
   }
 
+  @Test
+  public void deleteByQProfiles() {
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    QProfileDto profile1 = db.qualityProfiles().insert(organization);
+    QProfileDto profile2 = db.qualityProfiles().insert(organization);
+    QProfileDto profile3 = db.qualityProfiles().insert(organization);
+    QProfileDto anotherProfile = db.qualityProfiles().insert(anotherOrganization);
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    db.qualityProfiles().addUserPermission(profile1, user1);
+    db.qualityProfiles().addUserPermission(profile2, user2);
+    db.qualityProfiles().addUserPermission(profile3, user1);
+    db.qualityProfiles().addUserPermission(anotherProfile, user1);
+
+    underTest.deleteByQProfiles(db.getSession(), asList(profile1, profile2));
+
+    assertThat(underTest.exists(db.getSession(), profile1, user1)).isFalse();
+    assertThat(underTest.exists(db.getSession(), profile2, user2)).isFalse();
+    assertThat(underTest.exists(db.getSession(), profile3, user1)).isTrue();
+    assertThat(underTest.exists(db.getSession(), anotherProfile, user1)).isTrue();
+  }
 }

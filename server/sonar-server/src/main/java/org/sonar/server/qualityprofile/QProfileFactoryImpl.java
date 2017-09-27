@@ -127,6 +127,10 @@ public class QProfileFactoryImpl implements QProfileFactory {
     db.defaultQProfileDao().deleteByQProfileUuids(dbSession, uuids);
     db.qualityProfileDao().deleteOrgQProfilesByUuids(dbSession, uuids);
 
+    // Permissions are only available on custom profiles
+    db.qProfileEditUsersDao().deleteByQProfiles(dbSession, customProfiles);
+    db.qProfileEditGroupsDao().deleteByQProfiles(dbSession, customProfiles);
+
     // tables related to rules_profiles and active_rules are deleted
     // only for custom profiles. Built-in profiles are never
     // deleted from table rules_profiles.

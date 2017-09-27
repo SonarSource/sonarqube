@@ -19,6 +19,7 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.sonar.db.Pagination;
@@ -36,4 +37,6 @@ public interface QProfileEditUsersMapper {
   void insert(@Param("dto") QProfileEditUsersDto dto, @Param("now") long now);
 
   void delete(@Param("qProfileUuid") String qProfileUuid, @Param("userId") int userId);
+
+  void deleteByQProfiles(@Param("qProfileUuids") Collection<String> qProfileUuids);
 }
