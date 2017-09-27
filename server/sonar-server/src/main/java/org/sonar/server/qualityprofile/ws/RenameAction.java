@@ -34,10 +34,9 @@ import org.sonar.server.user.UserSession;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.ws.WsUtils.checkRequest;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_NAME;
 
 public class RenameAction implements QProfileWsAction {
 
@@ -58,7 +57,11 @@ public class RenameAction implements QProfileWsAction {
     NewAction setDefault = controller.createAction("rename")
       .setSince("5.2")
       .setDescription("Rename a quality profile.<br> " +
-        "Requires to be logged in and the 'Administer Quality Profiles' permission.")
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "  <li>'Administer Quality Profiles'</li>" +
+        "  <li>Edit right on the specified quality profile</li>" +
+        "</ul>")
       .setPost(true)
       .setHandler(this);
 
@@ -89,17 +92,13 @@ public class RenameAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto qualityProfile = wsSupport.getProfile(dbSession, QProfileReference.fromKey(profileKey));
-
-      String organizationUuid = qualityProfile.getOrganizationUuid();
-      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, organizationUuid);
-      wsSupport.checkNotBuiltInt(qualityProfile);
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, qualityProfile);
+      wsSupport.checkCanEdit(dbSession, organization, qualityProfile);
 
       if (newName.equals(qualityProfile.getName())) {
         return;
       }
 
-      OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
-        .orElseThrow(() -> new IllegalStateException("No organization found for uuid " + organizationUuid));
       String language = qualityProfile.getLanguage();
       ofNullable(dbClient.qualityProfileDao().selectByNameAndLanguage(dbSession, organization, newName, language))
         .ifPresent(found -> {

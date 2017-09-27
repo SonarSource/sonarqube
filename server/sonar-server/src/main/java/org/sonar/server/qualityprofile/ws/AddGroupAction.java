@@ -60,7 +60,11 @@ public class AddGroupAction implements QProfileWsAction {
     WebService.NewAction action = context
       .createAction(ACTION_ADD_GROUP)
       .setDescription("Allow a group to edit a Quality Profile.<br>" +
-        "Requires the 'Administer Quality Profiles' permission or the ability to edit the quality profile.")
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "  <li>'Administer Quality Profiles'</li>" +
+        "  <li>Edit right on the specified quality profile</li>" +
+        "</ul>")
       .setHandler(this)
       .setPost(true)
       .setInternal(true)

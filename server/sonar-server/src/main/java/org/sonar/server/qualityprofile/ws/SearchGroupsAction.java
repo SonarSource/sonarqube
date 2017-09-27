@@ -81,7 +81,11 @@ public class SearchGroupsAction implements QProfileWsAction {
     WebService.NewAction action = context
       .createAction(ACTION_SEARCH_GROUPS)
       .setDescription("List the groups that are allowed to edit a Quality Profile.<br>" +
-        "Requires the 'Administer Quality Profiles' permission or the ability to edit the quality profile.")
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "  <li>'Administer Quality Profiles'</li>" +
+        "  <li>Edit right on the specified quality profile</li>" +
+        "</ul>")
       .setHandler(this)
       .setInternal(true)
       .addSelectionModeParam()
@@ -130,7 +134,8 @@ public class SearchGroupsAction implements QProfileWsAction {
           .addAllGroups(groupMemberships.stream()
             .map(groupsMembership -> toGroup(groupsById.get(groupsMembership.getGroupId()), groupsMembership.isSelected()))
             .collect(toList()))
-          .setPaging(buildPaging(wsRequest, total)).build(), request, response);
+          .setPaging(buildPaging(wsRequest, total)).build(),
+        request, response);
     }
   }
 

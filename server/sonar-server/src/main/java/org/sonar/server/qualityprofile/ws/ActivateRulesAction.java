@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.RuleActivator;
@@ -59,7 +60,11 @@ public class ActivateRulesAction implements QProfileWsAction {
     WebService.NewAction activate = controller
       .createAction(ACTION_ACTIVATE_RULES)
       .setDescription("Bulk-activate rules on one quality profile.<br> " +
-        "Requires to be logged in and the 'Administer Quality Profiles' permission.")
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "  <li>'Administer Quality Profiles'</li>" +
+        "  <li>Edit right on the specified quality profile</li>" +
+        "</ul>")
       .setPost(true)
       .setSince("4.4")
       .setHandler(this);
@@ -85,7 +90,8 @@ public class ActivateRulesAction implements QProfileWsAction {
     BulkChangeResult result;
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = wsSupport.getProfile(dbSession, fromKey(qualityProfileKey));
-      wsSupport.checkPermission(dbSession, profile);
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
+      wsSupport.checkCanEdit(dbSession, organization, profile);
       wsSupport.checkNotBuiltInt(profile);
       result = ruleActivator.bulkActivateAndCommit(dbSession, ruleQueryFactory.createRuleQuery(dbSession, request), profile, request.param(PARAM_TARGET_SEVERITY));
     }

@@ -25,7 +25,7 @@ import org.sonar.db.Pagination;
 
 public interface QProfileEditGroupsMapper {
 
-  QProfileEditGroupsDto selectByQProfileAndGroup(@Param("qProfileUuid") String qProfileUuid, @Param("groupId") int groupId);
+  List<QProfileEditGroupsDto> selectByQProfileAndGroups(@Param("qProfileUuid") String qProfileUuid, @Param("groupIds") List<Integer> groupIds);
 
   int countByQuery(@Param("query") SearchGroupsQuery query);
 

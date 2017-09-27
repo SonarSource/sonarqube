@@ -56,7 +56,11 @@ public class RemoveUserAction implements QProfileWsAction {
     WebService.NewAction action = context
       .createAction(ACTION_REMOVE_USER)
       .setDescription("Remove the ability from a user to edit a Quality Profile.<br>" +
-        "Requires the 'Administer Quality Profiles' permission or the ability to edit the quality profile.")
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "  <li>'Administer Quality Profiles'</li>" +
+        "  <li>Edit right on the specified quality profile</li>" +
+        "</ul>")
       .setHandler(this)
       .setPost(true)
       .setInternal(true)
