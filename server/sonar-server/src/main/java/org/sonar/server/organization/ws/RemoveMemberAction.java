@@ -98,6 +98,7 @@ public class RemoveMemberAction implements OrganizationsWsAction {
     String organizationUuid = organization.getUuid();
     dbClient.userPermissionDao().deleteOrganizationMemberPermissions(dbSession, organizationUuid, userId);
     dbClient.permissionTemplateDao().deleteUserPermissionsByOrganization(dbSession, organizationUuid, userId);
+    dbClient.qProfileEditUsersDao().deleteByOrganizationAndUser(dbSession, organization, user);
     dbClient.userGroupDao().deleteByOrganizationAndUser(dbSession, organizationUuid, userId);
     dbClient.propertiesDao().deleteByOrganizationAndUser(dbSession, organizationUuid, userId);
     dbClient.propertiesDao().deleteByOrganizationAndMatchingLogin(dbSession, organizationUuid, user.getLogin(), singletonList(DEFAULT_ISSUE_ASSIGNEE));
