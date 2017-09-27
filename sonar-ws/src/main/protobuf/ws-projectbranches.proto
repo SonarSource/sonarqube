@@ -44,6 +44,7 @@ message Branch {
   optional string mergeBranch = 4;
   optional Status status = 5;
   optional bool isOrphan = 6;
+  optional string analysisDate = 7;
 
   message Status {
     // Quality gate status is only present for long living branch
