@@ -62,6 +62,7 @@ public class WebhookDeliveryLiteDto<T extends WebhookDeliveryLiteDto> {
     return (T)this;
   }
 
+  @CheckForNull
   public String getCeTaskUuid() {
     return ceTaskUuid;
   }

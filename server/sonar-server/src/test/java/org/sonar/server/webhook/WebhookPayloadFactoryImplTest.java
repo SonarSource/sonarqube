@@ -20,6 +20,7 @@
 package org.sonar.server.webhook;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Date;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Before;
@@ -268,7 +269,6 @@ public class WebhookPayloadFactoryImplTest {
 
   private static ProjectAnalysis newAnalysis(CeTask task, @Nullable QualityGate gate,
     @Nullable Branch branch, @Nullable Long analysisDate, Map<String, String> scannerProperties) {
-    return new ProjectAnalysis(task, new Project("P1_UUID", PROJECT_KEY, "Project One"), branch, gate, analysisDate, scannerProperties);
+    return new ProjectAnalysis(task, new Project("P1_UUID", PROJECT_KEY, "Project One"), analysisDate == null ? null : new Analysis("A_UUID1", new Date(analysisDate)), branch, gate, analysisDate, scannerProperties);
   }
-
 }

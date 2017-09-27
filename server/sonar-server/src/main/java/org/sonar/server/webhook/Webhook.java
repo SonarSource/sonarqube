@@ -19,10 +19,12 @@
  */
 package org.sonar.server.webhook;
 
-import javax.annotation.CheckForNull;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.ofNullable;
 
 @Immutable
 public class Webhook {
@@ -33,10 +35,10 @@ public class Webhook {
   private final String name;
   private final String url;
 
-  public Webhook(String componentUuid, String ceTaskUuid, String analysisUuid, String name, String url) {
+  public Webhook(String componentUuid, @Nullable String ceTaskUuid, @Nullable String analysisUuid, String name, String url) {
     this.componentUuid = requireNonNull(componentUuid);
     this.ceTaskUuid = ceTaskUuid;
-    this.analysisUuid = requireNonNull(analysisUuid);
+    this.analysisUuid = analysisUuid;
     this.name = requireNonNull(name);
     this.url = requireNonNull(url);
   }
@@ -45,9 +47,8 @@ public class Webhook {
     return componentUuid;
   }
 
-  @CheckForNull
-  public String getCeTaskUuid() {
-    return ceTaskUuid;
+  public Optional<String> getCeTaskUuid() {
+    return ofNullable(ceTaskUuid);
   }
 
   public String getName() {
@@ -58,7 +59,7 @@ public class Webhook {
     return url;
   }
 
-  public String getAnalysisUuid() {
-    return analysisUuid;
+  public Optional<String> getAnalysisUuid() {
+    return ofNullable(analysisUuid);
   }
 }
