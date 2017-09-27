@@ -309,4 +309,24 @@ public class QProfileEditUsersDaoTest {
     assertThat(underTest.exists(db.getSession(), profile3, user1)).isTrue();
     assertThat(underTest.exists(db.getSession(), anotherProfile, user1)).isTrue();
   }
+
+  @Test
+  public void deleteByUser() {
+    OrganizationDto organization1 = db.organizations().insert();
+    OrganizationDto organization2 = db.organizations().insert();
+    QProfileDto profile1 = db.qualityProfiles().insert(organization1);
+    QProfileDto profile2 = db.qualityProfiles().insert(organization2);
+    QProfileDto profile3 = db.qualityProfiles().insert(organization1);
+    UserDto user1 = db.users().insertUser();
+    UserDto user2 = db.users().insertUser();
+    db.qualityProfiles().addUserPermission(profile1, user1);
+    db.qualityProfiles().addUserPermission(profile2, user1);
+    db.qualityProfiles().addUserPermission(profile3, user2);
+
+    underTest.deleteByUser(db.getSession(), user1);
+
+    assertThat(underTest.exists(db.getSession(), profile1, user1)).isFalse();
+    assertThat(underTest.exists(db.getSession(), profile2, user1)).isFalse();
+    assertThat(underTest.exists(db.getSession(), profile3, user2)).isTrue();
+  }
 }
