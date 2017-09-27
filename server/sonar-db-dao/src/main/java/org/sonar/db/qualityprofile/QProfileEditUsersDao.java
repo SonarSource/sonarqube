@@ -24,6 +24,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 
 public class QProfileEditUsersDao implements Dao {
@@ -44,6 +45,10 @@ public class QProfileEditUsersDao implements Dao {
 
   public List<UserMembershipDto> selectByQuery(DbSession dbSession, SearchUsersQuery query, Pagination pagination){
     return mapper(dbSession).selectByQuery(query, pagination);
+  }
+
+  public List<String> selectQProfileUuidsByOrganizationAndUser(DbSession dbSession, OrganizationDto organization, UserDto userDto){
+    return mapper(dbSession).selectQProfileUuidsByOrganizationAndUser(organization.getUuid(), userDto.getId());
   }
 
   public void insert(DbSession dbSession, QProfileEditUsersDto dto) {

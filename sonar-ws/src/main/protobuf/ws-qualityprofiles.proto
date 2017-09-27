@@ -49,13 +49,16 @@ message SearchWsResponse {
     optional string organization = 15;
     optional bool isBuiltIn = 16;
     optional Actions actions = 17;
+
+    message Actions {
+        optional bool edit = 1;
+        optional bool setAsDefault = 2;
+        optional bool copy = 3;
+      }
   }
 
   message Actions {
     optional bool create = 1;
-    optional bool edit = 2;
-    optional bool setAsDefault = 3;
-    optional bool copy = 4;
   }
 }
 

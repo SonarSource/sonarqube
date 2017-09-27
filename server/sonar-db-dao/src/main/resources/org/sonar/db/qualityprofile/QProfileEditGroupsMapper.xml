@@ -73,6 +73,15 @@
     </where>
   </sql>
 
+  <select id="selectQProfileUuidsByOrganizationAndGroups" parameterType="map" resultType="string">
+    select distinct qeg.qprofile_uuid as qProfileUuid
+    from qprofile_edit_groups qeg
+    inner join org_qprofiles oq on qeg.qprofile_uuid=oq.uuid and oq.organization_uuid=#{organizationUuid, jdbcType=VARCHAR}
+    <where>
+      qeg.group_id in <foreach collection="groupIds" open="(" close=")" item="groupId" separator=",">#{groupId, jdbcType=INTEGER}</foreach>
+    </where>
+  </select>
+
   <insert id="insert" useGeneratedKeys="false" parameterType="map">
     insert into qprofile_edit_groups(
     uuid,
