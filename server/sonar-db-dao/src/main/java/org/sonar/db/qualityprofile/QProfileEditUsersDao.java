@@ -66,6 +66,10 @@ public class QProfileEditUsersDao implements Dao {
     executeLargeUpdates(qProfiles.stream().map(QProfileDto::getKee).collect(toList()), p -> mapper(dbSession).deleteByQProfiles(p));
   }
 
+  public void deleteByUser(DbSession dbSession, UserDto user) {
+    mapper(dbSession).deleteByUser(user.getId());
+  }
+
   private static QProfileEditUsersMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(QProfileEditUsersMapper.class);
   }
