@@ -22,24 +22,34 @@ package org.sonar.server.webhook;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
-public class WebhookModuleTest {
-
+public class CeTaskTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private WebhookModule underTest = new WebhookModule();
+  private CeTask underTest = new CeTask("A", CeTask.Status.SUCCESS);
 
   @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
+  public void constructor_throws_NPE_if_id_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("id can't be null");
 
-    underTest.configure(container);
+    new CeTask(null, CeTask.Status.SUCCESS);
+  }
 
-    assertThat(container.size()).isEqualTo(4 + COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER);
+  @Test
+  public void constructor_throws_NPE_if_status_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("status can't be null");
+
+    new CeTask("B", null);
+  }
+
+  @Test
+  public void verify_getters() {
+    assertThat(underTest.getId()).isEqualTo("A");
+    assertThat(underTest.getStatus()).isEqualTo(CeTask.Status.SUCCESS);
   }
 }

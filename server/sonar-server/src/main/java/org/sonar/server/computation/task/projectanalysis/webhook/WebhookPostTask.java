@@ -19,10 +19,18 @@
  */
 package org.sonar.server.computation.task.projectanalysis.webhook;
 
+import java.util.Date;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.config.Configuration;
 import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
+import org.sonar.server.webhook.Branch;
+import org.sonar.server.webhook.CeTask;
+import org.sonar.server.webhook.Project;
+import org.sonar.server.webhook.QualityGate;
 import org.sonar.server.webhook.WebHooks;
+import org.sonar.server.webhook.WebhookPayloadFactory;
 
 public class WebhookPostTask implements PostProjectAnalysisTask {
 
@@ -43,7 +51,27 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
     webHooks.sendProjectAnalysisUpdate(
       config,
       new WebHooks.Analysis(analysis.getProject().getUuid(), analysis.getCeTask().getId()),
-      () -> payloadFactory.create(analysis));
+      () -> payloadFactory.create(convert(analysis)));
+  }
+
+  private static org.sonar.server.webhook.ProjectAnalysis convert(ProjectAnalysis analysis) {
+    return new org.sonar.server.webhook.ProjectAnalysis(
+      new CeTask(analysis.getCeTask().getId(), CeTask.Status.valueOf(analysis.getCeTask().getStatus().name())),
+      new Project(analysis.getProject().getUuid(), analysis.getProject().getKey(), analysis.getProject().getName()),
+      analysis.getBranch().map(b -> new Branch(b.isMain(), b.getName().orElse(null), Branch.Type.valueOf(b.getType().name()))).orElse(null),
+      Optional.ofNullable(analysis.getQualityGate())
+        .map(qg -> new QualityGate(
+          qg.getId(),
+          qg.getName(),
+          QualityGate.Status.valueOf(qg.getStatus().name()),
+          qg.getConditions().stream()
+            .map(c -> new QualityGate.Condition(QualityGate.EvaluationStatus.valueOf(c.getStatus().name()), c.getMetricKey(), QualityGate.Operator.valueOf(c.getOperator().name()),
+              c.getErrorThreshold(), c.getWarningThreshold(), c.isOnLeakPeriod(),
+              c.getStatus() == org.sonar.api.ce.posttask.QualityGate.EvaluationStatus.NO_VALUE ? null : c.getValue()))
+            .collect(Collectors.toSet())))
+        .orElse(null),
+      analysis.getAnalysisDate().map(Date::getTime).orElse(null),
+      analysis.getScannerContext().getProperties());
   }
 
 }
