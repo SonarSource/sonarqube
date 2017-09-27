@@ -35,22 +35,23 @@ import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetada
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 
 /**
- * Cache a map of component key -> uuid in short branches that have issues that are non-open and non-closed.
+ * Cache a map of component key -> uuid in short branches that have issues with status either RESOLVED or CONFIRMED.
  *
  */
 public class ShortBranchComponentsWithIssues {
-  private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final String uuid;
+  private final Branch branch;
   private final DbClient dbClient;
+
   private Map<String, Set<String>> uuidsByKey;
 
   public ShortBranchComponentsWithIssues(AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient) {
-    // TODO maybe can get just the branch here? (unless it's not populated at initialization time)
-    this.analysisMetadataHolder = analysisMetadataHolder;
+    this.uuid = analysisMetadataHolder.getUuid();
+    this.branch = analysisMetadataHolder.getBranch().get();
     this.dbClient = dbClient;
   }
 
   private void loadUuidsByKey() {
-    Branch branch = analysisMetadataHolder.getBranch().get();
     if (branch.getType() != BranchType.LONG) {
       uuidsByKey = Collections.emptyMap();
       return;
@@ -58,7 +59,7 @@ public class ShortBranchComponentsWithIssues {
 
     uuidsByKey = new HashMap<>();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<KeyWithUuidDto> components = dbClient.componentDao().selectComponentKeysHavingIssuesToMerge(dbSession, analysisMetadataHolder.getUuid());
+      List<KeyWithUuidDto> components = dbClient.componentDao().selectComponentKeysHavingIssuesToMerge(dbSession, uuid);
       for (KeyWithUuidDto dto : components) {
         uuidsByKey.computeIfAbsent(removeBranchFromKey(dto.key()), s -> new HashSet<>()).add(dto.uuid());
       }

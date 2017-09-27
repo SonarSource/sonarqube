@@ -59,10 +59,6 @@ public class ShortBranchComponentsWithIssuesTest {
 
   @Before
   public void setUp() {
-    underTest = new ShortBranchComponentsWithIssues(analysisMetadataHolder, db.getDbClient());
-    analysisMetadataHolder.setBranch(branch);
-    when(branch.getType()).thenReturn(BranchType.LONG);
-
     ComponentDto project = db.components().insertMainBranch();
 
     long1 = db.components().insertProjectBranch(project, b -> b.setKey("long1"), b -> b.setBranchType(BranchType.LONG));
@@ -111,6 +107,11 @@ public class ShortBranchComponentsWithIssuesTest {
 
     fileWithOneResolvedIssueOnLong2 = db.components().insertComponent(ComponentTesting.newFileDto(long2short1, null));
     db.issues().insertIssue(IssueTesting.newIssue(rule, long2short1, fileWithOneResolvedIssueOnLong2).setStatus("RESOLVED"));
+
+    when(branch.getType()).thenReturn(BranchType.LONG);
+    analysisMetadataHolder.setBranch(branch);
+    analysisMetadataHolder.setUuid(long1.uuid());
+    underTest = new ShortBranchComponentsWithIssues(analysisMetadataHolder, db.getDbClient());
   }
 
   @Test
@@ -131,6 +132,7 @@ public class ShortBranchComponentsWithIssuesTest {
   @Test
   public void should_find_components_with_issues_to_merge_on_long2() {
     analysisMetadataHolder.setUuid(long2.uuid());
+    underTest = new ShortBranchComponentsWithIssues(analysisMetadataHolder, db.getDbClient());
 
     assertThat(underTest.getUuids(fileWithOneResolvedIssue.getKey())).isEmpty();
     assertThat(underTest.getUuids(fileWithOneResolvedIssueOnLong2.getKey())).containsOnly(fileWithOneResolvedIssueOnLong2.uuid());
