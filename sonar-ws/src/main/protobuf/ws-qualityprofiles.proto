@@ -20,6 +20,8 @@ syntax = "proto2";
 
 package sonarqube.ws.qualityprofiles;
 
+import "ws-commons.proto";
+
 option java_package = "org.sonarqube.ws";
 option java_outer_classname = "QualityProfiles";
 option optimize_for = SPEED;
@@ -27,6 +29,7 @@ option optimize_for = SPEED;
 // WS api/qualityprofiles/search
 message SearchWsResponse {
   repeated QualityProfile profiles = 1;
+  optional Actions actions = 2;
 
   message QualityProfile {
     optional string key = 1;
@@ -45,6 +48,14 @@ message SearchWsResponse {
     optional string userUpdatedAt = 14;
     optional string organization = 15;
     optional bool isBuiltIn = 16;
+    optional Actions actions = 17;
+  }
+
+  message Actions {
+    optional bool create = 1;
+    optional bool edit = 2;
+    optional bool setAsDefault = 3;
+    optional bool copy = 4;
   }
 }
 
@@ -126,5 +137,30 @@ message ShowResponse {
     optional string profile = 1;
     optional string profileName = 2;
     optional int64 missingRuleCount = 3;
+  }
+}
+
+// WS api/qualityprofiles/search_users
+message SearchUsersResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated User users = 2;
+
+  message User {
+    optional string login = 1;
+    optional string name = 2;
+    optional string avatar = 3;
+    optional bool selected = 4;
+  }
+}
+
+// WS api/qualityprofiles/search_groups
+message SearchGroupsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated Group groups = 2;
+
+  message Group {
+    optional string name = 1;
+    optional string description = 2;
+    optional bool selected = 3;
   }
 }

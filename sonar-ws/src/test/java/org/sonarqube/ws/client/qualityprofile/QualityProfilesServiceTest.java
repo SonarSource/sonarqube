@@ -22,6 +22,7 @@ package org.sonarqube.ws.client.qualityprofile;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.Common.Severity;
+import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.ShowResponse;
 import org.sonarqube.ws.client.GetRequest;
@@ -31,16 +32,23 @@ import org.sonarqube.ws.client.WsConnector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.server.ws.WebService.Param.SELECTED;
+import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_COMPARE_TO_SONAR_WAY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_FROM_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_GROUP;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARAMS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SEVERITY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TO_NAME;
@@ -193,6 +201,136 @@ public class QualityProfilesServiceTest {
       .hasParam(PARAM_ORGANIZATION, "O1")
       .hasParam(PARAM_PARAMS, "PS1")
       .hasParam(PARAM_SEVERITY, Severity.INFO.toString())
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void add_user() {
+    underTest.addUser(AddUserRequest.builder()
+      .setOrganization("O1")
+      .setQualityProfile("P1")
+      .setLanguage("Xoo")
+      .setUserLogin("john")
+      .build());
+    PostRequest request = serviceTester.getPostRequest();
+
+    serviceTester.assertThat(request)
+      .hasPath("add_user")
+      .hasParam(PARAM_ORGANIZATION, "O1")
+      .hasParam(PARAM_QUALITY_PROFILE, "P1")
+      .hasParam(PARAM_LANGUAGE, "Xoo")
+      .hasParam(PARAM_LOGIN, "john")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void remove_user() {
+    underTest.removeUser(RemoveUserRequest.builder()
+      .setOrganization("O1")
+      .setQualityProfile("P1")
+      .setLanguage("Xoo")
+      .setUserLogin("john")
+      .build());
+    PostRequest request = serviceTester.getPostRequest();
+
+    serviceTester.assertThat(request)
+      .hasPath("remove_user")
+      .hasParam(PARAM_ORGANIZATION, "O1")
+      .hasParam(PARAM_QUALITY_PROFILE, "P1")
+      .hasParam(PARAM_LANGUAGE, "Xoo")
+      .hasParam(PARAM_LOGIN, "john")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void search_users() {
+    underTest.searchUsers(SearchUsersRequest.builder()
+      .setOrganization("O1")
+      .setQualityProfile("P1")
+      .setLanguage("Xoo")
+      .setQuery("john")
+      .setSelected("all")
+      .setPage(5)
+      .setPageSize(50)
+      .build()
+    );
+    GetRequest getRequest = serviceTester.getGetRequest();
+
+    assertThat(serviceTester.getGetParser()).isSameAs(QualityProfiles.SearchUsersResponse.parser());
+    serviceTester.assertThat(getRequest)
+      .hasPath("search_users")
+      .hasParam(PARAM_ORGANIZATION, "O1")
+      .hasParam(PARAM_QUALITY_PROFILE, "P1")
+      .hasParam(PARAM_LANGUAGE, "Xoo")
+      .hasParam(TEXT_QUERY, "john")
+      .hasParam(SELECTED, "all")
+      .hasParam(PAGE, 5)
+      .hasParam(PAGE_SIZE, 50)
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void add_group() {
+    underTest.addGroup(AddGroupRequest.builder()
+      .setOrganization("O1")
+      .setQualityProfile("P1")
+      .setLanguage("Xoo")
+      .setGroup("users")
+      .build());
+    PostRequest request = serviceTester.getPostRequest();
+
+    serviceTester.assertThat(request)
+      .hasPath("add_group")
+      .hasParam(PARAM_ORGANIZATION, "O1")
+      .hasParam(PARAM_QUALITY_PROFILE, "P1")
+      .hasParam(PARAM_LANGUAGE, "Xoo")
+      .hasParam(PARAM_GROUP, "users")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void remove_group() {
+    underTest.removeGroup(RemoveGroupRequest.builder()
+      .setOrganization("O1")
+      .setQualityProfile("P1")
+      .setLanguage("Xoo")
+      .setGroup("users")
+      .build());
+    PostRequest request = serviceTester.getPostRequest();
+
+    serviceTester.assertThat(request)
+      .hasPath("remove_group")
+      .hasParam(PARAM_ORGANIZATION, "O1")
+      .hasParam(PARAM_QUALITY_PROFILE, "P1")
+      .hasParam(PARAM_LANGUAGE, "Xoo")
+      .hasParam(PARAM_GROUP, "users")
+      .andNoOtherParam();
+  }
+
+  @Test
+  public void search_groups() {
+    underTest.searchGroups(SearchGroupsRequest.builder()
+      .setOrganization("O1")
+      .setQualityProfile("P1")
+      .setLanguage("Xoo")
+      .setQuery("users")
+      .setSelected("all")
+      .setPage(5)
+      .setPageSize(50)
+      .build()
+    );
+    GetRequest getRequest = serviceTester.getGetRequest();
+
+    assertThat(serviceTester.getGetParser()).isSameAs(QualityProfiles.SearchGroupsResponse.parser());
+    serviceTester.assertThat(getRequest)
+      .hasPath("search_groups")
+      .hasParam(PARAM_ORGANIZATION, "O1")
+      .hasParam(PARAM_QUALITY_PROFILE, "P1")
+      .hasParam(PARAM_LANGUAGE, "Xoo")
+      .hasParam(TEXT_QUERY, "users")
+      .hasParam(SELECTED, "all")
+      .hasParam(PAGE, 5)
+      .hasParam(PAGE_SIZE, 50)
       .andNoOtherParam();
   }
 }

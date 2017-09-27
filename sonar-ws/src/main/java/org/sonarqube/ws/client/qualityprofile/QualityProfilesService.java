@@ -23,6 +23,8 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.QualityProfiles.CopyWsResponse;
 import org.sonarqube.ws.QualityProfiles.CreateWsResponse;
+import org.sonarqube.ws.QualityProfiles.SearchGroupsResponse;
+import org.sonarqube.ws.QualityProfiles.SearchUsersResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.ShowResponse;
 import org.sonarqube.ws.client.BaseService;
@@ -30,24 +32,36 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
+import static org.sonar.api.server.ws.WebService.Param.PAGE;
+import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
+import static org.sonar.api.server.ws.WebService.Param.SELECTED;
+import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ACTIVATE_RULE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ADD_GROUP;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ADD_PROJECT;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_ADD_USER;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_CHANGE_PARENT;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_COPY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_CREATE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DEACTIVATE_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_DELETE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_GROUP;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_PROJECT;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_REMOVE_USER;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_RESTORE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH_GROUPS;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH_USERS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SET_DEFAULT;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SHOW;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.CONTROLLER_QUALITY_PROFILES;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_COMPARE_TO_SONAR_WAY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_DEFAULTS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_FROM_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_GROUP;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_NAME;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARAMS;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARENT_QUALITY_PROFILE;
@@ -56,6 +70,7 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_UUID;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RESET;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SEVERITY;
@@ -169,5 +184,63 @@ public class QualityProfilesService extends BaseService {
       .setParam(QualityProfileWsParameters.PARAM_KEY, profileKey);
 
     call(postRequest);
+  }
+
+  public void addUser(AddUserRequest request) {
+    call(new PostRequest(path(ACTION_ADD_USER))
+      .setParam(PARAM_ORGANIZATION, request.getOrganization())
+      .setParam(PARAM_QUALITY_PROFILE, request.getQualityProfile())
+      .setParam(PARAM_LANGUAGE, request.getLanguage())
+      .setParam(PARAM_LOGIN, request.getUserLogin()));
+  }
+
+  public void removeUser(RemoveUserRequest request) {
+    call(new PostRequest(path(ACTION_REMOVE_USER))
+      .setParam(PARAM_ORGANIZATION, request.getOrganization())
+      .setParam(PARAM_QUALITY_PROFILE, request.getQualityProfile())
+      .setParam(PARAM_LANGUAGE, request.getLanguage())
+      .setParam(PARAM_LOGIN, request.getUserLogin()));
+  }
+
+  public SearchUsersResponse searchUsers(SearchUsersRequest request) {
+    return call(
+      new GetRequest(path(ACTION_SEARCH_USERS))
+        .setParam(PARAM_ORGANIZATION, request.getOrganization())
+        .setParam(PARAM_QUALITY_PROFILE, request.getQualityProfile())
+        .setParam(PARAM_LANGUAGE, request.getLanguage())
+        .setParam(TEXT_QUERY, request.getQuery())
+        .setParam(SELECTED, request.getSelected())
+        .setParam(PAGE, request.getPage())
+        .setParam(PAGE_SIZE, request.getPageSize()),
+      SearchUsersResponse.parser());
+  }
+
+  public void addGroup(AddGroupRequest request) {
+    call(new PostRequest(path(ACTION_ADD_GROUP))
+      .setParam(PARAM_ORGANIZATION, request.getOrganization())
+      .setParam(PARAM_QUALITY_PROFILE, request.getQualityProfile())
+      .setParam(PARAM_LANGUAGE, request.getLanguage())
+      .setParam(PARAM_GROUP, request.getGroup()));
+  }
+
+  public void removeGroup(RemoveGroupRequest request) {
+    call(new PostRequest(path(ACTION_REMOVE_GROUP))
+      .setParam(PARAM_ORGANIZATION, request.getOrganization())
+      .setParam(PARAM_QUALITY_PROFILE, request.getQualityProfile())
+      .setParam(PARAM_LANGUAGE, request.getLanguage())
+      .setParam(PARAM_GROUP, request.getGroup()));
+  }
+
+  public SearchGroupsResponse searchGroups(SearchGroupsRequest request) {
+    return call(
+      new GetRequest(path(ACTION_SEARCH_GROUPS))
+        .setParam(PARAM_ORGANIZATION, request.getOrganization())
+        .setParam(PARAM_QUALITY_PROFILE, request.getQualityProfile())
+        .setParam(PARAM_LANGUAGE, request.getLanguage())
+        .setParam(TEXT_QUERY, request.getQuery())
+        .setParam(SELECTED, request.getSelected())
+        .setParam(PAGE, request.getPage())
+        .setParam(PAGE_SIZE, request.getPageSize()),
+      SearchGroupsResponse.parser());
   }
 }

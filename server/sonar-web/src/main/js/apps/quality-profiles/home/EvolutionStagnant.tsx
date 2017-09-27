@@ -39,7 +39,7 @@ export default function EvolutionStagnant(props: Props) {
   }
 
   return (
-    <div className="quality-profile-box quality-profiles-evolution-stagnant">
+    <div className="boxed-group boxed-group-inner quality-profiles-evolution-stagnant">
       <div className="spacer-bottom">
         <strong>{translate('quality_profiles.stagnant_profiles')}</strong>
       </div>

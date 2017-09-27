@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sonar.db.qualityprofile.QProfileEditGroupsMapper">
+
+  <sql id="sqlColumns">
+    qeg.uuid as "uuid",
+    qeg.group_id as "groupId",
+    qeg.qprofile_uuid as "qProfileUuid"
+  </sql>
+
+  <select id="selectByQProfileAndGroup" parameterType="map" resultType="org.sonar.db.qualityprofile.QProfileEditGroupsDto">
+    select
+    <include refid="sqlColumns"/>
+    from qprofile_edit_groups qeg
+    where
+    qeg.group_id = #{groupId, jdbcType=INTEGER}
+    and qeg.qprofile_uuid = #{qProfileUuid, jdbcType=VARCHAR}
+  </select>
+
+  <select id="countByQuery" resultType="int">
+    select count(g.id)
+    <include refid="sqlSelectByQuery" />
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.qualityprofile.GroupMembershipDto">
+    SELECT g.id as groupId, g.name as name, qeg.uuid as uuid
+    <include refid="sqlSelectByQuery"/>
+    ORDER BY g.name ASC
+    LIMIT #{pagination.pageSize,jdbcType=INTEGER}
+    OFFSET #{pagination.offset,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.qualityprofile.GroupMembershipDto" databaseId="mssql">
+    select * from (
+    select row_number() over(order by g.name asc) as number,
+      g.id as groupId, g.name as name, qeg.uuid as uuid
+      <include refid="sqlSelectByQuery" />
+    ) as query
+    where
+    query.number between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
+    order by query.name asc
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.qualityprofile.GroupMembershipDto" databaseId="oracle">
+    select * from (
+      select rownum as rn, t.* from (
+        select g.id as groupId, g.name as name, qeg.uuid as uuid
+        <include refid="sqlSelectByQuery"/>
+        order by g.name ASC
+      ) t
+    ) t
+    where
+    t.rn between #{pagination.startRowNumber,jdbcType=INTEGER} and #{pagination.endRowNumber,jdbcType=INTEGER}
+  </select>
+
+  <sql id="sqlSelectByQuery">
+    FROM groups g
+    LEFT JOIN qprofile_edit_groups qeg ON qeg.group_id=g.id AND qeg.qprofile_uuid=#{query.qProfileUuid, jdbcType=VARCHAR}
+    <where>
+      AND g.organization_uuid=#{query.organizationUuid,jdbcType=VARCHAR}
+      <choose>
+        <when test="query.getMembership() == 'IN'">
+          AND qeg.uuid IS NOT NULL
+        </when>
+        <when test="query.getMembership() == 'OUT'">
+          AND qeg.uuid IS NULL
+        </when>
+      </choose>
+      <if test="query.getQuery() != null">
+        AND (LOWER(g.name) LIKE #{query.querySqlLowercase} ESCAPE '/')
+      </if>
+    </where>
+  </sql>
+
+  <insert id="insert" useGeneratedKeys="false" parameterType="map">
+    insert into qprofile_edit_groups(
+    uuid,
+    group_id,
+    qprofile_uuid,
+    created_at
+    ) values (
+    #{dto.uuid, jdbcType=VARCHAR},
+    #{dto.groupId, jdbcType=INTEGER},
+    #{dto.qProfileUuid, jdbcType=VARCHAR},
+    #{now, jdbcType=BIGINT}
+    )
+  </insert>
+
+  <delete id="delete" parameterType="map">
+    delete from qprofile_edit_groups
+    where qprofile_uuid = #{qProfileUuid, jdbcType=VARCHAR}
+    and group_id = #{groupId, jdbcType=INTEGER}
+  </delete>
+
+</mapper>
+
