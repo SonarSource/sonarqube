@@ -46,9 +46,8 @@ public class ResolvedShortBranchIssuesFactory {
       return Collections.emptyList();
     }
     try (DbSession session = dbClient.openSession(false)) {
-      return uuids
+      return dbClient.issueDao().selectResolvedOrConfirmedByComponentUuids(session, uuids)
         .stream()
-        .flatMap(uuid -> dbClient.issueDao().selectResolvedOrConfirmedByComponentUuid(session, uuid).stream())
         .map(IssueDto::toDefaultIssue)
         .collect(Collectors.toList());
     }

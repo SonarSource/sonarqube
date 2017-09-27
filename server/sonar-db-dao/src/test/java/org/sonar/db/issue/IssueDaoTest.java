@@ -21,6 +21,7 @@ package org.sonar.db.issue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
@@ -192,7 +193,7 @@ public class IssueDaoTest {
     IssueDto wontfixIssue = db.issues().insert(rule, project, file, i -> i.setStatus("RESOLVED").setResolution("WONTFIX"));
     IssueDto fpIssue = db.issues().insert(rule, project, file, i -> i.setStatus("RESOLVED").setResolution("FALSE-POSITIVE"));
 
-    assertThat(underTest.selectResolvedOrConfirmedByComponentUuid(db.getSession(), file.uuid()))
+    assertThat(underTest.selectResolvedOrConfirmedByComponentUuids(db.getSession(), Collections.singletonList(file.uuid())))
       .extracting("kee")
       .containsOnly(confirmedIssue.getKey(), wontfixIssue.getKey(), fpIssue.getKey());
   }

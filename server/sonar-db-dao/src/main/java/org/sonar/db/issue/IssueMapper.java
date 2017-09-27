@@ -32,7 +32,7 @@ public interface IssueMapper {
 
   List<IssueDto> selectByKeys(List<String> keys);
 
-  List<IssueDto> selectResolvedOrConfirmedByComponentUuid(@Param("componentUuid") String componentUuid);
+  List<IssueDto> selectResolvedOrConfirmedByComponentUuids(List<String> componentUuids);
 
   void insert(IssueDto issue);
 
