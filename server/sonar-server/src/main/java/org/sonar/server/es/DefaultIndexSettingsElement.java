@@ -301,7 +301,7 @@ public enum DefaultIndexSettingsElement {
 
   DefaultIndexSettingsElement(String type) {
     this.type = type;
-    this.name = name().toLowerCase(Locale.getDefault());
+    this.name = name().toLowerCase(Locale.ENGLISH);
     setup();
   }
 
