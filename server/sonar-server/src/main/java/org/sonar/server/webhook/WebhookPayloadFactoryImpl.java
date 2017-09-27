@@ -17,25 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.webhook;
+package org.sonar.server.webhook;
 
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.Date;
-import javax.annotation.Nullable;
+import java.util.Map;
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.ce.posttask.Branch;
-import org.sonar.api.ce.posttask.CeTask;
-import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
-import org.sonar.api.ce.posttask.Project;
-import org.sonar.api.ce.posttask.QualityGate;
-import org.sonar.api.ce.posttask.ScannerContext;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.webhook.WebhookPayload;
 
 import static java.lang.String.format;
 import static org.sonar.core.config.WebhookProperties.ANALYSIS_PROPERTY_PREFIX;
@@ -52,7 +45,7 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
   }
 
   @Override
-  public WebhookPayload create(PostProjectAnalysisTask.ProjectAnalysis analysis) {
+  public WebhookPayload create(ProjectAnalysis analysis) {
     Writer string = new StringWriter();
     try (JsonWriter writer = JsonWriter.of(string)) {
       writer.beginObject();
@@ -61,8 +54,8 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
       writeDates(writer, analysis, system2);
       writeProject(analysis, writer, analysis.getProject());
       analysis.getBranch().ifPresent(b -> writeBranch(writer, analysis.getProject(), b));
-      writeQualityGate(writer, analysis.getQualityGate());
-      writeAnalysisProperties(writer, analysis.getScannerContext());
+      analysis.getQualityGate().ifPresent(qualityGate -> writeQualityGate(writer, qualityGate));
+      writeAnalysisProperties(writer, analysis.getProperties());
       writer.endObject().close();
       return new WebhookPayload(analysis.getProject().getKey(), string.toString());
     }
@@ -72,12 +65,12 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
     writer.prop("serverUrl", server.getPublicRootUrl());
   }
 
-  private static void writeDates(JsonWriter writer, PostProjectAnalysisTask.ProjectAnalysis analysis, System2 system2) {
+  private static void writeDates(JsonWriter writer, ProjectAnalysis analysis, System2 system2) {
     analysis.getAnalysisDate().ifPresent(date -> writer.propDateTime("analysedAt", date));
     writer.propDateTime("changedAt", analysis.getAnalysisDate().orElseGet(() -> new Date(system2.now())));
   }
 
-  private void writeProject(PostProjectAnalysisTask.ProjectAnalysis analysis, JsonWriter writer, Project project) {
+  private void writeProject(ProjectAnalysis analysis, JsonWriter writer, Project project) {
     writer
       .name("project")
       .beginObject()
@@ -87,11 +80,11 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
       .endObject();
   }
 
-  private static void writeAnalysisProperties(JsonWriter writer, ScannerContext scannerContext) {
+  private static void writeAnalysisProperties(JsonWriter writer, Map<String, String> properties) {
     writer
       .name("properties")
       .beginObject();
-    scannerContext.getProperties().entrySet()
+    properties.entrySet()
       .stream()
       .filter(prop -> prop.getKey().startsWith(ANALYSIS_PROPERTY_PREFIX))
       .forEach(prop -> writer.prop(prop.getKey(), prop.getValue()));
@@ -132,34 +125,30 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
     }
   }
 
-  private static void writeQualityGate(JsonWriter writer, @Nullable QualityGate gate) {
-    if (gate != null) {
+  private static void writeQualityGate(JsonWriter writer, QualityGate gate) {
+    writer
+      .name("qualityGate")
+      .beginObject()
+      .prop("name", gate.getName())
+      .prop("status", gate.getStatus().toString())
+      .name("conditions")
+      .beginArray();
+    for (QualityGate.Condition condition : gate.getConditions()) {
       writer
-        .name("qualityGate")
         .beginObject()
-        .prop("name", gate.getName())
-        .prop("status", gate.getStatus().toString())
-        .name("conditions")
-        .beginArray();
-      for (QualityGate.Condition condition : gate.getConditions()) {
-        writer
-          .beginObject()
-          .prop("metric", condition.getMetricKey())
-          .prop("operator", condition.getOperator().name());
-        if (condition.getStatus() != QualityGate.EvaluationStatus.NO_VALUE) {
-          writer.prop("value", condition.getValue());
-        }
-        writer
-          .prop("status", condition.getStatus().name())
-          .prop("onLeakPeriod", condition.isOnLeakPeriod())
-          .prop("errorThreshold", condition.getErrorThreshold())
-          .prop("warningThreshold", condition.getWarningThreshold())
-          .endObject();
-      }
+        .prop("metric", condition.getMetricKey())
+        .prop("operator", condition.getOperator().name());
+      condition.getValue().ifPresent(t -> writer.prop("value", t));
       writer
-        .endArray()
+        .prop("status", condition.getStatus().name())
+        .prop("onLeakPeriod", condition.isOnLeakPeriod())
+        .prop("errorThreshold", condition.getErrorThreshold().orElse(null))
+        .prop("warningThreshold", condition.getWarningThreshold().orElse(null))
         .endObject();
     }
+    writer
+      .endArray()
+      .endObject();
   }
 
   private static String encode(String toEncode) {

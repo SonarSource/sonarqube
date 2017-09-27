@@ -17,35 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.webhook;
+package org.sonar.server.webhook;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Date;
 import java.util.Map;
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.ce.posttask.Branch;
-import org.sonar.api.ce.posttask.CeTask;
-import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
-import org.sonar.api.ce.posttask.Project;
-import org.sonar.api.ce.posttask.QualityGate;
-import org.sonar.api.ce.posttask.ScannerContext;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
-import org.sonar.server.computation.task.projectanalysis.api.posttask.BranchImpl;
-import org.sonar.server.webhook.WebhookPayload;
 
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newCeTaskBuilder;
-import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newConditionBuilder;
-import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newProjectBuilder;
-import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newQualityGateBuilder;
-import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newScannerContextBuilder;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class WebhookPayloadFactoryImplTest {
@@ -64,23 +51,11 @@ public class WebhookPayloadFactoryImplTest {
 
   @Test
   public void create_payload_for_successful_analysis() {
-    CeTask task = newCeTaskBuilder()
-      .setStatus(CeTask.Status.SUCCESS)
-      .setId("#1")
-      .build();
-    QualityGate gate = newQualityGateBuilder()
-      .setId("G1")
-      .setName("Gate One")
-      .setStatus(QualityGate.Status.WARN)
-      .add(newConditionBuilder()
-        .setMetricKey("coverage")
-        .setOperator(QualityGate.Operator.GREATER_THAN)
-        .setOnLeakPeriod(true)
-        .setWarningThreshold("75.0")
-        .setErrorThreshold("70.0")
-        .build(QualityGate.EvaluationStatus.WARN, "74.0"))
-      .build();
-    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, gate, null, 1_500_000_000_000L, emptyMap());
+    CeTask task = new CeTask("#1", CeTask.Status.SUCCESS);
+    QualityGate gate = new QualityGate("G1", "Gate One", QualityGate.Status.WARN, singleton(new QualityGate.Condition(
+      QualityGate.EvaluationStatus.WARN,
+      "coverage", QualityGate.Operator.GREATER_THAN, "70.0", "75.0", true, "74.0")));
+    ProjectAnalysis analysis = newAnalysis(task, gate, null, 1_500_000_000_000L, emptyMap());
 
     WebhookPayload payload = underTest.create(analysis);
     assertThat(payload.getProjectKey()).isEqualTo(PROJECT_KEY);
@@ -118,22 +93,10 @@ public class WebhookPayloadFactoryImplTest {
 
   @Test
   public void create_payload_with_gate_conditions_without_value() {
-    CeTask task = newCeTaskBuilder()
-      .setStatus(CeTask.Status.SUCCESS)
-      .setId("#1")
-      .build();
-    QualityGate gate = newQualityGateBuilder()
-      .setId("G1")
-      .setName("Gate One")
-      .setStatus(QualityGate.Status.WARN)
-      .add(newConditionBuilder()
-        .setMetricKey("coverage")
-        .setOperator(QualityGate.Operator.GREATER_THAN)
-        .setWarningThreshold("75.0")
-        .setErrorThreshold("70.0")
-        .buildNoValue())
-      .build();
-    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, gate, null, 1_500_000_000_000L, emptyMap());
+    CeTask task = new CeTask("#1", CeTask.Status.SUCCESS);
+    QualityGate gate = new QualityGate("G1", "Gate One", QualityGate.Status.WARN, singleton(
+      new QualityGate.Condition(QualityGate.EvaluationStatus.NO_VALUE, "coverage", QualityGate.Operator.GREATER_THAN, "70.0", "75.0", false, null)));
+    ProjectAnalysis analysis = newAnalysis(task, gate, null, 1_500_000_000_000L, emptyMap());
 
     WebhookPayload payload = underTest.create(analysis);
     assertThat(payload.getProjectKey()).isEqualTo(PROJECT_KEY);
@@ -168,21 +131,14 @@ public class WebhookPayloadFactoryImplTest {
 
   @Test
   public void create_payload_with_analysis_properties() {
-    CeTask task = newCeTaskBuilder()
-      .setStatus(CeTask.Status.SUCCESS)
-      .setId("#1")
-      .build();
-    QualityGate gate = newQualityGateBuilder()
-      .setId("G1")
-      .setName("Gate One")
-      .setStatus(QualityGate.Status.WARN)
-      .build();
+    CeTask task = new CeTask("#1", CeTask.Status.SUCCESS);
+    QualityGate gate = new QualityGate("G1", "Gate One", QualityGate.Status.WARN, emptySet());
     Map<String, String> scannerProperties = ImmutableMap.of(
       "sonar.analysis.revision", "ab45d24",
       "sonar.analysis.buildNumber", "B123",
       "not.prefixed.with.sonar.analysis", "should be ignored",
       "ignored", "should be ignored too");
-    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, gate, null, 1_500_000_000_000L, scannerProperties);
+    ProjectAnalysis analysis = newAnalysis(task, gate, null, 1_500_000_000_000L, scannerProperties);
 
     WebhookPayload payload = underTest.create(analysis);
     assertJson(payload.getJson())
@@ -215,8 +171,8 @@ public class WebhookPayloadFactoryImplTest {
 
   @Test
   public void create_payload_for_failed_analysis() {
-    CeTask ceTask = newCeTaskBuilder().setStatus(CeTask.Status.FAILED).setId("#1").build();
-    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(ceTask, null, null, 1_500_000_000_000L, emptyMap());
+    CeTask ceTask = new CeTask("#1", CeTask.Status.FAILED);
+    ProjectAnalysis analysis = newAnalysis(ceTask, null, null, 1_500_000_000_000L, emptyMap());
 
     WebhookPayload payload = underTest.create(analysis);
 
@@ -239,8 +195,8 @@ public class WebhookPayloadFactoryImplTest {
 
   @Test
   public void create_payload_for_no_analysis_date() {
-    CeTask ceTask = newCeTaskBuilder().setStatus(CeTask.Status.FAILED).setId("#1").build();
-    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(ceTask, null, null, null, emptyMap());
+    CeTask ceTask = new CeTask("#1", CeTask.Status.FAILED);
+    ProjectAnalysis analysis = newAnalysis(ceTask, null, null, null, emptyMap());
 
     WebhookPayload payload = underTest.create(analysis);
 
@@ -262,11 +218,8 @@ public class WebhookPayloadFactoryImplTest {
 
   @Test
   public void create_payload_on_short_branch() {
-    CeTask task = newCeTaskBuilder()
-      .setStatus(CeTask.Status.SUCCESS)
-      .setId("#1")
-      .build();
-    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, null, new BranchImpl(false, "feature/foo", Branch.Type.SHORT), 1_500_000_000_000L, emptyMap());
+    CeTask task = new CeTask("#1", CeTask.Status.SUCCESS);
+    ProjectAnalysis analysis = newAnalysis(task, null, new Branch(false, "feature/foo", Branch.Type.SHORT), 1_500_000_000_000L, emptyMap());
 
     WebhookPayload payload = underTest.create(analysis);
     assertJson(payload.getJson())
@@ -282,11 +235,8 @@ public class WebhookPayloadFactoryImplTest {
 
   @Test
   public void create_payload_on_long_branch() {
-    CeTask task = newCeTaskBuilder()
-      .setStatus(CeTask.Status.SUCCESS)
-      .setId("#1")
-      .build();
-    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, null, new BranchImpl(false, "feature/foo", Branch.Type.LONG), 1_500_000_000_000L, emptyMap());
+    CeTask task = new CeTask("#1", CeTask.Status.SUCCESS);
+    ProjectAnalysis analysis = newAnalysis(task, null, new Branch(false, "feature/foo", Branch.Type.LONG), 1_500_000_000_000L, emptyMap());
 
     WebhookPayload payload = underTest.create(analysis);
     assertJson(payload.getJson())
@@ -302,11 +252,8 @@ public class WebhookPayloadFactoryImplTest {
 
   @Test
   public void create_payload_on_main_branch_without_name() {
-    CeTask task = newCeTaskBuilder()
-      .setStatus(CeTask.Status.SUCCESS)
-      .setId("#1")
-      .build();
-    PostProjectAnalysisTask.ProjectAnalysis analysis = newAnalysis(task, null, new BranchImpl(true, null, Branch.Type.LONG), 1_500_000_000_000L, emptyMap());
+    CeTask task = new CeTask("#1", CeTask.Status.SUCCESS);
+    ProjectAnalysis analysis = newAnalysis(task, null, new Branch(true, null, Branch.Type.LONG), 1_500_000_000_000L, emptyMap());
 
     WebhookPayload payload = underTest.create(analysis);
     assertJson(payload.getJson())
@@ -319,50 +266,9 @@ public class WebhookPayloadFactoryImplTest {
         "}");
   }
 
-  private static PostProjectAnalysisTask.ProjectAnalysis newAnalysis(CeTask task, @Nullable QualityGate gate,
+  private static ProjectAnalysis newAnalysis(CeTask task, @Nullable QualityGate gate,
     @Nullable Branch branch, @Nullable Long analysisDate, Map<String, String> scannerProperties) {
-    return new PostProjectAnalysisTask.ProjectAnalysis() {
-      @Override
-      public CeTask getCeTask() {
-        return task;
-      }
-
-      @Override
-      public Project getProject() {
-        return newProjectBuilder()
-          .setUuid("P1_UUID")
-          .setKey(PROJECT_KEY)
-          .setName("Project One")
-          .build();
-      }
-
-      @Override
-      public Optional<Branch> getBranch() {
-        return Optional.ofNullable(branch);
-      }
-
-      @Override
-      public QualityGate getQualityGate() {
-        return gate;
-      }
-
-      @Override
-      public Date getDate() {
-        throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public Optional<Date> getAnalysisDate() {
-        return Optional.ofNullable(analysisDate).map(Date::new);
-      }
-
-      @Override
-      public ScannerContext getScannerContext() {
-        return newScannerContextBuilder()
-          .addProperties(scannerProperties)
-          .build();
-      }
-    };
+    return new ProjectAnalysis(task, new Project("P1_UUID", PROJECT_KEY, "Project One"), branch, gate, analysisDate, scannerProperties);
   }
 
 }

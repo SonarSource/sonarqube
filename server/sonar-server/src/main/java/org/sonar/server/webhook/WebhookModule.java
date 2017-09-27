@@ -27,6 +27,7 @@ public class WebhookModule extends Module {
     add(
       WebhookCallerImpl.class,
       WebhookDeliveryStorage.class,
-      WebHooksImpl.class);
+      WebHooksImpl.class,
+      WebhookPayloadFactoryImpl.class);
   }
 }
