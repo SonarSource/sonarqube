@@ -39,6 +39,7 @@ import org.sonar.server.computation.task.projectanalysis.component.Configuration
 import org.sonar.server.computation.task.projectanalysis.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.component.DisabledComponentsHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.component.MergeBranchComponentUuids;
+import org.sonar.server.computation.task.projectanalysis.component.ShortBranchComponentsWithIssues;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.duplication.CrossProjectDuplicationStatusHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.duplication.DuplicationMeasures;
@@ -71,6 +72,7 @@ import org.sonar.server.computation.task.projectanalysis.issue.MergeBranchTracke
 import org.sonar.server.computation.task.projectanalysis.issue.MovedIssueVisitor;
 import org.sonar.server.computation.task.projectanalysis.issue.NewEffortAggregator;
 import org.sonar.server.computation.task.projectanalysis.issue.RemoveProcessedComponentsVisitor;
+import org.sonar.server.computation.task.projectanalysis.issue.ResolvedShortBranchIssuesFactory;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleTagsCopier;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleTypeCopier;
@@ -172,6 +174,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       MutableTaskResultHolderImpl.class,
       BatchReportReaderImpl.class,
       MergeBranchComponentUuids.class,
+      ShortBranchComponentsWithIssues.class,
 
       // repositories
       LanguageRepositoryImpl.class,
@@ -238,6 +241,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       TrackerBaseInputFactory.class,
       TrackerRawInputFactory.class,
       TrackerMergeBranchInputFactory.class,
+      ResolvedShortBranchIssuesFactory.class,
       Tracker.class,
       TrackerExecution.class,
       ShortBranchTrackerExecution.class,
