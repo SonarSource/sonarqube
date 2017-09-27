@@ -66,9 +66,9 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
 
     return removeUser({
       language: profile.language,
+      login: user.login,
       organization,
-      profile: profile.name,
-      user: user.login
+      qualityProfile: profile.name
     }).then(() => {
       this.handleDeleteModalClose();
       this.props.onDelete(user);

@@ -62,7 +62,7 @@ it('removes user', async () => {
     group: 'lambda',
     language: 'js',
     organization: 'org',
-    profile: 'Sonar way'
+    qualityProfile: 'Sonar way'
   });
 
   await new Promise(setImmediate);

@@ -99,13 +99,13 @@ it('fetches users and groups on mount', () => {
   expect(searchUsers).toBeCalledWith({
     language: 'js',
     organization: 'org',
-    profile: 'Sonar way',
-    selected: true
+    qualityProfile: 'Sonar way',
+    selected: 'selected'
   });
   expect(searchGroups).toBeCalledWith({
     language: 'js',
     organization: 'org',
-    profile: 'Sonar way',
-    selected: true
+    qualityProfile: 'Sonar way',
+    selected: 'selected'
   });
 });

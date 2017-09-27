@@ -22,7 +22,11 @@ import { sortBy, uniqBy } from 'lodash';
 import ProfilePermissionsUser from './ProfilePermissionsUser';
 import ProfilePermissionsGroup from './ProfilePermissionsGroup';
 import ProfilePermissionsForm from './ProfilePermissionsForm';
-import { searchUsers, searchGroups } from '../../../api/quality-profiles';
+import {
+  searchUsers,
+  searchGroups,
+  SearchUsersGroupsParameters
+} from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
 
 export interface User {
@@ -72,11 +76,11 @@ export default class ProfilePermissions extends React.PureComponent<Props, State
   fetchUsersAndGroups() {
     this.setState({ loading: true });
     const { organization, profile } = this.props;
-    const parameters = {
+    const parameters: SearchUsersGroupsParameters = {
       language: profile.language,
       organization,
-      profile: profile.name,
-      selected: true
+      qualityProfile: profile.name,
+      selected: 'selected'
     };
     Promise.all([searchUsers(parameters), searchGroups(parameters)]).then(
       ([usersResponse, groupsResponse]) => {

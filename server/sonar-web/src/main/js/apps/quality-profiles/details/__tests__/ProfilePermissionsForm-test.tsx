@@ -52,9 +52,9 @@ it('adds user', async () => {
   expect(wrapper).toMatchSnapshot();
   expect(addUser).toBeCalledWith({
     language: 'js',
+    login: 'luke',
     organization: 'org',
-    profile: 'Sonar way',
-    user: 'luke'
+    qualityProfile: 'Sonar way'
   });
 
   await new Promise(setImmediate);
@@ -83,7 +83,7 @@ it('adds group', async () => {
     group: 'lambda',
     language: 'js',
     organization: 'org',
-    profile: 'Sonar way'
+    qualityProfile: 'Sonar way'
   });
 
   await new Promise(setImmediate);

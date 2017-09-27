@@ -74,7 +74,7 @@ it('fetches profiles', () => {
   mount(<App component={component} customOrganizations={false} />);
   expect(searchQualityProfiles.mock.calls).toHaveLength(2);
   expect(searchQualityProfiles).toBeCalledWith({ organization: undefined });
-  expect(searchQualityProfiles).toBeCalledWith({ organization: undefined, projectKey: 'foo' });
+  expect(searchQualityProfiles).toBeCalledWith({ organization: undefined, project: 'foo' });
 });
 
 it('fetches profiles with organization', () => {
@@ -82,7 +82,7 @@ it('fetches profiles with organization', () => {
   mount(<App component={component} customOrganizations={true} />);
   expect(searchQualityProfiles.mock.calls).toHaveLength(2);
   expect(searchQualityProfiles).toBeCalledWith({ organization: 'org' });
-  expect(searchQualityProfiles).toBeCalledWith({ organization: 'org', projectKey: 'foo' });
+  expect(searchQualityProfiles).toBeCalledWith({ organization: 'org', project: 'foo' });
 });
 
 it('changes profile', () => {
