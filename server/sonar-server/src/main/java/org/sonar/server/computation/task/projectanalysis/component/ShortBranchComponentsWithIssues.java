@@ -28,11 +28,9 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.KeyWithUuidDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 
 /**
  * Cache a map of component key -> uuid in short branches that have issues with status either RESOLVED or CONFIRMED.
@@ -40,23 +38,16 @@ import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
  */
 public class ShortBranchComponentsWithIssues {
   private final String uuid;
-  private final Branch branch;
   private final DbClient dbClient;
 
   private Map<String, Set<String>> uuidsByKey;
 
   public ShortBranchComponentsWithIssues(AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient) {
     this.uuid = analysisMetadataHolder.getUuid();
-    this.branch = analysisMetadataHolder.getBranch().get();
     this.dbClient = dbClient;
   }
 
   private void loadUuidsByKey() {
-    if (branch.getType() != BranchType.LONG) {
-      uuidsByKey = Collections.emptyMap();
-      return;
-    }
-
     uuidsByKey = new HashMap<>();
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<KeyWithUuidDto> components = dbClient.componentDao().selectComponentKeysHavingIssuesToMerge(dbSession, uuid);

@@ -29,11 +29,8 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
-import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ShortBranchComponentsWithIssuesTest {
   @Rule
@@ -43,7 +40,6 @@ public class ShortBranchComponentsWithIssuesTest {
   public DbTester db = DbTester.create();
 
   private ShortBranchComponentsWithIssues underTest;
-  private Branch branch = mock(Branch.class);
 
   private ComponentDto long1;
   private ComponentDto fileWithNoIssues;
@@ -108,8 +104,6 @@ public class ShortBranchComponentsWithIssuesTest {
     fileWithOneResolvedIssueOnLong2 = db.components().insertComponent(ComponentTesting.newFileDto(long2short1, null));
     db.issues().insertIssue(IssueTesting.newIssue(rule, long2short1, fileWithOneResolvedIssueOnLong2).setStatus("RESOLVED"));
 
-    when(branch.getType()).thenReturn(BranchType.LONG);
-    analysisMetadataHolder.setBranch(branch);
     analysisMetadataHolder.setUuid(long1.uuid());
     underTest = new ShortBranchComponentsWithIssues(analysisMetadataHolder, db.getDbClient());
   }
