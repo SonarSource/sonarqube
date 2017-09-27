@@ -66,8 +66,8 @@ public class WebhookDeliveryStorage {
     WebhookDeliveryDto dto = new WebhookDeliveryDto();
     dto.setUuid(uuidFactory.create());
     dto.setComponentUuid(delivery.getWebhook().getComponentUuid());
-    dto.setCeTaskUuid(delivery.getWebhook().getCeTaskUuid());
-    dto.setAnalysisUuid(delivery.getWebhook().getAnalysisUuid());
+    delivery.getWebhook().getCeTaskUuid().ifPresent(dto::setCeTaskUuid);
+    delivery.getWebhook().getAnalysisUuid().ifPresent(dto::setAnalysisUuid);
     dto.setName(delivery.getWebhook().getName());
     dto.setUrl(delivery.getWebhook().getUrl());
     dto.setSuccess(delivery.isSuccess());

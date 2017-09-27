@@ -80,7 +80,7 @@ public interface PostProjectAnalysisTask {
      * <p>
      * This date is the same as the date of the project analysis report and the snapshot.
      *
-     * @deprecated use {@link #getAnalysisDate()} instead. When {@link #getAnalysisDate()} returns
+     * @deprecated use {@link #getAnalysis().getDate()} instead. When {@link #getAnalysis()} returns
      *             {@link Optional#empty() empty}, the current date will be returned.
      */
     @Deprecated
@@ -92,8 +92,20 @@ public interface PostProjectAnalysisTask {
      * This date is the same as the date of the project analysis report and therefore as the analysis in DB. It can be
      * missing when the status of the task is {@link org.sonar.api.ce.posttask.CeTask.Status#FAILED FAILED}.
      * </p>
+     * @deprecated use {@link #getAnalysis().getDate()} instead
      */
+    @Deprecated
     Optional<Date> getAnalysisDate();
+
+    /**
+     * Analysis containing the UUID of the analysis and the date
+     *
+     * <p>
+     * This Analysis can be missing when the status of the task is
+     * {@link org.sonar.api.ce.posttask.CeTask.Status#FAILED FAILED}.
+     * </p>
+     */
+    Optional<Analysis> getAnalysis();
 
     /**
      * Context as defined by scanner through {@link org.sonar.api.batch.sensor.SensorContext#addContextProperty(String, String)}.
