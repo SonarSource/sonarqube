@@ -19,6 +19,7 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -28,6 +29,7 @@ import org.sonar.db.Pagination;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
@@ -194,6 +196,30 @@ public class QProfileEditGroupsDaoTest {
       Pagination.forPage(1).andSize(10)))
       .extracting(GroupMembershipDto::getGroupId)
       .containsExactly(group1.getId(), group2.getId(), group3.getId());
+  }
+
+  @Test
+  public void selectQProfileUuidsByOrganizationAndGroups() {
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    QProfileDto profile1 = db.qualityProfiles().insert(organization);
+    QProfileDto profile2 = db.qualityProfiles().insert(organization);
+    QProfileDto anotherProfile = db.qualityProfiles().insert(anotherOrganization);
+    GroupDto group1 = db.users().insertGroup(organization, "group1");
+    GroupDto group2 = db.users().insertGroup(organization, "group2");
+    GroupDto group3 = db.users().insertGroup(organization, "group3");
+    db.qualityProfiles().addGroupPermission(profile1, group1);
+    db.qualityProfiles().addGroupPermission(profile1, group2);
+    db.qualityProfiles().addGroupPermission(profile2, group2);
+    db.qualityProfiles().addGroupPermission(anotherProfile, group1);
+    db.qualityProfiles().addGroupPermission(anotherProfile, group3);
+
+    assertThat(underTest.selectQProfileUuidsByOrganizationAndGroups(db.getSession(), organization, asList(group1, group2)))
+      .containsExactlyInAnyOrder(profile1.getKee(), profile2.getKee())
+      .doesNotContain(anotherProfile.getKee());
+    assertThat(underTest.selectQProfileUuidsByOrganizationAndGroups(db.getSession(), organization, asList(group1, group2, group3)))
+      .containsExactlyInAnyOrder(profile1.getKee(), profile2.getKee());
+    assertThat(underTest.selectQProfileUuidsByOrganizationAndGroups(db.getSession(), organization, Collections.emptyList())).isEmpty();
   }
 
   @Test

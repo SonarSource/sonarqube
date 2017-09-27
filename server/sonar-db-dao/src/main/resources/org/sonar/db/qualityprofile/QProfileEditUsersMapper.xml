@@ -76,6 +76,15 @@
     </where>
   </sql>
 
+  <select id="selectQProfileUuidsByOrganizationAndUser" parameterType="map" resultType="string">
+    SELECT qeu.qprofile_uuid as qProfileUuid
+    FROM qprofile_edit_users qeu
+    INNER JOIN org_qprofiles oq ON qeu.qprofile_uuid=oq.uuid AND oq.organization_uuid=#{organizationUuid, jdbcType=VARCHAR}
+    <where>
+      qeu.user_id=#{userId, jdbcType=INTEGER}
+    </where>
+  </select>
+
   <insert id="insert" useGeneratedKeys="false" parameterType="map">
     insert into qprofile_edit_users(
     uuid,

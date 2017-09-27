@@ -28,6 +28,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
@@ -44,8 +45,10 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleCountQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.user.UserSession;
 import org.sonar.server.util.LanguageParamUtils;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
@@ -54,10 +57,13 @@ import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
 import static java.util.function.Function.identity;
 import static org.sonar.api.rule.RuleStatus.DEPRECATED;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_SEARCH;
@@ -72,12 +78,14 @@ public class SearchAction implements QProfileWsAction {
     .comparing(QProfileDto::getLanguage)
     .thenComparing(QProfileDto::getName);
 
+  private final UserSession userSession;
   private final Languages languages;
   private final DbClient dbClient;
   private final QProfileWsSupport wsSupport;
   private final ComponentFinder componentFinder;
 
-  public SearchAction(Languages languages, DbClient dbClient, QProfileWsSupport wsSupport, ComponentFinder componentFinder) {
+  public SearchAction(UserSession userSession, Languages languages, DbClient dbClient, QProfileWsSupport wsSupport, ComponentFinder componentFinder) {
+    this.userSession = userSession;
     this.languages = languages;
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
@@ -151,6 +159,7 @@ public class SearchAction implements QProfileWsAction {
       ComponentDto project = findProject(dbSession, organization, request);
 
       List<QProfileDto> defaultProfiles = dbClient.qualityProfileDao().selectDefaultProfiles(dbSession, organization, getLanguageKeys());
+      List<String> editableProfiles = searchEditableProfiles(dbSession, organization);
       List<QProfileDto> profiles = searchProfiles(dbSession, request, organization, defaultProfiles, project);
 
       ActiveRuleCountQuery.Builder builder = ActiveRuleCountQuery.builder().setOrganization(organization);
@@ -162,7 +171,9 @@ public class SearchAction implements QProfileWsAction {
         .setActiveDeprecatedRuleCountByProfileKey(
           dbClient.activeRuleDao().countActiveRulesByQuery(dbSession, builder.setProfiles(profiles).setRuleStatus(DEPRECATED).build()))
         .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByOrganizationAndProfiles(dbSession, organization, profiles))
-        .setDefaultProfileKeys(defaultProfiles);
+        .setDefaultProfileKeys(defaultProfiles)
+        .setEditableProfileKeys(editableProfiles)
+        .setGlobalQProfileAdmin(userSession.hasPermission(ADMINISTER_QUALITY_PROFILES, organization));
     }
   }
 
@@ -184,8 +195,24 @@ public class SearchAction implements QProfileWsAction {
     return component;
   }
 
+  private List<String> searchEditableProfiles(DbSession dbSession, OrganizationDto organization) {
+    if (!userSession.isLoggedIn()) {
+      return emptyList();
+    }
+
+    String login = userSession.getLogin();
+    UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
+    checkState(user != null, "User with login '%s' is not found'", login);
+
+    return
+      Stream.concat(
+        dbClient.qProfileEditUsersDao().selectQProfileUuidsByOrganizationAndUser(dbSession, organization, user).stream(),
+        dbClient.qProfileEditGroupsDao().selectQProfileUuidsByOrganizationAndGroups(dbSession, organization, userSession.getGroups()).stream())
+        .collect(toList());
+  }
+
   private List<QProfileDto> searchProfiles(DbSession dbSession, SearchWsRequest request, OrganizationDto organization, List<QProfileDto> defaultProfiles,
-    @Nullable ComponentDto project) {
+                                           @Nullable ComponentDto project) {
     Collection<QProfileDto> profiles = selectAllProfiles(dbSession, organization);
 
     return profiles.stream()
@@ -238,7 +265,7 @@ public class SearchAction implements QProfileWsAction {
     Map<String, QProfileDto> profilesByKey = profiles.stream().collect(Collectors.toMap(QProfileDto::getKee, identity()));
 
     SearchWsResponse.Builder response = SearchWsResponse.newBuilder();
-    response.setActions(SearchWsResponse.Actions.newBuilder().setCreate(true));
+    response.setActions(SearchWsResponse.Actions.newBuilder().setCreate(data.isGlobalQProfileAdmin()));
 
     for (QProfileDto profile : profiles) {
       QualityProfile.Builder profileBuilder = response.addProfilesBuilder();
@@ -263,10 +290,10 @@ public class SearchAction implements QProfileWsAction {
       profileBuilder.setIsInherited(profile.getParentKee() != null);
       profileBuilder.setIsBuiltIn(profile.isBuiltIn());
 
-      profileBuilder.setActions(SearchWsResponse.Actions.newBuilder()
-        .setEdit(true)
-        .setSetAsDefault(false)
-        .setCopy(false));
+      profileBuilder.setActions(SearchWsResponse.QualityProfile.Actions.newBuilder()
+        .setEdit(data.isEditable(profile))
+        .setSetAsDefault(data.isGlobalQProfileAdmin())
+        .setCopy(data.isGlobalQProfileAdmin()));
     }
 
     return response.build();

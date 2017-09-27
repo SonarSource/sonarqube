@@ -31,6 +31,8 @@ public interface QProfileEditUsersMapper {
 
   List<UserMembershipDto> selectByQuery(@Param("query") SearchUsersQuery query, @Param("pagination") Pagination pagination);
 
+  List<String> selectQProfileUuidsByOrganizationAndUser(@Param("organizationUuid") String organizationUuid, @Param("userId") int userId);
+
   void insert(@Param("dto") QProfileEditUsersDto dto, @Param("now") long now);
 
   void delete(@Param("qProfileUuid") String qProfileUuid, @Param("userId") int userId);
