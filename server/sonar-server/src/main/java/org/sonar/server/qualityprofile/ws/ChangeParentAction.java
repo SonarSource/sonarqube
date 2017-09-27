@@ -34,7 +34,6 @@ import org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PARENT_KEY;
 
@@ -61,7 +60,11 @@ public class ChangeParentAction implements QProfileWsAction {
       .setSince("5.2")
       .setPost(true)
       .setDescription("Change a quality profile's parent.<br>" +
-        "Requires to be logged in and the 'Administer Quality Profiles' permission.")
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "  <li>'Administer Quality Profiles'</li>" +
+        "  <li>Edit right on the specified quality profile</li>" +
+        "</ul>")
       .setHandler(this);
 
     QProfileWsSupport.createOrganizationParam(inheritance)
@@ -87,11 +90,8 @@ public class ChangeParentAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = wsSupport.getProfile(dbSession, reference);
-      String organizationUuid = profile.getOrganizationUuid();
-      OrganizationDto organization = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid)
-        .orElseThrow(() -> new IllegalStateException(String.format("Could not find organization with uuid '%s' of profile '%s'", organizationUuid, profile.getKee())));
-      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, organization);
-      wsSupport.checkNotBuiltInt(profile);
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
+      wsSupport.checkCanEdit(dbSession, organization, profile);
 
       String parentKey = request.param(PARAM_PARENT_KEY);
       String parentName = request.param(QualityProfileWsParameters.PARAM_PARENT_QUALITY_PROFILE);

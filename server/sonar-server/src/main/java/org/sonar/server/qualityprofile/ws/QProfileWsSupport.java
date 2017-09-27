@@ -124,20 +124,25 @@ public class QProfileWsSupport {
     userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
   }
 
-  public void checkCanEdit(DbSession dbSession, OrganizationDto organization, QProfileDto profile) {
-    checkNotBuiltInt(profile);
-    userSession.checkLoggedIn();
-    if (userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization)) {
-      return;
+  boolean canEdit(DbSession dbSession, OrganizationDto organization, QProfileDto profile) {
+    if (profile.isBuiltIn() || !userSession.isLoggedIn()) {
+      return false;
     }
-    UserDto user = dbClient.userDao().selectByLogin(dbSession, userSession.getLogin());
-    checkState(user != null, "User from session does not exist");
-    if (dbClient.qProfileEditUsersDao().exists(dbSession, profile, user)
-      || dbClient.qProfileEditGroupsDao().selectQProfileUuidsByOrganizationAndGroups(dbSession, organization, userSession.getGroups()).contains(profile.getKee())) {
-      return;
+    if (userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization)) {
+      return true;
     }
 
-    throw insufficientPrivilegesException();
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, userSession.getLogin());
+    checkState(user != null, "User from session does not exist");
+    return dbClient.qProfileEditUsersDao().exists(dbSession, profile, user)
+      || dbClient.qProfileEditGroupsDao().selectQProfileUuidsByOrganizationAndGroups(dbSession, organization, userSession.getGroups()).contains(profile.getKee());
+  }
+
+  public void checkCanEdit(DbSession dbSession, OrganizationDto organization, QProfileDto profile) {
+    checkNotBuiltInt(profile);
+    if (!canEdit(dbSession, organization, profile)) {
+      throw insufficientPrivilegesException();
+    }
   }
 
   public void checkNotBuiltInt(QProfileDto profile) {

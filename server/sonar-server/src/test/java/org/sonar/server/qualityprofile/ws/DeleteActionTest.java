@@ -34,6 +34,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -49,6 +50,10 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 
 public class DeleteActionTest {
 
@@ -59,7 +64,7 @@ public class DeleteActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
@@ -67,8 +72,8 @@ public class DeleteActionTest {
 
   private DeleteAction underTest = new DeleteAction(
     new Languages(LanguageTesting.newLanguage(A_LANGUAGE)),
-    new QProfileFactoryImpl(dbClient, UuidFactoryFast.getInstance(), System2.INSTANCE, activeRuleIndexer), dbClient, userSessionRule,
-    new QProfileWsSupport(dbClient, userSessionRule, TestDefaultOrganizationProvider.from(db)));
+    new QProfileFactoryImpl(dbClient, UuidFactoryFast.getInstance(), System2.INSTANCE, activeRuleIndexer), dbClient, userSession,
+    new QProfileWsSupport(dbClient, userSession, TestDefaultOrganizationProvider.from(db)));
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -83,7 +88,7 @@ public class DeleteActionTest {
 
     TestResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam("profileKey", profile1.getKee())
+      .setParam(PARAM_KEY, profile1.getKee())
       .execute();
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
 
@@ -103,8 +108,8 @@ public class DeleteActionTest {
 
     TestResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam("language", profile1.getLanguage())
-      .setParam("qualityProfile", profile1.getName())
+      .setParam(PARAM_LANGUAGE, profile1.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, profile1.getName())
       .execute();
 
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
@@ -124,14 +129,33 @@ public class DeleteActionTest {
 
     TestResponse response = ws.newRequest()
       .setMethod("POST")
-      .setParam("organization", organization.getKey())
-      .setParam("language", profile1.getLanguage())
-      .setParam("qualityProfile", profile1.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_LANGUAGE, profile1.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, profile1.getName())
       .execute();
     assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
 
     verifyProfileDoesNotExist(profile1, organization);
     verifyProfileExists(profile2);
+  }
+
+  @Test
+  public void as_qprofile_editor() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = createProfile(organization);
+    UserDto user = db.users().insertUser();
+    db.qualityProfiles().addUserPermission(profile, user);
+    userSession.logIn(user);
+
+    TestResponse response = ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_LANGUAGE, profile.getLanguage())
+      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
+      .execute();
+    assertThat(response.getStatus()).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
+
+    verifyProfileDoesNotExist(profile, organization);
   }
 
   @Test
@@ -144,44 +168,40 @@ public class DeleteActionTest {
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam("profileKey", profile1.getKee())
+      .setParam(PARAM_KEY, profile1.getKee())
       .execute();
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_profile_administrator() {
-    OrganizationDto organization1 = db.organizations().insert();
-    OrganizationDto organization2 = db.organizations().insert();
-
-    QProfileDto profileInOrg1 = createProfile(organization1);
-    QProfileDto profileInOrg2 = createProfile(organization2);
-
-    logInAsQProfileAdministrator(organization1);
+  public void fail_if_not_profile_administrator() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto qprofile = createProfile(organization);
+    userSession.logIn(db.users().insertUser());
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam("profileKey", profileInOrg2.getKee())
+      .setParam(PARAM_KEY, qprofile.getKee())
       .execute();
   }
 
   @Test
-  public void throw_UnauthorizedException_if_not_logged_in() {
+  public void fail_if_not_logged_in() {
     QProfileDto profile = createProfile(db.getDefaultOrganization());
 
     expectedException.expect(UnauthorizedException.class);
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam("profileKey", profile.getKee())
+      .setParam(PARAM_KEY, profile.getKee())
       .execute();
   }
 
   @Test
-  public void throw_IAE_if_missing_parameters() {
-    userSessionRule.logIn();
+  public void fail_if_missing_parameters() {
+    userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("If no quality profile key is specified, language and name must be set");
@@ -192,7 +212,7 @@ public class DeleteActionTest {
   }
 
   @Test
-  public void throw_IAE_if_missing_language_parameter() {
+  public void fail_if_missing_language_parameter() {
     OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = createProfile(organization);
     logInAsQProfileAdministrator(organization);
@@ -202,13 +222,13 @@ public class DeleteActionTest {
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam("organization", organization.getKey())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam("profileName", profile.getName())
       .execute();
   }
 
   @Test
-  public void throw_IAE_if_missing_name_parameter() throws Exception {
+  public void fail_if_missing_name_parameter() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = createProfile(organization);
     logInAsQProfileAdministrator(organization);
@@ -218,13 +238,13 @@ public class DeleteActionTest {
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam("organization", organization.getKey())
-      .setParam("language", profile.getLanguage())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_LANGUAGE, profile.getLanguage())
       .execute();
   }
 
   @Test
-  public void throw_IAE_if_too_many_parameters_to_reference_profile() {
+  public void fail_if_too_many_parameters_to_reference_profile() {
     OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = createProfile(organization);
     logInAsQProfileAdministrator(organization);
@@ -234,28 +254,28 @@ public class DeleteActionTest {
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam("organization", organization.getKey())
-      .setParam("language", profile.getLanguage())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_LANGUAGE, profile.getLanguage())
       .setParam("profileName", profile.getName())
-      .setParam("profileKey", profile.getKee())
+      .setParam(PARAM_KEY, profile.getKee())
       .execute();
   }
 
   @Test
-  public void throw_NotFoundException_if_profile_does_not_exist() {
-    userSessionRule.logIn();
+  public void fail_if_profile_does_not_exist() {
+    userSession.logIn();
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Quality Profile with key 'does_not_exist' does not exist");
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam("profileKey", "does_not_exist")
+      .setParam(PARAM_KEY, "does_not_exist")
       .execute();
   }
 
   @Test
-  public void throw_ISE_if_deleting_default_profile() {
+  public void fail_if_deleting_default_profile() {
     OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = createProfile(organization);
     db.qualityProfiles().setAsDefault(profile);
@@ -266,12 +286,12 @@ public class DeleteActionTest {
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam("profileKey", profile.getKee())
+      .setParam(PARAM_KEY, profile.getKee())
       .execute();
   }
 
   @Test
-  public void throw_ISE_if_a_descendant_is_marked_as_default() {
+  public void fail_if_a_descendant_is_marked_as_default() {
     OrganizationDto organization = db.organizations().insert();
     QProfileDto parentProfile = createProfile(organization);
     QProfileDto childProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(A_LANGUAGE).setParentKee(parentProfile.getKee()));
@@ -284,7 +304,7 @@ public class DeleteActionTest {
 
     ws.newRequest()
       .setMethod("POST")
-      .setParam("profileKey", parentProfile.getKee())
+      .setParam(PARAM_KEY, parentProfile.getKee())
       .execute();
   }
 
@@ -303,8 +323,8 @@ public class DeleteActionTest {
   }
 
   private void logInAsQProfileAdministrator(OrganizationDto organization) {
-    userSessionRule
-      .logIn()
+    userSession
+      .logIn(db.users().insertUser())
       .addPermission(ADMINISTER_QUALITY_PROFILES, organization);
   }
 

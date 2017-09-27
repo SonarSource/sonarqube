@@ -44,6 +44,7 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.QualityProfileTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
@@ -79,13 +80,13 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 public class ChangeParentActionTest {
 
   @Rule
-  public DbTester dbTester = new DbTester(System2.INSTANCE, null);
+  public DbTester db = new DbTester(System2.INSTANCE, null);
   @Rule
   public EsTester esTester = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
 
   private DbClient dbClient;
   private DbSession dbSession;
@@ -100,15 +101,15 @@ public class ChangeParentActionTest {
 
   @Before
   public void setUp() {
-    dbClient = dbTester.getDbClient();
-    dbSession = dbTester.getSession();
+    dbClient = db.getDbClient();
+    dbSession = db.getSession();
     EsClient esClient = esTester.client();
     ruleIndex = new RuleIndex(esClient);
     ruleIndexer = new RuleIndexer(esClient, dbClient);
     activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient);
     RuleActivatorContextFactory ruleActivatorContextFactory = new RuleActivatorContextFactory(dbClient);
     TypeValidations typeValidations = new TypeValidations(Collections.emptyList());
-    ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, ruleIndex, ruleActivatorContextFactory, typeValidations, activeRuleIndexer, userSessionRule);
+    ruleActivator = new RuleActivator(System2.INSTANCE, dbClient, ruleIndex, ruleActivatorContextFactory, typeValidations, activeRuleIndexer, userSession);
 
     ChangeParentAction underTest = new ChangeParentAction(
       dbClient,
@@ -119,17 +120,17 @@ public class ChangeParentActionTest {
         ruleActivatorContextFactory,
         typeValidations,
         activeRuleIndexer,
-        userSessionRule),
+        userSession),
       new Languages(),
       new QProfileWsSupport(
         dbClient,
-        userSessionRule,
-        TestDefaultOrganizationProvider.from(dbTester)),
-      userSessionRule);
+        userSession,
+        TestDefaultOrganizationProvider.from(db)),
+      userSession);
 
     ws = new WsActionTester(underTest);
-    organization = dbTester.organizations().insert();
-    userSessionRule.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization.getUuid());
+    organization = db.organizations().insert();
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization.getUuid());
   }
 
   @Test
@@ -319,8 +320,39 @@ public class ChangeParentActionTest {
   }
 
   @Test
+  public void as_qprofile_editor() throws Exception {
+    QProfileDto parent1 = createProfile();
+    QProfileDto parent2 = createProfile();
+    QProfileDto child = createProfile();
+
+    RuleDefinitionDto rule1 = createRule();
+    RuleDefinitionDto rule2 = createRule();
+    createActiveRule(rule1, parent1);
+    createActiveRule(rule2, parent2);
+    ruleIndexer.commitAndIndex(dbSession, asList(rule1.getKey(), rule2.getKey()));
+    activeRuleIndexer.indexOnStartup(emptySet());
+    // Set parent 1
+    ruleActivator.setParentAndCommit(dbSession, child, parent1);
+    UserDto user = db.users().insertUser();
+    db.qualityProfiles().addUserPermission(child, user);
+    userSession.logIn(user);
+
+    ws.newRequest()
+      .setMethod("POST")
+      .setParam(PARAM_KEY, child.getKee())
+      .setParam(PARAM_PARENT_KEY, parent2.getKee())
+      .execute();
+
+    List<OrgActiveRuleDto> activeRules2 = dbClient.activeRuleDao().selectByProfile(dbSession, child);
+    assertThat(activeRules2).hasSize(1);
+    assertThat(activeRules2.get(0).getKey().getRuleKey().rule()).isEqualTo(rule2.getRuleKey());
+
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfile(child), new SearchOptions()).getIds()).hasSize(1);
+  }
+
+  @Test
   public void fail_if_built_in_profile() {
-    QProfileDto child = dbTester.qualityProfiles().insert(organization, p -> p
+    QProfileDto child = db.qualityProfiles().insert(organization, p -> p
       .setLanguage(language.getKey())
       .setIsBuiltIn(true));
 
@@ -332,7 +364,7 @@ public class ChangeParentActionTest {
       .setParam(PARAM_KEY, child.getKee())
       .setParam(PARAM_PARENT_KEY, "palap");
 
-    thrown.expect(BadRequestException.class);
+    expectedException.expect(BadRequestException.class);
 
     request.execute();
   }
@@ -349,7 +381,7 @@ public class ChangeParentActionTest {
       .setParam(PARAM_KEY, child.getKee())
       .setParam(PARAM_PARENT_QUALITY_PROFILE, "polop")
       .setParam(PARAM_PARENT_KEY, "palap");
-    thrown.expect(IllegalArgumentException.class);
+    expectedException.expect(IllegalArgumentException.class);
     request
       .execute();
   }
@@ -368,13 +400,13 @@ public class ChangeParentActionTest {
       .setParam(PARAM_ORGANIZATION, organization.getKey())
       .setParam(PARAM_PARENT_KEY, "palap");
 
-    thrown.expect(IllegalArgumentException.class);
+    expectedException.expect(IllegalArgumentException.class);
     request.execute();
   }
 
   @Test
   public void fail_if_missing_permission() throws Exception {
-    userSessionRule.logIn();
+    userSession.logIn(db.users().insertUser());
 
     QProfileDto child = createProfile();
 
@@ -382,15 +414,15 @@ public class ChangeParentActionTest {
       .setMethod("POST")
       .setParam(PARAM_KEY, child.getKee());
 
-    thrown.expect(ForbiddenException.class);
-    thrown.expectMessage("Insufficient privileges");
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
     request.execute();
   }
 
   @Test
   public void fail_if_missing_permission_for_this_organization() throws Exception {
-    OrganizationDto organization2 = dbTester.organizations().insert();
-    userSessionRule.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization2.getUuid());
+    OrganizationDto organization2 = db.organizations().insert();
+    userSession.logIn(db.users().insertUser()).addPermission(ADMINISTER_QUALITY_PROFILES, organization2.getUuid());
 
     QProfileDto child = createProfile();
 
@@ -398,8 +430,8 @@ public class ChangeParentActionTest {
       .setMethod("POST")
       .setParam(PARAM_KEY, child.getKee());
 
-    thrown.expect(ForbiddenException.class);
-    thrown.expectMessage("Insufficient privileges");
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
     request.execute();
   }
 
