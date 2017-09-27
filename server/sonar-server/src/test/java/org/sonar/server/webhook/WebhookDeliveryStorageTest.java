@@ -63,7 +63,7 @@ public class WebhookDeliveryStorageTest {
     WebhookDeliveryDto dto = dbClient.webhookDeliveryDao().selectByUuid(dbSession, DELIVERY_UUID).get();
     assertThat(dto.getUuid()).isEqualTo(DELIVERY_UUID);
     assertThat(dto.getComponentUuid()).isEqualTo(delivery.getWebhook().getComponentUuid());
-    assertThat(dto.getCeTaskUuid()).isEqualTo(delivery.getWebhook().getCeTaskUuid());
+    assertThat(dto.getCeTaskUuid()).isEqualTo(delivery.getWebhook().getCeTaskUuid().get());
     assertThat(dto.getName()).isEqualTo(delivery.getWebhook().getName());
     assertThat(dto.getUrl()).isEqualTo(delivery.getWebhook().getUrl());
     assertThat(dto.getCreatedAt()).isEqualTo(delivery.getAt());

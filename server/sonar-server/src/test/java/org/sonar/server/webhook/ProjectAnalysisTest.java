@@ -36,11 +36,13 @@ public class ProjectAnalysisTest {
 
   private final CeTask ceTask = new CeTask("id", CeTask.Status.SUCCESS);
   private final Project project = new Project("uuid", "key", "name");
+  private final Analysis analysis = new Analysis("analysis_uuid", new Date());
   private final Branch branch = new Branch(true, "name", Branch.Type.SHORT);
   private final QualityGate qualityGate = new QualityGate("id", "name", QualityGate.Status.WARN, emptySet());
   private final Map<String, String> properties = ImmutableMap.of("a", "b");
   private ProjectAnalysis underTest = new ProjectAnalysis(ceTask,
     project,
+    analysis,
     branch,
     qualityGate,
     1L,
@@ -54,6 +56,7 @@ public class ProjectAnalysisTest {
 
     new ProjectAnalysis(null,
       project,
+      analysis,
       branch,
       qualityGate,
       1L,
@@ -68,6 +71,7 @@ public class ProjectAnalysisTest {
 
     new ProjectAnalysis(ceTask,
       null,
+      analysis,
       branch,
       qualityGate,
       1L,
@@ -82,6 +86,7 @@ public class ProjectAnalysisTest {
 
     new ProjectAnalysis(ceTask,
       project,
+      analysis,
       branch,
       qualityGate,
       1L,
@@ -94,52 +99,54 @@ public class ProjectAnalysisTest {
     assertThat(underTest.getProject()).isSameAs(project);
     assertThat(underTest.getBranch().get()).isSameAs(branch);
     assertThat(underTest.getQualityGate().get()).isSameAs(qualityGate);
-    assertThat(underTest.getAnalysisDate()).contains(new Date(1L));
     assertThat(underTest.getProperties()).isEqualTo(properties);
+    assertThat(underTest.getAnalysis().get()).isEqualTo(analysis);
 
-    ProjectAnalysis underTestWithNulls = new ProjectAnalysis(ceTask, project, null, null, null, emptyMap());
+    ProjectAnalysis underTestWithNulls = new ProjectAnalysis(ceTask, project, null, null, null, null, emptyMap());
     assertThat(underTestWithNulls.getBranch()).isEmpty();
     assertThat(underTestWithNulls.getQualityGate()).isEmpty();
-    assertThat(underTestWithNulls.getAnalysisDate()).isEmpty();
     assertThat(underTestWithNulls.getProperties()).isEmpty();
+    assertThat(underTestWithNulls.getAnalysis()).isEmpty();
   }
 
   @Test
   public void defines_equals_based_on_all_fields() {
     assertThat(underTest).isEqualTo(underTest);
-    assertThat(underTest).isEqualTo(new ProjectAnalysis(ceTask, project, branch, qualityGate, 1L, properties));
+    assertThat(underTest).isEqualTo(new ProjectAnalysis(ceTask, project, analysis, branch, qualityGate, 1L, properties));
     assertThat(underTest).isNotEqualTo(null);
     assertThat(underTest).isNotEqualTo(new Object());
-    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(new CeTask("2", CeTask.Status.SUCCESS), project, branch, qualityGate, 1L, properties));
-    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, new Project("A", "B", "C"), branch, qualityGate, 1L, properties));
-    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, new Project("A", "B", "C"), branch, qualityGate, 1L, properties));
-    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, project, null, qualityGate, 1L, properties));
-    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, project, new Branch(false, "B", Branch.Type.SHORT), qualityGate, 1L, properties));
-    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, project, branch, null, 1L, properties));
-    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, project, branch, new QualityGate("A", "B", QualityGate.Status.WARN, emptySet()), 1L, properties));
-    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, project, branch, qualityGate, null, properties));
-    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, project, branch, qualityGate, 2L, properties));
-    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, project, branch, qualityGate, 1L, emptyMap()));
-    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, project, branch, qualityGate, 1L, ImmutableMap.of("A", "B")));
+    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(new CeTask("2", CeTask.Status.SUCCESS), project, analysis, branch, qualityGate, 1L, properties));
+    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, new Project("A", "B", "C"), analysis, branch, qualityGate, 1L, properties));
+    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, new Project("A", "B", "C"), analysis, branch, qualityGate, 1L, properties));
+    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, project, null, null, qualityGate, 1L, properties));
+    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, project, analysis, null, qualityGate, 1L, properties));
+    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, project, analysis, new Branch(false, "B", Branch.Type.SHORT), qualityGate, 1L, properties));
+    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, project, analysis, branch, null, 1L, properties));
+    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, project, analysis, branch, new QualityGate("A", "B", QualityGate.Status.WARN, emptySet()), 1L, properties));
+    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, project, analysis, branch, qualityGate, null, properties));
+    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, project, analysis, branch, qualityGate, 2L, properties));
+    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, project, analysis, branch, qualityGate, 1L, emptyMap()));
+    assertThat(underTest).isNotEqualTo(new ProjectAnalysis(ceTask, project, analysis, branch, qualityGate, 1L, ImmutableMap.of("A", "B")));
   }
 
   @Test
   public void defines_hashcode_based_on_all_fields() {
     assertThat(underTest.hashCode()).isEqualTo(underTest.hashCode());
-    assertThat(underTest.hashCode()).isEqualTo(new ProjectAnalysis(ceTask, project, branch, qualityGate, 1L, properties).hashCode());
+    assertThat(underTest.hashCode()).isEqualTo(new ProjectAnalysis(ceTask, project, analysis, branch, qualityGate, 1L, properties).hashCode());
     assertThat(underTest.hashCode()).isNotEqualTo(new Object().hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(new CeTask("2", CeTask.Status.SUCCESS), project, branch, qualityGate, 1L, properties).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(ceTask, new Project("A", "B", "C"), branch, qualityGate, 1L, properties).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(ceTask, new Project("A", "B", "C"), branch, qualityGate, 1L, properties).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(ceTask, project, null, qualityGate, 1L, properties).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(ceTask, project, new Branch(false, "B", Branch.Type.SHORT), qualityGate, 1L, properties).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(ceTask, project, branch, null, 1L, properties).hashCode());
+    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(new CeTask("2", CeTask.Status.SUCCESS), project, analysis, branch, qualityGate, 1L, properties).hashCode());
+    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(ceTask, new Project("A", "B", "C"), analysis, branch, qualityGate, 1L, properties).hashCode());
+    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(ceTask, new Project("A", "B", "C"), analysis, branch, qualityGate, 1L, properties).hashCode());
+    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(ceTask, project, null, null, qualityGate, 1L, properties).hashCode());
+    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(ceTask, project, analysis, null, qualityGate, 1L, properties).hashCode());
+    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(ceTask, project, analysis, new Branch(false, "B", Branch.Type.SHORT), qualityGate, 1L, properties).hashCode());
+    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(ceTask, project, analysis, branch, null, 1L, properties).hashCode());
     assertThat(underTest.hashCode())
-      .isNotEqualTo(new ProjectAnalysis(ceTask, project, branch, new QualityGate("A", "B", QualityGate.Status.WARN, emptySet()), 1L, properties).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(ceTask, project, branch, qualityGate, null, properties).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(ceTask, project, branch, qualityGate, 2L, properties).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(ceTask, project, branch, qualityGate, 1L, emptyMap()).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(ceTask, project, branch, qualityGate, 1L, ImmutableMap.of("B", "C")).hashCode());
+      .isNotEqualTo(new ProjectAnalysis(ceTask, project, analysis, branch, new QualityGate("A", "B", QualityGate.Status.WARN, emptySet()), 1L, properties).hashCode());
+    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(ceTask, project, analysis, branch, qualityGate, null, properties).hashCode());
+    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(ceTask, project, analysis, branch, qualityGate, 2L, properties).hashCode());
+    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(ceTask, project, analysis, branch, qualityGate, 1L, emptyMap()).hashCode());
+    assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(ceTask, project, analysis, branch, qualityGate, 1L, ImmutableMap.of("B", "C")).hashCode());
   }
 
   @Test
