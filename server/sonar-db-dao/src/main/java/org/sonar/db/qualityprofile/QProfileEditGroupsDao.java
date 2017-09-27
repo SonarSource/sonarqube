@@ -19,12 +19,17 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.util.Collection;
 import java.util.List;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
+
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 
 public class QProfileEditGroupsDao implements Dao {
 
@@ -38,12 +43,17 @@ public class QProfileEditGroupsDao implements Dao {
     return mapper(dbSession).selectByQProfileAndGroup(profile.getKee(), group.getId()) != null;
   }
 
-  public int countByQuery(DbSession dbSession, SearchGroupsQuery query){
+  public int countByQuery(DbSession dbSession, SearchGroupsQuery query) {
     return mapper(dbSession).countByQuery(query);
   }
 
-  public List<GroupMembershipDto> selectByQuery(DbSession dbSession, SearchGroupsQuery query, Pagination pagination){
+  public List<GroupMembershipDto> selectByQuery(DbSession dbSession, SearchGroupsQuery query, Pagination pagination) {
     return mapper(dbSession).selectByQuery(query, pagination);
+  }
+
+  public List<String> selectQProfileUuidsByOrganizationAndGroups(DbSession dbSession, OrganizationDto organization, Collection<GroupDto> groups) {
+    return DatabaseUtils.executeLargeInputs(groups.stream().map(GroupDto::getId).collect(toList()), g ->
+      mapper(dbSession).selectQProfileUuidsByOrganizationAndGroups(organization.getUuid(), g));
   }
 
   public void insert(DbSession dbSession, QProfileEditGroupsDto dto) {
