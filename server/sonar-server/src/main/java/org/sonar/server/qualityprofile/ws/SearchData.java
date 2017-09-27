@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,56 +31,58 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.ImmutableMap.copyOf;
 
-public class SearchData {
+class SearchData {
   private OrganizationDto organization;
   private List<QProfileDto> profiles;
   private Map<String, Long> activeRuleCountByProfileKey;
   private Map<String, Long> activeDeprecatedRuleCountByProfileKey;
   private Map<String, Long> projectCountByProfileKey;
   private Set<String> defaultProfileKeys;
+  private Set<String> editableProfileKeys;
+  private boolean isGlobalQProfileAdmin;
 
-  public SearchData setOrganization(OrganizationDto organization) {
+  SearchData setOrganization(OrganizationDto organization) {
     this.organization = organization;
     return this;
   }
 
-  public OrganizationDto getOrganization() {
+  OrganizationDto getOrganization() {
     return organization;
   }
 
-  public List<QProfileDto> getProfiles() {
+  List<QProfileDto> getProfiles() {
     return profiles;
   }
 
-  public SearchData setProfiles(List<QProfileDto> profiles) {
+  SearchData setProfiles(List<QProfileDto> profiles) {
     this.profiles = copyOf(profiles);
     return this;
   }
 
-  public SearchData setActiveRuleCountByProfileKey(Map<String, Long> activeRuleCountByProfileKey) {
+  SearchData setActiveRuleCountByProfileKey(Map<String, Long> activeRuleCountByProfileKey) {
     this.activeRuleCountByProfileKey = copyOf(activeRuleCountByProfileKey);
     return this;
   }
 
-  public SearchData setActiveDeprecatedRuleCountByProfileKey(Map<String, Long> activeDeprecatedRuleCountByProfileKey) {
+  SearchData setActiveDeprecatedRuleCountByProfileKey(Map<String, Long> activeDeprecatedRuleCountByProfileKey) {
     this.activeDeprecatedRuleCountByProfileKey = activeDeprecatedRuleCountByProfileKey;
     return this;
   }
 
-  public SearchData setProjectCountByProfileKey(Map<String, Long> projectCountByProfileKey) {
+  SearchData setProjectCountByProfileKey(Map<String, Long> projectCountByProfileKey) {
     this.projectCountByProfileKey = copyOf(projectCountByProfileKey);
     return this;
   }
 
-  public long getActiveRuleCount(String profileKey) {
+  long getActiveRuleCount(String profileKey) {
     return firstNonNull(activeRuleCountByProfileKey.get(profileKey), 0L);
   }
 
-  public long getProjectCount(String profileKey) {
+  long getProjectCount(String profileKey) {
     return firstNonNull(projectCountByProfileKey.get(profileKey), 0L);
   }
 
-  public long getActiveDeprecatedRuleCount(String profileKey) {
+  long getActiveDeprecatedRuleCount(String profileKey) {
     return firstNonNull(activeDeprecatedRuleCountByProfileKey.get(profileKey), 0L);
   }
 
@@ -89,6 +92,24 @@ public class SearchData {
 
   SearchData setDefaultProfileKeys(List<QProfileDto> s) {
     this.defaultProfileKeys = s.stream().map(QProfileDto::getKee).collect(MoreCollectors.toSet());
+    return this;
+  }
+
+  boolean isEditable(QProfileDto profile) {
+    return isGlobalQProfileAdmin || editableProfileKeys.contains(profile.getKee());
+  }
+
+  SearchData setEditableProfileKeys(List<String> editableProfileKeys) {
+    this.editableProfileKeys = new HashSet<>(editableProfileKeys);
+    return this;
+  }
+
+  boolean isGlobalQProfileAdmin() {
+    return isGlobalQProfileAdmin;
+  }
+
+  SearchData setGlobalQProfileAdmin(boolean globalQProfileAdmin) {
+    isGlobalQProfileAdmin = globalQProfileAdmin;
     return this;
   }
 }

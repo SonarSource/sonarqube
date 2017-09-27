@@ -42,13 +42,13 @@ import static org.mockito.Mockito.mock;
 
 public class QProfilesWsTest {
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
   private WebService.Controller controller;
   private String xoo1Key = "xoo1";
   private String xoo2Key = "xoo2";
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.fromUuid("ORG1");
-  private QProfileWsSupport wsSupport = new QProfileWsSupport(mock(DbClient.class), userSessionRule, defaultOrganizationProvider);
+  private QProfileWsSupport wsSupport = new QProfileWsSupport(mock(DbClient.class), userSession, defaultOrganizationProvider);
 
   @Before
   public void setUp() {
@@ -59,18 +59,18 @@ public class QProfilesWsTest {
     ProfileImporter[] importers = createImporters(languages);
 
     controller = new WsTester(new QProfilesWs(
-      new CreateAction(null, null, null, languages, wsSupport, userSessionRule, null, importers),
+      new CreateAction(null, null, null, languages, wsSupport, userSession, null, importers),
       new ImportersAction(importers),
-      new SearchAction(languages, dbClient, wsSupport, null),
+      new SearchAction(userSession, languages, dbClient, wsSupport, null),
       new SetDefaultAction(languages, null, null, wsSupport),
-      new ProjectsAction(null, userSessionRule, wsSupport),
+      new ProjectsAction(null, userSession, wsSupport),
       new ChangelogAction(null, wsSupport, languages, dbClient),
-      new ChangeParentAction(dbClient, null, languages, wsSupport, userSessionRule),
+      new ChangeParentAction(dbClient, null, languages, wsSupport, userSession),
       new CompareAction(null, null, languages),
-      new DeleteAction(languages, null, null, userSessionRule, wsSupport),
+      new DeleteAction(languages, null, null, userSession, wsSupport),
       new ExportersAction(),
       new InheritanceAction(null, null, languages),
-      new RenameAction(dbClient, userSessionRule, wsSupport))).controller(QProfilesWs.API_ENDPOINT);
+      new RenameAction(dbClient, userSession, wsSupport))).controller(QProfilesWs.API_ENDPOINT);
   }
 
   private ProfileImporter[] createImporters(Languages languages) {
