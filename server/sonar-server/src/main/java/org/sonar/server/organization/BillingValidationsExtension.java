@@ -20,6 +20,7 @@
 
 package org.sonar.server.organization;
 
+import org.sonar.api.ExtensionPoint;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
@@ -28,5 +29,6 @@ import org.sonar.api.server.ServerSide;
  */
 @ServerSide
 @ComputeEngineSide
+@ExtensionPoint
 public interface BillingValidationsExtension extends BillingValidations {
 }
