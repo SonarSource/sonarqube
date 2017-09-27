@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.webhook;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.Random;
 import java.util.function.Supplier;
@@ -26,13 +27,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.ce.posttask.CeTask;
-import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester;
 import org.sonar.api.ce.posttask.Project;
 import org.sonar.api.config.Configuration;
 import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
+import org.sonar.server.webhook.ProjectAnalysis;
 import org.sonar.server.webhook.WebHooks;
 import org.sonar.server.webhook.WebhookPayload;
+import org.sonar.server.webhook.WebhookPayloadFactory;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,7 +59,7 @@ public class WebhookPostTaskTest {
 
   @Before
   public void wireMocks() throws Exception {
-    when(payloadFactory.create(any(PostProjectAnalysisTask.ProjectAnalysis.class))).thenReturn(webhookPayload);
+    when(payloadFactory.create(any(ProjectAnalysis.class))).thenReturn(webhookPayload);
     when(configurationRepository.getConfiguration()).thenReturn(configuration);
   }
 
@@ -72,9 +74,10 @@ public class WebhookPostTaskTest {
       .setStatus(CeTask.Status.values()[new Random().nextInt(CeTask.Status.values().length)])
       .setId(randomAlphanumeric(6))
       .build();
+    Date date = new Date();
 
-    PostProjectAnalysisTask.ProjectAnalysis projectAnalysis = PostProjectAnalysisTaskTester.of(underTest)
-      .at(new Date())
+    PostProjectAnalysisTaskTester.of(underTest)
+      .at(date)
       .withCeTask(ceTask)
       .withProject(project)
       .withScannerContext(newScannerContextBuilder().build())
@@ -85,7 +88,14 @@ public class WebhookPostTaskTest {
 
     assertThat(supplierCaptor.getValue().get()).isSameAs(webhookPayload);
 
-    verify(payloadFactory).create(same(projectAnalysis));
+    verify(payloadFactory).create(new ProjectAnalysis(
+      new org.sonar.server.webhook.CeTask(ceTask.getId(),
+        org.sonar.server.webhook.CeTask.Status.valueOf(ceTask.getStatus().name())),
+      new org.sonar.server.webhook.Project(project.getUuid(), project.getKey(), project.getName()),
+      null,
+      null,
+      date.getTime(),
+      Collections.emptyMap()));
   }
 
 }
