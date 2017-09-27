@@ -31,6 +31,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
@@ -65,7 +66,7 @@ public class AddProjectActionTest {
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
-  public void test_definition() {
+  public void definition() {
     WebService.Action definition = tester.getDef();
     assertThat(definition.since()).isEqualTo("5.2");
     assertThat(definition.isPost()).isTrue();
@@ -114,10 +115,24 @@ public class AddProjectActionTest {
   }
 
   @Test
-  public void throw_IAE_if_profile_and_project_are_in_different_organizations() {
+  public void as_qprofile_editor() {
+    OrganizationDto organization = db.organizations().insert();
+    UserDto user = db.users().insertUser();
+    QProfileDto qualityProfile = db.qualityProfiles().insert(organization, qp -> qp.setLanguage(LANGUAGE_1));
+    db.qualityProfiles().addUserPermission(qualityProfile, user);
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    userSession.logIn(user);
+
+    call(organization, project, qualityProfile);
+
+    assertProjectIsAssociatedToProfile(project, qualityProfile);
+  }
+
+  @Test
+  public void fail_if_profile_and_project_are_in_different_organizations() {
     OrganizationDto org1 = db.organizations().insert();
     OrganizationDto org2 = db.organizations().insert();
-    logInAsProfileAdmin(org1);
+    logInAsProfileAdmin(org2);
     ComponentDto project = db.components().insertPrivateProject(org1);
     QProfileDto profileInOrg2 = db.qualityProfiles().insert(org2, p -> p.setLanguage(LANGUAGE_1));
 
@@ -125,12 +140,10 @@ public class AddProjectActionTest {
     expectedException.expectMessage("Project and quality profile must have the same organization");
 
     call(org2, project, profileInOrg2);
-
-    assertProjectIsNotAssociatedToProfile(project, profileInOrg2);
   }
 
   @Test
-  public void throw_NotFoundException_if_profile_is_not_found_in_specified_organization() {
+  public void fail_if_profile_is_not_found_in_specified_organization() {
     OrganizationDto org1 = db.organizations().insert();
     OrganizationDto org2 = db.organizations().insert();
     logInAsProfileAdmin(org1);
@@ -142,8 +155,6 @@ public class AddProjectActionTest {
       .expectMessage("Quality Profile for language '" + LANGUAGE_1 + "' and name '" + profileInOrg2.getName() + "' does not exist in organization '" + org1.getKey() + "'");
 
     call(org1, project, profileInOrg2);
-
-    assertProjectIsNotAssociatedToProfile(project, profileInOrg2);
   }
 
   @Test
@@ -181,7 +192,7 @@ public class AddProjectActionTest {
   public void project_administrator_can_change_profile() throws Exception {
     ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn(db.users().insertUser()).addProjectPermission(UserRole.ADMIN, project);
 
     call(project, profile);
 
@@ -190,7 +201,7 @@ public class AddProjectActionTest {
 
   @Test
   public void throw_ForbiddenException_if_not_project_nor_organization_administrator() {
-    userSession.logIn();
+    userSession.logIn(db.users().insertUser());
     ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization());
 
@@ -244,7 +255,7 @@ public class AddProjectActionTest {
   public void fail_when_using_branch_db_key() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertMainBranch(organization);
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn(db.users().insertUser()).addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     QProfileDto profile = db.qualityProfiles().insert(organization);
 
@@ -261,7 +272,7 @@ public class AddProjectActionTest {
   public void fail_when_using_branch_uuid() throws Exception {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertMainBranch(organization);
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+    userSession.logIn(db.users().insertUser()).addProjectPermission(UserRole.ADMIN, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
     QProfileDto profile = db.qualityProfiles().insert(organization);
 
@@ -285,7 +296,7 @@ public class AddProjectActionTest {
   }
 
   private void logInAsProfileAdmin(OrganizationDto organization) {
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    userSession.logIn(db.users().insertUser()).addPermission(ADMINISTER_QUALITY_PROFILES, organization);
   }
 
   private TestResponse call(ComponentDto project, QProfileDto qualityProfile) {

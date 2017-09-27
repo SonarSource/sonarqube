@@ -31,12 +31,12 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganizationParam;
 
 public class DeleteAction implements QProfileWsAction {
@@ -59,7 +59,11 @@ public class DeleteAction implements QProfileWsAction {
   public void define(NewController controller) {
     NewAction action = controller.createAction("delete")
       .setDescription("Delete a quality profile and all its descendants. The default quality profile cannot be deleted.<br> " +
-        "Requires to be logged in and the 'Administer Quality Profiles' permission.")
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "  <li>'Administer Quality Profiles'</li>" +
+        "  <li>Edit right on the specified quality profile</li>" +
+        "</ul>")
       .setSince("5.2")
       .setPost(true)
       .setHandler(this);
@@ -75,8 +79,8 @@ public class DeleteAction implements QProfileWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QProfileDto profile = wsSupport.getProfile(dbSession, QProfileReference.from(request));
-      userSession.checkPermission(ADMINISTER_QUALITY_PROFILES, profile.getOrganizationUuid());
-      wsSupport.checkNotBuiltInt(profile);
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, profile);
+      wsSupport.checkCanEdit(dbSession, organization, profile);
 
       List<QProfileDto> descendants = selectDescendants(dbSession, profile);
       ensureNoneIsMarkedAsDefault(dbSession, profile, descendants);
