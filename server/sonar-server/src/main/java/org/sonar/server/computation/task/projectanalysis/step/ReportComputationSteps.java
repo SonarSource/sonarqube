@@ -24,6 +24,7 @@ import java.util.List;
 import org.sonar.server.computation.task.container.TaskContainer;
 import org.sonar.server.computation.task.projectanalysis.filemove.FileMoveDetectionStep;
 import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.server.computation.task.step.ExecuteTaskInitExtensionsStep;
 
 /**
  * Ordered list of steps classes and instances to be executed for batch processing
@@ -37,6 +38,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
     // Builds Component tree
     LoadReportAnalysisMetadataHolderStep.class,
+    ExecuteTaskInitExtensionsStep.class,
     VerifyBillingStep.class,
     BuildComponentTreeStep.class,
     ValidateProjectStep.class,
