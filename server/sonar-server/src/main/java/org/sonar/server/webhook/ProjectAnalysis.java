@@ -19,7 +19,6 @@
  */
 package org.sonar.server.webhook;
 
-import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -35,8 +34,9 @@ public class ProjectAnalysis {
   private final QualityGate qualityGate;
   private final Long date;
   private final Map<String, String> properties;
+  private final Analysis analysis;
 
-  public ProjectAnalysis(CeTask ceTask, Project project,
+  public ProjectAnalysis(CeTask ceTask, Project project, @Nullable Analysis analysis,
     @Nullable Branch branch, @Nullable QualityGate qualityGate, @Nullable Long date, Map<String, String> properties) {
     this.ceTask = requireNonNull(ceTask, "ceTask can't be null");
     this.project = requireNonNull(project, "project can't be null");
@@ -44,6 +44,7 @@ public class ProjectAnalysis {
     this.qualityGate = qualityGate;
     this.date = date;
     this.properties = copyOf(requireNonNull(properties, "properties can't be null"));
+    this.analysis = analysis;
   }
 
   public CeTask getCeTask() {
@@ -62,12 +63,12 @@ public class ProjectAnalysis {
     return Optional.ofNullable(qualityGate);
   }
 
-  public Optional<Date> getAnalysisDate() {
-    return Optional.ofNullable(date).map(Date::new);
-  }
-
   public Map<String, String> getProperties() {
     return properties;
+  }
+
+  public Optional<Analysis> getAnalysis() {
+    return Optional.ofNullable(analysis);
   }
 
   @Override
