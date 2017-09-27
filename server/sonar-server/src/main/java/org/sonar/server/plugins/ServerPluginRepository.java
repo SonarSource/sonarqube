@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
@@ -52,14 +53,11 @@ import org.sonar.updatecenter.common.Version;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.io.FileUtils.copyFile;
 import static org.apache.commons.io.FileUtils.moveFile;
 import static org.apache.commons.io.FileUtils.moveFileToDirectory;
-import static org.sonar.core.platform.PluginInfo.jarToPluginInfo;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 /**
@@ -346,7 +344,10 @@ public class ServerPluginRepository implements PluginRepository, Startable {
    * @return the list of plugins to be uninstalled as {@link PluginInfo} instances
    */
   public Collection<PluginInfo> getUninstalledPlugins() {
-    return newArrayList(transform(listJarFiles(uninstalledPluginsDir()), jarToPluginInfo()));
+    return listJarFiles(uninstalledPluginsDir())
+      .stream()
+      .map(PluginInfo::create)
+      .collect(Collectors.toList());
   }
 
   public void cancelUninstalls() {

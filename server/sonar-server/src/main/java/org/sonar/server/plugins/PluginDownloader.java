@@ -27,6 +27,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.HttpDownloader;
@@ -39,14 +40,11 @@ import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
-import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Lists.newArrayList;
 import static org.apache.commons.io.FileUtils.copyFile;
 import static org.apache.commons.io.FileUtils.copyFileToDirectory;
 import static org.apache.commons.io.FileUtils.forceMkdir;
 import static org.apache.commons.io.FileUtils.toFile;
 import static org.apache.commons.lang.StringUtils.substringAfterLast;
-import static org.sonar.core.platform.PluginInfo.jarToPluginInfo;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
@@ -117,7 +115,10 @@ public class PluginDownloader implements Startable {
    * @return the list of download plugins as {@link PluginInfo} instances
    */
   public Collection<PluginInfo> getDownloadedPlugins() {
-    return newArrayList(transform(listPlugins(this.downloadDir), jarToPluginInfo()));
+    return listPlugins(this.downloadDir)
+      .stream()
+      .map(PluginInfo::create)
+      .collect(Collectors.toList());
   }
 
   public void download(String pluginKey, Version version) {

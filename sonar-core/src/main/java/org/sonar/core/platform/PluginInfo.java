@@ -20,10 +20,7 @@
 package org.sonar.core.platform;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Ordering;
 import java.io.File;
@@ -32,13 +29,14 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.updatecenter.common.PluginManifest;
 import org.sonar.updatecenter.common.Version;
+
+import static java.util.Objects.requireNonNull;
 
 public class PluginInfo implements Comparable<PluginInfo> {
 
@@ -144,7 +142,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
   private final Set<RequiredPlugin> requiredPlugins = new HashSet<>();
 
   public PluginInfo(String key) {
-    Preconditions.checkNotNull(key, "Plugin key is missing from manifest");
+    requireNonNull(key, "Plugin key is missing from manifest");
     this.key = key;
     this.name = key;
   }
@@ -160,7 +158,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
   }
 
   public File getNonNullJarFile() {
-    Preconditions.checkNotNull(jarFile);
+    requireNonNull(jarFile);
     return jarFile;
   }
 
@@ -251,7 +249,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
   }
 
   public PluginInfo setName(@Nullable String name) {
-    this.name = MoreObjects.firstNonNull(name, this.key);
+    this.name = (name != null ? name : this.key);
     return this;
   }
 
@@ -437,18 +435,5 @@ public class PluginInfo implements Comparable<PluginInfo> {
       }
     }
     return info;
-  }
-
-  private enum JarToPluginInfo implements Function<File, PluginInfo> {
-    INSTANCE;
-
-    @Override
-    public PluginInfo apply(@Nonnull File jarFile) {
-      return create(jarFile);
-    }
-  }
-
-  public static Function<File, PluginInfo> jarToPluginInfo() {
-    return JarToPluginInfo.INSTANCE;
   }
 }
