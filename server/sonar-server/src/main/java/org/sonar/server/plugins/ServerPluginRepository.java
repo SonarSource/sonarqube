@@ -47,19 +47,16 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.PluginRepository;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.updatecenter.common.Version;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Iterables.transform;
-import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.io.FileUtils.copyFile;
 import static org.apache.commons.io.FileUtils.moveFile;
 import static org.apache.commons.io.FileUtils.moveFileToDirectory;
-import static org.sonar.core.platform.PluginInfo.jarToPluginInfo;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 /**
@@ -339,14 +336,17 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   }
 
   public List<String> getUninstalledPluginFilenames() {
-    return listJarFiles(uninstalledPluginsDir()).stream().map(File::getName).collect(toList());
+    return listJarFiles(uninstalledPluginsDir()).stream().map(File::getName).collect(MoreCollectors.toList());
   }
 
   /**
    * @return the list of plugins to be uninstalled as {@link PluginInfo} instances
    */
   public Collection<PluginInfo> getUninstalledPlugins() {
-    return newArrayList(transform(listJarFiles(uninstalledPluginsDir()), jarToPluginInfo()));
+    return listJarFiles(uninstalledPluginsDir())
+      .stream()
+      .map(PluginInfo::create)
+      .collect(MoreCollectors.toList());
   }
 
   public void cancelUninstalls() {
