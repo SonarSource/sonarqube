@@ -22,24 +22,43 @@ package org.sonar.server.webhook;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
-public class WebhookModuleTest {
-
+public class ProjectTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private WebhookModule underTest = new WebhookModule();
+  private Project underTest = new Project("a", "b", "c");
 
   @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
+  public void constructor_throws_NPE_if_uuid_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("uuid can't be null");
 
-    underTest.configure(container);
+    new Project(null, "b", "c");
+  }
 
-    assertThat(container.size()).isEqualTo(4 + COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER);
+  @Test
+  public void constructor_throws_NPE_if_key_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("key can't be null");
+
+    new Project("a", null, "c");
+  }
+
+  @Test
+  public void constructor_throws_NPE_if_name_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("name can't be null");
+
+    new Project("a", "b", null);
+  }
+
+  @Test
+  public void verify_getters() {
+    assertThat(underTest.getUuid()).isEqualTo("a");
+    assertThat(underTest.getKey()).isEqualTo("b");
+    assertThat(underTest.getName()).isEqualTo("c");
   }
 }

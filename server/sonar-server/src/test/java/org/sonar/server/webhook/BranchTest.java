@@ -19,27 +19,37 @@
  */
 package org.sonar.server.webhook;
 
+import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.core.platform.ComponentContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
 
-public class WebhookModuleTest {
-
+public class BranchTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private WebhookModule underTest = new WebhookModule();
+  private Branch underTest = new Branch(true, "b", Branch.Type.SHORT);
 
   @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
+  public void constructor_throws_NPE_if_type_is_null() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("type can't be null");
 
-    underTest.configure(container);
+    new Branch(new Random().nextBoolean(), "s", null);
+  }
 
-    assertThat(container.size()).isEqualTo(4 + COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER);
+  @Test
+  public void verify_getters() {
+    assertThat(underTest.isMain()).isTrue();
+    assertThat(underTest.getName()).contains("b");
+    assertThat(underTest.getType()).isEqualTo(Branch.Type.SHORT);
+
+
+    Branch underTestWithNull = new Branch(false, null, Branch.Type.LONG);
+    assertThat(underTestWithNull.isMain()).isFalse();
+    assertThat(underTestWithNull.getName()).isEmpty();
+    assertThat(underTestWithNull.getType()).isEqualTo(Branch.Type.LONG);
   }
 }

@@ -19,15 +19,9 @@
  */
 package org.sonar.server.webhook;
 
-import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
-import org.sonar.server.computation.task.projectanalysis.webhook.WebhookPayloadFactory;
+@FunctionalInterface
+public interface WebhookPayloadFactory {
 
-public class TestWebhookPayloadFactory implements WebhookPayloadFactory {
+  WebhookPayload create(ProjectAnalysis analysis);
 
-  private static final String FAKE_JSON = "{\"payload\": true}";
-
-  @Override
-  public WebhookPayload create(PostProjectAnalysisTask.ProjectAnalysis analysis) {
-    return new WebhookPayload(analysis.getProject().getKey(), FAKE_JSON);
-  }
 }
