@@ -53,7 +53,7 @@ public final class ParsingUtils {
    * @throws ParseException if number cannot be parsed
    */
   public static double parseNumber(String number) throws ParseException {
-    return parseNumber(number, Locale.getDefault());
+    return parseNumber(number, Locale.ENGLISH);
   }
 
   /**
