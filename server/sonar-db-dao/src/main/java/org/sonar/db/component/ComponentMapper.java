@@ -151,4 +151,6 @@ public interface ComponentMapper {
   void delete(long componentId);
 
   void updateTags(ComponentDto component);
+
+  List<ComponentDto> selectComponentKeysHavingIssuesToMerge(@Param("mergeBranchUuid") String mergeBranchUuid);
 }

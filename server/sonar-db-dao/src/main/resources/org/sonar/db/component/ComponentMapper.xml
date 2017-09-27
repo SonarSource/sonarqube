@@ -655,4 +655,14 @@
     DELETE FROM projects WHERE id=#{id,jdbcType=BIGINT}
   </delete>
 
+  <select id="selectComponentKeysHavingIssuesToMerge" resultType="Component">
+    SELECT DISTINCT p.KEE, p.UUID FROM PROJECTS p
+    JOIN ISSUES i
+      ON p.UUID = i.COMPONENT_UUID
+    JOIN PROJECT_BRANCHES b
+      ON i.PROJECT_UUID = b.UUID
+      AND b.MERGE_BRANCH_UUID = #{mergeBranchUuid,jdbcType=VARCHAR}
+      AND i.status != 'OPEN'
+  </select>
+
 </mapper>
