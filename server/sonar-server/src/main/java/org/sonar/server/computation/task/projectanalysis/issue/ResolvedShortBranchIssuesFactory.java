@@ -1,6 +1,8 @@
 package org.sonar.server.computation.task.projectanalysis.issue;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbClient;
@@ -20,8 +22,12 @@ public class ResolvedShortBranchIssuesFactory {
   }
 
   public Collection<DefaultIssue> create(Component component) {
+    Set<String> uuids = shortBranchComponentsWithIssues.getUuids(component.getKey());
+    if (uuids.isEmpty()) {
+      return Collections.emptyList();
+    }
     try (DbSession session = dbClient.openSession(false)) {
-      return shortBranchComponentsWithIssues.getUuids(component.getKey())
+      return uuids
         .stream()
         .flatMap(uuid -> dbClient.issueDao().selectResolvedOrConfirmedByComponentUuid(session, uuid).stream())
         .map(IssueDto::toDefaultIssue)
