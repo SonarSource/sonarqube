@@ -70,6 +70,7 @@ import static java.util.Objects.requireNonNull;
  *           .setName("name")
  *           .build())
  *       .at(new Date())
+ *       .withAnalysisUuid("uuid")
  *       .withQualityGate(
  *         newQualityGateBuilder()
  *           .setId("id")
@@ -111,6 +112,7 @@ public class PostProjectAnalysisTaskTester {
   @CheckForNull
   private Branch branch;
   private ScannerContext scannerContext;
+  private String analysisUuid;
 
   private PostProjectAnalysisTaskTester(PostProjectAnalysisTask underTest) {
     this.underTest = requireNonNull(underTest, "PostProjectAnalysisTask instance cannot be null");
@@ -177,59 +179,39 @@ public class PostProjectAnalysisTaskTester {
     return this;
   }
 
+  /**
+   * @since 6.6
+   */
+  public PostProjectAnalysisTaskTester withAnalysisUuid(@Nullable String analysisUuid) {
+    this.analysisUuid = analysisUuid;
+    return this;
+  }
+
   public PostProjectAnalysisTask.ProjectAnalysis execute() {
     requireNonNull(ceTask, CE_TASK_CAN_NOT_BE_NULL);
     requireNonNull(project, PROJECT_CAN_NOT_BE_NULL);
     requireNonNull(date, DATE_CAN_NOT_BE_NULL);
 
-    PostProjectAnalysisTask.ProjectAnalysis projectAnalysis = new PostProjectAnalysisTask.ProjectAnalysis() {
-      @Override
-      public ScannerContext getScannerContext() {
-        return scannerContext;
-      }
+    Analysis analysis = null;
+    if (date != null && analysisUuid != null) {
+      analysis = new AnalysisBuilder()
+        .setDate(date)
+        .setAnalysisUuid(analysisUuid)
+        .build();
+    }
 
-      @Override
-      public CeTask getCeTask() {
-        return ceTask;
-      }
+    PostProjectAnalysisTask.ProjectAnalysis projectAnalysis = new ProjectAnalysisBuilder()
+      .setCeTask(ceTask)
+      .setProject(project)
+      .setBranch(branch)
+      .setQualityGate(qualityGate)
+      .setAnalysis(analysis)
+      .setScannerContext(scannerContext)
+      .setDate(date)
+      .build();
 
-      @Override
-      public Project getProject() {
-        return project;
-      }
-
-      @Override
-      public Optional<Branch> getBranch() {
-        return Optional.ofNullable(branch);
-      }
-
-      @Override
-      public QualityGate getQualityGate() {
-        return qualityGate;
-      }
-
-      @Override
-      public Date getDate() {
-        return date;
-      }
-
-      @Override
-      public Optional<Date> getAnalysisDate() {
-        return Optional.of(date);
-      }
-
-      @Override
-      public String toString() {
-        return "ProjectAnalysis{" +
-            "ceTask=" + ceTask +
-            ", project=" + project +
-            ", date=" + date.getTime() +
-            ", analysisDate=" + date.getTime() +
-            ", qualityGate=" + qualityGate +
-            '}';
-      }
-    };
-    this.underTest.finished(projectAnalysis);
+    this.underTest.
+      finished(projectAnalysis);
 
     return projectAnalysis;
   }
@@ -632,6 +614,145 @@ public class PostProjectAnalysisTaskTester {
 
     public ScannerContext build() {
       return () -> properties;
+    }
+  }
+
+  public static final class ProjectAnalysisBuilder {
+    private CeTask ceTask;
+    private Project project;
+    private Branch branch;
+    private QualityGate qualityGate;
+    private Analysis analysis;
+    private ScannerContext scannerContext;
+    private Date date;
+
+    private ProjectAnalysisBuilder() {
+      // prevents instantiation outside PostProjectAnalysisTaskTester
+    }
+
+    public ProjectAnalysisBuilder setCeTask(CeTask ceTask) {
+      this.ceTask = ceTask;
+      return this;
+    }
+
+    public ProjectAnalysisBuilder setProject(Project project) {
+      this.project = project;
+      return this;
+    }
+
+    public ProjectAnalysisBuilder setBranch(@Nullable Branch branch) {
+      this.branch = branch;
+      return this;
+    }
+
+    public ProjectAnalysisBuilder setQualityGate(QualityGate qualityGate) {
+      this.qualityGate = qualityGate;
+      return this;
+    }
+
+    public ProjectAnalysisBuilder setAnalysis(@Nullable Analysis analysis) {
+      this.analysis = analysis;
+      return this;
+    }
+
+    public ProjectAnalysisBuilder setScannerContext(ScannerContext scannerContext) {
+      this.scannerContext = scannerContext;
+      return this;
+    }
+
+    public ProjectAnalysisBuilder setDate(Date date) {
+      this.date = date;
+      return this;
+    }
+
+    public PostProjectAnalysisTask.ProjectAnalysis build() {
+      return new PostProjectAnalysisTask.ProjectAnalysis() {
+        @Override
+        public CeTask getCeTask() {
+          return ceTask;
+        }
+
+        @Override
+        public Project getProject() {
+          return project;
+        }
+
+        @Override
+        public Optional<Branch> getBranch() {
+          return Optional.ofNullable(branch);
+        }
+
+        @CheckForNull
+        @Override
+        public QualityGate getQualityGate() {
+          return qualityGate;
+        }
+
+        @Override
+        public Date getDate() {
+          return date;
+        }
+
+        @Override
+        public Optional<Date> getAnalysisDate() {
+          return getAnalysis().map(Analysis::getDate);
+        }
+
+        @Override
+        public Optional<Analysis> getAnalysis() {
+          return Optional.ofNullable(analysis);
+        }
+
+        @Override
+        public ScannerContext getScannerContext() {
+          return scannerContext;
+        }
+
+        @Override
+        public String toString() {
+          return "ProjectAnalysis{" +
+            "ceTask=" + ceTask +
+            ", project=" + project +
+            ", date=" + date.getTime() +
+            ", analysisDate=" + date.getTime() +
+            ", qualityGate=" + qualityGate +
+            '}';
+        }
+      };
+    }
+  }
+
+  public static final class AnalysisBuilder {
+    private String analysisUuid;
+    private Date date;
+
+    private AnalysisBuilder() {
+      // prevents instantiation outside PostProjectAnalysisTaskTester
+    }
+
+    public AnalysisBuilder setAnalysisUuid(String analysisUuid) {
+      this.analysisUuid = analysisUuid;
+      return this;
+    }
+
+    public AnalysisBuilder setDate(Date date) {
+      this.date = date;
+      return this;
+    }
+
+    public Analysis build() {
+      return new Analysis() {
+
+        @Override
+        public String getAnalysisUuid() {
+          return analysisUuid;
+        }
+
+        @Override
+        public Date getDate() {
+          return date;
+        }
+      };
     }
   }
 }

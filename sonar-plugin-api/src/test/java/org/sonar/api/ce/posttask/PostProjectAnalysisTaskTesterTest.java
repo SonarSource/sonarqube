@@ -20,6 +20,7 @@
 package org.sonar.api.ce.posttask;
 
 import java.util.Date;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -36,6 +37,7 @@ public class PostProjectAnalysisTaskTesterTest {
   private Project project = mock(Project.class);
   private long someDateAsLong = 846351351684351L;
   private Date someDate = new Date(someDateAsLong);
+  private String analysisUuid = RandomStringUtils.randomAlphanumeric(40);
   private QualityGate qualityGate = mock(QualityGate.class);
   private CaptorPostProjectAnalysisTask captorPostProjectAnalysisTask = new CaptorPostProjectAnalysisTask();
   private PostProjectAnalysisTaskTester underTest = PostProjectAnalysisTaskTester.of(captorPostProjectAnalysisTask);
@@ -99,7 +101,7 @@ public class PostProjectAnalysisTaskTesterTest {
 
   @Test
   public void verify_getters_of_ProjectAnalysis_object_passed_to_PostProjectAnalysisTask() {
-    underTest.withCeTask(ceTask).withProject(project).withQualityGate(qualityGate).at(someDate);
+    underTest.withCeTask(ceTask).withProject(project).withQualityGate(qualityGate).withAnalysisUuid(analysisUuid).at(someDate);
 
     underTest.execute();
 
@@ -109,6 +111,7 @@ public class PostProjectAnalysisTaskTesterTest {
     assertThat(projectAnalysis.getProject()).isSameAs(project);
     assertThat(projectAnalysis.getDate()).isSameAs(someDate);
     assertThat(projectAnalysis.getQualityGate()).isSameAs(qualityGate);
+    assertThat(projectAnalysis.getAnalysis().get().getAnalysisUuid()).isSameAs(analysisUuid);
   }
 
   @Test

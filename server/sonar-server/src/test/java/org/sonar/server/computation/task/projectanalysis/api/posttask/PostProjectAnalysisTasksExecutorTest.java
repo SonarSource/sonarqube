@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -168,6 +169,7 @@ public class PostProjectAnalysisTasksExecutorTest {
   @Test
   public void date_comes_from_AnalysisMetadataHolder() {
     analysisMetadataHolder.setAnalysisDate(8_465_132_498L);
+    analysisMetadataHolder.setUuid(RandomStringUtils.randomAlphanumeric(40));
 
     underTest.finished(true);
 
@@ -190,24 +192,27 @@ public class PostProjectAnalysisTasksExecutorTest {
   }
 
   @Test
-  public void analysisDate_comes_from_AnalysisMetadataHolder_when_set() {
+  public void analysisDate_and_analysisUuid_comes_from_AnalysisMetadataHolder_when_set() {
     analysisMetadataHolder.setAnalysisDate(8465132498L);
+    analysisMetadataHolder.setUuid(RandomStringUtils.randomAlphanumeric(40));
 
     underTest.finished(true);
 
     verify(postProjectAnalysisTask).finished(projectAnalysisArgumentCaptor.capture());
 
-    assertThat(projectAnalysisArgumentCaptor.getValue().getAnalysisDate())
-      .contains(new Date(analysisMetadataHolder.getAnalysisDate()));
+    assertThat(projectAnalysisArgumentCaptor.getValue().getAnalysis().get().getDate())
+      .isEqualTo(new Date(analysisMetadataHolder.getAnalysisDate()));
+    assertThat(projectAnalysisArgumentCaptor.getValue().getAnalysis().get().getAnalysisUuid())
+      .isEqualTo(analysisMetadataHolder.getUuid());
   }
 
   @Test
-  public void analysisDate_is_empty_when_not_set_in_AnalysisMetadataHolder() {
+  public void analysis_is_empty_when_not_set_in_AnalysisMetadataHolder() {
     underTest.finished(false);
 
     verify(postProjectAnalysisTask).finished(projectAnalysisArgumentCaptor.capture());
 
-    assertThat(projectAnalysisArgumentCaptor.getValue().getAnalysisDate()).isEmpty();
+    assertThat(projectAnalysisArgumentCaptor.getValue().getAnalysis()).isEmpty();
   }
 
   @Test

@@ -19,12 +19,13 @@
  */
 package org.sonar.server.computation.task.projectanalysis.webhook;
 
-import java.util.Date;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.config.Configuration;
 import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
+import org.sonar.server.webhook.Analysis;
 import org.sonar.server.webhook.Branch;
 import org.sonar.server.webhook.CeTask;
 import org.sonar.server.webhook.Project;
@@ -50,28 +51,32 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
 
     webHooks.sendProjectAnalysisUpdate(
       config,
-      new WebHooks.Analysis(analysis.getProject().getUuid(), "", analysis.getCeTask().getId()), // FIXME
+      new WebHooks.Analysis(
+        analysis.getProject().getUuid(),
+        analysis.getAnalysis().map(org.sonar.api.ce.posttask.Analysis::getAnalysisUuid).orElse(null),
+        analysis.getCeTask().getId()),
       () -> payloadFactory.create(convert(analysis)));
   }
 
-  private static org.sonar.server.webhook.ProjectAnalysis convert(ProjectAnalysis analysis) {
-    return new org.sonar.server.webhook.ProjectAnalysis(
-      new CeTask(analysis.getCeTask().getId(), CeTask.Status.valueOf(analysis.getCeTask().getStatus().name())),
-      new Project(analysis.getProject().getUuid(), analysis.getProject().getKey(), analysis.getProject().getName()),
-      analysis.getBranch().map(b -> new Branch(b.isMain(), b.getName().orElse(null), Branch.Type.valueOf(b.getType().name()))).orElse(null),
-      Optional.ofNullable(analysis.getQualityGate())
-        .map(qg -> new QualityGate(
-          qg.getId(),
-          qg.getName(),
-          QualityGate.Status.valueOf(qg.getStatus().name()),
-          qg.getConditions().stream()
-            .map(c -> new QualityGate.Condition(QualityGate.EvaluationStatus.valueOf(c.getStatus().name()), c.getMetricKey(), QualityGate.Operator.valueOf(c.getOperator().name()),
-              c.getErrorThreshold(), c.getWarningThreshold(), c.isOnLeakPeriod(),
-              c.getStatus() == org.sonar.api.ce.posttask.QualityGate.EvaluationStatus.NO_VALUE ? null : c.getValue()))
-            .collect(Collectors.toSet())))
-        .orElse(null),
-      analysis.getAnalysisDate().map(Date::getTime).orElse(null),
-      analysis.getScannerContext().getProperties());
-  }
+  private static org.sonar.server.webhook.ProjectAnalysis convert(ProjectAnalysis projectAnalysis) {
+    CeTask ceTask = new CeTask(projectAnalysis.getCeTask().getId(), CeTask.Status.valueOf(projectAnalysis.getCeTask().getStatus().name()));
+    Project project = new Project(projectAnalysis.getProject().getUuid(), projectAnalysis.getProject().getKey(), projectAnalysis.getProject().getName());
+    Analysis analysis = projectAnalysis.getAnalysis().map(a -> new Analysis(a.getAnalysisUuid(), a.getDate())).orElse(null);
+    Branch branch = projectAnalysis.getBranch().map(b -> new Branch(b.isMain(), b.getName().orElse(null), Branch.Type.valueOf(b.getType().name()))).orElse(null);
+    QualityGate qualityGate = Optional.ofNullable(projectAnalysis.getQualityGate())
+      .map(qg -> new QualityGate(
+        qg.getId(),
+        qg.getName(),
+        QualityGate.Status.valueOf(qg.getStatus().name()),
+        qg.getConditions().stream()
+          .map(c -> new QualityGate.Condition(QualityGate.EvaluationStatus.valueOf(c.getStatus().name()), c.getMetricKey(), QualityGate.Operator.valueOf(c.getOperator().name()),
+            c.getErrorThreshold(), c.getWarningThreshold(), c.isOnLeakPeriod(),
+            c.getStatus() == org.sonar.api.ce.posttask.QualityGate.EvaluationStatus.NO_VALUE ? null : c.getValue()))
+          .collect(Collectors.toSet())))
+      .orElse(null);
+    Long date = projectAnalysis.getAnalysis().map(a -> a.getDate().getTime()).orElse(null);
+    Map<String, String> properties = projectAnalysis.getScannerContext().getProperties();
 
+    return new org.sonar.server.webhook.ProjectAnalysis(ceTask, project, analysis, branch, qualityGate, date, properties);
+  }
 }
