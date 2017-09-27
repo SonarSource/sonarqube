@@ -47,6 +47,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -72,8 +73,9 @@ public class CeWorkerImplTest {
   private ArgumentCaptor<String> workerUuidCaptor = ArgumentCaptor.forClass(String.class);
   private int randomOrdinal = new Random().nextInt(50);
   private String workerUuid = UUID.randomUUID().toString();
-  private CeWorker underTest = new CeWorkerImpl(randomOrdinal, workerUuid, queue, ceLogging, taskProcessorRepository, enabledCeWorkerController);
-  private InOrder inOrder = Mockito.inOrder(ceLogging, taskProcessor, queue);
+  private CeTaskInitializations ceTaskInitializations = mock(CeTaskInitializations.class);
+  private CeWorker underTest = new CeWorkerImpl(randomOrdinal, workerUuid, queue, ceLogging, taskProcessorRepository, enabledCeWorkerController, ceTaskInitializations);
+  private InOrder inOrder = Mockito.inOrder(ceLogging, ceTaskInitializations, taskProcessor, queue);
 
   @Before
   public void setUp() throws Exception {
@@ -85,13 +87,13 @@ public class CeWorkerImplTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Ordinal must be >= 0");
 
-    new CeWorkerImpl(-1 - new Random().nextInt(20), workerUuid, queue, ceLogging, taskProcessorRepository, enabledCeWorkerController);
+    new CeWorkerImpl(-1 - new Random().nextInt(20), workerUuid, queue, ceLogging, taskProcessorRepository, enabledCeWorkerController, ceTaskInitializations);
   }
 
   @Test
   public void getUUID_must_return_the_uuid_of_constructor() {
     String uuid = UUID.randomUUID().toString();
-    CeWorker underTest = new CeWorkerImpl(randomOrdinal, uuid, queue, ceLogging, taskProcessorRepository, enabledCeWorkerController);
+    CeWorker underTest = new CeWorkerImpl(randomOrdinal, uuid, queue, ceLogging, taskProcessorRepository, enabledCeWorkerController, ceTaskInitializations);
     assertThat(underTest.getUUID()).isEqualTo(uuid);
   }
 
@@ -138,6 +140,7 @@ public class CeWorkerImplTest {
 
     verifyWorkerUuid();
     inOrder.verify(ceLogging).initForTask(task);
+    inOrder.verify(ceTaskInitializations).onInit(task);
     inOrder.verify(taskProcessor).process(task);
     inOrder.verify(queue).remove(task, CeActivityDto.Status.SUCCESS, null, null);
     inOrder.verify(ceLogging).clearForTask();
@@ -154,7 +157,26 @@ public class CeWorkerImplTest {
 
     verifyWorkerUuid();
     inOrder.verify(ceLogging).initForTask(task);
+    inOrder.verify(ceTaskInitializations).onInit(task);
     inOrder.verify(taskProcessor).process(task);
+    inOrder.verify(queue).remove(task, CeActivityDto.Status.FAILED, null, error);
+    inOrder.verify(ceLogging).clearForTask();
+  }
+
+  @Test
+  public void fail_to_process_task_if_CeTaskInitializations_throws_exception() throws Exception {
+    CeTask task = createCeTask(null);
+    when(queue.peek(anyString())).thenReturn(Optional.of(task));
+    taskProcessorRepository.setProcessorForTask(task.getType(), taskProcessor);
+    Throwable error = new IllegalStateException("BOOM");
+    doThrow(error).when(ceTaskInitializations).onInit(task);
+
+    assertThat(underTest.call()).isEqualTo(TASK_PROCESSED);
+
+    verifyWorkerUuid();
+    inOrder.verify(ceLogging).initForTask(task);
+    inOrder.verify(ceTaskInitializations).onInit(task);
+    inOrder.verify(taskProcessor, never()).process(task);
     inOrder.verify(queue).remove(task, CeActivityDto.Status.FAILED, null, error);
     inOrder.verify(ceLogging).clearForTask();
   }

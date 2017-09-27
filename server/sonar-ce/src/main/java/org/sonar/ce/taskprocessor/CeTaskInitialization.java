@@ -17,18 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-package org.sonar.server.organization;
+package org.sonar.ce.taskprocessor;
 
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.server.ServerSide;
+import org.sonar.ce.queue.CeTask;
+import org.sonar.db.ce.CeActivityDto;
 
 /**
- * The billing plugin must implement this interface
+ * Internal extension point that is called before processing
+ * a task, whatever its type.
+ * The tasks that can't be processed by any {@link CeTaskProcessor}
+ * are ignored.
  */
-@ServerSide
 @ComputeEngineSide
 @ExtensionPoint
-public interface BillingValidationsExtension extends BillingValidations {
+public interface CeTaskInitialization {
+
+  /**
+   * Method called before {@link CeTaskProcessor} handles the task.
+   * Throwing an exception breaks processing and marks the task
+   * as {@link CeActivityDto.Status#FAILED}.
+   */
+  void onInit(CeTask task);
+
 }

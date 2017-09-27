@@ -20,6 +20,9 @@
 
 package org.sonar.server.organization;
 
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
+
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -27,6 +30,8 @@ import static java.util.Objects.requireNonNull;
  * When the billing plugin is not loaded, no check will be done.
  * This is not the interface that should be implemented by the plugin, but {@link BillingValidationsExtension}
  */
+@ComputeEngineSide
+@ServerSide
 public interface BillingValidations {
 
   /**

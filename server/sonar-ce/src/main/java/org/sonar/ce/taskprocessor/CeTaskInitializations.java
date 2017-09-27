@@ -17,18 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+package org.sonar.ce.taskprocessor;
 
-package org.sonar.server.organization;
-
-import org.sonar.api.ExtensionPoint;
 import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.server.ServerSide;
+import org.sonar.ce.queue.CeTask;
 
-/**
- * The billing plugin must implement this interface
- */
-@ServerSide
 @ComputeEngineSide
-@ExtensionPoint
-public interface BillingValidationsExtension extends BillingValidations {
+public class CeTaskInitializations {
+
+  private final CeTaskInitialization[] initializations;
+
+  public CeTaskInitializations(CeTaskInitialization[] initializations) {
+    this.initializations = initializations;
+  }
+
+  /**
+   * Default constructor when there are no CeTaskInitialization instances
+   */
+  public CeTaskInitializations() {
+    this(new CeTaskInitialization[0]);
+  }
+
+  public void onInit(CeTask task) {
+    for (CeTaskInitialization initialization : initializations) {
+      initialization.onInit(task);
+    }
+  }
 }

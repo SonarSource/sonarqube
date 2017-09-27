@@ -27,6 +27,7 @@ public class CeTaskProcessorModule extends Module {
     add(
       CeTaskProcessorRepositoryImpl.class,
       CeWorkerFactoryImpl.class,
+      CeTaskInitializations.class,
       EnabledCeWorkerControllerImpl.class,
       CeProcessingSchedulerExecutorServiceImpl.class,
       CeProcessingSchedulerImpl.class);

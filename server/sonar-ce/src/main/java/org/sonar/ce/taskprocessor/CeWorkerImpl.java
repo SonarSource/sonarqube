@@ -48,16 +48,18 @@ public class CeWorkerImpl implements CeWorker {
   private final CeLogging ceLogging;
   private final CeTaskProcessorRepository taskProcessorRepository;
   private final EnabledCeWorkerController enabledCeWorkerController;
+  private final CeTaskInitializations taskInitializations;
 
   public CeWorkerImpl(int ordinal, String uuid,
     InternalCeQueue queue, CeLogging ceLogging, CeTaskProcessorRepository taskProcessorRepository,
-    EnabledCeWorkerController enabledCeWorkerController) {
+    EnabledCeWorkerController enabledCeWorkerController, CeTaskInitializations taskInitializations) {
     this.ordinal = checkOrdinal(ordinal);
     this.uuid = uuid;
     this.queue = queue;
     this.ceLogging = ceLogging;
     this.taskProcessorRepository = taskProcessorRepository;
     this.enabledCeWorkerController = enabledCeWorkerController;
+    this.taskInitializations = taskInitializations;
   }
 
   private static int checkOrdinal(int ordinal) {
@@ -128,6 +130,7 @@ public class CeWorkerImpl implements CeWorker {
       // TODO delegate the message to the related task processor, according to task type
       Optional<CeTaskProcessor> taskProcessor = taskProcessorRepository.getForCeTask(task);
       if (taskProcessor.isPresent()) {
+        taskInitializations.onInit(task);
         taskResult = taskProcessor.get().process(task);
         status = CeActivityDto.Status.SUCCESS;
       } else {
