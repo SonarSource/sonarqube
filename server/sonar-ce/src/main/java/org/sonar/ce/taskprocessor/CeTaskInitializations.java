@@ -19,17 +19,28 @@
  */
 package org.sonar.ce.taskprocessor;
 
-import org.sonar.core.platform.Module;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.ce.queue.CeTask;
 
-public class CeTaskProcessorModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      CeTaskProcessorRepositoryImpl.class,
-      CeWorkerFactoryImpl.class,
-      CeTaskInitializations.class,
-      EnabledCeWorkerControllerImpl.class,
-      CeProcessingSchedulerExecutorServiceImpl.class,
-      CeProcessingSchedulerImpl.class);
+@ComputeEngineSide
+public class CeTaskInitializations {
+
+  private final CeTaskInitialization[] initializations;
+
+  public CeTaskInitializations(CeTaskInitialization[] initializations) {
+    this.initializations = initializations;
+  }
+
+  /**
+   * Default constructor when there are no CeTaskInitialization instances
+   */
+  public CeTaskInitializations() {
+    this(new CeTaskInitialization[0]);
+  }
+
+  public void onInit(CeTask task) {
+    for (CeTaskInitialization initialization : initializations) {
+      initialization.onInit(task);
+    }
   }
 }

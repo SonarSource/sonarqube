@@ -19,17 +19,26 @@
  */
 package org.sonar.ce.taskprocessor;
 
-import org.sonar.core.platform.Module;
+import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.ce.queue.CeTask;
+import org.sonar.db.ce.CeActivityDto;
 
-public class CeTaskProcessorModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      CeTaskProcessorRepositoryImpl.class,
-      CeWorkerFactoryImpl.class,
-      CeTaskInitializations.class,
-      EnabledCeWorkerControllerImpl.class,
-      CeProcessingSchedulerExecutorServiceImpl.class,
-      CeProcessingSchedulerImpl.class);
-  }
+/**
+ * Internal extension point that is called before processing
+ * a task, whatever its type.
+ * The tasks that can't be processed by any {@link CeTaskProcessor}
+ * are ignored.
+ */
+@ComputeEngineSide
+@ExtensionPoint
+public interface CeTaskInitialization {
+
+  /**
+   * Method called before {@link CeTaskProcessor} handles the task.
+   * Throwing an exception breaks processing and marks the task
+   * as {@link CeActivityDto.Status#FAILED}.
+   */
+  void onInit(CeTask task);
+
 }

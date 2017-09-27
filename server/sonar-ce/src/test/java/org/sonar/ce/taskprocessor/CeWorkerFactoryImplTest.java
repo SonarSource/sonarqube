@@ -34,8 +34,9 @@ import static org.mockito.Mockito.mock;
 
 public class CeWorkerFactoryImplTest {
   private int randomOrdinal = new Random().nextInt(20);
+
   private CeWorkerFactoryImpl underTest = new CeWorkerFactoryImpl(mock(InternalCeQueue.class), mock(CeLogging.class),
-    mock(CeTaskProcessorRepository.class), UuidFactoryImpl.INSTANCE, mock(EnabledCeWorkerController.class));
+    mock(CeTaskProcessorRepository.class), UuidFactoryImpl.INSTANCE, mock(EnabledCeWorkerController.class), mock(CeTaskInitializations.class));
 
   @Test
   public void create_return_CeWorker_object_with_specified_ordinal() {
