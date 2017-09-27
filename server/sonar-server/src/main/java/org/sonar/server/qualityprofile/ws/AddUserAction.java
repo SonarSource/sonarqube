@@ -90,7 +90,7 @@ public class AddUserAction implements QProfileWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.param(PARAM_ORGANIZATION));
       QProfileDto profile = wsSupport.getProfile(dbSession, organization, request.mandatoryParam(PARAM_QUALITY_PROFILE), request.mandatoryParam(PARAM_LANGUAGE));
-      wsSupport.checkCanEdit(dbSession, profile);
+      wsSupport.checkCanEdit(dbSession, organization, profile);
       UserDto user = wsSupport.getUser(dbSession, organization, request.mandatoryParam(PARAM_LOGIN));
       addUser(dbSession, profile, user);
     }

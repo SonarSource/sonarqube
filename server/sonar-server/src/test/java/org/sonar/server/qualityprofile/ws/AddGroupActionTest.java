@@ -129,13 +129,32 @@ public class AddGroupActionTest {
   }
 
   @Test
-  public void qp_editors_can_add_group() {
+  public void can_add_group_with_user_edit_permission() {
     OrganizationDto organization = db.organizations().insert();
     QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO));
     GroupDto group = db.users().insertGroup(organization);
     UserDto userAllowedToEditProfile = db.users().insertUser();
     db.qualityProfiles().addUserPermission(profile, userAllowedToEditProfile);
     userSession.logIn(userAllowedToEditProfile);
+
+    ws.newRequest()
+      .setParam(PARAM_QUALITY_PROFILE, profile.getName())
+      .setParam(PARAM_LANGUAGE, XOO)
+      .setParam(PARAM_GROUP, group.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .execute();
+
+    assertThat(db.getDbClient().qProfileEditGroupsDao().exists(db.getSession(), profile, group)).isTrue();
+  }
+
+  @Test
+  public void can_add_group_with_group_edit_permission() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO));
+    GroupDto group = db.users().insertGroup(organization);
+    UserDto userAllowedToEditProfile = db.users().insertUser();
+    db.qualityProfiles().addGroupPermission(profile, group);
+    userSession.logIn(userAllowedToEditProfile).setGroups(group);
 
     ws.newRequest()
       .setParam(PARAM_QUALITY_PROFILE, profile.getName())
