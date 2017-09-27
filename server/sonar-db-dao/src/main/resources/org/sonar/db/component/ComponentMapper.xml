@@ -662,7 +662,7 @@
     JOIN project_branches b
       ON i.project_uuid = b.uuid
       AND b.merge_branch_uuid = #{mergeBranchUuid,jdbcType=VARCHAR}
-      AND i.status != 'OPEN'
+      AND (i.status = 'CONFIRMED' OR i.status = 'RESOLVED')
   </select>
 
 </mapper>
