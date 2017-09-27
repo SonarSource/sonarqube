@@ -71,7 +71,7 @@ public enum ComponentTextSearchFeatureRepertoire implements ComponentTextSearchF
       if (tokens.isEmpty()) {
         return Stream.empty();
       }
-      List<String> lowerCaseTokens = tokens.stream().map(t -> t.toLowerCase(Locale.getDefault())).collect(MoreCollectors.toList());
+      List<String> lowerCaseTokens = tokens.stream().map(t -> t.toLowerCase(Locale.ENGLISH)).collect(MoreCollectors.toList());
       BoolQueryBuilder queryBuilder = prefixAndPartialQuery(lowerCaseTokens, query.getFieldName(), SEARCH_PREFIX_CASE_INSENSITIVE_ANALYZER)
         .boost(2f);
       return Stream.of(queryBuilder);

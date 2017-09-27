@@ -73,7 +73,7 @@ class ProjectsTextSearchQueryFactory {
     PREFIX_IGNORE_CASE {
       @Override
       QueryBuilder getQuery(String queryText) {
-        String lowerCaseQueryText = queryText.toLowerCase(Locale.getDefault());
+        String lowerCaseQueryText = queryText.toLowerCase(Locale.ENGLISH);
         return prefixAndPartialQuery(lowerCaseQueryText, SORTABLE_ANALYZER.subField(FIELD_NAME), FIELD_NAME)
           .boost(3f);
       }
