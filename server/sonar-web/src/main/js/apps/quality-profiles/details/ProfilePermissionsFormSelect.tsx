@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import * as Select from 'react-select';
-import { debounce } from 'lodash';
+import { debounce, identity } from 'lodash';
 import { User, Group } from './ProfilePermissions';
 import Avatar from '../../../components/ui/Avatar';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -96,6 +96,8 @@ export default class ProfilePermissionsFormSelect extends React.PureComponent<Pr
         className="Select-big"
         clearable={false}
         isLoading={this.state.loading}
+        // disable default react-select filtering
+        filterOptions={identity}
         noResultsText={noResultsText}
         optionRenderer={optionRenderer}
         options={options}
