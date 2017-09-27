@@ -1,0 +1,113 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`changes value 1`] = `
+<form
+  onSubmit={[Function]}
+>
+  <div
+    className="modal-body"
+  >
+    <div
+      className="big-spacer-bottom markdown"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "property.foo.description",
+        }
+      }
+    />
+    <div
+      className="big-spacer-bottom"
+    >
+      <input
+        autoFocus={true}
+        className="input-super-large"
+        onChange={[Function]}
+        required={true}
+        type="text"
+        value="release-.*"
+      />
+      <div
+        className="note spacer-top"
+      >
+        settings._default
+      </div>
+    </div>
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <button
+      disabled={true}
+      type="submit"
+    >
+      save
+    </button>
+    <a
+      href="#"
+      onClick={[Function]}
+    >
+      cancel
+    </a>
+  </footer>
+</form>
+`;
+
+exports[`resets value 1`] = `
+<form
+  onSubmit={[Function]}
+>
+  <div
+    className="modal-body"
+  >
+    <div
+      className="big-spacer-bottom markdown"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "property.foo.description",
+        }
+      }
+    />
+    <div
+      className="big-spacer-bottom"
+    >
+      <input
+        autoFocus={true}
+        className="input-super-large"
+        onChange={[Function]}
+        required={true}
+        type="text"
+        value="release-.*"
+      />
+      <div
+        className="note spacer-top"
+      >
+        settings.default_x.branch-.*
+      </div>
+    </div>
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <button
+      className="pull-left"
+      disabled={false}
+      onClick={[Function]}
+      type="reset"
+    >
+      reset_to_default
+    </button>
+    <button
+      disabled={true}
+      type="submit"
+    >
+      save
+    </button>
+    <a
+      href="#"
+      onClick={[Function]}
+    >
+      cancel
+    </a>
+  </footer>
+</form>
+`;

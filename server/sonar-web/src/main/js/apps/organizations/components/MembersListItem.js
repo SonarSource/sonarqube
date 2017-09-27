@@ -24,6 +24,7 @@ import { translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import RemoveMemberForm from './forms/RemoveMemberForm';
 import ManageMemberGroupsForm from './forms/ManageMemberGroupsForm';
+import SettingsIcon from '../../../components/icons-components/SettingsIcon';
 /*:: import type { Member } from '../../../store/organizationsMembers/actions'; */
 /*:: import type { Organization, OrgGroup } from '../../../store/organizations/duck'; */
 
@@ -67,7 +68,7 @@ export default class MembersListItem extends React.PureComponent {
               <button
                 className="dropdown-toggle little-spacer-right button-compact"
                 data-toggle="dropdown">
-                <i className="icon-settings" /> <i className="icon-dropdown" />
+                <SettingsIcon style={{ marginTop: 4 }} /> <i className="icon-dropdown" />
               </button>
               <ul className="dropdown-menu dropdown-menu-right">
                 <li>

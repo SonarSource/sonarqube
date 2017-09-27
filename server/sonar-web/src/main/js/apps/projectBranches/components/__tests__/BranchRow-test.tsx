@@ -26,6 +26,7 @@ import { click } from '../../../../helpers/testUtils';
 const mainBranch: MainBranch = { isMain: true, name: 'master' };
 
 const shortBranch: ShortLivingBranch = {
+  analysisDate: '2017-09-27T00:05:19+0000',
   isMain: false,
   name: 'feature',
   mergeBranch: 'foo',

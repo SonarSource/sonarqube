@@ -23,6 +23,7 @@ export enum BranchType {
 }
 
 export interface MainBranch {
+  analysisDate?: string;
   isMain: true;
   name: string;
   status?: {
@@ -31,6 +32,7 @@ export interface MainBranch {
 }
 
 export interface LongLivingBranch {
+  analysisDate?: string;
   isMain: false;
   name: string;
   status?: {
@@ -40,6 +42,7 @@ export interface LongLivingBranch {
 }
 
 export interface ShortLivingBranch {
+  analysisDate?: string;
   isMain: false;
   isOrphan?: true;
   mergeBranch: string;

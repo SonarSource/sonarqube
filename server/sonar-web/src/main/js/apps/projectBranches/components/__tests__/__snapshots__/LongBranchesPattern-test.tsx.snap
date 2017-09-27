@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="pull-right text-right"
+>
+  branches.long_living_branches_pattern
+  : 
+  <strong>
+    release-.*
+  </strong>
+  <a
+    className="display-inline-block spacer-left link-no-underline"
+    href="#"
+    onClick={[Function]}
+  >
+    <ChangeIcon />
+  </a>
+</div>
+`;

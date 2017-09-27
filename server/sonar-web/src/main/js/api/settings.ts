@@ -20,12 +20,26 @@
 import { omitBy } from 'lodash';
 import { getJSON, RequestData, post, postJSON } from '../helpers/request';
 import { TYPE_PROPERTY_SET } from '../apps/settings/constants';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
 export function getDefinitions(component: string | null, branch?: string): Promise<any> {
   return getJSON('/api/settings/list_definitions', { branch, component }).then(r => r.definitions);
 }
 
-export function getValues(keys: string, component?: string, branch?: string): Promise<any> {
+export interface SettingValue {
+  inherited?: boolean;
+  key: string;
+  parentValue?: string;
+  parentValues?: string[];
+  value?: any;
+  values?: string[];
+}
+
+export function getValues(
+  keys: string,
+  component?: string,
+  branch?: string
+): Promise<SettingValue[]> {
   return getJSON('/api/settings/values', { keys, component, branch }).then(r => r.settings);
 }
 
@@ -49,6 +63,15 @@ export function setSettingValue(
   }
 
   return post('/api/settings/set', data);
+}
+
+export function setSimpleSettingValue(parameters: {
+  branch?: string;
+  component?: string;
+  value: string;
+  key: string;
+}): Promise<void | Response> {
+  return post('/api/settings/set', parameters).catch(throwGlobalError);
 }
 
 export function resetSettingValue(key: string, component?: string, branch?: string): Promise<void> {

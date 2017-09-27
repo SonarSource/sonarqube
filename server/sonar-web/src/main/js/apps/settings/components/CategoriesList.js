@@ -32,7 +32,6 @@ type Category = {
 
 /*::
 type Props = {
-  branch?: string,
   categories: Category[],
   component?: { key: string },
   defaultCategory: string,
@@ -44,7 +43,7 @@ export default class CategoriesList extends React.PureComponent {
   /*:: rops: Props; */
 
   renderLink(category /*: Category */) {
-    const query /*: Object */ = { branch: this.props.branch };
+    const query /*: Object */ = {};
 
     if (category.key !== this.props.defaultCategory) {
       query.category = category.key.toLowerCase();

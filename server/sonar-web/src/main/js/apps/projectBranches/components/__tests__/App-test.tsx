@@ -17,10 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+jest.mock('../../../../api/settings', () => ({
+  getValues: jest.fn(() => Promise.resolve([]))
+}));
+
 import * as React from 'react';
-import { shallow } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 import App from '../App';
 import { Branch, BranchType } from '../../../../app/types';
+
+const getValues = require('../../../../api/settings').getValues as jest.Mock<any>;
+
+beforeEach(() => {
+  getValues.mockClear();
+});
 
 it('renders sorted list of branches', () => {
   const branches: Branch[] = [
@@ -28,7 +38,14 @@ it('renders sorted list of branches', () => {
     { isMain: false, name: 'branch-1.0', type: BranchType.LONG },
     { isMain: false, name: 'branch-1.0', mergeBranch: 'master', type: BranchType.SHORT }
   ];
-  expect(
-    shallow(<App branches={branches} component={{ key: 'foo' }} onBranchesChange={jest.fn()} />)
-  ).toMatchSnapshot();
+  const wrapper = shallow(
+    <App branches={branches} component={{ key: 'foo' }} onBranchesChange={jest.fn()} />
+  );
+  wrapper.setState({ branchLifeTime: '100', loading: false });
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('fetches branch life time setting on mount', () => {
+  mount(<App branches={[]} component={{ key: 'foo' }} onBranchesChange={jest.fn()} />);
+  expect(getValues).toBeCalledWith('sonar.dbcleaner.daysBeforeDeletingInactiveShortLivingBranches');
 });

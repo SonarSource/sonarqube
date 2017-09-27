@@ -12,6 +12,34 @@ exports[`renders sorted list of branches 1`] = `
     >
       project_branches.page
     </h1>
+    <LongBranchesPattern
+      project="foo"
+    />
+    <p
+      className="page-description"
+    >
+      project_branches.page.description
+    </p>
+    <p
+      className="page-description"
+    >
+      <FormattedMessage
+        defaultMessage="project_branches.page.life_time"
+        id="project_branches.page.life_time"
+        values={
+          Object {
+            "days": "100",
+            "settings": <Link
+              onlyActiveOnIndex={false}
+              style={Object {}}
+              to="/admin/settings"
+          >
+              settings.page
+          </Link>,
+          }
+        }
+      />
+    </p>
   </header>
   <table
     className="data zebra zebra-hover"
@@ -22,12 +50,17 @@ exports[`renders sorted list of branches 1`] = `
           branch
         </th>
         <th
-          className="text-right"
+          className="thin nowrap text-right"
         >
           status
         </th>
         <th
-          className="text-right"
+          className="thin nowrap text-right"
+        >
+          project_history.last_snapshot
+        </th>
+        <th
+          className="thin nowrap text-right"
         >
           actions
         </th>

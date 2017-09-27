@@ -739,25 +739,6 @@ exports[`should work for long-living branches 1`] = `
       project_activity.page
     </Link>
   </li>
-  <li>
-    <Link
-      className="is-admin"
-      id="component-navigation-admin"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/project/settings",
-          "query": Object {
-            "branch": "release",
-            "id": "foo",
-          },
-        }
-      }
-    >
-      branches.branch_settings
-    </Link>
-  </li>
 </NavBarTabs>
 `;
 

@@ -17,16 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, IndexRouteProps } from 'react-router';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import LongBranchesPatternForm from '../LongBranchesPatternForm';
 
-const routes = [
-  {
-    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
-      import('./components/AppContainer').then(i =>
-        callback(null, { component: (i as any).default })
-      );
-    }
-  }
-];
-
-export default routes;
+it('renders', () => {
+  expect(
+    shallow(
+      <LongBranchesPatternForm
+        onChange={jest.fn()}
+        onClose={jest.fn()}
+        project="project"
+        setting={{ key: 'foo', value: 'bar' }}
+      />
+    )
+  ).toMatchSnapshot();
+});

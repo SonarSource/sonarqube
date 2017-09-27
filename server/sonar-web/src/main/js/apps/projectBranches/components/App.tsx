@@ -19,42 +19,129 @@
  */
 import * as React from 'react';
 import BranchRow from './BranchRow';
+import LongBranchesPattern from './LongBranchesPattern';
 import { Branch } from '../../../app/types';
 import { sortBranchesAsTree } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
+import { getValues } from '../../../api/settings';
+import { FormattedMessage } from 'react-intl';
+import { formatMeasure } from '../../../helpers/measures';
+import { Link } from 'react-router';
 
 interface Props {
   branches: Branch[];
+  canAdmin?: boolean;
   component: { key: string };
   onBranchesChange: () => void;
 }
 
-export default function App({ branches, component, onBranchesChange }: Props) {
-  return (
-    <div className="page page-limited">
-      <header className="page-header">
-        <h1 className="page-title">{translate('project_branches.page')}</h1>
-      </header>
+interface State {
+  branchLifeTime?: string;
+  loading: boolean;
+}
 
-      <table className="data zebra zebra-hover">
-        <thead>
-          <tr>
-            <th>{translate('branch')}</th>
-            <th className="text-right">{translate('status')}</th>
-            <th className="text-right">{translate('actions')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortBranchesAsTree(branches).map(branch => (
-            <BranchRow
-              branch={branch}
-              component={component.key}
-              key={branch.name}
-              onChange={onBranchesChange}
-            />
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+const BRANCH_LIFETIME_SETTING = 'sonar.dbcleaner.daysBeforeDeletingInactiveShortLivingBranches';
+
+export default class App extends React.PureComponent<Props, State> {
+  mounted: boolean;
+  state: State = { loading: true };
+
+  componentDidMount() {
+    this.mounted = true;
+    this.fetchPurgeSetting();
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  fetchPurgeSetting() {
+    this.setState({ loading: true });
+    getValues(BRANCH_LIFETIME_SETTING).then(
+      settings => {
+        if (this.mounted) {
+          this.setState({
+            loading: false,
+            branchLifeTime: settings.length > 0 ? settings[0].value : undefined
+          });
+        }
+      },
+      () => {
+        this.setState({ loading: false });
+      }
+    );
+  }
+
+  renderBranchLifeTime() {
+    const { branchLifeTime } = this.state;
+    if (!branchLifeTime) {
+      return null;
+    }
+
+    const messageKey = this.props.canAdmin
+      ? 'project_branches.page.life_time.admin'
+      : 'project_branches.page.life_time';
+
+    return (
+      <p className="page-description">
+        <FormattedMessage
+          defaultMessage={translate(messageKey)}
+          id={messageKey}
+          values={{
+            days: formatMeasure(this.state.branchLifeTime, 'INT'),
+            settings: <Link to="/admin/settings">{translate('settings.page')}</Link>
+          }}
+        />
+      </p>
+    );
+  }
+
+  render() {
+    const { branches, component, onBranchesChange } = this.props;
+
+    if (this.state.loading) {
+      return (
+        <div className="page page-limited">
+          <header className="page-header">
+            <h1 className="page-title">{translate('project_branches.page')}</h1>
+          </header>
+          <i className="spinner" />
+        </div>
+      );
+    }
+
+    return (
+      <div className="page page-limited">
+        <header className="page-header">
+          <h1 className="page-title">{translate('project_branches.page')}</h1>
+          <LongBranchesPattern project={component.key} />
+          <p className="page-description">{translate('project_branches.page.description')}</p>
+          {this.renderBranchLifeTime()}
+        </header>
+
+        <table className="data zebra zebra-hover">
+          <thead>
+            <tr>
+              <th>{translate('branch')}</th>
+              <th className="thin nowrap text-right">{translate('status')}</th>
+              <th className="thin nowrap text-right">
+                {translate('project_history.last_snapshot')}
+              </th>
+              <th className="thin nowrap text-right">{translate('actions')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortBranchesAsTree(branches).map(branch => (
+              <BranchRow
+                branch={branch}
+                component={component.key}
+                key={branch.name}
+                onChange={onBranchesChange}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  }
 }
