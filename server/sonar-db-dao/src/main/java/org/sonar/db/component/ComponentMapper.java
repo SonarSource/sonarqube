@@ -147,5 +147,5 @@ public interface ComponentMapper {
 
   void updateTags(ComponentDto component);
 
-  List<ComponentDto> selectComponentKeysHavingIssuesToMerge(@Param("mergeBranchUuid") String mergeBranchUuid);
+  List<KeyWithUuidDto> selectComponentKeysHavingIssuesToMerge(@Param("mergeBranchUuid") String mergeBranchUuid);
 }

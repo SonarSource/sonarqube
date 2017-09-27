@@ -30,6 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.KeyWithUuidDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 
@@ -57,9 +58,9 @@ public class ShortBranchComponentsWithIssues {
 
     uuidsByKey = new HashMap<>();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      List<ComponentDto> components = dbClient.componentDao().selectComponentKeysHavingIssuesToMerge(dbSession, analysisMetadataHolder.getUuid());
-      for (ComponentDto dto : components) {
-        uuidsByKey.computeIfAbsent(removeBranchFromKey(dto.getKey()), s -> new HashSet<>()).add(dto.uuid());
+      List<KeyWithUuidDto> components = dbClient.componentDao().selectComponentKeysHavingIssuesToMerge(dbSession, analysisMetadataHolder.getUuid());
+      for (KeyWithUuidDto dto : components) {
+        uuidsByKey.computeIfAbsent(removeBranchFromKey(dto.key()), s -> new HashSet<>()).add(dto.uuid());
       }
     }
   }
