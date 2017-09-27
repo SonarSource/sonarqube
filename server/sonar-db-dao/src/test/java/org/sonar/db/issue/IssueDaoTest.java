@@ -180,6 +180,23 @@ public class IssueDaoTest {
     assertThat(accumulator.list).isEmpty();
   }
 
+  @Test
+  public void selectResolvedOrConfirmedByComponentUuid() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    IssueDto openIssue = db.issues().insert(rule, project, file, i -> i.setStatus("OPEN").setResolution(null));
+    IssueDto closedIssue = db.issues().insert(rule, project, file, i -> i.setStatus("CLOSED").setResolution("FIXED"));
+    IssueDto reopenedIssue = db.issues().insert(rule, project, file, i -> i.setStatus("REOPENED").setResolution(null));
+    IssueDto confirmedIssue = db.issues().insert(rule, project, file, i -> i.setStatus("CONFIRMED").setResolution(null));
+    IssueDto wontfixIssue = db.issues().insert(rule, project, file, i -> i.setStatus("RESOLVED").setResolution("WONTFIX"));
+    IssueDto fpIssue = db.issues().insert(rule, project, file, i -> i.setStatus("RESOLVED").setResolution("FALSE-POSITIVE"));
+
+    assertThat(underTest.selectResolvedOrConfirmedByComponentUuid(db.getSession(), file.uuid()))
+      .extracting("kee")
+      .containsOnly(confirmedIssue.getKey(), wontfixIssue.getKey(), fpIssue.getKey());
+  }
+
   private static IssueDto newIssueDto(String key) {
     IssueDto dto = new IssueDto();
     dto.setComponent(new ComponentDto().setDbKey("struts:Action").setId(123L).setUuid("component-uuid"));
