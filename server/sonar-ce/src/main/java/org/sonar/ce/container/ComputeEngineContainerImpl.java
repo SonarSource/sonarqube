@@ -98,6 +98,7 @@ import org.sonar.server.issue.notification.NewIssuesNotificationDispatcher;
 import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
+import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.metric.CoreCustomMetrics;
 import org.sonar.server.metric.DefaultMetricFinder;
@@ -341,6 +342,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       // measure
       CoreCustomMetrics.class,
       DefaultMetricFinder.class,
+      ProjectMeasuresIndex.class,
 
       // users
       DeprecatedUserFinder.class,
