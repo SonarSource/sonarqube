@@ -55,9 +55,9 @@ it('removes user', async () => {
   wrapper.find('SimpleModal').prop<Function>('onSubmit')();
   expect(removeUser).toBeCalledWith({
     language: 'js',
+    login: 'luke',
     organization: 'org',
-    profile: 'Sonar way',
-    user: 'luke'
+    qualityProfile: 'Sonar way'
   });
 
   await new Promise(setImmediate);

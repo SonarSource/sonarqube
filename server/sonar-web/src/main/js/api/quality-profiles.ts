@@ -48,11 +48,18 @@ export interface Profile {
   projectCount?: number;
 }
 
-export function searchQualityProfiles(data: {
+export interface SearchQualityProfilesParameters {
+  defaults?: boolean;
+  language?: string;
   organization?: string;
-  projectKey?: string;
-}): Promise<Profile[]> {
-  return getJSON('/api/qualityprofiles/search', data).then(r => r.profiles);
+  project?: string;
+  qualityProfile?: string;
+}
+
+export function searchQualityProfiles(
+  parameters: SearchQualityProfilesParameters
+): Promise<Profile[]> {
+  return getJSON('/api/qualityprofiles/search', parameters).then(r => r.profiles);
 }
 
 export function getQualityProfile(data: {
@@ -135,9 +142,9 @@ export function dissociateProject(profileKey: string, projectKey: string): Promi
 export interface SearchUsersGroupsParameters {
   language: string;
   organization?: string;
-  profile: string;
+  qualityProfile: string;
   q?: string;
-  selected: boolean;
+  selected?: 'all' | 'selected' | 'deselected';
 }
 
 export interface SearchUsersResponse {
@@ -167,9 +174,9 @@ export function searchGroups(
 
 export interface AddRemoveUserParameters {
   language: string;
+  login: string;
   organization?: string;
-  profile: string;
-  user: string;
+  qualityProfile: string;
 }
 
 export function addUser(parameters: AddRemoveUserParameters): Promise<void | Response> {
@@ -184,7 +191,7 @@ export interface AddRemoveGroupParameters {
   group: string;
   language: string;
   organization?: string;
-  profile: string;
+  qualityProfile: string;
 }
 
 export function addGroup(parameters: AddRemoveGroupParameters): Promise<void | Response> {

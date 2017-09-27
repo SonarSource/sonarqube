@@ -20,7 +20,13 @@
 import * as React from 'react';
 import Modal from 'react-modal';
 import ProfilePermissionsFormSelect from './ProfilePermissionsFormSelect';
-import { searchUsers, searchGroups, addUser, addGroup } from '../../../api/quality-profiles';
+import {
+  searchUsers,
+  searchGroups,
+  addUser,
+  addGroup,
+  SearchUsersGroupsParameters
+} from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
 import { User, Group } from './ProfilePermissions';
 
@@ -58,9 +64,9 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
   handleUserAdd = (user: User) =>
     addUser({
       language: this.props.profile.language,
+      login: user.login,
       organization: this.props.organization,
-      profile: this.props.profile.name,
-      user: user.login
+      qualityProfile: this.props.profile.name
     }).then(() => this.props.onUserAdd(user), this.stopSubmitting);
 
   handleGroupAdd = (group: Group) =>
@@ -68,7 +74,7 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
       group: group.name,
       language: this.props.profile.language,
       organization: this.props.organization,
-      profile: this.props.profile.name
+      qualityProfile: this.props.profile.name
     }).then(() => this.props.onGroupAdd(group), this.stopSubmitting);
 
   handleFormSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
@@ -86,12 +92,12 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
 
   handleSearch = (q: string) => {
     const { organization, profile } = this.props;
-    const parameters = {
+    const parameters: SearchUsersGroupsParameters = {
       language: profile.language,
       organization,
-      profile: profile.name,
       q,
-      selected: false
+      qualityProfile: profile.name,
+      selected: 'deselected'
     };
     return Promise.all([
       searchUsers(parameters),
