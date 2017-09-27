@@ -37,6 +37,9 @@ public class DbVersion66 implements DbVersion {
       .add(1807, "Add on project_branches key", AddIndexOnProjectBranchesKey.class)
       .add(1808, "Add branch column to projects table", AddBranchColumnToProjectsTable.class)
       .add(1809, "Populate project_branches with existing main branches", PopulateMainProjectBranches.class)
+      .add(1810, "Add ANALYSIS_UUID in WEBHOOK_DELIVERIES", AddAnalysisUuidToWebhookDeliveries.class)
+      .add(1811, "Make column CE_TASK_UUID nullable", UpdateCeTaskUuidColumnToNullableOnWebhookDeliveries.class)
+      .add(1812, "Populate ANALYSIS_UUID of WEBHOOK_DELIVERIES", PopulateAnalysisUuidColumnOnWebhookDeliveries.class)
     ;
   }
 }

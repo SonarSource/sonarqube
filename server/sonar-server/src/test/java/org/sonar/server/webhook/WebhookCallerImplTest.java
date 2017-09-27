@@ -23,6 +23,7 @@ import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -57,7 +58,7 @@ public class WebhookCallerImplTest {
 
   @Test
   public void send_posts_payload_to_http_server() throws Exception {
-    Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, "my-webhook", server.url("/ping").toString());
+    Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, RandomStringUtils.randomAlphanumeric(40),"my-webhook", server.url("/ping").toString());
 
     server.enqueue(new MockResponse().setBody("pong").setResponseCode(201));
     WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
@@ -80,7 +81,7 @@ public class WebhookCallerImplTest {
 
   @Test
   public void silently_catch_error_when_external_server_does_not_answer() throws Exception {
-    Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, "my-webhook", server.url("/ping").toString());
+    Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, RandomStringUtils.randomAlphanumeric(40),"my-webhook", server.url("/ping").toString());
 
     server.shutdown();
     WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
@@ -96,7 +97,7 @@ public class WebhookCallerImplTest {
 
   @Test
   public void silently_catch_error_when_url_is_incorrect() throws Exception {
-    Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, "my-webhook", "this_is_not_an_url");
+    Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, RandomStringUtils.randomAlphanumeric(40),"my-webhook", "this_is_not_an_url");
 
     WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
 
@@ -114,7 +115,7 @@ public class WebhookCallerImplTest {
    */
   @Test
   public void redirects_should_be_followed_with_POST_method() throws Exception {
-    Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, "my-webhook", server.url("/redirect").toString());
+    Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, RandomStringUtils.randomAlphanumeric(40),"my-webhook", server.url("/redirect").toString());
 
     // /redirect redirects to /target
     server.enqueue(new MockResponse().setResponseCode(307).setHeader("Location", server.url("target")));
@@ -136,7 +137,7 @@ public class WebhookCallerImplTest {
   @Test
   public void redirects_throws_ISE_if_header_Location_is_missing() throws Exception {
     HttpUrl url = server.url("/redirect");
-    Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, "my-webhook", url.toString());
+    Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, RandomStringUtils.randomAlphanumeric(40),"my-webhook", url.toString());
 
     server.enqueue(new MockResponse().setResponseCode(307));
 
@@ -151,7 +152,7 @@ public class WebhookCallerImplTest {
   @Test
   public void redirects_throws_ISE_if_header_Location_does_not_relate_to_a_supported_protocol() throws Exception {
     HttpUrl url = server.url("/redirect");
-    Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, "my-webhook", url.toString());
+    Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, RandomStringUtils.randomAlphanumeric(40),"my-webhook", url.toString());
 
     server.enqueue(new MockResponse().setResponseCode(307).setHeader("Location", "ftp://foo"));
 

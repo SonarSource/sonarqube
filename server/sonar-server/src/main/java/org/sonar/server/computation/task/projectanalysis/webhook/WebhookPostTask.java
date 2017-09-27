@@ -50,7 +50,7 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
 
     webHooks.sendProjectAnalysisUpdate(
       config,
-      new WebHooks.Analysis(analysis.getProject().getUuid(), analysis.getCeTask().getId()),
+      new WebHooks.Analysis(analysis.getProject().getUuid(), "", analysis.getCeTask().getId()), // FIXME
       () -> payloadFactory.create(convert(analysis)));
   }
 

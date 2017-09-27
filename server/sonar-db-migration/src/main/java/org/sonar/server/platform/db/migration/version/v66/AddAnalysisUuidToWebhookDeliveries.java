@@ -20,23 +20,30 @@
 
 package org.sonar.server.platform.db.migration.version.v66;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class AddAnalysisUuidToWebhookDeliveries extends DdlChange {
 
-public class DbVersion66Test {
+  public static final String TABLE = "webhook_deliveries";
 
-  private DbVersion66 underTest = new DbVersion66();
+  public static final VarcharColumnDef ANALYSIS_UUID_COLUMN = VarcharColumnDef.newVarcharColumnDefBuilder()
+    .setColumnName("analysis_uuid")
+    .setLimit(40)
+    .setIsNullable(true)
+    .build();
 
-  @Test
-  public void migrationNumber_starts_at_1800() {
-    verifyMinimumMigrationNumber(underTest, 1800);
+  public AddAnalysisUuidToWebhookDeliveries(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 13);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDialect(), TABLE)
+      .addColumn(ANALYSIS_UUID_COLUMN)
+      .build());
   }
-
 }
