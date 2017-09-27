@@ -32,6 +32,7 @@ import org.sonar.db.user.GroupDto;
 
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
 
 public class QProfileEditGroupsDao implements Dao {
 
@@ -69,6 +70,10 @@ public class QProfileEditGroupsDao implements Dao {
 
   public void deleteByQProfileAndGroup(DbSession dbSession, QProfileDto profile, GroupDto group) {
     mapper(dbSession).delete(profile.getKee(), group.getId());
+  }
+
+  public void deleteByQProfiles(DbSession dbSession, List<QProfileDto> qProfiles) {
+    executeLargeUpdates(qProfiles.stream().map(QProfileDto::getKee).collect(toList()), p -> mapper(dbSession).deleteByQProfiles(p));
   }
 
   private static QProfileEditGroupsMapper mapper(DbSession dbSession) {
