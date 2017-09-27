@@ -110,7 +110,7 @@ public class SearchGroupsAction implements QProfileWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, wsRequest.getOrganization());
       QProfileDto profile = wsSupport.getProfile(dbSession, organization, wsRequest.getQualityProfile(), wsRequest.getLanguage());
-      wsSupport.checkCanEdit(dbSession, profile);
+      wsSupport.checkCanEdit(dbSession, organization, profile);
 
       SearchGroupsQuery query = builder()
         .setOrganization(organization)

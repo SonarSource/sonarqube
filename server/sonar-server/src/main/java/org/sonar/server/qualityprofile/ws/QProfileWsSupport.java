@@ -124,18 +124,19 @@ public class QProfileWsSupport {
     userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
   }
 
-  public void checkCanEdit(DbSession dbSession, QProfileDto profile) {
+  public void checkCanEdit(DbSession dbSession, OrganizationDto organization, QProfileDto profile) {
     checkNotBuiltInt(profile);
-    OrganizationDto organization = getOrganization(dbSession, profile);
     userSession.checkLoggedIn();
     if (userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization)) {
       return;
     }
     UserDto user = dbClient.userDao().selectByLogin(dbSession, userSession.getLogin());
     checkState(user != null, "User from session does not exist");
-    if (dbClient.qProfileEditUsersDao().exists(dbSession, profile, user)) {
+    if (dbClient.qProfileEditUsersDao().exists(dbSession, profile, user)
+      || dbClient.qProfileEditGroupsDao().selectQProfileUuidsByOrganizationAndGroups(dbSession, organization, userSession.getGroups()).contains(profile.getKee())) {
       return;
     }
+
     throw insufficientPrivilegesException();
   }
 
