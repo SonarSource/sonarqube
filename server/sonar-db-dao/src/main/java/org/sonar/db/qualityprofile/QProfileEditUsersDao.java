@@ -70,6 +70,10 @@ public class QProfileEditUsersDao implements Dao {
     mapper(dbSession).deleteByUser(user.getId());
   }
 
+  public void deleteByOrganizationAndUser(DbSession dbSession, OrganizationDto organization, UserDto user) {
+    mapper(dbSession).deleteByOrganizationAndUser(organization.getUuid(), user.getId());
+  }
+
   private static QProfileEditUsersMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(QProfileEditUsersMapper.class);
   }

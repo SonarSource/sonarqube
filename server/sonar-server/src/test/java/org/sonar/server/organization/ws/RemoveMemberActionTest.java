@@ -38,6 +38,7 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
+import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
@@ -183,6 +184,21 @@ public class RemoveMemberActionTest {
       .containsOnly(anotherUser.getId());
     assertThat(dbClient.permissionTemplateDao().selectUserPermissionsByTemplateId(dbSession, anotherTemplate.getId())).extracting(PermissionTemplateUserDto::getUserId)
       .containsOnly(user.getId());
+  }
+
+  @Test
+  public void remove_qprofiles_user_permission() {
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    db.organizations().addMember(anotherOrganization, user);
+    QProfileDto profile = db.qualityProfiles().insert(organization);
+    QProfileDto anotherProfile = db.qualityProfiles().insert(anotherOrganization);
+    db.qualityProfiles().addUserPermission(profile, user);
+    db.qualityProfiles().addUserPermission(anotherProfile, user);
+
+    call(organization.getKey(), user.getLogin());
+
+    assertThat(db.getDbClient().qProfileEditUsersDao().exists(dbSession, profile, user)).isFalse();
+    assertThat(db.getDbClient().qProfileEditUsersDao().exists(dbSession, anotherProfile, user)).isTrue();
   }
 
   @Test
