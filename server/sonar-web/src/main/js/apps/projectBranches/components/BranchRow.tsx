@@ -21,14 +21,14 @@ import * as React from 'react';
 import { Branch } from '../../../app/types';
 import * as classNames from 'classnames';
 import DeleteBranchModal from './DeleteBranchModal';
+import LeakPeriodForm from './LeakPeriodForm';
 import BranchStatus from '../../../components/common/BranchStatus';
 import BranchIcon from '../../../components/icons-components/BranchIcon';
-import { isShortLivingBranch } from '../../../helpers/branches';
-import ChangeIcon from '../../../components/icons-components/ChangeIcon';
-import DeleteIcon from '../../../components/icons-components/DeleteIcon';
+import { isShortLivingBranch, isLongLivingBranch } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
-import Tooltip from '../../../components/controls/Tooltip';
 import RenameBranchModal from './RenameBranchModal';
+import DateFromNow from '../../../components/intl/DateFromNow';
+import SettingsIcon from '../../../components/icons-components/SettingsIcon';
 
 interface Props {
   branch: Branch;
@@ -37,13 +37,14 @@ interface Props {
 }
 
 interface State {
+  changingLeak: boolean;
   deleting: boolean;
   renaming: boolean;
 }
 
 export default class BranchRow extends React.PureComponent<Props, State> {
   mounted: boolean;
-  state: State = { deleting: false, renaming: false };
+  state: State = { changingLeak: false, deleting: false, renaming: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -80,6 +81,18 @@ export default class BranchRow extends React.PureComponent<Props, State> {
     this.setState({ renaming: false });
   };
 
+  handleChangeLeakClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    event.currentTarget.blur();
+    this.setState({ changingLeak: true });
+  };
+
+  handleChangingLeakStop = () => {
+    if (this.mounted) {
+      this.setState({ changingLeak: false });
+    }
+  };
+
   render() {
     const { branch, component } = this.props;
 
@@ -101,19 +114,47 @@ export default class BranchRow extends React.PureComponent<Props, State> {
           <BranchStatus branch={branch} />
         </td>
         <td className="thin nowrap text-right">
-          {branch.isMain ? (
-            <Tooltip overlay={translate('branches.rename')}>
-              <a className="js-rename link-no-underline" href="#" onClick={this.handleRenameClick}>
-                <ChangeIcon />
-              </a>
-            </Tooltip>
-          ) : (
-            <Tooltip overlay={translate('branches.delete')}>
-              <a className="js-delete link-no-underline" href="#" onClick={this.handleDeleteClick}>
-                <DeleteIcon />
-              </a>
-            </Tooltip>
-          )}
+          {branch.analysisDate && <DateFromNow date={branch.analysisDate} />}
+        </td>
+        <td className="thin nowrap text-right">
+          <div className="dropdown big-spacer-left">
+            <button
+              className="dropdown-toggle little-spacer-right button-compact"
+              data-toggle="dropdown">
+              <SettingsIcon style={{ marginTop: 4 }} /> <i className="icon-dropdown" />
+            </button>
+            <ul className="dropdown-menu dropdown-menu-right">
+              {isLongLivingBranch(branch) && (
+                <li>
+                  <a
+                    className="js-change-leak-period link-no-underline"
+                    href="#"
+                    onClick={this.handleChangeLeakClick}>
+                    {translate('branches.set_leak_period')}
+                  </a>
+                </li>
+              )}
+              {branch.isMain ? (
+                <li>
+                  <a
+                    className="js-rename link-no-underline"
+                    href="#"
+                    onClick={this.handleRenameClick}>
+                    {translate('branches.rename')}
+                  </a>
+                </li>
+              ) : (
+                <li>
+                  <a
+                    className="js-delete link-no-underline"
+                    href="#"
+                    onClick={this.handleDeleteClick}>
+                    {translate('branches.delete')}
+                  </a>
+                </li>
+              )}
+            </ul>
+          </div>
         </td>
 
         {this.state.deleting && (
@@ -131,6 +172,14 @@ export default class BranchRow extends React.PureComponent<Props, State> {
             component={component}
             onClose={this.handleRenamingStop}
             onRename={this.handleChange}
+          />
+        )}
+
+        {this.state.changingLeak && (
+          <LeakPeriodForm
+            branch={branch.name}
+            onClose={this.handleChangingLeakStop}
+            project={component}
           />
         )}
       </tr>

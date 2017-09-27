@@ -17,16 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, IndexRouteProps } from 'react-router';
+import { connect } from 'react-redux';
+import App from './App';
+import { getAppState } from '../../../store/rootReducer';
 
-const routes = [
-  {
-    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
-      import('./components/AppContainer').then(i =>
-        callback(null, { component: (i as any).default })
-      );
-    }
-  }
-];
+const mapStateToProps = (state: any) => ({
+  canAdmin: getAppState(state).canAdmin
+});
 
-export default routes;
+export default connect<any, any, any>(mapStateToProps)(App);

@@ -24,7 +24,6 @@ import Definition from './Definition';
 
 export default class DefinitionsList extends React.PureComponent {
   static propTypes = {
-    branch: PropTypes.string,
     component: PropTypes.object,
     settings: PropTypes.array.isRequired
   };
@@ -34,11 +33,7 @@ export default class DefinitionsList extends React.PureComponent {
       <ul className="settings-definitions-list">
         {this.props.settings.map(setting => (
           <li key={setting.definition.key}>
-            <Definition
-              branch={this.props.branch}
-              component={this.props.component}
-              setting={setting}
-            />
+            <Definition component={this.props.component} setting={setting} />
           </li>
         ))}
       </ul>

@@ -24,6 +24,7 @@ import Events from './Events';
 import AddEventForm from './forms/AddEventForm';
 import RemoveAnalysisForm from './forms/RemoveAnalysisForm';
 import TimeTooltipFormatter from '../../../components/intl/TimeTooltipFormatter';
+import SettingsIcon from '../../../components/icons-components/SettingsIcon';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Analysis } from '../types'; */
 
@@ -76,7 +77,7 @@ export default class ProjectActivityAnalysis extends React.PureComponent {
                 className="js-analysis-actions button-small button-compact dropdown-toggle"
                 data-toggle="dropdown"
                 onClick={this.stopPropagation}>
-                <i className="icon-settings" /> <i className="icon-dropdown" />
+                <SettingsIcon size={12} style={{ marginTop: 3 }} /> <i className="icon-dropdown" />
               </button>
               <ul className="dropdown-menu dropdown-menu-right">
                 {!hasVersion &&

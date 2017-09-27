@@ -24,7 +24,6 @@ import { translate } from '../../../helpers/l10n';
 
 export default class PageHeader extends React.PureComponent {
   static propTypes = {
-    branch: PropTypes.string,
     component: PropTypes.object
   };
 

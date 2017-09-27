@@ -17,16 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, IndexRouteProps } from 'react-router';
+import * as React from 'react';
+import Modal from 'react-modal';
+import SettingForm from './SettingForm';
+import { translate } from '../../../helpers/l10n';
+import { SettingValue } from '../../../api/settings';
 
-const routes = [
-  {
-    getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
-      import('./components/AppContainer').then(i =>
-        callback(null, { component: (i as any).default })
-      );
-    }
-  }
-];
+interface Props {
+  onChange: () => void;
+  onClose: () => void;
+  project: string;
+  setting: SettingValue;
+}
 
-export default routes;
+export default function LongBranchesPatternForm(props: Props) {
+  const header = translate('branches.detection_of_long_living_branches');
+
+  return (
+    <Modal
+      isOpen={true}
+      contentLabel={header}
+      className="modal"
+      overlayClassName="modal-overlay"
+      onRequestClose={props.onClose}>
+      <header className="modal-head">
+        <h2>{header}</h2>
+      </header>
+      <SettingForm {...props} />
+    </Modal>
+  );
+}

@@ -33,19 +33,43 @@ exports[`renders main branch 1`] = `
   </td>
   <td
     className="thin nowrap text-right"
+  />
+  <td
+    className="thin nowrap text-right"
   >
-    <Tooltip
-      overlay="branches.rename"
-      placement="bottom"
+    <div
+      className="dropdown big-spacer-left"
     >
-      <a
-        className="js-rename link-no-underline"
-        href="#"
-        onClick={[Function]}
+      <button
+        className="dropdown-toggle little-spacer-right button-compact"
+        data-toggle="dropdown"
       >
-        <ChangeIcon />
-      </a>
-    </Tooltip>
+        <SettingsIcon
+          style={
+            Object {
+              "marginTop": 4,
+            }
+          }
+        />
+         
+        <i
+          className="icon-dropdown"
+        />
+      </button>
+      <ul
+        className="dropdown-menu dropdown-menu-right"
+      >
+        <li>
+          <a
+            className="js-rename link-no-underline"
+            href="#"
+            onClick={[Function]}
+          >
+            branches.rename
+          </a>
+        </li>
+      </ul>
+    </div>
   </td>
 </tr>
 `;
@@ -56,6 +80,7 @@ exports[`renders short-living branch 1`] = `
     <BranchIcon
       branch={
         Object {
+          "analysisDate": "2017-09-27T00:05:19+0000",
           "isMain": false,
           "mergeBranch": "foo",
           "name": "feature",
@@ -72,6 +97,7 @@ exports[`renders short-living branch 1`] = `
     <BranchStatus
       branch={
         Object {
+          "analysisDate": "2017-09-27T00:05:19+0000",
           "isMain": false,
           "mergeBranch": "foo",
           "name": "feature",
@@ -83,18 +109,46 @@ exports[`renders short-living branch 1`] = `
   <td
     className="thin nowrap text-right"
   >
-    <Tooltip
-      overlay="branches.delete"
-      placement="bottom"
+    <DateFromNow
+      date="2017-09-27T00:05:19+0000"
+    />
+  </td>
+  <td
+    className="thin nowrap text-right"
+  >
+    <div
+      className="dropdown big-spacer-left"
     >
-      <a
-        className="js-delete link-no-underline"
-        href="#"
-        onClick={[Function]}
+      <button
+        className="dropdown-toggle little-spacer-right button-compact"
+        data-toggle="dropdown"
       >
-        <DeleteIcon />
-      </a>
-    </Tooltip>
+        <SettingsIcon
+          style={
+            Object {
+              "marginTop": 4,
+            }
+          }
+        />
+         
+        <i
+          className="icon-dropdown"
+        />
+      </button>
+      <ul
+        className="dropdown-menu dropdown-menu-right"
+      >
+        <li>
+          <a
+            className="js-delete link-no-underline"
+            href="#"
+            onClick={[Function]}
+          >
+            branches.delete
+          </a>
+        </li>
+      </ul>
+    </div>
   </td>
 </tr>
 `;

@@ -27,7 +27,6 @@ import { getSubCategoryName, getSubCategoryDescription } from '../utils';
 
 export default class SubCategoryDefinitionsList extends React.PureComponent {
   static propTypes = {
-    branch: PropTypes.string,
     component: PropTypes.object,
     settings: PropTypes.array.isRequired
   };
@@ -63,7 +62,6 @@ export default class SubCategoryDefinitionsList extends React.PureComponent {
               />
             )}
             <DefinitionsList
-              branch={this.props.branch}
               component={this.props.component}
               settings={bySubCategory[subCategory.key]}
             />
