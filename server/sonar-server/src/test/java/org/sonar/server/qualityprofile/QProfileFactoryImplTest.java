@@ -44,6 +44,8 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
@@ -227,6 +229,21 @@ public class QProfileFactoryImplTest {
 
     verifyZeroInteractions(activeRuleIndexer);
     assertQualityProfileFromDb(profile).isNotNull();
+  }
+
+  @Test
+  public void delete_removes_qprofile_edit_permissions() {
+    OrganizationDto organization = db.organizations().insert();
+    QProfileDto profile = db.qualityProfiles().insert(organization);
+    UserDto user = db.users().insertUser();
+    db.qualityProfiles().addUserPermission(profile, user);
+    GroupDto group = db.users().insertGroup(organization);
+    db.qualityProfiles().addGroupPermission(profile, group);
+
+    underTest.delete(dbSession, asList(profile));
+
+    assertThat(db.countRowsOfTable(dbSession, "qprofile_edit_users")).isZero();
+    assertThat(db.countRowsOfTable(dbSession, "qprofile_edit_groups")).isZero();
   }
 
   private QProfileDto createCustomProfile(OrganizationDto org) {

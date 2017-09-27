@@ -505,7 +505,7 @@ public class SearchActionTest {
       .forEach(project -> db.qualityProfiles().associateWithProject(project, myBuProfile));
     // User
     UserDto user = db.users().insertUser();
-    db.qualityProfiles().addUserPermission(sonarWayCs, user);
+    db.qualityProfiles().addUserPermission(myCompanyProfile, user);
     db.qualityProfiles().addUserPermission(myBuProfile, user);
     userSession.logIn(user);
 

@@ -27,6 +27,9 @@ import org.sonar.db.Pagination;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
 
+import static org.sonar.core.util.stream.MoreCollectors.toList;
+import static org.sonar.db.DatabaseUtils.executeLargeUpdates;
+
 public class QProfileEditUsersDao implements Dao {
 
   private final System2 system2;
@@ -39,15 +42,15 @@ public class QProfileEditUsersDao implements Dao {
     return mapper(dbSession).selectByQProfileAndUser(profile.getKee(), user.getId()) != null;
   }
 
-  public int countByQuery(DbSession dbSession, SearchUsersQuery query){
+  public int countByQuery(DbSession dbSession, SearchUsersQuery query) {
     return mapper(dbSession).countByQuery(query);
   }
 
-  public List<UserMembershipDto> selectByQuery(DbSession dbSession, SearchUsersQuery query, Pagination pagination){
+  public List<UserMembershipDto> selectByQuery(DbSession dbSession, SearchUsersQuery query, Pagination pagination) {
     return mapper(dbSession).selectByQuery(query, pagination);
   }
 
-  public List<String> selectQProfileUuidsByOrganizationAndUser(DbSession dbSession, OrganizationDto organization, UserDto userDto){
+  public List<String> selectQProfileUuidsByOrganizationAndUser(DbSession dbSession, OrganizationDto organization, UserDto userDto) {
     return mapper(dbSession).selectQProfileUuidsByOrganizationAndUser(organization.getUuid(), userDto.getId());
   }
 
@@ -57,6 +60,10 @@ public class QProfileEditUsersDao implements Dao {
 
   public void deleteByQProfileAndUser(DbSession dbSession, QProfileDto profile, UserDto user) {
     mapper(dbSession).delete(profile.getKee(), user.getId());
+  }
+
+  public void deleteByQProfiles(DbSession dbSession, List<QProfileDto> qProfiles) {
+    executeLargeUpdates(qProfiles.stream().map(QProfileDto::getKee).collect(toList()), p -> mapper(dbSession).deleteByQProfiles(p));
   }
 
   private static QProfileEditUsersMapper mapper(DbSession dbSession) {
