@@ -54,11 +54,12 @@ const PAGE_SIZE = 100;
 function requestChildren(
   componentKey: string,
   metrics: string[],
-  page: number
+  page: number,
+  branch?: string
 ): Promise<Component[]> {
-  return getChildren(componentKey, metrics, { p: page, ps: PAGE_SIZE }).then(r => {
+  return getChildren(componentKey, metrics, { branch, p: page, ps: PAGE_SIZE }).then(r => {
     if (r.paging.total > r.paging.pageSize * r.paging.pageIndex) {
-      return requestChildren(componentKey, metrics, page + 1).then(moreComponents => {
+      return requestChildren(componentKey, metrics, page + 1, branch).then(moreComponents => {
         return [...r.components, ...moreComponents];
       });
     }
@@ -66,8 +67,12 @@ function requestChildren(
   });
 }
 
-function requestAllChildren(componentKey: string, metrics: string[]): Promise<Component[]> {
-  return requestChildren(componentKey, metrics, 1);
+function requestAllChildren(
+  componentKey: string,
+  metrics: string[],
+  branch?: string
+): Promise<Component[]> {
+  return requestChildren(componentKey, metrics, 1, branch);
 }
 
 interface Children {
@@ -80,13 +85,13 @@ interface ExpandRootDirFunc {
   (children: Children): Promise<Children>;
 }
 
-function expandRootDir(metrics: string[]): ExpandRootDirFunc {
+function expandRootDir(metrics: string[], branch?: string): ExpandRootDirFunc {
   return function({ components, total, ...other }) {
     const rootDir = components.find(
       (component: Component) => component.qualifier === 'DIR' && component.name === '/'
     );
     if (rootDir) {
-      return requestAllChildren(rootDir.key, metrics).then(rootDirComponents => {
+      return requestAllChildren(rootDir.key, metrics, branch).then(rootDirComponents => {
         const nextComponents = without([...rootDirComponents, ...components], rootDir);
         const nextTotal = total + rootDirComponents.length - /* root dir */ 1;
         return { components: nextComponents, total: nextTotal, ...other };
@@ -161,7 +166,7 @@ export function retrieveComponentChildren(
 
   return getChildren(componentKey, metrics, { branch, ps: PAGE_SIZE, s: 'qualifier,name' })
     .then(prepareChildren)
-    .then(expandRootDir(metrics))
+    .then(expandRootDir(metrics, branch))
     .then(r => {
       addComponentChildren(componentKey, r.components, r.total, r.page);
       storeChildrenBase(r.components);
@@ -223,7 +228,7 @@ export function loadMoreChildren(
 
   return getChildren(componentKey, metrics, { branch, ps: PAGE_SIZE, p: page })
     .then(prepareChildren)
-    .then(expandRootDir(metrics))
+    .then(expandRootDir(metrics, branch))
     .then(r => {
       addComponentChildren(componentKey, r.components, r.total, r.page);
       storeChildrenBase(r.components);
