@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders background task notif correctly 1`] = `
+exports[`renders background task error correctly 1`] = `
 <NavBarNotif
   className="alert alert-danger"
 >
@@ -8,6 +8,40 @@ exports[`renders background task notif correctly 1`] = `
     dangerouslySetInnerHTML={
       Object {
         "__html": "component_navigation.status.failed",
+      }
+    }
+  />
+</NavBarNotif>
+`;
+
+exports[`renders background task in progress info correctly 1`] = `
+<NavBarNotif
+  className="alert alert-info"
+>
+  <i
+    className="spinner spacer-right"
+  />
+  <span
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "component_navigation.status.in_progress",
+      }
+    }
+  />
+</NavBarNotif>
+`;
+
+exports[`renders background task pending info correctly 1`] = `
+<NavBarNotif
+  className="alert alert-info"
+>
+  <PendingIcon
+    className="spacer-right"
+  />
+  <span
+    dangerouslySetInnerHTML={
+      Object {
+        "__html": "component_navigation.status.pending",
       }
     }
   />

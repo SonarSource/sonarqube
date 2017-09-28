@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavBgTaskNotif from '../ComponentNavBgTaskNotif';
+import { Task } from '../../../../../api/ce';
 
 const component = {
   analysisDate: '2017-01-02T00:00:00.000Z',
@@ -31,6 +32,35 @@ const component = {
   version: '0.0.1'
 };
 
-it('renders background task notif correctly', () => {
-  expect(shallow(<ComponentNavBgTaskNotif component={component} />)).toMatchSnapshot();
+it('renders background task error correctly', () => {
+  expect(
+    shallow(
+      <ComponentNavBgTaskNotif component={component} currentTask={{ status: 'FAILED' } as Task} />
+    )
+  ).toMatchSnapshot();
+});
+
+it('renders background task pending info correctly', () => {
+  expect(
+    shallow(
+      <ComponentNavBgTaskNotif
+        component={component}
+        isPending={true}
+        currentTask={{ status: 'FAILED' } as Task}
+      />
+    )
+  ).toMatchSnapshot();
+});
+
+it('renders background task in progress info correctly', () => {
+  expect(
+    shallow(
+      <ComponentNavBgTaskNotif
+        component={component}
+        isInProgress={true}
+        isPending={true}
+        currentTask={{ status: 'FAILED' } as Task}
+      />
+    )
+  ).toMatchSnapshot();
 });
