@@ -48,7 +48,6 @@
   .source-line-coverage,
   .source-line-duplications,
   .source-line-duplications-extra,
-  .source-line-filtered-container,
   .source-line-scm {
     border-color: darken(@barBackgroundColor, 4%);
     background-color: darken(@barBackgroundColor, 4%);
@@ -66,26 +65,25 @@
   .source-line-coverage,
   .source-line-duplications,
   .source-line-duplications-extra,
-  .source-line-filtered-container,
   .source-line-scm {
-    border-color: #fdf190 !important;
-    background-color: #fdf190;
+    border-color: #c4dfec !important;
+    background-color: #c4dfec;
   }
 
   .source-line-code {
-    background-color: #fff8c2;
-  }
-}
-
-.source-line-shadowed {
-  .source-line-code {
-    background-color: #f9f9f9;
+    background-color: #d9edf7;
   }
 }
 
 .source-line-filtered {
-  .source-line-filtered-container {
-    background-color: @blue !important;
+  .source-line-code {
+    background-color: #fbf3d5 !important;
+  }
+
+  &.source-line-filtered-dark {
+    .source-line-code {
+      background-color: #f9ebb7 !important;
+    }
   }
 }
 
@@ -197,10 +195,6 @@
   .source-line-duplications-extra {
     display: table-cell;
   }
-}
-
-.source-line-filtered-container {
-  background-color: @barBackgroundColor;
 }
 
 .source-line-scm {

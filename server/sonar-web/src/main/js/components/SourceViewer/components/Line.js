@@ -37,7 +37,6 @@ type Props = {|
   displayAllIssues: boolean,
   displayCoverage: boolean,
   displayDuplications: boolean,
-  displayFiltered: boolean,
   displayIssues: boolean,
   displayIssueLocationsCount?: boolean;
   displayIssueLocationsLink?: boolean;
@@ -97,11 +96,13 @@ export default class Line extends React.PureComponent {
   };
 
   render() {
-    const { line, duplications, duplicationsCount, filtered } = this.props;
+    const { line, duplications, displayCoverage, duplicationsCount, filtered } = this.props;
     const className = classNames('source-line', {
       'source-line-highlighted': this.props.highlighted,
-      'source-line-shadowed': filtered === false,
       'source-line-filtered': filtered === true,
+      'source-line-filtered-dark':
+        displayCoverage &&
+        (line.coverageStatus === 'uncovered' || line.coverageStatus === 'partially-covered'),
       'source-line-last': this.props.last
     });
 
@@ -140,12 +141,6 @@ export default class Line extends React.PureComponent {
             line={line}
             onClick={this.handleIssuesIndicatorClick}
           />
-        )}
-
-        {this.props.displayFiltered && (
-          <td className="source-meta source-line-filtered-container" data-line-number={line.line}>
-            <div className="source-line-bar" />
-          </td>
         )}
 
         <LineCode
