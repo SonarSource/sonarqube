@@ -154,7 +154,7 @@ public class EmailSettings {
         .build(),
       PropertyDefinition.builder(FROM_NAME)
         .name("From name")
-        .description("Name that will describe the address emails will come from. For example - \"SonarQube\". Note that server may ignore this setting.")
+        .description("Emails will come from this address name. For example - \"SonarQube\". Note that server may ignore this setting.")
         .defaultValue(FROM_NAME_DEFAULT)
         .category(CATEGORY_GENERAL)
         .subCategory(SUBCATEGORY_EMAIL)
