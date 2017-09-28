@@ -48,7 +48,6 @@ import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.tracking.Trackable;
 
-import static java.lang.String.format;
 import static org.sonar.api.utils.DateUtils.truncateToSeconds;
 
 public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.Issue {
@@ -258,7 +257,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   }
 
   public DefaultIssue setLine(@Nullable Integer l) {
-    Preconditions.checkArgument(l == null || l > 0, format("Line must be null or greater than zero (got %d)", l));
+    Preconditions.checkArgument(l == null || l > 0, "Line must be null or greater than zero (got %d)", l);
     this.line = l;
     return this;
   }
@@ -280,7 +279,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   }
 
   public DefaultIssue setGap(@Nullable Double d) {
-    Preconditions.checkArgument(d == null || d >= 0, format("Gap must be greater than or equal 0 (got %s)", d));
+    Preconditions.checkArgument(d == null || d >= 0, "Gap must be greater than or equal 0 (got %s)", d);
     this.gap = d;
     return this;
   }
