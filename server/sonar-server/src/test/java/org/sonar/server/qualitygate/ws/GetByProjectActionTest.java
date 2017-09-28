@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -64,6 +65,21 @@ public class GetByProjectActionTest {
 
   private WsActionTester ws = new WsActionTester(
     new GetByProjectAction(userSession, dbClient, TestComponentFinder.from(db), new QualityGateFinder(dbClient)));
+
+  @Test
+  public void definition() {
+    WebService.Action def = ws.getDef();
+    assertThat(def.description()).isNotEmpty();
+    assertThat(def.isInternal()).isTrue();
+    assertThat(def.since()).isEqualTo("6.1");
+    assertThat(def.changelog()).isEmpty();
+    assertThat(def.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("projectId", "projectKey");
+
+    WebService.Param projectKey = def.param("projectKey");
+    assertThat(projectKey.description()).isNotEmpty();
+    assertThat(projectKey.isRequired()).isFalse();
+    assertThat(projectKey.exampleValue()).isNotEmpty();
+  }
 
   @Test
   public void json_example() {
