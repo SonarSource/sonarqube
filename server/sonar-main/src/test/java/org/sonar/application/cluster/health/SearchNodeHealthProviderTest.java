@@ -28,11 +28,12 @@ import org.junit.rules.ExpectedException;
 import org.sonar.application.cluster.ClusterAppState;
 import org.sonar.process.NetworkUtils;
 import org.sonar.process.ProcessId;
-import org.sonar.process.Props;
 import org.sonar.process.ProcessProperties;
+import org.sonar.process.Props;
 import org.sonar.process.cluster.health.NodeHealth;
 
 import static java.lang.String.valueOf;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.mock;
@@ -86,7 +87,7 @@ public class SearchNodeHealthProviderTest {
 
   @Test
   public void constructor_throws_FormatException_if_property_node_port_is_not_an_integer() {
-    String port = randomAlphanumeric(3);
+    String port = randomAlphabetic(3);
     Properties properties = new Properties();
     properties.put(ProcessProperties.CLUSTER_NODE_NAME, randomAlphanumeric(3));
     properties.put(ProcessProperties.CLUSTER_NODE_PORT, port);
