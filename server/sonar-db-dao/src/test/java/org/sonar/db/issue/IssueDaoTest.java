@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
+import org.sonar.core.issue.ShortBranchIssue;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
@@ -196,6 +197,31 @@ public class IssueDaoTest {
     assertThat(underTest.selectResolvedOrConfirmedByComponentUuids(db.getSession(), Collections.singletonList(file.uuid())))
       .extracting("kee")
       .containsOnly(confirmedIssue.getKey(), wontfixIssue.getKey(), fpIssue.getKey());
+  }
+
+  @Test
+  public void selectResolvedOrConfirmedByComponentUuid_should_correctly_map_required_fields() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    IssueDto fpIssue = db.issues().insert(rule, project, file, i -> i.setStatus("RESOLVED").setResolution("FALSE-POSITIVE"));
+
+    ShortBranchIssueDto fp = underTest.selectResolvedOrConfirmedByComponentUuids(db.getSession(), Collections.singletonList(file.uuid())).get(0);
+    assertThat(fp.getLine()).isEqualTo(fpIssue.getLine());
+    assertThat(fp.getMessage()).isEqualTo(fpIssue.getMessage());
+    assertThat(fp.getChecksum()).isEqualTo(fpIssue.getChecksum());
+    assertThat(fp.getRuleKey()).isEqualTo(fpIssue.getRuleKey());
+    assertThat(fp.getStatus()).isEqualTo(fpIssue.getStatus());
+    assertThat(fp.getResolution()).isEqualTo(fpIssue.getResolution());
+
+    assertThat(fp.getLine()).isNotNull();
+    assertThat(fp.getLine()).isNotZero();
+    assertThat(fp.getMessage()).isNotNull();
+    assertThat(fp.getChecksum()).isNotNull();
+    assertThat(fp.getChecksum()).isNotEmpty();
+    assertThat(fp.getRuleKey()).isNotNull();
+    assertThat(fp.getStatus()).isNotNull();
+    assertThat(fp.getResolution()).isNotNull();
   }
 
   private static IssueDto newIssueDto(String key) {
