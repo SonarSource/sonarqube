@@ -50,6 +50,7 @@ public class AlertsEmailTemplate extends EmailTemplate {
     String projectId = notification.getFieldValue("projectId");
     String projectKey = notification.getFieldValue("projectKey");
     String projectName = notification.getFieldValue("projectName");
+    String projectVersion = notification.getFieldValue("projectVersion");
     String branchName = notification.getFieldValue("branch");
     String alertName = notification.getFieldValue("alertName");
     String alertText = notification.getFieldValue("alertText");
@@ -59,7 +60,7 @@ public class AlertsEmailTemplate extends EmailTemplate {
 
     // Generate text
     String subject = generateSubject(fullProjectName, alertLevel, isNewAlert);
-    String messageBody = generateMessageBody(fullProjectName, projectKey, branchName, alertName, alertText, isNewAlert);
+    String messageBody = generateMessageBody(fullProjectName, projectKey, projectVersion, branchName, alertName, alertText, isNewAlert);
 
     // And finally return the email that will be sent
     return new EmailMessage()
@@ -87,9 +88,14 @@ public class AlertsEmailTemplate extends EmailTemplate {
     return subjectBuilder.toString();
   }
 
-  private String generateMessageBody(String fullProjectName, String projectKey, @Nullable String branchName, String alertName, String alertText, boolean isNewAlert) {
+  private String generateMessageBody(String fullProjectName, String projectKey,
+    @Nullable String projectVersion, @Nullable String branchName,
+    String alertName, String alertText, boolean isNewAlert) {
     StringBuilder messageBody = new StringBuilder();
     messageBody.append("Project: ").append(fullProjectName).append("\n");
+    if (projectVersion != null) {
+      messageBody.append("Version: ").append(projectVersion).append("\n");
+    }
     messageBody.append("Quality gate status: ").append(alertName).append("\n\n");
 
     String[] alerts = StringUtils.split(alertText, ",");
