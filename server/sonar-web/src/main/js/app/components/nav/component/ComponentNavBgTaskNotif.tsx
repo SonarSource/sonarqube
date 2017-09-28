@@ -19,28 +19,68 @@
  */
 import * as React from 'react';
 import NavBarNotif from '../../../../components/nav/NavBarNotif';
+import PendingIcon from '../../../../components/icons-components/PendingIcon';
 import { Component } from '../../../types';
+import { STATUSES } from '../../../../apps/background-tasks/constants';
 import { getComponentBackgroundTaskUrl } from '../../../../helpers/urls';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import { Task } from '../../../../api/ce';
 
 interface Props {
   component: Component;
+  currentTask?: Task;
+  isInProgress?: boolean;
+  isPending?: boolean;
 }
 
-export default function ComponentNavBgTaskNotif({ component }: Props) {
+export default function ComponentNavBgTaskNotif({
+  component,
+  currentTask,
+  isInProgress,
+  isPending
+}: Props) {
   const canSeeBackgroundTasks =
     component.configuration != undefined && component.configuration.showBackgroundTasks;
+  const url = getComponentBackgroundTaskUrl(component.key);
 
-  const message = canSeeBackgroundTasks
-    ? translateWithParameters(
-        'component_navigation.status.failed.admin',
-        getComponentBackgroundTaskUrl(component.key)
-      )
-    : translate('component_navigation.status.failed');
-
-  return (
-    <NavBarNotif className="alert alert-danger">
-      <span dangerouslySetInnerHTML={{ __html: message }} />
-    </NavBarNotif>
-  );
+  if (isInProgress) {
+    return (
+      <NavBarNotif className="alert alert-info">
+        <i className="spinner spacer-right" />
+        <span
+          dangerouslySetInnerHTML={{
+            __html: canSeeBackgroundTasks
+              ? translateWithParameters('component_navigation.status.in_progress.admin', url)
+              : translate('component_navigation.status.in_progress')
+          }}
+        />
+      </NavBarNotif>
+    );
+  } else if (isPending) {
+    return (
+      <NavBarNotif className="alert alert-info">
+        <PendingIcon className="spacer-right" />
+        <span
+          dangerouslySetInnerHTML={{
+            __html: canSeeBackgroundTasks
+              ? translateWithParameters('component_navigation.status.pending.admin', url)
+              : translate('component_navigation.status.pending')
+          }}
+        />
+      </NavBarNotif>
+    );
+  } else if (currentTask && currentTask.status === STATUSES.FAILED) {
+    return (
+      <NavBarNotif className="alert alert-danger">
+        <span
+          dangerouslySetInnerHTML={{
+            __html: canSeeBackgroundTasks
+              ? translateWithParameters('component_navigation.status.failed.admin', url)
+              : translate('component_navigation.status.failed')
+          }}
+        />
+      </NavBarNotif>
+    );
+  }
+  return null;
 }

@@ -20,59 +20,17 @@
 import * as React from 'react';
 import BranchStatus from '../../../../components/common/BranchStatus';
 import { Branch, Component } from '../../../types';
-import Tooltip from '../../../../components/controls/Tooltip';
-import PendingIcon from '../../../../components/icons-components/PendingIcon';
 import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
-import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import { isShortLivingBranch } from '../../../../helpers/branches';
 
 interface Props {
   branch?: Branch;
   component: Component;
-  isInProgress?: boolean;
-  isPending?: boolean;
 }
 
 export default function ComponentNavMeta(props: Props) {
   const metaList = [];
-  const canSeeBackgroundTasks =
-    props.component.configuration != undefined && props.component.configuration.showBackgroundTasks;
-  const backgroundTasksUrl =
-    (window as any).baseUrl +
-    `/project/background_tasks?id=${encodeURIComponent(props.component.key)}`;
-
   const shortBranch = props.branch && isShortLivingBranch(props.branch);
-
-  if (props.isInProgress) {
-    const tooltip = canSeeBackgroundTasks
-      ? translateWithParameters('component_navigation.status.in_progress.admin', backgroundTasksUrl)
-      : translate('component_navigation.status.in_progress');
-    metaList.push(
-      <Tooltip
-        key="isInProgress"
-        overlay={<div dangerouslySetInnerHTML={{ __html: tooltip }} />}
-        mouseLeaveDelay={2}>
-        <li>
-          <i className="spinner" style={{ marginTop: '-1px' }} />{' '}
-          <span className="text-info">{translate('background_task.status.IN_PROGRESS')}</span>
-        </li>
-      </Tooltip>
-    );
-  } else if (props.isPending) {
-    const tooltip = canSeeBackgroundTasks
-      ? translateWithParameters('component_navigation.status.pending.admin', backgroundTasksUrl)
-      : translate('component_navigation.status.pending');
-    metaList.push(
-      <Tooltip
-        key="isPending"
-        overlay={<div dangerouslySetInnerHTML={{ __html: tooltip }} />}
-        mouseLeaveDelay={2}>
-        <li>
-          <PendingIcon /> <span>{translate('background_task.status.PENDING')}</span>
-        </li>
-      </Tooltip>
-    );
-  }
 
   if (props.component.analysisDate) {
     metaList.push(

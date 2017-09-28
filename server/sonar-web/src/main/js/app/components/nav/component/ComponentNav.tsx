@@ -94,15 +94,23 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { currentTask } = this.state;
-    const showNotif = currentTask && currentTask.status === STATUSES.FAILED;
+    const { currentTask, isInProgress, isPending } = this.state;
+    let notifComponent;
+    if (isInProgress || isPending || (currentTask && currentTask.status === STATUSES.FAILED)) {
+      notifComponent = (
+        <ComponentNavBgTaskNotif
+          component={this.props.component}
+          currentTask={currentTask}
+          isInProgress={isInProgress}
+          isPending={isPending}
+        />
+      );
+    }
     return (
       <ContextNavBar
         id="context-navigation"
-        height={showNotif ? 95 : 65}
-        notif={
-          showNotif ? <ComponentNavBgTaskNotif component={this.props.component} /> : undefined
-        }>
+        height={notifComponent ? 95 : 65}
+        notif={notifComponent}>
         <ComponentNavFavorite
           component={this.props.component.key}
           favorite={this.props.component.isFavorite}
@@ -120,12 +128,7 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
             location={this.props.location}
           />
         )}
-        <ComponentNavMeta
-          branch={this.props.currentBranch}
-          component={this.props.component}
-          isInProgress={this.state.isInProgress}
-          isPending={this.state.isPending}
-        />
+        <ComponentNavMeta branch={this.props.currentBranch} component={this.props.component} />
         <ComponentNavMenu
           branch={this.props.currentBranch}
           component={this.props.component}
