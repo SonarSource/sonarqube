@@ -9,6 +9,10 @@
   border-bottom: 1px solid #e6e6e6;
 }
 
+.navbar-context .navbar-inner-with-notif {
+  border-bottom: none;
+}
+
 .navbar-context-header {
   float: left;
   line-height: 30px;

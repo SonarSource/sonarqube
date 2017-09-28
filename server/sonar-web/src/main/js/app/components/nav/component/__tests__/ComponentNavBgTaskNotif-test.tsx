@@ -18,26 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
-import NavBarNotif from './NavBarNotif';
-import './NavBar.css';
+import { shallow } from 'enzyme';
+import ComponentNavBgTaskNotif from '../ComponentNavBgTaskNotif';
 
-interface Props {
-  children?: any;
-  className?: string;
-  height: number;
-  notif?: React.ReactElement<NavBarNotif>;
-}
+const component = {
+  analysisDate: '2017-01-02T00:00:00.000Z',
+  breadcrumbs: [],
+  key: 'foo',
+  name: 'Foo',
+  organization: 'org',
+  qualifier: 'TRK',
+  version: '0.0.1'
+};
 
-export default function NavBar({ children, className, height, notif, ...other }: Props) {
-  return (
-    <nav {...other} className={classNames('navbar', className)} style={{ height }}>
-      <div
-        className={classNames('navbar-inner', { 'navbar-inner-with-notif': notif != null })}
-        style={{ height }}>
-        <div className="navbar-limited clearfix">{children}</div>
-        {notif}
-      </div>
-    </nav>
-  );
-}
+it('renders background task notif correctly', () => {
+  expect(shallow(<ComponentNavBgTaskNotif component={component} />)).toMatchSnapshot();
+});

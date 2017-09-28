@@ -18,26 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
-import NavBarNotif from './NavBarNotif';
-import './NavBar.css';
+import NavBarNotif from '../../../../components/nav/NavBarNotif';
+import { Component } from '../../../types';
+import { getComponentBackgroundTaskUrl } from '../../../../helpers/urls';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
 interface Props {
-  children?: any;
-  className?: string;
-  height: number;
-  notif?: React.ReactElement<NavBarNotif>;
+  component: Component;
 }
 
-export default function NavBar({ children, className, height, notif, ...other }: Props) {
+export default function ComponentNavBgTaskNotif({ component }: Props) {
+  const canSeeBackgroundTasks =
+    component.configuration != undefined && component.configuration.showBackgroundTasks;
+
+  const message = canSeeBackgroundTasks
+    ? translateWithParameters(
+        'component_navigation.status.failed.admin',
+        getComponentBackgroundTaskUrl(component.key)
+      )
+    : translate('component_navigation.status.failed');
+
   return (
-    <nav {...other} className={classNames('navbar', className)} style={{ height }}>
-      <div
-        className={classNames('navbar-inner', { 'navbar-inner-with-notif': notif != null })}
-        style={{ height }}>
-        <div className="navbar-limited clearfix">{children}</div>
-        {notif}
-      </div>
-    </nav>
+    <NavBarNotif className="alert alert-danger">
+      <span dangerouslySetInnerHTML={{ __html: message }} />
+    </NavBarNotif>
   );
 }
