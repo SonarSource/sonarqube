@@ -28,6 +28,7 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid;
 
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
@@ -85,6 +86,8 @@ public class RegisterQualityGates implements Startable {
       NEW_MAINTAINABILITY_RATING_KEY, OPERATOR_GREATER_THAN, null, ratingAValue, LEAK_PERIOD);
     qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(),
       NEW_COVERAGE_KEY, OPERATOR_LESS_THAN, null, "80", LEAK_PERIOD);
+    qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(),
+      NEW_DUPLICATED_LINES_DENSITY_KEY, OPERATOR_GREATER_THAN, null, "3", LEAK_PERIOD);
     qualityGates.setDefault(dbSession, builtin.getId());
   }
 

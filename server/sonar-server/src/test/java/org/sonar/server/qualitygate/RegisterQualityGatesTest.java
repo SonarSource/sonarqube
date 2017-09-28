@@ -38,6 +38,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_RATING_KEY;
@@ -68,6 +69,7 @@ public class RegisterQualityGatesTest {
     MetricDto newSecurity = dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_SECURITY_RATING_KEY).setValueType(INT.name()).setHidden(false));
     MetricDto newMaintainability = dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_MAINTAINABILITY_RATING_KEY).setValueType(PERCENT.name()).setHidden(false));
     MetricDto newCoverage = dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_COVERAGE_KEY).setValueType(PERCENT.name()).setHidden(false));
+    MetricDto newDuplication = dbClient.metricDao().insert(dbSession, newMetricDto().setKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setValueType(PERCENT.name()).setHidden(false));
     dbSession.commit();
 
     task.start();
@@ -82,7 +84,8 @@ public class RegisterQualityGatesTest {
         tuple(newReliability.getId().longValue(), OPERATOR_GREATER_THAN, null, "1", 1),
         tuple(newSecurity.getId().longValue(), OPERATOR_GREATER_THAN, null, "1", 1),
         tuple(newMaintainability.getId().longValue(), OPERATOR_GREATER_THAN, null, "1", 1),
-        tuple(newCoverage.getId().longValue(), OPERATOR_LESS_THAN, null, "80", 1));
+        tuple(newCoverage.getId().longValue(), OPERATOR_LESS_THAN, null, "80", 1),
+        tuple(newDuplication.getId().longValue(), OPERATOR_GREATER_THAN, null, "3", 1));
     verify(qualityGates).setDefault(any(DbSession.class), anyLong());
 
     task.stop();
