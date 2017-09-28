@@ -164,6 +164,10 @@ public class ComponentDao implements Dao {
     return mapper(session).selectComponentsFromProjectKeyAndScope(projectKey, null, false);
   }
 
+  public List<KeyWithUuidDto> selectUuidsByKeyFromProjectKey(DbSession session, String projectKey) {
+    return mapper(session).selectUuidsByKeyFromProjectKey(projectKey);
+  }
+
   public List<ComponentDto> selectEnabledModulesFromProjectKey(DbSession session, String projectKey) {
     return mapper(session).selectComponentsFromProjectKeyAndScope(projectKey, Scopes.PROJECT, true);
   }
@@ -174,7 +178,7 @@ public class ComponentDao implements Dao {
 
   public List<ComponentDto> selectByKeysAndBranch(DbSession session, Collection<String> keys, String branch) {
     List<String> dbKeys = keys.stream().map(k -> generateBranchKey(k, branch)).collect(toList());
-    List<String> allKeys = Stream.of(keys, dbKeys) .flatMap(Collection::stream) .collect(toList());
+    List<String> allKeys = Stream.of(keys, dbKeys).flatMap(Collection::stream).collect(toList());
     return executeLargeInputs(allKeys, subKeys -> mapper(session).selectByKeysAndBranch(subKeys, branch));
   }
 

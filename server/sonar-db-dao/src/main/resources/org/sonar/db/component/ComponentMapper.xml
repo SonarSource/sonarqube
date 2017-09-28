@@ -414,6 +414,15 @@
       </if>
     </where>
   </select>
+  
+  <select id="selectUuidsByKeyFromProjectKey" parameterType="string" resultType="KeyWithUuid">
+    SELECT
+     p.kee, p.uuid
+    FROM 
+      projects p
+    INNER JOIN 
+      projects root ON root.uuid=p.project_uuid AND root.kee=#{projectKey,jdbcType=VARCHAR}
+  </select>
 
   <select id="selectGhostProjects" parameterType="map" resultType="Component">
     select distinct

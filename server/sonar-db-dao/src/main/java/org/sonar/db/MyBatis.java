@@ -43,6 +43,7 @@ import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.db.component.ComponentLinkMapper;
 import org.sonar.db.component.ComponentMapper;
 import org.sonar.db.component.FilePathWithHashDto;
+import org.sonar.db.component.KeyWithUuidDto;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotMapper;
@@ -150,6 +151,7 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("DuplicationUnit", DuplicationUnitDto.class);
     confBuilder.loadAlias("Event", EventDto.class);
     confBuilder.loadAlias("FilePathWithHash", FilePathWithHashDto.class);
+    confBuilder.loadAlias("KeyWithUuid", KeyWithUuidDto.class);
     confBuilder.loadAlias("Group", GroupDto.class);
     confBuilder.loadAlias("GroupMembership", GroupMembershipDto.class);
     confBuilder.loadAlias("GroupPermission", GroupPermissionDto.class);

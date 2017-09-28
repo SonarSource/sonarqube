@@ -25,16 +25,16 @@ import java.util.Map;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.KeyWithUuidDto;
 
 public class ComponentUuidFactory {
 
   private final Map<String, String> uuidsByKey = new HashMap<>();
 
   public ComponentUuidFactory(DbClient dbClient, DbSession dbSession, String rootKey) {
-    List<ComponentDto> components = dbClient.componentDao().selectAllComponentsFromProjectKey(dbSession, rootKey);
-    for (ComponentDto dto : components) {
-      uuidsByKey.put(dto.getDbKey(), dto.uuid());
+    List<KeyWithUuidDto> keys = dbClient.componentDao().selectUuidsByKeyFromProjectKey(dbSession, rootKey);
+    for (KeyWithUuidDto dto : keys) {
+      uuidsByKey.put(dto.key(), dto.uuid());
     }
   }
 
