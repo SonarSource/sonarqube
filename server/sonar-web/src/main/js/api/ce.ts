@@ -21,7 +21,6 @@ import { getJSON, post, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface PendingTask {
-  componentId: string;
   componentKey: string;
   componentName: string;
   componentQualifier: string;
@@ -37,6 +36,7 @@ export interface PendingTask {
 export interface Task extends PendingTask {
   analysisId?: string;
   errorMessage?: string;
+  errorType?: string;
   executionTimeMs: number;
   executedAt: Date;
   hasErrorStacktrace: boolean;

@@ -17,6 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+jest.mock('../../../../../helpers/l10n', () => {
+  const l10n = require.requireActual('../../../../../helpers/l10n');
+  l10n.hasMessage = jest.fn(() => true);
+  return l10n;
+});
+
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ComponentNavBgTaskNotif from '../ComponentNavBgTaskNotif';
@@ -33,34 +39,30 @@ const component = {
 };
 
 it('renders background task error correctly', () => {
-  expect(
-    shallow(
-      <ComponentNavBgTaskNotif component={component} currentTask={{ status: 'FAILED' } as Task} />
-    )
-  ).toMatchSnapshot();
+  expect(getWrapper()).toMatchSnapshot();
 });
 
 it('renders background task pending info correctly', () => {
-  expect(
-    shallow(
-      <ComponentNavBgTaskNotif
-        component={component}
-        isPending={true}
-        currentTask={{ status: 'FAILED' } as Task}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(getWrapper({ isPending: true })).toMatchSnapshot();
 });
 
 it('renders background task in progress info correctly', () => {
+  expect(getWrapper({ isInProgress: true, isPending: true })).toMatchSnapshot();
+});
+
+it('renders background task license info correctly', () => {
   expect(
-    shallow(
-      <ComponentNavBgTaskNotif
-        component={component}
-        isInProgress={true}
-        isPending={true}
-        currentTask={{ status: 'FAILED' } as Task}
-      />
-    )
+    getWrapper({ currentTask: { status: 'FAILED', errorType: 'LICENSING', errorMessage: 'Foo' } })
   ).toMatchSnapshot();
 });
+
+function getWrapper(props = {}) {
+  return shallow(
+    <ComponentNavBgTaskNotif
+      component={component}
+      currentTask={{ status: 'FAILED' } as Task}
+      {...props}
+    />,
+    { context: { canAdmin: true } }
+  );
+}
