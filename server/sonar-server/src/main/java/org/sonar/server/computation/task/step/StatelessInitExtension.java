@@ -19,30 +19,23 @@
  */
 package org.sonar.server.computation.task.step;
 
+import org.sonar.api.ExtensionPoint;
 import org.sonar.api.ce.ComputeEngineSide;
 
+/**
+ * Extension point that is called during processing of a task
+ * by {@link ExecuteStatelessInitExtensionsStep}.
+ * It is stateless, the same instance is reused for all tasks.
+ * As a consequence Compute Engine task components can't be injected
+ * as dependencies.
+ */
 @ComputeEngineSide
-public class ExecuteTaskInitExtensionsStep implements ComputationStep {
+@ExtensionPoint
+public interface StatelessInitExtension {
 
-  private final TaskInitExtension[] extensions;
+  /**
+   * This method can make the task fail by throwing a {@link RuntimeException}
+   */
+  void onInit();
 
-  public ExecuteTaskInitExtensionsStep(TaskInitExtension[] extensions) {
-    this.extensions = extensions;
-  }
-
-  public ExecuteTaskInitExtensionsStep() {
-    this(new TaskInitExtension[0]);
-  }
-
-  @Override
-  public void execute() {
-    for (TaskInitExtension extension : extensions) {
-      extension.onInit();
-    }
-  }
-
-  @Override
-  public String getDescription() {
-    return "Initialize";
-  }
 }

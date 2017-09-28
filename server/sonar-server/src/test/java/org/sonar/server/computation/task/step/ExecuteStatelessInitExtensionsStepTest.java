@@ -22,27 +22,31 @@ package org.sonar.server.computation.task.step;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.InOrder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-public class ExecuteTaskInitExtensionsStepTest {
+public class ExecuteStatelessInitExtensionsStepTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void test_getDescription() {
-    ExecuteTaskInitExtensionsStep underTest = new ExecuteTaskInitExtensionsStep();
+    ExecuteStatelessInitExtensionsStep underTest = new ExecuteStatelessInitExtensionsStep();
 
     assertThat(underTest.getDescription()).isEqualTo("Initialize");
   }
 
   @Test
   public void do_nothing_if_no_extensions() {
-    ExecuteTaskInitExtensionsStep underTest = new ExecuteTaskInitExtensionsStep();
+    ExecuteStatelessInitExtensionsStep underTest = new ExecuteStatelessInitExtensionsStep();
 
     // no failure
     underTest.execute();
@@ -50,28 +54,36 @@ public class ExecuteTaskInitExtensionsStepTest {
 
   @Test
   public void execute_extensions() {
-    TaskInitExtension ext1 = mock(TaskInitExtension.class);
-    TaskInitExtension ext2 = mock(TaskInitExtension.class);
+    StatelessInitExtension ext1 = mock(StatelessInitExtension.class);
+    StatelessInitExtension ext2 = mock(StatelessInitExtension.class);
 
-    ExecuteTaskInitExtensionsStep underTest = new ExecuteTaskInitExtensionsStep(new TaskInitExtension[] {ext1, ext2});
+    ExecuteStatelessInitExtensionsStep underTest = new ExecuteStatelessInitExtensionsStep(
+      new StatelessInitExtension[] {ext1, ext2});
     underTest.execute();
 
-    verify(ext1).onInit();
-    verify(ext2).onInit();
+    InOrder inOrder = inOrder(ext1, ext2);
+    inOrder.verify(ext1).onInit();
+    inOrder.verify(ext2).onInit();
   }
 
   @Test
   public void fail_if_an_extension_throws_an_exception() {
-    TaskInitExtension ext1 = mock(TaskInitExtension.class);
-    doThrow(new IllegalStateException("BOOM")).when(ext1).onInit();
-    TaskInitExtension ext2 = mock(TaskInitExtension.class);
+    StatelessInitExtension ext1 = mock(StatelessInitExtension.class);
+    StatelessInitExtension ext2 = mock(StatelessInitExtension.class);
+    doThrow(new IllegalStateException("BOOM")).when(ext2).onInit();
+    StatelessInitExtension ext3 = mock(StatelessInitExtension.class);
 
-    ExecuteTaskInitExtensionsStep underTest = new ExecuteTaskInitExtensionsStep(new TaskInitExtension[] {ext1, ext2});
+    ExecuteStatelessInitExtensionsStep underTest = new ExecuteStatelessInitExtensionsStep(
+      new StatelessInitExtension[] {ext1, ext2, ext3});
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("BOOM");
-
-    underTest.execute();
+    try {
+      underTest.execute();
+      fail();
+    } catch (IllegalStateException e) {
+      assertThat(e).hasMessage("BOOM");
+      verify(ext1).onInit();
+      verify(ext3, never()).onInit();
+    }
   }
 
 }

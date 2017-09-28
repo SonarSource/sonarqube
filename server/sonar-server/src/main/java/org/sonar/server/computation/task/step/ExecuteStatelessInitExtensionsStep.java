@@ -19,17 +19,38 @@
  */
 package org.sonar.server.computation.task.step;
 
-import org.sonar.api.ExtensionPoint;
 import org.sonar.api.ce.ComputeEngineSide;
 
 /**
- * Extension point that is called during processing of a task
- * by {@link ExecuteTaskInitExtensionsStep}.
+ * Execute {@link StatelessInitExtension} instances in no specific order.
+ * If an extension fails (throws an exception), consecutive extensions
+ * won't be called.
  */
 @ComputeEngineSide
-@ExtensionPoint
-public interface TaskInitExtension {
+public class ExecuteStatelessInitExtensionsStep implements ComputationStep {
 
-  void onInit();
+  private final StatelessInitExtension[] extensions;
 
+  public ExecuteStatelessInitExtensionsStep(StatelessInitExtension[] extensions) {
+    this.extensions = extensions;
+  }
+
+  /**
+   * Used when zero {@link StatelessInitExtension} are registered into container.
+   */
+  public ExecuteStatelessInitExtensionsStep() {
+    this(new StatelessInitExtension[0]);
+  }
+
+  @Override
+  public void execute() {
+    for (StatelessInitExtension extension : extensions) {
+      extension.onInit();
+    }
+  }
+
+  @Override
+  public String getDescription() {
+    return "Initialize";
+  }
 }
