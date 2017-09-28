@@ -128,6 +128,7 @@ public class QualityGateEventsStep implements ComputationStep {
       .setFieldValue("projectName", project.getName())
       .setFieldValue("projectKey", project.getPublicKey())
       .setFieldValue("projectUuid", project.getUuid())
+      .setFieldValue("projectVersion", project.getReportAttributes().getVersion())
       .setFieldValue("alertName", label)
       .setFieldValue("alertText", rawStatus.getText())
       .setFieldValue("alertLevel", rawStatus.getStatus().toString())
