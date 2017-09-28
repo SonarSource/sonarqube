@@ -93,7 +93,6 @@ public class BuildComponentTreeStep implements ComputationStep {
 
   private ComponentKeyGenerator loadKeyGenerator() {
     return Stream.of(analysisMetadataHolder.getBranch(), Optional.of(new DefaultBranchImpl()))
-      // TODO pull request generator will be added here
       .filter(Optional::isPresent)
       .flatMap(x -> x.map(Stream::of).orElseGet(Stream::empty))
       .findFirst()

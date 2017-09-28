@@ -179,11 +179,6 @@ public class Facets {
   }
 
   private LinkedHashMap<String, Long> getOrCreateFacet(String facetName) {
-    LinkedHashMap<String, Long> facet = facetsByName.get(facetName);
-    if (facet == null) {
-      facet = new LinkedHashMap<>();
-      facetsByName.put(facetName, facet);
-    }
-    return facet;
+    return facetsByName.computeIfAbsent(facetName, n -> new LinkedHashMap<>());
   }
 }

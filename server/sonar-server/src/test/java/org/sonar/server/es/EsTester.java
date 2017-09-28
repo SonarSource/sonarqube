@@ -291,7 +291,7 @@ public class EsTester extends ExternalResource {
   }
 
   public long countDocuments(IndexType indexType) {
-    return client().prepareSearch(indexType).setSize(0).get().getHits().totalHits();
+    return client().prepareSearch(indexType).setSize(0).get().getHits().getTotalHits();
   }
 
   /**

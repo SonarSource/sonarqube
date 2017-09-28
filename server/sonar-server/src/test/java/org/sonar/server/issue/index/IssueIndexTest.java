@@ -937,15 +937,15 @@ public class IssueIndexTest {
     // There are 12 issues in total, with 10 issues per page, the page 2 should only contain 2 elements
     SearchResponse result = underTest.search(query.build(), new SearchOptions().setPage(2, 10));
     assertThat(result.getHits().hits()).hasSize(2);
-    assertThat(result.getHits().totalHits()).isEqualTo(12);
+    assertThat(result.getHits().getTotalHits()).isEqualTo(12);
 
     result = underTest.search(IssueQuery.builder().build(), new SearchOptions().setOffset(0).setLimit(5));
     assertThat(result.getHits().hits()).hasSize(5);
-    assertThat(result.getHits().totalHits()).isEqualTo(12);
+    assertThat(result.getHits().getTotalHits()).isEqualTo(12);
 
     result = underTest.search(IssueQuery.builder().build(), new SearchOptions().setOffset(2).setLimit(0));
     assertThat(result.getHits().hits()).hasSize(10);
-    assertThat(result.getHits().totalHits()).isEqualTo(12);
+    assertThat(result.getHits().getTotalHits()).isEqualTo(12);
   }
 
   @Test

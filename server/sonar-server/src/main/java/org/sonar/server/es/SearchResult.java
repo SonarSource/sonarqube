@@ -33,7 +33,7 @@ public class SearchResult<DOC extends BaseDoc> {
 
   public SearchResult(SearchResponse response, Function<Map<String, Object>, DOC> converter) {
     this.facets = new Facets(response);
-    this.total = response.getHits().totalHits();
+    this.total = response.getHits().getTotalHits();
     this.docs = EsUtils.convertToDocs(response.getHits(), converter);
   }
 

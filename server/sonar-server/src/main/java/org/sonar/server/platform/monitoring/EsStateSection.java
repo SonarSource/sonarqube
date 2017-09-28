@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import java.util.Locale;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.admin.cluster.node.stats.NodeStats;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
@@ -30,6 +31,7 @@ import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.es.EsClient;
 
+import static java.lang.String.format;
 import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
@@ -99,6 +101,6 @@ public class EsStateSection implements SystemInfoSection {
   }
 
   private static String formatPercent(long amount) {
-    return String.format("%.1f%%", 100 * amount * 1.0D / 100L);
+    return format(Locale.ENGLISH, "%.1f%%", 100 * amount * 1.0D / 100L);
   }
 }

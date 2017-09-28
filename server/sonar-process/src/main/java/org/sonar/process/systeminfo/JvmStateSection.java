@@ -24,6 +24,7 @@ import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.ThreadMXBean;
+import java.util.Locale;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
 import static java.lang.String.format;
@@ -62,7 +63,7 @@ public class JvmStateSection implements SystemInfoSection {
     addAttributeInMb(protobuf, "Non Heap Max (MB)", nonHeap.getMax());
     addAttributeInMb(protobuf, "Non Heap Used (MB)", nonHeap.getUsed());
     OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
-    setAttribute(protobuf,"System Load Average", format("%.1f%% (last minute)", os.getSystemLoadAverage() * 100.0));
+    setAttribute(protobuf,"System Load Average", format(Locale.ENGLISH, "%.1f%% (last minute)", os.getSystemLoadAverage() * 100.0));
     ThreadMXBean thread = ManagementFactory.getThreadMXBean();
     setAttribute(protobuf, "Threads", thread.getThreadCount());
 
