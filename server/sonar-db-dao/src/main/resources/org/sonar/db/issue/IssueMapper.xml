@@ -215,18 +215,12 @@
 
   <select id="selectResolvedOrConfirmedByComponentUuids" parameterType="map" resultType="Issue">
     select
-      i.id,
       i.kee as kee,
-      i.rule_id as ruleId,
       i.message as message,
       i.line as line,
       i.status as status,
       i.resolution as resolution,
       i.checksum as checksum,
-      i.assignee as assignee,
-      i.component_uuid as componentUuid,
-      i.project_uuid as projectUuid,
-      i.issue_type as type,
       r.plugin_rule_key as ruleKey,
       r.plugin_name as ruleRepo
     from issues i

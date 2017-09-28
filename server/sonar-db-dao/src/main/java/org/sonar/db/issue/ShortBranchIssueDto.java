@@ -33,9 +33,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 public final class ShortBranchIssueDto implements Serializable {
 
-  private Long id;
   private String kee;
-  private Integer ruleId;
   private String message;
   private Integer line;
   private String checksum;
@@ -47,36 +45,11 @@ public final class ShortBranchIssueDto implements Serializable {
   private String ruleRepo;
 
   public String getKey() {
-    return getKee();
-  }
-
-  public Long getId() {
-    return id;
-  }
-
-  public ShortBranchIssueDto setId(@Nullable Long id) {
-    this.id = id;
-    return this;
-  }
-
-  public String getKee() {
     return kee;
   }
 
   public ShortBranchIssueDto setKee(String s) {
     this.kee = s;
-    return this;
-  }
-
-  public Integer getRuleId() {
-    return ruleId;
-  }
-
-  /**
-   * please use setRule(RuleDto rule)
-   */
-  public ShortBranchIssueDto setRuleId(Integer ruleId) {
-    this.ruleId = ruleId;
     return this;
   }
 
@@ -86,7 +59,6 @@ public final class ShortBranchIssueDto implements Serializable {
   }
 
   public ShortBranchIssueDto setMessage(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 4000, "Value is too long for issue message: %s", s);
     this.message = s;
     return this;
   }
@@ -97,7 +69,6 @@ public final class ShortBranchIssueDto implements Serializable {
   }
 
   public ShortBranchIssueDto setLine(@Nullable Integer i) {
-    checkArgument(i == null || i >= 0, "Value of issue line must be positive: %d", i);
     this.line = i;
     return this;
   }
@@ -107,7 +78,6 @@ public final class ShortBranchIssueDto implements Serializable {
   }
 
   public ShortBranchIssueDto setStatus(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 20, "Value is too long for issue status: %s", s);
     this.status = s;
     return this;
   }
@@ -118,7 +88,6 @@ public final class ShortBranchIssueDto implements Serializable {
   }
 
   public ShortBranchIssueDto setResolution(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 20, "Value is too long for issue resolution: %s", s);
     this.resolution = s;
     return this;
   }
@@ -129,21 +98,16 @@ public final class ShortBranchIssueDto implements Serializable {
   }
 
   public ShortBranchIssueDto setChecksum(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 1000, "Value is too long for issue checksum: %s", s);
     this.checksum = s;
     return this;
   }
 
-  public String getRule() {
-    return ruleKey;
+  public void setRuleRepo(String ruleRepo) {
+    this.ruleRepo = ruleRepo;
   }
 
-  public ShortBranchIssueDto setRule(RuleDefinitionDto rule) {
-    Preconditions.checkNotNull(rule.getId(), "Rule must be persisted.");
-    this.ruleId = rule.getId();
-    this.ruleKey = rule.getRuleKey();
-    this.ruleRepo = rule.getRepositoryKey();
-    return this;
+  public void setRuleKey(String ruleKey) {
+    this.ruleKey = ruleKey;
   }
 
   public RuleKey getRuleKey() {
