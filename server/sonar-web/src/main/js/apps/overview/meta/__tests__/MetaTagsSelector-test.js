@@ -26,18 +26,19 @@ jest.mock('../../../../api/components', () => ({
   searchProjectTags: jest.fn()
 }));
 
-jest.useFakeTimers();
+jest.mock('lodash', () => {
+  const lodash = require.requireActual('lodash');
+  lodash.debounce = jest.fn(fn => fn);
+  return lodash;
+});
 
 import { searchProjectTags } from '../../../../api/components';
 
 it('searches tags on mount', () => {
   searchProjectTags.mockImplementation(() => Promise.resolve({ tags: ['foo', 'bar'] }));
-
   mount(
     <MetaTagsSelector position={{}} project="foo" selectedTags={[]} setProjectTags={jest.fn()} />
   );
-  jest.runAllTimers();
-
   expect(searchProjectTags).toBeCalledWith({ ps: 9, q: '' });
 });
 
