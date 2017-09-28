@@ -26,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.ShortBranchIssue;
 import org.sonar.core.issue.tracking.SimpleTracker;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
@@ -41,7 +42,7 @@ public class IssueStatusCopierTest {
   @Mock
   private Component component;
 
-  private SimpleTracker<DefaultIssue, DefaultIssue> tracker = new SimpleTracker<>();
+  private SimpleTracker<DefaultIssue, ShortBranchIssue> tracker = new SimpleTracker<>();
   private IssueStatusCopier copier;
 
   @Before
@@ -63,7 +64,7 @@ public class IssueStatusCopierTest {
   @Test
   public void do_nothing_if_no_new_issue() {
     DefaultIssue i = createIssue("issue1", "rule1");
-    when(resolvedShortBranchIssuesLoader.create(component)).thenReturn(Collections.singleton(i));
+    when(resolvedShortBranchIssuesLoader.create(component)).thenReturn(Collections.singleton(newShortBranchIssue(i)));
     copier.updateStatus(component, Collections.emptyList());
 
     verify(resolvedShortBranchIssuesLoader).create(component);
@@ -72,12 +73,12 @@ public class IssueStatusCopierTest {
 
   @Test
   public void update_status_on_matches() {
-    DefaultIssue shortBranchIssue = createIssue("issue1", "rule1");
+    ShortBranchIssue shortBranchIssue = newShortBranchIssue(createIssue("issue1", "rule1"));
     DefaultIssue newIssue = createIssue("issue2", "rule1");
 
     when(resolvedShortBranchIssuesLoader.create(component)).thenReturn(Collections.singleton(shortBranchIssue));
     copier.updateStatus(component, Collections.singleton(newIssue));
-    verify(issueLifecycle).copyResolution(newIssue, shortBranchIssue);
+    verify(issueLifecycle).copyResolution(newIssue, shortBranchIssue.getStatus(), shortBranchIssue.getResolution());
   }
 
   private static DefaultIssue createIssue(String key, String ruleKey) {
@@ -87,5 +88,9 @@ public class IssueStatusCopierTest {
     issue.setMessage("msg");
     issue.setLine(1);
     return issue;
+  }
+
+  private ShortBranchIssue newShortBranchIssue(DefaultIssue i) {
+    return new ShortBranchIssue(i.line(), i.message(), i.getLineHash(), i.ruleKey(), i.status(), i.resolution());
   }
 }

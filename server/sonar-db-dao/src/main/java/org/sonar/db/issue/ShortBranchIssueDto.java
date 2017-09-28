@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.core.issue.ShortBranchIssue;
 import org.sonar.db.rule.RuleDefinitionDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -155,6 +156,6 @@ public final class ShortBranchIssueDto implements Serializable {
   }
 
   public static ShortBranchIssue toShortBranchIssue(ShortBranchIssueDto dto) {
-    return new ShortBranchIssue(dto);
+    return new ShortBranchIssue(dto.getLine(), dto.getMessage(), dto.getChecksum(), dto.getRuleKey(), dto.getStatus(), dto.getResolution());
   }
 }

@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.issue;
+package org.sonar.core.issue;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.tracking.Trackable;
@@ -33,13 +34,13 @@ public class ShortBranchIssue implements Trackable {
   private final String status;
   private final String resolution;
 
-  public ShortBranchIssue(ShortBranchIssueDto dto) {
-    this.line = dto.getLine();
-    this.message = dto.getMessage();
-    this.lineHash = dto.getChecksum();
-    this.ruleKey = dto.getRuleKey();
-    this.status = dto.getStatus();
-    this.resolution = dto.getResolution();
+  public ShortBranchIssue(@Nullable Integer line, String message, @Nullable String lineHash, RuleKey ruleKey, String status, @Nullable String resolution) {
+    this.line = line;
+    this.message = message;
+    this.lineHash = lineHash;
+    this.ruleKey = ruleKey;
+    this.status = status;
+    this.resolution = resolution;
   }
 
   @CheckForNull
