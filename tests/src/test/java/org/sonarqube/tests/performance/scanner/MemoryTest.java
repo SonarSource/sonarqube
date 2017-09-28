@@ -89,7 +89,7 @@ public class MemoryTest extends AbstractPerfTest {
       .setProjectDir(baseDir);
 
     BuildResult result = orchestrator.executeBuild(scanner);
-    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 8250);
+    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 8950);
 
     // Second execution with a property on server side
     orchestrator.getServer().newHttpCall("/api/settings/set")
