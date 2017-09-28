@@ -171,7 +171,7 @@ exports[`should render correctly with all data 1`] = `
     </div>
   </div>
   <div
-    className="project-card-measure smaller-card pull-right"
+    className="project-card-measure smaller-card project-card-ncloc"
     data-key="new_lines"
   >
     <div
@@ -373,7 +373,7 @@ exports[`should render no data style new coverage, new duplications and new line
     </div>
   </div>
   <div
-    className="project-card-measure smaller-card pull-right"
+    className="project-card-measure smaller-card project-card-ncloc"
     data-key="new_lines"
   >
     <div

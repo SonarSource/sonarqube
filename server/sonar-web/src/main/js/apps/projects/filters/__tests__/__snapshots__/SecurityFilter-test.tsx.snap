@@ -2,6 +2,18 @@
 
 exports[`renders 1`] = `
 <IssuesFilter
+  headerDetail={
+    <span
+      className="note little-spacer-left"
+    >
+      (
+      <VulnerabilityIcon
+        className="little-spacer-right"
+      />
+      metric.vulnerabilities.name
+       )
+    </span>
+  }
   name="Security"
   property="security"
   query={Object {}}

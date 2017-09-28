@@ -24,12 +24,15 @@ import ProjectCardOverallMeasures from '../ProjectCardOverallMeasures';
 it('should render correctly with all data', () => {
   const measures = {
     alert_status: 'ERROR',
+    bugs: '17',
+    code_smells: '132',
     coverage: '88.3',
     duplicated_lines_density: '9.8',
     ncloc: '2053',
     reliability_rating: '1.0',
     security_rating: '1.0',
-    sqale_rating: '1.0'
+    sqale_rating: '1.0',
+    vulnerabilities: '0'
   };
   const wrapper = shallow(<ProjectCardOverallMeasures measures={measures} />);
   expect(wrapper).toMatchSnapshot();
@@ -38,11 +41,14 @@ it('should render correctly with all data', () => {
 it('should not render coverage', () => {
   const measures = {
     alert_status: 'ERROR',
+    bugs: '17',
+    code_smells: '132',
     duplicated_lines_density: '9.8',
     ncloc: '2053',
     reliability_rating: '1.0',
     security_rating: '1.0',
-    sqale_rating: '1.0'
+    sqale_rating: '1.0',
+    vulnerabilities: '0'
   };
   const wrapper = shallow(<ProjectCardOverallMeasures measures={measures} />);
   expect(wrapper.find('[data-key="coverage"]')).toMatchSnapshot();
@@ -51,11 +57,14 @@ it('should not render coverage', () => {
 it('should not render duplications', () => {
   const measures = {
     alert_status: 'ERROR',
+    bugs: '17',
+    code_smells: '132',
     coverage: '88.3',
     ncloc: '2053',
     reliability_rating: '1.0',
     security_rating: '1.0',
-    sqale_rating: '1.0'
+    sqale_rating: '1.0',
+    vulnerabilities: '0'
   };
   const wrapper = shallow(<ProjectCardOverallMeasures measures={measures} />);
   expect(wrapper.find('[data-key="duplicated_lines_density"]')).toMatchSnapshot();
@@ -64,11 +73,14 @@ it('should not render duplications', () => {
 it('should not render ncloc', () => {
   const measures = {
     alert_status: 'ERROR',
+    bugs: '17',
+    code_smells: '132',
     coverage: '88.3',
     duplicated_lines_density: '9.8',
     reliability_rating: '1.0',
     security_rating: '1.0',
-    sqale_rating: '1.0'
+    sqale_rating: '1.0',
+    vulnerabilities: '0'
   };
   const wrapper = shallow(<ProjectCardOverallMeasures measures={measures} />);
   expect(wrapper.find('[data-key="ncloc"]').length).toBe(0);
@@ -77,12 +89,15 @@ it('should not render ncloc', () => {
 it('should render ncloc correctly', () => {
   const measures = {
     alert_status: 'ERROR',
+    bugs: '17',
+    code_smells: '132',
     coverage: '88.3',
     ncloc: '16549887',
     duplicated_lines_density: '9.8',
     reliability_rating: '1.0',
     security_rating: '1.0',
-    sqale_rating: '1.0'
+    sqale_rating: '1.0',
+    vulnerabilities: '0'
   };
   const wrapper = shallow(<ProjectCardOverallMeasures measures={measures} />);
   expect(wrapper.find('[data-key="ncloc"]')).toMatchSnapshot();

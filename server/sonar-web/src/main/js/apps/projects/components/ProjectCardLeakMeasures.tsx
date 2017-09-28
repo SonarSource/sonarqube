@@ -119,7 +119,7 @@ export default function ProjectCardLeakMeasures({ measures }: Props) {
         </div>
       </div>
 
-      <div className="project-card-measure smaller-card pull-right" data-key="new_lines">
+      <div className="project-card-measure smaller-card project-card-ncloc" data-key="new_lines">
         <div className="project-card-measure-inner">
           <div className="project-card-measure-number">
             <Measure

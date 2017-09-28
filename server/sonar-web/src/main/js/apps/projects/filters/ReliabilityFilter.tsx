@@ -20,6 +20,8 @@
 import * as React from 'react';
 import IssuesFilter from './IssuesFilter';
 import { Facet } from '../types';
+import BugIcon from '../../../components/icons-components/BugIcon';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   className?: string;
@@ -33,5 +35,19 @@ interface Props {
 }
 
 export default function ReliabilityFilter(props: Props) {
-  return <IssuesFilter {...props} name="Reliability" property="reliability" />;
+  return (
+    <IssuesFilter
+      {...props}
+      headerDetail={
+        <span className="note little-spacer-left">
+          {'('}
+          <BugIcon className="little-spacer-right" />
+          {translate('metric.bugs.name')}
+          {' )'}
+        </span>
+      }
+      name="Reliability"
+      property="reliability"
+    />
+  );
 }

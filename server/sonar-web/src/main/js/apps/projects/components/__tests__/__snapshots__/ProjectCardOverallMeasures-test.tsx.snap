@@ -78,19 +78,34 @@ exports[`should render correctly with all data 1`] = `
       <div
         className="project-card-measure-number"
       >
+        <Measure
+          className="spacer-right"
+          measure={
+            Object {
+              "metric": Object {
+                "key": "bugs",
+                "type": "SHORT_INT",
+              },
+              "value": "17",
+            }
+          }
+        />
         <Rating
           value="1.0"
         />
       </div>
       <div
-        className="project-card-measure-label"
+        className="project-card-measure-label-with-icon"
       >
-        metric_domain.Reliability
+        <BugIcon
+          className="little-spacer-right vertical-bottom"
+        />
+        metric.bugs.name
       </div>
     </div>
   </div>
   <div
-    className="project-card-measure smaller-card"
+    className="project-card-measure"
     data-key="security_rating"
   >
     <div
@@ -99,14 +114,29 @@ exports[`should render correctly with all data 1`] = `
       <div
         className="project-card-measure-number"
       >
+        <Measure
+          className="spacer-right"
+          measure={
+            Object {
+              "metric": Object {
+                "key": "vulnerabilities",
+                "type": "SHORT_INT",
+              },
+              "value": "0",
+            }
+          }
+        />
         <Rating
           value="1.0"
         />
       </div>
       <div
-        className="project-card-measure-label"
+        className="project-card-measure-label-with-icon"
       >
-        metric_domain.Security
+        <VulnerabilityIcon
+          className="little-spacer-right vertical-bottom"
+        />
+        metric.vulnerabilities.name
       </div>
     </div>
   </div>
@@ -120,14 +150,29 @@ exports[`should render correctly with all data 1`] = `
       <div
         className="project-card-measure-number"
       >
+        <Measure
+          className="spacer-right"
+          measure={
+            Object {
+              "metric": Object {
+                "key": "code_smells",
+                "type": "SHORT_INT",
+              },
+              "value": "132",
+            }
+          }
+        />
         <Rating
           value="1.0"
         />
       </div>
       <div
-        className="project-card-measure-label"
+        className="project-card-measure-label-with-icon"
       >
-        metric_domain.Maintainability
+        <CodeSmellIcon
+          className="little-spacer-right vertical-bottom"
+        />
+        metric.code_smells.name
       </div>
     </div>
   </div>
@@ -204,7 +249,7 @@ exports[`should render correctly with all data 1`] = `
     </div>
   </div>
   <div
-    className="project-card-measure pull-right"
+    className="project-card-measure project-card-ncloc"
     data-key="ncloc"
   >
     <div
@@ -244,7 +289,7 @@ exports[`should render correctly with all data 1`] = `
 
 exports[`should render ncloc correctly 1`] = `
 <div
-  className="project-card-measure pull-right"
+  className="project-card-measure project-card-ncloc"
   data-key="ncloc"
 >
   <div

@@ -2,6 +2,18 @@
 
 exports[`renders 1`] = `
 <IssuesFilter
+  headerDetail={
+    <span
+      className="note little-spacer-left"
+    >
+      (
+      <BugIcon
+        className="little-spacer-right"
+      />
+      metric.bugs.name
+       )
+    </span>
+  }
   name="Reliability"
   property="reliability"
   query={Object {}}
