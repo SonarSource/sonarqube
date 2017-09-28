@@ -28,13 +28,14 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueTesting;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ShortBranchComponentsWithIssuesTest {
   @Rule
-  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
   @Rule
   public DbTester db = DbTester.create();
@@ -61,13 +62,11 @@ public class ShortBranchComponentsWithIssuesTest {
     ComponentDto long1short1 = db.components().insertProjectBranch(project,
       b -> b.setKey("long1short1"),
       b -> b.setBranchType(BranchType.SHORT),
-      b -> b.setMergeBranchUuid(long1.uuid())
-    );
+      b -> b.setMergeBranchUuid(long1.uuid()));
     ComponentDto long1short2 = db.components().insertProjectBranch(project,
       b -> b.setKey("long1short2"),
       b -> b.setBranchType(BranchType.SHORT),
-      b -> b.setMergeBranchUuid(long1.uuid())
-    );
+      b -> b.setMergeBranchUuid(long1.uuid()));
 
     fileWithNoIssues = db.components().insertComponent(ComponentTesting.newFileDto(long1, null));
 
@@ -95,8 +94,7 @@ public class ShortBranchComponentsWithIssuesTest {
     ComponentDto long2short1 = db.components().insertProjectBranch(project,
       b -> b.setKey("long2short1"),
       b -> b.setBranchType(BranchType.SHORT),
-      b -> b.setMergeBranchUuid(long2.uuid())
-    );
+      b -> b.setMergeBranchUuid(long2.uuid()));
 
     fileWithOneOpenIssueOnLong2 = db.components().insertComponent(ComponentTesting.newFileDto(long2short1, null));
     db.issues().insertIssue(IssueTesting.newIssue(rule, long2short1, fileWithOneOpenIssueOnLong2));
@@ -104,13 +102,13 @@ public class ShortBranchComponentsWithIssuesTest {
     fileWithOneResolvedIssueOnLong2 = db.components().insertComponent(ComponentTesting.newFileDto(long2short1, null));
     db.issues().insertIssue(IssueTesting.newIssue(rule, long2short1, fileWithOneResolvedIssueOnLong2).setStatus("RESOLVED"));
 
-    analysisMetadataHolder.setUuid(long1.uuid());
-    underTest = new ShortBranchComponentsWithIssues(analysisMetadataHolder, db.getDbClient());
+    setRootUuid(long1.uuid());
+    underTest = new ShortBranchComponentsWithIssues(treeRootHolder, db.getDbClient());
   }
 
   @Test
   public void should_find_components_with_issues_to_merge_on_long1() {
-    analysisMetadataHolder.setUuid(long1.uuid());
+    setRootUuid(long1.uuid());
 
     assertThat(underTest.getUuids(fileWithNoIssues.getKey())).isEmpty();
     assertThat(underTest.getUuids(fileWithOneOpenIssue.getKey())).isEmpty();
@@ -125,11 +123,18 @@ public class ShortBranchComponentsWithIssuesTest {
 
   @Test
   public void should_find_components_with_issues_to_merge_on_long2() {
-    analysisMetadataHolder.setUuid(long2.uuid());
-    underTest = new ShortBranchComponentsWithIssues(analysisMetadataHolder, db.getDbClient());
+    setRootUuid(long2.uuid());
+    underTest = new ShortBranchComponentsWithIssues(treeRootHolder, db.getDbClient());
 
     assertThat(underTest.getUuids(fileWithOneResolvedIssue.getKey())).isEmpty();
     assertThat(underTest.getUuids(fileWithOneResolvedIssueOnLong2.getKey())).containsOnly(fileWithOneResolvedIssueOnLong2.uuid());
     assertThat(underTest.getUuids(fileWithOneOpenIssueOnLong2.getKey())).isEmpty();
+  }
+
+  private void setRootUuid(String uuid) {
+    Component root = mock(Component.class);
+    when(root.getUuid()).thenReturn(uuid);
+    treeRootHolder.setRoot(root);
+
   }
 }

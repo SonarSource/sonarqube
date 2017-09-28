@@ -30,7 +30,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.KeyWithUuidDto;
-import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 
 /**
  * Cache a map of component key -> uuid in short branches that have issues with status either RESOLVED or CONFIRMED.
@@ -42,8 +41,8 @@ public class ShortBranchComponentsWithIssues {
 
   private Map<String, Set<String>> uuidsByKey;
 
-  public ShortBranchComponentsWithIssues(AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient) {
-    this.uuid = analysisMetadataHolder.getUuid();
+  public ShortBranchComponentsWithIssues(TreeRootHolder treeRootHolder, DbClient dbClient) {
+    this.uuid = treeRootHolder.getRoot().getUuid();
     this.dbClient = dbClient;
   }
 
