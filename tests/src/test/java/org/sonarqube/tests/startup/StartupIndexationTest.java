@@ -63,7 +63,7 @@ public class StartupIndexationTest {
     try (SonarQube sonarQube = new SonarQube();
          LogsTailer.Watch sonarQubeIsUpWatcher = sonarQube.logsTailer.watch("SonarQube is up")) {
       sonarQube.resume();
-      sonarQubeIsUpWatcher.waitForLog(10, TimeUnit.SECONDS);
+      sonarQubeIsUpWatcher.waitForLog(20, TimeUnit.SECONDS);
       SearchRequest searchRequest = SearchRequest.builder().setQuery("admin").build();
       WsUsers.SearchWsResponse searchWsResponse = sonarQube.tester.wsClient().users().search(searchRequest);
       assertThat(searchWsResponse.getUsersCount()).isEqualTo(1);
