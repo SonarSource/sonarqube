@@ -76,6 +76,14 @@ public class IssueLifecycleTest {
   }
 
   @Test
+  public void copyResolution() {
+    DefaultIssue issue = new DefaultIssue();
+    underTest.copyResolution(issue, "status", "resolution");
+    assertThat(issue.resolution()).isEqualTo("resolution");
+    assertThat(issue.status()).isEqualTo("status");
+  }
+
+  @Test
   public void copiedIssue() throws Exception {
     DefaultIssue raw = new DefaultIssue()
       .setNew(true)

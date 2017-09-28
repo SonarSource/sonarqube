@@ -242,7 +242,6 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       TrackerBaseInputFactory.class,
       TrackerRawInputFactory.class,
       TrackerMergeBranchInputFactory.class,
-      ResolvedShortBranchIssuesLoader.class,
       Tracker.class,
       TrackerExecution.class,
       ShortBranchTrackerExecution.class,
