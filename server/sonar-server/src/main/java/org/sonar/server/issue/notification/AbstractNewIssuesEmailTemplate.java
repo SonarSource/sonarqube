@@ -179,7 +179,7 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
 
     for (Iterator<RuleType> ruleTypeIterator = Arrays.asList(RuleType.BUG, RuleType.VULNERABILITY, RuleType.CODE_SMELL).iterator(); ruleTypeIterator.hasNext();) {
       RuleType ruleType = ruleTypeIterator.next();
-      String ruleTypeLabel = i18n.message(getLocale(), "rule_type." + ruleType, ruleType.name());
+      String ruleTypeLabel = i18n.message(getLocale(), "issue.type." + ruleType, ruleType.name());
       message.append(ruleTypeLabel).append(": ").append(notification.getFieldValue(Metric.RULE_TYPE + DOT + ruleType + COUNT));
       if (ruleTypeIterator.hasNext()) {
         message.append(TAB);
