@@ -185,6 +185,8 @@ public class MyNewIssuesEmailTemplateTest {
 
     EmailMessage message = underTest.format(notification);
 
+    assertThat(message.getSubject())
+      .isEqualTo("You have 1 new issue on project Struts");
     assertThat(message.getMessage())
       .contains("1 new issue (new debt: 1d3h)\n");
   }
