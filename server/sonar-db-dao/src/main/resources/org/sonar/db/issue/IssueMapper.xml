@@ -215,11 +215,19 @@
 
   <select id="selectResolvedOrConfirmedByComponentUuids" parameterType="map" resultType="Issue">
     select
-    <include refid="issueColumns"/>
+      i.id,
+      i.kee as kee,
+      i.rule_id as ruleId,
+      i.message as message,
+      i.line as line,
+      i.status as status,
+      i.resolution as resolution,
+      i.checksum as checksum,
+      i.assignee as assignee,
+      i.component_uuid as componentUuid,
+      i.project_uuid as projectUuid,
+      i.issue_type as type
     from issues i
-      inner join rules r on r.id=i.rule_id
-      inner join projects p on p.uuid=i.component_uuid
-      inner join projects root on root.uuid=i.project_uuid
     where i.component_uuid in
       <foreach collection="list" open="(" close=")" item="key" separator=",">
         #{key,jdbcType=VARCHAR}
