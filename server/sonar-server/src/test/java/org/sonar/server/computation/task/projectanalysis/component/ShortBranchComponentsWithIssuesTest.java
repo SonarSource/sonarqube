@@ -131,10 +131,47 @@ public class ShortBranchComponentsWithIssuesTest {
     assertThat(underTest.getUuids(fileWithOneOpenIssueOnLong2.getKey())).isEmpty();
   }
 
+  @Test
+  public void should_find_components_with_issues_to_merge_on_derived_short() {
+    ComponentDto project = db.components().insertMainBranch();
+    setRootUuid(project.uuid());
+
+    ComponentDto branch = db.components().insertProjectBranch(project,
+      b -> b.setBranchType(BranchType.SHORT),
+      b -> b.setMergeBranchUuid(project.uuid()));
+
+    RuleDefinitionDto rule = db.rules().insert();
+
+    ComponentDto fileWithResolvedIssue = db.components().insertComponent(ComponentTesting.newFileDto(branch, null));
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch, fileWithResolvedIssue).setStatus("RESOLVED"));
+
+    underTest = new ShortBranchComponentsWithIssues(treeRootHolder, db.getDbClient());
+
+    assertThat(underTest.getUuids(fileWithResolvedIssue.getKey())).hasSize(1);
+  }
+
+  @Test
+  public void should_not_find_components_with_issues_to_merge_on_derived_long() {
+    ComponentDto project = db.components().insertMainBranch();
+    setRootUuid(project.uuid());
+
+    ComponentDto branch = db.components().insertProjectBranch(project,
+      b -> b.setBranchType(BranchType.LONG),
+      b -> b.setMergeBranchUuid(project.uuid()));
+
+    RuleDefinitionDto rule = db.rules().insert();
+
+    ComponentDto fileWithResolvedIssue = db.components().insertComponent(ComponentTesting.newFileDto(branch, null));
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch, fileWithResolvedIssue).setStatus("RESOLVED"));
+
+    underTest = new ShortBranchComponentsWithIssues(treeRootHolder, db.getDbClient());
+
+    assertThat(underTest.getUuids(fileWithResolvedIssue.getKey())).isEmpty();
+  }
+
   private void setRootUuid(String uuid) {
     Component root = mock(Component.class);
     when(root.getUuid()).thenReturn(uuid);
     treeRootHolder.setRoot(root);
-
   }
 }
