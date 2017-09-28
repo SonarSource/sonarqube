@@ -63,9 +63,9 @@ public class MyNewIssuesEmailTemplateTest {
     // returns the login passed in parameter
     when(userIndex.getNullableByLogin(anyString()))
       .thenAnswer((Answer<UserDoc>) invocationOnMock -> new UserDoc().setName((String) invocationOnMock.getArguments()[0]));
-    when(i18n.message(any(Locale.class), eq("rule_type.BUG"), anyString())).thenReturn("Bug");
-    when(i18n.message(any(Locale.class), eq("rule_type.CODE_SMELL"), anyString())).thenReturn("Code Smell");
-    when(i18n.message(any(Locale.class), eq("rule_type.VULNERABILITY"), anyString())).thenReturn("Vulnerability");
+    when(i18n.message(any(Locale.class), eq("issue.type.BUG"), anyString())).thenReturn("Bug");
+    when(i18n.message(any(Locale.class), eq("issue.type.CODE_SMELL"), anyString())).thenReturn("Code Smell");
+    when(i18n.message(any(Locale.class), eq("issue.type.VULNERABILITY"), anyString())).thenReturn("Vulnerability");
 
     underTest = new MyNewIssuesEmailTemplate(settings, i18n);
   }
