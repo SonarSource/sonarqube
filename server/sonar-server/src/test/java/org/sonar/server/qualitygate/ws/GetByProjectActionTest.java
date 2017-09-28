@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -47,9 +48,8 @@ import org.sonarqube.ws.WsQualityGates.GetByProjectWsResponse;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_ID;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 
 public class GetByProjectActionTest {
   @Rule
@@ -70,14 +70,18 @@ public class GetByProjectActionTest {
   public void definition() {
     WebService.Action def = ws.getDef();
     assertThat(def.description()).isNotEmpty();
-    assertThat(def.isInternal()).isTrue();
+    assertThat(def.isInternal()).isFalse();
     assertThat(def.since()).isEqualTo("6.1");
-    assertThat(def.changelog()).isEmpty();
-    assertThat(def.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("projectId", "projectKey");
+    assertThat(def.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactlyInAnyOrder(
+      tuple("6.6", "The parameter 'projectId' has been removed"),
+      tuple("6.6", "The parameter 'projectKey' has been renamed to 'project'"),
+      tuple("6.6", "This webservice is now part of the public API")
+    );
+    assertThat(def.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("project");
 
-    WebService.Param projectKey = def.param("projectKey");
+    WebService.Param projectKey = def.param("project");
     assertThat(projectKey.description()).isNotEmpty();
-    assertThat(projectKey.isRequired()).isFalse();
+    assertThat(projectKey.isRequired()).isTrue();
     assertThat(projectKey.exampleValue()).isNotEmpty();
   }
 
@@ -89,7 +93,7 @@ public class GetByProjectActionTest {
     associateProjectToQualityGate(project.getId(), qualityGate.getId());
     logInAsProjectUser(project);
 
-    String result = ws.newRequest().setParam(PARAM_PROJECT_ID, project.uuid()).execute().getInput();
+    String result = ws.newRequest().setParam("project", project.getKey()).execute().getInput();
 
     assertJson(result)
       .ignoreFields("id")
@@ -102,7 +106,7 @@ public class GetByProjectActionTest {
     insertQualityGate("Another QG");
     logInAsProjectUser(project);
 
-    String result = ws.newRequest().setParam(PARAM_PROJECT_ID, project.uuid()).execute().getInput();
+    String result = ws.newRequest().setParam("project", project.getKey()).execute().getInput();
 
     assertThat(result).isEqualToIgnoringWhitespace("{}");
   }
@@ -114,7 +118,7 @@ public class GetByProjectActionTest {
     setDefaultQualityGate(dbQualityGate.getId());
     logInAsProjectUser(project);
 
-    GetByProjectWsResponse result = callByUuid(project.uuid());
+    GetByProjectWsResponse result = callByKey(project.getKey());
 
     WsQualityGates.QualityGate qualityGate = result.getQualityGate();
     assertThat(Long.valueOf(qualityGate.getId())).isEqualTo(dbQualityGate.getId());
@@ -131,7 +135,7 @@ public class GetByProjectActionTest {
     associateProjectToQualityGate(project.getId(), dbQualityGate.getId());
     logInAsProjectUser(project);
 
-    GetByProjectWsResponse result = callByUuid(project.uuid());
+    GetByProjectWsResponse result = callByKey(project.getKey());
 
     WsQualityGates.QualityGate qualityGate = result.getQualityGate();
     assertThat(qualityGate.getName()).isEqualTo(dbQualityGate.getName());
@@ -157,7 +161,7 @@ public class GetByProjectActionTest {
     QualityGateDto dbQualityGate = insertQualityGate("Sonar way");
     setDefaultQualityGate(dbQualityGate.getId());
 
-    GetByProjectWsResponse result = callByUuid(project.uuid());
+    GetByProjectWsResponse result = callByKey(project.getKey());
 
     assertThat(result.getQualityGate().getName()).isEqualTo(dbQualityGate.getName());
   }
@@ -169,7 +173,7 @@ public class GetByProjectActionTest {
     QualityGateDto dbQualityGate = insertQualityGate("Sonar way");
     setDefaultQualityGate(dbQualityGate.getId());
 
-    GetByProjectWsResponse result = callByUuid(project.uuid());
+    GetByProjectWsResponse result = callByKey(project.getKey());
 
     assertThat(result.getQualityGate().getName()).isEqualTo(dbQualityGate.getName());
   }
@@ -183,28 +187,21 @@ public class GetByProjectActionTest {
 
     expectedException.expect(ForbiddenException.class);
 
-    callByUuid(project.uuid());
+    callByKey(project.getKey());
   }
 
   @Test
   public void fail_when_project_does_not_exist() {
     expectedException.expect(NotFoundException.class);
 
-    callByUuid("Unknown");
+    callByKey("Unknown");
   }
 
   @Test
   public void fail_when_no_parameter() {
     expectedException.expect(IllegalArgumentException.class);
 
-    call(null, null);
-  }
-
-  @Test
-  public void fail_when_project_uuid_and_key_provided() {
-    expectedException.expect(IllegalArgumentException.class);
-
-    call("uuid", "key");
+    call(null);
   }
 
   @Test
@@ -217,41 +214,18 @@ public class GetByProjectActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage(format("Component key '%s' not found", branch.getDbKey()));
 
-    call(null, branch.getDbKey());
-  }
-
-  @Test
-  public void fail_when_using_branch_uuid() throws Exception {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertMainBranch(organization);
-    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-    ComponentDto branch = db.components().insertProjectBranch(project);
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(format("Component id '%s' not found", branch.uuid()));
-
-    call(branch.uuid(), null);
-  }
-
-  private GetByProjectWsResponse callByUuid(String projectUuid) {
-    return call(projectUuid, null);
+    call(branch.getDbKey());
   }
 
   private GetByProjectWsResponse callByKey(String projectKey) {
-    return call(null, projectKey);
+    return call(projectKey);
   }
 
-  private GetByProjectWsResponse call(@Nullable String projectUuid, @Nullable String projectKey) {
+  private GetByProjectWsResponse call(@Nullable String projectKey) {
     TestRequest request = ws.newRequest();
-
-    if (projectUuid != null) {
-      request.setParam(PARAM_PROJECT_ID, projectUuid);
-    }
-
     if (projectKey != null) {
-      request.setParam(PARAM_PROJECT_KEY, projectKey);
+      request.setParam("project", projectKey);
     }
-
     return request.executeProtobuf(GetByProjectWsResponse.class);
   }
 

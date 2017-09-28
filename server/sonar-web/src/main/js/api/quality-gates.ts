@@ -84,8 +84,8 @@ export function deleteCondition(id: string): Promise<void> {
   return post('/api/qualitygates/delete_condition', { id });
 }
 
-export function getGateForProject(projectKey: string): Promise<QualityGate | undefined> {
-  return getJSON('/api/qualitygates/get_by_project', { projectKey }).then(
+export function getGateForProject(project: string): Promise<QualityGate | undefined> {
+  return getJSON('/api/qualitygates/get_by_project', { project }).then(
     r =>
       r.qualityGate && {
         id: r.qualityGate.id,
