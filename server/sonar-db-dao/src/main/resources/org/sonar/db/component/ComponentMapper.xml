@@ -656,7 +656,7 @@
   </delete>
 
   <select id="selectComponentKeysHavingIssuesToMerge" resultType="KeyWithUuid">
-    SELECT DISTINCT p.kee key, p.uuid uuid FROM projects p
+    SELECT DISTINCT p.kee as kee, p.uuid as uuid FROM projects p
     JOIN issues i
       ON p.uuid = i.component_uuid
     JOIN project_branches b
