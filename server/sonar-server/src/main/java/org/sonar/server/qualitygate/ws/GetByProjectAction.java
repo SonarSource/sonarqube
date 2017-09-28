@@ -20,6 +20,7 @@
 package org.sonar.server.qualitygate.ws;
 
 import java.util.Optional;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -29,21 +30,19 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.component.ComponentFinder.ParamNames;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualitygate.QualityGateFinder.QualityGateData;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsQualityGates.GetByProjectWsResponse;
 
-import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.ACTION_GET_BY_PROJECT;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_ID;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 
 public class GetByProjectAction implements QualityGatesWsAction {
+  private static final String PARAM_PROJECT = "project";
+
   private final UserSession userSession;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -59,41 +58,43 @@ public class GetByProjectAction implements QualityGatesWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_GET_BY_PROJECT)
-      .setInternal(true)
+      .setInternal(false)
       .setSince("6.1")
-      .setDescription("Get the quality gate of a project.<br> " +
-        "Either project id or project key must be provided, not both.")
+      .setDescription("Get the quality gate of a project.<br />" +
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "<li>'Administer System'</li>" +
+        "<li>'Administer' rights on the specified project</li>" +
+        "<li>'Browse' on the specified project</li>" +
+        "</ul>")
       .setResponseExample(getClass().getResource("get_by_project-example.json"))
-      .setHandler(this);
+      .setHandler(this)
+      .setChangelog(
+        new Change("6.6", "The parameter 'projectId' has been removed"),
+        new Change("6.6", "The parameter 'projectKey' has been renamed to 'project'"),
+        new Change("6.6", "This webservice is now part of the public API")
+      );
 
-    action.createParam(PARAM_PROJECT_ID)
-      .setDescription("Project id")
-      .setExampleValue(UUID_EXAMPLE_01);
-
-    action.createParam(PARAM_PROJECT_KEY)
+    action.createParam(PARAM_PROJECT)
       .setDescription("Project key")
-      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001)
+      .setRequired(true);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = getProject(dbSession, request.param(PARAM_PROJECT_ID), request.param(PARAM_PROJECT_KEY));
+      ComponentDto project = componentFinder.getByKey(dbSession, request.mandatoryParam(PARAM_PROJECT));
+
+      if (!userSession.hasComponentPermission(UserRole.USER, project) &&
+        !userSession.hasComponentPermission(UserRole.ADMIN, project)) {
+        throw insufficientPrivilegesException();
+      }
+
       Optional<QualityGateData> data = qualityGateFinder.getQualityGate(dbSession, project.getId());
 
       writeProtobuf(buildResponse(data), request, response);
     }
-  }
-
-  private ComponentDto getProject(DbSession dbSession, String projectUuid, String projectKey) {
-    ComponentDto project = componentFinder.getByUuidOrKey(dbSession, projectUuid, projectKey, ParamNames.PROJECT_ID_AND_KEY);
-
-    if (!userSession.hasComponentPermission(UserRole.USER, project) &&
-      !userSession.hasComponentPermission(UserRole.ADMIN, project)) {
-      throw insufficientPrivilegesException();
-    }
-
-    return project;
   }
 
   private static GetByProjectWsResponse buildResponse(Optional<QualityGateData> data) {
