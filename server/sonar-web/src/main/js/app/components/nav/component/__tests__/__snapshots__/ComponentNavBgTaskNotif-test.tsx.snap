@@ -4,13 +4,9 @@ exports[`renders background task error correctly 1`] = `
 <NavBarNotif
   className="alert alert-danger"
 >
-  <span
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "component_navigation.status.failed",
-      }
-    }
-  />
+  <span>
+    component_navigation.status.failed
+  </span>
 </NavBarNotif>
 `;
 
@@ -19,15 +15,30 @@ exports[`renders background task in progress info correctly 1`] = `
   className="alert alert-info"
 >
   <i
-    className="spinner spacer-right"
+    className="spinner spacer-right text-bottom"
   />
-  <span
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "component_navigation.status.in_progress",
-      }
-    }
-  />
+  <span>
+    component_navigation.status.in_progress
+  </span>
+</NavBarNotif>
+`;
+
+exports[`renders background task license info correctly 1`] = `
+<NavBarNotif
+  className="alert alert-danger"
+>
+  <span>
+    Foo
+  </span>
+  <Link
+    className="little-spacer-left"
+    onlyActiveOnIndex={false}
+    style={Object {}}
+    to="/admin/extension/license/app"
+  >
+    license.component_navigation.button.LICENSING
+    .
+  </Link>
 </NavBarNotif>
 `;
 
@@ -38,12 +49,8 @@ exports[`renders background task pending info correctly 1`] = `
   <PendingIcon
     className="spacer-right"
   />
-  <span
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "component_navigation.status.pending",
-      }
-    }
-  />
+  <span>
+    component_navigation.status.pending
+  </span>
 </NavBarNotif>
 `;

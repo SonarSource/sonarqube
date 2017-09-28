@@ -33,21 +33,27 @@ interface Props {
 
 interface State {
   branchesEnabled: boolean;
+  canAdmin: boolean;
   loading: boolean;
   onSonarCloud: boolean;
 }
 
 class App extends React.PureComponent<Props, State> {
   mounted: boolean;
-  state: State = { branchesEnabled: false, loading: true, onSonarCloud: false };
+  state: State = { branchesEnabled: false, canAdmin: false, loading: true, onSonarCloud: false };
 
   static childContextTypes = {
     branchesEnabled: PropTypes.bool.isRequired,
+    canAdmin: PropTypes.bool.isRequired,
     onSonarCloud: PropTypes.bool
   };
 
   getChildContext() {
-    return { branchesEnabled: this.state.branchesEnabled, onSonarCloud: this.state.onSonarCloud };
+    return {
+      branchesEnabled: this.state.branchesEnabled,
+      canAdmin: this.state.canAdmin,
+      onSonarCloud: this.state.onSonarCloud
+    };
   }
 
   componentDidMount() {
@@ -69,7 +75,11 @@ class App extends React.PureComponent<Props, State> {
         const onSonarCloud =
           appState.settings != undefined &&
           appState.settings['sonar.lf.sonarqube.com.enabled'] === 'true';
-        this.setState({ branchesEnabled: appState.branchesEnabled, onSonarCloud });
+        this.setState({
+          branchesEnabled: appState.branchesEnabled,
+          canAdmin: appState.canAdmin,
+          onSonarCloud
+        });
       }
     });
   };
