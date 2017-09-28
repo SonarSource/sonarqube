@@ -30,7 +30,6 @@ interface Props {
   branch?: Branch;
   component: Component;
   isInProgress?: boolean;
-  isFailed?: boolean;
   isPending?: boolean;
 }
 
@@ -70,20 +69,6 @@ export default function ComponentNavMeta(props: Props) {
         mouseLeaveDelay={2}>
         <li>
           <PendingIcon /> <span>{translate('background_task.status.PENDING')}</span>
-        </li>
-      </Tooltip>
-    );
-  } else if (props.isFailed) {
-    const tooltip = canSeeBackgroundTasks
-      ? translateWithParameters('component_navigation.status.failed.admin', backgroundTasksUrl)
-      : translate('component_navigation.status.failed');
-    metaList.push(
-      <Tooltip
-        key="isFailed"
-        overlay={<div dangerouslySetInnerHTML={{ __html: tooltip }} />}
-        mouseLeaveDelay={2}>
-        <li>
-          <span className="badge badge-danger">{translate('background_task.status.FAILED')}</span>
         </li>
       </Tooltip>
     );

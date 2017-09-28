@@ -19,14 +19,15 @@
  */
 import * as React from 'react';
 import ComponentNavFavorite from './ComponentNavFavorite';
+import ComponentNavBranch from './ComponentNavBranch';
 import ComponentNavBreadcrumbs from './ComponentNavBreadcrumbs';
 import ComponentNavMeta from './ComponentNavMeta';
 import ComponentNavMenu from './ComponentNavMenu';
-import ComponentNavBranch from './ComponentNavBranch';
+import ComponentNavBgTaskNotif from './ComponentNavBgTaskNotif';
 import RecentHistory from '../../RecentHistory';
 import { Branch, Component } from '../../../types';
 import ContextNavBar from '../../../../components/nav/ContextNavBar';
-import { getTasksForComponent } from '../../../../api/ce';
+import { getTasksForComponent, PendingTask, Task } from '../../../../api/ce';
 import { STATUSES } from '../../../../apps/background-tasks/constants';
 import './ComponentNav.css';
 
@@ -38,7 +39,7 @@ interface Props {
 }
 
 interface State {
-  isFailed?: boolean;
+  currentTask?: Task;
   isInProgress?: boolean;
   isPending?: boolean;
 }
@@ -54,17 +55,26 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
     this.populateRecentHistory();
   }
 
+  componentDidUpdate(prevProps: Props) {
+    if (this.props.component.key !== prevProps.component.key) {
+      this.loadStatus();
+      this.populateRecentHistory();
+    }
+  }
+
   componentWillUnmount() {
     this.mounted = false;
   }
 
   loadStatus = () => {
-    getTasksForComponent(this.props.component.key).then((r: any) => {
+    getTasksForComponent(
+      this.props.component.key
+    ).then((r: { queue: PendingTask[]; current: Task }) => {
       if (this.mounted) {
         this.setState({
-          isPending: r.queue.some((task: any) => task.status === STATUSES.PENDING),
-          isInProgress: r.queue.some((task: any) => task.status === STATUSES.IN_PROGRESS),
-          isFailed: r.current && r.current.status === STATUSES.FAILED
+          currentTask: r.current,
+          isInProgress: r.queue.some(task => task.status === STATUSES.IN_PROGRESS),
+          isPending: r.queue.some(task => task.status === STATUSES.PENDING)
         });
       }
     });
@@ -84,18 +94,23 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
   };
 
   render() {
+    const { currentTask } = this.state;
+    const showNotif = currentTask && currentTask.status === STATUSES.FAILED;
     return (
-      <ContextNavBar id="context-navigation" height={65}>
+      <ContextNavBar
+        id="context-navigation"
+        height={showNotif ? 95 : 65}
+        notif={
+          showNotif ? <ComponentNavBgTaskNotif component={this.props.component} /> : undefined
+        }>
         <ComponentNavFavorite
           component={this.props.component.key}
           favorite={this.props.component.isFavorite}
         />
-
         <ComponentNavBreadcrumbs
           component={this.props.component}
           breadcrumbs={this.props.component.breadcrumbs}
         />
-
         {this.props.currentBranch && (
           <ComponentNavBranch
             branches={this.props.branches}
@@ -105,15 +120,12 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
             location={this.props.location}
           />
         )}
-
         <ComponentNavMeta
           branch={this.props.currentBranch}
           component={this.props.component}
           isInProgress={this.state.isInProgress}
-          isFailed={this.state.isFailed}
           isPending={this.state.isPending}
         />
-
         <ComponentNavMenu
           branch={this.props.currentBranch}
           component={this.props.component}

@@ -19,25 +19,21 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import NavBarNotif from './NavBarNotif';
-import './NavBar.css';
 
 interface Props {
-  children?: any;
+  children?: React.ReactNode;
   className?: string;
-  height: number;
-  notif?: React.ReactElement<NavBarNotif>;
 }
 
-export default function NavBar({ children, className, height, notif, ...other }: Props) {
-  return (
-    <nav {...other} className={classNames('navbar', className)} style={{ height }}>
-      <div
-        className={classNames('navbar-inner', { 'navbar-inner-with-notif': notif != null })}
-        style={{ height }}>
-        <div className="navbar-limited clearfix">{children}</div>
-        {notif}
+export default class NavBarNotif extends React.PureComponent<Props> {
+  render() {
+    if (!this.props.children) {
+      return null;
+    }
+    return (
+      <div className={classNames('navbar-notif', this.props.className)}>
+        <div className="navbar-limited clearfix">{this.props.children}</div>
       </div>
-    </nav>
-  );
+    );
+  }
 }

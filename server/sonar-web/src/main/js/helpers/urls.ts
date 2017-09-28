@@ -43,6 +43,10 @@ export function getComponentUrl(componentKey: string, branch?: string): string {
   return getBaseUrl() + '/dashboard?id=' + encodeURIComponent(componentKey) + branchQuery;
 }
 
+export function getComponentBackgroundTaskUrl(componentKey: string): string {
+  return getBaseUrl() + '/project/background_tasks?id=' + encodeURIComponent(componentKey);
+}
+
 export function getProjectUrl(key: string, branch?: string): Location {
   return { pathname: '/dashboard', query: { id: key, branch } };
 }
