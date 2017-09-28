@@ -40,7 +40,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   private final IssueStatusCopier issueStatusCopier;
   private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public IntegrateIssuesVisitor(IssueCache issueCache, IssueLifecycle issueLifecycle, IssueVisitors issueVisitors, ComponentIssuesLoader issuesLoader,
+  public IntegrateIssuesVisitor(IssueCache issueCache, IssueLifecycle issueLifecycle, IssueVisitors issueVisitors,
     AnalysisMetadataHolder analysisMetadataHolder, IssueTrackingDelegator issueTracking, IssueStatusCopier issueStatusCopier) {
     super(CrawlerDepthLimit.FILE, POST_ORDER);
     this.issueCache = issueCache;
@@ -69,13 +69,17 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
 
   private void fillNewOpenIssues(Component component, Iterable<DefaultIssue> issues, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
     List<DefaultIssue> list = new ArrayList<>();
-    issues.forEach(list::add);
 
-    for (DefaultIssue issue : list) {
+    issues.forEach(issue -> {
       issueLifecycle.initNewOpenIssue(issue);
+      list.add(issue);
+    });
+
+    if (list.isEmpty()) {
+      return;
     }
 
-    if (analysisMetadataHolder.isLongLivingBranch() && !list.isEmpty()) {
+    if (analysisMetadataHolder.isLongLivingBranch()) {
       issueStatusCopier.updateStatus(component, list);
     }
 

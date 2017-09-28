@@ -27,22 +27,22 @@ import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
 public class IssueStatusCopier {
-  private final ResolvedShortBranchIssuesFactory shortBranchIssuesFactory;
+  private final ResolvedShortBranchIssuesLoader resolvedShortBranchIssuesLoader;
   private final SimpleTracker<DefaultIssue, DefaultIssue> tracker;
   private final IssueLifecycle issueLifecycle;
 
-  public IssueStatusCopier(ResolvedShortBranchIssuesFactory shortBranchIssuesFactory, IssueLifecycle issueLifecycle) {
-    this(shortBranchIssuesFactory, new SimpleTracker<>(), issueLifecycle);
+  public IssueStatusCopier(ResolvedShortBranchIssuesLoader resolvedShortBranchIssuesLoader, IssueLifecycle issueLifecycle) {
+    this(resolvedShortBranchIssuesLoader, new SimpleTracker<>(), issueLifecycle);
   }
 
-  public IssueStatusCopier(ResolvedShortBranchIssuesFactory shortBranchIssuesFactory, SimpleTracker<DefaultIssue, DefaultIssue> tracker, IssueLifecycle issueLifecycle) {
-    this.shortBranchIssuesFactory = shortBranchIssuesFactory;
+  public IssueStatusCopier(ResolvedShortBranchIssuesLoader resolvedShortBranchIssuesLoader, SimpleTracker<DefaultIssue, DefaultIssue> tracker, IssueLifecycle issueLifecycle) {
+    this.resolvedShortBranchIssuesLoader = resolvedShortBranchIssuesLoader;
     this.tracker = tracker;
     this.issueLifecycle = issueLifecycle;
   }
 
   public void updateStatus(Component component, Collection<DefaultIssue> newIssues) {
-    Collection<DefaultIssue> shortBranchIssues = shortBranchIssuesFactory.create(component);
+    Collection<DefaultIssue> shortBranchIssues = resolvedShortBranchIssuesLoader.create(component);
     Tracking<DefaultIssue, DefaultIssue> tracking = tracker.track(newIssues, shortBranchIssues);
 
     for (Map.Entry<DefaultIssue, DefaultIssue> e : tracking.getMatchedRaws().entrySet()) {

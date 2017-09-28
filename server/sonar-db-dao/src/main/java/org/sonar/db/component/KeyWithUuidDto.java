@@ -23,20 +23,20 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 public class KeyWithUuidDto {
+
   private final String key;
   private final String uuid;
-  
-  public KeyWithUuidDto(String kee, String uuid) {
-    this.key = kee;
+
+  public KeyWithUuidDto(String key, String uuid) {
+    this.key = key;
     this.uuid = uuid;
   }
 
   public String key() {
     return key;
   }
-  
+
   public String uuid() {
     return uuid;
   }
-
 }

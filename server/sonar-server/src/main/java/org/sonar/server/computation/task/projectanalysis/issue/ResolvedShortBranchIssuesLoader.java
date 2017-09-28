@@ -30,12 +30,12 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ShortBranchComponentsWithIssues;
 
-public class ResolvedShortBranchIssuesFactory {
+public class ResolvedShortBranchIssuesLoader {
 
   private final ShortBranchComponentsWithIssues shortBranchComponentsWithIssues;
   private final DbClient dbClient;
 
-  public ResolvedShortBranchIssuesFactory(ShortBranchComponentsWithIssues shortBranchComponentsWithIssues, DbClient dbClient) {
+  public ResolvedShortBranchIssuesLoader(ShortBranchComponentsWithIssues shortBranchComponentsWithIssues, DbClient dbClient) {
     this.shortBranchComponentsWithIssues = shortBranchComponentsWithIssues;
     this.dbClient = dbClient;
   }

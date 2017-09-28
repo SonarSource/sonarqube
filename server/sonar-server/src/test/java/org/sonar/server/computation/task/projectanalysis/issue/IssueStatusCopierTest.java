@@ -35,38 +35,38 @@ import static org.mockito.Mockito.when;
 
 public class IssueStatusCopierTest {
   @Mock
-  private ResolvedShortBranchIssuesFactory issuesFactory;
+  private ResolvedShortBranchIssuesLoader resolvedShortBranchIssuesLoader;
   @Mock
   private IssueLifecycle issueLifecycle;
-  private SimpleTracker<DefaultIssue, DefaultIssue> tracker = new SimpleTracker<>();
   @Mock
   private Component component;
 
+  private SimpleTracker<DefaultIssue, DefaultIssue> tracker = new SimpleTracker<>();
   private IssueStatusCopier copier;
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    copier = new IssueStatusCopier(issuesFactory, tracker, issueLifecycle);
+    copier = new IssueStatusCopier(resolvedShortBranchIssuesLoader, tracker, issueLifecycle);
   }
 
   @Test
   public void do_nothing_if_no_match() {
-    when(issuesFactory.create(component)).thenReturn(Collections.emptyList());
+    when(resolvedShortBranchIssuesLoader.create(component)).thenReturn(Collections.emptyList());
     DefaultIssue i = createIssue("issue1", "rule1");
     copier.updateStatus(component, Collections.singleton(i));
 
-    verify(issuesFactory).create(component);
+    verify(resolvedShortBranchIssuesLoader).create(component);
     verifyZeroInteractions(issueLifecycle);
   }
 
   @Test
   public void do_nothing_if_no_new_issue() {
     DefaultIssue i = createIssue("issue1", "rule1");
-    when(issuesFactory.create(component)).thenReturn(Collections.singleton(i));
+    when(resolvedShortBranchIssuesLoader.create(component)).thenReturn(Collections.singleton(i));
     copier.updateStatus(component, Collections.emptyList());
 
-    verify(issuesFactory).create(component);
+    verify(resolvedShortBranchIssuesLoader).create(component);
     verifyZeroInteractions(issueLifecycle);
   }
 
@@ -75,7 +75,7 @@ public class IssueStatusCopierTest {
     DefaultIssue shortBranchIssue = createIssue("issue1", "rule1");
     DefaultIssue newIssue = createIssue("issue2", "rule1");
 
-    when(issuesFactory.create(component)).thenReturn(Collections.singleton(shortBranchIssue));
+    when(resolvedShortBranchIssuesLoader.create(component)).thenReturn(Collections.singleton(shortBranchIssue));
     copier.updateStatus(component, Collections.singleton(newIssue));
     verify(issueLifecycle).copyResolution(newIssue, shortBranchIssue);
   }
