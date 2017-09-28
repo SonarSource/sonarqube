@@ -41,19 +41,19 @@ public final class QualityGate {
     this.conditions = ImmutableSet.copyOf(requireNonNull(conditions, "conditions can't be null"));
   }
 
-  String getId() {
+  public String getId() {
     return id;
   }
 
-  String getName() {
+  public String getName() {
     return name;
   }
 
-  Status getStatus() {
+  public Status getStatus() {
     return status;
   }
 
-  Collection<Condition> getConditions() {
+  public Collection<Condition> getConditions() {
     return conditions;
   }
 
@@ -114,31 +114,31 @@ public final class QualityGate {
       this.value = value;
     }
 
-    EvaluationStatus getStatus() {
+    public EvaluationStatus getStatus() {
       return status;
     }
 
-    String getMetricKey() {
+    public String getMetricKey() {
       return metricKey;
     }
 
-    Operator getOperator() {
+    public Operator getOperator() {
       return operator;
     }
 
-    Optional<String> getErrorThreshold() {
+    public Optional<String> getErrorThreshold() {
       return Optional.ofNullable(errorThreshold);
     }
 
-    Optional<String> getWarningThreshold() {
+    public Optional<String> getWarningThreshold() {
       return Optional.ofNullable(warnThreshold);
     }
 
-    boolean isOnLeakPeriod() {
+    public boolean isOnLeakPeriod() {
       return onLeakPeriod;
     }
 
-    Optional<String> getValue() {
+    public Optional<String> getValue() {
       return Optional.ofNullable(value);
     }
 

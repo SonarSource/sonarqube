@@ -48,27 +48,27 @@ public class ProjectAnalysis {
     this.analysis = analysis;
   }
 
-  Optional<CeTask> getCeTask() {
+  public Optional<CeTask> getCeTask() {
     return Optional.ofNullable(ceTask);
   }
 
-  Project getProject() {
+  public Project getProject() {
     return project;
   }
 
-  Optional<Branch> getBranch() {
+  public Optional<Branch> getBranch() {
     return Optional.ofNullable(branch);
   }
 
-  Optional<QualityGate> getQualityGate() {
+  public Optional<QualityGate> getQualityGate() {
     return Optional.ofNullable(qualityGate);
   }
 
-  Map<String, String> getProperties() {
+  public Map<String, String> getProperties() {
     return properties;
   }
 
-  Optional<Analysis> getAnalysis() {
+  public Optional<Analysis> getAnalysis() {
     return Optional.ofNullable(analysis);
   }
 
