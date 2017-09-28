@@ -24,8 +24,8 @@ import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -38,19 +38,24 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.config.TelemetryProperties;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.measure.index.ProjectMeasuresDoc;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
+import org.sonar.server.measure.index.ProjectMeasuresIndexer;
 import org.sonar.server.property.InternalProperties;
 import org.sonar.server.property.MapInternalProperties;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
+import org.sonar.server.user.index.UserIndexer;
 import org.sonar.updatecenter.common.Version;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -58,7 +63,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
+import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_LANGUAGE_DISTRIBUTION_KEY;
 import static org.sonar.api.utils.DateUtils.parseDate;
+import static org.sonar.db.component.BranchType.LONG;
+import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class TelemetryDaemonTest {
@@ -70,6 +81,8 @@ public class TelemetryDaemonTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
+  public DbTester db = DbTester.create();
+  @Rule
   public EsTester es = new EsTester(new UserIndexDefinition(emptyConfig), new ProjectMeasuresIndexDefinition(emptyConfig));
   @Rule
   public LogTester logger = new LogTester().setLevel(LoggerLevel.DEBUG);
@@ -78,20 +91,13 @@ public class TelemetryDaemonTest {
   private InternalProperties internalProperties = new MapInternalProperties();
   private FakeServer server = new FakeServer();
   private PluginRepository pluginRepository = mock(PluginRepository.class);
-  private TestSystem2 system2 = new TestSystem2();
-  private MapSettings settings;
+  private TestSystem2 system2 = new TestSystem2().setNow(System.currentTimeMillis());
+  private MapSettings settings = new MapSettings(new PropertyDefinitions(TelemetryProperties.all()));
+  private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
+  private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
 
-  private TelemetryDaemon underTest;
-
-  @Before
-  public void setUp() throws Exception {
-    settings = new MapSettings(new PropertyDefinitions(TelemetryProperties.all()));
-    system2.setNow(System.currentTimeMillis());
-
-    underTest = new TelemetryDaemon(new TelemetryDataLoader(server, pluginRepository, new UserIndex(es.client()), new ProjectMeasuresIndex(es.client(), null)), client,
-      settings.asConfig(), internalProperties, system2);
-  }
-
+  private TelemetryDaemon underTest = new TelemetryDaemon(new TelemetryDataLoader(server, pluginRepository, new UserIndex(es.client()), new ProjectMeasuresIndex(es.client(), null)), client,
+    settings.asConfig(), internalProperties, system2);
 
   @After
   public void tearDown() throws Exception {
@@ -101,26 +107,34 @@ public class TelemetryDaemonTest {
   @Test
   public void send_telemetry_data() throws IOException {
     settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
-    String id = "AU-TpxcB-iU5OvuD2FL7";
-    String version = "7.5.4";
-    server.setId(id);
-    server.setVersion(version);
+    server.setId("AU-TpxcB-iU5OvuD2FL7");
+    server.setVersion("7.5.4");
     List<PluginInfo> plugins = asList(newPlugin("java", "4.12.0.11033"), newPlugin("scmgit", "1.2"), new PluginInfo("other"));
     when(pluginRepository.getPluginInfos()).thenReturn(plugins);
-    es.putDocuments(UserIndexDefinition.INDEX_TYPE_USER,
-      new UserDoc().setLogin(randomAlphanumeric(30)).setActive(true),
-      new UserDoc().setLogin(randomAlphanumeric(30)).setActive(true),
-      new UserDoc().setLogin(randomAlphanumeric(30)).setActive(true),
-      new UserDoc().setLogin(randomAlphanumeric(30)).setActive(false));
-    es.putDocuments(ProjectMeasuresIndexDefinition.INDEX_TYPE_PROJECT_MEASURES,
-      new ProjectMeasuresDoc().setId(randomAlphanumeric(20))
-        .setMeasures(asList(newMeasure("lines", 200), newMeasure("ncloc", 100), newMeasure("coverage", 80)))
-        .setLanguages(asList("java", "js"))
-        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 200, "js", 50)),
-      new ProjectMeasuresDoc().setId(randomAlphanumeric(20))
-        .setMeasures(asList(newMeasure("lines", 300), newMeasure("ncloc", 200), newMeasure("coverage", 80)))
-        .setLanguages(asList("java", "kotlin"))
-        .setNclocLanguageDistributionFromMap(ImmutableMap.of("java", 300, "kotlin", 2500)));
+
+    IntStream.range(0, 3).forEach(i -> db.users().insertUser());
+    db.users().insertUser(u -> u.setActive(false));
+    userIndexer.indexOnStartup(emptySet());
+
+    MetricDto lines = db.measures().insertMetric(m -> m.setKey(LINES_KEY));
+    MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(NCLOC_KEY));
+    MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
+    MetricDto nclocDistrib = db.measures().insertMetric(m -> m.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY));
+
+    ComponentDto project1 = db.components().insertMainBranch(db.getDefaultOrganization());
+    SnapshotDto analysis1 = db.components().insertSnapshot(project1);
+    db.measures().insertMeasure(project1, analysis1, lines, m -> m.setValue(200d));
+    db.measures().insertMeasure(project1, analysis1, ncloc, m -> m.setValue(100d));
+    db.measures().insertMeasure(project1, analysis1, coverage, m -> m.setValue(80d));
+    db.measures().insertMeasure(project1, analysis1, nclocDistrib, m -> m.setData("java=200;js=50"));
+
+    ComponentDto project2 = db.components().insertMainBranch(db.getDefaultOrganization());
+    SnapshotDto analysis2 = db.components().insertSnapshot(project2);
+    db.measures().insertMeasure(project2, analysis2, lines, m -> m.setValue(300d));
+    db.measures().insertMeasure(project2, analysis2, ncloc, m -> m.setValue(200d));
+    db.measures().insertMeasure(project2, analysis2, coverage, m -> m.setValue(80d));
+    db.measures().insertMeasure(project2, analysis2, nclocDistrib, m -> m.setData("java=300;kotlin=2500"));
+    projectMeasuresIndexer.indexOnStartup(emptySet());
 
     underTest.start();
 
@@ -130,6 +144,31 @@ public class TelemetryDaemonTest {
     assertJson(json).isSimilarTo(getClass().getResource("telemetry-example.json"));
     assertJson(getClass().getResource("telemetry-example.json")).isSimilarTo(json);
     assertThat(logger.logs(LoggerLevel.INFO)).contains("Sharing of SonarQube statistics is enabled.");
+  }
+
+  @Test
+  public void exclude_branches() throws IOException {
+    settings.setProperty("sonar.telemetry.frequencyInSeconds", "1");
+    server.setId("AU-TpxcB-iU5OvuD2FL7").setVersion("7.5.4");
+    MetricDto ncloc = db.measures().insertMetric(m -> m.setKey(NCLOC_KEY));
+    ComponentDto project = db.components().insertMainBranch(db.getDefaultOrganization());
+    ComponentDto longBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(LONG));
+    ComponentDto shortBranch = db.components().insertProjectBranch(project, b -> b.setBranchType(SHORT));
+    SnapshotDto projectAnalysis = db.components().insertSnapshot(project);
+    SnapshotDto longBranchAnalysis = db.components().insertSnapshot(longBranch);
+    SnapshotDto shortBranchAnalysis = db.components().insertSnapshot(shortBranch);
+    db.measures().insertMeasure(project, projectAnalysis, ncloc, m -> m.setValue(10d));
+    db.measures().insertMeasure(longBranch, longBranchAnalysis, ncloc, m -> m.setValue(20d));
+    db.measures().insertMeasure(shortBranch, shortBranchAnalysis, ncloc, m -> m.setValue(30d));
+    projectMeasuresIndexer.indexOnStartup(emptySet());
+
+    underTest.start();
+
+    ArgumentCaptor<String> jsonCaptor = ArgumentCaptor.forClass(String.class);
+    verify(client, timeout(2_000).atLeastOnce()).upload(jsonCaptor.capture());
+    assertJson(jsonCaptor.getValue()).isSimilarTo("{\n" +
+      "  \"ncloc\": 10\n" +
+      "}\n");
   }
 
   @Test
