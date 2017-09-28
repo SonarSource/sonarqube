@@ -46,6 +46,7 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.computation.task.step.TypedException;
 import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 
@@ -236,6 +237,21 @@ public class InternalCeQueueImplTest {
 
     assertThat(activityDto.get().getErrorMessage()).isEqualTo(error.getMessage());
     assertThat(activityDto.get().getErrorStacktrace()).isEqualToIgnoringWhitespace(stacktraceToString(error));
+    assertThat(activityDto.get().getErrorType()).isNull();
+  }
+
+  @Test
+  public void remove_saves_error_when_TypedMessageException_is_provided() {
+    Throwable error = new TypedException("aType", "aMessage");
+
+    CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
+    Optional<CeTask> peek = underTest.peek(WORKER_UUID_1);
+    underTest.remove(peek.get(), CeActivityDto.Status.FAILED, null, error);
+
+    CeActivityDto activityDto = dbTester.getDbClient().ceActivityDao().selectByUuid(session, task.getUuid()).get();
+    assertThat(activityDto.getErrorType()).isEqualTo("aType");
+    assertThat(activityDto.getErrorMessage()).isEqualTo("aMessage");
+    assertThat(activityDto.getErrorStacktrace()).isEqualToIgnoringWhitespace(stacktraceToString(error));
   }
 
   @Test
