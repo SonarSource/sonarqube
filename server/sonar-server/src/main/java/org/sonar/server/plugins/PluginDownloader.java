@@ -27,7 +27,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.HttpDownloader;
@@ -35,6 +34,7 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
@@ -118,7 +118,7 @@ public class PluginDownloader implements Startable {
     return listPlugins(this.downloadDir)
       .stream()
       .map(PluginInfo::create)
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
   }
 
   public void download(String pluginKey, Version version) {

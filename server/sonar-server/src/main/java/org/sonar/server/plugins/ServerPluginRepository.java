@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
@@ -48,13 +47,13 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.PluginRepository;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.updatecenter.common.Version;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.io.FileUtils.copyFile;
 import static org.apache.commons.io.FileUtils.moveFile;
 import static org.apache.commons.io.FileUtils.moveFileToDirectory;
@@ -337,7 +336,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   }
 
   public List<String> getUninstalledPluginFilenames() {
-    return listJarFiles(uninstalledPluginsDir()).stream().map(File::getName).collect(toList());
+    return listJarFiles(uninstalledPluginsDir()).stream().map(File::getName).collect(MoreCollectors.toList());
   }
 
   /**
@@ -347,7 +346,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
     return listJarFiles(uninstalledPluginsDir())
       .stream()
       .map(PluginInfo::create)
-      .collect(Collectors.toList());
+      .collect(MoreCollectors.toList());
   }
 
   public void cancelUninstalls() {
