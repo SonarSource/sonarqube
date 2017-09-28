@@ -1005,4 +1005,27 @@ public class AuthorizationDaoTest {
     assertThat(logins).isEmpty();
   }
 
+  @Test
+  public void selectGlobalAdministratorLogins() {
+    OrganizationDto organization1 = db.organizations().insert();
+    UserDto user1 = db.users().insertUser();
+    db.users().insertPermissionOnUser(organization1, user1, ADMINISTER);
+    OrganizationDto organization2 = db.organizations().insert();
+    UserDto user2 = db.users().insertUser();
+    db.users().insertPermissionOnUser(organization2, user2, ADMINISTER);
+
+    GroupDto administratorGroup2 = db.users().insertGroup(organization2);
+    db.users().insertPermissionOnGroup(administratorGroup2, ADMINISTER);
+    UserDto user3 = db.users().insertUser();
+    db.users().insertMember(administratorGroup2, user3);
+
+    UserDto user4 = db.users().insertUser();
+    db.users().insertPermissionOnUser(organization1, user4, ADMINISTER_QUALITY_PROFILES);
+    db.users().insertUser();
+
+    List<String> logins = underTest.selectGlobalAdministratorLogins(dbSession);
+
+    assertThat(logins).containsExactlyInAnyOrder(user1.getLogin(), user2.getLogin(), user3.getLogin());
+  }
+
 }

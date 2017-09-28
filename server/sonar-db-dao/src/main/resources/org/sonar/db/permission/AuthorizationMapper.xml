@@ -379,7 +379,7 @@
       and gr.group_id is null
   </sql>
 
-  <select id="selectQualityProfileAdministratorLogins" parameterType="map" resultType="String">
+  <select id="selectLoginsWithGlobalPermission" parameterType="map" resultType="String">
     select u.login
     from user_roles ur
     inner join users u on u.id=ur.user_id
