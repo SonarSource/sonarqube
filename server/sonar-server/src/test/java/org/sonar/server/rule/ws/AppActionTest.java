@@ -29,13 +29,11 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
-import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleRepositoryDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
@@ -108,56 +106,6 @@ public class AppActionTest {
   }
 
   @Test
-  public void response_contains_quality_profiles_of_default_organization() {
-    insertQualityProfiles(db.getDefaultOrganization());
-
-    String json = tester.newRequest().execute().getInput();
-    assertJson(json).isSimilarTo("{" +
-      "\"qualityprofiles\": [" +
-      "    {" +
-      "      \"key\": \"XOO_P1\"," +
-      "      \"name\": \"P1\"," +
-      "      \"lang\": \"xoo\"," +
-      "      \"isBuiltIn\": true" +
-      "    }," +
-      "    {" +
-      "      \"key\": \"XOO_P2\"," +
-      "      \"name\": \"P2\"," +
-      "      \"lang\": \"xoo\"," +
-      "      \"parentKey\": \"XOO_P1\"," +
-      "      \"isBuiltIn\": false" +
-      "    }" +
-      "  ]" +
-      "}");
-  }
-
-  @Test
-  public void response_contains_quality_profiles_of_specified_organization() {
-    OrganizationDto org = db.organizations().insert();
-    insertQualityProfiles(org);
-
-    String json = tester.newRequest()
-      .setParam("organization", org.getKey())
-      .execute().getInput();
-
-    assertJson(json).isSimilarTo("{" +
-      "\"qualityprofiles\": [" +
-      "    {" +
-      "      \"key\": \"XOO_P1\"," +
-      "      \"name\": \"P1\"," +
-      "      \"lang\": \"xoo\"" +
-      "    }," +
-      "    {" +
-      "      \"key\": \"XOO_P2\"," +
-      "      \"name\": \"P2\"," +
-      "      \"lang\": \"xoo\"," +
-      "      \"parentKey\": \"XOO_P1\"" +
-      "    }" +
-      "  ]" +
-      "}");
-  }
-
-  @Test
   public void throw_NotFoundException_if_organization_does_not_exist() {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("No organization with key 'does_not_exist'");
@@ -218,11 +166,4 @@ public class AppActionTest {
     db.getSession().commit();
   }
 
-  private void insertQualityProfiles(OrganizationDto organization) {
-    QProfileDto profile1 = QProfileTesting.newXooP1(organization).setIsBuiltIn(true);
-    QProfileDto profile2 = QProfileTesting.newXooP2(organization).setParentKee(QProfileTesting.XOO_P1_KEY);
-    db.getDbClient().qualityProfileDao().insert(db.getSession(), profile1);
-    db.getDbClient().qualityProfileDao().insert(db.getSession(), profile2);
-    db.commit();
-  }
 }
