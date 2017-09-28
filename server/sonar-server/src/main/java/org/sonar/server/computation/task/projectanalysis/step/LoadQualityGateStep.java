@@ -29,6 +29,7 @@ import org.sonar.server.computation.task.projectanalysis.qualitygate.MutableQual
 import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGate;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGateService;
 import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 
@@ -57,7 +58,7 @@ public class LoadQualityGateStep implements ComputationStep {
   @Override
   public void execute() {
     if (analysisMetadataHolder.isShortLivingBranch()) {
-      Optional<QualityGate> qualityGate = qualityGateService.findById(QualityGateService.SHORT_LIVING_BRANCHES_QUALITY_GATE);
+      Optional<QualityGate> qualityGate = qualityGateService.findById(ShortLivingBranchQualityGate.ID);
       if (qualityGate.isPresent()) {
         qualityGateHolder.setQualityGate(qualityGate.get());
       } else {

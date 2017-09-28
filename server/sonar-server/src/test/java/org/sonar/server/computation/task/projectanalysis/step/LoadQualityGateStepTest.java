@@ -31,6 +31,7 @@ import org.sonar.server.computation.task.projectanalysis.component.Configuration
 import org.sonar.server.computation.task.projectanalysis.qualitygate.MutableQualityGateHolderRule;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGate;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.QualityGateService;
+import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +63,7 @@ public class LoadQualityGateStepTest {
   public void add_hardcoded_QG_on_short_living_branch() {
     when(analysisMetadataHolder.isShortLivingBranch()).thenReturn(true);
     QualityGate qualityGate = mock(QualityGate.class);
-    when(qualityGateService.findById(QualityGateService.SHORT_LIVING_BRANCHES_QUALITY_GATE)).thenReturn(Optional.of(qualityGate));
+    when(qualityGateService.findById(ShortLivingBranchQualityGate.ID)).thenReturn(Optional.of(qualityGate));
 
     underTest.execute();
 
