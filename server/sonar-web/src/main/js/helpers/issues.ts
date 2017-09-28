@@ -107,8 +107,10 @@ function injectCommentsRelational(issue: RawIssue, users?: User[]) {
   return { comments };
 }
 
-function prepareClosed(issue: RawIssue): { flows?: undefined } {
-  return issue.status === 'CLOSED' ? { flows: undefined } : {};
+function prepareClosed(issue: RawIssue) {
+  return issue.status === 'CLOSED'
+    ? { flows: undefined, line: undefined, textRange: undefined }
+    : {};
 }
 
 function ensureTextRange(issue: RawIssue): { textRange?: TextRange } {
