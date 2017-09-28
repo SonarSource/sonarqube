@@ -40,15 +40,15 @@ public interface AuthorizationMapper {
     @Param("excludedUserId") int excludedUserId);
 
   int countUsersWithGlobalPermissionExcludingGroupMember(@Param("organizationUuid") String organizationUuid,
-                                                         @Param("permission") String permission, @Param("groupId") int groupId, @Param("userId") int userId);
+    @Param("permission") String permission, @Param("groupId") int groupId, @Param("userId") int userId);
 
   int countUsersWithGlobalPermissionExcludingUserPermission(@Param("organizationUuid") String organizationUuid,
-                                                            @Param("permission") String permission, @Param("userId") int userId);
+    @Param("permission") String permission, @Param("userId") int userId);
 
   Set<String> selectOrganizationUuidsOfUserWithGlobalPermission(@Param("userId") int userId, @Param("permission") String permission);
 
   Set<Long> keepAuthorizedProjectIdsForAnonymous(@Param("role") String role, @Param("componentIds") Collection<Long> componentIds);
-  
+
   Set<Long> keepAuthorizedProjectIdsForUser(@Param("userId") int userId, @Param("role") String role, @Param("componentIds") Collection<Long> componentIds);
 
   List<Integer> keepAuthorizedUsersForRoleAndProject(@Param("role") String role, @Param("componentId") long componentId, @Param("userIds") List<Integer> userIds);
@@ -61,5 +61,5 @@ public interface AuthorizationMapper {
 
   Set<String> selectProjectPermissionsOfAnonymous(@Param("projectUuid") String projectUuid);
 
-  List<String> selectQualityProfileAdministratorLogins(@Param("permission") String permission);
+  List<String> selectLoginsWithGlobalPermission(@Param("permission") String permission);
 }

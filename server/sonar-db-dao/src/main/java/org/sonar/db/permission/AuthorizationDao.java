@@ -28,6 +28,7 @@ import org.sonar.db.DbSession;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsIntoSet;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 
 /**
@@ -166,7 +167,14 @@ public class AuthorizationDao implements Dao {
   }
 
   public List<String> selectQualityProfileAdministratorLogins(DbSession dbSession) {
-    return mapper(dbSession).selectQualityProfileAdministratorLogins(ADMINISTER_QUALITY_PROFILES.getKey());
+    return mapper(dbSession).selectLoginsWithGlobalPermission(ADMINISTER_QUALITY_PROFILES.getKey());
+  }
+
+  /**
+   * Used by license notifications
+   */
+  public List<String> selectGlobalAdministratorLogins(DbSession dbSession) {
+    return mapper(dbSession).selectLoginsWithGlobalPermission(ADMINISTER.getKey());
   }
 
   private static AuthorizationMapper mapper(DbSession dbSession) {
