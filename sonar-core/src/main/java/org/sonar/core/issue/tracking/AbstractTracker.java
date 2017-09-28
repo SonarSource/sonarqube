@@ -94,10 +94,7 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
 
     @Override
     public int hashCode() {
-      int result = ruleKey.hashCode();
-      result = 31 * result + lineHash.hashCode();
-      result = 31 * result + (line != null ? line.hashCode() : 0);
-      return result;
+      return Objects.hash(ruleKey, lineHash, line != null ? line : 0);
     }
   }
 
@@ -134,10 +131,7 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
 
     @Override
     public int hashCode() {
-      int result = ruleKey.hashCode();
-      result = 31 * result + message.hashCode();
-      result = 31 * result + lineHash.hashCode();
-      return result;
+      return Objects.hash(ruleKey, message, lineHash);
     }
   }
 
@@ -174,10 +168,7 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
 
     @Override
     public int hashCode() {
-      int result = ruleKey.hashCode();
-      result = 31 * result + message.hashCode();
-      result = 31 * result + (line != null ? line.hashCode() : 0);
-      return result;
+      return Objects.hash(ruleKey, message, line != null ? line : 0);
     }
   }
 
@@ -211,9 +202,7 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
 
     @Override
     public int hashCode() {
-      int result = ruleKey.hashCode();
-      result = 31 * result + lineHash.hashCode();
-      return result;
+      return Objects.hash(ruleKey, lineHash);
     }
   }
 
