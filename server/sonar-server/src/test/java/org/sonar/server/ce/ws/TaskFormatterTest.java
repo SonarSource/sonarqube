@@ -134,7 +134,7 @@ public class TaskFormatterTest {
 
     WsCe.Task wsTask = underTest.formatQueue(db.getSession(), dto);
 
-    assertThat(wsTask.getExecutionTimeMs()).isEqualTo(now-startedAt);
+    assertThat(wsTask.getExecutionTimeMs()).isEqualTo(now - startedAt);
   }
 
   @Test
@@ -195,19 +195,21 @@ public class TaskFormatterTest {
   @Test
   public void formatActivity_with_both_error_message_and_stacktrace() {
     CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED)
-        .setErrorMessage("error msg")
-        .setErrorStacktrace("error stacktrace");
+      .setErrorMessage("error msg")
+      .setErrorStacktrace("error stacktrace")
+      .setErrorType("anErrorType");
 
     WsCe.Task task = underTest.formatActivity(db.getSession(), Collections.singletonList(dto)).iterator().next();
 
     assertThat(task.getErrorMessage()).isEqualTo(dto.getErrorMessage());
     assertThat(task.getErrorStacktrace()).isEqualTo(dto.getErrorStacktrace());
+    assertThat(task.getErrorType()).isEqualTo(dto.getErrorType());
   }
 
   @Test
   public void formatActivity_with_both_error_message_only() {
     CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED)
-        .setErrorMessage("error msg");
+      .setErrorMessage("error msg");
 
     WsCe.Task task = underTest.formatActivity(db.getSession(), Collections.singletonList(dto)).iterator().next();
 
@@ -218,7 +220,7 @@ public class TaskFormatterTest {
   @Test
   public void formatActivity_with_both_error_message_and_only_stacktrace_flag() {
     CeActivityDto dto = newActivity("UUID", "COMPONENT_UUID", CeActivityDto.Status.FAILED)
-        .setErrorMessage("error msg");
+      .setErrorMessage("error msg");
 
     WsCe.Task task = underTest.formatActivity(db.getSession(), Collections.singletonList(dto)).iterator().next();
 
