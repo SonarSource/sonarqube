@@ -90,7 +90,6 @@ public class IssueNotificationsTest {
   @Parameter
   public boolean privateProject;
 
-
   @BeforeClass
   public static void setUp() {
     smtpServer = new Wiser(0);
@@ -151,13 +150,13 @@ public class IssueNotificationsTest {
 
     extractBodies(smtpServer.getMessages()).forEach(
       message -> assertThat(message)
-            .contains("Project: Sample")
-            .contains("Version: " + version)
-            .contains("17 new issues (new debt: 17min)")
-            .contains("Type")
-            .contains("One Issue Per Line (xoo): 17")
-            .contains("More details at: http://localhost:9000/project/issues?id=sample&createdAt=2015-12-15T00%3A00%3A00%2B")
-    );
+        .contains("Project: Sample")
+        .contains("Version: " + version)
+        .contains("17 new issues (new debt: 17min)")
+        .contains("Type")
+        .contains("Bug: ").contains("Code Smell: ").contains("Vulnerability: ")
+        .contains("One Issue Per Line (xoo): 17")
+        .contains("More details at: http://localhost:9000/project/issues?id=sample&createdAt=2015-12-15T00%3A00%3A00%2B"));
 
     clearSmtpMessages();
   }
@@ -202,8 +201,7 @@ public class IssueNotificationsTest {
       "sonar.projectVersion", version,
       "sonar.scm.provider", "xoo",
       "sonar.scm.disabled", "false",
-      "sonar.exclusions", "**/*"
-    );
+      "sonar.exclusions", "**/*");
 
     // No email since all code is ignored
     waitUntilAllNotificationsAreDelivered(1);
@@ -213,8 +211,7 @@ public class IssueNotificationsTest {
     runAnalysis("issue/xoo-with-scm",
       "sonar.projectVersion", version,
       "sonar.scm.provider", "xoo",
-      "sonar.scm.disabled", "false"
-    );
+      "sonar.scm.disabled", "false");
 
     // We expect to receive a notification for each subscriber with UserRole.user
     // And a personalized email for the assignee userWithUserRole
