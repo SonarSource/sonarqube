@@ -75,7 +75,7 @@ public class ComputeEnginePerfTest extends AbstractPerfTest {
 
     orchestrator.executeBuild(scanner);
 
-    assertComputationDurationAround(350_000L);
+    assertComputationDurationAround(378_000L);
   }
 
   private void assertComputationDurationAround(long expectedDuration) throws IOException {
