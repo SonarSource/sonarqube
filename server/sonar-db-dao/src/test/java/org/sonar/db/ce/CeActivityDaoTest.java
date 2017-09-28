@@ -77,6 +77,7 @@ public class CeActivityDaoTest {
     assertThat(dto.toString()).isNotEmpty();
     assertThat(dto.getErrorMessage()).isNull();
     assertThat(dto.getErrorStacktrace()).isNull();
+    assertThat(dto.getErrorType()).isNull();
     assertThat(dto.isHasScannerContext()).isFalse();
   }
 
@@ -111,6 +112,7 @@ public class CeActivityDaoTest {
     CeActivityDto read = saved.get();
     assertThat(read.getErrorMessage()).isEqualTo(dto.getErrorMessage());
     assertThat(read.getErrorStacktrace()).isEqualTo(dto.getErrorStacktrace());
+    assertThat(read.getErrorType()).isNotNull().isEqualTo(dto.getErrorType());
   }
 
   @Test
@@ -360,6 +362,7 @@ public class CeActivityDaoTest {
     dto.setAnalysisUuid(uuid + "_2");
     if (status == FAILED) {
       dto.setErrorMessage("error msg for " + uuid);
+      dto.setErrorType("anErrorType");
     }
     return dto;
   }

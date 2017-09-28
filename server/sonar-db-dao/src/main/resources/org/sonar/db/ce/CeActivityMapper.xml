@@ -34,6 +34,7 @@
     ca.is_last_key as isLastKey,
     ca.execution_time_ms as executionTimeMs,
     ca.error_message as errorMessage,
+    ca.error_type as errorType,
     <include refid="hasScannerContextColumn"/>
   </sql>
 
@@ -150,7 +151,8 @@
       updated_at,
       execution_time_ms,
       error_message,
-      error_stacktrace
+      error_stacktrace,
+      error_type
     )
     values (
       #{uuid,jdbcType=VARCHAR},
@@ -170,7 +172,8 @@
       #{updatedAt,jdbcType=BIGINT},
       #{executionTimeMs,jdbcType=BIGINT},
       #{errorMessage,jdbcType=VARCHAR},
-      #{errorStacktrace,jdbcType=CLOB}
+      #{errorStacktrace,jdbcType=CLOB},
+      #{errorType,jdbcType=VARCHAR}
     )
   </insert>
 

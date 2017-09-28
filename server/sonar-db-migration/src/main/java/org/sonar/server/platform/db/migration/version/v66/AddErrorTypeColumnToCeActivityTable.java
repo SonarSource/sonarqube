@@ -17,26 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v66;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.def.VarcharColumnDef;
+import org.sonar.server.platform.db.migration.sql.AddColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class AddErrorTypeColumnToCeActivityTable extends DdlChange {
 
-public class DbVersion66Test {
-
-  private DbVersion66 underTest = new DbVersion66();
-
-  @Test
-  public void migrationNumber_starts_at_1801() {
-    verifyMinimumMigrationNumber(underTest, 1801);
+  public AddErrorTypeColumnToCeActivityTable(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 10);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDialect(), "ce_activity")
+      .addColumn(VarcharColumnDef.newVarcharColumnDefBuilder()
+        .setColumnName("error_type")
+        .setLimit(20)
+        .setIsNullable(true)
+        .build())
+      .build());
   }
-
 }
+
