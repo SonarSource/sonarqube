@@ -23,10 +23,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.issue.IssueDto;
+import org.sonar.db.issue.ShortBranchIssue;
+import org.sonar.db.issue.ShortBranchIssueDto;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ShortBranchComponentsWithIssues;
 
@@ -40,7 +40,7 @@ public class ResolvedShortBranchIssuesLoader {
     this.dbClient = dbClient;
   }
 
-  public Collection<DefaultIssue> create(Component component) {
+  public Collection<ShortBranchIssue> create(Component component) {
     Set<String> uuids = shortBranchComponentsWithIssues.getUuids(component.getKey());
     if (uuids.isEmpty()) {
       return Collections.emptyList();
@@ -48,7 +48,7 @@ public class ResolvedShortBranchIssuesLoader {
     try (DbSession session = dbClient.openSession(false)) {
       return dbClient.issueDao().selectResolvedOrConfirmedByComponentUuids(session, uuids)
         .stream()
-        .map(IssueDto::toDefaultIssue)
+        .map(ShortBranchIssueDto::toShortBranchIssue)
         .collect(Collectors.toList());
     }
   }

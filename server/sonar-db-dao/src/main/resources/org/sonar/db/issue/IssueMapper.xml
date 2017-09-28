@@ -226,8 +226,11 @@
       i.assignee as assignee,
       i.component_uuid as componentUuid,
       i.project_uuid as projectUuid,
-      i.issue_type as type
+      i.issue_type as type,
+      r.plugin_rule_key as ruleKey,
+      r.plugin_name as ruleRepo
     from issues i
+    inner join rules r on r.id = i.rule_id
     where i.component_uuid in
       <foreach collection="list" open="(" close=")" item="key" separator=",">
         #{key,jdbcType=VARCHAR}

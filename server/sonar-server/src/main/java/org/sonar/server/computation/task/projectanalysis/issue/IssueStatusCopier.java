@@ -24,29 +24,31 @@ import java.util.Map;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.SimpleTracker;
 import org.sonar.core.issue.tracking.Tracking;
+import org.sonar.db.issue.ShortBranchIssue;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
 public class IssueStatusCopier {
   private final ResolvedShortBranchIssuesLoader resolvedShortBranchIssuesLoader;
-  private final SimpleTracker<DefaultIssue, DefaultIssue> tracker;
+  private final SimpleTracker<DefaultIssue, ShortBranchIssue> tracker;
   private final IssueLifecycle issueLifecycle;
 
   public IssueStatusCopier(ResolvedShortBranchIssuesLoader resolvedShortBranchIssuesLoader, IssueLifecycle issueLifecycle) {
     this(resolvedShortBranchIssuesLoader, new SimpleTracker<>(), issueLifecycle);
   }
 
-  public IssueStatusCopier(ResolvedShortBranchIssuesLoader resolvedShortBranchIssuesLoader, SimpleTracker<DefaultIssue, DefaultIssue> tracker, IssueLifecycle issueLifecycle) {
+  public IssueStatusCopier(ResolvedShortBranchIssuesLoader resolvedShortBranchIssuesLoader, SimpleTracker<DefaultIssue, ShortBranchIssue> tracker, IssueLifecycle issueLifecycle) {
     this.resolvedShortBranchIssuesLoader = resolvedShortBranchIssuesLoader;
     this.tracker = tracker;
     this.issueLifecycle = issueLifecycle;
   }
 
   public void updateStatus(Component component, Collection<DefaultIssue> newIssues) {
-    Collection<DefaultIssue> shortBranchIssues = resolvedShortBranchIssuesLoader.create(component);
-    Tracking<DefaultIssue, DefaultIssue> tracking = tracker.track(newIssues, shortBranchIssues);
+    Collection<ShortBranchIssue> shortBranchIssues = resolvedShortBranchIssuesLoader.create(component);
+    Tracking<DefaultIssue, ShortBranchIssue> tracking = tracker.track(newIssues, shortBranchIssues);
 
-    for (Map.Entry<DefaultIssue, DefaultIssue> e : tracking.getMatchedRaws().entrySet()) {
-      issueLifecycle.copyResolution(e.getKey(), e.getValue());
+    for (Map.Entry<DefaultIssue, ShortBranchIssue> e : tracking.getMatchedRaws().entrySet()) {
+      ShortBranchIssue issue = e.getValue();
+      issueLifecycle.copyResolution(e.getKey(), issue.getStatus(), issue.getResolution());
     }
   }
 }
