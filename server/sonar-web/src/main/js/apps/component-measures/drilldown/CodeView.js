@@ -21,8 +21,6 @@
 import React from 'react';
 import key from 'keymaster';
 import SourceViewer from '../../../components/SourceViewer/SourceViewer';
-import { isDiffMetric } from '../../../helpers/measures';
-import { parseDate } from '../../../helpers/dates';
 /*:: import type { ComponentEnhanced, Paging, Period } from '../types'; */
 /*:: import type { Metric } from '../../../store/metrics/actions'; */
 
@@ -83,21 +81,7 @@ export default class CodeView extends React.PureComponent {
   };
 
   render() {
-    const { branch, component, leakPeriod } = this.props;
-    const leakPeriodDate =
-      isDiffMetric(this.props.metric.key) && leakPeriod != null ? parseDate(leakPeriod.date) : null;
-
-    let filterLine;
-    if (leakPeriodDate != null) {
-      filterLine = line => {
-        if (line.scmDate) {
-          const scmDate = parseDate(line.scmDate);
-          return scmDate >= leakPeriodDate;
-        } else {
-          return false;
-        }
-      };
-    }
-    return <SourceViewer branch={branch} component={component.key} filterLine={filterLine} />;
+    const { branch, component } = this.props;
+    return <SourceViewer branch={branch} component={component.key} />;
   }
 }

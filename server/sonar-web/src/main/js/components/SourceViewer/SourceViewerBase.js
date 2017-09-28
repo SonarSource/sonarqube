@@ -39,10 +39,12 @@ import {
 /*:: import type { LinearIssueLocation } from './helpers/indexing'; */
 import {
   getComponentForSourceViewer,
+  getComponentData,
   getSources,
   getDuplications,
   getTests
 } from '../../api/components';
+import { parseDate } from '../../helpers/dates';
 import { translate } from '../../helpers/l10n';
 import { scrollToElement } from '../../helpers/scrolling';
 /*:: import type { SourceLine } from './types'; */
@@ -59,7 +61,6 @@ type Props = {
   displayAllIssues: boolean,
   displayIssueLocationsCount?: boolean;
   displayIssueLocationsLink?: boolean;
-  filterLine?: (line: SourceLine) => boolean,
   highlightedLine?: number,
   highlightedLocations?: Array<FlowLocation>,
   highlightedLocationMessage?: { index: number, text: string },
@@ -116,7 +117,13 @@ type State = {
 const LINES = 500;
 
 function loadComponent(key /*: string */, branch /*: string | void */) /*: Promise<*> */ {
-  return getComponentForSourceViewer(key, branch);
+  return Promise.all([
+    getComponentForSourceViewer(key, branch),
+    getComponentData(key, branch)
+  ]).then(([component, data]) => ({
+    ...component,
+    leakPeriodDate: data.leakPeriodDate && parseDate(data.leakPeriodDate)
+  }));
 }
 
 function loadSources(
@@ -580,6 +587,14 @@ export default class SourceViewerBase extends React.PureComponent {
     }
   };
 
+  handleFilterLine = (line /*: SourceLine */) => {
+    const { component } = this.state;
+    const leakPeriodDate = component && component.leakPeriodDate;
+    return leakPeriodDate
+      ? line.scmDate != null && parseDate(line.scmDate) >= leakPeriodDate
+      : false;
+  };
+
   renderCode(sources /*: Array<SourceLine> */) {
     const hasSourcesBefore = sources.length > 0 && sources[0].line > 1;
     return (
@@ -592,7 +607,7 @@ export default class SourceViewerBase extends React.PureComponent {
         duplicatedFiles={this.state.duplicatedFiles}
         hasSourcesBefore={hasSourcesBefore}
         hasSourcesAfter={this.state.hasSourcesAfter}
-        filterLine={this.props.filterLine}
+        filterLine={this.handleFilterLine}
         highlightedLine={this.state.highlightedLine}
         highlightedLocations={this.props.highlightedLocations}
         highlightedLocationMessage={this.props.highlightedLocationMessage}
