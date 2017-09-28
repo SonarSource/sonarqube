@@ -111,9 +111,11 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
   protected abstract boolean shouldNotFormat(Notification notification);
 
   protected String subject(Notification notification, String fullProjectName) {
-    return String.format("%s: %s new issues (new debt: %s)",
+    int issueCount = Integer.parseInt(notification.getFieldValue(Metric.RULE_TYPE + COUNT));
+    return String.format("%s: %s new issue%s (new debt: %s)",
       fullProjectName,
-      notification.getFieldValue(Metric.RULE_TYPE + COUNT),
+      issueCount,
+      issueCount > 1 ? "s" : "",
       notification.getFieldValue(Metric.EFFORT + COUNT));
   }
 
