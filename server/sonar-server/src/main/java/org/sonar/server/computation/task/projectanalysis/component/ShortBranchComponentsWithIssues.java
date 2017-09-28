@@ -25,11 +25,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.KeyWithUuidDto;
+
+import static org.sonar.db.component.ComponentDto.removeBranchFromKey;
 
 /**
  * Cache a map of component key -> uuid in short branches that have issues with status either RESOLVED or CONFIRMED.
@@ -62,9 +62,5 @@ public class ShortBranchComponentsWithIssues {
     }
 
     return uuidsByKey.getOrDefault(componentKey, Collections.emptySet());
-  }
-
-  private static String removeBranchFromKey(String componentKey) {
-    return StringUtils.substringBeforeLast(componentKey, ComponentDto.BRANCH_KEY_SEPARATOR);
   }
 }

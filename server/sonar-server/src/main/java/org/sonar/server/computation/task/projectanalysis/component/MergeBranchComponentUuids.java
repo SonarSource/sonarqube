@@ -23,11 +23,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
+
+import static org.sonar.db.component.ComponentDto.removeBranchFromKey;
 
 /**
  * Cache a map between component keys and uuids in the merge branch
@@ -63,9 +64,5 @@ public class MergeBranchComponentUuids {
 
     String cleanComponentKey = removeBranchFromKey(dbKey);
     return uuidsByKey.get(cleanComponentKey);
-  }
-
-  private static String removeBranchFromKey(String componentKey) {
-    return StringUtils.substringBeforeLast(componentKey, ComponentDto.BRANCH_KEY_SEPARATOR);
   }
 }

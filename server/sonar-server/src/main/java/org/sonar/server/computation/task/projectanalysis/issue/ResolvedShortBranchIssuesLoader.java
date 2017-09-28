@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import org.sonar.core.issue.ShortBranchIssue;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.ShortBranchIssueDto;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ShortBranchComponentsWithIssues;
@@ -41,7 +42,8 @@ public class ResolvedShortBranchIssuesLoader {
   }
 
   public Collection<ShortBranchIssue> create(Component component) {
-    Set<String> uuids = shortBranchComponentsWithIssues.getUuids(component.getKey());
+    String componentKey = ComponentDto.removeBranchFromKey(component.getKey());
+    Set<String> uuids = shortBranchComponentsWithIssues.getUuids(componentKey);
     if (uuids.isEmpty()) {
       return Collections.emptyList();
     }
