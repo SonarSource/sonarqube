@@ -127,6 +127,7 @@ public class TaskFormatter {
     setNullable(dto.getExecutionTimeMs(), builder::setExecutionTimeMs);
     setNullable(dto.getErrorMessage(), builder::setErrorMessage);
     setNullable(dto.getErrorStacktrace(), builder::setErrorStacktrace);
+    setNullable(dto.getErrorType(), builder::setErrorType);
     setNullable(scannerContext, builder::setScannerContext);
     builder.setHasScannerContext(dto.isHasScannerContext());
     return builder.build();
