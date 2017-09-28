@@ -213,7 +213,7 @@
     </foreach>
   </select>
 
-  <select id="selectResolvedOrConfirmedByComponentUuids" parameterType="map" resultType="Issue">
+  <select id="selectResolvedOrConfirmedByComponentUuids" parameterType="map" resultType="ShortBranchIssue">
     select
       i.kee as kee,
       i.message as message,
