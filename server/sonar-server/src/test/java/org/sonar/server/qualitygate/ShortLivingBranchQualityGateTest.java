@@ -17,14 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.projectanalysis.qualitygate;
+package org.sonar.server.qualitygate;
 
-import com.google.common.base.Optional;
+import org.junit.Test;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.server.qualitygate.ShortLivingBranchQualityGate.Condition;
 
-public interface QualityGateService {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
-  /**
-   * Retrieve the {@link QualityGate} from the database with the specified id, it it exists.
-   */
-  Optional<QualityGate> findById(long id);
+public class ShortLivingBranchQualityGateTest {
+  @Test
+  public void defines_3_conditions() {
+    assertThat(ShortLivingBranchQualityGate.CONDITIONS)
+      .extracting(Condition::getMetricKey, Condition::getOperator, Condition::getErrorThreshold, Condition::getWarnThreshold, Condition::isOnLeak)
+      .containsExactly(
+        tuple(CoreMetrics.BUGS_KEY, "GT", "0", null, false),
+        tuple(CoreMetrics.VULNERABILITIES_KEY, "GT", "0", null, false),
+        tuple(CoreMetrics.CODE_SMELLS_KEY, "GT", "0", null, false));
+  }
+
 }

@@ -19,15 +19,17 @@
  */
 package org.sonar.server.computation.task.projectanalysis.webhook;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Map;
 import java.util.Random;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.ce.posttask.Branch;
 import org.sonar.api.ce.posttask.CeTask;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester;
 import org.sonar.api.ce.posttask.Project;
@@ -40,7 +42,6 @@ import org.sonar.server.webhook.WebHooks;
 import org.sonar.server.webhook.WebhookPayload;
 import org.sonar.server.webhook.WebhookPayloadFactory;
 
-import static java.util.Collections.emptySet;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -49,13 +50,16 @@ import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newBranchBuilder;
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newCeTaskBuilder;
+import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newConditionBuilder;
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newProjectBuilder;
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newQualityGateBuilder;
 import static org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester.newScannerContextBuilder;
 
 public class WebhookPostTaskTest {
 
+  private final Random random = new Random();
   private final Configuration configuration = mock(Configuration.class);
   private final WebhookPayload webhookPayload = mock(WebhookPayload.class);
   private final WebhookPayloadFactory payloadFactory = mock(WebhookPayloadFactory.class);
@@ -70,14 +74,27 @@ public class WebhookPostTaskTest {
   }
 
   @Test
-  public void call_webhooks() {
+  public void call_webhooks_when_no_analysis_not_qualitygate() {
     callWebHooks(null, null);
+  }
+
+  @Test
+  public void call_webhooks_with_analysis_and_qualitygate() {
+    QualityGate.Condition condition = newConditionBuilder()
+      .setMetricKey(randomAlphanumeric(96))
+      .setOperator(QualityGate.Operator.values()[random.nextInt(QualityGate.Operator.values().length)])
+      .setErrorThreshold(randomAlphanumeric(22))
+      .setWarningThreshold(randomAlphanumeric(23))
+      .setOnLeakPeriod(random.nextBoolean())
+      .build(QualityGate.EvaluationStatus.OK, randomAlphanumeric(33));
     QualityGate qualityGate = newQualityGateBuilder()
-      .setName("empty")
-      .setStatus(QualityGate.Status.OK)
-      .setId("1")
+      .setId(randomAlphanumeric(23))
+      .setName(randomAlphanumeric(66))
+      .setStatus(QualityGate.Status.values()[random.nextInt(QualityGate.Status.values().length)])
+      .add(condition)
       .build();
-    callWebHooks(RandomStringUtils.randomAlphanumeric(40), qualityGate);
+
+    callWebHooks(randomAlphanumeric(40), qualityGate);
   }
 
   private void callWebHooks(@Nullable String analysisUUid, @Nullable QualityGate qualityGate) {
@@ -87,16 +104,26 @@ public class WebhookPostTaskTest {
       .setName(randomAlphanumeric(5))
       .build();
     CeTask ceTask = newCeTaskBuilder()
-      .setStatus(CeTask.Status.values()[new Random().nextInt(CeTask.Status.values().length)])
+      .setStatus(CeTask.Status.values()[random.nextInt(CeTask.Status.values().length)])
       .setId(randomAlphanumeric(6))
       .build();
     Date date = new Date();
+    Map<String, String> properties = ImmutableMap.of(randomAlphanumeric(17), randomAlphanumeric(18));
+    Branch branch = newBranchBuilder()
+      .setIsMain(random.nextBoolean())
+      .setType(Branch.Type.values()[random.nextInt(Branch.Type.values().length)])
+      .setName(randomAlphanumeric(29))
+      .build();
 
     PostProjectAnalysisTaskTester.of(underTest)
       .at(date)
       .withCeTask(ceTask)
       .withProject(project)
-      .withScannerContext(newScannerContextBuilder().build())
+      .withBranch(branch)
+      .withQualityGate(qualityGate)
+      .withScannerContext(newScannerContextBuilder()
+        .addProperties(properties)
+        .build())
       .withAnalysisUuid(analysisUUid)
       .withQualityGate(qualityGate)
       .execute();
@@ -114,17 +141,26 @@ public class WebhookPostTaskTest {
 
     org.sonar.server.webhook.QualityGate webQualityGate = null;
     if (qualityGate != null) {
-      org.sonar.server.webhook.QualityGate.Status status = org.sonar.server.webhook.QualityGate.Status.valueOf(qualityGate.getStatus().name());
-      webQualityGate = new org.sonar.server.webhook.QualityGate(qualityGate.getId(), qualityGate.getName(), status, emptySet());
+      QualityGate.Condition condition = qualityGate.getConditions().iterator().next();
+      webQualityGate = new org.sonar.server.webhook.QualityGate(qualityGate.getId(), qualityGate.getName(),
+        org.sonar.server.webhook.QualityGate.Status.valueOf(qualityGate.getStatus().name()),
+        Collections.singleton(new org.sonar.server.webhook.QualityGate.Condition(
+          org.sonar.server.webhook.QualityGate.EvaluationStatus.valueOf(condition.getStatus().name()),
+          condition.getMetricKey(),
+          org.sonar.server.webhook.QualityGate.Operator.valueOf(condition.getOperator().name()),
+          condition.getErrorThreshold(),
+          condition.getWarningThreshold(),
+          condition.isOnLeakPeriod(),
+          condition.getValue())));
     }
 
     verify(payloadFactory).create(new ProjectAnalysis(
-      new org.sonar.server.webhook.Project(project.getUuid(), project.getKey(), project.getName()), new org.sonar.server.webhook.CeTask(ceTask.getId(),
-        org.sonar.server.webhook.CeTask.Status.valueOf(ceTask.getStatus().name())),
+      new org.sonar.server.webhook.Project(project.getUuid(), project.getKey(), project.getName()),
+      new org.sonar.server.webhook.CeTask(ceTask.getId(), org.sonar.server.webhook.CeTask.Status.valueOf(ceTask.getStatus().name())),
       analysisUUid == null ? null : new Analysis(analysisUUid, date.getTime()),
-      null,
+      new org.sonar.server.webhook.Branch(branch.isMain(), branch.getName().get(), org.sonar.server.webhook.Branch.Type.valueOf(branch.getType().name())),
       webQualityGate,
       analysisUUid == null ? null : date.getTime(),
-      Collections.emptyMap()));
+      properties));
   }
 }

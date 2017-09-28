@@ -36,6 +36,7 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricImpl;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
+import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -125,22 +126,22 @@ public class QualityGateServiceImplTest {
 
   @Test
   public void findById_of_hardcoded_short_living_branch_returns_hardcoded_qp() {
-    MetricImpl newBugsMetric = mockMetricInRepository(CoreMetrics.NEW_BUGS_KEY);
-    MetricImpl newVulnerabilitiesMetric = mockMetricInRepository(CoreMetrics.NEW_VULNERABILITIES_KEY);
-    MetricImpl newCodeSmellsMetric = mockMetricInRepository(CoreMetrics.NEW_CODE_SMELLS_KEY);
+    MetricImpl bugsMetric = mockMetricInRepository(CoreMetrics.BUGS_KEY);
+    MetricImpl vulnerabilitiesMetric = mockMetricInRepository(CoreMetrics.VULNERABILITIES_KEY);
+    MetricImpl codeSmellsMetric = mockMetricInRepository(CoreMetrics.CODE_SMELLS_KEY);
 
-    Optional<QualityGate> res = underTest.findById(QualityGateService.SHORT_LIVING_BRANCHES_QUALITY_GATE);
+    Optional<QualityGate> res = underTest.findById(ShortLivingBranchQualityGate.ID);
 
     assertThat(res).isPresent();
     QualityGate qualityGate = res.get();
-    assertThat(qualityGate.getId()).isEqualTo(QualityGateService.SHORT_LIVING_BRANCHES_QUALITY_GATE);
+    assertThat(qualityGate.getId()).isEqualTo(ShortLivingBranchQualityGate.ID);
     assertThat(qualityGate.getName()).isEqualTo("Hardcoded short living branch quality gate");
     assertThat(qualityGate.getConditions())
       .extracting(Condition::getMetric, Condition::getOperator, Condition::getErrorThreshold, Condition::getWarningThreshold, Condition::hasPeriod)
       .containsOnly(
-        tuple(newBugsMetric, GREATER_THAN, "0", null, true),
-        tuple(newVulnerabilitiesMetric, GREATER_THAN, "0", null, true),
-        tuple(newCodeSmellsMetric, GREATER_THAN, "0", null, true));
+        tuple(bugsMetric, GREATER_THAN, "0", null, false),
+        tuple(vulnerabilitiesMetric, GREATER_THAN, "0", null, false),
+        tuple(codeSmellsMetric, GREATER_THAN, "0", null, false));
   }
 
   private MetricImpl mockMetricInRepository(String metricKey) {
