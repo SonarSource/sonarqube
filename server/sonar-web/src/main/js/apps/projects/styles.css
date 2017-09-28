@@ -84,11 +84,13 @@
 }
 
 .project-card-measures {
+  display: flex;
   padding-top: 8px;
   margin: 0 -15px;
 }
 
 .project-card-leak-measures {
+  display: flex;
   padding: 8px 0;
   margin: 4px -4px;
   background-color: #fbf3d5;
@@ -132,18 +134,6 @@
   content: '';
 }
 
-.project-card-measure.pull-right {
-  text-align: right;
-}
-
-.project-card-measure.pull-right:before {
-  display: none;
-}
-
-.project-card-measure.pull-right .project-card-measure-inner {
-  text-align: right;
-}
-
 .project-card-measure .level {
   margin-top: 0;
   margin-bottom: 0;
@@ -168,6 +158,19 @@
 .project-card-measure-label-with-icon {
   margin-top: 2px;
   font-size: 12px;
+}
+
+.project-card-ncloc {
+  margin-left: auto;
+  text-align: right;
+}
+
+.project-card-ncloc:before {
+  display: none;
+}
+
+.project-card-ncloc .project-card-measure-inner {
+  text-align: right;
 }
 
 .project-card-languages {

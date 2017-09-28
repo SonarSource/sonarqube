@@ -20,6 +20,8 @@
 import * as React from 'react';
 import IssuesFilter from './IssuesFilter';
 import { Facet } from '../types';
+import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   className?: string;
@@ -33,5 +35,19 @@ interface Props {
 }
 
 export default function MaintainabilityFilter(props: Props) {
-  return <IssuesFilter {...props} name="Maintainability" property="maintainability" />;
+  return (
+    <IssuesFilter
+      {...props}
+      headerDetail={
+        <span className="note little-spacer-left">
+          {'('}
+          <CodeSmellIcon className="little-spacer-right" />
+          {translate('metric.code_smells.name')}
+          {' )'}
+        </span>
+      }
+      name="Maintainability"
+      property="maintainability"
+    />
+  );
 }

@@ -20,6 +20,8 @@
 import * as React from 'react';
 import IssuesFilter from './IssuesFilter';
 import { Facet } from '../types';
+import VulnerabilityIcon from '../../../components/icons-components/VulnerabilityIcon';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   className?: string;
@@ -33,5 +35,19 @@ interface Props {
 }
 
 export default function SecurityFilter(props: Props) {
-  return <IssuesFilter {...props} name="Security" property="security" />;
+  return (
+    <IssuesFilter
+      {...props}
+      headerDetail={
+        <span className="note little-spacer-left">
+          {'('}
+          <VulnerabilityIcon className="little-spacer-right" />
+          {translate('metric.vulnerabilities.name')}
+          {' )'}
+        </span>
+      }
+      name="Security"
+      property="security"
+    />
+  );
 }

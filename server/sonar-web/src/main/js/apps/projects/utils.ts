@@ -86,8 +86,11 @@ const PAGE_SIZE_VISUALIZATIONS = 99;
 
 const METRICS = [
   'alert_status',
+  'bugs',
   'reliability_rating',
+  'vulnerabilities',
   'security_rating',
+  'code_smells',
   'sqale_rating',
   'duplicated_lines_density',
   'coverage',
