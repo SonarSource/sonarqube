@@ -17,26 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v66;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
 
-public class DbVersion66Test {
+public class AddErrorTypeColumnToCeActivityTableTest {
 
-  private DbVersion66 underTest = new DbVersion66();
+  @Rule
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(AddErrorTypeColumnToCeActivityTableTest.class, "ce_activity_6_5.sql");
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private AddErrorTypeColumnToCeActivityTable underTest = new AddErrorTypeColumnToCeActivityTable(dbTester.database());
 
   @Test
-  public void migrationNumber_starts_at_1801() {
-    verifyMinimumMigrationNumber(underTest, 1801);
+  public void column_is_added_to_table() throws SQLException {
+    underTest.execute();
+
+    dbTester.assertColumnDefinition("ce_activity", "error_type", java.sql.Types.VARCHAR, 20, true);
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 10);
+  public void migration_is_not_reentrant() throws SQLException {
+    underTest.execute();
+
+    expectedException.expect(IllegalStateException.class);
+
+    underTest.execute();
   }
 
 }

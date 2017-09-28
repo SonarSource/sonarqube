@@ -69,6 +69,13 @@ public class CeActivityDto {
    * @see CeActivityDao#selectByUuid(DbSession, String)
    */
   private String errorStacktrace;
+
+  /**
+   * Optional free-text type of error. It may be set only when {@link #errorMessage} is not null.
+   */
+  @Nullable
+  private String errorType;
+
   /**
    * Flag indicating whether the analysis of the current activity has a scanner context or not.
    * <p>
@@ -244,6 +251,16 @@ public class CeActivityDto {
 
   public CeActivityDto setErrorMessage(@Nullable String errorMessage) {
     this.errorMessage = ensureNotTooBig(errorMessage, MAX_SIZE_ERROR_MESSAGE);
+    return this;
+  }
+
+  @CheckForNull
+  public String getErrorType() {
+    return errorType;
+  }
+
+  public CeActivityDto setErrorType(@Nullable String s) {
+    this.errorType = ensureNotTooBig(s, 20);
     return this;
   }
 
