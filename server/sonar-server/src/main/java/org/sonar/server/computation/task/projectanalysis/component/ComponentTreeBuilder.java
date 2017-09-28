@@ -19,7 +19,9 @@
  */
 package org.sonar.server.computation.task.projectanalysis.component;
 
+import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.component.SnapshotDto;
@@ -80,12 +82,12 @@ public class ComponentTreeBuilder {
     return buildComponent(project, project);
   }
 
-  private Component[] buildChildren(ScannerReport.Component component, ScannerReport.Component parentModule) {
+  private List<Component> buildChildren(ScannerReport.Component component, ScannerReport.Component parentModule) {
     return component.getChildRefList()
       .stream()
       .map(scannerComponentSupplier::apply)
       .map(c -> buildComponent(c, parentModule))
-      .toArray(Component[]::new);
+      .collect(Collectors.toList());
   }
 
   private ComponentImpl buildComponent(ScannerReport.Component component, ScannerReport.Component closestModule) {
