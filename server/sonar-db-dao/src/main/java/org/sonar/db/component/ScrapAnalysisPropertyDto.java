@@ -17,18 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v67;
+package org.sonar.db.component;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+import javax.annotation.Nullable;
 
-public class DbVersion67 implements DbVersion {
-  @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(1830, "Copy deprecated server ID", CopyDeprecatedServerId.class)
-      .add(1831, "Add webhook_deliveries.analysis_uuid", AddAnalysisUuidToWebhookDeliveries.class)
-      .add(1832, "Create table ANALYSIS_PROPERTIES", CreateTableAnalysisProperties.class)
-    ;
+public class ScrapAnalysisPropertyDto extends AnalysisPropertyDto {
+  public void setEmpty(boolean flag) {
+    if (flag) {
+      setValue("");
+    }
+  }
+
+  public void setTextValue(@Nullable String value) {
+    if (value != null) {
+      setValue(value);
+    }
+  }
+
+  public void setClobValue(@Nullable String value) {
+    if (value != null) {
+      setValue(value);
+    }
   }
 }

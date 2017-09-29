@@ -17,18 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.db.migration.version.v67;
 
-import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
-import org.sonar.server.platform.db.migration.version.DbVersion;
+package org.sonar.db.component;
 
-public class DbVersion67 implements DbVersion {
-  @Override
-  public void addSteps(MigrationStepRegistry registry) {
-    registry
-      .add(1830, "Copy deprecated server ID", CopyDeprecatedServerId.class)
-      .add(1831, "Add webhook_deliveries.analysis_uuid", AddAnalysisUuidToWebhookDeliveries.class)
-      .add(1832, "Create table ANALYSIS_PROPERTIES", CreateTableAnalysisProperties.class)
-    ;
-  }
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
+
+public interface AnalysisPropertiesMapper {
+
+  List<AnalysisPropertyDto> selectBySnapshotUuid(@Param("snapshotUuid") String snapshotUuid);
+
+  void insertAsEmpty(@Param("analysisPropertyDto") AnalysisPropertyDto analysisPropertyDto, @Param("createdAt") long createdAt);
+
+  void insertAsClob(@Param("analysisPropertyDto") AnalysisPropertyDto analysisPropertyDto, @Param("createdAt") long createdAt);
+
+  void insertAsText(@Param("analysisPropertyDto") AnalysisPropertyDto analysisPropertyDto, @Param("createdAt") long createdAt);
 }

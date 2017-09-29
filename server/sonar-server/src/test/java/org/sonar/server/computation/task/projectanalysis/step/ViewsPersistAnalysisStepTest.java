@@ -64,13 +64,9 @@ public class ViewsPersistAnalysisStepTest extends BaseStepTest {
   public PeriodHolderRule periodsHolder = new PeriodHolderRule();
 
   private System2 system2 = mock(System2.class);
-
   private DbClient dbClient = dbTester.getDbClient();
-
   private long analysisDate;
-
   private long now;
-
   private PersistAnalysisStep underTest;
 
   @Before
