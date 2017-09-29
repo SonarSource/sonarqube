@@ -50,6 +50,7 @@ import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
+import org.sonar.server.issue.webhook.IssueChangeWebhook;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.notification.NotificationManager;
@@ -108,8 +109,9 @@ public class DoTransitionActionTest {
   private ComponentDto project;
   private ComponentDto file;
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
+  private IssueChangeWebhook issueChangeWebhook = mock(IssueChangeWebhook.class);
 
-  private WsAction underTest = new DoTransitionAction(dbClient, userSession, new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter);
+  private WsAction underTest = new DoTransitionAction(dbClient, userSession, new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter, issueChangeWebhook);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Before
