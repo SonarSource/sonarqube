@@ -96,7 +96,7 @@ public class RangeDistributionBuilder {
     if (bottomLimits == null) {
       Number[] limits = map.keySet().toArray(new Number[map.size()]);
       init(limits);
-      
+
     } else if (!areSameLimits(bottomLimits, map.keySet())) {
       isValid = false;
     }
