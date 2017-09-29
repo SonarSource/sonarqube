@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.component.AnalysisPropertiesMapper">
+
+  <sql id="columns">
+    uuid as "uuid",
+    snapshot_uuid as "snapshotUuid",
+    kee as "key",
+    text_value as "textValue",
+    clob_value as "clobValue",
+    is_empty as "empty",
+    created_at as "createdAt"
+  </sql>
+
+  <select id="selectBySnapshotUuid" parameterType="string" resultType="ScrapAnalysisProperty">
+    SELECT
+      <include refid="columns"/>
+    FROM
+      analysis_properties
+    WHERE
+      snapshot_uuid = #{snapshotUuid}
+  </select>
+
+  <insert id="insertAsEmpty" parameterType="map" useGeneratedKeys="false">
+    INSERT INTO analysis_properties (
+      uuid,
+      snapshot_uuid,
+      kee,
+      is_empty,
+      created_at
+    ) VALUES (
+      #{analysisPropertyDto.uuid, jdbcType=VARCHAR},
+      #{analysisPropertyDto.snapshotUuid, jdbcType=VARCHAR},
+      #{analysisPropertyDto.key, jdbcType=VARCHAR},
+      ${_true},
+      #{createdAt}
+    )
+  </insert>
+
+  <insert id="insertAsText" parameterType="map" useGeneratedKeys="false">
+    INSERT INTO analysis_properties (
+      uuid,
+      snapshot_uuid,
+      kee,
+      text_value,
+      is_empty,
+      created_at
+    ) VALUES (
+      #{analysisPropertyDto.uuid, jdbcType=VARCHAR},
+      #{analysisPropertyDto.snapshotUuid, jdbcType=VARCHAR},
+      #{analysisPropertyDto.key, jdbcType=VARCHAR},
+      #{analysisPropertyDto.value, jdbcType=VARCHAR},
+      ${_false},
+      #{createdAt}
+    )
+  </insert>
+
+  <insert id="insertAsClob" parameterType="Map" useGeneratedKeys="false">
+    INSERT INTO analysis_properties (
+      uuid,
+      snapshot_uuid,
+      kee,
+      clob_value,
+      is_empty,
+      created_at
+    ) VALUES (
+      #{analysisPropertyDto.uuid, jdbcType=VARCHAR},
+      #{analysisPropertyDto.snapshotUuid, jdbcType=VARCHAR},
+      #{analysisPropertyDto.key, jdbcType=VARCHAR},
+      #{analysisPropertyDto.value, jdbcType=VARCHAR},
+      ${_false},
+      #{createdAt}
+    )
+  </insert>
+
+</mapper>

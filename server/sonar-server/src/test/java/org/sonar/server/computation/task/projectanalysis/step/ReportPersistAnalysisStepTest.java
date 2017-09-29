@@ -63,16 +63,11 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
   public PeriodHolderRule periodsHolder = new PeriodHolderRule();
 
   private System2 system2 = mock(System2.class);
-
   private DbIdsRepositoryImpl dbIdsRepository;
-
   private DbClient dbClient = dbTester.getDbClient();
-
   private long analysisDate;
-
   private long now;
-
-  PersistAnalysisStep underTest;
+  private PersistAnalysisStep underTest;
 
   @Before
   public void setup() {

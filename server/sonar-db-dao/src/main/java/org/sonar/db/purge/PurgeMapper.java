@@ -34,6 +34,8 @@ public interface PurgeMapper {
 
   void deleteAnalyses(@Param("analysisUuids") List<String> analysisUuids);
 
+  void deleteAnalysisProperties(@Param("analysisUuids") List<String> analysisUuids);
+
   void deleteAnalysisDuplications(@Param("analysisUuids") List<String> analysisUuids);
 
   void deleteAnalysisEvents(@Param("analysisUuids") List<String> analysisUuids);

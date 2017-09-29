@@ -27,6 +27,15 @@
              incremental="[false]"
   />
 
+  <analysis_properties uuid="u1"
+                       snapshot_uuid="u1"
+                       kee="key1"
+                       clob_value="[null]"
+                       text_value="value1"
+                       is_empty="[false]"
+                       created_at="1228222680000"
+  />
+
   <project_measures ID="1"
                     component_uuid="1"
                     analysis_uuid="u1"
@@ -90,6 +99,15 @@
              build_date="1228222680000"
              version="[null]"
              incremental="[false]"
+  />
+
+  <analysis_properties uuid="u2"
+                       snapshot_uuid="u2"
+                       kee="key2"
+                       clob_value="[null]"
+                       text_value="value2"
+                       is_empty="[false]"
+                       created_at="1228222680000"
   />
 
   <project_measures ID="2"
