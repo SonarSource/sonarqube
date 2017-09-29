@@ -72,10 +72,11 @@ public class InitFilterTest {
   private FakeBasicIdentityProvider baseIdentityProvider = new FakeBasicIdentityProvider(BASIC_PROVIDER_KEY, true);
   private BaseIdentityProvider.Context baseContext = mock(BaseIdentityProvider.Context.class);
   private AuthenticationEvent authenticationEvent = mock(AuthenticationEvent.class);
+  private OAuth2Redirection oAuthRedirection = mock(OAuth2Redirection.class);
 
   private ArgumentCaptor<AuthenticationException> authenticationExceptionCaptor = ArgumentCaptor.forClass(AuthenticationException.class);
 
-  private InitFilter underTest = new InitFilter(identityProviderRepository, baseContextFactory, oAuth2ContextFactory, server, authenticationEvent);
+  private InitFilter underTest = new InitFilter(identityProviderRepository, baseContextFactory, oAuth2ContextFactory, server, authenticationEvent, oAuthRedirection);
 
   @Before
   public void setUp() throws Exception {
@@ -99,6 +100,7 @@ public class InitFilterTest {
 
     assertOAuth2InitCalled();
     verifyZeroInteractions(authenticationEvent);
+    verify(oAuthRedirection).create(eq(request), eq(response));
   }
 
   @Test
@@ -110,6 +112,7 @@ public class InitFilterTest {
 
     assertOAuth2InitCalled();
     verifyZeroInteractions(authenticationEvent);
+    verify(oAuthRedirection).create(eq(request), eq(response));
   }
 
   @Test
@@ -121,6 +124,7 @@ public class InitFilterTest {
 
     assertBasicInitCalled();
     verifyZeroInteractions(authenticationEvent);
+    verifyZeroInteractions(oAuthRedirection);
   }
 
   @Test
@@ -131,6 +135,7 @@ public class InitFilterTest {
 
     assertError("No provider key found in URI");
     verifyZeroInteractions(authenticationEvent);
+    verifyZeroInteractions(oAuthRedirection);
   }
 
   @Test
@@ -141,6 +146,7 @@ public class InitFilterTest {
 
     assertError("No provider key found in URI");
     verifyZeroInteractions(authenticationEvent);
+    verifyZeroInteractions(oAuthRedirection);
   }
 
   @Test
@@ -154,6 +160,7 @@ public class InitFilterTest {
 
     assertError("Unsupported IdentityProvider class: class org.sonar.server.authentication.InitFilterTest$UnsupportedIdentityProvider");
     verifyZeroInteractions(authenticationEvent);
+    verifyZeroInteractions(oAuthRedirection);
   }
 
   @Test
@@ -171,6 +178,7 @@ public class InitFilterTest {
     assertThat(authenticationException.getSource()).isEqualTo(AuthenticationEvent.Source.external(identityProvider));
     assertThat(authenticationException.getLogin()).isNull();
     assertThat(authenticationException.getPublicMessage()).isEqualTo("Email john@email.com is already used");
+    verifyDeleteRedirection();
   }
 
   @Test
@@ -183,6 +191,20 @@ public class InitFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(response).sendRedirect("/sonarqube/sessions/unauthorized?message=Email+john%40email.com+is+already+used");
+    verifyDeleteRedirection();
+  }
+
+  @Test
+  public void redirect_when_failing_because_of_Exception() throws Exception {
+    IdentityProvider identityProvider = new FailWithIllegalStateException("failing");
+    when(request.getRequestURI()).thenReturn("/sessions/init/" + identityProvider.getKey());
+    identityProviderRepository.addIdentityProvider(identityProvider);
+
+    underTest.doFilter(request, response, chain);
+
+    verify(response).sendRedirect("/sessions/unauthorized");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).containsExactlyInAnyOrder("Fail to initialize authentication with provider 'failing'");
+    verifyDeleteRedirection();
   }
 
   private void assertOAuth2InitCalled() {
@@ -201,6 +223,10 @@ public class InitFilterTest {
     assertThat(oAuth2IdentityProvider.isInitCalled()).isFalse();
   }
 
+  private void verifyDeleteRedirection() {
+    verify(oAuthRedirection).delete(eq(request), eq(response));
+  }
+
   private static class FailWithUnauthorizedExceptionIdProvider extends FakeBasicIdentityProvider {
 
     public FailWithUnauthorizedExceptionIdProvider(String key) {
@@ -210,6 +236,18 @@ public class InitFilterTest {
     @Override
     public void init(Context context) {
       throw new UnauthorizedException("Email john@email.com is already used");
+    }
+  }
+
+  private static class FailWithIllegalStateException extends FakeBasicIdentityProvider {
+
+    public FailWithIllegalStateException(String key) {
+      super(key, true);
+    }
+
+    @Override
+    public void init(Context context) {
+      throw new IllegalStateException("Failure !");
     }
   }
 
@@ -239,6 +277,7 @@ public class InitFilterTest {
     public boolean isEnabled() {
       return true;
     }
+
     @Override
     public boolean allowsUsersToSignUp() {
       return false;
