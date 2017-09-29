@@ -258,7 +258,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
   @CheckForNull
   private static String getName(DefaultInputModule module) {
     if (StringUtils.isNotEmpty(module.definition().getBranch())) {
-      return module.definition().getOriginalName() + " " + module.definition().getBranch();
+      return module.definition().getName() + " " + module.definition().getBranch();
     } else {
       return module.definition().getOriginalName();
     }
