@@ -24,6 +24,7 @@ import key from 'keymaster';
 import MeasureContentContainer from './MeasureContentContainer';
 import MeasureOverviewContainer from './MeasureOverviewContainer';
 import Sidebar from '../sidebar/Sidebar';
+import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { hasBubbleChart, parseQuery, serializeQuery } from '../utils';
 import { getBranchName } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
@@ -148,19 +149,21 @@ export default class App extends React.PureComponent {
       <div className="layout-page" id="component-measures">
         <Helmet title={translate('layout.measures')} />
 
-        <div className="layout-page-side-outer">
-          <div className="layout-page-side" style={{ top: 95 }}>
-            <div className="layout-page-side-inner">
-              <div className="layout-page-filters">
-                <Sidebar
-                  measures={this.state.measures}
-                  selectedMetric={query.metric}
-                  updateQuery={this.updateQuery}
-                />
+        <ScreenPositionHelper className="layout-page-side-outer">
+          {({ top }) => (
+            <div className="layout-page-side" style={{ top }}>
+              <div className="layout-page-side-inner">
+                <div className="layout-page-filters">
+                  <Sidebar
+                    measures={this.state.measures}
+                    selectedMetric={query.metric}
+                    updateQuery={this.updateQuery}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          )}
+        </ScreenPositionHelper>
 
         {metric != null && (
           <MeasureContentContainer

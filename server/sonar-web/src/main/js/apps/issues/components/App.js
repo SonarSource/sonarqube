@@ -55,6 +55,7 @@ import {
 } from '../utils'; */
 import ListFooter from '../../../components/controls/ListFooter';
 import EmptySearch from '../../../components/common/EmptySearch';
+import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { getBranchName } from '../../../helpers/branches';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
@@ -792,16 +793,16 @@ export default class App extends React.PureComponent {
   }
 
   renderSide(openIssue /*: ?Issue */) {
-    const top = this.props.component || this.props.organization ? 95 : 30;
-
     return (
-      <div className="layout-page-side-outer">
-        <div className="layout-page-side" style={{ top }}>
-          <div className="layout-page-side-inner">
-            {openIssue == null ? this.renderFacets() : this.renderConciseIssuesList()}
+      <ScreenPositionHelper className="layout-page-side-outer">
+        {({ top }) => (
+          <div className="layout-page-side" style={{ top }}>
+            <div className="layout-page-side-inner">
+              {openIssue == null ? this.renderFacets() : this.renderConciseIssuesList()}
+            </div>
           </div>
-        </div>
-      </div>
+        )}
+      </ScreenPositionHelper>
     );
   }
 

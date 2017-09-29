@@ -25,6 +25,7 @@ import { Domain as DomainType, fetchWebApi } from '../../../api/web-api';
 import Menu from './Menu';
 import Search from './Search';
 import Domain from './Domain';
+import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import { getActionKey, isDomainPathActive } from '../utils';
 import { scrollToElement } from '../../../helpers/scrolling';
 import { translate } from '../../../helpers/l10n';
@@ -141,35 +142,37 @@ export default class WebApiApp extends React.PureComponent<Props, State> {
     return (
       <div className="layout-page">
         <Helmet title={translate('api_documentation.page')} />
-        <div className="layout-page-side-outer">
-          <div className="layout-page-side" style={{ top: 30 }}>
-            <div className="layout-page-side-inner">
-              <div className="layout-page-filters">
-                <div className="web-api-page-header">
-                  <Link to="/web_api/">
-                    <h1>{translate('api_documentation.page')}</h1>
-                  </Link>
+        <ScreenPositionHelper className="layout-page-side-outer">
+          {({ top }) => (
+            <div className="layout-page-side" style={{ top }}>
+              <div className="layout-page-side-inner">
+                <div className="layout-page-filters">
+                  <div className="web-api-page-header">
+                    <Link to="/web_api/">
+                      <h1>{translate('api_documentation.page')}</h1>
+                    </Link>
+                  </div>
+
+                  <Search
+                    showDeprecated={showDeprecated}
+                    showInternal={showInternal}
+                    onSearch={this.handleSearch}
+                    onToggleInternal={this.handleToggleInternal}
+                    onToggleDeprecated={this.handleToggleDeprecated}
+                  />
+
+                  <Menu
+                    domains={this.state.domains}
+                    showDeprecated={showDeprecated}
+                    showInternal={showInternal}
+                    searchQuery={searchQuery}
+                    splat={splat}
+                  />
                 </div>
-
-                <Search
-                  showDeprecated={showDeprecated}
-                  showInternal={showInternal}
-                  onSearch={this.handleSearch}
-                  onToggleInternal={this.handleToggleInternal}
-                  onToggleDeprecated={this.handleToggleDeprecated}
-                />
-
-                <Menu
-                  domains={this.state.domains}
-                  showDeprecated={showDeprecated}
-                  showInternal={showInternal}
-                  searchQuery={searchQuery}
-                  splat={splat}
-                />
               </div>
             </div>
-          </div>
-        </div>
+          )}
+        </ScreenPositionHelper>
 
         <div className="layout-page-main">
           <div className="layout-page-main-inner">

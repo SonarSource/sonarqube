@@ -9,32 +9,9 @@ exports[`should render correctly 1`] = `
     encodeSpecialCharacters={true}
     title="layout.measures"
   />
-  <div
+  <ScreenPositionHelper
     className="layout-page-side-outer"
-  >
-    <div
-      className="layout-page-side"
-      style={
-        Object {
-          "top": 95,
-        }
-      }
-    >
-      <div
-        className="layout-page-side-inner"
-      >
-        <div
-          className="layout-page-filters"
-        >
-          <Sidebar
-            measures={Array []}
-            selectedMetric="coverage"
-            updateQuery={[Function]}
-          />
-        </div>
-      </div>
-    </div>
-  </div>
+  />
   <MeasureContentContainer
     className="layout-page-main"
     fetchMeasures={[Function]}

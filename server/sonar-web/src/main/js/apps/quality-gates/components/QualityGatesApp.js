@@ -22,6 +22,7 @@ import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import ListHeader from './ListHeader';
 import List from './List';
+import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import {
   fetchQualityGatesAppDetails,
   fetchQualityGates as fetchQualityGatesAPI
@@ -67,22 +68,22 @@ export default class QualityGatesApp extends Component {
   render() {
     const { children, qualityGates, edit, organization } = this.props;
     const defaultTitle = translate('quality_gates.page');
-    const top = organization ? 95 : 30;
     return (
       <div id="quality-gates-page" className="layout-page">
         <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />
 
-        <div className="layout-page-side-outer">
-          <div className="layout-page-side" style={{ top }}>
-            <div className="layout-page-side-inner">
-              <div className="layout-page-filters">
-                <ListHeader canEdit={edit} onAdd={this.handleAdd.bind(this)} />
-                {qualityGates && <List organization={organization} qualityGates={qualityGates} />}
+        <ScreenPositionHelper className="layout-page-side-outer">
+          {({ top }) => (
+            <div className="layout-page-side" style={{ top }}>
+              <div className="layout-page-side-inner">
+                <div className="layout-page-filters">
+                  <ListHeader canEdit={edit} onAdd={this.handleAdd.bind(this)} />
+                  {qualityGates && <List organization={organization} qualityGates={qualityGates} />}
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-
+          )}
+        </ScreenPositionHelper>
         {qualityGates != null &&
           React.Children.map(children, child => React.cloneElement(child, { organization }))}
       </div>
