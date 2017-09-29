@@ -28,6 +28,7 @@ interface Props {
   onSonarCloud: boolean;
   identityProviders: IdentityProvider[];
   onSubmit: (login: string, password: string) => void;
+  returnTo: string;
 }
 
 interface State {
@@ -72,7 +73,10 @@ export default class LoginForm extends React.PureComponent<Props, State> {
         <h1 className="login-title text-center">{loginTitle}</h1>
 
         {this.props.identityProviders.length > 0 && (
-          <OAuthProviders identityProviders={this.props.identityProviders} />
+          <OAuthProviders
+            identityProviders={this.props.identityProviders}
+            returnTo={this.props.returnTo}
+          />
         )}
 
         {this.state.collapsed ? (
