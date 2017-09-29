@@ -155,6 +155,30 @@ public class ComponentsPublisherTest {
   }
 
   @Test
+  public void should_set_modified_name_with_branch() throws IOException {
+    ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
+    when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
+
+    ProjectDefinition rootDef = ProjectDefinition.create()
+      .setKey("foo")
+      .setDescription("Root description")
+      .setBaseDir(temp.newFolder())
+      .setWorkDir(temp.newFolder())
+      .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, "my_branch");
+
+    DefaultInputModule root = new DefaultInputModule(rootDef, 1);
+
+    moduleHierarchy = mock(InputModuleHierarchy.class);
+    when(moduleHierarchy.root()).thenReturn(root);
+
+    ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree, branchConfiguration);
+    publisher.publish(writer);
+    Component rootProtobuf = reader.readComponent(1);
+    assertThat(rootProtobuf.getKey()).isEqualTo("foo");
+    assertThat(rootProtobuf.getName()).isEqualTo("foo my_branch");
+  }
+
+  @Test
   public void should_skip_dir_without_published_files() throws IOException {
     ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
     when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
