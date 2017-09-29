@@ -20,6 +20,7 @@
 package org.sonar.server.authentication;
 
 import java.io.IOException;
+import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.platform.Server;
@@ -43,15 +44,17 @@ public class OAuth2ContextFactory {
   private final OAuthCsrfVerifier csrfVerifier;
   private final JwtHttpHandler jwtHttpHandler;
   private final UserSessionFactory userSessionFactory;
+  private final OAuth2Redirection oAuthRedirection;
 
   public OAuth2ContextFactory(ThreadLocalUserSession threadLocalUserSession, UserIdentityAuthenticator userIdentityAuthenticator, Server server,
-    OAuthCsrfVerifier csrfVerifier, JwtHttpHandler jwtHttpHandler, UserSessionFactory userSessionFactory) {
+    OAuthCsrfVerifier csrfVerifier, JwtHttpHandler jwtHttpHandler, UserSessionFactory userSessionFactory, OAuth2Redirection oAuthRedirection) {
     this.threadLocalUserSession = threadLocalUserSession;
     this.userIdentityAuthenticator = userIdentityAuthenticator;
     this.server = server;
     this.csrfVerifier = csrfVerifier;
     this.jwtHttpHandler = jwtHttpHandler;
     this.userSessionFactory = userSessionFactory;
+    this.oAuthRedirection = oAuthRedirection;
   }
 
   public OAuth2IdentityProvider.InitContext newContext(HttpServletRequest request, HttpServletResponse response, OAuth2IdentityProvider identityProvider) {
@@ -111,7 +114,8 @@ public class OAuth2ContextFactory {
     @Override
     public void redirectToRequestedPage() {
       try {
-        getResponse().sendRedirect(server.getContextPath() + "/");
+        Optional<String> redirectTo = oAuthRedirection.getAndDelete(request, response);
+        getResponse().sendRedirect(server.getContextPath() + redirectTo.orElse("/"));
       } catch (IOException e) {
         throw new IllegalStateException("Fail to redirect to home", e);
       }
