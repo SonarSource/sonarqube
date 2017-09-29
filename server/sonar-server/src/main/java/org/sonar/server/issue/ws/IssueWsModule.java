@@ -27,6 +27,7 @@ import org.sonar.server.issue.IssueQueryFactory;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.ServerIssueStorage;
 import org.sonar.server.issue.TransitionService;
+import org.sonar.server.issue.webhook.IssueChangeWebhookImpl;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.ws.WsResponseCommonFormat;
@@ -63,6 +64,7 @@ public class IssueWsModule extends Module {
       ComponentTagsAction.class,
       AuthorsAction.class,
       ChangelogAction.class,
-      BulkChangeAction.class);
+      BulkChangeAction.class,
+      IssueChangeWebhookImpl.class);
   }
 }

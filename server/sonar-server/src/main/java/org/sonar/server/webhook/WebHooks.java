@@ -86,5 +86,13 @@ public interface WebHooks {
     public int hashCode() {
       return Objects.hash(projectUuid, ceTaskUuid, analysisUuid);
     }
+
+    @Override
+    public String toString() {
+      return "Analysis{" +
+        "projectUuid='" + projectUuid + '\'' +
+        ", ceTaskUuid='" + ceTaskUuid + '\'' +
+        '}';
+    }
   }
 }
