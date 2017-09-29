@@ -25,6 +25,7 @@ import { getBaseUrl } from '../../../helpers/urls';
 interface Props {
   formatLabel?: (name: string) => string;
   identityProviders: IdentityProvider[];
+  returnTo: string;
 }
 
 export default function OAuthProviders(props: Props) {
@@ -35,7 +36,10 @@ export default function OAuthProviders(props: Props) {
         {props.identityProviders.map(identityProvider => (
           <li key={identityProvider.key}>
             <a
-              href={`${getBaseUrl()}/sessions/init/${identityProvider.key}`}
+              href={
+                `${getBaseUrl()}/sessions/init/${identityProvider.key}` +
+                `?return_to=${encodeURIComponent(props.returnTo)}`
+              }
               style={{ backgroundColor: identityProvider.backgroundColor }}
               title={formatLabel(identityProvider.name)}>
               <img

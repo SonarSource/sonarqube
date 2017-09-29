@@ -59,11 +59,14 @@ class LoginFormContainer extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  handleSuccessfulLogin = () => {
+  getReturnUrl = () => {
     const { location } = this.props;
     const queryReturnTo = location.query['return_to'];
-    const returnTo = queryReturnTo ? `${queryReturnTo}${location.hash}` : `${getBaseUrl()}/`;
-    window.location.href = returnTo;
+    return queryReturnTo ? `${queryReturnTo}${location.hash}` : `${getBaseUrl()}/`;
+  };
+
+  handleSuccessfulLogin = () => {
+    window.location.href = this.getReturnUrl();
   };
 
   handleSubmit = (login: string, password: string) => {
@@ -81,6 +84,7 @@ class LoginFormContainer extends React.PureComponent<Props, State> {
         identityProviders={identityProviders}
         onSonarCloud={onSonarCloud}
         onSubmit={this.handleSubmit}
+        returnTo={this.getReturnUrl()}
       />
     );
   }
