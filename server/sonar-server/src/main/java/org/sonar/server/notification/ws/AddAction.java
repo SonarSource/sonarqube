@@ -46,6 +46,7 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
+import static org.sonar.server.ws.ApiDescriptionHelper.listOfPermissions;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.notification.NotificationsWsParameters.ACTION_ADD;
@@ -76,12 +77,10 @@ public class AddAction implements NotificationsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_ADD)
-      .setDescription("Add a notification for the authenticated user.<br>" +
-        "Requires one of the following permissions:" +
-        "<ul>" +
-        " <li>Authentication if no login is provided. If a project is provided, requires the 'Browse' permission on the specified project.</li>" +
-        " <li>System administration if a login is provided. If a project is provided, requires the 'Browse' permission on the specified project.</li>" +
-        "</ul>")
+      .setDescription("Add a notification for the authenticated user." +
+        listOfPermissions(
+        "Authentication if no login is provided. If a project is provided, requires the 'Browse' permission on the specified project.",
+        "System administration if a login is provided. If a project is provided, requires the 'Browse' permission on the specified project."))
       .setSince("6.3")
       .setPost(true)
       .setHandler(this);

@@ -42,6 +42,7 @@ import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.crea
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createUserLoginParameter;
+import static org.sonar.server.ws.ApiDescriptionHelper.listOfPermissions;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
@@ -68,12 +69,10 @@ public class AddUserAction implements PermissionsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION)
       .setDescription("Add permission to a user.<br /> " +
-        "This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br />" +
-        "Requires one of the following permissions:" +
-        "<ul>" +
-        "<li>'Administer System'</li>" +
-        "<li>'Administer' rights on the specified project</li>" +
-        "</ul>")
+        "This service defaults to global permissions, but can be limited to project permissions by providing project id or project key." +
+        listOfPermissions(
+        "'Administer System'",
+        "'Administer' rights on the specified project"))
       .setSince("5.2")
       .setPost(true)
       .setHandler(this);

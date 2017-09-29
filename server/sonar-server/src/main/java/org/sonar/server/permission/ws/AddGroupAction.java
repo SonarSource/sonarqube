@@ -39,6 +39,7 @@ import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.crea
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
+import static org.sonar.server.ws.ApiDescriptionHelper.listOfPermissions;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
 
 public class AddGroupAction implements PermissionsWsAction {
@@ -62,12 +63,10 @@ public class AddGroupAction implements PermissionsWsAction {
     WebService.NewAction action = context.createAction(ACTION)
       .setDescription("Add permission to a group.<br /> " +
         "This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br /> " +
-        "The group name or group id must be provided. <br />" +
-        "Requires one of the following permissions:" +
-        "<ul>" +
-        "<li>'Administer System'</li>" +
-        "<li>'Administer' rights on the specified project</li>" +
-        "</ul>")
+        "The group name or group id must be provided." +
+        listOfPermissions(
+        "'Administer System'",
+        "'Administer' rights on the specified project"))
       .setSince("5.2")
       .setPost(true)
       .setHandler(this);
