@@ -35,6 +35,7 @@ import org.sonar.db.ce.CeScannerContextMapper;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.ce.CeTaskCharacteristicMapper;
 import org.sonar.db.ce.CeTaskInputMapper;
+import org.sonar.db.component.AnalysisPropertiesMapper;
 import org.sonar.db.component.BranchMapper;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentDtoWithSnapshotId;
@@ -44,6 +45,7 @@ import org.sonar.db.component.ComponentLinkMapper;
 import org.sonar.db.component.ComponentMapper;
 import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.component.ResourceDto;
+import org.sonar.db.component.ScrapAnalysisPropertyDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotMapper;
 import org.sonar.db.component.UuidWithProjectUuidDto;
@@ -178,6 +180,7 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("Rule", RuleDto.class);
     confBuilder.loadAlias("SchemaMigration", SchemaMigrationDto.class);
     confBuilder.loadAlias("ScrapProperty", ScrapPropertyDto.class);
+    confBuilder.loadAlias("ScrapAnalysisProperty", ScrapAnalysisPropertyDto.class);
     confBuilder.loadAlias("Snapshot", SnapshotDto.class);
     confBuilder.loadAlias("UserGroup", UserGroupDto.class);
     confBuilder.loadAlias("UserPermission", UserPermissionDto.class);
@@ -190,6 +193,7 @@ public class MyBatis implements Startable {
     // keep them sorted alphabetically
     Class<?>[] mappers = {
       ActiveRuleMapper.class,
+      AnalysisPropertiesMapper.class,
       AuthorizationMapper.class,
       BranchMapper.class,
       CeActivityMapper.class,

@@ -44,6 +44,15 @@
              version="[null]"
   />
 
+  <analysis_properties uuid="u1"
+                       snapshot_uuid="u1"
+                       kee="key1"
+                       clob_value="[null]"
+                       text_value="value1"
+                       is_empty="[false]"
+                       created_at="1228222680000"
+  />
+
   <events id="1"
           uuid="P1"
           analysis_uuid="u1"

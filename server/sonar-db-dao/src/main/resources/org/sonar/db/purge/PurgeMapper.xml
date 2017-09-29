@@ -136,6 +136,15 @@
       </foreach>
   </delete>
 
+  <delete id="deleteAnalysisProperties" parameterType="map">
+    DELETE FROM analysis_properties
+    WHERE
+      snapshot_uuid IN
+      <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+        #{analysisUuid,jdbcType=VARCHAR}
+      </foreach>
+  </delete>
+
   <delete id="deleteAnalysisWastedMeasures" parameterType="map">
     delete from project_measures
     <where>

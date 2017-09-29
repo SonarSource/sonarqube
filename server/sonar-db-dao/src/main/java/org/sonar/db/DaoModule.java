@@ -28,6 +28,7 @@ import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeScannerContextDao;
 import org.sonar.db.ce.CeTaskCharacteristicDao;
 import org.sonar.db.ce.CeTaskInputDao;
+import org.sonar.db.component.AnalysisPropertiesDao;
 import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
@@ -79,6 +80,7 @@ public class DaoModule extends Module {
     // for readability and easier merge, keep list ordered alphabetically
     // =====================================================================
     ActiveRuleDao.class,
+    AnalysisPropertiesDao.class,
     AuthorizationDao.class,
     BranchDao.class,
     CeActivityDao.class,

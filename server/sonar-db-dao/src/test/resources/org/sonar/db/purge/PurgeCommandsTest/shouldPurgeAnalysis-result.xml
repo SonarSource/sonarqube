@@ -34,6 +34,14 @@ Note that measures, events and reviews are not deleted.
              version="[null]"
              incremental="[false]"
   />
+  <analysis_properties uuid="u1"
+                       snapshot_uuid="u1"
+                       kee="key1"
+                       text_value="value1"
+                       clob_value="[null]"
+                       is_empty="[false]"
+                       created_at="1228222680000"
+  />
 
   <!--switched_off="[null]" permanent_id="[null]" FAILURE_LEVEL="2"-->
   <!--MESSAGE="msg1" LINE="[null]" COST="[null]"-->
@@ -100,6 +108,14 @@ Note that measures, events and reviews are not deleted.
              incremental="[false]"
   />
 
+  <analysis_properties uuid="u2"
+                       snapshot_uuid="u2"
+                       kee="key2"
+                       clob_value="[null]"
+                       text_value="value2"
+                       is_empty="[false]"
+                       created_at="1228222680000"
+  />
 
   <project_measures ID="2"
                     component_uuid="2"
