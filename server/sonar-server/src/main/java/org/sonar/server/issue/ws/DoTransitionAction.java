@@ -35,6 +35,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.TransitionService;
+import org.sonar.server.issue.webhook.IssueChangeWebhook;
 import org.sonar.server.user.UserSession;
 
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_DO_TRANSITION;
@@ -49,15 +50,17 @@ public class DoTransitionAction implements IssuesWsAction {
   private final IssueUpdater issueUpdater;
   private final TransitionService transitionService;
   private final OperationResponseWriter responseWriter;
+  private final IssueChangeWebhook issueChangeWebhook;
 
   public DoTransitionAction(DbClient dbClient, UserSession userSession, IssueFinder issueFinder, IssueUpdater issueUpdater, TransitionService transitionService,
-    OperationResponseWriter responseWriter) {
+    OperationResponseWriter responseWriter, IssueChangeWebhook issueChangeWebhook) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.issueFinder = issueFinder;
     this.issueUpdater = issueUpdater;
     this.transitionService = transitionService;
     this.responseWriter = responseWriter;
+    this.issueChangeWebhook = issueChangeWebhook;
   }
 
   @Override
@@ -99,7 +102,9 @@ public class DoTransitionAction implements IssuesWsAction {
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
     transitionService.checkTransitionPermission(transitionKey, defaultIssue);
     if (transitionService.doTransition(defaultIssue, context, transitionKey)) {
-      return issueUpdater.saveIssueAndPreloadSearchResponseData(session, defaultIssue, context, null);
+      SearchResponseData searchResponseData = issueUpdater.saveIssueAndPreloadSearchResponseData(session, defaultIssue, context, null);
+      issueChangeWebhook.onChange(searchResponseData, new IssueChangeWebhook.IssueChange(transitionKey), context);
+      return searchResponseData;
     }
     return new SearchResponseData(issueDto);
   }

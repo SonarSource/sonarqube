@@ -35,6 +35,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
+import org.sonar.server.issue.webhook.IssueChangeWebhook;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
@@ -50,15 +51,17 @@ public class SetTypeAction implements IssuesWsAction {
   private final IssueFieldsSetter issueFieldsSetter;
   private final IssueUpdater issueUpdater;
   private final OperationResponseWriter responseWriter;
+  private final IssueChangeWebhook issueChangeWebhook;
 
   public SetTypeAction(UserSession userSession, DbClient dbClient, IssueFinder issueFinder, IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater,
-    OperationResponseWriter responseWriter) {
+    OperationResponseWriter responseWriter, IssueChangeWebhook issueChangeWebhook) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.issueFinder = issueFinder;
     this.issueFieldsSetter = issueFieldsSetter;
     this.issueUpdater = issueUpdater;
     this.responseWriter = responseWriter;
+    this.issueChangeWebhook = issueChangeWebhook;
   }
 
   @Override
@@ -107,7 +110,9 @@ public class SetTypeAction implements IssuesWsAction {
 
     IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
     if (issueFieldsSetter.setType(issue, ruleType, context)) {
-      return issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, null);
+      SearchResponseData searchResponseData = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, null);
+      issueChangeWebhook.onChange(searchResponseData, new IssueChangeWebhook.IssueChange(ruleType), context);
+      return searchResponseData;
     }
     return new SearchResponseData(issueDto);
   }
