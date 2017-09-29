@@ -1,0 +1,94 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+package org.sonar.server.computation.task.projectanalysis.step;
+
+import java.util.Arrays;
+import java.util.List;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.sonar.api.utils.System2;
+import org.sonar.core.util.CloseableIterator;
+import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.AnalysisPropertyDto;
+import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
+
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class PersistAnalysisPropertiesStepTest {
+  private static final String SNAPSHOT_UUID = randomAlphanumeric(40);
+  private static final String SMALL_VALUE1 = randomAlphanumeric(50);
+  private static final String SMALL_VALUE2 = randomAlphanumeric(50);
+  private static final String BIG_VALUE = randomAlphanumeric(5000);
+  private static final List<ScannerReport.ContextProperty> PROPERTIES = Arrays.asList(
+    newContextProperty("key1", "value1"),
+    newContextProperty("key2", "value1"),
+    newContextProperty("sonar.analysis", SMALL_VALUE1),
+    newContextProperty("sonar.analysis.branch", SMALL_VALUE1),
+    newContextProperty("sonar.analysis.empty_string", ""),
+    newContextProperty("sonar.analysis.big_value", BIG_VALUE),
+    newContextProperty("sonar.analysis.", SMALL_VALUE2));
+
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
+  private BatchReportReader batchReportReader = mock(BatchReportReader.class);
+  private AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
+  private PersistAnalysisPropertiesStep underTest = new PersistAnalysisPropertiesStep(dbTester.getDbClient(), analysisMetadataHolder, batchReportReader, UuidFactoryFast.getInstance());
+
+  @Before
+  public void setup() {
+    when(batchReportReader.readContextProperties()).thenReturn(CloseableIterator.from(PROPERTIES.iterator()));
+    when(analysisMetadataHolder.getUuid()).thenReturn(SNAPSHOT_UUID);
+  }
+
+  @Test
+  public void persist_should_store_only_sonarDotAnalysis_properties() {
+    underTest.execute();
+    assertThat(dbTester.countRowsOfTable("analysis_properties")).isEqualTo(4);
+
+    List<AnalysisPropertyDto> propertyDtos = dbTester.getDbClient()
+      .analysisPropertiesDao().selectBySnapshotUuid(dbTester.getSession(), SNAPSHOT_UUID);
+
+    assertThat(propertyDtos)
+      .extracting(AnalysisPropertyDto::getSnapshotUuid, AnalysisPropertyDto::getKey, AnalysisPropertyDto::getValue)
+      .containsExactlyInAnyOrder(
+        tuple(SNAPSHOT_UUID, "sonar.analysis.branch", SMALL_VALUE1),
+        tuple(SNAPSHOT_UUID, "sonar.analysis.empty_string", ""),
+        tuple(SNAPSHOT_UUID, "sonar.analysis.big_value", BIG_VALUE),
+        tuple(SNAPSHOT_UUID, "sonar.analysis.", SMALL_VALUE2)
+      );
+  }
+
+  private static ScannerReport.ContextProperty newContextProperty(String key, String value) {
+    return ScannerReport.ContextProperty.newBuilder()
+      .setKey(key)
+      .setValue(value)
+      .build();
+  }
+}

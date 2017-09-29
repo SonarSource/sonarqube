@@ -86,6 +86,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     // Persist data
     PersistComponentsStep.class,
     PersistAnalysisStep.class,
+    PersistAnalysisPropertiesStep.class,
     PersistMeasuresStep.class,
     PersistIssuesStep.class,
     PersistProjectLinksStep.class,
