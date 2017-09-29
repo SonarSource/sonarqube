@@ -139,6 +139,11 @@ public class CeServer implements Monitored {
     public void run() {
       boolean startupSuccessful = attemptStartup();
       this.started = true;
+      try {
+        Thread.sleep(2000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
       if (startupSuccessful) {
         // call below is blocking
         waitForStopSignal();

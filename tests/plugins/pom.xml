@@ -57,6 +57,7 @@
     <module>settings-encryption-plugin</module>
     <module>settings-plugin</module>
     <module>sonar-fake-plugin</module>
+    <module>missing-dep-plugin</module>
     <module>sonar-subcategories-plugin</module>
     <module>ui-extensions-plugin</module>
     <module>posttask-plugin</module>
