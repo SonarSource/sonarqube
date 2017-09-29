@@ -164,10 +164,10 @@ public class SearchResponseFormat {
     setNullable(component.getBranch(), issueBuilder::setBranch);
     ComponentDto project = data.getComponentByUuid(dto.getProjectUuid());
     if (project != null) {
-      issueBuilder.setProject(project.getDbKey());
+      issueBuilder.setProject(project.getKey());
       ComponentDto subProject = data.getComponentByUuid(dto.getModuleUuid());
       if (subProject != null && !subProject.getDbKey().equals(project.getDbKey())) {
-        issueBuilder.setSubProject(subProject.getDbKey());
+        issueBuilder.setSubProject(subProject.getKey());
       }
     }
     issueBuilder.setRule(dto.getRuleKey().toString());
