@@ -26,6 +26,7 @@ import org.sonar.db.ce.CeQueueDao;
 import org.sonar.db.ce.CeScannerContextDao;
 import org.sonar.db.ce.CeTaskCharacteristicDao;
 import org.sonar.db.ce.CeTaskInputDao;
+import org.sonar.db.component.AnalysisPropertiesDao;
 import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentKeyUpdaterDao;
@@ -128,6 +129,7 @@ public class DbClient {
   private final EsQueueDao esQueueDao;
   private final PluginDao pluginDao;
   private final BranchDao branchDao;
+  private final AnalysisPropertiesDao analysisPropertiesDao;
   private final QProfileEditUsersDao qProfileEditUsersDao;
   private final QProfileEditGroupsDao qProfileEditGroupsDao;
 
@@ -189,6 +191,7 @@ public class DbClient {
     esQueueDao = getDao(map, EsQueueDao.class);
     pluginDao = getDao(map, PluginDao.class);
     branchDao = getDao(map, BranchDao.class);
+    analysisPropertiesDao = getDao(map, AnalysisPropertiesDao.class);
     qProfileEditUsersDao = getDao(map, QProfileEditUsersDao.class);
     qProfileEditGroupsDao = getDao(map, QProfileEditGroupsDao.class);
   }
@@ -243,6 +246,10 @@ public class DbClient {
 
   public SnapshotDao snapshotDao() {
     return snapshotDao;
+  }
+
+  public AnalysisPropertiesDao analysisPropertiesDao() {
+    return analysisPropertiesDao;
   }
 
   public ComponentDao componentDao() {

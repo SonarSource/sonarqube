@@ -76,6 +76,11 @@ class PurgeCommands {
     analysisUuidsPartitions.forEach(purgeMapper::deleteAnalyses);
     session.commit();
     profiler.stop();
+
+    profiler.start("deleteAnalyses (analysis_properties)");
+    analysisUuidsPartitions.forEach(purgeMapper::deleteAnalysisProperties);
+    session.commit();
+    profiler.stop();
   }
 
   void deleteAnalyses(PurgeSnapshotQuery... queries) {
@@ -103,6 +108,11 @@ class PurgeCommands {
 
     profiler.start("deleteAnalyses (snapshots)");
     analysisUuidsPartitions.forEach(purgeMapper::deleteAnalyses);
+    session.commit();
+    profiler.stop();
+
+    profiler.start("deleteAnalyses (analysis_properties)");
+    analysisUuidsPartitions.forEach(purgeMapper::deleteAnalysisProperties);
     session.commit();
     profiler.stop();
   }
