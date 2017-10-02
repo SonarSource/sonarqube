@@ -75,17 +75,28 @@ export default class IssuesSourceViewer extends React.PureComponent {
         ? openIssue.flows[selectedFlowIndex]
         : openIssue.flows.length > 0 ? openIssue.flows[0] : openIssue.secondaryLocations;
 
-    const locationMessage =
+    let locationMessage = undefined;
+    let locationLine = undefined;
+    if (
       locations != null &&
       selectedLocationIndex != null &&
       locations.length >= selectedLocationIndex
-        ? { index: selectedLocationIndex, text: locations[selectedLocationIndex].msg }
-        : undefined;
+    ) {
+      locationMessage = {
+        index: selectedLocationIndex,
+        text: locations[selectedLocationIndex].msg
+      };
+      locationLine = locations[selectedLocationIndex].textRange.startLine;
+    }
+
+    // if location is selected, show (and load) code around it
+    // otherwise show code around the open issue
+    const aroundLine = locationLine || (openIssue.textRange && openIssue.textRange.endLine);
 
     return (
       <div ref={node => (this.node = node)}>
         <SourceViewer
-          aroundLine={openIssue.textRange ? openIssue.textRange.endLine : undefined}
+          aroundLine={aroundLine}
           branch={this.props.branch}
           component={openIssue.component}
           displayAllIssues={true}
