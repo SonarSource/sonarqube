@@ -31,23 +31,23 @@
     )
   </insert>
 
-  <select id="countForQProfileUuid" resultType="int">
+  <select id="countByQuery" resultType="int">
     select count(qpc.kee)
-    from qprofile_changes qpc
-    inner join rules_profiles rp on rp.kee = qpc.rules_profile_uuid
-    inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
-    where
-      oqp.uuid = #{qProfileUuid, jdbcType=VARCHAR}
+    <include refid="sqlSelectByQuery" />
   </select>
 
   <select id="selectByQuery" resultType="org.sonar.db.qualityprofile.QProfileChangeDto">
+    select <include refid="selectColumns" />
     <include refid="sqlSelectByQuery" />
+    order by qpc.created_at desc
     limit #{query.limit}
     offset #{query.offset}
   </select>
 
   <select id="selectByQuery" databaseId="mssql" resultType="org.sonar.db.qualityprofile.QProfileChangeDto">
+    select <include refid="selectColumns" />
     <include refid="sqlSelectByQuery" />
+    order by qpc.created_at desc
     offset #{query.offset} rows
     fetch next #{query.limit} rows only
   </select>
@@ -55,7 +55,9 @@
   <select id="selectByQuery" databaseId="oracle" resultType="org.sonar.db.qualityprofile.QProfileChangeDto">
     select "uuid", rulesProfileUuid, createdAt, login, changeType, data from (
     select rownum rnum, "uuid", rulesProfileUuid, createdAt, login, changeType, data from (
+    select <include refid="selectColumns" />
     <include refid="sqlSelectByQuery" />
+    order by qpc.created_at desc
     )
     where rownum &lt;= #{query.total}
     )
@@ -63,7 +65,6 @@
   </select>
 
   <sql id="sqlSelectByQuery">
-    select <include refid="selectColumns" />
     from qprofile_changes qpc
     inner join rules_profiles rp on rp.kee = qpc.rules_profile_uuid
     inner join org_qprofiles oqp on oqp.rules_profile_uuid = rp.kee
@@ -75,7 +76,6 @@
       <if test="query.toExcluded != null">
         and qpc.created_at &lt; #{query.toExcluded}
       </if>
-    order by qpc.created_at desc
   </sql>
 
   <delete id="deleteByRuleProfileUuids" parameterType="String">

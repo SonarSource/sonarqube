@@ -108,7 +108,7 @@ public class ChangelogAction implements QProfileWsAction {
       int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
       query.setPage(page, pageSize);
 
-      int total = dbClient.qProfileChangeDao().countForQProfileUuid(dbSession, query.getProfileUuid());
+      int total = dbClient.qProfileChangeDao().countByQuery(dbSession, query);
 
       List<Change> changelogs = load(dbSession, query);
       writeResponse(response.newJsonWriter(), total, page, pageSize, changelogs);
