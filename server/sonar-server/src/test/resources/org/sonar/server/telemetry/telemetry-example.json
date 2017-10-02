@@ -1,6 +1,10 @@
 {
   "id": "AU-TpxcB-iU5OvuD2FL7",
   "version": "7.5.4",
+  "database": {
+    "name": "PostgreSQL",
+    "version": "9.6.5"
+  },
   "plugins": [
     {
       "name": "java",
