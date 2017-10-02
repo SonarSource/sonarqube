@@ -339,4 +339,8 @@ public class ComponentDao implements Dao {
   public void delete(DbSession session, long componentId) {
     mapper(session).delete(componentId);
   }
+
+  public List<KeyWithUuidDto> selectComponentKeysHavingIssuesToMerge(DbSession dbSession, String mergeBranchUuid) {
+    return mapper(dbSession).selectComponentKeysHavingIssuesToMerge(mergeBranchUuid);
+  }
 }
