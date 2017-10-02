@@ -139,7 +139,7 @@ public class LocalAuthenticationTest {
   }
 
   @Test
-  public void basic_authentication_does_not_support_utf8_passwords() {
+  public void basic_authentication_supports_utf8_passwords() {
     String login = "user_with_utf8_password";
     // see http://www.cl.cam.ac.uk/~mgk25/ucs/examples/UTF-8-test.txt
     String password = "κόσμε";
@@ -148,7 +148,7 @@ public class LocalAuthenticationTest {
     tester.users().generate(u -> u.setLogin(login).setPassword(password));
 
     // authenticate
-    assertThat(checkAuthenticationWithAuthenticateWebService(login, password)).isFalse();
+    assertThat(checkAuthenticationWithAuthenticateWebService(login, password)).isTrue();
   }
 
   @Test

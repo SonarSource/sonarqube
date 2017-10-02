@@ -20,6 +20,7 @@
 package org.sonar.server.computation.task.projectanalysis.webhook;
 
 import java.io.IOException;
+import okhttp3.Credentials;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -32,8 +33,10 @@ import org.sonar.api.utils.System2;
 import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
 import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static okhttp3.internal.http.StatusLine.HTTP_PERM_REDIRECT;
 import static okhttp3.internal.http.StatusLine.HTTP_TEMP_REDIRECT;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 @ComputeEngineSide
 public class WebhookCallerImpl implements WebhookCaller {
@@ -71,9 +74,17 @@ public class WebhookCallerImpl implements WebhookCaller {
   }
 
   private static Request buildHttpRequest(Webhook webhook, WebhookPayload payload) {
+    HttpUrl url = HttpUrl.parse(webhook.getUrl());
+    if (url == null) {
+      throw new IllegalArgumentException("Webhook URL is not valid: " + webhook.getUrl());
+    }
     Request.Builder request = new Request.Builder();
-    request.url(webhook.getUrl());
+    request.url(url);
     request.header(PROJECT_KEY_HEADER, payload.getProjectKey());
+    if (isNotEmpty(url.username())) {
+      request.header("Authorization", Credentials.basic(url.username(), url.password(), UTF_8));
+    }
+
     RequestBody body = RequestBody.create(JSON, payload.getJson());
     request.post(body);
     return request.build();
