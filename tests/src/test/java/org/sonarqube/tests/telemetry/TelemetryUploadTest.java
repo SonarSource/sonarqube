@@ -82,6 +82,9 @@ public class TelemetryUploadTest {
     assertThat(request.getHeader(HttpHeaders.USER_AGENT)).contains("SonarQube");
     Map<String, Object> json = jsonToMap(request.getBody().readUtf8());
     assertThat(json.get("id")).isEqualTo(serverId());
+    Map<String, String> database = (Map<String, String>) json.get("database");
+    assertThat(database.get("name")).isNotEmpty();
+    assertThat(database.get("version")).isNotEmpty();
     assertThat(getInteger(json.get("userCount"))).isEqualTo(1);
     List<String> plugins = ((List<Map<String, String>>) json.get("plugins")).stream().map(p -> p.get("name")).collect(Collectors.toList());
     assertThat(plugins).contains("xoo");
