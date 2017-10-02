@@ -30,7 +30,6 @@ import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.health.TestStandaloneHealthChecker;
-import org.sonar.server.telemetry.TelemetryData;
 import org.sonar.server.telemetry.TelemetryDataLoader;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
@@ -53,7 +52,7 @@ public class InfoActionTest {
   private SystemInfoSection section2 = mock(SystemInfoSection.class);
   private CeHttpClient ceHttpClient = mock(CeHttpClientImpl.class, Mockito.RETURNS_MOCKS);
   private TestStandaloneHealthChecker healthChecker = new TestStandaloneHealthChecker();
-  private TelemetryDataLoader telemetry = mock(TelemetryDataLoader.class);
+  private TelemetryDataLoader telemetry = mock(TelemetryDataLoader.class, Mockito.RETURNS_MOCKS);
 
   private InfoAction underTest = new InfoAction(userSessionRule, telemetry, ceHttpClient, healthChecker, section1, section2);
   private WsActionTester ws = new WsActionTester(underTest);
@@ -97,12 +96,12 @@ public class InfoActionTest {
     setAttribute(attributes2, "two", 2);
     when(section2.toProtobuf()).thenReturn(attributes2.build());
     when(ceHttpClient.retrieveSystemInfo()).thenReturn(Optional.empty());
-    when(telemetry.load()).thenReturn(mock(TelemetryData.class));
 
     TestResponse response = ws.newRequest().execute();
     // response does not contain empty "Section Three"
     assertThat(response.getInput()).isEqualTo("{\"Health\":\"GREEN\",\"Health Causes\":[],\"Section One\":{\"foo\":\"bar\"},\"Section Two\":{\"one\":1,\"two\":2}," +
-      "\"Statistics\":{\"plugins\":{},\"userCount\":0,\"projectCount\":0,\"lines\":0,\"ncloc\":0,\"projectCountByLanguage\":{},\"nclocByLanguage\":{}}}");
+      "\"Statistics\":{\"id\":\"\",\"version\":\"\",\"database\":{\"name\":\"\",\"version\":\"\"},\"plugins\":[],\"userCount\":0,\"projectCount\":0,\"lines\":0,\"ncloc\":0," +
+      "\"projectCountByLanguage\":[],\"nclocByLanguage\":[]}}");
   }
 
   private void logInAsSystemAdministrator() {

@@ -34,16 +34,42 @@ public class TelemetryDataJsonWriter {
     json.beginObject();
     json.prop("id", statistics.getServerId());
     json.prop("version", statistics.getVersion());
+    json.name("database");
+    json.beginObject();
+    json.prop("name", statistics.getDatabase().getName());
+    json.prop("version", statistics.getDatabase().getVersion());
+    json.endObject();
     json.name("plugins");
-    json.valueObject(statistics.getPlugins());
+    json.beginArray();
+    statistics.getPlugins().forEach((plugin, version) -> {
+      json.beginObject();
+      json.prop("name", plugin);
+      json.prop("version", version);
+      json.endObject();
+    });
+    json.endArray();
     json.prop("userCount", statistics.getUserCount());
     json.prop("projectCount", statistics.getProjectCount());
     json.prop(LINES_KEY, statistics.getLines());
     json.prop(NCLOC_KEY, statistics.getNcloc());
     json.name("projectCountByLanguage");
-    json.valueObject(statistics.getProjectCountByLanguage());
+    json.beginArray();
+    statistics.getProjectCountByLanguage().forEach((language, count) -> {
+      json.beginObject();
+      json.prop("language", language);
+      json.prop("count", count);
+      json.endObject();
+    });
+    json.endArray();
     json.name("nclocByLanguage");
-    json.valueObject(statistics.getNclocByLanguage());
+    json.beginArray();
+    statistics.getNclocByLanguage().forEach((language, ncloc) -> {
+      json.beginObject();
+      json.prop("language", language);
+      json.prop("ncloc", ncloc);
+      json.endObject();
+    });
+    json.endArray();
     json.endObject();
   }
 }

@@ -22,6 +22,8 @@ package org.sonar.server.telemetry;
 
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
+import java.sql.DatabaseMetaData;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -38,6 +40,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.config.TelemetryProperties;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
@@ -96,8 +99,8 @@ public class TelemetryDaemonTest {
   private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
 
-  private TelemetryDaemon underTest = new TelemetryDaemon(new TelemetryDataLoader(server, pluginRepository, new UserIndex(es.client()), new ProjectMeasuresIndex(es.client(), null)), client,
-    settings.asConfig(), internalProperties, system2);
+  private TelemetryDaemon underTest = new TelemetryDaemon(new TelemetryDataLoader(server, db.getDbClient(), pluginRepository, new UserIndex(es.client()),
+    new ProjectMeasuresIndex(es.client(), null)), client, settings.asConfig(), internalProperties, system2);
 
   @After
   public void tearDown() throws Exception {
@@ -141,9 +144,24 @@ public class TelemetryDaemonTest {
     ArgumentCaptor<String> jsonCaptor = ArgumentCaptor.forClass(String.class);
     verify(client, timeout(2_000).atLeastOnce()).upload(jsonCaptor.capture());
     String json = jsonCaptor.getValue();
-    assertJson(json).isSimilarTo(getClass().getResource("telemetry-example.json"));
-    assertJson(getClass().getResource("telemetry-example.json")).isSimilarTo(json);
+    assertJson(json).ignoreFields("database").isSimilarTo(getClass().getResource("telemetry-example.json"));
+    assertJson(getClass().getResource("telemetry-example.json")).ignoreFields("database").isSimilarTo(json);
+    assertDatabaseMetadata(json);
     assertThat(logger.logs(LoggerLevel.INFO)).contains("Sharing of SonarQube statistics is enabled.");
+  }
+
+  private void assertDatabaseMetadata(String json) {
+    try (DbSession dbSession = db.getDbClient().openSession(false)) {
+      DatabaseMetaData metadata = dbSession.getConnection().getMetaData();
+      assertJson(json).isSimilarTo("{\n" +
+        "  \"database\": {\n" +
+        "    \"name\": \"H2\",\n" +
+        "    \"version\": \"" + metadata.getDatabaseProductVersion() + "\"\n" +
+        "  }\n" +
+        "}");
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Test

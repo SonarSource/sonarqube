@@ -20,7 +20,9 @@
 package org.sonarqube.tests.telemetry;
 
 import com.sonar.orchestrator.Orchestrator;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.ws.rs.core.HttpHeaders;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
@@ -32,6 +34,7 @@ import org.sonarqube.ws.client.GetRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static util.ItUtils.jsonToMap;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
@@ -79,16 +82,20 @@ public class TelemetryUploadTest {
     assertThat(request.getHeader(HttpHeaders.USER_AGENT)).contains("SonarQube");
     Map<String, Object> json = jsonToMap(request.getBody().readUtf8());
     assertThat(json.get("id")).isEqualTo(serverId());
+    Map<String, String> database = (Map<String, String>) json.get("database");
+    assertThat(database.get("name")).isNotEmpty();
+    assertThat(database.get("version")).isNotEmpty();
     assertThat(getInteger(json.get("userCount"))).isEqualTo(1);
-    assertThat(((Map) json.get("plugins")).keySet()).contains("xoo");
+    List<String> plugins = ((List<Map<String, String>>) json.get("plugins")).stream().map(p -> p.get("name")).collect(Collectors.toList());
+    assertThat(plugins).contains("xoo");
     assertThat(getInteger(json.get("ncloc"))).isEqualTo(13 * 2 + 7);
     assertThat(getInteger(json.get("lines"))).isEqualTo(17 * 3);
-    Map projectCountByLanguage = (Map) json.get("projectCountByLanguage");
-    assertThat(getInteger(projectCountByLanguage.get("xoo"))).isEqualTo(2);
-    assertThat(getInteger(projectCountByLanguage.get("xoo2"))).isEqualTo(1);
-    Map nclocByLanguage = (Map) json.get("nclocByLanguage");
-    assertThat(getInteger(nclocByLanguage.get("xoo"))).isEqualTo(13 * 2);
-    assertThat(getInteger(nclocByLanguage.get("xoo2"))).isEqualTo(7);
+    List<Map<String, String>> projectCountByLanguage = (List<Map<String,String>>) json.get("projectCountByLanguage");
+    assertThat(projectCountByLanguage).extracting(p -> p.get("language"), p -> getInteger(p.get("count")))
+      .contains(tuple("xoo", 2), tuple("xoo2", 1));
+    List<Map<String, String>> nclocByLanguage = (List<Map<String,String>>) json.get("nclocByLanguage");
+    assertThat(nclocByLanguage).extracting(p -> p.get("language"), p -> getInteger(p.get("ncloc")))
+      .contains(tuple("xoo", 13 * 2), tuple("xoo2", 7));
   }
 
   private String serverId() {
