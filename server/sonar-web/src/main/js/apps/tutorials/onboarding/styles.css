@@ -70,3 +70,13 @@
   background-color: #fff;
   color: #404040;
 }
+
+.onboarding .page-actions {
+  text-align: right;
+  margin-bottom: 0;
+}
+
+.onboarding .page-actions p {
+  line-height: 16px;
+  margin-top: 6px;
+}
