@@ -26,7 +26,7 @@ import org.assertj.core.groups.Tuple;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.tests.Category1Suite;
+import org.sonarqube.tests.Category2Suite;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsBranches;
@@ -40,7 +40,7 @@ import static util.ItUtils.runProjectAnalysis;
 public class BranchTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator).disableOrganizations();
@@ -58,7 +58,7 @@ public class BranchTest {
 
   @Test
   public void navigation_global_return_branches_support_to_false() {
-    WsResponse status =tester.wsClient().wsConnector().call(new GetRequest("api/navigation/global"));
+    WsResponse status = tester.wsClient().wsConnector().call(new GetRequest("api/navigation/global"));
     Map<String, Object> statusMap = ItUtils.jsonToMap(status.content());
 
     assertThat(statusMap.get("branchesEnabled")).isEqualTo(false);
