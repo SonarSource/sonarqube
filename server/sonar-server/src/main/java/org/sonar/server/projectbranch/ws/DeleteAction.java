@@ -28,7 +28,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.BranchKeyType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
@@ -76,7 +75,7 @@ public class DeleteAction implements BranchWsAction {
       checkPermission(project);
 
       BranchDto branch = checkFoundWithOptional(
-        dbClient.branchDao().selectByKey(dbSession, project.uuid(), BranchKeyType.BRANCH, branchKey),
+        dbClient.branchDao().selectByKey(dbSession, project.uuid(), branchKey),
         "Branch '%s' not found for project '%s'", branchKey, projectKey);
 
       if (branch.isMain()) {

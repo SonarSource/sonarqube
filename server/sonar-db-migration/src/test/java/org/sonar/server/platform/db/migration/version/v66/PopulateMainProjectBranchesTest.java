@@ -54,7 +54,7 @@ public class PopulateMainProjectBranchesTest {
 
     underTest.execute();
 
-    assertProjectBranches(tuple("master", project, project, "BRANCH", "LONG", NOW, NOW));
+    assertProjectBranches(tuple("master", project, project, "LONG", NOW, NOW));
   }
 
   @Test
@@ -81,13 +81,13 @@ public class PopulateMainProjectBranchesTest {
 
     underTest.execute();
 
-    assertProjectBranches(tuple("master", project, project, "BRANCH", "LONG", PAST, PAST));
+    assertProjectBranches(tuple("master", project, project, "LONG", PAST, PAST));
   }
 
   private void assertProjectBranches(Tuple... expectedTuples) {
-    assertThat(db.select("SELECT KEE, UUID, PROJECT_UUID, KEE_TYPE, BRANCH_TYPE, CREATED_AT, UPDATED_AT FROM PROJECT_BRANCHES")
+    assertThat(db.select("SELECT KEE, UUID, PROJECT_UUID, BRANCH_TYPE, CREATED_AT, UPDATED_AT FROM PROJECT_BRANCHES")
       .stream()
-      .map(map -> new Tuple(map.get("KEE"), map.get("UUID"), map.get("PROJECT_UUID"), map.get("KEE_TYPE"), map.get("BRANCH_TYPE"), map.get("CREATED_AT"), map.get("UPDATED_AT")))
+      .map(map -> new Tuple(map.get("KEE"), map.get("UUID"), map.get("PROJECT_UUID"), map.get("BRANCH_TYPE"), map.get("CREATED_AT"), map.get("UPDATED_AT")))
       .collect(Collectors.toList()))
         .containsExactlyInAnyOrder(expectedTuples);
   }
@@ -116,7 +116,6 @@ public class PopulateMainProjectBranchesTest {
     db.executeInsert("PROJECT_BRANCHES",
       "uuid", uuid,
       "project_uuid", uuid,
-      "kee_type", "BRANCH",
       "kee", "master",
       "branch_type", "LONG",
       "created_at", PAST,

@@ -48,24 +48,14 @@ public class BranchDto {
   private String projectUuid;
 
   /**
-   * Not null.
-   */
-  private BranchKeyType keeType;
-
-  /**
-   * If {@link #keeType} is {@link BranchKeyType#BRANCH}, then name of branch, for example
-   * "feature/foo".
-   *
-   * If {@link #keeType} is {@link BranchKeyType#PR}, then id of the pull request, for
-   * example "1204".
+   * Name of branch, for example "feature/foo".
    */
   private String kee;
 
   /**
-   * Value is mandatory when {@link #keeType} is {@link BranchKeyType#BRANCH}.
-   * Otherwise it is null.
+   * Branch type, as provided by {@link BranchType}.
+   * Not null.
    */
-  @Nullable
   private BranchType branchType;
 
   /**
@@ -77,12 +67,6 @@ public class BranchDto {
    */
   @Nullable
   private String mergeBranchUuid;
-
-  /**
-   * Optional title of pull requests
-   */
-  @Nullable
-  private String pullRequestTitle;
 
   public String getUuid() {
     return uuid;
@@ -104,15 +88,6 @@ public class BranchDto {
 
   public boolean isMain() {
     return projectUuid.equals(uuid);
-  }
-
-  public BranchKeyType getKeeType() {
-    return keeType;
-  }
-
-  public BranchDto setKeeType(BranchKeyType t) {
-    this.keeType = t;
-    return this;
   }
 
   /**
@@ -139,7 +114,6 @@ public class BranchDto {
     return this;
   }
 
-  @Nullable
   public BranchType getBranchType() {
     return branchType;
   }
@@ -159,27 +133,14 @@ public class BranchDto {
     return this;
   }
 
-  @Nullable
-  public String getPullRequestTitle() {
-    return pullRequestTitle;
-  }
-
-  public BranchDto setPullRequestTitle(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 4000, "Maximum length of pull request title is 4000: %s", s);
-    this.pullRequestTitle = s;
-    return this;
-  }
-
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder("BranchDto{");
     sb.append("uuid='").append(uuid).append('\'');
     sb.append(", projectUuid='").append(projectUuid).append('\'');
-    sb.append(", keeType=").append(keeType);
     sb.append(", kee='").append(kee).append('\'');
     sb.append(", branchType=").append(branchType);
     sb.append(", mergeBranchUuid='").append(mergeBranchUuid).append('\'');
-    sb.append(", pullRequestTitle='").append(pullRequestTitle).append('\'');
     sb.append('}');
     return sb.toString();
   }
