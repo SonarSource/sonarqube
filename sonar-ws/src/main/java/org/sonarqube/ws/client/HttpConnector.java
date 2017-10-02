@@ -42,6 +42,7 @@ import static com.google.common.base.Strings.nullToEmpty;
 import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
 import static java.net.HttpURLConnection.HTTP_MOVED_TEMP;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static okhttp3.internal.http.StatusLine.HTTP_PERM_REDIRECT;
 import static okhttp3.internal.http.StatusLine.HTTP_TEMP_REDIRECT;
 
@@ -74,7 +75,7 @@ public class HttpConnector implements WsConnector {
     if (!isNullOrEmpty(builder.login)) {
       // password is null when login represents an access token. In this case
       // the Basic credentials consider an empty password.
-      okHttpClientBuilder.setCredentials(Credentials.basic(builder.login, nullToEmpty(builder.password)));
+      okHttpClientBuilder.setCredentials(Credentials.basic(builder.login, nullToEmpty(builder.password), UTF_8));
     }
     this.systemPassCode = builder.systemPassCode;
     okHttpClientBuilder.setProxy(builder.proxy);

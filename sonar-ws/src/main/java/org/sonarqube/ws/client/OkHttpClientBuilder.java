@@ -48,6 +48,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import static com.google.common.base.Strings.nullToEmpty;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 
 /**
@@ -174,7 +175,7 @@ public class OkHttpClientBuilder {
           return null;
         }
         if (HttpURLConnection.HTTP_PROXY_AUTH == response.code()) {
-          String credential = Credentials.basic(proxyLogin, nullToEmpty(proxyPassword));
+          String credential = Credentials.basic(proxyLogin, nullToEmpty(proxyPassword), UTF_8);
           return response.request().newBuilder().header(PROXY_AUTHORIZATION, credential).build();
         }
         return null;
