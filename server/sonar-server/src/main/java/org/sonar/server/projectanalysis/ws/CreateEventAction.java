@@ -50,6 +50,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.server.ws.ApiDescriptionHelper.listOfPermissions;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.OTHER;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.VERSION;
@@ -77,12 +78,10 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("create_event")
       .setDescription("Create a project analysis event.<br>" +
-        "Only event of category '%s' and '%s' can be created.<br>" +
-        "Requires one of the following permissions:" +
-        "<ul>" +
-        "  <li>'Administer System'</li>" +
-        "  <li>'Administer' rights on the specified project</li>" +
-        "</ul>",
+        "Only event of category '%s' and '%s' can be created." +
+        listOfPermissions(
+        "'Administer System'",
+        "'Administer' rights on the specified project"),
         VERSION.name(), OTHER.name())
       .setSince("6.3")
       .setPost(true)

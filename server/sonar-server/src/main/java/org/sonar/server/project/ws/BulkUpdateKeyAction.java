@@ -40,6 +40,7 @@ import org.sonarqube.ws.client.project.BulkUpdateKeyWsRequest;
 
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.db.component.ComponentKeyUpdaterDao.checkIsProjectOrModule;
+import static org.sonar.server.ws.ApiDescriptionHelper.listOfPermissions;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_BULK_UPDATE_KEY;
@@ -80,12 +81,10 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
         "  <li>%s: my_</li>" +
         "  <li>%s: my_new_</li>" +
         "</ul>" +
-        "Either '%s' or '%s' must be provided, not both.<br> " +
-        "Requires one of the following permissions: " +
-        "<ul>" +
-        "<li>'Administer System'</li>" +
-        "<li>'Administer' rights on the specified project</li>" +
-        "</ul>",
+        "Either '%s' or '%s' must be provided, not both." +
+        listOfPermissions(
+        "'Administer System'",
+        "'Administer' rights on the specified project"),
         PARAM_DRY_RUN,
         PARAM_PROJECT, PARAM_FROM, PARAM_TO,
         PARAM_PROJECT_ID, PARAM_PROJECT)
