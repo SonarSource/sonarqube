@@ -34,7 +34,6 @@ public class QProfilesWsModule extends Module {
       CompareAction.class,
       CopyAction.class,
       ChangelogAction.class,
-      ChangelogLoader.class,
       ChangeParentAction.class,
       CreateAction.class,
       DeleteAction.class,
