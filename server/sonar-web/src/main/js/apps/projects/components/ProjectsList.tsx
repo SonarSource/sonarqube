@@ -21,8 +21,10 @@ import * as React from 'react';
 import ProjectCard from './ProjectCard';
 import NoFavoriteProjects from './NoFavoriteProjects';
 import EmptyInstance from './EmptyInstance';
+import EmptyFavoriteSearch from './EmptyFavoriteSearch';
 import EmptySearch from '../../../components/common/EmptySearch';
 import { Project } from '../types';
+import { Query } from '../query';
 
 interface Props {
   cardType?: string;
@@ -30,17 +32,16 @@ interface Props {
   isFiltered: boolean;
   organization?: { key: string };
   projects: Project[];
+  query: Query;
 }
 
 export default class ProjectsList extends React.PureComponent<Props> {
   renderNoProjects() {
-    if (this.props.isFavorite && !this.props.isFiltered) {
-      return <NoFavoriteProjects />;
-    } else if (!this.props.isFiltered) {
-      return <EmptyInstance />;
-    } else {
-      return <EmptySearch />;
+    const { isFavorite, isFiltered, query } = this.props;
+    if (isFiltered) {
+      return isFavorite ? <EmptyFavoriteSearch query={query} /> : <EmptySearch />;
     }
+    return isFavorite ? <NoFavoriteProjects /> : <EmptyInstance />;
   }
 
   render() {
