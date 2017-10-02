@@ -35,7 +35,7 @@ import org.sonar.process.Props;
  */
 public class EsFileSystem {
   private final File homeDirectory;
-  private final List<File> outdatedDataDirectories;
+  private final List<File> outdatedSearchDirectories;
   private final File dataDirectory;
   private final File confDirectory;
   private final File logDirectory;
@@ -44,13 +44,13 @@ public class EsFileSystem {
     File sqHomeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
 
     this.homeDirectory = new File(sqHomeDir, "elasticsearch");
-    this.outdatedDataDirectories = buildOutdatedDataDirs(props);
+    this.outdatedSearchDirectories = buildOutdatedSearchDirs(props);
     this.dataDirectory = buildDataDir(props);
     this.confDirectory = buildConfDir(props);
     this.logDirectory = buildLogPath(props);
   }
 
-  private static List<File> buildOutdatedDataDirs(Props props) {
+  private static List<File> buildOutdatedSearchDirs(Props props) {
     String dataPath = props.nonNullValue(ProcessProperties.PATH_DATA);
     return Collections.singletonList(new File(dataPath, "es"));
   }
@@ -73,8 +73,8 @@ public class EsFileSystem {
     return homeDirectory;
   }
 
-  public List<File> getOutdatedDataDirectories() {
-    return Collections.unmodifiableList(outdatedDataDirectories);
+  public List<File> getOutdatedSearchDirectories() {
+    return Collections.unmodifiableList(outdatedSearchDirectories);
   }
 
   public File getDataDirectory() {

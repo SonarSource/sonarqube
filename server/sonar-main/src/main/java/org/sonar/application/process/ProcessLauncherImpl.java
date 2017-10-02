@@ -92,7 +92,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
 
   private static void cleanupOutdatedEsData(EsCommand esCommand) {
     EsFileSystem esFileSystem = esCommand.getFileSystem();
-    esFileSystem.getOutdatedDataDirectories().forEach(outdatedDir -> {
+    esFileSystem.getOutdatedSearchDirectories().forEach(outdatedDir -> {
       if (outdatedDir.exists()) {
         LOG.info("Deleting outdated search index data directory {}", outdatedDir.getAbsolutePath());
         try {
