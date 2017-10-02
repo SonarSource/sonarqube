@@ -91,6 +91,7 @@ exports[`renders 1`] = `
             },
           ]
         }
+        query={Object {}}
       />
       <ListFooter
         count={1}
