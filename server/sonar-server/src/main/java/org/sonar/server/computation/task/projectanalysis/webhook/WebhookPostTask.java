@@ -61,7 +61,7 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
   private static org.sonar.server.webhook.ProjectAnalysis convert(ProjectAnalysis projectAnalysis) {
     CeTask ceTask = new CeTask(projectAnalysis.getCeTask().getId(), CeTask.Status.valueOf(projectAnalysis.getCeTask().getStatus().name()));
     Project project = new Project(projectAnalysis.getProject().getUuid(), projectAnalysis.getProject().getKey(), projectAnalysis.getProject().getName());
-    Analysis analysis = projectAnalysis.getAnalysis().map(a -> new Analysis(a.getAnalysisUuid(), a.getDate())).orElse(null);
+    Analysis analysis = projectAnalysis.getAnalysis().map(a -> new Analysis(a.getAnalysisUuid(), a.getDate().getTime())).orElse(null);
     Branch branch = projectAnalysis.getBranch().map(b -> new Branch(b.isMain(), b.getName().orElse(null), Branch.Type.valueOf(b.getType().name()))).orElse(null);
     QualityGate qualityGate = Optional.ofNullable(projectAnalysis.getQualityGate())
       .map(qg -> new QualityGate(
@@ -77,6 +77,6 @@ public class WebhookPostTask implements PostProjectAnalysisTask {
     Long date = projectAnalysis.getAnalysis().map(a -> a.getDate().getTime()).orElse(null);
     Map<String, String> properties = projectAnalysis.getScannerContext().getProperties();
 
-    return new org.sonar.server.webhook.ProjectAnalysis(ceTask, project, analysis, branch, qualityGate, date, properties);
+    return new org.sonar.server.webhook.ProjectAnalysis(project, ceTask, analysis, branch, qualityGate, date, properties);
   }
 }
