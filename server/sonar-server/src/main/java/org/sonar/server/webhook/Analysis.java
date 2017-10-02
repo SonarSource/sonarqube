@@ -27,11 +27,10 @@ import static java.util.Objects.requireNonNull;
 
 public final class Analysis {
   private final String uuid;
-  private final Date date;
+  private final long date;
 
-  public Analysis(String uuid, Date date) {
+  public Analysis(String uuid, long date) {
     requireNonNull(uuid, "uuid must not be null");
-    requireNonNull(date, "date must not be null");
     this.uuid = uuid;
     this.date = date;
   }
@@ -41,7 +40,7 @@ public final class Analysis {
   }
 
   public Date getDate() {
-    return date;
+    return new Date(date);
   }
 
   @Override
@@ -60,5 +59,13 @@ public final class Analysis {
   @Override
   public int hashCode() {
     return Objects.hashCode(uuid, date);
+  }
+
+  @Override
+  public String toString() {
+    return "Analysis{" +
+      "uuid='" + uuid + '\'' +
+      ", date=" + date +
+      '}';
   }
 }

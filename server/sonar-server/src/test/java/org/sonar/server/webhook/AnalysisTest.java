@@ -39,40 +39,32 @@ public class AnalysisTest {
     expectedException.expect(NullPointerException.class);
     expectedException.expectMessage("uuid must not be null");
 
-    new Analysis(null, new Date());
-  }
-
-  @Test
-  public void constructor_throws_NPE_when_date_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("date must not be null");
-
-    new Analysis(randomAlphanumeric(40), null);
+    new Analysis(null, 1_990L);
   }
 
   @Test
   public void test_equality() {
     String uuid = randomAlphanumeric(35);
-    Date date = new Date(new Random().nextLong());
+    long date = new Random().nextLong();
     Analysis underTest = new Analysis(uuid, date);
 
     assertThat(underTest).isEqualTo(underTest);
     assertThat(underTest.getUuid()).isEqualTo(uuid);
-    assertThat(underTest.getDate()).isEqualTo(date);
+    assertThat(underTest.getDate()).isEqualTo(new Date(date));
 
     assertThat(underTest).isNotEqualTo(null);
     assertThat(underTest).isNotEqualTo(new Analysis(uuid + "1", date));
-    assertThat(underTest).isNotEqualTo(new Analysis(uuid, new Date(date.getTime() + 1_000)));
+    assertThat(underTest).isNotEqualTo(new Analysis(uuid, date + 1_000L));
   }
 
   @Test
   public void test_hashcode() {
     String uuid = randomAlphanumeric(35);
-    Date date = new Date(new Random().nextLong());
+    long date = new Random().nextLong();
     Analysis underTest = new Analysis(uuid, date);
 
     assertThat(underTest.hashCode()).isEqualTo(underTest.hashCode());
     assertThat(underTest.hashCode()).isNotEqualTo(new Analysis(uuid + "1", date).hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(new Analysis(uuid, new Date(date.getTime() + 1_000)).hashCode());
+    assertThat(underTest.hashCode()).isNotEqualTo(new Analysis(uuid, date + 1_000).hashCode());
   }
 }

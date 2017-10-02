@@ -25,6 +25,7 @@ import java.io.Writer;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
@@ -36,6 +37,7 @@ import static org.sonar.core.config.WebhookProperties.ANALYSIS_PROPERTY_PREFIX;
 @ComputeEngineSide
 public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
 
+  private static final String PROPERTY_STATUS = "status";
   private final Server server;
   private final System2 system2;
 
@@ -91,10 +93,9 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
     writer.endObject();
   }
 
-  private static void writeTask(JsonWriter writer, CeTask ceTask) {
-    writer
-      .prop("taskId", ceTask.getId())
-      .prop("status", ceTask.getStatus().toString());
+  private static void writeTask(JsonWriter writer, Optional<CeTask> ceTask) {
+    ceTask.ifPresent(ceTask1 -> writer.prop("taskId", ceTask1.getId()));
+    writer.prop(PROPERTY_STATUS, ceTask.map(CeTask::getStatus).orElse(CeTask.Status.SUCCESS).toString());
   }
 
   private void writeBranch(JsonWriter writer, Project project, Branch branch) {
@@ -130,7 +131,7 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
       .name("qualityGate")
       .beginObject()
       .prop("name", gate.getName())
-      .prop("status", gate.getStatus().toString())
+      .prop(PROPERTY_STATUS, gate.getStatus().toString())
       .name("conditions")
       .beginArray();
     for (QualityGate.Condition condition : gate.getConditions()) {
@@ -140,7 +141,7 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
         .prop("operator", condition.getOperator().name());
       condition.getValue().ifPresent(t -> writer.prop("value", t));
       writer
-        .prop("status", condition.getStatus().name())
+        .prop(PROPERTY_STATUS, condition.getStatus().name())
         .prop("onLeakPeriod", condition.isOnLeakPeriod())
         .prop("errorThreshold", condition.getErrorThreshold().orElse(null))
         .prop("warningThreshold", condition.getWarningThreshold().orElse(null))
