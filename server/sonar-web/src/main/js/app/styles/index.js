@@ -20,7 +20,6 @@
 import '../../components/ui/Level.css';
 import '../../components/ui/Rating.css';
 import './boxed-group.css';
-import './page.css';
 
 // these styles are extracted to a separate file
 import '../../../less/sonar.less';
