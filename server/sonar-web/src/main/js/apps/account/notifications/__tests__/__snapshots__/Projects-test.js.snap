@@ -29,7 +29,8 @@ exports[`should render projects 1`] = `
     <span
       className="text-middle spacer-right"
     >
-      Set notifications for:
+      my_account.set_notifications_for
+      :
     </span>
     <Async
       autoload={false}
@@ -43,7 +44,7 @@ exports[`should render projects 1`] = `
       onChange={[Function]}
       optionRenderer={[Function]}
       options={Array []}
-      placeholder="Search Project"
+      placeholder="my_account.search_project"
       searchPromptText="Type to search"
       style={
         Object {
@@ -92,7 +93,8 @@ exports[`should render projects 2`] = `
     <span
       className="text-middle spacer-right"
     >
-      Set notifications for:
+      my_account.set_notifications_for
+      :
     </span>
     <Async
       autoload={false}
@@ -106,7 +108,7 @@ exports[`should render projects 2`] = `
       onChange={[Function]}
       optionRenderer={[Function]}
       options={Array []}
-      placeholder="Search Project"
+      placeholder="my_account.search_project"
       searchPromptText="Type to search"
       style={
         Object {
@@ -155,7 +157,8 @@ exports[`should render projects 3`] = `
     <span
       className="text-middle spacer-right"
     >
-      Set notifications for:
+      my_account.set_notifications_for
+      :
     </span>
     <Async
       autoload={false}
@@ -169,7 +172,7 @@ exports[`should render projects 3`] = `
       onChange={[Function]}
       optionRenderer={[Function]}
       options={Array []}
-      placeholder="Search Project"
+      placeholder="my_account.search_project"
       searchPromptText="Type to search"
       style={
         Object {

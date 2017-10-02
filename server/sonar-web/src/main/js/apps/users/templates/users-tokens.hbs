@@ -1,5 +1,5 @@
 <div class="modal-head">
-  <h2>Tokens</h2>
+  <h2>{{t 'users.tokens'}}</h2>
 </div>
 
 <div class="modal-body">
@@ -9,8 +9,8 @@
     <table class="data zebra">
       <thead>
       <tr>
-        <th>Name</th>
-        <th class="text-right">Created</th>
+        <th>{{t 'name'}}</th>
+        <th class="text-right">{{t 'created'}}</th>
         <th>&nbsp;</th>
       </tr>
       </thead>
@@ -29,9 +29,9 @@
             <div class="big-spacer-left">
               <form class="js-revoke-token-form" data-token="{{name}}">
                 {{#if deleting}}
-                  <button class="button-red active input-small">Sure?</button>
+                  <button class="button-red active input-small">{{t 'users.tokens.sure'}}</button>
                 {{else}}
-                  <button class="button-red input-small">Revoke</button>
+                  <button class="button-red input-small">{{t 'users.tokens.revoke'}}</button>
                 {{/if}}
               </form>
             </div>
@@ -40,7 +40,7 @@
       {{else}}
         <tr>
           <td colspan="3">
-            <span class="note">No tokens</span>
+            <span class="note">{{t 'users.no_tokens'}}</span>
           </td>
         </tr>
       {{/each}}
@@ -50,28 +50,28 @@
 
   <hr class="big-spacer-top big-spacer-bottom">
 
-  <h3 class="spacer-bottom">Generate Tokens</h3>
+  <h3 class="spacer-bottom">{{t 'users.generate_tokens'}}</h3>
 
   {{#each errors}}
     <div class="alert alert-danger">{{msg}}</div>
   {{/each}}
 
   <form class="js-generate-token-form">
-    <input type="text" required maxlength="100" placeholder="Enter Token Name">
-    <button>Generate</button>
+    <input type="text" required maxlength="100" placeholder="{{t 'users.enter_token_name'}}">
+    <button>{{t 'users.generate'}}</button>
   </form>
 
   {{#if newToken}}
     <div class="panel panel-white big-spacer-top">
       <div class="alert alert-warning">
-        New token "{{limitString newToken.name}}" has been created. Make sure you copy it now, you won’t be able to see it again!
+        {{tp 'users.tokens.new_token_created' newToken.name}}
       </div>
 
       <table class="data">
         <tr>
 
           <td class="thin">
-            <button class="js-copy-to-clipboard" data-clipboard-text="{{newToken.token}}">Copy</button>
+            <button class="js-copy-to-clipboard" data-clipboard-text="{{newToken.token}}">{{t 'copy'}}</button>
           </td>
           <td class="nowrap">
             <code class="text-success">{{newToken.token}}</code>
@@ -83,5 +83,5 @@
 </div>
 
 <div class="modal-foot">
-  <a href="#" class="js-modal-close">Done</a>
+  <a href="#" class="js-modal-close">{{t 'Done'}}</a>
 </div>

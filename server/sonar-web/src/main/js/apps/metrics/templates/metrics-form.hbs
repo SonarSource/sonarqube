@@ -1,27 +1,27 @@
 <form id="create-metric-form" autocomplete="off">
   <div class="modal-head">
-    <h2>{{#if id}}Update{{else}}Create{{/if}} Metric</h2>
+    <h2>{{#if id}}{{t 'custom_metrics.update_metric'}}{{else}}{{t 'custom_metrics.create_metric'}}{{/if}}</h2>
   </div>
   <div class="modal-body">
     <div class="js-modal-messages"></div>
     <div class="modal-field">
-      <label for="create-metric-key">Key<em class="mandatory">*</em></label>
+      <label for="create-metric-key">{{t 'key'}}<em class="mandatory">*</em></label>
       <input id="create-metric-key" name="key" type="text" maxlength="200" required value="{{key}}">
     </div>
     <div class="modal-field">
-      <label for="create-metric-name">Name<em class="mandatory">*</em></label>
+      <label for="create-metric-name">{{t 'name'}}<em class="mandatory">*</em></label>
       <input id="create-metric-name" name="name" type="text" maxlength="200" required value="{{name}}">
     </div>
     <div class="modal-field">
-      <label for="create-metric-description">Description</label>
+      <label for="create-metric-description">{{t 'description'}}</label>
       <textarea id="create-metric-description" name="description">{{description}}</textarea>
     </div>
     <div class="modal-field">
-      <label for="create-metric-domain">Domain</label>
+      <label for="create-metric-domain">{{t 'custom_metrics.domain'}}</label>
       <input id="create-metric-domain" name="domain" type="text" maxlength="200" value="{{this.domain}}">
     </div>
     <div class="modal-field">
-      <label for="create-metric-type">Type<em class="mandatory">*</em></label>
+      <label for="create-metric-type">{{t 'type'}}<em class="mandatory">*</em></label>
       <select id="create-metric-type" name="type">
         {{#each types}}
           <option value="{{this}}" {{#eq this ../type}}selected{{/eq}}>{{t 'metric.type' this}}</option>
@@ -30,7 +30,7 @@
     </div>
   </div>
   <div class="modal-foot">
-    <button id="create-metric-submit">{{#if id}}Update{{else}}Create{{/if}}</button>
-    <a href="#" class="js-modal-close" id="create-metric-cancel">Cancel</a>
+    <button id="create-metric-submit">{{#if id}}{{t 'update_verb'}}{{else}}{{t 'create'}}{{/if}}</button>
+    <a href="#" class="js-modal-close" id="create-metric-cancel">{{t 'cancel'}}</a>
   </div>
 </form>

@@ -217,7 +217,7 @@ export default class Search extends React.PureComponent<Props, State> {
                     ref={node => (this.input = node!)}
                     className="search-box-input input-medium"
                     type="search"
-                    placeholder="Search"
+                    placeholder={translate('search_verb')}
                   />
                 </form>
               </td>

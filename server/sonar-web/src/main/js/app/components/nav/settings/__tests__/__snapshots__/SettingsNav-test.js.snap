@@ -68,7 +68,7 @@ exports[`should work with extensions 1`] = `
             activeClassName="active"
             to="/admin/custom_metrics"
           >
-            Custom Metrics
+            custom_metrics.page
           </IndexLink>
         </li>
         <li>
@@ -156,7 +156,7 @@ exports[`should work with extensions 1`] = `
             activeClassName="active"
             to="/admin/projects_management"
           >
-            Management
+            management
           </IndexLink>
         </li>
         <li>

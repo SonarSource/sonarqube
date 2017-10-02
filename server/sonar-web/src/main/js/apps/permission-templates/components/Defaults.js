@@ -20,7 +20,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { sortBy } from 'lodash';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { PermissionTemplateType } from '../propTypes';
 
 export default class Defaults extends React.PureComponent {
@@ -42,7 +42,7 @@ export default class Defaults extends React.PureComponent {
     return (
       <div>
         <span className="badge spacer-right">
-          {translate('default')} for {qualifiers}
+          {translateWithParameters('permission_template.default_for', qualifiers)}
         </span>
       </div>
     );

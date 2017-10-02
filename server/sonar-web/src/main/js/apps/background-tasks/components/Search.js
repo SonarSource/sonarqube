@@ -79,7 +79,9 @@ export default class Search extends React.PureComponent {
 
     return (
       <li>
-        <h6 className="bt-search-form-label">Search by Task or Component</h6>
+        <h6 className="bt-search-form-label">
+          {translate('background_tasks.search_by_task_or_component')}
+        </h6>
 
         <input
           onChange={e => this.handleQueryChange(e.target.value)}
@@ -87,7 +89,7 @@ export default class Search extends React.PureComponent {
           ref="searchInput"
           className="js-search input-medium"
           type="search"
-          placeholder="Search"
+          placeholder={translate('search_verb')}
         />
       </li>
     );
@@ -109,12 +111,12 @@ export default class Search extends React.PureComponent {
       <section className="big-spacer-top big-spacer-bottom">
         <ul className="bt-search-form">
           <li>
-            <h6 className="bt-search-form-label">Status</h6>
+            <h6 className="bt-search-form-label">{translate('status')}</h6>
             <StatusFilter value={status} onChange={this.handleStatusChange.bind(this)} />
           </li>
           {types.length > 1 && (
             <li>
-              <h6 className="bt-search-form-label">Type</h6>
+              <h6 className="bt-search-form-label">{translate('type')}</h6>
               <TypesFilter
                 value={taskType}
                 types={types}
@@ -124,12 +126,14 @@ export default class Search extends React.PureComponent {
           )}
           {!component && (
             <li>
-              <h6 className="bt-search-form-label">Only Latest Analysis</h6>
+              <h6 className="bt-search-form-label">
+                {translate('background_tasks.currents_filter.ONLY_CURRENTS')}
+              </h6>
               <CurrentsFilter value={currents} onChange={this.handleCurrentsChange.bind(this)} />
             </li>
           )}
           <li>
-            <h6 className="bt-search-form-label">Date</h6>
+            <h6 className="bt-search-form-label">{translate('date')}</h6>
             <DateFilter
               minSubmittedAt={minSubmittedAt}
               maxExecutedAt={maxExecutedAt}

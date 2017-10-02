@@ -4,22 +4,22 @@
       <li>
         <input type="radio" name="update-center-filter" value="installed" id="update-center-filter-installed"
                {{#eq state.section 'installed'}}checked{{/eq}}>
-        <label for="update-center-filter-installed">Installed</label>
+        <label for="update-center-filter-installed">{{t 'update_center.installed'}}</label>
       </li>
       <li>
         <input type="radio" name="update-center-filter" value="updates" id="update-center-filter-updates"
           {{#eq state.section 'updates'}}checked{{/eq}} {{#unless state.updateCenterActive}}disabled{{/unless}}>
         <label for="update-center-filter-updates"
-          {{#unless state.updateCenterActive}}data-toggle="tooltip" title="Update Center is not activated."{{/unless}}>
-          Updates Only
+          {{#unless state.updateCenterActive}}data-toggle="tooltip" title="{{t 'update_center.not_activated'}}"{{/unless}}>
+          {{t 'update_center.updates_only'}}
         </label>
       </li>
       <li>
         <input type="radio" name="update-center-filter" value="available" id="update-center-filter-available"
           {{#eq state.section 'available'}}checked{{/eq}} {{#unless state.updateCenterActive}}disabled{{/unless}}>
         <label for="update-center-filter-available"
-          {{#unless state.updateCenterActive}}data-toggle="tooltip" title="Update Center is not activated."{{/unless}}>
-          Available
+          {{#unless state.updateCenterActive}}data-toggle="tooltip" title="{{t 'update_center.not_activated'}}"{{/unless}}>
+          {{t 'update_center.available'}}
         </label>
       </li>
     </ul>
@@ -29,8 +29,8 @@
         <input type="radio" name="update-center-filter" value="system" id="update-center-filter-system"
           {{#eq state.section 'system'}}checked{{/eq}} {{#unless state.updateCenterActive}}disabled{{/unless}}>
         <label for="update-center-filter-system"
-          {{#unless state.updateCenterActive}}data-toggle="tooltip" title="Update Center is not activated."{{/unless}}>
-          System Upgrades
+          {{#unless state.updateCenterActive}}data-toggle="tooltip" title="{{t 'update_center.not_activated'}}"{{/unless}}>
+          {{t 'update_center.system_upgrades'}}
         </label>
       </li>
     </ul>
@@ -40,7 +40,7 @@
     <form id="update-center-search-form" class="search-box display-inline-block text-top">
       <button id="update-center-search-submit" class="search-box-submit button-clean"><i class="icon-search"></i>
       </button>
-      <input id="update-center-search-query" class="search-box-input" type="search" name="q" placeholder="Search"
+      <input id="update-center-search-query" class="search-box-input" type="search" name="q" placeholder="{{t 'search_verb'}}"
              maxlength="100" autocomplete="off">
     </form>
   {{/notEq}}

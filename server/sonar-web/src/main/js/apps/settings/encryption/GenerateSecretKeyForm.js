@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { translate } from '../../../helpers/l10n';
 
 export default class GenerateSecretKeyForm extends React.PureComponent {
   static propTypes = {
@@ -37,7 +38,7 @@ export default class GenerateSecretKeyForm extends React.PureComponent {
         {this.props.secretKey != null ? (
           <div>
             <div className="big-spacer-bottom">
-              <h3 className="spacer-bottom">Secret Key</h3>
+              <h3 className="spacer-bottom">{translate('encryption.secret_key')}</h3>
               <input
                 id="secret-key"
                 className="input-large"
@@ -47,43 +48,22 @@ export default class GenerateSecretKeyForm extends React.PureComponent {
               />
             </div>
 
-            <h3 className="spacer-bottom">How To Use</h3>
+            <h3 className="spacer-bottom">{translate('encryption.how_to_use')}</h3>
 
-            <ul className="list-styled markdown">
-              <li className="spacer-bottom">
-                Store the secret key in the file <code>~/.sonar/sonar-secret.txt</code> of the
-                server. This file can be relocated by defining the property{' '}
-                <code>sonar.secretKeyPath</code> in <code>conf/sonar.properties</code>
-              </li>
-              <li className="spacer-bottom">
-                Restrict access to this file by making it readable and by owner only
-              </li>
-              <li className="spacer-bottom">
-                Restart the server if the property <code>sonar.secretKeyPath</code> has been set or
-                changed.
-              </li>
-              <li className="spacer-bottom">
-                Copy this file on all the machines that execute code inspection. Define the property{' '}
-                <code>sonar.secretKeyPath</code> on those machines if the path is not{' '}
-                <code>~/.sonar/sonar-secret.txt</code>.
-              </li>
-              <li>
-                For each property that you want to encrypt, generate the encrypted value and replace
-                the original value wherever it is stored (configuration files, command lines).
-              </li>
-            </ul>
+            <div
+              className="markdown"
+              dangerouslySetInnerHTML={{ __html: translate('encryption.how_to_use.content') }}
+            />
           </div>
         ) : (
           <div>
-            <p className="spacer-bottom">
-              Secret key is required to be able to encrypt properties.{' '}
-              <a href="https://redirect.sonarsource.com/doc/settings-encryption.html">
-                More information
-              </a>
-            </p>
+            <p
+              className="spacer-bottom"
+              dangerouslySetInnerHTML={{ __html: translate('ecryption.secret_key_description') }}
+            />
 
             <form id="generate-secret-key-form" onSubmit={e => this.handleSubmit(e)}>
-              <button>Generate Secret Key</button>
+              <button>{translate('encryption.generate_secret_key')}s</button>
             </form>
           </div>
         )}

@@ -168,7 +168,7 @@ exports[`render qualifiers filter 1`] = `
             <input
               className="search-box-input input-medium"
               onChange={[Function]}
-              placeholder="Search"
+              placeholder="search_verb"
               type="search"
               value=""
             />
@@ -270,7 +270,7 @@ exports[`renders 1`] = `
             <input
               className="search-box-input input-medium"
               onChange={[Function]}
-              placeholder="Search"
+              placeholder="search_verb"
               type="search"
               value=""
             />

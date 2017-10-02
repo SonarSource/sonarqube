@@ -5,9 +5,7 @@ exports[`should render one qualifier 1`] = `
   <span
     className="badge spacer-right"
   >
-    default
-     for 
-    qualifiers.DEV
+    permission_template.default_for.qualifiers.DEV
   </span>
 </div>
 `;
@@ -17,9 +15,7 @@ exports[`should render only projects for custom organization 1`] = `
   <span
     className="badge spacer-right"
   >
-    default
-     for 
-    qualifiers.TRK
+    permission_template.default_for.qualifiers.TRK
   </span>
 </div>
 `;
@@ -29,9 +25,7 @@ exports[`should render several qualifiers 1`] = `
   <span
     className="badge spacer-right"
   >
-    default
-     for 
-    qualifiers.TRK, qualifiers.VW
+    permission_template.default_for.qualifiers.TRK, qualifiers.VW
   </span>
 </div>
 `;
@@ -41,9 +35,7 @@ exports[`should render several qualifiers for default organization 1`] = `
   <span
     className="badge spacer-right"
   >
-    default
-     for 
-    qualifiers.TRK, qualifiers.VW
+    permission_template.default_for.qualifiers.TRK, qualifiers.VW
   </span>
 </div>
 `;

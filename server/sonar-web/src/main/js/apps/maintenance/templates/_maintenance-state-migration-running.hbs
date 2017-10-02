@@ -1,10 +1,10 @@
-<h1 class="maintenance-title">Database Migration</h1>
+<h1 class="maintenance-title">{{t 'maintenance.database_migration'}}</h1>
 {{#if message}}
   <p class="maintenance-text text-center">{{message}}</p>
 {{/if}}
 {{#if startedAt}}
   <p class="maintenance-text text-center">
-    Started {{fromNow startedAt}}<br>
+    {{t 'background_tasks.table.started'}} {{fromNow startedAt}}<br>
     <small class="text-muted">{{dt startedAt}}</small>
   </p>
 {{/if}}

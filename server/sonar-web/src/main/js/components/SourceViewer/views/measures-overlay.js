@@ -25,6 +25,7 @@ import ModalView from '../../common/modals';
 import Template from './templates/source-viewer-measures.hbs';
 import { getMeasures } from '../../../api/measures';
 import { getMetrics } from '../../../api/metrics';
+import { getLocalizedMetricName, getLocalizedMetricDomain } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 
 const severityComparator = severity => {
@@ -134,11 +135,13 @@ export default ModalView.extend({
   },
 
   prepareMetrics(metrics) {
-    metrics = metrics.filter(metric => metric.value != null);
+    metrics = metrics
+      .filter(metric => metric.value != null)
+      .map(metric => ({ ...metric, name: getLocalizedMetricName(metric) }));
     return sortBy(
       toPairs(groupBy(metrics, 'domain')).map(domain => {
         return {
-          name: domain[0],
+          name: getLocalizedMetricDomain(domain[0]),
           metrics: domain[1]
         };
       }),

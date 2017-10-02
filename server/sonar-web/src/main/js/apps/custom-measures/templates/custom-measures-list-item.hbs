@@ -20,15 +20,15 @@
 
 <td class="">
   {{#if updatedAt }}
-    Updated on <span class="js-custom-measure-created-at">{{d updatedAt}}</span>
+    {{t 'updated_on'}} <span class="js-custom-measure-created-at">{{d updatedAt}}</span>
   {{else}}
     {{#if createdAt }}
-      Created on <span class="js-custom-measure-created-at">{{d createdAt}}</span>
+      {{t 'created_on'}} <span class="js-custom-measure-created-at">{{d createdAt}}</span>
     {{else}}
-      Created 
+      {{t 'created'}} 
     {{/if}}
   {{/if}}
-  by <span class="js-custom-measure-user">{{user.name}}</span>
+  {{t 'by_'}} <span class="js-custom-measure-user">{{user.name}}</span>
 </td>
 
 <td class="thin nowrap">

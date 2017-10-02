@@ -14,12 +14,12 @@
       <ul>
         {{#if version}}
           <li class="little-spacer-bottom">
-            <strong class="js-plugin-installed-version">{{version}}</strong>&nbsp;installed
+            <strong class="js-plugin-installed-version">{{version}}</strong>&nbsp;{{t 'update_center._installed'}}
           </li>
         {{/if}}
         {{#notEmpty updates}}
           <li class="little-spacer-bottom spacer-top">
-            <strong>Updates:</strong>
+            <strong>{{t 'update_center.updates'}}:</strong>
           </li>
           {{#each updates}}
             <li class="little-spacer-bottom">
@@ -48,7 +48,7 @@
               <button class="button-link js-changelog issue-rule icon-ellipsis-h" data-idx="{{@index}}"></button>
               {{#notEmpty update.requires}}
                 <p class="little-spacer-top">
-                  <strong>Installing this plugin will also install</strong>: {{#each update.requires}} {{name}}{{/each}}
+                  <strong>{{t 'update_center.installing_this_plugin_will_also_install'}}</strong>: {{#each update.requires}} {{name}}{{/each}}
                 </p>
               {{/notEmpty}}
             </div>
@@ -63,10 +63,10 @@
           <li class="little-spacer-bottom">
             <ul class="list-inline">
               {{#if homepageUrl}}
-                <li><a class="js-plugin-homepage" href="{{homepageUrl}}" target="_blank">Homepage</a></li>
+                <li><a class="js-plugin-homepage" href="{{homepageUrl}}" target="_blank">{{t 'update_center.homepage'}}</a></li>
               {{/if}}
               {{#if issueTrackerUrl}}
-                <li><a class="js-plugin-issues" href="{{issueTrackerUrl}}" target="_blank">Issue Tracker</a></li>
+                <li><a class="js-plugin-issues" href="{{issueTrackerUrl}}" target="_blank">{{t 'update_center.issue_tracker'}}</a></li>
               {{/if}}
             </ul>
           </li>
@@ -74,14 +74,14 @@
 
         {{#if license}}
           <li class="little-spacer-bottom text-limited" title="{{license}}">
-            Licensed under
+            {{t 'update_center.licensed_under'}}
             <span class="js-plugin-license">{{license}}</span>
           </li>
         {{/if}}
 
         {{#if organizationName}}
           <li class="little-spacer-bottom">
-            Developed by
+            {{t 'update_center.developed_by'}}
             {{#if organizationUrl}}
               <a class="js-plugin-organization" href="{{organizationUrl}}" target="_blank">{{organizationName}}</a>
             {{else}}
@@ -94,15 +94,15 @@
 
     <td class="text-top text-right width-20">
       {{#eq _status 'installing'}}
-        <p class="text-success">Install Pending</p>
+        <p class="text-success">{{t 'update_center.install_pending'}}</p>
       {{/eq}}
 
       {{#eq _status 'updating'}}
-        <p class="text-success">Update Pending</p>
+        <p class="text-success">{{t 'update_center.update_pending'}}</p>
       {{/eq}}
 
       {{#eq _status 'uninstalling'}}
-        <p class="text-danger">Uninstall Pending</p>
+        <p class="text-danger">{{t 'update_center.uninstall_pending'}}</p>
       {{/eq}}
 
       {{#eq _status 'failed'}}

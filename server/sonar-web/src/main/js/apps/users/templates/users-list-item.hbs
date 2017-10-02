@@ -35,7 +35,7 @@
     {{/each}}
     {{#gt moreScmAccountsCount 0}}
       <li class="little-spacer-bottom">
-        <a class="js-user-more-scm" href="#">{{moreScmAccountsCount}} more</a>
+        <a class="js-user-more-scm" href="#">{{moreScmAccountsCount}} {{t 'more'}}</a>
       </li>
     {{/gt}}
   </ul>
@@ -49,9 +49,9 @@
       {{/each}}
       <li class="little-spacer-bottom">
         {{#gt moreGroupsCount 0}}
-          <a class="js-user-more-groups spacer-right" href="#">{{moreGroupsCount}} more</a>
+          <a class="js-user-more-groups spacer-right" href="#">{{moreGroupsCount}} {{t 'more'}}</a>
         {{/gt}}
-        <a class="js-user-groups icon-bullet-list" title="Update Groups" data-toggle="tooltip" href="#"></a>
+        <a class="js-user-groups icon-bullet-list" title="{{t 'users.update_groups'}}" data-toggle="tooltip" href="#"></a>
       </li>
     </ul>
   </td>
@@ -59,14 +59,14 @@
 
 <td>
   {{tokensCount}}
-  <a class="js-user-tokens spacer-left icon-bullet-list" title="Update Tokens" data-toggle="tooltip" href="#"></a>
+  <a class="js-user-tokens spacer-left icon-bullet-list" title="{{t 'users.update_tokens'}}" data-toggle="tooltip" href="#"></a>
 </td>
 
 <td class="thin nowrap text-right">
-  <a class="js-user-update icon-edit little-spacer-right" title="Update Details" data-toggle="tooltip" href="#"></a>
+  <a class="js-user-update icon-edit little-spacer-right" title="{{t 'update_details'}}" data-toggle="tooltip" href="#"></a>
   {{#if local}}
-    <a class="js-user-change-password icon-lock little-spacer-right" title="Change Password" data-toggle="tooltip"
+    <a class="js-user-change-password icon-lock little-spacer-right" title="{{t 'my_profile.password.title'}}" data-toggle="tooltip"
        href="#"></a>
   {{/if}}
-  <a class="js-user-deactivate icon-delete" title="Deactivate" data-toggle="tooltip" href="#"></a>
+  <a class="js-user-deactivate icon-delete" title="{{t 'users.deactivate'}}" data-toggle="tooltip" href="#"></a>
 </td>

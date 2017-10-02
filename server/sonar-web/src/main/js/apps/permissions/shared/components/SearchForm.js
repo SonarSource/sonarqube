@@ -53,9 +53,9 @@ export default class SearchForm extends React.PureComponent {
     const { query, filter } = this.props;
 
     const filterOptions = [
-      { value: 'all', label: 'All' },
-      { value: 'users', label: 'Users' },
-      { value: 'groups', label: 'Groups' }
+      { value: 'all', label: translate('all') },
+      { value: 'users', label: translate('users.page') },
+      { value: 'groups', label: translate('user_groups.page') }
     ];
 
     return (
