@@ -28,18 +28,19 @@ import static com.google.common.collect.ImmutableMap.copyOf;
 import static java.util.Objects.requireNonNull;
 
 public class ProjectAnalysis {
-  private final CeTask ceTask;
   private final Project project;
+  private final CeTask ceTask;
   private final Branch branch;
   private final QualityGate qualityGate;
   private final Long date;
   private final Map<String, String> properties;
   private final Analysis analysis;
 
-  public ProjectAnalysis(CeTask ceTask, Project project, @Nullable Analysis analysis,
-    @Nullable Branch branch, @Nullable QualityGate qualityGate, @Nullable Long date, Map<String, String> properties) {
-    this.ceTask = requireNonNull(ceTask, "ceTask can't be null");
+  public ProjectAnalysis(Project project, @Nullable CeTask ceTask, @Nullable Analysis analysis,
+    @Nullable Branch branch, @Nullable QualityGate qualityGate, @Nullable Long date,
+    Map<String, String> properties) {
     this.project = requireNonNull(project, "project can't be null");
+    this.ceTask = ceTask;
     this.branch = branch;
     this.qualityGate = qualityGate;
     this.date = date;
@@ -47,8 +48,8 @@ public class ProjectAnalysis {
     this.analysis = analysis;
   }
 
-  CeTask getCeTask() {
-    return ceTask;
+  Optional<CeTask> getCeTask() {
+    return Optional.ofNullable(ceTask);
   }
 
   Project getProject() {
@@ -80,28 +81,30 @@ public class ProjectAnalysis {
       return false;
     }
     ProjectAnalysis that = (ProjectAnalysis) o;
-    return Objects.equals(ceTask, that.ceTask) &&
-      Objects.equals(project, that.project) &&
+    return Objects.equals(project, that.project) &&
+      Objects.equals(ceTask, that.ceTask) &&
       Objects.equals(branch, that.branch) &&
       Objects.equals(qualityGate, that.qualityGate) &&
       Objects.equals(date, that.date) &&
-      Objects.equals(properties, that.properties);
+      Objects.equals(properties, that.properties) &&
+      Objects.equals(analysis, that.analysis);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(ceTask, project, branch, qualityGate, date, properties);
+    return Objects.hash(project, ceTask, branch, qualityGate, date, properties, analysis);
   }
 
   @Override
   public String toString() {
     return "ProjectAnalysis{" +
-      "ceTask=" + ceTask +
-      ", project=" + project +
+      "project=" + project +
+      ", ceTask=" + ceTask +
       ", branch=" + branch +
       ", qualityGate=" + qualityGate +
       ", date=" + date +
       ", properties=" + properties +
+      ", analysis=" + analysis +
       '}';
   }
 }

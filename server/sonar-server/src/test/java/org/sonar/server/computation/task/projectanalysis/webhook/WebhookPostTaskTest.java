@@ -34,6 +34,7 @@ import org.sonar.api.ce.posttask.Project;
 import org.sonar.api.ce.posttask.QualityGate;
 import org.sonar.api.config.Configuration;
 import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
+import org.sonar.server.webhook.Analysis;
 import org.sonar.server.webhook.ProjectAnalysis;
 import org.sonar.server.webhook.WebHooks;
 import org.sonar.server.webhook.WebhookPayload;
@@ -113,15 +114,14 @@ public class WebhookPostTaskTest {
 
     org.sonar.server.webhook.QualityGate webQualityGate = null;
     if (qualityGate != null) {
-      org.sonar.server.webhook.QualityGate.Status status =  org.sonar.server.webhook.QualityGate.Status.valueOf(qualityGate.getStatus().name());
+      org.sonar.server.webhook.QualityGate.Status status = org.sonar.server.webhook.QualityGate.Status.valueOf(qualityGate.getStatus().name());
       webQualityGate = new org.sonar.server.webhook.QualityGate(qualityGate.getId(), qualityGate.getName(), status, emptySet());
     }
 
     verify(payloadFactory).create(new ProjectAnalysis(
-      new org.sonar.server.webhook.CeTask(ceTask.getId(),
+      new org.sonar.server.webhook.Project(project.getUuid(), project.getKey(), project.getName()), new org.sonar.server.webhook.CeTask(ceTask.getId(),
         org.sonar.server.webhook.CeTask.Status.valueOf(ceTask.getStatus().name())),
-      new org.sonar.server.webhook.Project(project.getUuid(), project.getKey(), project.getName()),
-      null,
+      analysisUUid == null ? null : new Analysis(analysisUUid, date.getTime()),
       null,
       webQualityGate,
       analysisUUid == null ? null : date.getTime(),
