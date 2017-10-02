@@ -30,6 +30,7 @@ import okhttp3.ConnectionSpec;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.RandomStringUtils;
@@ -42,6 +43,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonarqube.ws.MediaTypes;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static okhttp3.Credentials.basic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -166,6 +168,25 @@ public class HttpConnectorTest {
 
     RecordedRequest recordedRequest = server.takeRequest();
     assertThat(recordedRequest.getHeader("Authorization")).isEqualTo(basic("theLogin", ""));
+  }
+
+  @Test
+  public void use_basic_authentication_with_utf8_login_and_password() throws Exception {
+    answerHelloWorld();
+    String login = "我能";
+    String password = "吞下";
+    underTest = HttpConnector.newBuilder()
+      .url(serverUrl)
+      .credentials(login, password)
+      .build();
+
+    GetRequest request = new GetRequest("api/issues/search");
+    underTest.call(request);
+
+    RecordedRequest recordedRequest = server.takeRequest();
+    // do not use OkHttp Credentials.basic() in order to not use the same code as the code under test
+    String expectedHeader = "Basic " + Base64.encodeBase64String((login + ":" + password).getBytes(UTF_8));
+    assertThat(recordedRequest.getHeader("Authorization")).isEqualTo(expectedHeader);
   }
 
   /**
