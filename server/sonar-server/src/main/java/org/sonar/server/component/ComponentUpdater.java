@@ -32,7 +32,6 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.BranchKeyType;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.es.ProjectIndexer.Cause;
@@ -118,11 +117,9 @@ public class ComponentUpdater {
   private BranchDto createBranch(DbSession session, String componentUuid) {
     BranchDto branch = new BranchDto()
       .setBranchType(BranchType.LONG)
-      .setKeeType(BranchKeyType.BRANCH)
       .setUuid(componentUuid)
       .setKey(BranchDto.DEFAULT_MAIN_BRANCH_NAME)
       .setMergeBranchUuid(null)
-      .setPullRequestTitle(null)
       .setProjectUuid(componentUuid);
 
     dbClient.branchDao().upsert(session, branch);

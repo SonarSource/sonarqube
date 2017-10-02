@@ -28,7 +28,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.BranchKeyType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
@@ -71,7 +70,7 @@ public class RenameAction implements BranchWsAction {
       ComponentDto project = componentFinder.getRootComponentByUuidOrKey(dbSession, null, projectKey);
       checkPermission(project);
 
-      Optional<BranchDto> branch = dbClient.branchDao().selectByKey(dbSession, project.uuid(), BranchKeyType.BRANCH, branchKey);
+      Optional<BranchDto> branch = dbClient.branchDao().selectByKey(dbSession, project.uuid(), branchKey);
       if (branch.isPresent() && !branch.get().isMain()) {
         throw new IllegalArgumentException("Impossible to update branch name: a branch with name \"" + branchKey + "\" already exists in the project.");
       }
