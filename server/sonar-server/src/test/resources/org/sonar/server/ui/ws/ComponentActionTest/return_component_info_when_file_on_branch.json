@@ -1,0 +1,26 @@
+{
+  "key": "sample:src/Main.xoo",
+  "organization": "my-org2",
+  "id": "abcd",
+  "name": "Main.xoo",
+  "isFavorite": false,
+  "extensions": [],
+  "qualityProfiles": [],
+  "breadcrumbs": [
+    {
+      "key": "sample",
+      "name": "Sample",
+      "qualifier": "TRK"
+    },
+    {
+      "key": "sample:src",
+      "name": "src",
+      "qualifier": "DIR"
+    },
+    {
+      "key": "sample:src/Main.xoo",
+      "name": "Main.xoo",
+      "qualifier": "FIL"
+    }
+  ]
+}

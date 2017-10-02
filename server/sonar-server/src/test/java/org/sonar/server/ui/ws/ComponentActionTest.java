@@ -219,6 +219,46 @@ public class ComponentActionTest {
   }
 
   @Test
+  public void return_component_info_when_file_on_master() throws Exception {
+    init();
+    OrganizationDto organization = dbTester.organizations().insertForKey("my-org2");
+    ComponentDto main = componentDbTester.insertMainBranch(organization, p -> p.setName("Sample"), p -> p.setDbKey("sample"));
+    userSession.addProjectPermission(UserRole.USER, main);
+
+    ComponentDto dirDto = componentDbTester.insertComponent(newDirectory(main, "src"));
+
+    ComponentDto fileDto = componentDbTester.insertComponent(newFileDto(main, dirDto)
+      .setUuid("abcd")
+      .setName("Main.xoo")
+      .setDbKey("sample:src/Main.xoo"));
+
+    executeAndVerify(fileDto.getDbKey(), "return_component_info_when_file_on_master.json");
+  }
+
+  @Test
+  public void return_component_info_when_file_on_branch() throws Exception {
+    init();
+    OrganizationDto organization = dbTester.organizations().insertForKey("my-org2");
+    ComponentDto project = componentDbTester.insertMainBranch(organization, p -> p.setName("Sample"), p -> p.setDbKey("sample"));
+    ComponentDto branch = componentDbTester.insertProjectBranch(project, b -> b.setKey("feature1"));
+    userSession.addProjectPermission(UserRole.USER, project);
+
+    ComponentDto dirDto = componentDbTester.insertComponent(newDirectory(branch, "src"));
+
+    ComponentDto fileDto = componentDbTester.insertComponent(newFileDto(branch, dirDto)
+      .setUuid("abcd")
+      .setName("Main.xoo")
+      .setDbKey("sample:src/Main.xoo"));
+
+    String json = ws.newRequest()
+      .setParam("componentKey", fileDto.getDbKey())
+      .setParam("branch", branch.getBranch())
+      .execute()
+      .getInput();
+    verify(json, "return_component_info_when_file_on_branch.json");
+  }
+
+  @Test
   public void return_quality_profiles() throws Exception {
     init();
     componentDbTester.insertComponent(project);
