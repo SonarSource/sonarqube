@@ -32,6 +32,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rules.RuleType;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
@@ -40,13 +41,11 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.issue.IssueDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.issue.ws.SearchResponseData;
 import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.webhook.Analysis;
@@ -83,20 +82,20 @@ public class IssueChangeWebhookImpl implements IssueChangeWebhook {
   }
 
   @Override
-  public void onChange(SearchResponseData searchResponseData, IssueChange issueChange, IssueChangeContext context) {
-    if (isEmpty(searchResponseData) || !isUserChangeContext(context) || !isRelevant(issueChange)) {
+  public void onChange(IssueChangeData issueChangeData, IssueChange issueChange, IssueChangeContext context) {
+    if (isEmpty(issueChangeData) || !isUserChangeContext(context) || !isRelevant(issueChange)) {
       return;
     }
 
-    callWebHook(searchResponseData);
+    callWebHook(issueChangeData);
   }
 
   private boolean isRelevant(IssueChange issueChange) {
     return issueChange.getTransitionKey().map(IssueChangeWebhookImpl::isMeaningfulTransition).orElse(true);
   }
 
-  private static boolean isEmpty(SearchResponseData searchResponseData) {
-    return searchResponseData.getIssues().isEmpty();
+  private static boolean isEmpty(IssueChangeData issueChangeData) {
+    return issueChangeData.getIssues().isEmpty();
   }
 
   private static boolean isUserChangeContext(IssueChangeContext context) {
@@ -107,16 +106,16 @@ public class IssueChangeWebhookImpl implements IssueChangeWebhook {
     return MEANINGFUL_TRANSITIONS.contains(transitionKey);
   }
 
-  private void callWebHook(SearchResponseData searchResponseData) {
+  private void callWebHook(IssueChangeData issueChangeData) {
     if (!webhooks.isEnabled(configuration)) {
       return;
     }
 
-    Set<String> componentUuids = searchResponseData.getIssues().stream()
-      .map(IssueDto::getComponentUuid)
+    Set<String> componentUuids = issueChangeData.getIssues().stream()
+      .map(DefaultIssue::projectUuid)
       .collect(toSet());
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Map<String, ComponentDto> branchesByUuid = getBranchComponents(dbSession, componentUuids, searchResponseData);
+      Map<String, ComponentDto> branchesByUuid = getBranchComponents(dbSession, componentUuids, issueChangeData);
       if (branchesByUuid.isEmpty()) {
         return;
       }
@@ -236,20 +235,22 @@ public class IssueChangeWebhookImpl implements IssueChangeWebhook {
     return res;
   }
 
-  private Map<String, ComponentDto> getBranchComponents(DbSession dbSession, Set<String> componentUuids, SearchResponseData searchResponseData) {
+  private Map<String, ComponentDto> getBranchComponents(DbSession dbSession, Set<String> componentUuids, IssueChangeData issueChangeData) {
     Set<String> missingComponentUuids = ImmutableSet.copyOf(Sets.difference(
       componentUuids,
-      searchResponseData.getComponents()
+      issueChangeData.getComponents()
         .stream()
         .map(ComponentDto::uuid)
         .collect(Collectors.toSet())));
     if (missingComponentUuids.isEmpty()) {
-      return searchResponseData.getComponents()
+      return issueChangeData.getComponents()
         .stream()
+        .filter(c -> componentUuids.contains(c.uuid()))
+        .filter(componentDto -> componentDto.getMainBranchProjectUuid() != null)
         .collect(uniqueIndex(ComponentDto::uuid));
     }
     return Stream.concat(
-      searchResponseData.getComponents().stream(),
+      issueChangeData.getComponents().stream().filter(c -> componentUuids.contains(c.uuid())),
       dbClient.componentDao().selectByUuids(dbSession, missingComponentUuids).stream())
       .filter(componentDto -> componentDto.getMainBranchProjectUuid() != null)
       .collect(uniqueIndex(ComponentDto::uuid));

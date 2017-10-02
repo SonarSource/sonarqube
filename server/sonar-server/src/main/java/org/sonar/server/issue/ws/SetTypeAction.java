@@ -26,9 +26,11 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueDto;
@@ -38,6 +40,7 @@ import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.webhook.IssueChangeWebhook;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.collect.ImmutableList.copyOf;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_TYPE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
@@ -51,16 +54,18 @@ public class SetTypeAction implements IssuesWsAction {
   private final IssueFieldsSetter issueFieldsSetter;
   private final IssueUpdater issueUpdater;
   private final OperationResponseWriter responseWriter;
+  private final System2 system2;
   private final IssueChangeWebhook issueChangeWebhook;
 
   public SetTypeAction(UserSession userSession, DbClient dbClient, IssueFinder issueFinder, IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater,
-    OperationResponseWriter responseWriter, IssueChangeWebhook issueChangeWebhook) {
+    OperationResponseWriter responseWriter, System2 system2, IssueChangeWebhook issueChangeWebhook) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.issueFinder = issueFinder;
     this.issueFieldsSetter = issueFieldsSetter;
     this.issueUpdater = issueUpdater;
     this.responseWriter = responseWriter;
+    this.system2 = system2;
     this.issueChangeWebhook = issueChangeWebhook;
   }
 
@@ -108,10 +113,15 @@ public class SetTypeAction implements IssuesWsAction {
     DefaultIssue issue = issueDto.toDefaultIssue();
     userSession.checkComponentUuidPermission(ISSUE_ADMIN, issue.projectUuid());
 
-    IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
+    IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
     if (issueFieldsSetter.setType(issue, ruleType, context)) {
       SearchResponseData searchResponseData = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, null);
-      issueChangeWebhook.onChange(searchResponseData, new IssueChangeWebhook.IssueChange(ruleType), context);
+      issueChangeWebhook.onChange(
+        new IssueChangeWebhook.IssueChangeData(
+          searchResponseData.getIssues().stream().map(IssueDto::toDefaultIssue).collect(MoreCollectors.toList(searchResponseData.getIssues().size())),
+          copyOf(searchResponseData.getComponents())),
+        new IssueChangeWebhook.IssueChange(ruleType),
+        context);
       return searchResponseData;
     }
     return new SearchResponseData(issueDto);

@@ -56,12 +56,16 @@ import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
 import org.sonar.server.issue.IssueStorage;
 import org.sonar.server.issue.RemoveTagsAction;
+import org.sonar.server.issue.SetTypeAction;
+import org.sonar.server.issue.TransitionAction;
 import org.sonar.server.issue.notification.IssueChangeNotification;
+import org.sonar.server.issue.webhook.IssueChangeWebhook;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.ImmutableMap.of;
 import static java.lang.String.format;
 import static java.util.function.Function.identity;
@@ -105,14 +109,17 @@ public class BulkChangeAction implements IssuesWsAction {
   private final IssueStorage issueStorage;
   private final NotificationManager notificationService;
   private final List<Action> actions;
+  private final IssueChangeWebhook issueChangeWebhook;
 
-  public BulkChangeAction(System2 system2, UserSession userSession, DbClient dbClient, IssueStorage issueStorage, NotificationManager notificationService, List<Action> actions) {
+  public BulkChangeAction(System2 system2, UserSession userSession, DbClient dbClient, IssueStorage issueStorage, NotificationManager notificationService, List<Action> actions,
+    IssueChangeWebhook issueChangeWebhook) {
     this.system2 = system2;
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.issueStorage = issueStorage;
     this.notificationService = notificationService;
     this.actions = actions;
+    this.issueChangeWebhook = issueChangeWebhook;
   }
 
   @Override
@@ -198,8 +205,29 @@ public class BulkChangeAction implements IssuesWsAction {
         .collect(MoreCollectors.toList());
       issueStorage.save(items);
       items.forEach(sendNotification(issueChangeContext, bulkChangeData));
+      buildWebhookIssueChange(bulkChangeData.propertiesByActions)
+        .ifPresent(issueChange -> issueChangeWebhook.onChange(
+          new IssueChangeWebhook.IssueChangeData(
+            bulkChangeData.issues.stream().filter(i -> result.success.contains(i.key())).collect(MoreCollectors.toList()),
+            copyOf(bulkChangeData.componentsByUuid.values())),
+          issueChange,
+          issueChangeContext));
       return result;
     };
+  }
+
+  private Optional<IssueChangeWebhook.IssueChange> buildWebhookIssueChange(Map<String, Map<String, Object>> propertiesByActions) {
+    RuleType ruleType = Optional.ofNullable(propertiesByActions.get(SetTypeAction.SET_TYPE_KEY))
+      .map(t -> (String) t.get(SetTypeAction.TYPE_PARAMETER))
+      .map(RuleType::valueOf)
+      .orElse(null);
+    String transitionKey = Optional.ofNullable(propertiesByActions.get(TransitionAction.DO_TRANSITION_KEY))
+      .map(t -> (String) t.get(TransitionAction.TRANSITION_PARAMETER))
+      .orElse(null);
+    if (ruleType == null && transitionKey == null) {
+      return Optional.empty();
+    }
+    return Optional.of(new IssueChangeWebhook.IssueChange(ruleType, transitionKey));
   }
 
   private Predicate<DefaultIssue> bulkChange(IssueChangeContext issueChangeContext, BulkChangeData bulkChangeData, BulkChangeResult result) {

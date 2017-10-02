@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
+import java.util.Date;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -30,7 +31,9 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -63,6 +66,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
@@ -97,10 +101,12 @@ public class SetTypeActionTest {
   private WsActionTester tester = new WsActionTester(new SetTypeAction(userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
       new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), mock(NotificationManager.class)),
-    responseWriter, issueChangeWebhook));
+    responseWriter, system2, issueChangeWebhook));
 
   @Test
   public void set_type() throws Exception {
+    long now = 1_999_777_234L;
+    when(system2.now()).thenReturn(now);
     IssueDto issueDto = issueDbTester.insertIssue(newIssue().setType(CODE_SMELL));
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
@@ -110,6 +116,19 @@ public class SetTypeActionTest {
     verifyContentOfPreloadedSearchResponseData(issueDto);
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
     assertThat(issueReloaded.getType()).isEqualTo(BUG.getDbConstant());
+
+    ArgumentCaptor<IssueChangeWebhook.IssueChangeData> issueChangeDataCaptor = ArgumentCaptor.forClass(IssueChangeWebhook.IssueChangeData.class);
+    verify(issueChangeWebhook).onChange(
+      issueChangeDataCaptor.capture(),
+      eq(new IssueChangeWebhook.IssueChange(BUG, null)),
+      eq(IssueChangeContext.createUser(new Date(now), userSession.getLogin())));
+    IssueChangeWebhook.IssueChangeData issueChangeData = issueChangeDataCaptor.getValue();
+    assertThat(issueChangeData.getIssues())
+      .extracting(DefaultIssue::key)
+      .containsOnly(issueDto.getKey());
+    assertThat(issueChangeData.getComponents())
+      .extracting(ComponentDto::uuid)
+      .containsOnly(issueDto.getComponentUuid(), issueDto.getProjectUuid());
   }
 
   @Test
