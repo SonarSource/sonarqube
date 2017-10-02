@@ -57,6 +57,7 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SINCE;
 
 public class ChangelogActionTest {
 
@@ -230,6 +231,37 @@ public class ChangelogActionTest {
       .getInput();
 
     assertThat(response).contains("\"total\":1");
+  }
+
+  @Test
+  public void changelog_filter_by_since() throws Exception {
+    QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
+    system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:42+0100").getTime());
+    QProfileChangeDto change = QualityProfileTesting.newQProfileChangeDto()
+      .setUuid(null)
+      .setCreatedAt(0)
+      .setRulesProfileUuid(qualityProfile.getRulesProfileUuid());
+    DbSession session = dbTester.getSession();
+    dbTester.getDbClient().qProfileChangeDao().insert(session, change);
+    session.commit();
+
+    String response = ws.newRequest()
+      .setMethod("GET")
+      .setParam(PARAM_KEY, qualityProfile.getKee())
+      .setParam(PARAM_SINCE, "2011-04-25T01:15:42+0100")
+      .execute()
+      .getInput();
+
+    assertThat(response).contains("\"total\":1");
+
+    String response2 = ws.newRequest()
+      .setMethod("GET")
+      .setParam(PARAM_KEY, qualityProfile.getKee())
+      .setParam(PARAM_SINCE, "2011-04-25T01:15:43+0100")
+      .execute()
+      .getInput();
+
+    assertThat(response2).contains("\"total\":0");
   }
 
   @Test
