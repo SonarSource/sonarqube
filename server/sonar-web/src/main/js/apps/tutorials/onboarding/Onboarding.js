@@ -21,6 +21,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
+import key from 'keymaster';
 import TokenStep from './TokenStep';
 import OrganizationStep from './OrganizationStep';
 import AnalysisStep from './AnalysisStep';
@@ -71,6 +72,7 @@ export default class Onboarding extends React.PureComponent {
 
   componentDidMount() {
     this.mounted = true;
+    this.attachShortcuts();
     if (!this.props.currentUser.isLoggedIn) {
       handleRequiredAuthentication();
     }
@@ -78,6 +80,19 @@ export default class Onboarding extends React.PureComponent {
 
   componentWillUnmount() {
     this.mounted = false;
+    this.detachShortcuts();
+  }
+
+  attachShortcuts() {
+    key.setScope('onboarding');
+    key('esc', 'onboarding', () => {
+      this.finishOnboarding();
+      return false;
+    });
+  }
+
+  detachShortcuts() {
+    key.deleteScope('onboarding');
   }
 
   finishOnboarding = () => {
