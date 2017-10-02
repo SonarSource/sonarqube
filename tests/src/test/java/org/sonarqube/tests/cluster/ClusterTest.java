@@ -32,6 +32,7 @@ import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -52,6 +53,7 @@ import static org.junit.Assert.fail;
 import static org.sonarqube.tests.cluster.NodeConfig.newApplicationConfig;
 import static org.sonarqube.tests.cluster.NodeConfig.newSearchConfig;
 
+@Ignore
 public class ClusterTest {
 
   @Rule
