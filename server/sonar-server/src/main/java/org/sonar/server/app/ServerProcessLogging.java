@@ -47,7 +47,8 @@ public abstract class ServerProcessLogging {
     "sun.rmi.transport.misc",
     "sun.rmi.server.call",
     "sun.rmi.dgc");
-  protected static final Set<String> MSQDRIVER_LOGGER_NAMES_TO_TURN_OFF = ImmutableSet.of(
+  protected static final Set<String> LOGGER_NAMES_TO_TURN_OFF = ImmutableSet.of(
+    // mssql driver
     "com.microsoft.sqlserver.jdbc.internals",
     "com.microsoft.sqlserver.jdbc.ResultSet",
     "com.microsoft.sqlserver.jdbc.Statement",
@@ -78,6 +79,8 @@ public abstract class ServerProcessLogging {
     builder.immutableLevel("org.apache.coyote", Level.INFO);
     builder.immutableLevel("org.apache.jasper", Level.INFO);
     builder.immutableLevel("org.apache.tomcat", Level.INFO);
+    builder.immutableLevel("org.postgresql.core.v3.QueryExecutorImpl", Level.INFO);
+    builder.immutableLevel("org.postgresql.jdbc.PgConnection", Level.INFO);
 
     extendLogLevelConfiguration(builder);
 
