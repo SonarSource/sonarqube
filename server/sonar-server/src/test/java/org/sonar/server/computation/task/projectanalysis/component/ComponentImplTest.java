@@ -20,6 +20,7 @@
 package org.sonar.server.computation.task.projectanalysis.component;
 
 import java.util.Arrays;
+import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -183,7 +184,7 @@ public class ComponentImplTest {
       .setUuid(UUID)
       .setStatus(Status.UNAVAILABLE)
       .setReportAttributes(ReportAttributes.newBuilder(1).build())
-      .addChildren(child)
+      .addChildren(Collections.singletonList(child))
       .build();
 
     assertThat(componentImpl.getChildren()).hasSize(1);

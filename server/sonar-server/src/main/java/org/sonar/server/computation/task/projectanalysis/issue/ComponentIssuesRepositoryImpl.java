@@ -46,8 +46,8 @@ public class ComponentIssuesRepositoryImpl implements MutableComponentIssuesRepo
   public List<DefaultIssue> getIssues(Component component) {
     checkState(this.component != null && this.issues != null, "Issues have not been initialized");
     checkArgument(component.equals(this.component),
-      String.format("Only issues from component '%s' are available, but wanted component is '%s'.",
-        this.component.getReportAttributes().getRef(), component.getReportAttributes().getRef()));
+      "Only issues from component '%s' are available, but wanted component is '%s'.",
+      this.component.getReportAttributes().getRef(), component.getReportAttributes().getRef());
     return issues;
   }
 }

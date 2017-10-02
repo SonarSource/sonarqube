@@ -93,8 +93,8 @@ public class RangeDistributionBuilder {
    */
   public RangeDistributionBuilder add(String data) {
     Map<Double, Double> map = KeyValueFormat.parse(data, KeyValueFormat.newDoubleConverter(), KeyValueFormat.newDoubleConverter());
-    Number[] limits = map.keySet().toArray(new Number[map.size()]);
     if (bottomLimits == null) {
+      Number[] limits = map.keySet().toArray(new Number[map.size()]);
       init(limits);
 
     } else if (!areSameLimits(bottomLimits, map.keySet())) {
@@ -118,16 +118,14 @@ public class RangeDistributionBuilder {
   }
 
   private void changeDoublesToInts() {
-    boolean onlyInts = true;
     for (Number bottomLimit : bottomLimits) {
       if (NumberComparator.INSTANCE.compare(bottomLimit.intValue(), bottomLimit.doubleValue()) != 0) {
-        onlyInts = false;
+        // it's not only ints
+        return;
       }
     }
-    if (onlyInts) {
-      for (int i = 0; i < bottomLimits.length; i++) {
-        bottomLimits[i] = bottomLimits[i].intValue();
-      }
+    for (int i = 0; i < bottomLimits.length; i++) {
+      bottomLimits[i] = bottomLimits[i].intValue();
     }
   }
 
@@ -204,7 +202,7 @@ public class RangeDistributionBuilder {
 
     @Override
     public int compare(Number n1, Number n2) {
-      return ((Double) n1.doubleValue()).compareTo(n2.doubleValue());
+      return Double.compare(n1.doubleValue(), n2.doubleValue());
     }
   }
 

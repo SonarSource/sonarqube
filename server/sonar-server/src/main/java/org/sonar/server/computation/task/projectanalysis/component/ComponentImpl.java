@@ -28,7 +28,6 @@ import javax.annotation.concurrent.Immutable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 
@@ -66,7 +65,7 @@ public class ComponentImpl implements Component {
   public Type getType() {
     return type;
   }
-  
+
   @Override
   public Status getStatus() {
     return status;
@@ -140,7 +139,7 @@ public class ComponentImpl implements Component {
     private static final String REPORT_ATTRIBUTES_CANNOT_BE_NULL = "reportAttributes can't be null";
     private static final String NAME_CANNOT_BE_NULL = "name can't be null";
     private static final String STATUS_CANNOT_BE_NULL = "status can't be null";
-    
+
     private final Type type;
     private Status status;
     private ReportAttributes reportAttributes;
@@ -170,7 +169,7 @@ public class ComponentImpl implements Component {
     public String getUuid() {
       return uuid;
     }
-    
+
     public Builder setStatus(Status status) {
       this.status = requireNonNull(status, STATUS_CANNOT_BE_NULL);
       return this;
@@ -201,11 +200,11 @@ public class ComponentImpl implements Component {
       return this;
     }
 
-    public Builder addChildren(Component... c) {
-      for (Component component : c) {
+    public Builder addChildren(List<Component> components) {
+      for (Component component : components) {
         checkArgument(component.getType().isReportType());
       }
-      this.children.addAll(asList(c));
+      this.children.addAll(components);
       return this;
     }
 

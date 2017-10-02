@@ -82,12 +82,9 @@ public class PersistMeasuresStep implements ComputationStep {
 
   @Override
   public void execute() {
-    DbSession dbSession = dbClient.openSession(true);
-    try {
+    try (DbSession dbSession = dbClient.openSession(true)) {
       new DepthTraversalTypeAwareCrawler(new MeasureVisitor(dbSession)).visit(treeRootHolder.getRoot());
       dbSession.commit();
-    } finally {
-      dbSession.close();
     }
   }
 

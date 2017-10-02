@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.assertj.core.api.ListAssert;
 import org.junit.Rule;
@@ -47,6 +48,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
@@ -578,6 +580,34 @@ public class ComponentDaoTest {
         directory.getDbKey(), removedDirectory.getDbKey(), file.getDbKey(), removedFile.getDbKey());
 
     assertThat(underTest.selectAllComponentsFromProjectKey(dbSession, "UNKNOWN")).isEmpty();
+  }
+
+  @Test
+  public void select_uuids_by_key_from_project() {
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto removedProject = db.components().insertPrivateProject(p -> p.setEnabled(false));
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto removedModule = db.components().insertComponent(newModuleDto(project).setEnabled(false));
+    ComponentDto subModule = db.components().insertComponent(newModuleDto(module));
+    ComponentDto removedSubModule = db.components().insertComponent(newModuleDto(module).setEnabled(false));
+    ComponentDto directory = db.components().insertComponent(newDirectory(subModule, "src"));
+    ComponentDto removedDirectory = db.components().insertComponent(newDirectory(subModule, "src2").setEnabled(false));
+    ComponentDto file = db.components().insertComponent(newFileDto(subModule, directory));
+    ComponentDto removedFile = db.components().insertComponent(newFileDto(subModule, directory).setEnabled(false));
+
+    Map<String, String> uuidsByKey = underTest.selectUuidsByKeyFromProjectKey(dbSession, project.getDbKey())
+      .stream().collect(Collectors.toMap(KeyWithUuidDto::key, KeyWithUuidDto::uuid));
+
+    assertThat(uuidsByKey).containsOnly(
+      entry(project.getDbKey(), project.uuid()),
+      entry(module.getDbKey(), module.uuid()),
+      entry(removedModule.getDbKey(), removedModule.uuid()),
+      entry(subModule.getDbKey(), subModule.uuid()),
+      entry(removedSubModule.getDbKey(), removedSubModule.uuid()),
+      entry(directory.getDbKey(), directory.uuid()),
+      entry(removedDirectory.getDbKey(), removedDirectory.uuid()),
+      entry(file.getDbKey(), file.uuid()),
+      entry(removedFile.getDbKey(), removedFile.uuid()));
   }
 
   @Test

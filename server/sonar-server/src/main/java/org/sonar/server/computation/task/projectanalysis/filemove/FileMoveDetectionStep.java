@@ -45,7 +45,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTreeQuery;
 import org.sonar.db.component.ComponentTreeQuery.Strategy;
 import org.sonar.db.source.FileSourceDto;
-import org.sonar.server.computation.task.projectanalysis.analysis.Analysis;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
@@ -93,8 +92,7 @@ public class FileMoveDetectionStep implements ComputationStep {
   @Override
   public void execute() {
     // do nothing if no files in db (first analysis)
-    Analysis baseProjectAnalysis = analysisMetadataHolder.getBaseAnalysis();
-    if (baseProjectAnalysis == null) {
+    if (analysisMetadataHolder.isFirstAnalysis()) {
       LOG.debug("First analysis. Do nothing.");
       return;
     }

@@ -19,28 +19,25 @@
  */
 package org.sonar.server.computation.task.projectanalysis.measure;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.FluentIterable.from;
-import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
-
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.metric.Metric;
-
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.metric.Metric;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.FluentIterable.from;
+import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Map based implementation of MeasureRepository which supports only raw measures.
@@ -112,9 +109,8 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
   private static void checkValueTypeConsistency(Metric metric, Measure measure) {
     checkArgument(
       measure.getValueType() == Measure.ValueType.NO_VALUE || measure.getValueType() == metric.getType().getValueType(),
-      format(
-        "Measure's ValueType (%s) is not consistent with the Metric's ValueType (%s)",
-        measure.getValueType(), metric.getType().getValueType()));
+      "Measure's ValueType (%s) is not consistent with the Metric's ValueType (%s)",
+      measure.getValueType(), metric.getType().getValueType());
   }
 
   @Override
