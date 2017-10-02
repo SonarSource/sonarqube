@@ -30,7 +30,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-
 import org.apache.commons.lang.ClassUtils;
 import org.sonar.api.batch.CheckProject;
 import org.sonar.api.batch.DependedUpon;
@@ -102,6 +101,8 @@ public class ScannerExtensionDictionnary {
     Object extensionToEvaluate;
     if (extension instanceof SensorWrapper) {
       extensionToEvaluate = ((SensorWrapper) extension).wrappedSensor();
+    } else if (extension instanceof PostJobWrapper) {
+      extensionToEvaluate = ((PostJobWrapper) extension).wrappedPostJob();
     } else {
       extensionToEvaluate = extension;
     }
@@ -114,30 +115,24 @@ public class ScannerExtensionDictionnary {
 
   private <T> List<T> getFilteredExtensions(Class<T> type, @Nullable DefaultInputModule module, @Nullable ExtensionMatcher matcher) {
     List<T> result = new ArrayList<>();
-    for (Object extension : getExtensions(type)) {
+    List<Object> candidates = new ArrayList<>();
+    candidates.addAll(getExtensions(type));
+    if (org.sonar.api.batch.Sensor.class.equals(type)) {
+      candidates.addAll(getExtensions(Sensor.class));
+    }
+    if (org.sonar.api.batch.PostJob.class.equals(type)) {
+      candidates.addAll(getExtensions(PostJob.class));
+    }
+
+    for (Object extension : candidates) {
       if (org.sonar.api.batch.Sensor.class.equals(type) && extension instanceof Sensor) {
         extension = new SensorWrapper((Sensor) extension, sensorContext, sensorOptimizer);
       }
+      if (org.sonar.api.batch.PostJob.class.equals(type) && extension instanceof PostJob) {
+        extension = new PostJobWrapper((PostJob) extension, postJobContext, postJobOptimizer);
+      }
       if (shouldKeep(type, extension, module, matcher)) {
         result.add((T) extension);
-      }
-    }
-    if (org.sonar.api.batch.Sensor.class.equals(type)) {
-      // Retrieve new Sensors and wrap then in SensorWrapper
-      for (Sensor sensor : getExtensions(Sensor.class)) {
-        org.sonar.api.batch.Sensor extension = new SensorWrapper(sensor, sensorContext, sensorOptimizer);
-        if (shouldKeep(type, extension, module, matcher)) {
-          result.add((T) extension);
-        }
-      }
-    }
-    if (org.sonar.api.batch.PostJob.class.equals(type)) {
-      // Retrieve new PostJob and wrap then in PostJobWrapper
-      for (PostJob postJob : getExtensions(PostJob.class)) {
-        org.sonar.api.batch.PostJob extension = new PostJobWrapper(postJob, postJobContext, postJobOptimizer);
-        if (shouldKeep(type, extension, module, matcher)) {
-          result.add((T) extension);
-        }
       }
     }
     return result;

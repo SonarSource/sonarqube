@@ -40,6 +40,7 @@ import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.postjob.PostJobContext;
+import org.sonar.api.batch.postjob.PostJobDescriptor;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.resources.Project;
 import org.sonar.core.platform.ComponentContainer;
@@ -285,30 +286,42 @@ public class ScannerExtensionDictionnaryTest {
   }
 
   @Test
-  public void dependsUponPhase() {
-    BatchExtension pre = new PreSensor();
-    BatchExtension analyze = new GeneratesSomething("something");
-    BatchExtension post = new PostSensor();
+  public void dependsUponPhaseForNewSensors() {
+    PreSensor pre = new PreSensor();
+    NormalSensor normal = new NormalSensor();
+    PostSensor post = new PostSensor();
 
-    ScannerExtensionDictionnary selector = newSelector(analyze, post, pre);
-    List extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
+    ScannerExtensionDictionnary selector = newSelector(normal, post, pre);
+    List<org.sonar.api.batch.sensor.Sensor> extensions = Lists.newArrayList(selector.select(org.sonar.api.batch.sensor.Sensor.class, null, true, null));
+    assertThat(extensions).containsExactly(pre, normal, post);
 
-    assertThat(extensions).hasSize(3);
-    assertThat(extensions.get(0)).isEqualTo(pre);
-    assertThat(extensions.get(1)).isEqualTo(analyze);
-    assertThat(extensions.get(2)).isEqualTo(post);
+    List<Sensor> oldExtensions = Lists.newArrayList(selector.select(Sensor.class, null, true, null));
+    assertThat(oldExtensions).extracting("wrappedSensor").containsExactly(pre, normal, post);
+  }
+
+  @Test
+  public void dependsUponPhaseForNewPostJob() {
+    PrePostJob pre = new PrePostJob();
+    NormalPostJob normal = new NormalPostJob();
+
+    ScannerExtensionDictionnary selector = newSelector(normal, pre);
+    List<org.sonar.api.batch.postjob.PostJob> extensions = Lists.newArrayList(selector.select(org.sonar.api.batch.postjob.PostJob.class, null, true, null));
+    assertThat(extensions).containsExactly(pre, normal);
+
+    List<PostJob> oldExtensions = Lists.newArrayList(selector.select(PostJob.class, null, true, null));
+    assertThat(oldExtensions).extracting("wrappedPostJob").containsExactly(pre, normal);
   }
 
   @Test
   public void dependsUponInheritedPhase() {
-    BatchExtension pre = new PreSensorSubclass();
-    BatchExtension analyze = new GeneratesSomething("something");
-    BatchExtension post = new PostSensorSubclass();
+    PreSensorSubclass pre = new PreSensorSubclass();
+    NormalSensor normal = new NormalSensor();
+    PostSensorSubclass post = new PostSensorSubclass();
 
-    ScannerExtensionDictionnary selector = newSelector(analyze, post, pre);
-    List extensions = Lists.newArrayList(selector.select(BatchExtension.class, null, true, null));
+    ScannerExtensionDictionnary selector = newSelector(normal, post, pre);
+    List extensions = Lists.newArrayList(selector.select(org.sonar.api.batch.sensor.Sensor.class, null, true, null));
 
-    assertThat(extensions).containsExactly(pre, analyze, post);
+    assertThat(extensions).containsExactly(pre, normal, post);
   }
 
   @Test
@@ -428,8 +441,28 @@ public class ScannerExtensionDictionnaryTest {
     }
   }
 
+  class NormalSensor implements org.sonar.api.batch.sensor.Sensor {
+
+    @Override
+    public void describe(SensorDescriptor descriptor) {
+    }
+
+    @Override
+    public void execute(org.sonar.api.batch.sensor.SensorContext context) {
+    }
+
+  }
+
   @Phase(name = Phase.Name.PRE)
-  class PreSensor implements BatchExtension {
+  class PreSensor implements org.sonar.api.batch.sensor.Sensor {
+
+    @Override
+    public void describe(SensorDescriptor descriptor) {
+    }
+
+    @Override
+    public void execute(org.sonar.api.batch.sensor.SensorContext context) {
+    }
 
   }
 
@@ -438,7 +471,15 @@ public class ScannerExtensionDictionnaryTest {
   }
 
   @Phase(name = Phase.Name.POST)
-  class PostSensor implements BatchExtension {
+  class PostSensor implements org.sonar.api.batch.sensor.Sensor {
+
+    @Override
+    public void describe(SensorDescriptor descriptor) {
+    }
+
+    @Override
+    public void execute(org.sonar.api.batch.sensor.SensorContext context) {
+    }
 
   }
 
@@ -462,4 +503,30 @@ public class ScannerExtensionDictionnaryTest {
     public void executeOn(Project project, SensorContext context) {
     }
   }
+
+  class NormalPostJob implements org.sonar.api.batch.postjob.PostJob {
+
+    @Override
+    public void describe(PostJobDescriptor descriptor) {
+    }
+
+    @Override
+    public void execute(PostJobContext context) {
+    }
+
+  }
+
+  @Phase(name = Phase.Name.PRE)
+  class PrePostJob implements org.sonar.api.batch.postjob.PostJob {
+
+    @Override
+    public void describe(PostJobDescriptor descriptor) {
+    }
+
+    @Override
+    public void execute(PostJobContext context) {
+    }
+
+  }
+
 }
