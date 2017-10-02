@@ -19,6 +19,8 @@
  */
 package org.sonar.scanner.scan.branch;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -29,11 +31,19 @@ public class BranchInfo {
   private final String name;
   private final BranchType type;
   private final boolean isMain;
+  @Nullable
+  private final String branchTargetName;
 
-  public BranchInfo(String name, BranchType type, boolean isMain) {
+  public BranchInfo(String name, BranchType type, boolean isMain, @Nullable String branchTargetName) {
     this.name = name;
     this.type = type;
     this.isMain = isMain;
+    this.branchTargetName = branchTargetName;
+  }
+
+  @CheckForNull
+  public String branchTargetName() {
+    return branchTargetName;
   }
 
   public String name() {

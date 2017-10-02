@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -37,6 +38,7 @@ public class ProjectBranches {
     branches = branchInfos.stream().collect(Collectors.toMap(BranchInfo::name, Function.identity()));
   }
 
+  @CheckForNull
   public BranchInfo get(String name) {
     return branches.get(name);
   }
