@@ -19,9 +19,17 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Languages;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -29,10 +37,14 @@ import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.QProfileChangeDto;
 import org.sonar.db.qualityprofile.QProfileChangeQuery;
 import org.sonar.db.qualityprofile.QProfileDto;
+import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.db.user.UserDto;
 
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
 import static org.sonar.api.utils.DateUtils.parseStartingDateOrDateTime;
@@ -42,13 +54,11 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 
 public class ChangelogAction implements QProfileWsAction {
 
-  private final ChangelogLoader changelogLoader;
   private final QProfileWsSupport wsSupport;
   private final Languages languages;
   private DbClient dbClient;
 
-  public ChangelogAction(ChangelogLoader changelogLoader, QProfileWsSupport wsSupport, Languages languages, DbClient dbClient) {
-    this.changelogLoader = changelogLoader;
+  public ChangelogAction(QProfileWsSupport wsSupport, Languages languages, DbClient dbClient) {
     this.wsSupport = wsSupport;
     this.languages = languages;
     this.dbClient = dbClient;
@@ -98,18 +108,20 @@ public class ChangelogAction implements QProfileWsAction {
       int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
       query.setPage(page, pageSize);
 
-      ChangelogLoader.Changelog changelog = changelogLoader.load(dbSession, query);
-      writeResponse(response.newJsonWriter(), page, pageSize, changelog);
+      int total = dbClient.qProfileChangeDao().countForQProfileUuid(dbSession, query.getProfileUuid());
+
+      List<Change> changelogs = load(dbSession, query);
+      writeResponse(response.newJsonWriter(), total, page, pageSize, changelogs);
     }
   }
 
-  private static void writeResponse(JsonWriter json, int page, int pageSize, ChangelogLoader.Changelog changelog) {
+  private static void writeResponse(JsonWriter json, int total, int page, int pageSize, List<Change> changelogs) {
     json.beginObject();
-    json.prop("total", changelog.getTotal());
+    json.prop("total", total);
     json.prop(Param.PAGE, page);
     json.prop(Param.PAGE_SIZE, pageSize);
     json.name("events").beginArray();
-    for (ChangelogLoader.Change change : changelog.getChanges()) {
+    for (Change change : changelogs) {
       json.beginObject()
         .prop("date", DateUtils.formatDateTime(change.getCreatedAt()))
         .prop("authorLogin", change.getUserLogin())
@@ -124,7 +136,7 @@ public class ChangelogAction implements QProfileWsAction {
     json.endObject().close();
   }
 
-  private static void writeParameters(JsonWriter json, ChangelogLoader.Change change) {
+  private static void writeParameters(JsonWriter json, Change change) {
     json.name("params").beginObject()
       .prop("severity", change.getSeverity());
     for (Map.Entry<String, String> param : change.getParams().entrySet()) {
@@ -133,4 +145,131 @@ public class ChangelogAction implements QProfileWsAction {
     json.endObject();
   }
 
+
+  /**
+   * @return non-null list of changes, by descending order of date
+   */
+  public List<Change> load(DbSession dbSession, QProfileChangeQuery query) {
+    List<QProfileChangeDto> dtos = dbClient.qProfileChangeDao().selectByQuery(dbSession, query);
+    List<Change> changes = dtos.stream()
+      .map(Change::from)
+      .collect(MoreCollectors.toList(dtos.size()));
+    completeUserAndRuleNames(dbSession, changes);
+    return changes;
+  }
+
+  private void completeUserAndRuleNames(DbSession dbSession, List<Change> changes) {
+    Set<String> logins = changes.stream().filter(c -> c.userLogin != null).map(c -> c.userLogin).collect(MoreCollectors.toSet());
+    Map<String, String> userNamesByLogins = dbClient.userDao()
+      .selectByLogins(dbSession, logins)
+      .stream()
+      .collect(java.util.stream.Collectors.toMap(UserDto::getLogin, UserDto::getName));
+
+    Set<RuleKey> ruleKeys = changes.stream().filter(c -> c.ruleKey != null).map(c -> c.ruleKey).collect(MoreCollectors.toSet());
+    Map<RuleKey, String> ruleNamesByKeys = dbClient.ruleDao()
+      .selectDefinitionByKeys(dbSession, Lists.newArrayList(ruleKeys))
+      .stream()
+      .collect(java.util.stream.Collectors.toMap(RuleDefinitionDto::getKey, RuleDefinitionDto::getName));
+
+    changes.forEach(c -> {
+      c.userName = userNamesByLogins.get(c.userLogin);
+      c.ruleName = ruleNamesByKeys.get(c.ruleKey);
+    });
+  }
+
+
+  static class Change {
+    private String key;
+    private String type;
+    private long at;
+    private String severity;
+    private String userLogin;
+    private String userName;
+    private String inheritance;
+    private RuleKey ruleKey;
+    private String ruleName;
+    private final Map<String, String> params = new HashMap<>();
+
+    private Change() {
+    }
+
+    @VisibleForTesting
+    Change(String key, String type, long at, @Nullable String severity, @Nullable String userLogin,
+           @Nullable String userName, @Nullable String inheritance, @Nullable RuleKey ruleKey, @Nullable String ruleName) {
+      this.key = key;
+      this.type = type;
+      this.at = at;
+      this.severity = severity;
+      this.userLogin = userLogin;
+      this.userName = userName;
+      this.inheritance = inheritance;
+      this.ruleKey = ruleKey;
+      this.ruleName = ruleName;
+    }
+
+    public String getKey() {
+      return key;
+    }
+
+    @CheckForNull
+    public String getSeverity() {
+      return severity;
+    }
+
+    @CheckForNull
+    public String getUserLogin() {
+      return userLogin;
+    }
+
+    @CheckForNull
+    public String getUserName() {
+      return userName;
+    }
+
+    public String getType() {
+      return type;
+    }
+
+    @CheckForNull
+    public String getInheritance() {
+      return inheritance;
+    }
+
+    public RuleKey getRuleKey() {
+      return ruleKey;
+    }
+
+    @CheckForNull
+    public String getRuleName() {
+      return ruleName;
+    }
+
+    public long getCreatedAt() {
+      return at;
+    }
+
+    public Map<String, String> getParams() {
+      return params;
+    }
+
+    private static Change from(QProfileChangeDto dto) {
+      Map<String, String> data = dto.getDataAsMap();
+      Change change = new Change();
+      change.key = dto.getUuid();
+      change.userLogin = dto.getLogin();
+      change.type = dto.getChangeType();
+      change.at = dto.getCreatedAt();
+      // see content of data in class org.sonar.server.qualityprofile.ActiveRuleChange
+      change.severity = data.get("severity");
+      String ruleKey = data.get("ruleKey");
+      if (ruleKey != null) {
+        change.ruleKey = RuleKey.parse(ruleKey);
+      }
+      change.inheritance = data.get("inheritance");
+      data.entrySet().stream()
+        .filter(entry -> entry.getKey().startsWith("param_"))
+        .forEach(entry -> change.params.put(entry.getKey().replace("param_", ""), entry.getValue()));
+      return change;
+    }
+  }
 }
