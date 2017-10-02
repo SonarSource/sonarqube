@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.webhook;
 
+import okhttp3.Credentials;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -103,7 +104,7 @@ public class WebhookCallerImplTest {
     assertThat(delivery.getHttpStatus()).isEmpty();
     assertThat(delivery.getDurationInMs()).isEmpty();
     assertThat(delivery.getError().get()).isInstanceOf(IllegalArgumentException.class);
-    assertThat(delivery.getErrorMessage().get()).isEqualTo("unexpected url: this_is_not_an_url");
+    assertThat(delivery.getErrorMessage().get()).isEqualTo("Webhook URL is not valid: this_is_not_an_url");
     assertThat(delivery.getAt()).isEqualTo(NOW);
     assertThat(delivery.getWebhook()).isSameAs(webhook);
     assertThat(delivery.getPayload()).isSameAs(PAYLOAD);
@@ -131,6 +132,26 @@ public class WebhookCallerImplTest {
 
     takeAndVerifyPostRequest("/redirect");
     takeAndVerifyPostRequest("/target");
+  }
+
+  @Test
+  public void credentials_are_propagated_to_POST_redirects() throws Exception {
+    HttpUrl url = server.url("/redirect").newBuilder().username("theLogin").password("thePassword").build();
+    Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, "my-webhook", url.toString());
+
+    // /redirect redirects to /target
+    server.enqueue(new MockResponse().setResponseCode(307).setHeader("Location", server.url("target")));
+    server.enqueue(new MockResponse().setResponseCode(200));
+
+    WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
+
+    assertThat(delivery.getHttpStatus().get()).isEqualTo(200);
+
+    RecordedRequest redirectedRequest = takeAndVerifyPostRequest("/redirect");
+    assertThat(redirectedRequest.getHeader("Authorization")).isEqualTo(Credentials.basic(url.username(), url.password()));
+
+    RecordedRequest targetRequest = takeAndVerifyPostRequest("/target");
+    assertThat(targetRequest.getHeader("Authorization")).isEqualTo(Credentials.basic(url.username(), url.password()));
   }
 
   @Test
@@ -163,11 +184,28 @@ public class WebhookCallerImplTest {
       .hasMessage("Unsupported protocol in redirect of " + url + " to ftp://foo");
   }
 
-  private void takeAndVerifyPostRequest(String expectedPath) throws Exception {
-    RecordedRequest redirectedRequest = server.takeRequest();
+  @Test
+  public void send_basic_authentication_header_if_url_contains_credentials() throws Exception {
+    HttpUrl url = server.url("/ping").newBuilder().username("theLogin").password("thePassword").build();
+    Webhook webhook = new Webhook(PROJECT_UUID, CE_TASK_UUID, "my-webhook", url.toString());
+    server.enqueue(new MockResponse().setBody("pong"));
 
-    assertThat(redirectedRequest.getMethod()).isEqualTo("POST");
-    assertThat(redirectedRequest.getPath()).isEqualTo(expectedPath);
+    WebhookDelivery delivery = newSender().call(webhook, PAYLOAD);
+
+    assertThat(delivery.getWebhook().getUrl())
+      .isEqualTo(url.toString())
+      .contains("://theLogin:thePassword@");
+    RecordedRequest recordedRequest = takeAndVerifyPostRequest("/ping");
+    assertThat(recordedRequest.getHeader("Authorization")).isEqualTo(Credentials.basic(url.username(), url.password()));
+  }
+
+  private RecordedRequest takeAndVerifyPostRequest(String expectedPath) throws Exception {
+    RecordedRequest request = server.takeRequest();
+
+    assertThat(request.getMethod()).isEqualTo("POST");
+    assertThat(request.getPath()).isEqualTo(expectedPath);
+    assertThat(request.getHeader("User-Agent")).isEqualTo("SonarQube/6.2");
+    return request;
   }
 
   private WebhookCaller newSender() {

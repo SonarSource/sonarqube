@@ -195,8 +195,7 @@ public class WebhooksTest {
     assertThat(detail.getPayload()).isNotEmpty();
     assertThat(detail.getErrorStacktrace())
       .contains("java.lang.IllegalArgumentException")
-      .contains("unexpected url")
-      .contains("this_is_not_an_url");
+      .contains("Webhook URL is not valid: this_is_not_an_url");
   }
 
   @Test
