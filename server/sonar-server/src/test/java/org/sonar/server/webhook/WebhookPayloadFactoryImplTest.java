@@ -20,7 +20,6 @@
 package org.sonar.server.webhook;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Date;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Before;
@@ -235,6 +234,27 @@ public class WebhookPayloadFactoryImplTest {
   }
 
   @Test
+  public void create_without_ce_task() {
+    ProjectAnalysis analysis = newAnalysis(null, null, null, null, emptyMap());
+
+    WebhookPayload payload = underTest.create(analysis);
+    String json = payload.getJson();
+    assertThat(json).doesNotContain("taskId");
+    assertJson(json)
+      .isSimilarTo("{" +
+        "  \"serverUrl\": \"http://foo\"," +
+        "  \"status\": \"SUCCESS\"," +
+        "  \"changedAt\": \"1970-01-01T01:25:00+0100\"," +
+        "  \"project\": {" +
+        "    \"key\": \"P1\"," +
+        "    \"name\": \"Project One\"" +
+        "  }," +
+        "  \"properties\": {" +
+        "  }" +
+        "}");
+  }
+
+  @Test
   public void create_payload_on_long_branch() {
     CeTask task = new CeTask("#1", CeTask.Status.SUCCESS);
     ProjectAnalysis analysis = newAnalysis(task, null, new Branch(false, "feature/foo", Branch.Type.LONG), 1_500_000_000_000L, emptyMap());
@@ -267,8 +287,9 @@ public class WebhookPayloadFactoryImplTest {
         "}");
   }
 
-  private static ProjectAnalysis newAnalysis(CeTask task, @Nullable QualityGate gate,
+  private static ProjectAnalysis newAnalysis(@Nullable CeTask task, @Nullable QualityGate gate,
     @Nullable Branch branch, @Nullable Long analysisDate, Map<String, String> scannerProperties) {
-    return new ProjectAnalysis(task, new Project("P1_UUID", PROJECT_KEY, "Project One"), analysisDate == null ? null : new Analysis("A_UUID1", new Date(analysisDate)), branch, gate, analysisDate, scannerProperties);
+    return new ProjectAnalysis(new Project("P1_UUID", PROJECT_KEY, "Project One"), task, analysisDate == null ? null : new Analysis("A_UUID1", analysisDate), branch,
+      gate, analysisDate, scannerProperties);
   }
 }
