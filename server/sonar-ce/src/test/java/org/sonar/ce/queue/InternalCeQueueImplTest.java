@@ -242,7 +242,7 @@ public class InternalCeQueueImplTest {
 
   @Test
   public void remove_saves_error_when_TypedMessageException_is_provided() {
-    Throwable error = new TypedException("aType", "aMessage");
+    Throwable error = new TypedExceptionImpl("aType", "aMessage");
 
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_1);
@@ -252,6 +252,20 @@ public class InternalCeQueueImplTest {
     assertThat(activityDto.getErrorType()).isEqualTo("aType");
     assertThat(activityDto.getErrorMessage()).isEqualTo("aMessage");
     assertThat(activityDto.getErrorStacktrace()).isEqualToIgnoringWhitespace(stacktraceToString(error));
+  }
+
+  private static class TypedExceptionImpl extends RuntimeException implements TypedException {
+    private final String type;
+
+    private TypedExceptionImpl(String type, String message) {
+      super(message);
+      this.type = type;
+    }
+
+    @Override
+    public String getType() {
+      return type;
+    }
   }
 
   @Test

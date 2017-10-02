@@ -19,27 +19,15 @@
  */
 package org.sonar.server.computation.task.step;
 
-import static java.util.Objects.requireNonNull;
+/**
+ * This interface is implemented by the exceptions
+ * that provide a type of error when failing
+ * a Compute Engine task.
+ * The error type is persisted and available in
+ * the tasks returned by the web services api/ce.
+ */
+public interface TypedException {
 
-public class TypedException extends RuntimeException {
+  String getType();
 
-  private final String type;
-
-  public TypedException(String type, String message) {
-    super(message);
-    this.type = requireNonNull(type, "Type must not be null");
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder("[");
-    sb.append("type='").append(type).append("',");
-    sb.append("message='").append(getMessage()).append("'");
-    sb.append(']');
-    return sb.toString();
-  }
 }
