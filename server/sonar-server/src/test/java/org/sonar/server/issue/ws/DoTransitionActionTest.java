@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
+import java.util.Date;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -29,6 +30,8 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.System2;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
@@ -68,6 +71,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.web.UserRole.CODEVIEWER;
@@ -111,7 +115,8 @@ public class DoTransitionActionTest {
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
   private IssueChangeWebhook issueChangeWebhook = mock(IssueChangeWebhook.class);
 
-  private WsAction underTest = new DoTransitionAction(dbClient, userSession, new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter, issueChangeWebhook);
+  private WsAction underTest = new DoTransitionAction(dbClient, userSession, new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter, system2,
+    issueChangeWebhook);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Before
@@ -123,6 +128,8 @@ public class DoTransitionActionTest {
 
   @Test
   public void do_transition() throws Exception {
+    long now = 999_776_888L;
+    when(system2.now()).thenReturn(now);
     IssueDto issueDto = issueDbTester.insertIssue(newIssue().setStatus(STATUS_OPEN).setResolution(null));
     userSession.logIn("john").addProjectPermission(USER, project, file);
 
@@ -132,6 +139,19 @@ public class DoTransitionActionTest {
     verifyContentOfPreloadedSearchResponseData(issueDto);
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
     assertThat(issueReloaded.getStatus()).isEqualTo(STATUS_CONFIRMED);
+
+    ArgumentCaptor<IssueChangeWebhook.IssueChangeData> issueChangeDataCaptor = ArgumentCaptor.forClass(IssueChangeWebhook.IssueChangeData.class);
+    verify(issueChangeWebhook).onChange(
+      issueChangeDataCaptor.capture(),
+      eq(new IssueChangeWebhook.IssueChange(null, "confirm")),
+      eq(IssueChangeContext.createUser(new Date(now), userSession.getLogin())));
+    IssueChangeWebhook.IssueChangeData issueChangeData = issueChangeDataCaptor.getValue();
+    assertThat(issueChangeData.getIssues())
+      .extracting(DefaultIssue::key)
+      .containsOnly(issueDto.getKey());
+    assertThat(issueChangeData.getComponents())
+      .extracting(ComponentDto::uuid)
+      .containsOnly(issueDto.getComponentUuid(), issueDto.getProjectUuid());
   }
 
   @Test

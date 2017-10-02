@@ -21,6 +21,7 @@ package org.sonar.core.issue;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -60,5 +61,33 @@ public class IssueChangeContext implements Serializable {
 
   public static IssueChangeContext createUser(Date date, @Nullable String login) {
     return new IssueChangeContext(login, date, false);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    IssueChangeContext that = (IssueChangeContext) o;
+    return scan == that.scan &&
+      Objects.equals(login, that.login) &&
+      Objects.equals(date, that.date);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(login, date, scan);
+  }
+
+  @Override
+  public String toString() {
+    return "IssueChangeContext{" +
+      "login='" + login + '\'' +
+      ", date=" + date +
+      ", scan=" + scan +
+      '}';
   }
 }
