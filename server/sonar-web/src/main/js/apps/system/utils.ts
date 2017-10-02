@@ -33,6 +33,7 @@ import {
   SysInfoSection,
   SysValueObject
 } from '../../api/system';
+import { formatMeasure } from '../../helpers/measures';
 
 export interface Query {
   expandedCards: string[];
@@ -110,9 +111,18 @@ export function getNodeName(nodeInfo: NodeInfo): string {
   return nodeInfo['Name'];
 }
 
+function getSystemData(sysInfoData: SysInfo): SysValueObject {
+  const statData: SysValueObject = {};
+  const statistics = sysInfoData['Statistics'] as SysValueObject;
+  if (statistics) {
+    statData['Lines of Code'] = formatMeasure(statistics['ncloc'] as number, 'INT');
+  }
+  return { ...sysInfoData['System'], ...statData };
+}
+
 export function getClusterMainCardSection(sysInfoData: ClusterSysInfo): SysValueObject {
   return {
-    ...sysInfoData['System'],
+    ...getSystemData(sysInfoData),
     ...omit(sysInfoData, [
       'Application Nodes',
       PLUGINS_FIELD,
@@ -126,7 +136,7 @@ export function getClusterMainCardSection(sysInfoData: ClusterSysInfo): SysValue
 
 export function getStandaloneMainSections(sysInfoData: SysInfo): SysValueObject {
   return {
-    ...sysInfoData['System'],
+    ...getSystemData(sysInfoData),
     ...omitBy(
       sysInfoData,
       (value, key) =>
