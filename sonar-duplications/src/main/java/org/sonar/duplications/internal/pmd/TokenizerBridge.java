@@ -19,10 +19,8 @@
  */
 package org.sonar.duplications.internal.pmd;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
-import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.List;
 import net.sourceforge.pmd.cpd.SourceCode;
 import net.sourceforge.pmd.cpd.TokenEntry;
@@ -54,8 +52,10 @@ public class TokenizerBridge {
     TokenEntry.clearImages();
     try {
       tokenizer.tokenize(sourceCode, tokens);
-    } catch (IOException e) {
-      throw Throwables.propagate(e);
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
     TokenEntry.clearImages();
     return convert(tokens.getTokens());
@@ -66,7 +66,7 @@ public class TokenizerBridge {
    * tokens ordered by occurrence in source code and last token is EOF.
    */
   public static List<TokensLine> convert(List<TokenEntry> tokens) {
-    ImmutableList.Builder<TokensLine> result = ImmutableList.builder();
+    List<TokensLine> result = new ArrayList<>();
     StringBuilder sb = new StringBuilder();
     int startLine = Integer.MIN_VALUE;
     int startIndex = 0;
@@ -85,10 +85,10 @@ public class TokenizerBridge {
       }
     }
     addNewTokensLine(result, startIndex, currentIndex, startLine, sb);
-    return result.build();
+    return result;
   }
 
-  private static void addNewTokensLine(ImmutableList.Builder<TokensLine> result, int startUnit, int endUnit, int startLine, StringBuilder sb) {
+  private static void addNewTokensLine(List<TokensLine> result, int startUnit, int endUnit, int startLine, StringBuilder sb) {
     if (sb.length() != 0) {
       result.add(new TokensLine(startUnit, endUnit, startLine, sb.toString()));
       sb.setLength(0);

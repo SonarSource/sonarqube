@@ -19,7 +19,15 @@
  */
 package org.sonar.duplications.java;
 
-import com.google.common.collect.Lists;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -28,15 +36,6 @@ import org.sonar.duplications.DuplicationsTestUtil;
 import org.sonar.duplications.token.Token;
 import org.sonar.duplications.token.TokenChunker;
 import org.sonar.duplications.token.TokenQueue;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -337,7 +336,9 @@ public class JavaTokenProducerTest {
   }
 
   private List<Token> chunk(String sourceCode) {
-    return Lists.newArrayList(chunker.chunk(sourceCode));
+    List<Token> target = new ArrayList<>();
+    chunker.chunk(sourceCode).forEach(target::add);
+    return target;
   }
 
 }

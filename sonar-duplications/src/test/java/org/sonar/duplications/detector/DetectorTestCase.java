@@ -19,7 +19,10 @@
  */
 package org.sonar.duplications.detector;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
@@ -29,10 +32,6 @@ import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.ClonePart;
 import org.sonar.duplications.index.MemoryCloneIndex;
 import org.sonar.duplications.junit.TestNamePrinter;
-
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.Matchers.is;
@@ -367,8 +366,7 @@ public abstract class DetectorTestCase {
   public void problemWithEndOfFile() {
     CloneIndex cloneIndex = createIndex(
       newBlocks("b", "1 2 3 4"));
-    Block[] fileBlocks =
-      newBlocks("a", "1 2 3");
+    Block[] fileBlocks = newBlocks("a", "1 2 3");
     List<CloneGroup> clones = detect(cloneIndex, fileBlocks);
 
     print(clones);
@@ -399,7 +397,7 @@ public abstract class DetectorTestCase {
     Block.Builder block = Block.builder()
       .setResourceId("a")
       .setLines(0, 1);
-    Block[] fileBlocks = new Block[]{
+    Block[] fileBlocks = new Block[] {
       block.setBlockHash(new ByteArray("1".getBytes())).setIndexInFile(0).build(),
       block.setBlockHash(new ByteArray("2".getBytes())).setIndexInFile(1).build(),
       block.setBlockHash(new ByteArray("1".getBytes())).setIndexInFile(2).build()
@@ -426,7 +424,7 @@ public abstract class DetectorTestCase {
   }
 
   protected static Block[] newBlocks(String resourceId, String hashes) {
-    List<Block> result = Lists.newArrayList();
+    List<Block> result = new ArrayList<>();
     int indexInFile = 0;
     for (int i = 0; i < hashes.length(); i += 2) {
       Block block = newBlock(resourceId, new ByteArray("0" + hashes.charAt(i)), indexInFile);

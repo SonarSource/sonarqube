@@ -19,10 +19,9 @@
  */
 package org.sonar.duplications.index;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Groups a set of related {@link ClonePart}s.
@@ -66,12 +65,12 @@ public class CloneGroup {
     }
 
     public Builder setParts(List<ClonePart> parts) {
-      this.parts = ImmutableList.copyOf(parts);
+      this.parts = new ArrayList<>(parts);
       return this;
     }
 
     public Builder addPart(ClonePart part) {
-      Preconditions.checkNotNull(part);
+      Objects.requireNonNull(part);
       this.parts.add(part);
       return this;
     }

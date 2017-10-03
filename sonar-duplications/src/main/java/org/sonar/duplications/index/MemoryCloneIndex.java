@@ -19,34 +19,35 @@
  */
 package org.sonar.duplications.index;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
 import org.sonar.duplications.index.PackedMemoryCloneIndex.ResourceBlocks;
 
-import java.util.Collection;
-import java.util.Iterator;
-
 public class MemoryCloneIndex implements CloneIndex {
 
-  private Multimap<String, Block> byResource = ArrayListMultimap.create();
-  private Multimap<ByteArray, Block> byHash = ArrayListMultimap.create();
+  private Map<String, List<Block>> byResource = new LinkedHashMap<>();
+  private Map<ByteArray, List<Block>> byHash = new LinkedHashMap<>();
 
   @Override
   public Collection<Block> getByResourceId(String resourceId) {
-    return byResource.get(resourceId);
+    return byResource.computeIfAbsent(resourceId, k -> new ArrayList<>());
   }
 
   @Override
   public Collection<Block> getBySequenceHash(ByteArray sequenceHash) {
-    return byHash.get(sequenceHash);
+    return byHash.computeIfAbsent(sequenceHash, k -> new ArrayList<>());
   }
 
   @Override
   public void insert(Block block) {
-    byResource.put(block.getResourceId(), block);
-    byHash.put(block.getBlockHash(), block);
+    getByResourceId(block.getResourceId()).add(block);
+    getBySequenceHash(block.getBlockHash()).add(block);
   }
 
   @Override
