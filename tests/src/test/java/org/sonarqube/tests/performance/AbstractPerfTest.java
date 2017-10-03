@@ -35,7 +35,7 @@ import org.junit.rules.TestName;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class AbstractPerfTest {
-  static final double ACCEPTED_DURATION_VARIATION_IN_PERCENTS = 8.0;
+  static final double ACCEPTED_DURATION_VARIATION_IN_PERCENTS = 12.0;
 
   @Rule
   public TestName testName = new TestName();
