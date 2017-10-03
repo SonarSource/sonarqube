@@ -13,11 +13,15 @@ exports[`should render correctly 1`] = `
       INFO
     </strong>
     <a
-      className="spacer-left icon-edit"
+      className="spacer-left link-no-underline"
       href="#"
       id="edit-logs-level-button"
       onClick={[Function]}
-    />
+    >
+      <EditIcon
+        className="little-spacer-top"
+      />
+    </a>
   </span>
   <div
     className="display-inline-block dropdown spacer-left"
@@ -40,7 +44,7 @@ exports[`should render correctly 1`] = `
           id="logs-link"
           target="_blank"
         >
-          Compute Engine
+          Main Process
         </a>
       </li>
       <li>
@@ -50,7 +54,7 @@ exports[`should render correctly 1`] = `
           id="ce-logs-link"
           target="_blank"
         >
-          Main Process
+          Compute Engine
         </a>
       </li>
       <li>
@@ -107,11 +111,15 @@ exports[`should render without restart and log download 1`] = `
       INFO
     </strong>
     <a
-      className="spacer-left icon-edit"
+      className="spacer-left link-no-underline"
       href="#"
       id="edit-logs-level-button"
       onClick={[Function]}
-    />
+    >
+      <EditIcon
+        className="little-spacer-top"
+      />
+    </a>
   </span>
   <a
     className="button spacer-left"
