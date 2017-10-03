@@ -19,7 +19,8 @@
  */
 package org.sonar.duplications.java;
 
-import com.google.common.base.Joiner;
+import java.util.Collection;
+import java.util.List;
 import org.junit.Test;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.BlockChunker;
@@ -32,9 +33,8 @@ import org.sonar.duplications.statement.Statement;
 import org.sonar.duplications.statement.StatementChunker;
 import org.sonar.duplications.token.TokenChunker;
 
-import java.util.Collection;
-import java.util.List;
-
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.joining;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -55,18 +55,18 @@ public class JavaDuplicationsFunctionalTest {
   @Test
   public void type1() {
     String fragment0 = source(
-        "if (a >= b) {",
-        "  c = d + b; // Comment1",
-        "  d = d + 1;}",
-        "else",
-        "  c = d - a; // Comment2");
+      "if (a >= b) {",
+      "  c = d + b; // Comment1",
+      "  d = d + 1;}",
+      "else",
+      "  c = d - a; // Comment2");
     String fragment1 = source(
-        "if (a>=b) {",
-        "  // Comment1",
-        "  c=d+b;",
-        "  d=d+1;",
-        "} else // Comment2",
-        "  c=d-a;");
+      "if (a>=b) {",
+      "  // Comment1",
+      "  c=d+b;",
+      "  d=d+1;",
+      "} else // Comment2",
+      "  c=d-a;");
     List<CloneGroup> duplications = detect2(fragment0, fragment1);
     assertThat(duplications.size(), is(1));
     ClonePart part = duplications.get(0).getOriginPart();
@@ -83,17 +83,17 @@ public class JavaDuplicationsFunctionalTest {
   @Test
   public void type2_literals() {
     String fragment0 = source(
-        "if (a >= b) {",
-        "  c = b + 1; // Comment1",
-        "  d = '1';}",
-        "else",
-        "  c = d - a; // Comment2");
+      "if (a >= b) {",
+      "  c = b + 1; // Comment1",
+      "  d = '1';}",
+      "else",
+      "  c = d - a; // Comment2");
     String fragment1 = source(
-        "if (a >= b) {",
-        "  c = b + 2; // Comment1",
-        "  d = '2';}",
-        "else",
-        "  c = d - a; // Comment2");
+      "if (a >= b) {",
+      "  c = b + 2; // Comment1",
+      "  d = '2';}",
+      "else",
+      "  c = d - a; // Comment2");
     List<CloneGroup> duplications = detect2(fragment0, fragment1);
     assertThat(duplications.size(), is(1));
     ClonePart part = duplications.get(0).getOriginPart();
@@ -104,18 +104,18 @@ public class JavaDuplicationsFunctionalTest {
   @Test
   public void type2() {
     String fragment0 = source(
-        "if (a >= b) {",
-        "  c = d + b; // Comment1",
-        "  d = d + 1;}",
-        "else",
-        "  c = d - a; // Comment2");
+      "if (a >= b) {",
+      "  c = d + b; // Comment1",
+      "  d = d + 1;}",
+      "else",
+      "  c = d - a; // Comment2");
     String fragment1 = source(
-        "if (m >= n) {",
-        "  // Comment3",
-        "  y = x + n; // Comment1",
-        "  x = x + 5;}",
-        "else",
-        "  y = x - m; // Comment2");
+      "if (m >= n) {",
+      "  // Comment3",
+      "  y = x + n; // Comment1",
+      "  x = x + 5;}",
+      "else",
+      "  y = x - m; // Comment2");
     List<CloneGroup> duplications = detect2(fragment0, fragment1);
     assertThat(duplications.size(), is(0));
   }
@@ -126,22 +126,21 @@ public class JavaDuplicationsFunctionalTest {
   @Test
   public void type3() {
     String fragment0 = source(
-        "public int getSoLinger() throws SocketException {",
-        "  Object o = impl.getOption( SocketOptions.SO_LINGER);",
-        "  if (o instanceof Integer) {",
-        "    return((Integer) o).intValue();",
-        "  }",
-        "  else return -1;",
-        "}");
+      "public int getSoLinger() throws SocketException {",
+      "  Object o = impl.getOption( SocketOptions.SO_LINGER);",
+      "  if (o instanceof Integer) {",
+      "    return((Integer) o).intValue();",
+      "  }",
+      "  else return -1;",
+      "}");
     String fragment1 = source(
-        "public synchronized int getSoTimeout() throws SocketException {",
-        "  Object o = impl.getOption( SocketOptions.SO_TIMEOUT);",
-        "  if (o instanceof Integer) {",
-        "    return((Integer) o).intValue();",
-        "  }",
-        "  else return -0;",
-        "}"
-        );
+      "public synchronized int getSoTimeout() throws SocketException {",
+      "  Object o = impl.getOption( SocketOptions.SO_TIMEOUT);",
+      "  if (o instanceof Integer) {",
+      "    return((Integer) o).intValue();",
+      "  }",
+      "  else return -0;",
+      "}");
     List<CloneGroup> duplications = detect2(fragment0, fragment1);
     assertThat(duplications.size(), is(1));
     ClonePart part = duplications.get(0).getOriginPart();
@@ -150,7 +149,7 @@ public class JavaDuplicationsFunctionalTest {
   }
 
   private String source(String... lines) {
-    return Joiner.on('\n').join(lines);
+    return asList(lines).stream().collect(joining("\n"));
   }
 
   private static List<CloneGroup> detect2(String... fragments) {
@@ -181,7 +180,7 @@ public class JavaDuplicationsFunctionalTest {
   private static BlockChunker BLOCK_CHUNKER = new BlockChunker(BLOCK_SIZE);
 
   private List<CloneGroup> detect(String... lines) {
-    String sourceCode = Joiner.on('\n').join(lines);
+    String sourceCode = asList(lines).stream().collect(joining("\n"));
     MemoryCloneIndex index = new MemoryCloneIndex();
     List<Statement> statements = STATEMENT_CHUNKER.chunk(TOKEN_CHUNKER.chunk(sourceCode));
     List<Block> blocks = BLOCK_CHUNKER.chunk("resourceId", statements);
@@ -206,25 +205,25 @@ public class JavaDuplicationsFunctionalTest {
   @Test
   public void chainOfCases() {
     List<CloneGroup> duplications = detect(
-        "switch (a) {",
-        "  case 'a': case 'b': case 'c':",
-        "    doSomething();",
-        "  case 'd': case 'e': case 'f':",
-        "    doSomethingElse();",
-        "}");
+      "switch (a) {",
+      "  case 'a': case 'b': case 'c':",
+      "    doSomething();",
+      "  case 'd': case 'e': case 'f':",
+      "    doSomethingElse();",
+      "}");
     assertThat(duplications.size(), is(0));
   }
 
   @Test
   public void literalsNormalization() {
     List<CloneGroup> duplications = detect(
-        "String s = \"abc\";",
-        "String s = \"def\";");
+      "String s = \"abc\";",
+      "String s = \"def\";");
     assertThat(duplications.size(), is(1));
 
     duplications = detect(
-        "int i = 1;",
-        "int i = 2;");
+      "int i = 1;",
+      "int i = 2;");
     assertThat(duplications.size(), is(1));
   }
 

@@ -19,20 +19,19 @@
  */
 package org.sonar.duplications.statement.matcher;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import org.junit.Test;
+import org.sonar.duplications.token.Token;
+import org.sonar.duplications.token.TokenQueue;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-
-import java.util.Collections;
-import java.util.List;
-
-import org.junit.Test;
-import org.sonar.duplications.token.Token;
-import org.sonar.duplications.token.TokenQueue;
-
-import com.google.common.collect.Lists;
 
 public class ForgetLastTokenMatcherTest {
 
@@ -40,7 +39,7 @@ public class ForgetLastTokenMatcherTest {
   public void shouldMatch() {
     TokenQueue tokenQueue = spy(new TokenQueue());
     Token token = new Token("a", 0, 0);
-    List<Token> output = Lists.newArrayList(token);
+    List<Token> output = new ArrayList<>(Arrays.asList(token));
     ForgetLastTokenMatcher matcher = new ForgetLastTokenMatcher();
 
     assertThat(matcher.matchToken(tokenQueue, output), is(true));
