@@ -85,9 +85,10 @@ export default Marionette.CompositeView.extend({
   },
 
   serializeData() {
-    // show "Activate" button only if user has at least one QP which he administates
+    // show "Activate" button only if user has at least one QP of the same language which he administates
+    const ruleLang = this.model.get('lang');
     const canActivate = this.options.app.qualityProfiles.some(
-      profile => profile.actions && profile.actions.edit
+      profile => profile.actions && profile.actions.edit && profile.language === ruleLang
     );
 
     return {
