@@ -19,7 +19,8 @@
  */
 package org.sonar.server.setting;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
+import java.util.Map;
 
 public class NopSettingLoader implements SettingLoader {
   @Override
@@ -28,8 +29,9 @@ public class NopSettingLoader implements SettingLoader {
   }
 
   @Override
-  public void loadAll(ImmutableMap.Builder<String, String> appendTo) {
+  public Map<String, String> loadAll() {
     // nothing to load
+    return Collections.emptyMap();
   }
 
 }

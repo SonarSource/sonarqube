@@ -20,7 +20,7 @@
 package org.sonar.server.setting;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -37,7 +37,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Merge of {@link SystemSettings} and the global properties stored in the db table "properties". These
+ * Merge of sonar.properties and the global properties stored in the db table "properties". These
  * settings do not contain the settings specific to a project.
  *
  * <p>
@@ -152,9 +152,9 @@ public class ThreadLocalSettings extends Settings {
 
   @Override
   public Map<String, String> getProperties() {
-    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-    settingLoader.loadAll(builder);
-    systemProps.entrySet().forEach(entry -> builder.put((String) entry.getKey(), (String) entry.getValue()));
-    return builder.build();
+    Map<String, String> result = new HashMap<>();
+    result.putAll(settingLoader.loadAll());
+    systemProps.forEach((key, value) -> result.put((String) key, (String) value));
+    return Collections.unmodifiableMap(result);
   }
 }

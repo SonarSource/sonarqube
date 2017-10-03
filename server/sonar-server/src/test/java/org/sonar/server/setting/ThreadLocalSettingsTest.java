@@ -155,6 +155,7 @@ public class ThreadLocalSettingsTest {
     underTest = create(ImmutableMap.of("foo", "from system"));
 
     assertThat(underTest.get("foo").get()).isEqualTo("from system");
+    assertThat(underTest.getProperties().get("foo")).isEqualTo("from system");
   }
 
   @Test
@@ -289,8 +290,8 @@ public class ThreadLocalSettingsTest {
     }
 
     @Override
-    public void loadAll(ImmutableMap.Builder<String, String> appendTo) {
-      appendTo.putAll(map);
+    public Map<String,String> loadAll() {
+      return map;
     }
   }
 }

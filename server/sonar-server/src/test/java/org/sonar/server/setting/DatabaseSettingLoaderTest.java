@@ -19,7 +19,7 @@
  */
 package org.sonar.server.setting;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -60,19 +60,17 @@ public class DatabaseSettingLoaderTest {
 
   @Test
   public void test_loadAll_with_no_properties() {
-    ImmutableMap.Builder<String, String> map = ImmutableMap.builder();
-    underTest.loadAll(map);
-   assertThat(map.build().isEmpty()).isTrue();
+    Map<String, String> map = underTest.loadAll();
+    assertThat(map).isEmpty();
   }
 
- @Test
- public void test_loadAll() {
-  insertPropertyIntoDb("foo", "1");
-  insertPropertyIntoDb("bar", "2");
-  ImmutableMap.Builder<String, String> map = ImmutableMap.builder();
-  underTest.loadAll(map);
-  assertThat(map.build()).containsOnly(entry("foo", "1"), entry("bar", "2"));
- }
+  @Test
+  public void test_loadAll() {
+    insertPropertyIntoDb("foo", "1");
+    insertPropertyIntoDb("bar", "2");
+    Map<String, String> map = underTest.loadAll();
+    assertThat(map).containsOnly(entry("foo", "1"), entry("bar", "2"));
+  }
 
   private void insertPropertyIntoDb(String key, String value) {
     dbTester.getDbClient().propertiesDao().saveProperty(new PropertyDto().setKey(key).setValue(value));
