@@ -50,6 +50,7 @@ public class TelemetryDataJsonWriter {
     json.endArray();
     json.prop("userCount", statistics.getUserCount());
     json.prop("projectCount", statistics.getProjectCount());
+    json.prop("usingBranches", statistics.isUsingBranches());
     json.prop(LINES_KEY, statistics.getLines());
     json.prop(NCLOC_KEY, statistics.getNcloc());
     json.name("projectCountByLanguage");

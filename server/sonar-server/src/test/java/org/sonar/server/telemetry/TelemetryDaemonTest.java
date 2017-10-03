@@ -125,6 +125,7 @@ public class TelemetryDaemonTest {
     MetricDto nclocDistrib = db.measures().insertMetric(m -> m.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY));
 
     ComponentDto project1 = db.components().insertMainBranch(db.getDefaultOrganization());
+    ComponentDto project1Branch = db.components().insertProjectBranch(project1);
     SnapshotDto analysis1 = db.components().insertSnapshot(project1);
     db.measures().insertMeasure(project1, analysis1, lines, m -> m.setValue(200d));
     db.measures().insertMeasure(project1, analysis1, ncloc, m -> m.setValue(100d));

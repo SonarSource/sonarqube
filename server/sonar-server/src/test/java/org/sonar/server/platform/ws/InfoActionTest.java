@@ -100,8 +100,8 @@ public class InfoActionTest {
     TestResponse response = ws.newRequest().execute();
     // response does not contain empty "Section Three"
     assertThat(response.getInput()).isEqualTo("{\"Health\":\"GREEN\",\"Health Causes\":[],\"Section One\":{\"foo\":\"bar\"},\"Section Two\":{\"one\":1,\"two\":2}," +
-      "\"Statistics\":{\"id\":\"\",\"version\":\"\",\"database\":{\"name\":\"\",\"version\":\"\"},\"plugins\":[],\"userCount\":0,\"projectCount\":0,\"lines\":0,\"ncloc\":0," +
-      "\"projectCountByLanguage\":[],\"nclocByLanguage\":[]}}");
+      "\"Statistics\":{\"id\":\"\",\"version\":\"\",\"database\":{\"name\":\"\",\"version\":\"\"},\"plugins\":[],\"userCount\":0,\"projectCount\":0,\"usingBranches\":false," +
+      "\"lines\":0,\"ncloc\":0,\"projectCountByLanguage\":[],\"nclocByLanguage\":[]}}");
   }
 
   private void logInAsSystemAdministrator() {

@@ -39,4 +39,6 @@ public interface BranchMapper {
   Collection<BranchDto> selectByProjectUuid(@Param("projectUuid") String projectUuid);
 
   List<BranchDto> selectByUuids(@Param("uuids") Collection<String> uuids);
+
+  long countNonMainBranches();
 }

@@ -21,6 +21,7 @@
   ],
   "userCount": 3,
   "projectCount": 2,
+  "usingBranches": true,
   "lines": 500,
   "ncloc": 300,
   "projectCountByLanguage": [
