@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.util.Base64;
 import java.util.List;
 import java.util.Random;
 import javax.net.ssl.SSLSocketFactory;
@@ -30,7 +31,6 @@ import okhttp3.ConnectionSpec;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.RandomStringUtils;
@@ -185,7 +185,8 @@ public class HttpConnectorTest {
 
     RecordedRequest recordedRequest = server.takeRequest();
     // do not use OkHttp Credentials.basic() in order to not use the same code as the code under test
-    String expectedHeader = "Basic " + Base64.encodeBase64String((login + ":" + password).getBytes(UTF_8));
+
+    String expectedHeader = "Basic " + Base64.getEncoder().encodeToString((login + ":" + password).getBytes(UTF_8));
     assertThat(recordedRequest.getHeader("Authorization")).isEqualTo(expectedHeader);
   }
 
