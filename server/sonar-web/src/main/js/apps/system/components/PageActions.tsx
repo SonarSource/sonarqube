@@ -20,6 +20,7 @@
 import * as React from 'react';
 import ChangeLogLevelForm from './ChangeLogLevelForm';
 import RestartForm from '../../../components/common/RestartForm';
+import EditIcon from '../../../components/icons-components/EditIcon';
 import { getBaseUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 
@@ -53,7 +54,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
     }
   }
 
-  handleLogsLevelOpen = (event: React.SyntheticEvent<HTMLElement>) => {
+  handleLogsLevelOpen = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.setState({ openLogsLevelForm: true });
   };
@@ -80,10 +81,11 @@ export default class PageActions extends React.PureComponent<Props, State> {
           <strong className="little-spacer-left">{this.state.logLevel}</strong>
           <a
             id="edit-logs-level-button"
-            className="spacer-left icon-edit"
+            className="spacer-left link-no-underline"
             href="#"
-            onClick={this.handleLogsLevelOpen}
-          />
+            onClick={this.handleLogsLevelOpen}>
+            <EditIcon className="little-spacer-top" />
+          </a>
         </span>
         {this.props.canDownloadLogs && (
           <div className="display-inline-block dropdown spacer-left">
@@ -98,7 +100,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
                   id="logs-link"
                   download="sonarqube_app.log"
                   target="_blank">
-                  Compute Engine
+                  Main Process
                 </a>
               </li>
               <li>
@@ -107,7 +109,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
                   id="ce-logs-link"
                   download="sonarqube_ce.log"
                   target="_blank">
-                  Main Process
+                  Compute Engine
                 </a>
               </li>
               <li>

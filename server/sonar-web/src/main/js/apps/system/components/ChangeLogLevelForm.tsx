@@ -87,7 +87,9 @@ export default class ChangeLogLevelForm extends React.PureComponent<Props, State
                   checked={level === newLevel}
                   onChange={this.handleLevelChange}
                 />
-                <label htmlFor={`loglevel-${level}`}>{level}</label>
+                <label className="text-middle" htmlFor={`loglevel-${level}`}>
+                  {level}
+                </label>
               </p>
             ))}
             <div className="alert alert-info spacer-top">{this.props.infoMsg}</div>
