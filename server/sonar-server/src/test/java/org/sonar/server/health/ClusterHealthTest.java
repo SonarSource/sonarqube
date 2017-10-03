@@ -87,9 +87,7 @@ public class ClusterHealthTest {
     Set<NodeHealth> nodeHealths = randomNodeHealths();
     ClusterHealth underTest = new ClusterHealth(health, nodeHealths);
 
-    assertThat(underTest.hashCode())
-      .isEqualTo(underTest.hashCode())
-      .isNotEqualTo(new ClusterHealth(randomHealth(), randomNodeHealths()).hashCode());
+    assertThat(underTest.hashCode()).isEqualTo(underTest.hashCode());
   }
 
   @Test
