@@ -20,9 +20,13 @@
 import * as React from 'react';
 import init from '../init';
 
-export default class MaintenanceAppContainer extends React.PureComponent {
+interface Props {
+  location: { query: { return_to: string } };
+}
+
+export default class MaintenanceAppContainer extends React.PureComponent<Props> {
   componentDidMount() {
-    init(this.refs.container, false);
+    init(this.refs.container, false, this.props.location.query['return_to']);
   }
 
   render() {
