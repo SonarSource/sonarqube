@@ -17,26 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import $ from 'jquery';
 import Marionette from 'backbone.marionette';
 import Template from '../templates/rule/coding-rules-rule-issues.hbs';
-import { getComponentIssuesUrlAsString } from '../../../helpers/urls';
+import { searchIssues } from '../../../api/issues';
+import { getComponentIssuesUrlAsString, getBaseUrl } from '../../../helpers/urls';
 
 export default Marionette.ItemView.extend({
   template: Template,
 
   initialize() {
-    const that = this;
     this.total = null;
     this.projects = [];
-    this.requestIssues().done(() => {
-      that.render();
-    });
+    this.loading = true;
+    this.mounted = true;
+    this.requestIssues().then(
+      () => {
+        if (this.mounted) {
+          this.loading = false;
+          this.render();
+        }
+      },
+      () => {
+        this.loading = false;
+      }
+    );
+  },
+
+  onDestroy() {
+    this.mounted = false;
   },
 
   requestIssues() {
-    const url = window.baseUrl + '/api/issues/search';
-    const options = {
+    const parameters = {
       rules: this.model.id,
       resolved: false,
       ps: 1,
@@ -44,9 +56,9 @@ export default Marionette.ItemView.extend({
     };
     const { organization } = this.options.app;
     if (organization) {
-      Object.assign(options, { organization });
+      Object.assign(parameters, { organization });
     }
-    return $.get(url, options).done(r => {
+    return searchIssues(parameters).then(r => {
       const projectsFacet = r.facets.find(facet => facet.property === 'projectUuids');
       let projects = projectsFacet != null ? projectsFacet.values : [];
       projects = projects.map(project => {
@@ -68,9 +80,15 @@ export default Marionette.ItemView.extend({
   },
 
   serializeData() {
+    const { organization } = this.options.app;
+    const pathname = organization ? `/organizations/${organization}/issues` : '/issues';
+    const query = `?resolved=false&rules=${encodeURIComponent(this.model.id)}`;
+    const totalIssuesUrl = getBaseUrl() + pathname + query;
     return {
       ...Marionette.ItemView.prototype.serializeData.apply(this, arguments),
+      loading: this.loading,
       total: this.total,
+      totalIssuesUrl,
       projects: this.projects
     };
   }
