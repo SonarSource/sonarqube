@@ -593,7 +593,7 @@ public final class CoreMetrics {
    */
   public static final Metric<Integer> LINES_TO_COVER = new Metric.Builder(LINES_TO_COVER_KEY, "Lines to Cover", Metric.ValueType.INT)
     .setDescription("Lines to cover")
-    .setDirection(Metric.DIRECTION_BETTER)
+    .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_COVERAGE)
     .create();
