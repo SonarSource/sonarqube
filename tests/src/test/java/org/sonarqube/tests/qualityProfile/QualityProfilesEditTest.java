@@ -79,7 +79,7 @@ public class QualityProfilesEditTest {
       .containsExactlyInAnyOrder(
         tuple(user1.getLogin(), user1.getName(), "3acc837f898bdaa338b7cd7a9ab6dd5b", true),
         tuple(user2.getLogin(), user2.getName(), "fd6926c24d76d650a365ae350784e048", false),
-        tuple("admin", "Administrator", "d41d8cd98f00b204e9800998ecf8427e", false));
+        tuple("admin", "Administrator", "", false));
     assertThat(users.getPaging()).extracting(Common.Paging::getPageIndex, Common.Paging::getPageSize, Common.Paging::getTotal)
       .containsExactlyInAnyOrder(1, 25, 3);
   }

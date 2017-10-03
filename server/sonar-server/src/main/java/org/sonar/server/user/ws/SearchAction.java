@@ -46,6 +46,7 @@ import org.sonarqube.ws.client.user.SearchRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.emptyToNull;
 import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
@@ -144,7 +145,7 @@ public class SearchAction implements UsersWsAction {
       .setLogin(user.getLogin());
     setIfNeeded(FIELD_NAME, fields, user.getName(), userBuilder::setName);
     if (userSession.isLoggedIn()) {
-      setIfNeeded(FIELD_AVATAR, fields, user.getEmail(), u -> userBuilder.setAvatar(avatarResolver.create(user)));
+      setIfNeeded(FIELD_AVATAR, fields, emptyToNull(user.getEmail()), u -> userBuilder.setAvatar(avatarResolver.create(user)));
       setIfNeeded(FIELD_ACTIVE, fields, user.isActive(), userBuilder::setActive);
       setIfNeeded(FIELD_LOCAL, fields, user.isLocal(), userBuilder::setLocal);
       setIfNeeded(FIELD_EXTERNAL_IDENTITY, fields, user.getExternalIdentity(), userBuilder::setExternalIdentity);

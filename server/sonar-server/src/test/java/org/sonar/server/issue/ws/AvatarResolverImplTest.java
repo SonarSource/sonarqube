@@ -42,13 +42,6 @@ public class AvatarResolverImplTest {
   }
 
   @Test
-  public void create_when_empty_email() throws Exception {
-    String avatar = underTest.create(newUserDto("john", "John", ""));
-
-    assertThat(avatar).isEqualTo("d41d8cd98f00b204e9800998ecf8427e");
-  }
-
-  @Test
   public void create_is_case_insensitive() throws Exception {
     assertThat(underTest.create(newUserDto("john", "John", "john@doo.com"))).isEqualTo(underTest.create(newUserDto("john", "John", "John@Doo.com")));
   }
@@ -67,5 +60,13 @@ public class AvatarResolverImplTest {
     expectedException.expectMessage("Email cannot be null");
 
     underTest.create(newUserDto("john", "John", null));
+  }
+
+  @Test
+  public void fail_when_email_is_empty() throws Exception {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("Email cannot be null");
+
+    underTest.create(newUserDto("john", "John", ""));
   }
 }

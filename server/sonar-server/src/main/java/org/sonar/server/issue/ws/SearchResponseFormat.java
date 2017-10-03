@@ -336,7 +336,7 @@ public class SearchResponseFormat {
       .setLogin(user.getLogin())
       .setName(nullToEmpty(user.getName()))
       .setActive(user.isActive());
-    setNullable(user.getEmail(), email -> builder.setAvatar(avatarFactory.create(user)));
+    setNullable(emptyToNull(user.getEmail()), email -> builder.setAvatar(avatarFactory.create(user)));
     return builder;
   }
 
