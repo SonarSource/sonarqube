@@ -69,14 +69,15 @@ public class ScannerProperties {
         .build(),
       PropertyDefinition.builder(BRANCH_NAME)
         .name("Optional name of SonarQube/SCM branch")
-        .description("TODO")
+        .description("Provide a name for the branch being analyzed. It might match an existing branch of the project, otherwise a new branch will be created.")
         .hidden()
         .build(),
       PropertyDefinition.builder(BRANCH_TARGET)
-        .name("Optional name of target branch to merge into, and the base to determine changed files")
-        .description("TODO")
+        .name("Optional name of target branch to merge into")
+        .description(
+          "Defines what is the target branch of the branch being analyzed. The main branch cannot have a target. "
+            + "If no target is defined for other branches, the main branch is used as a target.")
         .hidden()
-        .build()
-      );
+        .build());
   }
 }
