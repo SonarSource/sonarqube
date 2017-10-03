@@ -19,11 +19,13 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import { sortBy } from 'lodash';
+import { isSameMinute, startOfMinute } from 'date-fns';
 import ChangesList from './ChangesList';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import { translate } from '../../../helpers/l10n';
 import { getRulesUrl } from '../../../helpers/urls';
-import { differenceInSeconds, parseDate } from '../../../helpers/dates';
+import { parseDate } from '../../../helpers/dates';
 import { ProfileChangelogEvent } from '../types';
 
 interface Props {
@@ -33,11 +35,16 @@ interface Props {
 
 export default function Changelog(props: Props) {
   let isEvenRow = false;
+  const sortedRows = sortBy(
+    props.events,
+    // sort events by date, rounded to a minute, recent events first
+    e => -Number(startOfMinute(parseDate(e.date))),
+    e => e.action
+  );
 
-  const rows = props.events.map((event, index) => {
-    const prev = index > 0 ? props.events[index - 1] : null;
-    const isSameDate =
-      prev != null && differenceInSeconds(parseDate(prev.date), parseDate(event.date)) < 10;
+  const rows = sortedRows.map((event, index) => {
+    const prev = index > 0 ? sortedRows[index - 1] : null;
+    const isSameDate = prev != null && isSameMinute(parseDate(prev.date), parseDate(event.date));
     const isBulkChange =
       prev != null &&
       isSameDate &&
