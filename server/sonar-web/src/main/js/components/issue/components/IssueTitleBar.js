@@ -33,6 +33,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 /*::
 type Props = {|
+  branch?: string,
   currentPopup: ?string,
   displayLocationsCount?: boolean;
   displayLocationsLink?: boolean;
@@ -66,7 +67,11 @@ export default function IssueTitleBar(props /*: Props */) {
 
   const displayLocations = props.displayLocationsCount && locationsCount > 0;
 
-  const issueUrl = getComponentIssuesUrl(issue.project, { issues: issue.key, open: issue.key });
+  const issueUrl = getComponentIssuesUrl(issue.project, {
+    branch: props.branch,
+    issues: issue.key,
+    open: issue.key
+  });
 
   return (
     <table className="issue-table">

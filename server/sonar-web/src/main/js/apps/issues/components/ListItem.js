@@ -106,6 +106,7 @@ export default class ListItem extends React.PureComponent {
           </div>
         )}
         <Issue
+          branch={branch}
           checked={this.props.checked}
           displayLocationsLink={false}
           issue={issue}

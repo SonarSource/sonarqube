@@ -599,6 +599,7 @@ export default class SourceViewerBase extends React.PureComponent {
     const hasSourcesBefore = sources.length > 0 && sources[0].line > 1;
     return (
       <SourceViewerCode
+        branch={this.props.branch}
         displayAllIssues={this.props.displayAllIssues}
         displayIssueLocationsCount={this.props.displayIssueLocationsCount}
         displayIssueLocationsLink={this.props.displayIssueLocationsLink}
