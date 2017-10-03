@@ -82,7 +82,7 @@ export default class App extends React.PureComponent<Props> {
     );
   }
 
-  handleChangeGate = (oldId: string | undefined, newId: string | undefined) => {
+  handleChangeGate = (oldId: number | undefined, newId: number | undefined) => {
     const { allGates } = this.state;
 
     if ((!oldId && !newId) || !allGates) {

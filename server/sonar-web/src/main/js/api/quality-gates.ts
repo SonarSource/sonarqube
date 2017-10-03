@@ -26,7 +26,7 @@ export function fetchQualityGatesAppDetails(): Promise<any> {
 
 export interface QualityGate {
   isDefault?: boolean;
-  id: string;
+  id: number;
   name: string;
 }
 
@@ -36,7 +36,7 @@ export function fetchQualityGates(): Promise<QualityGate[]> {
       r.qualitygates.map((qualityGate: any) => {
         return {
           ...qualityGate,
-          id: String(qualityGate.id),
+          id: qualityGate.id,
           isDefault: qualityGate.id === r.default
         };
       }),
@@ -96,14 +96,14 @@ export function getGateForProject(project: string): Promise<QualityGate | undefi
 }
 
 export function associateGateWithProject(
-  gateId: string,
+  gateId: number,
   projectKey: string
 ): Promise<void | Response> {
   return post('/api/qualitygates/select', { gateId, projectKey }).catch(throwGlobalError);
 }
 
 export function dissociateGateWithProject(
-  gateId: string,
+  gateId: number,
   projectKey: string
 ): Promise<void | Response> {
   return post('/api/qualitygates/deselect', { gateId, projectKey }).catch(throwGlobalError);
