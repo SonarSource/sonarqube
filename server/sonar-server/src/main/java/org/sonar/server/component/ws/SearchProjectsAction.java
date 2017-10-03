@@ -115,7 +115,8 @@ public class SearchProjectsAction implements ComponentsWsAction {
         new Change("6.4", "The 'visibility' field is added"),
         new Change("6.5", "The 'filter' parameter now allows 'NO_DATA' as value for numeric metrics"),
         new Change("6.5", "Added the option 'analysisDate' for the 'sort' parameter"),
-        new Change("6.5", format("Value '%s' is added to parameter '%s'", LEAK_PERIOD_DATE, FIELDS)))
+        new Change("6.5", format("Value '%s' is added to parameter '%s'", LEAK_PERIOD_DATE, FIELDS)),
+        new Change("6.6", "The 'id' field is removed from the response"))
       .setHandler(this);
 
     action.createFieldsParam(POSSIBLE_FIELDS)
@@ -423,7 +424,6 @@ public class SearchProjectsAction implements ComponentsWsAction {
       wsComponent
         .clear()
         .setOrganization(organizationDto.getKey())
-        .setId(dbComponent.uuid())
         .setKey(dbComponent.getDbKey())
         .setName(dbComponent.name())
         .setVisibility(Visibility.getLabel(dbComponent.isPrivate()));

@@ -7,7 +7,6 @@
   "components": [
     {
       "organization": "my-org-key-1",
-      "id": "AU-Tpxb--iU5OvuD2FLy",
       "key": "my_project",
       "name": "My Project 1",
       "isFavorite": true,
@@ -19,7 +18,6 @@
     },
     {
       "organization": "my-org-key-1",
-      "id": "AU-TpxcA-iU5OvuD2FLz",
       "key": "another_project",
       "name": "My Project 2",
       "isFavorite": false,
@@ -28,7 +26,6 @@
     },
     {
       "organization": "my-org-key-2",
-      "id": "AU-TpxcA-iU5OvuD2FL0",
       "key": "third_project",
       "name": "My Project 3",
       "isFavorite": false,
@@ -38,6 +35,37 @@
         "java"
       ],
       "visibility": "public"
+    }
+  ],
+  "facets": [
+    {
+      "property": "coverage",
+      "values": [
+        {
+          "val": "NO_DATA",
+          "count": 0
+        },
+        {
+          "val": "*-30.0",
+          "count": 1
+        },
+        {
+          "val": "30.0-50.0",
+          "count": 0
+        },
+        {
+          "val": "50.0-70.0",
+          "count": 0
+        },
+        {
+          "val": "70.0-80.0",
+          "count": 0
+        },
+        {
+          "val": "80.0-*",
+          "count": 2
+        }
+      ]
     }
   ]
 }
