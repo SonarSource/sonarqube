@@ -187,10 +187,15 @@ exports[`should render the users organizations 1`] = `
       className="divider"
       role="separator"
     />
-    <li
-      className="dropdown-header spacer-left"
-    >
-      my_organizations
+    <li>
+      <Link
+        onClick={[Function]}
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/account/organizations"
+      >
+        my_organizations
+      </Link>
     </li>
     <li>
       <OrganizationLink
@@ -202,6 +207,7 @@ exports[`should render the users organizations 1`] = `
           }
         }
       >
+        <OrganizationIcon />
         <span
           className="spacer-left"
         >
@@ -219,6 +225,7 @@ exports[`should render the users organizations 1`] = `
           }
         }
       >
+        <OrganizationIcon />
         <span
           className="spacer-left"
         >
@@ -236,6 +243,7 @@ exports[`should render the users organizations 1`] = `
           }
         }
       >
+        <OrganizationIcon />
         <span
           className="spacer-left"
         >

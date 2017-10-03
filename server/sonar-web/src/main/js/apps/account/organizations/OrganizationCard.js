@@ -21,6 +21,7 @@
 import React from 'react';
 import OrganizationLink from '../../../components/ui/OrganizationLink';
 /*:: import type { Organization } from '../../../store/organizations/duck'; */
+import { translate } from '../../../helpers/l10n';
 
 /*::
 type Props = {
@@ -52,11 +53,22 @@ export default function OrganizationCard(props /*: Props */) {
         <OrganizationLink organization={organization}>{organization.name}</OrganizationLink>
       </h3>
 
-      <div className="account-project-key">{organization.key}</div>
-
       {!!organization.description && (
         <div className="account-project-description">{organization.description}</div>
       )}
+
+      <div className="account-project-key">
+        <span className="little-spacer-right">
+          {translate('key')}
+          {':'}
+        </span>
+        <input
+          onClick={event => event.currentTarget.select()}
+          readOnly={true}
+          type="text"
+          value={organization.key}
+        />
+      </div>
     </div>
   );
 }
