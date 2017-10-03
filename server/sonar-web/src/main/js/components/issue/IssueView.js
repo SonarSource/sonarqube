@@ -29,6 +29,7 @@ import { deleteIssueComment, editIssueComment } from '../../api/issues';
 
 /*::
 type Props = {|
+  branch?: string,
   checked?: boolean,
   currentPopup: ?string,
   displayLocationsCount?: boolean;
@@ -89,6 +90,7 @@ export default class IssueView extends React.PureComponent {
         role="listitem"
         tabIndex={0}>
         <IssueTitleBar
+          branch={this.props.branch}
           currentPopup={this.props.currentPopup}
           displayLocationsCount={this.props.displayLocationsCount}
           displayLocationsLink={this.props.displayLocationsLink}

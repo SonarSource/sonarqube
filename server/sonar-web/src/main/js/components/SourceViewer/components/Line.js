@@ -34,6 +34,7 @@ import LineCode from './LineCode';
 
 /*::
 type Props = {|
+  branch?: string,
   displayAllIssues: boolean,
   displayCoverage: boolean,
   displayDuplications: boolean,
@@ -144,6 +145,7 @@ export default class Line extends React.PureComponent {
         )}
 
         <LineCode
+          branch={this.props.branch}
           displayIssueLocationsCount={this.props.displayIssueLocationsCount}
           displayIssueLocationsLink={this.props.displayIssueLocationsLink}
           highlightedLocationMessage={this.props.highlightedLocationMessage}

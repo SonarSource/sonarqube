@@ -47,7 +47,13 @@ const issueWithLocations = {
 
 it('should render the titlebar correctly', () => {
   const element = shallow(
-    <IssueTitleBar issue={issue} currentPopup={null} onFail={jest.fn()} togglePopup={jest.fn()} />
+    <IssueTitleBar
+      branch="feature-1.0"
+      issue={issue}
+      currentPopup={null}
+      onFail={jest.fn()}
+      togglePopup={jest.fn()}
+    />
   );
   expect(element).toMatchSnapshot();
 });

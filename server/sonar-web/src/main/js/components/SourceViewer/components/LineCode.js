@@ -31,6 +31,7 @@ import { splitByTokens, highlightSymbol, highlightIssueLocations } from '../help
 
 /*::
 type Props = {|
+  branch?: string,
   displayIssueLocationsCount?: boolean,
   displayIssueLocationsLink?: boolean,
   highlightedLocationMessage?: { index: number, text: string },
@@ -217,6 +218,7 @@ export default class LineCode extends React.PureComponent {
         {showIssues &&
         issues.length > 0 && (
           <LineIssuesList
+            branch={this.props.branch}
             displayIssueLocationsCount={this.props.displayIssueLocationsCount}
             displayIssueLocationsLink={this.props.displayIssueLocationsLink}
             issues={issues}
