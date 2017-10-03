@@ -74,6 +74,10 @@ public class BranchDao implements Dao {
     return Optional.ofNullable(mapper(session).selectByUuid(uuid));
   }
 
+  public boolean hasNonMainBranches(DbSession dbSession) {
+    return mapper(dbSession).countNonMainBranches() > 0L;
+  }
+
   private static BranchMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(BranchMapper.class);
   }

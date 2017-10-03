@@ -59,7 +59,6 @@ public class TelemetryDataLoader {
 
     data.setServerId(server.getId());
     data.setVersion(server.getVersion());
-    data.setDatabase(loadDatabaseMetadata());
     Function<PluginInfo, String> getVersion = plugin -> plugin.getVersion() == null ? "undefined" : plugin.getVersion().getName();
     Map<String, String> plugins = pluginRepository.getPluginInfos().stream().collect(MoreCollectors.uniqueIndex(PluginInfo::getKey, getVersion));
     data.setPlugins(plugins);
@@ -67,6 +66,10 @@ public class TelemetryDataLoader {
     data.setUserCount(userCount);
     ProjectMeasuresStatistics projectMeasuresStatistics = projectMeasuresIndex.searchTelemetryStatistics();
     data.setProjectMeasuresStatistics(projectMeasuresStatistics);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      data.setDatabase(loadDatabaseMetadata(dbSession));
+      data.setUsingBranches(dbClient.branchDao().hasNonMainBranches(dbSession));
+    }
 
     return data.build();
   }
@@ -75,8 +78,8 @@ public class TelemetryDataLoader {
     return server.getId();
   }
 
-  private Database loadDatabaseMetadata() {
-    try (DbSession dbSession = dbClient.openSession(false)) {
+  private static Database loadDatabaseMetadata(DbSession dbSession) {
+    try {
       DatabaseMetaData metadata = dbSession.getConnection().getMetaData();
       return new Database(metadata.getDatabaseProductName(), metadata.getDatabaseProductVersion());
     } catch (SQLException e) {

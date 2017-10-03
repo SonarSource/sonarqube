@@ -212,4 +212,17 @@ public class BranchDaoTest {
     assertThat(underTest.selectByUuid(db.getSession(), project.uuid())).isNotPresent();
     assertThat(underTest.selectByUuid(db.getSession(), "unknown")).isNotPresent();
   }
+
+  @Test
+  public void existsNonMainBranch() {
+    assertThat(underTest.hasNonMainBranches(dbSession)).isFalse();
+    ComponentDto project = db.components().insertPrivateProject();
+    assertThat(underTest.hasNonMainBranches(dbSession)).isFalse();
+
+    ComponentDto branch1 = db.components().insertProjectBranch(project);
+    assertThat(underTest.hasNonMainBranches(dbSession)).isTrue();
+
+    ComponentDto branch2 = db.components().insertProjectBranch(project);
+    assertThat(underTest.hasNonMainBranches(dbSession)).isTrue();
+  }
 }

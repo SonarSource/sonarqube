@@ -85,6 +85,7 @@ public class TelemetryUploadTest {
     Map<String, String> database = (Map<String, String>) json.get("database");
     assertThat(database.get("name")).isNotEmpty();
     assertThat(database.get("version")).isNotEmpty();
+    assertThat((Boolean) json.get("usingBranches")).isFalse();
     assertThat(getInteger(json.get("userCount"))).isEqualTo(1);
     List<String> plugins = ((List<Map<String, String>>) json.get("plugins")).stream().map(p -> p.get("name")).collect(Collectors.toList());
     assertThat(plugins).contains("xoo");
