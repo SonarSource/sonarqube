@@ -31,7 +31,7 @@ it('should not render the only logged in information', () => {
       <GlobalFooter
         hideLoggedInInfo={true}
         productionDatabase={true}
-        sonarqubeDotCom={{ value: 'false' }}
+        onSonarCloud={{ value: 'false' }}
         sonarqubeVersion="6.4-SNAPSHOT"
       />
     )
@@ -48,8 +48,8 @@ it('should display the sq version', () => {
   ).toMatchSnapshot();
 });
 
-it('should render SonarqubeDotCom footer', () => {
+it('should render SonarCloud footer', () => {
   expect(
-    shallow(<GlobalFooter productionDatabase={true} sonarqubeDotCom={{ value: 'true' }} />)
+    shallow(<GlobalFooter productionDatabase={true} onSonarCloud={{ value: 'true' }} />)
   ).toMatchSnapshot();
 });

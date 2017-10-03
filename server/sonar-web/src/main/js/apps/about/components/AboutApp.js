@@ -36,7 +36,7 @@ import { getFacet } from '../../../api/issues';
 import { getAppState, getCurrentUser, getGlobalSettingValue } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import { fetchAboutPageSettings } from '../actions';
-import AboutAppForSonarQubeDotComLazyLoader from './AboutAppForSonarQubeDotComLazyLoader';
+import AboutAppSonarCloudLazyLoader from './AboutAppSonarCloudLazyLoader';
 import '../styles.css';
 
 /*::
@@ -62,7 +62,7 @@ class AboutApp extends React.PureComponent {
     currentUser: { isLoggedIn: boolean },
     customText?: string,
     fetchAboutPageSettings: () => Promise<*>,
-    sonarqubeDotCom?: { value: string }
+    onSonarCloud?: { value: string }
   };
 */
 
@@ -107,7 +107,7 @@ class AboutApp extends React.PureComponent {
   }
 
   render() {
-    const { customText, sonarqubeDotCom } = this.props;
+    const { customText, onSonarCloud } = this.props;
     const { loading, issueTypes, projectsCount } = this.state;
 
     let bugs;
@@ -119,9 +119,9 @@ class AboutApp extends React.PureComponent {
       codeSmells = issueTypes['CODE_SMELL'] && issueTypes['CODE_SMELL'].count;
     }
 
-    if (sonarqubeDotCom && sonarqubeDotCom.value === 'true') {
+    if (onSonarCloud && onSonarCloud.value === 'true') {
       return (
-        <AboutAppForSonarQubeDotComLazyLoader
+        <AboutAppSonarCloudLazyLoader
           appState={this.props.appState}
           bugs={bugs}
           codeSmells={codeSmells}
@@ -203,7 +203,7 @@ const mapStateToProps = state => ({
   appState: getAppState(state),
   currentUser: getCurrentUser(state),
   customText: getGlobalSettingValue(state, 'sonar.lf.aboutText'),
-  sonarqubeDotCom: getGlobalSettingValue(state, 'sonar.sonarcloud.enabled')
+  onSonarCloud: getGlobalSettingValue(state, 'sonar.sonarcloud.enabled')
 });
 
 const mapDispatchToProps = { fetchAboutPageSettings };

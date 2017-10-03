@@ -19,8 +19,8 @@
  */
 import { shallow } from 'enzyme';
 import React from 'react';
-import GlobalFooterForSonarQubeDotCom from '../GlobalFooterForSonarQubeDotCom';
+import GlobalFooterSonarCloud from '../GlobalFooterSonarCloud';
 
 it('should render correctly', () => {
-  expect(shallow(<GlobalFooterForSonarQubeDotCom />)).toMatchSnapshot();
+  expect(shallow(<GlobalFooterSonarCloud />)).toMatchSnapshot();
 });

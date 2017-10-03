@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 
-export default function BugIconForSonarQubeDotCom() {
+export default function BugIconSonarCloud() {
   /* eslint-disable max-len */
   return (
     <svg viewBox="0 0 26 26" width="26" height="26">

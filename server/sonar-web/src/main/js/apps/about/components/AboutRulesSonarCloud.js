@@ -31,7 +31,7 @@ type Props = {
 };
 */
 
-export default function AboutRulesForSonarQubeDotCom(props /*: Props */) {
+export default function AboutRulesSonarCloud(props /*: Props */) {
   const organization = props.appState.defaultOrganization;
 
   return (

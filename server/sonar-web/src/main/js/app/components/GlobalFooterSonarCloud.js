@@ -22,7 +22,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import { translate } from '../../helpers/l10n';
 
-export default function GlobalFooterForSonarQubeDotCom() {
+export default function GlobalFooterSonarCloud() {
   return (
     <div id="footer" className="page-footer page-container">
       <div>

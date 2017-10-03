@@ -19,11 +19,11 @@
  */
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
-import BugIconForSonarQubeDotCom from './BugIconForSonarQubeDotCom';
-import VulnerabilityIconForSonarQubeDotCom from './VulnerabilityIconForSonarQubeDotCom';
-import CodeSmellIconForSonarQubeDotCom from './CodeSmellIconForSonarQubeDotCom';
+import BugIconSonarCloud from './BugIconSonarCloud';
+import VulnerabilityIconSonarCloud from './VulnerabilityIconSonarCloud';
+import CodeSmellIconSonarCloud from './CodeSmellIconSonarCloud';
 
-export default function AboutQualityModelForSonarQubeDotCom() {
+export default function AboutQualityModelSonarCloud() {
   return (
     <div className="boxed-group about-quality-model sqcom-about-quality-model">
       <h2>{translate('about_page.quality_model')}</h2>
@@ -32,7 +32,7 @@ export default function AboutQualityModelForSonarQubeDotCom() {
         <div className="flex-columns">
           <div className="flex-column flex-column-third">
             <div className="pull-left little-spacer-right">
-              <BugIconForSonarQubeDotCom />
+              <BugIconSonarCloud />
             </div>
             <p className="about-page-text overflow-hidden">
               <strong>{translate('issue.type.BUG.plural')}</strong>{' '}
@@ -42,7 +42,7 @@ export default function AboutQualityModelForSonarQubeDotCom() {
 
           <div className="flex-column flex-column-third">
             <div className="pull-left little-spacer-right">
-              <VulnerabilityIconForSonarQubeDotCom />
+              <VulnerabilityIconSonarCloud />
             </div>
             <p className="about-page-text overflow-hidden">
               <strong>{translate('issue.type.VULNERABILITY.plural')}</strong>{' '}
@@ -52,7 +52,7 @@ export default function AboutQualityModelForSonarQubeDotCom() {
 
           <div className="flex-column flex-column-third">
             <div className="pull-left little-spacer-right">
-              <CodeSmellIconForSonarQubeDotCom />
+              <CodeSmellIconSonarCloud />
             </div>
             <p className="about-page-text overflow-hidden">
               <strong>{translate('issue.type.CODE_SMELL.plural')}</strong>{' '}

@@ -22,13 +22,11 @@ import { connect } from 'react-redux';
 import Helmet from 'react-helmet';
 import { getGlobalSettingValue } from '../../store/rootReducer';
 
-function DefaultHelmetContainer({ children, sonarqubeDotCom }) {
+function DefaultHelmetContainer({ children, onSonarCloud }) {
   return (
     <div>
       <Helmet
-        defaultTitle={
-          sonarqubeDotCom && sonarqubeDotCom.value === 'true' ? 'SonarCloud' : 'SonarQube'
-        }
+        defaultTitle={onSonarCloud && onSonarCloud.value === 'true' ? 'SonarCloud' : 'SonarQube'}
       />
       {children}
     </div>
@@ -36,7 +34,7 @@ function DefaultHelmetContainer({ children, sonarqubeDotCom }) {
 }
 
 const mapStateToProps = state => ({
-  sonarqubeDotCom: getGlobalSettingValue(state, 'sonar.sonarcloud.enabled')
+  onSonarCloud: getGlobalSettingValue(state, 'sonar.sonarcloud.enabled')
 });
 
 export default connect(mapStateToProps)(DefaultHelmetContainer);
