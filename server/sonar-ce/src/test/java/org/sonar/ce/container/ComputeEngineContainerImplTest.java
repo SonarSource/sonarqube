@@ -110,7 +110,7 @@ public class ComputeEngineContainerImplTest {
       picoContainer.getComponentAdapters().stream()
         .map(ComponentAdapter::getComponentImplementation)
         .collect(Collectors.toList())).contains((Class) StartableHazelcastMember.class,
-      (Class) CeDistributedInformationImpl.class);
+          (Class) CeDistributedInformationImpl.class);
     underTest.stop();
   }
 
@@ -139,7 +139,7 @@ public class ComputeEngineContainerImplTest {
           + 4 // content of ReportAnalysisFailureNotificationModule
           + 3 // CeCleaningModule + its content
           + 1 // CeDistributedInformation
-      );
+    );
     assertThat(picoContainer.getParent().getComponentAdapters()).hasSize(
       CONTAINER_ITSELF
         + 5 // level 3
@@ -154,15 +154,15 @@ public class ComputeEngineContainerImplTest {
         + 26 // level 1
         + 51 // content of DaoModule
         + 3 // content of EsSearchModule
-        + 65 // content of CorePropertyDefinitions
+        + 66 // content of CorePropertyDefinitions
         + 1 // StopFlagContainer
     );
     assertThat(
       picoContainer.getComponentAdapters().stream()
         .map(ComponentAdapter::getComponentImplementation)
         .collect(Collectors.toList())).doesNotContain((Class) StartableHazelcastMember.class,
-      (Class) CeDistributedInformationImpl.class).contains(
-      (Class) StandaloneCeDistributedInformation.class);
+          (Class) CeDistributedInformationImpl.class).contains(
+            (Class) StandaloneCeDistributedInformation.class);
     assertThat(picoContainer.getParent().getParent().getParent().getParent()).isNull();
     underTest.stop();
 

@@ -36,7 +36,7 @@ function DefaultHelmetContainer({ children, sonarqubeDotCom }) {
 }
 
 const mapStateToProps = state => ({
-  sonarqubeDotCom: getGlobalSettingValue(state, 'sonar.lf.sonarqube.com.enabled')
+  sonarqubeDotCom: getGlobalSettingValue(state, 'sonar.sonarcloud.enabled')
 });
 
 export default connect(mapStateToProps)(DefaultHelmetContainer);

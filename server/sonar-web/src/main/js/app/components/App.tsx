@@ -74,7 +74,7 @@ class App extends React.PureComponent<Props, State> {
       if (this.mounted) {
         const onSonarCloud =
           appState.settings != undefined &&
-          appState.settings['sonar.lf.sonarqube.com.enabled'] === 'true';
+          appState.settings['sonar.sonarcloud.enabled'] === 'true';
         this.setState({
           branchesEnabled: appState.branchesEnabled,
           canAdmin: appState.canAdmin,
