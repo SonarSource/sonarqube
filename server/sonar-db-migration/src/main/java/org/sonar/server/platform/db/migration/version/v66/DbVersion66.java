@@ -39,6 +39,8 @@ public class DbVersion66 implements DbVersion {
       .add(1810, "Add ce_activity.error_type", AddErrorTypeColumnToCeActivityTable.class)
       .add(1811, "Create table qprofile_edit_users", CreateTableQProfileEditUsers.class)
       .add(1812, "Create table qprofile_edit_groups", CreateTableQProfileEditGroups.class)
-      .add(1813, "Drop PR columns from project_brances", DropPrColumnsFromProjectBranches.class);
+      .add(1813, "Drop PR columns from project_branches", DropPrColumnsFromProjectBranches.class)
+      .add(1814, "Purge table properties", PurgeTableProperties.class)
+    ;
   }
 }
