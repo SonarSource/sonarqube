@@ -31,7 +31,7 @@ class GlobalNavBranding extends React.PureComponent {
   };
 
   renderLogo() {
-    const url = this.props.customLogoUrl || `${window.baseUrl}/images/logo.svg`;
+    const url = this.props.customLogoUrl || `${window.baseUrl}/images/logo.svg?v=6.6`;
     const width = this.props.customLogoUrl ? this.props.customLogoWidth || 100 : 83;
     const height = 30;
     const title = translate('layout.sonar.slogan');
