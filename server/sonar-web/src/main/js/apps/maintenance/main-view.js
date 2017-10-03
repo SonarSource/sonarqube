@@ -51,10 +51,10 @@ export default Marionette.ItemView.extend({
         this.stopPolling();
       }
       if (this.model.get('status') === 'UP' && this.wasStarting) {
-        this.goHome();
+        this.loadPreviousPage();
       }
       if (this.model.get('state') === 'MIGRATION_SUCCEEDED') {
-        this.goHome();
+        this.loadPreviousPage();
       }
     });
   },
@@ -80,9 +80,9 @@ export default Marionette.ItemView.extend({
     );
   },
 
-  goHome() {
+  loadPreviousPage() {
     setInterval(() => {
-      window.location = window.baseUrl + '/';
+      window.location = window.baseUrl + (this.options.returnTo || '/');
     }, 2500);
   },
 

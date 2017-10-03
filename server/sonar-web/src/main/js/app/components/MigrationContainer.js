@@ -27,20 +27,23 @@ class MigrationContainer extends React.PureComponent {
   /*::
   props: {
     children?: React.Element<*>,
-    router: { push: (path: string) => void }
+    router: { push: ({ pathname: string, query?: { return_to: string } }) => void }
   };
   */
 
-  state = {
-    loading: true
-  };
+  state = { loading: true };
 
   componentDidMount() {
     getSystemStatus().then(r => {
       if (r.status === 'UP') {
         this.setState({ loading: false });
       } else {
-        this.props.router.push('/maintenance');
+        this.props.router.push({
+          pathname: '/maintenance',
+          query: {
+            return_to: window.location.pathname + window.location.search + window.location.hash
+          }
+        });
       }
     });
   }
