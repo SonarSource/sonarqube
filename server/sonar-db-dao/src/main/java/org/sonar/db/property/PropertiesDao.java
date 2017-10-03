@@ -66,9 +66,9 @@ public class PropertiesDao implements Dao {
    *
    * @return the list of Subscriber (maybe be empty - obviously)
    */
-  public Set<Subscriber> findUsersForNotification(String notificationDispatcherKey, String notificationChannelKey, @Nullable String projectUuid) {
+  public Set<Subscriber> findUsersForNotification(String notificationDispatcherKey, String notificationChannelKey, @Nullable String projectKey) {
     try (DbSession session = mybatis.openSession(false)) {
-      return getMapper(session).findUsersForNotification(NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey, projectUuid);
+      return getMapper(session).findUsersForNotification(NOTIFICATION_PREFIX + notificationDispatcherKey + "." + notificationChannelKey, projectKey);
     }
   }
 

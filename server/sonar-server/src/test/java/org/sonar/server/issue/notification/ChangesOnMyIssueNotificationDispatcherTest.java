@@ -84,12 +84,11 @@ public class ChangesOnMyIssueNotificationDispatcherTest {
     recipients.put("simon", emailChannel);
     recipients.put("freddy", twitterChannel);
     recipients.put("godin", twitterChannel);
-    when(notifications.findSubscribedRecipientsForDispatcher(dispatcher, "uuid1",
-        new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER))).thenReturn(recipients);
+    when(notifications.findSubscribedRecipientsForDispatcher(dispatcher, "struts",
+      new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER))).thenReturn(recipients);
 
     Notification notification = new IssueChangeNotification()
       .setFieldValue("projectKey", "struts")
-      .setFieldValue("projectUuid", "uuid1")
       .setFieldValue("changeAuthor", "olivier")
       .setFieldValue("assignee", "freddy");
     dispatcher.performDispatch(notification, context);
@@ -113,7 +112,8 @@ public class ChangesOnMyIssueNotificationDispatcherTest {
         .setFieldValue("projectKey", "struts")
         .setFieldValue("projectUuid", "uuid1")
         .setFieldValue("changeAuthor", "simon")
-        .setFieldValue("assignee", "simon"), context);
+        .setFieldValue("assignee", "simon"),
+      context);
 
     // no change author
     dispatcher.performDispatch(new IssueChangeNotification().setFieldValue("projectKey", "struts")

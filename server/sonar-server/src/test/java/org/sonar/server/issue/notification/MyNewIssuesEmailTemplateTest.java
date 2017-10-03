@@ -224,7 +224,6 @@ public class MyNewIssuesEmailTemplateTest {
     return new Notification(MyNewIssuesNotification.MY_NEW_ISSUES_NOTIF_TYPE)
       .setFieldValue("projectName", "Struts")
       .setFieldValue("projectKey", "org.apache:struts")
-      .setFieldValue("projectUuid", "ABCDE")
       .setFieldValue("projectDate", "2010-05-18T14:50:45+0000")
       .setFieldValue("assignee", "lo.gin")
       .setFieldValue(EFFORT + ".count", "1d3h")

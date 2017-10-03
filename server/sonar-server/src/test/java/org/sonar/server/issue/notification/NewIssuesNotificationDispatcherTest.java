@@ -57,11 +57,10 @@ public class NewIssuesNotificationDispatcherTest {
     Multimap<String, NotificationChannel> recipients = HashMultimap.create();
     recipients.put("user1", emailChannel);
     recipients.put("user2", twitterChannel);
-    when(notifications.findSubscribedRecipientsForDispatcher(dispatcher, "uuid1", new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER))).thenReturn(recipients);
+    when(notifications.findSubscribedRecipientsForDispatcher(dispatcher, "struts", new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER))).thenReturn(recipients);
 
     Notification notification = new Notification(NewIssuesNotification.TYPE)
-      .setFieldValue("projectKey", "struts")
-      .setFieldValue("projectUuid", "uuid1");
+      .setFieldValue("projectKey", "struts");
     dispatcher.performDispatch(notification, context);
 
     verify(context).addUser("user1", emailChannel);

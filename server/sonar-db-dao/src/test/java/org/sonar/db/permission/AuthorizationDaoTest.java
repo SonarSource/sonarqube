@@ -35,6 +35,7 @@ import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
@@ -61,6 +62,7 @@ public class AuthorizationDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
+  private final Random random = new Random();
   private DbSession dbSession = db.getSession();
   private AuthorizationDao underTest = new AuthorizationDao();
   private OrganizationDto organization;
@@ -70,7 +72,7 @@ public class AuthorizationDaoTest {
   private Set<Long> randomPublicProjectIds;
   private Set<Long> randomPrivateProjectIds;
   private Set<Integer> randomExistingUserIds;
-  private String randomPermission = "p" + new Random().nextInt();
+  private String randomPermission = "p" + random.nextInt();
 
   @Before
   public void setUp() throws Exception {
@@ -78,15 +80,15 @@ public class AuthorizationDaoTest {
     user = db.users().insertUser();
     group1 = db.users().insertGroup(organization, "group1");
     group2 = db.users().insertGroup(organization, "group2");
-    randomExistingUserIds = IntStream.range(0, 1 + Math.abs(new Random().nextInt(5)))
+    randomExistingUserIds = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
       .map(i -> db.users().insertUser().getId())
       .boxed()
       .collect(MoreCollectors.toSet());
-    randomPublicProjectIds = IntStream.range(0, 1 + Math.abs(new Random().nextInt(5)))
+    randomPublicProjectIds = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
       .mapToLong(i -> db.components().insertPublicProject(organization).getId())
       .boxed()
       .collect(MoreCollectors.toSet());
-    randomPrivateProjectIds = IntStream.range(0, 1 + Math.abs(new Random().nextInt(5)))
+    randomPrivateProjectIds = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
       .mapToLong(i -> db.components().insertPrivateProject(organization).getId())
       .boxed()
       .collect(MoreCollectors.toSet());
@@ -239,7 +241,7 @@ public class AuthorizationDaoTest {
 
   @Test
   public void keepAuthorizedProjectIds_returns_empty_for_group_AnyOne_for_non_existent_projects() {
-    Set<Long> randomNonProjectsSet = IntStream.range(0, 1 + Math.abs(new Random().nextInt(5)))
+    Set<Long> randomNonProjectsSet = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
       .mapToLong(i -> 3_562 + i)
       .boxed()
       .collect(MoreCollectors.toSet());
@@ -250,7 +252,7 @@ public class AuthorizationDaoTest {
 
   @Test
   public void keepAuthorizedProjectIds_returns_empty_for_user_for_non_existent_projects() {
-    Set<Long> randomNonProjectsSet = IntStream.range(0, 1 + Math.abs(new Random().nextInt(5)))
+    Set<Long> randomNonProjectsSet = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
       .mapToLong(i -> 9_666 + i)
       .boxed()
       .collect(MoreCollectors.toSet());
@@ -513,8 +515,8 @@ public class AuthorizationDaoTest {
 
   @Test
   public void keepAuthorizedUsersForRoleAndProject_returns_empty_for_non_existent_users() {
-    ComponentDto project = new Random().nextBoolean() ? db.components().insertPublicProject(organization) : db.components().insertPrivateProject(organization);
-    Set<Integer> randomNonExistingUserIdsSet = IntStream.range(0, 1 + Math.abs(new Random().nextInt(5)))
+    ComponentDto project = random.nextBoolean() ? db.components().insertPublicProject(organization) : db.components().insertPrivateProject(organization);
+    Set<Integer> randomNonExistingUserIdsSet = IntStream.range(0, 1 + Math.abs(random.nextInt(5)))
       .map(i -> i + 1_990)
       .boxed()
       .collect(MoreCollectors.toSet());
@@ -1044,11 +1046,11 @@ public class AuthorizationDaoTest {
     db.users().insertMember(adminGroup, admin2);
     db.users().insertProjectPermissionOnGroup(adminGroup, UserRole.ADMIN, project);
 
-    assertThat(underTest.keepAuthorizedLoginsOnProject(dbSession, newHashSet(user1.getLogin()), project.uuid(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedLoginsOnProject(dbSession, newHashSet(user1.getLogin()), project.getKey(), UserRole.USER))
       .containsOnly(user1.getLogin());
-    assertThat(underTest.keepAuthorizedLoginsOnProject(dbSession, newHashSet(user1.getLogin(), admin1.getLogin(), admin2.getLogin()), project.uuid(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedLoginsOnProject(dbSession, newHashSet(user1.getLogin(), admin1.getLogin(), admin2.getLogin()), project.getKey(), UserRole.USER))
       .containsOnly(user1.getLogin(), admin1.getLogin(), admin2.getLogin());
-    assertThat(underTest.keepAuthorizedLoginsOnProject(dbSession, newHashSet(user1.getLogin(), admin1.getLogin(), admin2.getLogin()), project.uuid(), UserRole.ADMIN))
+    assertThat(underTest.keepAuthorizedLoginsOnProject(dbSession, newHashSet(user1.getLogin(), admin1.getLogin(), admin2.getLogin()), project.getKey(), UserRole.ADMIN))
       .containsOnly(admin1.getLogin(), admin2.getLogin());
   }
 
@@ -1080,17 +1082,60 @@ public class AuthorizationDaoTest {
     // user without role
     UserDto userWithNoRole = db.users().insertUser();
 
-    assertThat(underTest.keepAuthorizedLoginsOnProject(dbSession, newHashSet(userWithNoRole.getLogin()), project.uuid(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedLoginsOnProject(dbSession, newHashSet(userWithNoRole.getLogin()), project.getKey(), UserRole.USER))
       .isEmpty();
-    assertThat(underTest.keepAuthorizedLoginsOnProject(dbSession, newHashSet(user1.getLogin()), project.uuid(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedLoginsOnProject(dbSession, newHashSet(user1.getLogin()), project.getKey(), UserRole.USER))
       .containsOnly(user1.getLogin());
 
     Set<String> allLogins = newHashSet(admin1.getLogin(), admin2.getLogin(), user1.getLogin(), user2.getLogin(), userWithNoRole.getLogin());
 
     // Admin does not have the USER permission set
-    assertThat(underTest.keepAuthorizedLoginsOnProject(dbSession, allLogins, project.uuid(), UserRole.USER))
+    assertThat(underTest.keepAuthorizedLoginsOnProject(dbSession, allLogins, project.getKey(), UserRole.USER))
       .containsOnly(user1.getLogin(), user2.getLogin());
-    assertThat(underTest.keepAuthorizedLoginsOnProject(dbSession, allLogins, project.uuid(), UserRole.ADMIN))
+    assertThat(underTest.keepAuthorizedLoginsOnProject(dbSession, allLogins, project.getKey(), UserRole.ADMIN))
+      .containsOnly(admin1.getLogin(), admin2.getLogin());
+  }
+
+  @Test
+  public void keepAuthorizedLoginsOnProject_return_correct_users_on_branch() {
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto branch = db.components().insertProjectBranch(project, c -> c.setBranchType(random.nextBoolean() ? BranchType.SHORT : BranchType.LONG));
+
+    GroupDto userGroup = db.users().insertGroup(organization, "USERS");
+    GroupDto adminGroup = db.users().insertGroup(organization, "ADMIN");
+    db.users().insertProjectPermissionOnGroup(userGroup, UserRole.USER, project);
+    db.users().insertProjectPermissionOnGroup(adminGroup, UserRole.ADMIN, project);
+
+    // admin with "direct" ADMIN role
+    UserDto admin1 = db.users().insertUser();
+    db.users().insertProjectPermissionOnUser(admin1, UserRole.ADMIN, project);
+
+    // admin2 with ADMIN role through group
+    UserDto admin2 = db.users().insertUser();
+    db.users().insertMember(adminGroup, admin2);
+
+    // user1 with "direct" USER role
+    UserDto user1 = db.users().insertUser();
+    db.users().insertProjectPermissionOnUser(user1, UserRole.USER, project);
+
+    // user2 with USER role through group
+    UserDto user2 = db.users().insertUser();
+    db.users().insertMember(userGroup, user2);
+
+    // user without role
+    UserDto userWithNoRole = db.users().insertUser();
+
+    assertThat(underTest.keepAuthorizedLoginsOnProject(dbSession, newHashSet(userWithNoRole.getLogin()), branch.getKey(), UserRole.USER))
+      .isEmpty();
+    assertThat(underTest.keepAuthorizedLoginsOnProject(dbSession, newHashSet(user1.getLogin()), branch.getKey(), UserRole.USER))
+      .containsOnly(user1.getLogin());
+
+    Set<String> allLogins = newHashSet(admin1.getLogin(), admin2.getLogin(), user1.getLogin(), user2.getLogin(), userWithNoRole.getLogin());
+
+    // Admin does not have the USER permission set
+    assertThat(underTest.keepAuthorizedLoginsOnProject(dbSession, allLogins, branch.getKey(), UserRole.USER))
+      .containsOnly(user1.getLogin(), user2.getLogin());
+    assertThat(underTest.keepAuthorizedLoginsOnProject(dbSession, allLogins, branch.getKey(), UserRole.ADMIN))
       .containsOnly(admin1.getLogin(), admin2.getLogin());
   }
 }

@@ -401,7 +401,7 @@
       SELECT u.login
       FROM users u
       INNER JOIN user_roles ur ON ur.user_id = u.id
-      INNER JOIN projects p ON p.uuid = #{projectUuid,jdbcType=VARCHAR}
+      INNER JOIN projects p ON p.kee = #{projectKey,jdbcType=VARCHAR}
       WHERE
         ur.organization_uuid = p.organization_uuid
         AND ur.resource_id = p.id
@@ -412,7 +412,7 @@
 
       SELECT u.login
       FROM users u
-      INNER JOIN projects p ON p.uuid = #{projectUuid,jdbcType=VARCHAR}
+      INNER JOIN projects p ON p.kee = #{projectKey,jdbcType=VARCHAR}
       INNER JOIN group_roles gr ON gr.organization_uuid = p.organization_uuid
       INNER JOIN groups_users gu ON gr.group_id = gu.group_id
       WHERE
@@ -425,7 +425,7 @@
 
       SELECT u.login
       FROM users u
-      INNER JOIN projects p ON p.uuid = #{projectUuid,jdbcType=VARCHAR}
+      INNER JOIN projects p ON p.kee = #{projectKey,jdbcType=VARCHAR}
       WHERE
         p.private = ${_false}
         AND u.login IN <foreach collection="logins" open="(" close=")" item="login" separator=",">#{login}</foreach>

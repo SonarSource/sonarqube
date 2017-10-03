@@ -101,10 +101,10 @@ public class PropertiesDaoTest {
     assertThat(underTest.findUsersForNotification("NewViolations", "Email", "uuid_78"))
       .isEmpty();
 
-    assertThat(underTest.findUsersForNotification("NewViolations", "Email", project1.uuid()))
+    assertThat(underTest.findUsersForNotification("NewViolations", "Email", project1.getKey()))
       .containsOnly(new Subscriber("user2", false));
 
-    assertThat(underTest.findUsersForNotification("NewViolations", "Email", project2.uuid()))
+    assertThat(underTest.findUsersForNotification("NewViolations", "Email", project2.getKey()))
       .isEmpty();
 
     assertThat(underTest.findUsersForNotification("NewViolations", "Twitter", null))
@@ -113,10 +113,10 @@ public class PropertiesDaoTest {
     assertThat(underTest.findUsersForNotification("NewViolations", "Twitter", "uuid_78"))
       .containsOnly(new Subscriber("user3", true));
 
-    assertThat(underTest.findUsersForNotification("NewViolations", "Twitter", project1.uuid()))
+    assertThat(underTest.findUsersForNotification("NewViolations", "Twitter", project1.getKey()))
       .containsOnly(new Subscriber("user2", false), new Subscriber("user3", true));
 
-    assertThat(underTest.findUsersForNotification("NewViolations", "Twitter", project2.uuid()))
+    assertThat(underTest.findUsersForNotification("NewViolations", "Twitter", project2.getKey()))
       .containsOnly(new Subscriber("user1", false), new Subscriber("user3", true), new Subscriber("user3", false));
   }
 

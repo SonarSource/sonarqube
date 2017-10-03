@@ -28,15 +28,20 @@ import org.sonar.api.web.UserRole;
 import org.sonar.server.notification.NotificationDispatcher;
 import org.sonar.server.notification.NotificationManager;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 public class NewAlertsTest {
 
-  NotificationManager notificationManager = mock(NotificationManager.class);
-  NotificationDispatcher.Context context = mock(NotificationDispatcher.Context.class);
-  NotificationChannel emailChannel = mock(NotificationChannel.class);
-  NotificationChannel twitterChannel = mock(NotificationChannel.class);
-  NewAlerts dispatcher = new NewAlerts(notificationManager);
+  private NotificationManager notificationManager = mock(NotificationManager.class);
+  private NotificationDispatcher.Context context = mock(NotificationDispatcher.Context.class);
+  private NotificationChannel emailChannel = mock(NotificationChannel.class);
+  private NotificationChannel twitterChannel = mock(NotificationChannel.class);
+  private NewAlerts dispatcher = new NewAlerts(notificationManager);
 
   @Test
   public void should_not_dispatch_if_not_alerts_notification() {
@@ -51,9 +56,11 @@ public class NewAlertsTest {
     Multimap<String, NotificationChannel> recipients = HashMultimap.create();
     recipients.put("user1", emailChannel);
     recipients.put("user2", twitterChannel);
-    when(notificationManager.findSubscribedRecipientsForDispatcher(dispatcher, "uuid_34", new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER))).thenReturn(recipients);
+    when(notificationManager.findSubscribedRecipientsForDispatcher(dispatcher, "key_34", new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER)))
+      .thenReturn(recipients);
 
-    Notification notification = new Notification("alerts").setFieldValue("projectUuid", "uuid_34");
+    Notification notification = new Notification("alerts")
+      .setFieldValue("projectKey", "key_34");
     dispatcher.performDispatch(notification, context);
 
     verify(context).addUser("user1", emailChannel);
@@ -62,11 +69,12 @@ public class NewAlertsTest {
   }
 
   @Test
-  public void should_not_dispatch_if_missing_project_id() {
+  public void should_not_dispatch_if_missing_project_key() {
     Multimap<String, NotificationChannel> recipients = HashMultimap.create();
     recipients.put("user1", emailChannel);
     recipients.put("user2", twitterChannel);
-    when(notificationManager.findSubscribedRecipientsForDispatcher(dispatcher, "uuid_34", new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER))).thenReturn(recipients);
+    when(notificationManager.findSubscribedRecipientsForDispatcher(dispatcher, "key_34", new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER)))
+      .thenReturn(recipients);
 
     Notification notification = new Notification("alerts");
     dispatcher.performDispatch(notification, context);

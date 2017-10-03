@@ -55,9 +55,9 @@ public class ReportAnalysisFailureNotificationDispatcher extends NotificationDis
 
   @Override
   public void dispatch(Notification notification, Context context) {
-    String projectUuid = notification.getFieldValue("project.uuid");
-    Multimap<String, NotificationChannel> subscribedRecipients = manager.findSubscribedRecipientsForDispatcher(
-      this, projectUuid, REQUIRED_SUBSCRIBER_PERMISSIONS);
+    String projectKey = notification.getFieldValue("project.key");
+    Multimap<String, NotificationChannel> subscribedRecipients = manager
+      .findSubscribedRecipientsForDispatcher(this, projectKey, REQUIRED_SUBSCRIBER_PERMISSIONS);
 
     for (Map.Entry<String, Collection<NotificationChannel>> channelsByRecipients : subscribedRecipients.asMap().entrySet()) {
       String userLogin = channelsByRecipients.getKey();

@@ -51,7 +51,6 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
   static final String FIELD_PROJECT_NAME = "projectName";
   static final String FIELD_PROJECT_KEY = "projectKey";
   static final String FIELD_PROJECT_DATE = "projectDate";
-  static final String FIELD_PROJECT_UUID = "projectUuid";
   static final String FIELD_PROJECT_VERSION = "projectVersion";
   static final String FIELD_ASSIGNEE = "assignee";
   static final String FIELD_BRANCH = "branch";

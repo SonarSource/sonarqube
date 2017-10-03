@@ -55,10 +55,10 @@ public class MyNewIssuesNotificationDispatcher extends NotificationDispatcher {
 
   @Override
   public void dispatch(Notification notification, Context context) {
-    String projectUuid = notification.getFieldValue("projectUuid");
+    String projectKey = notification.getFieldValue("projectKey");
     String assignee = notification.getFieldValue("assignee");
-    Multimap<String, NotificationChannel> subscribedRecipients = manager.findSubscribedRecipientsForDispatcher(
-        this, projectUuid, ALL_MUST_HAVE_ROLE_USER);
+    Multimap<String, NotificationChannel> subscribedRecipients = manager
+        .findSubscribedRecipientsForDispatcher(this, projectKey, ALL_MUST_HAVE_ROLE_USER);
 
     Collection<NotificationChannel> channels = subscribedRecipients.get(assignee);
     for (NotificationChannel channel : channels) {

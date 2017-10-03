@@ -78,8 +78,8 @@ public class ReportAnalysisFailureNotificationDispatcherTest {
   @Test
   public void performDispatch_adds_user_for_each_recipient_and_channel_for_the_component_uuid_in_the_notification() {
     when(notificationMock.getType()).thenReturn(ReportAnalysisFailureNotification.TYPE);
-    String projectUuid = randomAlphanumeric(9);
-    when(notificationMock.getFieldValue("project.uuid")).thenReturn(projectUuid);
+    String projectKey = randomAlphanumeric(9);
+    when(notificationMock.getFieldValue("project.key")).thenReturn(projectKey);
     HashMultimap<String, NotificationChannel> multimap = HashMultimap.create();
     String login1 = randomAlphanumeric(3);
     String login2 = randomAlphanumeric(3);
@@ -90,7 +90,7 @@ public class ReportAnalysisFailureNotificationDispatcherTest {
     multimap.put(login1, channel2);
     multimap.put(login2, channel2);
     multimap.put(login2, channel3);
-    when(notificationManager.findSubscribedRecipientsForDispatcher(underTest, projectUuid, new SubscriberPermissionsOnProject(UserRole.ADMIN, UserRole.USER)))
+    when(notificationManager.findSubscribedRecipientsForDispatcher(underTest, projectKey, new SubscriberPermissionsOnProject(UserRole.ADMIN, UserRole.USER)))
       .thenReturn(multimap);
 
     underTest.performDispatch(notificationMock, contextMock);
@@ -105,10 +105,10 @@ public class ReportAnalysisFailureNotificationDispatcherTest {
   @Test
   public void performDispatch_adds_no_user_if_notification_manager_returns_none() {
     when(notificationMock.getType()).thenReturn(ReportAnalysisFailureNotification.TYPE);
-    String projectUuid = randomAlphanumeric(9);
-    when(notificationMock.getFieldValue("project.uuid")).thenReturn(projectUuid);
+    String projectKey = randomAlphanumeric(9);
+    when(notificationMock.getFieldValue("project.key")).thenReturn(projectKey);
     HashMultimap<String, NotificationChannel> multimap = HashMultimap.create();
-    when(notificationManager.findSubscribedRecipientsForDispatcher(underTest, projectUuid, new SubscriberPermissionsOnProject(UserRole.ADMIN, UserRole.USER)))
+    when(notificationManager.findSubscribedRecipientsForDispatcher(underTest, projectKey, new SubscriberPermissionsOnProject(UserRole.ADMIN, UserRole.USER)))
       .thenReturn(multimap);
 
     underTest.performDispatch(notificationMock, contextMock);

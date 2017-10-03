@@ -144,7 +144,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     underTest.execute();
 
     verify(notificationService).deliver(newIssuesNotificationMock);
-    verify(newIssuesNotificationMock).setProject(PROJECT.getPublicKey(), PROJECT.getUuid(), PROJECT.getName(), null);
+    verify(newIssuesNotificationMock).setProject(PROJECT.getPublicKey(), PROJECT.getName(), null);
     verify(newIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
     verify(newIssuesNotificationMock).setStatistics(eq(PROJECT.getName()), any(NewIssuesStatistics.Stats.class));
     verify(newIssuesNotificationMock).setDebt(ISSUE_DURATION);
@@ -207,7 +207,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     underTest.execute();
 
     verify(notificationService).deliver(newIssuesNotificationMock);
-    verify(newIssuesNotificationMock).setProject(branch.getKey(), branch.uuid(), branch.longName(), BRANCH_NAME);
+    verify(newIssuesNotificationMock).setProject(branch.getKey(), branch.longName(), BRANCH_NAME);
     verify(newIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
     verify(newIssuesNotificationMock).setStatistics(eq(branch.longName()), any(NewIssuesStatistics.Stats.class));
     verify(newIssuesNotificationMock).setDebt(ISSUE_DURATION);
@@ -239,7 +239,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
     verify(notificationService).deliver(newIssuesNotificationMock);
     verify(notificationService).deliver(myNewIssuesNotificationMock);
     verify(myNewIssuesNotificationMock).setAssignee(ISSUE_ASSIGNEE);
-    verify(myNewIssuesNotificationMock).setProject(PROJECT.getPublicKey(), PROJECT.getUuid(), PROJECT.getName(), null);
+    verify(myNewIssuesNotificationMock).setProject(PROJECT.getPublicKey(), PROJECT.getName(), null);
     verify(myNewIssuesNotificationMock).setAnalysisDate(new Date(ANALYSE_DATE));
     verify(myNewIssuesNotificationMock).setStatistics(eq(PROJECT.getName()), any(NewIssuesStatistics.Stats.class));
     verify(myNewIssuesNotificationMock).setDebt(ISSUE_DURATION);
@@ -425,7 +425,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   private NewIssuesNotification createNewIssuesNotificationMock() {
     NewIssuesNotification notification = mock(NewIssuesNotification.class);
-    when(notification.setProject(anyString(), anyString(), anyString(), anyString())).thenReturn(notification);
+    when(notification.setProject(anyString(), anyString(), anyString())).thenReturn(notification);
     when(notification.setProjectVersion(anyString())).thenReturn(notification);
     when(notification.setAnalysisDate(any(Date.class))).thenReturn(notification);
     when(notification.setStatistics(anyString(), any(NewIssuesStatistics.Stats.class))).thenReturn(notification);
@@ -436,7 +436,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   private MyNewIssuesNotification createMyNewIssuesNotificationMock() {
     MyNewIssuesNotification notification = mock(MyNewIssuesNotification.class);
     when(notification.setAssignee(anyString())).thenReturn(notification);
-    when(notification.setProject(anyString(), anyString(), anyString(), anyString())).thenReturn(notification);
+    when(notification.setProject(anyString(), anyString(), anyString())).thenReturn(notification);
     when(notification.setProjectVersion(anyString())).thenReturn(notification);
     when(notification.setAnalysisDate(any(Date.class))).thenReturn(notification);
     when(notification.setStatistics(anyString(), any(NewIssuesStatistics.Stats.class))).thenReturn(notification);

@@ -63,7 +63,7 @@ public interface AuthorizationMapper {
 
   List<String> selectQualityProfileAdministratorLogins(@Param("permission") String permission);
 
-  Set<String> keepAuthorizedLoginsOnProject(@Param("logins") List<String> logins, @Param("projectUuid") String projectUuid, @Param("permission") String permission);
+  Set<String> keepAuthorizedLoginsOnProject(@Param("logins") List<String> logins, @Param("projectKey") String projectKey, @Param("permission") String permission);
 
   List<String> selectLoginsWithGlobalPermission(@Param("permission") String permission);
 }

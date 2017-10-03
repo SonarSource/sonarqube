@@ -49,7 +49,6 @@ import static org.sonar.server.issue.notification.AbstractNewIssuesEmailTemplate
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_DATE;
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_KEY;
 import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_NAME;
-import static org.sonar.server.issue.notification.NewIssuesEmailTemplate.FIELD_PROJECT_UUID;
 import static org.sonar.server.issue.notification.NewIssuesStatistics.Metric.RULE_TYPE;
 
 public class NewIssuesNotification extends Notification {
@@ -80,10 +79,9 @@ public class NewIssuesNotification extends Notification {
     return this;
   }
 
-  public NewIssuesNotification setProject(String projectKey, String projectUuid, String projectName, @Nullable String branchName) {
+  public NewIssuesNotification setProject(String projectKey, String projectName, @Nullable String branchName) {
     setFieldValue(FIELD_PROJECT_NAME, projectName);
     setFieldValue(FIELD_PROJECT_KEY, projectKey);
-    setFieldValue(FIELD_PROJECT_UUID, projectUuid);
     if (branchName != null) {
       setFieldValue(FIELD_BRANCH, branchName);
     }

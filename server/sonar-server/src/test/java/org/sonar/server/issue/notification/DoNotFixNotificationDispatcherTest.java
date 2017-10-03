@@ -31,7 +31,13 @@ import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.notification.NotificationManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class DoNotFixNotificationDispatcherTest {
   NotificationManager notifications = mock(NotificationManager.class);
@@ -62,10 +68,10 @@ public class DoNotFixNotificationDispatcherTest {
     recipients.put("simon", emailChannel);
     recipients.put("freddy", twitterChannel);
     recipients.put("godin", twitterChannel);
-    when(notifications.findSubscribedRecipientsForDispatcher(underTest, "uuid1", new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER))).thenReturn(recipients);
+    when(notifications.findSubscribedRecipientsForDispatcher(underTest, "struts", new NotificationManager.SubscriberPermissionsOnProject(UserRole.USER))).thenReturn(recipients);
 
-    Notification fpNotif = new IssueChangeNotification().setFieldValue("projectKey", "struts")
-      .setFieldValue("projectUuid", "uuid1")
+    Notification fpNotif = new IssueChangeNotification()
+      .setFieldValue("projectKey", "struts")
       .setFieldValue("changeAuthor", "godin")
       .setFieldValue("new.resolution", Issue.RESOLUTION_FALSE_POSITIVE)
       .setFieldValue("assignee", "freddy");

@@ -127,7 +127,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
     IssueChangeNotification changeNotification = new IssueChangeNotification();
     changeNotification.setRuleName(rules.getByKey(issue.ruleKey()).getName());
     changeNotification.setIssue(issue);
-    changeNotification.setProject(project.getPublicKey(), project.getName(), getBranchName(), project.getUuid());
+    changeNotification.setProject(project.getPublicKey(), project.getName(), getBranchName());
     getComponentKey(issue).ifPresent(c -> changeNotification.setComponent(c.getPublicKey(), c.getName()));
     service.deliver(changeNotification);
   }
@@ -136,7 +136,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
     NewIssuesStatistics.Stats globalStatistics = statistics.globalStatistics();
     NewIssuesNotification notification = newIssuesNotificationFactory
       .newNewIssuesNotication()
-      .setProject(project.getPublicKey(), project.getUuid(), project.getName(), getBranchName())
+      .setProject(project.getPublicKey(), project.getName(), getBranchName())
       .setProjectVersion(project.getReportAttributes().getVersion())
       .setAnalysisDate(new Date(analysisDate))
       .setStatistics(project.getName(), globalStatistics)
@@ -155,7 +155,7 @@ public class SendIssueNotificationsStep implements ComputationStep {
           .newMyNewIssuesNotification()
           .setAssignee(assignee);
         myNewIssuesNotification
-          .setProject(project.getPublicKey(), project.getUuid(), project.getName(), getBranchName())
+          .setProject(project.getPublicKey(), project.getName(), getBranchName())
           .setProjectVersion(project.getReportAttributes().getVersion())
           .setAnalysisDate(new Date(analysisDate))
           .setStatistics(project.getName(), assigneeStatistics)
