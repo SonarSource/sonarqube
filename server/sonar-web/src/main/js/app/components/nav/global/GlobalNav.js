@@ -144,7 +144,7 @@ class GlobalNav extends React.PureComponent {
 }
 
 const mapStateToProps = state => {
-  const sonarCloudSetting = getGlobalSettingValue(state, 'sonar.lf.sonarqube.com.enabled');
+  const sonarCloudSetting = getGlobalSettingValue(state, 'sonar.sonarcloud.enabled');
 
   return {
     currentUser: getCurrentUser(state),

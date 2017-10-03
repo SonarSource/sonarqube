@@ -95,7 +95,7 @@ public class GlobalActionTest {
     settings.setProperty("sonar.lf.logoWidthPx", 135);
     settings.setProperty("sonar.lf.gravatarServerUrl", "https://secure.gravatar.com/avatar/{EMAIL_MD5}.jpg?s={SIZE}&d=identicon");
     settings.setProperty("sonar.lf.enableGravatar", true);
-    settings.setProperty("sonar.lf.sonarqube.com.enabled", true);
+    settings.setProperty("sonar.sonarcloud.enabled", true);
     settings.setProperty("sonar.updatecenter.activate", false);
     settings.setProperty("sonar.technicalDebt.ratingGrid", "0.05,0.1,0.2,0.5");
     // This setting should be ignored as it's not needed

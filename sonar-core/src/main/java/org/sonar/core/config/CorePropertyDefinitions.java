@@ -63,6 +63,7 @@ public class CorePropertyDefinitions {
     defs.addAll(WebhookProperties.all());
     defs.addAll(TelemetryProperties.all());
     defs.addAll(ScannerProperties.all());
+    defs.addAll(WebProperties.all());
 
     defs.addAll(asList(
       PropertyDefinition.builder(PROP_PASSWORD)

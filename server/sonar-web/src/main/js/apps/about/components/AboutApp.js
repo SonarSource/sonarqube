@@ -203,7 +203,7 @@ const mapStateToProps = state => ({
   appState: getAppState(state),
   currentUser: getCurrentUser(state),
   customText: getGlobalSettingValue(state, 'sonar.lf.aboutText'),
-  sonarqubeDotCom: getGlobalSettingValue(state, 'sonar.lf.sonarqube.com.enabled')
+  sonarqubeDotCom: getGlobalSettingValue(state, 'sonar.sonarcloud.enabled')
 });
 
 const mapDispatchToProps = { fetchAboutPageSettings };

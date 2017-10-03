@@ -25,7 +25,7 @@ import GlobalFooter from './GlobalFooter';
 const mapStateToProps = state => ({
   sonarqubeVersion: getAppState(state).version,
   productionDatabase: getAppState(state).productionDatabase,
-  sonarqubeDotCom: getGlobalSettingValue(state, 'sonar.lf.sonarqube.com.enabled')
+  sonarqubeDotCom: getGlobalSettingValue(state, 'sonar.sonarcloud.enabled')
 });
 
 export default connect(mapStateToProps)(GlobalFooter);

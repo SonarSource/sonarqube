@@ -19,19 +19,25 @@
  */
 package org.sonar.core.config;
 
-/**
- * List of web setting keys not defined in {@link org.sonar.api.CoreProperties}
- */
-public final class WebConstants {
+import java.util.List;
+import org.sonar.api.PropertyType;
+import org.sonar.api.config.PropertyDefinition;
 
-  public static final String SONAR_LF_ENABLE_GRAVATAR = "sonar.lf.enableGravatar";
-  public static final String SONAR_LF_GRAVATAR_SERVER_URL = "sonar.lf.gravatarServerUrl";
-  public static final String SONAR_LF_LOGO_URL = "sonar.lf.logoUrl";
-  public static final String SONAR_LF_LOGO_WIDTH_PX = "sonar.lf.logoWidthPx";
-  public static final String SONAR_LF_ABOUT_TEXT = "sonar.lf.aboutText";
-  public static final String SONAR_UPDATECENTER_ACTIVATE = "sonar.updatecenter.activate";
-  public static final String SONARCLOUD_ENABLED = "sonar.sonarcloud.enabled";
+import static java.util.Arrays.asList;
 
-  private WebConstants() {
+public final class WebProperties {
+
+  private WebProperties() {
+  }
+
+  public static List<PropertyDefinition> all() {
+    return asList(
+      PropertyDefinition.builder(WebConstants.SONARCLOUD_ENABLED)
+        .deprecatedKey("sonar.lf.sonarqube.com.enabled")
+        .defaultValue("false")
+        .name("Enable SonarCloud look&feel")
+        .type(PropertyType.BOOLEAN)
+        .hidden()
+        .build());
   }
 }
