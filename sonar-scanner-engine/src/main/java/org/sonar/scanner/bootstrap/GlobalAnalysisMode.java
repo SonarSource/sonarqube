@@ -76,12 +76,8 @@ public class GlobalAnalysisMode {
       return;
     }
 
-    if (CoreProperties.ANALYSIS_MODE_INCREMENTAL.equals(mode)) {
-      throw new IllegalStateException("Invalid analysis mode: " + mode + ". This mode was removed in SonarQube 5.2. Valid modes are: " + Arrays.toString(VALID_MODES));
-    }
-
     if (!Arrays.asList(VALID_MODES).contains(mode)) {
-      throw new IllegalStateException("Invalid analysis mode: " + mode + ". Valid modes are: " + Arrays.toString(VALID_MODES));
+      throw new IllegalStateException("Invalid analysis mode: " + mode + ".");
     }
 
   }
