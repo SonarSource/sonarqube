@@ -33,25 +33,9 @@ public class GlobalAnalysisModeTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void testModeNotSupported() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("[preview, publish, issues]");
-
-    createMode(CoreProperties.ANALYSIS_MODE, "invalid");
-  }
-
-  @Test
-  public void incremental_mode_no_longer_valid() {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("This mode was removed in SonarQube 5.2");
-
-    createMode(CoreProperties.ANALYSIS_MODE, CoreProperties.ANALYSIS_MODE_INCREMENTAL);
-  }
-
-  @Test
   public void invalidate_mode() {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("[preview, publish, issues]");
+    thrown.expectMessage("Invalid analysis mode: invalid.");
 
     createMode(CoreProperties.ANALYSIS_MODE, "invalid");
   }
