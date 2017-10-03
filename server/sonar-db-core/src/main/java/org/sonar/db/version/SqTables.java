@@ -51,6 +51,7 @@ public final class SqTables {
   public static final Set<String> TABLES = unmodifiableSet(new HashSet<>(asList(
     "active_rules",
     "active_rule_parameters",
+    "analysis_properties",
     "ce_activity",
     "ce_queue",
     "ce_task_characteristics",

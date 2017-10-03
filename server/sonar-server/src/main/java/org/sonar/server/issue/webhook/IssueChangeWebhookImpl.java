@@ -21,7 +21,6 @@ package org.sonar.server.issue.webhook;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +36,7 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.AnalysisPropertyDto;
 import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
@@ -144,13 +144,16 @@ public class IssueChangeWebhookImpl implements IssueChangeWebhook {
             webhooks.sendProjectAnalysisUpdate(
               configuration,
               new WebHooks.Analysis(shortBranch.getUuid(), analysis.getUuid(), null),
-              () -> buildWebHookPayload(branch, shortBranch, analysis));
+              () -> buildWebHookPayload(dbSession, branch, shortBranch, analysis));
           }
         });
     }
   }
 
-  private WebhookPayload buildWebHookPayload(ComponentDto branch, BranchDto shortBranch, SnapshotDto analysis) {
+  private WebhookPayload buildWebHookPayload(DbSession dbSession, ComponentDto branch, BranchDto shortBranch, SnapshotDto analysis) {
+    Map<String, String> analysisProperties = dbClient.analysisPropertiesDao().selectBySnapshotUuid(dbSession, analysis.getUuid())
+      .stream()
+      .collect(Collectors.toMap(AnalysisPropertyDto::getKey, AnalysisPropertyDto::getValue));
     ProjectAnalysis projectAnalysis = new ProjectAnalysis(
       new Project(branch.getMainBranchProjectUuid(), branch.getKey(), branch.name()),
       null,
@@ -158,7 +161,7 @@ public class IssueChangeWebhookImpl implements IssueChangeWebhook {
       new Branch(false, shortBranch.getKey(), Branch.Type.SHORT),
       createQualityGate(branch, issueIndex),
       null,
-      Collections.emptyMap());
+      analysisProperties);
     return webhookPayloadFactory.create(projectAnalysis);
   }
 
