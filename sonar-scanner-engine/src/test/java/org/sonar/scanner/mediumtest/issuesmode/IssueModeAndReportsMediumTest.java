@@ -41,7 +41,6 @@ import org.sonar.scanner.mediumtest.ScannerMediumTester;
 import org.sonar.scanner.mediumtest.TaskResult;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
-import org.sonar.scanner.scan.report.ConsoleReport;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
@@ -163,18 +162,6 @@ public class IssueModeAndReportsMediumTest {
   }
 
   @Test
-  public void testConsoleReport() throws Exception {
-    File projectDir = copyProject("/mediumtest/xoo/sample");
-
-    tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
-      .property("sonar.issuesReport.console.enable", "true")
-      .execute();
-
-    assertThat(getReportLog()).contains("+16 issues", "+16 major");
-  }
-
-  @Test
   public void testPostJob() throws Exception {
     File projectDir = copyProject("/mediumtest/xoo/sample");
 
@@ -184,51 +171,6 @@ public class IssueModeAndReportsMediumTest {
       .execute();
 
     assertThat(logTester.logs()).contains("Resolved issues: 1", "Open issues: 18");
-  }
-
-  private String getReportLog() {
-    for (String log : logTester.logs()) {
-      if (log.contains(ConsoleReport.HEADER)) {
-        return log;
-      }
-    }
-    throw new IllegalStateException("No console report");
-  }
-
-  @Test
-  public void testHtmlReport() throws Exception {
-    File projectDir = copyProject("/mediumtest/xoo/sample");
-
-    tester
-      .newScanTask(new File(projectDir, "sonar-project.properties"))
-      .property("sonar.issuesReport.html.enable", "true")
-      .execute();
-
-    assertThat(new File(projectDir, ".sonar/issues-report/issues-report.html")).exists();
-    assertThat(new File(projectDir, ".sonar/issues-report/issues-report-light.html")).exists();
-  }
-
-  @Test
-  public void testHtmlReportNoFile() throws Exception {
-    File baseDir = temp.newFolder();
-    File srcDir = new File(baseDir, "src");
-    srcDir.mkdir();
-
-    tester.newTask()
-      .properties(ImmutableMap.<String, String>builder()
-        .put("sonar.task", "scan")
-        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
-        .put("sonar.projectKey", "sample")
-        .put("sonar.projectName", "Foo Project")
-        .put("sonar.projectVersion", "1.0-SNAPSHOT")
-        .put("sonar.projectDescription", "Description of Foo Project")
-        .put("sonar.sources", "src")
-        .put("sonar.issuesReport.html.enable", "true")
-        .build())
-      .execute();
-
-    assertThat(FileUtils.readFileToString(new File(baseDir, ".sonar/issues-report/issues-report.html"))).contains("No file analyzed");
-    assertThat(FileUtils.readFileToString(new File(baseDir, ".sonar/issues-report/issues-report-light.html"))).contains("No file analyzed");
   }
 
   @Test
