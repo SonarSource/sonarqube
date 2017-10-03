@@ -20,16 +20,16 @@
 // @flow
 import React from 'react';
 import AboutProjects from './AboutProjects';
-import EntryIssueTypesForSonarQubeDotCom from './EntryIssueTypesForSonarQubeDotCom';
-import AboutRulesForSonarQubeDotCom from './AboutRulesForSonarQubeDotCom';
+import EntryIssueTypesSonarCloud from './EntryIssueTypesSonarCloud';
+import AboutRulesSonarCloud from './AboutRulesSonarCloud';
 import AboutCleanCode from './AboutCleanCode';
-import AboutQualityModelForSonarQubeDotCom from './AboutQualityModelForSonarQubeDotCom';
+import AboutQualityModelSonarCloud from './AboutQualityModelSonarCloud';
 import AboutQualityGates from './AboutQualityGates';
 import AboutLeakPeriod from './AboutLeakPeriod';
 import AboutStandards from './AboutStandards';
 import AboutScanners from './AboutScanners';
 import SonarCloudGetStarted from './SonarCloudGetStarted';
-import '../sonarqube-dot-com-styles.css';
+import '../sonarcloud-styles.css';
 
 /*::
 type Props = {
@@ -47,7 +47,7 @@ type Props = {
 };
 */
 
-export default function AboutAppForSonarQubeDotCom(props /*: Props */) {
+export default function AboutAppSonarCloud(props /*: Props */) {
   const { customText } = props;
 
   return (
@@ -63,7 +63,7 @@ export default function AboutAppForSonarQubeDotCom(props /*: Props */) {
 
           <div className="sqcom-about-page-instance">
             <AboutProjects count={props.projectsCount} loading={props.loading} />
-            <EntryIssueTypesForSonarQubeDotCom
+            <EntryIssueTypesSonarCloud
               bugs={props.bugs}
               codeSmells={props.codeSmells}
               loading={props.loading}
@@ -73,7 +73,7 @@ export default function AboutAppForSonarQubeDotCom(props /*: Props */) {
         </div>
       </div>
 
-      <AboutRulesForSonarQubeDotCom appState={props.appState} />
+      <AboutRulesSonarCloud appState={props.appState} />
 
       <div className="page-limited">
         {customText != null &&
@@ -84,7 +84,7 @@ export default function AboutAppForSonarQubeDotCom(props /*: Props */) {
           />
         )}
 
-        <AboutQualityModelForSonarQubeDotCom />
+        <AboutQualityModelSonarCloud />
 
         <div className="flex-columns">
           <div className="flex-column flex-column-half about-page-group-boxes">

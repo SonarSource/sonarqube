@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import { Link } from 'react-router';
-import GlobalFooterForSonarQubeDotCom from './GlobalFooterForSonarQubeDotCom';
+import GlobalFooterSonarCloud from './GlobalFooterSonarCloud';
 import GlobalFooterBranding from './GlobalFooterBranding';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
@@ -28,16 +28,16 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 type Props = {
   hideLoggedInInfo?: boolean,
   productionDatabase: boolean,
-  sonarqubeDotCom?: { value: string },
+  onSonarCloud?: { value: string },
   sonarqubeVersion?: string
 };
 */
 
 export default function GlobalFooter(
-  { hideLoggedInInfo, productionDatabase, sonarqubeDotCom, sonarqubeVersion } /*: Props */
+  { hideLoggedInInfo, productionDatabase, onSonarCloud, sonarqubeVersion } /*: Props */
 ) {
-  if (sonarqubeDotCom && sonarqubeDotCom.value === 'true') {
-    return <GlobalFooterForSonarQubeDotCom hideLoggedInInfo={hideLoggedInInfo} />;
+  if (onSonarCloud && onSonarCloud.value === 'true') {
+    return <GlobalFooterSonarCloud hideLoggedInInfo={hideLoggedInInfo} />;
   }
 
   return (

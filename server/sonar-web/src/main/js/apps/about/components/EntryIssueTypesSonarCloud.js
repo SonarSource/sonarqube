@@ -23,9 +23,9 @@ import { Link } from 'react-router';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 import { getIssuesUrl } from '../../../helpers/urls';
-import BugIconForSonarQubeDotCom from './BugIconForSonarQubeDotCom';
-import VulnerabilityIconForSonarQubeDotCom from './VulnerabilityIconForSonarQubeDotCom';
-import CodeSmellIconForSonarQubeDotCom from './CodeSmellIconForSonarQubeDotCom';
+import BugIconSonarCloud from './BugIconSonarCloud';
+import VulnerabilityIconSonarCloud from './VulnerabilityIconSonarCloud';
+import CodeSmellIconSonarCloud from './CodeSmellIconSonarCloud';
 
 /*::
 type Props = {
@@ -36,7 +36,7 @@ type Props = {
 };
 */
 
-export default function EntryIssueTypesForSonarQubeDotCom(
+export default function EntryIssueTypesSonarCloud(
   { bugs, codeSmells, loading, vulnerabilities } /*: Props */
 ) {
   return (
@@ -55,7 +55,7 @@ export default function EntryIssueTypesForSonarQubeDotCom(
               </td>
               <td>
                 <span className="little-spacer-right">
-                  <BugIconForSonarQubeDotCom />
+                  <BugIconSonarCloud />
                 </span>
                 {translate('issue.type.BUG.plural')}
               </td>
@@ -74,7 +74,7 @@ export default function EntryIssueTypesForSonarQubeDotCom(
               </td>
               <td>
                 <span className="little-spacer-right">
-                  <VulnerabilityIconForSonarQubeDotCom />
+                  <VulnerabilityIconSonarCloud />
                 </span>
                 {translate('issue.type.VULNERABILITY.plural')}
               </td>
@@ -89,7 +89,7 @@ export default function EntryIssueTypesForSonarQubeDotCom(
               </td>
               <td>
                 <span className="little-spacer-right">
-                  <CodeSmellIconForSonarQubeDotCom />
+                  <CodeSmellIconSonarCloud />
                 </span>
                 {translate('issue.type.CODE_SMELL.plural')}
               </td>

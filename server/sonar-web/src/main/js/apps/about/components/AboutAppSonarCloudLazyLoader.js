@@ -19,26 +19,26 @@
  */
 import React from 'react';
 
-export default class AboutAppForSonarQubeDotComLazyLoader extends React.PureComponent {
+export default class AboutAppSonarCloudLazyLoader extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      AboutAppForSonarQubeDotCom: null
+      AboutAppSonarCloud: null
     };
   }
 
   componentDidMount() {
-    if (!this.state.AboutAppForSonarQubeDotCom) {
-      import('./AboutAppForSonarQubeDotCom').then(({ default: AboutAppForSonarQubeDotCom }) =>
-        this.setState({ AboutAppForSonarQubeDotCom })
+    if (!this.state.AboutAppSonarCloud) {
+      import('./AboutAppSonarCloud').then(({ default: AboutAppSonarCloud }) =>
+        this.setState({ AboutAppSonarCloud })
       );
     }
   }
 
   render() {
-    const { AboutAppForSonarQubeDotCom } = this.state;
-    if (AboutAppForSonarQubeDotCom) {
-      return <AboutAppForSonarQubeDotCom {...this.props} />;
+    const { AboutAppSonarCloud } = this.state;
+    if (AboutAppSonarCloud) {
+      return <AboutAppSonarCloud {...this.props} />;
     }
     return null;
   }

@@ -98,7 +98,7 @@ exports[`should not render the only logged in information 1`] = `
 </div>
 `;
 
-exports[`should render SonarqubeDotCom footer 1`] = `<GlobalFooterForSonarQubeDotCom />`;
+exports[`should render SonarCloud footer 1`] = `<GlobalFooterSonarCloud />`;
 
 exports[`should render the only logged in information 1`] = `
 <div
