@@ -26,7 +26,7 @@ import { translate } from '../../helpers/l10n';
 interface Props {
   allGates: QualityGate[];
   gate?: QualityGate;
-  onChange: (oldGate: string | undefined, newGate: string) => Promise<void>;
+  onChange: (oldGate: number | undefined, newGate: number) => Promise<void>;
 }
 
 interface State {
@@ -62,12 +62,14 @@ export default class Form extends React.PureComponent<Props, State> {
 
     const isSet = gate == null && option.value != null;
     const isUnset = gate != null && option.value == null;
-    const isChanged = gate != null && gate.id !== option.value;
+    const isChanged = gate != null && gate.id !== Number(option.value);
     const hasChanged = isSet || isUnset || isChanged;
 
     if (hasChanged) {
       this.setState({ loading: true });
-      this.props.onChange(gate && gate.id, option.value).then(this.stopLoading, this.stopLoading);
+      this.props
+        .onChange(gate && gate.id, Number(option.value))
+        .then(this.stopLoading, this.stopLoading);
     }
   };
 
@@ -89,7 +91,7 @@ export default class Form extends React.PureComponent<Props, State> {
     const { gate, allGates } = this.props;
 
     const options: Option[] = allGates.map(gate => ({
-      value: gate.id,
+      value: String(gate.id),
       label: gate.name,
       isDefault: gate.isDefault
     }));
@@ -108,7 +110,7 @@ export default class Form extends React.PureComponent<Props, State> {
         options={options}
         placeholder={translate('none')}
         style={{ width: 300 }}
-        value={gate && gate.id}
+        value={gate && String(gate.id)}
         valueRenderer={this.renderGateName}
       />
     );

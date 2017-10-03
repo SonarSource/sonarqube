@@ -42,13 +42,13 @@ exports[`renders 1`] = `
         },
         Object {
           "isDefault": undefined,
-          "label": "foo",
-          "value": "foo",
+          "label": "name-1",
+          "value": "1",
         },
         Object {
           "isDefault": undefined,
-          "label": "bar",
-          "value": "bar",
+          "label": "name-2",
+          "value": "2",
         },
       ]
     }
@@ -64,7 +64,7 @@ exports[`renders 1`] = `
       }
     }
     tabSelectsValue={true}
-    value="foo"
+    value="1"
     valueComponent={[Function]}
     valueKey="value"
     valueRenderer={[Function]}
