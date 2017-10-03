@@ -28,6 +28,7 @@ import org.sonar.server.platform.monitoring.cluster.GlobalSystemSection;
 import org.sonar.server.platform.monitoring.cluster.LoggingSection;
 import org.sonar.server.platform.monitoring.cluster.NodeSystemSection;
 import org.sonar.server.platform.monitoring.cluster.ProcessInfoProvider;
+import org.sonar.server.platform.monitoring.cluster.EsClusterStateSection;
 import org.sonar.server.platform.monitoring.cluster.SearchNodesInfoLoaderImpl;
 import org.sonar.server.platform.ws.ClusterInfoAction;
 import org.sonar.server.platform.ws.InfoAction;
@@ -65,6 +66,7 @@ public class WebSystemInfoModule {
       DbSection.class,
       DbConnectionSection.class,
       EsIndexesSection.class,
+      EsClusterStateSection.class,
       GlobalSystemSection.class,
       LoggingSection.class,
       NodeSystemSection.class,

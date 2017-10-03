@@ -144,6 +144,8 @@ public class ClusterTest {
       .shouldHaveMainSection()
       .shouldHaveSection("Database")
       .shouldHaveField("Database Version")
+      .shouldHaveSection("Search State")
+      .shouldHaveSection("Search Indexes")
       .shouldNotHaveSection("Settings")
       .shouldNotHaveSection("Plugins")
       .shouldHaveField("High Availability")
