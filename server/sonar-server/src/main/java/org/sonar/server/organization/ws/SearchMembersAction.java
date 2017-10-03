@@ -49,6 +49,7 @@ import org.sonarqube.ws.Organizations.SearchMembersWsResponse;
 import org.sonarqube.ws.Organizations.User;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.emptyToNull;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
@@ -132,7 +133,7 @@ public class SearchMembersAction implements OrganizationsWsAction {
           .clear()
           .setLogin(login)
           .setName(userDto.getName());
-        setNullable(userDto.getEmail(), text -> wsUser.setAvatar(avatarResolver.create(userDto)));
+        setNullable(emptyToNull(userDto.getEmail()), text -> wsUser.setAvatar(avatarResolver.create(userDto)));
         setNullable(groupCountByLogin, count -> wsUser.setGroupCount(groupCountByLogin.count(login)));
         return wsUser;
       })

@@ -39,6 +39,7 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonarqube.ws.Organizations.AddMemberWsResponse;
 import org.sonarqube.ws.Organizations.User;
 
+import static com.google.common.base.Strings.emptyToNull;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_LOGIN;
@@ -127,7 +128,7 @@ public class AddMemberAction implements OrganizationsWsAction {
       .setLogin(user.getLogin())
       .setName(user.getName())
       .setGroupCount(groups);
-    setNullable(user.getEmail(), text -> wsUser.setAvatar(avatarResolver.create(user)));
+    setNullable(emptyToNull(user.getEmail()), text -> wsUser.setAvatar(avatarResolver.create(user)));
     response.setUser(wsUser);
     return response.build();
   }
