@@ -31,7 +31,7 @@ export default function Duplications(props: Props) {
     <SimpleBubbleChart
       {...props}
       xMetric={{ key: 'ncloc', type: 'SHORT_INT' }}
-      yMetric={{ key: 'duplicated_lines', type: 'SHORT_INT' }}
+      yMetric={{ key: 'duplicated_lines_density', type: 'PERCENT' }}
       sizeMetric={{ key: 'duplicated_blocks', type: 'SHORT_INT' }}
     />
   );
