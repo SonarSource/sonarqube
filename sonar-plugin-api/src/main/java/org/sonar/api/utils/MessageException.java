@@ -49,7 +49,7 @@ public class MessageException extends RuntimeException {
   private final String l10nKey;
   private final Collection<Object> l10nParams;
 
-  private MessageException(String s) {
+  protected MessageException(String s) {
     this(s, null, null);
   }
 
