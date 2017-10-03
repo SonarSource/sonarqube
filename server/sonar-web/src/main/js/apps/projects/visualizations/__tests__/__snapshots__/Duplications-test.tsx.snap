@@ -18,8 +18,8 @@ exports[`renders 1`] = `
   }
   yMetric={
     Object {
-      "key": "duplicated_lines",
-      "type": "SHORT_INT",
+      "key": "duplicated_lines_density",
+      "type": "PERCENT",
     }
   }
 />

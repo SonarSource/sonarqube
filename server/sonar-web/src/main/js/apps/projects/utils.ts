@@ -118,7 +118,7 @@ const METRICS_BY_VISUALIZATION: { [x: string]: string[] } = {
   security: ['ncloc', 'security_remediation_effort', 'vulnerabilities', 'security_rating'],
   maintainability: ['ncloc', 'sqale_index', 'code_smells', 'sqale_rating'],
   coverage: ['complexity', 'coverage', 'uncovered_lines'],
-  duplications: ['ncloc', 'duplicated_lines', 'duplicated_blocks']
+  duplications: ['ncloc', 'duplicated_lines_density', 'duplicated_blocks']
 };
 
 const FACETS = [
