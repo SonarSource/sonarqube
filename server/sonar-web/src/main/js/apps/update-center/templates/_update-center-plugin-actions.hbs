@@ -4,10 +4,10 @@
     <div class="button-group">
       {{#each updates}}
         {{#eq status 'COMPATIBLE'}}
-          <button class="js-update" data-verion="{{release.version}}">Update to {{release.version}}</button>
+          <button class="js-update" data-verion="{{release.version}}">{{tp 'update_center.update_to_x' release.version}}</button>
         {{/eq}}
       {{/each}}
-      <button class="js-uninstall button-red">Uninstall</button>
+      <button class="js-uninstall button-red">{{t 'update_center.uninstall'}}</button>
     </div>
 
   {{else}}
@@ -16,13 +16,13 @@
       <p class="little-spacer-bottom">
         <input class="js-terms" type="checkbox" name="plugin-terms" id="plugin-terms-{{key}}">
         <label for="plugin-terms-{{key}}">
-          I accept the
-          <a class="js-plugin-terms nowrap" href="{{termsAndConditionsUrl}}" target="_blank">Terms and Conditions</a>
+          {{t 'update_center.i_accept_the'}}
+          <a class="js-plugin-terms nowrap" href="{{termsAndConditionsUrl}}" target="_blank">{{t 'update_center.terms_and_conditions'}}</a>
         </label>
       </p>
-      <button class="js-install" disabled>Install</button>
+      <button class="js-install" disabled>{{t 'update_center.install'}}</button>
     {{else}}
-      <button class="js-install">Install</button>
+      <button class="js-install">{{t 'update_center.install'}}</button>
     {{/if}}
 
   {{/if}}

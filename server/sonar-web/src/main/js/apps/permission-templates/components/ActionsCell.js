@@ -162,7 +162,7 @@ export default class ActionsCell extends React.PureComponent {
             <li>
               <Link to={{ pathname, query: { id: t.id } }}>
                 {this.renderDropdownIcon(<i className="icon-edit" />)}
-                Edit Permissions
+                {translate('edit_permissions')}
               </Link>
             </li>
           )}
@@ -170,7 +170,7 @@ export default class ActionsCell extends React.PureComponent {
           <li>
             <a href="#" className="js-update" onClick={this.handleUpdateClick.bind(this)}>
               {this.renderDropdownIcon(<i className="icon-edit" />)}
-              Update Details
+              {translate('update_details')}
             </a>
           </li>
 

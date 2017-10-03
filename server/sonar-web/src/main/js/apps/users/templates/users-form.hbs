@@ -1,41 +1,41 @@
 <form id="create-user-form" autocomplete="off">
   <div class="modal-head">
-    <h2>{{#if login}}Update{{else}}Create{{/if}} User</h2>
+    <h2>{{#if login}}{{t 'users.update_user'}}{{else}}{{t 'users.create_user'}}{{/if}}</h2>
   </div>
   <div class="modal-body">
     <div class="js-modal-messages"></div>
     {{#unless login}}
       <div class="modal-field">
-        <label for="create-user-login">Login<em class="mandatory">*</em></label>
+        <label for="create-user-login">{{t 'login'}}<em class="mandatory">*</em></label>
         {{! keep this fake field to hack browser autofill }}
         <input id="create-user-login-fake" name="login-fake" type="text" class="hidden">
         <input id="create-user-login" name="login" type="text" size="50" minlength="3" maxlength="255" required
             value="{{login}}">
-        <p class="note">Minimum 3 characters</p>
+        <p class="note">{{tp 'users.minimum_x_characters' 3}}</p>
       </div>
     {{/unless}}
     <div class="modal-field">
-      <label for="create-user-name">Name<em class="mandatory">*</em></label>
+      <label for="create-user-name">{{t 'name'}}<em class="mandatory">*</em></label>
       {{! keep this fake field to hack browser autofill }}
       <input id="create-user-name-fake" name="name-fake" type="text" class="hidden">
       <input id="create-user-name" name="name" type="text" size="50" maxlength="200" required value="{{name}}">
     </div>
     <div class="modal-field">
-      <label for="create-user-email">Email</label>
+      <label for="create-user-email">{{t 'users.email'}}</label>
       {{! keep this fake field to hack browser autofill }}
       <input id="create-user-email-fake" name="email-fake" type="email" class="hidden">
       <input id="create-user-email" name="email" type="email" size="50" maxlength="100" value="{{email}}">
     </div>
     {{#unless login}}
       <div class="modal-field">
-        <label for="create-user-password">Password<em class="mandatory">*</em></label>
+        <label for="create-user-password">{{t 'password'}}<em class="mandatory">*</em></label>
         {{! keep this fake field to hack browser autofill }}
         <input id="create-user-password-fake" name="password-fake" type="password" class="hidden">
         <input id="create-user-password" name="password" type="password" size="50" maxlength="50" required>
       </div>
     {{/unless}}
     <div class="modal-field">
-      <label>SCM Accounts</label>
+      <label>{{t 'my_profile.scm_accounts'}}</label>
       {{#each scmAccounts}}
         <input name="scmAccounts" type="text" size="50" maxlength="255" value="{{this}}">
       {{else}}
@@ -43,11 +43,11 @@
       {{/each}}
       <a id="create-user-add-scm-account" class="icon-plus" href="#" title="Add another SCM account"
          data-toggle="tooltip"></a>
-      <p class="note">Note that login and email are automatically considered as SCM accounts</p>
+      <p class="note">{{t 'user.login_or_email_used_as_scm_account'}}</p>
     </div>
   </div>
   <div class="modal-foot">
-    <button id="create-user-submit">{{#if login}}Update{{else}}Create{{/if}}</button>
-    <a href="#" class="js-modal-close" id="create-user-cancel">Cancel</a>
+    <button id="create-user-submit">{{#if login}}{{t 'update_verb'}}{{else}}{{t 'create'}}{{/if}}</button>
+    <a href="#" class="js-modal-close" id="create-user-cancel">{{t 'cancel'}}</a>
   </div>
 </form>

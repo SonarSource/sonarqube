@@ -1,13 +1,13 @@
 <form id="delete-metric-form">
   <div class="modal-head">
-    <h2>Delete Metric</h2>
+    <h2>{{t 'custom_metrics.delete_metric'}}</h2>
   </div>
   <div class="modal-body">
     <div class="js-modal-messages"></div>
-    Are you sure you want to delete metric "{{name}}"?
+    {{tp 'custom_metrics.delete_metric.confirmation' name}}
   </div>
   <div class="modal-foot">
-    <button id="delete-metric-submit" class="button-red">Delete</button>
-    <a href="#" class="js-modal-close" id="delete-metric-cancel">Cancel</a>
+    <button id="delete-metric-submit" class="button-red">{{t 'delete'}}</button>
+    <a href="#" class="js-modal-close" id="delete-metric-cancel">{{t 'cancel'}}</a>
   </div>
 </form>

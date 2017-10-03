@@ -6,31 +6,31 @@
 {{#any installing updating uninstalling}}
   <div class="js-pending panel panel-warning big-spacer-bottom">
     <div class="display-inline-block">
-      <p>SonarQube needs to be restarted in order to</p>
+      <p>{{t 'update_center.sonarqube_needs_to_be_restarted_to'}}</p>
       <ul class="list-styled spacer-top">
         {{#if installing}}
           <li>
-            install
+            {{t 'update_center._install'}}
             <strong class="big text-success little-spacer-left little-spacer-right">{{installing}}</strong> plugins
           </li>
         {{/if}}
         {{#if updating}}
           <li>
-            update
+            {{t 'update_center._update'}}
             <strong class="big text-success little-spacer-left little-spacer-right">{{updating}}</strong> plugins
           </li>
         {{/if}}
         {{#if uninstalling}}
           <li>
-            uninstall
+            {{t 'update_center._uninstall'}}
             <strong class="big text-danger little-spacer-left little-spacer-right">{{uninstalling}}</strong> plugins
           </li>
         {{/if}}
       </ul>
     </div>
     <div class="pull-right">
-      <button class="js-restart">Restart</button>
-      <button class="js-cancel-all button-red">Revert</button>
+      <button class="js-restart">{{t 'update_center.restart'}}</button>
+      <button class="js-cancel-all button-red">{{t 'update_center.revert'}}</button>
     </div>
   </div>
 {{/any}}

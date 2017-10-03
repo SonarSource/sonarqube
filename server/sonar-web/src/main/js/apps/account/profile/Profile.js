@@ -24,6 +24,7 @@ import UserExternalIdentity from './UserExternalIdentity';
 import UserGroups from './UserGroups';
 import UserScmAccounts from './UserScmAccounts';
 import { getCurrentUser, areThereCustomOrganizations } from '../../../store/rootReducer';
+import { translate } from '../../../helpers/l10n';
 
 /*::
 type Props = {
@@ -45,7 +46,7 @@ function Profile(props /*: Props */) {
   return (
     <div className="account-body account-container">
       <div className="spacer-bottom">
-        Login: <strong id="login">{user.login}</strong>
+        {translate('login')}: <strong id="login">{user.login}</strong>
       </div>
 
       {!user.local &&
@@ -57,7 +58,7 @@ function Profile(props /*: Props */) {
 
       {!!user.email && (
         <div className="spacer-bottom">
-          Email: <strong id="email">{user.email}</strong>
+          {translate('my_profile.email')}: <strong id="email">{user.email}</strong>
         </div>
       )}
 

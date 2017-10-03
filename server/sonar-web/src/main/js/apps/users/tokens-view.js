@@ -22,6 +22,7 @@ import Clipboard from 'clipboard';
 import Modal from '../../components/common/modals';
 import Template from './templates/users-tokens.hbs';
 import { getTokens, generateToken, revokeToken } from '../../api/user-tokens';
+import { translate } from '../../helpers/l10n';
 
 export default Modal.extend({
   template: Template,
@@ -84,7 +85,11 @@ export default Modal.extend({
       const clipboard = new Clipboard(copyButton.get(0));
       clipboard.on('success', () => {
         copyButton
-          .tooltip({ title: 'Copied!', placement: 'bottom', trigger: 'manual' })
+          .tooltip({
+            title: translate('users.tokens.copied'),
+            placement: 'bottom',
+            trigger: 'manual'
+          })
           .tooltip('show');
         setTimeout(() => copyButton.tooltip('hide'), 1000);
       });

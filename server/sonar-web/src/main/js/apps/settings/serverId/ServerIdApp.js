@@ -87,7 +87,7 @@ export default class ServerIdApp extends React.PureComponent {
 
         {this.state.serverId != null && (
           <div className={this.state.invalidServerId ? 'panel panel-danger' : 'panel'}>
-            Server ID:
+            {translate('property.category.server_id')}:
             <input
               id="server-id-result"
               className="spacer-left input-large input-clear input-code"

@@ -20,6 +20,7 @@
 import $ from 'jquery';
 import React, { Component } from 'react';
 import { isValidDate, parseDate, toShortNotSoISOString } from '../../../helpers/dates';
+import { translate } from '../../../helpers/l10n';
 
 export default class DateFilter extends Component {
   componentDidMount() {
@@ -70,7 +71,7 @@ export default class DateFilter extends Component {
           onChange={() => true}
           ref="minDate"
           type="text"
-          placeholder="From"
+          placeholder={translate('from')}
         />{' '}
         <input
           className="input-small"
@@ -78,7 +79,7 @@ export default class DateFilter extends Component {
           onChange={() => true}
           ref="maxDate"
           type="text"
-          placeholder="To"
+          placeholder={translate('to')}
         />
       </div>
     );

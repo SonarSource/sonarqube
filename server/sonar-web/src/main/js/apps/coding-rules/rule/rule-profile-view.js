@@ -76,6 +76,8 @@ export default Marionette.ItemView.extend({
         'coding_rules.revert_to_parent_definition.confirm',
         this.getParent().name
       ),
+      yesLabel: translate('yes'),
+      noLabel: translate('cancel'),
       yesHandler() {
         return $.ajax({
           type: 'POST',
@@ -98,6 +100,8 @@ export default Marionette.ItemView.extend({
     confirmDialog({
       title: translate('coding_rules.deactivate'),
       html: translateWithParameters('coding_rules.deactivate.confirm'),
+      yesLabel: translate('yes'),
+      noLabel: translate('cancel'),
       yesHandler() {
         return $.ajax({
           type: 'POST',

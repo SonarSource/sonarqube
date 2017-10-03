@@ -156,7 +156,7 @@ public class DefaultI18nTest {
 
   @Test
   public void format_message_with_parameters() {
-    assertThat(underTest.message(Locale.ENGLISH, "name_too_long_x", null, "10")).isEqualTo("Name is too long (maximum is 10 characters)");
+    assertThat(underTest.message(Locale.ENGLISH, "x_results", null, "10")).isEqualTo("10 results");
   }
 
   @Test

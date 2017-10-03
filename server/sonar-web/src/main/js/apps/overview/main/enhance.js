@@ -34,7 +34,7 @@ import {
   getShortType,
   getRatingTooltip
 } from '../../../helpers/measures';
-import { translateWithParameters } from '../../../helpers/l10n';
+import { translateWithParameters, getLocalizedMetricName } from '../../../helpers/l10n';
 import { getPeriodDate } from '../../../helpers/periods';
 import {
   getComponentDrilldownUrl,
@@ -93,7 +93,7 @@ export default function enhance(ComposedComponent) {
           </div>
 
           <div className="overview-domain-measure-label offset-left">
-            {measure.metric.name}
+            {getLocalizedMetricName(measure.metric)}
             {this.renderHistoryLink(measure.metric.key)}
           </div>
         </div>

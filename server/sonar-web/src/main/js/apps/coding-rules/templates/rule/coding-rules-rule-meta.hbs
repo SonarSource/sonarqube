@@ -2,8 +2,7 @@
   <div class="page-actions">
     <span class="note">{{key}}</span>
 
-    <a class="coding-rules-detail-permalink link-no-underline spacer-left" target="_blank" href="{{permalink}}"
-       data-toggle="tooltip" data-placement="left" title="Rule permalink">
+    <a class="coding-rules-detail-permalink link-no-underline spacer-left" target="_blank" href="{{permalink}}">
       <svg
         class="text-text-top"
         xmlns="http://www.w3.org/2000/svg"
@@ -33,13 +32,13 @@
   </li>
 
   <li class="coding-rules-detail-property"
-      data-toggle="tooltip" data-placement="bottom" title="Default rule severity">
+      data-toggle="tooltip" data-placement="bottom" title="{{t 'default_severity'}}">
     {{severityIcon severity}}&nbsp;{{t "severity" severity}}
   </li>
 
   {{#notEq status 'READY'}}
     <li class="coding-rules-detail-property"
-        data-toggle="tooltip" data-placement="bottom" title="Rule status">
+        data-toggle="tooltip" data-placement="bottom" title="{{t 'status'}}">
       <span class="badge badge-normal-size badge-danger-light">
         {{t 'rules.status' status}}
       </span>
@@ -47,7 +46,7 @@
   {{/notEq}}
 
   <li class="coding-rules-detail-property coding-rules-detail-tag-list {{#if canCustomizeRule}}coding-rules-detail-tags-change{{/if}}"
-      data-toggle="tooltip" data-placement="bottom" title="Rule tags">
+      data-toggle="tooltip" data-placement="bottom" title="{{t 'tags'}}">
     <i class="icon-tags"></i>
     <span>{{#if allTags}}{{join allTags ', '}}{{else}}{{t 'coding_rules.no_tags'}}{{/if}}</span>
     {{#if canCustomizeRule}}<i class="icon-dropdown"></i>{{/if}}

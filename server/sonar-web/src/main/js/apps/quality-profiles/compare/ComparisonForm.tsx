@@ -46,6 +46,7 @@ export default class ComparisonForm extends React.PureComponent<Props> {
         <Select
           value={withKey}
           options={options}
+          placeholder={translate('select_verb')}
           clearable={false}
           className="input-large"
           onChange={this.handleChange.bind(this)}

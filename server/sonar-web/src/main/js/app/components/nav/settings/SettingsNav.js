@@ -116,7 +116,7 @@ class SettingsNav extends React.PureComponent {
               </li>
               <li>
                 <IndexLink to="/admin/custom_metrics" activeClassName="active">
-                  Custom Metrics
+                  {translate('custom_metrics.page')}
                 </IndexLink>
               </li>
               {this.props.extensions.map(this.renderExtension)}
@@ -165,7 +165,7 @@ class SettingsNav extends React.PureComponent {
               {!this.props.customOrganizations && (
                 <li>
                   <IndexLink to="/admin/projects_management" activeClassName="active">
-                    Management
+                    {translate('management')}
                   </IndexLink>
                 </li>
               )}

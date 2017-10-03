@@ -75,7 +75,7 @@ export default class PageHeader extends React.PureComponent {
         {canApplyPermissionTemplate && (
           <div className="page-actions">
             <button className="js-apply-template" onClick={this.handleApplyTemplate}>
-              Apply Template
+              {translate('projects_role.apply_template')}
             </button>
           </div>
         )}

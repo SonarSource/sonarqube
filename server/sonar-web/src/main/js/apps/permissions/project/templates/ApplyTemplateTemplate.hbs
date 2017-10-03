@@ -1,6 +1,6 @@
 <form id="project-permissions-apply-template-form" autocomplete="off">
   <div class="modal-head">
-    <h2>Apply Permission Template to "{{project.name}}"</h2>
+    <h2>{{tp 'projects_role.apply_template_to_xxx' project.name}}</h2>
   </div>
 
   <div class="modal-body">
@@ -16,7 +16,7 @@
       {{#notNull permissionTemplates}}
         <div class="modal-field">
           <label for="project-permissions-template">
-            Template<em class="mandatory">*</em>
+            {{t 'template'}}<em class="mandatory">*</em>
           </label>
           <select id="project-permissions-template">
             {{#each permissionTemplates}}
@@ -33,9 +33,9 @@
   <div class="modal-foot">
     {{#unless done}}
       {{#notNull permissionTemplates}}
-        <button id="project-permissions-apply-template">Apply</button>
+        <button id="project-permissions-apply-template">{{t 'apply'}}</button>
       {{/notNull}}
     {{/unless}}
-    <a href="#" class="js-modal-close">Close</a>
+    <a href="#" class="js-modal-close">{{t 'close'}}</a>
   </div>
 </form>

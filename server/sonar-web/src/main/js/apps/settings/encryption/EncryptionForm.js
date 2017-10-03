@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
+import { translate } from '../../../helpers/l10n';
 
 export default class EncryptionForm extends React.PureComponent {
   static propTypes = {
@@ -42,9 +43,7 @@ export default class EncryptionForm extends React.PureComponent {
   render() {
     return (
       <div id="encryption-form-container">
-        <div className="spacer-bottom">
-          Secret key is registered. You can encrypt any property value with the following form:
-        </div>
+        <div className="spacer-bottom">{translate('encryption.form_intro')}</div>
 
         <form
           id="encryption-form"
@@ -59,12 +58,13 @@ export default class EncryptionForm extends React.PureComponent {
             value={this.state.value}
             onChange={e => this.setState({ value: e.target.value })}
           />
-          <button className="spacer-left">Encrypt</button>
+          <button className="spacer-left">{translate('encryption.encrypt')}</button>
         </form>
 
         {this.props.encryptedValue != null && (
           <div>
-            Encrypted Value:{' '}
+            {translate('encryption.encrypted_value')}
+            {': '}
             <input
               id="encrypted-value"
               className="input-clear input-code input-super-large"
@@ -76,16 +76,12 @@ export default class EncryptionForm extends React.PureComponent {
         )}
 
         <div className="huge-spacer-top bordered-top">
-          <div className="big-spacer-top spacer-bottom">
-            Note that the secret key can be changed, but all the encrypted properties will have to
-            be updated.{' '}
-            <a href="https://redirect.sonarsource.com/doc/settings-encryption.html">
-              More information
-            </a>
-          </div>
-
+          <div
+            className="big-spacer-top spacer-bottom"
+            dangerouslySetInnerHTML={{ __html: translate('encryption.form_note') }}
+          />
           <form id="encryption-new-key-form" onSubmit={e => this.handleGenerateNewKey(e)}>
-            <button>Generate New Secret Key</button>
+            <button>{translate('encryption.generate_new_secret_key')}</button>
           </form>
         </div>
       </div>

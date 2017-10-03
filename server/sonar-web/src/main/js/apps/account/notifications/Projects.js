@@ -123,7 +123,9 @@ class Projects extends React.PureComponent {
         {allProjects.map(project => <ProjectNotifications key={project.key} project={project} />)}
 
         <div className="spacer-top panel bg-muted">
-          <span className="text-middle spacer-right">Set notifications for:</span>
+          <span className="text-middle spacer-right">
+            {translate('my_account.set_notifications_for')}:
+          </span>
           <Select.Async
             autoload={false}
             cache={false}
@@ -133,7 +135,7 @@ class Projects extends React.PureComponent {
             minimumInput={2}
             optionRenderer={this.renderOption}
             onChange={this.handleAddProject}
-            placeholder="Search Project"
+            placeholder={translate('my_account.search_project')}
           />
         </div>
       </section>

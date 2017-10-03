@@ -13,45 +13,44 @@
     <td class="text-top width-20 big-spacer-right">
       <div>
         <strong class="js-plugin-name">SonarQube {{version}}</strong>
-        <span class="js-plugin-category badge badge-success spacer-left">System Upgrade</span>
+        <span class="js-plugin-category badge badge-success spacer-left">{{t 'update_center.system_upgrade'}}</span>
       </div>
       <div class="js-plugin-description little-spacer-top">{{{description}}}</div>
 
       <ul class="big-spacer-top">
         {{#if changeLogUrl}}
           <li class="little-spacer-bottom">
-            <a class="js-plugin-release-notes" href="{{changeLogUrl}}" target="_blank">Release Notes</a>
+            <a class="js-plugin-release-notes" href="{{changeLogUrl}}" target="_blank">{{t 'update_center.release_notes'}}</a>
           </li>
         {{/if}}
         {{#if releaseDate}}
-          <li class="little-spacer-bottom">Released: <span class="js-plugin-date">{{d releaseDate}}</span></li>
+          <li class="little-spacer-bottom">{{t 'update_center.released'}}: <span class="js-plugin-date">{{d releaseDate}}</span></li>
         {{/if}}
       </ul>
     </td>
 
     <td class="text-top width-60">
       <div class="pull-left spacer-right">
-        <strong>How to upgrade</strong>
+        <strong>{{t 'update_center.how_to_upgrade'}}</strong>
       </div>
       <ol class="js-plugin-update-steps list-styled overflow-hidden bordered-left">
         <li class="little-spacer-bottom">
-          Download the new SonarQube version and start it on an empty DB (the bundled H2 DB for instance).
+          {{t 'update_center.how_to_upgrade.1'}}
         </li>
         <li class="little-spacer-bottom">
-          Install (from the update center) the plugins you want.
+          {{t 'update_center.how_to_upgrade.2'}}
         </li>
         <li class="little-spacer-bottom">
-          Install your custom plugins (if any).
+          {{t 'update_center.how_to_upgrade.3'}}
         </li>
         <li class="little-spacer-bottom">
-          Update the <code>conf/sonar.properties</code> file to use the relevant configurations from your old instance,
-          including the connection information for your production DB.
+          {{t 'update_center.how_to_upgrade.4'}}
         </li>
         <li class="little-spacer-bottom">
-          Stop your old SonarQube server.
+          {{t 'update_center.how_to_upgrade.5'}}
         </li>
         <li>
-          Restart the new SonarQube instance: you're done!
+          {{t 'update_center.how_to_upgrade.6'}}
         </li>
       </ol>
     </td>

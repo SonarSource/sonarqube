@@ -45,14 +45,14 @@ export default class ChangelogSearch extends React.PureComponent<Props> {
         <DateInput
           name="since"
           value={this.formatDate(this.props.fromDate)}
-          placeholder="From"
+          placeholder={translate('from')}
           onChange={this.props.onFromDateChange}
         />
         {' — '}
         <DateInput
           name="to"
           value={this.formatDate(this.props.toDate)}
-          placeholder="To"
+          placeholder={translate('to')}
           onChange={this.props.onToDateChange}
         />
         <button className="spacer-left" onClick={this.handleResetClick.bind(this)}>
