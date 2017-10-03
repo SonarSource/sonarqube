@@ -23,6 +23,7 @@ import classNames from 'classnames';
 import { sortBy } from 'lodash';
 import { Link } from 'react-router';
 import Avatar from '../../../../components/ui/Avatar';
+import OrganizationIcon from '../../../../components/icons-components/OrganizationIcon';
 import OrganizationLink from '../../../../components/ui/OrganizationLink';
 import { translate } from '../../../../helpers/l10n';
 
@@ -146,12 +147,17 @@ export default class GlobalNavUser extends React.PureComponent {
             </li>
             {hasOrganizations && <li role="separator" className="divider" />}
             {hasOrganizations && (
-              <li className="dropdown-header spacer-left">{translate('my_organizations')}</li>
+              <li>
+                <Link to="/account/organizations" onClick={this.closeDropdown}>
+                  {translate('my_organizations')}
+                </Link>
+              </li>
             )}
             {hasOrganizations &&
               sortBy(organizations, org => org.name.toLowerCase()).map(organization => (
                 <li key={organization.key}>
                   <OrganizationLink organization={organization} onClick={this.closeDropdown}>
+                    <OrganizationIcon />
                     <span className="spacer-left">{organization.name}</span>
                   </OrganizationLink>
                 </li>

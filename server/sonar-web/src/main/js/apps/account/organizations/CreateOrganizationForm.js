@@ -226,8 +226,8 @@ class CreateOrganizationForm extends React.PureComponent {
 
           <footer className="modal-foot">
             <div>
+              {this.state.loading && <i className="spinner spacer-right" />}
               <button disabled={this.state.loading} type="submit">
-                {this.state.loading && <i className="spinner little-spacer-right" />}
                 {translate('create')}
               </button>
               <button type="reset" className="button-link" onClick={this.closeForm}>
