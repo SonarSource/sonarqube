@@ -151,7 +151,8 @@ public class SearchProjectsActionTest {
       tuple("6.4", "The 'visibility' field is added"),
       tuple("6.5", "The 'filter' parameter now allows 'NO_DATA' as value for numeric metrics"),
       tuple("6.5", "Added the option 'analysisDate' for the 'sort' parameter"),
-      tuple("6.5", "Value 'leakPeriodDate' is added to parameter 'f'"));
+      tuple("6.5", "Value 'leakPeriodDate' is added to parameter 'f'"),
+      tuple("6.6", "The 'id' field is removed from the response"));
 
     Param organization = def.param("organization");
     assertThat(organization.isRequired()).isFalse();
@@ -198,22 +199,29 @@ public class SearchProjectsActionTest {
     userSession.logIn();
     OrganizationDto organization1Dto = db.organizations().insertForKey("my-org-key-1");
     OrganizationDto organization2Dto = db.organizations().insertForKey("my-org-key-2");
+    MetricDto coverage = db.measures().insertMetric(c -> c.setKey(COVERAGE).setValueType(PERCENT.name()));
     ComponentDto project1 = insertProject(organization1Dto, c -> c
       .setDbKey(KeyExamples.KEY_PROJECT_EXAMPLE_001)
       .setName("My Project 1")
-      .setTagsString("finance, java"));
+      .setTagsString("finance, java"),
+      new Measure(coverage, c -> c.setValue(80d)));
     insertProject(organization1Dto, c -> c
       .setDbKey(KeyExamples.KEY_PROJECT_EXAMPLE_002)
-      .setName("My Project 2"));
+      .setName("My Project 2"),
+      new Measure(coverage, c -> c.setValue(90d)));
     insertProject(organization2Dto, c -> c
       .setDbKey(KeyExamples.KEY_PROJECT_EXAMPLE_003)
       .setName("My Project 3")
-      .setTagsString("sales, offshore, java"));
+      .setTagsString("sales, offshore, java"),
+      new Measure(coverage, c -> c.setValue(20d)));
     addFavourite(project1);
 
-    String result = ws.newRequest().execute().getInput();
+    String result = ws.newRequest()
+      .setParam(Param.FACETS, COVERAGE)
+      .execute().getInput();
 
-    assertJson(result).withStrictArrayOrder().ignoreFields("id").isSimilarTo(ws.getDef().responseExampleAsString());
+    assertJson(result).withStrictArrayOrder().isSimilarTo(ws.getDef().responseExampleAsString());
+    assertJson(ws.getDef().responseExampleAsString()).withStrictArrayOrder().isSimilarTo(result);
   }
 
   @Test
