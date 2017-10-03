@@ -26,9 +26,10 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
@@ -51,10 +52,12 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.AnalysisPropertyDto;
 import org.sonar.db.component.BranchDao;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDao;
@@ -82,6 +85,7 @@ import org.sonar.server.webhook.ProjectAnalysis;
 import org.sonar.server.webhook.QualityGate;
 import org.sonar.server.webhook.QualityGate.EvaluationStatus;
 import org.sonar.server.webhook.WebHooks;
+import org.sonar.server.webhook.WebhookPayload;
 import org.sonar.server.webhook.WebhookPayloadFactory;
 
 import static java.lang.String.valueOf;
@@ -93,9 +97,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -103,6 +109,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
+import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 import static org.sonar.server.webhook.QualityGate.Operator.GREATER_THAN;
 
 @RunWith(DataProviderRunner.class)
@@ -279,10 +286,16 @@ public class IssueChangeWebhookImplTest {
       .setBranchType(BranchType.SHORT)
       .setKey("foo"));
     SnapshotDto analysis = insertAnalysisTask(branch);
+    mockPayloadSupplierConsumedByWebhooks();
+
+    Map<String, String> properties = new HashMap<>();
+    properties.put("sonar.analysis.test1", randomAlphanumeric(50));
+    properties.put("sonar.analysis.test2", randomAlphanumeric(5000));
+    insertPropertiesFor(analysis.getUuid(), properties);
 
     underTest.onChange(issueChangeData(newIssueDto(branch)), issueChange, userChangeContext);
 
-    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFromSupplier(branch, analysis);
+    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, analysis);
     assertThat(projectAnalysis).isEqualTo(
       new ProjectAnalysis(
         new Project(project.uuid(), project.getKey(), project.name()),
@@ -298,7 +311,7 @@ public class IssueChangeWebhookImplTest {
             new QualityGate.Condition(EvaluationStatus.OK, CoreMetrics.VULNERABILITIES_KEY, GREATER_THAN, "0", null, false, "0"),
             new QualityGate.Condition(EvaluationStatus.OK, CODE_SMELLS_KEY, GREATER_THAN, "0", null, false, "0"))),
         null,
-        Collections.emptyMap()));
+        properties));
   }
 
   @Test
@@ -306,10 +319,11 @@ public class IssueChangeWebhookImplTest {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto branch = insertPrivateBranch(organization, BranchType.SHORT);
     SnapshotDto analysis = insertAnalysisTask(branch);
+    mockPayloadSupplierConsumedByWebhooks();
 
     underTest.onChange(issueChangeData(newIssueDto(branch)), new IssueChange(randomRuleType), userChangeContext);
 
-    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFromSupplier(branch, analysis);
+    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, analysis);
     QualityGate qualityGate = projectAnalysis.getQualityGate().get();
     assertThat(qualityGate.getStatus()).isEqualTo(QualityGate.Status.OK);
     assertThat(qualityGate.getConditions())
@@ -361,10 +375,11 @@ public class IssueChangeWebhookImplTest {
     IntStream.range(0, unresolvedIssues).forEach(i -> insertIssue(branch, ruleType, randomOpenStatus, null));
     IntStream.range(0, random.nextInt(10)).forEach(i -> insertIssue(branch, ruleType, randomNonOpenStatus, randomResolution));
     indexIssues(branch);
+    mockPayloadSupplierConsumedByWebhooks();
 
     underTest.onChange(issueChangeData(newIssueDto(branch)), new IssueChange(randomRuleType), userChangeContext);
 
-    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFromSupplier(branch, analysis);
+    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, analysis);
     QualityGate qualityGate = projectAnalysis.getQualityGate().get();
     assertThat(qualityGate.getStatus()).isEqualTo(QualityGate.Status.ERROR);
     assertThat(qualityGate.getConditions())
@@ -384,10 +399,11 @@ public class IssueChangeWebhookImplTest {
     IntStream.range(0, unresolvedVulnerabilities).forEach(i -> insertIssue(branch, RuleType.VULNERABILITY, randomOpenStatus, null));
     IntStream.range(0, unresolvedCodeSmells).forEach(i -> insertIssue(branch, RuleType.CODE_SMELL, randomOpenStatus, null));
     indexIssues(branch);
+    mockPayloadSupplierConsumedByWebhooks();
 
     underTest.onChange(issueChangeData(newIssueDto(branch)), new IssueChange(randomRuleType), userChangeContext);
 
-    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFromSupplier(branch, analysis);
+    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, analysis);
     QualityGate qualityGate = projectAnalysis.getQualityGate().get();
     assertThat(qualityGate.getStatus()).isEqualTo(QualityGate.Status.ERROR);
     assertThat(qualityGate.getConditions())
@@ -416,6 +432,7 @@ public class IssueChangeWebhookImplTest {
       IntStream.range(0, issuesBranch3).mapToObj(i -> newIssueDto(branch3)))
       .flatMap(s -> s)
       .collect(MoreCollectors.toList());
+    mockPayloadSupplierConsumedByWebhooks();
 
     ComponentDao componentDaoSpy = spy(dbClient.componentDao());
     BranchDao branchDaoSpy = spy(dbClient.branchDao());
@@ -425,9 +442,10 @@ public class IssueChangeWebhookImplTest {
     when(spiedOnDbClient.snapshotDao()).thenReturn(snapshotDaoSpy);
     underTest.onChange(issueChangeData(issueDtos), new IssueChange(randomRuleType), userChangeContext);
 
-    verifyWebhookCalledAndExtractPayloadFromSupplier(branch1, analysis1);
-    verifyWebhookCalledAndExtractPayloadFromSupplier(branch2, analysis2);
-    verifyWebhookCalledAndExtractPayloadFromSupplier(branch3, analysis3);
+    verifyWebhookCalled(branch1, analysis1);
+    verifyWebhookCalled(branch2, analysis2);
+    verifyWebhookCalled(branch3, analysis3);
+    extractPayloadFactoryArguments(3);
 
     Set<String> uuids = ImmutableSet.of(branch1.uuid(), branch2.uuid(), branch3.uuid());
     verify(componentDaoSpy).selectByUuids(any(DbSession.class), eq(uuids));
@@ -443,6 +461,7 @@ public class IssueChangeWebhookImplTest {
     ComponentDto longBranch = insertPrivateBranch(organization, BranchType.LONG);
     SnapshotDto analysis1 = insertAnalysisTask(shortBranch);
     SnapshotDto analysis2 = insertAnalysisTask(longBranch);
+    mockPayloadSupplierConsumedByWebhooks();
 
     ComponentDao componentDaoSpy = spy(dbClient.componentDao());
     BranchDao branchDaoSpy = spy(dbClient.branchDao());
@@ -455,7 +474,7 @@ public class IssueChangeWebhookImplTest {
       new IssueChange(randomRuleType),
       userChangeContext);
 
-    verifyWebhookCalledAndExtractPayloadFromSupplier(shortBranch, analysis1);
+    verifyWebhookCalledAndExtractPayloadFactoryArgument(shortBranch, analysis1);
 
     Set<String> uuids = ImmutableSet.of(shortBranch.uuid(), longBranch.uuid());
     verify(componentDaoSpy).selectByUuids(any(DbSession.class), eq(uuids));
@@ -474,6 +493,7 @@ public class IssueChangeWebhookImplTest {
     SnapshotDto analysis2 = insertAnalysisTask(branch2);
     SnapshotDto analysis3 = insertAnalysisTask(branch3);
     List<IssueDto> issueDtos = asList(newIssueDto(branch1), newIssueDto(branch2), newIssueDto(branch3));
+    mockPayloadSupplierConsumedByWebhooks();
 
     ComponentDao componentDaoSpy = spy(dbClient.componentDao());
     BranchDao branchDaoSpy = spy(dbClient.branchDao());
@@ -486,9 +506,10 @@ public class IssueChangeWebhookImplTest {
       new IssueChange(randomRuleType),
       userChangeContext);
 
-    verifyWebhookCalledAndExtractPayloadFromSupplier(branch1, analysis1);
-    verifyWebhookCalledAndExtractPayloadFromSupplier(branch2, analysis2);
-    verifyWebhookCalledAndExtractPayloadFromSupplier(branch3, analysis3);
+    verifyWebhookCalled(branch1, analysis1);
+    verifyWebhookCalled(branch2, analysis2);
+    verifyWebhookCalled(branch3, analysis3);
+    extractPayloadFactoryArguments(3);
 
     Set<String> uuids = ImmutableSet.of(branch1.uuid(), branch2.uuid(), branch3.uuid());
     verify(componentDaoSpy).selectByUuids(any(DbSession.class), eq(ImmutableSet.of(branch2.uuid())));
@@ -517,6 +538,7 @@ public class IssueChangeWebhookImplTest {
       newIssueDto(projectFile, project),
       newIssueDto(shortBranchFile, shortBranch),
       newIssueDto(longBranchFile, longBranch));
+    mockPayloadSupplierConsumedByWebhooks();
 
     ComponentDao componentDaoSpy = spy(dbClient.componentDao());
     BranchDao branchDaoSpy = spy(dbClient.branchDao());
@@ -526,13 +548,21 @@ public class IssueChangeWebhookImplTest {
     when(spiedOnDbClient.snapshotDao()).thenReturn(snapshotDaoSpy);
     underTest.onChange(issueChangeData(issueDtos), new IssueChange(randomRuleType), userChangeContext);
 
-    verifyWebhookCalledAndExtractPayloadFromSupplier(shortBranch, analysis2);
+    verifyWebhookCalledAndExtractPayloadFactoryArgument(shortBranch, analysis2);
 
     Set<String> uuids = ImmutableSet.of(project.uuid(), shortBranch.uuid(), longBranch.uuid());
     verify(componentDaoSpy).selectByUuids(any(DbSession.class), eq(uuids));
     verify(branchDaoSpy).selectByUuids(any(DbSession.class), eq(ImmutableSet.of(shortBranch.uuid(), longBranch.uuid())));
     verify(snapshotDaoSpy).selectLastAnalysesByRootComponentUuids(any(DbSession.class), eq(ImmutableSet.of(shortBranch.uuid())));
     verifyNoMoreInteractions(componentDaoSpy, branchDaoSpy, snapshotDaoSpy);
+  }
+
+  private void mockPayloadSupplierConsumedByWebhooks() {
+    doAnswer(invocationOnMock -> {
+      Supplier<WebhookPayload> supplier = (Supplier<WebhookPayload>) invocationOnMock.getArguments()[2];
+      supplier.get();
+      return null;
+    }).when(webHooks).sendProjectAnalysisUpdate(same(mockedConfiguration), any(), any());
   }
 
   private void insertIssue(ComponentDto branch, RuleType ruleType, String status, @Nullable String resolution) {
@@ -550,23 +580,41 @@ public class IssueChangeWebhookImplTest {
       .setKey("foo"));
   }
 
+  private void insertPropertiesFor(String snapshotUuid, Map<String, String> properties) {
+    List<AnalysisPropertyDto> analysisProperties = properties.entrySet().stream()
+      .map(entry -> new AnalysisPropertyDto()
+        .setUuid(UuidFactoryFast.getInstance().create())
+        .setSnapshotUuid(snapshotUuid)
+        .setKey(entry.getKey())
+        .setValue(entry.getValue()))
+      .collect(toArrayList(properties.size()));
+    dbTester.getDbClient().analysisPropertiesDao().insert(dbTester.getSession(), analysisProperties);
+    dbTester.getSession().commit();
+  }
+
   private SnapshotDto insertAnalysisTask(ComponentDto branch) {
     return dbTester.components().insertSnapshot(branch);
   }
 
-  private ProjectAnalysis verifyWebhookCalledAndExtractPayloadFromSupplier(ComponentDto branch, SnapshotDto analysis) {
+  private ProjectAnalysis verifyWebhookCalledAndExtractPayloadFactoryArgument(ComponentDto branch, SnapshotDto analysis) {
+    verifyWebhookCalled(branch, analysis);
+
+    return extractPayloadFactoryArguments(1).iterator().next();
+  }
+
+  private void verifyWebhookCalled(ComponentDto branch, SnapshotDto analysis) {
     verify(webHooks).isEnabled(mockedConfiguration);
     ArgumentCaptor<Supplier> supplierCaptor = ArgumentCaptor.forClass(Supplier.class);
     verify(webHooks).sendProjectAnalysisUpdate(
       same(mockedConfiguration),
       eq(new WebHooks.Analysis(branch.uuid(), analysis.getUuid(), null)),
       supplierCaptor.capture());
+  }
 
-    reset(webhookPayloadFactory);
-    supplierCaptor.getValue().get();
+  private List<ProjectAnalysis> extractPayloadFactoryArguments(int time) {
     ArgumentCaptor<ProjectAnalysis> projectAnalysisCaptor = ArgumentCaptor.forClass(ProjectAnalysis.class);
-    verify(webhookPayloadFactory).create(projectAnalysisCaptor.capture());
-    return projectAnalysisCaptor.getValue();
+    verify(webhookPayloadFactory, times(time)).create(projectAnalysisCaptor.capture());
+    return projectAnalysisCaptor.getAllValues();
   }
 
   private void indexIssues(ComponentDto branch) {
