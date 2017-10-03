@@ -673,18 +673,16 @@ public final class CoreMetrics {
   /**
    * Use {@link CoverageMeasuresBuilder} to build measure for this metric.
    */
-  public static final Metric<Integer> CONDITIONS_TO_COVER = new Metric.Builder(CONDITIONS_TO_COVER_KEY, "Branches to Cover", Metric.ValueType.INT)
-    .setDescription("Branches to cover")
+  public static final Metric<Integer> CONDITIONS_TO_COVER = new Metric.Builder(CONDITIONS_TO_COVER_KEY, "Conditions to Cover", Metric.ValueType.INT)
+    .setDescription("Conditions to cover")
     .setDomain(DOMAIN_COVERAGE)
-    .setHidden(true)
     .create();
 
   public static final String NEW_CONDITIONS_TO_COVER_KEY = "new_conditions_to_cover";
-  public static final Metric<Integer> NEW_CONDITIONS_TO_COVER = new Metric.Builder(NEW_CONDITIONS_TO_COVER_KEY, "Branches to Cover on New Code", Metric.ValueType.INT)
-    .setDescription("Branches to cover on New Code")
+  public static final Metric<Integer> NEW_CONDITIONS_TO_COVER = new Metric.Builder(NEW_CONDITIONS_TO_COVER_KEY, "Conditions to Cover on New Code", Metric.ValueType.INT)
+    .setDescription("Conditions to cover on new code")
     .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
-    .setHidden(true)
     .create();
 
   public static final String UNCOVERED_CONDITIONS_KEY = "uncovered_conditions";
