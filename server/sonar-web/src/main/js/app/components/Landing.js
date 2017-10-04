@@ -22,7 +22,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router';
 import { connect } from 'react-redux';
-import { getCurrentUser } from '../../store/rootReducer';
+import { getCurrentUser, getGlobalSettingValue } from '../../store/rootReducer';
 
 class Landing extends React.PureComponent {
   static propTypes = {
@@ -30,9 +30,11 @@ class Landing extends React.PureComponent {
   };
 
   componentDidMount() {
-    const { currentUser, router } = this.props;
+    const { currentUser, router, onSonarCloud } = this.props;
     if (currentUser.isLoggedIn) {
       router.replace('/projects');
+    } else if (onSonarCloud && onSonarCloud.value === 'true') {
+      window.location = 'https://about.sonarcloud.io';
     } else {
       router.replace('/about');
     }
@@ -44,7 +46,8 @@ class Landing extends React.PureComponent {
 }
 
 const mapStateToProps = state => ({
-  currentUser: getCurrentUser(state)
+  currentUser: getCurrentUser(state),
+  onSonarCloud: getGlobalSettingValue(state, 'sonar.sonarcloud.enabled')
 });
 
 export default connect(mapStateToProps)(withRouter(Landing));

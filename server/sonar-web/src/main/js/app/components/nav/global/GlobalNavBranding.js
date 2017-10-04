@@ -21,7 +21,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
-import { getGlobalSettingValue, getCurrentUser } from '../../../../store/rootReducer';
+import { getGlobalSettingValue } from '../../../../store/rootReducer';
 import { translate } from '../../../../helpers/l10n';
 
 class GlobalNavBranding extends React.PureComponent {
@@ -39,10 +39,9 @@ class GlobalNavBranding extends React.PureComponent {
   }
 
   render() {
-    const homeController = this.props.currentUser.isLoggedIn ? '/projects' : '/about';
     return (
       <div className="pull-left">
-        <Link to={homeController} className="navbar-brand">
+        <Link to="/" className="navbar-brand">
           {this.renderLogo()}
         </Link>
       </div>
@@ -51,7 +50,6 @@ class GlobalNavBranding extends React.PureComponent {
 }
 
 const mapStateToProps = state => ({
-  currentUser: getCurrentUser(state),
   customLogoUrl: (getGlobalSettingValue(state, 'sonar.lf.logoUrl') || {}).value,
   customLogoWidth: (getGlobalSettingValue(state, 'sonar.lf.logoWidthPx') || {}).value
 });

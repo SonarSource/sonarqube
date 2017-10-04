@@ -36,7 +36,6 @@ import { getFacet } from '../../../api/issues';
 import { getAppState, getCurrentUser, getGlobalSettingValue } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import { fetchAboutPageSettings } from '../actions';
-import AboutAppSonarCloudLazyLoader from './AboutAppSonarCloudLazyLoader';
 import '../styles.css';
 
 /*::
@@ -73,7 +72,11 @@ class AboutApp extends React.PureComponent {
 
   componentDidMount() {
     this.mounted = true;
-    this.loadData();
+    if (this.props.onSonarCloud && this.props.onSonarCloud.value === 'true') {
+      window.location = 'https://about.sonarcloud.io';
+    } else {
+      this.loadData();
+    }
   }
 
   componentWillUnmount() {
@@ -110,6 +113,10 @@ class AboutApp extends React.PureComponent {
     const { customText, onSonarCloud } = this.props;
     const { loading, issueTypes, projectsCount } = this.state;
 
+    if (onSonarCloud && onSonarCloud.value === 'true') {
+      return null;
+    }
+
     let bugs;
     let vulnerabilities;
     let codeSmells;
@@ -117,21 +124,6 @@ class AboutApp extends React.PureComponent {
       bugs = issueTypes['BUG'] && issueTypes['BUG'].count;
       vulnerabilities = issueTypes['VULNERABILITY'] && issueTypes['VULNERABILITY'].count;
       codeSmells = issueTypes['CODE_SMELL'] && issueTypes['CODE_SMELL'].count;
-    }
-
-    if (onSonarCloud && onSonarCloud.value === 'true') {
-      return (
-        <AboutAppSonarCloudLazyLoader
-          appState={this.props.appState}
-          bugs={bugs}
-          codeSmells={codeSmells}
-          currentUser={this.props.currentUser}
-          customText={customText}
-          loading={loading}
-          projectsCount={projectsCount}
-          vulnerabilities={vulnerabilities}
-        />
-      );
     }
 
     return (
