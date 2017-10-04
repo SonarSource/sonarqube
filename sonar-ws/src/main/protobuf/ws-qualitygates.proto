@@ -32,6 +32,7 @@ message ProjectStatusWsResponse {
     optional Status status = 1;
     repeated Condition conditions = 2;
     repeated Period periods = 3;
+    optional bool ignoredConditions = 4;
   }
 
   message Condition {

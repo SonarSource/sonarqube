@@ -21,17 +21,29 @@ package org.sonarqube.tests.qualityGate;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Properties;
+import org.apache.commons.io.FileUtils;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.tests.Tester;
+import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Organizations;
+import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
 import org.sonarqube.ws.WsQualityGates;
 import org.sonarqube.ws.WsQualityGates.CreateWsResponse;
 import org.sonarqube.ws.WsUsers;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.qualitygate.CreateConditionRequest;
+import org.sonarqube.ws.client.qualitygate.ProjectStatusWsRequest;
+import org.sonarqube.ws.client.qualitygate.UpdateConditionRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.getMeasure;
@@ -64,6 +76,7 @@ public class QualityGateForSmallChangesetsTest {
     String password = "password1";
     WsUsers.CreateWsResponse.User user = tester.users().generateAdministrator(organization, u -> u.setPassword(password));
 
+    // no leak => use usual behaviour
     SonarScanner analysis = SonarScanner
       .create(projectDir("qualitygate/small-changesets/v1-1000-lines"))
       .setProperty("sonar.projectKey", project.getKey())
@@ -76,7 +89,9 @@ public class QualityGateForSmallChangesetsTest {
       .setDebugLogs(true);
     orchestrator.executeBuild(analysis);
     assertThat(getMeasure(orchestrator, project.getKey(), "alert_status").getValue()).isEqualTo("OK");
+    assertIgnoredConditions(project, "qualitygate/small-changesets/v1-1000-lines", false);
 
+    // small leak => ignore coverage warning or error
     SonarScanner analysis2 = SonarScanner
       .create(projectDir("qualitygate/small-changesets/v2-1019-lines"))
       .setProperty("sonar.projectKey", project.getKey())
@@ -89,9 +104,19 @@ public class QualityGateForSmallChangesetsTest {
       .setDebugLogs(true);
     orchestrator.executeBuild(analysis2);
     assertThat(getMeasure(orchestrator, project.getKey(), "alert_status").getValue()).isEqualTo("OK");
+    assertIgnoredConditions(project, "qualitygate/small-changesets/v2-1019-lines", true);
 
-    SonarScanner analysis4 = SonarScanner
-      .create(projectDir("qualitygate/small-changesets/v2-1020-lines"))
+    // small leak => if coverage is OK anyways, we do not have to ignore anything
+    tester.wsClient().qualityGates().updateCondition(UpdateConditionRequest.builder()
+      .setConditionId(condition.getId())
+      .setMetricKey("new_coverage")
+      .setOperator("LT")
+      .setWarning("10")
+      .setError("20")
+      .setPeriod(1)
+      .build());
+    SonarScanner analysis3 = SonarScanner
+      .create(projectDir("qualitygate/small-changesets/v2-1019-lines"))
       .setProperty("sonar.projectKey", project.getKey())
       .setProperty("sonar.organization", organization.getKey())
       .setProperty("sonar.login", user.getLogin())
@@ -100,7 +125,61 @@ public class QualityGateForSmallChangesetsTest {
       .setProperty("sonar.scm.disabled", "false")
       .setProperty("sonar.projectDate", "2014-04-02")
       .setDebugLogs(true);
+    orchestrator.executeBuild(analysis3);
+    assertThat(getMeasure(orchestrator, project.getKey(), "alert_status").getValue()).isEqualTo("OK");
+    assertIgnoredConditions(project, "qualitygate/small-changesets/v2-1019-lines", false);
+
+    // big leak => use usual behaviour
+    tester.wsClient().qualityGates().updateCondition(UpdateConditionRequest.builder()
+      .setConditionId(condition.getId())
+      .setMetricKey("new_coverage")
+      .setOperator("LT")
+      .setWarning(null)
+      .setError("70")
+      .setPeriod(1)
+      .build());
+    SonarScanner analysis4 = SonarScanner
+      .create(projectDir("qualitygate/small-changesets/v2-1020-lines"))
+      .setProperty("sonar.projectKey", project.getKey())
+      .setProperty("sonar.organization", organization.getKey())
+      .setProperty("sonar.login", user.getLogin())
+      .setProperty("sonar.password", password)
+      .setProperty("sonar.scm.provider", "xoo")
+      .setProperty("sonar.scm.disabled", "false")
+      .setProperty("sonar.projectDate", "2014-04-03")
+      .setDebugLogs(true);
     orchestrator.executeBuild(analysis4);
     assertThat(getMeasure(orchestrator, project.getKey(), "alert_status").getValue()).isEqualTo("ERROR");
+    assertIgnoredConditions(project, "qualitygate/small-changesets/v2-1020-lines", false);
+  }
+
+  private void assertIgnoredConditions(Project project, String projectDir, boolean expected) throws IOException {
+    String analysisId = getAnalysisId(getTaskIdInLocalReport(projectDir(projectDir)));
+    boolean ignoredConditions = tester.wsClient().qualityGates()
+      .projectStatus(new ProjectStatusWsRequest().setAnalysisId(analysisId))
+      .getProjectStatus()
+      .getIgnoredConditions();
+    assertThat(ignoredConditions).isEqualTo(expected);
+  }
+
+  private String getAnalysisId(String taskId) throws IOException {
+    WsResponse activity = tester.wsClient()
+      .wsConnector()
+      .call(new GetRequest("api/ce/task")
+        .setParam("id", taskId)
+        .setMediaType(MediaTypes.PROTOBUF));
+    WsCe.TaskResponse activityWsResponse = WsCe.TaskResponse.parseFrom(activity.contentStream());
+    return activityWsResponse.getTask().getAnalysisId();
+  }
+
+  private String getTaskIdInLocalReport(File projectDirectory) throws IOException {
+    File metadata = new File(projectDirectory, ".sonar/report-task.txt");
+    assertThat(metadata).exists().isFile();
+    // verify properties
+    Properties props = new Properties();
+    props.load(new StringReader(FileUtils.readFileToString(metadata, StandardCharsets.UTF_8)));
+    assertThat(props.getProperty("ceTaskId")).isNotEmpty();
+
+    return props.getProperty("ceTaskId");
   }
 }

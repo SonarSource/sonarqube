@@ -27,15 +27,16 @@ import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.EvaluationResult;
+import org.sonar.server.computation.task.projectanalysis.step.QualityGateMeasuresStep.MetricEvaluationResult;
 
 import static java.util.Arrays.asList;
 
 public class SmallChangesetQualityGateSpecialCase {
 
   /**
-   * Some metrics will only produce warnings (never errors) on very small change sets.
+   * Some metrics will be ignored on very small change sets.
    */
-  private static final Collection<String> METRICS_THAT_CAN_ONLY_PRODUCE_WARNINGS_ON_SMALL_CHANGESETS = asList(
+  private static final Collection<String> METRICS_TO_IGNORE_ON_SMALL_CHANGESETS = asList(
     CoreMetrics.NEW_COVERAGE_KEY,
     CoreMetrics.NEW_LINE_COVERAGE_KEY,
     CoreMetrics.NEW_BRANCH_COVERAGE_KEY,
@@ -53,24 +54,15 @@ public class SmallChangesetQualityGateSpecialCase {
     this.metricRepository = metricRepository;
   }
 
-  QualityGateMeasuresStep.MetricEvaluationResult applyIfNeeded(Component project, @Nullable QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult) {
-    if (metricEvaluationResult == null) {
-      return metricEvaluationResult;
-    }
-    if (metricEvaluationResult.evaluationResult.getLevel() == Measure.Level.OK) {
-      return metricEvaluationResult;
-    }
-    if (!METRICS_THAT_CAN_ONLY_PRODUCE_WARNINGS_ON_SMALL_CHANGESETS.contains(metricEvaluationResult.condition.getMetric().getKey())) {
-      return metricEvaluationResult;
-    }
-    if (!isSmallChangeset(project)) {
-      return metricEvaluationResult;
-    }
-    return calculateModifiedResult(metricEvaluationResult);
+  public boolean appliesTo(Component project, @Nullable MetricEvaluationResult metricEvaluationResult) {
+    return metricEvaluationResult != null
+      && metricEvaluationResult.evaluationResult.getLevel() != Measure.Level.OK
+      && METRICS_TO_IGNORE_ON_SMALL_CHANGESETS.contains(metricEvaluationResult.condition.getMetric().getKey())
+      && isSmallChangeset(project);
   }
 
-  private QualityGateMeasuresStep.MetricEvaluationResult calculateModifiedResult(@Nullable QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult) {
-    return new QualityGateMeasuresStep.MetricEvaluationResult(
+  MetricEvaluationResult apply(MetricEvaluationResult metricEvaluationResult) {
+    return new MetricEvaluationResult(
       new EvaluationResult(Measure.Level.OK, metricEvaluationResult.evaluationResult.getValue()), metricEvaluationResult.condition);
   }
 

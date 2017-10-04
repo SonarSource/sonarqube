@@ -31,17 +31,17 @@ import org.sonar.test.JsonAssert;
 public class QualityGateDetailsDataTest {
   @Test(expected = NullPointerException.class)
   public void constructor_throws_NPE_if_Level_arg_is_null() {
-    new QualityGateDetailsData(null, Collections.<EvaluatedCondition>emptyList());
+    new QualityGateDetailsData(null, Collections.<EvaluatedCondition>emptyList(), false);
   }
 
   @Test(expected = NullPointerException.class)
   public void constructor_throws_NPE_if_Iterable_arg_is_null() {
-    new QualityGateDetailsData(Measure.Level.OK, null);
+    new QualityGateDetailsData(Measure.Level.OK, null, false);
   }
 
   @Test
   public void verify_json_when_there_is_no_condition() {
-    String actualJson = new QualityGateDetailsData(Measure.Level.OK, Collections.<EvaluatedCondition>emptyList()).toJson();
+    String actualJson = new QualityGateDetailsData(Measure.Level.OK, Collections.<EvaluatedCondition>emptyList(), false).toJson();
 
     JsonAssert.assertJson(actualJson).isSimilarTo("{" +
       "\"level\":\"OK\"," +
@@ -57,7 +57,7 @@ public class QualityGateDetailsDataTest {
       new EvaluatedCondition(condition, Measure.Level.OK, value),
       new EvaluatedCondition(condition, Measure.Level.WARN, value),
       new EvaluatedCondition(condition, Measure.Level.ERROR, value));
-    String actualJson = new QualityGateDetailsData(Measure.Level.OK, evaluatedConditions).toJson();
+    String actualJson = new QualityGateDetailsData(Measure.Level.OK, evaluatedConditions, false).toJson();
 
     JsonAssert.assertJson(actualJson).isSimilarTo("{" +
       "\"level\":\"OK\"," +
@@ -92,4 +92,14 @@ public class QualityGateDetailsDataTest {
       "]" +
       "}");
   }
+
+  @Test
+  public void verify_json_for_small_leak() {
+    String actualJson = new QualityGateDetailsData(Measure.Level.OK, Collections.<EvaluatedCondition>emptyList(), false).toJson();
+    JsonAssert.assertJson(actualJson).isSimilarTo("{\"ignoredConditions\": false}");
+
+    String actualJson2 = new QualityGateDetailsData(Measure.Level.OK, Collections.<EvaluatedCondition>emptyList(), true).toJson();
+    JsonAssert.assertJson(actualJson2).isSimilarTo("{\"ignoredConditions\": true}");
+  }
+
 }

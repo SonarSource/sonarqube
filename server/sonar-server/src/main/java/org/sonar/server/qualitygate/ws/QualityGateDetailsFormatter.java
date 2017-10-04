@@ -55,10 +55,20 @@ public class QualityGateDetailsFormatter {
     ProjectStatusWsResponse.Status qualityGateStatus = measureLevelToQualityGateStatus(json.get("level").getAsString());
     projectStatusBuilder.setStatus(qualityGateStatus);
 
+    formatIgnoredConditions(json);
     formatConditions(json.getAsJsonArray("conditions"));
     formatPeriods();
 
     return projectStatusBuilder.build();
+  }
+
+  private void formatIgnoredConditions(JsonObject json) {
+    JsonElement ignoredConditions = json.get("ignoredConditions");
+    if (ignoredConditions != null) {
+      projectStatusBuilder.setIgnoredConditions(ignoredConditions.getAsBoolean());
+    } else {
+      projectStatusBuilder.setIgnoredConditions(false);
+    }
   }
 
   private void formatPeriods() {

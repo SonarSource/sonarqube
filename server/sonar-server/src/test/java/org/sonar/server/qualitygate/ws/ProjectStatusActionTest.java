@@ -26,6 +26,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.server.ws.Change;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
@@ -47,6 +49,7 @@ import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse.Status;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
@@ -75,6 +78,15 @@ public class ProjectStatusActionTest {
     dbSession = db.getSession();
 
     ws = new WsActionTester(new ProjectStatusAction(dbClient, TestComponentFinder.from(db), userSession));
+  }
+
+  @Test
+  public void definition() throws Exception {
+    WebService.Action def = ws.getDef();
+    assertThat(def.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("analysisId", "projectKey", "projectId");
+    assertThat(def.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactly(
+      tuple("6.4", "The field 'ignoredConditions' is added to the response")
+    );
   }
 
   @Test
