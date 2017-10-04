@@ -28,7 +28,7 @@ jest.mock('../nav/component/ComponentNav', () => ({
 
 import * as React from 'react';
 import { shallow, mount } from 'enzyme';
-import ComponentContainer from '../ComponentContainer';
+import { ComponentContainer } from '../ComponentContainer';
 import { getBranches } from '../../../api/branches';
 import { getComponentData } from '../../../api/components';
 import { getComponentNavigation } from '../../../api/nav';
@@ -44,7 +44,7 @@ beforeEach(() => {
 
 it('changes component', () => {
   const wrapper = shallow(
-    <ComponentContainer location={{ query: { id: 'foo' } }}>
+    <ComponentContainer fetchOrganizations={jest.fn()} location={{ query: { id: 'foo' } }}>
       <Inner />
     </ComponentContainer>
   );
@@ -72,7 +72,7 @@ it("loads branches for module's project", () => {
   );
 
   mount(
-    <ComponentContainer location={{ query: { id: 'moduleKey' } }}>
+    <ComponentContainer fetchOrganizations={jest.fn()} location={{ query: { id: 'moduleKey' } }}>
       <Inner />
     </ComponentContainer>
   );
@@ -94,7 +94,7 @@ it("doesn't load branches portfolio", () => {
   );
 
   const wrapper = mount(
-    <ComponentContainer location={{ query: { id: 'portfolioKey' } }}>
+    <ComponentContainer fetchOrganizations={jest.fn()} location={{ query: { id: 'portfolioKey' } }}>
       <Inner />
     </ComponentContainer>
   );
@@ -110,7 +110,7 @@ it("doesn't load branches portfolio", () => {
 it('updates branches on change', () => {
   (getBranches as jest.Mock<any>).mockImplementation(() => Promise.resolve([]));
   const wrapper = shallow(
-    <ComponentContainer location={{ query: { id: 'portfolioKey' } }}>
+    <ComponentContainer fetchOrganizations={jest.fn()} location={{ query: { id: 'portfolioKey' } }}>
       <Inner />
     </ComponentContainer>
   );
@@ -122,4 +122,24 @@ it('updates branches on change', () => {
   });
   (wrapper.find(Inner).prop('onBranchesChange') as Function)();
   expect(getBranches).toBeCalledWith('projectKey');
+});
+
+it('loads organization', () => {
+  (getComponentData as jest.Mock<any>).mockImplementation(() =>
+    Promise.resolve({ organization: 'org' })
+  );
+
+  const fetchOrganizations = jest.fn();
+  mount(
+    <ComponentContainer
+      fetchOrganizations={fetchOrganizations}
+      location={{ query: { id: 'foo' } }}
+      organizationsEnabled={true}>
+      <Inner />
+    </ComponentContainer>
+  );
+
+  return doAsync().then(() => {
+    expect(fetchOrganizations).toBeCalledWith(['org']);
+  });
 });
