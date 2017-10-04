@@ -17,21 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import GlobalFooterContainer from './GlobalFooterContainer';
 import NavBar from '../../components/nav/NavBar';
 
-/*::
-type Props = {
-  children?: React.Element<*> | Array<React.Element<*>>,
-  hideLoggedInInfo?: boolean
-};
-*/
+interface Props {
+  children?: React.ReactNode;
+  hideLoggedInInfo?: boolean;
+}
 
-export default class SimpleContainer extends React.PureComponent {
-  /*:: props: Props; */
-
+export default class SimpleContainer extends React.PureComponent<Props> {
   componentDidMount() {
     const html = document.querySelector('html');
     if (html) {
@@ -50,7 +45,7 @@ export default class SimpleContainer extends React.PureComponent {
     return (
       <div className="global-container">
         <div className="page-wrapper" id="container">
-          <NavBar className="navbar-global" id="global-navigation" height={30} />
+          <NavBar className="navbar-global" height={30} />
 
           <div id="bd" className="page-wrapper-simple">
             <div id="nonav" className="page-simple">

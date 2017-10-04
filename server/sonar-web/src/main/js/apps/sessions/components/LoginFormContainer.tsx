@@ -17,23 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { connect } from 'react-redux';
 import LoginForm from './LoginForm';
 import { doLogin } from '../../../store/rootActions';
 import { getAppState } from '../../../store/rootReducer';
-import { getIdentityProviders } from '../../../api/users';
+import { IdentityProvider, getIdentityProviders } from '../../../api/users';
+import { getBaseUrl } from '../../../helpers/urls';
 
-class LoginFormContainer extends React.PureComponent {
-  /*:: mounted: boolean; */
+interface Props {
+  doLogin: (login: string, password: string) => Promise<void>;
+  location: { hash?: string; pathName: string; query: { return_to?: string } };
+}
 
-  static propTypes = {
-    location: PropTypes.object.isRequired
-  };
+interface State {
+  identityProviders?: IdentityProvider[];
+}
 
-  state = {};
+class LoginFormContainer extends React.PureComponent<Props, State> {
+  mounted: boolean;
+  state: State = {};
 
   componentDidMount() {
     this.mounted = true;
@@ -51,14 +54,12 @@ class LoginFormContainer extends React.PureComponent {
   handleSuccessfulLogin = () => {
     const { location } = this.props;
     const queryReturnTo = location.query['return_to'];
-    const returnTo = queryReturnTo ? `${queryReturnTo}${location.hash}` : `${window.baseUrl}/`;
-    window.location = returnTo;
+    const returnTo = queryReturnTo ? `${queryReturnTo}${location.hash}` : `${getBaseUrl()}/`;
+    window.location.href = returnTo;
   };
 
-  handleSubmit = (login /*: string */, password /*: string */) => {
-    this.props.doLogin(login, password).then(this.handleSuccessfulLogin, () => {
-      /* do nothing */
-    });
+  handleSubmit = (login: string, password: string) => {
+    this.props.doLogin(login, password).then(this.handleSuccessfulLogin, () => {});
   };
 
   render() {
@@ -72,10 +73,10 @@ class LoginFormContainer extends React.PureComponent {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: any) => ({
   appState: getAppState(state)
 });
 
 const mapDispatchToProps = { doLogin };
 
-export default connect(mapStateToProps, mapDispatchToProps)(LoginFormContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(LoginFormContainer as any);

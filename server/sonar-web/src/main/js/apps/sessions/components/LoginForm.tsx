@@ -17,37 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
+import { Link } from 'react-router';
 import OAuthProviders from './OAuthProviders';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import { translate } from '../../../helpers/l10n';
+import { IdentityProvider } from '../../../api/users';
 
-/*::
-type Props = {
-  identityProviders: Array<{
-    backgroundColor: string,
-    iconPath: string,
-    key: string,
-    name: string
-  }>,
-  onSubmit: (string, string) => void
-};
-*/
+interface Props {
+  identityProviders: IdentityProvider[];
+  onSubmit: (login: string, password: string) => void;
+}
 
-/*::
-type State = {
-  collapsed: boolean,
-  login: string,
-  password: string
-};
-*/
+interface State {
+  collapsed: boolean;
+  login: string;
+  password: string;
+}
 
-export default class LoginForm extends React.PureComponent {
-  /*:: props: Props; */
-  /*:: state: State; */
-
-  constructor(props /*: Props */) {
+export default class LoginForm extends React.PureComponent<Props, State> {
+  constructor(props: Props) {
     super(props);
     this.state = {
       collapsed: props.identityProviders.length > 0,
@@ -56,15 +45,21 @@ export default class LoginForm extends React.PureComponent {
     };
   }
 
-  handleSubmit = (event /*: Event */) => {
+  handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     this.props.onSubmit(this.state.login, this.state.password);
   };
 
-  handleMoreOptionsClick = (event /*: Event */) => {
+  handleMoreOptionsClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.setState({ collapsed: false });
   };
+
+  handleLoginChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
+    this.setState({ login: event.currentTarget.value });
+
+  handlePwdChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
+    this.setState({ password: event.currentTarget.value });
 
   render() {
     return (
@@ -97,12 +92,12 @@ export default class LoginForm extends React.PureComponent {
                 id="login"
                 name="login"
                 className="login-input"
-                maxLength="255"
+                maxLength={255}
                 required={true}
                 autoFocus={true}
                 placeholder={translate('login')}
                 value={this.state.login}
-                onChange={e => this.setState({ login: e.target.value })}
+                onChange={this.handleLoginChange}
               />
             </div>
 
@@ -118,7 +113,7 @@ export default class LoginForm extends React.PureComponent {
                 required={true}
                 placeholder={translate('password')}
                 value={this.state.password}
-                onChange={e => this.setState({ password: e.target.value })}
+                onChange={this.handlePwdChange}
               />
             </div>
 
@@ -127,9 +122,9 @@ export default class LoginForm extends React.PureComponent {
                 <button name="commit" type="submit">
                   {translate('sessions.log_in')}
                 </button>
-                <a className="spacer-left" href={window.baseUrl + '/'}>
+                <Link className="spacer-left" to="/">
                   {translate('cancel')}
-                </a>
+                </Link>
               </div>
             </div>
           </form>
