@@ -1,0 +1,34 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders message about ignored conditions 1`] = `
+<div
+  className="overview-quality-gate"
+  id="overview-quality-gate"
+>
+  <h2
+    className="overview-title"
+  >
+    overview.quality_gate
+    <Level
+      level="OK"
+    />
+  </h2>
+  <div
+    className="alert alert-info display-inline-block big-spacer-top"
+  >
+    overview.quality_gate.ignored_conditions
+    <Tooltip
+      overlay="overview.quality_gate.ignored_conditions.tooltip"
+      placement="bottom"
+    >
+      <span
+        className="spacer-left"
+      >
+        <HelpIcon
+          fill="#4b9fd5"
+        />
+      </span>
+    </Tooltip>
+  </div>
+</div>
+`;
