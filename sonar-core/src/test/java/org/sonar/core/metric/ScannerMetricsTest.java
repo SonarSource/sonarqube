@@ -46,8 +46,18 @@ public class ScannerMetricsTest {
     assertThat(metrics).hasSize(2);
   }
 
-  private static class FakeMetrics implements Metrics {
+  @Test
+  public void should_not_crash_on_null_metrics_from_faulty_plugins() {
+    Metrics faultyMetrics = () -> null;
+    Metrics okMetrics = new FakeMetrics();
 
+    List<Metric> metrics = newArrayList(new ScannerMetrics(new Metrics[] {okMetrics, faultyMetrics}).getMetrics());
+    Iterables.removeAll(metrics, SENSOR_METRICS_WITHOUT_METRIC_PLUGIN.getMetrics());
+
+    assertThat(metrics).isEqualTo(okMetrics.getMetrics());
+  }
+
+  private static class FakeMetrics implements Metrics {
     @Override
     public List<Metric> getMetrics() {
       return ImmutableList.<Metric>of(
