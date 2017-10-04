@@ -18,41 +18,37 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { throttle } from 'lodash';
+import { debounce } from 'lodash';
 
 interface Props {
   className?: string;
   children: (position: { top: number; left: number }) => React.ReactElement<any>;
 }
 
-interface State {
-  position: { top: number; left: number };
-}
-
-export default class ScreenPositionHelper extends React.PureComponent<Props, State> {
+export default class ScreenPositionHelper extends React.PureComponent<Props> {
   container: HTMLDivElement;
-  throttledUpdatePosition: () => void;
+  debouncedOnResize: () => void;
 
   constructor(props: Props) {
     super(props);
-    this.state = { position: { top: 0, left: 0 } };
-    this.throttledUpdatePosition = throttle(this.updatePosition, 100);
+    this.debouncedOnResize = debounce(() => this.forceUpdate(), 250);
   }
 
   componentDidMount() {
-    this.updatePosition();
-    window.addEventListener('resize', this.throttledUpdatePosition);
+    this.forceUpdate();
+    window.addEventListener('resize', this.debouncedOnResize);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.throttledUpdatePosition);
+    window.removeEventListener('resize', this.debouncedOnResize);
   }
 
-  updatePosition = () => {
-    const containerPos = this.container.getBoundingClientRect();
-    this.setState({
-      position: { top: window.scrollY + containerPos.top, left: window.scrollX + containerPos.left }
-    });
+  getPosition = () => {
+    const containerPos = this.container && this.container.getBoundingClientRect();
+    if (!containerPos) {
+      return { top: 0, left: 0 };
+    }
+    return { top: window.scrollY + containerPos.top, left: window.scrollX + containerPos.left };
   };
 
   render() {
@@ -60,7 +56,7 @@ export default class ScreenPositionHelper extends React.PureComponent<Props, Sta
       <div
         className={this.props.className}
         ref={container => (this.container = container as HTMLDivElement)}>
-        {this.props.children(this.state.position)}
+        {this.props.children(this.getPosition())}
       </div>
     );
   }
