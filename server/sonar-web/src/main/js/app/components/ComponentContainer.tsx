@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { connect } from 'react-redux';
 import ComponentContainerNotFound from './ComponentContainerNotFound';
 import ComponentNav from './nav/component/ComponentNav';
 import { Branch, Component } from '../types';
@@ -25,12 +26,16 @@ import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 import { getBranches } from '../../api/branches';
 import { getComponentData } from '../../api/components';
 import { getComponentNavigation } from '../../api/nav';
+import { fetchOrganizations } from '../../store/rootActions';
+import { areThereCustomOrganizations } from '../../store/rootReducer';
 
 interface Props {
   children: any;
+  fetchOrganizations: (organizations: string[]) => void;
   location: {
     query: { branch?: string; id: string };
   };
+  organizationsEnabled?: boolean;
 }
 
 interface State {
@@ -39,7 +44,7 @@ interface State {
   component: Component | null;
 }
 
-export default class ComponentContainer extends React.PureComponent<Props, State> {
+export class ComponentContainer extends React.PureComponent<Props, State> {
   mounted: boolean;
 
   constructor(props: Props) {
@@ -86,6 +91,11 @@ export default class ComponentContainer extends React.PureComponent<Props, State
 
     Promise.all([getComponentNavigation(id), getComponentData(id, branch)]).then(([nav, data]) => {
       const component = this.addQualifier({ ...nav, ...data });
+
+      if (this.props.organizationsEnabled) {
+        this.props.fetchOrganizations([component.organization]);
+      }
+
       this.fetchBranches(component).then(branches => {
         if (this.mounted) {
           this.setState({ loading: false, branches, component });
@@ -156,3 +166,11 @@ export default class ComponentContainer extends React.PureComponent<Props, State
     );
   }
 }
+
+const mapStateToProps = (state: any) => ({
+  organizationsEnabled: areThereCustomOrganizations(state)
+});
+
+const mapDispatchToProps = { fetchOrganizations };
+
+export default connect<any, any, any>(mapStateToProps, mapDispatchToProps)(ComponentContainer);
