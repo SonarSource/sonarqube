@@ -19,50 +19,48 @@
  */
 package org.sonar.server.computation.task.projectanalysis.component;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.CheckForNull;
+import java.util.Set;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.db.component.KeyWithUuidDto;
 
 import static org.sonar.db.component.ComponentDto.removeBranchFromKey;
 
 /**
- * Cache a map between component keys and uuids in the merge branch
+ * Cache a map of component key -> uuid in short branches that have issues with status either RESOLVED or CONFIRMED.
+ *
  */
-public class MergeBranchComponentUuids {
-  private final AnalysisMetadataHolder analysisMetadataHolder;
+public class ShortBranchComponentsWithIssues {
+  private final String uuid;
   private final DbClient dbClient;
-  private Map<String, String> uuidsByKey;
 
-  public MergeBranchComponentUuids(AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient) {
-    this.analysisMetadataHolder = analysisMetadataHolder;
+  private Map<String, Set<String>> uuidsByKey;
+
+  public ShortBranchComponentsWithIssues(TreeRootHolder treeRootHolder, DbClient dbClient) {
+    this.uuid = treeRootHolder.getRoot().getUuid();
     this.dbClient = dbClient;
   }
 
-  private void loadMergeBranchComponents() {
-    String mergeBranchUuid = analysisMetadataHolder.getBranch().get().getMergeBranchUuid().get();
-
+  private void loadUuidsByKey() {
     uuidsByKey = new HashMap<>();
     try (DbSession dbSession = dbClient.openSession(false)) {
-
-      List<ComponentDto> components = dbClient.componentDao().selectByProjectUuid(mergeBranchUuid, dbSession);
-      for (ComponentDto dto : components) {
-        uuidsByKey.put(dto.getKey(), dto.uuid());
+      List<KeyWithUuidDto> components = dbClient.componentDao().selectComponentKeysHavingIssuesToMerge(dbSession, uuid);
+      for (KeyWithUuidDto dto : components) {
+        uuidsByKey.computeIfAbsent(removeBranchFromKey(dto.key()), s -> new HashSet<>()).add(dto.uuid());
       }
     }
   }
 
-  @CheckForNull
-  public String getUuid(String dbKey) {
+  public Set<String> getUuids(String componentKey) {
     if (uuidsByKey == null) {
-      loadMergeBranchComponents();
+      loadUuidsByKey();
     }
 
-    String cleanComponentKey = removeBranchFromKey(dbKey);
-    return uuidsByKey.get(cleanComponentKey);
+    return uuidsByKey.getOrDefault(componentKey, Collections.emptySet());
   }
 }

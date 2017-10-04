@@ -20,6 +20,7 @@
 package org.sonar.server.computation.task.projectanalysis.issue;
 
 import com.google.common.base.Optional;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
@@ -46,7 +47,6 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
 import org.sonar.server.computation.task.projectanalysis.component.MergeBranchComponentUuids;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitor;
@@ -112,8 +112,10 @@ public class IntegrateIssuesVisitorTest {
   private IssueVisitor issueVisitor;
   @Mock
   private MergeBranchComponentUuids mergeBranchComponentsUuids;
+  @Mock
+  private IssueStatusCopier issueStatusCopier;
 
-  ArgumentCaptor<DefaultIssue> defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
+  ArgumentCaptor<DefaultIssue> defaultIssueCaptor;
 
   ComponentIssuesLoader issuesLoader = new ComponentIssuesLoader(dbTester.getDbClient(), ruleRepositoryRule, activeRulesHolderRule);
   IssueTrackingDelegator trackingDelegator;
@@ -129,6 +131,7 @@ public class IntegrateIssuesVisitorTest {
     MockitoAnnotations.initMocks(this);
     IssueVisitors issueVisitors = new IssueVisitors(new IssueVisitor[] {issueVisitor});
 
+    defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
     when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.<MovedFilesRepository.OriginalFile>absent());
 
     TrackerRawInputFactory rawInputFactory = new TrackerRawInputFactory(treeRootHolder, reportReader, fileSourceRepository, new CommonRuleEngineImpl(), issueFilter);
@@ -142,11 +145,12 @@ public class IntegrateIssuesVisitorTest {
     treeRootHolder.setRoot(PROJECT);
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
-    underTest = new IntegrateIssuesVisitor(issueCache, issueLifecycle, issueVisitors, trackingDelegator);
+    underTest = new IntegrateIssuesVisitor(issueCache, issueLifecycle, issueVisitors, analysisMetadataHolder, trackingDelegator, issueStatusCopier);
   }
 
   @Test
   public void process_new_issue() throws Exception {
+    when(analysisMetadataHolder.isLongLivingBranch()).thenReturn(true);
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setMsg("the message")
       .setRuleRepository("xoo")
@@ -159,10 +163,12 @@ public class IntegrateIssuesVisitorTest {
     underTest.visitAny(FILE);
 
     verify(issueLifecycle).initNewOpenIssue(defaultIssueCaptor.capture());
-    assertThat(defaultIssueCaptor.getValue().ruleKey().rule()).isEqualTo("S001");
+    DefaultIssue capturedIssue = defaultIssueCaptor.getValue();
+    assertThat(capturedIssue.ruleKey().rule()).isEqualTo("S001");
 
-    verify(issueLifecycle).doAutomaticTransition(defaultIssueCaptor.capture());
-    assertThat(defaultIssueCaptor.getValue().ruleKey().rule()).isEqualTo("S001");
+    verify(issueStatusCopier).updateStatus(FILE, Collections.singletonList(capturedIssue));
+
+    verify(issueLifecycle).doAutomaticTransition(capturedIssue);
 
     assertThat(newArrayList(issueCache.traverse())).hasSize(1);
   }

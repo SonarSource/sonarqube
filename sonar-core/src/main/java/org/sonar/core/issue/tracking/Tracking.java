@@ -39,12 +39,11 @@ public class Tracking<RAW extends Trackable, BASE extends Trackable> {
   private final Collection<BASE> bases;
 
   private final Predicate<RAW> unmatchedRawPredicate = raw -> !rawToBase.containsKey(raw);
-
   private final Predicate<BASE> unmatchedBasePredicate = raw -> !baseToRaw.containsKey(raw);
 
-  public Tracking(Input<RAW> rawInput, Input<BASE> baseInput) {
-    this.raws = rawInput.getIssues();
-    this.bases = baseInput.getIssues();
+  public Tracking(Collection<RAW> rawInput, Collection<BASE> baseInput) {
+    this.raws = rawInput;
+    this.bases = baseInput;
   }
 
   /**

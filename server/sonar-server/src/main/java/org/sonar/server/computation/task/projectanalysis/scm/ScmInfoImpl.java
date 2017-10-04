@@ -63,7 +63,7 @@ public class ScmInfoImpl implements ScmInfo {
 
   @Override
   public Changeset getChangesetForLine(int lineNumber) {
-    checkArgument(lineNumber > 0 && lineNumber <= lineChangesets.length, String.format("There's no changeset on line %s", lineNumber));
+    checkArgument(lineNumber > 0 && lineNumber <= lineChangesets.length, "There's no changeset on line %s", lineNumber);
     return lineChangesets[lineNumber - 1];
   }
 

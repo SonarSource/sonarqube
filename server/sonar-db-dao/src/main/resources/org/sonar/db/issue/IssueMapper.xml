@@ -213,6 +213,25 @@
     </foreach>
   </select>
 
+  <select id="selectResolvedOrConfirmedByComponentUuids" parameterType="map" resultType="ShortBranchIssue">
+    select
+      i.kee as kee,
+      i.message as message,
+      i.line as line,
+      i.status as status,
+      i.resolution as resolution,
+      i.checksum as checksum,
+      r.plugin_rule_key as ruleKey,
+      r.plugin_name as ruleRepo
+    from issues i
+    inner join rules r on r.id = i.rule_id
+    where i.component_uuid in
+      <foreach collection="list" open="(" close=")" item="key" separator=",">
+        #{key,jdbcType=VARCHAR}
+      </foreach>
+      and (i.status = 'CONFIRMED' OR i.status = 'RESOLVED')
+  </select>
+
   <select id="scrollNonClosedByModuleOrProject" parameterType="map" resultType="Issue" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
     select
     <include refid="issueColumns"/>

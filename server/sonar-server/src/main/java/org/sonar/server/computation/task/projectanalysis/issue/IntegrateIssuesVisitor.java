@@ -19,8 +19,11 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
@@ -34,13 +37,18 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   private final IssueLifecycle issueLifecycle;
   private final IssueVisitors issueVisitors;
   private final IssueTrackingDelegator issueTracking;
+  private final IssueStatusCopier issueStatusCopier;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public IntegrateIssuesVisitor(IssueCache issueCache, IssueLifecycle issueLifecycle, IssueVisitors issueVisitors, IssueTrackingDelegator issueTracking) {
+  public IntegrateIssuesVisitor(IssueCache issueCache, IssueLifecycle issueLifecycle, IssueVisitors issueVisitors,
+    AnalysisMetadataHolder analysisMetadataHolder, IssueTrackingDelegator issueTracking, IssueStatusCopier issueStatusCopier) {
     super(CrawlerDepthLimit.FILE, POST_ORDER);
     this.issueCache = issueCache;
     this.issueLifecycle = issueLifecycle;
     this.issueVisitors = issueVisitors;
+    this.analysisMetadataHolder = analysisMetadataHolder;
     this.issueTracking = issueTracking;
+    this.issueStatusCopier = issueStatusCopier;
   }
 
   @Override
@@ -60,8 +68,22 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   }
 
   private void fillNewOpenIssues(Component component, Iterable<DefaultIssue> issues, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
-    for (DefaultIssue issue : issues) {
+    List<DefaultIssue> list = new ArrayList<>();
+
+    issues.forEach(issue -> {
       issueLifecycle.initNewOpenIssue(issue);
+      list.add(issue);
+    });
+
+    if (list.isEmpty()) {
+      return;
+    }
+
+    if (analysisMetadataHolder.isLongLivingBranch()) {
+      issueStatusCopier.updateStatus(component, list);
+    }
+
+    for (DefaultIssue issue : list) {
       process(component, issue, cacheAppender);
     }
   }

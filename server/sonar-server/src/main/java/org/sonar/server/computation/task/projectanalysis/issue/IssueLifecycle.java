@@ -21,6 +21,7 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Date;
+import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
@@ -74,6 +75,11 @@ public class IssueLifecycle {
       raw.setManualSeverity(true);
       raw.setSeverity(base.severity());
     }
+  }
+
+  public void copyResolution(DefaultIssue raw, String status, @Nullable String resolution) {
+    raw.setStatus(status);
+    raw.setResolution(resolution);
   }
 
   public void mergeExistingOpenIssue(DefaultIssue raw, DefaultIssue base) {

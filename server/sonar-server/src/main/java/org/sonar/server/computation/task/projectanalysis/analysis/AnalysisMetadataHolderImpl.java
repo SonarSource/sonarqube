@@ -32,7 +32,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
 public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder {
-
+  private static final String BRANCH_NOT_SET = "Branch has not been set";
   private final InitializedProperty<Organization> organization = new InitializedProperty<>();
   private final InitializedProperty<String> uuid = new InitializedProperty<>();
   private final InitializedProperty<Long> analysisDate = new InitializedProperty<>();
@@ -131,7 +131,7 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
 
   @Override
   public Optional<Branch> getBranch() {
-    checkState(branch.isInitialized(), "Branch has not been set");
+    checkState(branch.isInitialized(), BRANCH_NOT_SET);
     return Optional.ofNullable(branch.getProperty());
   }
 
@@ -189,9 +189,15 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   }
 
   public boolean isShortLivingBranch() {
-    checkState(this.branch.isInitialized(), "Branch has not been set");
+    checkState(this.branch.isInitialized(), BRANCH_NOT_SET);
     Branch prop = branch.getProperty();
     return prop != null && prop.getType() == BranchType.SHORT;
+  }
+
+  public boolean isLongLivingBranch() {
+    checkState(this.branch.isInitialized(), BRANCH_NOT_SET);
+    Branch prop = branch.getProperty();
+    return prop != null && prop.getType() == BranchType.LONG;
   }
 
 }

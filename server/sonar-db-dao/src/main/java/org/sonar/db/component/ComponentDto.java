@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.resources.Scopes;
 
@@ -532,4 +533,9 @@ public class ComponentDto {
   public static String generateBranchKey(String componentKey, String branch) {
     return format("%s%s%s", componentKey, BRANCH_KEY_SEPARATOR, branch);
   }
+
+  public static String removeBranchFromKey(String componentKey) {
+    return StringUtils.substringBeforeLast(componentKey, ComponentDto.BRANCH_KEY_SEPARATOR);
+  }
+
 }

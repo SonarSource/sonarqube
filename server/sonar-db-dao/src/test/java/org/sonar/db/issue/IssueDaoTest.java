@@ -21,6 +21,7 @@ package org.sonar.db.issue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
@@ -29,6 +30,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
+import org.sonar.core.issue.ShortBranchIssue;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
@@ -178,6 +180,48 @@ public class IssueDaoTest {
     ComponentDto notPersisted = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
     underTest.scrollNonClosedByModuleOrProject(db.getSession(), notPersisted, accumulator);
     assertThat(accumulator.list).isEmpty();
+  }
+
+  @Test
+  public void selectResolvedOrConfirmedByComponentUuid() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    IssueDto openIssue = db.issues().insert(rule, project, file, i -> i.setStatus("OPEN").setResolution(null));
+    IssueDto closedIssue = db.issues().insert(rule, project, file, i -> i.setStatus("CLOSED").setResolution("FIXED"));
+    IssueDto reopenedIssue = db.issues().insert(rule, project, file, i -> i.setStatus("REOPENED").setResolution(null));
+    IssueDto confirmedIssue = db.issues().insert(rule, project, file, i -> i.setStatus("CONFIRMED").setResolution(null));
+    IssueDto wontfixIssue = db.issues().insert(rule, project, file, i -> i.setStatus("RESOLVED").setResolution("WONTFIX"));
+    IssueDto fpIssue = db.issues().insert(rule, project, file, i -> i.setStatus("RESOLVED").setResolution("FALSE-POSITIVE"));
+
+    assertThat(underTest.selectResolvedOrConfirmedByComponentUuids(db.getSession(), Collections.singletonList(file.uuid())))
+      .extracting("kee")
+      .containsOnly(confirmedIssue.getKey(), wontfixIssue.getKey(), fpIssue.getKey());
+  }
+
+  @Test
+  public void selectResolvedOrConfirmedByComponentUuid_should_correctly_map_required_fields() {
+    RuleDefinitionDto rule = db.rules().insert();
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    IssueDto fpIssue = db.issues().insert(rule, project, file, i -> i.setStatus("RESOLVED").setResolution("FALSE-POSITIVE"));
+
+    ShortBranchIssueDto fp = underTest.selectResolvedOrConfirmedByComponentUuids(db.getSession(), Collections.singletonList(file.uuid())).get(0);
+    assertThat(fp.getLine()).isEqualTo(fpIssue.getLine());
+    assertThat(fp.getMessage()).isEqualTo(fpIssue.getMessage());
+    assertThat(fp.getChecksum()).isEqualTo(fpIssue.getChecksum());
+    assertThat(fp.getRuleKey()).isEqualTo(fpIssue.getRuleKey());
+    assertThat(fp.getStatus()).isEqualTo(fpIssue.getStatus());
+    assertThat(fp.getResolution()).isEqualTo(fpIssue.getResolution());
+
+    assertThat(fp.getLine()).isNotNull();
+    assertThat(fp.getLine()).isNotZero();
+    assertThat(fp.getMessage()).isNotNull();
+    assertThat(fp.getChecksum()).isNotNull();
+    assertThat(fp.getChecksum()).isNotEmpty();
+    assertThat(fp.getRuleKey()).isNotNull();
+    assertThat(fp.getStatus()).isNotNull();
+    assertThat(fp.getResolution()).isNotNull();
   }
 
   private static IssueDto newIssueDto(String key) {

@@ -32,6 +32,8 @@ public interface IssueMapper {
 
   List<IssueDto> selectByKeys(List<String> keys);
 
+  List<ShortBranchIssueDto> selectResolvedOrConfirmedByComponentUuids(List<String> componentUuids);
+
   void insert(IssueDto issue);
 
   int update(IssueDto issue);
