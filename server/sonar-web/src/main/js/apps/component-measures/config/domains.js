@@ -75,6 +75,7 @@ export const domains /*: { [string]: { categories?: Array<string>, order: Array<
       'new_lines_to_cover',
       'new_uncovered_lines',
       'new_line_coverage',
+      'new_conditions_to_cover',
       'new_uncovered_conditions',
       'new_branch_coverage',
 
@@ -83,6 +84,7 @@ export const domains /*: { [string]: { categories?: Array<string>, order: Array<
       'lines_to_cover',
       'uncovered_lines',
       'line_coverage',
+      'conditions_to_cover',
       'uncovered_conditions',
       'branch_coverage',
 
