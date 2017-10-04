@@ -93,7 +93,7 @@ public class ServerImpl extends Server {
 
   @Override
   public boolean isDev() {
-    return urlSettings.isDev();
+    return false;
   }
 
   @Override

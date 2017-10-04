@@ -46,18 +46,6 @@ public class UrlSettingsTest {
   }
 
   @Test
-  public void dev_mode_is_disabled_by_default() {
-    assertThat(underTest().isDev()).isFalse();
-  }
-
-  @Test
-  public void dev_mode_is_enabled() {
-    settings.setProperty("sonar.web.dev", true);
-
-    assertThat(underTest().isDev()).isTrue();
-  }
-
-  @Test
   public void default_url() throws Exception {
     assertThat(underTest().getBaseUrl()).isEqualTo("http://localhost:9000");
   }

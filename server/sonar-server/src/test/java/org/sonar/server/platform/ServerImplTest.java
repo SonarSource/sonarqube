@@ -46,16 +46,20 @@ public class ServerImplTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
+  public void isDev_always_returns_false() {
+    assertThat(underTest.isDev()).isFalse();
+  }
+
+  @Test
   public void test_url_information() {
     when(urlSettings.getContextPath()).thenReturn("/foo");
     when(urlSettings.getBaseUrl()).thenReturn("http://localhost:9000/foo");
-    when(urlSettings.isDev()).thenReturn(true);
     when(urlSettings.isSecured()).thenReturn(false);
 
     assertThat(underTest.getContextPath()).isEqualTo("/foo");
     assertThat(underTest.getURL()).isEqualTo("http://localhost:9000/foo");
     assertThat(underTest.getPublicRootUrl()).isEqualTo("http://localhost:9000/foo");
-    assertThat(underTest.isDev()).isTrue();
+    assertThat(underTest.isDev()).isFalse();
     assertThat(underTest.isSecured()).isFalse();
   }
 

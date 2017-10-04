@@ -85,25 +85,6 @@ public class RestartTest {
     }
   }
 
-  /**
-   * SONAR-4843
-   */
-  @Test
-  public void restart_on_dev_mode() throws Exception {
-    // server classloader locks Jar files on Windows
-    if (!SystemUtils.IS_OS_WINDOWS) {
-      orchestrator = Orchestrator.builderEnv()
-        .setServerProperty("sonar.web.dev", "true")
-        .build();
-      orchestrator.start();
-
-      newAdminWsClient(orchestrator).system().restart();
-      assertThat(FileUtils.readFileToString(orchestrator.getServer().getWebLogs()))
-        .contains("Fast restarting WebServer...")
-        .contains("WebServer restarted");
-    }
-  }
-
   private static void verifyFailWith403(Runnable runnable) {
     try {
       runnable.run();

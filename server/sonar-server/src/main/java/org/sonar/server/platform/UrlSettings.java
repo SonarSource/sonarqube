@@ -59,10 +59,6 @@ public class UrlSettings {
     return contextPath;
   }
 
-  public boolean isDev() {
-    return config.getBoolean("sonar.web.dev").orElse(false);
-  }
-
   public boolean isSecured() {
     return getBaseUrl().startsWith("https://");
   }
