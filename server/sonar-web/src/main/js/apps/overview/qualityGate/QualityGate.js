@@ -23,6 +23,8 @@ import QualityGateConditions from './QualityGateConditions';
 import EmptyQualityGate from './EmptyQualityGate';
 import { translate } from '../../../helpers/l10n';
 import Level from '../../../components/ui/Level';
+import Tooltip from '../../../components/controls/Tooltip';
+import HelpIcon from '../../../components/icons-components/HelpIcon';
 /*:: import type { Component, MeasuresList } from '../types'; */
 
 function parseQualityGateDetails(rawDetails /*: string */) {
@@ -52,8 +54,11 @@ export default function QualityGate({ branch, component, measures } /*: Props */
   const level = statusMeasure.value;
 
   let conditions = [];
+  let ignoredConditions = false;
   if (detailsMeasure && detailsMeasure.value) {
-    conditions = parseQualityGateDetails(detailsMeasure.value).conditions || [];
+    const details = parseQualityGateDetails(detailsMeasure.value);
+    conditions = details.conditions || [];
+    ignoredConditions = details.ignoredConditions;
   }
 
   return (
@@ -62,6 +67,17 @@ export default function QualityGate({ branch, component, measures } /*: Props */
         {translate('overview.quality_gate')}
         <Level level={level} />
       </h2>
+
+      {ignoredConditions && (
+        <div className="alert alert-info display-inline-block big-spacer-top">
+          {translate('overview.quality_gate.ignored_conditions')}
+          <Tooltip overlay={translate('overview.quality_gate.ignored_conditions.tooltip')}>
+            <span className="spacer-left">
+              <HelpIcon fill="#4b9fd5" />
+            </span>
+          </Tooltip>
+        </div>
+      )}
 
       {conditions.length > 0 && (
         <QualityGateConditions branch={branch} component={component} conditions={conditions} />
