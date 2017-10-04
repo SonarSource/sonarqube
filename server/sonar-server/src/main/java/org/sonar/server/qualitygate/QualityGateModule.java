@@ -31,6 +31,7 @@ import org.sonar.server.qualitygate.ws.GetByProjectAction;
 import org.sonar.server.qualitygate.ws.ListAction;
 import org.sonar.server.qualitygate.ws.ProjectStatusAction;
 import org.sonar.server.qualitygate.ws.QualityGatesWs;
+import org.sonar.server.qualitygate.ws.QualityGatesWsSupport;
 import org.sonar.server.qualitygate.ws.RenameAction;
 import org.sonar.server.qualitygate.ws.SearchAction;
 import org.sonar.server.qualitygate.ws.SelectAction;
@@ -49,6 +50,7 @@ public class QualityGateModule extends Module {
       QgateProjectFinder.class,
       QualityGateFinder.class,
       // WS
+      QualityGatesWsSupport.class,
       QualityGatesWs.class,
       ListAction.class,
       SearchAction.class,

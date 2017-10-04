@@ -170,14 +170,6 @@ public class QualityGates {
     }
   }
 
-  public void deleteCondition(Long condId) {
-    checkIsSystemAdministrator();
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      conditionDao.delete(getNonNullCondition(dbSession, condId), dbSession);
-      dbSession.commit();
-    }
-  }
-
   public void dissociateProject(DbSession dbSession, ComponentDto project) {
     checkProjectAdmin(project);
     propertiesDao.deleteProjectProperty(SONAR_QUALITYGATE_PROPERTY, project.getId(), dbSession);
@@ -218,14 +210,6 @@ public class QualityGates {
       }
       return qGate;
     }
-  }
-
-  private QualityGateConditionDto getNonNullCondition(DbSession dbSession, long id) {
-    QualityGateConditionDto condition = conditionDao.selectById(id, dbSession);
-    if (condition == null) {
-      throw new NotFoundException("There is no condition with id=" + id);
-    }
-    return condition;
   }
 
   private void validateQualityGate(DbSession dbSession, @Nullable Long updatingQgateId, @Nullable String name) {

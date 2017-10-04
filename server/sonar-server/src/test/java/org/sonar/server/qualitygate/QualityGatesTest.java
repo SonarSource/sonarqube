@@ -285,21 +285,6 @@ public class QualityGatesTest {
   }
 
   @Test
-  public void should_delete_condition() {
-    long idToDelete = QUALITY_GATE_ID;
-    QualityGateConditionDto toDelete = new QualityGateConditionDto().setId(idToDelete);
-    when(conditionDao.selectById(idToDelete, dbSession)).thenReturn(toDelete);
-    underTest.deleteCondition(idToDelete);
-    verify(conditionDao).selectById(idToDelete, dbSession);
-    verify(conditionDao).delete(toDelete, dbSession);
-  }
-
-  @Test(expected = NotFoundException.class)
-  public void should_fail_delete_condition() {
-    underTest.deleteCondition(QUALITY_GATE_ID);
-  }
-
-  @Test
   public void should_copy_qgate() {
     String name = "Atlantis";
     long sourceId = QUALITY_GATE_ID;

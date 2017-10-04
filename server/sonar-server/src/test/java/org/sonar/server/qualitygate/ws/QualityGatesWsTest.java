@@ -78,7 +78,7 @@ public class QualityGatesWsTest {
       new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),
       new CreateConditionAction(null, null, null, null),
       new UpdateConditionAction(null, null, null, null),
-      new DeleteConditionAction(qGates),
+      new DeleteConditionAction(null, null, null),
       selectAction,
       new DeselectAction(qGates, mock(DbClient.class), mock(ComponentFinder.class)),
       new AppAction(null, null, null)));
@@ -181,14 +181,6 @@ public class QualityGatesWsTest {
     assertThat(updateCondition.param("error")).isNotNull();
     assertThat(updateCondition.param("period")).isNotNull();
     assertThat(updateCondition.isInternal()).isFalse();
-
-    Action deleteCondition = controller.action("delete_condition");
-    assertThat(deleteCondition).isNotNull();
-    assertThat(deleteCondition.handler()).isNotNull();
-    assertThat(deleteCondition.since()).isEqualTo("4.3");
-    assertThat(deleteCondition.isPost()).isTrue();
-    assertThat(deleteCondition.param("id")).isNotNull();
-    assertThat(deleteCondition.isInternal()).isFalse();
 
     Action appInit = controller.action("app");
     assertThat(appInit.isInternal()).isTrue();
@@ -311,15 +303,6 @@ public class QualityGatesWsTest {
   @Test(expected = BadRequestException.class)
   public void show_with_both_parameters() throws Exception {
     tester.newGetRequest("api/qualitygates", "show").setParam("id", "12345").setParam("name", "Polop").execute();
-  }
-
-  @Test
-  public void delete_condition_nominal() throws Exception {
-    long condId = 12345L;
-    tester.newPostRequest("api/qualitygates", "delete_condition")
-      .setParam("id", Long.toString(condId))
-      .execute()
-      .assertNoContent();
   }
 
   @Test
