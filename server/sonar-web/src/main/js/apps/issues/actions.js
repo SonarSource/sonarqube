@@ -21,12 +21,14 @@
 /*:: import type { State } from './components/App'; */
 
 export const enableLocationsNavigator = (state /*: State */) => {
-  const { openIssue } = state;
+  const { openIssue, selectedLocationIndex } = state;
   if (openIssue && (openIssue.secondaryLocations.length > 0 || openIssue.flows.length > 0)) {
     return {
       locationsNavigator: true,
       selectedFlowIndex: state.selectedFlowIndex || (openIssue.flows.length > 0 ? 0 : null),
-      selectedLocationIndex: state.selectedLocationIndex || 0
+      // Also reset index = -1 to 0, we don't want to start on the issue when enabling the location navigator
+      selectedLocationIndex:
+        !selectedLocationIndex || selectedLocationIndex < 0 ? 0 : selectedLocationIndex
     };
   }
 };
@@ -57,15 +59,28 @@ export const selectNextLocation = (state /*: State */) => {
   if (openIssue) {
     const locations =
       selectedFlowIndex != null ? openIssue.flows[selectedFlowIndex] : openIssue.secondaryLocations;
+    const lastLocationIdx = locations.length - 1;
+    if (index === lastLocationIdx) {
+      // -1 to jump back to the issue itself
+      return { selectedLocationIndex: -1 };
+    }
     return {
-      selectedLocationIndex: index != null && locations.length > index + 1 ? index + 1 : index
+      selectedLocationIndex: index != null && index < lastLocationIdx ? index + 1 : index
     };
   }
 };
 
 export const selectPreviousLocation = (state /*: State */) => {
-  const { selectedLocationIndex: index, openIssue } = state;
+  const { selectedFlowIndex, selectedLocationIndex: index, openIssue } = state;
   if (openIssue) {
+    if (index === -1) {
+      const locations =
+        selectedFlowIndex != null
+          ? openIssue.flows[selectedFlowIndex]
+          : openIssue.secondaryLocations;
+      const lastLocationIdx = locations.length - 1;
+      return { selectedLocationIndex: lastLocationIdx };
+    }
     return { selectedLocationIndex: index != null && index > 0 ? index - 1 : index };
   }
 };
