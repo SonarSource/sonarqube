@@ -236,11 +236,11 @@ export default class App extends React.PureComponent {
       event.preventDefault();
       this.setState(actions.enableLocationsNavigator);
     } else if (event.keyCode === 40 && event.altKey) {
-      // alt + up
+      // alt + down
       event.preventDefault();
       this.selectNextLocation();
     } else if (event.keyCode === 38 && event.altKey) {
-      // alt + down
+      // alt + up
       event.preventDefault();
       this.selectPreviousLocation();
     } else if (event.keyCode === 37 && event.altKey) {

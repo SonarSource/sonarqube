@@ -43,9 +43,14 @@ export default class IssuesSourceViewer extends React.PureComponent {
   /*:: props: Props; */
 
   componentDidUpdate(prevProps /*: Props */) {
+    const { openIssue, selectedLocationIndex } = this.props;
+
+    // Scroll back to the issue when the selected location is set to -1
+    const shouldScrollBackToIssue =
+      selectedLocationIndex === -1 && selectedLocationIndex !== prevProps.selectedLocationIndex;
     if (
-      prevProps.openIssue !== this.props.openIssue &&
-      prevProps.openIssue.component === this.props.openIssue.component
+      prevProps.openIssue.component === openIssue.component &&
+      (prevProps.openIssue !== openIssue || shouldScrollBackToIssue)
     ) {
       this.scrollToIssue();
     }
@@ -77,9 +82,12 @@ export default class IssuesSourceViewer extends React.PureComponent {
 
     let locationMessage = undefined;
     let locationLine = undefined;
+
+    // We don't want to display a location message when selected location is -1
     if (
       locations != null &&
       selectedLocationIndex != null &&
+      selectedLocationIndex >= 0 &&
       locations.length >= selectedLocationIndex
     ) {
       locationMessage = {
