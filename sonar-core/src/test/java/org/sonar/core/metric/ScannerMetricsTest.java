@@ -19,7 +19,6 @@
  */
 package org.sonar.core.metric;
 
-import com.google.common.collect.Iterables;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,7 +41,7 @@ public class ScannerMetricsTest {
   @Test
   public void check_metrics_from_plugin() throws Exception {
     List<Metric> metrics = metrics(new FakeMetrics());
-    Iterables.removeAll(metrics, SENSOR_METRICS_WITHOUT_METRIC_PLUGIN);
+    metrics.removeAll(SENSOR_METRICS_WITHOUT_METRIC_PLUGIN);
     assertThat(metrics).hasSize(2);
   }
 
@@ -52,7 +51,7 @@ public class ScannerMetricsTest {
     Metrics okMetrics = new FakeMetrics();
 
     List<Metric> metrics = metrics(okMetrics, faultyMetrics);
-    Iterables.removeAll(metrics, SENSOR_METRICS_WITHOUT_METRIC_PLUGIN);
+    metrics.removeAll(SENSOR_METRICS_WITHOUT_METRIC_PLUGIN);
 
     assertThat(metrics).isEqualTo(okMetrics.getMetrics());
   }
