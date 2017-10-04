@@ -82,7 +82,7 @@ export default Marionette.ItemView.extend({
 
   loadPreviousPage() {
     setInterval(() => {
-      window.location = window.baseUrl + (this.options.returnTo || '/');
+      window.location = this.options.returnTo || window.baseUrl;
     }, 2500);
   },
 
