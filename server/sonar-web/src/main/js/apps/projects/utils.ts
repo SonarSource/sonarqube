@@ -281,13 +281,20 @@ function mapFacetValues(values: Array<{ val: string; count: number }>) {
   return map;
 }
 
-function cumulativeMapFacetValues(values: Array<{ val: string; count: number }>) {
+export function cumulativeMapFacetValues(values: Array<{ val: string; count: number }>) {
+  const noDataVal = values.find(value => value.val === 'NO_DATA');
+  const filteredValues = noDataVal ? values.filter(value => value.val !== 'NO_DATA') : values;
+
+  let sum = sumBy(filteredValues, value => value.count);
   const map: { [value: string]: number } = {};
-  let sum = sumBy(values, value => value.count);
-  values.forEach((value, index) => {
+  filteredValues.forEach((value, index) => {
     map[value.val] = index > 0 && index < values.length - 1 ? sum : value.count;
     sum -= value.count;
   });
+
+  if (noDataVal) {
+    map[noDataVal.val] = noDataVal.count;
+  }
   return map;
 }
 
