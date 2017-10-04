@@ -22,6 +22,7 @@ package org.sonar.core.metric;
 import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -137,6 +138,7 @@ public class ScannerMetrics {
   private static Stream<Metric> getPluginMetrics(Metrics[] metricsRepositories) {
     return Arrays.stream(metricsRepositories)
       .map(Metrics::getMetrics)
+      .filter(Objects::nonNull)
       .flatMap(List::stream);
   }
 }

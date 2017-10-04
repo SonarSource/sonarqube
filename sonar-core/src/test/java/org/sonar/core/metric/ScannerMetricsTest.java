@@ -19,38 +19,51 @@
  */
 package org.sonar.core.metric;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ScannerMetricsTest {
 
-  static final ScannerMetrics SENSOR_METRICS_WITHOUT_METRIC_PLUGIN = new ScannerMetrics(new Metrics[] {});
-  static final ScannerMetrics SENSOR_METRICS_WITH_PLUGIN = new ScannerMetrics(new Metrics[] {new FakeMetrics()});
+  // metrics that are always added, regardless of plugins
+  private static final List<Metric> SENSOR_METRICS_WITHOUT_METRIC_PLUGIN = metrics();
 
   @Test
   public void check_number_of_allowed_core_metrics() throws Exception {
-    assertThat(SENSOR_METRICS_WITHOUT_METRIC_PLUGIN.getMetrics()).hasSize(34);
+    assertThat(SENSOR_METRICS_WITHOUT_METRIC_PLUGIN).hasSize(34);
   }
 
   @Test
   public void check_metrics_from_plugin() throws Exception {
-    List<Metric> metrics = newArrayList(SENSOR_METRICS_WITH_PLUGIN.getMetrics());
-    Iterables.removeAll(metrics, SENSOR_METRICS_WITHOUT_METRIC_PLUGIN.getMetrics());
+    List<Metric> metrics = metrics(new FakeMetrics());
+    metrics.removeAll(SENSOR_METRICS_WITHOUT_METRIC_PLUGIN);
     assertThat(metrics).hasSize(2);
   }
 
-  private static class FakeMetrics implements Metrics {
+  @Test
+  public void should_not_crash_on_null_metrics_from_faulty_plugins() {
+    Metrics faultyMetrics = () -> null;
+    Metrics okMetrics = new FakeMetrics();
 
+    List<Metric> metrics = metrics(okMetrics, faultyMetrics);
+    metrics.removeAll(SENSOR_METRICS_WITHOUT_METRIC_PLUGIN);
+
+    assertThat(metrics).isEqualTo(okMetrics.getMetrics());
+  }
+
+  private static List<Metric> metrics(Metrics... metrics) {
+    return new ArrayList<>(new ScannerMetrics(metrics).getMetrics());
+  }
+
+  private static class FakeMetrics implements Metrics {
     @Override
     public List<Metric> getMetrics() {
-      return ImmutableList.<Metric>of(
+      return Arrays.asList(
         new Metric.Builder("key1", "name1", Metric.ValueType.INT).create(),
         new Metric.Builder("key2", "name2", Metric.ValueType.FLOAT).create());
     }
