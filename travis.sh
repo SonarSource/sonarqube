@@ -128,16 +128,17 @@ BUILD)
   export MAVEN_OPTS="-Xmx1G -Xms128m"
   MAVEN_ARGS="-T 1C -Dmaven.test.redirectTestOutputToFile=false -Dsurefire.useFile=false -B -e -V -DbuildVersion=$BUILD_VERSION -Dtests.es.logger.level=WARN -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn"
 
+
+  # Fetch all commit history so that SonarQube has exact blame information
+  # for issue auto-assignment
+  # This command can fail with "fatal: --unshallow on a complete repository does not make sense"
+  # if there are not enough commits in the Git repository (even if Travis executed git clone --depth 50).
+  # For this reason errors are ignored with "|| true"
+  git fetch --unshallow || true
+
+
   if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Build and analyze master'
-
-    # Fetch all commit history so that SonarQube has exact blame information
-    # for issue auto-assignment
-    # This command can fail with "fatal: --unshallow on a complete repository does not make sense"
-    # if there are not enough commits in the Git repository (even if Travis executed git clone --depth 50).
-    # For this reason errors are ignored with "|| true"
-    git fetch --unshallow || true
-
     mvn org.jacoco:jacoco-maven-plugin:prepare-agent deploy \
           $MAVEN_ARGS \
           -Pdeploy-sonarsource,release
