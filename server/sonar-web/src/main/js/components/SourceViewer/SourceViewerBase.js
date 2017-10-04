@@ -250,6 +250,7 @@ export default class SourceViewerBase extends React.PureComponent {
               issuesByLine: issuesByLine(issues),
               issueLocationsByLine: locationsByLine(issues),
               loading: false,
+              notExist: false,
               hasSourcesAfter: sources.length > LINES,
               sources: this.computeCoverageStatus(finalSources),
               sourceRemoved: false,
