@@ -47,13 +47,11 @@ exports[`should render correctly 1`] = `
       footer.help
     </a>
      - 
-    <Link
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to="/about"
+    <a
+      href="https://about.sonarcloud.io/"
     >
       footer.about
-    </Link>
+    </a>
   </div>
 </div>
 `;

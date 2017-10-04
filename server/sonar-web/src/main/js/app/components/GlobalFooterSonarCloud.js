@@ -19,7 +19,6 @@
  */
 // @flow
 import React from 'react';
-import { Link } from 'react-router';
 import { translate } from '../../helpers/l10n';
 
 export default function GlobalFooterSonarCloud() {
@@ -44,7 +43,7 @@ export default function GlobalFooterSonarCloud() {
         {' - '}
         <a href="https://about.sonarcloud.io/contact/">{translate('footer.help')}</a>
         {' - '}
-        <Link to="/about">{translate('footer.about')}</Link>
+        <a href="https://about.sonarcloud.io/">{translate('footer.about')}</a>
       </div>
     </div>
   );
