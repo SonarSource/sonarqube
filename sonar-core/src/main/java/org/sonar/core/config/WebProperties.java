@@ -33,7 +33,6 @@ public final class WebProperties {
   public static List<PropertyDefinition> all() {
     return asList(
       PropertyDefinition.builder(WebConstants.SONARCLOUD_ENABLED)
-        .deprecatedKey("sonar.lf.sonarqube.com.enabled")
         .defaultValue("false")
         .name("Enable SonarCloud look&feel")
         .type(PropertyType.BOOLEAN)
