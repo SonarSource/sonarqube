@@ -70,6 +70,8 @@ export default class PageActions extends React.PureComponent<Props, State> {
   handleServerRestartOpen = () => this.setState({ openRestartForm: true });
   handleServerRestartClose = () => this.setState({ openRestartForm: false });
 
+  removeElementFocus = (event: React.SyntheticEvent<HTMLElement>) => event.currentTarget.blur();
+
   render() {
     const infoUrl = getBaseUrl() + '/api/system/info';
     const logsUrl = getBaseUrl() + '/api/system/logs';
@@ -137,6 +139,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
           href={infoUrl}
           id="download-link"
           className="button spacer-left"
+          onClick={this.removeElementFocus}
           download="sonarqube_system_info.json"
           target="_blank">
           {translate('system.download_system_info')}

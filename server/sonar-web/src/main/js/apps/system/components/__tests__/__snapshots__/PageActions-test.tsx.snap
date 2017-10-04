@@ -84,6 +84,7 @@ exports[`should render correctly 1`] = `
     download="sonarqube_system_info.json"
     href="/api/system/info"
     id="download-link"
+    onClick={[Function]}
     target="_blank"
   >
     system.download_system_info
@@ -126,6 +127,7 @@ exports[`should render without restart and log download 1`] = `
     download="sonarqube_system_info.json"
     href="/api/system/info"
     id="download-link"
+    onClick={[Function]}
     target="_blank"
   >
     system.download_system_info
