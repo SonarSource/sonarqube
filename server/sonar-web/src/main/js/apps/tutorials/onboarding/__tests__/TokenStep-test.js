@@ -77,3 +77,19 @@ it('continues', () => {
   click(wrapper.find('.js-continue'));
   expect(onContinue).toBeCalledWith('abcd1234');
 });
+
+it('uses existing token', () => {
+  const onContinue = jest.fn();
+  const wrapper = mount(
+    <TokenStep
+      finished={false}
+      open={true}
+      onContinue={onContinue}
+      onOpen={jest.fn()}
+      stepNumber={1}
+    />
+  );
+  wrapper.setState({ existingToken: 'abcd1234', selection: 'use-existing' });
+  click(wrapper.find('.js-continue'));
+  expect(onContinue).toBeCalledWith('abcd1234');
+});
