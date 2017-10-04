@@ -392,12 +392,12 @@
   </select>
 
   <select id="selectProjectsFromView" resultType="String">
-    SELECT p.uuid FROM projects technical_projects
-    INNER JOIN projects p on p.uuid=technical_projects.copy_component_uuid AND p.enabled=${_true}
+    select p.copy_component_uuid from projects p
     where
-      technical_projects.enabled=${_true}
-      AND technical_projects.project_uuid = #{projectViewUuid,jdbcType=VARCHAR}
-      AND technical_projects.module_uuid_path LIKE #{viewUuidLikeQuery,jdbcType=VARCHAR}
+      p.enabled = ${_true}
+      and p.project_uuid = #{projectViewUuid,jdbcType=VARCHAR}
+      and p.module_uuid_path like #{viewUuidLikeQuery,jdbcType=VARCHAR}
+      and p.qualifier = 'TRK'
   </select>
 
   <select id="selectComponentsFromProjectKeyAndScope" parameterType="map" resultType="Component">
