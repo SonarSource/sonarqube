@@ -29,8 +29,9 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -52,7 +53,6 @@ public class OAuth2ContextFactoryTest {
 
   private static final String PROVIDER_KEY = "github";
   private static final String SECURED_PUBLIC_ROOT_URL = "https://mydomain.com";
-  private static final String NOT_SECURED_PUBLIC_URL = "http://mydomain.com";
   private static final String PROVIDER_NAME = "provider name";
   private static final UserIdentity USER_IDENTITY = UserIdentity.builder()
       .setProviderLogin("johndoo")
@@ -67,16 +67,17 @@ public class OAuth2ContextFactoryTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
+  @Rule
+  public LogTester logTester = new LogTester();
+
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
-
   private ThreadLocalUserSession threadLocalUserSession = mock(ThreadLocalUserSession.class);
   private UserIdentityAuthenticator userIdentityAuthenticator = mock(UserIdentityAuthenticator.class);
   private Server server = mock(Server.class);
   private OAuthCsrfVerifier csrfVerifier = mock(OAuthCsrfVerifier.class);
   private JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
   private TestUserSessionFactory userSessionFactory = TestUserSessionFactory.standalone();
-
   private HttpServletRequest request = mock(HttpServletRequest.class);
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private HttpSession session = mock(HttpSession.class);
@@ -125,14 +126,13 @@ public class OAuth2ContextFactoryTest {
   }
 
   @Test
-  public void fail_to_get_callback_url_on_not_secured_server() throws Exception {
-    when(server.getPublicRootUrl()).thenReturn(NOT_SECURED_PUBLIC_URL);
+  public void display_a_warning_if_not_https() throws Exception {
+    when(server.getPublicRootUrl()).thenReturn("http://mydomain.com");
 
     OAuth2IdentityProvider.InitContext context = newInitContext();
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("The server url should be configured in https, please update the property 'sonar.core.serverBaseURL'");
-    context.getCallbackUrl();
+    assertThat(context.getCallbackUrl()).isEqualTo("http://mydomain.com/oauth2/callback/github");
+    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("For security reasons, the server URL used for OAuth authentications should be https. Please update the property 'sonar.core.serverBaseURL'.");
   }
 
   @Test

@@ -101,10 +101,12 @@ public abstract class Server {
   public abstract String getPublicRootUrl();
 
   /**
-   * The dev mode is enabled when the property {@code sonar.web.dev} is {@code true}.
-   *
+   * Before version 6.6, the dev mode is enabled when the property {@code sonar.web.dev} is {@code true}.
+   * Since 6.6, {@code false} is always returned.
+   * @deprecated in 6.6
    * @since 5.4
    */
+  @Deprecated
   public abstract boolean isDev();
 
   /**

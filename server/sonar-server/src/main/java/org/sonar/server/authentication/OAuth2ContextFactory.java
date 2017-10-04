@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.user.ThreadLocalUserSession;
@@ -77,8 +77,9 @@ public class OAuth2ContextFactory {
     @Override
     public String getCallbackUrl() {
       String publicRootUrl = server.getPublicRootUrl();
-      if (publicRootUrl.startsWith("http:") && !server.isDev()) {
-        throw MessageException.of(format("The server url should be configured in https, please update the property '%s'", SERVER_BASE_URL));
+      if (publicRootUrl.startsWith("http:")) {
+        Loggers.get(getClass()).warn(
+          "For security reasons, the server URL used for OAuth authentications should be https. Please update the property '{}'.", SERVER_BASE_URL);
       }
       return publicRootUrl + CALLBACK_PATH + identityProvider.getKey();
     }
