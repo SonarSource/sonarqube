@@ -37,18 +37,19 @@ export function getBaseUrl(): string {
 
 /**
  * Generate URL for a component's home page
+ * Deprecated : use getProjectUrl
  */
 export function getComponentUrl(componentKey: string, branch?: string): string {
   const branchQuery = branch ? `&branch=${encodeURIComponent(branch)}` : '';
   return getBaseUrl() + '/dashboard?id=' + encodeURIComponent(componentKey) + branchQuery;
 }
 
-export function getComponentBackgroundTaskUrl(componentKey: string): string {
-  return getBaseUrl() + '/project/background_tasks?id=' + encodeURIComponent(componentKey);
-}
-
 export function getProjectUrl(key: string, branch?: string): Location {
   return { pathname: '/dashboard', query: { id: key, branch } };
+}
+
+export function getComponentBackgroundTaskUrl(componentKey: string): Location {
+  return { pathname: '/project/background_tasks', query: { id: componentKey } };
 }
 
 export function getProjectBranchUrl(key: string, branch: Branch): Location {
@@ -166,10 +167,6 @@ export function getRulesUrl(query: { [x: string]: string }, organization?: strin
 export function getDeprecatedActiveRulesUrl(query = {}, organization?: string | null): string {
   const baseQuery = { activation: 'true', statuses: 'DEPRECATED' };
   return getRulesUrl({ ...query, ...baseQuery }, organization);
-}
-
-export function getProjectsUrl(): string {
-  return getBaseUrl() + '/projects';
 }
 
 export function getMarkdownHelpUrl(): string {
