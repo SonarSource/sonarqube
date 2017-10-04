@@ -32,13 +32,16 @@ import static java.util.Objects.requireNonNull;
 @Immutable
 public class QualityGateDetailsData {
   private static final String FIELD_LEVEL = "level";
+  private static final String FIELD_IGNORED_CONDITIONS = "ignoredConditions";
 
   private final Measure.Level level;
   private final List<EvaluatedCondition> conditions;
+  private final boolean ignoredConditions;
 
-  public QualityGateDetailsData(Measure.Level level, Iterable<EvaluatedCondition> conditions) {
+  public QualityGateDetailsData(Measure.Level level, Iterable<EvaluatedCondition> conditions, boolean ignoredConditions) {
     this.level = requireNonNull(level);
     this.conditions = from(conditions).toList();
+    this.ignoredConditions = ignoredConditions;
   }
 
   public String toJson() {
@@ -49,6 +52,7 @@ public class QualityGateDetailsData {
       conditionResults.add(toJson(condition));
     }
     details.add("conditions", conditionResults);
+    details.addProperty(FIELD_IGNORED_CONDITIONS, ignoredConditions);
     return details.toString();
   }
 

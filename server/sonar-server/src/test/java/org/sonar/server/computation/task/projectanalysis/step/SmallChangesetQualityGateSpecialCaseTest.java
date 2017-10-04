@@ -61,9 +61,9 @@ public class SmallChangesetQualityGateSpecialCaseTest {
     Component project = generateNewRootProject();
     measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().setVariation(19).create(1000));
 
-    QualityGateMeasuresStep.MetricEvaluationResult result = underTest.applyIfNeeded(project, metricEvaluationResult);
+    boolean result = underTest.appliesTo(project, metricEvaluationResult);
 
-    assertThat(result.evaluationResult.getLevel()).isSameAs(OK);
+    assertThat(result).isTrue();
   }
 
   @Test
@@ -72,9 +72,9 @@ public class SmallChangesetQualityGateSpecialCaseTest {
     Component project = generateNewRootProject();
     measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().setVariation(19).create(1000));
 
-    QualityGateMeasuresStep.MetricEvaluationResult result = underTest.applyIfNeeded(project, metricEvaluationResult);
+    boolean result = underTest.appliesTo(project, metricEvaluationResult);
 
-    assertThat(result.evaluationResult.getLevel()).isSameAs(OK);
+    assertThat(result).isTrue();
   }
 
   @Test
@@ -83,9 +83,9 @@ public class SmallChangesetQualityGateSpecialCaseTest {
     Component project = generateNewRootProject();
     measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().setVariation(20).create(1000));
 
-    QualityGateMeasuresStep.MetricEvaluationResult result = underTest.applyIfNeeded(project, metricEvaluationResult);
+    boolean result = underTest.appliesTo(project, metricEvaluationResult);
 
-    assertThat(result.evaluationResult.getLevel()).isSameAs(ERROR);
+    assertThat(result).isFalse();
   }
 
   @Test
@@ -94,9 +94,9 @@ public class SmallChangesetQualityGateSpecialCaseTest {
     Component project = generateNewRootProject();
     measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().setVariation(19).create(1000));
 
-    QualityGateMeasuresStep.MetricEvaluationResult result = underTest.applyIfNeeded(project, metricEvaluationResult);
+    boolean result = underTest.appliesTo(project, metricEvaluationResult);
 
-    assertThat(result.evaluationResult.getLevel()).isSameAs(ERROR);
+    assertThat(result).isFalse();
   }
 
   @Test
@@ -105,9 +105,9 @@ public class SmallChangesetQualityGateSpecialCaseTest {
     Component project = generateNewRootProject();
     measureRepository.addRawMeasure(PROJECT_REF, CoreMetrics.NEW_LINES_KEY, newMeasureBuilder().setVariation(19).create(1000));
 
-    QualityGateMeasuresStep.MetricEvaluationResult result = underTest.applyIfNeeded(project, metricEvaluationResult);
+    boolean result = underTest.appliesTo(project, metricEvaluationResult);
 
-    assertThat(result.evaluationResult.getLevel()).isSameAs(OK);
+    assertThat(result).isFalse();
   }
 
   @Test
@@ -115,17 +115,31 @@ public class SmallChangesetQualityGateSpecialCaseTest {
     QualityGateMeasuresStep.MetricEvaluationResult metricEvaluationResult = generateEvaluationResult(NEW_COVERAGE_KEY, ERROR);
     Component project = generateNewRootProject();
 
-    QualityGateMeasuresStep.MetricEvaluationResult result = underTest.applyIfNeeded(project, metricEvaluationResult);
+    boolean result = underTest.appliesTo(project, metricEvaluationResult);
 
-    assertThat(result.evaluationResult.getLevel()).isSameAs(ERROR);
+    assertThat(result).isFalse();
   }
 
   @Test
   public void should_silently_ignore_null_values() throws Exception {
 
-    QualityGateMeasuresStep.MetricEvaluationResult result = underTest.applyIfNeeded(mock(Component.class), null);
+    boolean result = underTest.appliesTo(mock(Component.class), null);
 
-    assertThat(result).isNull();
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  public void apply() throws Exception {
+    Comparable<?> value = mock(Comparable.class);
+    Condition condition = mock(Condition.class);
+    QualityGateMeasuresStep.MetricEvaluationResult original = new QualityGateMeasuresStep.MetricEvaluationResult(
+      new EvaluationResult(Measure.Level.ERROR, value), condition);
+
+    QualityGateMeasuresStep.MetricEvaluationResult modified = underTest.apply(original);
+
+    assertThat(modified.evaluationResult.getLevel()).isSameAs(OK);
+    assertThat(modified.evaluationResult.getValue()).isSameAs(value);
+    assertThat(modified.condition).isSameAs(condition);
   }
 
   private Component generateNewRootProject() {

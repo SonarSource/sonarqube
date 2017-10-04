@@ -174,6 +174,7 @@ public class QualityGateMeasuresStep implements ComputationStep {
 
   private void updateMeasures(Component project, Set<Condition> conditions, QualityGateDetailsDataBuilder builder) {
     Multimap<Metric, Condition> conditionsPerMetric = conditions.stream().collect(MoreCollectors.index(Condition::getMetric, java.util.function.Function.identity()));
+    boolean ignoredConditions = false;
     for (Map.Entry<Metric, Collection<Condition>> entry : conditionsPerMetric.asMap().entrySet()) {
       Metric metric = entry.getKey();
       Optional<Measure> measure = measureRepository.getRawMeasure(project, metric);
@@ -182,7 +183,13 @@ public class QualityGateMeasuresStep implements ComputationStep {
       }
 
       final MetricEvaluationResult metricEvaluationResult = evaluateQualityGate(measure.get(), entry.getValue());
-      final MetricEvaluationResult finalMetricEvaluationResult = smallChangesetQualityGateSpecialCase.applyIfNeeded(project, metricEvaluationResult);
+      final MetricEvaluationResult finalMetricEvaluationResult;
+      if (smallChangesetQualityGateSpecialCase.appliesTo(project, metricEvaluationResult)) {
+        finalMetricEvaluationResult = smallChangesetQualityGateSpecialCase.apply(metricEvaluationResult);
+        ignoredConditions = true;
+      } else {
+        finalMetricEvaluationResult = metricEvaluationResult;
+      }
       String text = evaluationResultTextConverter.asText(finalMetricEvaluationResult.condition, finalMetricEvaluationResult.evaluationResult);
       builder.addLabel(text);
 
@@ -193,6 +200,7 @@ public class QualityGateMeasuresStep implements ComputationStep {
 
       builder.addEvaluatedCondition(finalMetricEvaluationResult);
     }
+    builder.setIgnoredConditions(ignoredConditions);
   }
 
   private static MetricEvaluationResult evaluateQualityGate(Measure measure, Collection<Condition> conditions) {
@@ -214,7 +222,7 @@ public class QualityGateMeasuresStep implements ComputationStep {
     Metric metric = metricRepository.getByKey(CoreMetrics.ALERT_STATUS_KEY);
     measureRepository.add(project, metric, globalMeasure);
 
-    String detailMeasureValue = new QualityGateDetailsData(builder.getGlobalLevel(), builder.getEvaluatedConditions()).toJson();
+    String detailMeasureValue = new QualityGateDetailsData(builder.getGlobalLevel(), builder.getEvaluatedConditions(), builder.isIgnoredConditions()).toJson();
     Measure detailsMeasure = Measure.newMeasureBuilder().create(detailMeasureValue);
     Metric qgDetailsMetric = metricRepository.getByKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY);
     measureRepository.add(project, qgDetailsMetric, detailsMeasure);
@@ -229,6 +237,7 @@ public class QualityGateMeasuresStep implements ComputationStep {
     private Measure.Level globalLevel = Measure.Level.OK;
     private List<String> labels = new ArrayList<>();
     private List<EvaluatedCondition> evaluatedConditions = new ArrayList<>();
+    private boolean ignoredConditions;
 
     public Measure.Level getGlobalLevel() {
       return globalLevel;
@@ -258,6 +267,15 @@ public class QualityGateMeasuresStep implements ComputationStep {
 
     public List<EvaluatedCondition> getEvaluatedConditions() {
       return evaluatedConditions;
+    }
+
+    public boolean isIgnoredConditions() {
+      return ignoredConditions;
+    }
+
+    public QualityGateDetailsDataBuilder setIgnoredConditions(boolean ignoredConditions) {
+      this.ignoredConditions = ignoredConditions;
+      return this;
     }
   }
 

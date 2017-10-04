@@ -1,6 +1,7 @@
 {
   "projectStatus": {
     "status": "ERROR",
+    "ignoredConditions": false,
     "conditions": [
       {
         "status": "ERROR",

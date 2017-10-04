@@ -161,7 +161,7 @@ public class QualityGateMeasuresStepTest {
       .hasQualityGateLevel(OK)
       .hasQualityGateText("");
     assertThat(getQGDetailsMeasure())
-      .hasValue(new QualityGateDetailsData(OK, Collections.<EvaluatedCondition>emptyList()).toJson());
+      .hasValue(new QualityGateDetailsData(OK, Collections.<EvaluatedCondition>emptyList(), false).toJson());
 
     QualityGateStatusHolderAssertions.assertThat(qualityGateStatusHolder)
       .hasStatus(QualityGateStatus.OK)
@@ -189,7 +189,7 @@ public class QualityGateMeasuresStepTest {
       .hasQualityGateLevel(OK)
       .hasQualityGateText(dumbResultTextAnswer(equals2Condition, OK, rawValue));
     assertThat(getQGDetailsMeasure().get())
-      .hasValue(new QualityGateDetailsData(OK, of(new EvaluatedCondition(equals2Condition, OK, rawValue))).toJson());
+      .hasValue(new QualityGateDetailsData(OK, of(new EvaluatedCondition(equals2Condition, OK, rawValue)), false).toJson());
 
     QualityGateStatusHolderAssertions.assertThat(qualityGateStatusHolder)
       .hasStatus(QualityGateStatus.OK)
@@ -226,7 +226,7 @@ public class QualityGateMeasuresStepTest {
     assertThat(getQGDetailsMeasure())
       .hasValue(new QualityGateDetailsData(ERROR, of(
         new EvaluatedCondition(equals1ErrorCondition, ERROR, rawValue),
-        new EvaluatedCondition(equals1WarningCondition, WARN, rawValue))).toJson());
+        new EvaluatedCondition(equals1WarningCondition, WARN, rawValue)), false).toJson());
 
     QualityGateStatusHolderAssertions.assertThat(qualityGateStatusHolder)
       .hasStatus(QualityGateStatus.ERROR)
@@ -264,7 +264,7 @@ public class QualityGateMeasuresStepTest {
     assertThat(getQGDetailsMeasure())
       .hasValue(new QualityGateDetailsData(WARN, of(
         new EvaluatedCondition(equals2Condition, OK, rawValue),
-        new EvaluatedCondition(equals1WarningCondition, WARN, rawValue))).toJson());
+        new EvaluatedCondition(equals1WarningCondition, WARN, rawValue)), false).toJson());
 
     QualityGateStatusHolderAssertions.assertThat(qualityGateStatusHolder)
       .hasStatus(QualityGateStatus.WARN)
