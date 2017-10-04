@@ -54,6 +54,7 @@ public class SearchNodesInfoLoaderImpl implements SearchNodesInfoLoader {
   private static NodeInfo toNodeInfo(NodeStats stat) {
     String nodeName = stat.getNode().getName();
     NodeInfo info = new NodeInfo(nodeName);
+    info.setHost(stat.getHostname());
 
     ProtobufSystemInfo.Section.Builder section = ProtobufSystemInfo.Section.newBuilder();
     section.setName("Search State");
