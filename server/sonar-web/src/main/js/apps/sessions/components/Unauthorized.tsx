@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   location: {
@@ -33,14 +34,16 @@ export default function Unauthorized(props: Props) {
 
   return (
     <div className="text-center">
-      <p id="unauthorized">
-        {"You're not authorized to access this page. Please contact the administrator."}
-      </p>
+      <p id="unauthorized">{translate('unauthorized.message')}</p>
 
-      {!!message && <p className="spacer-top">Reason : {message}</p>}
+      {!!message && (
+        <p className="spacer-top">
+          {translate('unauthorized.reason')} {message}
+        </p>
+      )}
 
       <div className="big-spacer-top">
-        <Link to="/">Home</Link>
+        <Link to="/">{translate('layout.home')}</Link>
       </div>
     </div>
   );

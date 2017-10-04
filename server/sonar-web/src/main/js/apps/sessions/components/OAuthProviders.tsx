@@ -17,43 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { translateWithParameters } from '../../../helpers/l10n';
+import { IdentityProvider } from '../../../api/users';
+import { getBaseUrl } from '../../../helpers/urls';
 
-/*::
-type Props = {
-  formatLabel?: string => string,
-  identityProviders: Array<{
-    backgroundColor: string,
-    iconPath: string,
-    key: string,
-    name: string
-  }>
-};
-*/
+interface Props {
+  formatLabel?: (name: string) => string;
+  identityProviders: IdentityProvider[];
+}
 
-export default function OAuthProviders(props /*: Props */) {
+export default function OAuthProviders(props: Props) {
+  const formatLabel = props.formatLabel || defaultFormatLabel;
   return (
     <section className="oauth-providers">
       <ul>
         {props.identityProviders.map(identityProvider => (
           <li key={identityProvider.key}>
             <a
-              href={`${window.baseUrl}/sessions/init/${identityProvider.key}`}
+              href={`${getBaseUrl()}/sessions/init/${identityProvider.key}`}
               style={{ backgroundColor: identityProvider.backgroundColor }}
-              // $FlowFixMe formatLabel is always defined through defaultProps
-              title={props.formatLabel(identityProvider.name)}>
+              title={formatLabel(identityProvider.name)}>
               <img
                 alt={identityProvider.name}
                 width="20"
                 height="20"
-                src={window.baseUrl + identityProvider.iconPath}
+                src={getBaseUrl() + identityProvider.iconPath}
               />
-              <span>
-                {/* $FlowFixMe formatLabel is always defined through defaultProps */}
-                {props.formatLabel(identityProvider.name)}
-              </span>
+              <span>{formatLabel(identityProvider.name)}</span>
             </a>
           </li>
         ))}
@@ -62,6 +53,6 @@ export default function OAuthProviders(props /*: Props */) {
   );
 }
 
-OAuthProviders.defaultProps = {
-  formatLabel: (name /*: string */) => translateWithParameters('login.login_with_x', name)
-};
+function defaultFormatLabel(name: string) {
+  return translateWithParameters('login.login_with_x', name);
+}

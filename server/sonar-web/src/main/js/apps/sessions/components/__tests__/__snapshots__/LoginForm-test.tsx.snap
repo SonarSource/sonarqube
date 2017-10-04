@@ -10,7 +10,6 @@ exports[`expands more options 1`] = `
     login.login_to_sonarqube
   </h1>
   <OAuthProviders
-    formatLabel={[Function]}
     identityProviders={
       Array [
         Object {
@@ -46,7 +45,6 @@ exports[`expands more options 2`] = `
     login.login_to_sonarqube
   </h1>
   <OAuthProviders
-    formatLabel={[Function]}
     identityProviders={
       Array [
         Object {
@@ -75,7 +73,7 @@ exports[`expands more options 2`] = `
         autoFocus={true}
         className="login-input"
         id="login"
-        maxLength="255"
+        maxLength={255}
         name="login"
         onChange={[Function]}
         placeholder="login"
@@ -114,12 +112,14 @@ exports[`expands more options 2`] = `
         >
           sessions.log_in
         </button>
-        <a
+        <Link
           className="spacer-left"
-          href="/"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to="/"
         >
           cancel
-        </a>
+        </Link>
       </div>
     </div>
   </form>
@@ -136,7 +136,6 @@ exports[`logs in with identity provider 1`] = `
     login.login_to_sonarqube
   </h1>
   <OAuthProviders
-    formatLabel={[Function]}
     identityProviders={
       Array [
         Object {
@@ -188,7 +187,7 @@ exports[`logs in with simple credentials 1`] = `
         autoFocus={true}
         className="login-input"
         id="login"
-        maxLength="255"
+        maxLength={255}
         name="login"
         onChange={[Function]}
         placeholder="login"
@@ -227,12 +226,14 @@ exports[`logs in with simple credentials 1`] = `
         >
           sessions.log_in
         </button>
-        <a
+        <Link
           className="spacer-left"
-          href="/"
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to="/"
         >
           cancel
-        </a>
+        </Link>
       </div>
     </div>
   </form>

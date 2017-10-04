@@ -17,16 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import SimpleContainer from '../../../app/components/SimpleContainer';
 
-/*::
-type Props = {
-  children?: React.Element<*> | Array<React.Element<*>>
-};
-*/
+interface Props {
+  children?: React.ReactElement<any>;
+}
 
-export default function SimpleSessionsContainer({ children } /*: Props */) {
+export default function SimpleSessionsContainer({ children }: Props) {
   return <SimpleContainer hideLoggedInInfo={true}>{children}</SimpleContainer>;
 }

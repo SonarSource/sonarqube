@@ -19,6 +19,13 @@
  */
 import { getJSON, post, RequestData } from '../helpers/request';
 
+export interface IdentityProvider {
+  backgroundColor: string;
+  iconPath: string;
+  key: string;
+  name: string;
+}
+
 export function getCurrentUser(): Promise<any> {
   return getJSON('/api/users/current');
 }
@@ -43,7 +50,7 @@ export function getUserGroups(login: string, organization?: string): Promise<any
   return getJSON('/api/users/groups', data);
 }
 
-export function getIdentityProviders(): Promise<any> {
+export function getIdentityProviders(): Promise<{ identityProviders: IdentityProvider[] }> {
   return getJSON('/api/users/identity_providers');
 }
 

@@ -17,25 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
+import RecentHistory from '../../../app/components/RecentHistory';
 import { doLogout } from '../../../store/rootActions';
 import { translate } from '../../../helpers/l10n';
-import RecentHistory from '../../../app/components/RecentHistory';
+import { getBaseUrl } from '../../../helpers/urls';
 
-class Logout extends React.PureComponent {
+interface Props {
+  doLogout: () => Promise<void>;
+}
+
+class Logout extends React.PureComponent<Props> {
   componentDidMount() {
-    this.props
-      .doLogout()
-      .then(() => {
+    this.props.doLogout().then(
+      () => {
         RecentHistory.clear();
-        window.location = window.baseUrl + '/';
-      })
-      .catch(() => {
-        /* do nothing */
-      });
+        window.location.href = getBaseUrl() + '/';
+      },
+      () => {}
+    );
   }
 
   render() {
@@ -52,4 +54,4 @@ const mapStateToProps = () => ({});
 
 const mapDispatchToProps = { doLogout };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Logout);
+export default connect(mapStateToProps, mapDispatchToProps)(Logout as any);
