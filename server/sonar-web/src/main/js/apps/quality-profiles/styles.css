@@ -77,3 +77,12 @@
 .quality-profile-comparison-table {
   table-layout: fixed;
 }
+
+.quality-profile-changelog-rule-cell {
+  line-height: 1.5;
+}
+
+.quality-profile-changelog-parameter {
+  max-width: 270px;
+  word-break: break-word;
+}

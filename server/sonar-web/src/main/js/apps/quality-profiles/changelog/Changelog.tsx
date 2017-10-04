@@ -74,13 +74,13 @@ export default function Changelog(props: Props) {
           {!isBulkChange && translate('quality_profiles.changelog', event.action)}
         </td>
 
-        <td style={{ lineHeight: '1.5' }}>
+        <td className="quality-profile-changelog-rule-cell">
           <Link to={getRulesUrl({ rule_key: event.ruleKey }, props.organization)}>
             {event.ruleName}
           </Link>
         </td>
 
-        <td className="thin nowrap">{event.params && <ChangesList changes={event.params} />}</td>
+        <td>{event.params && <ChangesList changes={event.params} />}</td>
       </tr>
     );
   });
@@ -95,7 +95,7 @@ export default function Changelog(props: Props) {
           <th className="thin nowrap">{translate('user')}</th>
           <th className="thin nowrap">{translate('action')}</th>
           <th>{translate('rule')}</th>
-          <th className="thin nowrap">{translate('parameters')}</th>
+          <th>{translate('parameters')}</th>
         </tr>
       </thead>
       <tbody>{rows}</tbody>

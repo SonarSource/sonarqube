@@ -27,7 +27,7 @@ interface Props {
 
 export default function SeverityChange({ severity }: Props) {
   return (
-    <div>
+    <div className="nowrap">
       {translate('quality_profiles.severity_set_to')} <SeverityHelper severity={severity} />
     </div>
   );
