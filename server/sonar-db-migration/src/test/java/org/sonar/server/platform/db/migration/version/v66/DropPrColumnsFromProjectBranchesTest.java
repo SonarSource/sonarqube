@@ -17,26 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
 package org.sonar.server.platform.db.migration.version.v66;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static org.sonar.server.platform.db.migration.version.v66.DropPrColumnsFromProjectBranches.PROJECT_BRANCHES_TABLE_NAME;
 
-public class DbVersion66Test {
+public class DropPrColumnsFromProjectBranchesTest {
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(DropPrColumnsFromProjectBranchesTest.class, "initial.sql");
 
-  private DbVersion66 underTest = new DbVersion66();
-
-  @Test
-  public void migrationNumber_starts_at_1801() {
-    verifyMinimumMigrationNumber(underTest, 1801);
-  }
+  private DropPrColumnsFromProjectBranches underTest = new DropPrColumnsFromProjectBranches(db.database());
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 13);
+  public void drop_columns() throws SQLException {
+    underTest.execute();
+    db.assertColumnDoesNotExist(PROJECT_BRANCHES_TABLE_NAME, "kee_type");
+    db.assertColumnDoesNotExist(PROJECT_BRANCHES_TABLE_NAME, "pull_request_title");
+    db.assertUniqueIndex(PROJECT_BRANCHES_TABLE_NAME, "project_branches_kee", "project_uuid", "kee");
   }
-
 }

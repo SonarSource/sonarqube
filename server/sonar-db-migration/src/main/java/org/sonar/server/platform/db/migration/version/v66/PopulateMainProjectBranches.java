@@ -43,18 +43,20 @@ public class PopulateMainProjectBranches extends DataChange {
     massUpdate.select("SELECT uuid FROM projects p "
       + "WHERE p.scope='PRJ' AND p.qualifier='TRK' AND p.main_branch_project_uuid IS NULL "
       + "AND NOT EXISTS (SELECT uuid FROM project_branches b WHERE b.uuid = p.uuid)");
-    massUpdate.update("INSERT INTO project_branches (uuid, project_uuid, kee, branch_type, "
-      + "merge_branch_uuid, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    massUpdate.update("INSERT INTO project_branches (uuid, project_uuid, kee_type, kee, branch_type, "
+      + "merge_branch_uuid, pull_request_title, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
     massUpdate.rowPluralName("projects");
     massUpdate.execute((row, update) -> {
       String uuid = row.getString(1);
       update.setString(1, uuid);
       update.setString(2, uuid);
-      update.setString(3, MAIN_BRANCH_NAME);
-      update.setString(4, "LONG");
-      update.setString(5, null);
-      update.setLong(6, now);
-      update.setLong(7, now);
+      update.setString(3, "BRANCH");
+      update.setString(4, MAIN_BRANCH_NAME);
+      update.setString(5, "LONG");
+      update.setString(6, null);
+      update.setString(7, null);
+      update.setLong(8, now);
+      update.setLong(9, now);
       return true;
     });
   }
