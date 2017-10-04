@@ -42,6 +42,7 @@ public class SearchNodesInfoLoaderImplTest {
     assertThat(nodes).hasSize(1);
     NodeInfo node = nodes.iterator().next();
     assertThat(node.getName()).isNotEmpty();
+    assertThat(node.getHost()).isNotEmpty();
     assertThat(node.getSections()).hasSize(1);
     ProtobufSystemInfo.Section stateSection = node.getSections().get(0);
 
