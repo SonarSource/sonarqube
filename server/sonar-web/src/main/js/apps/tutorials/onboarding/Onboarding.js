@@ -172,7 +172,7 @@ export default class Onboarding extends React.PureComponent {
             </div>
             <div className="page-description">
               {translateWithParameters(
-                'onboarding.header.description_x',
+                'onboarding.header.description',
                 organizationsEnabled ? 3 : 2
               )}
             </div>
