@@ -21,16 +21,11 @@ package org.sonar.server.qualityprofile.ws;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.DbClient;
-import org.sonar.server.qualityprofile.QProfileBackuper;
-import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.RemovedWebServiceHandler;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class ProfilesWsTest {
 
@@ -38,8 +33,7 @@ public class ProfilesWsTest {
 
   @Before
   public void setUp() {
-    ws = new WsTester(new ProfilesWs(
-      new OldRestoreAction(mock(DbClient.class), mock(QProfileBackuper.class), mock(Languages.class), mock(QProfileWsSupport.class), mock(UserSession.class))));
+    ws = new WsTester(new ProfilesWs());
   }
 
   @Test
@@ -48,7 +42,7 @@ public class ProfilesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/profiles");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(3);
+    assertThat(controller.actions()).hasSize(2);
   }
 
   @Test

@@ -158,7 +158,6 @@ import org.sonar.server.qualityprofile.QProfileResetImpl;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.qualityprofile.ws.OldRestoreAction;
 import org.sonar.server.qualityprofile.ws.ProfilesWs;
 import org.sonar.server.qualityprofile.ws.QProfilesWsModule;
 import org.sonar.server.root.ws.RootWsModule;
@@ -286,7 +285,6 @@ public class PlatformLevel4 extends PlatformLevel {
       AnnotationProfileParser.class,
       QProfileComparison.class,
       ProfilesWs.class,
-      OldRestoreAction.class,
       RuleActivator.class,
       QProfileExporters.class,
       RuleActivatorContextFactory.class,
