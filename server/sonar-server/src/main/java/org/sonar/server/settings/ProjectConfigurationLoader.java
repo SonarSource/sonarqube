@@ -17,20 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.ws;
+package org.sonar.server.settings;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.Map;
+import java.util.Set;
+import org.sonar.api.config.Configuration;
+import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
-
-public class IssueWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new IssueWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 31);
-  }
+public interface ProjectConfigurationLoader {
+  /**
+   * Loads configuration for the specified components.
+   *
+   * <p>
+   * Returns the applicable component configuration with most specific configuration overriding more global ones
+   * (eg. global > project > branch).
+   *
+   * <p>
+   * Any component is accepted but SQ only supports specific properties for projects and branches.
+   */
+  Map<String, Configuration> loadProjectConfigurations(DbSession dbSession, Set<ComponentDto> projects);
 }
-

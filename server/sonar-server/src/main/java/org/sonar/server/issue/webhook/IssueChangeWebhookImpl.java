@@ -33,7 +33,6 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.AnalysisPropertyDto;
@@ -48,6 +47,7 @@ import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
 import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.settings.ProjectConfigurationLoader;
 import org.sonar.server.webhook.Analysis;
 import org.sonar.server.webhook.Branch;
 import org.sonar.server.webhook.Project;
@@ -68,15 +68,15 @@ public class IssueChangeWebhookImpl implements IssueChangeWebhook {
     DefaultTransitions.RESOLVE, DefaultTransitions.FALSE_POSITIVE, DefaultTransitions.WONT_FIX, DefaultTransitions.REOPEN);
   private final DbClient dbClient;
   private final WebHooks webhooks;
-  private final Configuration configuration;
+  private final ProjectConfigurationLoader projectConfigurationLoader;
   private final WebhookPayloadFactory webhookPayloadFactory;
   private final IssueIndex issueIndex;
 
-  public IssueChangeWebhookImpl(DbClient dbClient, WebHooks webhooks, Configuration configuration,
+  public IssueChangeWebhookImpl(DbClient dbClient, WebHooks webhooks, ProjectConfigurationLoader projectConfigurationLoader,
     WebhookPayloadFactory webhookPayloadFactory, IssueIndex issueIndex) {
     this.dbClient = dbClient;
     this.webhooks = webhooks;
-    this.configuration = configuration;
+    this.projectConfigurationLoader = projectConfigurationLoader;
     this.webhookPayloadFactory = webhookPayloadFactory;
     this.issueIndex = issueIndex;
   }
@@ -107,15 +107,8 @@ public class IssueChangeWebhookImpl implements IssueChangeWebhook {
   }
 
   private void callWebHook(IssueChangeData issueChangeData) {
-    if (!webhooks.isEnabled(configuration)) {
-      return;
-    }
-
-    Set<String> componentUuids = issueChangeData.getIssues().stream()
-      .map(DefaultIssue::projectUuid)
-      .collect(toSet());
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Map<String, ComponentDto> branchesByUuid = getBranchComponents(dbSession, componentUuids, issueChangeData);
+      Map<String, ComponentDto> branchesByUuid = getBranchComponents(dbSession, issueChangeData);
       if (branchesByUuid.isEmpty()) {
         return;
       }
@@ -131,18 +124,27 @@ public class IssueChangeWebhookImpl implements IssueChangeWebhook {
         return;
       }
 
+      Map<String, Configuration> configurationByUuid = projectConfigurationLoader.loadProjectConfigurations(dbSession,
+        shortBranches.stream().map(shortBranch -> branchesByUuid.get(shortBranch.getUuid())).collect(Collectors.toSet()));
+      Set<BranchDto> branchesWithWebhooks = shortBranches.stream()
+        .filter(shortBranch -> webhooks.isEnabled(configurationByUuid.get(shortBranch.getUuid())))
+        .collect(toSet());
+      if (branchesWithWebhooks.isEmpty()) {
+        return;
+      }
+
       Map<String, SnapshotDto> analysisByProjectUuid = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(
         dbSession,
-        shortBranches.stream().map(BranchDto::getUuid).collect(toSet(shortBranches.size())))
+        branchesWithWebhooks.stream().map(BranchDto::getUuid).collect(toSet(shortBranches.size())))
         .stream()
         .collect(uniqueIndex(SnapshotDto::getComponentUuid));
-      shortBranches
+      branchesWithWebhooks
         .forEach(shortBranch -> {
           ComponentDto branch = branchesByUuid.get(shortBranch.getUuid());
           SnapshotDto analysis = analysisByProjectUuid.get(shortBranch.getUuid());
           if (branch != null && analysis != null) {
             webhooks.sendProjectAnalysisUpdate(
-              configuration,
+              configurationByUuid.get(shortBranch.getUuid()),
               new WebHooks.Analysis(shortBranch.getUuid(), analysis.getUuid(), null),
               () -> buildWebHookPayload(dbSession, branch, shortBranch, analysis));
           }
@@ -179,7 +181,7 @@ public class IssueChangeWebhookImpl implements IssueChangeWebhook {
 
     Set<QualityGate.Condition> conditions = ShortLivingBranchQualityGate.CONDITIONS.stream()
       .map(c -> toCondition(typeFacet, c))
-      .collect(MoreCollectors.toSet(ShortLivingBranchQualityGate.CONDITIONS.size()));
+      .collect(toSet(ShortLivingBranchQualityGate.CONDITIONS.size()));
 
     return new QualityGate(valueOf(ShortLivingBranchQualityGate.ID), ShortLivingBranchQualityGate.NAME, qgStatusFrom(conditions), conditions);
   }
@@ -238,23 +240,26 @@ public class IssueChangeWebhookImpl implements IssueChangeWebhook {
     return res;
   }
 
-  private Map<String, ComponentDto> getBranchComponents(DbSession dbSession, Set<String> componentUuids, IssueChangeData issueChangeData) {
-    Set<String> missingComponentUuids = ImmutableSet.copyOf(Sets.difference(
-      componentUuids,
+  private Map<String, ComponentDto> getBranchComponents(DbSession dbSession, IssueChangeData issueChangeData) {
+    Set<String> projectUuids = issueChangeData.getIssues().stream()
+      .map(DefaultIssue::projectUuid)
+      .collect(toSet());
+    Set<String> missingProjectUuids = ImmutableSet.copyOf(Sets.difference(
+      projectUuids,
       issueChangeData.getComponents()
         .stream()
         .map(ComponentDto::uuid)
         .collect(Collectors.toSet())));
-    if (missingComponentUuids.isEmpty()) {
+    if (missingProjectUuids.isEmpty()) {
       return issueChangeData.getComponents()
         .stream()
-        .filter(c -> componentUuids.contains(c.uuid()))
+        .filter(c -> projectUuids.contains(c.uuid()))
         .filter(componentDto -> componentDto.getMainBranchProjectUuid() != null)
         .collect(uniqueIndex(ComponentDto::uuid));
     }
     return Stream.concat(
-      issueChangeData.getComponents().stream().filter(c -> componentUuids.contains(c.uuid())),
-      dbClient.componentDao().selectByUuids(dbSession, missingComponentUuids).stream())
+      issueChangeData.getComponents().stream().filter(c -> projectUuids.contains(c.uuid())),
+      dbClient.componentDao().selectByUuids(dbSession, missingProjectUuids).stream())
       .filter(componentDto -> componentDto.getMainBranchProjectUuid() != null)
       .collect(uniqueIndex(ComponentDto::uuid));
   }

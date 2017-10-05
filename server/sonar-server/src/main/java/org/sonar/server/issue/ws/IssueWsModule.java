@@ -30,6 +30,7 @@ import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.webhook.IssueChangeWebhookImpl;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
+import org.sonar.server.settings.ProjectConfigurationLoaderImpl;
 import org.sonar.server.ws.WsResponseCommonFormat;
 
 public class IssueWsModule extends Module {
@@ -65,6 +66,7 @@ public class IssueWsModule extends Module {
       AuthorsAction.class,
       ChangelogAction.class,
       BulkChangeAction.class,
+      ProjectConfigurationLoaderImpl.class,
       IssueChangeWebhookImpl.class);
   }
 }
