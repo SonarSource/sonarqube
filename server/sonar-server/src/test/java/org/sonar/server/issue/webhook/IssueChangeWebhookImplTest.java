@@ -20,6 +20,7 @@
 package org.sonar.server.issue.webhook;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -28,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,7 +41,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.assertj.core.groups.Tuple;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,6 +78,7 @@ import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.webhook.IssueChangeWebhook.IssueChange;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
+import org.sonar.server.settings.ProjectConfigurationLoader;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.webhook.Analysis;
 import org.sonar.server.webhook.Branch;
@@ -88,13 +90,16 @@ import org.sonar.server.webhook.WebHooks;
 import org.sonar.server.webhook.WebhookPayload;
 import org.sonar.server.webhook.WebhookPayloadFactory;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.valueOf;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollectionOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.doAnswer;
@@ -138,46 +143,32 @@ public class IssueChangeWebhookImplTest {
   private WebHooks webHooks = mock(WebHooks.class);
   private WebhookPayloadFactory webhookPayloadFactory = mock(WebhookPayloadFactory.class);
   private IssueIndex issueIndex = new IssueIndex(esTester.client(), System2.INSTANCE, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
-  private Configuration mockedConfiguration = mock(Configuration.class);
   private DbClient spiedOnDbClient = spy(dbClient);
-  private IssueChangeWebhookImpl underTest = new IssueChangeWebhookImpl(spiedOnDbClient, webHooks, mockedConfiguration, webhookPayloadFactory, issueIndex);
+  private ProjectConfigurationLoader projectConfigurationLoader = mock(ProjectConfigurationLoader.class);
+  private IssueChangeWebhookImpl underTest = new IssueChangeWebhookImpl(spiedOnDbClient, webHooks, projectConfigurationLoader, webhookPayloadFactory, issueIndex);
   private DbClient mockedDbClient = mock(DbClient.class);
   private IssueIndex spiedOnIssueIndex = spy(issueIndex);
-  private IssueChangeWebhookImpl mockedUnderTest = new IssueChangeWebhookImpl(mockedDbClient, webHooks, mockedConfiguration, webhookPayloadFactory, spiedOnIssueIndex);
-
-  @Before
-  public void setUp() throws Exception {
-    when(webHooks.isEnabled(mockedConfiguration)).thenReturn(true);
-  }
+  private IssueChangeWebhookImpl mockedUnderTest = new IssueChangeWebhookImpl(mockedDbClient, webHooks, projectConfigurationLoader, webhookPayloadFactory, spiedOnIssueIndex);
 
   @Test
   public void on_type_change_has_no_effect_if_SearchResponseData_has_no_issue() {
     mockedUnderTest.onChange(issueChangeData(), new IssueChange(randomRuleType), userChangeContext);
 
-    verifyZeroInteractions(mockedDbClient, webHooks, mockedConfiguration, webhookPayloadFactory, spiedOnIssueIndex);
+    verifyZeroInteractions(mockedDbClient, webHooks, projectConfigurationLoader, webhookPayloadFactory, spiedOnIssueIndex);
   }
 
   @Test
   public void on_type_change_has_no_effect_if_scan_IssueChangeContext() {
     mockedUnderTest.onChange(issueChangeData(), new IssueChange(randomRuleType), scanChangeContext);
 
-    verifyZeroInteractions(mockedDbClient, webHooks, mockedConfiguration, webhookPayloadFactory, spiedOnIssueIndex);
-  }
-
-  @Test
-  public void on_type_change_has_no_effect_if_webhooks_are_disabled() {
-    when(webHooks.isEnabled(mockedConfiguration)).thenReturn(false);
-
-    underTest.onChange(issueChangeData(newIssueDto(null)), new IssueChange(randomRuleType), userChangeContext);
-
-    verifyZeroInteractions(mockedDbClient, mockedConfiguration, webhookPayloadFactory, spiedOnIssueIndex);
+    verifyZeroInteractions(mockedDbClient, webHooks, projectConfigurationLoader, webhookPayloadFactory, spiedOnIssueIndex);
   }
 
   @Test
   public void on_transition_change_has_no_effect_if_SearchResponseData_has_no_issue() {
     mockedUnderTest.onChange(issueChangeData(), new IssueChange(randomAlphanumeric(12)), userChangeContext);
 
-    verifyZeroInteractions(mockedDbClient, webHooks, mockedConfiguration, webhookPayloadFactory, spiedOnIssueIndex);
+    verifyZeroInteractions(mockedDbClient, webHooks, projectConfigurationLoader, webhookPayloadFactory, spiedOnIssueIndex);
   }
 
   @Test
@@ -200,53 +191,32 @@ public class IssueChangeWebhookImplTest {
   }
 
   private void on_transition_changeHasNoEffectForTransitionKey(@Nullable String transitionKey) {
-    reset(mockedDbClient, webHooks, mockedConfiguration, webhookPayloadFactory);
-    when(webHooks.isEnabled(mockedConfiguration)).thenReturn(true);
+    reset(mockedDbClient, webHooks, projectConfigurationLoader, webhookPayloadFactory);
 
     mockedUnderTest.onChange(issueChangeData(newIssueDto(null)), new IssueChange(transitionKey), userChangeContext);
 
-    verifyZeroInteractions(mockedDbClient, webHooks, mockedConfiguration, webhookPayloadFactory, spiedOnIssueIndex);
+    verifyZeroInteractions(mockedDbClient, webHooks, projectConfigurationLoader, webhookPayloadFactory, spiedOnIssueIndex);
   }
 
   @Test
   public void on_transition_change_has_no_effect_if_scan_IssueChangeContext() {
-    when(webHooks.isEnabled(mockedConfiguration)).thenReturn(true);
-
     mockedUnderTest.onChange(issueChangeData(newIssueDto(null)), new IssueChange(randomAlphanumeric(12)), scanChangeContext);
 
-    verifyZeroInteractions(mockedDbClient, webHooks, mockedConfiguration, webhookPayloadFactory, spiedOnIssueIndex);
-  }
-
-  @Test
-  public void on_transition_change_has_no_effect_if_webhooks_are_disabled() {
-    when(webHooks.isEnabled(mockedConfiguration)).thenReturn(false);
-
-    mockedUnderTest.onChange(issueChangeData(newIssueDto(null)), new IssueChange(randomAlphanumeric(12)), userChangeContext);
-
-    verifyZeroInteractions(mockedDbClient, webHooks, mockedConfiguration, webhookPayloadFactory, spiedOnIssueIndex);
+    verifyZeroInteractions(mockedDbClient, webHooks, projectConfigurationLoader, webhookPayloadFactory, spiedOnIssueIndex);
   }
 
   @Test
   public void on_type_and_transition_change_has_no_effect_if_SearchResponseData_has_no_issue() {
     mockedUnderTest.onChange(issueChangeData(), new IssueChange(randomRuleType, randomAlphanumeric(3)), userChangeContext);
 
-    verifyZeroInteractions(mockedDbClient, webHooks, mockedConfiguration, webhookPayloadFactory, spiedOnIssueIndex);
+    verifyZeroInteractions(mockedDbClient, webHooks, projectConfigurationLoader, webhookPayloadFactory, spiedOnIssueIndex);
   }
 
   @Test
   public void on_type_and_transition_change_has_no_effect_if_scan_IssueChangeContext() {
     mockedUnderTest.onChange(issueChangeData(), new IssueChange(randomRuleType, randomAlphanumeric(3)), scanChangeContext);
 
-    verifyZeroInteractions(mockedDbClient, webHooks, mockedConfiguration, webhookPayloadFactory, spiedOnIssueIndex);
-  }
-
-  @Test
-  public void on_type_and_transition_change_has_no_effect_if_webhooks_are_disabled() {
-    when(webHooks.isEnabled(mockedConfiguration)).thenReturn(false);
-
-    underTest.onChange(issueChangeData(newIssueDto(null)), new IssueChange(randomRuleType, randomAlphanumeric(3)), userChangeContext);
-
-    verifyZeroInteractions(mockedDbClient, mockedConfiguration, webhookPayloadFactory, spiedOnIssueIndex);
+    verifyZeroInteractions(mockedDbClient, webHooks, projectConfigurationLoader, webhookPayloadFactory, spiedOnIssueIndex);
   }
 
   @Test
@@ -269,12 +239,11 @@ public class IssueChangeWebhookImplTest {
   }
 
   private void on_type_and_transition_changeHasNoEffectForTransitionKey(@Nullable String transitionKey) {
-    reset(mockedDbClient, webHooks, mockedConfiguration, webhookPayloadFactory);
-    when(webHooks.isEnabled(mockedConfiguration)).thenReturn(true);
+    reset(mockedDbClient, webHooks, projectConfigurationLoader, webhookPayloadFactory);
 
     mockedUnderTest.onChange(issueChangeData(newIssueDto(null)), new IssueChange(randomRuleType, transitionKey), userChangeContext);
 
-    verifyZeroInteractions(mockedDbClient, webHooks, mockedConfiguration, webhookPayloadFactory, spiedOnIssueIndex);
+    verifyZeroInteractions(mockedDbClient, webHooks, projectConfigurationLoader, webhookPayloadFactory, spiedOnIssueIndex);
   }
 
   @Test
@@ -286,6 +255,8 @@ public class IssueChangeWebhookImplTest {
       .setBranchType(BranchType.SHORT)
       .setKey("foo"));
     SnapshotDto analysis = insertAnalysisTask(branch);
+    Configuration configuration = mockLoadProjectConfiguration(branch);
+    mockWebhookEnabled(configuration);
     mockPayloadSupplierConsumedByWebhooks();
 
     Map<String, String> properties = new HashMap<>();
@@ -295,7 +266,7 @@ public class IssueChangeWebhookImplTest {
 
     underTest.onChange(issueChangeData(newIssueDto(branch)), issueChange, userChangeContext);
 
-    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, analysis);
+    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, configuration, analysis);
     assertThat(projectAnalysis).isEqualTo(
       new ProjectAnalysis(
         new Project(project.uuid(), project.getKey(), project.name()),
@@ -315,15 +286,98 @@ public class IssueChangeWebhookImplTest {
   }
 
   @Test
+  @UseDataProvider("validIssueChanges")
+  public void do_not_retrieve_analysis_nor_call_webhook_if_webhook_are_disabled_for_short_branch(IssueChange issueChange) {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPublicProject(organization);
+    ComponentDto branch1 = dbTester.components().insertProjectBranch(project, branchDto -> branchDto
+      .setBranchType(BranchType.SHORT)
+      .setKey("foo"));
+    ComponentDto branch2 = dbTester.components().insertProjectBranch(project, branchDto -> branchDto
+      .setBranchType(BranchType.SHORT)
+      .setKey("bar"));
+    SnapshotDto analysis2 = insertAnalysisTask(branch2);
+    Configuration configuration1 = mock(Configuration.class);
+    Configuration configuration2 = mock(Configuration.class);
+    mockLoadProjectConfigurations(
+      branch1, configuration1,
+      branch2, configuration2);
+    mockWebhookDisabled(configuration1);
+    mockWebhookEnabled(configuration2);
+    mockPayloadSupplierConsumedByWebhooks();
+    ImmutableList<IssueDto> issueDtos = ImmutableList.of(newIssueDto(branch1), newIssueDto(branch2));
+
+    SnapshotDao snapshotDaoSpy = spy(dbClient.snapshotDao());
+    when(spiedOnDbClient.snapshotDao()).thenReturn(snapshotDaoSpy);
+    underTest.onChange(issueChangeData(issueDtos), issueChange, userChangeContext);
+
+    verifyWebhookCalled(branch2, configuration2, analysis2);
+    verify(snapshotDaoSpy).selectLastAnalysesByRootComponentUuids(any(DbSession.class), eq(singleton(branch2.uuid())));
+  }
+
+  @Test
+  @UseDataProvider("validIssueChanges")
+  public void do_not_load_project_configuration_nor_analysis_nor_call_webhook_if_there_are_no_short_branch(IssueChange issueChange) {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPublicProject(organization);
+    ComponentDto longBranch1 = dbTester.components().insertProjectBranch(project, branchDto -> branchDto
+      .setBranchType(BranchType.LONG)
+      .setKey("foo"));
+    ComponentDto longBranch2 = dbTester.components().insertProjectBranch(project, branchDto -> branchDto
+      .setBranchType(BranchType.LONG)
+      .setKey("bar"));
+    ImmutableList<IssueDto> issueDtos = ImmutableList.of(newIssueDto(project), newIssueDto(longBranch1), newIssueDto(longBranch2));
+
+    SnapshotDao snapshotDaoSpy = spy(dbClient.snapshotDao());
+    when(spiedOnDbClient.snapshotDao()).thenReturn(snapshotDaoSpy);
+    underTest.onChange(issueChangeData(issueDtos), new IssueChange(randomRuleType), userChangeContext);
+
+    verifyZeroInteractions(projectConfigurationLoader, webHooks);
+    verify(snapshotDaoSpy, times(0)).selectLastAnalysesByRootComponentUuids(any(DbSession.class), anyCollectionOf(String.class));
+  }
+
+  @Test
+  @UseDataProvider("validIssueChanges")
+  public void do_not_load_analysis_nor_call_webhook_if_there_no_short_branch_with_enabled_webhook(IssueChange issueChange) {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPublicProject(organization);
+    ComponentDto branch1 = dbTester.components().insertProjectBranch(project, branchDto -> branchDto
+      .setBranchType(BranchType.SHORT)
+      .setKey("foo"));
+    ComponentDto branch2 = dbTester.components().insertProjectBranch(project, branchDto -> branchDto
+      .setBranchType(BranchType.SHORT)
+      .setKey("bar"));
+    Configuration configuration1 = mock(Configuration.class);
+    Configuration configuration2 = mock(Configuration.class);
+    mockLoadProjectConfigurations(
+      branch1, configuration1,
+      branch2, configuration2);
+    mockWebhookDisabled(configuration1, configuration2);
+    mockPayloadSupplierConsumedByWebhooks();
+    ImmutableList<IssueDto> issueDtos = ImmutableList.of(newIssueDto(branch1), newIssueDto(branch2));
+
+    SnapshotDao snapshotDaoSpy = spy(dbClient.snapshotDao());
+    when(spiedOnDbClient.snapshotDao()).thenReturn(snapshotDaoSpy);
+    underTest.onChange(issueChangeData(issueDtos), issueChange, userChangeContext);
+
+    verify(webHooks).isEnabled(configuration1);
+    verify(webHooks).isEnabled(configuration2);
+    verify(webHooks, times(0)).sendProjectAnalysisUpdate(any(), any(), any());
+    verify(snapshotDaoSpy, times(0)).selectLastAnalysesByRootComponentUuids(any(DbSession.class), anyCollectionOf(String.class));
+  }
+
+  @Test
   public void compute_QG_ok_if_there_is_no_issue_in_index_ignoring_permissions() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto branch = insertPrivateBranch(organization, BranchType.SHORT);
     SnapshotDto analysis = insertAnalysisTask(branch);
+    Configuration configuration = mockLoadProjectConfiguration(branch);
+    mockWebhookEnabled(configuration);
     mockPayloadSupplierConsumedByWebhooks();
 
     underTest.onChange(issueChangeData(newIssueDto(branch)), new IssueChange(randomRuleType), userChangeContext);
 
-    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, analysis);
+    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, configuration, analysis);
     QualityGate qualityGate = projectAnalysis.getQualityGate().get();
     assertThat(qualityGate.getStatus()).isEqualTo(QualityGate.Status.OK);
     assertThat(qualityGate.getConditions())
@@ -375,11 +429,13 @@ public class IssueChangeWebhookImplTest {
     IntStream.range(0, unresolvedIssues).forEach(i -> insertIssue(branch, ruleType, randomOpenStatus, null));
     IntStream.range(0, random.nextInt(10)).forEach(i -> insertIssue(branch, ruleType, randomNonOpenStatus, randomResolution));
     indexIssues(branch);
+    Configuration configuration = mockLoadProjectConfiguration(branch);
+    mockWebhookEnabled(configuration);
     mockPayloadSupplierConsumedByWebhooks();
 
     underTest.onChange(issueChangeData(newIssueDto(branch)), new IssueChange(randomRuleType), userChangeContext);
 
-    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, analysis);
+    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, configuration, analysis);
     QualityGate qualityGate = projectAnalysis.getQualityGate().get();
     assertThat(qualityGate.getStatus()).isEqualTo(QualityGate.Status.ERROR);
     assertThat(qualityGate.getConditions())
@@ -399,11 +455,13 @@ public class IssueChangeWebhookImplTest {
     IntStream.range(0, unresolvedVulnerabilities).forEach(i -> insertIssue(branch, RuleType.VULNERABILITY, randomOpenStatus, null));
     IntStream.range(0, unresolvedCodeSmells).forEach(i -> insertIssue(branch, RuleType.CODE_SMELL, randomOpenStatus, null));
     indexIssues(branch);
+    Configuration configuration = mockLoadProjectConfiguration(branch);
+    mockWebhookEnabled(configuration);
     mockPayloadSupplierConsumedByWebhooks();
 
     underTest.onChange(issueChangeData(newIssueDto(branch)), new IssueChange(randomRuleType), userChangeContext);
 
-    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, analysis);
+    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, configuration, analysis);
     QualityGate qualityGate = projectAnalysis.getQualityGate().get();
     assertThat(qualityGate.getStatus()).isEqualTo(QualityGate.Status.ERROR);
     assertThat(qualityGate.getConditions())
@@ -432,6 +490,13 @@ public class IssueChangeWebhookImplTest {
       IntStream.range(0, issuesBranch3).mapToObj(i -> newIssueDto(branch3)))
       .flatMap(s -> s)
       .collect(MoreCollectors.toList());
+    Configuration configuration1 = mock(Configuration.class);
+    Configuration configuration2 = mock(Configuration.class);
+    Configuration configuration3 = mock(Configuration.class);
+    mockLoadProjectConfigurations(branch1, configuration1,
+      branch2, configuration2,
+      branch3, configuration3);
+    mockWebhookEnabled(configuration1, configuration2, configuration3);
     mockPayloadSupplierConsumedByWebhooks();
 
     ComponentDao componentDaoSpy = spy(dbClient.componentDao());
@@ -442,9 +507,9 @@ public class IssueChangeWebhookImplTest {
     when(spiedOnDbClient.snapshotDao()).thenReturn(snapshotDaoSpy);
     underTest.onChange(issueChangeData(issueDtos), new IssueChange(randomRuleType), userChangeContext);
 
-    verifyWebhookCalled(branch1, analysis1);
-    verifyWebhookCalled(branch2, analysis2);
-    verifyWebhookCalled(branch3, analysis3);
+    verifyWebhookCalled(branch1, configuration1, analysis1);
+    verifyWebhookCalled(branch2, configuration2, analysis2);
+    verifyWebhookCalled(branch3, configuration3, analysis3);
     extractPayloadFactoryArguments(3);
 
     Set<String> uuids = ImmutableSet.of(branch1.uuid(), branch2.uuid(), branch3.uuid());
@@ -461,6 +526,8 @@ public class IssueChangeWebhookImplTest {
     ComponentDto longBranch = insertPrivateBranch(organization, BranchType.LONG);
     SnapshotDto analysis1 = insertAnalysisTask(shortBranch);
     SnapshotDto analysis2 = insertAnalysisTask(longBranch);
+    Configuration configuration = mockLoadProjectConfiguration(shortBranch);
+    mockWebhookEnabled(configuration);
     mockPayloadSupplierConsumedByWebhooks();
 
     ComponentDao componentDaoSpy = spy(dbClient.componentDao());
@@ -474,13 +541,48 @@ public class IssueChangeWebhookImplTest {
       new IssueChange(randomRuleType),
       userChangeContext);
 
-    verifyWebhookCalledAndExtractPayloadFactoryArgument(shortBranch, analysis1);
+    verifyWebhookCalledAndExtractPayloadFactoryArgument(shortBranch, configuration, analysis1);
 
     Set<String> uuids = ImmutableSet.of(shortBranch.uuid(), longBranch.uuid());
     verify(componentDaoSpy).selectByUuids(any(DbSession.class), eq(uuids));
     verify(branchDaoSpy).selectByUuids(any(DbSession.class), eq(uuids));
     verify(snapshotDaoSpy).selectLastAnalysesByRootComponentUuids(any(DbSession.class), eq(ImmutableSet.of(shortBranch.uuid())));
     verifyNoMoreInteractions(componentDaoSpy, branchDaoSpy, snapshotDaoSpy);
+  }
+
+  @Test
+  public void do_not_load_componentDto_from_DB_if_all_are_in_inputData() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto branch1 = insertPrivateBranch(organization, BranchType.SHORT);
+    ComponentDto branch2 = insertPrivateBranch(organization, BranchType.SHORT);
+    ComponentDto branch3 = insertPrivateBranch(organization, BranchType.SHORT);
+    SnapshotDto analysis1 = insertAnalysisTask(branch1);
+    SnapshotDto analysis2 = insertAnalysisTask(branch2);
+    SnapshotDto analysis3 = insertAnalysisTask(branch3);
+    List<IssueDto> issueDtos = asList(newIssueDto(branch1), newIssueDto(branch2), newIssueDto(branch3));
+    Configuration configuration1 = mock(Configuration.class);
+    Configuration configuration2 = mock(Configuration.class);
+    Configuration configuration3 = mock(Configuration.class);
+    mockLoadProjectConfigurations(
+        branch1, configuration1,
+        branch2, configuration2,
+        branch3, configuration3);
+    mockWebhookEnabled(configuration1, configuration2, configuration3);
+    mockPayloadSupplierConsumedByWebhooks();
+
+    ComponentDao componentDaoSpy = spy(dbClient.componentDao());
+    when(spiedOnDbClient.componentDao()).thenReturn(componentDaoSpy);
+    underTest.onChange(
+        issueChangeData(issueDtos, branch1, branch2, branch3),
+        new IssueChange(randomRuleType),
+        userChangeContext);
+
+    verifyWebhookCalled(branch1, configuration1, analysis1);
+    verifyWebhookCalled(branch2, configuration2, analysis2);
+    verifyWebhookCalled(branch3, configuration3, analysis3);
+
+    verify(componentDaoSpy, times(0)).selectByUuids(any(DbSession.class), anyCollectionOf(String.class));
+    verifyNoMoreInteractions(componentDaoSpy);
   }
 
   @Test
@@ -493,6 +595,14 @@ public class IssueChangeWebhookImplTest {
     SnapshotDto analysis2 = insertAnalysisTask(branch2);
     SnapshotDto analysis3 = insertAnalysisTask(branch3);
     List<IssueDto> issueDtos = asList(newIssueDto(branch1), newIssueDto(branch2), newIssueDto(branch3));
+    Configuration configuration1 = mock(Configuration.class);
+    Configuration configuration2 = mock(Configuration.class);
+    Configuration configuration3 = mock(Configuration.class);
+    mockLoadProjectConfigurations(
+      branch1, configuration1,
+      branch2, configuration2,
+      branch3, configuration3);
+    mockWebhookEnabled(configuration1, configuration2, configuration3);
     mockPayloadSupplierConsumedByWebhooks();
 
     ComponentDao componentDaoSpy = spy(dbClient.componentDao());
@@ -506,9 +616,9 @@ public class IssueChangeWebhookImplTest {
       new IssueChange(randomRuleType),
       userChangeContext);
 
-    verifyWebhookCalled(branch1, analysis1);
-    verifyWebhookCalled(branch2, analysis2);
-    verifyWebhookCalled(branch3, analysis3);
+    verifyWebhookCalled(branch1, configuration1, analysis1);
+    verifyWebhookCalled(branch2, configuration2, analysis2);
+    verifyWebhookCalled(branch3, configuration3, analysis3);
     extractPayloadFactoryArguments(3);
 
     Set<String> uuids = ImmutableSet.of(branch1.uuid(), branch2.uuid(), branch3.uuid());
@@ -538,6 +648,8 @@ public class IssueChangeWebhookImplTest {
       newIssueDto(projectFile, project),
       newIssueDto(shortBranchFile, shortBranch),
       newIssueDto(longBranchFile, longBranch));
+    Configuration configuration = mockLoadProjectConfiguration(shortBranch);
+    mockWebhookEnabled(configuration);
     mockPayloadSupplierConsumedByWebhooks();
 
     ComponentDao componentDaoSpy = spy(dbClient.componentDao());
@@ -548,7 +660,7 @@ public class IssueChangeWebhookImplTest {
     when(spiedOnDbClient.snapshotDao()).thenReturn(snapshotDaoSpy);
     underTest.onChange(issueChangeData(issueDtos), new IssueChange(randomRuleType), userChangeContext);
 
-    verifyWebhookCalledAndExtractPayloadFactoryArgument(shortBranch, analysis2);
+    verifyWebhookCalledAndExtractPayloadFactoryArgument(shortBranch, configuration, analysis2);
 
     Set<String> uuids = ImmutableSet.of(project.uuid(), shortBranch.uuid(), longBranch.uuid());
     verify(componentDaoSpy).selectByUuids(any(DbSession.class), eq(uuids));
@@ -557,12 +669,45 @@ public class IssueChangeWebhookImplTest {
     verifyNoMoreInteractions(componentDaoSpy, branchDaoSpy, snapshotDaoSpy);
   }
 
+  private void mockWebhookEnabled(Configuration... configurations) {
+    for (Configuration configuration : configurations) {
+      when(webHooks.isEnabled(configuration)).thenReturn(true);
+    }
+  }
+
+  private void mockWebhookDisabled(Configuration... configurations) {
+    for (Configuration configuration : configurations) {
+      when(webHooks.isEnabled(configuration)).thenReturn(false);
+    }
+  }
+
+  private Configuration mockLoadProjectConfiguration(ComponentDto shortBranch) {
+    Configuration configuration = mock(Configuration.class);
+    when(projectConfigurationLoader.loadProjectConfigurations(any(DbSession.class), eq(singleton(shortBranch))))
+      .thenReturn(ImmutableMap.of(shortBranch.uuid(), configuration));
+    return configuration;
+  }
+
+  private void mockLoadProjectConfigurations(Object... branchesAndConfiguration) {
+    checkArgument(branchesAndConfiguration.length % 2 == 0);
+    Set<ComponentDto> components = new HashSet<>();
+    Map<String, Configuration> result = new HashMap<>();
+    for (int i = 0; i < branchesAndConfiguration.length; i++) {
+      ComponentDto component = (ComponentDto) branchesAndConfiguration[i++];
+      Configuration configuration = (Configuration) branchesAndConfiguration[i];
+      components.add(component);
+      result.put(component.uuid(), configuration);
+    }
+    when(projectConfigurationLoader.loadProjectConfigurations(any(DbSession.class), eq(components)))
+      .thenReturn(result);
+  }
+
   private void mockPayloadSupplierConsumedByWebhooks() {
     doAnswer(invocationOnMock -> {
       Supplier<WebhookPayload> supplier = (Supplier<WebhookPayload>) invocationOnMock.getArguments()[2];
       supplier.get();
       return null;
-    }).when(webHooks).sendProjectAnalysisUpdate(same(mockedConfiguration), any(), any());
+    }).when(webHooks).sendProjectAnalysisUpdate(any(Configuration.class), any(), any());
   }
 
   private void insertIssue(ComponentDto branch, RuleType ruleType, String status, @Nullable String resolution) {
@@ -596,17 +741,17 @@ public class IssueChangeWebhookImplTest {
     return dbTester.components().insertSnapshot(branch);
   }
 
-  private ProjectAnalysis verifyWebhookCalledAndExtractPayloadFactoryArgument(ComponentDto branch, SnapshotDto analysis) {
-    verifyWebhookCalled(branch, analysis);
+  private ProjectAnalysis verifyWebhookCalledAndExtractPayloadFactoryArgument(ComponentDto branch, Configuration configuration, SnapshotDto analysis) {
+    verifyWebhookCalled(branch, configuration, analysis);
 
     return extractPayloadFactoryArguments(1).iterator().next();
   }
 
-  private void verifyWebhookCalled(ComponentDto branch, SnapshotDto analysis) {
-    verify(webHooks).isEnabled(mockedConfiguration);
+  private void verifyWebhookCalled(ComponentDto branch, Configuration branchConfiguration, SnapshotDto analysis) {
+    verify(webHooks).isEnabled(branchConfiguration);
     ArgumentCaptor<Supplier> supplierCaptor = ArgumentCaptor.forClass(Supplier.class);
     verify(webHooks).sendProjectAnalysisUpdate(
-      same(mockedConfiguration),
+      same(branchConfiguration),
       eq(new WebHooks.Analysis(branch.uuid(), analysis.getUuid(), null)),
       supplierCaptor.capture());
   }
