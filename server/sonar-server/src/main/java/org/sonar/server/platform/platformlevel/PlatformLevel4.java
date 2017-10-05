@@ -35,6 +35,7 @@ import org.sonar.ce.settings.ProjectConfigurationFactory;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.server.authentication.AuthenticationModule;
+import org.sonar.server.authentication.LogOAuthWarning;
 import org.sonar.server.batch.BatchWsModule;
 import org.sonar.server.branch.BranchFeatureProxyImpl;
 import org.sonar.server.ce.ws.CeWsModule;
@@ -252,6 +253,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
     add(
       LogServerId.class,
+      LogOAuthWarning.class,
       PluginDownloader.class,
       DeprecatedViews.class,
       PageRepository.class,

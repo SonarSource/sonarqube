@@ -23,18 +23,18 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.platform.Server;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.authentication.event.AuthenticationEvent;
 import org.sonar.server.user.ThreadLocalUserSession;
 import org.sonar.server.user.UserSessionFactory;
 
 import static java.lang.String.format;
-import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
 import static org.sonar.server.authentication.OAuth2CallbackFilter.CALLBACK_PATH;
 
+@ServerSide
 public class OAuth2ContextFactory {
 
   private final ThreadLocalUserSession threadLocalUserSession;
@@ -76,12 +76,7 @@ public class OAuth2ContextFactory {
 
     @Override
     public String getCallbackUrl() {
-      String publicRootUrl = server.getPublicRootUrl();
-      if (publicRootUrl.startsWith("http:")) {
-        Loggers.get(getClass()).warn(
-          "For security reasons, the server URL used for OAuth authentications should be https. Please update the property '{}'.", SERVER_BASE_URL);
-      }
-      return publicRootUrl + CALLBACK_PATH + identityProvider.getKey();
+      return server.getPublicRootUrl() + CALLBACK_PATH + identityProvider.getKey();
     }
 
     @Override

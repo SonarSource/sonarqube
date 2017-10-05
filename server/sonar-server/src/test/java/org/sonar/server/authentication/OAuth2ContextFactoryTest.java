@@ -30,8 +30,6 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -55,20 +53,17 @@ public class OAuth2ContextFactoryTest {
   private static final String SECURED_PUBLIC_ROOT_URL = "https://mydomain.com";
   private static final String PROVIDER_NAME = "provider name";
   private static final UserIdentity USER_IDENTITY = UserIdentity.builder()
-      .setProviderLogin("johndoo")
-      .setLogin("id:johndoo")
-      .setName("John")
-      .setEmail("john@email.com")
-      .build();
+    .setProviderLogin("johndoo")
+    .setLogin("id:johndoo")
+    .setName("John")
+    .setEmail("john@email.com")
+    .build();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
-  @Rule
-  public LogTester logTester = new LogTester();
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
@@ -123,16 +118,6 @@ public class OAuth2ContextFactoryTest {
     context.redirectTo("/test");
 
     verify(response).sendRedirect("/test");
-  }
-
-  @Test
-  public void display_a_warning_if_not_https() throws Exception {
-    when(server.getPublicRootUrl()).thenReturn("http://mydomain.com");
-
-    OAuth2IdentityProvider.InitContext context = newInitContext();
-
-    assertThat(context.getCallbackUrl()).isEqualTo("http://mydomain.com/oauth2/callback/github");
-    assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("For security reasons, the server URL used for OAuth authentications should be https. Please update the property 'sonar.core.serverBaseURL'.");
   }
 
   @Test
