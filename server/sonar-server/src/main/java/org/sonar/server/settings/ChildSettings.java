@@ -17,54 +17,67 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.ce.settings;
+package org.sonar.server.settings;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.config.Settings;
+import org.sonar.api.config.internal.ConfigurationBridge;
 
 import static java.util.Objects.requireNonNull;
 
-@ComputeEngineSide
-public class ProjectSettings extends Settings {
+public class ChildSettings extends Settings {
 
-  private final Map<String, String> projectProps = new HashMap<>();
-  private final Settings globalSettings;
+  private final Settings parentSettings;
+  private final Map<String, String> localProperties = new HashMap<>();
 
-  public ProjectSettings(Settings globalSettings) {
-    super(globalSettings.getDefinitions(), globalSettings.getEncryption());
-    this.globalSettings = globalSettings;
+  public ChildSettings(Settings parentSettings) {
+    super(parentSettings.getDefinitions(), parentSettings.getEncryption());
+    this.parentSettings = parentSettings;
   }
 
   @Override
   protected Optional<String> get(String key) {
-    String value = projectProps.get(key);
+    String value = localProperties.get(key);
     if (value != null) {
       return Optional.of(value);
     }
-    return globalSettings.getRawString(key);
+    return parentSettings.getRawString(key);
   }
 
   @Override
   protected void set(String key, String value) {
-    projectProps.put(
+    localProperties.put(
       requireNonNull(key, "key can't be null"),
       requireNonNull(value, "value can't be null").trim());
   }
 
   @Override
   protected void remove(String key) {
-    projectProps.remove(key);
+    localProperties.remove(key);
   }
 
+  /**
+   * Only returns the currently loaded properties.
+   *
+   * <p>
+   * On the Web Server, global properties are loaded lazily when requested by name. Therefor,
+   * this will return only global properties which have been requested using
+   * {@link #get(String)} at least once prior to this call.
+   */
   @Override
   public Map<String, String> getProperties() {
-    // order is important. Project properties override global properties.
-    Map<String, String> result = new HashMap<>();
-    result.putAll(globalSettings.getProperties());
-    result.putAll(projectProps);
-    return result;
+    // order is important. local properties override parent properties.
+    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+    builder.putAll(parentSettings.getProperties());
+    builder.putAll(localProperties);
+    return builder.build();
+  }
+
+  public Configuration asConfiguration() {
+    return new ConfigurationBridge(this);
   }
 }

@@ -26,6 +26,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.ConfigurationBridge;
 import org.sonar.db.DbClient;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
+import org.sonar.server.settings.ChildSettings;
 
 import static org.sonar.db.component.ComponentDto.generateBranchKey;
 
@@ -41,7 +42,7 @@ public class ProjectConfigurationFactory {
   }
 
   public Configuration newProjectConfiguration(String projectKey, Optional<Branch> branch) {
-    Settings projectSettings = new ProjectSettings(globalSettings);
+    Settings projectSettings = new ChildSettings(globalSettings);
     addSettings(projectSettings, projectKey);
     getBranchName(branch).ifPresent(
       b -> addSettings(projectSettings, generateBranchKey(projectKey, b)));
