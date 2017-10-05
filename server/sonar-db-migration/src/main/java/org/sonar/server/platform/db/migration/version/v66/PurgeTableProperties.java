@@ -33,14 +33,19 @@ public class PurgeTableProperties extends DataChange {
   protected void execute(Context context) throws SQLException {
     deleteByKey(context, "views.analysisDelayingInMinutes");
     deleteByKey(context, "views.status");
-    deleteByKey(context, "sonar.issuesdensity.weight");
-    deleteByKey(context, "sonar.core.version");
-    deleteByKeyPrefix(context, "sonar.reports.");
-    deleteByKeyPrefix(context, "sonar.report.license");
+    deleteByKeyPrefix(context, "sonar.views.license");
+    deleteByKeyPrefix(context, "views.license");
+    deleteByKeyPrefix(context, "masterproject.");
+
     deleteByKeyPrefix(context, "sonar.sqale.");
     deleteByKeyPrefix(context, "sqale.license");
     deleteByKeyPrefix(context, "devcockpit.");
-    deleteByKeyPrefix(context, "masterproject.");
+    deleteByKeyPrefix(context, "sonar.devcockpit.");
+
+    deleteByKey(context, "sonar.core.version");
+    deleteByKey(context, "sonar.issuesdensity.weight");
+    deleteByKeyPrefix(context, "sonar.reports.");
+    deleteByKeyPrefix(context, "sonar.report.license");
     deleteByKeyPrefix(context, "sonar.natural.");
     deleteByKeyPrefix(context, "sonarsource.natural.");
     deleteByKeyPrefix(context, "sonarsource.identity.");
