@@ -28,10 +28,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
@@ -41,6 +39,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.organization.OrganizationTesting;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
@@ -49,6 +48,7 @@ import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,18 +61,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 
-@RunWith(MockitoJUnitRunner.class)
 public class QualityGatesTest {
 
   private static final long QUALITY_GATE_ID = 42L;
   private static final String PROJECT_KEY = "SonarQube";
   private static final String PROJECT_UUID = Uuids.UUID_EXAMPLE_01;
+  private static final String ORG_UUID = "ORG_UUID";
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
+  private TestDefaultOrganizationProvider organizationProvider = TestDefaultOrganizationProvider.fromUuid(ORG_UUID);
   private DbSession dbSession = mock(DbSession.class);
   private DbClient dbClient = mock(DbClient.class);
   private QualityGateDao dao = mock(QualityGateDao.class);
@@ -83,7 +84,7 @@ public class QualityGatesTest {
   private QualityGates underTest;
 
   @Before
-  public void initialize() {
+  public void setUp() {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.qualityGateDao()).thenReturn(dao);
     when(dbClient.gateConditionDao()).thenReturn(conditionDao);
@@ -93,9 +94,9 @@ public class QualityGatesTest {
     when(componentDao.selectOrFailById(eq(dbSession), anyLong())).thenReturn(
       newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), PROJECT_UUID).setId(1L).setDbKey(PROJECT_KEY));
 
-    underTest = new QualityGates(dbClient, metricFinder, userSession);
+    underTest = new QualityGates(dbClient, metricFinder, userSession, organizationProvider);
 
-    userSession.logIn().setSystemAdministrator();
+    userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, organizationProvider.get().getUuid());
   }
 
   @Test

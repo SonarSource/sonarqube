@@ -39,6 +39,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGates;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
@@ -61,7 +62,8 @@ public class DeselectActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private QualityGates qualityGates = new QualityGates(dbClient, mock(MetricFinder.class), userSession);
+  private TestDefaultOrganizationProvider organizationProvider = TestDefaultOrganizationProvider.from(db);
+  private QualityGates qualityGates = new QualityGates(dbClient, mock(MetricFinder.class), userSession, organizationProvider);
   private WsActionTester ws;
   private ComponentDto project;
   private QualityGateDto gate;
