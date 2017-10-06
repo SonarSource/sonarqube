@@ -40,6 +40,7 @@ import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
@@ -61,14 +62,16 @@ public class QualityGates {
   private final MetricFinder metricFinder;
   private final PropertiesDao propertiesDao;
   private final UserSession userSession;
+  private final DefaultOrganizationProvider organizationProvider;
 
-  public QualityGates(DbClient dbClient, MetricFinder metricFinder, UserSession userSession) {
+  public QualityGates(DbClient dbClient, MetricFinder metricFinder, UserSession userSession, DefaultOrganizationProvider organizationProvider) {
     this.dbClient = dbClient;
     this.dao = dbClient.qualityGateDao();
     this.conditionDao = dbClient.gateConditionDao();
     this.metricFinder = metricFinder;
     this.propertiesDao = dbClient.propertiesDao();
     this.userSession = userSession;
+    this.organizationProvider = organizationProvider;
   }
 
   public QualityGateDto get(Long qGateId) {
@@ -80,7 +83,7 @@ public class QualityGates {
   }
 
   public QualityGateDto rename(long idToRename, String name) {
-    checkIsSystemAdministrator();
+    checkIsQualityGateAdministrator();
     try (DbSession dbSession = dbClient.openSession(false)) {
       QualityGateDto toRename = getNonNullQgate(idToRename);
       validateQualityGate(dbSession, idToRename, name);
@@ -92,7 +95,7 @@ public class QualityGates {
   }
 
   public QualityGateDto copy(long sourceId, String destinationName) {
-    checkIsSystemAdministrator();
+    checkIsQualityGateAdministrator();
     getNonNullQgate(sourceId);
     try (DbSession dbSession = dbClient.openSession(false)) {
       validateQualityGate(dbSession, null, destinationName);
@@ -116,7 +119,7 @@ public class QualityGates {
   }
 
   public void delete(long idToDelete) {
-    checkIsSystemAdministrator();
+    checkIsQualityGateAdministrator();
     QualityGateDto qGate = getNonNullQgate(idToDelete);
     try (DbSession session = dbClient.openSession(false)) {
       if (isDefault(qGate)) {
@@ -129,7 +132,7 @@ public class QualityGates {
   }
 
   public void setDefault(DbSession dbSession, @Nullable Long idToUseAsDefault) {
-    checkIsSystemAdministrator();
+    checkIsQualityGateAdministrator();
     if (idToUseAsDefault == null) {
       propertiesDao.deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY, dbSession);
     } else {
@@ -230,8 +233,8 @@ public class QualityGates {
     }
   }
 
-  private void checkIsSystemAdministrator() {
-    userSession.checkIsSystemAdministrator();
+  private void checkIsQualityGateAdministrator() {
+    userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, organizationProvider.get().getUuid());
   }
 
   private void checkProjectAdmin(ComponentDto project) {

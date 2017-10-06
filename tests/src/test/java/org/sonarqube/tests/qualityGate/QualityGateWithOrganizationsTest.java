@@ -27,7 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.tests.Tester;
-import org.sonarqube.ws.Organizations;
+import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
 import org.sonarqube.ws.WsQualityGates.CreateWsResponse;
 import org.sonarqube.ws.WsUsers;
@@ -49,7 +49,7 @@ public class QualityGateWithOrganizationsTest {
 
   @Test
   public void always_display_current_quality_gate_in_effect() throws Exception {
-    Organizations.Organization organization = tester.organizations().generate();
+    Organization organization = tester.organizations().generate();
     Project project = tester.projects().generate(organization);
     CreateWsResponse qualityGate = tester.qGates().generate();
     tester.qGates().associateProject(qualityGate, project);
