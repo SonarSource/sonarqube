@@ -17,6 +17,10 @@
     <td>
       <div class="coding-rule-title">
         <a class="js-rule link-no-underline" href="{{permalink}}">{{name}}</a>
+        {{#if isTemplate}}
+          <span class="outline-badge spacer-left" title="{{t 'coding_rules.rule_template.title'}}" 
+            data-toggle="tooltip" data-placement="bottom">{{t 'coding_rules.rule_template'}}</span>
+        {{/if}}
       </div>
     </td>
 
