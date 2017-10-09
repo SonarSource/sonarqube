@@ -64,7 +64,6 @@
       <outputDirectory>lib/bundled-plugins</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <includes>
-        <include>org.codehaus.sonar-plugins*:sonar-*-plugin</include>
         <include>org.sonarsource.*:sonar-*-plugin</include>
       </includes>
       <scope>provided</scope>
