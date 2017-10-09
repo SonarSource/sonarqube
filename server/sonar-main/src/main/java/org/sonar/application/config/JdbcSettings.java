@@ -136,19 +136,19 @@ public class JdbcSettings implements Consumer<Props> {
     if (isNotEmpty(existing)) {
       Logger logger = LoggerFactory.getLogger(JdbcSettings.class);
       if (expectedUrl.equals(existing)) {
-        logger.warn("To change H2 database port, only property '{}' should be set (which current value is '{}'). " +
-          "Remove property '{}' from configuration to remove this warning.",
-          JDBC_EMBEDDED_PORT, port,
-          JDBC_URL);
+        logger.warn("To change H2 database port, only property '" + JDBC_EMBEDDED_PORT +
+          "' should be set (which current value is '{}'). " +
+          "Remove property '" + JDBC_URL + "' from configuration to remove this warning.",
+          port);
       } else {
-        logger.warn("Both '{}' and '{}' properties are set. " +
-          "The value of property '{}' ('{}') is not consistent with the value of property '{}' ('{}'). " +
-          "The value of property '{}' will be ignored and value '{}' will be used instead. " +
-          "To remove this warning, either remove property '{}' if your intent was to use the embedded H2 database, otherwise remove property '{}'.",
-          JDBC_EMBEDDED_PORT, JDBC_URL,
-          JDBC_URL, existing, JDBC_EMBEDDED_PORT, port,
-          JDBC_URL, expectedUrl,
-          JDBC_URL, JDBC_EMBEDDED_PORT);
+        logger.warn("Both '" + JDBC_EMBEDDED_PORT + "' and '" + JDBC_URL + "' properties are set. " +
+          "The value of property '" + JDBC_URL + "' ('{}') is not consistent with the value of property '" +
+          JDBC_EMBEDDED_PORT + "' ('{}'). " +
+          "The value of property '" + JDBC_URL + "' will be ignored and value '{}' will be used instead. " +
+          "To remove this warning, either remove property '" + JDBC_URL +
+          "' if your intent was to use the embedded H2 database, otherwise remove property '" + JDBC_EMBEDDED_PORT
+          + "'.",
+          existing, port, expectedUrl);
       }
     }
   }
