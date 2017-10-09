@@ -62,7 +62,7 @@ public class CoverageExclusions {
     if (!patterns.isEmpty()) {
       LOG.info(title);
       for (WildcardPattern pattern : patterns) {
-        LOG.info("  " + pattern);
+        LOG.info("  {}", pattern);
       }
     }
   }

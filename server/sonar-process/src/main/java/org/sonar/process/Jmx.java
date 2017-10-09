@@ -80,7 +80,7 @@ public class Jmx {
     try {
       ManagementFactory.getPlatformMBeanServer().unregisterMBean(new ObjectName(name));
     } catch (Exception e) {
-      LoggerFactory.getLogger(Jmx.class).warn("Can not unregister MBean [" + name + "]", e);
+      LoggerFactory.getLogger(Jmx.class).warn("Can not unregister MBean [{}]", name, e);
     }
   }
 }
