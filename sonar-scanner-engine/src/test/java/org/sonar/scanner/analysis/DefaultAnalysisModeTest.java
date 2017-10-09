@@ -25,19 +25,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
-import org.sonar.scanner.scan.branch.BranchConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DefaultAnalysisModeTest {
-  private BranchConfiguration branchConfig;
   private GlobalAnalysisMode globalMode;
 
   @Before
   public void setUp() {
-    branchConfig = mock(BranchConfiguration.class);
     globalMode = mock(GlobalAnalysisMode.class);
   }
 
@@ -45,12 +42,11 @@ public class DefaultAnalysisModeTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Test
-  public void dont_scan_all_if_short_lived_branch() {
+  public void scan_all_even_on_short_lived_branch() {
     AnalysisProperties analysisProps = new AnalysisProperties(Collections.singletonMap("sonar.scanAllFiles", "true"));
-    when(branchConfig.isShortLivingBranch()).thenReturn(true);
     DefaultAnalysisMode mode = createmode(analysisProps);
 
-    assertThat(mode.scanAllFiles()).isFalse();
+    assertThat(mode.scanAllFiles()).isTrue();
   }
 
   @Test
@@ -90,7 +86,7 @@ public class DefaultAnalysisModeTest {
   }
 
   private DefaultAnalysisMode createmode(AnalysisProperties analysisProps) {
-    return new DefaultAnalysisMode(analysisProps, branchConfig, globalMode);
+    return new DefaultAnalysisMode(analysisProps, globalMode);
   }
 
 }
