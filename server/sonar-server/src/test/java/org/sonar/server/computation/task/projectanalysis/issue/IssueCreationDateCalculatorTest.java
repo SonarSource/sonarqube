@@ -54,6 +54,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class IssueCreationDateCalculatorTest {
+  private static final String COMPONENT_UUID = "ab12";
+
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
@@ -78,6 +80,7 @@ public class IssueCreationDateCalculatorTest {
     issueUpdater = mock(IssueFieldsSetter.class);
     activeRulesHolder = mock(ActiveRulesHolder.class);
     component = mock(Component.class);
+    when(component.getUuid()).thenReturn(COMPONENT_UUID);
     ruleKey = RuleKey.of("reop", "rule");
     issue = mock(DefaultIssue.class);
     activeRule = mock(ActiveRule.class);
@@ -253,8 +256,8 @@ public class IssueCreationDateCalculatorTest {
     Flow.Builder secondary = Flow.newBuilder().addLocation(Location.newBuilder().setTextRange(range(4, 5)));
     builder.addFlow(secondary).build();
     Flow.Builder flow = Flow.newBuilder()
-      .addLocation(Location.newBuilder().setTextRange(range(6, 7)))
-      .addLocation(Location.newBuilder().setTextRange(range(8, 9)));
+      .addLocation(Location.newBuilder().setTextRange(range(6, 7)).setComponentId(COMPONENT_UUID))
+      .addLocation(Location.newBuilder().setTextRange(range(8, 9)).setComponentId(COMPONENT_UUID));
     builder.addFlow(flow).build();
     when(issue.getLocations()).thenReturn(builder.build());
     withScmAt(2, 1200L);
@@ -269,6 +272,35 @@ public class IssueCreationDateCalculatorTest {
     run();
 
     assertChangeOfCreationDateTo(1900L);
+  }
+
+  @Test
+  public void should_ignore_flows_location_outside_current_file_when_backdating() {
+    analysisMetadataHolder.setBaseAnalysis(null);
+    currentAnalysisIs(3000L);
+
+    newIssue();
+    Builder builder = DbIssues.Locations.newBuilder()
+      .setTextRange(range(2, 3));
+    Flow.Builder secondary = Flow.newBuilder().addLocation(Location.newBuilder().setTextRange(range(4, 5)));
+    builder.addFlow(secondary).build();
+    Flow.Builder flow = Flow.newBuilder()
+      .addLocation(Location.newBuilder().setTextRange(range(6, 7)).setComponentId(COMPONENT_UUID))
+      .addLocation(Location.newBuilder().setTextRange(range(8, 9)).setComponentId("another"));
+    builder.addFlow(flow).build();
+    when(issue.getLocations()).thenReturn(builder.build());
+    withScmAt(2, 1200L);
+    withScmAt(3, 1300L);
+    withScmAt(4, 1400L);
+    withScmAt(5, 1500L);
+    withScmAt(6, 1600L);
+    withScmAt(7, 1700L);
+    withScmAt(8, 1800L);
+    withScmAt(9, 1900L);
+
+    run();
+
+    assertChangeOfCreationDateTo(1700L);
   }
 
   private org.sonar.db.protobuf.DbCommons.TextRange.Builder range(int startLine, int endLine) {
