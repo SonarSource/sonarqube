@@ -83,7 +83,7 @@ public class SharedHealthStateImpl implements SharedHealthState {
   private static Predicate<Map.Entry<String, TimestampedNodeHealth>> outOfDate(long timeout) {
     return entry -> {
       boolean res = entry.getValue().getTimestamp() > timeout;
-      if (!res && LOG.isTraceEnabled()) {
+      if (!res) {
         LOG.trace("Ignoring NodeHealth of member {} because it is too old", entry.getKey());
       }
       return res;
@@ -93,7 +93,7 @@ public class SharedHealthStateImpl implements SharedHealthState {
   private static Predicate<Map.Entry<String, TimestampedNodeHealth>> ofNonExistentMember(Set<String> hzMemberUUIDs) {
     return entry -> {
       boolean res = hzMemberUUIDs.contains(entry.getKey());
-      if (!res && LOG.isTraceEnabled()) {
+      if (!res) {
         LOG.trace("Ignoring NodeHealth of member {} because it is not part of the cluster at the moment", entry.getKey());
       }
       return res;
