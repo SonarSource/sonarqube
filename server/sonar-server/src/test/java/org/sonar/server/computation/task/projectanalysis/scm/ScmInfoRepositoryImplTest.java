@@ -120,7 +120,7 @@ public class ScmInfoRepositoryImplTest {
   @Test
   public void fail_with_NPE_when_component_is_null() throws Exception {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Component cannot be bull");
+    thrown.expectMessage("Component cannot be null");
 
     underTest.getScmInfo(null);
   }

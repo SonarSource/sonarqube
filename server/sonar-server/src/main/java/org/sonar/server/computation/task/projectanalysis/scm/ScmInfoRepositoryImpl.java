@@ -45,7 +45,7 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
 
   @Override
   public Optional<ScmInfo> getScmInfo(Component component) {
-    requireNonNull(component, "Component cannot be bull");
+    requireNonNull(component, "Component cannot be null");
     return initializeScmInfoForComponent(component);
   }
 
