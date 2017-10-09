@@ -10,7 +10,7 @@ set -euo pipefail
 # at each build.
 #
 function installJdk8 {
-  echo "Setup JDK 1.8u131"
+  echo "Setup JDK 1.8u144"
   mkdir -p ~/jvm
   pushd ~/jvm > /dev/null
   if [ ! -d "jdk1.8.0_144" ]; then
