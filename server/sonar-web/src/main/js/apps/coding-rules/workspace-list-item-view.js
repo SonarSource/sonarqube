@@ -26,6 +26,7 @@ import RuleFilterMixin from './rule/rule-filter-mixin';
 import Template from './templates/coding-rules-workspace-list-item.hbs';
 import confirmDialog from './confirm-dialog';
 import { translate, translateWithParameters } from '../../helpers/l10n';
+import { getBaseUrl } from '../../helpers/urls';
 
 export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
   className: 'coding-rule',
@@ -61,9 +62,14 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
     this.options.app.state.set({ selectedIndex: this.model.get('index') });
   },
 
-  openRule() {
-    this.$('[data-toggle="tooltip"]').tooltip('destroy');
-    this.options.app.controller.showDetails(this.model);
+  openRule(event) {
+    const leftClick =
+      event.button === 0 && !(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
+    if (leftClick) {
+      event.preventDefault();
+      this.$('[data-toggle="tooltip"]').tooltip('destroy');
+      this.options.app.controller.showDetails(this.model);
+    }
   },
 
   activate() {
@@ -121,12 +127,19 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
     const canEditQualityProfile =
       selectedProfile && selectedProfile.actions && selectedProfile.actions.edit;
 
+    const permalinkPath = this.options.app.organization
+      ? `/organizations/${this.options.app.organization}/rules`
+      : '/coding_rules';
+    const permalink =
+      getBaseUrl() + permalinkPath + '#rule_key=' + encodeURIComponent(this.model.id);
+
     return {
       ...WorkspaceListItemView.prototype.serializeData.apply(this, arguments),
       canEditQualityProfile,
       tags: union(this.model.get('sysTags'), this.model.get('tags')),
       selectedProfile: selectedProfileKey,
-      isSelectedProfileBuiltIn
+      isSelectedProfileBuiltIn,
+      permalink
     };
   }
 });
