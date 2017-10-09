@@ -17,14 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import React from 'react';
 import { shallow } from 'enzyme';
 import SearchSelect from '../SearchSelect';
 
-jest.mock('lodash', () => ({
-  debounce: fn => fn
-}));
+jest.mock('lodash', () => {
+  const lodash = require.requireActual('lodash');
+  lodash.debounce = jest.fn(fn => fn);
+  return lodash;
+});
 
 it('should render Select', () => {
   expect(shallow(<SearchSelect onSearch={jest.fn()} onSelect={jest.fn()} />)).toMatchSnapshot();

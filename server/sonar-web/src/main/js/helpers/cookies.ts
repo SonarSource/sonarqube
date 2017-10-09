@@ -17,20 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-let cookies: { [key: string]: string };
+import { memoize } from 'lodash';
 
-export function getCookie(name: string): string | undefined {
-  if (cookies) {
-    return cookies[name];
-  }
-
-  const rawCookies = document.cookie.split('; ');
-  cookies = {};
-
+const parseCookies = memoize((documentCookie: string): { [key: string]: string } => {
+  const rawCookies = documentCookie.split('; ');
+  const cookies: { [key: string]: string } = {};
   rawCookies.forEach(candidate => {
     const [key, value] = candidate.split('=');
     cookies[key] = value;
   });
+  return cookies;
+});
 
-  return cookies[name];
+export function getCookie(name: string): string | undefined {
+  return parseCookies(document.cookie)[name];
 }
