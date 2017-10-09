@@ -81,6 +81,7 @@ export default Marionette.CompositeView.extend({
       that.collection.reset(
         that.model.getInactiveProfiles(data.actives, that.options.app.qualityProfiles)
       );
+      this.options.app.controller.updateActivation(this.model, data.actives);
     });
   },
 

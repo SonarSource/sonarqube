@@ -179,5 +179,20 @@ export default Controller.extend({
       const ruleView = this.app.workspaceListView.children.findByModel(rule);
       ruleView.$('.coding-rules-detail-quality-profile-deactivate').click();
     }
+  },
+
+  updateActivation(rule, actives) {
+    const selectedProfile = this.options.app.state.get('query').qprofile;
+    if (selectedProfile) {
+      const profile = (actives || []).find(activation => activation.qProfile === selectedProfile);
+      const listRule = this.app.list.get(rule.id);
+      if (profile && listRule) {
+        listRule.set('activation', {
+          ...listRule.get('activation'),
+          inherit: profile.inherit,
+          severity: profile.severity
+        });
+      }
+    }
   }
 });
