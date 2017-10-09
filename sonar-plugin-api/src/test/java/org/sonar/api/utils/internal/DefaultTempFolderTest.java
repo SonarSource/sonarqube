@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DefaultTempFolderTest {
 
   @Rule
-  public ExpectedException throwable = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -44,52 +44,56 @@ public class DefaultTempFolderTest {
   @Test
   public void createTempFolderAndFile() throws Exception {
     File rootTempFolder = temp.newFolder();
-    DefaultTempFolder tempFolder = new DefaultTempFolder(rootTempFolder);
-    File dir = tempFolder.newDir();
+    DefaultTempFolder underTest = new DefaultTempFolder(rootTempFolder);
+    File dir = underTest.newDir();
     assertThat(dir).exists().isDirectory();
-    File file = tempFolder.newFile();
+    File file = underTest.newFile();
     assertThat(file).exists().isFile();
 
-    new TempFolderCleaner(tempFolder).stop();
+    new TempFolderCleaner(underTest).stop();
     assertThat(rootTempFolder).doesNotExist();
   }
 
   @Test
   public void createTempFolderWithName() throws Exception {
     File rootTempFolder = temp.newFolder();
-    DefaultTempFolder tempFolder = new DefaultTempFolder(rootTempFolder);
-    File dir = tempFolder.newDir("sample");
+    DefaultTempFolder underTest = new DefaultTempFolder(rootTempFolder);
+    File dir = underTest.newDir("sample");
     assertThat(dir).exists().isDirectory();
     assertThat(new File(rootTempFolder, "sample")).isEqualTo(dir);
 
-    new TempFolderCleaner(tempFolder).stop();
+    new TempFolderCleaner(underTest).stop();
     assertThat(rootTempFolder).doesNotExist();
   }
 
   @Test
-  public void createTempFolderWithInvalidName() throws Exception {
+  public void newDir_throws_ISE_if_name_is_not_valid() throws Exception {
     File rootTempFolder = temp.newFolder();
-    DefaultTempFolder tempFolder = new DefaultTempFolder(rootTempFolder);
+    DefaultTempFolder underTest = new DefaultTempFolder(rootTempFolder);
     String tooLong = "tooooolong";
     for (int i = 0; i < 50; i++) {
       tooLong += "tooooolong";
     }
-    throwable.expect(IllegalStateException.class);
-    throwable.expectMessage("Failed to create temp directory");
-    tempFolder.newDir(tooLong);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Failed to create temp directory");
+
+    underTest.newDir(tooLong);
   }
 
   @Test
-  public void createNewFileWithInvalidName() throws Exception {
+  public void newFile_throws_ISE_if_name_is_not_valid() throws Exception {
     File rootTempFolder = temp.newFolder();
-    DefaultTempFolder tempFolder = new DefaultTempFolder(rootTempFolder);
+    DefaultTempFolder underTest = new DefaultTempFolder(rootTempFolder);
     String tooLong = "tooooolong";
     for (int i = 0; i < 50; i++) {
       tooLong += "tooooolong";
     }
-    throwable.expect(IllegalStateException.class);
-    throwable.expectMessage("Failed to create temp file");
-    tempFolder.newFile(tooLong, ".txt");
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Failed to create temp file");
+
+    underTest.newFile(tooLong, ".txt");
   }
 
   @Test
