@@ -99,14 +99,14 @@ public class ProcessEntryPoint implements Stoppable {
     try {
       launch(logger);
     } catch (Exception e) {
-      logger.warn("Fail to start " + getKey(), e);
+      logger.warn("Fail to start {}", getKey(), e);
     } finally {
       stop();
     }
   }
 
   private void launch(Logger logger) throws InterruptedException {
-    logger.info("Starting " + getKey());
+    logger.info("Starting {}", getKey());
     Runtime.getRuntime().addShutdownHook(shutdownHook);
     stopWatcher.start();
 

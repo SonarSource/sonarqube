@@ -134,7 +134,7 @@ public class SQProcess {
       LOG.warn(format("Interrupted while stopping process %s", processId), e);
       Thread.currentThread().interrupt();
     } catch (Throwable e) {
-      LOG.error("Can not ask for graceful stop of process " + processId, e);
+      LOG.error("Can not ask for graceful stop of process {}", processId, e);
     }
   }
 

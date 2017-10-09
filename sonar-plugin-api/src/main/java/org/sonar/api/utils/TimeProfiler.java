@@ -57,7 +57,7 @@ public class TimeProfiler {
     if (debug) {
       logger.debug("%s ...", name);
     } else {
-      logger.info(name + "...");
+      logger.info("{}...", name);
     }
     return this;
   }
