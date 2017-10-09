@@ -5,7 +5,7 @@ exports[`expands more options 1`] = `
   id="login_form"
 >
   <h1
-    className="maintenance-title text-center"
+    className="login-title text-center"
   >
     login.login_to_sonarqube
   </h1>
@@ -40,7 +40,7 @@ exports[`expands more options 2`] = `
   id="login_form"
 >
   <h1
-    className="maintenance-title text-center"
+    className="login-title text-center"
   >
     login.login_to_sonarqube
   </h1>
@@ -131,7 +131,7 @@ exports[`logs in with identity provider 1`] = `
   id="login_form"
 >
   <h1
-    className="maintenance-title text-center"
+    className="login-title text-center"
   >
     login.login_to_sonarqube
   </h1>
@@ -166,7 +166,7 @@ exports[`logs in with simple credentials 1`] = `
   id="login_form"
 >
   <h1
-    className="maintenance-title text-center"
+    className="login-title text-center"
   >
     login.login_to_sonarqube
   </h1>

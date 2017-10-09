@@ -25,6 +25,7 @@ import { translate } from '../../../helpers/l10n';
 import { IdentityProvider } from '../../../api/users';
 
 interface Props {
+  onSonarCloud: boolean;
   identityProviders: IdentityProvider[];
   onSubmit: (login: string, password: string) => void;
 }
@@ -62,9 +63,13 @@ export default class LoginForm extends React.PureComponent<Props, State> {
     this.setState({ password: event.currentTarget.value });
 
   render() {
+    const loginTitle = this.props.onSonarCloud
+      ? translate('login.login_to_sonarcloud')
+      : translate('login.login_to_sonarqube');
+
     return (
       <div id="login_form">
-        <h1 className="maintenance-title text-center">{translate('login.login_to_sonarqube')}</h1>
+        <h1 className="login-title text-center">{loginTitle}</h1>
 
         {this.props.identityProviders.length > 0 && (
           <OAuthProviders identityProviders={this.props.identityProviders} />
