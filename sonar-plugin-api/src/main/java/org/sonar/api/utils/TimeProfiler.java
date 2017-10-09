@@ -55,7 +55,7 @@ public class TimeProfiler {
     this.name = name;
     this.start = System.currentTimeMillis();
     if (debug) {
-      logger.debug("%s ...", name);
+      logger.debug("{} ...", name);
     } else {
       logger.info("{}...", name);
     }
