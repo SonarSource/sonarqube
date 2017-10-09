@@ -93,7 +93,9 @@ public class DefaultTempFolder implements TempFolder {
 
   public void clean() {
     try {
-      Files.walkFileTree(tempDir.toPath(), DeleteRecursivelyFileVisitor.INSTANCE);
+      if (tempDir.exists()) {
+        Files.walkFileTree(tempDir.toPath(), DeleteRecursivelyFileVisitor.INSTANCE);
+      }
     } catch (IOException e) {
       LOG.error("Failed to delete temp folder", e);
     }
@@ -110,13 +112,13 @@ public class DefaultTempFolder implements TempFolder {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-      Files.delete(file);
+      Files.deleteIfExists(file);
       return FileVisitResult.CONTINUE;
     }
 
     @Override
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-      Files.delete(dir);
+      Files.deleteIfExists(dir);
       return FileVisitResult.CONTINUE;
     }
   }

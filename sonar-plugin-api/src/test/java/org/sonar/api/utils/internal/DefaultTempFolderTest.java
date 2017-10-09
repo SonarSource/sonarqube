@@ -19,12 +19,14 @@
  */
 package org.sonar.api.utils.internal;
 
+import java.io.File;
+import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-
-import java.io.File;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,6 +37,9 @@ public class DefaultTempFolderTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+
+  @Rule
+  public LogTester logTester = new LogTester();
 
   @Test
   public void createTempFolderAndFile() throws Exception {
@@ -85,5 +90,30 @@ public class DefaultTempFolderTest {
     throwable.expect(IllegalStateException.class);
     throwable.expectMessage("Failed to create temp file");
     tempFolder.newFile(tooLong, ".txt");
+  }
+
+  @Test
+  public void clean_deletes_non_empty_directory() throws Exception {
+    File dir = temp.newFolder();
+    FileUtils.touch(new File(dir, "foo.txt"));
+
+    DefaultTempFolder underTest = new DefaultTempFolder(dir);
+    underTest.clean();
+
+    assertThat(dir).doesNotExist();
+  }
+
+  @Test
+  public void clean_does_not_fail_if_directory_has_already_been_deleted() throws Exception {
+    File dir = temp.newFolder();
+
+    DefaultTempFolder underTest = new DefaultTempFolder(dir);
+    underTest.clean();
+    assertThat(dir).doesNotExist();
+
+    // second call does not fail, nor log ERROR logs
+    underTest.clean();
+
+    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
   }
 }
