@@ -158,6 +158,7 @@
 .project-card-measure-label-with-icon {
   margin-top: 2px;
   font-size: 12px;
+  white-space: nowrap;
 }
 
 .project-card-ncloc {
