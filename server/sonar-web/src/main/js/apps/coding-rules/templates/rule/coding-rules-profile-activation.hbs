@@ -45,7 +45,7 @@
     {{else}}
       {{#each params}}
         <div class="modal-field">
-          <label>{{key}}</label>
+          <label title="{{key}}">{{key}}</label>
           {{#eq type 'TEXT'}}
             <textarea class="width100" rows="3" name="{{key}}" placeholder="{{defaultValue}}">{{value}}</textarea>
           {{else}}
