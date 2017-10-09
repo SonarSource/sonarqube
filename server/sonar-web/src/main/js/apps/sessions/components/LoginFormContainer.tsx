@@ -21,7 +21,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import LoginForm from './LoginForm';
 import { doLogin } from '../../../store/rootActions';
-import { getAppState } from '../../../store/rootReducer';
+import { tryGetGlobalNavigation } from '../../../api/nav';
 import { IdentityProvider, getIdentityProviders } from '../../../api/users';
 import { getBaseUrl } from '../../../helpers/urls';
 
@@ -32,17 +32,25 @@ interface Props {
 
 interface State {
   identityProviders?: IdentityProvider[];
+  onSonarCloud: boolean;
 }
 
 class LoginFormContainer extends React.PureComponent<Props, State> {
   mounted: boolean;
-  state: State = {};
+  state: State = { onSonarCloud: false };
 
   componentDidMount() {
     this.mounted = true;
-    getIdentityProviders().then(r => {
+    Promise.all([
+      getIdentityProviders(),
+      tryGetGlobalNavigation()
+    ]).then(([identityProvidersResponse, appState]) => {
       if (this.mounted) {
-        this.setState({ identityProviders: r.identityProviders });
+        this.setState({
+          onSonarCloud:
+            appState.settings && appState.settings['sonar.sonarcloud.enabled'] === 'true',
+          identityProviders: identityProvidersResponse.identityProviders
+        });
       }
     });
   }
@@ -63,20 +71,22 @@ class LoginFormContainer extends React.PureComponent<Props, State> {
   };
 
   render() {
-    if (!this.state.identityProviders) {
+    const { identityProviders, onSonarCloud } = this.state;
+    if (!identityProviders) {
       return null;
     }
 
     return (
-      <LoginForm identityProviders={this.state.identityProviders} onSubmit={this.handleSubmit} />
+      <LoginForm
+        identityProviders={identityProviders}
+        onSonarCloud={onSonarCloud}
+        onSubmit={this.handleSubmit}
+      />
     );
   }
 }
 
-const mapStateToProps = (state: any) => ({
-  appState: getAppState(state)
-});
-
+const mapStateToProps = null;
 const mapDispatchToProps = { doLogin };
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginFormContainer as any);

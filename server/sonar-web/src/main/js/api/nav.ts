@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON } from '../helpers/request';
+import { getJSON, parseJSON, request } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export function getGlobalNavigation(): Promise<any> {
@@ -30,4 +30,19 @@ export function getComponentNavigation(componentKey: string, branch?: string): P
 
 export function getSettingsNavigation(): Promise<any> {
   return getJSON('/api/navigation/settings').catch(throwGlobalError);
+}
+
+export function tryGetGlobalNavigation(): Promise<any> {
+  return request('/api/navigation/global')
+    .submit()
+    .then(response => {
+      if (response.status >= 200 && response.status < 300) {
+        return parseJSON(response);
+      } else if (response.status === 401) {
+        return {};
+      } else {
+        return Promise.reject(response);
+      }
+    })
+    .catch(response => throwGlobalError({ response }).catch(() => Promise.resolve({})));
 }

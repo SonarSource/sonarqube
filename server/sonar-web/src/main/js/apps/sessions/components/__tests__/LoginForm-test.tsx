@@ -31,7 +31,9 @@ const identityProvider = {
 
 it('logs in with simple credentials', () => {
   const onSubmit = jest.fn();
-  const wrapper = shallow(<LoginForm identityProviders={[]} onSubmit={onSubmit} />);
+  const wrapper = shallow(
+    <LoginForm onSonarCloud={false} identityProviders={[]} onSubmit={onSubmit} />
+  );
   expect(wrapper).toMatchSnapshot();
 
   change(wrapper.find('#login'), 'admin');
@@ -43,14 +45,14 @@ it('logs in with simple credentials', () => {
 
 it('logs in with identity provider', () => {
   const wrapper = shallow(
-    <LoginForm identityProviders={[identityProvider]} onSubmit={jest.fn()} />
+    <LoginForm onSonarCloud={false} identityProviders={[identityProvider]} onSubmit={jest.fn()} />
   );
   expect(wrapper).toMatchSnapshot();
 });
 
 it('expands more options', () => {
   const wrapper = shallow(
-    <LoginForm identityProviders={[identityProvider]} onSubmit={jest.fn()} />
+    <LoginForm onSonarCloud={false} identityProviders={[identityProvider]} onSubmit={jest.fn()} />
   );
   expect(wrapper).toMatchSnapshot();
 
