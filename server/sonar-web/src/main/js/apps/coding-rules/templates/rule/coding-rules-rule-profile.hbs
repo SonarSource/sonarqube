@@ -11,7 +11,7 @@
   {{#if parent}}
     <div class="coding-rules-detail-quality-profile-inheritance">
       {{#eq inherit 'OVERRIDES'}}
-        <i class="icon-inheritance" title="{{tp 'coding_rules.overrides' name parent.name}}"></i>
+        <i class="icon-inheritance icon-inheritance-overridden" title="{{tp 'coding_rules.overrides' name parent.name}}"></i>
       {{/eq}}
       {{#eq inherit 'INHERITED'}}
         <i class="icon-inheritance" title="{{tp 'coding_rules.inherits' name parent.name}}"></i>
