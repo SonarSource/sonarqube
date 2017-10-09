@@ -51,7 +51,8 @@ public class DeselectAction implements QualityGatesWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("deselect")
-      .setDescription("Remove the association of a project from a quality gate. Require Administer Quality Gates permission")
+      .setDescription("Remove the association of a project from a quality gate.<br>" +
+        "Requires the 'Administer Quality Gates' permission.")
       .setPost(true)
       .setSince("4.3")
       .setHandler(this)

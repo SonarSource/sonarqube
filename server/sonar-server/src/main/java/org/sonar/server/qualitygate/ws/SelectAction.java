@@ -62,7 +62,7 @@ public class SelectAction implements QualityGatesWsAction {
       .setDescription("Associate a project to a quality gate.<br>" +
         "The '%s' or '%s' must be provided.<br>" +
         "Project id as a numeric value is deprecated since 6.1. Please use the id similar to '%s'.<br>" +
-        "Require Administer Quality Gates permission.",
+          "Requires the 'Administer Quality Gates' permission.",
         PARAM_PROJECT_ID, PARAM_PROJECT_KEY,
         Uuids.UUID_EXAMPLE_02)
       .setPost(true)
