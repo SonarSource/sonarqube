@@ -34,7 +34,7 @@ import org.sonar.application.command.EsCommand;
 import org.sonar.application.command.EsJvmOptions;
 import org.sonar.application.command.JavaCommand;
 import org.sonar.application.command.JvmOptions;
-import org.sonar.application.es.EsFileSystem;
+import org.sonar.application.es.ElasticsearchConfiguration;
 import org.sonar.application.es.EsYmlSettings;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
@@ -93,7 +93,8 @@ public class ProcessLauncherImplTest {
     File tempDir = temp.newFolder();
     TestProcessBuilder processBuilder = new TestProcessBuilder();
     ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
-    JavaCommand<JvmOptions> command = new JavaCommand<>(ProcessId.ELASTICSEARCH, temp.newFolder());
+    JavaCommand<JvmOptions> command = new JavaCommand<>(ProcessId.WEB_SERVER, temp.newFolder());
+    command.setReadsArgumentsFromFile(true);
     command.setArgument("foo", "bar");
     command.setArgument("baz", "woo");
     command.setJvmOptions(new JvmOptions<>());
@@ -110,10 +111,28 @@ public class ProcessLauncherImplTest {
         entry("foo", "bar"),
         entry("baz", "woo"),
         entry("process.terminationTimeout", "60000"),
-        entry("process.key", ProcessId.ELASTICSEARCH.getKey()),
-        entry("process.index", String.valueOf(ProcessId.ELASTICSEARCH.getIpcIndex())),
+        entry("process.key", ProcessId.WEB_SERVER.getKey()),
+        entry("process.index", String.valueOf(ProcessId.WEB_SERVER.getIpcIndex())),
         entry("process.sharedDir", tempDir.getAbsolutePath()));
     }
+  }
+
+  @Test
+  public void temporary_properties_file_can_be_avoided() throws Exception {
+    File tempDir = temp.newFolder();
+    TestProcessBuilder processBuilder = new TestProcessBuilder();
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
+    JavaCommand<JvmOptions> command = new JavaCommand<>(ProcessId.WEB_SERVER, temp.newFolder());
+    command.setReadsArgumentsFromFile(false);
+    command.setArgument("foo", "bar");
+    command.setArgument("baz", "woo");
+    command.setJvmOptions(new JvmOptions<>());
+
+    underTest.launch(command);
+
+    String propsFilePath = processBuilder.commands.get(processBuilder.commands.size() - 1);
+    File file = new File(propsFilePath);
+    assertThat(file).doesNotExist();
   }
 
   @Test
@@ -171,8 +190,8 @@ public class ProcessLauncherImplTest {
     props.set("sonar.path.home", homeDir.getAbsolutePath());
     props.set("sonar.path.data", dataDir.getAbsolutePath());
     props.set("sonar.path.logs", logDir.getAbsolutePath());
-    EsFileSystem fileSystem = new EsFileSystem(props);
-    command.setFileSystem(fileSystem);
+    ElasticsearchConfiguration fileSystem = new ElasticsearchConfiguration(props);
+    command.setElasticsearchConfiguration(fileSystem);
     fileSystem.setEsYmlSettings(mock(EsYmlSettings.class));
     fileSystem.setEsJvmOptions(mock(EsJvmOptions.class));
     fileSystem.setLog4j2Properties(new Properties());

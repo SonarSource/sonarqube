@@ -22,11 +22,10 @@ package org.sonar.application.command;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.application.process.EsFileSystemCommand;
 import org.sonar.process.ProcessId;
 import org.sonar.process.System2;
 
-public class EsCommand extends AbstractCommand<EsCommand> implements EsFileSystemCommand {
+public class EsCommand extends AbstractCommand<EsCommand> {
   private List<String> esOptions = new ArrayList<>();
 
   public EsCommand(ProcessId id, File workDir) {
@@ -43,5 +42,4 @@ public class EsCommand extends AbstractCommand<EsCommand> implements EsFileSyste
     }
     return this;
   }
-
 }

@@ -26,8 +26,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.application.es.EsFileSystem;
+import org.sonar.application.es.ElasticsearchConfiguration;
 import org.sonar.process.ProcessId;
 import org.sonar.process.System2;
 
@@ -42,7 +43,7 @@ public abstract class AbstractCommand<T extends AbstractCommand> {
   private final Set<String> suppressedEnvVariables = new HashSet<>();
   private final File workDir;
   private boolean readsArgumentsFromFile;
-  private EsFileSystem fileSystem;
+  private ElasticsearchConfiguration elasticsearchConfiguration;
 
   protected AbstractCommand(ProcessId id, File workDir, System2 system2) {
     this.id = requireNonNull(id, "ProcessId can't be null");
@@ -115,12 +116,13 @@ public abstract class AbstractCommand<T extends AbstractCommand> {
     return castThis();
   }
 
-  public T setFileSystem(EsFileSystem fileSystem) {
-    this.fileSystem = fileSystem;
+  public T setElasticsearchConfiguration(ElasticsearchConfiguration elasticsearchConfiguration) {
+    this.elasticsearchConfiguration = elasticsearchConfiguration;
     return castThis();
   }
 
-  public EsFileSystem getFileSystem() {
-    return fileSystem;
+  @CheckForNull
+  public ElasticsearchConfiguration getElasticsearchConfiguration() {
+    return elasticsearchConfiguration;
   }
 }

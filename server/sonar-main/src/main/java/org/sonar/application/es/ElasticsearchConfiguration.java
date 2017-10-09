@@ -35,7 +35,7 @@ import org.sonar.process.Props;
  * This class does not ensure files nor directories actually exist.
  * </p>
  */
-public class EsFileSystem {
+public class ElasticsearchConfiguration {
   private final File homeDirectory;
   private final List<File> outdatedSearchDirectories;
   private final File dataDirectory;
@@ -48,7 +48,7 @@ public class EsFileSystem {
   private String host;
   private int port;
 
-  public EsFileSystem(Props props) {
+  public ElasticsearchConfiguration(Props props) {
     File sqHomeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
 
     this.homeDirectory = new File(sqHomeDir, "elasticsearch");
@@ -128,7 +128,7 @@ public class EsFileSystem {
     return esJvmOptions;
   }
 
-  public EsFileSystem setEsJvmOptions(EsJvmOptions esJvmOptions) {
+  public ElasticsearchConfiguration setEsJvmOptions(EsJvmOptions esJvmOptions) {
     this.esJvmOptions = esJvmOptions;
     return this;
   }
@@ -137,7 +137,7 @@ public class EsFileSystem {
     return esYmlSettings;
   }
 
-  public EsFileSystem setEsYmlSettings(EsYmlSettings esYmlSettings) {
+  public ElasticsearchConfiguration setEsYmlSettings(EsYmlSettings esYmlSettings) {
     this.esYmlSettings = esYmlSettings;
     return this;
   }
@@ -146,7 +146,7 @@ public class EsFileSystem {
     return log4j2Properties;
   }
 
-  public EsFileSystem setLog4j2Properties(Properties log4j2Properties) {
+  public ElasticsearchConfiguration setLog4j2Properties(Properties log4j2Properties) {
     this.log4j2Properties = log4j2Properties;
     return this;
   }
@@ -155,7 +155,7 @@ public class EsFileSystem {
     return clusterName;
   }
 
-  public EsFileSystem setClusterName(String clusterName) {
+  public ElasticsearchConfiguration setClusterName(String clusterName) {
     this.clusterName = clusterName;
     return this;
   }
@@ -164,7 +164,7 @@ public class EsFileSystem {
     return host;
   }
 
-  public EsFileSystem setHost(String host) {
+  public ElasticsearchConfiguration setHost(String host) {
     this.host = host;
     return this;
   }
@@ -173,7 +173,7 @@ public class EsFileSystem {
     return port;
   }
 
-  public EsFileSystem setPort(int port) {
+  public ElasticsearchConfiguration setPort(int port) {
     this.port = port;
     return this;
   }

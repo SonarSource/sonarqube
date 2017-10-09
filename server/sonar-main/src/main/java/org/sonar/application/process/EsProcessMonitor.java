@@ -38,7 +38,7 @@ import org.elasticsearch.discovery.MasterNotDiscoveredException;
 import org.elasticsearch.transport.Netty4Plugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.application.es.EsFileSystem;
+import org.sonar.application.es.ElasticsearchConfiguration;
 import org.sonar.process.ProcessId;
 
 import static java.util.Collections.singletonList;
@@ -57,11 +57,11 @@ public class EsProcessMonitor extends AbstractProcessMonitor {
   private final AtomicBoolean nodeUp = new AtomicBoolean(false);
   private final AtomicBoolean nodeOperational = new AtomicBoolean(false);
   private final AtomicBoolean firstMasterNotDiscoveredLog = new AtomicBoolean(true);
-  private final EsFileSystem esCommand;
+  private final ElasticsearchConfiguration esCommand;
   private final EsConnector esConnector;
   private AtomicReference<TransportClient> transportClient = new AtomicReference<>(null);
 
-  public EsProcessMonitor(Process process, ProcessId processId, EsFileSystem esCommand, EsConnector esConnector) {
+  public EsProcessMonitor(Process process, ProcessId processId, ElasticsearchConfiguration esCommand, EsConnector esConnector) {
     super(process, processId);
     this.esCommand = esCommand;
     this.esConnector = esConnector;

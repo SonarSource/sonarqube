@@ -36,7 +36,7 @@ import org.sonar.application.command.AbstractCommand;
 import org.sonar.application.command.EsCommand;
 import org.sonar.application.command.JavaCommand;
 import org.sonar.application.command.JvmOptions;
-import org.sonar.application.es.EsFileSystem;
+import org.sonar.application.es.ElasticsearchConfiguration;
 import org.sonar.process.ProcessId;
 import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
@@ -71,7 +71,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
 
   public ProcessMonitor launch(AbstractCommand command) {
 
-    EsFileSystem fileSystem = command.getFileSystem();
+    ElasticsearchConfiguration fileSystem = command.getElasticsearchConfiguration();
     if (fileSystem != null) {
       cleanupOutdatedEsData(fileSystem);
       writeConfFiles(fileSystem);
@@ -90,7 +90,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     ProcessId processId = command.getProcessId();
     try {
       if (processId == ProcessId.ELASTICSEARCH) {
-        return new EsProcessMonitor(process, processId, command.getFileSystem(), new EsConnectorImpl());
+        return new EsProcessMonitor(process, processId, command.getElasticsearchConfiguration(), new EsConnectorImpl());
       } else {
         ProcessCommands commands = allProcessesCommands.createAfterClean(processId.getIpcIndex());
         return new ProcessCommandsProcessMonitor(process, processId, commands);
@@ -114,8 +114,8 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     }
   }
 
-  private static void cleanupOutdatedEsData(EsFileSystem esFileSystem) {
-    esFileSystem.getOutdatedSearchDirectories().forEach(outdatedDir -> {
+  private static void cleanupOutdatedEsData(ElasticsearchConfiguration elasticsearchConfiguration) {
+    elasticsearchConfiguration.getOutdatedSearchDirectories().forEach(outdatedDir -> {
       if (outdatedDir.exists()) {
         LOG.info("Deleting outdated search index data directory {}", outdatedDir.getAbsolutePath());
         try {
@@ -127,25 +127,21 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     });
   }
 
-  private static void writeConfFiles(EsFileSystem esFileSystem) {
-    System.out.println("=== writeConfFiles ... ===");
-    File confDir = esFileSystem.getConfDirectory();
+  private static void writeConfFiles(ElasticsearchConfiguration elasticsearchConfiguration) {
+    File confDir = elasticsearchConfiguration.getConfDirectory();
     if (!confDir.exists() && !confDir.mkdirs()) {
       String error = format("Failed to create temporary configuration directory [%s]", confDir.getAbsolutePath());
       LOG.error(error);
       throw new IllegalStateException(error);
     }
 
-    System.out.println(confDir.getAbsolutePath());
-
     try {
-      esFileSystem.getEsYmlSettings().writeToYmlSettingsFile(esFileSystem.getElasticsearchYml());
-      esFileSystem.getEsJvmOptions().writeToJvmOptionFile(esFileSystem.getJvmOptions());
-      esFileSystem.getLog4j2Properties().store(new FileOutputStream(esFileSystem.getLog4j2PropertiesLocation()), "log4j2 properties file for ES bundled in SonarQube");
+      elasticsearchConfiguration.getEsYmlSettings().writeToYmlSettingsFile(elasticsearchConfiguration.getElasticsearchYml());
+      elasticsearchConfiguration.getEsJvmOptions().writeToJvmOptionFile(elasticsearchConfiguration.getJvmOptions());
+      elasticsearchConfiguration.getLog4j2Properties().store(new FileOutputStream(elasticsearchConfiguration.getLog4j2PropertiesLocation()), "log4j2 properties file for ES bundled in SonarQube");
     } catch (IOException e) {
       throw new IllegalStateException("Failed to write ES configuration files", e);
     }
-    System.out.println("=== writeConfFiles done ===");
   }
 
   private Process launchJava(JavaCommand javaCommand) {
@@ -170,7 +166,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
 
   private ProcessBuilder create(EsCommand esCommand) {
     List<String> commands = new ArrayList<>();
-    commands.add(esCommand.getFileSystem().getExecutable().getAbsolutePath());
+    commands.add(esCommand.getElasticsearchConfiguration().getExecutable().getAbsolutePath());
     commands.addAll(esCommand.getEsOptions());
 
     return create(esCommand, commands);
