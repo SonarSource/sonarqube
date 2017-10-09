@@ -46,7 +46,7 @@ public class DeleteConditionAction implements QualityGatesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction createCondition = controller.createAction("delete_condition")
       .setDescription("Delete a condition from a quality gate.<br>" +
-        "Requires the 'Administer Quality Gates' permission")
+        "Requires the 'Administer Quality Gates' permission.")
       .setPost(true)
       .setSince("4.3")
       .setHandler(this);

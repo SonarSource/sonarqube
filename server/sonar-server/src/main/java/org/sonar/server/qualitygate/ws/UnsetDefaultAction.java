@@ -36,7 +36,8 @@ public class UnsetDefaultAction implements QualityGatesWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("unset_default")
-      .setDescription("Unset a quality gate as the default quality gate. Require Administer Quality Gates permission")
+      .setDescription("Unset a quality gate as the default quality gate.<br>" +
+        "Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
       .setPost(true)
       .setHandler(this);

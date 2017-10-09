@@ -25,7 +25,9 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGates;
-import org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters;
+
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ID;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_NAME;
 
 public class RenameAction implements QualityGatesWsAction {
 
@@ -38,17 +40,18 @@ public class RenameAction implements QualityGatesWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("rename")
-      .setDescription("Rename a Quality Gate. Require Administer Quality Gates permission")
+      .setDescription("Rename a Quality Gate.<br>" +
+        "Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
       .setPost(true)
       .setHandler(this);
 
-    action.createParam(QualityGatesWsParameters.PARAM_ID)
+    action.createParam(PARAM_ID)
       .setDescription("ID of the quality gate to rename")
       .setRequired(true)
       .setExampleValue("1");
 
-    action.createParam(QualityGatesWsParameters.PARAM_NAME)
+    action.createParam(PARAM_NAME)
       .setDescription("New name of the quality gate")
       .setRequired(true)
       .setExampleValue("My Quality Gate");
@@ -56,8 +59,8 @@ public class RenameAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    long idToRename = QualityGatesWs.parseId(request, QualityGatesWsParameters.PARAM_ID);
-    QualityGateDto renamedQualityGate = qualityGates.rename(idToRename, request.mandatoryParam(QualityGatesWsParameters.PARAM_NAME));
+    long idToRename = QualityGatesWs.parseId(request, PARAM_ID);
+    QualityGateDto renamedQualityGate = qualityGates.rename(idToRename, request.mandatoryParam(PARAM_NAME));
     JsonWriter writer = response.newJsonWriter();
     QualityGatesWs.writeQualityGate(renamedQualityGate, writer).close();
   }

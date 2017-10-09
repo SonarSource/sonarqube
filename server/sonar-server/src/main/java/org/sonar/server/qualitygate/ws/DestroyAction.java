@@ -36,7 +36,8 @@ public class DestroyAction implements QualityGatesWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("destroy")
-      .setDescription("Delete a Quality Gate. Require Administer Quality Gates permission")
+      .setDescription("Delete a Quality Gate.<br>" +
+        "Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
       .setPost(true)
       .setHandler(this);
