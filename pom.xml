@@ -88,7 +88,7 @@
     <hazelcast.version>3.8.4</hazelcast.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.min.version>3.2</maven.min.version>
+    <maven.min.version>3.3.9</maven.min.version>
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
     <license.title>SonarQube</license.title>
