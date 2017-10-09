@@ -5,6 +5,7 @@ exports[`should render correctly the date inputs 1`] = `
   <DateInput
     className="little-spacer-right"
     format="yy-mm-dd"
+    maxDate="+0"
     name="from"
     onChange={[Function]}
     placeholder="from"
@@ -14,6 +15,7 @@ exports[`should render correctly the date inputs 1`] = `
   <DateInput
     className="little-spacer-left"
     format="yy-mm-dd"
+    maxDate="+0"
     name="to"
     onChange={[Function]}
     placeholder="to"

@@ -28,6 +28,8 @@ interface Props {
   className?: string;
   format?: string;
   inputClassName?: string;
+  // see http://api.jqueryui.com/datepicker/#option-maxDate for details
+  maxDate?: Date | string | number;
   name: string;
   onChange: (value?: string) => void;
   placeholder: string;
@@ -38,7 +40,8 @@ export default class DateInput extends React.PureComponent<Props> {
   input: HTMLInputElement;
 
   static defaultProps = {
-    format: 'yy-mm-dd'
+    format: 'yy-mm-dd',
+    maxDate: '+0'
   };
 
   componentDidMount() {
@@ -61,6 +64,7 @@ export default class DateInput extends React.PureComponent<Props> {
       dateFormat: this.props.format,
       changeMonth: true,
       changeYear: true,
+      maxDate: this.props.maxDate,
       onSelect: this.handleChange
     };
 
