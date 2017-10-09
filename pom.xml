@@ -272,7 +272,7 @@
         <plugin>
           <groupId>com.github.genthaler</groupId>
           <artifactId>beanshell-maven-plugin</artifactId>
-          <version>1.2</version>
+          <version>1.4</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -339,6 +339,7 @@
               <goal>run</goal>
             </goals>
             <configuration>
+              <quiet>true</quiet>
               <script>
                 <![CDATA[
                 String[] timezones = new String[] {"GMT-9", "UTC", "GMT+9"};
