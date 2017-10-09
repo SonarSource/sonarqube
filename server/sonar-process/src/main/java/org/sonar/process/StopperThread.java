@@ -27,8 +27,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
-import static java.lang.String.format;
-
 /**
  * Gracefully stops process in a timely fashion
  */
@@ -52,7 +50,7 @@ class StopperThread extends Thread {
       Future future = executor.submit(monitored::stop);
       future.get(terminationTimeoutMs, TimeUnit.MILLISECONDS);
     } catch (Exception e) {
-      LoggerFactory.getLogger(getClass()).error(format("Can not stop in %dms", terminationTimeoutMs), e);
+      LoggerFactory.getLogger(getClass()).error("Can not stop in {}ms", terminationTimeoutMs, e);
     }
     executor.shutdownNow();
     commands.endWatch();
