@@ -38,7 +38,7 @@ public class TimeProfilerTest {
   public void testBasicProfiling() {
     TimeProfiler profiler = new TimeProfiler(logger);
     profiler.start("Cycle analysis");
-    verify(logger).info("Cycle analysis...");
+    verify(logger).info(eq("{}..."), eq("Cycle analysis"));
 
     profiler.stop();
     verify(logger).info(eq("{} done: {} ms"), eq("Cycle analysis"), anyInt());
@@ -52,7 +52,7 @@ public class TimeProfilerTest {
     profiler.stop();
     profiler.stop();
     profiler.stop();
-    verify(logger, times(1)).info(anyString()); // start() executes log() with 1 parameter
+    verify(logger, times(1)).info(anyString(), anyString()); // start() executes log() with 1 parameter
     verify(logger, times(1)).info(anyString(), anyString(), anyInt()); // stop() executes log() with 3 parameters
   }
 
