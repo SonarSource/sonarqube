@@ -22,69 +22,15 @@ package org.sonar.application.command;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
-import org.sonar.application.es.EsFileSystem;
-import org.sonar.application.es.EsYmlSettings;
+import org.sonar.application.process.EsFileSystemCommand;
 import org.sonar.process.ProcessId;
 import org.sonar.process.System2;
 
-public class EsCommand extends AbstractCommand<EsCommand> {
-  private EsFileSystem fileSystem;
-  private String clusterName;
-  private String host;
-  private int port;
-  private Properties log4j2Properties;
+public class EsCommand extends AbstractCommand<EsCommand> implements EsFileSystemCommand {
   private List<String> esOptions = new ArrayList<>();
-  private EsJvmOptions esJvmOptions;
-  private EsYmlSettings esYmlSettings;
 
   public EsCommand(ProcessId id, File workDir) {
     super(id, workDir, System2.INSTANCE);
-  }
-
-  public EsFileSystem getFileSystem() {
-    return fileSystem;
-  }
-
-  public EsCommand setFileSystem(EsFileSystem fileSystem) {
-    this.fileSystem = fileSystem;
-    return this;
-  }
-
-  public String getClusterName() {
-    return clusterName;
-  }
-
-  public EsCommand setClusterName(String clusterName) {
-    this.clusterName = clusterName;
-    return this;
-  }
-
-  public String getHost() {
-    return host;
-  }
-
-  public EsCommand setHost(String host) {
-    this.host = host;
-    return this;
-  }
-
-  public int getPort() {
-    return port;
-  }
-
-  public EsCommand setPort(int port) {
-    this.port = port;
-    return this;
-  }
-
-  public Properties getLog4j2Properties() {
-    return log4j2Properties;
-  }
-
-  public EsCommand setLog4j2Properties(Properties log4j2Properties) {
-    this.log4j2Properties = log4j2Properties;
-    return this;
   }
 
   public List<String> getEsOptions() {
@@ -98,21 +44,4 @@ public class EsCommand extends AbstractCommand<EsCommand> {
     return this;
   }
 
-  public EsCommand setEsJvmOptions(EsJvmOptions esJvmOptions) {
-    this.esJvmOptions = esJvmOptions;
-    return this;
-  }
-
-  public EsJvmOptions getEsJvmOptions() {
-    return esJvmOptions;
-  }
-
-  public EsCommand setEsYmlSettings(EsYmlSettings esYmlSettings) {
-    this.esYmlSettings = esYmlSettings;
-    return this;
-  }
-
-  public EsYmlSettings getEsYmlSettings() {
-    return esYmlSettings;
-  }
 }

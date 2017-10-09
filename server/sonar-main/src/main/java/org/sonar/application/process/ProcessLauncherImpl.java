@@ -69,29 +69,52 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     allProcessesCommands.close();
   }
 
-  @Override
-  public ProcessMonitor launch(EsCommand esCommand) {
-    Process process = null;
+  public ProcessMonitor launch(AbstractCommand command) {
+
+    EsFileSystem fileSystem = command.getFileSystem();
+    if (fileSystem != null) {
+      cleanupOutdatedEsData(fileSystem);
+      writeConfFiles(fileSystem);
+    }
+
+    // FIXME refactor this
+    Process process;
+    if (command instanceof EsCommand) {
+      process = launchEs((EsCommand) command);
+    } else if (command instanceof JavaCommand) {
+      process = launchJava((JavaCommand) command);
+    } else {
+      throw new IllegalStateException("Unexpected type of command: " + command.getClass());
+    }
+
+    ProcessId processId = command.getProcessId();
     try {
-      cleanupOutdatedEsData(esCommand);
-      writeConfFiles(esCommand);
-      ProcessBuilder processBuilder = create(esCommand);
-      logLaunchedCommand(esCommand, processBuilder);
-
-      process = processBuilder.start();
-
-      return new EsProcessMonitor(process, esCommand, new EsConnectorImpl());
+      if (processId == ProcessId.ELASTICSEARCH) {
+        return new EsProcessMonitor(process, processId, command.getFileSystem(), new EsConnectorImpl());
+      } else {
+        ProcessCommands commands = allProcessesCommands.createAfterClean(processId.getIpcIndex());
+        return new ProcessCommandsProcessMonitor(process, processId, commands);
+      }
     } catch (Exception e) {
       // just in case
       if (process != null) {
         process.destroyForcibly();
       }
+      throw new IllegalStateException(format("Fail to launch monitor of process [%s]", processId.getKey()), e);
+    }
+  }
+
+  private Process launchEs(EsCommand esCommand) {
+    try {
+      ProcessBuilder processBuilder = create(esCommand);
+      logLaunchedCommand(esCommand, processBuilder);
+      return processBuilder.start();
+    } catch (Exception e) {
       throw new IllegalStateException(format("Fail to launch process [%s]", esCommand.getProcessId().getKey()), e);
     }
   }
 
-  private static void cleanupOutdatedEsData(EsCommand esCommand) {
-    EsFileSystem esFileSystem = esCommand.getFileSystem();
+  private static void cleanupOutdatedEsData(EsFileSystem esFileSystem) {
     esFileSystem.getOutdatedSearchDirectories().forEach(outdatedDir -> {
       if (outdatedDir.exists()) {
         LOG.info("Deleting outdated search index data directory {}", outdatedDir.getAbsolutePath());
@@ -104,8 +127,8 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     });
   }
 
-  private static void writeConfFiles(EsCommand esCommand) {
-    EsFileSystem esFileSystem = esCommand.getFileSystem();
+  private static void writeConfFiles(EsFileSystem esFileSystem) {
+    System.out.println("=== writeConfFiles ... ===");
     File confDir = esFileSystem.getConfDirectory();
     if (!confDir.exists() && !confDir.mkdirs()) {
       String error = format("Failed to create temporary configuration directory [%s]", confDir.getAbsolutePath());
@@ -113,31 +136,25 @@ public class ProcessLauncherImpl implements ProcessLauncher {
       throw new IllegalStateException(error);
     }
 
+    System.out.println(confDir.getAbsolutePath());
+
     try {
-      esCommand.getEsYmlSettings().writeToYmlSettingsFile(esFileSystem.getElasticsearchYml());
-      esCommand.getEsJvmOptions().writeToJvmOptionFile(esFileSystem.getJvmOptions());
-      esCommand.getLog4j2Properties().store(new FileOutputStream(esFileSystem.getLog4j2Properties()), "log4j2 properties file for ES bundled in SonarQube");
+      esFileSystem.getEsYmlSettings().writeToYmlSettingsFile(esFileSystem.getElasticsearchYml());
+      esFileSystem.getEsJvmOptions().writeToJvmOptionFile(esFileSystem.getJvmOptions());
+      esFileSystem.getLog4j2Properties().store(new FileOutputStream(esFileSystem.getLog4j2PropertiesLocation()), "log4j2 properties file for ES bundled in SonarQube");
     } catch (IOException e) {
       throw new IllegalStateException("Failed to write ES configuration files", e);
     }
+    System.out.println("=== writeConfFiles done ===");
   }
 
-  @Override
-  public ProcessMonitor launch(JavaCommand javaCommand) {
-    Process process = null;
+  private Process launchJava(JavaCommand javaCommand) {
     ProcessId processId = javaCommand.getProcessId();
     try {
-      ProcessCommands commands = allProcessesCommands.createAfterClean(processId.getIpcIndex());
-
       ProcessBuilder processBuilder = create(javaCommand);
       logLaunchedCommand(javaCommand, processBuilder);
-      process = processBuilder.start();
-      return new ProcessCommandsProcessMonitor(process, processId, commands);
+      return processBuilder.start();
     } catch (Exception e) {
-      // just in case
-      if (process != null) {
-        process.destroyForcibly();
-      }
       throw new IllegalStateException(format("Fail to launch process [%s]", processId.getKey()), e);
     }
   }
@@ -165,7 +182,15 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     commands.addAll(javaCommand.getJvmOptions().getAll());
     commands.addAll(buildClasspath(javaCommand));
     commands.add(javaCommand.getClassName());
-    commands.add(buildPropertiesFile(javaCommand).getAbsolutePath());
+    if (javaCommand.getReadsArgumentsFromFile()) {
+      commands.add(buildPropertiesFile(javaCommand).getAbsolutePath());
+    } else {
+      javaCommand.getArguments().forEach((key, value) -> {
+        if (value != null && !value.isEmpty()) {
+          commands.add("-E" + key + "=" + value);//FIXME make this safer (or remove it, if not needed, because there is an elasticsearch.yml anyways
+        }
+      });
+    }
 
     return create(javaCommand, commands);
   }

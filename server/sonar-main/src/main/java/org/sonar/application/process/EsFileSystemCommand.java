@@ -17,14 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.application.command;
+package org.sonar.application.process;
 
-public interface CommandFactory {
+import org.sonar.application.es.EsFileSystem;
 
-  AbstractCommand createEsCommand();
-
-  JavaCommand createWebCommand(boolean leader);
-
-  JavaCommand createCeCommand();
-
+public interface EsFileSystemCommand {
+  EsFileSystem getFileSystem();
 }

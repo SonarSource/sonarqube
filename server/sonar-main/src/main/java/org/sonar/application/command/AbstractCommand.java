@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import javax.annotation.Nullable;
+import org.sonar.application.es.EsFileSystem;
 import org.sonar.process.ProcessId;
 import org.sonar.process.System2;
 
@@ -40,6 +41,8 @@ public abstract class AbstractCommand<T extends AbstractCommand> {
   private final Map<String, String> envVariables;
   private final Set<String> suppressedEnvVariables = new HashSet<>();
   private final File workDir;
+  private boolean readsArgumentsFromFile;
+  private EsFileSystem fileSystem;
 
   protected AbstractCommand(ProcessId id, File workDir, System2 system2) {
     this.id = requireNonNull(id, "ProcessId can't be null");
@@ -100,5 +103,24 @@ public abstract class AbstractCommand<T extends AbstractCommand> {
       requireNonNull(key, "key can't be null"),
       requireNonNull(value, "value can't be null"));
     return castThis();
+  }
+
+
+  public boolean getReadsArgumentsFromFile() {
+    return readsArgumentsFromFile;
+  }
+
+  public T setReadsArgumentsFromFile(boolean readsArgumentsFromFile) {
+    this.readsArgumentsFromFile = readsArgumentsFromFile;
+    return castThis();
+  }
+
+  public T setFileSystem(EsFileSystem fileSystem) {
+    this.fileSystem = fileSystem;
+    return castThis();
+  }
+
+  public EsFileSystem getFileSystem() {
+    return fileSystem;
   }
 }

@@ -171,10 +171,11 @@ public class ProcessLauncherImplTest {
     props.set("sonar.path.home", homeDir.getAbsolutePath());
     props.set("sonar.path.data", dataDir.getAbsolutePath());
     props.set("sonar.path.logs", logDir.getAbsolutePath());
-    command.setFileSystem(new EsFileSystem(props));
-    command.setEsYmlSettings(mock(EsYmlSettings.class));
-    command.setEsJvmOptions(mock(EsJvmOptions.class));
-    command.setLog4j2Properties(new Properties());
+    EsFileSystem fileSystem = new EsFileSystem(props);
+    command.setFileSystem(fileSystem);
+    fileSystem.setEsYmlSettings(mock(EsYmlSettings.class));
+    fileSystem.setEsJvmOptions(mock(EsJvmOptions.class));
+    fileSystem.setLog4j2Properties(new Properties());
     return command;
   }
 

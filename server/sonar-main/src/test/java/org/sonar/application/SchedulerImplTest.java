@@ -74,6 +74,7 @@ public class SchedulerImplTest {
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   private EsCommand esCommand;
+  private JavaCommand esCommandForWindows;
   private JavaCommand webLeaderCommand;
   private JavaCommand webFollowerCommand;
   private JavaCommand ceCommand;
@@ -91,6 +92,7 @@ public class SchedulerImplTest {
   public void setUp() throws Exception {
     File tempDir = temporaryFolder.newFolder();
     esCommand = new EsCommand(ELASTICSEARCH, tempDir);
+    esCommandForWindows = new JavaCommand(ELASTICSEARCH, tempDir);
     webLeaderCommand = new JavaCommand(WEB_SERVER, tempDir);
     webFollowerCommand = new JavaCommand(WEB_SERVER, tempDir);
     ceCommand = new JavaCommand(COMPUTE_ENGINE, tempDir);
@@ -381,13 +383,8 @@ public class SchedulerImplTest {
     private ProcessId makeStartupFail = null;
 
     @Override
-    public ProcessMonitor launch(EsCommand esCommand) {
-      return launchImpl(esCommand);
-    }
-
-    @Override
-    public ProcessMonitor launch(JavaCommand javaCommand) {
-      return launchImpl(javaCommand);
+    public ProcessMonitor launch(AbstractCommand command) {
+      return launchImpl(command);
     }
 
     private ProcessMonitor launchImpl(AbstractCommand<?> javaCommand) {

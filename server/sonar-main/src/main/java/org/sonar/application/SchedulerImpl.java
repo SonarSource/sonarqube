@@ -28,9 +28,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.application.command.AbstractCommand;
 import org.sonar.application.command.CommandFactory;
-import org.sonar.application.command.EsCommand;
-import org.sonar.application.command.JavaCommand;
 import org.sonar.application.config.AppSettings;
 import org.sonar.application.config.ClusterSettings;
 import org.sonar.application.process.Lifecycle;
@@ -108,7 +107,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   private void tryToStartEs() {
     SQProcess process = processesById.get(ProcessId.ELASTICSEARCH);
     if (process != null) {
-      tryToStartEsProcess(process, commandFactory::createEsCommand);
+      tryToStartProcess(process, commandFactory::createEsCommand);
     }
   }
 
@@ -124,9 +123,9 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
       return;
     }
     if (appState.isOperational(ProcessId.WEB_SERVER, false)) {
-      tryToStartJavaProcess(process, () -> commandFactory.createWebCommand(false));
+      tryToStartProcess(process, () -> commandFactory.createWebCommand(false));
     } else if (appState.tryToLockWebLeader()) {
-      tryToStartJavaProcess(process, () -> commandFactory.createWebCommand(true));
+      tryToStartProcess(process, () -> commandFactory.createWebCommand(true));
     } else {
       Optional<String> leader = appState.getLeaderHostName();
       if (leader.isPresent()) {
@@ -140,7 +139,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
   private void tryToStartCe() {
     SQProcess process = processesById.get(ProcessId.COMPUTE_ENGINE);
     if (process != null && appState.isOperational(ProcessId.WEB_SERVER, false) && isEsClientStartable()) {
-      tryToStartJavaProcess(process, commandFactory::createCeCommand);
+      tryToStartProcess(process, commandFactory::createCeCommand);
     }
   }
 
@@ -149,16 +148,9 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
     return appState.isOperational(ProcessId.ELASTICSEARCH, requireLocalEs);
   }
 
-  private void tryToStartJavaProcess(SQProcess process, Supplier<JavaCommand> commandSupplier) {
+  private void tryToStartProcess(SQProcess process, Supplier<AbstractCommand> commandSupplier) {
     tryToStart(process, () -> {
-      JavaCommand command = commandSupplier.get();
-      return processLauncher.launch(command);
-    });
-  }
-
-  private void tryToStartEsProcess(SQProcess process, Supplier<EsCommand> commandSupplier) {
-    tryToStart(process, () -> {
-      EsCommand command = commandSupplier.get();
+      AbstractCommand command = commandSupplier.get();
       return processLauncher.launch(command);
     });
   }
