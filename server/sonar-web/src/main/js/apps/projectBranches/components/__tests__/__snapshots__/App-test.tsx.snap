@@ -57,7 +57,7 @@ exports[`renders sorted list of branches 1`] = `
         <th
           className="thin nowrap text-right"
         >
-          project_history.last_snapshot
+          branches.last_analysis_date
         </th>
         <th
           className="thin nowrap text-right"

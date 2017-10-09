@@ -124,9 +124,7 @@ export default class App extends React.PureComponent<Props, State> {
             <tr>
               <th>{translate('branch')}</th>
               <th className="thin nowrap text-right">{translate('status')}</th>
-              <th className="thin nowrap text-right">
-                {translate('project_history.last_snapshot')}
-              </th>
+              <th className="thin nowrap text-right">{translate('branches.last_analysis_date')}</th>
               <th className="thin nowrap text-right">{translate('actions')}</th>
             </tr>
           </thead>
