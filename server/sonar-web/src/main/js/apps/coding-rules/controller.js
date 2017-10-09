@@ -26,7 +26,7 @@ import throwGlobalError from '../../app/utils/throwGlobalError';
 
 export default Controller.extend({
   pageSize: 200,
-  ruleFields: ['name', 'lang', 'langName', 'sysTags', 'tags', 'status', 'severity'],
+  ruleFields: ['name', 'lang', 'langName', 'sysTags', 'tags', 'status', 'severity', 'isTemplate'],
 
   _searchParameters() {
     const fields = this.ruleFields.slice();
