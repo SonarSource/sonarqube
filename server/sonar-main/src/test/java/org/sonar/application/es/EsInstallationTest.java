@@ -22,7 +22,6 @@ package org.sonar.application.es;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -150,7 +149,6 @@ public class EsInstallationTest {
     }
   }
 
-  @Ignore//FIXME check this test
   @Test
   public void getLog4j2Properties_is_in_es_conf_directory() throws IOException {
     File tempDir = temp.newFolder();
@@ -162,7 +160,7 @@ public class EsInstallationTest {
 
     EsInstallation underTest = new EsInstallation(props);
 
-    assertThat(underTest.getLog4j2Properties()).isEqualTo(new File(tempDir, "conf/es/log4j2.properties"));
+    assertThat(underTest.getLog4j2PropertiesLocation()).isEqualTo(new File(tempDir, "conf/es/log4j2.properties"));
   }
 
   @Test
