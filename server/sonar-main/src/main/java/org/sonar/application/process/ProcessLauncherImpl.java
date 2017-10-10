@@ -167,7 +167,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
   private ProcessBuilder create(EsScriptCommand esScriptCommand) {
     List<String> commands = new ArrayList<>();
     commands.add(esScriptCommand.getElasticsearchConfiguration().getExecutable().getAbsolutePath());
-    commands.addAll(esScriptCommand.getEsOptions());
+    commands.addAll(esScriptCommand.getOptions());
 
     return create(esScriptCommand, commands);
   }

@@ -95,7 +95,7 @@ public class CommandFactoryImpl implements CommandFactory {
     return new EsScriptCommand(ProcessId.ELASTICSEARCH, elasticsearchConfiguration.getHomeDirectory())
       .setElasticsearchConfiguration(elasticsearchConfiguration)
       .setArguments(props.rawProperties())
-      .addEsOption("-Epath.conf=" + elasticsearchConfiguration.getConfDirectory().getAbsolutePath())
+      .addOption("-Epath.conf=" + elasticsearchConfiguration.getConfDirectory().getAbsolutePath())
       .setEnvVariable("ES_JVM_OPTIONS", elasticsearchConfiguration.getJvmOptions().getAbsolutePath())
       .setEnvVariable("JAVA_HOME", System.getProperties().getProperty("java.home"))
       .suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS);

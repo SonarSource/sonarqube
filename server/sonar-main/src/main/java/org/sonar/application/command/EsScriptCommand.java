@@ -26,19 +26,19 @@ import org.sonar.process.ProcessId;
 import org.sonar.process.System2;
 
 public class EsScriptCommand extends AbstractCommand<EsScriptCommand> {
-  private List<String> esOptions = new ArrayList<>();
+  private List<String> options = new ArrayList<>();
 
   public EsScriptCommand(ProcessId id, File workDir) {
     super(id, workDir, System2.INSTANCE);
   }
 
-  public List<String> getEsOptions() {
-    return esOptions;
+  public List<String> getOptions() {
+    return options;
   }
 
-  public EsScriptCommand addEsOption(String s) {
+  public EsScriptCommand addOption(String s) {
     if (!s.isEmpty()) {
-      esOptions.add(s);
+      options.add(s);
     }
     return this;
   }
