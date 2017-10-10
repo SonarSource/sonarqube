@@ -35,7 +35,7 @@ import org.sonar.process.Props;
  * This class does not ensure files nor directories actually exist.
  * </p>
  */
-public class ElasticsearchConfiguration {
+public class EsInstallation {
   private final File homeDirectory;
   private final List<File> outdatedSearchDirectories;
   private final File dataDirectory;
@@ -48,7 +48,7 @@ public class ElasticsearchConfiguration {
   private String host;
   private int port;
 
-  public ElasticsearchConfiguration(Props props) {
+  public EsInstallation(Props props) {
     File sqHomeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
 
     this.homeDirectory = new File(sqHomeDir, "elasticsearch");
@@ -128,7 +128,7 @@ public class ElasticsearchConfiguration {
     return esJvmOptions;
   }
 
-  public ElasticsearchConfiguration setEsJvmOptions(EsJvmOptions esJvmOptions) {
+  public EsInstallation setEsJvmOptions(EsJvmOptions esJvmOptions) {
     this.esJvmOptions = esJvmOptions;
     return this;
   }
@@ -137,7 +137,7 @@ public class ElasticsearchConfiguration {
     return esYmlSettings;
   }
 
-  public ElasticsearchConfiguration setEsYmlSettings(EsYmlSettings esYmlSettings) {
+  public EsInstallation setEsYmlSettings(EsYmlSettings esYmlSettings) {
     this.esYmlSettings = esYmlSettings;
     return this;
   }
@@ -146,7 +146,7 @@ public class ElasticsearchConfiguration {
     return log4j2Properties;
   }
 
-  public ElasticsearchConfiguration setLog4j2Properties(Properties log4j2Properties) {
+  public EsInstallation setLog4j2Properties(Properties log4j2Properties) {
     this.log4j2Properties = log4j2Properties;
     return this;
   }
@@ -155,7 +155,7 @@ public class ElasticsearchConfiguration {
     return clusterName;
   }
 
-  public ElasticsearchConfiguration setClusterName(String clusterName) {
+  public EsInstallation setClusterName(String clusterName) {
     this.clusterName = clusterName;
     return this;
   }
@@ -164,7 +164,7 @@ public class ElasticsearchConfiguration {
     return host;
   }
 
-  public ElasticsearchConfiguration setHost(String host) {
+  public EsInstallation setHost(String host) {
     this.host = host;
     return this;
   }
@@ -173,7 +173,7 @@ public class ElasticsearchConfiguration {
     return port;
   }
 
-  public ElasticsearchConfiguration setPort(int port) {
+  public EsInstallation setPort(int port) {
     this.port = port;
     return this;
   }

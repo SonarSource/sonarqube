@@ -23,7 +23,7 @@ import java.io.File;
 import java.util.Map;
 import java.util.Optional;
 import org.slf4j.LoggerFactory;
-import org.sonar.application.es.ElasticsearchConfiguration;
+import org.sonar.application.es.EsInstallation;
 import org.sonar.application.es.EsLogging;
 import org.sonar.application.es.EsSettings;
 import org.sonar.application.es.EsYmlSettings;
@@ -76,14 +76,14 @@ public class CommandFactoryImpl implements CommandFactory {
   }
 
   private EsScriptCommand createEsCommandForUnix() {
-    ElasticsearchConfiguration elasticsearchConfiguration = new ElasticsearchConfiguration(props);
-    if (!elasticsearchConfiguration.getExecutable().exists()) {
+    EsInstallation esInstallation = new EsInstallation(props);
+    if (!esInstallation.getExecutable().exists()) {
       throw new IllegalStateException("Cannot find elasticsearch binary");
     }
-    Map<String, String> settingsMap = new EsSettings(props, elasticsearchConfiguration, System2.INSTANCE).build();
+    Map<String, String> settingsMap = new EsSettings(props, esInstallation, System2.INSTANCE).build();
 
-    elasticsearchConfiguration
-      .setLog4j2Properties(new EsLogging().createProperties(props, elasticsearchConfiguration.getLogDirectory()))
+    esInstallation
+      .setLog4j2Properties(new EsLogging().createProperties(props, esInstallation.getLogDirectory()))
       .setEsJvmOptions(new EsJvmOptions()
         .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_OPTS)
         .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS))
@@ -92,24 +92,24 @@ public class CommandFactoryImpl implements CommandFactory {
       .setHost(settingsMap.get("network.host"))
       .setPort(Integer.valueOf(settingsMap.get("transport.tcp.port")));
 
-    return new EsScriptCommand(ProcessId.ELASTICSEARCH, elasticsearchConfiguration.getHomeDirectory())
-      .setElasticsearchConfiguration(elasticsearchConfiguration)
+    return new EsScriptCommand(ProcessId.ELASTICSEARCH, esInstallation.getHomeDirectory())
+      .setEsInstallation(esInstallation)
       .setArguments(props.rawProperties())
-      .addOption("-Epath.conf=" + elasticsearchConfiguration.getConfDirectory().getAbsolutePath())
-      .setEnvVariable("ES_JVM_OPTIONS", elasticsearchConfiguration.getJvmOptions().getAbsolutePath())
+      .addOption("-Epath.conf=" + esInstallation.getConfDirectory().getAbsolutePath())
+      .setEnvVariable("ES_JVM_OPTIONS", esInstallation.getJvmOptions().getAbsolutePath())
       .setEnvVariable("JAVA_HOME", System.getProperties().getProperty("java.home"))
       .suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS);
   }
 
   private JavaCommand createEsCommandForWindows() {
-    ElasticsearchConfiguration elasticsearchConfiguration = new ElasticsearchConfiguration(props);
-    if (!elasticsearchConfiguration.getExecutable().exists()) {
+    EsInstallation esInstallation = new EsInstallation(props);
+    if (!esInstallation.getExecutable().exists()) {
       throw new IllegalStateException("Cannot find elasticsearch binary");
     }
-    Map<String, String> settingsMap = new EsSettings(props, elasticsearchConfiguration, System2.INSTANCE).build();
+    Map<String, String> settingsMap = new EsSettings(props, esInstallation, System2.INSTANCE).build();
 
-    elasticsearchConfiguration
-      .setLog4j2Properties(new EsLogging().createProperties(props, elasticsearchConfiguration.getLogDirectory()))
+    esInstallation
+      .setLog4j2Properties(new EsLogging().createProperties(props, esInstallation.getLogDirectory()))
       .setEsJvmOptions(new EsJvmOptions()
         .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_OPTS)
         .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS))
@@ -118,18 +118,18 @@ public class CommandFactoryImpl implements CommandFactory {
       .setHost(settingsMap.get("network.host"))
       .setPort(Integer.valueOf(settingsMap.get("transport.tcp.port")));
 
-    return new JavaCommand<EsJvmOptions>(ProcessId.ELASTICSEARCH, elasticsearchConfiguration.getHomeDirectory())
-      .setElasticsearchConfiguration(elasticsearchConfiguration)
+    return new JavaCommand<EsJvmOptions>(ProcessId.ELASTICSEARCH, esInstallation.getHomeDirectory())
+      .setEsInstallation(esInstallation)
       .setReadsArgumentsFromFile(false)
       //.setArguments(props.rawProperties()) //FIXME set settings
-      .setArgument("path.conf", elasticsearchConfiguration.getConfDirectory().getAbsolutePath())
+      .setArgument("path.conf", esInstallation.getConfDirectory().getAbsolutePath())
       .setJvmOptions(new EsJvmOptions()
         .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_OPTS)
         .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS)
         .add("-Delasticsearch")
-        .add("-Des.path.home=" + elasticsearchConfiguration.getHomeDirectory())
+        .add("-Des.path.home=" + esInstallation.getHomeDirectory())
       )
-      .setEnvVariable("ES_JVM_OPTIONS", elasticsearchConfiguration.getJvmOptions().getAbsolutePath())
+      .setEnvVariable("ES_JVM_OPTIONS", esInstallation.getJvmOptions().getAbsolutePath())
       .setEnvVariable("JAVA_HOME", System.getProperties().getProperty("java.home"))
       .setClassName("org.elasticsearch.bootstrap.Elasticsearch")
       .addClasspath("lib/*")

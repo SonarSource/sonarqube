@@ -31,7 +31,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
-import org.sonar.application.es.ElasticsearchConfiguration;
+import org.sonar.application.es.EsInstallation;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -111,7 +111,7 @@ public class CommandFactoryImplTest {
     props.setProperty("sonar.search.host", "localhost");
 
     AbstractCommand esCommand = newFactory(props).createEsCommand();
-    ElasticsearchConfiguration esConfig = esCommand.getElasticsearchConfiguration();
+    EsInstallation esConfig = esCommand.getEsInstallation();
 
     assertThat(esConfig.getClusterName()).isEqualTo("sonarqube");
     assertThat(esConfig.getHost()).isNotEmpty();
@@ -144,7 +144,7 @@ public class CommandFactoryImplTest {
     props.setProperty("sonar.search.javaOpts", "-Xms10G -Xmx10G");
 
     AbstractCommand esCommand = newFactory(props).createEsCommand();
-    ElasticsearchConfiguration esConfig = esCommand.getElasticsearchConfiguration();
+    EsInstallation esConfig = esCommand.getEsInstallation();
 
     assertThat(esConfig.getClusterName()).isEqualTo("foo");
     assertThat(esConfig.getPort()).isEqualTo(1234);

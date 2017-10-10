@@ -42,13 +42,13 @@ public class EsSettings {
   private static final String STANDALONE_NODE_NAME = "sonarqube";
 
   private final Props props;
-  private final ElasticsearchConfiguration fileSystem;
+  private final EsInstallation fileSystem;
 
   private final boolean clusterEnabled;
   private final String clusterName;
   private final String nodeName;
 
-  public EsSettings(Props props, ElasticsearchConfiguration fileSystem, System2 system2) {
+  public EsSettings(Props props, EsInstallation fileSystem, System2 system2) {
     this.props = props;
     this.fileSystem = fileSystem;
 

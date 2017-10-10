@@ -35,7 +35,7 @@ import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.discovery.MasterNotDiscoveredException;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
-import org.sonar.application.es.ElasticsearchConfiguration;
+import org.sonar.application.es.EsInstallation;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 
@@ -132,14 +132,14 @@ public class EsProcessMonitorTest {
       );
   }
 
-  private ElasticsearchConfiguration getEsConfig() throws IOException {
+  private EsInstallation getEsConfig() throws IOException {
     Path tempDirectory = Files.createTempDirectory(getClass().getSimpleName());
     Properties properties = new Properties();
     properties.setProperty("sonar.path.home", "/imaginary/path");
     properties.setProperty("sonar.path.data", "/imaginary/path");
     properties.setProperty("sonar.path.temp", "/imaginary/path");
     properties.setProperty("sonar.path.logs", "/imaginary/path");
-    return new ElasticsearchConfiguration(new Props(properties))
+    return new EsInstallation(new Props(properties))
       .setHost("localhost")
       .setPort(new Random().nextInt(40000));
   }

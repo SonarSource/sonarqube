@@ -36,7 +36,7 @@ import org.sonar.application.command.AbstractCommand;
 import org.sonar.application.command.EsScriptCommand;
 import org.sonar.application.command.JavaCommand;
 import org.sonar.application.command.JvmOptions;
-import org.sonar.application.es.ElasticsearchConfiguration;
+import org.sonar.application.es.EsInstallation;
 import org.sonar.process.ProcessId;
 import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
@@ -71,7 +71,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
 
   public ProcessMonitor launch(AbstractCommand command) {
 
-    ElasticsearchConfiguration fileSystem = command.getElasticsearchConfiguration();
+    EsInstallation fileSystem = command.getEsInstallation();
     if (fileSystem != null) {
       cleanupOutdatedEsData(fileSystem);
       writeConfFiles(fileSystem);
@@ -90,7 +90,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     ProcessId processId = command.getProcessId();
     try {
       if (processId == ProcessId.ELASTICSEARCH) {
-        return new EsProcessMonitor(process, processId, command.getElasticsearchConfiguration(), new EsConnectorImpl());
+        return new EsProcessMonitor(process, processId, command.getEsInstallation(), new EsConnectorImpl());
       } else {
         ProcessCommands commands = allProcessesCommands.createAfterClean(processId.getIpcIndex());
         return new ProcessCommandsProcessMonitor(process, processId, commands);
@@ -114,8 +114,8 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     }
   }
 
-  private static void cleanupOutdatedEsData(ElasticsearchConfiguration elasticsearchConfiguration) {
-    elasticsearchConfiguration.getOutdatedSearchDirectories().forEach(outdatedDir -> {
+  private static void cleanupOutdatedEsData(EsInstallation esInstallation) {
+    esInstallation.getOutdatedSearchDirectories().forEach(outdatedDir -> {
       if (outdatedDir.exists()) {
         LOG.info("Deleting outdated search index data directory {}", outdatedDir.getAbsolutePath());
         try {
@@ -127,8 +127,8 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     });
   }
 
-  private static void writeConfFiles(ElasticsearchConfiguration elasticsearchConfiguration) {
-    File confDir = elasticsearchConfiguration.getConfDirectory();
+  private static void writeConfFiles(EsInstallation esInstallation) {
+    File confDir = esInstallation.getConfDirectory();
     if (!confDir.exists() && !confDir.mkdirs()) {
       String error = format("Failed to create temporary configuration directory [%s]", confDir.getAbsolutePath());
       LOG.error(error);
@@ -136,9 +136,9 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     }
 
     try {
-      elasticsearchConfiguration.getEsYmlSettings().writeToYmlSettingsFile(elasticsearchConfiguration.getElasticsearchYml());
-      elasticsearchConfiguration.getEsJvmOptions().writeToJvmOptionFile(elasticsearchConfiguration.getJvmOptions());
-      elasticsearchConfiguration.getLog4j2Properties().store(new FileOutputStream(elasticsearchConfiguration.getLog4j2PropertiesLocation()), "log4j2 properties file for ES bundled in SonarQube");
+      esInstallation.getEsYmlSettings().writeToYmlSettingsFile(esInstallation.getElasticsearchYml());
+      esInstallation.getEsJvmOptions().writeToJvmOptionFile(esInstallation.getJvmOptions());
+      esInstallation.getLog4j2Properties().store(new FileOutputStream(esInstallation.getLog4j2PropertiesLocation()), "log4j2 properties file for ES bundled in SonarQube");
     } catch (IOException e) {
       throw new IllegalStateException("Failed to write ES configuration files", e);
     }
@@ -166,7 +166,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
 
   private ProcessBuilder create(EsScriptCommand esScriptCommand) {
     List<String> commands = new ArrayList<>();
-    commands.add(esScriptCommand.getElasticsearchConfiguration().getExecutable().getAbsolutePath());
+    commands.add(esScriptCommand.getEsInstallation().getExecutable().getAbsolutePath());
     commands.addAll(esScriptCommand.getOptions());
 
     return create(esScriptCommand, commands);

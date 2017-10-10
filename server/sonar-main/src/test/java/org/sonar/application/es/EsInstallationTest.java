@@ -32,7 +32,7 @@ import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ElasticsearchConfigurationTest {
+public class EsInstallationTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -46,7 +46,7 @@ public class ElasticsearchConfigurationTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Property sonar.path.home is not set");
 
-    new ElasticsearchConfiguration(props);
+    new EsInstallation(props);
   }
 
   @Test
@@ -58,7 +58,7 @@ public class ElasticsearchConfigurationTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Property sonar.path.temp is not set");
 
-    new ElasticsearchConfiguration(props);
+    new EsInstallation(props);
   }
 
   @Test
@@ -69,7 +69,7 @@ public class ElasticsearchConfigurationTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Missing property: sonar.path.data");
 
-    new ElasticsearchConfiguration(props);
+    new EsInstallation(props);
   }
 
   @Test
@@ -81,7 +81,7 @@ public class ElasticsearchConfigurationTest {
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
 
-    ElasticsearchConfiguration underTest = new ElasticsearchConfiguration(props);
+    EsInstallation underTest = new EsInstallation(props);
 
     assertThat(underTest.getHomeDirectory()).isEqualTo(new File(sqHomeDir, "elasticsearch"));
   }
@@ -98,7 +98,7 @@ public class ElasticsearchConfigurationTest {
 
     props.set(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
 
-    ElasticsearchConfiguration underTest = new ElasticsearchConfiguration(props);
+    EsInstallation underTest = new EsInstallation(props);
 
     assertThat(underTest.getDataDirectory()).isEqualTo(new File(dataDir, "es5"));
   }
@@ -113,7 +113,7 @@ public class ElasticsearchConfigurationTest {
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, logDir.getAbsolutePath());
 
-    ElasticsearchConfiguration underTest = new ElasticsearchConfiguration(props);
+    EsInstallation underTest = new EsInstallation(props);
 
     assertThat(underTest.getLogDirectory()).isEqualTo(logDir);
   }
@@ -127,7 +127,7 @@ public class ElasticsearchConfigurationTest {
     props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
 
-    ElasticsearchConfiguration underTest = new ElasticsearchConfiguration(props);
+    EsInstallation underTest = new EsInstallation(props);
 
     assertThat(underTest.getConfDirectory()).isEqualTo(new File(tempDir, "conf/es"));
   }
@@ -141,7 +141,7 @@ public class ElasticsearchConfigurationTest {
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
 
-    ElasticsearchConfiguration underTest = new ElasticsearchConfiguration(props);
+    EsInstallation underTest = new EsInstallation(props);
 
     if (System.getProperty("os.name").startsWith("Windows")) {
       assertThat(underTest.getExecutable()).isEqualTo(new File(sqHomeDir, "elasticsearch/bin/elasticsearch.bat"));
@@ -160,7 +160,7 @@ public class ElasticsearchConfigurationTest {
     props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
 
-    ElasticsearchConfiguration underTest = new ElasticsearchConfiguration(props);
+    EsInstallation underTest = new EsInstallation(props);
 
     assertThat(underTest.getLog4j2Properties()).isEqualTo(new File(tempDir, "conf/es/log4j2.properties"));
   }
@@ -174,7 +174,7 @@ public class ElasticsearchConfigurationTest {
     props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
 
-    ElasticsearchConfiguration underTest = new ElasticsearchConfiguration(props);
+    EsInstallation underTest = new EsInstallation(props);
 
     assertThat(underTest.getElasticsearchYml()).isEqualTo(new File(tempDir, "conf/es/elasticsearch.yml"));
   }
@@ -188,7 +188,7 @@ public class ElasticsearchConfigurationTest {
     props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
 
-    ElasticsearchConfiguration underTest = new ElasticsearchConfiguration(props);
+    EsInstallation underTest = new EsInstallation(props);
 
     assertThat(underTest.getJvmOptions()).isEqualTo(new File(tempDir, "conf/es/jvm.options"));
   }

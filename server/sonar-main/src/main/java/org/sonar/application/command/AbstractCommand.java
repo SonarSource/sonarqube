@@ -28,7 +28,7 @@ import java.util.Properties;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.application.es.ElasticsearchConfiguration;
+import org.sonar.application.es.EsInstallation;
 import org.sonar.process.ProcessId;
 import org.sonar.process.System2;
 
@@ -42,7 +42,7 @@ public abstract class AbstractCommand<T extends AbstractCommand> {
   private final Map<String, String> envVariables;
   private final Set<String> suppressedEnvVariables = new HashSet<>();
   private final File workDir;
-  private ElasticsearchConfiguration elasticsearchConfiguration;
+  private EsInstallation esInstallation;
 
   protected AbstractCommand(ProcessId id, File workDir, System2 system2) {
     this.id = requireNonNull(id, "ProcessId can't be null");
@@ -106,13 +106,13 @@ public abstract class AbstractCommand<T extends AbstractCommand> {
   }
 
 
-  public T setElasticsearchConfiguration(ElasticsearchConfiguration elasticsearchConfiguration) {
-    this.elasticsearchConfiguration = elasticsearchConfiguration;
+  public T setEsInstallation(EsInstallation esInstallation) {
+    this.esInstallation = esInstallation;
     return castThis();
   }
 
   @CheckForNull
-  public ElasticsearchConfiguration getElasticsearchConfiguration() {
-    return elasticsearchConfiguration;
+  public EsInstallation getEsInstallation() {
+    return esInstallation;
   }
 }
