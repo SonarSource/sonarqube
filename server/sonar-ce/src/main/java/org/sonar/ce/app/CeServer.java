@@ -80,7 +80,7 @@ public class CeServer implements Monitored {
     checkState(ceMainThread != null, "getStatus() can not be called before start()");
 
     if (ceMainThread.isStarted()) {
-      return Status.OPERATIONAL;
+      return ceMainThread.isOperational() ? Status.OPERATIONAL : Status.FAILED;
     }
     return Status.DOWN;
   }
@@ -130,6 +130,7 @@ public class CeServer implements Monitored {
     private static final int CHECK_FOR_STOP_DELAY = 50;
     private volatile boolean stop = false;
     private volatile boolean started = false;
+    private volatile boolean operational = false;
 
     public CeMainThread() {
       super(CE_MAIN_THREAD_NAME);
@@ -138,7 +139,13 @@ public class CeServer implements Monitored {
     @Override
     public void run() {
       boolean startupSuccessful = attemptStartup();
+      this.operational = startupSuccessful;
       this.started = true;
+      try {
+        Thread.sleep(2000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
       if (startupSuccessful) {
         // call below is blocking
         waitForStopSignal();
@@ -163,7 +170,7 @@ public class CeServer implements Monitored {
     private void startup() {
       LOG.info("Compute Engine starting up...");
       computeEngine.startup();
-      LOG.info("Compute Engine is operational");
+      LOG.info("Compute Engine is started");
     }
 
     private void waitForStopSignal() {
@@ -194,6 +201,10 @@ public class CeServer implements Monitored {
 
     public boolean isStarted() {
       return started;
+    }
+
+    public boolean isOperational() {
+      return operational;
     }
 
     public void stopIt() {
