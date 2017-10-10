@@ -127,7 +127,7 @@ public class FileMoveDetectionStep implements ComputationStep {
 
     // not a single match with score higher than MIN_REQUIRED_SCORE => abort
     if (scoreMatrix.getMaxScore() < MIN_REQUIRED_SCORE) {
-      LOG.debug("max score in matrix is less than min required score (%s). Do nothing.", MIN_REQUIRED_SCORE);
+      LOG.debug("max score in matrix is less than min required score (" + MIN_REQUIRED_SCORE + "). Do nothing.");
       return;
     }
 

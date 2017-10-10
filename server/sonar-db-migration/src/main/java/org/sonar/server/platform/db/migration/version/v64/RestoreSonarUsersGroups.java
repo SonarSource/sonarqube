@@ -181,8 +181,8 @@ public class RestoreSonarUsersGroups extends DataChange {
   }
 
   private static void displayWarnLog(Group defaultGroup) {
-    LOG.warn("The default group has been updated from '{}' to '{}'. Please verify your permission schema that everything is in order",
-      defaultGroup.getName(), SONAR_USERS_NAME);
+    LOG.warn("The default group has been updated from '{}' to '" + SONAR_USERS_NAME + "'. Please verify your permission schema that everything is in order",
+      defaultGroup.getName());
   }
 
   private static class Group {

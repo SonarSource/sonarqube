@@ -72,7 +72,7 @@ public class GenericTestExecutionSensor implements Sensor {
   @Override
   public void execute(SensorContext context) {
     if (context.settings().hasKey(OLD_UNIT_TEST_REPORT_PATHS_PROPERTY_KEY)) {
-      LOG.warn("Property '{}' is deprecated. Please use '{}' instead.", OLD_UNIT_TEST_REPORT_PATHS_PROPERTY_KEY, REPORT_PATHS_PROPERTY_KEY);
+      LOG.warn("Property '" + OLD_UNIT_TEST_REPORT_PATHS_PROPERTY_KEY + "' is deprecated. Please use '" + REPORT_PATHS_PROPERTY_KEY + "' instead.");
     }
     for (String reportPath : context.settings().getStringArray(REPORT_PATHS_PROPERTY_KEY)) {
       File reportFile = context.fileSystem().resolvePath(reportPath);

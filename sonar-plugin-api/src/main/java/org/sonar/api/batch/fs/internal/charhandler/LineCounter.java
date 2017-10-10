@@ -43,8 +43,8 @@ public class LineCounter extends CharHandler {
   @Override
   public void handleAll(char c) {
     if (!alreadyLoggedInvalidCharacter && c == '\ufffd') {
-      LOG.warn("Invalid character encountered in file {} at line {} for encoding {}. Please fix file content or configure the encoding to be used using property '{}'.", filePath,
-        lines, encoding, CoreProperties.ENCODING_PROPERTY);
+      LOG.warn("Invalid character encountered in file {} at line {} for encoding {}. Please fix file content or configure the encoding to be used using property '" + CoreProperties.ENCODING_PROPERTY + "'.",
+        filePath, lines, encoding);
       alreadyLoggedInvalidCharacter = true;
     }
   }

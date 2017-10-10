@@ -84,7 +84,7 @@ public class GenericCoverageSensor implements Sensor {
 
   private void loadDeprecated(Set<String> reportPaths, String propertyKey) {
     if (config.hasKey(propertyKey)) {
-      LOG.warn("Property '{}' is deprecated. Please use '{}' instead.", propertyKey, REPORT_PATHS_PROPERTY_KEY);
+      LOG.warn("Property '{}' is deprecated. Please use '" + REPORT_PATHS_PROPERTY_KEY + "' instead.", propertyKey);
       reportPaths.addAll(Arrays.asList(config.getStringArray(propertyKey)));
     }
   }

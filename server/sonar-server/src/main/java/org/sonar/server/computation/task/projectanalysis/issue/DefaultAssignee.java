@@ -69,11 +69,11 @@ public class DefaultAssignee {
     try (DbSession dbSession = dbClient.openSession(false)) {
       UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
       if (user == null) {
-        LOG.info("Property {} is set with an unknown login: {}", DEFAULT_ISSUE_ASSIGNEE, login);
+        LOG.info("Property " + DEFAULT_ISSUE_ASSIGNEE + " is set with an unknown login: {}", login);
         return false;
       }
       if (!isUserMemberOfOrganization(dbSession, user)) {
-        LOG.info("Property {} is set with a user which is not member of the organization of the project : {}", DEFAULT_ISSUE_ASSIGNEE, login);
+        LOG.info("Property " + DEFAULT_ISSUE_ASSIGNEE + " is set with a user which is not member of the organization of the project : {}", login);
         return false;
       }
       return true;

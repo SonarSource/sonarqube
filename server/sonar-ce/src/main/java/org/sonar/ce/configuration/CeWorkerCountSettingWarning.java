@@ -41,9 +41,8 @@ public class CeWorkerCountSettingWarning implements Startable {
   @Override
   public void start() {
     configuration.get(PROPERTY_SONAR_CE_WORKER_COUNT)
-      .ifPresent(workerCount -> LOG.warn("Property {} is not supported anymore and will be ignored." +
-        " Remove it from sonar.properties to remove this warning.",
-        PROPERTY_SONAR_CE_WORKER_COUNT));
+      .ifPresent(workerCount -> LOG.warn("Property " + PROPERTY_SONAR_CE_WORKER_COUNT + " is not supported anymore and will be ignored." +
+        " Remove it from sonar.properties to remove this warning."));
   }
 
   @Override
