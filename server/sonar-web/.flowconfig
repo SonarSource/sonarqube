@@ -2,6 +2,7 @@
 <PROJECT_ROOT>/node_modules/fbjs.*
 <PROJECT_ROOT>/node_modules/react-side-effect.*
 <PROJECT_ROOT>/node/.*
+<PROJECT_ROOT>/.vscode/.*
 
 [include]
 
