@@ -83,6 +83,7 @@ function runDevServer(compiler, host, port, protocol) {
     compress: true,
     clientLogLevel: 'none',
     contentBase: paths.appPublic,
+    disableHostCheck: true,
     hot: true,
     publicPath: config.output.publicPath,
     quiet: true,
