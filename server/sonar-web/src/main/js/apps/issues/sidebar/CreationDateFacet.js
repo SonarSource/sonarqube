@@ -228,6 +228,7 @@ export default class CreationDateFacet extends React.PureComponent {
         <DateInput
           className="search-navigator-date-facet-selection-dropdown-left"
           inputClassName="search-navigator-date-facet-selection-input"
+          maxDate={createdBefore ? toShortNotSoISOString(createdBefore) : '+0'}
           onChange={this.handlePeriodChangeAfter}
           placeholder={translate('from')}
           value={createdAfter ? toShortNotSoISOString(createdAfter) : undefined}
@@ -235,6 +236,7 @@ export default class CreationDateFacet extends React.PureComponent {
         <DateInput
           className="search-navigator-date-facet-selection-dropdown-right"
           inputClassName="search-navigator-date-facet-selection-input"
+          minDate={createdAfter ? toShortNotSoISOString(createdAfter) : undefined}
           onChange={this.handlePeriodChangeBefore}
           placeholder={translate('to')}
           value={createdBefore ? toShortNotSoISOString(createdBefore) : undefined}
