@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.issue;
 
+import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -180,6 +181,28 @@ public class ModuleIssuesTest {
     ArgumentCaptor<ScannerReport.Issue> argument = ArgumentCaptor.forClass(ScannerReport.Issue.class);
     verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.batchId()), argument.capture());
     assertThat(argument.getValue().getMsg()).isEqualTo("Avoid Cycle");
+  }
+
+  // SONAR-9929 Filter secondary locations that are on different files
+  @Test
+  public void skip_cross_file_secondary_locations() {
+    ruleBuilder.add(SQUID_RULE_KEY).setName(SQUID_RULE_NAME);
+    activeRulesBuilder.create(SQUID_RULE_KEY).setSeverity(Severity.INFO).setName(SQUID_RULE_NAME).activate();
+    initModuleIssues();
+
+    DefaultIssue issue = new DefaultIssue()
+      .at(new DefaultIssueLocation().on(file).at(file.selectLine(3)).message("Foo"))
+      .forRule(SQUID_RULE_KEY)
+      .addFlow(Arrays.asList(new DefaultIssueLocation().on(file).at(file.selectLine(4)).message("Location 1"),
+        new DefaultIssueLocation().on(new TestInputFileBuilder("foo", "src/Foo2.php").initMetadata("Foo\nBar\nBiz\n").build()).at(file.selectLine(3)).message("Location outside")));
+    when(filters.accept(anyString(), any(ScannerReport.Issue.class))).thenReturn(true);
+
+    boolean added = moduleIssues.initAndAddIssue(issue);
+
+    assertThat(added).isTrue();
+    ArgumentCaptor<ScannerReport.Issue> argument = ArgumentCaptor.forClass(ScannerReport.Issue.class);
+    verify(reportPublisher.getWriter()).appendComponentIssue(eq(file.batchId()), argument.capture());
+    assertThat(argument.getValue().getFlow(0).getLocationList()).hasSize(1);
   }
 
   @Test
