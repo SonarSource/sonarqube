@@ -167,8 +167,14 @@ class LogbackLogger extends BaseLogger {
       case INFO:
         logback.setLevel(Level.INFO);
         break;
+      case WARN:
+        logback.setLevel(Level.WARN);
+        break;
+      case ERROR:
+        logback.setLevel(Level.ERROR);
+        break;
       default:
-        throw new IllegalArgumentException("Only TRACE, DEBUG and INFO logging levels are supported. Got: " + level);
+        throw new IllegalArgumentException("Only TRACE, DEBUG, INFO , WARN, ERROR logging levels are supported. Got: " + level);
     }
     return true;
   }

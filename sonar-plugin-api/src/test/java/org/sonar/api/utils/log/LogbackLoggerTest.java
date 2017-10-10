@@ -67,6 +67,16 @@ public class LogbackLoggerTest {
 
   @Test
   public void change_level() {
+    assertThat(underTest.setLevel(LoggerLevel.ERROR)).isTrue();
+    assertThat(underTest.isDebugEnabled()).isFalse();
+    assertThat(underTest.isTraceEnabled()).isFalse();
+    assertThat(underTest.logbackLogger().getLevel()).isEqualTo(Level.ERROR);
+
+    assertThat(underTest.setLevel(LoggerLevel.WARN)).isTrue();
+    assertThat(underTest.isDebugEnabled()).isFalse();
+    assertThat(underTest.isTraceEnabled()).isFalse();
+    assertThat(underTest.logbackLogger().getLevel()).isEqualTo(Level.WARN);
+
     assertThat(underTest.setLevel(LoggerLevel.INFO)).isTrue();
     assertThat(underTest.logbackLogger().getLevel()).isEqualTo(Level.INFO);
     assertThat(underTest.isDebugEnabled()).isFalse();
@@ -81,18 +91,5 @@ public class LogbackLoggerTest {
     assertThat(underTest.isDebugEnabled()).isTrue();
     assertThat(underTest.isTraceEnabled()).isTrue();
     assertThat(underTest.logbackLogger().getLevel()).isEqualTo(Level.TRACE);
-  }
-
-  @Test
-  public void info_level_can_not_be_disabled() {
-    try {
-      underTest.setLevel(LoggerLevel.ERROR);
-      fail();
-
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Only TRACE, DEBUG and INFO logging levels are supported. Got: ERROR");
-    }
-
-
   }
 }
