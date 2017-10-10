@@ -22,12 +22,9 @@ package org.sonar.application.command;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.application.es.EsInstallation;
 import org.sonar.process.ProcessId;
 import org.sonar.process.System2;
@@ -37,8 +34,6 @@ import static java.util.Objects.requireNonNull;
 public abstract class AbstractCommand<T extends AbstractCommand> {
   // unique key among the group of commands to launch
   private final ProcessId id;
-  // program arguments
-  private final Map<String, String> arguments = new LinkedHashMap<>();
   private final Map<String, String> envVariables;
   private final Set<String> suppressedEnvVariables = new HashSet<>();
   private final File workDir;
@@ -61,26 +56,6 @@ public abstract class AbstractCommand<T extends AbstractCommand> {
   @SuppressWarnings("unchecked")
   private T castThis() {
     return (T) this;
-  }
-
-  public Map<String, String> getArguments() {
-    return arguments;
-  }
-
-  public T setArgument(String key, @Nullable String value) {
-    if (value == null) {
-      arguments.remove(key);
-    } else {
-      arguments.put(key, value);
-    }
-    return castThis();
-  }
-
-  public T setArguments(Properties args) {
-    for (Map.Entry<Object, Object> entry : args.entrySet()) {
-      setArgument(entry.getKey().toString(), entry.getValue() != null ? entry.getValue().toString() : null);
-    }
-    return castThis();
   }
 
   public Map<String, String> getEnvVariables() {

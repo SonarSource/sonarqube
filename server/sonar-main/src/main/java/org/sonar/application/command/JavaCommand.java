@@ -21,11 +21,17 @@ package org.sonar.application.command;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import javax.annotation.Nullable;
 import org.sonar.process.ProcessId;
 import org.sonar.process.System2;
 
 public class JavaCommand<T extends JvmOptions> extends AbstractCommand<JavaCommand<T>> {
+  // program arguments
+  private final Map<String, String> arguments = new LinkedHashMap<>();
   // entry point
   private String className;
   private JvmOptions<T> jvmOptions;
@@ -65,6 +71,35 @@ public class JavaCommand<T extends JvmOptions> extends AbstractCommand<JavaComma
     return this;
   }
 
+  public boolean getReadsArgumentsFromFile() {
+    return readsArgumentsFromFile;
+  }
+
+  public JavaCommand<T> setReadsArgumentsFromFile(boolean readsArgumentsFromFile) {
+    this.readsArgumentsFromFile = readsArgumentsFromFile;
+    return this;
+  }
+
+  public Map<String, String> getArguments() {
+    return arguments;
+  }
+
+  public JavaCommand<T> setArgument(String key, @Nullable String value) {
+    if (value == null) {
+      arguments.remove(key);
+    } else {
+      arguments.put(key, value);
+    }
+    return this;
+  }
+
+  public JavaCommand<T> setArguments(Properties args) {
+    for (Map.Entry<Object, Object> entry : args.entrySet()) {
+      setArgument(entry.getKey().toString(), entry.getValue() != null ? entry.getValue().toString() : null);
+    }
+    return this;
+  }
+
   @Override
   public String toString() {
     return "JavaCommand{" + "workDir=" + getWorkDir() +
@@ -75,14 +110,5 @@ public class JavaCommand<T extends JvmOptions> extends AbstractCommand<JavaComma
       ", envVariables=" + getEnvVariables() +
       ", suppressedEnvVariables=" + getSuppressedEnvVariables() +
       '}';
-  }
-
-  public boolean getReadsArgumentsFromFile() {
-    return readsArgumentsFromFile;
-  }
-
-  public JavaCommand<T> setReadsArgumentsFromFile(boolean readsArgumentsFromFile) {
-    this.readsArgumentsFromFile = readsArgumentsFromFile;
-    return this;
   }
 }
