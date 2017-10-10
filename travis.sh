@@ -105,7 +105,7 @@ function fixBuildVersion {
 #
 function configureTravis {
   mkdir -p ~/.local
-  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v36 | tar zx --strip-components 1 -C ~/.local
+  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v38 | tar zx --strip-components 1 -C ~/.local
   source ~/.local/bin/install
 }
 configureTravis
@@ -146,7 +146,11 @@ BUILD)
     mvn sonar:sonar \
           -Dsonar.host.url=$SONAR_HOST_URL \
           -Dsonar.login=$SONAR_TOKEN \
-          -Dsonar.projectVersion=$INITIAL_VERSION
+          -Dsonar.projectVersion=$INITIAL_VERSION \
+          -Dsonar.analysis.buildNumber=$TRAVIS_BUILD_NUMBER \
+          -Dsonar.analysis.pipeline=$TRAVIS_BUILD_NUMBER \ 
+          -Dsonar.analysis.sha1=$TRAVIS_COMMIT \ 
+          -Dsonar.analysis.repository=$TRAVIS_REPO_SLUG
 
   elif [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Build release branch'
