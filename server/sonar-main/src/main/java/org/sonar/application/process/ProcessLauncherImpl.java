@@ -70,14 +70,12 @@ public class ProcessLauncherImpl implements ProcessLauncher {
   }
 
   public ProcessMonitor launch(AbstractCommand command) {
-
     EsInstallation fileSystem = command.getEsInstallation();
     if (fileSystem != null) {
       cleanupOutdatedEsData(fileSystem);
       writeConfFiles(fileSystem);
     }
 
-    // FIXME refactor this
     Process process;
     if (command instanceof EsScriptCommand) {
       process = launchExternal((EsScriptCommand) command);
@@ -183,7 +181,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     } else {
       javaCommand.getArguments().forEach((key, value) -> {
         if (value != null && !value.isEmpty()) {
-          commands.add("-E" + key + "=" + value);//FIXME make this safer (or remove it, if not needed, because there is an elasticsearch.yml anyways
+          commands.add("-E" + key + "=" + value);
         }
       });
     }

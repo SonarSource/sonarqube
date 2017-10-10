@@ -94,7 +94,6 @@ public class CommandFactoryImpl implements CommandFactory {
 
     return new EsScriptCommand(ProcessId.ELASTICSEARCH, esInstallation.getHomeDirectory())
       .setEsInstallation(esInstallation)
-      .setArguments(props.rawProperties())
       .addOption("-Epath.conf=" + esInstallation.getConfDirectory().getAbsolutePath())
       .setEnvVariable("ES_JVM_OPTIONS", esInstallation.getJvmOptions().getAbsolutePath())
       .setEnvVariable("JAVA_HOME", System.getProperties().getProperty("java.home"))
@@ -121,7 +120,6 @@ public class CommandFactoryImpl implements CommandFactory {
     return new JavaCommand<EsJvmOptions>(ProcessId.ELASTICSEARCH, esInstallation.getHomeDirectory())
       .setEsInstallation(esInstallation)
       .setReadsArgumentsFromFile(false)
-      //.setArguments(props.rawProperties()) //FIXME set settings
       .setArgument("path.conf", esInstallation.getConfDirectory().getAbsolutePath())
       .setJvmOptions(new EsJvmOptions()
         .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_OPTS)
