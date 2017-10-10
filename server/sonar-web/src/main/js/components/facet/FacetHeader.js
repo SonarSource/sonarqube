@@ -18,12 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-/* eslint-disable max-len */
 import React from 'react';
 import OpenCloseIcon from '../icons-components/OpenCloseIcon';
 import HelpIcon from '../icons-components/HelpIcon';
 import Tooltip from '../controls/Tooltip';
-import { translate } from '../../helpers/l10n';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 
 /*::
 type Props = {|
@@ -32,7 +31,7 @@ type Props = {|
   onClear?: () => void,
   onClick?: () => void,
   open: boolean,
-  values?: number
+  values?: Array<string>
 |};
 */
 
@@ -73,27 +72,25 @@ export default class FacetHeader extends React.PureComponent {
   }
 
   renderValueIndicator() {
-    if (this.props.open || !this.props.values) {
+    const { values } = this.props;
+    if (this.props.open || !values || !values.length) {
       return null;
     }
+    const value =
+      values.length === 1 ? values[0] : translateWithParameters('x_selected', values.length);
     return (
-      <span className="spacer-left badge badge-secondary is-rounded">{this.props.values}</span>
+      <span className="badge badge-secondary is-rounded text-ellipsis" title={value}>
+        {value}
+      </span>
     );
   }
 
   render() {
-    const showClearButton /*: boolean */ = !!this.props.values && this.props.onClear != null;
+    const showClearButton =
+      this.props.values != null && this.props.values.length > 0 && this.props.onClear != null;
 
     return (
-      <div>
-        {showClearButton && (
-          <button
-            className="search-navigator-facet-header-button button-small button-red"
-            onClick={this.handleClearClick}>
-            {translate('clear')}
-          </button>
-        )}
-
+      <div className="search-navigator-facet-header-wrapper">
         {this.props.onClick ? (
           <span className="search-navigator-facet-header">
             <a href="#" onClick={this.handleClick}>
@@ -101,13 +98,24 @@ export default class FacetHeader extends React.PureComponent {
               {this.props.name}
             </a>
             {this.renderHelper()}
-            {this.renderValueIndicator()}
           </span>
         ) : (
           <span className="search-navigator-facet-header">
             {this.props.name}
             {this.renderHelper()}
           </span>
+        )}
+
+        <span className="search-navigator-facet-header-value spacer-left spacer-right ">
+          {this.renderValueIndicator()}
+        </span>
+
+        {showClearButton && (
+          <button
+            className="search-navigator-facet-header-button button-small button-red"
+            onClick={this.handleClearClick}>
+            {translate('clear')}
+          </button>
         )}
       </div>
     );

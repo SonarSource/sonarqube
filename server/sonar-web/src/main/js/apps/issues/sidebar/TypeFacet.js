@@ -92,6 +92,7 @@ export default class TypeFacet extends React.PureComponent {
 
   render() {
     const types = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
+    const values = this.props.types.map(type => translate('issue.type', type));
 
     return (
       <FacetBox>
@@ -100,7 +101,7 @@ export default class TypeFacet extends React.PureComponent {
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
-          values={this.props.types.length}
+          values={values}
         />
 
         {this.props.open && <FacetItemsList>{types.map(this.renderItem)}</FacetItemsList>}

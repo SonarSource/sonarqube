@@ -106,6 +106,11 @@ export default class ProjectFacet extends React.PureComponent {
     return stats ? stats[project] : null;
   }
 
+  getProjectName(project /*: string */) {
+    const { referencedComponents } = this.props;
+    return referencedComponents[project] ? referencedComponents[project].name : project;
+  }
+
   renderName(project /*: string */) /*: React.Element<*> | string */ {
     const { organization, referencedComponents } = this.props;
     return referencedComponents[project] ? (
@@ -174,6 +179,7 @@ export default class ProjectFacet extends React.PureComponent {
   }
 
   render() {
+    const values = this.props.projects.map(project => this.getProjectName(project));
     return (
       <FacetBox>
         <FacetHeader
@@ -181,7 +187,7 @@ export default class ProjectFacet extends React.PureComponent {
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
-          values={this.props.projects.length}
+          values={values}
         />
 
         {this.props.open && this.renderList()}

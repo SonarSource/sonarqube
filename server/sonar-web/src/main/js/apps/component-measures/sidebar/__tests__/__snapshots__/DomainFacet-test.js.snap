@@ -6,7 +6,7 @@ exports[`should display facet item list 1`] = `
     name="Reliability"
     onClick={[Function]}
     open={true}
-    values={0}
+    values={Array []}
   />
   <FacetItemsList>
     <FacetItem
@@ -129,7 +129,11 @@ exports[`should display facet item list with bugs selected 1`] = `
     name="Reliability"
     onClick={[Function]}
     open={true}
-    values={1}
+    values={
+      Array [
+        "Bugs",
+      ]
+    }
   />
   <FacetItemsList>
     <FacetItem

@@ -7,7 +7,7 @@ exports[`should render 1`] = `
     onClear={[Function]}
     onClick={[Function]}
     open={true}
-    values={0}
+    values={Array []}
   />
   <FacetItemsList>
     <FacetItem
@@ -75,7 +75,7 @@ exports[`should render without stats 1`] = `
     onClear={[Function]}
     onClick={[Function]}
     open={true}
-    values={0}
+    values={Array []}
   />
 </FacetBox>
 `;
@@ -87,7 +87,11 @@ exports[`should select unassigned 1`] = `
     onClear={[Function]}
     onClick={[Function]}
     open={true}
-    values={1}
+    values={
+      Array [
+        "unassigned",
+      ]
+    }
   />
   <FacetItemsList>
     <FacetItem
@@ -143,7 +147,11 @@ exports[`should select user 1`] = `
     onClear={[Function]}
     onClick={[Function]}
     open={true}
-    values={1}
+    values={
+      Array [
+        "name-foo",
+      ]
+    }
   />
   <FacetItemsList>
     <FacetItem

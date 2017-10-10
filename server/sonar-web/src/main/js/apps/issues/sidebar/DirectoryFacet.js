@@ -26,6 +26,7 @@ import FacetItem from '../../../components/facet/FacetItem';
 import FacetItemsList from '../../../components/facet/FacetItemsList';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
 import { translate } from '../../../helpers/l10n';
+import { collapsePath } from '../../../helpers/path';
 import { formatFacetStat } from '../utils';
 /*:: import type { ReferencedComponent } from '../utils'; */
 
@@ -74,17 +75,10 @@ export default class DirectoryFacet extends React.PureComponent {
   }
 
   renderName(directory /*: string */) /*: React.Element<*> | string */ {
-    // `referencedComponents` are indexed by uuid
-    // so we have to browse them all to find a matching one
-    const { referencedComponents } = this.props;
-    const uuid = Object.keys(referencedComponents).find(
-      uuid => referencedComponents[uuid].key === directory
-    );
-    const name = uuid ? referencedComponents[uuid].name : directory;
     return (
       <span>
         <QualifierIcon className="little-spacer-right" qualifier="DIR" />
-        {name}
+        {directory}
       </span>
     );
   }
@@ -115,6 +109,7 @@ export default class DirectoryFacet extends React.PureComponent {
   }
 
   render() {
+    const values = this.props.directories.map(dir => collapsePath(dir));
     return (
       <FacetBox>
         <FacetHeader
@@ -122,7 +117,7 @@ export default class DirectoryFacet extends React.PureComponent {
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
-          values={this.props.directories.length}
+          values={values}
         />
 
         {this.props.open && this.renderList()}
