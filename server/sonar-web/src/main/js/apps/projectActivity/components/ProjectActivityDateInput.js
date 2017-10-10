@@ -49,18 +49,20 @@ export default class ProjectActivityDateInput extends React.PureComponent {
       <div>
         <DateInput
           className="little-spacer-right"
+          maxDate={this.formatDate(this.props.to) || '+0'}
           name="from"
-          value={this.formatDate(this.props.from)}
-          placeholder={translate('from')}
           onChange={this.handleFromDateChange}
+          placeholder={translate('from')}
+          value={this.formatDate(this.props.from)}
         />
         {'—'}
         <DateInput
           className="little-spacer-left"
+          minDate={this.formatDate(this.props.from)}
           name="to"
-          value={this.formatDate(this.props.to)}
-          placeholder={translate('to')}
           onChange={this.handleToDateChange}
+          placeholder={translate('to')}
+          value={this.formatDate(this.props.to)}
         />
         <button
           className="spacer-left"

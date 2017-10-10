@@ -31,11 +31,11 @@ interface Props {
 }
 
 export default class ChangelogSearch extends React.PureComponent<Props> {
-  handleResetClick(event: React.SyntheticEvent<HTMLElement>) {
+  handleResetClick = (event: React.SyntheticEvent<HTMLElement>) => {
     event.preventDefault();
     event.currentTarget.blur();
     this.props.onReset();
-  }
+  };
 
   formatDate = (date?: string) => (date ? toShortNotSoISOString(date) : undefined);
 
@@ -43,19 +43,21 @@ export default class ChangelogSearch extends React.PureComponent<Props> {
     return (
       <div className="display-inline-block" id="quality-profile-changelog-form">
         <DateInput
+          maxDate={this.formatDate(this.props.toDate) || '+0'}
           name="since"
-          value={this.formatDate(this.props.fromDate)}
-          placeholder={translate('from')}
           onChange={this.props.onFromDateChange}
+          placeholder={translate('from')}
+          value={this.formatDate(this.props.fromDate)}
         />
         {' — '}
         <DateInput
+          minDate={this.formatDate(this.props.fromDate)}
           name="to"
-          value={this.formatDate(this.props.toDate)}
-          placeholder={translate('to')}
           onChange={this.props.onToDateChange}
+          placeholder={translate('to')}
+          value={this.formatDate(this.props.toDate)}
         />
-        <button className="spacer-left" onClick={this.handleResetClick.bind(this)}>
+        <button className="spacer-left" onClick={this.handleResetClick}>
           {translate('reset_verb')}
         </button>
       </div>

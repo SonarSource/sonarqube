@@ -420,7 +420,7 @@ export default class App extends React.PureComponent {
         if (this.mounted) {
           this.setState({ loading: false });
         }
-        return Promise.reject();
+        return [];
       }
     );
   }
@@ -518,29 +518,32 @@ export default class App extends React.PureComponent {
   };
 
   fetchFacet = (facet /*: string */) => {
-    return this.fetchIssues({ ps: 1, facets: mapFacet(facet) }).then(({ facets, ...other }) => {
-      if (this.mounted) {
-        this.setState(state => ({
-          facets: { ...state.facets, ...parseFacets(facets) },
-          referencedComponents: {
-            ...state.referencedComponents,
-            ...keyBy(other.components, 'uuid')
-          },
-          referencedLanguages: {
-            ...state.referencedLanguages,
-            ...keyBy(other.languages, 'key')
-          },
-          referencedRules: {
-            ...state.referencedRules,
-            ...keyBy(other.rules, 'key')
-          },
-          referencedUsers: {
-            ...state.referencedUsers,
-            ...keyBy(other.users, 'login')
-          }
-        }));
-      }
-    });
+    return this.fetchIssues({ ps: 1, facets: mapFacet(facet) }).then(
+      ({ facets, ...other }) => {
+        if (this.mounted) {
+          this.setState(state => ({
+            facets: { ...state.facets, ...parseFacets(facets) },
+            referencedComponents: {
+              ...state.referencedComponents,
+              ...keyBy(other.components, 'uuid')
+            },
+            referencedLanguages: {
+              ...state.referencedLanguages,
+              ...keyBy(other.languages, 'key')
+            },
+            referencedRules: {
+              ...state.referencedRules,
+              ...keyBy(other.rules, 'key')
+            },
+            referencedUsers: {
+              ...state.referencedUsers,
+              ...keyBy(other.users, 'login')
+            }
+          }));
+        }
+      },
+      () => {}
+    );
   };
 
   isFiltered = () => {
