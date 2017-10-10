@@ -104,15 +104,51 @@ public class CommandFactoryImplTest {
   }
 
   @Test
-  public void createEsCommand_returns_command_for_default_settings() throws Exception {
+  public void createEsCommand_for_unix_returns_command_for_default_settings() throws Exception {
+    System2 system2 = Mockito.mock(System2.class);
+    when(system2.isOsWindows()).thenReturn(false);
     prepareEsFileSystem();
 
     Properties props = new Properties();
     props.setProperty("sonar.search.host", "localhost");
 
-    AbstractCommand esCommand = newFactory(props).createEsCommand();
+    AbstractCommand esCommand = newFactory(props, system2).createEsCommand();
     EsInstallation esConfig = esCommand.getEsInstallation();
 
+    assertThat(esCommand).isInstanceOf(EsScriptCommand.class);
+    assertThat(esConfig.getClusterName()).isEqualTo("sonarqube");
+    assertThat(esConfig.getHost()).isNotEmpty();
+    assertThat(esConfig.getPort()).isEqualTo(9001);
+    assertThat(esConfig.getEsJvmOptions().getAll())
+      // enforced values
+      .contains("-XX:+UseConcMarkSweepGC", "-server", "-Dfile.encoding=UTF-8")
+      // default settings
+      .contains("-Xms512m", "-Xmx512m", "-XX:+HeapDumpOnOutOfMemoryError");
+    File esConfDir = new File(tempDir, "conf/es");
+    assertThat(esCommand.getEnvVariables())
+      .contains(entry("ES_JVM_OPTIONS", new File(esConfDir, "jvm.options").getAbsolutePath()))
+      .containsKey("JAVA_HOME");
+    assertThat(esConfig.getEsYmlSettings()).isNotNull();
+
+    assertThat(esConfig.getLog4j2Properties())
+      .contains(entry("appender.file_es.fileName", new File(logsDir, "es.log").getAbsolutePath()));
+
+    assertThat(esCommand.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS");
+  }
+
+  @Test
+  public void createEsCommand_for_windows_returns_command_for_default_settings() throws Exception {
+    System2 system2 = Mockito.mock(System2.class);
+    when(system2.isOsWindows()).thenReturn(true);
+    prepareEsFileSystem();
+
+    Properties props = new Properties();
+    props.setProperty("sonar.search.host", "localhost");
+
+    AbstractCommand esCommand = newFactory(props, system2).createEsCommand();
+    EsInstallation esConfig = esCommand.getEsInstallation();
+
+    assertThat(esCommand).isInstanceOf(JavaCommand.class);
     assertThat(esConfig.getClusterName()).isEqualTo("sonarqube");
     assertThat(esConfig.getHost()).isNotEmpty();
     assertThat(esConfig.getPort()).isEqualTo(9001);
@@ -183,6 +219,31 @@ public class CommandFactoryImplTest {
   }
 
   @Test
+  public void createCeCommand_returns_command_for_default_settings() throws Exception {
+    JavaCommand command = newFactory(new Properties()).createCeCommand();
+
+    assertThat(command.getClassName()).isEqualTo("org.sonar.ce.app.CeServer");
+    assertThat(command.getWorkDir().getAbsolutePath()).isEqualTo(homeDir.getAbsolutePath());
+    assertThat(command.getClasspath())
+      .containsExactlyInAnyOrder("./lib/common/*", "./lib/server/*", "./lib/ce/*");
+    assertThat(command.getJvmOptions().getAll())
+      // enforced values
+      .contains("-Djava.awt.headless=true", "-Dfile.encoding=UTF-8")
+      // default settings
+      .contains("-Djava.io.tmpdir=" + tempDir.getAbsolutePath(), "-Dfile.encoding=UTF-8")
+      .contains("-Xmx512m", "-Xms128m", "-XX:+HeapDumpOnOutOfMemoryError");
+    assertThat(command.getProcessId()).isEqualTo(ProcessId.COMPUTE_ENGINE);
+    assertThat(command.getEnvVariables())
+      .isNotEmpty();
+    assertThat(command.getArguments())
+      // default settings
+      .contains(entry("sonar.web.javaOpts", "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError"))
+      .contains(entry("sonar.cluster.enabled", "false"));
+
+    assertThat(command.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS");
+  }
+
+  @Test
   public void createWebCommand_configures_command_with_overridden_settings() throws Exception {
     Properties props = new Properties();
     props.setProperty("sonar.web.port", "1234");
@@ -222,7 +283,11 @@ public class CommandFactoryImplTest {
     FileUtils.touch(new File(homeDir, "elasticsearch/bin/elasticsearch.bat"));
   }
 
-  private CommandFactory newFactory(Properties userProps) throws IOException {
+  private CommandFactoryImpl newFactory(Properties userProps) throws IOException {
+    return newFactory(userProps, System2.INSTANCE);
+  }
+
+  private CommandFactoryImpl newFactory(Properties userProps, System2 system2) throws IOException {
     Properties p = new Properties();
     p.setProperty("sonar.path.home", homeDir.getAbsolutePath());
     p.setProperty("sonar.path.temp", tempDir.getAbsolutePath());
@@ -231,7 +296,7 @@ public class CommandFactoryImplTest {
 
     Props props = new Props(p);
     ProcessProperties.completeDefaults(props);
-    return new CommandFactoryImpl(props, tempDir, System2.INSTANCE);
+    return new CommandFactoryImpl(props, tempDir, system2);
   }
 
   private <T> void attachMemoryAppenderToLoggerOf(Class<T> loggerClass) {

@@ -32,7 +32,6 @@ import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.process.System2;
 
-import static org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS;
 import static org.sonar.process.ProcessProperties.HTTPS_PROXY_HOST;
 import static org.sonar.process.ProcessProperties.HTTPS_PROXY_PORT;
 import static org.sonar.process.ProcessProperties.HTTP_PROXY_HOST;
@@ -55,10 +54,12 @@ public class CommandFactoryImpl implements CommandFactory {
 
   private final Props props;
   private final File tempDir;
+  private final System2 system2;
 
   public CommandFactoryImpl(Props props, File tempDir, System2 system2) {
     this.props = props;
     this.tempDir = tempDir;
+    this.system2 = system2;
     String javaToolOptions = system2.getenv(ENV_VAR_JAVA_TOOL_OPTIONS);
     if (javaToolOptions != null && !javaToolOptions.trim().isEmpty()) {
       LoggerFactory.getLogger(CommandFactoryImpl.class)
@@ -69,29 +70,14 @@ public class CommandFactoryImpl implements CommandFactory {
 
   @Override
   public AbstractCommand<?> createEsCommand() {
-    if (IS_OS_WINDOWS) {
+    if (system2.isOsWindows()) {
       return createEsCommandForWindows();
     }
     return createEsCommandForUnix();
   }
 
   private EsScriptCommand createEsCommandForUnix() {
-    EsInstallation esInstallation = new EsInstallation(props);
-    if (!esInstallation.getExecutable().exists()) {
-      throw new IllegalStateException("Cannot find elasticsearch binary");
-    }
-    Map<String, String> settingsMap = new EsSettings(props, esInstallation, System2.INSTANCE).build();
-
-    esInstallation
-      .setLog4j2Properties(new EsLogging().createProperties(props, esInstallation.getLogDirectory()))
-      .setEsJvmOptions(new EsJvmOptions()
-        .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_OPTS)
-        .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS))
-      .setEsYmlSettings(new EsYmlSettings(settingsMap))
-      .setClusterName(settingsMap.get("cluster.name"))
-      .setHost(settingsMap.get("network.host"))
-      .setPort(Integer.valueOf(settingsMap.get("transport.tcp.port")));
-
+    EsInstallation esInstallation = createEsInstallation();
     return new EsScriptCommand(ProcessId.ELASTICSEARCH, esInstallation.getHomeDirectory())
       .setEsInstallation(esInstallation)
       .addOption("-Epath.conf=" + esInstallation.getConfDirectory().getAbsolutePath())
@@ -101,22 +87,7 @@ public class CommandFactoryImpl implements CommandFactory {
   }
 
   private JavaCommand createEsCommandForWindows() {
-    EsInstallation esInstallation = new EsInstallation(props);
-    if (!esInstallation.getExecutable().exists()) {
-      throw new IllegalStateException("Cannot find elasticsearch binary");
-    }
-    Map<String, String> settingsMap = new EsSettings(props, esInstallation, System2.INSTANCE).build();
-
-    esInstallation
-      .setLog4j2Properties(new EsLogging().createProperties(props, esInstallation.getLogDirectory()))
-      .setEsJvmOptions(new EsJvmOptions()
-        .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_OPTS)
-        .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS))
-      .setEsYmlSettings(new EsYmlSettings(settingsMap))
-      .setClusterName(settingsMap.get("cluster.name"))
-      .setHost(settingsMap.get("network.host"))
-      .setPort(Integer.valueOf(settingsMap.get("transport.tcp.port")));
-
+    EsInstallation esInstallation = createEsInstallation();
     return new JavaCommand<EsJvmOptions>(ProcessId.ELASTICSEARCH, esInstallation.getHomeDirectory())
       .setEsInstallation(esInstallation)
       .setReadsArgumentsFromFile(false)
@@ -132,6 +103,25 @@ public class CommandFactoryImpl implements CommandFactory {
       .setClassName("org.elasticsearch.bootstrap.Elasticsearch")
       .addClasspath("lib/*")
       .suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS);
+  }
+
+  private EsInstallation createEsInstallation() {
+    EsInstallation esInstallation = new EsInstallation(props);
+    if (!esInstallation.getExecutable().exists()) {
+      throw new IllegalStateException("Cannot find elasticsearch binary");
+    }
+    Map<String, String> settingsMap = new EsSettings(props, esInstallation, System2.INSTANCE).build();
+
+    esInstallation
+      .setLog4j2Properties(new EsLogging().createProperties(props, esInstallation.getLogDirectory()))
+      .setEsJvmOptions(new EsJvmOptions()
+        .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_OPTS)
+        .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS))
+      .setEsYmlSettings(new EsYmlSettings(settingsMap))
+      .setClusterName(settingsMap.get("cluster.name"))
+      .setHost(settingsMap.get("network.host"))
+      .setPort(Integer.valueOf(settingsMap.get("transport.tcp.port")));
+    return esInstallation;
   }
 
   @Override
