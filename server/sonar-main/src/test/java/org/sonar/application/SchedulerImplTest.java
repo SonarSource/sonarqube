@@ -73,7 +73,7 @@ public class SchedulerImplTest {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  private EsScriptCommand esEsScriptCommand;
+  private EsScriptCommand esScriptCommand;
   private JavaCommand esJavaCommand;
   private JavaCommand webLeaderCommand;
   private JavaCommand webFollowerCommand;
@@ -91,7 +91,7 @@ public class SchedulerImplTest {
   @Before
   public void setUp() throws Exception {
     File tempDir = temporaryFolder.newFolder();
-    esEsScriptCommand = new EsScriptCommand(ELASTICSEARCH, tempDir);
+    esScriptCommand = new EsScriptCommand(ELASTICSEARCH, tempDir);
     esJavaCommand = new JavaCommand(ELASTICSEARCH, tempDir);
     webLeaderCommand = new JavaCommand(WEB_SERVER, tempDir);
     webFollowerCommand = new JavaCommand(WEB_SERVER, tempDir);
@@ -119,7 +119,7 @@ public class SchedulerImplTest {
     TestProcess web = processLauncher.waitForProcess(WEB_SERVER);
     assertThat(web.isAlive()).isTrue();
     assertThat(processLauncher.processes).hasSize(2);
-    assertThat(processLauncher.commands).containsExactly(esEsScriptCommand, webLeaderCommand);
+    assertThat(processLauncher.commands).containsExactly(esScriptCommand, webLeaderCommand);
 
     // web becomes operational -> CE is starting
     web.operational = true;
@@ -127,7 +127,7 @@ public class SchedulerImplTest {
     TestProcess ce = processLauncher.waitForProcess(COMPUTE_ENGINE);
     assertThat(ce.isAlive()).isTrue();
     assertThat(processLauncher.processes).hasSize(3);
-    assertThat(processLauncher.commands).containsExactly(esEsScriptCommand, webLeaderCommand, ceCommand);
+    assertThat(processLauncher.commands).containsExactly(esScriptCommand, webLeaderCommand, ceCommand);
 
     // all processes are up
     processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isTrue());
@@ -363,7 +363,7 @@ public class SchedulerImplTest {
   private class TestCommandFactory implements CommandFactory {
     @Override
     public EsScriptCommand createEsCommand() {
-      return esEsScriptCommand;
+      return esScriptCommand;
     }
 
     @Override
