@@ -31,6 +31,7 @@ public class JavaCommand<T extends JvmOptions> extends AbstractCommand<JavaComma
   private JvmOptions<T> jvmOptions;
   // relative path to JAR files
   private final List<String> classpath = new ArrayList<>();
+  private boolean readsArgumentsFromFile;
 
   public JavaCommand(ProcessId id, File workDir) {
     super(id, workDir, System2.INSTANCE);
@@ -74,5 +75,14 @@ public class JavaCommand<T extends JvmOptions> extends AbstractCommand<JavaComma
       ", envVariables=" + getEnvVariables() +
       ", suppressedEnvVariables=" + getSuppressedEnvVariables() +
       '}';
+  }
+
+  public boolean getReadsArgumentsFromFile() {
+    return readsArgumentsFromFile;
+  }
+
+  public JavaCommand<T> setReadsArgumentsFromFile(boolean readsArgumentsFromFile) {
+    this.readsArgumentsFromFile = readsArgumentsFromFile;
+    return this;
   }
 }

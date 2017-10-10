@@ -42,7 +42,6 @@ public abstract class AbstractCommand<T extends AbstractCommand> {
   private final Map<String, String> envVariables;
   private final Set<String> suppressedEnvVariables = new HashSet<>();
   private final File workDir;
-  private boolean readsArgumentsFromFile;
   private ElasticsearchConfiguration elasticsearchConfiguration;
 
   protected AbstractCommand(ProcessId id, File workDir, System2 system2) {
@@ -106,15 +105,6 @@ public abstract class AbstractCommand<T extends AbstractCommand> {
     return castThis();
   }
 
-
-  public boolean getReadsArgumentsFromFile() {
-    return readsArgumentsFromFile;
-  }
-
-  public T setReadsArgumentsFromFile(boolean readsArgumentsFromFile) {
-    this.readsArgumentsFromFile = readsArgumentsFromFile;
-    return castThis();
-  }
 
   public T setElasticsearchConfiguration(ElasticsearchConfiguration elasticsearchConfiguration) {
     this.elasticsearchConfiguration = elasticsearchConfiguration;
