@@ -30,8 +30,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.application.command.ExternalCommand;
 import org.sonar.application.command.EsJvmOptions;
+import org.sonar.application.command.ExternalCommand;
 import org.sonar.application.command.JavaCommand;
 import org.sonar.application.command.JvmOptions;
 import org.sonar.application.es.ElasticsearchConfiguration;
@@ -190,11 +190,10 @@ public class ProcessLauncherImplTest {
     props.set("sonar.path.home", homeDir.getAbsolutePath());
     props.set("sonar.path.data", dataDir.getAbsolutePath());
     props.set("sonar.path.logs", logDir.getAbsolutePath());
-    ElasticsearchConfiguration fileSystem = new ElasticsearchConfiguration(props);
-    command.setElasticsearchConfiguration(fileSystem);
-    fileSystem.setEsYmlSettings(mock(EsYmlSettings.class));
-    fileSystem.setEsJvmOptions(mock(EsJvmOptions.class));
-    fileSystem.setLog4j2Properties(new Properties());
+    command.setElasticsearchConfiguration(new ElasticsearchConfiguration(props)
+      .setEsYmlSettings(mock(EsYmlSettings.class))
+      .setEsJvmOptions(mock(EsJvmOptions.class))
+      .setLog4j2Properties(new Properties()));
     return command;
   }
 
