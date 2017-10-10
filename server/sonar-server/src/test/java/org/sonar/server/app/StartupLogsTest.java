@@ -28,6 +28,7 @@ import org.mockito.Mockito;
 import org.sonar.api.utils.log.Logger;
 
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -59,7 +60,7 @@ public class StartupLogsTest {
 
     underTest.log(tomcat);
 
-    verify(logger).info("HTTP connector enabled on port 1234");
+    verify(logger).info(eq("HTTP connector enabled on port {}"), eq(1234));
     verifyNoMoreInteractions(logger);
   }
 

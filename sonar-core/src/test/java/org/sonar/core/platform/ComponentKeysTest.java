@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.api.utils.log.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -50,7 +51,7 @@ public class ComponentKeysTest {
 
     // only on non-first runs, to avoid false-positives on singletons
     keys.of(new Object(), log);
-    verify(log).warn(startsWith("Bad component key"));
+    verify(log).warn(startsWith("Bad component key"), anyString(), anyString());
   }
 
   @Test

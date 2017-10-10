@@ -178,6 +178,8 @@ public class PersistTestsStepTest extends BaseStepTest {
 
   @Test
   public void insert_coverage_details_not_taken_into_account() {
+    log.setLevel(LoggerLevel.TRACE);
+
     List<ScannerReport.Test> batchTests = Arrays.asList(newTest(1));
     reportReader.putTests(TEST_FILE_REF_1, batchTests);
     List<CoverageDetail> coverageDetails = Arrays.asList(newCoverageDetail(1, MAIN_FILE_REF_1), newCoverageDetail(2, MAIN_FILE_REF_2));
