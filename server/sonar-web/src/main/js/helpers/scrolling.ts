@@ -28,7 +28,7 @@ function isWindow(element: HTMLElement | Window): element is Window {
 }
 
 function getScrollPosition(element: HTMLElement | Window): number {
-  return isWindow(element) ? window.scrollY : element.scrollTop;
+  return isWindow(element) ? window.pageYOffset : element.scrollTop;
 }
 
 function scrollElement(element: HTMLElement | Window, position: number): void {
