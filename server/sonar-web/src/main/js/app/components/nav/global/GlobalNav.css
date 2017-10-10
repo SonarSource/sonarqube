@@ -19,6 +19,7 @@
 
 .navbar-login {
   margin-right: -10px;
+  white-space: nowrap;
 }
 
 .navbar-avatar {
