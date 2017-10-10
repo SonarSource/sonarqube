@@ -43,7 +43,7 @@ public class PhasesTimeProfiler implements SensorExecutionHandler, SensorsPhaseH
   @Override
   public void onSensorsPhase(SensorsPhaseEvent event) {
     if (event.isStart()) {
-      LOG.debug("Sensors : {}", StringUtils.join(event.getSensors(), " -> "));
+      LOG.debug(() -> "Sensors : " + StringUtils.join(event.getSensors(), " -> "));
     }
   }
 

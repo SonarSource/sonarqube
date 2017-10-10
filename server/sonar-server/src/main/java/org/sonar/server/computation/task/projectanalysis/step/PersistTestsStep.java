@@ -154,7 +154,7 @@ public class PersistTestsStep implements ComputationStep {
       unprocessedCoverageDetailNames.removeAll(testsByName.keySet());
       boolean hasUnprocessedCoverage = !unprocessedCoverageDetailNames.isEmpty();
       if (hasUnprocessedCoverage) {
-        LOG.trace("The following test coverages for file '{}' have not been taken into account: {}", componentKey, Joiner.on(", ").join(unprocessedCoverageDetailNames));
+        LOG.trace(() -> "The following test coverages for file '" + componentKey + "' have not been taken into account: " + Joiner.on(", ").join(unprocessedCoverageDetailNames));
       }
       return hasUnprocessedCoverage;
     }

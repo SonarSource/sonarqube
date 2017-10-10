@@ -50,9 +50,7 @@ public class InitializersExecutor {
   public void execute() {
     Collection<Initializer> initializers = selector.select(Initializer.class, module, true, null);
     eventBus.fireEvent(new InitializersPhaseEvent(Lists.newArrayList(initializers), true));
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Initializers : {}", StringUtils.join(initializers, " -> "));
-    }
+    LOG.debug(() -> "Initializers : " + StringUtils.join(initializers, " -> "));
 
     Project project = new Project(module);
     for (Initializer initializer : initializers) {

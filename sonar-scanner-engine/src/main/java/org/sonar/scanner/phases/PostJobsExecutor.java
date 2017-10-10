@@ -69,8 +69,6 @@ public class PostJobsExecutor {
   }
 
   private static void logPostJobs(Collection<PostJob> postJobs) {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug(() -> "Post-jobs : " + StringUtils.join(postJobs, " -> "));
-    }
+    LOG.debug(() -> "Post-jobs : " + StringUtils.join(postJobs, " -> "));
   }
 }
