@@ -98,7 +98,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
         try {
           FileUtils.deleteDirectory(outdatedDir);
         } catch (IOException e) {
-          LOG.info("Failed to delete outdated search index data directory " + outdatedDir.getAbsolutePath(), e);
+          LOG.info("Failed to delete outdated search index data directory {}", outdatedDir.getAbsolutePath(), e);
         }
       }
     });

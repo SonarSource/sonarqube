@@ -31,8 +31,6 @@ import org.sonar.process.cluster.health.NodeHealthProvider;
 import org.sonar.process.cluster.health.SharedHealthStateImpl;
 import org.sonar.process.cluster.hz.HazelcastMember;
 
-import static java.lang.String.format;
-
 public class HealthStateSharingImpl implements HealthStateSharing {
   private static final Logger LOG = LoggerFactory.getLogger(HealthStateSharingImpl.class);
 
@@ -78,7 +76,7 @@ public class HealthStateSharingImpl implements HealthStateSharing {
         }
       }
     } catch (InterruptedException ie) {
-      LOG.warn(format("Termination of pool %s failed", HealthStateSharingImpl.class.getSimpleName()), ie);
+      LOG.warn("Termination of pool {} failed", HealthStateSharingImpl.class.getSimpleName(), ie);
       // (Re-)Cancel if current thread also interrupted
       executorService.shutdownNow();
       Thread.currentThread().interrupt();

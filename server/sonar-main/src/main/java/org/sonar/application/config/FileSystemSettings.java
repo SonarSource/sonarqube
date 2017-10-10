@@ -44,13 +44,13 @@ public class FileSystemSettings implements Consumer<Props> {
   }
 
   private static File ensurePropertyIsAbsolutePath(Props props, String propKey) {
-    File homeDir = props.nonNullValueAsFile(PATH_HOME);
     // default values are set by ProcessProperties
     String path = props.nonNullValue(propKey);
     File d = new File(path);
     if (!d.isAbsolute()) {
+      File homeDir = props.nonNullValueAsFile(PATH_HOME);
       d = new File(homeDir, path);
-      LOG.trace("Overriding property {} from relative path '{}' to absolute path '{}'", path, d.getAbsolutePath());
+      LOG.trace("Overriding property {} from relative path '{}' to absolute path '{}'", propKey, path, d.getAbsolutePath());
       props.set(propKey, d.getAbsolutePath());
     }
     return d;

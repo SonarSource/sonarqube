@@ -68,7 +68,7 @@ public class SQProcess {
     try {
       this.process = commandLauncher.get();
     } catch (RuntimeException e) {
-      LOG.error(format("Fail to launch process [%s]", processId.getKey()), e);
+      LOG.error("Fail to launch process [{}]", processId.getKey(), e);
       lifecycle.tryToMoveTo(Lifecycle.State.STOPPED);
       throw e;
     }
@@ -131,10 +131,10 @@ public class SQProcess {
       process.waitFor(timeout, timeoutUnit);
     } catch (InterruptedException e) {
       // can't wait for the termination of process. Let's assume it's down.
-      LOG.warn(format("Interrupted while stopping process %s", processId), e);
+      LOG.warn("Interrupted while stopping process {}", processId, e);
       Thread.currentThread().interrupt();
     } catch (Throwable e) {
-      LOG.error("Can not ask for graceful stop of process " + processId, e);
+      LOG.error("Can not ask for graceful stop of process {}", processId, e);
     }
   }
 
