@@ -32,6 +32,7 @@ import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.process.System2;
 
+import static org.apache.commons.lang.SystemUtils.IS_OS_WINDOWS;
 import static org.sonar.process.ProcessProperties.HTTPS_PROXY_HOST;
 import static org.sonar.process.ProcessProperties.HTTPS_PROXY_PORT;
 import static org.sonar.process.ProcessProperties.HTTP_PROXY_HOST;
@@ -68,14 +69,13 @@ public class CommandFactoryImpl implements CommandFactory {
 
   @Override
   public AbstractCommand<?> createEsCommand() {
-    // FIXME reenable
-    //if (IS_OS_WINDOWS) {
+    if (IS_OS_WINDOWS) {
       return createEsCommandForWindows();
-    //}
-    //return createEsCommandForNonWindows();
+    }
+    return createEsCommandForUnix();
   }
 
-  private EsScriptCommand createEsCommandForNonWindows() {
+  private EsScriptCommand createEsCommandForUnix() {
     ElasticsearchConfiguration elasticsearchConfiguration = new ElasticsearchConfiguration(props);
     if (!elasticsearchConfiguration.getExecutable().exists()) {
       throw new IllegalStateException("Cannot find elasticsearch binary");
