@@ -63,9 +63,9 @@ export default class Component extends React.PureComponent<Props> {
     const position = this.node.getBoundingClientRect();
     const { top, bottom } = position;
     if (bottom > window.innerHeight - BOTTOM_OFFSET) {
-      window.scrollTo(0, bottom - window.innerHeight + window.scrollY + BOTTOM_OFFSET);
+      window.scrollTo(0, bottom - window.innerHeight + window.pageYOffset + BOTTOM_OFFSET);
     } else if (top < TOP_OFFSET) {
-      window.scrollTo(0, top + window.scrollY - TOP_OFFSET);
+      window.scrollTo(0, top + window.pageYOffset - TOP_OFFSET);
     }
   }
 
