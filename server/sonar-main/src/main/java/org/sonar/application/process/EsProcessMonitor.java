@@ -57,13 +57,13 @@ public class EsProcessMonitor extends AbstractProcessMonitor {
   private final AtomicBoolean nodeUp = new AtomicBoolean(false);
   private final AtomicBoolean nodeOperational = new AtomicBoolean(false);
   private final AtomicBoolean firstMasterNotDiscoveredLog = new AtomicBoolean(true);
-  private final ElasticsearchConfiguration esCommand;
+  private final ElasticsearchConfiguration esConfig;
   private final EsConnector esConnector;
   private AtomicReference<TransportClient> transportClient = new AtomicReference<>(null);
 
-  public EsProcessMonitor(Process process, ProcessId processId, ElasticsearchConfiguration esCommand, EsConnector esConnector) {
+  public EsProcessMonitor(Process process, ProcessId processId, ElasticsearchConfiguration esConfig, EsConnector esConnector) {
     super(process, processId);
-    this.esCommand = esCommand;
+    this.esConfig = esConfig;
     this.esConnector = esConnector;
   }
 
@@ -170,10 +170,10 @@ public class EsProcessMonitor extends AbstractProcessMonitor {
     Settings.Builder esSettings = Settings.builder();
 
     // mandatory property defined by bootstrap process
-    esSettings.put("cluster.name", esCommand.getClusterName());
+    esSettings.put("cluster.name", esConfig.getClusterName());
 
     TransportClient nativeClient = new MinimalTransportClient(esSettings.build());
-    HostAndPort host = HostAndPort.fromParts(esCommand.getHost(), esCommand.getPort());
+    HostAndPort host = HostAndPort.fromParts(esConfig.getHost(), esConfig.getPort());
     addHostToClient(host, nativeClient);
     if (LOG.isDebugEnabled()) {
       LOG.debug("Connected to Elasticsearch node: [{}]", displayedAddresses(nativeClient));
