@@ -67,28 +67,6 @@ public class AbstractCommandTest {
   }
 
   @Test
-  public void test_command_with_complete_information() throws Exception {
-    File workDir = temp.newFolder();
-    AbstractCommand command = new AbstractCommand(ProcessId.ELASTICSEARCH, workDir, System2.INSTANCE) {
-
-    };
-
-    command.setArgument("first_arg", "val1");
-    Properties args = new Properties();
-    args.setProperty("second_arg", "val2");
-    command.setArguments(args);
-
-    command.setEnvVariable("JAVA_COMMAND_TEST", "1000");
-
-    assertThat(command.toString()).isNotNull();
-    assertThat(command.getWorkDir()).isSameAs(workDir);
-
-    // copy current env variables
-    assertThat(command.getEnvVariables().get("JAVA_COMMAND_TEST")).isEqualTo("1000");
-    assertThat(command.getEnvVariables().size()).isEqualTo(System.getenv().size() + 1);
-  }
-
-  @Test
   public void setEnvVariable_fails_with_NPE_if_key_is_null() throws IOException {
     File workDir = temp.newFolder();
     AbstractCommand underTest = new AbstractCommand(ProcessId.ELASTICSEARCH, workDir, System2.INSTANCE) {

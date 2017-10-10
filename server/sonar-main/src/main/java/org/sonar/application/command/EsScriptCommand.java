@@ -19,12 +19,27 @@
  */
 package org.sonar.application.command;
 
-public interface CommandFactory {
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import org.sonar.process.ProcessId;
+import org.sonar.process.System2;
 
-  AbstractCommand createEsCommand();
+public class EsScriptCommand extends AbstractCommand<EsScriptCommand> {
+  private List<String> options = new ArrayList<>();
 
-  JavaCommand createWebCommand(boolean leader);
+  public EsScriptCommand(ProcessId id, File workDir) {
+    super(id, workDir, System2.INSTANCE);
+  }
 
-  JavaCommand createCeCommand();
+  public List<String> getOptions() {
+    return options;
+  }
 
+  public EsScriptCommand addOption(String s) {
+    if (!s.isEmpty()) {
+      options.add(s);
+    }
+    return this;
+  }
 }

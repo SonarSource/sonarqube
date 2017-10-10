@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
+import org.sonar.application.es.EsInstallation;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -109,24 +110,24 @@ public class CommandFactoryImplTest {
     Properties props = new Properties();
     props.setProperty("sonar.search.host", "localhost");
 
-    EsCommand esCommand = newFactory(props).createEsCommand();
+    AbstractCommand esCommand = newFactory(props).createEsCommand();
+    EsInstallation esConfig = esCommand.getEsInstallation();
 
-    assertThat(esCommand.getClusterName()).isEqualTo("sonarqube");
-    assertThat(esCommand.getHost()).isNotEmpty();
-    assertThat(esCommand.getPort()).isEqualTo(9001);
-    assertThat(esCommand.getEsJvmOptions().getAll())
+    assertThat(esConfig.getClusterName()).isEqualTo("sonarqube");
+    assertThat(esConfig.getHost()).isNotEmpty();
+    assertThat(esConfig.getPort()).isEqualTo(9001);
+    assertThat(esConfig.getEsJvmOptions().getAll())
       // enforced values
       .contains("-XX:+UseConcMarkSweepGC", "-server", "-Dfile.encoding=UTF-8")
       // default settings
       .contains("-Xms512m", "-Xmx512m", "-XX:+HeapDumpOnOutOfMemoryError");
     File esConfDir = new File(tempDir, "conf/es");
-    assertThat(esCommand.getEsOptions()).containsOnly("-Epath.conf=" + esConfDir.getAbsolutePath());
     assertThat(esCommand.getEnvVariables())
       .contains(entry("ES_JVM_OPTIONS", new File(esConfDir, "jvm.options").getAbsolutePath()))
       .containsKey("JAVA_HOME");
-    assertThat(esCommand.getEsYmlSettings()).isNotNull();
+    assertThat(esConfig.getEsYmlSettings()).isNotNull();
 
-    assertThat(esCommand.getLog4j2Properties())
+    assertThat(esConfig.getLog4j2Properties())
       .contains(entry("appender.file_es.fileName", new File(logsDir, "es.log").getAbsolutePath()));
 
     assertThat(esCommand.getSuppressedEnvVariables()).containsOnly("JAVA_TOOL_OPTIONS");
@@ -142,11 +143,12 @@ public class CommandFactoryImplTest {
     props.setProperty("sonar.search.port", "1234");
     props.setProperty("sonar.search.javaOpts", "-Xms10G -Xmx10G");
 
-    EsCommand command = newFactory(props).createEsCommand();
+    AbstractCommand esCommand = newFactory(props).createEsCommand();
+    EsInstallation esConfig = esCommand.getEsInstallation();
 
-    assertThat(command.getClusterName()).isEqualTo("foo");
-    assertThat(command.getPort()).isEqualTo(1234);
-    assertThat(command.getEsJvmOptions().getAll())
+    assertThat(esConfig.getClusterName()).isEqualTo("foo");
+    assertThat(esConfig.getPort()).isEqualTo(1234);
+    assertThat(esConfig.getEsJvmOptions().getAll())
       // enforced values
       .contains("-XX:+UseConcMarkSweepGC", "-server", "-Dfile.encoding=UTF-8")
       // user settings
@@ -171,7 +173,7 @@ public class CommandFactoryImplTest {
       .contains("-Xmx512m", "-Xms128m", "-XX:+HeapDumpOnOutOfMemoryError");
     assertThat(command.getProcessId()).isEqualTo(ProcessId.WEB_SERVER);
     assertThat(command.getEnvVariables())
-      .containsKey("JAVA_HOME");
+      .isNotEmpty();
     assertThat(command.getArguments())
       // default settings
       .contains(entry("sonar.web.javaOpts", "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError"))
