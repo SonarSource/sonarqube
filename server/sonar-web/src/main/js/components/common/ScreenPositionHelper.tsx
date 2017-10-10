@@ -48,7 +48,10 @@ export default class ScreenPositionHelper extends React.PureComponent<Props> {
     if (!containerPos) {
       return { top: 0, left: 0 };
     }
-    return { top: window.scrollY + containerPos.top, left: window.scrollX + containerPos.left };
+    return {
+      top: window.pageYOffset + containerPos.top,
+      left: window.pageXOffset + containerPos.left
+    };
   };
 
   render() {
