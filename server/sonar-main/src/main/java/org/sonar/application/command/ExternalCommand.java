@@ -25,10 +25,10 @@ import java.util.List;
 import org.sonar.process.ProcessId;
 import org.sonar.process.System2;
 
-public class EsCommand extends AbstractCommand<EsCommand> {
+public class ExternalCommand extends AbstractCommand<ExternalCommand> {
   private List<String> esOptions = new ArrayList<>();
 
-  public EsCommand(ProcessId id, File workDir) {
+  public ExternalCommand(ProcessId id, File workDir) {
     super(id, workDir, System2.INSTANCE);
   }
 
@@ -36,7 +36,7 @@ public class EsCommand extends AbstractCommand<EsCommand> {
     return esOptions;
   }
 
-  public EsCommand addEsOption(String s) {
+  public ExternalCommand addEsOption(String s) {
     if (!s.isEmpty()) {
       esOptions.add(s);
     }
