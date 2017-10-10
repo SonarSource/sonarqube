@@ -119,21 +119,16 @@ public class CommandFactoryImpl implements CommandFactory {
       .setPort(Integer.valueOf(settingsMap.get("transport.tcp.port")));
 
     return new JavaCommand<EsJvmOptions>(ProcessId.ELASTICSEARCH, elasticsearchConfiguration.getHomeDirectory())
-
-      //FIXME set settings
-
       .setElasticsearchConfiguration(elasticsearchConfiguration)
       .setReadsArgumentsFromFile(false)
-      //.setArguments(props.rawProperties())
+      //.setArguments(props.rawProperties()) //FIXME set settings
       .setArgument("path.conf", elasticsearchConfiguration.getConfDirectory().getAbsolutePath())
-      //.addEsOption("-Epath.conf=" + esFileSystem.getConfDirectory().getAbsolutePath())
       .setJvmOptions(new EsJvmOptions()
         .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_OPTS)
         .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS)
         .add("-Delasticsearch")
         .add("-Des.path.home=" + elasticsearchConfiguration.getHomeDirectory())
       )
-      //.setEsYmlSettings(new EsYmlSettings(settingsMap))
       .setEnvVariable("ES_JVM_OPTIONS", elasticsearchConfiguration.getJvmOptions().getAbsolutePath())
       .setEnvVariable("JAVA_HOME", System.getProperties().getProperty("java.home"))
       .setClassName("org.elasticsearch.bootstrap.Elasticsearch")
