@@ -148,8 +148,8 @@ BUILD)
           -Dsonar.login=$SONAR_TOKEN \
           -Dsonar.projectVersion=$INITIAL_VERSION \
           -Dsonar.analysis.buildNumber=$TRAVIS_BUILD_NUMBER \
-          -Dsonar.analysis.pipeline=$TRAVIS_BUILD_NUMBER \ 
-          -Dsonar.analysis.sha1=$TRAVIS_COMMIT \ 
+          -Dsonar.analysis.pipeline=$TRAVIS_BUILD_NUMBER \
+          -Dsonar.analysis.sha1=$TRAVIS_COMMIT \
           -Dsonar.analysis.repository=$TRAVIS_REPO_SLUG
 
   elif [[ "$TRAVIS_BRANCH" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
