@@ -108,7 +108,7 @@ class MssqlCharsetHandler extends CharsetHandler {
     String size = column.getSize() >= 0 ? String.valueOf(column.getSize()) : "max";
     String alterSql = format("ALTER TABLE %s ALTER COLUMN %s %s(%s) COLLATE %s %s",
       column.getTable(), column.getColumn(), column.getDataType(), size, expectedCollation, nullability);
-    LOGGER.info("Changing collation of column [{}.{}] from {} to {} | sql=", column.getTable(), column.getColumn(), column.getCollation(), expectedCollation, alterSql);
+    LOGGER.info("Changing collation of column [{}.{}] from {} to {} | sql={}", column.getTable(), column.getColumn(), column.getCollation(), expectedCollation, alterSql);
     getSqlExecutor().executeDdl(connection, alterSql);
 
     // 4. re-create indices
