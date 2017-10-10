@@ -181,10 +181,13 @@ export default class App extends React.PureComponent {
       areMyIssuesSelected(prevQuery) !== areMyIssuesSelected(query)
     ) {
       this.fetchFirstIssues();
-    } else if (prevState.selected !== this.state.selected) {
-      if (!this.state.openIssue) {
-        this.scrollToSelectedIssue();
-      }
+    } else if (
+      !this.state.openIssue &&
+      (prevState.selected !== this.state.selected || prevState.openIssue != null)
+    ) {
+      // if user simply selected another issue
+      // or if he went from the source code back to the list of issues
+      this.scrollToSelectedIssue();
     }
   }
 
