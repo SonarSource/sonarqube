@@ -19,8 +19,8 @@
  */
 package org.sonar.scanner.issue;
 
+import com.google.common.base.Strings;
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputComponent;
 import org.sonar.api.batch.rule.ActiveRule;
@@ -35,8 +35,6 @@ import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueLocation;
 import org.sonar.scanner.report.ReportPublisher;
-
-import com.google.common.base.Strings;
 
 /**
  * Initialize the issues raised during scan.
@@ -75,7 +73,7 @@ public class ModuleIssues {
     return false;
   }
 
-  private static ScannerReport.Issue createReportIssue(Issue issue, int batchId, String ruleName, String activeRuleSeverity) {
+  private static ScannerReport.Issue createReportIssue(Issue issue, int componentRef, String ruleName, String activeRuleSeverity) {
     String primaryMessage = Strings.isNullOrEmpty(issue.primaryLocation().message()) ? ruleName : issue.primaryLocation().message();
     org.sonar.api.batch.rule.Severity overriddenSeverity = issue.overriddenSeverity();
     Severity severity = overriddenSeverity != null ? Severity.valueOf(overriddenSeverity.name()) : Severity.valueOf(activeRuleSeverity);
@@ -90,7 +88,7 @@ public class ModuleIssues {
     builder.setMsg(primaryMessage);
     locationBuilder.setMsg(primaryMessage);
 
-    locationBuilder.setComponentRef(batchId);
+    locationBuilder.setComponentRef(componentRef);
     TextRange primaryTextRange = issue.primaryLocation().textRange();
     if (primaryTextRange != null) {
       builder.setTextRange(toProtobufTextRange(textRangeBuilder, primaryTextRange));
@@ -99,11 +97,11 @@ public class ModuleIssues {
     if (gap != null) {
       builder.setGap(gap);
     }
-    applyFlows(builder, locationBuilder, textRangeBuilder, issue);
+    applyFlows(componentRef, builder, locationBuilder, textRangeBuilder, issue);
     return builder.build();
   }
 
-  private static void applyFlows(ScannerReport.Issue.Builder builder, ScannerReport.IssueLocation.Builder locationBuilder,
+  private static void applyFlows(int componentRef, ScannerReport.Issue.Builder builder, ScannerReport.IssueLocation.Builder locationBuilder,
     ScannerReport.TextRange.Builder textRangeBuilder, Issue issue) {
     ScannerReport.Flow.Builder flowBuilder = ScannerReport.Flow.newBuilder();
     for (Flow flow : issue.flows()) {
@@ -112,8 +110,15 @@ public class ModuleIssues {
       }
       flowBuilder.clear();
       for (org.sonar.api.batch.sensor.issue.IssueLocation location : flow.locations()) {
+        int locationComponentRef = ((DefaultInputComponent) location.inputComponent()).batchId();
+        if (locationComponentRef != componentRef) {
+          // Some analyzers are trying to report cross file secondary locations. The API was designed to support it, but server side is not
+          // ready to handle it (especially the UI)
+          // So let's skip them for now (SONAR-9929)
+          continue;
+        }
         locationBuilder.clear();
-        locationBuilder.setComponentRef(((DefaultInputComponent) location.inputComponent()).batchId());
+        locationBuilder.setComponentRef(locationComponentRef);
         String message = location.message();
         if (message != null) {
           locationBuilder.setMsg(message);
