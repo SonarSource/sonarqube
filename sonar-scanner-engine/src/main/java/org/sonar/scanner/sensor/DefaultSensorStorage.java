@@ -22,6 +22,7 @@ package org.sonar.scanner.sensor;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -149,7 +150,7 @@ public class DefaultSensorStorage implements SensorStorage {
   private final Map<Metric<?>, Metric<?>> deprecatedCoverageMetricMapping = new HashMap<>();
   private final Set<Metric<?>> coverageMetrics = new HashSet<>();
   private final Set<Metric<?>> byLineMetrics = new HashSet<>();
-  private final Set<String> alreadyLogged = new HashSet<>();
+  private final Set<String> alreadyLogged = Collections.synchronizedSet(new HashSet<>());
 
   public DefaultSensorStorage(MetricFinder metricFinder, ModuleIssues moduleIssues, Configuration settings,
     ReportPublisher reportPublisher, MeasureCache measureCache, SonarCpdBlockIndex index,
