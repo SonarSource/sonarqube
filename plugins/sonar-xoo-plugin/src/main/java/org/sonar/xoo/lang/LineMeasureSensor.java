@@ -55,7 +55,7 @@ public class LineMeasureSensor implements Sensor {
     File ioFile = inputFile.file();
     File measureFile = new File(ioFile.getParentFile(), ioFile.getName() + MEASURES_EXTENSION);
     if (measureFile.exists()) {
-      LOG.debug("Processing " + measureFile.getAbsolutePath());
+      LOG.debug("Processing {}", measureFile.getAbsolutePath());
       try {
         FileLinesContext linesContext = contextFactory.createFor(inputFile);
         List<String> lines = FileUtils.readLines(measureFile, context.fileSystem().encoding().name());

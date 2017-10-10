@@ -56,7 +56,7 @@ public class SymbolReferencesSensor implements Sensor {
     File ioFile = inputFile.file();
     File symbolFile = new File(ioFile.getParentFile(), ioFile.getName() + SYMBOL_EXTENSION);
     if (symbolFile.exists()) {
-      LOG.debug("Processing " + symbolFile.getAbsolutePath());
+      LOG.debug("Processing {}", symbolFile.getAbsolutePath());
       try {
         List<String> lines = FileUtils.readLines(symbolFile, context.fileSystem().encoding().name());
         int lineNumber = 0;

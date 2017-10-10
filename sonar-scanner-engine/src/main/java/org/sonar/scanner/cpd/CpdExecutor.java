@@ -137,7 +137,7 @@ public class CpdExecutor {
     try {
       duplications = futureResult.get(timeout, TimeUnit.MILLISECONDS);
     } catch (TimeoutException e) {
-      LOG.warn("Timeout during detection of duplications for " + inputFile.absolutePath());
+      LOG.warn("Timeout during detection of duplications for {}", inputFile.absolutePath());
       futureResult.cancel(true);
       return;
     } catch (Exception e) {
@@ -159,8 +159,8 @@ public class CpdExecutor {
   @VisibleForTesting
   final void saveDuplications(final DefaultInputComponent component, List<CloneGroup> duplications) {
     if (duplications.size() > MAX_CLONE_GROUP_PER_FILE) {
-      LOG.warn("Too many duplication groups on file " + component + ". Keep only the first " + MAX_CLONE_GROUP_PER_FILE +
-        " groups.");
+      LOG.warn("Too many duplication groups on file {}. Keep only the first " +
+        MAX_CLONE_GROUP_PER_FILE + " groups.", component);
     }
     Iterable<ScannerReport.Duplication> reportDuplications = from(duplications)
       .limit(MAX_CLONE_GROUP_PER_FILE)
@@ -191,9 +191,8 @@ public class CpdExecutor {
       if (!duplicate.equals(originBlock)) {
         clonePartCount++;
         if (clonePartCount > MAX_CLONE_PART_PER_GROUP) {
-          LOG.warn("Too many duplication references on file " + component + " for block at line " +
-            originBlock.getStartLine() + ". Keep only the first "
-            + MAX_CLONE_PART_PER_GROUP + " references.");
+          LOG.warn("Too many duplication references on file {} for block at line {}. Keep only the first " +
+            MAX_CLONE_PART_PER_GROUP + " references.", component, originBlock.getStartLine());
           break;
         }
         blockBuilder.clear();

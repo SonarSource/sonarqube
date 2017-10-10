@@ -71,7 +71,7 @@ public class LocalizedMessages extends ResourceBundle {
 
     } catch (MissingResourceException e) {
       if (logIfMissing) {
-        LOG.warn("Missing translation: key==" + key + ",locale=" + locale);
+        LOG.warn("Missing translation: key=={},locale={}", key, locale);
       }
       return key;
     }

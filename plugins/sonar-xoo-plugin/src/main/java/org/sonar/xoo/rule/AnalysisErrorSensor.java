@@ -55,7 +55,7 @@ public class AnalysisErrorSensor implements Sensor {
     Path ioFile = inputFile.file().toPath();
     Path errorFile = ioFile.resolveSibling(ioFile.getFileName() + ERROR_EXTENSION).toAbsolutePath();
     if (Files.exists(errorFile) && Files.isRegularFile(errorFile)) {
-      LOG.debug("Processing " + errorFile.toString());
+      LOG.debug("Processing {}", errorFile);
       try {
         List<String> lines = Files.readAllLines(errorFile, context.fileSystem().encoding());
         for (String line : lines) {

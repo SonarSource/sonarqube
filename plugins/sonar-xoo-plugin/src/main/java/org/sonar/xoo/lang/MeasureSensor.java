@@ -54,7 +54,7 @@ public class MeasureSensor implements Sensor {
 
   private void processFileMeasures(InputComponent component, File measureFile, SensorContext context) {
     if (measureFile.exists()) {
-      LOG.debug("Processing " + measureFile.getAbsolutePath());
+      LOG.debug("Processing {}", measureFile.getAbsolutePath());
       try {
         List<String> lines = FileUtils.readLines(measureFile, context.fileSystem().encoding().name());
         int lineNumber = 0;

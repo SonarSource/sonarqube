@@ -76,7 +76,7 @@ class CoreTestDb {
       }
       String login = settings.getString("sonar.jdbc.username");
       for (String key : settings.getKeysStartingWith("sonar.jdbc")) {
-        LOG.info(key + ": " + settings.getString(key));
+        LOG.info("{}: {}", key, settings.getString(key));
       }
       String dialect = settings.getString("sonar.jdbc.dialect");
       if (dialect != null && !"h2".equals(dialect)) {
@@ -94,7 +94,7 @@ class CoreTestDb {
         }
       }
       isDefault = (schemaPath == null);
-      LOG.info("Test Database: " + db);
+      LOG.info("Test Database: {}", db);
 
       commands = DatabaseCommands.forDialect(db.getDialect());
       tester = new DataSourceDatabaseTester(db.getDataSource(), commands.useLoginAsSchema() ? login : null);

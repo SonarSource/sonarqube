@@ -43,7 +43,7 @@ public class DeleteOrphansFromRulesProfiles extends DataChange {
   }
 
   private static void execute(Context context, String tableName, String sql) throws SQLException {
-    LOG.info("Deleting orphans from " + tableName);
+    LOG.info("Deleting orphans from {}", tableName);
     context
       .prepareUpsert(sql)
       .execute()

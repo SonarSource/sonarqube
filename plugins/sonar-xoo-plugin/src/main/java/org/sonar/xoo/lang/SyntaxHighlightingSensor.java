@@ -56,7 +56,7 @@ public class SyntaxHighlightingSensor implements Sensor {
     File ioFile = inputFile.file();
     File highlightingFile = new File(ioFile.getParentFile(), ioFile.getName() + HIGHLIGHTING_EXTENSION);
     if (highlightingFile.exists()) {
-      LOG.debug("Processing " + highlightingFile.getAbsolutePath());
+      LOG.debug("Processing {}", highlightingFile.getAbsolutePath());
       try {
         List<String> lines = FileUtils.readLines(highlightingFile, context.fileSystem().encoding().name());
         int lineNumber = 0;

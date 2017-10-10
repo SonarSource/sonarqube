@@ -134,7 +134,7 @@ public class ActiveRuleIndexer implements ResilientIndexer {
       } else if (ID_TYPE_ACTIVE_RULE_ID.equals(i.getDocIdType())) {
         activeRuleItems.put(Long.parseLong(i.getDocId()), i);
       } else {
-        LOGGER.error("Unsupported es_queue.doc_id_type. Removing row from queue: " + i);
+        LOGGER.error("Unsupported es_queue.doc_id_type. Removing row from queue: {}", i);
         deleteQueueDto(dbSession, i);
       }
     });

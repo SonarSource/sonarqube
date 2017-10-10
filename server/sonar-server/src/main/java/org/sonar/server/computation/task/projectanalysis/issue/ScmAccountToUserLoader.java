@@ -56,7 +56,7 @@ public class ScmAccountToUserLoader implements CacheLoader<String, String> {
         .map(UserDoc::login)
         .sorted(Ordering.natural())
         .collect(MoreCollectors.toList(users.size()));
-      LOGGER.warn(String.format("Multiple users share the SCM account '%s': %s", scmAccount, Joiner.on(", ").join(logins)));
+      LOGGER.warn("Multiple users share the SCM account '{}': {}", scmAccount, Joiner.on(", ").join(logins));
     }
     return null;
   }

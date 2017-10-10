@@ -53,7 +53,7 @@ public class Languages {
     LOG.debug("Available languages:");
     for (Language language : languages) {
       map.put(language.getKey(), language);
-      LOG.debug("  * " + language.getName() + " => \"" + language.getKey() + "\"");
+      LOG.debug("  * {} => \"{}\"", language.getName(), language.getKey());
     }
   }
 

@@ -441,7 +441,7 @@ public class RegisterRules implements Startable {
   }
 
   private void removeRule(DbSession session, List<RuleDefinitionDto> removedRules, RuleDefinitionDto rule) {
-    LOG.info(format("Disable rule %s", rule.getKey()));
+    LOG.info("Disable rule {}", rule.getKey());
     rule.setStatus(RuleStatus.REMOVED);
     rule.setSystemTags(Collections.emptySet());
     update(session, rule);

@@ -42,7 +42,7 @@ class ComponentKeys {
     String key = component.toString();
     if (IDENTITY_HASH_PATTERN.matcher(key).matches()) {
       if (!objectsWithoutToString.add(component.getClass())) {
-        log.warn(String.format("Bad component key: %s. Please implement toString() method on class %s", key, component.getClass().getName()));
+        log.warn("Bad component key: {}. Please implement toString() method on class {}", key, component.getClass().getName());
       }
       key += Uuids.create();
     }

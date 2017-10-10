@@ -157,7 +157,7 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
       } else if (ID_TYPE_PROJECT_UUID.equals(i.getDocIdType())) {
         itemsByProjectKey.put(i.getDocId(), i);
       } else {
-        LOGGER.error("Unsupported es_queue.doc_id_type for issues. Manual fix is required: " + i);
+        LOGGER.error("Unsupported es_queue.doc_id_type for issues. Manual fix is required: {}", i);
       }
     });
 

@@ -129,7 +129,7 @@ public class ReportPublisher implements Startable {
     if (!analysisMode.isIssues()) {
       File report = generateReportFile();
       if (shouldKeepReport()) {
-        LOG.info("Analysis report generated in " + reportDir);
+        LOG.info("Analysis report generated in {}", reportDir);
       }
       if (!analysisMode.isMediumTest()) {
         taskId = upload(report);
@@ -197,7 +197,7 @@ public class ReportPublisher implements Startable {
       throw Throwables.propagate(e);
     } finally {
       long stopTime = System.currentTimeMillis();
-      LOG.info("Analysis report uploaded in " + (stopTime - startTime) + "ms");
+      LOG.info("Analysis report uploaded in {}ms", stopTime - startTime);
     }
   }
 

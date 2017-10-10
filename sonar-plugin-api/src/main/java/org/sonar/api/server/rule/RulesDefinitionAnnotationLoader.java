@@ -69,7 +69,7 @@ public class RulesDefinitionAnnotationLoader {
     if (ruleAnnotation != null) {
       return loadRule(repo, clazz, ruleAnnotation);
     } else {
-      LOG.warn("The class " + clazz.getCanonicalName() + " should be annotated with " + org.sonar.check.Rule.class);
+      LOG.warn("The class {} should be annotated with {}", clazz.getCanonicalName(), org.sonar.check.Rule.class);
       return null;
     }
   }

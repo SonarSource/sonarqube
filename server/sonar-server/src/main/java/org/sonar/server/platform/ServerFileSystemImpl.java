@@ -49,7 +49,7 @@ public class ServerFileSystemImpl implements ServerFileSystem, org.sonar.api.pla
 
   @Override
   public void start() {
-    LOGGER.info("SonarQube home: " + homeDir.getAbsolutePath());
+    LOGGER.info("SonarQube home: {}", homeDir.getAbsolutePath());
   }
 
   @Override

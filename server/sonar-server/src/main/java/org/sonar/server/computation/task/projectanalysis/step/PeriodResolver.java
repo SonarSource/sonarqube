@@ -71,7 +71,7 @@ public class PeriodResolver {
     }
     Period period = resolve(propertyValue);
     if (period == null && StringUtils.isNotBlank(propertyValue)) {
-      LOG.debug("Property " + LEAK_PERIOD + " is not valid: " + propertyValue);
+      LOG.debug("Property " + LEAK_PERIOD + " is not valid: {}", propertyValue);
     }
     return period;
   }
@@ -109,7 +109,7 @@ public class PeriodResolver {
     if (snapshot == null) {
       return null;
     }
-    LOG.debug("Compare over {} days ({}, analysis of {})", String.valueOf(days), formatDate(targetDate), formatDate(snapshot.getCreatedAt()));
+    LOG.debug("Compare over {} days ({}, analysis of {})", days, formatDate(targetDate), formatDate(snapshot.getCreatedAt()));
     return new Period(LEAK_PERIOD_MODE_DAYS, String.valueOf(days), snapshot.getCreatedAt(), snapshot.getUuid());
   }
 

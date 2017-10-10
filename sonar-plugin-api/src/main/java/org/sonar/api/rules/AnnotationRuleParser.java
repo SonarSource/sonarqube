@@ -60,7 +60,7 @@ public final class AnnotationRuleParser {
     if (ruleAnnotation != null) {
       return toRule(repositoryKey, annotatedClass, ruleAnnotation);
     }
-    LOG.warn("The class " + annotatedClass.getCanonicalName() + " should be annotated with " + Rule.class);
+    LOG.warn("The class {} should be annotated with {}", annotatedClass.getCanonicalName(), Rule.class);
     return null;
   }
 

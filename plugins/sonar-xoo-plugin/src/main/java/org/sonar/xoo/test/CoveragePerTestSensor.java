@@ -63,7 +63,7 @@ public class CoveragePerTestSensor implements Sensor {
   private void processTestFile(InputFile inputFile, SensorContext context) {
     File testExecutionFile = new File(inputFile.file().getParentFile(), inputFile.file().getName() + TEST_EXTENSION);
     if (testExecutionFile.exists()) {
-      LOG.debug("Processing " + testExecutionFile.getAbsolutePath());
+      LOG.debug("Processing {}", testExecutionFile.getAbsolutePath());
       try {
         List<String> lines = FileUtils.readLines(testExecutionFile, fs.encoding().name());
         int lineNumber = 0;

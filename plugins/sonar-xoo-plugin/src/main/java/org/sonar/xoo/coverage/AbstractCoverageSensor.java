@@ -42,7 +42,7 @@ public abstract class AbstractCoverageSensor implements Sensor {
   private void processCoverage(InputFile inputFile, SensorContext context) {
     File coverageFile = new File(inputFile.file().getParentFile(), inputFile.file().getName() + getCoverageExtension());
     if (coverageFile.exists()) {
-      LOG.debug("Processing " + coverageFile.getAbsolutePath());
+      LOG.debug("Processing {}", coverageFile.getAbsolutePath());
       try {
         List<String> lines = FileUtils.readLines(coverageFile, context.fileSystem().encoding().name());
         NewCoverage coverageBuilder = context.newCoverage()

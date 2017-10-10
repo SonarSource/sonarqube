@@ -44,7 +44,7 @@ class TomcatStartupLogs {
   }
 
   private void logHttp(Connector connector) {
-    log.info(String.format("HTTP connector enabled on port %d", connector.getPort()));
+    log.info("HTTP connector enabled on port {}", connector.getPort());
   }
 
 }

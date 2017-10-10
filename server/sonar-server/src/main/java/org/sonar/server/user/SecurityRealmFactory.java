@@ -80,12 +80,12 @@ public class SecurityRealmFactory implements Startable {
     if (realm != null) {
       Logger logger = Loggers.get("org.sonar.INFO");
       try {
-        logger.info("Security realm: " + realm.getName());
+        logger.info("Security realm: {}", realm.getName());
         realm.init();
         logger.info("Security realm started");
       } catch (RuntimeException e) {
         if (ignoreStartupFailure) {
-          logger.error("IGNORED - Security realm fails to start: " + e.getMessage());
+          logger.error("IGNORED - Security realm fails to start: {}", e.getMessage());
         } else {
           throw new SonarException("Security realm fails to start: " + e.getMessage(), e);
         }

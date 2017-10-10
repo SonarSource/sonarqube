@@ -121,7 +121,7 @@ class DefaultBlameOutput implements BlameOutput {
     if (success && !allFilesToBlame.isEmpty()) {
       LOG.warn("Missing blame information for the following files:");
       for (InputFile f : allFilesToBlame) {
-        LOG.warn("  * " + f);
+        LOG.warn("  * {}", f);
       }
       LOG.warn("This may lead to missing/broken features in SonarQube");
     }

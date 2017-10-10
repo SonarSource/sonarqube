@@ -96,7 +96,7 @@ public class IndexCreator implements Startable {
   }
 
   private void createIndex(Index index, boolean useMetadata) {
-    LOGGER.info(String.format("Create index %s", index.getName()));
+    LOGGER.info("Create index {}", index.getName());
     Settings.Builder settings = Settings.builder();
     settings.put(index.getSettings());
     if (useMetadata) {
@@ -116,7 +116,7 @@ public class IndexCreator implements Startable {
 
     // create types
     for (Map.Entry<String, IndexDefinitions.IndexType> entry : index.getTypes().entrySet()) {
-      LOGGER.info(String.format("Create type %s/%s", index.getName(), entry.getKey()));
+      LOGGER.info("Create type {}/{}", index.getName(), entry.getKey());
       PutMappingResponse mappingResponse = client.preparePutMapping(index.getName())
         .setType(entry.getKey())
         .setSource(entry.getValue().getAttributes())

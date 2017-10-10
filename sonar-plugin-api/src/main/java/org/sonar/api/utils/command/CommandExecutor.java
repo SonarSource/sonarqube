@@ -130,7 +130,7 @@ public class CommandExecutor {
    * @throws CommandException
    */
   public int execute(Command command, long timeoutMilliseconds) {
-    LOG.info("Executing command: " + command);
+    LOG.info("Executing command: {}", command);
     return execute(command, new DefaultConsumer(), new DefaultConsumer(), timeoutMilliseconds);
   }
 

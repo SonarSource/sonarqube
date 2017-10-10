@@ -60,10 +60,10 @@ public class ScannerPluginPredicate implements Predicate<String> {
         CoreProperties.PREVIEW_EXCLUDE_PLUGINS, CoreProperties.PREVIEW_EXCLUDE_PLUGINS_DEFAULT_VALUE));
     }
     if (!whites.isEmpty()) {
-      LOG.info("Include plugins: " + COMMA_JOINER.join(whites));
+      LOG.info("Include plugins: {}", COMMA_JOINER.join(whites));
     }
     if (!blacks.isEmpty()) {
-      LOG.info("Exclude plugins: " + COMMA_JOINER.join(blacks));
+      LOG.info("Exclude plugins: {}", COMMA_JOINER.join(blacks));
     }
   }
 

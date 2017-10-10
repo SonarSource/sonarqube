@@ -25,7 +25,6 @@ import com.google.common.collect.Lists;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -53,7 +52,7 @@ import org.sonar.scanner.util.ScannerUtils;
  */
 public class ProjectReactorBuilder {
 
-  private static final String INVALID_VALUE_OF_X_FOR_Y = "Invalid value of {0} for {1}";
+  private static final String INVALID_VALUE_OF_X_FOR_Y = "Invalid value of {} for {}";
 
   /**
    * A map of dropped properties as key and specific message to display for that property
@@ -384,7 +383,7 @@ public class ProjectReactorBuilder {
     for (String path : paths) {
       File sourceFolder = resolvePath(baseDir, path);
       if (!sourceFolder.exists()) {
-        LOG.error(MessageFormat.format(INVALID_VALUE_OF_X_FOR_Y, propName, moduleRef));
+        LOG.error(INVALID_VALUE_OF_X_FOR_Y, propName, moduleRef);
         throw MessageException.of("The folder '" + path + "' does not exist for '" + moduleRef +
           "' (base directory = " + baseDir.getAbsolutePath() + ")");
       }

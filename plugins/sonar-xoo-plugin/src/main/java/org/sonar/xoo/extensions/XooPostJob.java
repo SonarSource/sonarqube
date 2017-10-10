@@ -39,8 +39,8 @@ public class XooPostJob implements PostJob {
 
   @Override
   public void execute(PostJobContext context) {
-    LOG.info("Resolved issues: " + Iterables.size(context.resolvedIssues()));
-    LOG.info("Open issues: " + Iterables.size(context.issues()));
+    LOG.info("Resolved issues: {}", Iterables.size(context.resolvedIssues()));
+    LOG.info("Open issues: {}", Iterables.size(context.issues()));
   }
 
 }

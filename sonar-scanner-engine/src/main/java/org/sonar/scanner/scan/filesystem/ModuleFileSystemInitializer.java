@@ -122,7 +122,7 @@ public class ModuleFileSystemInitializer {
 
   private static void logDir(String label, @Nullable Path dir) {
     if (dir != null) {
-      LOG.info(label + dir.toAbsolutePath().toString());
+      LOG.info("{}{}", label, dir.toAbsolutePath());
     }
   }
 
