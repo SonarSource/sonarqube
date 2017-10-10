@@ -172,8 +172,8 @@ public class CommandFactoryImplTest {
       .contains("-Djava.io.tmpdir=" + tempDir.getAbsolutePath(), "-Dfile.encoding=UTF-8")
       .contains("-Xmx512m", "-Xms128m", "-XX:+HeapDumpOnOutOfMemoryError");
     assertThat(command.getProcessId()).isEqualTo(ProcessId.WEB_SERVER);
-//FIXME     assertThat(command.getEnvVariables())
-      //.containsKey("JAVA_HOME");
+    assertThat(command.getEnvVariables())
+      .isNotEmpty();
     assertThat(command.getArguments())
       // default settings
       .contains(entry("sonar.web.javaOpts", "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError"))
