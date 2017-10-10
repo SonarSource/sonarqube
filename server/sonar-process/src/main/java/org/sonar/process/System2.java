@@ -20,6 +20,7 @@
 package org.sonar.process;
 
 import java.util.Map;
+import org.apache.commons.lang.SystemUtils;
 
 /**
  * An interface allowing to wrap around static call to {@link System} class.
@@ -35,6 +36,11 @@ public interface System2 {
     public String getenv(String name) {
       return System.getenv(name);
     }
+
+    @Override
+    public boolean isOsWindows() {
+      return SystemUtils.IS_OS_WINDOWS;
+    }
   };
 
   /**
@@ -46,4 +52,9 @@ public interface System2 {
    * Proxy to {@link System#getenv(String)}.
    */
   String getenv(String name);
+
+  /**
+   * True if this is MS Windows.
+   */
+  boolean isOsWindows();
 }
