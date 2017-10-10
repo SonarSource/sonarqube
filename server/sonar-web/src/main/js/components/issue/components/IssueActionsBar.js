@@ -52,13 +52,6 @@ export default class IssueActionsBar extends React.PureComponent {
     commentPlaceholder: ''
   };
 
-  componentDidUpdate(prevProps /*: Props */) {
-    const { resolution } = this.props.issue;
-    if (!prevProps.issue.resolution && ['FALSE-POSITIVE', 'WONTFIX'].includes(resolution)) {
-      this.toggleComment(true, translate('issue.comment.tell_why'));
-    }
-  }
-
   setIssueProperty = (
     property /*: string */,
     popup /*: string */,
@@ -82,6 +75,13 @@ export default class IssueActionsBar extends React.PureComponent {
   toggleComment = (open /*: boolean | void */, placeholder /*: string | void */) => {
     this.setState({ commentPlaceholder: placeholder || '' });
     this.props.togglePopup('comment', open);
+  };
+
+  handleTransition = (issue /*: Issue */) => {
+    this.props.onChange(issue);
+    if (['FALSE-POSITIVE', 'WONTFIX'].includes(issue.resolution)) {
+      this.toggleComment(true, translate('issue.comment.tell_why'));
+    }
   };
 
   render() {
@@ -121,7 +121,7 @@ export default class IssueActionsBar extends React.PureComponent {
                     isOpen={this.props.currentPopup === 'transition' && hasTransitions}
                     issue={issue}
                     hasTransitions={hasTransitions}
-                    onChange={this.props.onChange}
+                    onChange={this.handleTransition}
                     onFail={this.props.onFail}
                     togglePopup={this.props.togglePopup}
                   />
