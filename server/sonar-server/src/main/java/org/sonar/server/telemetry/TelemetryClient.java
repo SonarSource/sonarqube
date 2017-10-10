@@ -21,10 +21,12 @@
 package org.sonar.server.telemetry;
 
 import java.io.IOException;
+import okhttp3.Call;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
@@ -47,7 +49,7 @@ public class TelemetryClient {
 
   void upload(String json) throws IOException {
     Request request = buildHttpRequest(json);
-    okHttpClient.newCall(request).execute();
+    execute(okHttpClient.newCall(request));
   }
 
   void optOut(String json) {
@@ -57,7 +59,7 @@ public class TelemetryClient {
     request.delete(body);
 
     try {
-      okHttpClient.newCall(request.build()).execute();
+      execute(okHttpClient.newCall(request.build()));
     } catch (IOException e) {
       LOG.debug("Error when sending opt-out usage statistics: {}", e.getMessage());
     }
@@ -73,6 +75,12 @@ public class TelemetryClient {
 
   private String serverUrl() {
     return config.get(PROP_URL).orElseThrow(() -> new IllegalStateException(String.format("Setting '%s' must be provided.", PROP_URL)));
+  }
+
+  private static void execute(Call call) throws IOException {
+    try (Response ignored = call.execute()) {
+      // auto close connection to avoid leaked connection
+    }
   }
 
 }
