@@ -205,9 +205,6 @@ public class DefaultSensorStorage implements SensorStorage {
     saveMeasure(newMeasure.inputComponent(), (DefaultMeasure<?>) newMeasure);
   }
 
-  /**
-   * Thread safe
-   */
   private void logOnce(String metricKey, String msg, Object... params) {
     if (alreadyLogged.add(metricKey)) {
       LOG.warn(msg, params);
