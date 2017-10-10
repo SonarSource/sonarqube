@@ -4,8 +4,8 @@ exports[`should render facets for developer 1`] = `
 Array [
   "FacetMode",
   "TypeFacet",
-  "ResolutionFacet",
   "SeverityFacet",
+  "ResolutionFacet",
   "StatusFacet",
   "CreationDateFacet",
   "RuleFacet",
@@ -23,8 +23,8 @@ exports[`should render facets for directory 1`] = `
 Array [
   "FacetMode",
   "TypeFacet",
-  "ResolutionFacet",
   "SeverityFacet",
+  "ResolutionFacet",
   "StatusFacet",
   "CreationDateFacet",
   "RuleFacet",
@@ -40,8 +40,8 @@ exports[`should render facets for global page 1`] = `
 Array [
   "FacetMode",
   "TypeFacet",
-  "ResolutionFacet",
   "SeverityFacet",
+  "ResolutionFacet",
   "StatusFacet",
   "CreationDateFacet",
   "RuleFacet",
@@ -57,8 +57,8 @@ exports[`should render facets for module 1`] = `
 Array [
   "FacetMode",
   "TypeFacet",
-  "ResolutionFacet",
   "SeverityFacet",
+  "ResolutionFacet",
   "StatusFacet",
   "CreationDateFacet",
   "RuleFacet",
@@ -76,8 +76,8 @@ exports[`should render facets for project 1`] = `
 Array [
   "FacetMode",
   "TypeFacet",
-  "ResolutionFacet",
   "SeverityFacet",
+  "ResolutionFacet",
   "StatusFacet",
   "CreationDateFacet",
   "RuleFacet",
@@ -95,8 +95,8 @@ exports[`should render facets when my issues are selected 1`] = `
 Array [
   "FacetMode",
   "TypeFacet",
-  "ResolutionFacet",
   "SeverityFacet",
+  "ResolutionFacet",
   "StatusFacet",
   "CreationDateFacet",
   "RuleFacet",

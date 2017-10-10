@@ -122,7 +122,7 @@ export default class App extends React.PureComponent {
       loading: true,
       locationsNavigator: false,
       myIssues: areMyIssuesSelected(props.location.query),
-      openFacets: { resolutions: true, types: true },
+      openFacets: { severities: true, types: true },
       openIssue: null,
       openPopup: null,
       query: parseQuery(props.location.query),

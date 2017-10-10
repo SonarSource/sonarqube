@@ -84,6 +84,14 @@ export default class Sidebar extends React.PureComponent {
           stats={facets.types}
           types={query.types}
         />
+        <SeverityFacet
+          facetMode={query.facetMode}
+          onChange={this.props.onFilterChange}
+          onToggle={this.props.onFacetToggle}
+          open={!!openFacets.severities}
+          severities={query.severities}
+          stats={facets.severities}
+        />
         <ResolutionFacet
           facetMode={query.facetMode}
           onChange={this.props.onFilterChange}
@@ -92,14 +100,6 @@ export default class Sidebar extends React.PureComponent {
           resolved={query.resolved}
           resolutions={query.resolutions}
           stats={facets.resolutions}
-        />
-        <SeverityFacet
-          facetMode={query.facetMode}
-          onChange={this.props.onFilterChange}
-          onToggle={this.props.onFacetToggle}
-          open={!!openFacets.severities}
-          severities={query.severities}
-          stats={facets.severities}
         />
         <StatusFacet
           facetMode={query.facetMode}
