@@ -212,9 +212,9 @@ public class DefaultSensorStorage implements SensorStorage {
     saveMeasure(newMeasure.inputComponent(), (DefaultMeasure<?>) newMeasure);
   }
 
-  private void logOnce(String metricKey, String msg, Object... params) {
+  private void logOnce(String metricKey, String msg, Object arg) {
     if (alreadyLogged.add(metricKey)) {
-      LOG.warn(msg, params);
+      LOG.warn(msg, arg);
     }
   }
 
