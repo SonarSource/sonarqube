@@ -75,7 +75,7 @@ public class CommandFactoryImpl implements CommandFactory {
     //return createEsCommandForNonWindows();
   }
 
-  private ExternalCommand createEsCommandForNonWindows() {
+  private EsScriptCommand createEsCommandForNonWindows() {
     ElasticsearchConfiguration elasticsearchConfiguration = new ElasticsearchConfiguration(props);
     if (!elasticsearchConfiguration.getExecutable().exists()) {
       throw new IllegalStateException("Cannot find elasticsearch binary");
@@ -92,7 +92,7 @@ public class CommandFactoryImpl implements CommandFactory {
       .setHost(settingsMap.get("network.host"))
       .setPort(Integer.valueOf(settingsMap.get("transport.tcp.port")));
 
-    return new ExternalCommand(ProcessId.ELASTICSEARCH, elasticsearchConfiguration.getHomeDirectory())
+    return new EsScriptCommand(ProcessId.ELASTICSEARCH, elasticsearchConfiguration.getHomeDirectory())
       .setElasticsearchConfiguration(elasticsearchConfiguration)
       .setArguments(props.rawProperties())
       .addEsOption("-Epath.conf=" + elasticsearchConfiguration.getConfDirectory().getAbsolutePath())

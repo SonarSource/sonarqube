@@ -40,7 +40,7 @@ import org.junit.rules.Timeout;
 import org.mockito.Mockito;
 import org.sonar.application.command.AbstractCommand;
 import org.sonar.application.command.CommandFactory;
-import org.sonar.application.command.ExternalCommand;
+import org.sonar.application.command.EsScriptCommand;
 import org.sonar.application.command.JavaCommand;
 import org.sonar.application.config.TestAppSettings;
 import org.sonar.application.process.ProcessLauncher;
@@ -73,7 +73,7 @@ public class SchedulerImplTest {
   @Rule
   public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-  private ExternalCommand esExternalCommand;
+  private EsScriptCommand esEsScriptCommand;
   private JavaCommand esJavaCommand;
   private JavaCommand webLeaderCommand;
   private JavaCommand webFollowerCommand;
@@ -91,7 +91,7 @@ public class SchedulerImplTest {
   @Before
   public void setUp() throws Exception {
     File tempDir = temporaryFolder.newFolder();
-    esExternalCommand = new ExternalCommand(ELASTICSEARCH, tempDir);
+    esEsScriptCommand = new EsScriptCommand(ELASTICSEARCH, tempDir);
     esJavaCommand = new JavaCommand(ELASTICSEARCH, tempDir);
     webLeaderCommand = new JavaCommand(WEB_SERVER, tempDir);
     webFollowerCommand = new JavaCommand(WEB_SERVER, tempDir);
@@ -119,7 +119,7 @@ public class SchedulerImplTest {
     TestProcess web = processLauncher.waitForProcess(WEB_SERVER);
     assertThat(web.isAlive()).isTrue();
     assertThat(processLauncher.processes).hasSize(2);
-    assertThat(processLauncher.commands).containsExactly(esExternalCommand, webLeaderCommand);
+    assertThat(processLauncher.commands).containsExactly(esEsScriptCommand, webLeaderCommand);
 
     // web becomes operational -> CE is starting
     web.operational = true;
@@ -127,7 +127,7 @@ public class SchedulerImplTest {
     TestProcess ce = processLauncher.waitForProcess(COMPUTE_ENGINE);
     assertThat(ce.isAlive()).isTrue();
     assertThat(processLauncher.processes).hasSize(3);
-    assertThat(processLauncher.commands).containsExactly(esExternalCommand, webLeaderCommand, ceCommand);
+    assertThat(processLauncher.commands).containsExactly(esEsScriptCommand, webLeaderCommand, ceCommand);
 
     // all processes are up
     processLauncher.processes.values().forEach(p -> assertThat(p.isAlive()).isTrue());
@@ -362,8 +362,8 @@ public class SchedulerImplTest {
 
   private class TestCommandFactory implements CommandFactory {
     @Override
-    public ExternalCommand createEsCommand() {
-      return esExternalCommand;
+    public EsScriptCommand createEsCommand() {
+      return esEsScriptCommand;
     }
 
     @Override

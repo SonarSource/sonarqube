@@ -33,7 +33,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.command.AbstractCommand;
-import org.sonar.application.command.ExternalCommand;
+import org.sonar.application.command.EsScriptCommand;
 import org.sonar.application.command.JavaCommand;
 import org.sonar.application.command.JvmOptions;
 import org.sonar.application.es.ElasticsearchConfiguration;
@@ -79,8 +79,8 @@ public class ProcessLauncherImpl implements ProcessLauncher {
 
     // FIXME refactor this
     Process process;
-    if (command instanceof ExternalCommand) {
-      process = launchExternal((ExternalCommand) command);
+    if (command instanceof EsScriptCommand) {
+      process = launchExternal((EsScriptCommand) command);
     } else if (command instanceof JavaCommand) {
       process = launchJava((JavaCommand) command);
     } else {
@@ -104,13 +104,13 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     }
   }
 
-  private Process launchExternal(ExternalCommand externalCommand) {
+  private Process launchExternal(EsScriptCommand esScriptCommand) {
     try {
-      ProcessBuilder processBuilder = create(externalCommand);
-      logLaunchedCommand(externalCommand, processBuilder);
+      ProcessBuilder processBuilder = create(esScriptCommand);
+      logLaunchedCommand(esScriptCommand, processBuilder);
       return processBuilder.start();
     } catch (Exception e) {
-      throw new IllegalStateException(format("Fail to launch process [%s]", externalCommand.getProcessId().getKey()), e);
+      throw new IllegalStateException(format("Fail to launch process [%s]", esScriptCommand.getProcessId().getKey()), e);
     }
   }
 
@@ -164,12 +164,12 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     }
   }
 
-  private ProcessBuilder create(ExternalCommand externalCommand) {
+  private ProcessBuilder create(EsScriptCommand esScriptCommand) {
     List<String> commands = new ArrayList<>();
-    commands.add(externalCommand.getElasticsearchConfiguration().getExecutable().getAbsolutePath());
-    commands.addAll(externalCommand.getEsOptions());
+    commands.add(esScriptCommand.getElasticsearchConfiguration().getExecutable().getAbsolutePath());
+    commands.addAll(esScriptCommand.getEsOptions());
 
-    return create(externalCommand, commands);
+    return create(esScriptCommand, commands);
   }
 
   private <T extends JvmOptions> ProcessBuilder create(JavaCommand<T> javaCommand) {
