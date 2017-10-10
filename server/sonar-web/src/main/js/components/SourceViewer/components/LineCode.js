@@ -136,12 +136,16 @@ export default class LineCode extends React.PureComponent {
     }
   };
 
-  renderMarker(index /*: number */, message /*: ?string */) {
+  renderMarker(index /*: number */, message /*: ?string */, leading /*: boolean */ = false) {
     const { onLocationSelect } = this.props;
     const onClick = onLocationSelect ? () => onLocationSelect(index) : undefined;
     const ref = message != null ? node => (this.activeMarkerNode = node) : undefined;
     return (
-      <LocationIndex key={`marker-${index}`} onClick={onClick} selected={message != null}>
+      <LocationIndex
+        key={`marker-${index}`}
+        leading={leading}
+        onClick={onClick}
+        selected={message != null}>
         <span href="#" ref={ref}>
           {index + 1}
         </span>
@@ -193,6 +197,11 @@ export default class LineCode extends React.PureComponent {
     });
 
     const renderedTokens = [];
+
+    // track if the first marker is displayed before the source code
+    // set `false` for the first token in a row
+    let leadingMarker = false;
+
     tokens.forEach((token, index) => {
       if (token.markers.length > 0) {
         token.markers.forEach(marker => {
@@ -200,7 +209,7 @@ export default class LineCode extends React.PureComponent {
             highlightedLocationMessage != null && highlightedLocationMessage.index === marker
               ? highlightedLocationMessage.text
               : null;
-          renderedTokens.push(this.renderMarker(marker, message));
+          renderedTokens.push(this.renderMarker(marker, message, leadingMarker));
         });
       }
       renderedTokens.push(
@@ -208,6 +217,9 @@ export default class LineCode extends React.PureComponent {
           {token.text}
         </span>
       );
+
+      // keep leadingMarker truthy if previous token has only whitespaces
+      leadingMarker = (index === 0 ? true : leadingMarker) && !token.text.trim().length;
     });
 
     return (

@@ -21,6 +21,12 @@
   background-color: #ccc;
 }
 
+.location-index.is-leading {
+  position: absolute;
+  margin: 1px 0 0 -4px !important;
+  transform: translateX(-100%);
+}
+
 .location-index[tabindex] {
   cursor: pointer;
 }

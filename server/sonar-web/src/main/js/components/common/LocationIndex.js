@@ -25,18 +25,22 @@ import './LocationIndex.css';
 /*::
 type Props = {
   children?: React.Element<*>,
+  leading?: boolean,
   onClick?: () => void,
   selected?: boolean
 };
 */
 
 export default function LocationIndex(props /*: Props */) {
-  const { children, onClick, selected, ...other } = props;
+  const { children, leading, onClick, selected, ...other } = props;
   const clickAttributes = onClick ? { onClick, role: 'button', tabIndex: 0 } : {};
 
   // put {...others} because Tooltip sets some event handlers
   return (
-    <div className={classNames('location-index', { selected })} {...clickAttributes} {...other}>
+    <div
+      className={classNames('location-index', { 'is-leading': leading, selected })}
+      {...clickAttributes}
+      {...other}>
       {children}
     </div>
   );
