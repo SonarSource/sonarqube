@@ -360,9 +360,12 @@
 
 .search-navigator-facet-header {
   display: block;
+  flex-shrink: 0;
   padding: 8px 0;
   color: @baseFontColor;
   font-weight: 600;
+  overflow: hidden;
+  white-space: nowrap;
 
   & > a {
     border-bottom: none;
@@ -378,9 +381,24 @@
   }
 }
 
+.search-navigator-facet-header-value {
+  display: block;
+  padding: 8px 0;
+  overflow: hidden;
+}
+
+.search-navigator-facet-header-value > .badge {
+  display: block;
+}
+
 .search-navigator-facet-header-button {
-  float: right;
-  margin-top: 6px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.search-navigator-facet-header-wrapper {
+  display: flex;
+  align-items: center;
 }
 
 .search-navigator-facet-list {

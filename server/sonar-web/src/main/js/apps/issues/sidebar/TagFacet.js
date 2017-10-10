@@ -138,7 +138,7 @@ export default class TagFacet extends React.PureComponent {
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
-          values={this.props.tags.length}
+          values={this.props.tags}
         />
 
         {this.props.open && this.renderList()}

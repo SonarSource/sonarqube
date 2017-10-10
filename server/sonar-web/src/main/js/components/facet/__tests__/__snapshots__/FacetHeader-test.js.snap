@@ -1,37 +1,46 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should clear 1`] = `
-<div>
+<div
+  className="search-navigator-facet-header-wrapper"
+>
+  <span
+    className="search-navigator-facet-header"
+  >
+    <a
+      href="#"
+      onClick={[Function]}
+    >
+      <OpenCloseIcon
+        className="little-spacer-right"
+        open={false}
+      />
+      foo
+    </a>
+  </span>
+  <span
+    className="search-navigator-facet-header-value spacer-left spacer-right "
+  >
+    <span
+      className="badge badge-secondary is-rounded text-ellipsis"
+      title="x_selected.3"
+    >
+      x_selected.3
+    </span>
+  </span>
   <button
     className="search-navigator-facet-header-button button-small button-red"
     onClick={[Function]}
   >
     clear
   </button>
-  <span
-    className="search-navigator-facet-header"
-  >
-    <a
-      href="#"
-      onClick={[Function]}
-    >
-      <OpenCloseIcon
-        className="little-spacer-right"
-        open={false}
-      />
-      foo
-    </a>
-    <span
-      className="spacer-left badge badge-secondary is-rounded"
-    >
-      3
-    </span>
-  </span>
 </div>
 `;
 
 exports[`should render closed facet with value 1`] = `
-<div>
+<div
+  className="search-navigator-facet-header-wrapper"
+>
   <span
     className="search-navigator-facet-header"
   >
@@ -45,17 +54,24 @@ exports[`should render closed facet with value 1`] = `
       />
       foo
     </a>
+  </span>
+  <span
+    className="search-navigator-facet-header-value spacer-left spacer-right "
+  >
     <span
-      className="spacer-left badge badge-secondary is-rounded"
+      className="badge badge-secondary is-rounded text-ellipsis"
+      title="foo"
     >
-      1
+      foo
     </span>
   </span>
 </div>
 `;
 
 exports[`should render closed facet without value 1`] = `
-<div>
+<div
+  className="search-navigator-facet-header-wrapper"
+>
   <span
     className="search-navigator-facet-header"
   >
@@ -70,11 +86,16 @@ exports[`should render closed facet without value 1`] = `
       foo
     </a>
   </span>
+  <span
+    className="search-navigator-facet-header-value spacer-left spacer-right "
+  />
 </div>
 `;
 
 exports[`should render open facet with value 1`] = `
-<div>
+<div
+  className="search-navigator-facet-header-wrapper"
+>
   <span
     className="search-navigator-facet-header"
   >
@@ -89,11 +110,16 @@ exports[`should render open facet with value 1`] = `
       foo
     </a>
   </span>
+  <span
+    className="search-navigator-facet-header-value spacer-left spacer-right "
+  />
 </div>
 `;
 
 exports[`should render open facet without value 1`] = `
-<div>
+<div
+  className="search-navigator-facet-header-wrapper"
+>
   <span
     className="search-navigator-facet-header"
   >
@@ -108,15 +134,23 @@ exports[`should render open facet without value 1`] = `
       foo
     </a>
   </span>
+  <span
+    className="search-navigator-facet-header-value spacer-left spacer-right "
+  />
 </div>
 `;
 
 exports[`should render without link 1`] = `
-<div>
+<div
+  className="search-navigator-facet-header-wrapper"
+>
   <span
     className="search-navigator-facet-header"
   >
     foo
   </span>
+  <span
+    className="search-navigator-facet-header-value spacer-left spacer-right "
+  />
 </div>
 `;

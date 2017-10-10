@@ -71,13 +71,16 @@ export default class ModuleFacet extends React.PureComponent {
     return stats ? stats[module] : null;
   }
 
-  renderName(module /*: string */) /*: React.Element<*> | string */ {
+  getModuleName(module /*: string */) {
     const { referencedComponents } = this.props;
-    const name = referencedComponents[module] ? referencedComponents[module].name : module;
+    return referencedComponents[module] ? referencedComponents[module].name : module;
+  }
+
+  renderName(module /*: string */) /*: React.Element<*> | string */ {
     return (
       <span>
         <QualifierIcon className="little-spacer-right" qualifier="BRC" />
-        {name}
+        {this.getModuleName(module)}
       </span>
     );
   }
@@ -108,6 +111,7 @@ export default class ModuleFacet extends React.PureComponent {
   }
 
   render() {
+    const values = this.props.modules.map(module => this.getModuleName(module));
     return (
       <FacetBox>
         <FacetHeader
@@ -115,7 +119,7 @@ export default class ModuleFacet extends React.PureComponent {
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
-          values={this.props.modules.length}
+          values={values}
         />
 
         {this.props.open && this.renderList()}

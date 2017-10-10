@@ -119,6 +119,34 @@ export default class CreationDateFacet extends React.PureComponent {
 
   handleLeakPeriodClick = () => this.resetTo({ sinceLeakPeriod: true });
 
+  getValues() {
+    const { createdAfter, createdAt, createdBefore, createdInLast, sinceLeakPeriod } = this.props;
+    const { formatDate } = this.context.intl;
+    const values = [];
+    if (createdAfter) {
+      values.push(formatDate(createdAfter, longFormatterOption));
+    }
+    if (createdAt) {
+      values.push(formatDate(createdAt, longFormatterOption));
+    }
+    if (createdBefore) {
+      values.push(formatDate(createdBefore, longFormatterOption));
+    }
+    if (createdInLast === '1w') {
+      values.push(translate('issues.facet.createdAt.last_week'));
+    }
+    if (createdInLast === '1m') {
+      values.push(translate('issues.facet.createdAt.last_month'));
+    }
+    if (createdInLast === '1y') {
+      values.push(translate('issues.facet.createdAt.last_year'));
+    }
+    if (sinceLeakPeriod) {
+      values.push(translate('issues.leak_period'));
+    }
+    return values;
+  }
+
   renderBarChart() {
     const { createdBefore, stats } = this.props;
 
@@ -286,7 +314,7 @@ export default class CreationDateFacet extends React.PureComponent {
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
-          values={this.hasValue() ? 1 : 0}
+          values={this.getValues()}
         />
 
         {this.props.open && this.renderInner()}

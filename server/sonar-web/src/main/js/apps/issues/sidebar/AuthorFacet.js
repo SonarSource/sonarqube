@@ -101,7 +101,7 @@ export default class AuthorFacet extends React.PureComponent {
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
-          values={this.props.authors.length}
+          values={this.props.authors}
         />
 
         {this.props.open && this.renderList()}

@@ -25,7 +25,7 @@ import FacetHeader from '../FacetHeader';
 
 it('should render open facet with value', () => {
   expect(
-    shallow(<FacetHeader name="foo" onClick={jest.fn()} open={true} values={1} />)
+    shallow(<FacetHeader name="foo" onClick={jest.fn()} open={true} values={['foo']} />)
   ).toMatchSnapshot();
 });
 
@@ -35,7 +35,7 @@ it('should render open facet without value', () => {
 
 it('should render closed facet with value', () => {
   expect(
-    shallow(<FacetHeader name="foo" onClick={jest.fn()} open={false} values={1} />)
+    shallow(<FacetHeader name="foo" onClick={jest.fn()} open={false} values={['foo']} />)
   ).toMatchSnapshot();
 });
 
@@ -57,7 +57,13 @@ it('should call onClick', () => {
 it('should clear', () => {
   const onClear = jest.fn();
   const wrapper = shallow(
-    <FacetHeader name="foo" onClear={onClear} onClick={jest.fn()} open={false} values={3} />
+    <FacetHeader
+      name="foo"
+      onClear={onClear}
+      onClick={jest.fn()}
+      open={false}
+      values={['foo', 'bar', 'baz']}
+    />
   );
   expect(wrapper).toMatchSnapshot();
   click(wrapper.find('.button-red'));

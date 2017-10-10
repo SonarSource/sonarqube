@@ -105,6 +105,7 @@ export default class ResolutionFacet extends React.PureComponent {
 
   render() {
     const resolutions = ['', 'FIXED', 'FALSE-POSITIVE', 'WONTFIX', 'REMOVED'];
+    const values = this.props.resolutions.map(resolution => this.getFacetItemName(resolution));
 
     return (
       <FacetBox>
@@ -113,7 +114,7 @@ export default class ResolutionFacet extends React.PureComponent {
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
-          values={this.props.resolutions.length}
+          values={values}
         />
 
         {this.props.open && <FacetItemsList>{resolutions.map(this.renderItem)}</FacetItemsList>}

@@ -127,6 +127,7 @@ export default class RuleFacet extends React.PureComponent {
   }
 
   render() {
+    const values = this.props.rules.map(rule => this.getRuleName(rule));
     return (
       <FacetBox>
         <FacetHeader
@@ -134,7 +135,7 @@ export default class RuleFacet extends React.PureComponent {
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
-          values={this.props.rules.length}
+          values={values}
         />
 
         {this.props.open && this.renderList()}

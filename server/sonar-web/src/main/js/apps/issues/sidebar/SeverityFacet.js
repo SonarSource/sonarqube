@@ -89,6 +89,7 @@ export default class SeverityFacet extends React.PureComponent {
 
   render() {
     const severities = ['BLOCKER', 'MINOR', 'CRITICAL', 'INFO', 'MAJOR'];
+    const values = this.props.severities.map(severity => translate('severity', severity));
 
     return (
       <FacetBox>
@@ -97,7 +98,7 @@ export default class SeverityFacet extends React.PureComponent {
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
-          values={this.props.severities.length}
+          values={values}
         />
 
         {this.props.open && <FacetItemsList>{severities.map(this.renderItem)}</FacetItemsList>}

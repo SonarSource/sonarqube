@@ -121,6 +121,17 @@ export default class AssigneeFacet extends React.PureComponent {
     return stats ? stats[assignee] : null;
   }
 
+  getValues() {
+    const values = this.props.assignees.map(assignee => {
+      const user = this.props.referencedUsers[assignee];
+      return user ? user.name : assignee;
+    });
+    if (!this.props.assigned) {
+      values.push(translate('unassigned'));
+    }
+    return values;
+  }
+
   renderOption = (option /*: { avatar: string, label: string } */) => {
     return (
       <span>
@@ -190,7 +201,7 @@ export default class AssigneeFacet extends React.PureComponent {
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
-          values={this.props.assignees.length + (this.props.assigned ? 0 : 1)}
+          values={this.getValues()}
         />
 
         {this.props.open && this.renderList()}

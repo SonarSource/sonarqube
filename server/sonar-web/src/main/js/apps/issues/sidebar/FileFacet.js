@@ -72,11 +72,13 @@ export default class FileFacet extends React.PureComponent {
     return stats ? stats[file] : null;
   }
 
-  renderName(file /*: string */) /*: React.Element<*> | string */ {
+  getFileName(file /*: string */) {
     const { referencedComponents } = this.props;
-    const name = referencedComponents[file]
-      ? collapsePath(referencedComponents[file].path, 15)
-      : file;
+    return referencedComponents[file] ? collapsePath(referencedComponents[file].path, 15) : file;
+  }
+
+  renderName(file /*: string */) /*: React.Element<*> | string */ {
+    const name = this.getFileName(file);
     return (
       <span>
         <QualifierIcon className="little-spacer-right" qualifier="FIL" />
@@ -111,6 +113,7 @@ export default class FileFacet extends React.PureComponent {
   }
 
   render() {
+    const values = this.props.files.map(file => this.getFileName(file));
     return (
       <FacetBox>
         <FacetHeader
@@ -118,7 +121,7 @@ export default class FileFacet extends React.PureComponent {
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
-          values={this.props.files.length}
+          values={values}
         />
 
         {this.props.open && this.renderList()}

@@ -96,6 +96,7 @@ export default class StatusFacet extends React.PureComponent {
 
   render() {
     const statuses = ['OPEN', 'RESOLVED', 'REOPENED', 'CLOSED', 'CONFIRMED'];
+    const values = this.props.statuses.map(status => translate('issue.status', status));
 
     return (
       <FacetBox>
@@ -104,7 +105,7 @@ export default class StatusFacet extends React.PureComponent {
           onClear={this.handleClear}
           onClick={this.handleHeaderClick}
           open={this.props.open}
-          values={this.props.statuses.length}
+          values={values}
         />
 
         {this.props.open && <FacetItemsList>{statuses.map(this.renderItem)}</FacetItemsList>}
