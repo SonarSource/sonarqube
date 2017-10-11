@@ -18,28 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import BubblePopup from '../../../../components/common/BubblePopup';
-import { translate } from '../../../../helpers/l10n';
+import BubblePopup from '../../../components/common/BubblePopup';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   popupPosition?: any;
 }
 
-export default function NoBranchSupportPopup(props: Props) {
+export default function NoWorkersSupportPopup(props: Props) {
   return (
-    <BubblePopup position={props.popupPosition} customClass="bubble-popup-bottom">
+    <BubblePopup position={props.popupPosition} customClass="bubble-popup-bottom-right">
       <div className="abs-width-400">
-        <h6 className="spacer-bottom">{translate('branches.no_support.header')}</h6>
-        <p className="big-spacer-bottom markdown">{translate('branches.no_support.header.text')}</p>
+        <h6 className="spacer-bottom">{translate('background_tasks.add_more_workers')}</h6>
+        <p className="big-spacer-bottom markdown">
+          {translate('background_tasks.add_more_workers.text')}
+        </p>
         <p>
-          <a href="https://redirect.sonarsource.com/doc/branches.html" target="_blank">
+          <a href="https://redirect.sonarsource.com/plugins/governance.html" target="_blank">
             {translate('learn_more')}
-          </a>
-          <a
-            className="button spacer-left"
-            href="https://www.sonarsource.com/company/contact/"
-            target="_blank">
-            {translate('branches.buy_developer_pack')}
           </a>
         </p>
       </div>

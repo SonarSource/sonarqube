@@ -81,7 +81,7 @@ export function getTypes(): Promise<any> {
   return getJSON('/api/ce/task_types').then(r => r.taskTypes);
 }
 
-export function getWorkers(): Promise<{ canSetWorkerCount: boolean; value: number } | Response> {
+export function getWorkers(): Promise<{ canSetWorkerCount: boolean; value: number }> {
   return getJSON('/api/ce/worker_count').catch(throwGlobalError);
 }
 

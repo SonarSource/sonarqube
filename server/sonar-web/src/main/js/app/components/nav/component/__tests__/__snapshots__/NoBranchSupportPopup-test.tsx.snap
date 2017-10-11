@@ -22,7 +22,7 @@ exports[`renders 1`] = `
         href="https://redirect.sonarsource.com/doc/branches.html"
         target="_blank"
       >
-        branches.learn_more
+        learn_more
       </a>
       <a
         className="button spacer-left"
