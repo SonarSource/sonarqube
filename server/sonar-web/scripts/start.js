@@ -28,6 +28,7 @@ const formatWebpackMessages = require('react-dev-utils/formatWebpackMessages');
 const errorOverlayMiddleware = require('react-error-overlay/middleware');
 const getConfig = require('../config/webpack.config');
 const paths = require('../config/paths');
+const getMessages = require('./utils/getMessages');
 
 const config = getConfig({ production: false });
 
@@ -104,6 +105,9 @@ function runDevServer(compiler, host, port, protocol) {
     },
     setup(app) {
       app.use(errorOverlayMiddleware());
+      app.get('/api/l10n/index', (req, res) => {
+        getMessages().then(messages => res.json({ effectiveLocale: 'en', messages }));
+      });
     }
   });
 
