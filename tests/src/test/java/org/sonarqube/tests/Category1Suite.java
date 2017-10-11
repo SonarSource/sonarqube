@@ -23,89 +23,12 @@ import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.sonarqube.tests.authorisation.ExecuteAnalysisPermissionTest;
-import org.sonarqube.tests.authorisation.IssuePermissionTest;
-import org.sonarqube.tests.authorisation.PermissionSearchTest;
-import org.sonarqube.tests.authorisation.ProvisioningPermissionTest;
-import org.sonarqube.tests.authorisation.QualityProfileAdminPermissionTest;
-import org.sonarqube.tests.complexity.ComplexityMeasuresTest;
-import org.sonarqube.tests.customMeasure.CustomMeasuresTest;
-import org.sonarqube.tests.i18n.I18nTest;
-import org.sonarqube.tests.measure.DifferentialPeriodsTest;
-import org.sonarqube.tests.measure.MeasuresWsTest;
-import org.sonarqube.tests.measure.ProjectDashboardTest;
-import org.sonarqube.tests.measure.ProjectMeasuresPageTest;
-import org.sonarqube.tests.measure.SincePreviousVersionHistoryTest;
-import org.sonarqube.tests.measure.SinceXDaysHistoryTest;
-import org.sonarqube.tests.measure.TimeMachineTest;
-import org.sonarqube.tests.projectAdministration.BackgroundTasksTest;
-import org.sonarqube.tests.projectAdministration.ProjectAdministrationTest;
-import org.sonarqube.tests.projectAdministration.ProjectBulkDeletionPageTest;
-import org.sonarqube.tests.projectAdministration.ProjectLinksPageTest;
-import org.sonarqube.tests.projectAdministration.ProjectVisibilityPageTest;
-import org.sonarqube.tests.projectSearch.ProjectsPageTest;
-import org.sonarqube.tests.qualityGate.QualityGateNotificationTest;
-import org.sonarqube.tests.qualityGate.QualityGateOnRatingMeasuresTest;
-import org.sonarqube.tests.qualityGate.QualityGateTest;
-import org.sonarqube.tests.qualityGate.QualityGateUiTest;
-import org.sonarqube.tests.settings.DeprecatedPropertiesWsTest;
-import org.sonarqube.tests.settings.EmailsTest;
-import org.sonarqube.tests.settings.PropertySetsTest;
-import org.sonarqube.tests.settings.SettingsTest;
-import org.sonarqube.tests.sourceCode.EncodingTest;
-import org.sonarqube.tests.sourceCode.HighlightingTest;
-import org.sonarqube.tests.sourceCode.ProjectCodeTest;
-import org.sonarqube.tests.user.UsersPageTest;
 
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  // administration
-  UsersPageTest.class,
-  ProjectVisibilityPageTest.class,
-  // project administration
-  ProjectBulkDeletionPageTest.class,
-  ProjectAdministrationTest.class,
-  ProjectLinksPageTest.class,
-  BackgroundTasksTest.class,
-  // settings
-  DeprecatedPropertiesWsTest.class,
-  EmailsTest.class,
-  PropertySetsTest.class,
-  SettingsTest.class,
-  // i18n
-  I18nTest.class,
-  // quality gate
-  QualityGateTest.class,
-  QualityGateUiTest.class,
-  QualityGateNotificationTest.class,
-  QualityGateOnRatingMeasuresTest.class,
-  // authorisation
-  ExecuteAnalysisPermissionTest.class,
-  IssuePermissionTest.class,
-  PermissionSearchTest.class,
-  ProvisioningPermissionTest.class,
-  QualityProfileAdminPermissionTest.class,
-  // custom measure
-  CustomMeasuresTest.class,
-  // measure
-  ProjectMeasuresPageTest.class,
-  ProjectDashboardTest.class,
-  ProjectsPageTest.class,
-  MeasuresWsTest.class,
-  // measure history
-  DifferentialPeriodsTest.class,
-  SincePreviousVersionHistoryTest.class,
-  SinceXDaysHistoryTest.class,
-  TimeMachineTest.class,
-  // source code
-  EncodingTest.class,
-  HighlightingTest.class,
-  ProjectCodeTest.class,
-  // complexity
-  ComplexityMeasuresTest.class
 })
 public class Category1Suite {
 

@@ -23,82 +23,14 @@ import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.sonarqube.tests.branch.BranchTest;
-import org.sonarqube.tests.issue.AutoAssignTest;
-import org.sonarqube.tests.issue.CommonRulesTest;
-import org.sonarqube.tests.issue.CustomRulesTest;
-import org.sonarqube.tests.issue.IssueActionTest;
-import org.sonarqube.tests.issue.IssueBulkChangeTest;
-import org.sonarqube.tests.issue.IssueChangelogTest;
 import org.sonarqube.tests.issue.IssueCreationDateQPChangedTest;
-import org.sonarqube.tests.issue.IssueCreationTest;
-import org.sonarqube.tests.issue.IssueFilterExtensionTest;
-import org.sonarqube.tests.issue.IssueFilterOnCommonRulesTest;
-import org.sonarqube.tests.issue.IssueFilterTest;
-import org.sonarqube.tests.issue.IssueMeasureTest;
-import org.sonarqube.tests.issue.IssuePurgeTest;
-import org.sonarqube.tests.issue.IssueSearchTest;
-import org.sonarqube.tests.issue.IssueTrackingTest;
-import org.sonarqube.tests.issue.IssueWorkflowTest;
-import org.sonarqube.tests.issue.IssuesPageTest;
-import org.sonarqube.tests.issue.NewIssuesMeasureTest;
-import org.sonarqube.tests.qualityModel.MaintainabilityMeasureTest;
-import org.sonarqube.tests.qualityModel.MaintainabilityRatingMeasureTest;
-import org.sonarqube.tests.qualityModel.NewDebtRatioMeasureTest;
-import org.sonarqube.tests.qualityModel.ReliabilityMeasureTest;
-import org.sonarqube.tests.qualityModel.SecurityMeasureTest;
-import org.sonarqube.tests.qualityModel.TechnicalDebtInIssueChangelogTest;
-import org.sonarqube.tests.qualityModel.TechnicalDebtAndIssueNewMeasuresTest;
-import org.sonarqube.tests.qualityModel.TechnicalDebtTest;
-import org.sonarqube.tests.scm.ScmTest;
-import org.sonarqube.tests.test.CoverageTest;
-import org.sonarqube.tests.test.CoverageTrackingTest;
-import org.sonarqube.tests.test.NewCoverageTest;
-import org.sonarqube.tests.test.TestExecutionTest;
 
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  // test
-  CoverageTrackingTest.class,
-  CoverageTest.class,
-  NewCoverageTest.class,
-  TestExecutionTest.class,
-  // scm
-  ScmTest.class,
-  // issue
-  AutoAssignTest.class,
-  CommonRulesTest.class,
-  CustomRulesTest.class,
-  IssueActionTest.class,
-  IssueBulkChangeTest.class,
-  IssueChangelogTest.class,
-  IssueCreationTest.class,
-  IssueFilterOnCommonRulesTest.class,
-  IssueFilterTest.class,
-  IssueFilterExtensionTest.class,
-  IssueMeasureTest.class,
-  IssuePurgeTest.class,
-  IssueSearchTest.class,
-  IssueTrackingTest.class,
-  IssueWorkflowTest.class,
-  NewIssuesMeasureTest.class,
   IssueCreationDateQPChangedTest.class,
-  // debt
-  MaintainabilityMeasureTest.class,
-  MaintainabilityRatingMeasureTest.class,
-  NewDebtRatioMeasureTest.class,
-  ReliabilityMeasureTest.class,
-  SecurityMeasureTest.class,
-  TechnicalDebtInIssueChangelogTest.class,
-  TechnicalDebtAndIssueNewMeasuresTest.class,
-  TechnicalDebtTest.class,
-  // ui
-  IssuesPageTest.class,
-  // branch
-  BranchTest.class
 })
 public class Category2Suite {
 
