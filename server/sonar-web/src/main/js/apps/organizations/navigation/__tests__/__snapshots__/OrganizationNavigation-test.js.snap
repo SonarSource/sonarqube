@@ -105,7 +105,7 @@ exports[`admin 1`] = `
       className="dropdown"
     >
       <a
-        className="dropdown-toggle is-admin"
+        className="dropdown-toggle"
         data-toggle="dropdown"
         href="#"
       >
@@ -394,7 +394,7 @@ exports[`undeletable org 1`] = `
       className="dropdown"
     >
       <a
-        className="dropdown-toggle is-admin"
+        className="dropdown-toggle"
         data-toggle="dropdown"
         href="#"
       >
