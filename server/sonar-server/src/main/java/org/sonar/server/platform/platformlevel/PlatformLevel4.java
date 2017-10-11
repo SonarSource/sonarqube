@@ -84,7 +84,6 @@ import org.sonar.server.issue.notification.NewIssuesNotificationDispatcher;
 import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
 import org.sonar.server.issue.ws.IssueWsModule;
 import org.sonar.server.language.ws.LanguageWs;
-import org.sonar.server.license.ws.LicensesWsModule;
 import org.sonar.server.measure.custom.ws.CustomMeasuresWsModule;
 import org.sonar.server.measure.index.ProjectsEsModule;
 import org.sonar.server.measure.ws.MeasuresWsModule;
@@ -178,7 +177,6 @@ import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.rule.ws.RuleWsSupport;
 import org.sonar.server.rule.ws.RulesWs;
 import org.sonar.server.rule.ws.TagsAction;
-import org.sonar.server.serverid.ws.ServerIdWsModule;
 import org.sonar.server.setting.ws.SettingsWsModule;
 import org.sonar.server.source.HtmlSourceDecorator;
 import org.sonar.server.source.SourceService;
@@ -473,9 +471,6 @@ public class PlatformLevel4 extends PlatformLevel {
       org.sonar.server.property.ws.IndexAction.class,
       SettingsWsModule.class,
 
-      // Licences
-      LicensesWsModule.class,
-
       TypeValidationModule.class,
 
       // Project Links
@@ -496,9 +491,6 @@ public class PlatformLevel4 extends PlatformLevel {
       DbMigrationStatusAction.class,
       HealthActionModule.class,
       SystemWs.class,
-
-      // Server id
-      ServerIdWsModule.class,
 
       // Plugins WS
       PluginWSCommons.class,
