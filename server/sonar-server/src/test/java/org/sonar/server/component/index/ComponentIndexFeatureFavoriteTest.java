@@ -44,14 +44,14 @@ public class ComponentIndexFeatureFavoriteTest extends ComponentIndexTest {
     ComponentDto project1 = indexProject("sonarqube", "SonarQube");
     ComponentDto project2 = indexProject("recent", "SonarQube Recently");
 
-    ComponentIndexQuery query1 = ComponentIndexQuery.builder()
+    SuggestionQuery query1 = SuggestionQuery.builder()
       .setQuery("SonarQube")
       .setQualifiers(singletonList(PROJECT))
       .setFavoriteKeys(of(project1.getDbKey()))
       .build();
     assertSearch(query1).containsExactly(uuids(project1, project2));
 
-    ComponentIndexQuery query2 = ComponentIndexQuery.builder()
+    SuggestionQuery query2 = SuggestionQuery.builder()
       .setQuery("SonarQube")
       .setQualifiers(singletonList(PROJECT))
       .setFavoriteKeys(of(project2.getDbKey()))
@@ -64,7 +64,7 @@ public class ComponentIndexFeatureFavoriteTest extends ComponentIndexTest {
     features.set(q -> termQuery(FIELD_KEY, "non-existing-value"), ComponentTextSearchFeatureRepertoire.FAVORITE);
     ComponentDto project1 = indexProject("foo", "foo");
 
-    ComponentIndexQuery query1 = ComponentIndexQuery.builder()
+    SuggestionQuery query1 = SuggestionQuery.builder()
       .setQuery("bar")
       .setQualifiers(singletonList(PROJECT))
       .setFavoriteKeys(of(project1.getDbKey()))

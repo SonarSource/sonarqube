@@ -118,14 +118,14 @@ public class ComponentIndexScoreTest extends ComponentIndexTest {
     ComponentDto file2 = db.components().insertPrivateProject(c -> c.setName("File2"));
     index(file2);
 
-    assertSearch(ComponentIndexQuery.builder()
+    assertSearch(SuggestionQuery.builder()
       .setQuery("File")
       .setQualifiers(asList(PROJECT, MODULE, FILE))
       .setRecentlyBrowsedKeys(ImmutableSet.of(file1.getDbKey()))
       .setFavoriteKeys(ImmutableSet.of(file2.getDbKey()))
       .build()).containsExactly(uuids(file2, file1));
 
-    assertSearch(ComponentIndexQuery.builder()
+    assertSearch(SuggestionQuery.builder()
       .setQuery("File")
       .setQualifiers(asList(PROJECT, MODULE, FILE))
       .setRecentlyBrowsedKeys(ImmutableSet.of(file2.getDbKey()))

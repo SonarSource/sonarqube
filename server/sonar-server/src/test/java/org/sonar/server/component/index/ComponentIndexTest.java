@@ -98,20 +98,20 @@ public abstract class ComponentIndexTest {
   }
 
   protected AbstractListAssert<?, ? extends List<? extends String>, String> assertSearch(String query) {
-    return assertSearch(ComponentIndexQuery.builder().setQuery(query).setQualifiers(asList(PROJECT, MODULE, FILE)).build());
+    return assertSearch(SuggestionQuery.builder().setQuery(query).setQualifiers(asList(PROJECT, MODULE, FILE)).build());
   }
 
-  protected AbstractListAssert<?, ? extends List<? extends String>, String> assertSearch(ComponentIndexQuery query) {
-    return assertThat(index.search(query, features.get()).getQualifiers())
+  protected AbstractListAssert<?, ? extends List<? extends String>, String> assertSearch(SuggestionQuery query) {
+    return assertThat(index.searchSuggestions(query, features.get()).getQualifiers())
       .flatExtracting(ComponentHitsPerQualifier::getHits)
       .extracting(ComponentHit::getUuid);
   }
 
   protected void assertSearchResults(String query, ComponentDto... expectedComponents) {
-    assertSearchResults(ComponentIndexQuery.builder().setQuery(query).setQualifiers(asList(PROJECT, MODULE, FILE)).build(), expectedComponents);
+    assertSearchResults(SuggestionQuery.builder().setQuery(query).setQualifiers(asList(PROJECT, MODULE, FILE)).build(), expectedComponents);
   }
 
-  protected void assertSearchResults(ComponentIndexQuery query, ComponentDto... expectedComponents) {
+  protected void assertSearchResults(SuggestionQuery query, ComponentDto... expectedComponents) {
     assertSearch(query).containsOnly(uuids(expectedComponents));
   }
 

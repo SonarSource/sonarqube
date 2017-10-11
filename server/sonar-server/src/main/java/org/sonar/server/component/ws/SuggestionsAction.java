@@ -51,7 +51,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.index.ComponentHit;
 import org.sonar.server.component.index.ComponentHitsPerQualifier;
 import org.sonar.server.component.index.ComponentIndex;
-import org.sonar.server.component.index.ComponentIndexQuery;
+import org.sonar.server.component.index.SuggestionQuery;
 import org.sonar.server.component.index.ComponentIndexResults;
 import org.sonar.server.es.DefaultIndexSettings;
 import org.sonar.server.favorite.FavoriteFinder;
@@ -69,7 +69,7 @@ import static java.util.Collections.singletonList;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
-import static org.sonar.server.component.index.ComponentIndexQuery.DEFAULT_LIMIT;
+import static org.sonar.server.component.index.SuggestionQuery.DEFAULT_LIMIT;
 import static org.sonar.server.es.DefaultIndexSettings.MINIMUM_NGRAM_LENGTH;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Organization;
@@ -218,7 +218,7 @@ public class SuggestionsAction implements ComponentsWsAction {
 
     List<ComponentDto> favorites = favoriteFinder.list();
     Set<String> favoriteKeys = favorites.stream().map(ComponentDto::getDbKey).collect(MoreCollectors.toSet(favorites.size()));
-    ComponentIndexQuery.Builder queryBuilder = ComponentIndexQuery.builder()
+    SuggestionQuery.Builder queryBuilder = SuggestionQuery.builder()
       .setQuery(query)
       .setRecentlyBrowsedKeys(recentlyBrowsedKeys)
       .setFavoriteKeys(favoriteKeys)
@@ -296,8 +296,8 @@ public class SuggestionsAction implements ComponentsWsAction {
       .collect(MoreCollectors.uniqueIndex(OrganizationDto::getUuid));
   }
 
-  private ComponentIndexResults searchInIndex(ComponentIndexQuery componentIndexQuery) {
-    return index.search(componentIndexQuery);
+  private ComponentIndexResults searchInIndex(SuggestionQuery suggestionQuery) {
+    return index.searchSuggestions(suggestionQuery);
   }
 
   private static SuggestionsWsResponse.Builder toResponse(ComponentIndexResults componentsPerQualifiers, Set<String> recentlyBrowsedKeys, Set<String> favoriteUuids,

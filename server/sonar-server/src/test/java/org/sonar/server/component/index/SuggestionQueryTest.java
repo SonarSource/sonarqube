@@ -25,7 +25,7 @@ import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ComponentIndexQueryTest {
+public class SuggestionQueryTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -35,7 +35,7 @@ public class ComponentIndexQueryTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Query must be at least two characters long");
 
-    ComponentIndexQuery.builder().setQuery("");
+    SuggestionQuery.builder().setQuery("");
   }
 
   @Test
@@ -43,19 +43,19 @@ public class ComponentIndexQueryTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Query must be at least two characters long");
 
-    ComponentIndexQuery.builder().setQuery("a");
+    SuggestionQuery.builder().setQuery("a");
   }
 
   @Test
   public void should_support_query_with_two_characters_long() {
-    ComponentIndexQuery query = ComponentIndexQuery.builder().setQuery("ab").build();
+    SuggestionQuery query = SuggestionQuery.builder().setQuery("ab").build();
 
     assertThat(query.getQuery()).isEqualTo("ab");
   }
 
   @Test
   public void should_fail_with_IAE_if_limit_is_negative() {
-    ComponentIndexQuery.Builder query = ComponentIndexQuery.builder().setQuery("ab");
+    SuggestionQuery.Builder query = SuggestionQuery.builder().setQuery("ab");
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Limit has to be strictly positive");
@@ -65,7 +65,7 @@ public class ComponentIndexQueryTest {
 
   @Test
   public void should_fail_with_IAE_if_limit_is_zero() {
-    ComponentIndexQuery.Builder query = ComponentIndexQuery.builder().setQuery("ab");
+    SuggestionQuery.Builder query = SuggestionQuery.builder().setQuery("ab");
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Limit has to be strictly positive");
@@ -75,7 +75,7 @@ public class ComponentIndexQueryTest {
 
   @Test
   public void should_support_positive_limit() {
-    ComponentIndexQuery query = ComponentIndexQuery.builder().setQuery("ab")
+    SuggestionQuery query = SuggestionQuery.builder().setQuery("ab")
       .setLimit(1).build();
 
     assertThat(query.getLimit()).isEqualTo(1);
