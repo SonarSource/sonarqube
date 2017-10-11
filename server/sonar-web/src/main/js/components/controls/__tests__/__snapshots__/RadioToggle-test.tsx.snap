@@ -1,5 +1,53 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`accepts advanced options fields 1`] = `
+<ul
+  className="radio-toggle"
+>
+  <li>
+    <input
+      checked={false}
+      id="sample__one"
+      name="sample"
+      onChange={[Function]}
+      type="radio"
+      value="one"
+    />
+    <Tooltip
+      overlay="foo"
+      placement="bottom"
+    >
+      <label
+        htmlFor="sample__one"
+      >
+        first
+      </label>
+    </Tooltip>
+  </li>
+  <li>
+    <input
+      checked={false}
+      disabled={true}
+      id="sample__two"
+      name="sample"
+      onChange={[Function]}
+      type="radio"
+      value="two"
+    />
+    <Tooltip
+      overlay="bar"
+      placement="bottom"
+    >
+      <label
+        htmlFor="sample__two"
+      >
+        second
+      </label>
+    </Tooltip>
+  </li>
+</ul>
+`;
+
 exports[`renders 1`] = `
 <ul
   className="radio-toggle"
