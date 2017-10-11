@@ -37,6 +37,7 @@ public class ComponentIndexDefinition implements IndexDefinition {
   public static final IndexType INDEX_TYPE_COMPONENT = new IndexType("components", "component");
   public static final String FIELD_UUID = "uuid";
   public static final String FIELD_PROJECT_UUID = "project_uuid";
+  public static final String FIELD_ORGANIZATION_UUID = "organization_uuid";
   public static final String FIELD_KEY = "key";
   public static final String FIELD_NAME = "name";
   public static final String FIELD_QUALIFIER = "qualifier";
@@ -75,5 +76,6 @@ public class ComponentIndexDefinition implements IndexDefinition {
 
     mapping.keywordFieldBuilder(FIELD_QUALIFIER).build();
     mapping.keywordFieldBuilder(FIELD_LANGUAGE).disableNorms().build();
+    mapping.keywordFieldBuilder(FIELD_ORGANIZATION_UUID).disableNorms().build();
   }
 }

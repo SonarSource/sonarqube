@@ -31,6 +31,7 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
@@ -104,6 +105,19 @@ public class ComponentIndexSearchTest {
     SearchIdResult<String> result = underTest.search(ComponentQuery.builder().setQualifiers(singleton(Qualifiers.FILE)).build(), new SearchOptions());
 
     assertThat(result.getIds()).containsExactlyInAnyOrder(file.uuid());
+  }
+
+  @Test
+  public void filter_by_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto anotherOrganization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto anotherProject = db.components().insertPrivateProject(anotherOrganization);
+    index(project, anotherProject);
+
+    SearchIdResult<String> result = underTest.search(ComponentQuery.builder().setOrganization(organization.getUuid()).build(), new SearchOptions());
+
+    assertThat(result.getIds()).containsExactlyInAnyOrder(project.uuid());
   }
 
   @Test

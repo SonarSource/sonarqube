@@ -32,6 +32,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentUpdateDto;
 import org.sonar.db.es.EsQueueDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexingResult;
 import org.sonar.server.es.ProjectIndexer;
@@ -84,7 +85,8 @@ public class ComponentIndexerTest {
 
   @Test
   public void map_fields() {
-    ComponentDto project = db.components().insertPrivateProject(p -> p.setLanguage("java"));
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization, p -> p.setLanguage("java"));
 
     underTest.indexOnStartup(emptySet());
 
@@ -95,6 +97,7 @@ public class ComponentIndexerTest {
     assertThat(doc.getProjectUuid()).isEqualTo(project.projectUuid());
     assertThat(doc.getName()).isEqualTo(project.name());
     assertThat(doc.getLanguage()).isEqualTo(project.language());
+    assertThat(doc.getOrganization()).isEqualTo(project.getOrganizationUuid());
   }
 
   @Test
