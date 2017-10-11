@@ -123,7 +123,7 @@ public class DatabaseUtils {
   }
 
   private static <OUTPUT, INPUT extends Comparable<INPUT>, RESULT extends Collection<OUTPUT>> RESULT executeLargeInputs(Collection<INPUT> input,
-    Function<List<INPUT>, RESULT> function, java.util.function.Function<Integer, RESULT> outputInitializer, IntFunction<Integer> partitionSizeManipulations) {
+    Function<List<INPUT>, RESULT> function, java.util.function.IntFunction<RESULT> outputInitializer, IntFunction<Integer> partitionSizeManipulations) {
     if (input.isEmpty()) {
       return outputInitializer.apply(0);
     }

@@ -20,7 +20,7 @@
 package org.sonar.scanner.scan.filesystem;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
+import java.util.function.IntSupplier;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -32,11 +32,11 @@ import org.sonar.api.batch.fs.InputComponent;
  * The ID should never be 0, as it is sometimes used to indicate invalid components. 
  */
 @ThreadSafe
-public class BatchIdGenerator implements Supplier<Integer> {
+public class BatchIdGenerator implements IntSupplier {
   private AtomicInteger nextBatchId = new AtomicInteger(1);
 
   @Override
-  public Integer get() {
+  public int getAsInt() {
     return nextBatchId.getAndIncrement();
   }
 }
