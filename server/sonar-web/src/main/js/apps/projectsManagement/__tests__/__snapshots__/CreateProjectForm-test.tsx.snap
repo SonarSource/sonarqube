@@ -415,24 +415,29 @@ exports[`creates project 4`] = `
       <div
         className="alert alert-success"
       >
-        Project 
-        <Link
-          onlyActiveOnIndex={false}
-          style={Object {}}
-          to={
+        <FormattedMessage
+          defaultMessage="projects_management.project_has_been_successfully_created"
+          id="projects_management.project_has_been_successfully_created"
+          values={
             Object {
-              "pathname": "/dashboard",
-              "query": Object {
-                "branch": undefined,
-                "id": "name",
-              },
+              "project": <Link
+                onlyActiveOnIndex={false}
+                style={Object {}}
+                to={
+                    Object {
+                        "pathname": "/dashboard",
+                        "query": Object {
+                          "branch": undefined,
+                          "id": "name",
+                        },
+                      }
+                }
+            >
+                name
+            </Link>,
             }
           }
-        >
-          name
-        </Link>
-         
-        has been successfully created.
+        />
       </div>
     </div>
     <footer
