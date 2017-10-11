@@ -17,36 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import { shallow } from 'enzyme';
-import WorkersForm from '../WorkersForm';
-import { submit, doAsync } from '../../../../helpers/testUtils';
-
 jest.mock('../../../../api/ce', () => ({
   setWorkerCount: () => Promise.resolve()
 }));
+
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import WorkersForm from '../WorkersForm';
+import { submit } from '../../../../helpers/testUtils';
 
 it('changes select', () => {
   const wrapper = shallow(<WorkersForm onClose={jest.fn()} workerCount={1} />);
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.find('Select').prop('onChange')({ value: 7 });
+  wrapper.find('Select').prop<Function>('onChange')({ value: 7 });
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
 });
 
-it('returns new worker count', () => {
+it('returns new worker count', async () => {
   const onClose = jest.fn();
   const wrapper = shallow(<WorkersForm onClose={onClose} workerCount={1} />);
-  // $FlowFixMe
-  wrapper.instance().mounted = true;
-  wrapper.find('Select').prop('onChange')({ value: 7 });
+  (wrapper.instance() as WorkersForm).mounted = true;
+  wrapper.find('Select').prop<Function>('onChange')({ value: 7 });
 
   wrapper.update();
   submit(wrapper.find('form'));
 
-  return doAsync(() => {
-    expect(onClose).toBeCalled();
-  });
+  await new Promise(setImmediate);
+  expect(onClose).toBeCalled();
 });
