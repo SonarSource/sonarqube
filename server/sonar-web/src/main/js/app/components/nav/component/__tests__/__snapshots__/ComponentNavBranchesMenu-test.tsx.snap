@@ -2,7 +2,7 @@
 
 exports[`renders list 1`] = `
 <div
-  className="dropdown-menu dropdown-menu-shadow"
+  className="dropdown-menu"
 >
   <div
     className="search-box menu-search"
@@ -168,7 +168,7 @@ exports[`renders list 1`] = `
 
 exports[`searches 1`] = `
 <div
-  className="dropdown-menu dropdown-menu-shadow"
+  className="dropdown-menu"
 >
   <div
     className="search-box menu-search"
