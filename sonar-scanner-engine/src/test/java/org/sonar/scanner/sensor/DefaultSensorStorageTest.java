@@ -30,10 +30,15 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.measure.MetricFinder;
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
+import org.sonar.api.batch.sensor.issue.Issue;
+import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
+import org.sonar.api.batch.sensor.issue.internal.DefaultIssueLocation;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.internal.MapSettings;
@@ -42,15 +47,19 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import org.sonar.scanner.issue.ModuleIssues;
+import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.report.ReportPublisher;
 import org.sonar.scanner.repository.ContextPropertiesCache;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.measure.MeasureCache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class DefaultSensorStorageTest {
@@ -65,21 +74,29 @@ public class DefaultSensorStorageTest {
   private MapSettings settings;
   private ModuleIssues moduleIssues;
   private MeasureCache measureCache;
+  private ScannerReportWriter reportWriter;
   private ContextPropertiesCache contextPropertiesCache = new ContextPropertiesCache();
+  private BranchConfiguration branchConfiguration;
 
   @Before
   public void prepare() throws Exception {
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.<Integer>findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
     when(metricFinder.<String>findByKey(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
+
     settings = new MapSettings();
     moduleIssues = mock(ModuleIssues.class);
     measureCache = mock(MeasureCache.class);
+
     ReportPublisher reportPublisher = mock(ReportPublisher.class);
-    when(reportPublisher.getWriter()).thenReturn(new ScannerReportWriter(temp.newFolder()));
+    reportWriter = new ScannerReportWriter(temp.newFolder());
+    when(reportPublisher.getWriter()).thenReturn(reportWriter);
+
+    branchConfiguration = mock(BranchConfiguration.class);
+
     underTest = new DefaultSensorStorage(metricFinder,
       moduleIssues, settings.asConfig(), reportPublisher, measureCache,
-      mock(SonarCpdBlockIndex.class), contextPropertiesCache, new ScannerMetrics());
+      mock(SonarCpdBlockIndex.class), contextPropertiesCache, new ScannerMetrics(), branchConfiguration);
   }
 
   @Test
@@ -96,7 +113,54 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void shouldSaveFileMeasureToSensorContext() {
+  public void should_save_issue() {
+    InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").build();
+
+    DefaultIssue issue = new DefaultIssue().at(new DefaultIssueLocation().on(file));
+    underTest.store(issue);
+
+    ArgumentCaptor<Issue> argumentCaptor = ArgumentCaptor.forClass(Issue.class);
+    verify(moduleIssues).initAndAddIssue(argumentCaptor.capture());
+    assertThat(argumentCaptor.getValue()).isEqualTo(issue);
+  }
+
+  @Test
+  public void should_skip_issue_on_short_branch_when_file_status_is_SAME() {
+    InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").setStatus(InputFile.Status.SAME).build();
+    when(branchConfiguration.isShortLivingBranch()).thenReturn(true);
+
+    DefaultIssue issue = new DefaultIssue().at(new DefaultIssueLocation().on(file));
+    underTest.store(issue);
+
+    verifyZeroInteractions(moduleIssues);
+  }
+
+  @Test
+  public void should_save_highlighting() {
+    DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php")
+      .setContents("// comment").build();
+
+    DefaultHighlighting highlighting = new DefaultHighlighting(underTest).onFile(file).highlight(0, 1, TypeOfText.KEYWORD);
+    underTest.store(highlighting);
+
+    assertThat(reportWriter.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, file.batchId())).isTrue();
+  }
+
+  @Test
+  public void should_skip_highlighting_on_short_branch_when_file_status_is_SAME() {
+    DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php")
+      .setContents("// comment")
+      .setStatus(InputFile.Status.SAME).build();
+    when(branchConfiguration.isShortLivingBranch()).thenReturn(true);
+
+    DefaultHighlighting highlighting = new DefaultHighlighting(underTest).onFile(file).highlight(0, 1, TypeOfText.KEYWORD);
+    underTest.store(highlighting);
+
+    assertThat(reportWriter.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, file.batchId())).isFalse();
+  }
+
+  @Test
+  public void should_save_file_measure() {
     InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").build();
 
     ArgumentCaptor<DefaultMeasure> argumentCaptor = ArgumentCaptor.forClass(DefaultMeasure.class);
@@ -112,7 +176,20 @@ public class DefaultSensorStorageTest {
   }
 
   @Test
-  public void shouldSaveProjectMeasureToSensorContext() throws IOException {
+  public void should_skip_file_measure_on_short_branch_when_file_status_is_SAME() {
+    InputFile file = new TestInputFileBuilder("foo", "src/Foo.php").setStatus(InputFile.Status.SAME).build();
+    when(branchConfiguration.isShortLivingBranch()).thenReturn(true);
+
+    underTest.store(new DefaultMeasure()
+      .on(file)
+      .forMetric(CoreMetrics.NCLOC)
+      .withValue(10));
+
+    verifyZeroInteractions(measureCache);
+  }
+
+  @Test
+  public void should_save_project_measure() throws IOException {
     String projectKey = "myProject";
     DefaultInputModule module = new DefaultInputModule(ProjectDefinition.create().setKey(projectKey).setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
 
