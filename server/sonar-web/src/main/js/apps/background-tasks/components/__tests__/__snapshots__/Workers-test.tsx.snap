@@ -78,12 +78,30 @@ exports[`renders 2`] = `
 
 exports[`renders 3`] = `
 <div>
+  <Tooltip
+    overlay="background_tasks.number_of_workers.warning"
+    placement="bottom"
+  >
+    <i
+      className="icon-alert-warn little-spacer-right bt-workers-warning-icon"
+    />
+  </Tooltip>
   background_tasks.number_of_workers
   <strong
     className="little-spacer-left"
   >
-    1
+    2
   </strong>
+  <Tooltip
+    overlay="background_tasks.change_number_of_workers"
+    placement="bottom"
+  >
+    <a
+      className="icon-edit spacer-left"
+      href="#"
+      onClick={[Function]}
+    />
+  </Tooltip>
 </div>
 `;
 
@@ -103,6 +121,26 @@ exports[`renders 4`] = `
   >
     2
   </strong>
+  <span
+    className="spacer-left"
+  >
+    <a
+      className="link-no-underline"
+      href="#"
+      onClick={[Function]}
+    >
+      <HelpIcon
+        className="text-text-bottom"
+        fill="#cdcdcd"
+      />
+    </a>
+    <BubblePopupHelper
+      isOpen={false}
+      popup={<NoWorkersSupportPopup />}
+      position="bottomright"
+      togglePopup={[Function]}
+    />
+  </span>
 </div>
 `;
 

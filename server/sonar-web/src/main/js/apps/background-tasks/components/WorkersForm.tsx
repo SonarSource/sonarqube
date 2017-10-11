@@ -17,36 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import Modal from 'react-modal';
-import Select from 'react-select';
+import * as Select from 'react-select';
 import { times } from 'lodash';
 import { setWorkerCount } from '../../../api/ce';
 import { translate } from '../../../helpers/l10n';
 
 const MAX_WORKERS = 10;
 
-/*::
-type Props = {
-  onClose: (newWorkerCount?: number) => void,
-  workerCount: number
-};
-*/
+interface Props {
+  onClose: (newWorkerCount?: number) => void;
+  workerCount: number;
+}
 
-/*::
-type State = {
-  newWorkerCount: number,
-  submitting: boolean
-};
-*/
+interface State {
+  newWorkerCount: number;
+  submitting: boolean;
+}
 
-export default class WorkersForm extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  /*:: state: State; */
+export default class WorkersForm extends React.PureComponent<Props, State> {
+  mounted: boolean;
 
-  constructor(props /*: Props */) {
+  constructor(props: Props) {
     super(props);
     this.state = {
       newWorkerCount: props.workerCount,
@@ -64,10 +57,10 @@ export default class WorkersForm extends React.PureComponent {
 
   handleClose = () => this.props.onClose();
 
-  handleWorkerCountChange = (option /*: { value: number } */) =>
+  handleWorkerCountChange = (option: { value: number }) =>
     this.setState({ newWorkerCount: option.value });
 
-  handleSubmit = (event /*: Event */) => {
+  handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     this.setState({ submitting: true });
     const { newWorkerCount } = this.state;
@@ -86,7 +79,7 @@ export default class WorkersForm extends React.PureComponent {
   };
 
   render() {
-    const options = times(MAX_WORKERS).map((_, i) => ({ label: i + 1, value: i + 1 }));
+    const options = times(MAX_WORKERS).map((_, i) => ({ label: String(i + 1), value: i + 1 }));
 
     return (
       <Modal

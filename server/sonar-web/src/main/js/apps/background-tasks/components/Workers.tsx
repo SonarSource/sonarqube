@@ -17,28 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import WorkersForm from './WorkersForm';
+import NoWorkersSupportPopup from './NoWorkersSupportPopup';
 import Tooltip from '../../../components/controls/Tooltip';
 import { getWorkers } from '../../../api/ce';
 import { translate } from '../../../helpers/l10n';
+import HelpIcon from '../../../components/icons-components/HelpIcon';
+import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 
-/*::
-type State = {
-  canSetWorkerCount: boolean,
-  formOpen: boolean,
-  loading: boolean,
-  workerCount: number
-};
-*/
+interface State {
+  canSetWorkerCount: boolean;
+  formOpen: boolean;
+  loading: boolean;
+  noSupportPopup: boolean;
+  workerCount: number;
+}
 
-export default class Workers extends React.PureComponent {
-  /*:: mounted: boolean; */
-  state /*: State */ = {
+export default class Workers extends React.PureComponent<{}, State> {
+  mounted: boolean;
+  state: State = {
     canSetWorkerCount: false,
     formOpen: false,
     loading: true,
+    noSupportPopup: false,
     workerCount: 1
   };
 
@@ -64,14 +66,28 @@ export default class Workers extends React.PureComponent {
     });
   };
 
-  closeForm = (newWorkerCount /*: ?number */) =>
+  closeForm = (newWorkerCount?: number) =>
     newWorkerCount
       ? this.setState({ formOpen: false, workerCount: newWorkerCount })
       : this.setState({ formOpen: false });
 
-  handleChangeClick = (event /*: Event */) => {
+  handleChangeClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.setState({ formOpen: true });
+  };
+
+  handleHelpClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    this.toggleNoSupportPopup();
+  };
+
+  toggleNoSupportPopup = (show?: boolean) => {
+    if (show != undefined) {
+      this.setState({ noSupportPopup: show });
+    } else {
+      this.setState(state => ({ noSupportPopup: !state.noSupportPopup }));
+    }
   };
 
   render() {
@@ -99,6 +115,21 @@ export default class Workers extends React.PureComponent {
           <Tooltip overlay={translate('background_tasks.change_number_of_workers')}>
             <a className="icon-edit spacer-left" href="#" onClick={this.handleChangeClick} />
           </Tooltip>
+        )}
+
+        {!loading &&
+        !canSetWorkerCount && (
+          <span className="spacer-left">
+            <a className="link-no-underline" href="#" onClick={this.handleHelpClick}>
+              <HelpIcon className="text-text-bottom" fill="#cdcdcd" />
+            </a>
+            <BubblePopupHelper
+              isOpen={this.state.noSupportPopup}
+              position="bottomright"
+              popup={<NoWorkersSupportPopup />}
+              togglePopup={this.toggleNoSupportPopup}
+            />
+          </span>
         )}
 
         {formOpen && <WorkersForm onClose={this.closeForm} workerCount={this.state.workerCount} />}

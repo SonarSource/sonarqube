@@ -17,18 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
-import React from 'react';
+import * as React from 'react';
 import Workers from './Workers';
 import { translate } from '../../../helpers/l10n';
 
-/*::
-type Props = {
-  component?: Object
-};
-*/
+interface Props {
+  component?: any;
+}
 
-export default function Header(props /*: Props */) {
+export default function Header(props: Props) {
   return (
     <header className="page-header">
       <h1 className="page-title">{translate('background_tasks.page')}</h1>
