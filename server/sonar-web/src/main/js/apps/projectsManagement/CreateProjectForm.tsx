@@ -20,6 +20,7 @@
 import * as React from 'react';
 import Modal from 'react-modal';
 import { Link } from 'react-router';
+import { FormattedMessage } from 'react-intl';
 import { Organization } from '../../app/types';
 import UpgradeOrganizationBox from '../../components/common/UpgradeOrganizationBox';
 import VisibilitySelector from '../../components/common/VisibilitySelector';
@@ -46,6 +47,7 @@ interface State {
 }
 
 export default class CreateProjectForm extends React.PureComponent<Props, State> {
+  closeButton: HTMLElement | null;
   mounted: boolean;
 
   constructor(props: Props) {
@@ -62,6 +64,15 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
 
   componentDidMount() {
     this.mounted = true;
+  }
+
+  componentDidUpdate() {
+    // wrap with `setImmediate` because of https://github.com/reactjs/react-modal/issues/338
+    setImmediate(() => {
+      if (this.closeButton) {
+        this.closeButton.focus();
+      }
+    });
   }
 
   componentWillUnmount() {
@@ -134,15 +145,26 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
 
             <div className="modal-body">
               <div className="alert alert-success">
-                Project <Link to={getProjectUrl(createdProject.key)}>
-                  {createdProject.name}
-                </Link>{' '}
-                has been successfully created.
+                <FormattedMessage
+                  defaultMessage={translate(
+                    'projects_management.project_has_been_successfully_created'
+                  )}
+                  id="projects_management.project_has_been_successfully_created"
+                  values={{
+                    project: (
+                      <Link to={getProjectUrl(createdProject.key)}>{createdProject.name}</Link>
+                    )
+                  }}
+                />
               </div>
             </div>
 
             <footer className="modal-foot">
-              <a href="#" id="create-project-close" onClick={this.handleCancelClick}>
+              <a
+                href="#"
+                id="create-project-close"
+                onClick={this.handleCancelClick}
+                ref={node => (this.closeButton = node)}>
                 {translate('close')}
               </a>
             </footer>
