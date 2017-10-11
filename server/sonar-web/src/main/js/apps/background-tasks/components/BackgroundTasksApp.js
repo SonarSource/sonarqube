@@ -26,7 +26,7 @@ import { connect } from 'react-redux';
 import { DEFAULT_FILTERS, DEBOUNCE_DELAY, STATUSES, CURRENTS } from './../constants';
 import Header from './Header';
 import Footer from './Footer';
-import Stats from '../components/Stats';
+import StatsContainer from '../components/StatsContainer';
 import Search from '../components/Search';
 import Tasks from '../components/Tasks';
 import {
@@ -220,7 +220,7 @@ class BackgroundTasksApp extends React.PureComponent {
         <Helmet title={translate('background_tasks.page')} />
         <Header component={component} />
 
-        <Stats
+        <StatsContainer
           component={component}
           pendingCount={pendingCount}
           failingCount={failingCount}
