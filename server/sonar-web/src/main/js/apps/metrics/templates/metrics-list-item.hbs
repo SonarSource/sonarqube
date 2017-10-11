@@ -5,19 +5,19 @@
 
 <div class="display-inline-block text-top width-30">
   <div>
-    <strong class="js-metric-name">{{name}}</strong>
-    <span class="js-metric-key note little-spacer-left">{{key}}</span>
+    <strong class="js-metric-name text-limited">{{name}}</strong>
+    <span class="js-metric-key note little-spacer-left text-limited">{{key}}</span>
   </div>
 </div>
 
-<div class="display-inline-block text-top width-20">
+<div class="display-inline-block text-top width-20 text-ellipsis">
   <span class="js-metric-domain">{{this.domain}}</span>
 </div>
 
-<div class="display-inline-block text-top width-20">
+<div class="display-inline-block text-top width-20 text-ellipsis">
   <span class="js-metric-type">{{t 'metric.type' type}}</span>
 </div>
 
-<div class="display-inline-block text-top width-20">
+<div class="display-inline-block text-top width-20 text-ellipsis" title="{{description}}">
   <span class="js-metric-description">{{description}}</span>
 </div>
