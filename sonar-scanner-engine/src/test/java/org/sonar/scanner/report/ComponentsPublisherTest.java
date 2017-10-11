@@ -289,54 +289,6 @@ public class ComponentsPublisherTest {
   }
 
   @Test
-  public void should_set_directory_status() throws IOException {
-    ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
-    when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
-
-    ProjectDefinition rootDef = ProjectDefinition.create()
-      .setKey("foo")
-      .setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0")
-      .setName("Root project")
-      .setDescription("Root description")
-      .setBaseDir(temp.newFolder())
-      .setWorkDir(temp.newFolder());
-    DefaultInputModule root = new DefaultInputModule(rootDef, 1);
-
-    moduleHierarchy = mock(InputModuleHierarchy.class);
-    when(moduleHierarchy.root()).thenReturn(root);
-    when(moduleHierarchy.children(root)).thenReturn(Collections.emptyList());
-
-    // dir with unchanged files
-    DefaultInputDir dir = new DefaultInputDir("module1", "src", 2);
-    tree.index(dir, root);
-
-    // dir with changed files
-    DefaultInputDir dir2 = new DefaultInputDir("module1", "src2", 3);
-    tree.index(dir2, root);
-
-    DefaultInputFile file = new TestInputFileBuilder("module1", "src/Foo.java", 4).setLines(2).setStatus(InputFile.Status.SAME).build();
-    tree.index(file, dir);
-
-    DefaultInputFile file2 = new TestInputFileBuilder("module1", "src/Foo.java", 5).setLines(2).setStatus(InputFile.Status.ADDED).build();
-    tree.index(file2, dir2);
-
-    ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree, branchConfiguration);
-    publisher.publish(writer);
-
-    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 1)).isTrue();
-    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 2)).isTrue();
-    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 3)).isTrue();
-    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 4)).isTrue();
-    assertThat(writer.hasComponentData(FileStructure.Domain.COMPONENT, 5)).isTrue();
-
-    // directory is unchanged because its files are unchanged
-    assertThat(reader.readComponent(2).getStatus()).isEqualTo(FileStatus.SAME);
-    // status not set
-    assertThat(reader.readComponent(3).getStatus()).isEqualTo(FileStatus.UNAVAILABLE);
-
-  }
-
-  @Test
   public void skip_unchanged_components_in_short_branches() throws IOException {
     when(branchConfiguration.isShortLivingBranch()).thenReturn(true);
     ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
