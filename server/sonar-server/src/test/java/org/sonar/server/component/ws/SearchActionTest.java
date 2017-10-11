@@ -28,19 +28,25 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.component.index.ComponentIndex;
+import org.sonar.server.component.index.ComponentIndexDefinition;
+import org.sonar.server.component.index.ComponentIndexer;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.permission.index.AuthorizationTypeSupport;
+import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -50,6 +56,7 @@ import org.sonarqube.ws.WsComponents.SearchWsResponse;
 import org.sonarqube.ws.client.component.SearchWsRequest;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -80,12 +87,17 @@ public class SearchActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  @Rule
+  public EsTester es = new EsTester(new ComponentIndexDefinition(new MapSettings().asConfig()));
 
   private I18nRule i18n = new I18nRule();
-
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private ResourceTypesRule resourceTypes = new ResourceTypesRule();
   private Languages languages = mock(Languages.class);
+  private ComponentIndexer indexer = new ComponentIndexer(db.getDbClient(), es.client());
+  private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, indexer);
+  private ComponentIndex index = new ComponentIndex(es.client(), new AuthorizationTypeSupport(userSession));
+
   private UserDto user;
 
   private WsActionTester ws;
@@ -94,7 +106,7 @@ public class SearchActionTest {
   public void setUp() {
     resourceTypes.setAllQualifiers(PROJECT, MODULE, DIRECTORY, FILE);
     when(languages.all()).thenReturn(javaLanguage());
-    ws = new WsActionTester(new SearchAction(db.getDbClient(), resourceTypes, i18n, userSession, languages, defaultOrganizationProvider));
+    ws = new WsActionTester(new SearchAction(index, db.getDbClient(), resourceTypes, i18n, languages, defaultOrganizationProvider));
 
     user = db.users().insertUser("john");
     userSession.logIn(user);
@@ -139,7 +151,7 @@ public class SearchActionTest {
     ComponentDto file1 = newFileDto(project).setDbKey("file1");
     ComponentDto file2 = newFileDto(project).setDbKey("file2");
     db.components().insertComponents(project, file1, file2);
-    setBrowsePermissionOnUser(project);
+    setBrowsePermissionOnUserAndIndex(project);
 
     SearchWsResponse response = call(new SearchWsRequest().setQuery(file1.getDbKey()).setQualifiers(singletonList(FILE)));
 
@@ -180,11 +192,13 @@ public class SearchActionTest {
     ComponentDto project2 = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
     ComponentDto file3 = newFileDto(project2).setDbKey("file3");
     db.components().insertComponents(project1, file1, file2, project2, file3);
-    setBrowsePermissionOnUser(project1);
+    setBrowsePermissionOnUserAndIndex(project1);
 
     SearchWsResponse response = call(new SearchWsRequest().setQualifiers(singletonList(FILE)));
 
-    assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly(file1.getDbKey(), file2.getDbKey());
+    assertThat(response.getComponentsList()).extracting(Component::getKey)
+      .containsExactlyInAnyOrder(file1.getDbKey(), file2.getDbKey());
+    assertThat(response.getPaging().getTotal()).isEqualTo(2);
   }
 
   @Test
@@ -195,6 +209,7 @@ public class SearchActionTest {
     ComponentDto file2 = newFileDto(module).setDbKey("file2");
     ComponentDto file3 = newFileDto(project).setDbKey("file3");
     db.components().insertComponents(project, module, file1, file2, file3);
+    setBrowsePermissionOnUserAndIndex(project);
 
     SearchWsResponse response = call(new SearchWsRequest().setQualifiers(asList(PROJECT, MODULE, FILE)));
 
@@ -207,28 +222,10 @@ public class SearchActionTest {
   }
 
   @Test
-  public void do_not_verify_permissions_if_user_is_root() throws IOException {
-    OrganizationDto org = db.organizations().insert();
-    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(org);
-    ComponentDto file1 = newFileDto(project1);
-    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(org);
-    ComponentDto file2 = newFileDto(project2);
-    db.components().insertComponents(project1, file1, project2, file2);
-
-    SearchWsRequest request = new SearchWsRequest().setQualifiers(singletonList(FILE)).setOrganization(org.getKey());
-
-    userSession.logIn().setNonRoot();
-    assertThat(call(request).getComponentsCount()).isZero();
-
-    userSession.logIn().setRoot();
-    assertThat(call(request).getComponentsList()).extracting(Component::getKey).containsOnly(file1.getDbKey(), file2.getDbKey());
-  }
-
-  @Test
   public void does_not_return_branches() {
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project);
-    userSession.logIn().setRoot();
+    setBrowsePermissionOnUserAndIndex(project, branch);
 
     SearchWsResponse response = call(new SearchWsRequest().setQualifiers(asList(PROJECT, MODULE, FILE)));
 
@@ -261,7 +258,7 @@ public class SearchActionTest {
     ComponentDto directory = newDirectory(module, "path/to/directoy").setUuid("directory-uuid").setDbKey("directory-key").setName("Directory Name");
     db.components().insertComponents(project, module, directory,
       newFileDto(module, directory, "file-uuid").setDbKey("file-key").setLanguage("java").setName("File Name"));
-    userSession.addProjectPermission(UserRole.USER, project);
+    setBrowsePermissionOnUserAndIndex(project);
 
     String response = ws.newRequest()
       .setMediaType(MediaTypes.JSON)
@@ -273,12 +270,13 @@ public class SearchActionTest {
 
   private void insertProjectsAuthorizedForUser(ComponentDto... projects) {
     db.components().insertComponents(projects);
-    setBrowsePermissionOnUser(projects);
+    setBrowsePermissionOnUserAndIndex(projects);
     db.commit();
   }
 
-  private void setBrowsePermissionOnUser(ComponentDto... projects) {
-    Arrays.stream(projects).forEach(project -> userSession.addProjectPermission(UserRole.USER, project));
+  private void setBrowsePermissionOnUserAndIndex(ComponentDto... projects) {
+    index();
+    Arrays.stream(projects).forEach(project -> authorizationIndexerTester.allowOnlyUser(project, user));
   }
 
   private SearchWsResponse call(SearchWsRequest wsRequest) {
@@ -290,6 +288,10 @@ public class SearchActionTest {
     setNullable(wsRequest.getPage(), page -> request.setParam(PAGE, String.valueOf(page)));
     setNullable(wsRequest.getPageSize(), pageSize -> request.setParam(PAGE_SIZE, String.valueOf(pageSize)));
     return request.executeProtobuf(SearchWsResponse.class);
+  }
+
+  private void index() {
+    indexer.indexOnStartup(emptySet());
   }
 
   private static Language[] javaLanguage() {
