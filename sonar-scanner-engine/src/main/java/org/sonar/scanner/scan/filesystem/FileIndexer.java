@@ -198,7 +198,7 @@ public class FileIndexer {
   private void indexFileAndParentDir(InputFile inputFile, String parentRelativePath) {
     DefaultInputDir inputDir = (DefaultInputDir) componentStore.getDir(module.key(), parentRelativePath);
     if (inputDir == null) {
-      inputDir = new DefaultInputDir(module.key(), parentRelativePath, batchIdGenerator.get());
+      inputDir = new DefaultInputDir(module.key(), parentRelativePath, batchIdGenerator.getAsInt());
       inputDir.setModuleBaseDir(module.getBaseDir());
       componentTree.index(inputDir, module);
       defaultModuleFileSystem.add(inputDir);

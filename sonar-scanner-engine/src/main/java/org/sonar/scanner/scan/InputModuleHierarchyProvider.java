@@ -42,7 +42,7 @@ public class InputModuleHierarchyProvider extends ProviderAdapter {
       validator.validate(projectReactor);
 
       // 3 Create modules and the hierarchy
-      DefaultInputModule root = new DefaultInputModule(projectReactor.getRoot(), batchIdGenerator.get());
+      DefaultInputModule root = new DefaultInputModule(projectReactor.getRoot(), batchIdGenerator.getAsInt());
       Map<DefaultInputModule, DefaultInputModule> parents = createChildren(root, batchIdGenerator, new HashMap<>());
       if (parents.isEmpty()) {
         hierarchy = new DefaultInputModuleHierarchy(root);
