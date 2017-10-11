@@ -102,7 +102,12 @@ describe('Stats', () => {
 
     it('should show cancel pending button', () => {
       const result = shallow(
-        <Stats pendingCount={5} onCancelAllPending={stub} onShowFailing={stub} />
+        <Stats
+          isSystemAdmin={true}
+          pendingCount={5}
+          onCancelAllPending={stub}
+          onShowFailing={stub}
+        />
       );
       expect(result.find('.js-cancel-pending').length).toBe(1);
     });
@@ -110,7 +115,12 @@ describe('Stats', () => {
     it('should trigger cancelling pending', () => {
       const spy = jest.fn();
       const result = shallow(
-        <Stats pendingCount={5} onCancelAllPending={spy} onShowFailing={stub} />
+        <Stats
+          isSystemAdmin={true}
+          pendingCount={5}
+          onCancelAllPending={spy}
+          onShowFailing={stub}
+        />
       );
       expect(spy).not.toBeCalled();
       click(result.find('.js-cancel-pending'));
