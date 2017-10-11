@@ -56,12 +56,6 @@
   color: #fff;
 }
 
-.global-navbar-menu > li > a.is-admin.active,
-.global-navbar-menu > li > a.is-admin:hover,
-.global-navbar-menu > li > a.is-admin:focus {
-  background-color: #ed7d20;
-}
-
 @media print {
   .navbar-global {
     display: none !important;

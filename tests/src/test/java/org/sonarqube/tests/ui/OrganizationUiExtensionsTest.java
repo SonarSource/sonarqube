@@ -63,7 +63,7 @@ public class OrganizationUiExtensionsTest {
       .logIn().submitCredentials(administrator.getLogin())
       .open("/organizations/" + organization.getKey() + "/projects");
 
-    $("#context-navigation a.is-admin").click();
+    $("#organization-navigation-admin").click();
     $(By.linkText("Organization Admin Page")).shouldBe(Condition.visible).click();
 
     assertThat(url()).contains("uiextensionsplugin/organization_admin_page");

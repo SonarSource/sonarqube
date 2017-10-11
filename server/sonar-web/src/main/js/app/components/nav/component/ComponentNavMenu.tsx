@@ -206,7 +206,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
       return (
         <li>
           <Link
-            className={classNames('is-admin', { active: isSettingsActive })}
+            className={classNames({ active: isSettingsActive })}
             id="component-navigation-admin"
             to={{
               pathname: '/project/settings',
@@ -226,7 +226,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     return (
       <li className="dropdown">
         <a
-          className={classNames('dropdown-toggle', 'is-admin', { active: isSettingsActive })}
+          className={classNames('dropdown-toggle', { active: isSettingsActive })}
           id="component-navigation-admin"
           data-toggle="dropdown"
           href="#">

@@ -67,7 +67,6 @@ exports[`should show administration menu if the user has the rights 1`] = `
   <li>
     <Link
       activeClassName="active"
-      className="is-admin"
       onlyActiveOnIndex={false}
       style={Object {}}
       to="/admin"
