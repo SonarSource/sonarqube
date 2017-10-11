@@ -52,9 +52,11 @@ class AdminContainer extends React.PureComponent {
       return null;
     }
 
+    const defaultTitle = translate('layout.settings');
+
     return (
       <div>
-        <Helmet title={translate('layout.settings')} />
+        <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />
         <SettingsNav location={this.props.location} extensions={adminPages} />
         {this.props.children}
       </div>
