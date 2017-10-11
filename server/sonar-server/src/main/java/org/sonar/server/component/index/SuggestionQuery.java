@@ -26,7 +26,7 @@ import java.util.Set;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-public class ComponentIndexQuery {
+public class SuggestionQuery {
 
   public static final int DEFAULT_LIMIT = 6;
 
@@ -37,7 +37,7 @@ public class ComponentIndexQuery {
   private final int skip;
   private final int limit;
 
-  private ComponentIndexQuery(Builder builder) {
+  private SuggestionQuery(Builder builder) {
     this.query = requireNonNull(builder.query);
     this.qualifiers = requireNonNull(builder.qualifiers);
     this.recentlyBrowsedKeys = requireNonNull(builder.recentlyBrowsedKeys);
@@ -118,8 +118,8 @@ public class ComponentIndexQuery {
       return this;
     }
 
-    public ComponentIndexQuery build() {
-      return new ComponentIndexQuery(this);
+    public SuggestionQuery build() {
+      return new SuggestionQuery(this);
     }
   }
 }

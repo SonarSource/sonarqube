@@ -62,11 +62,11 @@ public class ComponentIndexHighlightTest extends ComponentIndexTest {
   private void assertHighlighting(String fileName, String search, String expectedHighlighting) {
     indexFile(fileName);
 
-    ComponentIndexQuery query = ComponentIndexQuery.builder()
+    SuggestionQuery query = SuggestionQuery.builder()
       .setQuery(search)
       .setQualifiers(Collections.singletonList(Qualifiers.FILE))
       .build();
-    Stream<ComponentHitsPerQualifier> results = index.search(query, features.get()).getQualifiers();
+    Stream<ComponentHitsPerQualifier> results = index.searchSuggestions(query, features.get()).getQualifiers();
 
     assertThat(results).flatExtracting(ComponentHitsPerQualifier::getHits)
       .extracting(ComponentHit::getHighlightedText)

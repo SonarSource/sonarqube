@@ -41,7 +41,7 @@ public class ComponentIndexFeatureExactTest extends ComponentIndexTest {
     ComponentDto project1 = indexProject("project1", "LongNameLongNameLongNameLongNameSonarQube");
     ComponentDto project2 = indexProject("project2", "LongNameLongNameLongNameLongNameSonarQubeX");
 
-    ComponentIndexQuery query1 = ComponentIndexQuery.builder()
+    SuggestionQuery query1 = SuggestionQuery.builder()
       .setQuery("LongNameLongNameLongNameLongNameSonarQube")
       .setQualifiers(Collections.singletonList(PROJECT))
       .build();

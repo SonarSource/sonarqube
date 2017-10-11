@@ -68,25 +68,12 @@ public class ComponentIndex {
     this.authorizationTypeSupport = authorizationTypeSupport;
   }
 
-  private static HighlightBuilder.Field createHighlighterField() {
-    HighlightBuilder.Field field = new HighlightBuilder.Field(FIELD_NAME);
-    field.highlighterType("fvh");
-    field.matchedFields(
-      Stream.concat(
-        Stream.of(FIELD_NAME),
-        Arrays
-          .stream(NAME_ANALYZERS)
-          .map(a -> a.subField(FIELD_NAME)))
-        .toArray(String[]::new));
-    return field;
-  }
-
-  public ComponentIndexResults search(ComponentIndexQuery query) {
-    return search(query, ComponentTextSearchFeatureRepertoire.values());
+  public ComponentIndexResults searchSuggestions(SuggestionQuery query) {
+    return searchSuggestions(query, ComponentTextSearchFeatureRepertoire.values());
   }
 
   @VisibleForTesting
-  ComponentIndexResults search(ComponentIndexQuery query, ComponentTextSearchFeature... features) {
+  ComponentIndexResults searchSuggestions(SuggestionQuery query, ComponentTextSearchFeature... features) {
     Collection<String> qualifiers = query.getQualifiers();
     if (qualifiers.isEmpty()) {
       return ComponentIndexResults.newBuilder().build();
@@ -105,14 +92,27 @@ public class ComponentIndex {
     return aggregationsToQualifiers(response);
   }
 
-  private static FiltersAggregationBuilder createAggregation(ComponentIndexQuery query) {
+  private static HighlightBuilder.Field createHighlighterField() {
+    HighlightBuilder.Field field = new HighlightBuilder.Field(FIELD_NAME);
+    field.highlighterType("fvh");
+    field.matchedFields(
+      Stream.concat(
+        Stream.of(FIELD_NAME),
+        Arrays
+          .stream(NAME_ANALYZERS)
+          .map(a -> a.subField(FIELD_NAME)))
+        .toArray(String[]::new));
+    return field;
+  }
+
+  private static FiltersAggregationBuilder createAggregation(SuggestionQuery query) {
     return AggregationBuilders.filters(
       FILTERS_AGGREGATION_NAME,
       query.getQualifiers().stream().map(q -> new KeyedFilter(q, termQuery(FIELD_QUALIFIER, q))).toArray(KeyedFilter[]::new))
       .subAggregation(createSubAggregation(query));
   }
 
-  private static TopHitsAggregationBuilder createSubAggregation(ComponentIndexQuery query) {
+  private static TopHitsAggregationBuilder createSubAggregation(SuggestionQuery query) {
     return AggregationBuilders.topHits(DOCS_AGGREGATION_NAME)
       .highlighter(new HighlightBuilder()
         .encoder("html")
@@ -127,7 +127,7 @@ public class ComponentIndex {
       .fetchSource(false);
   }
 
-  private QueryBuilder createQuery(ComponentIndexQuery query, ComponentTextSearchFeature... features) {
+  private QueryBuilder createQuery(SuggestionQuery query, ComponentTextSearchFeature... features) {
     BoolQueryBuilder esQuery = boolQuery();
     esQuery.filter(authorizationTypeSupport.createQueryFilter());
     ComponentTextSearchQuery componentTextSearchQuery = ComponentTextSearchQuery.builder()
