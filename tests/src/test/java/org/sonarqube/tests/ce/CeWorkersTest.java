@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
@@ -209,16 +210,16 @@ public class CeWorkersTest {
       .getTasksList();
   }
 
-  private <T> T waitForWsCallStatus(Function<WsClient, T> call, Function<T, Boolean> test) {
+  private <T> T waitForWsCallStatus(Function<WsClient, T> call, Predicate<T> test) {
     WsClient wsClient = ItUtils.newAdminWsClient(orchestrator);
     int i = 0;
     T returnValue = call.apply(wsClient);
-    boolean expectedState = test.apply(returnValue);
+    boolean expectedState = test.test(returnValue);
     while (i < MAX_WAIT_LOOP && !expectedState) {
       waitInterruptedly();
       i++;
       returnValue = call.apply(wsClient);
-      expectedState = test.apply(returnValue);
+      expectedState = test.test(returnValue);
     }
     assertThat(expectedState)
       .as("Failed to wait for expected queue status. Last call returned:\n%s", returnValue)
