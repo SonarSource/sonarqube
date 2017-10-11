@@ -211,7 +211,7 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
       component.configuration.showSettings;
 
     return (
-      <div className="dropdown-menu dropdown-menu-shadow" ref={node => (this.node = node)}>
+      <div className="dropdown-menu" ref={node => (this.node = node)}>
         {this.renderSearch()}
         {this.renderBranchesList()}
         {showManageLink && (
