@@ -97,7 +97,7 @@ exports[`should work for all qualifiers 1`] = `
     className="dropdown"
   >
     <a
-      className="dropdown-toggle is-admin"
+      className="dropdown-toggle"
       data-toggle="dropdown"
       href="#"
       id="component-navigation-admin"
@@ -247,7 +247,7 @@ exports[`should work for all qualifiers 2`] = `
     className="dropdown"
   >
     <a
-      className="dropdown-toggle is-admin"
+      className="dropdown-toggle"
       data-toggle="dropdown"
       href="#"
       id="component-navigation-admin"
@@ -381,7 +381,7 @@ exports[`should work for all qualifiers 3`] = `
     className="dropdown"
   >
     <a
-      className="dropdown-toggle is-admin"
+      className="dropdown-toggle"
       data-toggle="dropdown"
       href="#"
       id="component-navigation-admin"
@@ -610,7 +610,7 @@ exports[`should work for all qualifiers 5`] = `
     className="dropdown"
   >
     <a
-      className="dropdown-toggle is-admin"
+      className="dropdown-toggle"
       data-toggle="dropdown"
       href="#"
       id="component-navigation-admin"
@@ -977,7 +977,7 @@ exports[`should work with extensions 1`] = `
     className="dropdown"
   >
     <a
-      className="dropdown-toggle is-admin"
+      className="dropdown-toggle"
       data-toggle="dropdown"
       href="#"
       id="component-navigation-admin"
@@ -1199,7 +1199,7 @@ exports[`should work with multiple extensions 1`] = `
     className="dropdown"
   >
     <a
-      className="dropdown-toggle is-admin"
+      className="dropdown-toggle"
       data-toggle="dropdown"
       href="#"
       id="component-navigation-admin"

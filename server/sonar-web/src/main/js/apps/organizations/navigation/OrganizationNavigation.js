@@ -50,8 +50,9 @@ export default class OrganizationNavigation extends React.PureComponent {
     return (
       <li className="dropdown">
         <a
-          className={classNames('dropdown-toggle', 'is-admin', { active: adminActive })}
+          className={classNames('dropdown-toggle', { active: adminActive })}
           data-toggle="dropdown"
+          id="organization-navigation-admin"
           href="#">
           {translate('layout.settings')}&nbsp;<i className="icon-dropdown" />
         </a>
