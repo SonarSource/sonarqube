@@ -21,7 +21,7 @@ package org.sonar.application.command;
 
 public interface CommandFactory {
 
-  EsCommand createEsCommand();
+  AbstractCommand createEsCommand();
 
   JavaCommand createWebCommand(boolean leader);
 

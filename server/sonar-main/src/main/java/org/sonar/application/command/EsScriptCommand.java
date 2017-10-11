@@ -17,44 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process;
+package org.sonar.application.command;
 
-import java.util.Map;
-import org.apache.commons.lang.SystemUtils;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import org.sonar.process.ProcessId;
+import org.sonar.process.System2;
 
-/**
- * An interface allowing to wrap around static call to {@link System} class.
- */
-public interface System2 {
-  System2 INSTANCE = new System2() {
-    @Override
-    public Map<String, String> getenv() {
-      return System.getenv();
+public class EsScriptCommand extends AbstractCommand<EsScriptCommand> {
+  private List<String> options = new ArrayList<>();
+
+  public EsScriptCommand(ProcessId id, File workDir) {
+    super(id, workDir, System2.INSTANCE);
+  }
+
+  public List<String> getOptions() {
+    return options;
+  }
+
+  public EsScriptCommand addOption(String s) {
+    if (!s.isEmpty()) {
+      options.add(s);
     }
-
-    @Override
-    public String getenv(String name) {
-      return System.getenv(name);
-    }
-
-    @Override
-    public boolean isOsWindows() {
-      return SystemUtils.IS_OS_WINDOWS;
-    }
-  };
-
-  /**
-   * Proxy to {@link System#getenv()}
-   */
-  Map<String, String> getenv();
-
-  /**
-   * Proxy to {@link System#getenv(String)}.
-   */
-  String getenv(String name);
-
-  /**
-   * True if this is MS Windows.
-   */
-  boolean isOsWindows();
+    return this;
+  }
 }

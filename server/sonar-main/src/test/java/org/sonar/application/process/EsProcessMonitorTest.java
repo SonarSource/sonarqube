@@ -28,14 +28,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.Random;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.discovery.MasterNotDiscoveredException;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
+import org.sonar.application.es.EsInstallation;
 import org.sonar.process.ProcessId;
-import org.sonar.application.command.EsCommand;
+import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -49,7 +51,7 @@ public class EsProcessMonitorTest {
   public void isOperational_should_return_false_if_Elasticsearch_is_RED() throws Exception {
     EsConnector esConnector = mock(EsConnector.class);
     when(esConnector.getClusterHealthStatus(any())).thenReturn(ClusterHealthStatus.RED);
-    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), getEsCommand(), esConnector);
+    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), ProcessId.ELASTICSEARCH, getEsConfig(), esConnector);
     assertThat(underTest.isOperational()).isFalse();
   }
 
@@ -57,7 +59,7 @@ public class EsProcessMonitorTest {
   public void isOperational_should_return_true_if_Elasticsearch_is_YELLOW() throws Exception {
     EsConnector esConnector = mock(EsConnector.class);
     when(esConnector.getClusterHealthStatus(any())).thenReturn(ClusterHealthStatus.YELLOW);
-    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), getEsCommand(), esConnector);
+    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), ProcessId.ELASTICSEARCH, getEsConfig(), esConnector);
     assertThat(underTest.isOperational()).isTrue();
   }
 
@@ -65,7 +67,7 @@ public class EsProcessMonitorTest {
   public void isOperational_should_return_true_if_Elasticsearch_is_GREEN() throws Exception {
     EsConnector esConnector = mock(EsConnector.class);
     when(esConnector.getClusterHealthStatus(any())).thenReturn(ClusterHealthStatus.GREEN);
-    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), getEsCommand(), esConnector);
+    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), ProcessId.ELASTICSEARCH, getEsConfig(), esConnector);
     assertThat(underTest.isOperational()).isTrue();
   }
 
@@ -73,7 +75,7 @@ public class EsProcessMonitorTest {
   public void isOperational_should_return_true_if_Elasticsearch_was_GREEN_once() throws Exception {
     EsConnector esConnector = mock(EsConnector.class);
     when(esConnector.getClusterHealthStatus(any())).thenReturn(ClusterHealthStatus.GREEN);
-    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), getEsCommand(), esConnector);
+    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), ProcessId.ELASTICSEARCH, getEsConfig(), esConnector);
     assertThat(underTest.isOperational()).isTrue();
 
     when(esConnector.getClusterHealthStatus(any())).thenReturn(ClusterHealthStatus.RED);
@@ -86,7 +88,7 @@ public class EsProcessMonitorTest {
     when(esConnector.getClusterHealthStatus(any()))
       .thenThrow(new NoNodeAvailableException("test"))
       .thenReturn(ClusterHealthStatus.GREEN);
-    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), getEsCommand(), esConnector);
+    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), ProcessId.ELASTICSEARCH, getEsConfig(), esConnector);
     assertThat(underTest.isOperational()).isTrue();
   }
 
@@ -95,7 +97,7 @@ public class EsProcessMonitorTest {
     EsConnector esConnector = mock(EsConnector.class);
     when(esConnector.getClusterHealthStatus(any()))
       .thenThrow(new RuntimeException("test"));
-    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), getEsCommand(), esConnector);
+    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), ProcessId.ELASTICSEARCH, getEsConfig(), esConnector);
     assertThat(underTest.isOperational()).isFalse();
   }
 
@@ -112,7 +114,7 @@ public class EsProcessMonitorTest {
     when(esConnector.getClusterHealthStatus(any()))
       .thenThrow(new MasterNotDiscoveredException("Master not elected -test-"));
 
-    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), getEsCommand(), esConnector);
+    EsProcessMonitor underTest = new EsProcessMonitor(mock(Process.class), ProcessId.ELASTICSEARCH, getEsConfig(), esConnector);
     assertThat(underTest.isOperational()).isFalse();
     assertThat(memoryAppender.events).isNotEmpty();
     assertThat(memoryAppender.events)
@@ -130,9 +132,14 @@ public class EsProcessMonitorTest {
       );
   }
 
-  private EsCommand getEsCommand() throws IOException {
+  private EsInstallation getEsConfig() throws IOException {
     Path tempDirectory = Files.createTempDirectory(getClass().getSimpleName());
-    return new EsCommand(ProcessId.ELASTICSEARCH, tempDirectory.toFile())
+    Properties properties = new Properties();
+    properties.setProperty("sonar.path.home", "/imaginary/path");
+    properties.setProperty("sonar.path.data", "/imaginary/path");
+    properties.setProperty("sonar.path.temp", "/imaginary/path");
+    properties.setProperty("sonar.path.logs", "/imaginary/path");
+    return new EsInstallation(new Props(properties))
       .setHost("localhost")
       .setPort(new Random().nextInt(40000));
   }

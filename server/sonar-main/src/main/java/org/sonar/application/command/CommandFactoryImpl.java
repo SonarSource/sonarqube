@@ -23,14 +23,14 @@ import java.io.File;
 import java.util.Map;
 import java.util.Optional;
 import org.slf4j.LoggerFactory;
+import org.sonar.application.es.EsInstallation;
+import org.sonar.application.es.EsLogging;
+import org.sonar.application.es.EsSettings;
+import org.sonar.application.es.EsYmlSettings;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.process.System2;
-import org.sonar.application.es.EsFileSystem;
-import org.sonar.application.es.EsLogging;
-import org.sonar.application.es.EsSettings;
-import org.sonar.application.es.EsYmlSettings;
 
 import static org.sonar.process.ProcessProperties.HTTPS_PROXY_HOST;
 import static org.sonar.process.ProcessProperties.HTTPS_PROXY_PORT;
@@ -54,10 +54,12 @@ public class CommandFactoryImpl implements CommandFactory {
 
   private final Props props;
   private final File tempDir;
+  private final System2 system2;
 
   public CommandFactoryImpl(Props props, File tempDir, System2 system2) {
     this.props = props;
     this.tempDir = tempDir;
+    this.system2 = system2;
     String javaToolOptions = system2.getenv(ENV_VAR_JAVA_TOOL_OPTIONS);
     if (javaToolOptions != null && !javaToolOptions.trim().isEmpty()) {
       LoggerFactory.getLogger(CommandFactoryImpl.class)
@@ -67,28 +69,59 @@ public class CommandFactoryImpl implements CommandFactory {
   }
 
   @Override
-  public EsCommand createEsCommand() {
-    EsFileSystem esFileSystem = new EsFileSystem(props);
-    if (!esFileSystem.getExecutable().exists()) {
+  public AbstractCommand<?> createEsCommand() {
+    if (system2.isOsWindows()) {
+      return createEsCommandForWindows();
+    }
+    return createEsCommandForUnix();
+  }
+
+  private EsScriptCommand createEsCommandForUnix() {
+    EsInstallation esInstallation = createEsInstallation();
+    return new EsScriptCommand(ProcessId.ELASTICSEARCH, esInstallation.getHomeDirectory())
+      .setEsInstallation(esInstallation)
+      .addOption("-Epath.conf=" + esInstallation.getConfDirectory().getAbsolutePath())
+      .setEnvVariable("ES_JVM_OPTIONS", esInstallation.getJvmOptions().getAbsolutePath())
+      .setEnvVariable("JAVA_HOME", System.getProperties().getProperty("java.home"))
+      .suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS);
+  }
+
+  private JavaCommand createEsCommandForWindows() {
+    EsInstallation esInstallation = createEsInstallation();
+    return new JavaCommand<EsJvmOptions>(ProcessId.ELASTICSEARCH, esInstallation.getHomeDirectory())
+      .setEsInstallation(esInstallation)
+      .setReadsArgumentsFromFile(false)
+      .setArgument("path.conf", esInstallation.getConfDirectory().getAbsolutePath())
+      .setJvmOptions(new EsJvmOptions()
+        .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_OPTS)
+        .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS)
+        .add("-Delasticsearch")
+        .add("-Des.path.home=" + esInstallation.getHomeDirectory())
+      )
+      .setEnvVariable("ES_JVM_OPTIONS", esInstallation.getJvmOptions().getAbsolutePath())
+      .setEnvVariable("JAVA_HOME", System.getProperties().getProperty("java.home"))
+      .setClassName("org.elasticsearch.bootstrap.Elasticsearch")
+      .addClasspath("lib/*")
+      .suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS);
+  }
+
+  private EsInstallation createEsInstallation() {
+    EsInstallation esInstallation = new EsInstallation(props);
+    if (!esInstallation.getExecutable().exists()) {
       throw new IllegalStateException("Cannot find elasticsearch binary");
     }
-    Map<String, String> settingsMap = new EsSettings(props, esFileSystem, System2.INSTANCE).build();
+    Map<String, String> settingsMap = new EsSettings(props, esInstallation, System2.INSTANCE).build();
 
-    return new EsCommand(ProcessId.ELASTICSEARCH, esFileSystem.getHomeDirectory())
-      .setFileSystem(esFileSystem)
-      .setLog4j2Properties(new EsLogging().createProperties(props, esFileSystem.getLogDirectory()))
-      .setArguments(props.rawProperties())
-      .setClusterName(settingsMap.get("cluster.name"))
-      .setHost(settingsMap.get("network.host"))
-      .setPort(Integer.valueOf(settingsMap.get("transport.tcp.port")))
-      .addEsOption("-Epath.conf=" + esFileSystem.getConfDirectory().getAbsolutePath())
+    esInstallation
+      .setLog4j2Properties(new EsLogging().createProperties(props, esInstallation.getLogDirectory()))
       .setEsJvmOptions(new EsJvmOptions()
         .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_OPTS)
         .addFromMandatoryProperty(props, ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS))
       .setEsYmlSettings(new EsYmlSettings(settingsMap))
-      .setEnvVariable("ES_JVM_OPTIONS", esFileSystem.getJvmOptions().getAbsolutePath())
-      .setEnvVariable("JAVA_HOME", System.getProperties().getProperty("java.home"))
-      .suppressEnvVariable(ENV_VAR_JAVA_TOOL_OPTIONS);
+      .setClusterName(settingsMap.get("cluster.name"))
+      .setHost(settingsMap.get("network.host"))
+      .setPort(Integer.valueOf(settingsMap.get("transport.tcp.port")));
+    return esInstallation;
   }
 
   @Override
@@ -101,6 +134,7 @@ public class CommandFactoryImpl implements CommandFactory {
     addProxyJvmOptions(jvmOptions);
 
     JavaCommand<WebJvmOptions> command = new JavaCommand<WebJvmOptions>(ProcessId.WEB_SERVER, homeDir)
+      .setReadsArgumentsFromFile(true)
       .setArguments(props.rawProperties())
       .setJvmOptions(jvmOptions)
       // required for logback tomcat valve
@@ -127,6 +161,7 @@ public class CommandFactoryImpl implements CommandFactory {
     addProxyJvmOptions(jvmOptions);
 
     JavaCommand<CeJvmOptions> command = new JavaCommand<CeJvmOptions>(ProcessId.COMPUTE_ENGINE, homeDir)
+      .setReadsArgumentsFromFile(true)
       .setArguments(props.rawProperties())
       .setJvmOptions(jvmOptions)
       .setClassName("org.sonar.ce.app.CeServer")

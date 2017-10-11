@@ -33,10 +33,10 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.application.command.AbstractCommand;
-import org.sonar.application.command.EsCommand;
+import org.sonar.application.command.EsScriptCommand;
 import org.sonar.application.command.JavaCommand;
 import org.sonar.application.command.JvmOptions;
-import org.sonar.application.es.EsFileSystem;
+import org.sonar.application.es.EsInstallation;
 import org.sonar.process.ProcessId;
 import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
@@ -69,30 +69,51 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     allProcessesCommands.close();
   }
 
-  @Override
-  public ProcessMonitor launch(EsCommand esCommand) {
-    Process process = null;
+  public ProcessMonitor launch(AbstractCommand command) {
+    EsInstallation fileSystem = command.getEsInstallation();
+    if (fileSystem != null) {
+      cleanupOutdatedEsData(fileSystem);
+      writeConfFiles(fileSystem);
+    }
+
+    Process process;
+    if (command instanceof EsScriptCommand) {
+      process = launchExternal((EsScriptCommand) command);
+    } else if (command instanceof JavaCommand) {
+      process = launchJava((JavaCommand) command);
+    } else {
+      throw new IllegalStateException("Unexpected type of command: " + command.getClass());
+    }
+
+    ProcessId processId = command.getProcessId();
     try {
-      cleanupOutdatedEsData(esCommand);
-      writeConfFiles(esCommand);
-      ProcessBuilder processBuilder = create(esCommand);
-      logLaunchedCommand(esCommand, processBuilder);
-
-      process = processBuilder.start();
-
-      return new EsProcessMonitor(process, esCommand, new EsConnectorImpl());
+      if (processId == ProcessId.ELASTICSEARCH) {
+        return new EsProcessMonitor(process, processId, command.getEsInstallation(), new EsConnectorImpl());
+      } else {
+        ProcessCommands commands = allProcessesCommands.createAfterClean(processId.getIpcIndex());
+        return new ProcessCommandsProcessMonitor(process, processId, commands);
+      }
     } catch (Exception e) {
       // just in case
       if (process != null) {
         process.destroyForcibly();
       }
-      throw new IllegalStateException(format("Fail to launch process [%s]", esCommand.getProcessId().getKey()), e);
+      throw new IllegalStateException(format("Fail to launch monitor of process [%s]", processId.getKey()), e);
     }
   }
 
-  private static void cleanupOutdatedEsData(EsCommand esCommand) {
-    EsFileSystem esFileSystem = esCommand.getFileSystem();
-    esFileSystem.getOutdatedSearchDirectories().forEach(outdatedDir -> {
+  private Process launchExternal(EsScriptCommand esScriptCommand) {
+    try {
+      ProcessBuilder processBuilder = create(esScriptCommand);
+      logLaunchedCommand(esScriptCommand, processBuilder);
+      return processBuilder.start();
+    } catch (Exception e) {
+      throw new IllegalStateException(format("Fail to launch process [%s]", esScriptCommand.getProcessId().getKey()), e);
+    }
+  }
+
+  private static void cleanupOutdatedEsData(EsInstallation esInstallation) {
+    esInstallation.getOutdatedSearchDirectories().forEach(outdatedDir -> {
       if (outdatedDir.exists()) {
         LOG.info("Deleting outdated search index data directory {}", outdatedDir.getAbsolutePath());
         try {
@@ -104,9 +125,8 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     });
   }
 
-  private static void writeConfFiles(EsCommand esCommand) {
-    EsFileSystem esFileSystem = esCommand.getFileSystem();
-    File confDir = esFileSystem.getConfDirectory();
+  private static void writeConfFiles(EsInstallation esInstallation) {
+    File confDir = esInstallation.getConfDirectory();
     if (!confDir.exists() && !confDir.mkdirs()) {
       String error = format("Failed to create temporary configuration directory [%s]", confDir.getAbsolutePath());
       LOG.error(error);
@@ -114,30 +134,21 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     }
 
     try {
-      esCommand.getEsYmlSettings().writeToYmlSettingsFile(esFileSystem.getElasticsearchYml());
-      esCommand.getEsJvmOptions().writeToJvmOptionFile(esFileSystem.getJvmOptions());
-      esCommand.getLog4j2Properties().store(new FileOutputStream(esFileSystem.getLog4j2Properties()), "log4j2 properties file for ES bundled in SonarQube");
+      esInstallation.getEsYmlSettings().writeToYmlSettingsFile(esInstallation.getElasticsearchYml());
+      esInstallation.getEsJvmOptions().writeToJvmOptionFile(esInstallation.getJvmOptions());
+      esInstallation.getLog4j2Properties().store(new FileOutputStream(esInstallation.getLog4j2PropertiesLocation()), "log4j2 properties file for ES bundled in SonarQube");
     } catch (IOException e) {
       throw new IllegalStateException("Failed to write ES configuration files", e);
     }
   }
 
-  @Override
-  public ProcessMonitor launch(JavaCommand javaCommand) {
-    Process process = null;
+  private Process launchJava(JavaCommand javaCommand) {
     ProcessId processId = javaCommand.getProcessId();
     try {
-      ProcessCommands commands = allProcessesCommands.createAfterClean(processId.getIpcIndex());
-
       ProcessBuilder processBuilder = create(javaCommand);
       logLaunchedCommand(javaCommand, processBuilder);
-      process = processBuilder.start();
-      return new ProcessCommandsProcessMonitor(process, processId, commands);
+      return processBuilder.start();
     } catch (Exception e) {
-      // just in case
-      if (process != null) {
-        process.destroyForcibly();
-      }
       throw new IllegalStateException(format("Fail to launch process [%s]", processId.getKey()), e);
     }
   }
@@ -151,12 +162,12 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     }
   }
 
-  private ProcessBuilder create(EsCommand esCommand) {
+  private ProcessBuilder create(EsScriptCommand esScriptCommand) {
     List<String> commands = new ArrayList<>();
-    commands.add(esCommand.getFileSystem().getExecutable().getAbsolutePath());
-    commands.addAll(esCommand.getEsOptions());
+    commands.add(esScriptCommand.getEsInstallation().getExecutable().getAbsolutePath());
+    commands.addAll(esScriptCommand.getOptions());
 
-    return create(esCommand, commands);
+    return create(esScriptCommand, commands);
   }
 
   private <T extends JvmOptions> ProcessBuilder create(JavaCommand<T> javaCommand) {
@@ -165,7 +176,15 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     commands.addAll(javaCommand.getJvmOptions().getAll());
     commands.addAll(buildClasspath(javaCommand));
     commands.add(javaCommand.getClassName());
-    commands.add(buildPropertiesFile(javaCommand).getAbsolutePath());
+    if (javaCommand.getReadsArgumentsFromFile()) {
+      commands.add(buildPropertiesFile(javaCommand).getAbsolutePath());
+    } else {
+      javaCommand.getArguments().forEach((key, value) -> {
+        if (value != null && !value.isEmpty()) {
+          commands.add("-E" + key + "=" + value);
+        }
+      });
+    }
 
     return create(javaCommand, commands);
   }

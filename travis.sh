@@ -163,7 +163,11 @@ BUILD)
         -Dsonar.host.url=$SONAR_HOST_URL \
         -Dsonar.login=$SONAR_TOKEN \
         -Dsonar.branch.name=$TRAVIS_BRANCH \
-        -Dsonar.projectVersion=$INITIAL_VERSION
+        -Dsonar.projectVersion=$INITIAL_VERSION \
+        -Dsonar.analysis.buildNumber=$TRAVIS_BUILD_NUMBER \
+        -Dsonar.analysis.pipeline=$TRAVIS_BUILD_NUMBER \
+        -Dsonar.analysis.sha1=$TRAVIS_COMMIT \
+        -Dsonar.analysis.repository=$TRAVIS_REPO_SLUG
 
   elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
     echo 'Build and analyze internal pull request'
@@ -190,7 +194,11 @@ BUILD)
           -Dsonar.host.url=$SONAR_HOST_URL \
           -Dsonar.login=$SONAR_TOKEN \
           -Dsonar.branch.name=$TRAVIS_PULL_REQUEST_BRANCH \
-          -Dsonar.branch.target=$TRAVIS_BRANCH
+          -Dsonar.branch.target=$TRAVIS_BRANCH \
+          -Dsonar.analysis.buildNumber=$TRAVIS_BUILD_NUMBER \
+          -Dsonar.analysis.pipeline=$TRAVIS_BUILD_NUMBER \
+          -Dsonar.analysis.sha1=$TRAVIS_COMMIT \
+          -Dsonar.analysis.repository=$TRAVIS_REPO_SLUG
     fi
   else
     echo 'Build feature branch or external pull request'

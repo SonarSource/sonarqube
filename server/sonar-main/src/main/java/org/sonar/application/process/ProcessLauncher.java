@@ -20,8 +20,7 @@
 package org.sonar.application.process;
 
 import java.io.Closeable;
-import org.sonar.application.command.EsCommand;
-import org.sonar.application.command.JavaCommand;
+import org.sonar.application.command.AbstractCommand;
 
 public interface ProcessLauncher extends Closeable {
 
@@ -29,16 +28,9 @@ public interface ProcessLauncher extends Closeable {
   void close();
 
   /**
-   * Launch an ES command.
+   * Launch a command.
    *
    * @throws IllegalStateException if an error occurs
    */
-  ProcessMonitor launch(EsCommand esCommand);
-
-  /**
-   * Launch a Java command.
-   * 
-   * @throws IllegalStateException if an error occurs
-   */
-  ProcessMonitor launch(JavaCommand javaCommand);
+  ProcessMonitor launch(AbstractCommand command);
 }

@@ -51,6 +51,7 @@ public class CeHttpClientImpl implements CeHttpClient {
 
   /**
    * Connects to the specified JVM process and requests system information.
+   *
    * @return the system info, or absent if the process is not up or if its HTTP URL
    * is not registered into IPC.
    */
@@ -108,16 +109,17 @@ public class CeHttpClientImpl implements CeHttpClient {
         .post(RequestBody.create(null, new byte[0]))
         .url(url + "?level=" + newLogLevel.name())
         .build();
-      okhttp3.Response response = new OkHttpClient().newCall(request).execute();
-      if (response.code() != 200) {
-        throw new IOException(
-          String.format(
-            "Failed to change log level in Compute Engine. Code was '%s' and response was '%s' for url '%s'",
-            response.code(),
-            response.body().string(),
-            url));
+      try (okhttp3.Response response = new OkHttpClient().newCall(request).execute()) {
+        if (response.code() != 200) {
+          throw new IOException(
+            String.format(
+              "Failed to change log level in Compute Engine. Code was '%s' and response was '%s' for url '%s'",
+              response.code(),
+              response.body().string(),
+              url));
+        }
+        return null;
       }
-      return null;
     }
   }
 
@@ -145,16 +147,17 @@ public class CeHttpClientImpl implements CeHttpClient {
         .post(RequestBody.create(null, new byte[0]))
         .url(url)
         .build();
-      okhttp3.Response response = new OkHttpClient().newCall(request).execute();
-      if (response.code() != 200) {
-        throw new IOException(
-          String.format(
-            "Failed to trigger refresh of CE Worker count. Code was '%s' and response was '%s' for url '%s'",
-            response.code(),
-            response.body().string(),
-            url));
+      try (okhttp3.Response response = new OkHttpClient().newCall(request).execute()) {
+        if (response.code() != 200) {
+          throw new IOException(
+            String.format(
+              "Failed to trigger refresh of CE Worker count. Code was '%s' and response was '%s' for url '%s'",
+              response.code(),
+              response.body().string(),
+              url));
+        }
+        return null;
       }
-      return null;
     }
   }
 

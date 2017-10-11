@@ -23,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -94,7 +95,7 @@ public class IssueCreationDateCalculator extends IssueVisitor {
     if (pluginKey == null) {
       return false;
     }
-    
+
     ScannerPlugin scannerPlugin = Optional.ofNullable(analysisMetadataHolder.getScannerPluginsByKey().get(pluginKey))
       .orElseThrow(illegalStateException("The rule %s is declared to come from plugin %s, but this plugin was not used by scanner.", activeRule.getRuleKey(), pluginKey));
     return pluginIsNew(scannerPlugin, lastAnalysisDate)
@@ -121,7 +122,7 @@ public class IssueCreationDateCalculator extends IssueVisitor {
 
   private Optional<Date> getScmChangeDate(Component component, DefaultIssue issue) {
     return getScmInfo(component)
-      .flatMap(scmInfo -> getChangeset(scmInfo, issue))
+      .flatMap(scmInfo -> getChangeset(component, scmInfo, issue))
       .map(IssueCreationDateCalculator::getChangeDate);
   }
 
@@ -133,7 +134,7 @@ public class IssueCreationDateCalculator extends IssueVisitor {
     return toJavaUtilOptional(scmInfoRepository.getScmInfo(component));
   }
 
-  private static Optional<Changeset> getChangeset(ScmInfo scmInfo, DefaultIssue issue) {
+  private static Optional<Changeset> getChangeset(Component component, ScmInfo scmInfo, DefaultIssue issue) {
     Set<Integer> involvedLines = new HashSet<>();
     DbIssues.Locations locations = issue.getLocations();
     if (locations != null) {
@@ -142,7 +143,10 @@ public class IssueCreationDateCalculator extends IssueVisitor {
       }
       for (Flow f : locations.getFlowList()) {
         for (Location l : f.getLocationList()) {
-          addLines(involvedLines, l.getTextRange());
+          if (Objects.equals(l.getComponentId(), component.getUuid())) {
+            // Ignore locations in other files, since it is currently not very common, and this is hard to load SCM by component UUID.
+            addLines(involvedLines, l.getTextRange());
+          }
         }
       }
       if (!involvedLines.isEmpty()) {

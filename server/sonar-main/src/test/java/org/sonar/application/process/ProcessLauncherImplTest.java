@@ -30,11 +30,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.application.command.EsCommand;
 import org.sonar.application.command.EsJvmOptions;
+import org.sonar.application.command.EsScriptCommand;
 import org.sonar.application.command.JavaCommand;
 import org.sonar.application.command.JvmOptions;
-import org.sonar.application.es.EsFileSystem;
+import org.sonar.application.es.EsInstallation;
 import org.sonar.application.es.EsYmlSettings;
 import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
@@ -93,7 +93,8 @@ public class ProcessLauncherImplTest {
     File tempDir = temp.newFolder();
     TestProcessBuilder processBuilder = new TestProcessBuilder();
     ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
-    JavaCommand<JvmOptions> command = new JavaCommand<>(ProcessId.ELASTICSEARCH, temp.newFolder());
+    JavaCommand<JvmOptions> command = new JavaCommand<>(ProcessId.WEB_SERVER, temp.newFolder());
+    command.setReadsArgumentsFromFile(true);
     command.setArgument("foo", "bar");
     command.setArgument("baz", "woo");
     command.setJvmOptions(new JvmOptions<>());
@@ -110,10 +111,28 @@ public class ProcessLauncherImplTest {
         entry("foo", "bar"),
         entry("baz", "woo"),
         entry("process.terminationTimeout", "60000"),
-        entry("process.key", ProcessId.ELASTICSEARCH.getKey()),
-        entry("process.index", String.valueOf(ProcessId.ELASTICSEARCH.getIpcIndex())),
+        entry("process.key", ProcessId.WEB_SERVER.getKey()),
+        entry("process.index", String.valueOf(ProcessId.WEB_SERVER.getIpcIndex())),
         entry("process.sharedDir", tempDir.getAbsolutePath()));
     }
+  }
+
+  @Test
+  public void temporary_properties_file_can_be_avoided() throws Exception {
+    File tempDir = temp.newFolder();
+    TestProcessBuilder processBuilder = new TestProcessBuilder();
+    ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> processBuilder);
+    JavaCommand<JvmOptions> command = new JavaCommand<>(ProcessId.WEB_SERVER, temp.newFolder());
+    command.setReadsArgumentsFromFile(false);
+    command.setArgument("foo", "bar");
+    command.setArgument("baz", "woo");
+    command.setJvmOptions(new JvmOptions<>());
+
+    underTest.launch(command);
+
+    String propsFilePath = processBuilder.commands.get(processBuilder.commands.size() - 1);
+    File file = new File(propsFilePath);
+    assertThat(file).doesNotExist();
   }
 
   @Test
@@ -123,7 +142,7 @@ public class ProcessLauncherImplTest {
     File dataDir = temp.newFolder();
     File logDir = temp.newFolder();
     ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> new TestProcessBuilder());
-    EsCommand command = createEsCommand(tempDir, homeDir, dataDir, logDir);
+    EsScriptCommand command = createEsScriptCommand(tempDir, homeDir, dataDir, logDir);
 
     File outdatedEsDir = new File(dataDir, "es");
     assertThat(outdatedEsDir.mkdir()).isTrue();
@@ -141,7 +160,7 @@ public class ProcessLauncherImplTest {
     File dataDir = temp.newFolder();
     File logDir = temp.newFolder();
     ProcessLauncher underTest = new ProcessLauncherImpl(tempDir, commands, () -> new TestProcessBuilder());
-    EsCommand command = createEsCommand(tempDir, homeDir, dataDir, logDir);
+    EsScriptCommand command = createEsScriptCommand(tempDir, homeDir, dataDir, logDir);
 
     File outdatedEsDir = new File(dataDir, "es");
     assertThat(outdatedEsDir.exists()).isFalse();
@@ -164,17 +183,17 @@ public class ProcessLauncherImplTest {
     underTest.launch(new JavaCommand(ProcessId.ELASTICSEARCH, temp.newFolder()));
   }
 
-  private EsCommand createEsCommand(File tempDir, File homeDir, File dataDir, File logDir) throws IOException {
-    EsCommand command = new EsCommand(ProcessId.ELASTICSEARCH, temp.newFolder());
+  private EsScriptCommand createEsScriptCommand(File tempDir, File homeDir, File dataDir, File logDir) throws IOException {
+    EsScriptCommand command = new EsScriptCommand(ProcessId.ELASTICSEARCH, temp.newFolder());
     Props props = new Props(new Properties());
     props.set("sonar.path.temp", tempDir.getAbsolutePath());
     props.set("sonar.path.home", homeDir.getAbsolutePath());
     props.set("sonar.path.data", dataDir.getAbsolutePath());
     props.set("sonar.path.logs", logDir.getAbsolutePath());
-    command.setFileSystem(new EsFileSystem(props));
-    command.setEsYmlSettings(mock(EsYmlSettings.class));
-    command.setEsJvmOptions(mock(EsJvmOptions.class));
-    command.setLog4j2Properties(new Properties());
+    command.setEsInstallation(new EsInstallation(props)
+      .setEsYmlSettings(mock(EsYmlSettings.class))
+      .setEsJvmOptions(mock(EsJvmOptions.class))
+      .setLog4j2Properties(new Properties()));
     return command;
   }
 

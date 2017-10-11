@@ -38,7 +38,8 @@ import org.elasticsearch.discovery.MasterNotDiscoveredException;
 import org.elasticsearch.transport.Netty4Plugin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.application.command.EsCommand;
+import org.sonar.application.es.EsInstallation;
+import org.sonar.process.ProcessId;
 
 import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableList;
@@ -56,13 +57,13 @@ public class EsProcessMonitor extends AbstractProcessMonitor {
   private final AtomicBoolean nodeUp = new AtomicBoolean(false);
   private final AtomicBoolean nodeOperational = new AtomicBoolean(false);
   private final AtomicBoolean firstMasterNotDiscoveredLog = new AtomicBoolean(true);
-  private final EsCommand esCommand;
+  private final EsInstallation esConfig;
   private final EsConnector esConnector;
   private AtomicReference<TransportClient> transportClient = new AtomicReference<>(null);
 
-  public EsProcessMonitor(Process process, EsCommand esCommand, EsConnector esConnector) {
-    super(process, esCommand.getProcessId());
-    this.esCommand = esCommand;
+  public EsProcessMonitor(Process process, ProcessId processId, EsInstallation esConfig, EsConnector esConnector) {
+    super(process, processId);
+    this.esConfig = esConfig;
     this.esConnector = esConnector;
   }
 
@@ -169,10 +170,10 @@ public class EsProcessMonitor extends AbstractProcessMonitor {
     Settings.Builder esSettings = Settings.builder();
 
     // mandatory property defined by bootstrap process
-    esSettings.put("cluster.name", esCommand.getClusterName());
+    esSettings.put("cluster.name", esConfig.getClusterName());
 
     TransportClient nativeClient = new MinimalTransportClient(esSettings.build());
-    HostAndPort host = HostAndPort.fromParts(esCommand.getHost(), esCommand.getPort());
+    HostAndPort host = HostAndPort.fromParts(esConfig.getHost(), esConfig.getPort());
     addHostToClient(host, nativeClient);
     if (LOG.isDebugEnabled()) {
       LOG.debug("Connected to Elasticsearch node: [{}]", displayedAddresses(nativeClient));
