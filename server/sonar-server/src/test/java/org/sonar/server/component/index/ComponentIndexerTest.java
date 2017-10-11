@@ -40,7 +40,6 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.server.component.index.ComponentIndexDefinition.FIELD_NAME;
 import static org.sonar.server.component.index.ComponentIndexDefinition.INDEX_TYPE_COMPONENT;
@@ -81,6 +80,21 @@ public class ComponentIndexerTest {
     underTest.indexOnStartup(emptySet());
 
     assertThatIndexContainsOnly(project1, project2);
+  }
+
+  @Test
+  public void map_fields() {
+    ComponentDto project = db.components().insertPrivateProject(p -> p.setLanguage("java"));
+
+    underTest.indexOnStartup(emptySet());
+
+    assertThatIndexContainsOnly(project);
+    ComponentDoc doc = es.getDocuments(INDEX_TYPE_COMPONENT, ComponentDoc.class).get(0);
+    assertThat(doc.getId()).isEqualTo(project.uuid());
+    assertThat(doc.getKey()).isEqualTo(project.getDbKey());
+    assertThat(doc.getProjectUuid()).isEqualTo(project.projectUuid());
+    assertThat(doc.getName()).isEqualTo(project.name());
+    assertThat(doc.getLanguage()).isEqualTo(project.language());
   }
 
   @Test
@@ -257,7 +271,6 @@ public class ComponentIndexerTest {
     Collection<EsQueueDto> items = db.getDbClient().esQueueDao().selectForRecovery(db.getSession(), System.currentTimeMillis() + 1_000L, 10);
     return underTest.index(db.getSession(), items);
   }
-
 
   private void assertThatIndexHasSize(int expectedSize) {
     assertThat(es.countDocuments(INDEX_TYPE_COMPONENT)).isEqualTo(expectedSize);
