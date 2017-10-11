@@ -187,6 +187,7 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
       .setName(component.name())
       .setKey(component.getDbKey())
       .setProjectUuid(component.projectUuid())
+      .setLanguage(component.language())
       .setQualifier(component.qualifier());
   }
 }
