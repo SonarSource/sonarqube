@@ -48,6 +48,7 @@ import componentMeasuresRoutes from '../../apps/component-measures/routes';
 import customMeasuresRoutes from '../../apps/custom-measures/routes';
 import groupsRoutes from '../../apps/groups/routes';
 import issuesRoutes from '../../apps/issues/routes';
+import marketplaceRoutes from '../../apps/marketplace/routes';
 import metricsRoutes from '../../apps/metrics/routes';
 import overviewRoutes from '../../apps/overview/routes';
 import organizationsRoutes from '../../apps/organizations/routes';
@@ -227,6 +228,7 @@ const startReactApp = () => {
                     <Route path="settings" childRoutes={settingsRoutes} />
                     <Route path="system" childRoutes={systemRoutes} />
                     <Route path="update_center" childRoutes={updateCenterRoutes} />
+                    <Route path="marketplace" childRoutes={marketplaceRoutes} />
                     <Route path="users" childRoutes={usersRoutes} />
                   </Route>
                 </Route>
