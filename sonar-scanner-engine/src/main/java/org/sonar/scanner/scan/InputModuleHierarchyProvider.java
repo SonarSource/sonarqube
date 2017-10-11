@@ -56,7 +56,7 @@ public class InputModuleHierarchyProvider extends ProviderAdapter {
   private static Map<DefaultInputModule, DefaultInputModule> createChildren(DefaultInputModule parent, BatchIdGenerator batchIdGenerator,
     Map<DefaultInputModule, DefaultInputModule> parents) {
     for (ProjectDefinition def : parent.definition().getSubProjects()) {
-      DefaultInputModule child = new DefaultInputModule(def, batchIdGenerator.get());
+      DefaultInputModule child = new DefaultInputModule(def, batchIdGenerator.getAsInt());
       parents.put(child, parent);
       createChildren(child, batchIdGenerator, parents);
     }
