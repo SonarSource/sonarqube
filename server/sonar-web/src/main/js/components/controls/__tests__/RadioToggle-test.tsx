@@ -33,6 +33,19 @@ it('calls onCheck', () => {
   expect(onCheck).toBeCalledWith('two');
 });
 
+it('accepts advanced options fields', () => {
+  expect(
+    shallow(
+      getSample({
+        options: [
+          { value: 'one', label: 'first', tooltip: 'foo' },
+          { value: 'two', label: 'second', tooltip: 'bar', disabled: true }
+        ]
+      })
+    )
+  ).toMatchSnapshot();
+});
+
 function getSample(props?: any) {
   const options = [{ value: 'one', label: 'first' }, { value: 'two', label: 'second' }];
   return <RadioToggle options={options} name="sample" onCheck={() => true} {...props} />;
