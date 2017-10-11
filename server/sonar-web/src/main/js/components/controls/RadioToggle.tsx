@@ -18,11 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import Tooltip from './Tooltip';
+
+interface Option {
+  disabled?: boolean;
+  label: string;
+  tooltip?: string;
+  value: string;
+}
 
 interface Props {
   name: string;
   onCheck: (value: string) => void;
-  options: Array<{ label: string; value: string }>;
+  options: Option[];
   value?: string;
 }
 
@@ -37,21 +45,27 @@ export default class RadioToggle extends React.PureComponent<Props> {
     this.props.onCheck(newValue);
   };
 
-  renderOption = (option: { label: string; value: string }) => {
+  renderOption = (option: Option) => {
     const checked = option.value === this.props.value;
     const htmlId = this.props.name + '__' + option.value;
     return (
       <li key={option.value}>
         <input
           type="radio"
+          disabled={option.disabled}
           name={this.props.name}
           value={option.value}
           id={htmlId}
           checked={checked}
           onChange={this.handleChange}
         />
-
-        <label htmlFor={htmlId}>{option.label}</label>
+        {option.tooltip ? (
+          <Tooltip overlay={option.tooltip}>
+            <label htmlFor={htmlId}>{option.label}</label>
+          </Tooltip>
+        ) : (
+          <label htmlFor={htmlId}>{option.label}</label>
+        )}
       </li>
     );
   };

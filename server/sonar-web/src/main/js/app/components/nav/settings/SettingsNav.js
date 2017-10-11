@@ -194,6 +194,12 @@ class SettingsNav extends React.PureComponent {
               </li>
             </ul>
           </li>
+
+          <li>
+            <IndexLink to="/admin/marketplace" activeClassName="active">
+              {translate('marketplace.page')}
+            </IndexLink>
+          </li>
         </NavBarTabs>
       </ContextNavBar>
     );
