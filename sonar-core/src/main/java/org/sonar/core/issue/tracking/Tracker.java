@@ -19,8 +19,8 @@
  */
 package org.sonar.core.issue.tracking;
 
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.ScannerSide;
 
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ScannerSide
@@ -30,20 +30,20 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> extends Abst
     Tracking<RAW, BASE> tracking = new Tracking<>(rawInput.getIssues(), baseInput.getIssues());
 
     // 1. match issues with same rule, same line and same line hash, but not necessarily with same message
-    match(tracking, LineAndLineHashKeyFactory.INSTANCE);
+    match(tracking, LineAndLineHashKey::new);
 
     // 2. detect code moves by comparing blocks of codes
     detectCodeMoves(rawInput, baseInput, tracking);
 
     // 3. match issues with same rule, same message and same line hash
-    match(tracking, LineHashAndMessageKeyFactory.INSTANCE);
+    match(tracking, LineHashAndMessageKey::new);
 
     // 4. match issues with same rule, same line and same message
-    match(tracking, LineAndMessageKeyFactory.INSTANCE);
+    match(tracking, LineAndMessageKey::new);
 
     // 5. match issues with same rule and same line hash but different line and different message.
     // See SONAR-2812
-    match(tracking, LineHashKeyFactory.INSTANCE);
+    match(tracking, LineHashKey::new);
 
     return tracking;
   }

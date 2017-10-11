@@ -63,4 +63,9 @@ public class ServerIssueFromWs implements Trackable {
     return dto.hasMsg() ? trim(dto.getMsg()) : "";
   }
 
+  @Override
+  public String getStatus() {
+    throw new UnsupportedOperationException();
+  }
+
 }

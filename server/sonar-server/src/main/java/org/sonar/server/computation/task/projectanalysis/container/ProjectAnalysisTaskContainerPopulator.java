@@ -64,7 +64,7 @@ import org.sonar.server.computation.task.projectanalysis.issue.IssueCache;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueCounter;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueCreationDateCalculator;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueLifecycle;
-import org.sonar.server.computation.task.projectanalysis.issue.IssueStatusCopier;
+import org.sonar.server.computation.task.projectanalysis.issue.ShortBranchIssueStatusCopier;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueTrackingDelegator;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueVisitors;
 import org.sonar.server.computation.task.projectanalysis.issue.IssuesRepositoryVisitor;
@@ -73,7 +73,7 @@ import org.sonar.server.computation.task.projectanalysis.issue.MergeBranchTracke
 import org.sonar.server.computation.task.projectanalysis.issue.MovedIssueVisitor;
 import org.sonar.server.computation.task.projectanalysis.issue.NewEffortAggregator;
 import org.sonar.server.computation.task.projectanalysis.issue.RemoveProcessedComponentsVisitor;
-import org.sonar.server.computation.task.projectanalysis.issue.ResolvedShortBranchIssuesLoader;
+import org.sonar.server.computation.task.projectanalysis.issue.ShortBranchIssuesLoader;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleTagsCopier;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleTypeCopier;
@@ -252,8 +252,8 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       BaseIssuesLoader.class,
       IssueTrackingDelegator.class,
       BranchPersister.class,
-      ResolvedShortBranchIssuesLoader.class,
-      IssueStatusCopier.class,
+      ShortBranchIssuesLoader.class,
+      ShortBranchIssueStatusCopier.class,
 
       // filemove
       SourceSimilarityImpl.class,

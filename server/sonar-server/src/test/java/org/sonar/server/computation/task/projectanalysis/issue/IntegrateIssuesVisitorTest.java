@@ -113,7 +113,7 @@ public class IntegrateIssuesVisitorTest {
   @Mock
   private MergeBranchComponentUuids mergeBranchComponentsUuids;
   @Mock
-  private IssueStatusCopier issueStatusCopier;
+  private ShortBranchIssueStatusCopier issueStatusCopier;
 
   ArgumentCaptor<DefaultIssue> defaultIssueCaptor;
 

@@ -180,6 +180,11 @@ public class TrackedIssue implements Trackable, Serializable {
     return ruleKey;
   }
 
+  @Override
+  public String getStatus() {
+    return status;
+  }
+
   public String severity() {
     return severity;
   }

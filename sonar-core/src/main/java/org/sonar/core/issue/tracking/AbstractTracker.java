@@ -22,19 +22,20 @@ package org.sonar.core.issue.tracking;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Objects;
+import java.util.function.Function;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 
 public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
 
-  protected void match(Tracking<RAW, BASE> tracking, SearchKeyFactory factory) {
-    match(tracking, factory, false);
+  protected void match(Tracking<RAW, BASE> tracking, Function<Trackable, SearchKey> searchKeyFactory) {
+    match(tracking, searchKeyFactory, false);
   }
 
-  protected void match(Tracking<RAW, BASE> tracking, SearchKeyFactory factory, boolean rejectMultipleMatches) {
+  protected void match(Tracking<RAW, BASE> tracking, Function<Trackable, SearchKey> searchKeyFactory, boolean preferResolved) {
 
     if (tracking.isComplete()) {
       return;
@@ -42,39 +43,39 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
 
     Multimap<SearchKey, BASE> baseSearch = ArrayListMultimap.create();
     for (BASE base : tracking.getUnmatchedBases()) {
-      baseSearch.put(factory.create(base), base);
+      baseSearch.put(searchKeyFactory.apply(base), base);
     }
 
     for (RAW raw : tracking.getUnmatchedRaws()) {
-      SearchKey rawKey = factory.create(raw);
+      SearchKey rawKey = searchKeyFactory.apply(raw);
       Collection<BASE> bases = baseSearch.get(rawKey);
       if (!bases.isEmpty()) {
-        Iterator<BASE> it = bases.iterator();
-        BASE match = it.next();
-        if (rejectMultipleMatches && it.hasNext()) {
-          continue;
+        BASE match;
+        if (preferResolved) {
+          match = bases.stream()
+            .filter(i -> Issue.STATUS_RESOLVED.equals(i.getStatus()))
+            .findFirst()
+            .orElse(bases.iterator().next());
+        } else {
+          // TODO taking the first one. Could be improved if there are more than 2 issues on the same line.
+          // Message could be checked to take the best one.
+          match = bases.iterator().next();
         }
-        // TODO taking the first one. Could be improved if there are more than 2 issues on the same line.
-        // Message could be checked to take the best one.
         tracking.match(raw, match);
         baseSearch.remove(rawKey, match);
       }
     }
   }
 
-  private interface SearchKey {
+  protected interface SearchKey {
   }
 
-  private interface SearchKeyFactory {
-    SearchKey create(Trackable trackable);
-  }
-
-  private static class LineAndLineHashKey implements SearchKey {
+  protected static class LineAndLineHashKey implements SearchKey {
     private final RuleKey ruleKey;
     private final String lineHash;
     private final Integer line;
 
-    LineAndLineHashKey(Trackable trackable) {
+    protected LineAndLineHashKey(Trackable trackable) {
       this.ruleKey = trackable.getRuleKey();
       this.line = trackable.getLine();
       this.lineHash = StringUtils.defaultString(trackable.getLineHash(), "");
@@ -98,15 +99,7 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
     }
   }
 
-  protected enum LineAndLineHashKeyFactory implements SearchKeyFactory {
-    INSTANCE;
-    @Override
-    public SearchKey create(Trackable t) {
-      return new LineAndLineHashKey(t);
-    }
-  }
-
-  private static class LineHashAndMessageKey implements SearchKey {
+  protected static class LineHashAndMessageKey implements SearchKey {
     private final RuleKey ruleKey;
     private final String message;
     private final String lineHash;
@@ -135,15 +128,7 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
     }
   }
 
-  protected enum LineHashAndMessageKeyFactory implements SearchKeyFactory {
-    INSTANCE;
-    @Override
-    public SearchKey create(Trackable t) {
-      return new LineHashAndMessageKey(t);
-    }
-  }
-
-  private static class LineAndMessageKey implements SearchKey {
+  protected static class LineAndMessageKey implements SearchKey {
     private final RuleKey ruleKey;
     private final String message;
     private final Integer line;
@@ -172,15 +157,7 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
     }
   }
 
-  protected enum LineAndMessageKeyFactory implements SearchKeyFactory {
-    INSTANCE;
-    @Override
-    public SearchKey create(Trackable t) {
-      return new LineAndMessageKey(t);
-    }
-  }
-
-  private static class LineHashKey implements SearchKey {
+  protected static class LineHashKey implements SearchKey {
     private final RuleKey ruleKey;
     private final String lineHash;
 
@@ -206,11 +183,4 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
     }
   }
 
-  protected enum LineHashKeyFactory implements SearchKeyFactory {
-    INSTANCE;
-    @Override
-    public SearchKey create(Trackable t) {
-      return new LineHashKey(t);
-    }
-  }
 }

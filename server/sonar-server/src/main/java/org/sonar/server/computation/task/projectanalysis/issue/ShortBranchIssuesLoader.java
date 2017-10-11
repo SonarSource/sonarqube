@@ -31,17 +31,17 @@ import org.sonar.db.issue.ShortBranchIssueDto;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ShortBranchComponentsWithIssues;
 
-public class ResolvedShortBranchIssuesLoader {
+public class ShortBranchIssuesLoader {
 
   private final ShortBranchComponentsWithIssues shortBranchComponentsWithIssues;
   private final DbClient dbClient;
 
-  public ResolvedShortBranchIssuesLoader(ShortBranchComponentsWithIssues shortBranchComponentsWithIssues, DbClient dbClient) {
+  public ShortBranchIssuesLoader(ShortBranchComponentsWithIssues shortBranchComponentsWithIssues, DbClient dbClient) {
     this.shortBranchComponentsWithIssues = shortBranchComponentsWithIssues;
     this.dbClient = dbClient;
   }
 
-  public Collection<ShortBranchIssue> create(Component component) {
+  public Collection<ShortBranchIssue> loadCandidateIssuesForMergingInTargetBranch(Component component) {
     String componentKey = ComponentDto.removeBranchFromKey(component.getKey());
     Set<String> uuids = shortBranchComponentsWithIssues.getUuids(componentKey);
     if (uuids.isEmpty()) {

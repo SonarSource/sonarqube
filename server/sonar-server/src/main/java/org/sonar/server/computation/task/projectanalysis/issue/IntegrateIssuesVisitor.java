@@ -37,11 +37,11 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   private final IssueLifecycle issueLifecycle;
   private final IssueVisitors issueVisitors;
   private final IssueTrackingDelegator issueTracking;
-  private final IssueStatusCopier issueStatusCopier;
+  private final ShortBranchIssueStatusCopier issueStatusCopier;
   private final AnalysisMetadataHolder analysisMetadataHolder;
 
   public IntegrateIssuesVisitor(IssueCache issueCache, IssueLifecycle issueLifecycle, IssueVisitors issueVisitors,
-    AnalysisMetadataHolder analysisMetadataHolder, IssueTrackingDelegator issueTracking, IssueStatusCopier issueStatusCopier) {
+    AnalysisMetadataHolder analysisMetadataHolder, IssueTrackingDelegator issueTracking, ShortBranchIssueStatusCopier issueStatusCopier) {
     super(CrawlerDepthLimit.FILE, POST_ORDER);
     this.issueCache = issueCache;
     this.issueLifecycle = issueLifecycle;

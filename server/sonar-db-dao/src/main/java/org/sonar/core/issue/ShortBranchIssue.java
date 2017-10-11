@@ -65,6 +65,7 @@ public class ShortBranchIssue implements Trackable {
     return ruleKey;
   }
 
+  @Override
   public String getStatus() {
     return status;
   }
