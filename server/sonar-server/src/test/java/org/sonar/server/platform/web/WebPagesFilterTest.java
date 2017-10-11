@@ -33,6 +33,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -63,21 +64,16 @@ public class WebPagesFilterTest {
   }
 
   @Test
-  public void verify_paths() throws Exception {
+  public void return_index_file_content_with_no_context() throws Exception {
     mockIndexFile();
-    verifyPathIsHandled("/");
-    verifyPathIsHandled("/issues");
-    verifyPathIsHandled("/foo");
-  }
-
-  @Test
-  public void return_index_file_content() throws Exception {
-    mockIndexFile();
-    mockPath("/foo", "");
+    mockPath("/", "");
     underTest.init(filterConfig);
     underTest.doFilter(request, response, chain);
 
     assertThat(outputStream.toString()).contains("<head>");
+    assertThat(outputStream.toString()).contains("href=\"/sonar.css\"");
+    assertThat(outputStream.toString()).contains("<script src=\"/sonar.js\"></script>");
+    assertThat(outputStream.toString()).doesNotContain("%WEB_CONTEXT%");
     verify(response).setContentType("text/html");
     verify(response).setCharacterEncoding("utf-8");
     verify(response).setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -86,27 +82,22 @@ public class WebPagesFilterTest {
   }
 
   @Test
-  public void return_index_file_content_with_default_web_context() throws Exception {
+  public void return_index_file_content_with_context() throws Exception {
     mockIndexFile();
-    mockPath("/foo", "");
+    String context = randomAlphanumeric(10);
+    mockPath("/", context);
     underTest.init(filterConfig);
     underTest.doFilter(request, response, chain);
 
-    assertThat(outputStream.toString()).contains("href=\"/sonar.css\"");
-    assertThat(outputStream.toString()).contains("<script src=\"/sonar.js\"></script>");
+    assertThat(outputStream.toString()).contains("<head>");
+    assertThat(outputStream.toString()).contains("href=\"" + context + "/sonar.css\"");
+    assertThat(outputStream.toString()).contains("<script src=\"" + context + "/sonar.js\"></script>");
     assertThat(outputStream.toString()).doesNotContain("%WEB_CONTEXT%");
-  }
-
-  @Test
-  public void return_index_file_content_with_web_context() throws Exception {
-    mockIndexFile();
-    mockPath("/foo", "/web");
-    underTest.init(filterConfig);
-    underTest.doFilter(request, response, chain);
-
-    assertThat(outputStream.toString()).contains("href=\"/web/sonar.css\"");
-    assertThat(outputStream.toString()).contains("<script src=\"/web/sonar.js\"></script>");
-    assertThat(outputStream.toString()).doesNotContain("%WEB_CONTEXT%");
+    verify(response).setContentType("text/html");
+    verify(response).setCharacterEncoding("utf-8");
+    verify(response).setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    verify(response).getOutputStream();
+    verifyNoMoreInteractions(response);
   }
 
   @Test
@@ -140,7 +131,7 @@ public class WebPagesFilterTest {
     when(response.getOutputStream()).thenReturn(outputStream);
   }
 
-  private void verifyPthIsIgnored(String path) throws Exception {
+  private void verifyPathIsIgnored(String path) throws Exception {
     mockPath(path, "");
     underTest.init(filterConfig);
 

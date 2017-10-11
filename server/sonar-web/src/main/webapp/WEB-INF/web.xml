@@ -76,7 +76,7 @@
   </filter-mapping>
   <filter-mapping>
     <filter-name>WebPagesFilter</filter-name>
-    <url-pattern>/*</url-pattern>
+    <url-pattern>/</url-pattern>
   </filter-mapping>
 
   <servlet>

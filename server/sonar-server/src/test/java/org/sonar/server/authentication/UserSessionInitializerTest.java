@@ -82,10 +82,10 @@ public class UserSessionInitializerTest {
 
   @Test
   public void check_urls() throws Exception {
-    assertPathIsNotIgnored("/");
     assertPathIsNotIgnored("/foo");
     assertPathIsNotIgnored("/api/server_id/show");
 
+    assertPathIsIgnored("/");
     assertPathIsIgnored("/api/authentication/login");
     assertPathIsIgnored("/api/authentication/logout");
     assertPathIsIgnored("/api/authentication/validate");
