@@ -30,14 +30,9 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.pageobjects.Navigation;
-import org.sonarqube.pageobjects.ServerIdPage;
 import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.tests.Tester;
-import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.ServerId.ShowWsResponse;
 import org.sonarqube.ws.WsSystem;
-import org.sonarqube.ws.client.GetRequest;
 import util.ItUtils;
 
 import static org.apache.commons.lang.StringUtils.startsWithAny;
@@ -68,32 +63,6 @@ public class ServerSystemTest {
     if (!startsWithAny(version, new String[]{"6.", "7.", "8."})) {
       fail("Bad version: " + version);
     }
-  }
-
-  @Test
-  public void generate_server_id() throws IOException {
-    Navigation nav = tester.openBrowser().openHome().logIn().submitCredentials(ADMIN_USER_LOGIN);
-    String validIpAddress = getValidIpAddress();
-
-    nav.openServerId()
-      .setOrganization("Name with invalid chars like $")
-      .setIpAddress(validIpAddress)
-      .submitForm()
-      .assertError();
-
-    nav.openServerId()
-      .setOrganization("DEMO")
-      .setIpAddress("invalid_address")
-      .submitForm()
-      .assertError();
-
-    ServerIdPage page = nav.openServerId()
-      .setOrganization("DEMO")
-      .setIpAddress(validIpAddress)
-      .submitForm();
-
-    String serverId = page.serverIdInput().val();
-    assertThat(serverId).isNotEmpty();
   }
 
   /**
@@ -149,13 +118,6 @@ public class ServerSystemTest {
     String json = IOUtils.toString(response.body().byteStream());
     Map jsonAsMap = (Map) JSONValue.parse(json);
     assertThat(jsonAsMap.get("webServices")).isNotNull();
-  }
-
-  private String getValidIpAddress() throws IOException {
-    ShowWsResponse response = ShowWsResponse.parseFrom(tester.wsClient().wsConnector().call(
-      new GetRequest("api/server_id/show").setMediaType(MediaTypes.PROTOBUF)).contentStream());
-    assertThat(response.getValidIpAddressesCount()).isGreaterThan(0);
-    return response.getValidIpAddresses(0);
   }
 
 }
