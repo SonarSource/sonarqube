@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import Workers from '../Workers';
 import { click } from '../../../../helpers/testUtils';
@@ -34,10 +33,10 @@ it('renders', () => {
   });
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.setState({ canSetWorkerCount: false });
+  wrapper.setState({ workerCount: 2 });
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.setState({ workerCount: 2 });
+  wrapper.setState({ canSetWorkerCount: false });
   expect(wrapper).toMatchSnapshot();
 });
 
@@ -66,7 +65,7 @@ it('updates worker count', () => {
   });
   expect(wrapper).toMatchSnapshot();
 
-  wrapper.find('WorkersForm').prop('onClose')(7);
+  wrapper.find('WorkersForm').prop<Function>('onClose')(7);
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
 });

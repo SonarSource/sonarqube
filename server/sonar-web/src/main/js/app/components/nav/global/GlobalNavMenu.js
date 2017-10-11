@@ -114,7 +114,7 @@ export default class GlobalNavMenu extends React.PureComponent {
 
     return (
       <li>
-        <Link to="/admin" className="is-admin" activeClassName="active">
+        <Link to="/admin" activeClassName="active">
           {translate('layout.settings')}
         </Link>
       </li>

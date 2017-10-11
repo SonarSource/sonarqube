@@ -62,43 +62,43 @@ exports[`changes select 1`] = `
         options={
           Array [
             Object {
-              "label": 1,
+              "label": "1",
               "value": 1,
             },
             Object {
-              "label": 2,
+              "label": "2",
               "value": 2,
             },
             Object {
-              "label": 3,
+              "label": "3",
               "value": 3,
             },
             Object {
-              "label": 4,
+              "label": "4",
               "value": 4,
             },
             Object {
-              "label": 5,
+              "label": "5",
               "value": 5,
             },
             Object {
-              "label": 6,
+              "label": "6",
               "value": 6,
             },
             Object {
-              "label": 7,
+              "label": "7",
               "value": 7,
             },
             Object {
-              "label": 8,
+              "label": "8",
               "value": 8,
             },
             Object {
-              "label": 9,
+              "label": "9",
               "value": 9,
             },
             Object {
-              "label": 10,
+              "label": "10",
               "value": 10,
             },
           ]
@@ -205,43 +205,43 @@ exports[`changes select 2`] = `
         options={
           Array [
             Object {
-              "label": 1,
+              "label": "1",
               "value": 1,
             },
             Object {
-              "label": 2,
+              "label": "2",
               "value": 2,
             },
             Object {
-              "label": 3,
+              "label": "3",
               "value": 3,
             },
             Object {
-              "label": 4,
+              "label": "4",
               "value": 4,
             },
             Object {
-              "label": 5,
+              "label": "5",
               "value": 5,
             },
             Object {
-              "label": 6,
+              "label": "6",
               "value": 6,
             },
             Object {
-              "label": 7,
+              "label": "7",
               "value": 7,
             },
             Object {
-              "label": 8,
+              "label": "8",
               "value": 8,
             },
             Object {
-              "label": 9,
+              "label": "9",
               "value": 9,
             },
             Object {
-              "label": 10,
+              "label": "10",
               "value": 10,
             },
           ]

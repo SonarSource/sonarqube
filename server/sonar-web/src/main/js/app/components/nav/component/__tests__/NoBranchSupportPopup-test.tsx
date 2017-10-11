@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,27 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
-import React from 'react';
-import Workers from './Workers';
-import { translate } from '../../../helpers/l10n';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import NoBranchSupportPopup from '../NoBranchSupportPopup';
 
-/*::
-type Props = {
-  component?: Object
-};
-*/
-
-export default function Header(props /*: Props */) {
-  return (
-    <header className="page-header">
-      <h1 className="page-title">{translate('background_tasks.page')}</h1>
-      {!props.component && (
-        <div className="page-actions">
-          <Workers />
-        </div>
-      )}
-      <p className="page-description">{translate('background_tasks.page.description')}</p>
-    </header>
-  );
-}
+it('renders', () => {
+  expect(shallow(<NoBranchSupportPopup />)).toMatchSnapshot();
+});
