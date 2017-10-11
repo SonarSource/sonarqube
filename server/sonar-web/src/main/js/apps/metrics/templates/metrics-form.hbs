@@ -6,15 +6,15 @@
     <div class="js-modal-messages"></div>
     <div class="modal-field">
       <label for="create-metric-key">{{t 'key'}}<em class="mandatory">*</em></label>
-      <input id="create-metric-key" name="key" type="text" maxlength="200" required value="{{key}}">
+      <input id="create-metric-key" name="key" type="text" maxlength="64" required value="{{key}}">
     </div>
     <div class="modal-field">
       <label for="create-metric-name">{{t 'name'}}<em class="mandatory">*</em></label>
-      <input id="create-metric-name" name="name" type="text" maxlength="200" required value="{{name}}">
+      <input id="create-metric-name" name="name" type="text" maxlength="64" required value="{{name}}">
     </div>
     <div class="modal-field">
       <label for="create-metric-description">{{t 'description'}}</label>
-      <textarea id="create-metric-description" name="description">{{description}}</textarea>
+      <textarea id="create-metric-description" maxlength="255" name="description">{{description}}</textarea>
     </div>
     <div class="modal-field">
       <label for="create-metric-domain">{{t 'custom_metrics.domain'}}</label>
