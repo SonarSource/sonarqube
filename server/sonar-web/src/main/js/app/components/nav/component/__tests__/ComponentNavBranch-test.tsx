@@ -96,7 +96,7 @@ it('renders single branch popup', () => {
   expect(wrapper.find('BubblePopupHelper').prop('isOpen')).toBe(true);
 });
 
-it('renders nothing when no branch support', () => {
+it('renders no branch support popup', () => {
   const branch: MainBranch = { isMain: true, name: 'master' };
   const component = {} as Component;
   const wrapper = shallow(
@@ -106,6 +106,19 @@ it('renders nothing when no branch support', () => {
       currentBranch={branch}
     />,
     { context: { branchesEnabled: false } }
+  );
+  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('BubblePopupHelper').prop('isOpen')).toBe(false);
+  click(wrapper.find('a'));
+  expect(wrapper.find('BubblePopupHelper').prop('isOpen')).toBe(true);
+});
+
+it('renders nothing on SonarCloud without branch support', () => {
+  const branch: MainBranch = { isMain: true, name: 'master' };
+  const component = {} as Component;
+  const wrapper = shallow(
+    <ComponentNavBranch branches={[branch]} component={component} currentBranch={branch} />,
+    { context: { branchesEnabled: false, onSonarCloud: true } }
   );
   expect(wrapper.type()).toBeNull();
 });
