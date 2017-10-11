@@ -22,6 +22,7 @@ package org.sonar.server.component.index;
 
 import java.util.Collection;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableCollection;
@@ -72,12 +73,12 @@ public class ComponentQuery {
       // enforce static factory method
     }
 
-    public Builder setOrganization(String organizationUuid) {
+    public Builder setOrganization(@Nullable String organizationUuid) {
       this.organizationUuid = organizationUuid;
       return this;
     }
 
-    public Builder setQuery(String query) {
+    public Builder setQuery(@Nullable String query) {
       this.query = query;
       return this;
     }
@@ -87,7 +88,7 @@ public class ComponentQuery {
       return this;
     }
 
-    public Builder setLanguage(String language) {
+    public Builder setLanguage(@Nullable String language) {
       this.language = language;
       return this;
     }

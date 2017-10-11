@@ -163,5 +163,4 @@ public class ComponentIndexSearchTest {
     indexer.indexOnStartup(emptySet());
     Arrays.stream(components).forEach(c -> authorizationIndexerTester.allowOnlyAnyone(c));
   }
-
 }

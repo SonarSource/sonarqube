@@ -31,14 +31,15 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
-import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.component.index.ComponentIndex;
+import org.sonar.server.component.index.ComponentQuery;
+import org.sonar.server.es.SearchIdResult;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsComponents.SearchWsResponse;
@@ -50,8 +51,8 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
 import static org.sonar.server.util.LanguageParamUtils.getExampleValue;
 import static org.sonar.server.util.LanguageParamUtils.getLanguageKeys;
-import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_LANGUAGE;
@@ -59,19 +60,19 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORG
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 
 public class SearchAction implements ComponentsWsAction {
+  private final ComponentIndex componentIndex;
   private final DbClient dbClient;
   private final ResourceTypes resourceTypes;
   private final I18n i18n;
-  private final UserSession userSession;
   private final Languages languages;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public SearchAction(DbClient dbClient, ResourceTypes resourceTypes, I18n i18n, UserSession userSession,
-    Languages languages, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public SearchAction(ComponentIndex componentIndex, DbClient dbClient, ResourceTypes resourceTypes, I18n i18n, Languages languages,
+                      DefaultOrganizationProvider defaultOrganizationProvider) {
+    this.componentIndex = componentIndex;
     this.dbClient = dbClient;
     this.resourceTypes = resourceTypes;
     this.i18n = i18n;
-    this.userSession = userSession;
     this.languages = languages;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
@@ -127,13 +128,15 @@ public class SearchAction implements ComponentsWsAction {
 
   private SearchWsResponse doHandle(SearchWsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentQuery query = buildQuery(request);
       OrganizationDto organization = getOrganization(dbSession, request);
-      Paging paging = buildPaging(dbSession, request, organization, query);
-      List<ComponentDto> components = searchComponents(dbSession, organization, query, paging);
+      ComponentQuery esQuery = buildEsQuery(organization, request);
+      SearchIdResult<String> results = componentIndex.search(esQuery, new SearchOptions().setPage(request.getPage(), request.getPageSize()));
+
+      List<ComponentDto> components = dbClient.componentDao().selectByUuids(dbSession, results.getIds());
       Map<String, String> projectKeysByUuids = searchProjectsKeysByUuids(dbSession, components);
 
-      return buildResponse(components, organization, projectKeysByUuids, paging);
+      return buildResponse(components, organization, projectKeysByUuids,
+        Paging.forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal((int) results.getTotal()));
     }
   }
 
@@ -145,15 +148,6 @@ public class SearchAction implements ComponentsWsAction {
     return projects.stream().collect(toMap(ComponentDto::uuid, ComponentDto::getDbKey));
   }
 
-  private static ComponentQuery buildQuery(SearchWsRequest request) {
-    List<String> qualifiers = request.getQualifiers();
-    return ComponentQuery.builder()
-      .setNameOrKeyQuery(request.getQuery())
-      .setLanguage(request.getLanguage())
-      .setQualifiers(qualifiers.toArray(new String[qualifiers.size()]))
-      .build();
-  }
-
   private OrganizationDto getOrganization(DbSession dbSession, SearchWsRequest request) {
     String organizationKey = Optional.ofNullable(request.getOrganization())
       .orElseGet(defaultOrganizationProvider.get()::getKey);
@@ -162,16 +156,13 @@ public class SearchAction implements ComponentsWsAction {
       "No organizationDto with key '%s'", organizationKey);
   }
 
-  private Paging buildPaging(DbSession dbSession, SearchWsRequest request, OrganizationDto organization, ComponentQuery query) {
-    int total = dbClient.componentDao().countByQuery(dbSession, organization.getUuid(), query);
-    return Paging.forPageIndex(request.getPage())
-      .withPageSize(request.getPageSize())
-      .andTotal(total);
-  }
-
-  private List<ComponentDto> searchComponents(DbSession dbSession, OrganizationDto organization, ComponentQuery query, Paging paging) {
-    List<ComponentDto> componentDtos = dbClient.componentDao().selectByQuery(dbSession, organization.getUuid(), query, paging.offset(), paging.pageSize());
-    return userSession.keepAuthorizedComponents(UserRole.USER, componentDtos);
+  private static ComponentQuery buildEsQuery(OrganizationDto organization, SearchWsRequest request) {
+    return ComponentQuery.builder()
+      .setQuery(request.getQuery())
+      .setOrganization(organization.getUuid())
+      .setLanguage(request.getLanguage())
+      .setQualifiers(request.getQualifiers())
+      .build();
   }
 
   private static SearchWsResponse buildResponse(List<ComponentDto> components, OrganizationDto organization, Map<String, String> projectKeysByUuids, Paging paging) {
