@@ -40,4 +40,6 @@ public interface Trackable {
   String getLineHash();
 
   RuleKey getRuleKey();
+
+  String getStatus();
 }

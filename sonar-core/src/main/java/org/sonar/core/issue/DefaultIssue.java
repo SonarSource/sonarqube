@@ -648,4 +648,9 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   public RuleKey getRuleKey() {
     return ruleKey;
   }
+
+  @Override
+  public String getStatus() {
+    return status;
+  }
 }

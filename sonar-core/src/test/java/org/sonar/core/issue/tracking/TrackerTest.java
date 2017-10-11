@@ -186,7 +186,7 @@ public class TrackerTest {
   @Test
   public void do_not_fail_if_raw_line_does_not_exist() {
     FakeInput baseInput = new FakeInput();
-    FakeInput rawInput = new FakeInput("H1").addIssue(new Issue(200, "H200", RULE_SYSTEM_PRINT, "msg"));
+    FakeInput rawInput = new FakeInput("H1").addIssue(new Issue(200, "H200", RULE_SYSTEM_PRINT, "msg", org.sonar.api.issue.Issue.STATUS_OPEN));
 
     Tracking<Issue, Issue> tracking = tracker.track(rawInput, baseInput);
 
@@ -385,11 +385,13 @@ public class TrackerTest {
     private final RuleKey ruleKey;
     private final Integer line;
     private final String message, lineHash;
+    private final String status;
 
-    Issue(@Nullable Integer line, String lineHash, RuleKey ruleKey, String message) {
+    Issue(@Nullable Integer line, String lineHash, RuleKey ruleKey, String message, String status) {
       this.line = line;
       this.lineHash = lineHash;
       this.ruleKey = ruleKey;
+      this.status = status;
       this.message = trim(message);
     }
 
@@ -412,6 +414,11 @@ public class TrackerTest {
     public RuleKey getRuleKey() {
       return ruleKey;
     }
+
+    @Override
+    public String getStatus() {
+      return status;
+    }
   }
 
   private static class FakeInput implements Input<Issue> {
@@ -431,7 +438,7 @@ public class TrackerTest {
     }
 
     Issue createIssueOnLine(int line, RuleKey ruleKey, String message) {
-      Issue issue = new Issue(line, lineHashes.get(line - 1), ruleKey, message);
+      Issue issue = new Issue(line, lineHashes.get(line - 1), ruleKey, message, org.sonar.api.issue.Issue.STATUS_OPEN);
       issues.add(issue);
       return issue;
     }
@@ -440,7 +447,7 @@ public class TrackerTest {
      * No line (line 0)
      */
     Issue createIssue(RuleKey ruleKey, String message) {
-      Issue issue = new Issue(null, "", ruleKey, message);
+      Issue issue = new Issue(null, "", ruleKey, message, org.sonar.api.issue.Issue.STATUS_OPEN);
       issues.add(issue);
       return issue;
     }
