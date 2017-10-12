@@ -21,6 +21,8 @@ package org.sonar.server.rule.index;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
@@ -114,6 +116,15 @@ public class RuleIndexerTest {
         .get()
         .getHits()
         .getHits()[0]
-          .getId()).isEqualTo(doc.getId());
+        .getId()).isEqualTo(doc.getId());
+  }
+
+  @Test
+  public void index_long_rule_description() {
+    String description = IntStream.range(0, 100000).map(i -> i % 100).mapToObj(Integer::toString).collect(Collectors.joining(" "));
+    RuleDefinitionDto rule = dbTester.rules().insert(r -> r.setDescription(description));
+    underTest.commitAndIndex(dbTester.getSession(), rule.getKey());
+
+    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX_TYPE_RULE)).isEqualTo(1);
   }
 }
