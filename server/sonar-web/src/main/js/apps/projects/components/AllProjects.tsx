@@ -24,6 +24,7 @@ import PageHeader from './PageHeader';
 import ProjectsList from './ProjectsList';
 import PageSidebar from './PageSidebar';
 import Visualizations from '../visualizations/Visualizations';
+import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import ListFooter from '../../../components/controls/ListFooter';
 import { translate } from '../../../helpers/l10n';
 import * as storage from '../../../helpers/storage';
@@ -60,6 +61,10 @@ export default class AllProjects extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
+    if (this.props.isFavorite && !this.context.currentUser.isLoggedIn) {
+      handleRequiredAuthentication();
+      return;
+    }
     this.handleQueryChange(true);
     const footer = document.getElementById('footer');
     footer && footer.classList.add('page-footer-with-sidebar');
