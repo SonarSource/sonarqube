@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,8 +29,6 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.authentication.IdentityProviderRepositoryRule;
 import org.sonar.server.authentication.TestIdentityProvider;
-import org.sonar.server.platform.ServerId;
-import org.sonar.server.platform.ServerIdLoader;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.SecurityRealmFactory;
 
@@ -51,19 +48,16 @@ public class StandaloneSystemSectionTest {
 
   private MapSettings settings = new MapSettings();
   private Server server = mock(Server.class);
-  private ServerIdLoader serverIdLoader = mock(ServerIdLoader.class);
   private ServerLogging serverLogging = mock(ServerLogging.class);
   private SecurityRealmFactory securityRealmFactory = mock(SecurityRealmFactory.class);
   private OfficialDistribution officialDistribution = mock(OfficialDistribution.class);
 
   private StandaloneSystemSection underTest = new StandaloneSystemSection(settings.asConfig(), securityRealmFactory, identityProviderRepository, server,
-    serverLogging, serverIdLoader, officialDistribution);
+    serverLogging, officialDistribution);
 
   @Before
   public void setUp() throws Exception {
     when(serverLogging.getRootLoggerLevel()).thenReturn(LoggerLevel.DEBUG);
-    when(serverIdLoader.getRaw()).thenReturn(Optional.empty());
-    when(serverIdLoader.get()).thenReturn(Optional.empty());
   }
 
   @Test
@@ -73,38 +67,8 @@ public class StandaloneSystemSectionTest {
 
   @Test
   public void test_getServerId() {
-    when(serverIdLoader.getRaw()).thenReturn(Optional.of("ABC"));
+    when(server.getId()).thenReturn("ABC");
     assertThat(underTest.getServerId()).isEqualTo("ABC");
-
-    when(serverIdLoader.getRaw()).thenReturn(Optional.empty());
-    assertThat(underTest.getServerId()).isNull();
-  }
-
-  @Test
-  public void attributes_contain_information_about_valid_server_id() {
-    when(serverIdLoader.get()).thenReturn(Optional.of(new ServerId("ABC", true)));
-
-    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
-    assertThatAttributeIs(protobuf, SERVER_ID_PROPERTY, "ABC");
-    assertThatAttributeIs(protobuf, SERVER_ID_VALIDATED_PROPERTY, true);
-  }
-
-  @Test
-  public void attributes_contain_information_about_non_valid_server_id() {
-    when(serverIdLoader.get()).thenReturn(Optional.of(new ServerId("ABC", false)));
-
-    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
-    assertThatAttributeIs(protobuf, SERVER_ID_PROPERTY, "ABC");
-    assertThatAttributeIs(protobuf, SERVER_ID_VALIDATED_PROPERTY, false);
-  }
-
-  @Test
-  public void attributes_do_not_contain_information_about_server_id_if_absent() {
-    when(serverIdLoader.get()).thenReturn(Optional.empty());
-
-    ProtobufSystemInfo.Section protobuf = underTest.toProtobuf();
-    assertThat(attribute(protobuf, SERVER_ID_PROPERTY)).isNull();
-    assertThat(attribute(protobuf, SERVER_ID_VALIDATED_PROPERTY)).isNull();
   }
 
   @Test

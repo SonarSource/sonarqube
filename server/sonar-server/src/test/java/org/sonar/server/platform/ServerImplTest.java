@@ -84,18 +84,17 @@ public class ServerImplTest {
 
   @Test
   public void test_id() throws IOException {
-    settings.setProperty(CoreProperties.SERVER_ID, "an_id");
+    settings.setProperty(CoreProperties.SERVER_ID, "foo");
 
-    assertThat(underTest.getId()).isEqualTo("an_id");
+    assertThat(underTest.getId()).isEqualTo("foo");
+    assertThat(underTest.getPermanentServerId()).isEqualTo("foo");
   }
 
   @Test
-  public void test_runtime() throws IOException {
-    settings.setProperty(CoreProperties.PERMANENT_SERVER_ID, "an_id");
+  public void test_getVersion() throws IOException {
     Version version = Version.create(6, 1);
     when(runtime.getApiVersion()).thenReturn(version);
 
     assertThat(underTest.getVersion()).isEqualTo(version.toString());
-    assertThat(underTest.getPermanentServerId()).isEqualTo("an_id");
   }
 }

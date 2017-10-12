@@ -105,6 +105,6 @@ public class DefaultServer extends Server {
 
   @Override
   public String getPermanentServerId() {
-    return settings.getString(CoreProperties.PERMANENT_SERVER_ID);
+    return getId();
   }
 }

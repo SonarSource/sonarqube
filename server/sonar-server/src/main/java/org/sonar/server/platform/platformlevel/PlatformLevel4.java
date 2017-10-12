@@ -186,6 +186,7 @@ import org.sonar.server.source.ws.LinesAction;
 import org.sonar.server.source.ws.RawAction;
 import org.sonar.server.source.ws.ScmAction;
 import org.sonar.server.source.ws.SourcesWs;
+import org.sonar.server.startup.LogServerId;
 import org.sonar.server.telemetry.TelemetryClient;
 import org.sonar.server.telemetry.TelemetryDaemon;
 import org.sonar.server.telemetry.TelemetryDataLoader;
@@ -250,6 +251,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ChangeLogLevelStandaloneService.class);
 
     add(
+      LogServerId.class,
       PluginDownloader.class,
       DeprecatedViews.class,
       PageRepository.class,

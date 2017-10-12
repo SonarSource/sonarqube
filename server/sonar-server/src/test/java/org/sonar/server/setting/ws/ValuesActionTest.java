@@ -710,7 +710,7 @@ public class ValuesActionTest {
 
     ValuesWsResponse result = executeRequestForGlobalProperties();
 
-    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("sonar.server_id", "sonar.core.id", "sonar.core.startTime", "plugin.license.secured",
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("sonar.core.id", "sonar.core.startTime", "plugin.license.secured",
       "sonar.plugin.licenseHash.secured");
   }
 

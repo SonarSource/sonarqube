@@ -30,7 +30,6 @@ import org.sonar.db.property.PropertyDto;
 
 import static java.util.stream.Collectors.toSet;
 import static java.util.stream.Stream.concat;
-import static org.sonar.api.CoreProperties.PERMANENT_SERVER_ID;
 import static org.sonar.api.CoreProperties.SERVER_ID;
 import static org.sonar.api.CoreProperties.SERVER_STARTTIME;
 import static org.sonar.api.PropertyType.LICENSE;
@@ -41,7 +40,7 @@ import static org.sonar.server.setting.ws.SettingsWsSupport.LICENSE_HASH_SUFFIX;
  */
 public class ScannerSettings {
 
-  private static final Set<String> SERVER_SETTING_KEYS = ImmutableSet.of(PERMANENT_SERVER_ID, SERVER_STARTTIME, SERVER_ID);
+  private static final Set<String> SERVER_SETTING_KEYS = ImmutableSet.of(SERVER_STARTTIME, SERVER_ID);
 
   private final DbClient dbClient;
   private final PropertyDefinitions propertyDefinitions;

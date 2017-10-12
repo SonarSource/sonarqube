@@ -34,7 +34,6 @@ import org.sonarqube.tests.serverSystem.RestartTest;
 import org.sonarqube.tests.serverSystem.ServerSystemRestartingOrchestrator;
 import org.sonarqube.tests.serverSystem.SystemStateTest;
 import org.sonarqube.tests.settings.ElasticsearchSettingsTest;
-import org.sonarqube.tests.settings.LicensesPageTest;
 import org.sonarqube.tests.settings.SettingsTestRestartingOrchestrator;
 import org.sonarqube.tests.startup.StartupIndexationTest;
 import org.sonarqube.tests.telemetry.TelemetryOptOutTest;
@@ -57,7 +56,6 @@ import org.sonarqube.tests.user.UserEsResilienceTest;
   RestartTest.class,
   SettingsTestRestartingOrchestrator.class,
   SystemStateTest.class,
-  LicensesPageTest.class,
   // update center
   UpdateCenterTest.class,
   RealmAuthenticationTest.class,

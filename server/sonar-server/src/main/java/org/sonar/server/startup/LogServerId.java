@@ -19,65 +19,26 @@
  */
 package org.sonar.server.startup;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.picocontainer.Startable;
-import org.sonar.api.CoreProperties;
+import org.sonar.api.platform.Server;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
-import org.sonar.db.property.PropertyDto;
 
 public final class LogServerId implements Startable {
 
-  private final DbClient dbClient;
+  private final Server server;
 
-  public LogServerId(DbClient dbClient) {
-    this.dbClient = dbClient;
+  public LogServerId(Server server) {
+    this.server = server;
   }
 
   @Override
   public void start() {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      String propertyKey = CoreProperties.PERMANENT_SERVER_ID;
-      PropertyDto serverIdProp = selectProperty(dbSession, propertyKey);
-      if (serverIdProp != null) {
-        // a server ID has been generated, let's print out the other useful information that can help debugging license issues
-        PropertyDto organizationProp = selectProperty(dbSession, CoreProperties.ORGANISATION);
-        PropertyDto ipAddressProp = selectProperty(dbSession, CoreProperties.SERVER_ID_IP_ADDRESS);
-
-        StringBuilder message = new StringBuilder("Server information:\n");
-        message.append("  - ID           : ");
-        addQuotedValue(serverIdProp, message);
-        message.append("  - Organization : ");
-        addQuotedValue(organizationProp, message);
-        message.append("  - Registered IP: ");
-        addQuotedValue(ipAddressProp, message);
-
-        Loggers.get(LogServerId.class).info(message.toString());
-      }
-    }
+    Loggers.get(getClass()).info("Server ID: " + server.getId());
   }
 
   @Override
   public void stop() {
     // nothing to do
-  }
-
-  @CheckForNull
-  private PropertyDto selectProperty(DbSession dbSession, String propertyKey) {
-    return dbClient.propertiesDao().selectGlobalProperty(dbSession, propertyKey);
-  }
-
-  private static void addQuotedValue(@Nullable PropertyDto property, StringBuilder message) {
-    if (property == null || property.getValue() == null) {
-      message.append('-');
-    } else {
-      message.append("\"");
-      message.append(property.getValue());
-      message.append("\"");
-    }
-    message.append('\n');
   }
 
 }

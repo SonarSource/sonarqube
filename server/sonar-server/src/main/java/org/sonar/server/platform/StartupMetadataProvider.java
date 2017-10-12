@@ -53,8 +53,7 @@ public class StartupMetadataProvider extends ProviderAdapter {
   }
 
   /**
-   * Generate {@link CoreProperties#SERVER_ID} if it doesn't exist yet, otherwise just load it from DB, and always
-   * generate a {@link CoreProperties#SERVER_STARTTIME}.
+   * Generate a {@link CoreProperties#SERVER_STARTTIME}.
    * <p>
    * Persistence is performed by {@link StartupMetadataPersister}.
    * </p>

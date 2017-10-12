@@ -68,7 +68,9 @@ public enum PropertyType {
 
   /**
    * SonarSource license
+   * @deprecated in 6.7.
    */
+  @Deprecated
   LICENSE,
 
   /**

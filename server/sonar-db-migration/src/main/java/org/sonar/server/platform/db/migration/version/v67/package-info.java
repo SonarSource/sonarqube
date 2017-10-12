@@ -17,25 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform;
+@ParametersAreNonnullByDefault
+package org.sonar.server.platform.db.migration.version.v67;
 
-import javax.annotation.concurrent.Immutable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-@Immutable
-public final class ServerId {
-  private final String id;
-  private final boolean valid;
-
-  public ServerId(String id, boolean valid) {
-    this.id = id;
-    this.valid = valid;
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  public boolean isValid() {
-    return valid;
-  }
-}
