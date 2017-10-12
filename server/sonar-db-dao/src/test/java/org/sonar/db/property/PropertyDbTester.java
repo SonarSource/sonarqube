@@ -104,4 +104,10 @@ public class PropertyDbTester {
     dbSession.commit();
     return this;
   }
+
+  public PropertyDbTester insertEmptyInternal(String key) {
+    dbClient.internalPropertiesDao().saveAsEmpty(dbSession, key);
+    dbSession.commit();
+    return this;
+  }
 }
