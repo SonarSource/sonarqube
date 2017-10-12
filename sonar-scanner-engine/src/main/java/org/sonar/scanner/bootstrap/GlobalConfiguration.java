@@ -51,7 +51,7 @@ public class GlobalConfiguration extends DefaultConfiguration {
     super(propertyDefinitions, encryption, mode, settings);
     this.serverSideSettings = unmodifiableMapWithTrimmedValues(propertyDefinitions, serverSideSettings);
 
-    get(CoreProperties.PERMANENT_SERVER_ID).ifPresent(v -> LOG.info("Server id: {}", v));
+    get(CoreProperties.SERVER_ID).ifPresent(v -> LOG.info("Server id: {}", v));
     new DroppedPropertyChecker(getProperties(), DROPPED_PROPERTIES).checkDroppedProperties();
   }
 

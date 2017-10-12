@@ -62,6 +62,6 @@ public class ScannerSettingsTest {
       PropertyDefinition.builder("foo").build(),
       PropertyDefinition.builder("myplugin.license.secured").type(LICENSE).build()));
 
-    assertThat(underTest.getScannerSettingKeys(db.getSession())).contains("sonar.server_id", "sonar.core.id", "sonar.core.startTime");
+    assertThat(underTest.getScannerSettingKeys(db.getSession())).contains("sonar.core.id", "sonar.core.startTime");
   }
 }

@@ -58,7 +58,7 @@ public class ServerImpl extends Server {
 
   @Override
   public String getPermanentServerId() {
-    return config.get(CoreProperties.PERMANENT_SERVER_ID).orElse(null);
+    return getId();
   }
 
   @Override

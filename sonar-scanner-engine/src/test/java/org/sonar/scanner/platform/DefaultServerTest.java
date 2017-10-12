@@ -39,7 +39,6 @@ public class DefaultServerTest {
     Settings settings = new MapSettings();
     settings.setProperty(CoreProperties.SERVER_ID, "123");
     settings.setProperty(CoreProperties.SERVER_STARTTIME, "2010-05-18T17:59:00+0000");
-    settings.setProperty(CoreProperties.PERMANENT_SERVER_ID, "abcde");
     ScannerWsClient client = mock(ScannerWsClient.class);
     when(client.baseUrl()).thenReturn("http://foo.com");
 
@@ -49,7 +48,7 @@ public class DefaultServerTest {
     assertThat(metadata.getVersion()).isEqualTo("2.2");
     assertThat(metadata.getStartedAt()).isNotNull();
     assertThat(metadata.getURL()).isEqualTo("http://foo.com");
-    assertThat(metadata.getPermanentServerId()).isEqualTo("abcde");
+    assertThat(metadata.getPermanentServerId()).isEqualTo("123");
 
     assertThat(metadata.getRootDir()).isNull();
     assertThat(metadata.getDeployDir()).isNull();

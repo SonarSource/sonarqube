@@ -32,7 +32,6 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.authentication.IdentityProviderRepository;
-import org.sonar.server.platform.ServerIdLoader;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.SecurityRealmFactory;
 
@@ -47,24 +46,22 @@ public class StandaloneSystemSection extends BaseSectionMBean implements SystemS
   private final IdentityProviderRepository identityProviderRepository;
   private final Server server;
   private final ServerLogging serverLogging;
-  private final ServerIdLoader serverIdLoader;
   private final OfficialDistribution officialDistribution;
 
   public StandaloneSystemSection(Configuration config, SecurityRealmFactory securityRealmFactory,
     IdentityProviderRepository identityProviderRepository, Server server, ServerLogging serverLogging,
-    ServerIdLoader serverIdLoader, OfficialDistribution officialDistribution) {
+    OfficialDistribution officialDistribution) {
     this.config = config;
     this.securityRealmFactory = securityRealmFactory;
     this.identityProviderRepository = identityProviderRepository;
     this.server = server;
     this.serverLogging = serverLogging;
-    this.serverIdLoader = serverIdLoader;
     this.officialDistribution = officialDistribution;
   }
 
   @Override
   public String getServerId() {
-    return serverIdLoader.getRaw().orElse(null);
+    return server.getId();
   }
 
   @Override
@@ -115,10 +112,7 @@ public class StandaloneSystemSection extends BaseSectionMBean implements SystemS
     ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
     protobuf.setName("System");
 
-    serverIdLoader.get().ifPresent(serverId -> {
-      setAttribute(protobuf, "Server ID", serverId.getId());
-      setAttribute(protobuf, "Server ID validated", serverId.isValid());
-    });
+    setAttribute(protobuf, "Server ID", server.getId());
     setAttribute(protobuf, "Version", getVersion());
     setAttribute(protobuf, "External User Authentication", getExternalUserAuthentication());
     addIfNotEmpty(protobuf, "Accepted external identity providers", getEnabledIdentityProviders());

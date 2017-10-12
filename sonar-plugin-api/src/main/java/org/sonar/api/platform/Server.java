@@ -48,13 +48,14 @@ public abstract class Server {
   public abstract String getId();
 
   /**
-   * UUID generated on demand by system administrators. It is
-   * {@code null} by default on fresh installations. When defined,
-   * value does not change when server is restarted.
-   * In the context of cluster, value is the same on all nodes.
+   * Since 6.7, it returns exactly {@link #getId()}. In previous
+   * versions it returned ab UUID generated on demand by system
+   * administrators and may be null.
+   *
+   * @deprecated replaced by {@link #getId()} in 6.7.
    * @since 2.10
    */
-  @CheckForNull
+  @Deprecated
   public abstract String getPermanentServerId();
 
   /**

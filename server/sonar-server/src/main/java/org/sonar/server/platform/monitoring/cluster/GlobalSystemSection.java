@@ -25,6 +25,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.authentication.IdentityProvider;
@@ -33,7 +34,6 @@ import org.sonar.process.systeminfo.Global;
 import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.authentication.IdentityProviderRepository;
-import org.sonar.server.platform.ServerIdLoader;
 import org.sonar.server.user.SecurityRealmFactory;
 
 import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
@@ -43,14 +43,14 @@ public class GlobalSystemSection implements SystemInfoSection, Global {
   private static final Joiner COMMA_JOINER = Joiner.on(", ");
 
   private final Configuration config;
-  private final ServerIdLoader serverIdLoader;
+  private final Server server;
   private final SecurityRealmFactory securityRealmFactory;
   private final IdentityProviderRepository identityProviderRepository;
 
-  public GlobalSystemSection(Configuration config, ServerIdLoader serverIdLoader, SecurityRealmFactory securityRealmFactory,
+  public GlobalSystemSection(Configuration config, Server server, SecurityRealmFactory securityRealmFactory,
     IdentityProviderRepository identityProviderRepository) {
     this.config = config;
-    this.serverIdLoader = serverIdLoader;
+    this.server = server;
     this.securityRealmFactory = securityRealmFactory;
     this.identityProviderRepository = identityProviderRepository;
   }
@@ -60,10 +60,7 @@ public class GlobalSystemSection implements SystemInfoSection, Global {
     ProtobufSystemInfo.Section.Builder protobuf = ProtobufSystemInfo.Section.newBuilder();
     protobuf.setName("System");
 
-    serverIdLoader.get().ifPresent(serverId -> {
-      setAttribute(protobuf, "Server ID", serverId.getId());
-      setAttribute(protobuf, "Server ID validated", serverId.isValid());
-    });
+    setAttribute(protobuf, "Server ID", server.getId());
     setAttribute(protobuf, "High Availability", true);
     setAttribute(protobuf, "External User Authentication", getExternalUserAuthentication());
     addIfNotEmpty(protobuf, "Accepted external identity providers", getEnabledIdentityProviders());

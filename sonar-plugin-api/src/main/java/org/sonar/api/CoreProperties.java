@@ -279,17 +279,23 @@ public interface CoreProperties {
 
   /**
    * @since 2.11
+   * @deprecated in 6.7. See {@link Server#getPermanentServerId()}
    */
+  @Deprecated
   String ORGANISATION = "sonar.organisation";
 
   /**
    * @since 2.11
+   * @deprecated in 6.7. See {@link Server#getPermanentServerId()}
    */
+  @Deprecated
   String PERMANENT_SERVER_ID = "sonar.server_id";
 
   /**
    * @since 2.11
+   * @deprecated in 6.7. See {@link Server#getPermanentServerId()}
    */
+  @Deprecated
   String SERVER_ID_IP_ADDRESS = "sonar.server_id.ip_address";
 
   /**
