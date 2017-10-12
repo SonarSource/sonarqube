@@ -68,6 +68,7 @@ message Issue {
   optional string project = 6;
   optional string subProject = 7;
   optional int32 line = 8;
+  optional string hash = 31;
   optional sonarqube.ws.commons.TextRange textRange = 9;
   repeated Flow flows = 10;
   optional string resolution = 11;

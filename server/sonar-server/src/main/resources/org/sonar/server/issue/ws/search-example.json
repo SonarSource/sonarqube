@@ -15,6 +15,7 @@
       "severity": "MINOR",
       "message": "'3' is a magic number.",
       "line": 81,
+      "hash":"a227e508d6646b55a086ee11d63b21e9",
       "textRange": {
         "startLine": 81,
         "endLine": 81,

@@ -172,6 +172,8 @@ public class SearchActionTest {
     IssueDto issue = IssueTesting.newDto(newRule(), file, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setEffort(10L)
+      .setLine(42)
+      .setChecksum("a227e508d6646b55a086ee11d63b21e9")
       .setMessage("the message")
       .setStatus(Issue.STATUS_RESOLVED)
       .setResolution(Issue.RESOLUTION_FIXED)
@@ -185,8 +187,7 @@ public class SearchActionTest {
     session.commit();
     issueIndexer.indexOnStartup(issueIndexer.getIndexTypes());
 
-    ws.newRequest().execute()
-      .assertJson(this.getClass(), "response_contains_all_fields_except_additional_fields.json");
+    ws.newRequest().execute().assertJson(this.getClass(), "response_contains_all_fields_except_additional_fields.json");
   }
 
   @Test

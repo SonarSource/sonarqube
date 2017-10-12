@@ -184,6 +184,7 @@ public class SearchResponseFormat {
       issueBuilder.setEffort(effortValue);
     }
     setNullable(dto.getLine(), issueBuilder::setLine);
+    setNullable(emptyToNull(dto.getChecksum()), issueBuilder::setHash);
     completeIssueLocations(dto, issueBuilder);
     issueBuilder.setAuthor(nullToEmpty(dto.getAuthorLogin()));
     setNullable(dto.getIssueCreationDate(), issueBuilder::setCreationDate, DateUtils::formatDateTime);
