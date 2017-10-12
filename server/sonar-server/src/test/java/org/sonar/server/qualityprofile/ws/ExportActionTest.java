@@ -130,7 +130,7 @@ public class ExportActionTest {
     QProfileDto profile = createProfile(db.getDefaultOrganization(), false);
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Either 'key' or 'language' must be provided.");
+    expectedException.expectMessage("Either 'key' or 'language' must be provided");
 
     WsActionTester ws = newWsActionTester(newExporter("polop"), newExporter("palap"));
     ws.newRequest()

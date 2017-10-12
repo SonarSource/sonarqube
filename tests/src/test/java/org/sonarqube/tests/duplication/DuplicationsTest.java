@@ -183,7 +183,7 @@ public class DuplicationsTest {
     WsResponse result = adminWsClient.wsConnector().call(new GetRequest("api/duplications/show"));
 
     assertThat(result.code()).isEqualTo(HTTP_BAD_REQUEST);
-    assertThat(result.content()).contains("Either 'uuid' or 'key' must be provided, not both");
+    assertThat(result.content()).contains("Either 'uuid' or 'key' must be provided");
   }
 
 }

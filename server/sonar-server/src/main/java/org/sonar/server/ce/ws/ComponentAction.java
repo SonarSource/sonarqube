@@ -40,7 +40,6 @@ import org.sonarqube.ws.WsCe.ProjectResponse;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.ce.CeWsParameters.DEPRECATED_PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
 
@@ -63,8 +62,8 @@ public class ComponentAction implements CeWsAction {
     WebService.NewAction action = controller.createAction("component")
       .setDescription("Get the pending tasks, in-progress tasks and the last executed task of a given component (usually a project).<br>" +
         "Requires the following permission: 'Browse' on the specified component.<br>" +
-        "Either '%s' or '%s' must be provided, not both.",
-        PARAM_COMPONENT_ID, DEPRECATED_PARAM_COMPONENT_KEY)
+        "Either '%s' or '%s' must be provided.",
+        PARAM_COMPONENT_ID, PARAM_COMPONENT)
       .setSince("5.2")
       .setResponseExample(getClass().getResource("component-example.json"))
       .setChangelog(

@@ -57,7 +57,7 @@ public class UpdateKeyAction implements ProjectsWsAction {
   public WebService.NewAction doDefine(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_UPDATE_KEY)
       .setDescription("Update a project or module key and all its sub-components keys.<br>" +
-        "Either '%s' or '%s' must be provided, not both.<br> " +
+        "Either '%s' or '%s' must be provided.<br> " +
         "Requires one of the following permissions: " +
         "<ul>" +
         "<li>'Administer System'</li>" +

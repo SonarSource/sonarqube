@@ -144,7 +144,7 @@ public class LinesActionTest {
   @Test
   public void fail_when_no_uuid_or_key_param() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'uuid' or 'key' must be provided, not both");
+    expectedException.expectMessage("Either 'uuid' or 'key' must be provided");
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/sources", "lines");
     request.execute();

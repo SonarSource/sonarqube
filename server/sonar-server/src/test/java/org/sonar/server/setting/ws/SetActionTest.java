@@ -441,7 +441,7 @@ public class SetActionTest {
   @Test
   public void fail_when_no_value() {
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("One and only one of 'value', 'values', 'fieldValues' must be provided");
+    expectedException.expectMessage("Either 'value', 'values' or 'fieldValues' must be provided");
 
     callForGlobalSetting("my.key", null);
   }
@@ -682,7 +682,7 @@ public class SetActionTest {
   @Test
   public void fail_when_single_and_multi_value_provided() {
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("One and only one of 'value', 'values', 'fieldValues' must be provided");
+    expectedException.expectMessage("Either 'value', 'values' or 'fieldValues' must be provided");
 
     call("my.key", "My Value", newArrayList("Another Value"), null, null);
   }

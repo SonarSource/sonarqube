@@ -43,8 +43,8 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class WebhookDeliveriesAction implements WebhooksWsAction {
 
-  private static final String COMPONENT_PARAM = "componentKey";
-  private static final String TASK_PARAM = "ceTaskId";
+  private static final String PARAM_COMPONENT = "componentKey";
+  private static final String PARAM_TASK = "ceTaskId";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -66,11 +66,11 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
       .setResponseExample(Resources.getResource(this.getClass(), "example-deliveries.json"))
       .setHandler(this);
 
-    action.createParam(COMPONENT_PARAM)
+    action.createParam(PARAM_COMPONENT)
       .setDescription("Key of the project")
       .setExampleValue("my-project");
 
-    action.createParam(TASK_PARAM)
+    action.createParam(PARAM_TASK)
       .setDescription("Id of the Compute Engine task")
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
   }
@@ -80,9 +80,9 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
     // fail-fast if not logged in
     userSession.checkLoggedIn();
 
-    String ceTaskId = request.param(TASK_PARAM);
-    String componentKey = request.param(COMPONENT_PARAM);
-    checkArgument(ceTaskId != null ^ componentKey != null, "Either parameter '%s' or '%s' must be defined", TASK_PARAM, COMPONENT_PARAM);
+    String ceTaskId = request.param(PARAM_TASK);
+    String componentKey = request.param(PARAM_COMPONENT);
+    checkArgument(ceTaskId != null ^ componentKey != null, "Either '%s' or '%s' must be provided", PARAM_TASK, PARAM_COMPONENT);
 
     Data data = loadFromDatabase(ceTaskId, componentKey);
     data.ensureAdminPermission(userSession);

@@ -80,7 +80,7 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
         "  <li>%s: my_</li>" +
         "  <li>%s: my_new_</li>" +
         "</ul>" +
-        "Either '%s' or '%s' must be provided, not both.<br> " +
+        "Either '%s' or '%s' must be provided.<br> " +
         "Requires one of the following permissions: " +
         "<ul>" +
         "<li>'Administer System'</li>" +

@@ -51,7 +51,6 @@ public class ProjectWsRef {
   }
 
   public static ProjectWsRef newWsProjectRef(@Nullable String uuid, @Nullable String key) {
-    checkRequest(uuid == null ^ key == null, MSG_ID_OR_KEY_MUST_BE_PROVIDED);
     return new ProjectWsRef(uuid, key);
   }
 

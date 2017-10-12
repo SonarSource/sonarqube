@@ -28,9 +28,11 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualitygate.QualityGates;
-import org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters;
+
+import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ID;
+import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_NAME;
 
 public class ShowAction implements QualityGatesWsAction {
 
@@ -48,19 +50,19 @@ public class ShowAction implements QualityGatesWsAction {
       .setResponseExample(Resources.getResource(this.getClass(), "example-show.json"))
       .setHandler(this);
 
-    action.createParam(QualityGatesWsParameters.PARAM_ID)
+    action.createParam(PARAM_ID)
       .setDescription("ID of the quality gate. Either id or name must be set")
       .setExampleValue("1");
 
-    action.createParam(QualityGatesWsParameters.PARAM_NAME)
+    action.createParam(PARAM_NAME)
       .setDescription("Name of the quality gate. Either id or name must be set")
       .setExampleValue("My Quality Gate");
   }
 
   @Override
   public void handle(Request request, Response response) {
-    Long qGateId = request.paramAsLong(QualityGatesWsParameters.PARAM_ID);
-    String qGateName = request.param(QualityGatesWsParameters.PARAM_NAME);
+    Long qGateId = request.paramAsLong(PARAM_ID);
+    String qGateName = request.param(PARAM_NAME);
     checkOneOfIdOrNamePresent(qGateId, qGateName);
 
     QualityGateDto qGate = qGateId == null ? qualityGates.get(qGateName) : qualityGates.get(qGateId);
@@ -68,8 +70,8 @@ public class ShowAction implements QualityGatesWsAction {
 
     try (JsonWriter writer = response.newJsonWriter()) {
       writer.beginObject()
-        .prop(QualityGatesWsParameters.PARAM_ID, qGate.getId())
-        .prop(QualityGatesWsParameters.PARAM_NAME, qGate.getName());
+        .prop(PARAM_ID, qGate.getId())
+        .prop(PARAM_NAME, qGate.getName());
       Collection<QualityGateConditionDto> conditions = qualityGates.listConditions(qGateId);
       if (!conditions.isEmpty()) {
         writer.name("conditions").beginArray();
@@ -83,11 +85,6 @@ public class ShowAction implements QualityGatesWsAction {
   }
 
   private static void checkOneOfIdOrNamePresent(@Nullable Long qGateId, @Nullable String qGateName) {
-    if (qGateId == null && qGateName == null) {
-      throw BadRequestException.create("Either one of 'id' or 'name' is required.");
-    } else if (qGateId != null && qGateName != null) {
-      throw BadRequestException.create("Only one of 'id' or 'name' must be provided.");
-    }
+    checkRequest(qGateId == null ^ qGateName == null, "Either '%s' or '%s' must be provided", PARAM_ID, PARAM_NAME);
   }
-
 }

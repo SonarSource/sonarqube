@@ -315,7 +315,7 @@ public class CreateActionTest {
   @Test
   public void fail_when_project_id_nor_project_key_provided() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'projectId' or 'projectKey' must be provided, not both");
+    expectedException.expectMessage("Either 'projectId' or 'projectKey' must be provided");
     MetricDto metric = insertMetric(STRING);
 
     newRequest()
@@ -327,7 +327,7 @@ public class CreateActionTest {
   @Test
   public void fail_when_project_id_and_project_key_are_provided() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'projectId' or 'projectKey' must be provided, not both");
+    expectedException.expectMessage("Either 'projectId' or 'projectKey' must be provided");
     MetricDto metric = insertMetric(STRING);
 
     newRequest()
@@ -367,7 +367,7 @@ public class CreateActionTest {
   @Test
   public void fail_when_metric_id_nor_metric_key_is_provided() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The metric id or the metric key must be provided, not both.");
+    expectedException.expectMessage("Either the metric id or the metric key must be provided");
     insertMetric(STRING);
 
     newRequest()
@@ -379,7 +379,7 @@ public class CreateActionTest {
   @Test
   public void fail_when_metric_id_and_metric_key_are_provided() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The metric id or the metric key must be provided, not both.");
+    expectedException.expectMessage("Either the metric id or the metric key must be provided");
     MetricDto metric = insertMetric(STRING);
 
     newRequest()
