@@ -26,6 +26,7 @@ import java.util.Optional;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -43,11 +44,9 @@ import org.sonarqube.ws.Rules;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.net.HttpURLConnection.HTTP_CONFLICT;
 import static java.util.Collections.singletonList;
+import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
-/**
- * @since 4.4
- */
 public class CreateAction implements RulesWsAction {
 
   public static final String PARAM_CUSTOM_KEY = "custom_key";
@@ -56,6 +55,7 @@ public class CreateAction implements RulesWsAction {
   public static final String PARAM_SEVERITY = "severity";
   public static final String PARAM_STATUS = "status";
   public static final String PARAM_TEMPLATE_KEY = "template_key";
+  public static final String PARAM_TYPE = "type";
   public static final String PARAMS = "params";
 
   public static final String PARAM_PREVENT_REACTIVATION = "prevent_reactivation";
@@ -132,6 +132,11 @@ public class CreateAction implements RulesWsAction {
       .setDescription("If set to true and if the rule has been deactivated (status 'REMOVED'), a status 409 will be returned")
       .setDefaultValue(false)
       .setBooleanPossibleValues();
+
+    action.createParam(PARAM_TYPE)
+      .setDescription("Rule type")
+      .setSince("6.7")
+      .setPossibleValues(RuleType.names());
   }
 
   @Override
@@ -150,6 +155,7 @@ public class CreateAction implements RulesWsAction {
         if (!isNullOrEmpty(params)) {
           newRule.setParameters(KeyValueFormat.parse(params));
         }
+        setNullable(request.param(PARAM_TYPE), t -> newRule.setType(RuleType.valueOf(t)));
         writeResponse(dbSession, request, response, ruleCreator.create(dbSession, newRule));
       } catch (ReactivationException e) {
         response.stream().setStatus(HTTP_CONFLICT);
