@@ -53,6 +53,7 @@ import {
   Component,
   CurrentUser
 } from '../utils'; */
+import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import ListFooter from '../../../components/controls/ListFooter';
 import EmptySearch from '../../../components/common/EmptySearch';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
@@ -138,6 +139,11 @@ export default class App extends React.PureComponent {
 
   componentDidMount() {
     this.mounted = true;
+
+    if (this.state.myIssues && !this.props.currentUser.isLoggedIn) {
+      handleRequiredAuthentication();
+      return;
+    }
 
     const footer = document.getElementById('footer');
     if (footer) {
