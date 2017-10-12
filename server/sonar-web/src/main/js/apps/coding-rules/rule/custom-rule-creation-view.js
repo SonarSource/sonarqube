@@ -33,6 +33,7 @@ export default ModalFormView.extend({
       customRuleCreationKey: '#coding-rules-custom-rule-creation-key',
       customRuleCreationName: '#coding-rules-custom-rule-creation-name',
       customRuleCreationHtmlDescription: '#coding-rules-custom-rule-creation-html-description',
+      customRuleCreationType: '#coding-rules-custom-rule-creation-type',
       customRuleCreationSeverity: '#coding-rules-custom-rule-creation-severity',
       customRuleCreationStatus: '#coding-rules-custom-rule-creation-status',
       customRuleCreationParameters: '[name]',
@@ -85,10 +86,17 @@ export default ModalFormView.extend({
         return `<i class="icon-severity-${state.id.toLowerCase()}"></i> ${state.text}`;
       }
     };
+    const type = (this.model && this.model.get('type')) || this.options.templateRule.get('type');
     const severity =
       (this.model && this.model.get('severity')) || this.options.templateRule.get('severity');
     const status =
       (this.model && this.model.get('status')) || this.options.templateRule.get('status');
+
+    this.ui.customRuleCreationType.val(type);
+    this.ui.customRuleCreationType.select2({
+      width: '250px',
+      minimumResultsForSearch: 999
+    });
 
     this.ui.customRuleCreationSeverity.val(severity);
     this.ui.customRuleCreationSeverity.select2({
@@ -111,6 +119,7 @@ export default ModalFormView.extend({
     const options = {
       name: this.ui.customRuleCreationName.val(),
       markdown_description: this.ui.customRuleCreationHtmlDescription.val(),
+      type: this.ui.customRuleCreationType.val(),
       severity: this.ui.customRuleCreationSeverity.val(),
       status: this.ui.customRuleCreationStatus.val()
     };
@@ -208,7 +217,8 @@ export default ModalFormView.extend({
       params,
       statuses,
       change: this.model && this.model.has('key'),
-      severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']
+      severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'],
+      types: ['BUG', 'VULNERABILITY', 'CODE_SMELL']
     };
   }
 });

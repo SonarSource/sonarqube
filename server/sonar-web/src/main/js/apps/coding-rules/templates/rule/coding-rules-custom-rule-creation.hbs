@@ -38,6 +38,16 @@
         </td>
       </tr>
       <tr class="property">
+        <th class="nowrap"><h3>{{t 'type'}}</h3></th>
+        <td>
+          <select id="coding-rules-custom-rule-creation-type">
+            {{#each types}}
+              <option value="{{this}}">{{t 'issue.type' this}}</option>
+            {{/each}}
+          </select>
+        </td>
+      </tr>
+      <tr class="property">
         <th class="nowrap"><h3>{{t 'severity'}}</h3></th>
         <td>
           <select id="coding-rules-custom-rule-creation-severity">
