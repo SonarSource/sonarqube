@@ -166,13 +166,13 @@ public class RuleCreator {
       .setDescriptionFormat(Format.MARKDOWN)
       .setSeverity(newRule.severity())
       .setStatus(newRule.status())
+      .setType(newRule.type() == null ? templateRuleDto.getType() : newRule.type().getDbConstant())
       .setLanguage(templateRuleDto.getLanguage())
       .setDefRemediationFunction(templateRuleDto.getDefRemediationFunction())
       .setDefRemediationGapMultiplier(templateRuleDto.getDefRemediationGapMultiplier())
       .setDefRemediationBaseEffort(templateRuleDto.getDefRemediationBaseEffort())
       .setGapDescription(templateRuleDto.getGapDescription())
       .setSystemTags(templateRuleDto.getSystemTags())
-      .setType(templateRuleDto.getType())
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now());
     dbClient.ruleDao().insert(dbSession, ruleDefinition);
