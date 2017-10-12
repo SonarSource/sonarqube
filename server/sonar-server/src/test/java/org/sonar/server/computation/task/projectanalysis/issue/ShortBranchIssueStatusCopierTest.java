@@ -19,11 +19,14 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.sonar.api.issue.Issue;
@@ -33,6 +36,8 @@ import org.sonar.core.issue.ShortBranchIssue;
 import org.sonar.core.issue.tracking.SimpleTracker;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -76,24 +81,31 @@ public class ShortBranchIssueStatusCopierTest {
 
   @Test
   public void update_status_on_matches() {
-    ShortBranchIssue shortBranchIssue = newShortBranchIssue(createIssue("issue1", "rule1", Issue.STATUS_CONFIRMED, null));
+    DefaultIssue issue1 = createIssue("issue1", "rule1", Issue.STATUS_CONFIRMED, null);
+    ShortBranchIssue shortBranchIssue = newShortBranchIssue(issue1);
     DefaultIssue newIssue = createIssue("issue2", "rule1", Issue.STATUS_OPEN, null);
 
     when(resolvedShortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component)).thenReturn(Collections.singleton(shortBranchIssue));
+    when(resolvedShortBranchIssuesLoader.loadDefaultIssuesWithChanges(anyListOf(ShortBranchIssue.class))).thenReturn(ImmutableMap.of(shortBranchIssue, issue1));
     copier.updateStatus(component, Collections.singleton(newIssue));
-    verify(issueLifecycle).copyResolution(newIssue, shortBranchIssue.getStatus(), shortBranchIssue.getResolution());
+    ArgumentCaptor<Collection> captor = ArgumentCaptor.forClass(Collection.class);
+    verify(resolvedShortBranchIssuesLoader).loadDefaultIssuesWithChanges(captor.capture());
+    assertThat(captor.getValue()).containsOnly(shortBranchIssue);
+    verify(issueLifecycle).mergeIssueFromShortLivingBranch(newIssue, issue1);
   }
 
   @Test
   public void prefer_resolved_issues() {
     ShortBranchIssue shortBranchIssue1 = newShortBranchIssue(createIssue("issue1", "rule1", Issue.STATUS_CONFIRMED, null));
     ShortBranchIssue shortBranchIssue2 = newShortBranchIssue(createIssue("issue2", "rule1", Issue.STATUS_CONFIRMED, null));
-    ShortBranchIssue shortBranchIssue3 = newShortBranchIssue(createIssue("issue3", "rule1", Issue.STATUS_RESOLVED, Issue.RESOLUTION_FALSE_POSITIVE));
+    DefaultIssue issue3 = createIssue("issue3", "rule1", Issue.STATUS_RESOLVED, Issue.RESOLUTION_FALSE_POSITIVE);
+    ShortBranchIssue shortBranchIssue3 = newShortBranchIssue(issue3);
     DefaultIssue newIssue = createIssue("newIssue", "rule1", Issue.STATUS_OPEN, null);
 
     when(resolvedShortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component)).thenReturn(Arrays.asList(shortBranchIssue1, shortBranchIssue2, shortBranchIssue3));
+    when(resolvedShortBranchIssuesLoader.loadDefaultIssuesWithChanges(anyListOf(ShortBranchIssue.class))).thenReturn(ImmutableMap.of(shortBranchIssue3, issue3));
     copier.updateStatus(component, Collections.singleton(newIssue));
-    verify(issueLifecycle).copyResolution(newIssue, Issue.STATUS_RESOLVED, Issue.RESOLUTION_FALSE_POSITIVE);
+    verify(issueLifecycle).mergeIssueFromShortLivingBranch(newIssue, issue3);
   }
 
   private static DefaultIssue createIssue(String key, String ruleKey, String status, @Nullable String resolution) {
@@ -108,6 +120,6 @@ public class ShortBranchIssueStatusCopierTest {
   }
 
   private ShortBranchIssue newShortBranchIssue(DefaultIssue i) {
-    return new ShortBranchIssue(i.line(), i.message(), i.getLineHash(), i.ruleKey(), i.status(), i.resolution());
+    return new ShortBranchIssue(i.key(), i.line(), i.message(), i.getLineHash(), i.ruleKey(), i.status());
   }
 }

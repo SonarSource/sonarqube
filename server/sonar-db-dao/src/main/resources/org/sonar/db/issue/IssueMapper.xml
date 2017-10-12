@@ -219,7 +219,6 @@
       i.message as message,
       i.line as line,
       i.status as status,
-      i.resolution as resolution,
       i.checksum as checksum,
       r.plugin_rule_key as ruleKey,
       r.plugin_name as ruleRepo

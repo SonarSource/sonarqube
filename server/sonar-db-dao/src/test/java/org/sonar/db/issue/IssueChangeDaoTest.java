@@ -19,6 +19,7 @@
  */
 package org.sonar.db.issue;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Rule;
@@ -46,6 +47,14 @@ public class IssueChangeDaoTest {
     assertThat(changelog.get(0).diffs()).hasSize(1);
     assertThat(changelog.get(0).diffs().get("severity").newValue()).isEqualTo("BLOCKER");
     assertThat(changelog.get(0).diffs().get("severity").oldValue()).isEqualTo("MAJOR");
+  }
+
+  @Test
+  public void select_issue_changes_from_issues_key() {
+    db.prepareDbUnit(getClass(), "shared.xml");
+
+    List<IssueChangeDto> changelog = underTest.selectByIssueKeys(db.getSession(), Arrays.asList("1000", "1001"));
+    assertThat(changelog).hasSize(5);
   }
 
   @Test

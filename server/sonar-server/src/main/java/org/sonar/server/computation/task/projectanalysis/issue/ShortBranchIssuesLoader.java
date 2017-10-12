@@ -21,15 +21,23 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.ShortBranchIssue;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.IssueChangeDto;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.ShortBranchIssueDto;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ShortBranchComponentsWithIssues;
+
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
 
 public class ShortBranchIssuesLoader {
 
@@ -53,5 +61,38 @@ public class ShortBranchIssuesLoader {
         .map(ShortBranchIssueDto::toShortBranchIssue)
         .collect(Collectors.toList());
     }
+  }
+
+  public Map<ShortBranchIssue, DefaultIssue> loadDefaultIssuesWithChanges(Collection<ShortBranchIssue> lightIssues) {
+    if (lightIssues.isEmpty()) {
+      return Collections.emptyMap();
+    }
+    Map<String, ShortBranchIssue> issuesByKey = lightIssues.stream().collect(Collectors.toMap(ShortBranchIssue::getKey, i -> i));
+    try (DbSession session = dbClient.openSession(false)) {
+
+      Map<String, List<IssueChangeDto>> changeDtoByIssueKey = dbClient.issueChangeDao()
+        .selectByIssueKeys(session, issuesByKey.keySet()).stream().collect(groupingBy(IssueChangeDto::getIssueKey));
+
+      return dbClient.issueDao().selectByKeys(session, issuesByKey.keySet())
+        .stream()
+        .map(IssueDto::toDefaultIssue)
+        .peek(i -> setChanges(changeDtoByIssueKey, i))
+        .collect(toMap(i -> issuesByKey.get(i.key()), i -> i));
+    }
+  }
+
+  private static void setChanges(Map<String, List<IssueChangeDto>> changeDtoByIssueKey, DefaultIssue i) {
+    changeDtoByIssueKey.get(i.key()).forEach(c -> {
+      switch (c.getChangeType()) {
+        case IssueChangeDto.TYPE_FIELD_CHANGE:
+          i.addChange(c.toFieldDiffs());
+          break;
+        case IssueChangeDto.TYPE_COMMENT:
+          i.addComment(c.toComment());
+          break;
+        default:
+          throw new IllegalStateException("Unknow change type: " + c.getChangeType());
+      }
+    });
   }
 }

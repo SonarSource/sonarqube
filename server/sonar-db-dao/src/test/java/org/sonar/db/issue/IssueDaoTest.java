@@ -30,7 +30,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
-import org.sonar.core.issue.ShortBranchIssue;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
@@ -212,7 +211,6 @@ public class IssueDaoTest {
     assertThat(fp.getChecksum()).isEqualTo(fpIssue.getChecksum());
     assertThat(fp.getRuleKey()).isEqualTo(fpIssue.getRuleKey());
     assertThat(fp.getStatus()).isEqualTo(fpIssue.getStatus());
-    assertThat(fp.getResolution()).isEqualTo(fpIssue.getResolution());
 
     assertThat(fp.getLine()).isNotNull();
     assertThat(fp.getLine()).isNotZero();
@@ -221,7 +219,6 @@ public class IssueDaoTest {
     assertThat(fp.getChecksum()).isNotEmpty();
     assertThat(fp.getRuleKey()).isNotNull();
     assertThat(fp.getStatus()).isNotNull();
-    assertThat(fp.getResolution()).isNotNull();
   }
 
   private static IssueDto newIssueDto(String key) {

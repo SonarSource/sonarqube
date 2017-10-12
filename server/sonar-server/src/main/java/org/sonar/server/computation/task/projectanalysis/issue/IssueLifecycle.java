@@ -21,9 +21,10 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Date;
-import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.DefaultIssueComment;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
@@ -65,7 +66,7 @@ public class IssueLifecycle {
     issue.setEffort(debtCalculator.calculate(issue));
   }
 
-  public void copyExistingOpenIssue(DefaultIssue raw, DefaultIssue base) {
+  public void copyExistingOpenIssueFromLongLivingBranch(DefaultIssue raw, DefaultIssue base) {
     raw.setKey(Uuids.create());
     raw.setNew(false);
     raw.setCopied(true);
@@ -77,9 +78,21 @@ public class IssueLifecycle {
     }
   }
 
-  public void copyResolution(DefaultIssue raw, String status, @Nullable String resolution) {
-    raw.setStatus(status);
-    raw.setResolution(resolution);
+  public void mergeIssueFromShortLivingBranch(DefaultIssue raw, DefaultIssue fromShortLiving) {
+    raw.setCopied(true);
+    raw.setType(fromShortLiving.type());
+    raw.setResolution(fromShortLiving.resolution());
+    raw.setStatus(fromShortLiving.status());
+    raw.setAssignee(fromShortLiving.assignee());
+    raw.setAuthorLogin(fromShortLiving.authorLogin());
+    raw.setTags(fromShortLiving.tags());
+    raw.setAttributes(fromShortLiving.attributes());
+    if (fromShortLiving.manualSeverity()) {
+      raw.setManualSeverity(true);
+      raw.setSeverity(fromShortLiving.severity());
+    }
+    fromShortLiving.comments().forEach(c -> raw.addComment(DefaultIssueComment.copy(raw.key(), c)));
+    fromShortLiving.changes().forEach(c -> raw.addChange(FieldDiffs.copy(raw.key(), c)));
   }
 
   public void mergeExistingOpenIssue(DefaultIssue raw, DefaultIssue base) {

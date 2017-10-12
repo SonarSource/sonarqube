@@ -19,15 +19,11 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import org.sonar.api.issue.IssueComment;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.DefaultIssueComment;
-import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
@@ -35,6 +31,7 @@ import org.sonar.server.computation.task.projectanalysis.issue.IssueCache;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleRepository;
 import org.sonar.server.computation.task.projectanalysis.issue.UpdateConflictResolver;
 import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.server.issue.IssueStorage;
 
 public class PersistIssuesStep implements ComputationStep {
 
@@ -64,7 +61,7 @@ public class PersistIssuesStep implements ComputationStep {
         DefaultIssue issue = issues.next();
         boolean saved = persistIssueIfRequired(mapper, issue);
         if (saved) {
-          insertChanges(changeMapper, issue);
+          IssueStorage.insertChanges(changeMapper, issue);
         }
       }
       dbSession.flushStatements();
@@ -98,21 +95,6 @@ public class PersistIssuesStep implements ComputationStep {
       // End-user and scan changed the issue at the same time.
       // See https://jira.sonarsource.com/browse/SONAR-4309
       conflictResolver.resolve(issue, mapper);
-    }
-  }
-
-  private static void insertChanges(IssueChangeMapper mapper, DefaultIssue issue) {
-    for (IssueComment comment : issue.comments()) {
-      DefaultIssueComment c = (DefaultIssueComment) comment;
-      if (c.isNew()) {
-        IssueChangeDto changeDto = IssueChangeDto.of(c);
-        mapper.insert(changeDto);
-      }
-    }
-    FieldDiffs diffs = issue.currentChange();
-    if (!issue.isNew() && diffs != null) {
-      IssueChangeDto changeDto = IssueChangeDto.of(issue.key(), diffs);
-      mapper.insert(changeDto);
     }
   }
 

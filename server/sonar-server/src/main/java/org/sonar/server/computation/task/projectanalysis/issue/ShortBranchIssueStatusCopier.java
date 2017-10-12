@@ -28,7 +28,7 @@ import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
 public class ShortBranchIssueStatusCopier {
-  private final ShortBranchIssuesLoader resolvedShortBranchIssuesLoader;
+  private final ShortBranchIssuesLoader shortBranchIssuesLoader;
   private final SimpleTracker<DefaultIssue, ShortBranchIssue> tracker;
   private final IssueLifecycle issueLifecycle;
 
@@ -36,20 +36,23 @@ public class ShortBranchIssueStatusCopier {
     this(resolvedShortBranchIssuesLoader, new SimpleTracker<>(), issueLifecycle);
   }
 
-  public ShortBranchIssueStatusCopier(ShortBranchIssuesLoader resolvedShortBranchIssuesLoader, SimpleTracker<DefaultIssue, ShortBranchIssue> tracker,
-    IssueLifecycle issueLifecycle) {
-    this.resolvedShortBranchIssuesLoader = resolvedShortBranchIssuesLoader;
+  public ShortBranchIssueStatusCopier(ShortBranchIssuesLoader shortBranchIssuesLoader, SimpleTracker<DefaultIssue, ShortBranchIssue> tracker, IssueLifecycle issueLifecycle) {
+    this.shortBranchIssuesLoader = shortBranchIssuesLoader;
     this.tracker = tracker;
     this.issueLifecycle = issueLifecycle;
   }
 
   public void updateStatus(Component component, Collection<DefaultIssue> newIssues) {
-    Collection<ShortBranchIssue> shortBranchIssues = resolvedShortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component);
+    Collection<ShortBranchIssue> shortBranchIssues = shortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component);
     Tracking<DefaultIssue, ShortBranchIssue> tracking = tracker.track(newIssues, shortBranchIssues);
 
-    for (Map.Entry<DefaultIssue, ShortBranchIssue> e : tracking.getMatchedRaws().entrySet()) {
+    Map<DefaultIssue, ShortBranchIssue> matchedRaws = tracking.getMatchedRaws();
+
+    Map<ShortBranchIssue, DefaultIssue> defaultIssues = shortBranchIssuesLoader.loadDefaultIssuesWithChanges(matchedRaws.values());
+
+    for (Map.Entry<DefaultIssue, ShortBranchIssue> e : matchedRaws.entrySet()) {
       ShortBranchIssue issue = e.getValue();
-      issueLifecycle.copyResolution(e.getKey(), issue.getStatus(), issue.getResolution());
+      issueLifecycle.mergeIssueFromShortLivingBranch(e.getKey(), defaultIssues.get(issue));
     }
   }
 }

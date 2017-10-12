@@ -42,6 +42,16 @@
     </foreach>
     order by c.created_at
   </select>
+  
+  <select id="selectByIssues" parameterType="map" resultType="IssueChange">
+    select
+    <include refid="issueChangeColumns"/>
+    from issue_changes c
+    where c.issue_key in
+    <foreach collection="issueKeys" open="(" close=")" item="key" separator=",">
+      #{key,jdbcType=VARCHAR}
+    </foreach>
+  </select>
 
   <select id="selectByKeyAndType" parameterType="map" resultType="IssueChange">
     select

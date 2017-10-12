@@ -19,7 +19,6 @@
  */
 package org.sonar.db.issue;
 
-import com.google.common.base.Preconditions;
 import java.io.Serializable;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -27,9 +26,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.ShortBranchIssue;
-import org.sonar.db.rule.RuleDefinitionDto;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 public final class ShortBranchIssueDto implements Serializable {
 
@@ -38,7 +34,6 @@ public final class ShortBranchIssueDto implements Serializable {
   private Integer line;
   private String checksum;
   private String status;
-  private String resolution;
 
   // joins
   private String ruleKey;
@@ -83,16 +78,6 @@ public final class ShortBranchIssueDto implements Serializable {
   }
 
   @CheckForNull
-  public String getResolution() {
-    return resolution;
-  }
-
-  public ShortBranchIssueDto setResolution(@Nullable String s) {
-    this.resolution = s;
-    return this;
-  }
-
-  @CheckForNull
   public String getChecksum() {
     return checksum;
   }
@@ -120,6 +105,6 @@ public final class ShortBranchIssueDto implements Serializable {
   }
 
   public static ShortBranchIssue toShortBranchIssue(ShortBranchIssueDto dto) {
-    return new ShortBranchIssue(dto.getLine(), dto.getMessage(), dto.getChecksum(), dto.getRuleKey(), dto.getStatus(), dto.getResolution());
+    return new ShortBranchIssue(dto.getKey(), dto.getLine(), dto.getMessage(), dto.getChecksum(), dto.getRuleKey(), dto.getStatus());
   }
 }
