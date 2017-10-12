@@ -35,6 +35,7 @@ import static java.lang.String.valueOf;
 
 public class Log4JPropertiesBuilder extends AbstractLogHelper {
   private static final String ROOT_LOGGER_NAME = "rootLogger";
+  private static final int UNLIMITED_MAX_FILES = 100_000;
 
   private final Properties log4j2Properties = new Properties();
   private final Props props;
@@ -94,6 +95,9 @@ public class Log4JPropertiesBuilder extends AbstractLogHelper {
   private RollingPolicy createRollingPolicy(File logDir, String filenamePrefix) {
     String rollingPolicy = props.value(ROLLING_POLICY_PROPERTY, "time:yyyy-MM-dd");
     int maxFiles = props.valueAsInt(MAX_FILES_PROPERTY, 7);
+    if (maxFiles <= 0) {
+      maxFiles = UNLIMITED_MAX_FILES;
+    }
 
     if (rollingPolicy.startsWith("time:")) {
       return new TimeRollingPolicy(filenamePrefix, logDir, maxFiles, StringUtils.substringAfter(rollingPolicy, "time:"));
