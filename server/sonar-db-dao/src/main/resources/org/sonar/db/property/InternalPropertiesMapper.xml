@@ -5,24 +5,26 @@
 
   <select id="selectAsText" parameterType="map" resultType="InternalProperty">
     select
+      kee as "key",
       is_empty as empty,
       text_value as value,
       created_at as createdAt
     from
       internal_properties
     where
-      kee = #{key,jdbcType=VARCHAR}
+      kee in <foreach collection="keys" open="(" close=")" item="key" separator=",">#{key, jdbcType=VARCHAR}</foreach>
   </select>
 
   <select id="selectAsClob" parameterType="map" resultType="InternalProperty">
     select
+      kee as "key",
       is_empty as empty,
       clob_value as value,
       created_at as createdAt
     from
       internal_properties
     where
-      kee = #{key,jdbcType=VARCHAR}
+      kee in <foreach collection="keys" open="(" close=")" item="key" separator=",">#{key, jdbcType=VARCHAR}</foreach>
   </select>
 
   <insert id="insertAsEmpty" parameterType="Map" useGeneratedKeys="false">
