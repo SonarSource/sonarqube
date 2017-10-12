@@ -20,16 +20,14 @@
 package org.sonar.server.edition;
 
 import org.sonar.core.platform.Module;
-import org.sonar.server.edition.ws.ApplyLicenseAction;
-import org.sonar.server.edition.ws.EditionsWs;
-import org.sonar.server.edition.ws.StatusAction;
 
-public class EditionsWsModule extends Module {
+public class EditionManagementCommitModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      StatusAction.class,
-      ApplyLicenseAction.class,
-      EditionsWs.class);
+      // TODO add cluster ready implementation when not running Standalone
+      // Edition management WebServices also depend on this class
+      StandaloneEditionManagementStateImpl.class,
+      CommitPendingEditionOnStartup.class);
   }
 }
