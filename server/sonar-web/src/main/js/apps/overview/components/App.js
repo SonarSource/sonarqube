@@ -23,14 +23,14 @@ import PropTypes from 'prop-types';
 import OverviewApp from './OverviewApp';
 import EmptyOverview from './EmptyOverview';
 import { getBranchName, isShortLivingBranch } from '../../../helpers/branches';
-import { getProjectBranchUrl } from '../../../helpers/urls';
-import SourceViewer from '../../../components/SourceViewer/SourceViewer';
+import { getProjectBranchUrl, getCodeUrl } from '../../../helpers/urls';
 
 /*::
 type Props = {
   branch?: { name: string },
   component: {
     analysisDate?: string,
+    breadcrumbs: Array<{ key: string }>,
     id: string,
     key: string,
     qualifier: string,
@@ -50,14 +50,19 @@ export default class App extends React.PureComponent {
   };
 
   componentDidMount() {
+    const { branch, component } = this.props;
+
     if (this.isPortfolio()) {
       this.context.router.replace({
         pathname: '/portfolio',
-        query: { id: this.props.component.key }
+        query: { id: component.key }
       });
-    }
-    if (isShortLivingBranch(this.props.branch) && !this.isFile()) {
-      this.context.router.replace(getProjectBranchUrl(this.props.component.key, this.props.branch));
+    } else if (this.isFile()) {
+      this.context.router.replace(
+        getCodeUrl(component.breadcrumbs[0].key, getBranchName(branch), component.key)
+      );
+    } else if (isShortLivingBranch(branch)) {
+      this.context.router.replace(getProjectBranchUrl(component.key, branch));
     }
   }
 
@@ -72,16 +77,8 @@ export default class App extends React.PureComponent {
   render() {
     const { branch, component } = this.props;
 
-    if (this.isPortfolio() || (isShortLivingBranch(branch) && !this.isFile())) {
+    if (this.isPortfolio() || this.isFile() || isShortLivingBranch(branch)) {
       return null;
-    }
-
-    if (['FIL', 'UTS'].includes(component.qualifier)) {
-      return (
-        <div className="page page-limited">
-          <SourceViewer branch={branch && getBranchName(branch)} component={component.key} />
-        </div>
-      );
     }
 
     if (!component.analysisDate) {

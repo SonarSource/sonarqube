@@ -172,3 +172,7 @@ export function getDeprecatedActiveRulesUrl(query = {}, organization?: string | 
 export function getMarkdownHelpUrl(): string {
   return getBaseUrl() + '/markdown/help';
 }
+
+export function getCodeUrl(project: string, branch?: string, selected?: string) {
+  return { pathname: '/code', query: { id: project, branch, selected } };
+}
