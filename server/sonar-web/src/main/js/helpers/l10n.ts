@@ -40,6 +40,11 @@ export const DEFAULT_LANGUAGE = 'en';
 
 export function translate(...keys: string[]): string {
   const messageKey = keys.join('.');
+  if (process.env.NODE_ENV === 'development') {
+    if (!messages[messageKey]) {
+      console.error(`No message for: ${messageKey}`);
+    }
+  }
   return messages[messageKey] || messageKey;
 }
 
@@ -53,6 +58,9 @@ export function translateWithParameters(
       .map(parameter => String(parameter))
       .reduce((acc, parameter, index) => acc.replace(`{${index}}`, parameter), message);
   } else {
+    if (process.env.NODE_ENV === 'development') {
+      console.error(`No message for: ${messageKey}`);
+    }
     return `${messageKey}.${parameters.join('.')}`;
   }
 }

@@ -34,8 +34,8 @@ function getMessages() {
     const lines = content.split('\n');
     lines.forEach(line => {
       const parts = line.split('=');
-      if (parts.length === 2) {
-        messages[parts[0]] = parts[1];
+      if (parts.length > 1) {
+        messages[parts[0]] = parts.slice(1).join('=');
       }
     });
     return messages;
