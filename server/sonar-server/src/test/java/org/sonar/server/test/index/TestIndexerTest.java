@@ -40,7 +40,9 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.sonar.server.es.DefaultIndexSettings.REFRESH_IMMEDIATE;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_MESSAGE;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_NAME;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_STACKTRACE;
 import static org.sonar.server.test.index.TestIndexDefinition.INDEX_TYPE_TEST;
 
 public class TestIndexerTest {
@@ -106,6 +108,32 @@ public class TestIndexerTest {
     assertThat(hits).hasSize(1);
     assertThat(document.get(FIELD_NAME)).isEqualTo("NAME_1");
     assertThat(document.get(FIELD_FILE_UUID)).isEqualTo("F2");
+  }
+
+  @Test
+  public void long_message_can_be_indexed() throws Exception {
+    indexTest("P3", "F1", "long_message", "U111");
+
+    assertThat(countDocuments()).isEqualTo(1);
+
+    List<SearchHit> hits = getDocuments();
+    Map<String, Object> document = hits.get(0).getSource();
+    assertThat(hits).hasSize(1);
+    assertThat(document.get(FIELD_MESSAGE).toString()).hasSize(50000);
+    assertThat(document.get(FIELD_FILE_UUID)).isEqualTo("F1");
+  }
+
+  @Test
+  public void long_stacktrace_can_be_indexed() throws Exception {
+    indexTest("P3", "F1", "long_stacktrace", "U111");
+
+    assertThat(countDocuments()).isEqualTo(1);
+
+    List<SearchHit> hits = getDocuments();
+    Map<String, Object> document = hits.get(0).getSource();
+    assertThat(hits).hasSize(1);
+    assertThat(document.get(FIELD_STACKTRACE).toString()).hasSize(50000);
+    assertThat(document.get(FIELD_FILE_UUID)).isEqualTo("F1");
   }
 
   private void indexTest(String projectUuid, String fileUuid, String testName, String uuid) throws IOException {
