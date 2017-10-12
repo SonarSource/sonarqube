@@ -434,13 +434,16 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   };
 
   renderAdminExtensions() {
+    if (this.props.branch && !this.props.branch.isMain) {
+      return [];
+    }
     const extensions = this.getConfiguration().extensions || [];
     return extensions.map(e => this.renderExtension(e, true));
   }
 
   renderExtensions() {
     const extensions = this.props.component.extensions || [];
-    if (!extensions.length) {
+    if (!extensions.length || (this.props.branch && !this.props.branch.isMain)) {
       return null;
     }
 
