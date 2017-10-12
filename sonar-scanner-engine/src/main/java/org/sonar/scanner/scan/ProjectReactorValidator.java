@@ -33,7 +33,6 @@ import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.scan.branch.BranchParamsValidator;
-import org.sonar.scanner.scan.branch.DefaultBranchParamsValidator;
 
 /**
  * This class aims at validating project reactor
@@ -41,13 +40,20 @@ import org.sonar.scanner.scan.branch.DefaultBranchParamsValidator;
  */
 public class ProjectReactorValidator {
   private final AnalysisMode mode;
-  private final BranchParamsValidator branchParamsValidator;
   private final GlobalConfiguration settings;
 
-  public ProjectReactorValidator(AnalysisMode mode, BranchParamsValidator branchParamsValidator, GlobalConfiguration settings) {
+  // not null when the branch plugin is available, otherwise null
+  @Nullable
+  private final BranchParamsValidator branchParamsValidator;
+
+  public ProjectReactorValidator(AnalysisMode mode, GlobalConfiguration settings, BranchParamsValidator branchParamsValidator) {
     this.mode = mode;
-    this.branchParamsValidator = branchParamsValidator;
     this.settings = settings;
+    this.branchParamsValidator = branchParamsValidator;
+  }
+
+  public ProjectReactorValidator(AnalysisMode mode, GlobalConfiguration settings) {
+    this(mode, settings, null);
   }
 
   public void validate(ProjectReactor reactor) {
@@ -61,11 +67,14 @@ public class ProjectReactorValidator {
       }
     }
 
-    validateBranchParamsWhenPluginAbsent(validationMessages);
-
     String deprecatedBranchName = reactor.getRoot().getBranch();
 
-    branchParamsValidator.validate(validationMessages, deprecatedBranchName);
+    if (branchParamsValidator != null) {
+      branchParamsValidator.validate(validationMessages, deprecatedBranchName);
+    } else {
+      validateBranchParamsWhenPluginAbsent(validationMessages);
+    }
+
     validateBranch(validationMessages, deprecatedBranchName);
 
     if (!validationMessages.isEmpty()) {
@@ -74,19 +83,12 @@ public class ProjectReactorValidator {
   }
 
   private void validateBranchParamsWhenPluginAbsent(List<String> validationMessages) {
-    if (isBranchPluginPresent()) {
-      return;
-    }
     for (String param : Arrays.asList(ScannerProperties.BRANCH_NAME, ScannerProperties.BRANCH_TARGET)) {
       if (StringUtils.isNotEmpty(settings.get(param).orElse(null))) {
         validationMessages.add(String.format("To use the property \"%s\", the branch plugin is required but not installed. "
           + "See the documentation of branch support: %s.", param, ScannerProperties.BRANCHES_DOC_LINK));
       }
     }
-  }
-
-  private boolean isBranchPluginPresent() {
-    return !(branchParamsValidator instanceof DefaultBranchParamsValidator);
   }
 
   private static void validateModuleIssuesMode(ProjectDefinition moduleDef, List<String> validationMessages) {

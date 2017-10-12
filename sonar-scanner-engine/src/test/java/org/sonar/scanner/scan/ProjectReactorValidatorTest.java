@@ -28,11 +28,9 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
-import org.sonar.scanner.scan.branch.DefaultBranchParamsValidator;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -53,7 +51,7 @@ public class ProjectReactorValidatorTest {
     mode = mock(AnalysisMode.class);
     settings = mock(GlobalConfiguration.class);
     when(settings.get(anyString())).thenReturn(Optional.empty());
-    validator = new ProjectReactorValidator(mode, new DefaultBranchParamsValidator(), settings);
+    validator = new ProjectReactorValidator(mode, settings);
   }
 
   @Test
