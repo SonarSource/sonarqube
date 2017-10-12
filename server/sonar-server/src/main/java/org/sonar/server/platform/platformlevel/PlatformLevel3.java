@@ -21,6 +21,7 @@ package org.sonar.server.platform.platformlevel;
 
 import org.sonar.api.utils.UriReader;
 import org.sonar.core.util.DefaultHttpDownloader;
+import org.sonar.server.edition.EditionManagementCommitModule;
 import org.sonar.server.organization.DefaultOrganizationProviderImpl;
 import org.sonar.server.organization.OrganizationFlagsImpl;
 import org.sonar.server.platform.ServerIdGenerator;
@@ -53,6 +54,7 @@ public class PlatformLevel3 extends PlatformLevel {
       LogServerId.class,
       DefaultHttpDownloader.class,
       DefaultOrganizationProviderImpl.class,
-      OrganizationFlagsImpl.class);
+      OrganizationFlagsImpl.class,
+      EditionManagementCommitModule.class);
   }
 }

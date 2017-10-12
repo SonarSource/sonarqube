@@ -37,10 +37,10 @@ import static org.sonar.server.edition.EditionManagementState.PendingStatus.MANU
 import static org.sonar.server.edition.EditionManagementState.PendingStatus.NONE;
 
 public class StandaloneEditionManagementStateImpl implements MutableEditionManagementState, Startable {
-  private static final String CURRENT_EDITION_KEY = "sonar.editionManagement.currentEditionKey";
-  private static final String PENDING_INSTALLATION_STATUS = "sonar.editionManagement.pendingInstallationStatus";
-  private static final String PENDING_EDITION_KEY = "sonar.editionManagement.pendingEditionKey";
-  private static final String PENDING_LICENSE = "sonar.editionManagement.pendingLicense";
+  private static final String CURRENT_EDITION_KEY = "currentEditionKey";
+  private static final String PENDING_INSTALLATION_STATUS = "pendingInstallStatus";
+  private static final String PENDING_EDITION_KEY = "pendingEditionKey";
+  private static final String PENDING_LICENSE = "pendingLicense";
 
   private final DbClient dbClient;
   private String currentEditionKey;
