@@ -65,12 +65,17 @@ export default class Conditions extends React.PureComponent {
       onDeleteCondition
     } = this.props;
 
-    const sortedConditions = sortBy(conditions, condition => {
-      return metrics.find(metric => metric.key === condition.metric).name;
-    });
+    const existingConditions = conditions.filter(condition =>
+      metrics.find(metric => metric.key === condition.metric)
+    );
+
+    const sortedConditions = sortBy(
+      existingConditions,
+      condition => metrics.find(metric => metric.key === condition.metric).name
+    );
 
     const duplicates = [];
-    const savedConditions = conditions.filter(condition => condition.id != null);
+    const savedConditions = existingConditions.filter(condition => condition.id != null);
     savedConditions.forEach(condition => {
       const sameCount = savedConditions.filter(
         sample => sample.metric === condition.metric && sample.period === condition.period
