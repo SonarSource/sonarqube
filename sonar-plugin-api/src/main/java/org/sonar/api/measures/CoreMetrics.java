@@ -138,8 +138,8 @@ public final class CoreMetrics {
   /**
    * @since 6.1
    */
-  public static final Metric<Integer> NEW_LINES = new Metric.Builder(NEW_LINES_KEY, "Lines of New Code", Metric.ValueType.INT)
-    .setDescription("Non commenting lines of new code")
+  public static final Metric<Integer> NEW_LINES = new Metric.Builder(NEW_LINES_KEY, "New Lines", Metric.ValueType.INT)
+    .setDescription("New lines")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_SIZE)
