@@ -19,17 +19,22 @@
  */
 package org.sonar.server.edition;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.edition.ws.ApplyLicenseAction;
-import org.sonar.server.edition.ws.EditionsWs;
-import org.sonar.server.edition.ws.StatusAction;
+import org.junit.Test;
+import org.sonar.core.platform.ComponentContainer;
 
-public class EditionsWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      StatusAction.class,
-      ApplyLicenseAction.class,
-      EditionsWs.class);
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.core.platform.ComponentContainer.COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER;
+
+public class EditionManagementCommitModuleTest {
+  private EditionManagementCommitModule underTest = new EditionManagementCommitModule();
+
+  @Test
+  public void verify_component_count() {
+    ComponentContainer container = new ComponentContainer();
+    underTest.configure(container);
+
+    assertThat(container.getPicoContainer().getComponentAdapters())
+      .hasSize(COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER + 2);
   }
+
 }
