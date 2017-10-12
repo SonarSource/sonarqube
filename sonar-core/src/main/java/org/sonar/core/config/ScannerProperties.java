@@ -30,6 +30,8 @@ import static org.sonar.api.PropertyType.BOOLEAN;
 
 public class ScannerProperties {
 
+  public static final String BRANCHES_DOC_LINK = "https://redirect.sonarsource.com/doc/branches.html";
+
   public static final String BRANCH_NAME = "sonar.branch.name";
   public static final String BRANCH_TARGET = "sonar.branch.target";
   public static final String ORGANIZATION = "sonar.organization";

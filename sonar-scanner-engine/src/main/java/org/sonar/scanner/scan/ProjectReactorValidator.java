@@ -21,6 +21,7 @@ package org.sonar.scanner.scan;
 
 import com.google.common.base.Joiner;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -29,6 +30,8 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
 import org.sonar.core.component.ComponentKeys;
+import org.sonar.core.config.ScannerProperties;
+import org.sonar.scanner.bootstrap.GlobalConfiguration;
 import org.sonar.scanner.scan.branch.BranchParamsValidator;
 import org.sonar.scanner.scan.branch.DefaultBranchParamsValidator;
 
@@ -39,14 +42,12 @@ import org.sonar.scanner.scan.branch.DefaultBranchParamsValidator;
 public class ProjectReactorValidator {
   private final AnalysisMode mode;
   private final BranchParamsValidator branchParamsValidator;
+  private final GlobalConfiguration settings;
 
-  public ProjectReactorValidator(AnalysisMode mode, BranchParamsValidator branchParamsValidator) {
+  public ProjectReactorValidator(AnalysisMode mode, BranchParamsValidator branchParamsValidator, GlobalConfiguration settings) {
     this.mode = mode;
     this.branchParamsValidator = branchParamsValidator;
-  }
-
-  public ProjectReactorValidator(AnalysisMode mode) {
-    this(mode, new DefaultBranchParamsValidator());
+    this.settings = settings;
   }
 
   public void validate(ProjectReactor reactor) {
@@ -60,6 +61,8 @@ public class ProjectReactorValidator {
       }
     }
 
+    validateBranchParamsWhenPluginAbsent(validationMessages);
+
     String deprecatedBranchName = reactor.getRoot().getBranch();
 
     branchParamsValidator.validate(validationMessages, deprecatedBranchName);
@@ -68,6 +71,22 @@ public class ProjectReactorValidator {
     if (!validationMessages.isEmpty()) {
       throw MessageException.of("Validation of project reactor failed:\n  o " + Joiner.on("\n  o ").join(validationMessages));
     }
+  }
+
+  private void validateBranchParamsWhenPluginAbsent(List<String> validationMessages) {
+    if (isBranchPluginPresent()) {
+      return;
+    }
+    for (String param : Arrays.asList(ScannerProperties.BRANCH_NAME, ScannerProperties.BRANCH_TARGET)) {
+      if (StringUtils.isNotEmpty(settings.get(param).orElse(null))) {
+        validationMessages.add(String.format("To use the property \"%s\", the branch plugin is required but not installed. "
+          + "See the documentation of branch support: %s.", param, ScannerProperties.BRANCHES_DOC_LINK));
+      }
+    }
+  }
+
+  private boolean isBranchPluginPresent() {
+    return !(branchParamsValidator instanceof DefaultBranchParamsValidator);
   }
 
   private static void validateModuleIssuesMode(ProjectDefinition moduleDef, List<String> validationMessages) {
