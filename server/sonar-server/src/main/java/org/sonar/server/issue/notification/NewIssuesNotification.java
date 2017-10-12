@@ -159,7 +159,7 @@ public class NewIssuesNotification extends Notification {
     int i = 1;
     for (Map.Entry<String, MetricStatsInt> tagStats : fiveBiggest(stats.getDistributedMetricStats(metric), MetricStatsInt::getOnLeak)) {
       setFieldValue(metric + DOT + i + COUNT, String.valueOf(tagStats.getValue().getOnLeak()));
-      setFieldValue(metric + DOT + i + ".label", tagStats.getKey());
+      setFieldValue(metric + DOT + i + LABEL, tagStats.getKey());
       i++;
     }
   }
