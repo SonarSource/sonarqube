@@ -40,5 +40,7 @@ public interface IssueChangeMapper {
   List<IssueChangeDto> selectByIssuesAndType(@Param("issueKeys") List<String> issueKeys,
     @Param("changeType") String changeType);
 
+  List<IssueChangeDto> selectByIssues(@Param("issueKeys") List<String> issueKeys);
+
   List<IssueChangeDto> selectChangelogOfNonClosedIssuesByComponent(@Param("componentUuid") String componentUuid, @Param("changeType") String changeType);
 }

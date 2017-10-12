@@ -27,20 +27,24 @@ import org.sonar.core.issue.tracking.Trackable;
 
 @Immutable
 public class ShortBranchIssue implements Trackable {
+  private final String key;
   private final Integer line;
   private final String message;
   private final String lineHash;
   private final RuleKey ruleKey;
   private final String status;
-  private final String resolution;
 
-  public ShortBranchIssue(@Nullable Integer line, String message, @Nullable String lineHash, RuleKey ruleKey, String status, @Nullable String resolution) {
+  public ShortBranchIssue(String key, @Nullable Integer line, String message, @Nullable String lineHash, RuleKey ruleKey, String status) {
+    this.key = key;
     this.line = line;
     this.message = message;
     this.lineHash = lineHash;
     this.ruleKey = ruleKey;
     this.status = status;
-    this.resolution = resolution;
+  }
+
+  public String getKey() {
+    return key;
   }
 
   @CheckForNull
@@ -70,7 +74,24 @@ public class ShortBranchIssue implements Trackable {
     return status;
   }
 
-  public String getResolution() {
-    return resolution;
+  @Override
+  public int hashCode() {
+    return key.hashCode();
   }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    ShortBranchIssue other = (ShortBranchIssue) obj;
+    return key.equals(other.key);
+  }
+
 }

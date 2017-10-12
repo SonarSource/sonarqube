@@ -67,10 +67,10 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     }
   }
 
-  private void fillNewOpenIssues(Component component, Iterable<DefaultIssue> issues, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
+  private void fillNewOpenIssues(Component component, Iterable<DefaultIssue> newIssues, DiskCache<DefaultIssue>.DiskAppender cacheAppender) {
     List<DefaultIssue> list = new ArrayList<>();
 
-    issues.forEach(issue -> {
+    newIssues.forEach(issue -> {
       issueLifecycle.initNewOpenIssue(issue);
       list.add(issue);
     });
@@ -92,7 +92,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     for (Map.Entry<DefaultIssue, DefaultIssue> entry : matched.entrySet()) {
       DefaultIssue raw = entry.getKey();
       DefaultIssue base = entry.getValue();
-      issueLifecycle.copyExistingOpenIssue(raw, base);
+      issueLifecycle.copyExistingOpenIssueFromLongLivingBranch(raw, base);
       process(component, raw, cacheAppender);
     }
   }

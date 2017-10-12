@@ -97,7 +97,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   // true if the issue did not exist in the previous scan.
   private boolean isNew = true;
 
-  // true if the issue is being copied to a different branch
+  // true if the issue is being copied between branch
   private boolean isCopied = false;
 
   // True if the issue did exist in the previous scan but not in the current one. That means

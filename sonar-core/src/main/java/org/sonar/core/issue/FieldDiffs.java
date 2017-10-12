@@ -45,6 +45,18 @@ public class FieldDiffs implements Serializable {
 
   private final Map<String, Diff> diffs = Maps.newLinkedHashMap();
 
+  /**
+   * Copy a diff from another issue
+   */
+  public static FieldDiffs copy(String issueKey, FieldDiffs c) {
+    FieldDiffs result = new FieldDiffs();
+    result.issueKey = issueKey;
+    result.userLogin = c.userLogin;
+    result.creationDate = c.creationDate;
+    result.diffs.putAll(c.diffs);
+    return result;
+  }
+
   public Map<String, Diff> diffs() {
     return diffs;
   }
@@ -195,4 +207,5 @@ public class FieldDiffs implements Serializable {
       return sb.toString();
     }
   }
+
 }

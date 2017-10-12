@@ -48,6 +48,10 @@ public class IssueChangeDao implements Dao {
     return executeLargeInputs(issueKeys, issueKeys1 -> mapper(session).selectByIssuesAndType(issueKeys1, changeType));
   }
 
+  public List<IssueChangeDto> selectByIssueKeys(DbSession session, Collection<String> issueKeys) {
+    return executeLargeInputs(issueKeys, issueKeys1 -> mapper(session).selectByIssues(issueKeys1));
+  }
+
   public Optional<IssueChangeDto> selectCommentByKey(DbSession session, String commentKey) {
     return Optional.ofNullable(mapper(session).selectByKeyAndType(commentKey, IssueChangeDto.TYPE_COMMENT));
   }

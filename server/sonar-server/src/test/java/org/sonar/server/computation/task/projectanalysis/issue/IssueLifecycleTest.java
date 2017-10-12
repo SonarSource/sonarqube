@@ -76,11 +76,14 @@ public class IssueLifecycleTest {
   }
 
   @Test
-  public void copyResolution() {
-    DefaultIssue issue = new DefaultIssue();
-    underTest.copyResolution(issue, "status", "resolution");
-    assertThat(issue.resolution()).isEqualTo("resolution");
-    assertThat(issue.status()).isEqualTo("status");
+  public void mergeIssueFromShortLivingBranch() {
+    DefaultIssue raw = new DefaultIssue();
+    DefaultIssue fromShort = new DefaultIssue();
+    fromShort.setResolution("resolution");
+    fromShort.setStatus("status");
+    underTest.mergeIssueFromShortLivingBranch(raw, fromShort);
+    assertThat(raw.resolution()).isEqualTo("resolution");
+    assertThat(raw.status()).isEqualTo("status");
   }
 
   @Test
@@ -120,7 +123,7 @@ public class IssueLifecycleTest {
 
     when(debtCalculator.calculate(raw)).thenReturn(DEFAULT_DURATION);
 
-    underTest.copyExistingOpenIssue(raw, base);
+    underTest.copyExistingOpenIssueFromLongLivingBranch(raw, base);
 
     assertThat(raw.isNew()).isFalse();
     assertThat(raw.isCopied()).isTrue();
