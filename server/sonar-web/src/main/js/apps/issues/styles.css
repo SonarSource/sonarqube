@@ -135,6 +135,7 @@
 
 .issues .issue:hover {
   border-color: #dd4040;
+  border-style: dashed;
 }
 
 @media (max-width: 1320px) {
