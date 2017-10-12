@@ -156,7 +156,7 @@ export default class CreationDateFacet extends React.PureComponent {
 
     const periods = Object.keys(stats);
 
-    if (periods.length < 2) {
+    if (periods.length < 2 || periods.every(period => !stats[period])) {
       return null;
     }
 
