@@ -39,7 +39,7 @@ public class ProjectWsRef {
   private ProjectWsRef(@Nullable String uuid, @Nullable String key) {
     this.uuid = uuid;
     this.key = key;
-    checkRequest(this.uuid != null ^ this.key != null, "Project id or project key can be provided, not both.");
+    checkRequest(this.uuid != null ^ this.key != null, MSG_ID_OR_KEY_MUST_BE_PROVIDED);
   }
 
   public static Optional<ProjectWsRef> newOptionalWsProjectRef(@Nullable String uuid, @Nullable String key) {
