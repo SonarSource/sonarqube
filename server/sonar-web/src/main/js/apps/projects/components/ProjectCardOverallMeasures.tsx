@@ -141,15 +141,15 @@ export default function ProjectCardOverallMeasures({ measures }: Props) {
         <div className="project-card-measure project-card-ncloc" data-key="ncloc">
           <div className="project-card-measure-inner pull-right">
             <div className="project-card-measure-number">
-              <span className="spacer-right">
-                <SizeRating value={Number(measures['ncloc'])} />
-              </span>
               <Measure
                 measure={{
                   metric: { key: 'ncloc', type: 'SHORT_INT' },
                   value: measures['ncloc']
                 }}
               />
+              <span className="spacer-left">
+                <SizeRating value={Number(measures['ncloc'])} />
+              </span>
             </div>
             <div className="project-card-measure-label">
               <ProjectCardLanguages distribution={measures['ncloc_language_distribution']} />

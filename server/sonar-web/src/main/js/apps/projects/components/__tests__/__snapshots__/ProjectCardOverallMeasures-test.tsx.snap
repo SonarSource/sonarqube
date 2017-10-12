@@ -258,13 +258,6 @@ exports[`should render correctly with all data 1`] = `
       <div
         className="project-card-measure-number"
       >
-        <span
-          className="spacer-right"
-        >
-          <SizeRating
-            value={2053}
-          />
-        </span>
         <Measure
           measure={
             Object {
@@ -276,6 +269,13 @@ exports[`should render correctly with all data 1`] = `
             }
           }
         />
+        <span
+          className="spacer-left"
+        >
+          <SizeRating
+            value={2053}
+          />
+        </span>
       </div>
       <div
         className="project-card-measure-label"
@@ -298,13 +298,6 @@ exports[`should render ncloc correctly 1`] = `
     <div
       className="project-card-measure-number"
     >
-      <span
-        className="spacer-right"
-      >
-        <SizeRating
-          value={16549887}
-        />
-      </span>
       <Measure
         measure={
           Object {
@@ -316,6 +309,13 @@ exports[`should render ncloc correctly 1`] = `
           }
         }
       />
+      <span
+        className="spacer-left"
+      >
+        <SizeRating
+          value={16549887}
+        />
+      </span>
     </div>
     <div
       className="project-card-measure-label"
