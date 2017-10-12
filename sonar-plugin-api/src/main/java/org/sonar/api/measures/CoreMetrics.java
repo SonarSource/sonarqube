@@ -362,26 +362,37 @@ public final class CoreMetrics {
     .setDomain(DOMAIN_COMPLEXITY)
     .create();
 
+  /**
+   * @deprecated since 6.7
+   */
+  @Deprecated
   public static final String FILE_COMPLEXITY_KEY = "file_complexity";
-
   /**
    * Information about the cyclomatic complexity per file, calculated by divided the {@link #COMPLEXITY} by the number of {@link #FILES}.
+   *
+   * @deprecated since 6.7
    */
+  @Deprecated
   public static final Metric<Double> FILE_COMPLEXITY = new Metric.Builder(FILE_COMPLEXITY_KEY, "Complexity / File", Metric.ValueType.FLOAT)
     .setDescription("Complexity average by file")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
     .setDomain(DOMAIN_COMPLEXITY)
+    .setHidden(true)
     .create();
 
   /**
    * @since 3.6
+   * @deprecated since 6.7
    */
+  @Deprecated
   public static final String COMPLEXITY_IN_CLASSES_KEY = "complexity_in_classes";
 
   /**
    * @since 3.6
+   * @deprecated since 6.7
    */
+  @Deprecated
   public static final Metric<Integer> COMPLEXITY_IN_CLASSES = new Metric.Builder(COMPLEXITY_IN_CLASSES_KEY, "Complexity in Classes", Metric.ValueType.INT)
     .setDescription("Cyclomatic complexity in classes")
     .setHidden(true)
@@ -389,28 +400,38 @@ public final class CoreMetrics {
     .setQualitative(false)
     .setDomain(DOMAIN_COMPLEXITY)
     .setDeleteHistoricalData(true)
+    .setHidden(true)
     .create();
 
+  /**
+   * @deprecated since 6.7
+   */
+  @Deprecated
   public static final String CLASS_COMPLEXITY_KEY = "class_complexity";
-
   /**
    * Information about the cyclomatic complexity per class, calculated by divided the {@link #COMPLEXITY_IN_CLASSES} by the number of {@link #CLASSES}.
+   * @deprecated since 6.7
    */
+  @Deprecated
   public static final Metric<Double> CLASS_COMPLEXITY = new Metric.Builder(CLASS_COMPLEXITY_KEY, "Complexity / Class", Metric.ValueType.FLOAT)
     .setDescription("Complexity average by class")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
     .setDomain(DOMAIN_COMPLEXITY)
+    .setHidden(true)
     .create();
 
   /**
    * @since 3.6
+   * @deprecated since 6.7
    */
+  @Deprecated
   public static final String COMPLEXITY_IN_FUNCTIONS_KEY = "complexity_in_functions";
-
   /**
    * @since 3.6
+   * @deprecated since 6.7
    */
+  @Deprecated
   public static final Metric<Integer> COMPLEXITY_IN_FUNCTIONS = new Metric.Builder(COMPLEXITY_IN_FUNCTIONS_KEY, "Complexity in Functions", Metric.ValueType.INT)
     .setDescription("Cyclomatic complexity in functions")
     .setHidden(true)
@@ -418,18 +439,25 @@ public final class CoreMetrics {
     .setQualitative(false)
     .setDomain(DOMAIN_COMPLEXITY)
     .setDeleteHistoricalData(true)
+    .setHidden(true)
     .create();
 
+  /**
+   * @deprecated since 6.7
+   */
+  @Deprecated
   public static final String FUNCTION_COMPLEXITY_KEY = "function_complexity";
-
   /**
    * Information about the cyclomatic complexity per function, calculated by divided the {@link #COMPLEXITY_IN_FUNCTIONS} by the number of {@link #FUNCTIONS}.
+   * @deprecated since 6.7
    */
+  @Deprecated
   public static final Metric<Double> FUNCTION_COMPLEXITY = new Metric.Builder(FUNCTION_COMPLEXITY_KEY, "Complexity / Function", Metric.ValueType.FLOAT)
     .setDescription("Complexity average by function")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
     .setDomain(DOMAIN_COMPLEXITY)
+    .setHidden(true)
     .create();
 
   /**
@@ -437,7 +465,6 @@ public final class CoreMetrics {
    */
   @Deprecated
   public static final String CLASS_COMPLEXITY_DISTRIBUTION_KEY = "class_complexity_distribution";
-
   /**
    * @deprecated in 3.0 - see SONAR-3289
    */
@@ -451,22 +478,40 @@ public final class CoreMetrics {
       .setHidden(true)
       .create();
 
+  /**
+   * @deprecated since 6.7
+   */
+  @Deprecated
   public static final String FUNCTION_COMPLEXITY_DISTRIBUTION_KEY = "function_complexity_distribution";
+  /**
+   * @deprecated since 6.7
+   */
+  @Deprecated
   public static final Metric<String> FUNCTION_COMPLEXITY_DISTRIBUTION = new Metric.Builder(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, "Function Distribution / Complexity",
     Metric.ValueType.DISTRIB)
       .setDescription("Functions distribution /complexity")
       .setDirection(Metric.DIRECTION_NONE)
       .setQualitative(true)
       .setDomain(DOMAIN_COMPLEXITY)
+      .setHidden(true)
       .create();
 
+  /**
+   * @deprecated since 6.7
+   */
+  @Deprecated
   public static final String FILE_COMPLEXITY_DISTRIBUTION_KEY = "file_complexity_distribution";
+  /**
+   * @deprecated since 6.7
+   */
+  @Deprecated
   public static final Metric<String> FILE_COMPLEXITY_DISTRIBUTION = new Metric.Builder(FILE_COMPLEXITY_DISTRIBUTION_KEY, "File Distribution / Complexity",
     Metric.ValueType.DISTRIB)
       .setDescription("Files distribution /complexity")
       .setDirection(Metric.DIRECTION_NONE)
       .setQualitative(true)
       .setDomain(DOMAIN_COMPLEXITY)
+      .setHidden(true)
       .create();
 
   public static final String COGNITIVE_COMPLEXITY_KEY = "cognitive_complexity";
