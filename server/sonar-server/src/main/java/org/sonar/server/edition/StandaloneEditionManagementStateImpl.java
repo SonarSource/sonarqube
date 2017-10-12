@@ -20,6 +20,7 @@
 package org.sonar.server.edition;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import org.picocontainer.Startable;
@@ -37,14 +38,14 @@ import static org.sonar.server.edition.EditionManagementState.PendingStatus.MANU
 import static org.sonar.server.edition.EditionManagementState.PendingStatus.NONE;
 
 public class StandaloneEditionManagementStateImpl implements MutableEditionManagementState, Startable {
-  private static final String CURRENT_EDITION_KEY = "sonar.editionManagement.currentEditionKey";
-  private static final String PENDING_INSTALLATION_STATUS = "sonar.editionManagement.pendingInstallationStatus";
-  private static final String PENDING_EDITION_KEY = "sonar.editionManagement.pendingEditionKey";
-  private static final String PENDING_LICENSE = "sonar.editionManagement.pendingLicense";
+  private static final String CURRENT_EDITION_KEY = "currentEditionKey";
+  private static final String PENDING_INSTALLATION_STATUS = "pendingInstallStatus";
+  private static final String PENDING_EDITION_KEY = "pendingEditionKey";
+  private static final String PENDING_LICENSE = "pendingLicense";
 
   private final DbClient dbClient;
   private String currentEditionKey;
-  private PendingStatus pendingInstallationStatus = NONE;
+  private PendingStatus pendingInstallationStatus;
   private String pendingEditionKey;
   private String pendingLicense;
 
@@ -62,12 +63,15 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
         .map(StandaloneEditionManagementStateImpl::emptyToNull)
         .orElse(null);
       this.pendingInstallationStatus = internalPropertyValues.getOrDefault(PENDING_INSTALLATION_STATUS, empty())
+        .map(StandaloneEditionManagementStateImpl::emptyToNull)
         .map(PendingStatus::valueOf)
         .orElse(NONE);
       this.pendingEditionKey = internalPropertyValues.getOrDefault(PENDING_EDITION_KEY, empty())
         .map(StandaloneEditionManagementStateImpl::emptyToNull)
         .orElse(null);
-      this.pendingLicense = internalPropertyValues.getOrDefault(PENDING_LICENSE, empty()).orElse(null);
+      this.pendingLicense = internalPropertyValues.getOrDefault(PENDING_LICENSE, empty())
+        .map(StandaloneEditionManagementStateImpl::emptyToNull)
+        .orElse(null);
     }
   }
 
@@ -78,28 +82,33 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
 
   @Override
   public Optional<String> getCurrentEditionKey() {
+    ensureStarted();
     return Optional.ofNullable(currentEditionKey);
   }
 
   @Override
   public PendingStatus getPendingInstallationStatus() {
+    ensureStarted();
     return pendingInstallationStatus;
   }
 
   @Override
   public Optional<String> getPendingEditionKey() {
+    ensureStarted();
     return Optional.ofNullable(pendingEditionKey);
   }
 
   @Override
   public Optional<String> getPendingLicense() {
+    ensureStarted();
     return Optional.ofNullable(pendingLicense);
   }
 
   @Override
   public synchronized PendingStatus startAutomaticInstall(License license) {
+    ensureStarted();
     checkLicense(license);
-    changeStatusFromTo(NONE, AUTOMATIC_IN_PROGRESS);
+    changeStatusToFrom(AUTOMATIC_IN_PROGRESS, NONE);
     this.pendingLicense = license.getContent();
     this.pendingEditionKey = license.getEditionKey();
     persistProperties();
@@ -108,8 +117,9 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
 
   @Override
   public synchronized PendingStatus startManualInstall(License license) {
+    ensureStarted();
     checkLicense(license);
-    changeStatusFromTo(NONE, MANUAL_IN_PROGRESS);
+    changeStatusToFrom(MANUAL_IN_PROGRESS, NONE);
     this.pendingLicense = license.getContent();
     this.pendingEditionKey = license.getEditionKey();
     this.pendingInstallationStatus = MANUAL_IN_PROGRESS;
@@ -119,9 +129,10 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
 
   @Override
   public PendingStatus newEditionWithoutInstall(String newEditionKey) {
+    ensureStarted();
     requireNonNull(newEditionKey, "newEditionKey can't be null");
     checkArgument(!newEditionKey.isEmpty(), "newEditionKey can't be empty");
-    changeStatusFromTo(NONE, NONE);
+    changeStatusToFrom(NONE, NONE);
     this.currentEditionKey = newEditionKey;
     persistProperties();
     return this.pendingInstallationStatus;
@@ -129,15 +140,16 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
 
   @Override
   public synchronized PendingStatus automaticInstallReady() {
-    changeStatusFromTo(AUTOMATIC_IN_PROGRESS, AUTOMATIC_READY);
+    ensureStarted();
+    changeStatusToFrom(AUTOMATIC_READY, AUTOMATIC_IN_PROGRESS);
     persistProperties();
     return this.pendingInstallationStatus;
   }
 
   @Override
   public synchronized PendingStatus finalizeInstallation() {
-    checkState(this.pendingInstallationStatus == AUTOMATIC_READY || this.pendingInstallationStatus == MANUAL_IN_PROGRESS,
-      "Can't finalize installation when state is %s", this.pendingInstallationStatus);
+    ensureStarted();
+    changeStatusToFrom(NONE, AUTOMATIC_READY, MANUAL_IN_PROGRESS);
 
     this.pendingInstallationStatus = NONE;
     this.currentEditionKey = this.pendingEditionKey;
@@ -147,10 +159,14 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
     return this.pendingInstallationStatus;
   }
 
-  private void changeStatusFromTo(PendingStatus expectedStatus, PendingStatus newStatus) {
-    checkState(pendingInstallationStatus == expectedStatus,
-      "Can't move to {} when status is {} (should be {})",
-      newStatus, pendingInstallationStatus, expectedStatus);
+  private void ensureStarted() {
+    checkState(pendingInstallationStatus != null, "%s is not started", getClass().getSimpleName());
+  }
+
+  private void changeStatusToFrom(PendingStatus newStatus, PendingStatus... validPendingStatuses) {
+    checkState(Arrays.stream(validPendingStatuses).anyMatch(s -> s == pendingInstallationStatus),
+      "Can't move to %s when status is %s (should be any of %s)",
+      newStatus, pendingInstallationStatus, Arrays.toString(validPendingStatuses));
     this.pendingInstallationStatus = newStatus;
   }
 
