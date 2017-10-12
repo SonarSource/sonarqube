@@ -29,6 +29,7 @@ exports[`renders correctly 1`] = `
         "-Dsonar.login=token",
       ]
     }
+    isWindows={true}
   />
   <p
     className="big-spacer-top markdown"
@@ -70,6 +71,7 @@ exports[`renders correctly 2`] = `
         "-Dsonar.login=token",
       ]
     }
+    isWindows={false}
   />
   <p
     className="big-spacer-top markdown"
@@ -111,6 +113,7 @@ exports[`renders correctly 3`] = `
         "-Dsonar.login=token",
       ]
     }
+    isWindows={false}
   />
   <p
     className="big-spacer-top markdown"

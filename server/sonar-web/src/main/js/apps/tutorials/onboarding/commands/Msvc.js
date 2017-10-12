@@ -37,15 +37,15 @@ export default function Msvc(props /*: Props */) {
   const command1 = [
     'SonarQube.Scanner.MSBuild.exe begin',
     `/k:"${props.projectKey}"`,
-    props.organization && `/d:"sonar.organization=${props.organization}"`,
-    '/d:"sonar.cfamily.build-wrapper-output=bw-output"',
-    `/d:"sonar.host.url=${props.host}`,
-    `/d:"sonar.login=${props.token}"`
+    props.organization && `/d:sonar.organization="${props.organization}"`,
+    '/d:sonar.cfamily.build-wrapper-output=bw-output',
+    `/d:sonar.host.url="${props.host}"`,
+    `/d:sonar.login="${props.token}"`
   ];
 
-  const command2 = ['build-wrapper-win-x86-64.exe', '--out-dir bw-output MsBuild.exe /t:Rebuild'];
+  const command2 = 'build-wrapper-win-x86-64.exe --out-dir bw-output MsBuild.exe /t:Rebuild';
 
-  const command3 = ['SonarQube.Scanner.MSBuild.exe end', `/d:"sonar.login=${props.token}"`];
+  const command3 = ['SonarQube.Scanner.MSBuild.exe end', `/d:sonar.login="${props.token}"`];
 
   return (
     <div>
@@ -61,9 +61,9 @@ export default function Msvc(props /*: Props */) {
           __html: translate('onboarding.analysis.msbuild.execute.text')
         }}
       />
-      <Command command={command1} />
-      <Command command={command2} />
-      <Command command={command3} />
+      <Command command={command1} isWindows={true} />
+      <Command command={command2} isWindows={true} />
+      <Command command={command3} isWindows={true} />
       <p
         className="big-spacer-top markdown"
         dangerouslySetInnerHTML={{ __html: translate('onboarding.analysis.msbuild.docs') }}

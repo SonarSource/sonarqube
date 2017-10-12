@@ -26,27 +26,25 @@ exports[`renders correctly 1`] = `
         "SonarQube.Scanner.MSBuild.exe begin",
         "/k:\\"projectKey\\"",
         undefined,
-        "/d:\\"sonar.cfamily.build-wrapper-output=bw-output\\"",
-        "/d:\\"sonar.host.url=host",
-        "/d:\\"sonar.login=token\\"",
+        "/d:sonar.cfamily.build-wrapper-output=bw-output",
+        "/d:sonar.host.url=\\"host\\"",
+        "/d:sonar.login=\\"token\\"",
       ]
     }
+    isWindows={true}
   />
   <Command
-    command={
-      Array [
-        "build-wrapper-win-x86-64.exe",
-        "--out-dir bw-output MsBuild.exe /t:Rebuild",
-      ]
-    }
+    command="build-wrapper-win-x86-64.exe --out-dir bw-output MsBuild.exe /t:Rebuild"
+    isWindows={true}
   />
   <Command
     command={
       Array [
         "SonarQube.Scanner.MSBuild.exe end",
-        "/d:\\"sonar.login=token\\"",
+        "/d:sonar.login=\\"token\\"",
       ]
     }
+    isWindows={true}
   />
   <p
     className="big-spacer-top markdown"
@@ -84,28 +82,26 @@ exports[`renders correctly 2`] = `
       Array [
         "SonarQube.Scanner.MSBuild.exe begin",
         "/k:\\"projectKey\\"",
-        "/d:\\"sonar.organization=organization\\"",
-        "/d:\\"sonar.cfamily.build-wrapper-output=bw-output\\"",
-        "/d:\\"sonar.host.url=host",
-        "/d:\\"sonar.login=token\\"",
+        "/d:sonar.organization=\\"organization\\"",
+        "/d:sonar.cfamily.build-wrapper-output=bw-output",
+        "/d:sonar.host.url=\\"host\\"",
+        "/d:sonar.login=\\"token\\"",
       ]
     }
+    isWindows={true}
   />
   <Command
-    command={
-      Array [
-        "build-wrapper-win-x86-64.exe",
-        "--out-dir bw-output MsBuild.exe /t:Rebuild",
-      ]
-    }
+    command="build-wrapper-win-x86-64.exe --out-dir bw-output MsBuild.exe /t:Rebuild"
+    isWindows={true}
   />
   <Command
     command={
       Array [
         "SonarQube.Scanner.MSBuild.exe end",
-        "/d:\\"sonar.login=token\\"",
+        "/d:sonar.login=\\"token\\"",
       ]
     }
+    isWindows={true}
   />
   <p
     className="big-spacer-top markdown"

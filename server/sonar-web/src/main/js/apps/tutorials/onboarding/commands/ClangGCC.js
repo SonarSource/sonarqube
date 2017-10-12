@@ -67,8 +67,8 @@ export default function ClangGCC(props /*: Props */) {
           __html: translate('onboarding.analysis.sq_scanner.execute.text')
         }}
       />
-      <Command command={command1} />
-      <Command command={command2} />
+      <Command command={command1} isWindows={props.os === 'win'} />
+      <Command command={command2} isWindows={props.os === 'win'} />
       <p
         className="big-spacer-top markdown"
         dangerouslySetInnerHTML={{ __html: translate('onboarding.analysis.sq_scanner.docs') }}

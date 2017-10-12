@@ -62,6 +62,7 @@
   color: #fff;
   font-size: 11px;
   font-weight: normal;
+  user-select: none;
 }
 
 .onboarding-command button:hover,
@@ -69,6 +70,15 @@
 .onboarding-command button:active {
   background-color: #fff;
   color: #404040;
+}
+
+.onboarding-command-windows pre {
+  padding-bottom: 40px;
+}
+
+.onboarding-command-windows button {
+  top: auto;
+  top: 40px;
 }
 
 .onboarding .page-actions {

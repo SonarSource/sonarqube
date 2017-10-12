@@ -20,12 +20,14 @@
 // @flow
 import React from 'react';
 import Clipboard from 'clipboard';
+import classNames from 'classnames';
 import Tooltip from '../../../../components/controls/Tooltip';
 import { translate } from '../../../../helpers/l10n';
 
 /*::
 type Props = {
-  command: string | Array<?string>
+  command: string | Array<?string>,
+  isWindows?: boolean
 };
 */
 
@@ -50,6 +52,12 @@ export default class Command extends React.PureComponent {
     this.clipboard.on('success', this.showTooltip);
   }
 
+  componentDidUpdate() {
+    this.clipboard.destroy();
+    this.clipboard = new Clipboard(this.copyButton);
+    this.clipboard.on('success', this.showTooltip);
+  }
+
   componentWillUnmount() {
     this.mounted = false;
     this.clipboard.destroy();
@@ -69,9 +77,9 @@ export default class Command extends React.PureComponent {
   };
 
   render() {
-    const { command } = this.props;
+    const { command, isWindows } = this.props;
     const commandArray = Array.isArray(command) ? command.filter(line => line != null) : [command];
-    const finalCommand = commandArray.join(s);
+    const finalCommand = isWindows ? commandArray.join(' ') : commandArray.join(s);
 
     const button = (
       <button data-clipboard-text={finalCommand} ref={node => (this.copyButton = node)}>
@@ -80,7 +88,8 @@ export default class Command extends React.PureComponent {
     );
 
     return (
-      <div className="onboarding-command">
+      <div
+        className={classNames('onboarding-command', { 'onboarding-command-windows': isWindows })}>
         <pre>{finalCommand}</pre>
         {this.state.tooltipShown ? (
           <Tooltip defaultVisible={true} placement="top" overlay="Copied!" trigger="manual">
