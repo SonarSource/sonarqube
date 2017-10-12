@@ -22,21 +22,24 @@ exports[`renders correctly 1`] = `
         "SonarQube.Scanner.MSBuild.exe begin",
         "/k:\\"projectKey\\"",
         undefined,
-        "/d:\\"sonar.host.url=host",
-        "/d:\\"sonar.login=token\\"",
+        "/d:sonar.host.url=\\"host\\"",
+        "/d:sonar.login=\\"token\\"",
       ]
     }
+    isWindows={true}
   />
   <Command
     command="MsBuild.exe /t:Rebuild"
+    isWindows={true}
   />
   <Command
     command={
       Array [
         "SonarQube.Scanner.MSBuild.exe end",
-        "/d:\\"sonar.login=token\\"",
+        "/d:sonar.login=\\"token\\"",
       ]
     }
+    isWindows={true}
   />
   <p
     className="big-spacer-top markdown"
@@ -70,22 +73,25 @@ exports[`renders correctly 2`] = `
       Array [
         "SonarQube.Scanner.MSBuild.exe begin",
         "/k:\\"projectKey\\"",
-        "/d:\\"sonar.organization=organization\\"",
-        "/d:\\"sonar.host.url=host",
-        "/d:\\"sonar.login=token\\"",
+        "/d:sonar.organization=\\"organization\\"",
+        "/d:sonar.host.url=\\"host\\"",
+        "/d:sonar.login=\\"token\\"",
       ]
     }
+    isWindows={true}
   />
   <Command
     command="MsBuild.exe /t:Rebuild"
+    isWindows={true}
   />
   <Command
     command={
       Array [
         "SonarQube.Scanner.MSBuild.exe end",
-        "/d:\\"sonar.login=token\\"",
+        "/d:sonar.login=\\"token\\"",
       ]
     }
+    isWindows={true}
   />
   <p
     className="big-spacer-top markdown"

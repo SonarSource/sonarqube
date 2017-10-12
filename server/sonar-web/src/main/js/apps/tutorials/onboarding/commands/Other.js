@@ -56,7 +56,7 @@ export default function Other(props /*: Props */) {
           __html: translate('onboarding.analysis.sq_scanner.execute.text')
         }}
       />
-      <Command command={command} />
+      <Command command={command} isWindows={props.os === 'win'} />
       <p
         className="big-spacer-top markdown"
         dangerouslySetInnerHTML={{ __html: translate('onboarding.analysis.sq_scanner.docs') }}
