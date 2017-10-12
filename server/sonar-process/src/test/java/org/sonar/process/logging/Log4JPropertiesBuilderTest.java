@@ -24,7 +24,6 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Random;
@@ -131,7 +130,7 @@ public class Log4JPropertiesBuilderTest {
   }
 
   @Test
-  public void configureGlobalFileLog_sets_properties_for_daily_time_rolling_policy_with_max_7_files_for_empty_props() throws IOException {
+  public void configureGlobalFileLog_sets_properties_for_daily_time_rolling_policy_with_max_7_files_for_empty_props() throws Exception {
     File logDir = temporaryFolder.newFolder();
     String logPattern = randomAlphanumeric(15);
     underTest.configureGlobalFileLog(esRootLoggerConfig, logDir, logPattern);
@@ -140,7 +139,57 @@ public class Log4JPropertiesBuilderTest {
   }
 
   @Test
-  public void configureGlobalFileLog_throws_MessageException_when_property_is_not_supported() throws IOException {
+  public void time_rolling_policy_has_large_max_files_if_property_is_zero() throws Exception {
+    File logDir = temporaryFolder.newFolder();
+    String logPattern = "foo";
+    Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder(
+      ROLLING_POLICY_PROPERTY, "time:yyyy-MM-dd",
+      PROPERTY_MAX_FILES, "0");
+    underTest.configureGlobalFileLog(esRootLoggerConfig, logDir, logPattern);
+
+    verifyTimeRollingPolicy(underTest, logDir, logPattern, "yyyy-MM-dd", 100_000);
+  }
+
+  @Test
+  public void time_rolling_policy_has_large_max_files_if_property_is_negative() throws Exception {
+    File logDir = temporaryFolder.newFolder();
+    String logPattern = "foo";
+    Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder(
+      ROLLING_POLICY_PROPERTY, "time:yyyy-MM-dd",
+      PROPERTY_MAX_FILES, "-2");
+    underTest.configureGlobalFileLog(esRootLoggerConfig, logDir, logPattern);
+
+    verifyTimeRollingPolicy(underTest, logDir, logPattern, "yyyy-MM-dd", 100_000);
+  }
+
+  @Test
+  public void size_rolling_policy_has_large_max_files_if_property_is_zero() throws Exception {
+    File logDir = temporaryFolder.newFolder();
+    String logPattern = "foo";
+    String sizePattern = "1KB";
+    Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder(
+      ROLLING_POLICY_PROPERTY, "size:" + sizePattern,
+      PROPERTY_MAX_FILES, "0");
+    underTest.configureGlobalFileLog(esRootLoggerConfig, logDir, logPattern);
+
+    verifySizeRollingPolicy(underTest, logDir, logPattern, sizePattern, 100_000);
+  }
+
+  @Test
+  public void size_rolling_policy_has_large_max_files_if_property_is_negative() throws Exception {
+    File logDir = temporaryFolder.newFolder();
+    String logPattern = "foo";
+    String sizePattern = "1KB";
+    Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder(
+      ROLLING_POLICY_PROPERTY, "size:" + sizePattern,
+      PROPERTY_MAX_FILES, "-2");
+    underTest.configureGlobalFileLog(esRootLoggerConfig, logDir, logPattern);
+
+    verifySizeRollingPolicy(underTest, logDir, logPattern, sizePattern, 100_000);
+  }
+
+  @Test
+  public void configureGlobalFileLog_throws_MessageException_when_property_is_not_supported() throws Exception {
     File logDir = temporaryFolder.newFolder();
     String logPattern = randomAlphanumeric(15);
     String invalidPropertyValue = randomAlphanumeric(3);
@@ -154,7 +203,7 @@ public class Log4JPropertiesBuilderTest {
   }
 
   @Test
-  public void configureGlobalFileLog_sets_properties_for_time_rolling_policy_with_max_7_files_when_property_starts_with_time_colon() throws IOException {
+  public void configureGlobalFileLog_sets_properties_for_time_rolling_policy_with_max_7_files_when_property_starts_with_time_colon() throws Exception {
     File logDir = temporaryFolder.newFolder();
     String logPattern = randomAlphanumeric(15);
     String timePattern = randomAlphanumeric(6);
@@ -166,7 +215,7 @@ public class Log4JPropertiesBuilderTest {
   }
 
   @Test
-  public void configureGlobalFileLog_sets_properties_for_time_rolling_policy_when_property_starts_with_time_colon_and_specified_max_number_of_files() throws IOException {
+  public void configureGlobalFileLog_sets_properties_for_time_rolling_policy_when_property_starts_with_time_colon_and_specified_max_number_of_files() throws Exception {
     File logDir = temporaryFolder.newFolder();
     String logPattern = randomAlphanumeric(15);
     String timePattern = randomAlphanumeric(6);
@@ -180,7 +229,7 @@ public class Log4JPropertiesBuilderTest {
   }
 
   @Test
-  public void configureGlobalFileLog_sets_properties_for_size_rolling_policy_with_max_7_files_when_property_starts_with_size_colon() throws IOException {
+  public void configureGlobalFileLog_sets_properties_for_size_rolling_policy_with_max_7_files_when_property_starts_with_size_colon() throws Exception {
     File logDir = temporaryFolder.newFolder();
     String logPattern = randomAlphanumeric(15);
     String sizePattern = randomAlphanumeric(6);
@@ -192,7 +241,7 @@ public class Log4JPropertiesBuilderTest {
   }
 
   @Test
-  public void configureGlobalFileLog_sets_properties_for_size_rolling_policy_when_property_starts_with_size_colon_and_specified_max_number_of_files() throws IOException {
+  public void configureGlobalFileLog_sets_properties_for_size_rolling_policy_when_property_starts_with_size_colon_and_specified_max_number_of_files() throws Exception {
     File logDir = temporaryFolder.newFolder();
     String logPattern = randomAlphanumeric(15);
     String sizePattern = randomAlphanumeric(6);
@@ -206,7 +255,7 @@ public class Log4JPropertiesBuilderTest {
   }
 
   @Test
-  public void configureGlobalFileLog_sets_properties_for_no_rolling_policy_when_property_is_none() throws IOException {
+  public void configureGlobalFileLog_sets_properties_for_no_rolling_policy_when_property_is_none() throws Exception {
     File logDir = temporaryFolder.newFolder();
     String logPattern = randomAlphanumeric(15);
     Log4JPropertiesBuilder underTest = newLog4JPropertiesBuilder(
