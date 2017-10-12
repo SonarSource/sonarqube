@@ -30,13 +30,15 @@ import Tooltip from '../../../../components/controls/Tooltip';
 import HelpIcon from '../../../../components/icons-components/HelpIcon';
 import OnboardingModal from '../../../../apps/tutorials/onboarding/OnboardingModal';
 import { getCurrentUser, getAppState, getGlobalSettingValue } from '../../../../store/rootReducer';
+import { skipOnboarding } from '../../../../store/users/actions';
 import { translate } from '../../../../helpers/l10n';
 import './GlobalNav.css';
 
 /*::
 type Props = {
   appState: { organizationsEnabled: boolean },
-  currentUser: { isLoggedIn: boolean, showOnboardingTutorial: true },
+  currentUser: { isLoggedIn: boolean, showOnboardingTutorial: boolean },
+  skipOnboarding: () => void,
   sonarCloud: boolean
 };
 */
@@ -95,6 +97,7 @@ class GlobalNav extends React.PureComponent {
 
   closeOnboardingTutorial = () => {
     this.setState({ onboardingTutorialOpen: false, onboardingTutorialTooltip: true });
+    this.props.skipOnboarding();
     this.interval = setInterval(() => {
       this.setState({ onboardingTutorialTooltip: false });
     }, 3000);
@@ -153,4 +156,6 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps)(GlobalNav);
+const mapDispatchToProps = { skipOnboarding };
+
+export default connect(mapStateToProps, mapDispatchToProps)(GlobalNav);

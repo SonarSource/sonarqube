@@ -21,6 +21,7 @@ import { getCurrentUser } from '../../api/users';
 
 export const RECEIVE_CURRENT_USER = 'RECEIVE_CURRENT_USER';
 export const RECEIVE_USER = 'RECEIVE_USER';
+export const SKIP_ONBOARDING = 'SKIP_ONBOARDING';
 
 export const receiveCurrentUser = user => ({
   type: RECEIVE_CURRENT_USER,
@@ -31,6 +32,8 @@ export const receiveUser = user => ({
   type: RECEIVE_USER,
   user
 });
+
+export const skipOnboarding = () => ({ type: SKIP_ONBOARDING });
 
 export const fetchCurrentUser = () => dispatch =>
   getCurrentUser().then(user => dispatch(receiveCurrentUser(user)));

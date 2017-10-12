@@ -19,7 +19,7 @@
  */
 import { combineReducers } from 'redux';
 import { uniq, keyBy } from 'lodash';
-import { RECEIVE_CURRENT_USER, RECEIVE_USER } from './actions';
+import { RECEIVE_CURRENT_USER, RECEIVE_USER, SKIP_ONBOARDING } from './actions';
 import { actions as membersActions } from '../organizationsMembers/actions';
 
 const usersByLogin = (state = {}, action = {}) => {
@@ -56,6 +56,9 @@ const userLogins = (state = [], action = {}) => {
 const currentUser = (state = null, action = {}) => {
   if (action.type === RECEIVE_CURRENT_USER) {
     return action.user;
+  }
+  if (action.type === SKIP_ONBOARDING) {
+    return state ? { ...state, showOnboardingTutorial: false } : null;
   }
   return state;
 };
