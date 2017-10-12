@@ -49,16 +49,18 @@ export default class EncryptionForm extends React.PureComponent {
           id="encryption-form"
           className="big-spacer-bottom"
           onSubmit={e => this.handleEncrypt(e)}>
-          <input
-            id="encryption-form-value"
-            className="input-large"
-            type="text"
+          <textarea
             autoFocus={true}
-            required={true}
-            value={this.state.value}
+            className="input-super-large"
+            id="encryption-form-value"
             onChange={e => this.setState({ value: e.target.value })}
+            required={true}
+            rows={3}
+            value={this.state.value}
           />
-          <button className="spacer-left">{translate('encryption.encrypt')}</button>
+          <div className="spacer-top">
+            <button>{translate('encryption.encrypt')}</button>
+          </div>
         </form>
 
         {this.props.encryptedValue != null && (
