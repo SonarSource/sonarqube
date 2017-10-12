@@ -25,9 +25,10 @@ import javax.annotation.Nullable;
 import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.STRING;
-import static org.sonar.db.metric.MetricDtoValidator.validateDescription;
-import static org.sonar.db.metric.MetricDtoValidator.validateKey;
-import static org.sonar.db.metric.MetricDtoValidator.validateShortName;
+import static org.sonar.db.metric.MetricValidator.checkMetricDescription;
+import static org.sonar.db.metric.MetricValidator.checkMetricDomain;
+import static org.sonar.db.metric.MetricValidator.checkMetricKey;
+import static org.sonar.db.metric.MetricValidator.checkMetricName;
 
 public class MetricDto {
 
@@ -77,7 +78,7 @@ public class MetricDto {
   }
 
   public MetricDto setKey(String key) {
-    this.kee = validateKey(key);
+    this.kee = checkMetricKey(key);
     return this;
   }
 
@@ -86,7 +87,7 @@ public class MetricDto {
   }
 
   public MetricDto setShortName(String shortName) {
-    this.shortName = validateShortName(shortName);
+    this.shortName = checkMetricName(shortName);
     return this;
   }
 
@@ -108,7 +109,7 @@ public class MetricDto {
   }
 
   public MetricDto setDescription(@Nullable String description) {
-    this.description = validateDescription(description);
+    this.description = checkMetricDescription(description);
     return this;
   }
 
@@ -118,7 +119,7 @@ public class MetricDto {
   }
 
   public MetricDto setDomain(@Nullable String domain) {
-    this.domain = domain;
+    this.domain = checkMetricDomain(domain);
     return this;
   }
 

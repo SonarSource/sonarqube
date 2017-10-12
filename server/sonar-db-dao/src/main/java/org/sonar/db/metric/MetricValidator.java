@@ -26,23 +26,24 @@ import javax.annotation.Nullable;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
-public class MetricDtoValidator {
+public class MetricValidator {
   private static final int MAX_KEY_LENGTH = 64;
   private static final int MAX_NAME_LENGTH = 64;
+  private static final int MAX_DOMAIN_LENGTH = 64;
   private static final int MAX_DESCRIPTION_LENGTH = 255;
 
-  private MetricDtoValidator() {
+  private MetricValidator() {
     // static utility methods only
   }
 
-  static String validateKey(String key) {
+  public static String checkMetricKey(String key) {
     checkArgument(!isNullOrEmpty(key), "Metric key cannot be empty");
     checkArgument(key.length() <= MAX_NAME_LENGTH, "Metric key length (%s) is longer than the maximum authorized (%s). '%s' was provided.",
       key.length(), MAX_KEY_LENGTH, key);
     return key;
   }
 
-  static String validateShortName(String name) {
+  public static String checkMetricName(String name) {
     checkArgument(!isNullOrEmpty(name), "Metric name cannot be empty");
     checkArgument(name.length() <= MAX_NAME_LENGTH, "Metric name length (%s) is longer than the maximum authorized (%s). '%s' was provided.",
       name.length(), MAX_NAME_LENGTH, name);
@@ -50,7 +51,7 @@ public class MetricDtoValidator {
   }
 
   @CheckForNull
-  static String validateDescription(@Nullable String description) {
+  public static String checkMetricDescription(@Nullable String description) {
     if (description == null) {
       return null;
     }
@@ -59,5 +60,17 @@ public class MetricDtoValidator {
       description.length(), MAX_DESCRIPTION_LENGTH, description);
 
     return description;
+  }
+
+  @CheckForNull
+  public static String checkMetricDomain(@Nullable String domain) {
+    if (domain == null) {
+      return null;
+    }
+
+    checkArgument(domain.length() <= MAX_DOMAIN_LENGTH, "Metric domain length (%s) is longer than the maximum authorized (%s). '%s' was provided.",
+      domain.length(), MAX_DOMAIN_LENGTH, domain);
+
+    return domain;
   }
 }

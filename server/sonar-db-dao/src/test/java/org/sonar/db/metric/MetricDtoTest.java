@@ -109,4 +109,14 @@ public class MetricDtoTest {
 
     underTest.setDescription(a256);
   }
+
+  @Test
+  public void fail_if_domain_longer_than_64_characters() {
+    String a65 = repeat("a", 65);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Metric domain length (65) is longer than the maximum authorized (64). '" + a65 + "' was provided.");
+
+    underTest.setDomain(a65);
+  }
 }
