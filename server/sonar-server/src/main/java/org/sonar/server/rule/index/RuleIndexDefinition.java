@@ -143,7 +143,12 @@ public class RuleIndexDefinition implements IndexDefinition {
     ruleMapping.keywordFieldBuilder(FIELD_RULE_INTERNAL_KEY).disableNorms().disableSearch().build();
 
     ruleMapping.keywordFieldBuilder(FIELD_RULE_NAME).addSubFields(SORTABLE_ANALYZER, SEARCH_GRAMS_ANALYZER).build();
-    ruleMapping.keywordFieldBuilder(FIELD_RULE_HTML_DESCRIPTION).addSubFields(ENGLISH_HTML_ANALYZER).build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_HTML_DESCRIPTION)
+      .disableSearch()
+      .disableNorms()
+      .disableSortingAndAggregating()
+      .addSubFields(ENGLISH_HTML_ANALYZER)
+      .build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_SEVERITY).disableNorms().build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_STATUS).disableNorms().build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_LANGUAGE).disableNorms().build();
