@@ -25,6 +25,7 @@ option java_outer_classname = "WsEditions";
 option optimize_for = SPEED;
 
 // GET api/editions/status
+// POST api/editions/apply_license
 message StatusResponse {
   optional string currentEditionKey = 1;
   optional InstallationStatus installationStatus = 2;
