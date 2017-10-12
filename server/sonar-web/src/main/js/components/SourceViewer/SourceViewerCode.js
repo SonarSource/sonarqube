@@ -41,6 +41,7 @@ export default class SourceViewerCode extends React.PureComponent {
     displayAllIssues: boolean,
     displayIssueLocationsCount?: boolean;
     displayIssueLocationsLink?: boolean;
+    displayLocationMarkers?: boolean;
     duplications?: Array<Duplication>,
     duplicationsByLine: { [number]: Array<number> },
     duplicatedFiles?: Array<{ key: string }>,
@@ -156,6 +157,7 @@ export default class SourceViewerCode extends React.PureComponent {
         displayIssues={displayIssues}
         displayIssueLocationsCount={this.props.displayIssueLocationsCount}
         displayIssueLocationsLink={this.props.displayIssueLocationsLink}
+        displayLocationMarkers={this.props.displayLocationMarkers}
         duplications={this.getDuplicationsForLine(line)}
         duplicationsCount={duplicationsCount}
         filtered={filtered}

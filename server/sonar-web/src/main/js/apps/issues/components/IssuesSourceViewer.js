@@ -101,6 +101,8 @@ export default class IssuesSourceViewer extends React.PureComponent {
     // otherwise show code around the open issue
     const aroundLine = locationLine || (openIssue.textRange && openIssue.textRange.endLine);
 
+    const allMessagesEmpty = locations != null && locations.every(location => !location.msg);
+
     return (
       <div ref={node => (this.node = node)}>
         <SourceViewer
@@ -110,6 +112,7 @@ export default class IssuesSourceViewer extends React.PureComponent {
           displayAllIssues={true}
           displayIssueLocationsCount={false}
           displayIssueLocationsLink={false}
+          displayLocationMarkers={!allMessagesEmpty}
           highlightedLocations={locations}
           highlightedLocationMessage={locationMessage}
           loadIssues={this.props.loadIssues}
