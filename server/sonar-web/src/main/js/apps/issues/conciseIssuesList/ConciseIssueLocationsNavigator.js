@@ -49,7 +49,7 @@ export default class ConciseIssueLocationsNavigator extends React.PureComponent 
         ? flows[selectedFlowIndex]
         : flows.length > 0 ? flows[0] : secondaryLocations;
 
-    if (locations == null || locations.length === 0) {
+    if (locations == null || locations.length === 0 || locations.every(location => !location.msg)) {
       return null;
     }
 

@@ -34,6 +34,7 @@ type Props = {|
   branch?: string,
   displayIssueLocationsCount?: boolean,
   displayIssueLocationsLink?: boolean,
+  displayLocationMarkers?: boolean,
   highlightedLocationMessage?: { index: number, text: string },
   highlightedSymbols?: Array<string>,
   issues: Array<Issue>,
@@ -203,7 +204,7 @@ export default class LineCode extends React.PureComponent {
     let leadingMarker = false;
 
     tokens.forEach((token, index) => {
-      if (token.markers.length > 0) {
+      if (this.props.displayLocationMarkers && token.markers.length > 0) {
         token.markers.forEach(marker => {
           const message =
             highlightedLocationMessage != null && highlightedLocationMessage.index === marker

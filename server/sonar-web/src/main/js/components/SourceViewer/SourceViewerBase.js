@@ -61,6 +61,7 @@ type Props = {
   displayAllIssues: boolean,
   displayIssueLocationsCount?: boolean;
   displayIssueLocationsLink?: boolean;
+  displayLocationMarkers?: boolean;
   highlightedLine?: number,
   highlightedLocations?: Array<FlowLocation>,
   highlightedLocationMessage?: { index: number, text: string },
@@ -145,6 +146,7 @@ export default class SourceViewerBase extends React.PureComponent {
     displayAllIssues: false,
     displayIssueLocationsCount: true,
     displayIssueLocationsLink: true,
+    displayLocationMarkers: true,
     loadComponent,
     loadIssues,
     loadSources
@@ -604,6 +606,7 @@ export default class SourceViewerBase extends React.PureComponent {
         displayAllIssues={this.props.displayAllIssues}
         displayIssueLocationsCount={this.props.displayIssueLocationsCount}
         displayIssueLocationsLink={this.props.displayIssueLocationsLink}
+        displayLocationMarkers={this.props.displayLocationMarkers}
         duplications={this.state.duplications}
         duplicationsByLine={this.state.duplicationsByLine}
         duplicatedFiles={this.state.duplicatedFiles}
