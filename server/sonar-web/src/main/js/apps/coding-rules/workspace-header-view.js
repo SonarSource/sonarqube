@@ -49,7 +49,8 @@ export default WorkspaceHeaderView.extend({
     }).render();
   },
 
-  reload() {
+  reload(event) {
+    event.preventDefault();
     this.options.app.controller.fetchList(true);
   },
 
