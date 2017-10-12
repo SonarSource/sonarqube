@@ -71,7 +71,11 @@ it('should work for short-living branches', () => {
     name: 'feature',
     type: BranchType.SHORT
   };
-  const component = { ...baseComponent, configuration: { showSettings: true } };
+  const component = {
+    ...baseComponent,
+    configuration: { showSettings: true },
+    extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
+  };
   expect(
     shallow(<ComponentNavMenu branch={branch} component={component} />, {
       context: { branchesEnabled: true }
@@ -86,7 +90,11 @@ it('should work for long-living branches', () => {
       shallow(
         <ComponentNavMenu
           branch={branch}
-          component={{ ...baseComponent, configuration: { showSettings } }}
+          component={{
+            ...baseComponent,
+            configuration: { showSettings },
+            extensions: [{ key: 'component-foo', name: 'ComponentFoo' }]
+          }}
         />,
         { context: { branchesEnabled: true } }
       )
