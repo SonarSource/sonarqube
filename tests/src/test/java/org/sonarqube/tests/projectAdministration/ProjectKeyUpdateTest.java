@@ -42,12 +42,9 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
-import org.sonarqube.ws.client.project.SearchWsRequest;
 import org.sonarqube.ws.client.project.UpdateKeyWsRequest;
 import util.ItUtils;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
@@ -74,10 +71,10 @@ public class ProjectKeyUpdateTest {
 
     updateKey(project, "two");
 
-    assertThat(isInProjectsSearch(organization, "one")).isFalse();
-    assertThat(isInProjectsSearch(organization, "two")).isTrue();
-    assertThat(isInComponentSearch(organization, "one")).isFalse();
-    assertThat(isInComponentSearch(organization, "two")).isTrue();
+    assertThat(isProjectInDatabase("one")).isFalse();
+    assertThat(isProjectInDatabase("two")).isTrue();
+    assertThat(isComponentInDatabase("one")).isFalse();
+    assertThat(isComponentInDatabase("two")).isTrue();
     assertThat(keyInComponentSearchProjects("Foo")).isEqualTo("two");
     assertThat(keysInComponentSuggestions("Foo")).containsExactly("two");
   }
@@ -91,12 +88,12 @@ public class ProjectKeyUpdateTest {
 
     updateKey(project, "two");
 
-    assertThat(isInProjectsSearch(organization, "one")).isFalse();
+    assertThat(isProjectInDatabase("one")).isFalse();
 
     // WS gets the list of projects from ES then reloads projects from db.
     // That's why keys in WS responses are correct.
-    assertThat(isInProjectsSearch(organization, "one")).isFalse();
-    assertThat(isInProjectsSearch(organization, "two")).isTrue();
+    assertThat(isProjectInDatabase("one")).isFalse();
+    assertThat(isProjectInDatabase("two")).isTrue();
     assertThat(keyInComponentSearchProjects("Foo")).isEqualTo("two");
     assertThat(keysInComponentSuggestions("Foo")).containsExactly("two");
 
@@ -131,8 +128,8 @@ public class ProjectKeyUpdateTest {
 
     updateKey(initialKey, newKey);
 
-    assertThat(isInComponentSearch(organization, initialKey)).isFalse();
-    assertThat(isInComponentSearch(organization, newKey)).isTrue();
+    assertThat(isComponentInDatabase(initialKey)).isFalse();
+    assertThat(isComponentInDatabase(newKey)).isTrue();
     // suggestions engine ignores one-character words, so we can't search for "Module A"
     assertThat(keysInComponentSuggestions("Module"))
       .contains(newKey)
@@ -158,8 +155,8 @@ public class ProjectKeyUpdateTest {
     updateKey(initialKey, newKey);
 
     // api/components/search loads keys from db, so results are consistent
-    assertThat(isInComponentSearch(organization, initialKey)).isFalse();
-    assertThat(isInComponentSearch(organization, newKey)).isTrue();
+    assertThat(isComponentInDatabase(initialKey)).isFalse();
+    assertThat(isComponentInDatabase(newKey)).isTrue();
 
     // key in result of suggestion engine is loaded from db, so results are ok when searching for unchanged name
     assertThat(keysInComponentSuggestions("Module"))
@@ -188,7 +185,6 @@ public class ProjectKeyUpdateTest {
     tester.elasticsearch().lockWrites("projectmeasures");
   }
 
-
   private void unlockWritesOnProjectIndices() throws Exception {
     tester.elasticsearch().unlockWrites("components");
     tester.elasticsearch().unlockWrites("projectmeasures");
@@ -207,21 +203,12 @@ public class ProjectKeyUpdateTest {
     return tester.wsClient().projects().create(createRequest).getProject();
   }
 
-  /**
-   * Projects administration page - uses database
-   */
-  private boolean isInProjectsSearch(Organizations.Organization organization, String key) {
-    WsProjects.SearchWsResponse response = tester.wsClient().projects().search(
-      SearchWsRequest.builder().setOrganization(organization.getKey()).setQuery(key).setQualifiers(singletonList("TRK")).build());
-    return response.getComponentsCount() > 0;
+  private boolean isProjectInDatabase(String projectKey) {
+    return orchestrator.getDatabase().countSql(String.format("select count(id) from projects where qualifier='TRK' and kee='%s'", projectKey)) == 1L;
   }
 
-  private boolean isInComponentSearch(Organizations.Organization organization, String key) {
-    org.sonarqube.ws.client.component.SearchWsRequest request = new org.sonarqube.ws.client.component.SearchWsRequest()
-      .setQualifiers(asList("TRK", "BRC"))
-      .setQuery(key)
-      .setOrganization(organization.getKey());
-    return tester.wsClient().components().search(request).getComponentsCount() == 1L;
+  private boolean isComponentInDatabase(String componentKey) {
+    return orchestrator.getDatabase().countSql(String.format("select count(id) from projects where kee='%s'", componentKey)) == 1L;
   }
 
   /**
