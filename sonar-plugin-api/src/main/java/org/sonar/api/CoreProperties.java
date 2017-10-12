@@ -128,6 +128,7 @@ public interface CoreProperties {
 
   /* Global settings */
   String SONAR_HOME = "SONAR_HOME";
+  @Deprecated
   String PROJECT_BRANCH_PROPERTY = "sonar.branch";
   String PROJECT_VERSION_PROPERTY = "sonar.projectVersion";
 
