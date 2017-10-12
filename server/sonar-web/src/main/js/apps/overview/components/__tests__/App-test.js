@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { shallow } from 'enzyme';
+import { mount, shallow } from 'enzyme';
 import App from '../App';
 import OverviewApp from '../OverviewApp';
 import EmptyOverview from '../EmptyOverview';
@@ -35,8 +35,17 @@ it('should render EmptyOverview', () => {
   expect(output.type()).toBe(EmptyOverview);
 });
 
-it('renders SourceViewer with branch', () => {
+it('redirects on Code page for files', () => {
   const branch = { isMain: false, name: 'b' };
-  const component = { key: 'foo', qualifier: 'FIL' };
-  expect(shallow(<App branch={branch} component={component} />)).toMatchSnapshot();
+  const component = {
+    breadcrumbs: [{ key: 'project' }, { key: 'foo' }],
+    key: 'foo',
+    qualifier: 'FIL'
+  };
+  const replace = jest.fn();
+  mount(<App branch={branch} component={component} />, { context: { router: { replace } } });
+  expect(replace).toBeCalledWith({
+    pathname: '/code',
+    query: { branch: 'b', id: 'project', selected: 'foo' }
+  });
 });
