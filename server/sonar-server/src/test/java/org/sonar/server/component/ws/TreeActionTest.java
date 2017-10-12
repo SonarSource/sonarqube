@@ -460,7 +460,7 @@ public class TreeActionTest {
   @Test
   public void fail_when_no_base_component_parameter() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'componentId' or 'component' must be provided, not both");
+    expectedException.expectMessage("Either 'componentId' or 'component' must be provided");
 
     ws.newRequest().execute();
   }

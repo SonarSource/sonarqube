@@ -230,7 +230,7 @@ public class ProjectStatusActionTest {
     logInAsSystemAdministrator();
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("One (and only one) of the following parameters must be provided 'analysisId', 'projectId', 'projectKey'");
+    expectedException.expectMessage("Either 'analysisId', 'projectId' or 'projectKey' must be provided");
 
     ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, "analysis-id")
@@ -243,7 +243,7 @@ public class ProjectStatusActionTest {
     logInAsSystemAdministrator();
 
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("One (and only one) of the following parameters must be provided 'analysisId', 'projectId', 'projectKey'");
+    expectedException.expectMessage("Either 'analysisId', 'projectId' or 'projectKey' must be provided");
 
     ws.newRequest().execute().getInput();
   }

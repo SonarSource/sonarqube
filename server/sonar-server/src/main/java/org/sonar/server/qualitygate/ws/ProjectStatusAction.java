@@ -60,8 +60,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
   private static final String QG_STATUSES_ONE_LINE = Arrays.stream(ProjectStatusWsResponse.Status.values())
     .map(Enum::toString)
     .collect(Collectors.joining(", "));
-  private static final String MSG_ONE_PARAMETER_ONLY = String.format("One (and only one) of the following parameters must be provided '%s', '%s', '%s'",
-    PARAM_ANALYSIS_ID, PARAM_PROJECT_ID, PARAM_PROJECT_KEY);
+  private static final String MSG_ONE_PARAMETER_ONLY = String.format("Either '%s', '%s' or '%s' must be provided", PARAM_ANALYSIS_ID, PARAM_PROJECT_ID, PARAM_PROJECT_KEY);
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;

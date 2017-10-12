@@ -181,7 +181,7 @@ public class ShowActionTest {
   @Test
   public void fail_if_no_parameter_provided() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'uuid' or 'key' must be provided, not both");
+    expectedException.expectMessage("Either 'uuid' or 'key' must be provided");
 
     newBaseRequest().execute();
   }

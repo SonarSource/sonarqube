@@ -182,7 +182,7 @@ public class WebhookDeliveriesActionTest {
     userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either parameter 'ceTaskId' or 'componentKey' must be defined");
+    expectedException.expectMessage("Either 'ceTaskId' or 'componentKey' must be provided");
 
     ws.newRequest()
       .setParam("componentKey", project.getDbKey())

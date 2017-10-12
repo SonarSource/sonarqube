@@ -147,7 +147,7 @@ public class CreateAction implements CustomMeasuresWsAction {
   private MetricDto searchMetric(DbSession dbSession, Request request) {
     Integer metricId = request.paramAsInt(PARAM_METRIC_ID);
     String metricKey = request.param(PARAM_METRIC_KEY);
-    checkArgument(metricId != null ^ metricKey != null, "The metric id or the metric key must be provided, not both.");
+    checkArgument(metricId != null ^ metricKey != null, "Either the metric id or the metric key must be provided");
 
     if (metricId != null) {
       return dbClient.metricDao().selectOrFailById(dbSession, metricId);

@@ -49,7 +49,7 @@ public class ComponentFinderTest {
   @Test
   public void fail_when_the_uuid_and_key_are_null() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'id' or 'key' must be provided, not both");
+    expectedException.expectMessage("Either 'id' or 'key' must be provided");
 
     underTest.getByUuidOrKey(dbSession, null, null, ID_AND_KEY);
   }
@@ -57,7 +57,7 @@ public class ComponentFinderTest {
   @Test
   public void fail_when_the_uuid_and_key_are_provided() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Either 'id' or 'key' must be provided, not both");
+    expectedException.expectMessage("Either 'id' or 'key' must be provided");
 
     underTest.getByUuidOrKey(dbSession, "project-uuid", "project-key", ID_AND_KEY);
   }

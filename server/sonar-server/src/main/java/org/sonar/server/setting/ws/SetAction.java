@@ -97,7 +97,7 @@ public class SetAction implements SettingsWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_SET)
       .setDescription("Update a setting value.<br>" +
-        "Either '%s' or '%s' must be provided, not both.<br> " +
+        "Either '%s' or '%s' must be provided.<br> " +
         "Requires one of the following permissions: " +
         "<ul>" +
         "<li>'Administer System'</li>" +
@@ -251,7 +251,7 @@ public class SetAction implements SettingsWsAction {
       request.getValue() != null
         ^ !request.getValues().isEmpty()
         ^ !request.getFieldValues().isEmpty(),
-      "One and only one of '%s', '%s', '%s' must be provided", PARAM_VALUE, PARAM_VALUES, PARAM_FIELD_VALUES);
+      "Either '%s', '%s' or '%s' must be provided", PARAM_VALUE, PARAM_VALUES, PARAM_FIELD_VALUES);
     checkRequest(request.getValues().stream().allMatch(StringUtils::isNotBlank), MSG_NO_EMPTY_VALUE);
     checkRequest(request.getValue() == null || StringUtils.isNotBlank(request.getValue()), MSG_NO_EMPTY_VALUE);
   }
