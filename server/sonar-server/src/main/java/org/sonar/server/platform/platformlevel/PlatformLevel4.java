@@ -54,6 +54,7 @@ import org.sonar.server.debt.DebtRulesXMLImporter;
 import org.sonar.server.duplication.ws.DuplicationsParser;
 import org.sonar.server.duplication.ws.DuplicationsWs;
 import org.sonar.server.duplication.ws.ShowResponseBuilder;
+import org.sonar.server.edition.EditionsWsModule;
 import org.sonar.server.email.ws.EmailsWsModule;
 import org.sonar.server.es.IndexCreator;
 import org.sonar.server.es.IndexDefinitions;
@@ -526,6 +527,9 @@ public class PlatformLevel4 extends PlatformLevel {
       ReportAnalysisFailureNotificationModule.class,
       CeModule.class,
       CeWsModule.class,
+
+      // SonarSource editions
+      EditionsWsModule.class,
 
       InternalPropertiesImpl.class,
       ProjectConfigurationFactory.class,
