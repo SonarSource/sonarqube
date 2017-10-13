@@ -32,6 +32,7 @@ import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
+import ch.qos.logback.core.util.FileSize;
 import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
@@ -41,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.reflect.FieldUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -238,7 +240,7 @@ public class LogbackHelperTest {
   }
 
   @Test
-  public void createRollingPolicy_size() {
+  public void createRollingPolicy_size() throws Exception {
     props.set("sonar.log.rollingPolicy", "size:1MB");
     props.set("sonar.log.maxFiles", "20");
     LoggerContext ctx = underTest.getRootContext();
@@ -253,7 +255,8 @@ public class LogbackHelperTest {
     assertThat(rollingPolicy.getMaxIndex()).isEqualTo(20);
     assertThat(rollingPolicy.getFileNamePattern()).endsWith("sonar.%i.log");
     SizeBasedTriggeringPolicy triggeringPolicy = (SizeBasedTriggeringPolicy) fileAppender.getTriggeringPolicy();
-    assertThat(triggeringPolicy.getMaxFileSize()).isEqualTo("1MB");
+    FileSize maxFileSize = (FileSize)FieldUtils.readField(triggeringPolicy, "maxFileSize", true);
+    assertThat(maxFileSize.getSize()).isEqualTo(1024L * 1024);
   }
 
   @Test

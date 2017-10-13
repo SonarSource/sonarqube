@@ -35,6 +35,7 @@ import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
+import ch.qos.logback.core.util.FileSize;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
@@ -342,7 +343,8 @@ public class LogbackHelper extends AbstractLogHelper {
       String filePath = new File(logsDir, filenamePrefix + ".log").getAbsolutePath();
       appender.setFile(filePath);
 
-      SizeBasedTriggeringPolicy<ILoggingEvent> trigger = new SizeBasedTriggeringPolicy<>(size);
+      SizeBasedTriggeringPolicy<ILoggingEvent> trigger = new SizeBasedTriggeringPolicy<>();
+      trigger.setMaxFileSize(FileSize.valueOf(size));
       trigger.setContext(context);
       trigger.start();
       appender.setTriggeringPolicy(trigger);
