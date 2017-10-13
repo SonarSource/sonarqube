@@ -50,15 +50,6 @@ public class DatabaseMigrationImpl implements DatabaseMigration {
    */
   private final ReentrantLock lock = new ReentrantLock();
 
-  /**
-   * This property acts as a semaphore to make sure at most one db migration task is created at a time.
-   * <p>
-   * It is set to {@code true} by the first thread to execute the {@link #startIt()} method and set to {@code false}
-   * by the thread executing the db migration.
-   * </p>
-   */
-  private final AtomicBoolean running = new AtomicBoolean(false);
-
   public DatabaseMigrationImpl(DatabaseMigrationExecutorService executorService, MutableDatabaseMigrationState migrationState,
     MigrationEngine migrationEngine, Platform platform) {
     this.executorService = executorService;
@@ -69,38 +60,24 @@ public class DatabaseMigrationImpl implements DatabaseMigration {
 
   @Override
   public void startIt() {
-    if (lock.isLocked() || this.running.get()) {
-      LOGGER.trace("{}: lock is already taken or process is already running", Thread.currentThread().getName());
-      return;
-    }
-
     if (lock.tryLock()) {
       try {
-        startAsynchronousDBMigration();
-      } finally {
+        executorService.execute(this::doDatabaseMigration);
+      } catch(RuntimeException e) {
         lock.unlock();
+        throw e;
       }
+    } else {
+      LOGGER.trace("{}: lock is already taken or process is already running", Thread.currentThread().getName());
     }
-  }
-
-  /**
-   * This method is not thread safe and must be externally protected from concurrent executions.
-   */
-  private void startAsynchronousDBMigration() {
-    if (this.running.get()) {
-      return;
-    }
-
-    running.set(true);
-    executorService.execute(this::doDatabaseMigration);
   }
 
   private void doDatabaseMigration() {
-    migrationState.setStatus(Status.RUNNING);
-    migrationState.setStartedAt(new Date());
-    migrationState.setError(null);
     Profiler profiler = Profiler.create(LOGGER);
     try {
+      migrationState.setStatus(Status.RUNNING);
+      migrationState.setStartedAt(new Date());
+      migrationState.setError(null);
       profiler.startInfo("Starting DB Migration and container restart");
       doUpgradeDb();
       doRestartContainer();
@@ -115,7 +92,7 @@ public class DatabaseMigrationImpl implements DatabaseMigration {
       LOGGER.error("Container restart failed", t);
       saveStatus(t);
     } finally {
-      running.getAndSet(false);
+      lock.unlock();
     }
   }
 
