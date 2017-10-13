@@ -138,6 +138,20 @@ public class ComponentTreeSortTest {
   }
 
   @Test
+  public void sort_by_name_ascending_in_case_of_equality() {
+    components = newArrayList(
+      newComponentWithoutSnapshotId("PROJECT 12", Qualifiers.PROJECT, "PROJECT_PATH_1"),
+      newComponentWithoutSnapshotId("PROJECT 11", Qualifiers.PROJECT, "PROJECT_PATH_1"),
+      newComponentWithoutSnapshotId("PROJECT 0", Qualifiers.PROJECT, "PROJECT_PATH_2"));
+
+    ComponentTreeWsRequest wsRequest = newRequest(newArrayList(PATH_SORT), false, null);
+
+    List<ComponentDto> result = sortComponents(wsRequest);
+
+    assertThat(result).extracting("name").containsExactly("PROJECT 0", "PROJECT 11", "PROJECT 12");
+  }
+
+  @Test
   public void sort_by_alert_status_ascending() {
     components = newArrayList(
       newComponentWithoutSnapshotId("PROJECT OK 1", Qualifiers.PROJECT, "PROJECT_OK_PATH_1"),
