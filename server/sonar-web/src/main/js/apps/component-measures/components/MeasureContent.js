@@ -133,7 +133,7 @@ export default class MeasureContent extends React.PureComponent {
       opts.asc = metric.direction === 1;
       opts.ps = 100;
       opts.metricSort = metric.key;
-      opts.s = isDiff ? 'metricPeriod,name' : 'metric,name';
+      opts.s = isDiff ? 'metricPeriod' : 'metric';
     }
     return { metricKeys, opts: { ...opts, ...options }, strategy };
   };

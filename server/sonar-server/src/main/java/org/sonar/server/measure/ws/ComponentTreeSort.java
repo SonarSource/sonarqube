@@ -86,6 +86,7 @@ public class ComponentTreeSort {
         primaryOrdering = primaryOrdering.compound(secondaryOrdering);
       }
     }
+    primaryOrdering = primaryOrdering.compound(componentNameOrdering(true));
 
     return primaryOrdering.immutableSortedCopy(components);
   }
