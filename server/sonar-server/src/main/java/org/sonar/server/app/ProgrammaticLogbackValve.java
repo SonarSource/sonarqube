@@ -36,7 +36,7 @@ public class ProgrammaticLogbackValve extends LogbackValve {
   public void startInternal() throws LifecycleException {
     try {
       // direct coupling with LogbackValve implementation
-      FieldUtils.writeField(this, "executorService", ExecutorServiceUtil.newExecutorService(), true);
+      FieldUtils.writeField(this, "scheduledExecutorService", ExecutorServiceUtil.newScheduledExecutorService(), true);
       FieldUtils.writeField(this, "started", true, true);
       setState(LifecycleState.STARTING);
     } catch (IllegalAccessException e) {
