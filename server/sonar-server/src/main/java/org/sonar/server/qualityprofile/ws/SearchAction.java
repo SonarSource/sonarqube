@@ -104,7 +104,7 @@ public class SearchAction implements QProfileWsAction {
     action
       .createParam(ComponentsWsParameters.PARAM_ORGANIZATION)
       .setDescription("Organization key. If no organization key is provided, this defaults to the organization of the specified project. If neither organization nor project are" +
-        "specified, the default organization will be used.")
+        " specified, the default organization will be used.")
       .setRequired(false)
       .setInternal(true)
       .setExampleValue("my-org")
