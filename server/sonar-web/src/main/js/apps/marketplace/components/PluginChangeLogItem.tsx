@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import DateFormatter from '../../components/intl/DateFormatter';
-import Tooltip from '../../components/controls/Tooltip';
-import { Release, Update } from '../../api/plugins';
-import { translate, translateWithParameters } from '../../helpers/l10n';
+import DateFormatter from '../../../components/intl/DateFormatter';
+import Tooltip from '../../../components/controls/Tooltip';
+import { Release, Update } from '../../../api/plugins';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   release: Release;
