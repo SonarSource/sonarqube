@@ -42,25 +42,9 @@ exports[`should work with extensions 1`] = `
         <li>
           <IndexLink
             activeClassName="active"
-            to="/admin/settings/licenses"
-          >
-            property.category.licenses
-          </IndexLink>
-        </li>
-        <li>
-          <IndexLink
-            activeClassName="active"
             to="/admin/settings/encryption"
           >
             property.category.security.encryption
-          </IndexLink>
-        </li>
-        <li>
-          <IndexLink
-            activeClassName="active"
-            to="/admin/settings/server_id"
-          >
-            property.category.server_id
           </IndexLink>
         </li>
         <li>

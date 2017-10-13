@@ -135,8 +135,6 @@ const startReactApp = () => {
         <Redirect from="/settings" to="/admin/settings" />
         <Redirect from="/settings/encryption" to="/admin/settings/encryption" />
         <Redirect from="/settings/index" to="/admin/settings" />
-        <Redirect from="/settings/licenses" to="/admin/settings/licenses" />
-        <Redirect from="/settings/server_id" to="/admin/settings/server_id" />
         <Redirect from="/sessions/login" to="/sessions/new" />
         <Redirect from="/system" to="/admin/system" />
         <Redirect from="/system/index" to="/admin/system" />

@@ -100,18 +100,8 @@ class SettingsNav extends React.PureComponent {
                 </IndexLink>
               </li>
               <li>
-                <IndexLink to="/admin/settings/licenses" activeClassName="active">
-                  {translate('property.category.licenses')}
-                </IndexLink>
-              </li>
-              <li>
                 <IndexLink to="/admin/settings/encryption" activeClassName="active">
                   {translate('property.category.security.encryption')}
-                </IndexLink>
-              </li>
-              <li>
-                <IndexLink to="/admin/settings/server_id" activeClassName="active">
-                  {translate('property.category.server_id')}
                 </IndexLink>
               </li>
               <li>

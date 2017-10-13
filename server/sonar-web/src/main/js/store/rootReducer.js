@@ -150,12 +150,6 @@ export const getSettingsAppChangedValue = (state, key) =>
 export const isSettingsAppLoading = (state, key) =>
   fromSettingsApp.isLoading(state.settingsApp, key);
 
-export const getSettingsAppLicenseByKey = (state, key) =>
-  fromSettingsApp.getLicenseByKey(state.settingsApp, key);
-
-export const getSettingsAppAllLicenseKeys = state =>
-  fromSettingsApp.getAllLicenseKeys(state.settingsApp);
-
 export const getSettingsAppValidationMessage = (state, key) =>
   fromSettingsApp.getValidationMessage(state.settingsApp, key);
 

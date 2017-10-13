@@ -93,11 +93,3 @@ export function generateSecretKey(): Promise<any> {
 export function encryptValue(value: string): Promise<any> {
   return postJSON('/api/settings/encrypt', { value });
 }
-
-export function getServerId(): Promise<any> {
-  return getJSON('/api/server_id/show');
-}
-
-export function generateServerId(organization: string, ip: string): Promise<any> {
-  return postJSON('/api/server_id/generate', { organization, ip });
-}
