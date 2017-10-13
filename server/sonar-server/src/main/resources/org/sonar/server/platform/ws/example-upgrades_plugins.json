@@ -16,6 +16,7 @@
             "license": "Commercial",
             "organizationName": "SonarSource",
             "organizationUrl": "http://www.sonarsource.com",
+            "editionBundled": true,
             "termsAndConditionsUrl": "http://dist.sonarsource.com/SonarSource_Terms_And_Conditions.pdf",
             "version": "2.8 (build 5498)"
           }
@@ -28,7 +29,8 @@
             "description": "Allows to add your own logo to the SonarQube UI.",
             "license": "GNU LGPL 3",
             "organizationName": "SonarSource",
-            "organizationUrl": "http://www.sonarsource.com"
+            "organizationUrl": "http://www.sonarsource.com",
+            "editionBundled": false
           }
         ]
       }

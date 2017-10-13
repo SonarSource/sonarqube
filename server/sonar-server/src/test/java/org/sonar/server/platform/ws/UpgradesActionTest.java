@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.plugins.ws.PluginWSCommons;
+import org.sonar.server.ws.WsActionTester;
 import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
@@ -44,10 +45,9 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class UpgradesActionTest {
   private static final String DUMMY_CONTROLLER_KEY = "dummy";
-  private static final String JSON_EMPTY_UPGRADE_LIST =
-    "{" +
-      "  \"upgrades\":" + "[]" +
-      "}";
+  private static final String JSON_EMPTY_UPGRADE_LIST = "{" +
+    "  \"upgrades\":" + "[]" +
+    "}";
   private static Release release;
 
   private UpdateCenterMatrixFactory updateCenterFactory = mock(UpdateCenterMatrixFactory.class);
@@ -141,6 +141,6 @@ public class UpgradesActionTest {
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).withStrictArrayOrder()
-      .isSimilarTo(getClass().getResource("example-upgrades_plugins.json"));
+      .isSimilarTo(new WsActionTester(underTest).getDef().responseExampleAsString());
   }
 }
