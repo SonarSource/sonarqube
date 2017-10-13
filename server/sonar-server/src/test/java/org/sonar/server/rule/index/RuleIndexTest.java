@@ -216,6 +216,8 @@ public class RuleIndexTest {
     RuleDefinitionDto rule1 = createRule(rule -> rule.setRuleKey("123").setDescription("My great rule CWE-123 which makes your code 1000 times better!"));
     RuleDefinitionDto rule2 = createRule(rule -> rule.setRuleKey("124").setDescription("Another great and shiny rule CWE-124"));
     RuleDefinitionDto rule3 = createRule(rule -> rule.setRuleKey("1000").setDescription("Another great rule CWE-1000"));
+    RuleDefinitionDto rule4 = createRule(rule -> rule.setRuleKey("404")
+      .setDescription("<h1>HTML-Geeks</h1><p style=\"color:blue\">special formatting!</p><table><tr><td>inside</td><td>tables</td></tr></table>"));
     index();
 
     // partial match at word boundary
@@ -239,6 +241,16 @@ public class RuleIndexTest {
     // stopwords
     assertThat(underTest.search(new RuleQuery().setQueryText("and"), new SearchOptions()).getIds()).isEmpty();
     assertThat(underTest.search(new RuleQuery().setQueryText("great and shiny"), new SearchOptions()).getIds()).isEmpty();
+
+    // stopwords
+    assertThat(underTest.search(new RuleQuery().setQueryText("and"), new SearchOptions()).getIds()).isEmpty();
+    assertThat(underTest.search(new RuleQuery().setQueryText("great and shiny"), new SearchOptions()).getIds()).isEmpty();
+
+    // html
+    assertThat(underTest.search(new RuleQuery().setQueryText("h1"), new SearchOptions()).getIds()).isEmpty();
+    assertThat(underTest.search(new RuleQuery().setQueryText("style"), new SearchOptions()).getIds()).isEmpty();
+    assertThat(underTest.search(new RuleQuery().setQueryText("special"), new SearchOptions()).getIds()).containsExactlyInAnyOrder(rule4.getKey());
+    assertThat(underTest.search(new RuleQuery().setQueryText("geeks formatting inside tables"), new SearchOptions()).getIds()).containsExactlyInAnyOrder(rule4.getKey());
   }
 
   @Test
