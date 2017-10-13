@@ -42,11 +42,11 @@ public class ProjectReactorValidator {
   private final AnalysisMode mode;
   private final GlobalConfiguration settings;
 
-  // not null when the branch plugin is available, otherwise null
+  // null = branch plugin is not available
   @Nullable
   private final BranchParamsValidator branchParamsValidator;
 
-  public ProjectReactorValidator(AnalysisMode mode, GlobalConfiguration settings, BranchParamsValidator branchParamsValidator) {
+  public ProjectReactorValidator(AnalysisMode mode, GlobalConfiguration settings, @Nullable BranchParamsValidator branchParamsValidator) {
     this.mode = mode;
     this.settings = settings;
     this.branchParamsValidator = branchParamsValidator;
@@ -70,6 +70,7 @@ public class ProjectReactorValidator {
     String deprecatedBranchName = reactor.getRoot().getBranch();
 
     if (branchParamsValidator != null) {
+      // branch plugin is present
       branchParamsValidator.validate(validationMessages, deprecatedBranchName);
     } else {
       validateBranchParamsWhenPluginAbsent(validationMessages);
