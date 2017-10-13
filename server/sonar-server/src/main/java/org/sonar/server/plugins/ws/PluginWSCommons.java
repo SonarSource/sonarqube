@@ -49,33 +49,35 @@ import static com.google.common.collect.Iterables.filter;
 import static com.google.common.collect.Iterables.transform;
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.sonar.server.plugins.edition.EditionBundledPlugins.isEditionBundled;
 
 public class PluginWSCommons {
-  static final String PROPERTY_KEY = "key";
-  static final String PROPERTY_NAME = "name";
-  static final String PROPERTY_HASH = "hash";
-  static final String PROPERTY_FILENAME = "filename";
-  static final String PROPERTY_SONARLINT_SUPPORTED = "sonarLintSupported";
-  static final String PROPERTY_DESCRIPTION = "description";
-  static final String PROPERTY_LICENSE = "license";
-  static final String PROPERTY_VERSION = "version";
-  static final String PROPERTY_CATEGORY = "category";
-  static final String PROPERTY_ORGANIZATION_NAME = "organizationName";
-  static final String PROPERTY_ORGANIZATION_URL = "organizationUrl";
-  static final String PROPERTY_DATE = "date";
-  static final String PROPERTY_UPDATED_AT = "updatedAt";
-  static final String PROPERTY_STATUS = "status";
-  static final String PROPERTY_HOMEPAGE_URL = "homepageUrl";
-  static final String PROPERTY_ISSUE_TRACKER_URL = "issueTrackerUrl";
-  static final String OBJECT_ARTIFACT = "artifact";
-  static final String PROPERTY_URL = "url";
-  static final String PROPERTY_TERMS_AND_CONDITIONS_URL = "termsAndConditionsUrl";
-  static final String OBJECT_UPDATE = "update";
-  static final String OBJECT_RELEASE = "release";
-  static final String ARRAY_REQUIRES = "requires";
-  static final String PROPERTY_UPDATE_CENTER_REFRESH = "updateCenterRefresh";
-  static final String PROPERTY_IMPLEMENTATION_BUILD = "implementationBuild";
-  static final String PROPERTY_CHANGE_LOG_URL = "changeLogUrl";
+  private static final String PROPERTY_KEY = "key";
+  private static final String PROPERTY_NAME = "name";
+  private static final String PROPERTY_HASH = "hash";
+  private static final String PROPERTY_FILENAME = "filename";
+  private static final String PROPERTY_SONARLINT_SUPPORTED = "sonarLintSupported";
+  private static final String PROPERTY_DESCRIPTION = "description";
+  private static final String PROPERTY_LICENSE = "license";
+  private static final String PROPERTY_VERSION = "version";
+  private static final String PROPERTY_CATEGORY = "category";
+  private static final String PROPERTY_ORGANIZATION_NAME = "organizationName";
+  private static final String PROPERTY_ORGANIZATION_URL = "organizationUrl";
+  private static final String PROPERTY_DATE = "date";
+  private static final String PROPERTY_UPDATED_AT = "updatedAt";
+  private static final String PROPERTY_STATUS = "status";
+  private static final String PROPERTY_HOMEPAGE_URL = "homepageUrl";
+  private static final String PROPERTY_ISSUE_TRACKER_URL = "issueTrackerUrl";
+  private static final String PROPERTY_EDITION_BUNDLED = "editionBundled";
+  private static final String OBJECT_ARTIFACT = "artifact";
+  private static final String PROPERTY_URL = "url";
+  private static final String PROPERTY_TERMS_AND_CONDITIONS_URL = "termsAndConditionsUrl";
+  private static final String OBJECT_UPDATE = "update";
+  private static final String OBJECT_RELEASE = "release";
+  private static final String ARRAY_REQUIRES = "requires";
+  private static final String PROPERTY_UPDATE_CENTER_REFRESH = "updateCenterRefresh";
+  private static final String PROPERTY_IMPLEMENTATION_BUILD = "implementationBuild";
+  private static final String PROPERTY_CHANGE_LOG_URL = "changeLogUrl";
 
   public static final Ordering<PluginInfo> NAME_KEY_PLUGIN_METADATA_COMPARATOR = Ordering.natural()
     .onResultOf(PluginInfo::getName)
@@ -142,6 +144,7 @@ public class PluginWSCommons {
     jsonWriter.prop(PROPERTY_ORGANIZATION_URL, plugin.getOrganizationUrl());
     jsonWriter.prop(PROPERTY_HOMEPAGE_URL, plugin.getHomepageUrl());
     jsonWriter.prop(PROPERTY_ISSUE_TRACKER_URL, plugin.getIssueTrackerUrl());
+    jsonWriter.prop(PROPERTY_EDITION_BUNDLED, isEditionBundled(plugin));
   }
 
   public void writePluginUpdate(JsonWriter json, PluginUpdate pluginUpdate) {
