@@ -332,6 +332,15 @@ public class IntegrateCrossProjectDuplicationsTest {
     assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Too many duplication groups on file " + ORIGIN_FILE_KEY + ". Keeping only the first 100 groups.");
   }
 
+  @Test
+  public void log_warning_if_this_deprecated_feature_is_enabled() {
+    settings.setProperty("sonar.cpd.cross_project", "true");
+
+    new IntegrateCrossProjectDuplications(settings.asConfig(), duplicationRepository);
+
+    assertThat(logTester.logs()).containsExactly("This analysis uses the deprecated cross-project duplication feature.");
+  }
+
   private static Duplication crossProjectDuplication(TextBlock original, String otherFileKey, TextBlock duplicate) {
     return new Duplication(original, Arrays.<Duplicate>asList(new CrossProjectDuplicate(otherFileKey, duplicate)));
   }
