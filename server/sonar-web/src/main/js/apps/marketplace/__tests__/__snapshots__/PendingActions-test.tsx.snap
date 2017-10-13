@@ -1,0 +1,67 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display pending actions 1`] = `
+<div
+  className="js-pending panel panel-warning big-spacer-bottom"
+>
+  <div
+    className="display-inline-block"
+  >
+    <p>
+      marketplace.sonarqube_needs_to_be_restarted_to
+    </p>
+    <ul
+      className="list-styled spacer-top"
+    >
+      <li>
+        <FormattedMessage
+          defaultMessage="marketplace.install_x_plugins"
+          id="marketplace.install_x_plugins"
+          values={
+            Object {
+              "nb": <strong
+                className="text-success big little-spacer-left little-spacer-right"
+            >
+                2
+            </strong>,
+            }
+          }
+        />
+      </li>
+      <li>
+        <FormattedMessage
+          defaultMessage="marketplace.uninstall_x_plugins"
+          id="marketplace.uninstall_x_plugins"
+          values={
+            Object {
+              "nb": <strong
+                className="text-danger big little-spacer-left little-spacer-right"
+            >
+                1
+            </strong>,
+            }
+          }
+        />
+      </li>
+    </ul>
+  </div>
+  <div
+    className="pull-right button-group"
+  >
+    <button
+      className="js-restart"
+      onClick={[Function]}
+    >
+      marketplace.restart
+    </button>
+    <button
+      className="js-cancel-all button-red"
+      onClick={[Function]}
+    >
+      marketplace.revert
+    </button>
+  </div>
+</div>
+`;
+
+exports[`should not display nothing 1`] = `null`;

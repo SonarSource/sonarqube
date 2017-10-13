@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display the number of plugins 1`] = `
+<footer
+  className="spacer-top note text-center"
+>
+  x_show.3
+</footer>
+`;
