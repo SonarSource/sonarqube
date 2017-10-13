@@ -22,10 +22,8 @@ package org.sonar.server.plugins.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.plugins.PluginUninstaller;
 import org.sonar.server.user.UserSession;
-
-import static java.lang.String.format;
 
 /**
  * Implementation of the {@code uninstall} action for the Plugins WebService.
@@ -33,11 +31,11 @@ import static java.lang.String.format;
 public class UninstallAction implements PluginsWsAction {
   private static final String PARAM_KEY = "key";
 
-  private final ServerPluginRepository pluginRepository;
+  private final PluginUninstaller pluginUninstaller;
   private final UserSession userSession;
 
-  public UninstallAction(ServerPluginRepository pluginRepository, UserSession userSession) {
-    this.pluginRepository = pluginRepository;
+  public UninstallAction(PluginUninstaller pluginUninstaller, UserSession userSession) {
+    this.pluginUninstaller = pluginUninstaller;
     this.userSession = userSession;
   }
 
@@ -61,15 +59,8 @@ public class UninstallAction implements PluginsWsAction {
     userSession.checkIsSystemAdministrator();
 
     String key = request.mandatoryParam(PARAM_KEY);
-    ensurePluginIsInstalled(key);
-    pluginRepository.uninstall(key);
+    pluginUninstaller.uninstall(key);
     response.noContent();
   }
 
-  // FIXME should be moved to ServerPluginRepository#uninstall(String)
-  private void ensurePluginIsInstalled(String key) {
-    if (!pluginRepository.hasPlugin(key)) {
-      throw new IllegalArgumentException(format("Plugin [%s] is not installed", key));
-    }
-  }
 }

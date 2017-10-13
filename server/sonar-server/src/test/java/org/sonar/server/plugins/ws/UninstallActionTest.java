@@ -25,14 +25,13 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.plugins.PluginUninstaller;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class UninstallActionTest {
   private static final String DUMMY_CONTROLLER_KEY = "dummy";
@@ -46,8 +45,8 @@ public class UninstallActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
-  private UninstallAction underTest = new UninstallAction(pluginRepository, userSessionRule);
+  private PluginUninstaller pluginUninstaller = mock(PluginUninstaller.class);
+  private UninstallAction underTest = new UninstallAction(pluginUninstaller, userSessionRule);
 
   private WsTester wsTester = new WsTester(new PluginsWs(underTest));
   private Request invalidRequest = wsTester.newGetRequest(CONTROLLER_KEY, ACTION_KEY);
@@ -119,11 +118,10 @@ public class UninstallActionTest {
   @Test
   public void if_plugin_is_installed_uninstallation_is_triggered() throws Exception {
     logInAsSystemAdministrator();
-    when(pluginRepository.hasPlugin(PLUGIN_KEY)).thenReturn(true);
 
     underTest.handle(validRequest, response);
 
-    verify(pluginRepository).uninstall(PLUGIN_KEY);
+    verify(pluginUninstaller).uninstall(PLUGIN_KEY);
     assertThat(response.outputAsString()).isEmpty();
   }
 

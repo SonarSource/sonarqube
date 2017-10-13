@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.PluginDownloader;
+import org.sonar.server.plugins.PluginUninstaller;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -44,8 +45,8 @@ public class CancelAllActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private PluginDownloader pluginDownloader = mock(PluginDownloader.class);
-  private ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
-  private CancelAllAction underTest = new CancelAllAction(pluginDownloader, pluginRepository, userSessionRule);
+  private PluginUninstaller pluginUninstaller = mock(PluginUninstaller.class);
+  private CancelAllAction underTest = new CancelAllAction(pluginDownloader, pluginUninstaller, userSessionRule);
 
   private Request request = mock(Request.class);
   private WsTester.TestResponse response = new WsTester.TestResponse();
@@ -94,7 +95,7 @@ public class CancelAllActionTest {
     underTest.handle(request, response);
 
     verify(pluginDownloader, times(1)).cancelDownloads();
-    verify(pluginRepository, times(1)).cancelUninstalls();
+    verify(pluginUninstaller, times(1)).cancelUninstalls();
     assertThat(response.outputAsString()).isEmpty();
   }
 

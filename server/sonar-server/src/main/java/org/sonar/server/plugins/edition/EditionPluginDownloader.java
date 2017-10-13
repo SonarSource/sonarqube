@@ -17,36 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.plugins;
+package org.sonar.server.plugins.edition;
 
 import com.google.common.base.Optional;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.server.platform.ServerFileSystem;
+import org.sonar.server.plugins.AbstractPluginDownloader;
+import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
-import static org.sonar.server.ws.WsUtils.checkRequest;
-
-/**
- * Downloads plugins from update center. Files are copied in the directory extensions/downloads and then
- * moved to extensions/plugins after server restart.
- */
-public class PluginDownloader extends AbstractPluginDownloader {
+public class EditionPluginDownloader extends AbstractPluginDownloader {
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
 
-  public PluginDownloader(UpdateCenterMatrixFactory updateCenterMatrixFactory, HttpDownloader downloader, ServerFileSystem fileSystem) {
-    super(fileSystem.getDownloadedPluginsDir(), downloader);
+  public EditionPluginDownloader(UpdateCenterMatrixFactory updateCenterMatrixFactory, HttpDownloader downloader, ServerFileSystem fileSystem) {
+    super(fileSystem.getEditionDownloadedPluginsDir(), downloader);
     this.updateCenterMatrixFactory = updateCenterMatrixFactory;
   }
 
-  public void download(String pluginKey, Version version) {
+  public void installEdition(Set<String> pluginKeys) {
     Optional<UpdateCenter> updateCenter = updateCenterMatrixFactory.getUpdateCenter(true);
     if (updateCenter.isPresent()) {
-      List<Release> installablePlugins = updateCenter.get().findInstallablePlugins(pluginKey, version);
-      checkRequest(!installablePlugins.isEmpty(), "Error while downloading plugin '%s' with version '%s'. No compatible plugin found.", pluginKey, version.getName());
-      for (Release r : installablePlugins) {
+      Set<Release> pluginsToInstall = new HashSet<>();
+      for (String pluginKey : pluginKeys) {
+        pluginsToInstall.addAll(updateCenter.get().findInstallablePlugins(pluginKey, Version.create("")));
+      }
+
+      for (Release r : pluginsToInstall) {
         super.download(r);
       }
     }
