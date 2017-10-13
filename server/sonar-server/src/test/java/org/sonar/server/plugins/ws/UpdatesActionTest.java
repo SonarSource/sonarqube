@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.WsActionTester;
 import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
@@ -135,7 +136,8 @@ public class UpdatesActionTest extends AbstractUpdateCenterBasedPluginsWsActionT
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).isSimilarTo(getClass().getResource("example-updates_plugins.json"));
+    assertJson(response.outputAsString())
+      .isSimilarTo(new WsActionTester(underTest).getDef().responseExampleAsString());
   }
 
   @Test
