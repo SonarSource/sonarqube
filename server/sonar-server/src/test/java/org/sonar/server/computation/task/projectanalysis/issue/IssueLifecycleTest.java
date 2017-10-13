@@ -81,7 +81,7 @@ public class IssueLifecycleTest {
     DefaultIssue fromShort = new DefaultIssue();
     fromShort.setResolution("resolution");
     fromShort.setStatus("status");
-    underTest.mergeIssueFromShortLivingBranch(raw, fromShort);
+    underTest.copyIssueAttributes(raw, fromShort);
     assertThat(raw.resolution()).isEqualTo("resolution");
     assertThat(raw.status()).isEqualTo("status");
   }

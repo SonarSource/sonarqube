@@ -27,22 +27,26 @@ import org.sonar.core.issue.tracking.SimpleTracker;
 import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 
-public class ShortBranchIssueStatusCopier {
+public class ShortBranchIssueMerger {
   private final ShortBranchIssuesLoader shortBranchIssuesLoader;
   private final SimpleTracker<DefaultIssue, ShortBranchIssue> tracker;
   private final IssueLifecycle issueLifecycle;
 
-  public ShortBranchIssueStatusCopier(ShortBranchIssuesLoader resolvedShortBranchIssuesLoader, IssueLifecycle issueLifecycle) {
+  public ShortBranchIssueMerger(ShortBranchIssuesLoader resolvedShortBranchIssuesLoader, IssueLifecycle issueLifecycle) {
     this(resolvedShortBranchIssuesLoader, new SimpleTracker<>(), issueLifecycle);
   }
 
-  public ShortBranchIssueStatusCopier(ShortBranchIssuesLoader shortBranchIssuesLoader, SimpleTracker<DefaultIssue, ShortBranchIssue> tracker, IssueLifecycle issueLifecycle) {
+  public ShortBranchIssueMerger(ShortBranchIssuesLoader shortBranchIssuesLoader, SimpleTracker<DefaultIssue, ShortBranchIssue> tracker, IssueLifecycle issueLifecycle) {
     this.shortBranchIssuesLoader = shortBranchIssuesLoader;
     this.tracker = tracker;
     this.issueLifecycle = issueLifecycle;
   }
 
-  public void updateStatus(Component component, Collection<DefaultIssue> newIssues) {
+  /**
+   * Look for all resolved/confirmed issues in short living branches targeting the current long living branch, and run
+   * a light issue tracking to find matches. Then merge issue attributes in the new issues. 
+   */
+  public void tryMerge(Component component, Collection<DefaultIssue> newIssues) {
     Collection<ShortBranchIssue> shortBranchIssues = shortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component);
     Tracking<DefaultIssue, ShortBranchIssue> tracking = tracker.track(newIssues, shortBranchIssues);
 
@@ -52,7 +56,7 @@ public class ShortBranchIssueStatusCopier {
 
     for (Map.Entry<DefaultIssue, ShortBranchIssue> e : matchedRaws.entrySet()) {
       ShortBranchIssue issue = e.getValue();
-      issueLifecycle.mergeIssueFromShortLivingBranch(e.getKey(), defaultIssues.get(issue));
+      issueLifecycle.copyIssueAttributes(e.getKey(), defaultIssues.get(issue));
     }
   }
 }

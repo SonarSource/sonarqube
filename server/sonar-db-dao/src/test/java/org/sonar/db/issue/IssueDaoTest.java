@@ -28,6 +28,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -186,12 +187,12 @@ public class IssueDaoTest {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    IssueDto openIssue = db.issues().insert(rule, project, file, i -> i.setStatus("OPEN").setResolution(null));
-    IssueDto closedIssue = db.issues().insert(rule, project, file, i -> i.setStatus("CLOSED").setResolution("FIXED"));
-    IssueDto reopenedIssue = db.issues().insert(rule, project, file, i -> i.setStatus("REOPENED").setResolution(null));
-    IssueDto confirmedIssue = db.issues().insert(rule, project, file, i -> i.setStatus("CONFIRMED").setResolution(null));
-    IssueDto wontfixIssue = db.issues().insert(rule, project, file, i -> i.setStatus("RESOLVED").setResolution("WONTFIX"));
-    IssueDto fpIssue = db.issues().insert(rule, project, file, i -> i.setStatus("RESOLVED").setResolution("FALSE-POSITIVE"));
+    IssueDto openIssue = db.issues().insert(rule, project, file, i -> i.setStatus(Issue.STATUS_OPEN).setResolution(null));
+    IssueDto closedIssue = db.issues().insert(rule, project, file, i -> i.setStatus(Issue.STATUS_CLOSED).setResolution(Issue.RESOLUTION_FIXED));
+    IssueDto reopenedIssue = db.issues().insert(rule, project, file, i -> i.setStatus(Issue.STATUS_REOPENED).setResolution(null));
+    IssueDto confirmedIssue = db.issues().insert(rule, project, file, i -> i.setStatus(Issue.STATUS_CONFIRMED).setResolution(null));
+    IssueDto wontfixIssue = db.issues().insert(rule, project, file, i -> i.setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_WONT_FIX));
+    IssueDto fpIssue = db.issues().insert(rule, project, file, i -> i.setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE));
 
     assertThat(underTest.selectResolvedOrConfirmedByComponentUuids(db.getSession(), Collections.singletonList(file.uuid())))
       .extracting("kee")

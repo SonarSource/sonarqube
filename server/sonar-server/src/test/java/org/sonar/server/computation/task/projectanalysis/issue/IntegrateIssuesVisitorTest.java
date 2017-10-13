@@ -36,6 +36,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
@@ -45,6 +46,7 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.MergeBranchComponentUuids;
@@ -61,6 +63,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
@@ -68,6 +71,7 @@ import static org.sonar.server.computation.task.projectanalysis.component.Report
 public class IntegrateIssuesVisitorTest {
 
   static final String FILE_UUID = "FILE_UUID";
+  static final String FILE_UUID_ON_BRANCH = "FILE_UUID_BRANCH";
   static final String FILE_KEY = "FILE_KEY";
   static final int FILE_REF = 2;
 
@@ -78,6 +82,7 @@ public class IntegrateIssuesVisitorTest {
 
   static final String PROJECT_KEY = "PROJECT_KEY";
   static final String PROJECT_UUID = "PROJECT_UUID";
+  static final String PROJECT_UUID_ON_BRANCH = "PROJECT_UUID_BRANCH";
   static final int PROJECT_REF = 1;
   static final Component PROJECT = builder(Component.Type.PROJECT, PROJECT_REF)
     .setKey(PROJECT_KEY)
@@ -113,7 +118,7 @@ public class IntegrateIssuesVisitorTest {
   @Mock
   private MergeBranchComponentUuids mergeBranchComponentsUuids;
   @Mock
-  private ShortBranchIssueStatusCopier issueStatusCopier;
+  private ShortBranchIssueMerger issueStatusCopier;
 
   ArgumentCaptor<DefaultIssue> defaultIssueCaptor;
 
@@ -166,7 +171,7 @@ public class IntegrateIssuesVisitorTest {
     DefaultIssue capturedIssue = defaultIssueCaptor.getValue();
     assertThat(capturedIssue.ruleKey().rule()).isEqualTo("S001");
 
-    verify(issueStatusCopier).updateStatus(FILE, Collections.singletonList(capturedIssue));
+    verify(issueStatusCopier).tryMerge(FILE, Collections.singletonList(capturedIssue));
 
     verify(issueLifecycle).doAutomaticTransition(capturedIssue);
 
@@ -249,9 +254,67 @@ public class IntegrateIssuesVisitorTest {
     underTest.visitAny(FILE);
   }
 
+  @Test
+  public void copy_issues_when_creating_new_long_living_branch() throws Exception {
+
+    when(mergeBranchComponentsUuids.getUuid(FILE_KEY)).thenReturn(FILE_UUID_ON_BRANCH);
+
+    when(analysisMetadataHolder.isLongLivingBranch()).thenReturn(true);
+    when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(true);
+    Branch branch = mock(Branch.class);
+    when(branch.isMain()).thenReturn(false);
+    when(branch.getType()).thenReturn(BranchType.LONG);
+    when(analysisMetadataHolder.getBranch()).thenReturn(java.util.Optional.of(branch));
+
+    RuleKey ruleKey = RuleTesting.XOO_X1;
+    // Issue from main branch has severity major
+    addBaseIssueOnBranch(ruleKey);
+
+    // Issue from report has severity blocker
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
+      .setMsg("the message")
+      .setRuleRepository(ruleKey.repository())
+      .setRuleKey(ruleKey.rule())
+      .setSeverity(Constants.Severity.BLOCKER)
+      .build();
+    reportReader.putIssues(FILE_REF, asList(reportIssue));
+    fileSourceRepository.addLine(FILE_REF, "line1");
+
+    underTest.visitAny(FILE);
+
+    ArgumentCaptor<DefaultIssue> rawIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
+    ArgumentCaptor<DefaultIssue> baseIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(issueLifecycle).copyExistingOpenIssueFromLongLivingBranch(rawIssueCaptor.capture(), baseIssueCaptor.capture());
+    assertThat(rawIssueCaptor.getValue().severity()).isEqualTo(Severity.BLOCKER);
+    assertThat(baseIssueCaptor.getValue().severity()).isEqualTo(Severity.MAJOR);
+
+    verify(issueLifecycle).doAutomaticTransition(defaultIssueCaptor.capture());
+    assertThat(defaultIssueCaptor.getValue().ruleKey()).isEqualTo(ruleKey);
+    List<DefaultIssue> issues = newArrayList(issueCache.traverse());
+    assertThat(issues).hasSize(1);
+    assertThat(issues.get(0).severity()).isEqualTo(Severity.BLOCKER);
+  }
+
   private void addBaseIssue(RuleKey ruleKey) {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), PROJECT_UUID).setDbKey(PROJECT_KEY);
     ComponentDto file = ComponentTesting.newFileDto(project, null, FILE_UUID).setDbKey(FILE_KEY);
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), project, file);
+
+    RuleDto ruleDto = RuleTesting.newDto(ruleKey);
+    dbTester.rules().insertRule(ruleDto);
+    ruleRepositoryRule.add(ruleKey);
+
+    IssueDto issue = IssueTesting.newDto(ruleDto, file, project)
+      .setKee("ISSUE")
+      .setStatus(Issue.STATUS_OPEN)
+      .setSeverity(Severity.MAJOR);
+    dbTester.getDbClient().issueDao().insert(dbTester.getSession(), issue);
+    dbTester.getSession().commit();
+  }
+
+  private void addBaseIssueOnBranch(RuleKey ruleKey) {
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), PROJECT_UUID_ON_BRANCH).setDbKey(PROJECT_KEY);
+    ComponentDto file = ComponentTesting.newFileDto(project, null, FILE_UUID_ON_BRANCH).setDbKey(FILE_KEY);
     dbTester.getDbClient().componentDao().insert(dbTester.getSession(), project, file);
 
     RuleDto ruleDto = RuleTesting.newDto(ruleKey);

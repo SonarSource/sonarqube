@@ -57,7 +57,8 @@ public class CloseIssuesOnRemovedComponentsVisitorTest {
   @Before
   public void setUp() throws Exception {
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
-    underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new CloseIssuesOnRemovedComponentsVisitor(issuesLoader, componentsWithUnprocessedIssues, issueCache, issueLifecycle)));
+    underTest = new VisitorsCrawler(
+      Arrays.<ComponentVisitor>asList(new CloseIssuesOnRemovedComponentsVisitor(issuesLoader, componentsWithUnprocessedIssues, issueCache, issueLifecycle)));
   }
 
   @Test
