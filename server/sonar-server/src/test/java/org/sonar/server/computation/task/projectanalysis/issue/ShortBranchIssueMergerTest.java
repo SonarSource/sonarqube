@@ -42,7 +42,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-public class ShortBranchIssueStatusCopierTest {
+public class ShortBranchIssueMergerTest {
   @Mock
   private ShortBranchIssuesLoader resolvedShortBranchIssuesLoader;
   @Mock
@@ -51,19 +51,19 @@ public class ShortBranchIssueStatusCopierTest {
   private Component component;
 
   private SimpleTracker<DefaultIssue, ShortBranchIssue> tracker = new SimpleTracker<>();
-  private ShortBranchIssueStatusCopier copier;
+  private ShortBranchIssueMerger copier;
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    copier = new ShortBranchIssueStatusCopier(resolvedShortBranchIssuesLoader, tracker, issueLifecycle);
+    copier = new ShortBranchIssueMerger(resolvedShortBranchIssuesLoader, tracker, issueLifecycle);
   }
 
   @Test
   public void do_nothing_if_no_match() {
     when(resolvedShortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component)).thenReturn(Collections.emptyList());
     DefaultIssue i = createIssue("issue1", "rule1", Issue.STATUS_CONFIRMED, null);
-    copier.updateStatus(component, Collections.singleton(i));
+    copier.tryMerge(component, Collections.singleton(i));
 
     verify(resolvedShortBranchIssuesLoader).loadCandidateIssuesForMergingInTargetBranch(component);
     verifyZeroInteractions(issueLifecycle);
@@ -73,7 +73,7 @@ public class ShortBranchIssueStatusCopierTest {
   public void do_nothing_if_no_new_issue() {
     DefaultIssue i = createIssue("issue1", "rule1", Issue.STATUS_CONFIRMED, null);
     when(resolvedShortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component)).thenReturn(Collections.singleton(newShortBranchIssue(i)));
-    copier.updateStatus(component, Collections.emptyList());
+    copier.tryMerge(component, Collections.emptyList());
 
     verify(resolvedShortBranchIssuesLoader).loadCandidateIssuesForMergingInTargetBranch(component);
     verifyZeroInteractions(issueLifecycle);
@@ -87,11 +87,11 @@ public class ShortBranchIssueStatusCopierTest {
 
     when(resolvedShortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component)).thenReturn(Collections.singleton(shortBranchIssue));
     when(resolvedShortBranchIssuesLoader.loadDefaultIssuesWithChanges(anyListOf(ShortBranchIssue.class))).thenReturn(ImmutableMap.of(shortBranchIssue, issue1));
-    copier.updateStatus(component, Collections.singleton(newIssue));
+    copier.tryMerge(component, Collections.singleton(newIssue));
     ArgumentCaptor<Collection> captor = ArgumentCaptor.forClass(Collection.class);
     verify(resolvedShortBranchIssuesLoader).loadDefaultIssuesWithChanges(captor.capture());
     assertThat(captor.getValue()).containsOnly(shortBranchIssue);
-    verify(issueLifecycle).mergeIssueFromShortLivingBranch(newIssue, issue1);
+    verify(issueLifecycle).copyIssueAttributes(newIssue, issue1);
   }
 
   @Test
@@ -104,8 +104,8 @@ public class ShortBranchIssueStatusCopierTest {
 
     when(resolvedShortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component)).thenReturn(Arrays.asList(shortBranchIssue1, shortBranchIssue2, shortBranchIssue3));
     when(resolvedShortBranchIssuesLoader.loadDefaultIssuesWithChanges(anyListOf(ShortBranchIssue.class))).thenReturn(ImmutableMap.of(shortBranchIssue3, issue3));
-    copier.updateStatus(component, Collections.singleton(newIssue));
-    verify(issueLifecycle).mergeIssueFromShortLivingBranch(newIssue, issue3);
+    copier.tryMerge(component, Collections.singleton(newIssue));
+    verify(issueLifecycle).copyIssueAttributes(newIssue, issue3);
   }
 
   private static DefaultIssue createIssue(String key, String ruleKey, String status, @Nullable String resolution) {

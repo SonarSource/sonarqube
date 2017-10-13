@@ -161,14 +161,14 @@ public abstract class IssueStorage {
       }
     }
     FieldDiffs diffs = issue.currentChange();
-    if (!issue.isNew() && diffs != null) {
-      IssueChangeDto changeDto = IssueChangeDto.of(issue.key(), diffs);
-      mapper.insert(changeDto);
-    } else if (issue.isCopied()) {
+    if (issue.isCopied()) {
       for (FieldDiffs d : issue.changes()) {
         IssueChangeDto changeDto = IssueChangeDto.of(issue.key(), d);
         mapper.insert(changeDto);
       }
+    } else if (!issue.isNew() && diffs != null) {
+      IssueChangeDto changeDto = IssueChangeDto.of(issue.key(), diffs);
+      mapper.insert(changeDto);
     }
   }
 

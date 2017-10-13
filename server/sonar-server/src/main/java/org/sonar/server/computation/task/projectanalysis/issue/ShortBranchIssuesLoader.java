@@ -76,23 +76,9 @@ public class ShortBranchIssuesLoader {
       return dbClient.issueDao().selectByKeys(session, issuesByKey.keySet())
         .stream()
         .map(IssueDto::toDefaultIssue)
-        .peek(i -> setChanges(changeDtoByIssueKey, i))
+        .peek(i -> ComponentIssuesLoader.setChanges(changeDtoByIssueKey, i))
         .collect(toMap(i -> issuesByKey.get(i.key()), i -> i));
     }
   }
 
-  private static void setChanges(Map<String, List<IssueChangeDto>> changeDtoByIssueKey, DefaultIssue i) {
-    changeDtoByIssueKey.get(i.key()).forEach(c -> {
-      switch (c.getChangeType()) {
-        case IssueChangeDto.TYPE_FIELD_CHANGE:
-          i.addChange(c.toFieldDiffs());
-          break;
-        case IssueChangeDto.TYPE_COMMENT:
-          i.addComment(c.toComment());
-          break;
-        default:
-          throw new IllegalStateException("Unknow change type: " + c.getChangeType());
-      }
-    });
-  }
 }

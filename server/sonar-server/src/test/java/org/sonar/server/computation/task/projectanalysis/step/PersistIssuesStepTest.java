@@ -19,6 +19,8 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
+import java.util.Arrays;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -37,6 +39,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -114,7 +117,18 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .setStatus(Issue.STATUS_OPEN)
       .setNew(false)
       .setCopied(true)
-      .setType(RuleType.BUG)).close();
+      .setType(RuleType.BUG)
+      .addComment(new DefaultIssueComment()
+        .setKey("COMMENT")
+        .setIssueKey("ISSUE")
+        .setUserLogin("john")
+        .setMarkdownText("Some text")
+        .setNew(true))
+      .setCurrentChange(new FieldDiffs()
+        .setIssueKey("ISSUE")
+        .setUserLogin("john")
+        .setDiff("technicalDebt", null, 1L)))
+      .close();
 
     step.execute();
 
@@ -126,6 +140,58 @@ public class PersistIssuesStepTest extends BaseStepTest {
     assertThat(result.getSeverity()).isEqualTo(Severity.BLOCKER);
     assertThat(result.getStatus()).isEqualTo(Issue.STATUS_OPEN);
     assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
+
+    List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList("ISSUE"));
+    assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactly(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
+  }
+
+  @Test
+  public void insert_merged_issue() {
+    RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
+    dbTester.rules().insert(rule);
+    OrganizationDto organizationDto = dbTester.organizations().insert();
+    ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto);
+    dbClient.componentDao().insert(session, project);
+    ComponentDto file = ComponentTesting.newFileDto(project, null);
+    dbClient.componentDao().insert(session, file);
+    session.commit();
+
+    issueCache.newAppender().append(new DefaultIssue()
+      .setKey("ISSUE")
+      .setType(RuleType.CODE_SMELL)
+      .setRuleKey(rule.getKey())
+      .setComponentUuid(file.uuid())
+      .setProjectUuid(project.uuid())
+      .setSeverity(Severity.BLOCKER)
+      .setStatus(Issue.STATUS_OPEN)
+      .setNew(true)
+      .setCopied(true)
+      .setType(RuleType.BUG)
+      .addComment(new DefaultIssueComment()
+        .setKey("COMMENT")
+        .setIssueKey("ISSUE")
+        .setUserLogin("john")
+        .setMarkdownText("Some text")
+        .setNew(true))
+      .setCurrentChange(new FieldDiffs()
+        .setIssueKey("ISSUE")
+        .setUserLogin("john")
+        .setDiff("technicalDebt", null, 1L)))
+      .close();
+
+    step.execute();
+
+    IssueDto result = dbClient.issueDao().selectOrFailByKey(session, "ISSUE");
+    assertThat(result.getKey()).isEqualTo("ISSUE");
+    assertThat(result.getRuleKey()).isEqualTo(rule.getKey());
+    assertThat(result.getComponentUuid()).isEqualTo(file.uuid());
+    assertThat(result.getProjectUuid()).isEqualTo(project.uuid());
+    assertThat(result.getSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(result.getStatus()).isEqualTo(Issue.STATUS_OPEN);
+    assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
+
+    List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList("ISSUE"));
+    assertThat(changes).extracting(IssueChangeDto::getChangeType).containsExactly(IssueChangeDto.TYPE_COMMENT, IssueChangeDto.TYPE_FIELD_CHANGE);
   }
 
   @Test

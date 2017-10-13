@@ -79,7 +79,7 @@ public class TrackerMergeBranchInputFactory {
       if (mergeBranchComponentUuid == null) {
         return Collections.emptyList();
       }
-      return mergeIssuesLoader.loadForComponentUuid(mergeBranchComponentUuid);
+      return mergeIssuesLoader.loadForComponentUuidWithChanges(mergeBranchComponentUuid);
     }
   }
 

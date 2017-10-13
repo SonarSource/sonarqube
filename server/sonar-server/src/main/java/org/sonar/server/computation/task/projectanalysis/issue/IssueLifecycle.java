@@ -69,30 +69,22 @@ public class IssueLifecycle {
   public void copyExistingOpenIssueFromLongLivingBranch(DefaultIssue raw, DefaultIssue base) {
     raw.setKey(Uuids.create());
     raw.setNew(false);
-    raw.setCopied(true);
-    copyFields(raw, base);
-
-    if (base.manualSeverity()) {
-      raw.setManualSeverity(true);
-      raw.setSeverity(base.severity());
-    }
+    copyIssueAttributes(raw, base);
   }
 
-  public void mergeIssueFromShortLivingBranch(DefaultIssue raw, DefaultIssue fromShortLiving) {
-    raw.setCopied(true);
-    raw.setType(fromShortLiving.type());
-    raw.setResolution(fromShortLiving.resolution());
-    raw.setStatus(fromShortLiving.status());
-    raw.setAssignee(fromShortLiving.assignee());
-    raw.setAuthorLogin(fromShortLiving.authorLogin());
-    raw.setTags(fromShortLiving.tags());
-    raw.setAttributes(fromShortLiving.attributes());
-    if (fromShortLiving.manualSeverity()) {
-      raw.setManualSeverity(true);
-      raw.setSeverity(fromShortLiving.severity());
+  public void copyIssueAttributes(DefaultIssue to, DefaultIssue from) {
+    to.setCopied(true);
+    copyFields(to, from);
+    if (from.manualSeverity()) {
+      to.setManualSeverity(true);
+      to.setSeverity(from.severity());
     }
-    fromShortLiving.comments().forEach(c -> raw.addComment(DefaultIssueComment.copy(raw.key(), c)));
-    fromShortLiving.changes().forEach(c -> raw.addChange(FieldDiffs.copy(raw.key(), c)));
+    copyChanges(to, from);
+  }
+
+  private static void copyChanges(DefaultIssue raw, DefaultIssue base) {
+    base.comments().forEach(c -> raw.addComment(DefaultIssueComment.copy(raw.key(), c)));
+    base.changes().forEach(c -> raw.addChange(FieldDiffs.copy(raw.key(), c)));
   }
 
   public void mergeExistingOpenIssue(DefaultIssue raw, DefaultIssue base) {
