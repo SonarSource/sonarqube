@@ -372,57 +372,49 @@ public class NewIndex {
     private NewIndexType buildWithSubfields() {
       Map<String, Object> hash = new TreeMap<>();
       hash.put("type", getFieldType());
-
-      Map<String, Object> multiFields = new TreeMap<>(subFields);
-
-      if (termVectorWithPositionOffsets) {
-        multiFields.entrySet().forEach(entry -> {
-          Object subFieldMapping = entry.getValue();
-          if (subFieldMapping instanceof Map) {
-            entry.setValue(
-              addFieldToMapping(
-                (Map<String, String>) subFieldMapping,
-                FIELD_TERM_VECTOR, "with_positions_offsets"));
-          }
-        });
-        hash.put(FIELD_TERM_VECTOR, "with_positions_offsets");
+      hash.put(INDEX, disableSearch ? INDEX_NOT_SEARCHABLE : INDEX_SEARCHABLE);
+      hash.put("norms", "false");
+      hash.put("store", valueOf(store));
+      if (FIELD_TYPE_KEYWORD.equals(getFieldType())) {
+        hash.put("doc_values", valueOf(!disabledDocValues));
       }
       if (getFieldData()) {
-        multiFields.entrySet().forEach(entry -> {
-          Object subFieldMapping = entry.getValue();
-          if (subFieldMapping instanceof Map) {
-            entry.setValue(
-              addFieldToMapping(
-                (Map<String, String>) subFieldMapping,
-                FIELD_FIELDDATA, FIELDDATA_ENABLED));
-          }
-        });
         hash.put(FIELD_FIELDDATA, FIELDDATA_ENABLED);
       }
+      if (termVectorWithPositionOffsets) {
+        hash.put(FIELD_TERM_VECTOR, "with_positions_offsets");
+      }
+      hash.put("fields", configureSubFields());
+      return indexType.setProperty(fieldName, hash);
+    }
 
-      Map<String, String> subHash = new TreeMap<>();
-      subHash.put("type", getFieldType());
+    private Map<String, Object> configureSubFields() {
+      Map<String, Object> multiFields = new TreeMap<>(subFields);
+
+      // apply this fields configuration to all subfields
+      multiFields.entrySet().forEach(entry -> {
+        Object subFieldMapping = entry.getValue();
+        if (subFieldMapping instanceof Map) {
+          entry.setValue(configureSubField((Map<String, String>) subFieldMapping));
+        }
+      });
+      return multiFields;
+    }
+
+    private Map<String, String> configureSubField(Map<String, String> subFieldMapping) {
+      Map<String, String> subHash = new TreeMap<>(subFieldMapping);
       subHash.put(INDEX, INDEX_SEARCHABLE);
       subHash.put("norms", "false");
       subHash.put("store", valueOf(store));
-      if (FIELD_TYPE_KEYWORD.equals(getFieldType())) {
-        subHash.put("doc_values", valueOf(!disabledDocValues));
+      if (termVectorWithPositionOffsets) {
+        subHash.put(FIELD_TERM_VECTOR, "with_positions_offsets");
       }
-      multiFields.put(fieldName, subHash);
-      hash.put("fields", multiFields);
-
-      return indexType.setProperty(fieldName, hash);
+      return subHash;
     }
 
     protected abstract boolean getFieldData();
 
     protected abstract String getFieldType();
-
-    private static SortedMap<String, String> addFieldToMapping(Map<String, String> source, String key, String value) {
-      SortedMap<String, String> mutable = new TreeMap<>(source);
-      mutable.put(key, value);
-      return ImmutableSortedMap.copyOf(mutable);
-    }
   }
 
   public static class KeywordFieldBuilder extends StringFieldBuilder<KeywordFieldBuilder> {
