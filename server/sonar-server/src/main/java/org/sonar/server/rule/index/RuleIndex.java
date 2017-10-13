@@ -206,7 +206,7 @@ public class RuleIndex {
           ).boost(20f)).should(
           matchPhraseQuery(
             ENGLISH_HTML_ANALYZER.subField(FIELD_RULE_HTML_DESCRIPTION),
-            StringUtils.left(token, DefaultIndexSettings.MAXIMUM_NGRAM_LENGTH)
+            token
           ).boost(3f))
       ).forEach(textQuery::must);
       qb.should(textQuery.boost(20f));
