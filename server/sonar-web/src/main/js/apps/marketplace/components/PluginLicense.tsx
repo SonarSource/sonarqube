@@ -19,30 +19,23 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { translate } from '../../helpers/l10n';
-import { Plugin } from '../../api/plugins';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  plugin: Plugin;
+  license?: string;
 }
 
-export default function PluginOrganization({ plugin }: Props) {
-  if (!plugin.organizationName) {
+export default function PluginLicense({ license }: Props) {
+  if (!license) {
     return null;
   }
   return (
-    <li className="little-spacer-bottom">
+    <li className="little-spacer-bottom text-limited" title={license}>
       <FormattedMessage
-        defaultMessage={translate('marketplace.developed_by_x')}
-        id="marketplace.developed_by_x"
+        defaultMessage={translate('marketplace.licensed_under_x')}
+        id="marketplace.licensed_under_x"
         values={{
-          organization: plugin.organizationUrl ? (
-            <a className="js-plugin-organization" href={plugin.organizationUrl} target="_blank">
-              {plugin.organizationName}
-            </a>
-          ) : (
-            <span className="js-plugin-organization">{plugin.organizationName}</span>
-          )
+          license: <span className="js-plugin-license">{license}</span>
         }}
       />
     </li>
