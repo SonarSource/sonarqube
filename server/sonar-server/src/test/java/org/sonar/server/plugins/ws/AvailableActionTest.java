@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.WsActionTester;
 import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
@@ -87,6 +88,39 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
   }
 
   @Test
+  public void verify_example() throws Exception {
+    logInAsSystemAdministrator();
+    when(updateCenter.findAvailablePlugins()).thenReturn(of(
+      pluginUpdate(release(Plugin.factory("abap")
+        .setName("ABAP")
+        .setCategory("Languages")
+        .setDescription("Enable analysis and reporting on ABAP projects")
+        .setLicense("Commercial")
+        .setOrganization("SonarSource")
+        .setOrganizationUrl("http://www.sonarsource.com")
+        .setTermsConditionsUrl("http://dist.sonarsource.com/SonarSource_Terms_And_Conditions.pdf"),
+        "3.2")
+          .setDate(DateUtils.parseDate("2015-03-10")),
+        COMPATIBLE),
+      pluginUpdate(release(Plugin.factory("android")
+        .setName("Android")
+        .setCategory("Languages")
+        .setDescription("Import Android Lint reports.")
+        .setLicense("GNU LGPL 3")
+        .setOrganization("SonarSource and Jerome Van Der Linden, Stephane Nicolas, Florian Roncari, Thomas Bores")
+        .setOrganizationUrl("http://www.sonarsource.com"),
+        "1.0")
+          .setDate(DateUtils.parseDate("2014-03-31"))
+          .addOutgoingDependency(release(Plugin.factory("java").setName("Java").setDescription("SonarQube rule engine."), "0.3.6")),
+        COMPATIBLE)));
+
+    underTest.handle(request, response);
+
+    WsActionTester actionTester = new WsActionTester(underTest);
+    assertJson(response.outputAsString()).isSimilarTo(actionTester.getDef().responseExampleAsString());
+  }
+
+  @Test
   public void request_fails_with_ForbiddenException_when_user_is_not_logged_in() throws Exception {
     expectedException.expect(ForbiddenException.class);
 
@@ -128,7 +162,43 @@ public class AvailableActionTest extends AbstractUpdateCenterBasedPluginsWsActio
 
     underTest.handle(request, response);
 
-    assertJson(response.outputAsString()).isSimilarTo(resource("properties_per_plugin.json"));
+    assertJson(response.outputAsString())
+      .isSimilarTo(
+        "{" +
+          "  \"plugins\": [" +
+          "    {" +
+          "      \"key\": \"pkey\"," +
+          "      \"name\": \"p_name\"," +
+          "      \"category\": \"p_category\"," +
+          "      \"description\": \"p_description\"," +
+          "      \"license\": \"p_license\"," +
+          "      \"termsAndConditionsUrl\": \"p_t_and_c_url\"," +
+          "      \"organizationName\": \"p_orga_name\"," +
+          "      \"organizationUrl\": \"p_orga_url\"," +
+          "      \"homepageUrl\": \"p_homepage_url\"," +
+          "      \"issueTrackerUrl\": \"p_issue_url\"," +
+          "      \"release\": {" +
+          "        \"version\": \"1.12.1\"," +
+          "        \"date\": \"2015-04-16\"" +
+          "      }," +
+          "      \"update\": {" +
+          "        \"status\": \"COMPATIBLE\"," +
+          "        \"requires\": [" +
+          "          {" +
+          "            \"key\": \"pkey1\"," +
+          "            \"name\": \"p_name_1\"" +
+          "          }," +
+          "          {" +
+          "            \"key\": \"pkey2\"," +
+          "            \"name\": \"p_name_2\"," +
+          "            \"description\": \"p_desc_2\"" +
+          "          }" +
+          "        ]" +
+          "      }" +
+          "    }" +
+          "  ]," +
+          "  \"updateCenterRefresh\": \"2015-04-24T16:08:36+0200\"" +
+          "}");
   }
 
   @Test

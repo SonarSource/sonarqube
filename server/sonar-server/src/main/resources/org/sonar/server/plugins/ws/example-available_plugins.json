@@ -9,6 +9,7 @@
       "organizationName": "SonarSource",
       "organizationUrl": "http://www.sonarsource.com",
       "termsAndConditionsUrl": "http://dist.sonarsource.com/SonarSource_Terms_And_Conditions.pdf",
+      "editionBundled": true,
       "release": {
         "version": "3.2",
         "date": "2015-03-10"
@@ -26,6 +27,7 @@
       "license": "GNU LGPL 3",
       "organizationName": "SonarSource and Jerome Van Der Linden, Stephane Nicolas, Florian Roncari, Thomas Bores",
       "organizationUrl": "http://www.sonarsource.com",
+      "editionBundled": false,
       "release": {
         "version": "1.0",
         "date": "2014-03-31"
