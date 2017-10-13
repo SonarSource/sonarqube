@@ -42,7 +42,7 @@ export default class PluginUpdateItem extends React.PureComponent<Props, State> 
   };
 
   toggleChangelog = (show?: boolean) => {
-    if (show != undefined) {
+    if (show !== undefined) {
       this.setState({ changelogOpen: show });
     } else {
       this.setState(state => ({ changelogOpen: !state.changelogOpen }));
