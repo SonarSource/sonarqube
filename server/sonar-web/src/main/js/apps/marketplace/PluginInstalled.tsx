@@ -20,9 +20,10 @@
 import * as React from 'react';
 import PluginDescription from './PluginDescription';
 import PluginLicense from './PluginLicense';
-import PluginStatus from './PluginStatus';
 import PluginOrganization from './PluginOrganization';
+import PluginStatus from './PluginStatus';
 import PluginUpdates from './PluginUpdates';
+import PluginUrls from './PluginUrls';
 import { PluginInstalled } from '../../api/plugins';
 import { translate } from '../../helpers/l10n';
 import { Query } from './utils';
@@ -52,26 +53,7 @@ export default function PluginInstalled({ plugin, refreshPending, status, update
 
       <td className="text-top width-20 big-spacer-right">
         <ul>
-          {(plugin.homepageUrl || plugin.issueTrackerUrl) && (
-            <li className="little-spacer-bottom">
-              <ul className="list-inline">
-                {plugin.homepageUrl && (
-                  <li>
-                    <a className="js-plugin-homepage" href={plugin.homepageUrl} target="_blank">
-                      {translate('marketplace.homepage')}
-                    </a>
-                  </li>
-                )}
-                {plugin.issueTrackerUrl && (
-                  <li>
-                    <a className="js-plugin-issues" href={plugin.issueTrackerUrl} target="_blank">
-                      {translate('marketplace.issue_tracker')}
-                    </a>
-                  </li>
-                )}
-              </ul>
-            </li>
-          )}
+          <PluginUrls plugin={plugin} />
           <PluginLicense license={plugin.license} />
           <PluginOrganization plugin={plugin} />
         </ul>
