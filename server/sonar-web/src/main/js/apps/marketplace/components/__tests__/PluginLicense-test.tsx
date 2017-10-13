@@ -18,27 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Update } from '../../api/plugins';
-import { translateWithParameters } from '../../helpers/l10n';
+import { shallow } from 'enzyme';
+import PluginLicense from '../PluginLicense';
 
-interface Props {
-  disabled: boolean;
-  onClick: (update: Update) => void;
-  update: Update;
-}
+it('should display the license field', () => {
+  expect(shallow(<PluginLicense license="SonarSource license" />)).toMatchSnapshot();
+});
 
-export default class PluginUpdateButton extends React.PureComponent<Props> {
-  handleClick = () => this.props.onClick(this.props.update);
-
-  render() {
-    const { disabled, update } = this.props;
-    if (update.status !== 'COMPATIBLE' || !update.release) {
-      return null;
-    }
-    return (
-      <button className="js-update" onClick={this.handleClick} disabled={disabled}>
-        {translateWithParameters('marketplace.update_to_x', update.release.version)}
-      </button>
-    );
-  }
-}
+it('should not display anything', () => {
+  expect(shallow(<PluginLicense />)).toMatchSnapshot();
+});
