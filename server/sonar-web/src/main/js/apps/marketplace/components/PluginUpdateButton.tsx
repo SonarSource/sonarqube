@@ -18,26 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { FormattedMessage } from 'react-intl';
-import { translate } from '../../helpers/l10n';
+import { Update } from '../../../api/plugins';
+import { translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
-  license?: string;
+  disabled: boolean;
+  onClick: (update: Update) => void;
+  update: Update;
 }
 
-export default function PluginLicense({ license }: Props) {
-  if (!license) {
-    return null;
+export default class PluginUpdateButton extends React.PureComponent<Props> {
+  handleClick = () => this.props.onClick(this.props.update);
+
+  render() {
+    const { disabled, update } = this.props;
+    if (update.status !== 'COMPATIBLE' || !update.release) {
+      return null;
+    }
+    return (
+      <button className="js-update" onClick={this.handleClick} disabled={disabled}>
+        {translateWithParameters('marketplace.update_to_x', update.release.version)}
+      </button>
+    );
   }
-  return (
-    <li className="little-spacer-bottom text-limited" title={license}>
-      <FormattedMessage
-        defaultMessage={translate('marketplace.licensed_under_x')}
-        id="marketplace.licensed_under_x"
-        values={{
-          license: <span className="js-plugin-license">{license}</span>
-        }}
-      />
-    </li>
-  );
 }

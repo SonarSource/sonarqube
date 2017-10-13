@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import PluginUpdateItem from './PluginUpdateItem';
-import { Update } from '../../api/plugins';
-import { translate } from '../../helpers/l10n';
+import { Update } from '../../../api/plugins';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   updates?: Update[];
