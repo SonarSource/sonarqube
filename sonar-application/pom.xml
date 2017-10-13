@@ -112,6 +112,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
+      <groupId>org.sonarsource.flex</groupId>
+      <artifactId>sonar-flex-plugin</artifactId>
+      <type>sonar-plugin</type>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.sonarsource.scm.git</groupId>
       <artifactId>sonar-scm-git-plugin</artifactId>
       <type>sonar-plugin</type>
@@ -136,8 +142,8 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.sonarsource.flex</groupId>
-      <artifactId>sonar-flex-plugin</artifactId>
+      <groupId>org.sonarsource.typescript</groupId>
+      <artifactId>sonar-typescript-plugin</artifactId>
       <type>sonar-plugin</type>
       <scope>provided</scope>
     </dependency>
