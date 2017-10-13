@@ -218,10 +218,12 @@ public class CorePropertyDefinitions {
       PropertyDefinition.builder(CoreProperties.CPD_CROSS_PROJECT)
         .defaultValue(Boolean.toString(false))
         .name("Cross project duplication detection")
-        .description("By default, SonarQube detects duplications at project level. This means that a block "
+        .description("DEPRECATED - By default, SonarQube detects duplications at project level. This means that a block "
           + "duplicated on two different projects won't be reported. Setting this parameter to \"true\" "
           + "allows to detect duplicates across projects. Note that activating "
-          + "this property will slightly increase each SonarQube analysis time.")
+          + "this property will significantly increase each SonarQube analysis time, "
+          + "and therefore badly impact the performances of report processing as more and more projects "
+          + "are getting involved in this cross project duplication mechanism.")
         .onQualifiers(Qualifiers.PROJECT)
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_DUPLICATIONS)

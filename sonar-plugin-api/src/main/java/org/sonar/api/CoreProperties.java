@@ -269,7 +269,9 @@ public interface CoreProperties {
 
   /**
    * @since 2.11
+   * @deprecated since 6.7
    */
+  @Deprecated
   String CPD_CROSS_PROJECT = "sonar.cpd.cross_project";
 
   /**
