@@ -24,12 +24,13 @@ import throwGlobalError from '../app/utils/throwGlobalError';
 export interface Plugin {
   key: string;
   name: string;
-  description: string;
   category?: string;
+  description: string;
+  editionBundled?: boolean;
   license?: string;
   organizationName?: string;
-  organizationUrl?: string;
   homepageUrl?: string;
+  organizationUrl?: string;
   issueTrackerUrl?: string;
   termsAndConditionsUrl?: string;
 }
@@ -86,7 +87,7 @@ function getLastUpdates(updates: undefined | Update[]): Update[] {
     return [];
   }
   const lastUpdate = [
-    'INCOMPATIBLE',
+    'COMPATIBLE',
     'REQUIRES_SYSTEM_UPGRADE',
     'DEPS_REQUIRE_SYSTEM_UPGRADE'
   ].map(status => {
