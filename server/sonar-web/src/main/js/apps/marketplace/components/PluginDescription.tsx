@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Plugin } from '../../api/plugins';
-import { Query } from './utils';
+import { Plugin } from '../../../api/plugins';
+import { Query } from '../utils';
 
 interface Props {
   plugin: Plugin;

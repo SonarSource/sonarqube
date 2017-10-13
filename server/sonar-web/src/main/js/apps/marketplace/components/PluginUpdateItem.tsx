@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import PluginChangeLogButton from './PluginChangeLogButton';
-import Tooltip from '../../components/controls/Tooltip';
-import { Release, Update } from '../../api/plugins';
-import { translate } from '../../helpers/l10n';
+import Tooltip from '../../../components/controls/Tooltip';
+import { Release, Update } from '../../../api/plugins';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   update: Update;
