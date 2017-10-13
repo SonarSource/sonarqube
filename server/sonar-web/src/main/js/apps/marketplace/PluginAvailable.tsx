@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import PluginChangeLogButton from './PluginChangeLogButton';
 import PluginDescription from './PluginDescription';
 import PluginLicense from './PluginLicense';
 import PluginOrganization from './PluginOrganization';
 import PluginStatus from './PluginStatus';
-import PluginChangeLogButton from './PluginChangeLogButton';
+import PluginUrls from './PluginUrls';
 import { PluginAvailable } from '../../api/plugins';
 import { translateWithParameters } from '../../helpers/l10n';
 import { Query } from './utils';
@@ -64,6 +65,7 @@ export default function PluginAvailable({ plugin, refreshPending, status, update
 
       <td className="text-top width-20 big-spacer-right">
         <ul>
+          <PluginUrls plugin={plugin} />
           <PluginLicense license={plugin.license} />
           <PluginOrganization plugin={plugin} />
         </ul>
