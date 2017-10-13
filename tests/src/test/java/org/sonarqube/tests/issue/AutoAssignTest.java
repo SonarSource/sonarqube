@@ -21,6 +21,8 @@ package org.sonarqube.tests.issue;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
@@ -79,6 +81,8 @@ public class AutoAssignTest extends AbstractIssueTest {
     // verify that SCM account matches, case-insensitive
     createUser("user7", "User 7", "user7@email.com", "user7ScmAccount");
     createUser("user8", "User 8", "user8@email.com", "user8SCMaccOUNT");
+    // SCM accounts long then 255 chars will be ignored
+    createUser("user9", "User 9", "user9@email.com", IntStream.range(0,256).mapToObj(i -> "s").collect(Collectors.joining()));
 
     projectAnalysis.run();
 
@@ -95,6 +99,8 @@ public class AutoAssignTest extends AbstractIssueTest {
     // SCM account match, case-insensitive
     verifyIssueAssignee(issues, 7, "user7");
     verifyIssueAssignee(issues, 8, "user8");
+    // SCM accounts long then 255 chars will be ignored
+    verifyIssueAssignee(issues, 10, null);
   }
 
   private static void verifyIssueAssignee(List<Issue> issues, int line, @Nullable String expectedAssignee) {
