@@ -70,18 +70,20 @@ public class IssueAssigner extends IssueVisitor {
 
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
-    boolean authorWasSet = false;
     if (issue.authorLogin() == null) {
       loadScmChangesets(component);
       String scmAuthor = guessScmAuthor(issue);
+
       if (!Strings.isNullOrEmpty(scmAuthor)) {
         issueUpdater.setNewAuthor(issue, scmAuthor, changeContext);
-        authorWasSet = true;
       }
-    }
-    if (authorWasSet && issue.assignee() == null) {
-      String assigneeLogin = StringUtils.defaultIfEmpty(scmAccountToUser.getNullable(issue.authorLogin()), defaultAssignee.loadDefaultAssigneeLogin());
-      issueUpdater.setNewAssignee(issue, assigneeLogin, changeContext);
+
+      if (issue.assignee() == null) {
+        String author = issue.authorLogin() == null ? null : scmAccountToUser.getNullable(issue.authorLogin());
+        String assigneeLogin = StringUtils.defaultIfEmpty(author, defaultAssignee.loadDefaultAssigneeLogin());
+
+        issueUpdater.setNewAssignee(issue, assigneeLogin, changeContext);
+      }
     }
   }
 

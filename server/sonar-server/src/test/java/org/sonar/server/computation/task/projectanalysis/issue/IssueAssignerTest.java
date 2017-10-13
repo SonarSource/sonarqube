@@ -159,6 +159,17 @@ public class IssueAssignerTest {
   }
 
   @Test
+  public void when_noscm_data_is_available_defaultAssignee_should_be_used() throws Exception {
+    DefaultIssue issue = new DefaultIssue().setLine(null);
+
+    when(defaultAssignee.loadDefaultAssigneeLogin()).thenReturn("DefaultAssignee");
+    underTest.onIssue(FILE, issue);
+
+    assertThat(issue.assignee()).isEqualTo("DefaultAssignee");
+  }
+
+
+  @Test
   public void set_last_committer_when_line_is_bigger_than_changeset_size() throws Exception {
     addScmUser("john", "John C");
     Changeset changeset = Changeset.newChangesetBuilder()
