@@ -177,29 +177,29 @@ BUILD)
         -Dsource.skip=true \
         -Pdeploy-sonarsource
 
-    # analysis to decorate GitHub pull request
-    # (need support of standard analysis mode in GH plugin)
-    mvn sonar:sonar \
-        -Dsonar.host.url=$SONAR_HOST_URL \
-        -Dsonar.login=$SONAR_TOKEN \
-        -Dsonar.analysis.mode=preview \
-        -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
-        -Dsonar.github.repository=$TRAVIS_REPO_SLUG \
-        -Dsonar.github.oauth=$GITHUB_TOKEN
-
-    if [ "$TRAVIS_BRANCH" == "master" ]; then
-      # analysis of short-living branch based on another short-living branch
-      # is currently not supported
-      mvn sonar:sonar \
-          -Dsonar.host.url=$SONAR_HOST_URL \
-          -Dsonar.login=$SONAR_TOKEN \
-          -Dsonar.branch.name=$TRAVIS_PULL_REQUEST_BRANCH \
-          -Dsonar.branch.target=$TRAVIS_BRANCH \
-          -Dsonar.analysis.buildNumber=$TRAVIS_BUILD_NUMBER \
-          -Dsonar.analysis.pipeline=$TRAVIS_BUILD_NUMBER \
-          -Dsonar.analysis.sha1=$TRAVIS_COMMIT \
-          -Dsonar.analysis.repository=$TRAVIS_REPO_SLUG
-    fi
+#    # analysis to decorate GitHub pull request
+#    # (need support of standard analysis mode in GH plugin)
+#    mvn sonar:sonar \
+#        -Dsonar.host.url=$SONAR_HOST_URL \
+#        -Dsonar.login=$SONAR_TOKEN \
+#        -Dsonar.analysis.mode=preview \
+#        -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
+#        -Dsonar.github.repository=$TRAVIS_REPO_SLUG \
+#        -Dsonar.github.oauth=$GITHUB_TOKEN
+#
+#    if [ "$TRAVIS_BRANCH" == "master" ]; then
+#      # analysis of short-living branch based on another short-living branch
+#      # is currently not supported
+#      mvn sonar:sonar \
+#          -Dsonar.host.url=$SONAR_HOST_URL \
+#          -Dsonar.login=$SONAR_TOKEN \
+#          -Dsonar.branch.name=$TRAVIS_PULL_REQUEST_BRANCH \
+#          -Dsonar.branch.target=$TRAVIS_BRANCH \
+#          -Dsonar.analysis.buildNumber=$TRAVIS_BUILD_NUMBER \
+#          -Dsonar.analysis.pipeline=$TRAVIS_BUILD_NUMBER \
+#          -Dsonar.analysis.sha1=$TRAVIS_COMMIT \
+#          -Dsonar.analysis.repository=$TRAVIS_REPO_SLUG
+#    fi
   else
     echo 'Build feature branch or external pull request'
 
