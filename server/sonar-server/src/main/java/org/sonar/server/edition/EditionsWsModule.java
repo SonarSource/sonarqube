@@ -22,6 +22,7 @@ package org.sonar.server.edition;
 import org.sonar.core.platform.Module;
 import org.sonar.server.edition.ws.ApplyLicenseAction;
 import org.sonar.server.edition.ws.EditionsWs;
+import org.sonar.server.edition.ws.PreviewAction;
 import org.sonar.server.edition.ws.StatusAction;
 
 public class EditionsWsModule extends Module {
@@ -30,6 +31,7 @@ public class EditionsWsModule extends Module {
     add(
       StatusAction.class,
       ApplyLicenseAction.class,
+      PreviewAction.class,
       EditionsWs.class);
   }
 }

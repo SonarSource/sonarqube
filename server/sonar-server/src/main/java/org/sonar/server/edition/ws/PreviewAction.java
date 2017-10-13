@@ -20,35 +20,41 @@
 package org.sonar.server.edition.ws;
 
 import java.util.Collections;
+import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.edition.EditionManagementState;
 import org.sonar.server.edition.License;
-import org.sonar.server.edition.MutableEditionManagementState;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsEditions;
 
-public class ApplyLicenseAction implements EditionsWsAction {
+import static java.util.Optional.ofNullable;
+import static org.sonarqube.ws.WsEditions.PreviewStatus.AUTOMATIC_INSTALL;
+import static org.sonarqube.ws.WsEditions.PreviewStatus.MANUAL_INSTALL;
+import static org.sonarqube.ws.WsEditions.PreviewStatus.NO_INSTALL;
+
+public class PreviewAction implements EditionsWsAction {
   private static final String PARAM_LICENSE = "license";
 
   private final UserSession userSession;
-  private final MutableEditionManagementState editionManagementState;
+  private final EditionManagementState editionManagementState;
 
-  public ApplyLicenseAction(UserSession userSession, MutableEditionManagementState editionManagementState) {
+  public PreviewAction(UserSession userSession, EditionManagementState editionManagementState) {
     this.userSession = userSession;
     this.editionManagementState = editionManagementState;
   }
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("apply_license")
+    WebService.NewAction action = controller.createAction("preview")
       .setSince("6.7")
       .setPost(true)
-      .setDescription("Apply changes to SonarQube to match the specified license. Require 'Administer System' permission.")
-      .setResponseExample(getClass().getResource("example-edition-apply_license.json"))
+      .setDescription("Preview the changes to SonarQube to match the specified license. Require 'Administer System' permission.")
+      .setResponseExample(getClass().getResource("example-edition-preview.json"))
       .setHandler(this);
 
     action.createParam(PARAM_LICENSE)
@@ -67,22 +73,44 @@ public class ApplyLicenseAction implements EditionsWsAction {
 
     String license = request.mandatoryParam(PARAM_LICENSE);
     License newLicense = new License(license, Collections.emptyList(), license);
-    if (license.contains("manual")) {
-      editionManagementState.startManualInstall(newLicense);
-    } else if (license.contains("done")) {
-      editionManagementState.newEditionWithoutInstall(newLicense.getEditionKey());
-    } else {
-      editionManagementState.startAutomaticInstall(newLicense);
-    }
+    NextState nextState = computeNextState(newLicense);
 
-    WsUtils.writeProtobuf(buildResponse(), request, response);
+    WsUtils.writeProtobuf(buildResponse(nextState), request, response);
   }
 
-  private WsEditions.StatusResponse buildResponse() {
-    return WsEditions.StatusResponse.newBuilder()
-      .setNextEditionKey(editionManagementState.getPendingEditionKey().orElse(""))
-      .setCurrentEditionKey(editionManagementState.getCurrentEditionKey().orElse(""))
-      .setInstallationStatus(WsEditions.InstallationStatus.valueOf(editionManagementState.getPendingInstallationStatus().name()))
+  private static WsEditions.PreviewResponse buildResponse(NextState nextState) {
+    return WsEditions.PreviewResponse.newBuilder()
+      .setNextEditionKey(nextState.getPendingEditionKey().orElse(""))
+      .setPreviewStatus(nextState.getPreviewStatus())
       .build();
   }
+
+  private static NextState computeNextState(License newLicense) {
+    String licenseContent = newLicense.getContent();
+    if (licenseContent.contains("manual")) {
+      return new NextState(newLicense.getEditionKey(), MANUAL_INSTALL);
+    } else if (licenseContent.contains("done")) {
+      return new NextState(newLicense.getEditionKey(), NO_INSTALL);
+    }
+    return new NextState(newLicense.getEditionKey(), AUTOMATIC_INSTALL);
+  }
+
+  private static final class NextState {
+    private final String pendingEditionKey;
+    private final WsEditions.PreviewStatus previewStatus;
+
+    private NextState(@Nullable String pendingEditionKey, WsEditions.PreviewStatus previewStatus) {
+      this.pendingEditionKey = pendingEditionKey;
+      this.previewStatus = previewStatus;
+    }
+
+    Optional<String> getPendingEditionKey() {
+      return ofNullable(pendingEditionKey);
+    }
+
+    WsEditions.PreviewStatus getPreviewStatus() {
+      return previewStatus;
+    }
+  }
+
 }
