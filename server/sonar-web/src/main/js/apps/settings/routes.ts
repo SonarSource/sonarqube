@@ -26,21 +26,9 @@ const routes = [
     }
   },
   {
-    path: 'licenses',
-    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./licenses/LicensesApp').then(i => callback(null, i.default));
-    }
-  },
-  {
     path: 'encryption',
     getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
       import('./encryption/EncryptionAppContainer').then(i => callback(null, i.default));
-    }
-  },
-  {
-    path: 'server_id',
-    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./serverId/ServerIdAppContainer').then(i => callback(null, i.default));
     }
   }
 ];

@@ -22,7 +22,6 @@ import { combineReducers } from 'redux';
 import definitions, * as fromDefinitions from './definitions/reducer';
 import values, * as fromValues from './values/reducer';
 import settingsPage, * as fromSettingsPage from './settingsPage/reducer';
-import licenses, * as fromLicenses from './licenses/reducer';
 import globalMessages, * as fromGlobalMessages from '../../../store/globalMessages/duck';
 import encryptionPage from './encryptionPage/reducer';
 /*:: import type { State as GlobalMessagesState } from '../../../store/globalMessages/duck'; */
@@ -33,7 +32,6 @@ type State = {
   definitions: {},
   encryptionPage: {},
   globalMessages: GlobalMessagesState,
-  licenses: {},
   settingsPage: {},
   values: ValuesState
 };
@@ -43,7 +41,6 @@ const rootReducer = combineReducers({
   definitions,
   values,
   settingsPage,
-  licenses,
   encryptionPage,
   globalMessages
 });
@@ -77,12 +74,6 @@ export const getChangedValue = (state /*: State */, key /*: string */) =>
 
 export const isLoading = (state /*: State */, key /*: string */) =>
   fromSettingsPage.isLoading(state.settingsPage, key);
-
-export const getLicenseByKey = (state /*: State */, key /*: string */) =>
-  fromLicenses.getLicenseByKey(state.licenses, key);
-
-export const getAllLicenseKeys = (state /*: State */) =>
-  fromLicenses.getAllLicenseKeys(state.licenses);
 
 export const getValidationMessage = (state /*: State */, key /*: string */) =>
   fromSettingsPage.getValidationMessage(state.settingsPage, key);
