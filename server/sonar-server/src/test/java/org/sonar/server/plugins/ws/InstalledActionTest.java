@@ -20,11 +20,16 @@
 package org.sonar.server.plugins.ws;
 
 import com.google.common.base.Optional;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
@@ -47,6 +52,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
+@RunWith(DataProviderRunner.class)
 public class InstalledActionTest {
   private static final String DUMMY_CONTROLLER_KEY = "dummy";
   private static final String JSON_EMPTY_PLUGIN_LIST = "{" +
@@ -147,7 +153,8 @@ public class InstalledActionTest {
         "      \"version\": \"1.0\"," +
         "      \"license\": \"license_hey\"," +
         "      \"organizationName\": \"org_name\"," +
-        "      \"organizationUrl\": \"org_url\"," +
+        "      \"organizationUrl\": \"org_url\",\n" +
+        "      \"editionBundled\": false," +
         "      \"homepageUrl\": \"homepage_url\"," +
         "      \"issueTrackerUrl\": \"issueTracker_url\"," +
         "      \"implementationBuild\": \"sou_rev_sha1\"," +
@@ -203,7 +210,8 @@ public class InstalledActionTest {
         "      \"category\":\"cat_1\"," +
         "      \"license\": \"license_hey\"," +
         "      \"organizationName\": \"org_name\"," +
-        "      \"organizationUrl\": \"org_url\"," +
+        "      \"organizationUrl\": \"org_url\",\n" +
+        "      \"editionBundled\": false," +
         "      \"homepageUrl\": \"homepage_url\"," +
         "      \"issueTrackerUrl\": \"issueTracker_url\"," +
         "      \"implementationBuild\": \"sou_rev_sha1\"" +
@@ -250,6 +258,68 @@ public class InstalledActionTest {
         "    {\"key\": \"A\"}" +
         "  ]" +
         "}");
+  }
+
+  @Test
+  @UseDataProvider("editionBundledLicenseValues")
+  public void commercial_plugins_from_SonarSource_has_flag_editionBundled_true_based_on_jar_info(String license) throws Exception {
+    String jarFilename = getClass().getSimpleName() + "/" + "some.jar";
+    Random random = new Random();
+    String organization = random.nextBoolean() ? "SonarSource" : "SONARSOURCE";
+    String pluginKey = "plugKey";
+    when(pluginRepository.getPluginInfos()).thenReturn(of(
+      new PluginInfo(pluginKey)
+        .setName("plugName")
+        .setVersion(Version.create("1.0"))
+        .setLicense(license)
+        .setOrganizationName(organization)
+        .setImplementationBuild("sou_rev_sha1")
+        .setJarFile(new File(getClass().getResource(jarFilename).toURI()))));
+    db.pluginDbTester().insertPlugin(
+      p -> p.setKee(pluginKey),
+      p -> p.setFileHash("abcdplugKey"),
+      p -> p.setUpdatedAt(111111L));
+    // ensure flag editionBundled is computed from jar info by enabling datacenter with other organization and license values
+    UpdateCenter updateCenter = mock(UpdateCenter.class);
+    when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.of(updateCenter));
+    when(updateCenter.findAllCompatiblePlugins()).thenReturn(
+        singletonList(
+            Plugin.factory(pluginKey)
+                .setOrganization("foo")
+                .setLicense("bar")
+                .setCategory("cat_1")));
+
+
+    underTest.handle(request, response);
+
+    verifyZeroInteractions(updateCenterMatrixFactory);
+    assertJson(response.outputAsString())
+      .isSimilarTo("{" +
+        "  \"plugins\":" +
+        "  [" +
+        "    {" +
+        "      \"key\": \"plugKey\"," +
+        "      \"name\": \"plugName\"," +
+        "      \"license\": \"" + license + "\"," +
+        "      \"organizationName\": \"" + organization + "\"," +
+        "      \"editionBundled\": true" +
+        "    }" +
+        "  ]" +
+        "}");
+  }
+
+  @DataProvider
+  public static Object[][] editionBundledLicenseValues() {
+    return new Object[][] {
+      {"sonarsource"},
+      {"SonarSource"},
+      {"SonaRSOUrce"},
+      {"SONARSOURCE"},
+      {"commercial"},
+      {"Commercial"},
+      {"COMMERCIAL"},
+      {"COmmERCiaL"},
+    };
   }
 
   @Test
