@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import { flatten, isEqual, sortBy, throttle } from 'lodash';
+import { flatten, isEqual, sortBy, throttle, uniq } from 'lodash';
 import { bisector, extent, max } from 'd3-array';
 import { scaleLinear, scalePoint, scaleTime } from 'd3-scale';
 import { line as d3Line, area, curveBasis } from 'd3-shape';
@@ -51,6 +51,8 @@ type Props = {
   height: number,
   width: number,
   leakPeriodDate?: Date,
+  // used to avoid same y ticks labels
+  maxYTicksCount?: number,
   metricType: string,
   padding: Array<number>,
   selectedDate?: Date,
@@ -84,6 +86,7 @@ export default class AdvancedTimeline extends React.PureComponent {
 
   static defaultProps = {
     eventSize: 8,
+    maxYTicksCount: 4,
     padding: [10, 10, 30, 60],
     zoomSpeed: 1
   };
@@ -301,10 +304,19 @@ export default class AdvancedTimeline extends React.PureComponent {
     const { formatYTick } = this.props;
     const { xScale, yScale } = this.state;
     const hasTicks = typeof yScale.ticks === 'function';
-    const ticks = hasTicks ? yScale.ticks(4) : yScale.domain();
+    let ticks = hasTicks ? yScale.ticks(this.props.maxYTicksCount) : yScale.domain();
 
     if (!ticks.length) {
       ticks.push(yScale.domain()[1]);
+    }
+
+    // if there are duplicated ticks, that means 4 ticks are too much for this data
+    // so let's just use the domain values (min and max)
+    if (formatYTick) {
+      const formattedTicks = ticks.map(tick => formatYTick(tick));
+      if (ticks.length > uniq(formattedTicks).length) {
+        ticks = yScale.domain();
+      }
     }
 
     return (
