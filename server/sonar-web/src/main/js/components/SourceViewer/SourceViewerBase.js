@@ -293,7 +293,9 @@ export default class SourceViewerBase extends React.PureComponent {
 
     const onResolve = component => {
       this.props.onReceiveComponent(component);
-      this.loadSources().then(
+      const sourcesRequest =
+        component.q === 'FIL' || component.q === 'UTS' ? this.loadSources() : Promise.resolve([]);
+      sourcesRequest.then(
         sources => loadIssues(component, sources),
         response => onFailLoadSources(response, component)
       );
@@ -331,7 +333,11 @@ export default class SourceViewerBase extends React.PureComponent {
     const firstSourceLine = this.state.sources[0];
     const lastSourceLine = this.state.sources[this.state.sources.length - 1];
     this.props
-      .loadIssues(this.props.component, firstSourceLine.line, lastSourceLine.line)
+      .loadIssues(
+        this.props.component,
+        firstSourceLine && firstSourceLine.line,
+        lastSourceLine && lastSourceLine.line
+      )
       .then(issues => {
         if (this.mounted) {
           this.setState({
