@@ -22,7 +22,7 @@ package org.sonar.server.edition;
 import org.sonar.api.Startable;
 
 public class CommitPendingEditionOnStartup implements Startable {
-  private MutableEditionManagementState editionManagementState;
+  private final MutableEditionManagementState editionManagementState;
 
   public CommitPendingEditionOnStartup(MutableEditionManagementState editionManagementState) {
     this.editionManagementState = editionManagementState;
