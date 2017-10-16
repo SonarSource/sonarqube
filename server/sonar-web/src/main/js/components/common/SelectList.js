@@ -21,11 +21,13 @@
 import React from 'react';
 import key from 'keymaster';
 import { uniqueId } from 'lodash';
+import classNames from 'classnames';
 import SelectListItem from './SelectListItem';
 
 /*::
 type Props = {
   children?: SelectListItem,
+  className?: string,
   items: Array<string>,
   currentItem: string,
   onSelect: string => void
@@ -131,22 +133,27 @@ export default class SelectList extends React.PureComponent {
     return { active: props.items[idx - 1] };
   };
 
+  renderChild = (child /*: Object */) => {
+    if (child == null) {
+      return null;
+    }
+    // do not pass extra props to children like `<li className="divider" />`
+    if (child.type !== SelectListItem) {
+      return child;
+    }
+    return React.cloneElement(child, {
+      active: this.state.active,
+      onHover: this.handleHover,
+      onSelect: this.handleSelect
+    });
+  };
+
   render() {
     const { children } = this.props;
     const hasChildren = React.Children.count(children) > 0;
     return (
-      <ul className="menu">
-        {hasChildren &&
-          React.Children.map(
-            children,
-            child =>
-              child != null &&
-              React.cloneElement(child, {
-                active: this.state.active,
-                onHover: this.handleHover,
-                onSelect: this.handleSelect
-              })
-          )}
+      <ul className={classNames('menu', this.props.className)}>
+        {hasChildren && React.Children.map(children, this.renderChild)}
         {!hasChildren &&
           this.props.items.map(item => (
             <SelectListItem
