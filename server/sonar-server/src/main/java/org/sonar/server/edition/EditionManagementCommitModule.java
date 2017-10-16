@@ -20,6 +20,7 @@
 package org.sonar.server.edition;
 
 import org.sonar.core.platform.Module;
+import org.sonar.server.license.LicenseCommitMock;
 
 public class EditionManagementCommitModule extends Module {
   @Override
@@ -28,6 +29,7 @@ public class EditionManagementCommitModule extends Module {
       // TODO add cluster ready implementation when not running Standalone
       // Edition management WebServices also depend on this class
       StandaloneEditionManagementStateImpl.class,
-      CommitPendingEditionOnStartup.class);
+      CommitPendingEditionOnStartup.class,
+      LicenseCommitMock.class);
   }
 }
