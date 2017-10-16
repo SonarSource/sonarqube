@@ -51,7 +51,6 @@ public class DefaultServerTest {
     assertThat(metadata.getPermanentServerId()).isEqualTo("123");
 
     assertThat(metadata.getRootDir()).isNull();
-    assertThat(metadata.getDeployDir()).isNull();
     assertThat(metadata.getContextPath()).isNull();
     assertThat(metadata.isDev()).isFalse();
     assertThat(metadata.isSecured()).isFalse();

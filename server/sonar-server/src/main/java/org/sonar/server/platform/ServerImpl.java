@@ -75,12 +75,7 @@ public class ServerImpl extends Server {
   public File getRootDir() {
     return fs.getHomeDir();
   }
-
-  @Override
-  public File getDeployDir() {
-    return fs.getDeployDir();
-  }
-
+  
   @Override
   public String getContextPath() {
     return urlSettings.getContextPath();

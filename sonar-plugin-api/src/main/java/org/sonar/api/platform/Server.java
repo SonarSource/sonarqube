@@ -21,7 +21,6 @@ package org.sonar.api.platform;
 
 import java.io.File;
 import java.util.Date;
-import javax.annotation.CheckForNull;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
@@ -76,13 +75,6 @@ public abstract class Server {
    */
   @Deprecated
   public abstract File getRootDir();
-
-  /**
-   * @deprecated always {@code null} since version 6.0. No alternatives, as plugins do not have to touch this directory.
-   */
-  @Deprecated
-  @CheckForNull
-  public abstract File getDeployDir();
 
   /**
    * Context path of web server. Value is blank {@code ""} by default. When defined by
