@@ -24,7 +24,6 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.db.CoreDbTester;
-import org.sonar.server.platform.db.migration.version.v66.CopyDeprecatedServerId;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

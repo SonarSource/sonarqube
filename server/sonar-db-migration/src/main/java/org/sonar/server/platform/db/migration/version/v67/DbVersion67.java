@@ -21,7 +21,6 @@ package org.sonar.server.platform.db.migration.version.v67;
 
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
-import org.sonar.server.platform.db.migration.version.v66.CopyDeprecatedServerId;
 
 public class DbVersion67 implements DbVersion {
   @Override
