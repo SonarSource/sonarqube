@@ -42,6 +42,7 @@ import org.sonar.process.sharedmemoryfile.AllProcessesCommands;
 import org.sonar.process.sharedmemoryfile.ProcessCommands;
 
 import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_KEY;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
@@ -142,7 +143,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     }
   }
 
-  private Process launchJava(JavaCommand javaCommand) {
+  private <T extends JvmOptions> Process launchJava(JavaCommand<T> javaCommand) {
     ProcessId processId = javaCommand.getProcessId();
     try {
       ProcessBuilder processBuilder = create(javaCommand);
@@ -164,7 +165,9 @@ public class ProcessLauncherImpl implements ProcessLauncher {
 
   private ProcessBuilder create(EsScriptCommand esScriptCommand) {
     List<String> commands = new ArrayList<>();
-    commands.add(esScriptCommand.getEsInstallation().getExecutable().getAbsolutePath());
+    EsInstallation esInstallation = esScriptCommand.getEsInstallation();
+    requireNonNull(esInstallation, () -> "No Elasticsearch installation configuration is available for the command of type " + esScriptCommand.getClass());
+    commands.add(esInstallation.getExecutable().getAbsolutePath());
     commands.addAll(esScriptCommand.getOptions());
 
     return create(esScriptCommand, commands);
@@ -205,7 +208,7 @@ public class ProcessLauncherImpl implements ProcessLauncher {
     return new File(new File(System.getProperty("java.home")), "bin" + separator + "java").getAbsolutePath();
   }
 
-  private static List<String> buildClasspath(JavaCommand javaCommand) {
+  private static <T extends JvmOptions> List<String> buildClasspath(JavaCommand<T> javaCommand) {
     String pathSeparator = System.getProperty("path.separator");
     return Arrays.asList("-cp", String.join(pathSeparator, javaCommand.getClasspath()));
   }
