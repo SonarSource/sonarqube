@@ -31,6 +31,11 @@ import static org.sonar.server.authentication.Cookies.newCookieBuilder;
 public class OAuth2Redirection {
 
   private static final String REDIRECT_TO_COOKIE = "REDIRECT_TO";
+
+  /**
+   * The HTTP parameter that contains the path where the user should be redirect to.
+   * Please note that the web context is included.
+   */
   private static final String RETURN_TO_PARAMETER = "return_to";
 
   public void create(HttpServletRequest request, HttpServletResponse response) {

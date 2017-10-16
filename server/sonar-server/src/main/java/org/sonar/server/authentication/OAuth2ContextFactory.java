@@ -115,7 +115,7 @@ public class OAuth2ContextFactory {
     public void redirectToRequestedPage() {
       try {
         Optional<String> redirectTo = oAuthRedirection.getAndDelete(request, response);
-        getResponse().sendRedirect(server.getContextPath() + redirectTo.orElse("/"));
+        getResponse().sendRedirect(redirectTo.orElse(server.getContextPath() + "/"));
       } catch (IOException e) {
         throw new IllegalStateException("Fail to redirect to home", e);
       }
