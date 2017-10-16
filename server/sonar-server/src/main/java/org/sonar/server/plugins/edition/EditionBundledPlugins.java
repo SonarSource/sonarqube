@@ -20,6 +20,7 @@
 package org.sonar.server.plugins.edition;
 
 import java.util.Arrays;
+import org.sonar.core.platform.PluginInfo;
 import org.sonar.updatecenter.common.Plugin;
 
 public final class EditionBundledPlugins {
@@ -34,5 +35,10 @@ public final class EditionBundledPlugins {
   public static boolean isEditionBundled(Plugin plugin) {
     return SONARSOURCE_ORGANIZATION.equalsIgnoreCase(plugin.getOrganization())
       && Arrays.stream(SONARSOURCE_COMMERCIAL_LICENSES).anyMatch(s -> s.equalsIgnoreCase(plugin.getLicense()));
+  }
+
+  public static boolean isEditionBundled(PluginInfo pluginInfo) {
+    return SONARSOURCE_ORGANIZATION.equalsIgnoreCase(pluginInfo.getOrganizationName())
+      && Arrays.stream(SONARSOURCE_COMMERCIAL_LICENSES).anyMatch(s -> s.equalsIgnoreCase(pluginInfo.getLicense()));
   }
 }

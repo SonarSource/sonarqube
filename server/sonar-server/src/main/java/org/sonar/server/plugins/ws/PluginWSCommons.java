@@ -37,6 +37,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.db.plugin.PluginDto;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.plugins.edition.EditionBundledPlugins;
 import org.sonar.updatecenter.common.Artifact;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.PluginUpdate;
@@ -110,6 +111,7 @@ public class PluginWSCommons {
     json.prop(PROPERTY_LICENSE, pluginInfo.getLicense());
     json.prop(PROPERTY_ORGANIZATION_NAME, pluginInfo.getOrganizationName());
     json.prop(PROPERTY_ORGANIZATION_URL, pluginInfo.getOrganizationUrl());
+    json.prop(PROPERTY_EDITION_BUNDLED, EditionBundledPlugins.isEditionBundled(pluginInfo));
     json.prop(PROPERTY_HOMEPAGE_URL, pluginInfo.getHomepageUrl());
     json.prop(PROPERTY_ISSUE_TRACKER_URL, pluginInfo.getIssueTrackerUrl());
     json.prop(PROPERTY_IMPLEMENTATION_BUILD, pluginInfo.getImplementationBuild());
