@@ -1,0 +1,192 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should disable install button 1`] = `
+<div
+  className="boxed-group boxed-group-inner marketplace-edition"
+>
+  <span
+    className="marketplace-edition-badge badge badge-normal-size"
+  >
+    <CheckIcon
+      className="little-spacer-right text-text-top"
+      size={14}
+    />
+    marketplace.installed
+  </span>
+  <div>
+    <h3
+      className="spacer-bottom"
+    >
+      Foo
+    </h3>
+    <p>
+      Foo desc
+    </p>
+  </div>
+  <div
+    className="marketplace-edition-action spacer-top"
+  >
+    <a
+      href="more_url"
+      target="_blank"
+    >
+      marketplace.learn_more
+    </a>
+    <button
+      className="button-red"
+      disabled={true}
+    >
+      marketplace.uninstall
+    </button>
+  </div>
+</div>
+`;
+
+exports[`should disable uninstall button 1`] = `
+<div
+  className="boxed-group boxed-group-inner marketplace-edition"
+>
+  <span
+    className="marketplace-edition-badge badge badge-normal-size"
+  >
+    marketplace.installing
+  </span>
+  <div>
+    <h3
+      className="spacer-bottom"
+    >
+      Foo
+    </h3>
+    <p>
+      Foo desc
+    </p>
+  </div>
+  <div
+    className="marketplace-edition-action spacer-top"
+  >
+    <a
+      href="more_url"
+      target="_blank"
+    >
+      marketplace.learn_more
+    </a>
+    <button
+      disabled={true}
+    >
+      marketplace.install
+    </button>
+  </div>
+</div>
+`;
+
+exports[`should display installed badge 1`] = `
+<div
+  className="boxed-group boxed-group-inner marketplace-edition"
+>
+  <span
+    className="marketplace-edition-badge badge badge-normal-size"
+  >
+    <CheckIcon
+      className="little-spacer-right text-text-top"
+      size={14}
+    />
+    marketplace.installed
+  </span>
+  <div>
+    <h3
+      className="spacer-bottom"
+    >
+      Foo
+    </h3>
+    <p>
+      Foo desc
+    </p>
+  </div>
+  <div
+    className="marketplace-edition-action spacer-top"
+  >
+    <a
+      href="more_url"
+      target="_blank"
+    >
+      marketplace.learn_more
+    </a>
+    <button
+      className="button-red"
+      disabled={false}
+    >
+      marketplace.uninstall
+    </button>
+  </div>
+</div>
+`;
+
+exports[`should display installing badge 1`] = `
+<div
+  className="boxed-group boxed-group-inner marketplace-edition"
+>
+  <span
+    className="marketplace-edition-badge badge badge-normal-size"
+  >
+    marketplace.installing
+  </span>
+  <div>
+    <h3
+      className="spacer-bottom"
+    >
+      Foo
+    </h3>
+    <p>
+      Foo desc
+    </p>
+  </div>
+  <div
+    className="marketplace-edition-action spacer-top"
+  >
+    <a
+      href="more_url"
+      target="_blank"
+    >
+      marketplace.learn_more
+    </a>
+    <button
+      className="button-red"
+      disabled={false}
+    >
+      marketplace.uninstall
+    </button>
+  </div>
+</div>
+`;
+
+exports[`should display the edition 1`] = `
+<div
+  className="boxed-group boxed-group-inner marketplace-edition"
+>
+  <div>
+    <h3
+      className="spacer-bottom"
+    >
+      Foo
+    </h3>
+    <p>
+      Foo desc
+    </p>
+  </div>
+  <div
+    className="marketplace-edition-action spacer-top"
+  >
+    <a
+      href="more_url"
+      target="_blank"
+    >
+      marketplace.learn_more
+    </a>
+    <button
+      disabled={false}
+    >
+      marketplace.install
+    </button>
+  </div>
+</div>
+`;

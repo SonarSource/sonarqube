@@ -17,14 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import App from './App';
-import { getAppState, getGlobalSettingValue } from '../../store/rootReducer';
-import './style.css';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import SettingsNav from '../SettingsNav';
 
-const mapStateToProps = (state: any) => ({
-  editionStatus: getAppState(state).editionStatus,
-  updateCenterActive: (getGlobalSettingValue(state, 'sonar.updatecenter.activate') || {}).value
+it('should work with extensions', () => {
+  const extensions = [{ key: 'foo', name: 'Foo' }];
+  const wrapper = shallow(
+    <SettingsNav
+      customOrganizations={false}
+      editionStatus={{ installationStatus: 'NONE' }}
+      extensions={extensions}
+      location={{}}
+    />
+  );
+  expect(wrapper).toMatchSnapshot();
 });
 
-export default connect(mapStateToProps)(App as any);
+it('should display an edition notification', () => {
+  const wrapper = shallow(
+    <SettingsNav
+      customOrganizations={false}
+      editionStatus={{ installationStatus: 'AUTOMATIC_IN_PROGRESS' }}
+      extensions={[]}
+      location={{}}
+    />
+  );
+  expect({ ...wrapper.find('ContextNavBar').props(), children: [] }).toMatchSnapshot();
+});

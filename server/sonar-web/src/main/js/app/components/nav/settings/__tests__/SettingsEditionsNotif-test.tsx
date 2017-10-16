@@ -17,12 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import { UnconnectedSettingsNav } from '../SettingsNav';
+import SettingsEditionsNotif from '../SettingsEditionsNotif';
 
-it('should work with extensions', () => {
-  const extensions = [{ key: 'foo', name: 'Foo' }];
-  const wrapper = shallow(<UnconnectedSettingsNav extensions={extensions} />);
+it('should display an in progress notif', () => {
+  const wrapper = shallow(
+    <SettingsEditionsNotif editionStatus={{ installationStatus: 'AUTOMATIC_IN_PROGRESS' }} />
+  );
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should display an error notification', () => {
+  const wrapper = shallow(
+    <SettingsEditionsNotif editionStatus={{ installationStatus: 'AUTOMATIC_FAILURE' }} />
+  );
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should display a ready notification', () => {
+  const wrapper = shallow(
+    <SettingsEditionsNotif editionStatus={{ installationStatus: 'AUTOMATIC_READY' }} />
+  );
   expect(wrapper).toMatchSnapshot();
 });

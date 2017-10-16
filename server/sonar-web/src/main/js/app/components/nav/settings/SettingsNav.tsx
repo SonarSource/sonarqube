@@ -17,23 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
 import { IndexLink, Link } from 'react-router';
-import { connect } from 'react-redux';
 import ContextNavBar from '../../../../components/nav/ContextNavBar';
+import SettingsEditionsNotif from './SettingsEditionsNotif';
 import NavBarTabs from '../../../../components/nav/NavBarTabs';
+import { EditionStatus } from '../../../../api/marketplace';
+import { Extension } from '../../../types';
 import { translate } from '../../../../helpers/l10n';
-import { areThereCustomOrganizations } from '../../../../store/rootReducer';
 
-class SettingsNav extends React.PureComponent {
+interface Props {
+  editionStatus?: EditionStatus;
+  extensions: Extension[];
+  customOrganizations: boolean;
+  location: {};
+}
+
+export default class SettingsNav extends React.PureComponent<Props> {
   static defaultProps = {
     extensions: []
   };
 
-  isSomethingActive(urls) {
+  isSomethingActive(urls: string[]): boolean {
     const path = window.location.pathname;
-    return urls.some(url => path.indexOf(window.baseUrl + url) === 0);
+    return urls.some((url: string) => path.indexOf((window as any).baseUrl + url) === 0);
   }
 
   isSecurityActive() {
@@ -56,7 +64,7 @@ class SettingsNav extends React.PureComponent {
     return this.isSomethingActive(urls);
   }
 
-  renderExtension = ({ key, name }) => {
+  renderExtension = ({ key, name }: Extension) => {
     return (
       <li key={key}>
         <Link to={`/admin/extension/${key}`} activeClassName="active">
@@ -67,6 +75,7 @@ class SettingsNav extends React.PureComponent {
   };
 
   render() {
+    const { customOrganizations, editionStatus, extensions } = this.props;
     const isSecurity = this.isSecurityActive();
     const isProjects = this.isProjectsActive();
     const isSystem = this.isSystemActive();
@@ -79,14 +88,21 @@ class SettingsNav extends React.PureComponent {
       active: !isSecurity && !isProjects && !isSystem && !isSupport
     });
 
-    const extensionsWithoutSupport = this.props.extensions.filter(
+    const extensionsWithoutSupport = extensions.filter(
       extension => extension.key !== 'license/support'
     );
 
-    const hasSupportExtension = extensionsWithoutSupport.length < this.props.extensions.length;
+    const hasSupportExtension = extensionsWithoutSupport.length < extensions.length;
 
+    let notifComponent;
+    if (editionStatus && editionStatus.installationStatus !== 'NONE') {
+      notifComponent = <SettingsEditionsNotif editionStatus={editionStatus} />;
+    }
     return (
-      <ContextNavBar id="context-navigation" height={65}>
+      <ContextNavBar
+        id="context-navigation"
+        height={notifComponent ? 95 : 65}
+        notif={notifComponent}>
         <h1 className="navbar-context-header">
           <strong>{translate('layout.settings')}</strong>
         </h1>
@@ -130,21 +146,21 @@ class SettingsNav extends React.PureComponent {
                   {translate('users.page')}
                 </IndexLink>
               </li>
-              {!this.props.customOrganizations && (
+              {!customOrganizations && (
                 <li>
                   <IndexLink to="/admin/groups" activeClassName="active">
                     {translate('user_groups.page')}
                   </IndexLink>
                 </li>
               )}
-              {!this.props.customOrganizations && (
+              {!customOrganizations && (
                 <li>
                   <IndexLink to="/admin/permissions" activeClassName="active">
                     {translate('global_permissions.page')}
                   </IndexLink>
                 </li>
               )}
-              {!this.props.customOrganizations && (
+              {!customOrganizations && (
                 <li>
                   <IndexLink to="/admin/permission_templates" activeClassName="active">
                     {translate('permission_templates')}
@@ -159,7 +175,7 @@ class SettingsNav extends React.PureComponent {
               {translate('sidebar.projects')} <i className="icon-dropdown" />
             </a>
             <ul className="dropdown-menu">
-              {!this.props.customOrganizations && (
+              {!customOrganizations && (
                 <li>
                   <IndexLink to="/admin/projects_management" activeClassName="active">
                     {translate('management')}
@@ -210,11 +226,3 @@ class SettingsNav extends React.PureComponent {
     );
   }
 }
-
-const mapStateToProps = state => ({
-  customOrganizations: areThereCustomOrganizations(state)
-});
-
-export default connect(mapStateToProps)(SettingsNav);
-
-export const UnconnectedSettingsNav = SettingsNav;
