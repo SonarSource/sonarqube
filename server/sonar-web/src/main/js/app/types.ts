@@ -57,7 +57,7 @@ export interface ShortLivingBranch {
 
 export type Branch = MainBranch | LongLivingBranch | ShortLivingBranch;
 
-export interface ComponentExtension {
+export interface Extension {
   key: string;
   name: string;
 }
@@ -71,7 +71,7 @@ export interface Component {
   }>;
   configuration?: ComponentConfiguration;
   description?: string;
-  extensions?: ComponentExtension[];
+  extensions?: Extension[];
   isFavorite?: boolean;
   key: string;
   name: string;
@@ -83,7 +83,7 @@ export interface Component {
 }
 
 interface ComponentConfiguration {
-  extensions?: ComponentExtension[];
+  extensions?: Extension[];
   showBackgroundTasks?: boolean;
   showLinks?: boolean;
   showManualMeasures?: boolean;
