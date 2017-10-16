@@ -53,8 +53,7 @@ public class PluginUpdateAggregatorTest {
       createPluginUpdate("key1"),
       createPluginUpdate("key0"),
       createPluginUpdate("key2"),
-      createPluginUpdate("key0")
-      ));
+      createPluginUpdate("key0")));
 
     assertThat(aggregates).hasSize(3);
     assertThat(aggregates).extracting("plugin.key").containsOnlyOnce("key1", "key0", "key2");
@@ -68,8 +67,7 @@ public class PluginUpdateAggregatorTest {
     Collection<PluginUpdateAggregator.PluginUpdateAggregate> aggregates = underTest.aggregate(ImmutableList.of(
       pluginUpdate1,
       pluginUpdate2,
-      pluginUpdate3
-      ));
+      pluginUpdate3));
 
     assertThat(aggregates).hasSize(1);
     Collection<PluginUpdate> releases = aggregates.iterator().next().getUpdates();

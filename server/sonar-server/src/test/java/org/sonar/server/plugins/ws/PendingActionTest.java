@@ -30,6 +30,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.PluginDownloader;
+import org.sonar.server.plugins.PluginUninstaller;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.tester.UserSessionRule;
@@ -55,9 +56,11 @@ public class PendingActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private PluginDownloader pluginDownloader = mock(PluginDownloader.class);
+  private PluginUninstaller pluginUninstaller = mock(PluginUninstaller.class);
   private ServerPluginRepository serverPluginRepository = mock(ServerPluginRepository.class);
   private UpdateCenterMatrixFactory updateCenterMatrixFactory = mock(UpdateCenterMatrixFactory.class, RETURNS_DEEP_STUBS);
-  private PendingAction underTest = new PendingAction(userSession, pluginDownloader, serverPluginRepository, new PluginWSCommons(), updateCenterMatrixFactory);
+  private PendingAction underTest = new PendingAction(userSession, pluginDownloader, serverPluginRepository,
+    pluginUninstaller, new PluginWSCommons(), updateCenterMatrixFactory);
   private Request request = mock(Request.class);
   private WsTester.TestResponse response = new WsTester.TestResponse();
 
@@ -157,7 +160,7 @@ public class PendingActionTest {
   @Test
   public void verify_properties_displayed_in_json_per_removing_plugin() throws Exception {
     logInAsSystemAdministrator();
-    when(serverPluginRepository.getUninstalledPlugins()).thenReturn(of(newScmGitPluginInfo()));
+    when(pluginUninstaller.getUninstalledPlugins()).thenReturn(of(newScmGitPluginInfo()));
 
     underTest.handle(request, response);
 
@@ -214,7 +217,7 @@ public class PendingActionTest {
 
     newUpdateCenter("scmgit");
     when(serverPluginRepository.getPluginInfos()).thenReturn(of(installed));
-    when(serverPluginRepository.getUninstalledPlugins()).thenReturn(of(removedPlugin));
+    when(pluginUninstaller.getUninstalledPlugins()).thenReturn(of(removedPlugin));
     when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(newPlugin, installed));
 
     underTest.handle(request, response);
@@ -277,7 +280,7 @@ public class PendingActionTest {
   @Test
   public void removing_plugins_are_sorted_and_unique() throws Exception {
     logInAsSystemAdministrator();
-    when(serverPluginRepository.getUninstalledPlugins()).thenReturn(of(
+    when(pluginUninstaller.getUninstalledPlugins()).thenReturn(of(
       newPluginInfo(0).setName("Foo"),
       newPluginInfo(3).setName("Bar"),
       newPluginInfo(2).setName("Bar")));
