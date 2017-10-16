@@ -23,18 +23,18 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.plugins.PluginDownloader;
-import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.plugins.PluginUninstaller;
 import org.sonar.server.user.UserSession;
 
 public class CancelAllAction implements PluginsWsAction {
 
   private final PluginDownloader pluginDownloader;
-  private final ServerPluginRepository pluginRepository;
+  private final PluginUninstaller pluginUninstaller;
   private final UserSession userSession;
 
-  public CancelAllAction(PluginDownloader pluginDownloader, ServerPluginRepository pluginRepository, UserSession userSession) {
+  public CancelAllAction(PluginDownloader pluginDownloader, PluginUninstaller pluginUninstaller, UserSession userSession) {
     this.pluginDownloader = pluginDownloader;
-    this.pluginRepository = pluginRepository;
+    this.pluginUninstaller = pluginUninstaller;
     this.userSession = userSession;
   }
 
@@ -54,7 +54,7 @@ public class CancelAllAction implements PluginsWsAction {
     userSession.checkIsSystemAdministrator();
 
     pluginDownloader.cancelDownloads();
-    pluginRepository.cancelUninstalls();
+    pluginUninstaller.cancelUninstalls();
 
     response.noContent();
   }

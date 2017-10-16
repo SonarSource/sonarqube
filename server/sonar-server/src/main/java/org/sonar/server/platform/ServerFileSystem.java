@@ -37,7 +37,7 @@ public interface ServerFileSystem {
 
   /**
    * Directory accessible by scanners through web server
-   * @return a non-null directory that MAY exist
+   * @return a directory which may or not exist
    */
   File getDeployDir();
 
@@ -55,27 +55,34 @@ public interface ServerFileSystem {
 
   /**
    * Files of plugins published by web server for scanners
-   * @return a non-null directory that MAY exist
+   * @return a directory which may or not exist
    */
   File getDeployedPluginsDir();
 
   /**
    * Directory of plugins downloaded through update center. Files
    * will be moved to {@link #getInstalledPluginsDir()} on startup.
-   * @return an existing directory
+   * @return a directory which may or not exist
    */
   File getDownloadedPluginsDir();
 
   /**
+   * Directory of commercial plugins downloaded as part of the installation of an edition. Files
+   * will be moved to {@link #getInstalledPluginsDir()} on startup.
+   * @return a directory which may or not exist
+   */
+  File getEditionDownloadedPluginsDir();
+
+  /**
    * Directory of currently installed plugins. Used at startup.
-   * @return an existing directory
+   * @return a directory which may or not exist
    */
   File getInstalledPluginsDir();
 
   /**
    * Directory of the plugins packaged by default with application. These
    * plugins are installed during the first fresh startup.
-   * @return an existing directory
+   * @return a directory which may or not exist
    */
   File getBundledPluginsDir();
 
@@ -84,4 +91,16 @@ public interface ServerFileSystem {
    * @return an existing file
    */
   File getPluginIndex();
+
+  /**
+   * Directory where plugins to be uninstalled are moved to.
+   * @return a directory which may or not exist
+   */
+  File getUninstalledPluginsDir();
+
+  /**
+   * Directory where plugins that are part of an edition and are to be uninstalled are moved to.
+   * @return a directory which may or not exist
+   */
+  File getEditionUninstalledPluginsDir();
 }
