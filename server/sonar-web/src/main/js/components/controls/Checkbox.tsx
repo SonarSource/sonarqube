@@ -22,7 +22,7 @@ import * as classNames from 'classnames';
 
 interface Props {
   checked: boolean;
-  children?: React.ReactElement<any>;
+  children?: React.ReactNode;
   className?: string;
   id?: string;
   onCheck: (checked: boolean, id?: string) => void;

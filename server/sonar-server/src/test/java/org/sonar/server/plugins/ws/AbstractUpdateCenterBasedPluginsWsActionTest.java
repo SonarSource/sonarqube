@@ -40,10 +40,9 @@ import static org.sonar.updatecenter.common.Version.create;
 
 public abstract class AbstractUpdateCenterBasedPluginsWsActionTest {
   protected static final String DUMMY_CONTROLLER_KEY = "dummy";
-  protected static final String JSON_EMPTY_PLUGIN_LIST =
-    "{" +
-      "  \"plugins\":" + "[]" +
-      "}";
+  protected static final String JSON_EMPTY_PLUGIN_LIST = "{" +
+    "  \"plugins\":" + "[]" +
+    "}";
   protected static final Plugin PLUGIN_1 = Plugin.factory("pkey1").setName("p_name_1");
   protected static final Plugin PLUGIN_2 = Plugin.factory("pkey2").setName("p_name_2").setDescription("p_desc_2");
 
@@ -68,8 +67,7 @@ public abstract class AbstractUpdateCenterBasedPluginsWsActionTest {
   protected static PluginUpdate pluginUpdate(String key, String name) {
     return PluginUpdate.createWithStatus(
       new Release(Plugin.factory(key).setName(name), Version.create("1.0")),
-      COMPATIBLE
-      );
+      COMPATIBLE);
   }
 
   @Before

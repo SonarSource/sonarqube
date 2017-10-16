@@ -19,7 +19,18 @@
  */
 package org.sonar.db.property;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Loggers;
@@ -27,6 +38,8 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Collections.singletonList;
 
 public class InternalPropertiesDao implements Dao {
 
@@ -77,13 +90,57 @@ public class InternalPropertiesDao implements Dao {
   }
 
   /**
+   * @return a Map with an {link Optional<String>} for each String in {@code keys}.
+   */
+  public Map<String, Optional<String>> selectByKeys(DbSession dbSession, @Nullable Set<String> keys) {
+    if (keys == null || keys.isEmpty()) {
+      return Collections.emptyMap();
+    }
+    if (keys.size() == 1) {
+      String key = keys.iterator().next();
+      return ImmutableMap.of(key, selectByKey(dbSession, key));
+    }
+    keys.forEach(InternalPropertiesDao::checkKey);
+
+    InternalPropertiesMapper mapper = getMapper(dbSession);
+    List<InternalPropertyDto> res = mapper.selectAsText(ImmutableList.copyOf(keys));
+    Map<String, Optional<String>> builder = new HashMap<>(keys.size());
+    res.forEach(internalPropertyDto -> {
+      String key = internalPropertyDto.getKey();
+      if (internalPropertyDto.isEmpty()) {
+        builder.put(key, OPTIONAL_OF_EMPTY_STRING);
+      }
+      if (internalPropertyDto.getValue() != null) {
+        builder.put(key, Optional.of(internalPropertyDto.getValue()));
+      }
+    });
+    // return Optional.empty() for all keys without a DB entry
+    Sets.difference(keys, res.stream().map(InternalPropertyDto::getKey).collect(Collectors.toSet()))
+      .forEach(key -> builder.put(key, Optional.empty()));
+    // keys for which there isn't a text or empty value found yet
+    List<String> keyWithClobValue = ImmutableList.copyOf(Sets.difference(keys, builder.keySet()));
+    if (keyWithClobValue.isEmpty()) {
+      return ImmutableMap.copyOf(builder);
+    }
+
+    // retrieve properties with a clob value
+    res = mapper.selectAsClob(keyWithClobValue);
+    res.forEach(internalPropertyDto -> builder.put(internalPropertyDto.getKey(), Optional.of(internalPropertyDto.getValue())));
+
+    // return Optional.empty() for all key with a DB entry which neither has text value, nor is empty nor has clob value
+    Sets.difference(ImmutableSet.copyOf(keyWithClobValue), builder.keySet()).forEach(key -> builder.put(key, Optional.empty()));
+
+    return ImmutableMap.copyOf(builder);
+  }
+
+  /**
    * No streaming of value
    */
   public Optional<String> selectByKey(DbSession dbSession, String key) {
     checkKey(key);
 
     InternalPropertiesMapper mapper = getMapper(dbSession);
-    InternalPropertyDto res = mapper.selectAsText(key);
+    InternalPropertyDto res = enforceSingleElement(key, mapper.selectAsText(singletonList(key)));
     if (res == null) {
       return Optional.empty();
     }
@@ -93,14 +150,24 @@ public class InternalPropertiesDao implements Dao {
     if (res.getValue() != null) {
       return Optional.of(res.getValue());
     }
-    res = mapper.selectAsClob(key);
+    res = enforceSingleElement(key, mapper.selectAsClob(singletonList(key)));
     if (res == null) {
       Loggers.get(InternalPropertiesDao.class)
         .debug("Internal property {} has been found in db but has neither text value nor is empty. " +
-          "Still we couldn't be retrieved with clob value. Ignoring the property.", key);
+          "Still it couldn't be retrieved with clob value. Ignoring the property.", key);
       return Optional.empty();
     }
     return Optional.of(res.getValue());
+  }
+
+  @CheckForNull
+  private static InternalPropertyDto enforceSingleElement(String key, List<InternalPropertyDto> rows) {
+    if (rows.isEmpty()) {
+      return null;
+    }
+    int size = rows.size();
+    checkState(size <= 1, "%s rows retrieved for single property %s", size, key);
+    return rows.iterator().next();
   }
 
   private static void checkKey(@Nullable String key) {
