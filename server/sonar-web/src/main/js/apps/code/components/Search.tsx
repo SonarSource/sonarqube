@@ -61,7 +61,6 @@ export default class Search extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    this.input.focus();
   }
 
   componentWillReceiveProps(nextProps: Props) {
