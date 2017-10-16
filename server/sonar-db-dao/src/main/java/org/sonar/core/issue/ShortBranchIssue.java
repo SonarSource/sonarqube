@@ -33,14 +33,16 @@ public class ShortBranchIssue implements Trackable {
   private final String lineHash;
   private final RuleKey ruleKey;
   private final String status;
+  private final String branchName;
 
-  public ShortBranchIssue(String key, @Nullable Integer line, String message, @Nullable String lineHash, RuleKey ruleKey, String status) {
+  public ShortBranchIssue(String key, @Nullable Integer line, String message, @Nullable String lineHash, RuleKey ruleKey, String status, String branchName) {
     this.key = key;
     this.line = line;
     this.message = message;
     this.lineHash = lineHash;
     this.ruleKey = ruleKey;
     this.status = status;
+    this.branchName = branchName;
   }
 
   public String getKey() {
@@ -72,6 +74,10 @@ public class ShortBranchIssue implements Trackable {
   @Override
   public String getStatus() {
     return status;
+  }
+
+  public String getBranchName() {
+    return branchName;
   }
 
   @Override

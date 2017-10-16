@@ -43,6 +43,28 @@ export default function IssueChangelogDiff(props /*: { diff: ChangelogDiff } */)
       </p>
     );
   }
+  if (diff.key === 'from_long_branch') {
+    return (
+      <p>
+        {translateWithParameters(
+          'issue.change.from_long_branch',
+          diff.oldValue || '',
+          diff.newValue || ''
+        )}
+      </p>
+    );
+  }
+  if (diff.key === 'from_short_branch') {
+    return (
+      <p>
+        {translateWithParameters(
+          'issue.change.from_short_branch',
+          diff.oldValue || '',
+          diff.newValue || ''
+        )}
+      </p>
+    );
+  }
 
   let message;
   if (diff.newValue != null) {

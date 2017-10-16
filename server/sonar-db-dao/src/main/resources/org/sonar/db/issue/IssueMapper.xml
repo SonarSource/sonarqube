@@ -221,9 +221,11 @@
       i.status as status,
       i.checksum as checksum,
       r.plugin_rule_key as ruleKey,
-      r.plugin_name as ruleRepo
+      r.plugin_name as ruleRepo,
+      b.kee as branchName
     from issues i
     inner join rules r on r.id = i.rule_id
+    inner join project_branches b on i.project_uuid = b.uuid
     where i.component_uuid in
       <foreach collection="list" open="(" close=")" item="key" separator=",">
         #{key,jdbcType=VARCHAR}

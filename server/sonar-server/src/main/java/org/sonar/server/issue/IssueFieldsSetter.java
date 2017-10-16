@@ -58,6 +58,8 @@ public class IssueFieldsSetter {
   public static final String STATUS = "status";
   public static final String AUTHOR = "author";
   public static final String FILE = "file";
+  public static final String FROM_LONG_BRANCH = "from_long_branch";
+  public static final String FROM_SHORT_BRANCH = "from_short_branch";
 
   /**
    * It should be renamed to 'effort', but it hasn't been done to prevent a massive update in database
