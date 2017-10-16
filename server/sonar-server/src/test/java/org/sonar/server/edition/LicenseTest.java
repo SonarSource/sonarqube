@@ -19,8 +19,13 @@
  */
 package org.sonar.server.edition;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Base64;
 import java.util.Collections;
+import java.util.Optional;
+import java.util.Properties;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -71,8 +76,43 @@ public class LicenseTest {
   }
 
   @Test
+  public void parse_returns_empty_if_license_is_invalid_string() {
+    assertThat(License.parse("trash")).isEmpty();
+  }
+
+  @Test
+  public void parse_succeeds() throws IOException {
+    Properties props = new Properties();
+    props.setProperty("Plugins", "plugin1,plugin2");
+    props.setProperty("Edition", "dev");
+    StringWriter writer = new StringWriter();
+    props.store(writer, "");
+
+    byte[] encoded = Base64.getEncoder().encode(writer.toString().getBytes());
+
+    Optional<License> license = License.parse(new String(encoded));
+    assertThat(license).isPresent();
+    assertThat(license.get().getEditionKey()).isEqualTo("dev");
+    assertThat(license.get().getPluginKeys()).containsOnly("plugin1", "plugin2");
+  }
+
+  @Test
+  public void parse_is_empty_if_no_plugin() throws IOException {
+    Properties props = new Properties();
+    props.setProperty("Plugins", "");
+    props.setProperty("Edition", "dev");
+    StringWriter writer = new StringWriter();
+    props.store(writer, "");
+
+    byte[] encoded = Base64.getEncoder().encode(writer.toString().getBytes());
+
+    Optional<License> license = License.parse(new String(encoded));
+    assertThat(license).isEmpty();
+  }
+
+  @Test
   public void verify_getters() {
-    ImmutableList<String> pluginKeys = ImmutableList.of("a", "b", "c");
+    ImmutableSet<String> pluginKeys = ImmutableSet.of("a", "b", "c");
 
     License underTest = new License("edition-key", pluginKeys, "content");
 
