@@ -1,0 +1,32 @@
+.marketplace-editions {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-left: -8px;
+  margin-right: -8px;
+}
+
+.marketplace-edition {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #f3f3f3;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.marketplace-edition-badge {
+  position: absolute;
+  right: -1px;
+  top: 16px;
+  padding: 4px 8px;
+  border-radius: 2px 0 0 2px;
+}
+
+.marketplace-edition-action {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
