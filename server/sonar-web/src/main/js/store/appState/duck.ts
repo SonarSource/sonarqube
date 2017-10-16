@@ -17,10 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+import { Extension } from '../../app/types';
+import { EditionStatus } from '../../api/marketplace';
+
 interface AppState {
-  adminPages?: any[];
+  adminPages?: Extension[];
   authenticationError: boolean;
   authorizationError: boolean;
+  editionStatus?: EditionStatus;
   organizationsEnabled: boolean;
   qualifiers?: string[];
 }
@@ -32,14 +37,23 @@ interface SetAppStateAction {
 
 interface SetAdminPagesAction {
   type: 'SET_ADMIN_PAGES';
-  adminPages: any[];
+  adminPages: Extension[];
+}
+
+interface SetEditionStatusAction {
+  type: 'SET_EDITION_STATUS';
+  editionStatus: EditionStatus;
 }
 
 interface RequireAuthorizationAction {
   type: 'REQUIRE_AUTHORIZATION';
 }
 
-export type Action = SetAppStateAction | SetAdminPagesAction | RequireAuthorizationAction;
+export type Action =
+  | SetAppStateAction
+  | SetAdminPagesAction
+  | SetEditionStatusAction
+  | RequireAuthorizationAction;
 
 export function setAppState(appState: AppState): SetAppStateAction {
   return {
@@ -48,12 +62,16 @@ export function setAppState(appState: AppState): SetAppStateAction {
   };
 }
 
-export function setAdminPages(adminPages: any[]): SetAdminPagesAction {
+export function setAdminPages(adminPages: Extension[]): SetAdminPagesAction {
   return { type: 'SET_ADMIN_PAGES', adminPages };
 }
 
 export function requireAuthorization(): RequireAuthorizationAction {
   return { type: 'REQUIRE_AUTHORIZATION' };
+}
+
+export function setEditionStatus(editionStatus: EditionStatus): SetEditionStatusAction {
+  return { type: 'SET_EDITION_STATUS', editionStatus };
 }
 
 const defaultValue: AppState = {
@@ -69,6 +87,10 @@ export default function(state: AppState = defaultValue, action: Action): AppStat
 
   if (action.type === 'SET_ADMIN_PAGES') {
     return { ...state, adminPages: action.adminPages };
+  }
+
+  if (action.type === 'SET_EDITION_STATUS') {
+    return { ...state, editionStatus: action.editionStatus };
   }
 
   if (action.type === 'REQUIRE_AUTHORIZATION') {

@@ -17,35 +17,56 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import SettingsNav from './nav/settings/SettingsNav';
 import { getAppState } from '../../store/rootReducer';
-import { onFail } from '../../store/rootActions';
 import { getSettingsNavigation } from '../../api/nav';
-import { setAdminPages } from '../../store/appState/duck';
+import { EditionStatus, getEditionStatus } from '../../api/marketplace';
+import { setAdminPages, setEditionStatus } from '../../store/appState/duck';
 import { translate } from '../../helpers/l10n';
+import { Extension } from '../types';
 
-class AdminContainer extends React.PureComponent {
+interface Props {
+  appState: {
+    adminPages: Extension[];
+    editionStatus?: EditionStatus;
+    organizationsEnabled: boolean;
+  };
+  location: {};
+  setAdminPages: (adminPages: Extension[]) => void;
+  setEditionStatus: (editionStatus: EditionStatus) => void;
+}
+
+class AdminContainer extends React.PureComponent<Props> {
+  static contextTypes = {
+    canAdmin: PropTypes.bool.isRequired
+  };
+
   componentDidMount() {
-    if (!this.props.appState.canAdmin) {
+    if (!this.context.canAdmin) {
       // workaround cyclic dependencies
       const handleRequiredAuthorization = require('../utils/handleRequiredAuthorization').default;
       handleRequiredAuthorization();
+    } else {
+      this.loadData();
     }
-    this.loadData();
   }
 
   loadData() {
-    getSettingsNavigation().then(
-      r => this.props.setAdminPages(r.extensions),
-      onFail(this.props.dispatch)
+    Promise.all([getSettingsNavigation(), getEditionStatus()]).then(
+      ([r, editionStatus]) => {
+        this.props.setAdminPages(r.extensions);
+        this.props.setEditionStatus(editionStatus);
+      },
+      () => {}
     );
   }
 
   render() {
-    const { adminPages } = this.props.appState;
+    const { adminPages, editionStatus, organizationsEnabled } = this.props.appState;
 
     // Check that the adminPages are loaded
     if (!adminPages) {
@@ -57,17 +78,22 @@ class AdminContainer extends React.PureComponent {
     return (
       <div>
         <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />
-        <SettingsNav location={this.props.location} extensions={adminPages} />
+        <SettingsNav
+          customOrganizations={organizationsEnabled}
+          editionStatus={editionStatus}
+          extensions={adminPages}
+          location={this.props.location}
+        />
         {this.props.children}
       </div>
     );
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: any) => ({
   appState: getAppState(state)
 });
 
-const mapDispatchToProps = { setAdminPages };
+const mapDispatchToProps = { setAdminPages, setEditionStatus };
 
-export default connect(mapStateToProps, mapDispatchToProps)(AdminContainer);
+export default connect(mapStateToProps, mapDispatchToProps)(AdminContainer as any);
