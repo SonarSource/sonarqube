@@ -78,11 +78,9 @@ class Request {
 
   constructor(private url: string, private options: { method?: string } = {}) {}
 
-  submit(): Promise<Response> {
+  getSubmitData(customHeaders: any = {}): { url: string; options: RequestInit } {
     let url = this.url;
-
     const options: RequestInit = { ...DEFAULT_OPTIONS, ...this.options };
-    const customHeaders: any = {};
 
     if (this.data) {
       if (this.data instanceof FormData) {
@@ -100,10 +98,13 @@ class Request {
 
     options.headers = {
       ...DEFAULT_HEADERS,
-      ...customHeaders,
-      ...getCSRFToken()
+      ...customHeaders
     };
+    return { url, options };
+  }
 
+  submit(): Promise<Response> {
+    const { url, options } = this.getSubmitData({ ...getCSRFToken() });
     return window.fetch((window as any).baseUrl + url, options);
   }
 
@@ -125,6 +126,19 @@ class Request {
  */
 export function request(url: string): Request {
   return new Request(url);
+}
+
+/**
+ * Make a cors request
+ */
+export function corsRequest(url: string, mode: RequestMode = 'cors'): Request {
+  const options: RequestInit = { mode };
+  const request = new Request(url, options);
+  request.submit = function() {
+    const { url, options } = this.getSubmitData();
+    return window.fetch(url, options);
+  };
+  return request;
 }
 
 /**
