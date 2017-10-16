@@ -20,7 +20,8 @@
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import EditionBox from './components/EditionBox';
-import { Editions, EditionStatus, getEditionsList } from '../../api/marketplace';
+import LicenseEditionForm from './components/LicenseEditionForm';
+import { Edition, Editions, EditionStatus, getEditionsList } from '../../api/marketplace';
 import { translate } from '../../helpers/l10n';
 
 export interface Props {
@@ -32,6 +33,7 @@ interface State {
   editions: Editions;
   editionsError: boolean;
   loading: boolean;
+  installEdition?: Edition;
 }
 
 export default class EditionBoxes extends React.PureComponent<Props, State> {
@@ -67,8 +69,11 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
     );
   };
 
+  handleOpenLicenseForm = (edition: Edition) => this.setState({ installEdition: edition });
+  handleCloseLicenseForm = () => this.setState({ installEdition: undefined });
+
   render() {
-    const { editions, loading } = this.state;
+    const { editions, loading, installEdition } = this.state;
     if (loading) {
       return null;
     }
@@ -95,8 +100,13 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
               editionKey={key}
               editionStatus={this.props.editionStatus}
               key={key}
+              onInstall={this.handleOpenLicenseForm}
             />
           ))
+        )}
+
+        {installEdition && (
+          <LicenseEditionForm edition={installEdition} onClose={this.handleCloseLicenseForm} />
         )}
       </div>
     );
