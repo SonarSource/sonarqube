@@ -31,12 +31,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface UserRole {
 
-  /**
-   * @deprecated use the constant USER since 1.12.
-   */
-  @Deprecated
-  String VIEWER = "user";
-
   String USER = "user";
   String ADMIN = "admin";
   String CODEVIEWER = "codeviewer";

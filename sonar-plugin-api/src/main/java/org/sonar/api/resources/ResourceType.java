@@ -179,14 +179,6 @@ public class ResourceType {
     }
 
     /**
-     * @deprecated since 3.0. Use {@link #setProperty(String, String)} with "supportsMeasureFilters" set to "true".
-     */
-    @Deprecated
-    public Builder availableForFilters() {
-      return this;
-    }
-
-    /**
      * Tells that the resources of this type will have source code.
      */
     public Builder hasSourceCode() {
