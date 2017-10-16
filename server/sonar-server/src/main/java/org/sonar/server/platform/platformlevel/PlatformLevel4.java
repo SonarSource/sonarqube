@@ -150,6 +150,8 @@ import org.sonar.server.property.ws.PropertiesWs;
 import org.sonar.server.qualitygate.QualityGateModule;
 import org.sonar.server.qualityprofile.BuiltInQProfileDefinitionsBridge;
 import org.sonar.server.qualityprofile.BuiltInQProfileRepositoryImpl;
+import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotificationDispatcher;
+import org.sonar.server.qualityprofile.BuiltInQualityProfilesNotificationTemplate;
 import org.sonar.server.qualityprofile.QProfileBackuperImpl;
 import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.qualityprofile.QProfileCopier;
@@ -455,6 +457,11 @@ public class PlatformLevel4 extends PlatformLevel {
       MacroInterpreter.class,
 
       // Notifications
+      // Those class are required in order to be able to send emails during startup
+      // Without having two NotificationModule (one in StartupLevel and one in Level4)
+      BuiltInQualityProfilesNotificationTemplate.class,
+      BuiltInQualityProfilesNotificationDispatcher.class,
+
       NotificationModule.class,
       NotificationWsModule.class,
       EmailsWsModule.class,

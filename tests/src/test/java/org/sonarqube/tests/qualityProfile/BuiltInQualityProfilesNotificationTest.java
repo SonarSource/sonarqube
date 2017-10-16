@@ -89,6 +89,7 @@ public class BuiltInQualityProfilesNotificationTest {
   public void send_mail_if_quality_profile_is_updated() throws Exception {
     orchestrator = Orchestrator.builderEnv()
       .addPlugin(pluginArtifact("foo-plugin-v1"))
+      .setServerProperty("sonar.notifications.delay", "1")
       .setServerProperty("email.smtp_host.secured", "localhost")
       .setServerProperty("email.smtp_port.secured", Integer.toString(smtpServer.getServer().getPort()))
       .build();
