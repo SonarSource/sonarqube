@@ -1,0 +1,76 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should correctly display status message after checking license 1`] = `
+<p
+  className="alert spacer-top alert-success"
+>
+  marketplace.license_preview_status.NO_INSTALL.Foo
+</p>
+`;
+
+exports[`should correctly display status message after checking license 2`] = `
+<p
+  className="alert spacer-top alert-warning"
+>
+  marketplace.license_preview_status.AUTOMATIC_INSTALL.Foo
+</p>
+`;
+
+exports[`should correctly display status message after checking license 3`] = `
+<p
+  className="alert spacer-top alert-danger"
+>
+  marketplace.license_preview_status.MANUAL_INSTALL.Foo
+  <p
+    className="spacer-top"
+  >
+    <a
+      className="button"
+      download="sonarqube-Foo.zip"
+      href="download_url"
+      target="_blank"
+    >
+      marketplace.download_package
+    </a>
+    <a
+      className="spacer-left"
+      href="https://redirect.sonarsource.com/doc/how-to-install-an-edition.html"
+      target="_blank"
+    >
+      marketplace.how_to_install
+    </a>
+  </p>
+</p>
+`;
+
+exports[`should display correctly 1`] = `
+<div>
+  <label
+    htmlFor="set-license"
+  >
+    marketplace.enter_license_for_x.Foo
+    <em
+      className="mandatory"
+    >
+      *
+    </em>
+  </label>
+  <textarea
+    autoFocus={true}
+    className="spacer-top display-block"
+    cols={62}
+    id="set-license"
+    onChange={[Function]}
+    required={true}
+    rows={6}
+    value=""
+  />
+  <a
+    className="display-inline-block spacer-top"
+    href="license_url"
+    target="_blank"
+  >
+    marketplace.i_need_a_license
+  </a>
+</div>
+`;

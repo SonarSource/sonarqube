@@ -94,6 +94,7 @@ function getWrapper(props = {}) {
       edition={DEFAULT_EDITION}
       editionKey="foo"
       editionStatus={DEFAULT_STATUS}
+      onInstall={jest.fn()}
       {...props}
     />
   );
