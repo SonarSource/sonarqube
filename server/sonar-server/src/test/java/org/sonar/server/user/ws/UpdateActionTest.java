@@ -30,6 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -45,6 +46,7 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.WsActionTester;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -195,6 +197,19 @@ public class UpdateActionTest {
 
     UserDto user = dbClient.userDao().selectByLogin(dbSession, "john");
     assertThat(user.getScmAccountsAsList()).containsOnly("jon.snow");
+  }
+
+  @Test
+  public void fail_if_twice_the_same_scm_account() {
+    createUser();
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("SCM accounts must be distinct");
+
+    ws.newRequest()
+      .setParam("login", "john")
+      .setMultiParam("scmAccount", asList("jon.snow", "jon.snow"))
+      .execute();
   }
 
   @Test

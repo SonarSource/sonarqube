@@ -19,7 +19,6 @@
  */
 package org.sonar.server.user.ws;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,8 +36,10 @@ import org.sonar.server.user.UserUpdater;
 import org.sonarqube.ws.client.user.UpdateRequest;
 
 import static com.google.common.base.Strings.emptyToNull;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_UPDATE;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_LOGIN;
@@ -118,7 +119,8 @@ public class UpdateAction implements UsersWsAction {
     if (!request.getScmAccounts().isEmpty()) {
       updateUser.setScmAccounts(request.getScmAccounts());
     }
-    userUpdater.updateAndCommit(dbSession, updateUser, u -> {});
+    userUpdater.updateAndCommit(dbSession, updateUser, u -> {
+    });
   }
 
   private void writeUser(DbSession dbSession, Response response, String login) {
@@ -143,10 +145,16 @@ public class UpdateAction implements UsersWsAction {
   }
 
   private static List<String> getScmAccounts(Request request) {
+    List<String> scmAccounts = emptyList();
     if (request.hasParam(PARAM_SCM_ACCOUNT)) {
-      return new ArrayList<>(request.multiParam(PARAM_SCM_ACCOUNT));
+      scmAccounts = request.multiParam(PARAM_SCM_ACCOUNT);
+    } else {
+      List<String> oldScmAccounts = request.paramAsStrings(PARAM_SCM_ACCOUNTS);
+      scmAccounts = oldScmAccounts != null ? oldScmAccounts : scmAccounts;
     }
-    List<String> oldScmAccounts = request.paramAsStrings(PARAM_SCM_ACCOUNTS);
-    return oldScmAccounts != null ? oldScmAccounts : new ArrayList<>();
+    Set<String> uniqueScmAccounts = new HashSet<>(scmAccounts);
+    checkRequest(scmAccounts.size() == uniqueScmAccounts.size(), "SCM accounts must be distinct.", String.join(", ", scmAccounts));
+
+    return scmAccounts;
   }
 }
