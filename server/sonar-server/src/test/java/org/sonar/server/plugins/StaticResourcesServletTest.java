@@ -106,7 +106,7 @@ public class StaticResourcesServletTest {
     underTest.doGet(request, response);
 
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.TRACE)).containsOnly("Failed to send error code 404");
+    assertThat(logTester.logs(LoggerLevel.TRACE)).containsOnly("Failed to send error code 404: java.io.IOException: Simulating sendError throwing IOException");
   }
 
   private void mockPluginForResourceDoesNotExist() {
@@ -135,7 +135,7 @@ public class StaticResourcesServletTest {
     underTest.doGet(request, response);
 
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.TRACE)).containsOnly("Failed to send error code 404");
+    assertThat(logTester.logs(LoggerLevel.TRACE)).containsOnly("Failed to send error code 404: java.io.IOException: Simulating sendError throwing IOException");
   }
 
   private void mockPluginExistsButNoResource() {
@@ -158,7 +158,7 @@ public class StaticResourcesServletTest {
     underTest.doGet(request, response);
 
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
-    assertThat(logTester.logs(LoggerLevel.TRACE)).containsOnly("Client canceled loading resource [static/foo.txt] from plugin [myplugin]");
+    assertThat(logTester.logs(LoggerLevel.TRACE)).containsOnly("Client canceled loading resource [static/foo.txt] from plugin [myplugin]: org.apache.catalina.connector.ClientAbortException: Simulating ClientAbortException");
     verify(response, times(0)).sendError(anyInt());
   }
 
