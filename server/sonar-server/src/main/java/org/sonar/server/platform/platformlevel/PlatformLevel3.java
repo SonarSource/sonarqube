@@ -29,7 +29,6 @@ import org.sonar.server.platform.StartupMetadataPersister;
 import org.sonar.server.platform.db.migration.NoopDatabaseMigrationImpl;
 import org.sonar.server.setting.DatabaseSettingLoader;
 import org.sonar.server.setting.DatabaseSettingsEnabler;
-import org.sonar.server.startup.LogServerId;
 
 public class PlatformLevel3 extends PlatformLevel {
   public PlatformLevel3(PlatformLevel parent) {
