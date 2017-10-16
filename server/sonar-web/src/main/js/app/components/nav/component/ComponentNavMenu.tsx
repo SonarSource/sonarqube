@@ -21,7 +21,7 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
 import * as PropTypes from 'prop-types';
-import { Branch, Component, ComponentExtension } from '../../../types';
+import { Branch, Component, Extension } from '../../../types';
 import NavBarTabs from '../../../../components/nav/NavBarTabs';
 import {
   isShortLivingBranch,
@@ -419,7 +419,7 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
     );
   }
 
-  renderExtension = ({ key, name }: ComponentExtension, isAdmin: boolean) => {
+  renderExtension = ({ key, name }: Extension, isAdmin: boolean) => {
     const pathname = isAdmin ? `/project/admin/extension/${key}` : `/project/extension/${key}`;
     return (
       <li key={key}>

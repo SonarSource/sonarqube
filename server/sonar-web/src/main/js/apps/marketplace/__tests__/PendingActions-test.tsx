@@ -36,14 +36,14 @@ it('should display pending actions', () => {
   expect(getWrapper()).toMatchSnapshot();
 });
 
-it('should not display nothing', () => {
+it('should not display anything', () => {
   expect(getWrapper({ pending: { installing: [], updating: [], removing: [] } })).toMatchSnapshot();
 });
 
 it('should open the restart form', () => {
   const wrapper = getWrapper();
   click(wrapper.find('.js-restart'));
-  expect(wrapper.find('RestartForm')).toHaveLength(1);
+  expect(wrapper.find('RestartForm').exists()).toBeTruthy();
 });
 
 it('should cancel all pending and refresh them', async () => {
