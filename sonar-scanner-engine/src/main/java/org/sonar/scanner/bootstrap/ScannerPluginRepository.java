@@ -84,12 +84,14 @@ public class ScannerPluginRepository implements PluginRepository, Startable {
   }
 
   private void logPlugins() {
-    if (pluginsByKeys.isEmpty()) {
-      LOG.debug("No plugins loaded");
-    } else {
-      LOG.debug("Plugins:");
-      for (ScannerPlugin p : pluginsByKeys.values()) {
-        LOG.debug("  * {} {} ({})", p.getName(), p.getVersion(), p.getKey());
+    if (LOG.isDebugEnabled()) {
+      if (pluginsByKeys.isEmpty()) {
+        LOG.debug("No plugins loaded");
+      } else {
+        LOG.debug("Plugins:");
+        for (ScannerPlugin p : pluginsByKeys.values()) {
+          LOG.debug("  * {} {} ({})", p.getName(), p.getVersion(), p.getKey());
+        }
       }
     }
   }
