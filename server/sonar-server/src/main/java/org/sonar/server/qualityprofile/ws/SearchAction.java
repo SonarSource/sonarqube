@@ -52,7 +52,6 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.LanguageParamUtils;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
-import org.sonarqube.ws.client.component.ComponentsWsParameters;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -101,13 +100,7 @@ public class SearchAction implements QProfileWsAction {
       .setChangelog(new Change("6.5", format("The parameters '%s', '%s' and '%s' can be combined without any constraint", PARAM_DEFAULTS, PARAM_PROJECT, PARAM_LANGUAGE)))
       .setResponseExample(getClass().getResource("search-example.json"));
 
-    action
-      .createParam(ComponentsWsParameters.PARAM_ORGANIZATION)
-      .setDescription("Organization key. If no organization key is provided, this defaults to the organization of the specified project. If neither organization nor project are" +
-        "specified, the default organization will be used.")
-      .setRequired(false)
-      .setInternal(true)
-      .setExampleValue("my-org")
+    QProfileWsSupport.createOrganizationParam(action)
       .setSince("6.4");
 
     action

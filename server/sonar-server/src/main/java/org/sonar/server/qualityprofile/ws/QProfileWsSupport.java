@@ -60,7 +60,7 @@ public class QProfileWsSupport {
   public static NewParam createOrganizationParam(NewAction action) {
     return action
       .createParam(PARAM_ORGANIZATION)
-      .setDescription("Organization key")
+      .setDescription("Organization key. If no organization is provided, the default organization is used.")
       .setRequired(false)
       .setInternal(true)
       .setExampleValue("my-org");
