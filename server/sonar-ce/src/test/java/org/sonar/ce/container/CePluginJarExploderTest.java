@@ -149,5 +149,20 @@ public class CePluginJarExploderTest {
       throw new UnsupportedOperationException();
     }
 
+    @Override
+    public File getEditionDownloadedPluginsDir() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public File getUninstalledPluginsDir() {
+      throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public File getEditionUninstalledPluginsDir() {
+      throw new UnsupportedOperationException();
+    }
+
   }
 }

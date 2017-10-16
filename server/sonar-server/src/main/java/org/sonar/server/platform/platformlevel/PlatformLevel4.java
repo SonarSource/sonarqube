@@ -128,7 +128,12 @@ import org.sonar.server.platform.ws.StatusAction;
 import org.sonar.server.platform.ws.SystemWs;
 import org.sonar.server.platform.ws.UpgradesAction;
 import org.sonar.server.plugins.PluginDownloader;
+import org.sonar.server.plugins.PluginUninstaller;
 import org.sonar.server.plugins.ServerExtensionInstaller;
+import org.sonar.server.plugins.edition.EditionInstaller;
+import org.sonar.server.plugins.edition.EditionInstallerExecutor;
+import org.sonar.server.plugins.edition.EditionPluginDownloader;
+import org.sonar.server.plugins.edition.EditionPluginUninstaller;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsBootstraper;
 import org.sonar.server.plugins.privileged.PrivilegedPluginsStopper;
 import org.sonar.server.plugins.ws.AvailableAction;
@@ -258,6 +263,7 @@ public class PlatformLevel4 extends PlatformLevel {
       LogServerId.class,
       LogOAuthWarning.class,
       PluginDownloader.class,
+      PluginUninstaller.class,
       DeprecatedViews.class,
       PageRepository.class,
       ResourceTypes.class,
@@ -269,6 +275,12 @@ public class PlatformLevel4 extends PlatformLevel {
       BackendCleanup.class,
       IndexDefinitions.class,
       WebPagesFilter.class,
+
+      // edition
+      EditionInstaller.class,
+      EditionPluginDownloader.class,
+      EditionInstallerExecutor.class,
+      EditionPluginUninstaller.class,
 
       // batch
       BatchWsModule.class,
