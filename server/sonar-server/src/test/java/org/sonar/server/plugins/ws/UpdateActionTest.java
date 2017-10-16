@@ -151,8 +151,7 @@ public class UpdateActionTest {
     logInAsSystemAdministrator();
     Version version = Version.create("1.0");
     when(updateCenter.findPluginUpdates()).thenReturn(ImmutableList.of(
-      PluginUpdate.createWithStatus(new Release(Plugin.factory(PLUGIN_KEY), version), Status.COMPATIBLE)
-    ));
+      PluginUpdate.createWithStatus(new Release(Plugin.factory(PLUGIN_KEY), version), Status.COMPATIBLE)));
 
     underTest.handle(validRequest, response);
 
