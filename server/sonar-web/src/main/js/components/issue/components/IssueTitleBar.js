@@ -74,69 +74,60 @@ export default function IssueTitleBar(props /*: Props */) {
   });
 
   return (
-    <table className="issue-table">
-      <tbody>
-        <tr>
-          <td>
-            <IssueMessage
-              message={issue.message}
-              rule={issue.rule}
-              organization={issue.organization}
+    <div className="issue-row">
+      <IssueMessage message={issue.message} rule={issue.rule} organization={issue.organization} />
+
+      <div className="issue-row-meta">
+        <ul className="list-inline issue-meta-list">
+          <li className="issue-meta">
+            <IssueChangelog
+              creationDate={issue.creationDate}
+              isOpen={props.currentPopup === 'changelog'}
+              issue={issue}
+              togglePopup={props.togglePopup}
+              onFail={props.onFail}
             />
-          </td>
-          <td className="issue-table-meta-cell issue-table-meta-cell-first">
-            <ul className="list-inline issue-meta-list">
-              <li className="issue-meta">
-                <IssueChangelog
-                  creationDate={issue.creationDate}
-                  isOpen={props.currentPopup === 'changelog'}
-                  issue={issue}
-                  togglePopup={props.togglePopup}
-                  onFail={props.onFail}
-                />
-              </li>
-              {issue.textRange != null && (
-                <li className="issue-meta">
-                  <span className="issue-meta-label" title={translate('line_number')}>
-                    L{issue.textRange.endLine}
-                  </span>
-                </li>
-              )}
-              {displayLocations && (
-                <li className="issue-meta">
-                  {props.displayLocationsLink ? (
-                    <Link onClick={stopPropagation} target="_blank" to={issueUrl}>
-                      {locationsBadge}
-                    </Link>
-                  ) : (
-                    locationsBadge
-                  )}
-                </li>
-              )}
-              <li className="issue-meta">
-                <Link
-                  className="js-issue-permalink link-no-underline"
-                  onClick={stopPropagation}
-                  target="_blank"
-                  to={issueUrl}>
-                  <LinkIcon />
+          </li>
+          {issue.textRange != null && (
+            <li className="issue-meta">
+              <span className="issue-meta-label" title={translate('line_number')}>
+                L{issue.textRange.endLine}
+              </span>
+            </li>
+          )}
+          {displayLocations && (
+            <li className="issue-meta">
+              {props.displayLocationsLink ? (
+                <Link onClick={stopPropagation} target="_blank" to={issueUrl}>
+                  {locationsBadge}
                 </Link>
-              </li>
-              {hasSimilarIssuesFilter && (
-                <li className="issue-meta">
-                  <SimilarIssuesFilter
-                    isOpen={props.currentPopup === 'similarIssues'}
-                    issue={issue}
-                    togglePopup={props.togglePopup}
-                    onFail={props.onFail}
-                    onFilter={props.onFilter}
-                  />
-                </li>
+              ) : (
+                locationsBadge
               )}
-            </ul>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            </li>
+          )}
+          <li className="issue-meta">
+            <Link
+              className="js-issue-permalink link-no-underline"
+              onClick={stopPropagation}
+              target="_blank"
+              to={issueUrl}>
+              <LinkIcon />
+            </Link>
+          </li>
+          {hasSimilarIssuesFilter && (
+            <li className="issue-meta">
+              <SimilarIssuesFilter
+                isOpen={props.currentPopup === 'similarIssues'}
+                issue={issue}
+                togglePopup={props.togglePopup}
+                onFail={props.onFail}
+                onFilter={props.onFilter}
+              />
+            </li>
+          )}
+        </ul>
+      </div>
+    </div>
   );
 }
