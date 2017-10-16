@@ -29,6 +29,7 @@ public class DbVersion67 implements DbVersion {
       .add(1830, "Copy deprecated server ID", CopyDeprecatedServerId.class)
       .add(1831, "Add webhook_deliveries.analysis_uuid", AddAnalysisUuidToWebhookDeliveries.class)
       .add(1832, "Create table ANALYSIS_PROPERTIES", CreateTableAnalysisProperties.class)
+      .add(1833, "Cleanup disabled users", CleanupDisabledUsers.class)
     ;
   }
 }
