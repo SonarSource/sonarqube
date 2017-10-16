@@ -147,8 +147,7 @@ public class InstallActionTest {
     logInAsSystemAdministrator();
     Version version = Version.create("1.0");
     when(updateCenter.findAvailablePlugins()).thenReturn(ImmutableList.of(
-      PluginUpdate.createWithStatus(new Release(Plugin.factory(PLUGIN_KEY), version), PluginUpdate.Status.COMPATIBLE)
-      ));
+      PluginUpdate.createWithStatus(new Release(Plugin.factory(PLUGIN_KEY), version), PluginUpdate.Status.COMPATIBLE)));
 
     WsTester.Result result = validRequest.execute();
 

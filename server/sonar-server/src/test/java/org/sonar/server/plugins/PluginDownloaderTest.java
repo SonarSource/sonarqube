@@ -32,7 +32,6 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.utils.HttpDownloader;
-import org.sonar.api.utils.SonarException;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.platform.ServerFileSystem;
@@ -77,9 +76,9 @@ public class PluginDownloaderTest {
     when(updateCenterMatrixFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.of(updateCenter));
 
     httpDownloader = mock(HttpDownloader.class);
-    doAnswer(new Answer() {
+    doAnswer(new Answer<Void>() {
       @Override
-      public Object answer(InvocationOnMock inv) throws Throwable {
+      public Void answer(InvocationOnMock inv) throws Throwable {
         File toFile = (File) inv.getArguments()[1];
         touch(toFile);
         return null;
@@ -212,7 +211,7 @@ public class PluginDownloaderTest {
     try {
       pluginDownloader.download("foo", create("1.0"));
       fail();
-    } catch (SonarException e) {
+    } catch (IllegalStateException e) {
       // ok
     }
   }
@@ -230,7 +229,7 @@ public class PluginDownloaderTest {
     try {
       pluginDownloader.download("foo", create("1.0"));
       fail();
-    } catch (SonarException e) {
+    } catch (IllegalStateException e) {
       // ok
     }
   }
