@@ -34,6 +34,7 @@ import org.sonar.server.edition.MutableEditionManagementState;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.license.LicenseCommit;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -55,7 +56,8 @@ public class ApplyLicenseActionTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private MutableEditionManagementState mutableEditionManagementState = mock(MutableEditionManagementState.class);
-  private ApplyLicenseAction underTest = new ApplyLicenseAction(userSessionRule, mutableEditionManagementState);
+  private LicenseCommit licenseCommit = mock(LicenseCommit.class);
+  private ApplyLicenseAction underTest = new ApplyLicenseAction(userSessionRule, mutableEditionManagementState, licenseCommit);
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
