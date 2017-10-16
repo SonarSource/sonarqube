@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post } from '../helpers/request';
+import { getJSON, post, postJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export type SysValue = boolean | string | number | HealthType | SysValueObject | SysValueArray;
@@ -68,6 +68,14 @@ export function getSystemInfo(): Promise<SysInfo> {
 
 export function getSystemStatus(): Promise<any> {
   return getJSON('/api/system/status');
+}
+
+export function getMigrationStatus(): Promise<any> {
+  return getJSON('/api/system/db_migration_status');
+}
+
+export function migrateDatabase() {
+  return postJSON('/api/system/migrate_db');
 }
 
 export function restart(): Promise<void | Response> {

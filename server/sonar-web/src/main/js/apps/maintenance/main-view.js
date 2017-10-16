@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import $ from 'jquery';
-import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import Template from './templates/maintenance-main.hbs';
+import { getSystemStatus, getMigrationStatus, migrateDatabase } from '../../api/system';
+import { getBaseUrl } from '../../helpers/urls';
 
 export default Marionette.ItemView.extend({
   template: Template,
@@ -30,33 +30,40 @@ export default Marionette.ItemView.extend({
   },
 
   initialize() {
-    this.requestOptions = {
-      type: 'GET',
-      url: window.baseUrl + '/api/system/' + (this.options.setup ? 'db_migration_status' : 'status')
-    };
     this.pollingInternal = setInterval(() => {
       this.refresh();
     }, 5000);
     this.wasStarting = false;
   },
 
+  getStatus() {
+    return this.options.setup ? getMigrationStatus() : getSystemStatus();
+  },
+
   refresh() {
-    return Backbone.ajax(this.requestOptions).done(r => {
-      if (r.status === 'STARTING') {
-        this.wasStarting = true;
+    return this.getStatus().then(
+      r => {
+        if (r.status === 'STARTING') {
+          this.wasStarting = true;
+        }
+        // unset `status` in case if was `OFFLINE` previously
+        this.model.set({ status: undefined, ...r });
+        this.render();
+        if (this.model.get('status') === 'UP' || this.model.get('state') === 'NO_MIGRATION') {
+          this.stopPolling();
+        }
+        if (this.model.get('status') === 'UP' && this.wasStarting) {
+          this.loadPreviousPage();
+        }
+        if (this.model.get('state') === 'MIGRATION_SUCCEEDED') {
+          this.loadPreviousPage();
+        }
+      },
+      () => {
+        this.model.set({ status: 'OFFLINE' });
+        this.render();
       }
-      this.model.set(r);
-      this.render();
-      if (this.model.get('status') === 'UP' || this.model.get('state') === 'NO_MIGRATION') {
-        this.stopPolling();
-      }
-      if (this.model.get('status') === 'UP' && this.wasStarting) {
-        this.loadPreviousPage();
-      }
-      if (this.model.get('state') === 'MIGRATION_SUCCEEDED') {
-        this.loadPreviousPage();
-      }
-    });
+    );
   },
 
   stopPolling() {
@@ -64,25 +71,24 @@ export default Marionette.ItemView.extend({
   },
 
   startMigration() {
-    Backbone.ajax({
-      url: window.baseUrl + '/api/system/migrate_db',
-      type: 'POST'
-    }).done(r => {
-      this.model.set(r);
-      this.render();
-    });
+    migrateDatabase().then(
+      r => {
+        this.model.set(r);
+        this.render();
+      },
+      () => {}
+    );
   },
 
   onRender() {
-    $('.page-simple').toggleClass(
-      'panel-warning',
-      this.model.get('state') === 'MIGRATION_REQUIRED'
-    );
+    document
+      .querySelector('.page-simple')
+      .classList.toggle('panel-warning', this.model.get('state') === 'MIGRATION_REQUIRED');
   },
 
   loadPreviousPage() {
     setInterval(() => {
-      window.location = this.options.returnTo || window.baseUrl;
+      window.location = this.options.returnTo || getBaseUrl();
     }, 2500);
   },
 
