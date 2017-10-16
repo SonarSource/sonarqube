@@ -130,8 +130,8 @@ public class ComputeEngineContainerImplTest {
       .hasSize(
         CONTAINER_ITSELF
           + 75 // level 4
-          + 4 // content of CeConfigurationModule
-          + 7 // content of CeQueueModule
+          + 6 // content of CeConfigurationModule
+          + 4 // content of CeQueueModule
           + 4 // content of CeHttpModule
           + 3 // content of CeTaskCommonsModule
           + 4 // content of ProjectAnalysisTaskModule
