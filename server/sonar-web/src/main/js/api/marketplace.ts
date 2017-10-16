@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { checkStatus, corsRequest, getJSON, parseJSON } from '../helpers/request';
+import { checkStatus, corsRequest, getJSON, parseJSON, postJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface Edition {
@@ -55,4 +55,17 @@ export function getEditionsList(): Promise<Editions> {
     .submit()
     .then(checkStatus)
     .then(parseJSON);
+}
+
+export function getLicensePreview(data: {
+  license: string;
+}): Promise<{
+  nextEditionKey: string;
+  previewStatus: 'NO_INSTALL' | 'AUTOMATIC_INSTALL' | 'MANUAL_INSTALL';
+}> {
+  return postJSON('/api/editions/preview', data).catch(throwGlobalError);
+}
+
+export function applyLicense(data: { license: string }): Promise<EditionStatus> {
+  return postJSON('/api/editions/apply_license', data).catch(throwGlobalError);
 }

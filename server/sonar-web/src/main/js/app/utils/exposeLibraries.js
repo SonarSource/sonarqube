@@ -29,6 +29,7 @@ import DateFromNow from '../../components/intl/DateFromNow';
 import DateFormatter from '../../components/intl/DateFormatter';
 import DateTimeFormatter from '../../components/intl/DateTimeFormatter';
 import FavoriteContainer from '../../components/controls/FavoriteContainer';
+import LicenseEditionSet from '../../apps/marketplace/components/LicenseEditionSet';
 import ListFooter from '../../components/controls/ListFooter';
 import Tooltip from '../../components/controls/Tooltip';
 import ModalForm from '../../components/common/modal-form';
@@ -48,6 +49,7 @@ const exposeLibraries = () => {
     DateFormatter,
     DateTimeFormatter,
     FavoriteContainer,
+    LicenseEditionSet,
     ListFooter,
     Modal,
     Tooltip,
