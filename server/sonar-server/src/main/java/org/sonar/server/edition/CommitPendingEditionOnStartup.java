@@ -19,13 +19,27 @@
  */
 package org.sonar.server.edition;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.Startable;
+import org.sonar.server.license.LicenseCommit;
 
 public class CommitPendingEditionOnStartup implements Startable {
   private final MutableEditionManagementState editionManagementState;
+  @CheckForNull
+  private final LicenseCommit licenseCommit;
 
+  /**
+   * Used by Pico when license-manager is not installed and therefor no implementation of {@link LicenseCommit} is
+   * is available.
+   */
   public CommitPendingEditionOnStartup(MutableEditionManagementState editionManagementState) {
+    this(editionManagementState, null);
+  }
+
+  public CommitPendingEditionOnStartup(MutableEditionManagementState editionManagementState, @Nullable LicenseCommit licenseCommit) {
     this.editionManagementState = editionManagementState;
+    this.licenseCommit = licenseCommit;
   }
 
   @Override
@@ -36,17 +50,28 @@ public class CommitPendingEditionOnStartup implements Startable {
         return;
       case MANUAL_IN_PROGRESS:
       case AUTOMATIC_READY:
-        // TODO save new license with plugin manager
-        editionManagementState.finalizeInstallation();
+        finalizeInstall(status);
         break;
       case AUTOMATIC_IN_PROGRESS:
-        // FIXME temporary hack until download of edition is implemented
+        // FIXME temporary hack until download of edition is implemented, should move status to AUTOMATIC_FAILURE
         editionManagementState.automaticInstallReady();
-        editionManagementState.finalizeInstallation();
+        finalizeInstall(status);
         break;
       default:
         throw new IllegalStateException("Unsupported status " + status);
     }
+  }
+
+  private void finalizeInstall(EditionManagementState.PendingStatus status) {
+    // license manager is not installed, can't finalize
+    if (licenseCommit == null) {
+      return;
+    }
+
+    String newLicense = editionManagementState.getPendingLicense()
+      .orElseThrow(() -> new IllegalStateException(String.format("When state is %s, a license should be available in staging", status)));
+    licenseCommit.update(newLicense);
+    editionManagementState.finalizeInstallation();
   }
 
   @Override
