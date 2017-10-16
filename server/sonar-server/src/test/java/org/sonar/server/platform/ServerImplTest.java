@@ -67,10 +67,7 @@ public class ServerImplTest {
   public void test_file_system_information() throws IOException {
     File home = temp.newFolder();
     when(fs.getHomeDir()).thenReturn(home);
-    File deploy = temp.newFolder();
-    when(fs.getDeployDir()).thenReturn(deploy);
 
-    assertThat(underTest.getDeployDir()).isEqualTo(deploy);
     assertThat(underTest.getRootDir()).isEqualTo(home);
   }
 

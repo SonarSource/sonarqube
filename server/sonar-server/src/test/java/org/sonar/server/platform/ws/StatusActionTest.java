@@ -192,11 +192,6 @@ public class StatusActionTest {
     }
 
     @Override
-    public File getDeployDir() {
-      throw new UnsupportedOperationException();
-    }
-
-    @Override
     public String getContextPath() {
       throw new UnsupportedOperationException();
     }
