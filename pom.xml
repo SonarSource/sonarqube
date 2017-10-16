@@ -792,18 +792,6 @@
         <version>1.4</version>
       </dependency>
       <dependency>
-        <!-- See SONAR-2512 -->
-        <groupId>commons-beanutils</groupId>
-        <artifactId>commons-beanutils</artifactId>
-        <version>1.8.3</version>
-        <exclusions>
-          <exclusion>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
         <groupId>com.ibm.icu</groupId>
         <artifactId>icu4j</artifactId>
         <!-- animal-sniffer doesn't work with 2.6.1 -->
