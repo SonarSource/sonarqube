@@ -47,9 +47,9 @@ public class ListTask implements Task {
     StringBuilder sb = new StringBuilder();
     sb.append("\nAvailable tasks:\n");
     for (TaskDefinition def : tasks.definitions()) {
-      sb.append("  - " + def.key() + ": " + def.description() + "\n");
+      sb.append("  - ").append(def.key()).append(": ").append(def.description()).append('\n');
     }
-    sb.append("\n");
+    sb.append('\n');
     LOG.info(sb.toString());
   }
 
