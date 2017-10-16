@@ -23,48 +23,12 @@ import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.sonarqube.tests.analysis.ExtensionLifecycleTest;
-import org.sonarqube.tests.analysis.FavoriteTest;
-import org.sonarqube.tests.analysis.IssueJsonReportTest;
-import org.sonarqube.tests.analysis.IssuesModeTest;
-import org.sonarqube.tests.analysis.LinksTest;
-import org.sonarqube.tests.analysis.MultiLanguageTest;
-import org.sonarqube.tests.analysis.PermissionTest;
-import org.sonarqube.tests.analysis.ProjectBuilderTest;
-import org.sonarqube.tests.analysis.RedirectTest;
-import org.sonarqube.tests.analysis.ReportDumpTest;
-import org.sonarqube.tests.analysis.SSLTest;
-import org.sonarqube.tests.analysis.ScannerTest;
-import org.sonarqube.tests.analysis.SettingsEncryptionTest;
-import org.sonarqube.tests.analysis.TempFolderTest;
-import org.sonarqube.tests.measure.DecimalScaleMetricTest;
-import org.sonarqube.tests.plugins.VersionPluginTest;
-import org.sonarqube.tests.webhook.WebhooksTest;
 
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  // analysis
-  PermissionTest.class,
-  ExtensionLifecycleTest.class,
-  LinksTest.class,
-  ProjectBuilderTest.class,
-  TempFolderTest.class,
-  MultiLanguageTest.class,
-  IssueJsonReportTest.class,
-  ScannerTest.class,
-  IssuesModeTest.class,
-  VersionPluginTest.class,
-  SettingsEncryptionTest.class,
-  ReportDumpTest.class,
-  SSLTest.class,
-  FavoriteTest.class,
-  RedirectTest.class,
-  // measures
-  DecimalScaleMetricTest.class,
-  WebhooksTest.class
 })
 public class Category3Suite {
 

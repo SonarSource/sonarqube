@@ -21,29 +21,6 @@ package org.sonarqube.tests;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.sonarqube.tests.analysis.AnalysisEsResilienceTest;
-import org.sonarqube.tests.authorisation.SystemPasscodeTest;
-import org.sonarqube.tests.ce.CeShutdownTest;
-import org.sonarqube.tests.ce.CeWorkersTest;
-import org.sonarqube.tests.cluster.ClusterTest;
-import org.sonarqube.tests.issue.IssueCreationDatePluginChangedTest;
-import org.sonarqube.tests.qualityProfile.ActiveRuleEsResilienceTest;
-import org.sonarqube.tests.qualityProfile.BuiltInQualityProfilesNotificationTest;
-import org.sonarqube.tests.rule.RuleEsResilienceTest;
-import org.sonarqube.tests.serverSystem.RestartTest;
-import org.sonarqube.tests.serverSystem.ServerSystemRestartingOrchestrator;
-import org.sonarqube.tests.serverSystem.SystemStateTest;
-import org.sonarqube.tests.settings.ElasticsearchSettingsTest;
-import org.sonarqube.tests.settings.LicensesPageTest;
-import org.sonarqube.tests.settings.SettingsTestRestartingOrchestrator;
-import org.sonarqube.tests.startup.StartupIndexationTest;
-import org.sonarqube.tests.telemetry.TelemetryOptOutTest;
-import org.sonarqube.tests.telemetry.TelemetryUploadTest;
-import org.sonarqube.tests.updateCenter.UpdateCenterTest;
-import org.sonarqube.tests.user.OnboardingTest;
-import org.sonarqube.tests.user.RealmAuthenticationTest;
-import org.sonarqube.tests.user.SsoAuthenticationTest;
-import org.sonarqube.tests.user.UserEsResilienceTest;
 
 /**
  * This suite is reserved to the tests that start their own instance of Orchestrator.
@@ -52,34 +29,6 @@ import org.sonarqube.tests.user.UserEsResilienceTest;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  ClusterTest.class,
-  ServerSystemRestartingOrchestrator.class,
-  RestartTest.class,
-  SettingsTestRestartingOrchestrator.class,
-  SystemStateTest.class,
-  LicensesPageTest.class,
-  // update center
-  UpdateCenterTest.class,
-  RealmAuthenticationTest.class,
-  SsoAuthenticationTest.class,
-  OnboardingTest.class,
-  BuiltInQualityProfilesNotificationTest.class,
-  ActiveRuleEsResilienceTest.class,
-  AnalysisEsResilienceTest.class,
-  RuleEsResilienceTest.class,
-  UserEsResilienceTest.class,
-  TelemetryUploadTest.class,
-  TelemetryOptOutTest.class,
-  // ce
-  CeShutdownTest.class,
-  CeWorkersTest.class,
-  // issues
-  IssueCreationDatePluginChangedTest.class,
-
-  // elasticsearch
-  ElasticsearchSettingsTest.class,
-  StartupIndexationTest.class,
-  SystemPasscodeTest.class
 })
 public class Category5Suite {
 
