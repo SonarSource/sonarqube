@@ -72,6 +72,7 @@ exports[`should disable uninstall button 1`] = `
     </a>
     <button
       disabled={true}
+      onClick={[Function]}
     >
       marketplace.install
     </button>
@@ -184,6 +185,7 @@ exports[`should display the edition 1`] = `
     </a>
     <button
       disabled={false}
+      onClick={[Function]}
     >
       marketplace.install
     </button>
