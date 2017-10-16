@@ -119,7 +119,6 @@ public class ServerPluginRepositoryTest {
 
     assertThat(underTest.getPluginInfos()).isEmpty();
     assertThat(underTest.getPluginInfosByKeys()).isEmpty();
-    assertThat(underTest.getUninstalledPlugins()).isEmpty();
     assertThat(underTest.hasPlugin("testbase")).isFalse();
   }
 
@@ -227,45 +226,30 @@ public class ServerPluginRepositoryTest {
   @Test
   public void uninstall() throws Exception {
     File installedJar = copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
-
+    File uninstallDir = temp.newFolder("uninstallDir");
+    
     underTest.start();
     assertThat(underTest.getPluginInfosByKeys()).containsOnlyKeys("testbase");
-    underTest.uninstall("testbase");
+    underTest.uninstall("testbase", uninstallDir);
 
     assertThat(installedJar).doesNotExist();
     // still up. Will be dropped after next startup
     assertThat(underTest.getPluginInfosByKeys()).containsOnlyKeys("testbase");
-    assertThat(underTest.getUninstalledPluginFilenames()).containsOnly(installedJar.getName());
-    assertThat(underTest.getUninstalledPlugins()).extracting("key").containsOnly("testbase");
+    assertThat(uninstallDir.list()).containsOnly(installedJar.getName());
   }
 
   @Test
   public void uninstall_dependents() throws Exception {
     File base = copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
     File extension = copyTestPluginTo("test-require-plugin", fs.getInstalledPluginsDir());
+    File uninstallDir = temp.newFolder("uninstallDir");
 
     underTest.start();
     assertThat(underTest.getPluginInfos()).hasSize(2);
-    underTest.uninstall("testbase");
-
+    underTest.uninstall("testbase", uninstallDir);
     assertThat(base).doesNotExist();
     assertThat(extension).doesNotExist();
-    assertThat(underTest.getUninstalledPluginFilenames()).containsOnly(base.getName(), extension.getName());
-    assertThat(underTest.getUninstalledPlugins()).extracting("key").containsOnly("testbase", "testrequire");
-  }
-
-  @Test
-  public void cancel_uninstall() throws Exception {
-    File base = copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
-    underTest.start();
-
-    underTest.uninstall("testbase");
-    assertThat(base).doesNotExist();
-
-    underTest.cancelUninstalls();
-    assertThat(base).exists();
-    assertThat(underTest.getUninstalledPluginFilenames()).isEmpty();
-    assertThat(underTest.getUninstalledPlugins()).isEmpty();
+    assertThat(uninstallDir.list()).containsOnly(base.getName(), extension.getName());
   }
 
   @Test
