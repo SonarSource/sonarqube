@@ -53,20 +53,6 @@ public class DefaultIssueComment implements Serializable, IssueComment {
     return comment;
   }
 
-  /**
-   * Copy a comment from another issue
-   */
-  public static DefaultIssueComment copy(String issueKey, IssueComment c) {
-    DefaultIssueComment comment = new DefaultIssueComment();
-    comment.setIssueKey(issueKey);
-    comment.setKey(Uuids.create());
-    comment.setUserLogin(c.userLogin());
-    comment.setMarkdownText(c.markdownText());
-    comment.setCreatedAt(c.createdAt()).setUpdatedAt(c.updatedAt());
-    comment.setNew(true);
-    return comment;
-  }
-
   @Override
   public String markdownText() {
     return markdownText;

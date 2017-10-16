@@ -21,7 +21,9 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Date;
+import java.util.Optional;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueComment;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
@@ -92,8 +94,39 @@ public class IssueLifecycle {
   }
 
   private static void copyChanges(DefaultIssue raw, DefaultIssue base) {
-    base.comments().forEach(c -> raw.addComment(DefaultIssueComment.copy(raw.key(), c)));
-    base.changes().forEach(c -> raw.addChange(FieldDiffs.copy(raw.key(), c)));
+    base.comments().forEach(c -> raw.addComment(copy(raw.key(), c)));
+    base.changes().forEach(c -> copy(raw.key(), c).ifPresent(raw::addChange));
+  }
+
+  /**
+   * Copy a comment from another issue
+   */
+  private static DefaultIssueComment copy(String issueKey, IssueComment c) {
+    DefaultIssueComment comment = new DefaultIssueComment();
+    comment.setIssueKey(issueKey);
+    comment.setKey(Uuids.create());
+    comment.setUserLogin(c.userLogin());
+    comment.setMarkdownText(c.markdownText());
+    comment.setCreatedAt(c.createdAt()).setUpdatedAt(c.updatedAt());
+    comment.setNew(true);
+    return comment;
+  }
+
+  /**
+   * Copy a diff from another issue
+   */
+  private static Optional<FieldDiffs> copy(String issueKey, FieldDiffs c) {
+    FieldDiffs result = new FieldDiffs();
+    result.setIssueKey(issueKey);
+    result.setUserLogin(c.userLogin());
+    result.setCreationDate(c.creationDate());
+    // Don't copy "file" changelogs as they refer to file uuids that might later be purged
+    c.diffs().entrySet().stream().filter(e -> !e.getKey().equals(IssueFieldsSetter.FILE))
+      .forEach(e -> result.setDiff(e.getKey(), e.getValue().oldValue(), e.getValue().newValue()));
+    if (result.diffs().isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(result);
   }
 
   public void mergeExistingOpenIssue(DefaultIssue raw, DefaultIssue base) {
