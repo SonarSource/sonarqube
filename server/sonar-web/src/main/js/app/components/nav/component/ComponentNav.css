@@ -30,6 +30,7 @@
 
 .navbar-context-meta-branch-menu-item-name {
   flex: 1;
+  max-width: 300px;
 }
 
 .navbar-context-meta-branch-menu-item-actions {
