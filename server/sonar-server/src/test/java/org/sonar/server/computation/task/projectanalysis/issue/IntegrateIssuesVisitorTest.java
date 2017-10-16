@@ -119,6 +119,8 @@ public class IntegrateIssuesVisitorTest {
   private MergeBranchComponentUuids mergeBranchComponentsUuids;
   @Mock
   private ShortBranchIssueMerger issueStatusCopier;
+  @Mock
+  private MergeBranchComponentUuids mergeBranchComponentUuids;
 
   ArgumentCaptor<DefaultIssue> defaultIssueCaptor;
 
@@ -150,7 +152,7 @@ public class IntegrateIssuesVisitorTest {
     treeRootHolder.setRoot(PROJECT);
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
-    underTest = new IntegrateIssuesVisitor(issueCache, issueLifecycle, issueVisitors, analysisMetadataHolder, trackingDelegator, issueStatusCopier);
+    underTest = new IntegrateIssuesVisitor(issueCache, issueLifecycle, issueVisitors, analysisMetadataHolder, trackingDelegator, issueStatusCopier, mergeBranchComponentUuids);
   }
 
   @Test
@@ -258,6 +260,7 @@ public class IntegrateIssuesVisitorTest {
   public void copy_issues_when_creating_new_long_living_branch() throws Exception {
 
     when(mergeBranchComponentsUuids.getUuid(FILE_KEY)).thenReturn(FILE_UUID_ON_BRANCH);
+    when(mergeBranchComponentUuids.getMergeBranchName()).thenReturn("master");
 
     when(analysisMetadataHolder.isLongLivingBranch()).thenReturn(true);
     when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(true);
@@ -284,7 +287,7 @@ public class IntegrateIssuesVisitorTest {
 
     ArgumentCaptor<DefaultIssue> rawIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
     ArgumentCaptor<DefaultIssue> baseIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(issueLifecycle).copyExistingOpenIssueFromLongLivingBranch(rawIssueCaptor.capture(), baseIssueCaptor.capture());
+    verify(issueLifecycle).copyExistingOpenIssueFromLongLivingBranch(rawIssueCaptor.capture(), baseIssueCaptor.capture(), eq("master"));
     assertThat(rawIssueCaptor.getValue().severity()).isEqualTo(Severity.BLOCKER);
     assertThat(baseIssueCaptor.getValue().severity()).isEqualTo(Severity.MAJOR);
 

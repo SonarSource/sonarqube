@@ -38,6 +38,7 @@ public final class ShortBranchIssueDto implements Serializable {
   // joins
   private String ruleKey;
   private String ruleRepo;
+  private String branchName;
 
   public String getKey() {
     return kee;
@@ -65,6 +66,15 @@ public final class ShortBranchIssueDto implements Serializable {
 
   public ShortBranchIssueDto setLine(@Nullable Integer i) {
     this.line = i;
+    return this;
+  }
+
+  public String getBranchName() {
+    return branchName;
+  }
+
+  public ShortBranchIssueDto setBranchName(String s) {
+    this.branchName = s;
     return this;
   }
 
@@ -105,6 +115,6 @@ public final class ShortBranchIssueDto implements Serializable {
   }
 
   public static ShortBranchIssue toShortBranchIssue(ShortBranchIssueDto dto) {
-    return new ShortBranchIssue(dto.getKey(), dto.getLine(), dto.getMessage(), dto.getChecksum(), dto.getRuleKey(), dto.getStatus());
+    return new ShortBranchIssue(dto.getKey(), dto.getLine(), dto.getMessage(), dto.getChecksum(), dto.getRuleKey(), dto.getStatus(), dto.getBranchName());
   }
 }

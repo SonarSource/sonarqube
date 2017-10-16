@@ -175,5 +175,6 @@ public class ChangelogAction implements IssuesWsAction {
       ComponentDto file = files.get(fileUuid);
       return file == null ? null : file.longName();
     }
+
   }
 }

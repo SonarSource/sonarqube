@@ -37,31 +37,38 @@ public class MergeBranchComponentUuids {
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final DbClient dbClient;
   private Map<String, String> uuidsByKey;
+  private String mergeBranchName;
 
   public MergeBranchComponentUuids(AnalysisMetadataHolder analysisMetadataHolder, DbClient dbClient) {
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.dbClient = dbClient;
   }
 
-  private void loadMergeBranchComponents() {
-    String mergeBranchUuid = analysisMetadataHolder.getBranch().get().getMergeBranchUuid().get();
+  private void lazyInit() {
+    if (uuidsByKey == null) {
+      String mergeBranchUuid = analysisMetadataHolder.getBranch().get().getMergeBranchUuid().get();
 
-    uuidsByKey = new HashMap<>();
-    try (DbSession dbSession = dbClient.openSession(false)) {
+      uuidsByKey = new HashMap<>();
+      try (DbSession dbSession = dbClient.openSession(false)) {
 
-      List<ComponentDto> components = dbClient.componentDao().selectByProjectUuid(mergeBranchUuid, dbSession);
-      for (ComponentDto dto : components) {
-        uuidsByKey.put(dto.getKey(), dto.uuid());
+        List<ComponentDto> components = dbClient.componentDao().selectByProjectUuid(mergeBranchUuid, dbSession);
+        for (ComponentDto dto : components) {
+          uuidsByKey.put(dto.getKey(), dto.uuid());
+        }
+
+        mergeBranchName = dbClient.branchDao().selectByUuid(dbSession, mergeBranchUuid).get().getKey();
       }
     }
   }
 
+  public String getMergeBranchName() {
+    lazyInit();
+    return mergeBranchName;
+  }
+
   @CheckForNull
   public String getUuid(String dbKey) {
-    if (uuidsByKey == null) {
-      loadMergeBranchComponents();
-    }
-
+    lazyInit();
     String cleanComponentKey = removeBranchFromKey(dbKey);
     return uuidsByKey.get(cleanComponentKey);
   }

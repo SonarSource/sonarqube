@@ -56,7 +56,7 @@ public class ShortBranchIssueMerger {
 
     for (Map.Entry<DefaultIssue, ShortBranchIssue> e : matchedRaws.entrySet()) {
       ShortBranchIssue issue = e.getValue();
-      issueLifecycle.copyIssueAttributes(e.getKey(), defaultIssues.get(issue));
+      issueLifecycle.mergeConfirmedOrResolvedFromShortLivingBranch(e.getKey(), defaultIssues.get(issue), issue.getBranchName());
     }
   }
 }
