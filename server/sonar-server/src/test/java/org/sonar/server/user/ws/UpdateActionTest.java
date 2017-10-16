@@ -22,6 +22,7 @@ package org.sonar.server.user.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -41,9 +42,10 @@ import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.usergroups.DefaultGroupFinder;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.WsActionTester;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.user.UserTesting.newUserDto;
@@ -51,51 +53,38 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 public class UpdateActionTest {
 
   private static final OrganizationCreation ORGANIZATION_CREATION_NOT_USED_FOR_UPDATE = null;
-
-  private final MapSettings settings = new MapSettings();
-
+  private MapSettings settings = new MapSettings();
   private System2 system2 = new System2();
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2);
   @Rule
-  public EsTester esTester = new EsTester(new UserIndexDefinition(settings.asConfig()));
+  public EsTester es = new EsTester(new UserIndexDefinition(settings.asConfig()));
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone().logIn().setSystemAdministrator();
+  public UserSessionRule userSession = UserSessionRule.standalone().logIn().setSystemAdministrator();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  private DbClient dbClient = dbTester.getDbClient();
-  private DbSession session = dbTester.getSession();
-  private WsTester tester;
-  private UserIndexer userIndexer;
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+  private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());;
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
+
+  private WsActionTester ws = new WsActionTester(new UpdateAction(
+    new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, organizationFlags, defaultOrganizationProvider, ORGANIZATION_CREATION_NOT_USED_FOR_UPDATE,
+      new DefaultGroupFinder(db.getDbClient()), settings.asConfig()), userSession, new UserJsonWriter(userSession), dbClient));
 
   @Before
   public void setUp() {
-    dbTester.users().insertDefaultGroup(dbTester.getDefaultOrganization(), "sonar-users");
-    userIndexer = new UserIndexer(dbClient, esTester.client());
-    tester = new WsTester(new UsersWs(new UpdateAction(
-      new UserUpdater(mock(NewUserNotifier.class), dbClient, userIndexer, organizationFlags, defaultOrganizationProvider, ORGANIZATION_CREATION_NOT_USED_FOR_UPDATE,
-        new DefaultGroupFinder(dbTester.getDbClient()), settings.asConfig()),
-      userSessionRule,
-      new UserJsonWriter(userSessionRule), dbClient)));
-  }
-
-  @Test(expected = ForbiddenException.class)
-  public void fail_on_missing_permission() throws Exception {
-    createUser();
-
-    userSessionRule.logIn("polop");
-    tester.newPostRequest("api/users", "update")
-      .setParam("login", "john")
-      .execute();
+    db.users().insertDefaultGroup(db.getDefaultOrganization(), "sonar-users");
   }
 
   @Test
   public void update_user() throws Exception {
     createUser();
 
-    tester.newPostRequest("api/users", "update")
+    ws.newRequest()
       .setParam("login", "john")
       .setParam("name", "Jon Snow")
       .setParam("email", "jon.snow@thegreatw.all")
@@ -108,7 +97,7 @@ public class UpdateActionTest {
   public void update_only_name() throws Exception {
     createUser();
 
-    tester.newPostRequest("api/users", "update")
+    ws.newRequest()
       .setParam("login", "john")
       .setParam("name", "Jon Snow")
       .execute()
@@ -119,7 +108,7 @@ public class UpdateActionTest {
   public void update_only_email() throws Exception {
     createUser();
 
-    tester.newPostRequest("api/users", "update")
+    ws.newRequest()
       .setParam("login", "john")
       .setParam("email", "jon.snow@thegreatw.all")
       .execute()
@@ -130,13 +119,13 @@ public class UpdateActionTest {
   public void blank_email_is_updated_to_null() throws Exception {
     createUser();
 
-    tester.newPostRequest("api/users", "update")
+    ws.newRequest()
       .setParam("login", "john")
       .setParam("email", "")
       .execute()
       .assertJson(getClass(), "blank_email_is_updated_to_null.json");
 
-    UserDto userDto = dbClient.userDao().selectByLogin(session, "john");
+    UserDto userDto = dbClient.userDao().selectByLogin(dbSession, "john");
     assertThat(userDto.getEmail()).isNull();
   }
 
@@ -144,12 +133,12 @@ public class UpdateActionTest {
   public void remove_scm_accounts() throws Exception {
     createUser();
 
-    tester.newPostRequest("api/users", "update")
+    ws.newRequest()
       .setParam("login", "john")
-      .setParam("scmAccount", "")
+      .setMultiParam("scmAccount", singletonList(""))
       .execute();
 
-    UserDto userDto = dbClient.userDao().selectByLogin(session, "john");
+    UserDto userDto = dbClient.userDao().selectByLogin(dbSession, "john");
     assertThat(userDto.getScmAccounts()).isNull();
   }
 
@@ -157,13 +146,13 @@ public class UpdateActionTest {
   public void update_only_scm_accounts() throws Exception {
     createUser();
 
-    tester.newPostRequest("api/users", "update")
+    ws.newRequest()
       .setParam("login", "john")
-      .setParam("scmAccount", "jon.snow")
+      .setMultiParam("scmAccount", singletonList("jon.snow"))
       .execute()
       .assertJson(getClass(), "update_scm_accounts.json");
 
-    UserDto user = dbClient.userDao().selectByLogin(session, "john");
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, "john");
     assertThat(user.getScmAccountsAsList()).containsOnly("jon.snow");
   }
 
@@ -171,12 +160,12 @@ public class UpdateActionTest {
   public void update_scm_account_having_coma() throws Exception {
     createUser();
 
-    tester.newPostRequest("api/users", "update")
+    ws.newRequest()
       .setParam("login", "john")
-      .setParam("scmAccount", "jon,snow")
+      .setMultiParam("scmAccount", singletonList("jon,snow"))
       .execute();
 
-    UserDto user = dbClient.userDao().selectByLogin(session, "john");
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, "john");
     assertThat(user.getScmAccountsAsList()).containsOnly("jon,snow");
   }
 
@@ -184,13 +173,13 @@ public class UpdateActionTest {
   public void update_only_scm_accounts_with_deprecated_scmAccounts_parameter() throws Exception {
     createUser();
 
-    tester.newPostRequest("api/users", "update")
+    ws.newRequest()
       .setParam("login", "john")
       .setParam("scmAccounts", "jon.snow")
       .execute()
       .assertJson(getClass(), "update_scm_accounts.json");
 
-    UserDto user = dbClient.userDao().selectByLogin(session, "john");
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, "john");
     assertThat(user.getScmAccountsAsList()).containsOnly("jon.snow");
   }
 
@@ -198,19 +187,33 @@ public class UpdateActionTest {
   public void update_only_scm_accounts_with_deprecated_scm_accounts_parameter() throws Exception {
     createUser();
 
-    tester.newPostRequest("api/users", "update")
+    ws.newRequest()
       .setParam("login", "john")
       .setParam("scm_accounts", "jon.snow")
       .execute()
       .assertJson(getClass(), "update_scm_accounts.json");
 
-    UserDto user = dbClient.userDao().selectByLogin(session, "john");
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, "john");
     assertThat(user.getScmAccountsAsList()).containsOnly("jon.snow");
   }
 
-  @Test(expected = NotFoundException.class)
+  @Test
+  public void fail_on_missing_permission() throws Exception {
+    createUser();
+    userSession.logIn("polop");
+
+    expectedException.expect(ForbiddenException.class);
+
+    ws.newRequest()
+      .setParam("login", "john")
+      .execute();
+  }
+
+  @Test
   public void fail_on_unknown_user() throws Exception {
-    tester.newPostRequest("api/users", "update")
+    expectedException.expect(NotFoundException.class);
+
+    ws.newRequest()
       .setParam("login", "john")
       .execute();
   }
@@ -225,7 +228,7 @@ public class UpdateActionTest {
       .setLocal(true)
       .setExternalIdentity("jo")
       .setExternalIdentityProvider("sonarqube");
-    dbClient.userDao().insert(session, userDto);
-    userIndexer.commitAndIndex(session, userDto);
+    dbClient.userDao().insert(dbSession, userDto);
+    userIndexer.commitAndIndex(dbSession, userDto);
   }
 }
