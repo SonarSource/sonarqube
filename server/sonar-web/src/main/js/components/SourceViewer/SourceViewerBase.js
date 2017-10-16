@@ -252,6 +252,7 @@ export default class SourceViewerBase extends React.PureComponent {
               issuesByLine: issuesByLine(issues),
               issueLocationsByLine: locationsByLine(issues),
               loading: false,
+              notAccessible: false,
               notExist: false,
               hasSourcesAfter: sources.length > LINES,
               sources: this.computeCoverageStatus(finalSources),
@@ -270,8 +271,12 @@ export default class SourceViewerBase extends React.PureComponent {
 
     const onFailLoadComponent = ({ response }) => {
       // TODO handle other statuses
-      if (this.mounted && response.status === 404) {
-        this.setState({ loading: false, notExist: true });
+      if (this.mounted) {
+        if (response.status === 403) {
+          this.setState({ loading: false, notAccessible: true });
+        } else if (response.status === 404) {
+          this.setState({ loading: false, notExist: true });
+        }
       }
     };
 
@@ -662,6 +667,14 @@ export default class SourceViewerBase extends React.PureComponent {
       );
     }
 
+    if (notAccessible) {
+      return (
+        <div className="alert alert-warning spacer-top">
+          {translate('code_viewer.no_source_code_displayed_due_to_security')}
+        </div>
+      );
+    }
+
     if (component == null) {
       return null;
     }
@@ -679,11 +692,6 @@ export default class SourceViewerBase extends React.PureComponent {
           component={this.state.component}
           showMeasures={this.showMeasures}
         />
-        {notAccessible && (
-          <div className="alert alert-warning spacer-top">
-            {translate('code_viewer.no_source_code_displayed_due_to_security')}
-          </div>
-        )}
         {sourceRemoved && (
           <div className="alert alert-warning spacer-top">
             {translate('code_viewer.no_source_code_displayed_due_to_source_removed')}
