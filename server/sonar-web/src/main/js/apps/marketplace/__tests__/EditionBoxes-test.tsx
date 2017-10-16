@@ -28,26 +28,28 @@ const DEFAULT_STATUS: EditionStatus = {
   installationStatus: 'NONE'
 };
 
+const DEFAULT_EDITIONS = {
+  foo: {
+    name: 'Foo',
+    desc: 'Foo desc',
+    download_link: 'download_url',
+    more_link: 'more_url',
+    request_license_link: 'license_url'
+  },
+  bar: {
+    name: 'Bar',
+    desc: 'Bar desc',
+    download_link: 'download_url',
+    more_link: 'more_url',
+    request_license_link: 'license_url'
+  }
+};
+
 it('should display the edition boxes', () => {
   const wrapper = getWrapper();
   expect(wrapper).toMatchSnapshot();
   wrapper.setState({
-    editions: {
-      foo: {
-        name: 'Foo',
-        desc: 'Foo desc',
-        download_link: 'download_url',
-        more_link: 'more_url',
-        request_license_link: 'license_url'
-      },
-      bar: {
-        name: 'Bar',
-        desc: 'Bar desc',
-        download_link: 'download_url',
-        more_link: 'more_url',
-        request_license_link: 'license_url'
-      }
-    },
+    editions: DEFAULT_EDITIONS,
     loading: false
   });
   expect(wrapper).toMatchSnapshot();
@@ -57,6 +59,16 @@ it('should display an error message', () => {
   const wrapper = getWrapper();
   wrapper.setState({ loading: false, editionsError: true });
   expect(wrapper).toMatchSnapshot();
+});
+
+it('should open the license form', () => {
+  const wrapper = getWrapper();
+  wrapper.setState({
+    editions: DEFAULT_EDITIONS,
+    loading: false
+  });
+  (wrapper.instance() as EditionBoxes).handleOpenLicenseForm(DEFAULT_EDITIONS.foo);
+  expect(wrapper.find('LicenseEditionForm').exists()).toBeTruthy();
 });
 
 function getWrapper(props = {}) {

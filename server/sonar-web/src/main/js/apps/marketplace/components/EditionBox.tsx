@@ -22,13 +22,16 @@ import CheckIcon from '../../../components/icons-components/CheckIcon';
 import { Edition, EditionStatus } from '../../../api/marketplace';
 import { translate } from '../../../helpers/l10n';
 
-export interface Props {
+interface Props {
   edition: Edition;
   editionKey: string;
   editionStatus?: EditionStatus;
+  onInstall: (edition: Edition) => void;
 }
 
 export default class EditionBox extends React.PureComponent<Props> {
+  handleInstall = () => this.props.onInstall(this.props.edition);
+
   render() {
     const { edition, editionKey, editionStatus } = this.props;
     const isInstalled = editionStatus && editionStatus.currentEditionKey === editionKey;
@@ -58,7 +61,9 @@ export default class EditionBox extends React.PureComponent<Props> {
             {translate('marketplace.learn_more')}
           </a>
           {!isInstalled && (
-            <button disabled={installInProgress}>{translate('marketplace.install')}</button>
+            <button disabled={installInProgress} onClick={this.handleInstall}>
+              {translate('marketplace.install')}
+            </button>
           )}
           {isInstalled && (
             <button className="button-red" disabled={installInProgress}>

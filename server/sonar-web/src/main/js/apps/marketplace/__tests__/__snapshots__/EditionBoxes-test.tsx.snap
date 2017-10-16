@@ -49,6 +49,7 @@ exports[`should display the edition boxes 2`] = `
         "nextEditionKey": "",
       }
     }
+    onInstall={[Function]}
   />
   <EditionBox
     edition={
@@ -68,6 +69,7 @@ exports[`should display the edition boxes 2`] = `
         "nextEditionKey": "",
       }
     }
+    onInstall={[Function]}
   />
 </div>
 `;
