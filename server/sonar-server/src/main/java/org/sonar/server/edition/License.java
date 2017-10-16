@@ -19,22 +19,36 @@
  */
 package org.sonar.server.edition;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.google.common.collect.ImmutableSet;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
 import javax.annotation.concurrent.Immutable;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 @Immutable
 public class License {
+  private static final Logger LOG = Loggers.get(License.class);
+  private static final String EDITION_KEY = "Edition";
+  private static final String PLUGINS_KEY = "Plugins";
+
   private final String editionKey;
-  private final List<String> pluginKeys;
+  private final Set<String> pluginKeys;
   private final String content;
 
-  public License(String editionKey, List<String> pluginKeys, String content) {
+  public License(String editionKey, Collection<String> pluginKeys, String content) {
     this.editionKey = enforceNotNullNorEmpty(editionKey, "editionKey");
-    this.pluginKeys = ImmutableList.copyOf(pluginKeys);
+    this.pluginKeys = ImmutableSet.copyOf(pluginKeys);
     this.content = enforceNotNullNorEmpty(content, "content");
   }
 
@@ -48,11 +62,33 @@ public class License {
     return editionKey;
   }
 
-  public List<String> getPluginKeys() {
+  public Set<String> getPluginKeys() {
     return pluginKeys;
   }
 
   public String getContent() {
     return content;
+  }
+
+  public static Optional<License> parse(String base64) {
+    try {
+      String data = new String(Base64.decodeBase64(base64.trim().getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+
+      Properties props = new Properties();
+      props.load(new StringReader(data));
+
+      Collection<String> plugins = Arrays.asList(StringUtils.split(props.getProperty(PLUGINS_KEY), ','));
+      String editionKey = props.getProperty(EDITION_KEY);
+
+      if (editionKey != null && !plugins.isEmpty()) {
+        return Optional.of(new License(editionKey, plugins, base64));
+      } else {
+        LOG.debug("Failed to parse license: no edition key and/or no plugin found");
+      }
+    } catch (Exception e) {
+      LOG.debug("Failed to parse license", e);
+    }
+    return Optional.empty();
+
   }
 }
