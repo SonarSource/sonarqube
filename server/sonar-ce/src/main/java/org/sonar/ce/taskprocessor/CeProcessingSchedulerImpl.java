@@ -87,7 +87,7 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
       try {
         Thread.sleep(200L);
       } catch (InterruptedException e) {
-        LOG.debug("Graceful stop period has been interrupted", e);
+        LOG.debug("Graceful stop period has been interrupted: {}", e);
         Thread.currentThread().interrupt();
         break;
       }

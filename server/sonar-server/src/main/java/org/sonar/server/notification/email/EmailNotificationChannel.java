@@ -217,7 +217,7 @@ public class EmailNotificationChannel extends NotificationChannel {
       emailMessage.setMessage(message);
       send(emailMessage);
     } catch (EmailException e) {
-      LOG.debug("Fail to send test email to: " + toAddress, e);
+      LOG.debug("Fail to send test email to {}: {}", toAddress, e);
       throw e;
     }
   }
