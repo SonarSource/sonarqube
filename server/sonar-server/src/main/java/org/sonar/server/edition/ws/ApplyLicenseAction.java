@@ -20,6 +20,8 @@
 package org.sonar.server.edition.ws;
 
 import java.util.Collections;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -27,19 +29,30 @@ import org.sonar.server.edition.EditionManagementState;
 import org.sonar.server.edition.License;
 import org.sonar.server.edition.MutableEditionManagementState;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.license.LicenseCommit;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsEditions;
+
+import static com.google.common.base.Preconditions.checkState;
 
 public class ApplyLicenseAction implements EditionsWsAction {
   private static final String PARAM_LICENSE = "license";
 
   private final UserSession userSession;
   private final MutableEditionManagementState editionManagementState;
+  @CheckForNull
+  private final LicenseCommit licenseCommit;
 
   public ApplyLicenseAction(UserSession userSession, MutableEditionManagementState editionManagementState) {
+    this(userSession, editionManagementState, null);
+  }
+
+  public ApplyLicenseAction(UserSession userSession, MutableEditionManagementState editionManagementState,
+    @Nullable LicenseCommit licenseCommit) {
     this.userSession = userSession;
     this.editionManagementState = editionManagementState;
+    this.licenseCommit = licenseCommit;
   }
 
   @Override
@@ -70,6 +83,10 @@ public class ApplyLicenseAction implements EditionsWsAction {
     if (license.contains("manual")) {
       editionManagementState.startManualInstall(newLicense);
     } else if (license.contains("done")) {
+      checkState(licenseCommit != null,
+        "Can't decide edition does not require install if LicenseCommit instance is null. " +
+          "License-manager plugin should be installed.");
+      licenseCommit.update(newLicense.getContent());
       editionManagementState.newEditionWithoutInstall(newLicense.getEditionKey());
     } else {
       editionManagementState.startAutomaticInstall(newLicense);
