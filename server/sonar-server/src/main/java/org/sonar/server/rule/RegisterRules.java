@@ -203,7 +203,7 @@ public class RegisterRules implements Startable {
     }
     for (RulesDefinition.ExtendedRepository extendedRepoDef : context.extendedRepositories()) {
       if (context.repository(extendedRepoDef.key()) == null) {
-        LOG.warn(format("Extension is ignored, repository %s does not exist", extendedRepoDef.key()));
+        LOG.warn("Extension is ignored, repository {} does not exist", extendedRepoDef.key());
       } else {
         repositories.add(extendedRepoDef);
       }

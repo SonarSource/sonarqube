@@ -40,7 +40,7 @@ public class NewUserNotifier {
   }
 
   public void onNewUser(NewUserHandler.Context context) {
-    Loggers.get(NewUserNotifier.class).debug("User created: " + context.getLogin() + ". Notifying " + NewUserHandler.class.getSimpleName() + " handlers...");
+    Loggers.get(NewUserNotifier.class).debug("User created: {}. Notifying {} handlers...", context.getLogin(), NewUserHandler.class.getSimpleName());
     for (NewUserHandler handler : handlers) {
       handler.doOnNewUser(context);
     }

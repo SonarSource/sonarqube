@@ -251,7 +251,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
        * @throws HttpException if HTTP response code > 400
        */
       public InputStream getInput() throws IOException {
-        Loggers.get(getClass()).debug("Download: " + uri + " (" + getProxySynthesis(uri, ProxySelector.getDefault()) + ")");
+        Loggers.get(getClass()).debug("Download: {} ({})", uri, getProxySynthesis(uri, ProxySelector.getDefault()));
         HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
         connection.setRequestMethod(requestMethod);
         HttpsTrust.INSTANCE.trust(connection);

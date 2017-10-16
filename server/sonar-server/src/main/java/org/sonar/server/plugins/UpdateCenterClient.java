@@ -76,7 +76,7 @@ public class UpdateCenterClient {
     this.uriReader = uriReader;
     this.uri = new URI(config.get(URL_PROPERTY).get());
     this.isActivated = config.getBoolean(WebConstants.SONAR_UPDATECENTER_ACTIVATE).get();
-    Loggers.get(getClass()).info("Update center: " + uriReader.description(uri));
+    Loggers.get(getClass()).info("Update center: {}", uriReader.description(uri));
   }
 
   public Optional<UpdateCenter> getUpdateCenter() {

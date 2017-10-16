@@ -45,7 +45,7 @@ public class DeleteOldAnalysisReportsFromFs implements Startable {
   public void start() {
     if (upgradeStatus.isUpgraded()) {
       File dir = new File(fs.getDataDir(), "ce/reports");
-      Loggers.get(getClass()).info("Delete unused directory of analysis reports: " + dir);
+      Loggers.get(getClass()).info("Delete unused directory of analysis reports: {}", dir);
       deleteQuietly(dir);
     }
   }

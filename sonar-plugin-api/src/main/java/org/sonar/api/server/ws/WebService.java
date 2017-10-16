@@ -502,9 +502,9 @@ public interface WebService extends Definable<WebService.Context> {
       this.changelog = newAction.changelog;
 
       checkState(this.handler != null, "RequestHandler is not set on action %s", path);
-      logWarningIf(isNullOrEmpty(this.description), "Description is not set on action " + path);
-      logWarningIf(isNullOrEmpty(this.since), "Since is not set on action " + path);
-      logWarningIf(!this.post && this.responseExample == null, "The response example is not set on action " + path);
+      logWarningIf(isNullOrEmpty(this.description), "Description is not set on action {}", path);
+      logWarningIf(isNullOrEmpty(this.since), "Since is not set on action {}", path);
+      logWarningIf(!this.post && this.responseExample == null, "The response example is not set on action {}", path);
 
       Map<String, Param> paramsBuilder = new HashMap<>();
       for (NewParam newParam : newAction.newParams.values()) {
@@ -513,9 +513,9 @@ public interface WebService extends Definable<WebService.Context> {
       this.params = Collections.unmodifiableMap(paramsBuilder);
     }
 
-    private static void logWarningIf(boolean condition, String message) {
+    private static void logWarningIf(boolean condition, String formatStr, Object arg) {
       if (condition) {
-        LOGGER.warn(message);
+        LOGGER.warn(formatStr, arg);
       }
     }
 

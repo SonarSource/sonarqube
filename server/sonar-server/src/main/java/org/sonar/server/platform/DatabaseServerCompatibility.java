@@ -51,8 +51,8 @@ public class DatabaseServerCompatibility implements Startable {
       Loggers.get(DatabaseServerCompatibility.class).warn(msg);
       Loggers.get(STARTUP_LOGGER_NAME).warn('\n'
         + HIGHLIGHTER + '\n'
-        + "      " + msg
-        + '\n' + HIGHLIGHTER);
+        + "      {}"
+        + '\n' + HIGHLIGHTER, msg);
     }
   }
 

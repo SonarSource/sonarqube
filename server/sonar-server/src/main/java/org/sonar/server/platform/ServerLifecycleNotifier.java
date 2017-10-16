@@ -62,7 +62,7 @@ public class ServerLifecycleNotifier implements Startable {
   }
 
   public void notifyStart() {
-    Loggers.get(ServerLifecycleNotifier.class).debug("Notify " + ServerStartHandler.class.getSimpleName() + " handlers...");
+    Loggers.get(ServerLifecycleNotifier.class).debug("Notify {} handlers...", ServerStartHandler.class.getSimpleName());
     for (ServerStartHandler handler : startHandlers) {
       handler.onServerStart(server);
     }
@@ -70,7 +70,7 @@ public class ServerLifecycleNotifier implements Startable {
 
   @Override
   public void stop() {
-    Loggers.get(ServerLifecycleNotifier.class).debug("Notify " + ServerStopHandler.class.getSimpleName() + " handlers...");
+    Loggers.get(ServerLifecycleNotifier.class).debug("Notify {} handlers...", ServerStopHandler.class.getSimpleName());
     for (ServerStopHandler handler : stopHandlers) {
       handler.onServerStop(server);
     }

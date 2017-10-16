@@ -46,7 +46,7 @@ public final class PlatformServletContextListener implements ServletContextListe
       Platform.getInstance().doStart();
       event.getServletContext().setAttribute(STARTED_ATTRIBUTE, Boolean.TRUE);
     } catch (org.sonar.api.utils.MessageException | org.sonar.process.MessageException e) {
-      Loggers.get(Platform.class).error("Web server startup failed: " + e.getMessage());
+      Loggers.get(Platform.class).error("Web server startup failed: {}", e.getMessage());
       stopQuietly();
     } catch (Throwable t) {
       Loggers.get(Platform.class).error("Web server startup failed", t);
