@@ -74,8 +74,15 @@
   }
 }
 
-.issue-table + .issue-table {
-  margin-top: 5px;
+.issue-row {
+  display: flex;
+  margin-bottom: 5px;
+}
+
+.issue-row-meta {
+  flex-grow: 0;
+  padding-right: 5px;
+  white-space: nowrap;
 }
 
 .issue-table-meta-cell {
@@ -85,11 +92,14 @@
 }
 
 .issue-message {
+  flex-grow: 1;
   padding-left: @leftPadding;
   padding-right: @rightPadding;
   line-height: 1.5;
   font-size: @baseFontSize;
   font-weight: 600;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .issue-rule {

@@ -9,210 +9,198 @@ exports[`should count all code locations 1`] = `
 `;
 
 exports[`should render the titlebar correctly 1`] = `
-<table
-  className="issue-table"
+<div
+  className="issue-row"
 >
-  <tbody>
-    <tr>
-      <td>
-        <IssueMessage
-          message="Reduce the number of conditional operators (4) used in the expression"
-          organization="myorg"
-          rule="javascript:S1067"
-        />
-      </td>
-      <td
-        className="issue-table-meta-cell issue-table-meta-cell-first"
+  <IssueMessage
+    message="Reduce the number of conditional operators (4) used in the expression"
+    organization="myorg"
+    rule="javascript:S1067"
+  />
+  <div
+    className="issue-row-meta"
+  >
+    <ul
+      className="list-inline issue-meta-list"
+    >
+      <li
+        className="issue-meta"
       >
-        <ul
-          className="list-inline issue-meta-list"
+        <IssueChangelog
+          creationDate="2017-03-01T09:36:01+0100"
+          isOpen={false}
+          issue={
+            Object {
+              "creationDate": "2017-03-01T09:36:01+0100",
+              "flows": Array [],
+              "key": "AVsae-CQS-9G3txfbFN2",
+              "line": 25,
+              "message": "Reduce the number of conditional operators (4) used in the expression",
+              "organization": "myorg",
+              "project": "myproject",
+              "rule": "javascript:S1067",
+              "secondaryLocations": Array [],
+              "textRange": Object {
+                "endLine": 26,
+                "endOffset": 15,
+                "startLine": 25,
+                "startOffset": 0,
+              },
+            }
+          }
+          onFail={[Function]}
+          togglePopup={[Function]}
+        />
+      </li>
+      <li
+        className="issue-meta"
+      >
+        <span
+          className="issue-meta-label"
+          title="line_number"
         >
-          <li
-            className="issue-meta"
-          >
-            <IssueChangelog
-              creationDate="2017-03-01T09:36:01+0100"
-              isOpen={false}
-              issue={
-                Object {
-                  "creationDate": "2017-03-01T09:36:01+0100",
-                  "flows": Array [],
-                  "key": "AVsae-CQS-9G3txfbFN2",
-                  "line": 25,
-                  "message": "Reduce the number of conditional operators (4) used in the expression",
-                  "organization": "myorg",
-                  "project": "myproject",
-                  "rule": "javascript:S1067",
-                  "secondaryLocations": Array [],
-                  "textRange": Object {
-                    "endLine": 26,
-                    "endOffset": 15,
-                    "startLine": 25,
-                    "startOffset": 0,
-                  },
-                }
-              }
-              onFail={[Function]}
-              togglePopup={[Function]}
-            />
-          </li>
-          <li
-            className="issue-meta"
-          >
-            <span
-              className="issue-meta-label"
-              title="line_number"
-            >
-              L
-              26
-            </span>
-          </li>
-          <li
-            className="issue-meta"
-          >
-            <Link
-              className="js-issue-permalink link-no-underline"
-              onClick={[Function]}
-              onlyActiveOnIndex={false}
-              style={Object {}}
-              target="_blank"
-              to={
-                Object {
-                  "pathname": "/project/issues",
-                  "query": Object {
-                    "branch": "feature-1.0",
-                    "id": "myproject",
-                    "issues": "AVsae-CQS-9G3txfbFN2",
-                    "open": "AVsae-CQS-9G3txfbFN2",
-                  },
-                }
-              }
-            >
-              <LinkIcon />
-            </Link>
-          </li>
-        </ul>
-      </td>
-    </tr>
-  </tbody>
-</table>
+          L
+          26
+        </span>
+      </li>
+      <li
+        className="issue-meta"
+      >
+        <Link
+          className="js-issue-permalink link-no-underline"
+          onClick={[Function]}
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          target="_blank"
+          to={
+            Object {
+              "pathname": "/project/issues",
+              "query": Object {
+                "branch": "feature-1.0",
+                "id": "myproject",
+                "issues": "AVsae-CQS-9G3txfbFN2",
+                "open": "AVsae-CQS-9G3txfbFN2",
+              },
+            }
+          }
+        >
+          <LinkIcon />
+        </Link>
+      </li>
+    </ul>
+  </div>
+</div>
 `;
 
 exports[`should render the titlebar with the filter 1`] = `
-<table
-  className="issue-table"
+<div
+  className="issue-row"
 >
-  <tbody>
-    <tr>
-      <td>
-        <IssueMessage
-          message="Reduce the number of conditional operators (4) used in the expression"
-          organization="myorg"
-          rule="javascript:S1067"
-        />
-      </td>
-      <td
-        className="issue-table-meta-cell issue-table-meta-cell-first"
+  <IssueMessage
+    message="Reduce the number of conditional operators (4) used in the expression"
+    organization="myorg"
+    rule="javascript:S1067"
+  />
+  <div
+    className="issue-row-meta"
+  >
+    <ul
+      className="list-inline issue-meta-list"
+    >
+      <li
+        className="issue-meta"
       >
-        <ul
-          className="list-inline issue-meta-list"
+        <IssueChangelog
+          creationDate="2017-03-01T09:36:01+0100"
+          isOpen={false}
+          issue={
+            Object {
+              "creationDate": "2017-03-01T09:36:01+0100",
+              "flows": Array [],
+              "key": "AVsae-CQS-9G3txfbFN2",
+              "line": 25,
+              "message": "Reduce the number of conditional operators (4) used in the expression",
+              "organization": "myorg",
+              "project": "myproject",
+              "rule": "javascript:S1067",
+              "secondaryLocations": Array [],
+              "textRange": Object {
+                "endLine": 26,
+                "endOffset": 15,
+                "startLine": 25,
+                "startOffset": 0,
+              },
+            }
+          }
+          onFail={[Function]}
+          togglePopup={[Function]}
+        />
+      </li>
+      <li
+        className="issue-meta"
+      >
+        <span
+          className="issue-meta-label"
+          title="line_number"
         >
-          <li
-            className="issue-meta"
-          >
-            <IssueChangelog
-              creationDate="2017-03-01T09:36:01+0100"
-              isOpen={false}
-              issue={
-                Object {
-                  "creationDate": "2017-03-01T09:36:01+0100",
-                  "flows": Array [],
-                  "key": "AVsae-CQS-9G3txfbFN2",
-                  "line": 25,
-                  "message": "Reduce the number of conditional operators (4) used in the expression",
-                  "organization": "myorg",
-                  "project": "myproject",
-                  "rule": "javascript:S1067",
-                  "secondaryLocations": Array [],
-                  "textRange": Object {
-                    "endLine": 26,
-                    "endOffset": 15,
-                    "startLine": 25,
-                    "startOffset": 0,
-                  },
-                }
-              }
-              onFail={[Function]}
-              togglePopup={[Function]}
-            />
-          </li>
-          <li
-            className="issue-meta"
-          >
-            <span
-              className="issue-meta-label"
-              title="line_number"
-            >
-              L
-              26
-            </span>
-          </li>
-          <li
-            className="issue-meta"
-          >
-            <Link
-              className="js-issue-permalink link-no-underline"
-              onClick={[Function]}
-              onlyActiveOnIndex={false}
-              style={Object {}}
-              target="_blank"
-              to={
-                Object {
-                  "pathname": "/project/issues",
-                  "query": Object {
-                    "branch": undefined,
-                    "id": "myproject",
-                    "issues": "AVsae-CQS-9G3txfbFN2",
-                    "open": "AVsae-CQS-9G3txfbFN2",
-                  },
-                }
-              }
-            >
-              <LinkIcon />
-            </Link>
-          </li>
-          <li
-            className="issue-meta"
-          >
-            <SimilarIssuesFilter
-              isOpen={false}
-              issue={
-                Object {
-                  "creationDate": "2017-03-01T09:36:01+0100",
-                  "flows": Array [],
-                  "key": "AVsae-CQS-9G3txfbFN2",
-                  "line": 25,
-                  "message": "Reduce the number of conditional operators (4) used in the expression",
-                  "organization": "myorg",
-                  "project": "myproject",
-                  "rule": "javascript:S1067",
-                  "secondaryLocations": Array [],
-                  "textRange": Object {
-                    "endLine": 26,
-                    "endOffset": 15,
-                    "startLine": 25,
-                    "startOffset": 0,
-                  },
-                }
-              }
-              onFail={[Function]}
-              onFilter={[Function]}
-              togglePopup={[Function]}
-            />
-          </li>
-        </ul>
-      </td>
-    </tr>
-  </tbody>
-</table>
+          L
+          26
+        </span>
+      </li>
+      <li
+        className="issue-meta"
+      >
+        <Link
+          className="js-issue-permalink link-no-underline"
+          onClick={[Function]}
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          target="_blank"
+          to={
+            Object {
+              "pathname": "/project/issues",
+              "query": Object {
+                "branch": undefined,
+                "id": "myproject",
+                "issues": "AVsae-CQS-9G3txfbFN2",
+                "open": "AVsae-CQS-9G3txfbFN2",
+              },
+            }
+          }
+        >
+          <LinkIcon />
+        </Link>
+      </li>
+      <li
+        className="issue-meta"
+      >
+        <SimilarIssuesFilter
+          isOpen={false}
+          issue={
+            Object {
+              "creationDate": "2017-03-01T09:36:01+0100",
+              "flows": Array [],
+              "key": "AVsae-CQS-9G3txfbFN2",
+              "line": 25,
+              "message": "Reduce the number of conditional operators (4) used in the expression",
+              "organization": "myorg",
+              "project": "myproject",
+              "rule": "javascript:S1067",
+              "secondaryLocations": Array [],
+              "textRange": Object {
+                "endLine": 26,
+                "endOffset": 15,
+                "startLine": 25,
+                "startOffset": 0,
+              },
+            }
+          }
+          onFail={[Function]}
+          onFilter={[Function]}
+          togglePopup={[Function]}
+        />
+      </li>
+    </ul>
+  </div>
+</div>
 `;

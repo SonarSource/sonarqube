@@ -8,6 +8,8 @@
   color: #fff;
   font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, Arial, sans-serif;
   font-size: 12px;
+  text-overflow: ellipsis;
+  overflow: hidden;
   transition: background-color 0.3s ease;
 }
 
