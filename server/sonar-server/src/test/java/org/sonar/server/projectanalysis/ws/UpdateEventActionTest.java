@@ -41,6 +41,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.ProjectAnalyses;
 import org.sonarqube.ws.ProjectAnalyses.UpdateEventResponse;
 
+import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
@@ -221,6 +222,22 @@ public class UpdateEventActionTest {
     expectedException.expectMessage("An 'Other' event with the same name already exists on analysis '" + analysis.getUuid() + "'");
 
     call("E2", "E1 name");
+  }
+
+  @Test
+  public void limit_version_name_length_to_100_for_analysis_events() {
+    SnapshotDto analysis = createAnalysisAndLogInAsProjectAdministrator("5.6");
+    db.events().insertEvent(newEvent(analysis).setUuid("E1").setCategory(OTHER.getLabel()).setName("E1 name"));
+    db.events().insertEvent(newEvent(analysis).setUuid("E2").setCategory(VERSION.getLabel()).setName("E2 name"));
+
+    call("E1", repeat("a", 100));
+    call("E1", repeat("a", 101));
+    call("E2", repeat("a", 100));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Version length (101) is longer than the maximum authorized (100). 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' was provided");
+
+    call("E2", repeat("a", 101));
   }
 
   private UpdateEventResponse call(@Nullable String eventUuid, @Nullable String name) {
