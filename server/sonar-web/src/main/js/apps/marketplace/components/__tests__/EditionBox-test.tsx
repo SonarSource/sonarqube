@@ -29,6 +29,7 @@ const DEFAULT_STATUS: EditionStatus = {
 };
 
 const DEFAULT_EDITION: Edition = {
+  key: 'foo',
   name: 'Foo',
   desc: 'Foo desc',
   download_link: 'download_url',
@@ -92,7 +93,6 @@ function getWrapper(props = {}) {
   return shallow(
     <EditionBox
       edition={DEFAULT_EDITION}
-      editionKey="foo"
       editionStatus={DEFAULT_STATUS}
       onInstall={jest.fn()}
       {...props}

@@ -42,7 +42,9 @@ import { filterPlugins, parseQuery, Query, serializeQuery } from './utils';
 
 export interface Props {
   editionStatus?: EditionStatus;
+  editionsUrl: string;
   location: { pathname: string; query: RawQuery };
+  sonarqubeVersion: string;
   updateCenterActive: boolean;
 }
 
@@ -167,6 +169,8 @@ export default class App extends React.PureComponent<Props, State> {
         <Header />
         <EditionBoxes
           editionStatus={this.props.editionStatus}
+          editionsUrl={this.props.editionsUrl}
+          sonarqubeVersion={this.props.sonarqubeVersion}
           updateCenterActive={this.props.updateCenterActive}
         />
         <PendingActions refreshPending={this.fetchPendingPlugins} pending={pending} />
