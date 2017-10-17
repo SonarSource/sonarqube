@@ -25,13 +25,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.server.edition.License;
 import org.sonar.server.edition.MutableEditionManagementState;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.updatecenter.common.UpdateCenter;
 
 public class EditionInstaller {
+  private static final Logger LOG = Loggers.get(EditionInstaller.class);
+
   private final ReentrantLock lock = new ReentrantLock();
   private final EditionInstallerExecutor executor;
   private final EditionPluginDownloader editionPluginDownloader;
@@ -53,19 +58,21 @@ public class EditionInstaller {
 
   /**
    * Refreshes the update center, and submits in a executor a task to download all the needed plugins (asynchronously).
-   * If the update center is disabled or if we are offline, the task is not submitted and false is returned. 
-   * @return true if a task was submitted to perform the download, false if update center is unavailable.
+   * If the update center is disabled or if we are offline, the task is not submitted and false is returned.
+   * In all case
+   *
    * @throws IllegalStateException if an installation is already in progress
    */
-  public boolean install(Set<String> editionPluginKeys) {
+  public void install(License newLicense) {
     if (lock.tryLock()) {
       try {
         Optional<UpdateCenter> updateCenter = updateCenterMatrixFactory.getUpdateCenter(true);
         if (!updateCenter.isPresent()) {
-          return false;
+          editionManagementState.startManualInstall(newLicense);
+          return;
         }
-        executor.execute(() -> asyncInstall(editionPluginKeys, updateCenter.get()));
-        return true;
+        editionManagementState.startAutomaticInstall(newLicense);
+        executor.execute(() -> asyncInstall(newLicense, updateCenter.get()));
       } catch (RuntimeException e) {
         lock.unlock();
         throw e;
@@ -86,20 +93,21 @@ public class EditionInstaller {
       || !pluginsToRemove(editionPluginKeys, pluginInfosByKeys.values()).isEmpty();
   }
 
-  private void asyncInstall(Set<String> editionPluginKeys, UpdateCenter updateCenter) {
-    Map<String, PluginInfo> pluginInfosByKeys = pluginRepository.getPluginInfosByKeys();
-    Set<String> pluginsToRemove = pluginsToRemove(editionPluginKeys, pluginInfosByKeys.values());
-    Set<String> pluginsToInstall = pluginsToInstall(editionPluginKeys, pluginInfosByKeys.keySet());
-
+  private void asyncInstall(License newLicense, UpdateCenter updateCenter) {
     try {
+      Set<String> editionPluginKeys = newLicense.getPluginKeys();
+      Map<String, PluginInfo> pluginInfosByKeys = pluginRepository.getPluginInfosByKeys();
+      Set<String> pluginsToRemove = pluginsToRemove(editionPluginKeys, pluginInfosByKeys.values());
+      Set<String> pluginsToInstall = pluginsToInstall(editionPluginKeys, pluginInfosByKeys.keySet());
+
       editionPluginDownloader.downloadEditionPlugins(pluginsToInstall, updateCenter);
-      for (String pluginKey : pluginsToRemove) {
-        editionPluginUninstaller.uninstall(pluginKey);
-      }
+      pluginsToRemove.forEach(editionPluginUninstaller::uninstall);
       editionManagementState.automaticInstallReady();
+    } catch (Throwable t) {
+      LOG.error("Failed to install edition {} with plugins {}", newLicense.getEditionKey(), newLicense.getPluginKeys(), t);
+      editionManagementState.automaticInstallFailed();
     } finally {
       lock.unlock();
-      // TODO: catch exceptions and set error status
     }
   }
 

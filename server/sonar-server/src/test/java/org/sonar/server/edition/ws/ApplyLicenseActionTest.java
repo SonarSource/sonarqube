@@ -27,7 +27,6 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.Properties;
 import org.junit.Rule;
@@ -53,9 +52,11 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsEditions;
 import org.sonarqube.ws.WsEditions.StatusResponse;
 
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.edition.EditionManagementState.PendingStatus.AUTOMATIC_IN_PROGRESS;
@@ -170,7 +171,7 @@ public class ApplyLicenseActionTest {
   public void apply_without_need_to_install() throws IOException {
     userSessionRule.logIn().setSystemAdministrator();
     setPendingLicense(NONE);
-    when(editionInstaller.requiresInstallationChange(Collections.singleton("plugin1"))).thenReturn(false);
+    when(editionInstaller.requiresInstallationChange(singleton("plugin1"))).thenReturn(false);
 
     TestRequest request = actionTester.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
@@ -185,8 +186,7 @@ public class ApplyLicenseActionTest {
   public void apply_offline() throws IOException {
     userSessionRule.logIn().setSystemAdministrator();
     setPendingLicense(PendingStatus.MANUAL_IN_PROGRESS);
-    when(editionInstaller.requiresInstallationChange(Collections.singleton("plugin1"))).thenReturn(true);
-    when(editionInstaller.install(Collections.singleton("plugin1"))).thenReturn(false);
+    when(editionInstaller.requiresInstallationChange(singleton("plugin1"))).thenReturn(true);
 
     TestRequest request = actionTester.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
@@ -195,15 +195,15 @@ public class ApplyLicenseActionTest {
     TestResponse response = request.execute();
 
     assertResponse(response, PENDING_EDITION_NAME, "", PendingStatus.MANUAL_IN_PROGRESS);
-    verify(mutableEditionManagementState).startManualInstall(any(License.class));
+    verify(mutableEditionManagementState, times(0)).startManualInstall(any(License.class));
+    verify(mutableEditionManagementState, times(0)).startAutomaticInstall(any(License.class));
   }
 
   @Test
   public void apply_successfully_auto_installation() throws IOException {
     userSessionRule.logIn().setSystemAdministrator();
     setPendingLicense(PendingStatus.AUTOMATIC_IN_PROGRESS);
-    when(editionInstaller.requiresInstallationChange(Collections.singleton("plugin1"))).thenReturn(true);
-    when(editionInstaller.install(Collections.singleton("plugin1"))).thenReturn(true);
+    when(editionInstaller.requiresInstallationChange(singleton("plugin1"))).thenReturn(true);
 
     TestRequest request = actionTester.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
@@ -212,7 +212,8 @@ public class ApplyLicenseActionTest {
     TestResponse response = request.execute();
 
     assertResponse(response, PENDING_EDITION_NAME, "", PendingStatus.AUTOMATIC_IN_PROGRESS);
-    verify(mutableEditionManagementState).startAutomaticInstall(any(License.class));
+    verify(mutableEditionManagementState, times(0)).startAutomaticInstall(any(License.class));
+    verify(mutableEditionManagementState, times(0)).startManualInstall(any(License.class));
   }
 
   private void assertResponse(TestResponse response, String expectedNextEditionKey, String expectedEditionKey,
