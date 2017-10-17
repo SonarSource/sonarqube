@@ -179,9 +179,9 @@ public class OAuth2ContextFactoryTest {
   }
 
   @Test
-  public void redirect_to_requested_page_doesnt_need_context() throws Exception {
-    when(oAuthRedirection.getAndDelete(request, response)).thenReturn(Optional.of("/sonarqube/settings"));
-    when(server.getContextPath()).thenReturn("/other");
+  public void redirect_to_requested_page_context() throws Exception {
+    when(oAuthRedirection.getAndDelete(request, response)).thenReturn(Optional.of("/settings"));
+    when(server.getContextPath()).thenReturn("/sonarqube");
     OAuth2IdentityProvider.CallbackContext callback = newCallbackContext();
 
     callback.redirectToRequestedPage();
