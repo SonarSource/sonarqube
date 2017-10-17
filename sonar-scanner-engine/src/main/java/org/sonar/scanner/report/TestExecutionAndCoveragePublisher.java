@@ -36,6 +36,7 @@ import org.sonar.scanner.protocol.output.ScannerReport.CoverageDetail;
 import org.sonar.scanner.protocol.output.ScannerReport.Test;
 import org.sonar.scanner.protocol.output.ScannerReport.Test.TestStatus;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 import static java.util.stream.Collectors.toList;
@@ -44,14 +45,19 @@ public class TestExecutionAndCoveragePublisher implements ReportPublisherStep {
 
   private final InputComponentStore componentStore;
   private final TestPlanBuilder testPlanBuilder;
+  private final BranchConfiguration branchConfiguration;
 
-  public TestExecutionAndCoveragePublisher(InputComponentStore componentStore, TestPlanBuilder testPlanBuilder) {
+  public TestExecutionAndCoveragePublisher(InputComponentStore componentStore, TestPlanBuilder testPlanBuilder, BranchConfiguration branchConfiguration) {
     this.componentStore = componentStore;
     this.testPlanBuilder = testPlanBuilder;
+    this.branchConfiguration = branchConfiguration;
   }
 
   @Override
   public void publish(ScannerReportWriter writer) {
+    if (branchConfiguration.isShortLivingBranch()) {
+      return;
+    }
     final ScannerReport.Test.Builder testBuilder = ScannerReport.Test.newBuilder();
     final ScannerReport.CoverageDetail.Builder builder = ScannerReport.CoverageDetail.newBuilder();
     final ScannerReport.CoverageDetail.CoveredFile.Builder coveredBuilder = ScannerReport.CoverageDetail.CoveredFile.newBuilder();
