@@ -21,9 +21,12 @@ package org.sonar.server.ce.ws;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 
+import javax.annotation.Nullable;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.web.UserRole;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeQueueImpl;
 import org.sonar.ce.queue.CeTask;
@@ -56,10 +59,48 @@ public class CancelActionTest {
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
-  public void cancel_pending_task() {
+  public void cancel_pending_task_on_project() {
     logInAsSystemAdministrator();
     ComponentDto project = db.components().insertPrivateProject();
-    CeQueueDto queue = createTaskSubmit(project);
+    CeQueueDto queue = createTaskSubmit(project.uuid());
+
+    tester.newRequest()
+      .setParam("id", queue.getUuid())
+      .execute();
+
+    assertThat(db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), queue.getUuid()).get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
+  }
+
+  @Test
+  public void cancel_pending_task_having_no_component() {
+    logInAsSystemAdministrator();
+    CeQueueDto queue = createTaskSubmit(null);
+
+    tester.newRequest()
+      .setParam("id", queue.getUuid())
+      .execute();
+
+    assertThat(db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), queue.getUuid()).get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
+  }
+
+  @Test
+  public void cancel_pending_task_when_system_administer() {
+    logInAsSystemAdministrator();
+    ComponentDto project = db.components().insertPrivateProject();
+    CeQueueDto queue = createTaskSubmit(project.uuid());
+
+    tester.newRequest()
+      .setParam("id", queue.getUuid())
+      .execute();
+
+    assertThat(db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), queue.getUuid()).get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
+  }
+
+  @Test
+  public void cancel_pending_task_when_project_administer() {
+    ComponentDto project = db.components().insertPrivateProject();
+    userSession.addProjectPermission(UserRole.ADMIN, project);
+    CeQueueDto queue = createTaskSubmit(project.uuid());
 
     tester.newRequest()
       .setParam("id", queue.getUuid())
@@ -88,14 +129,42 @@ public class CancelActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_system_administrator() {
+  public void throw_ForbiddenException_if_not_enough_permission_when_canceling_task_on_project() {
     userSession.logIn().setNonSystemAdministrator();
+    ComponentDto project = db.components().insertPrivateProject();
+    CeQueueDto queue = createTaskSubmit(project.uuid());
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
     tester.newRequest()
-      .setParam("id", "T1")
+      .setParam("id", queue.getUuid())
+      .execute();
+  }
+
+  @Test
+  public void throw_ForbiddenException_if_not_enough_permission_when_canceling_task_without_project() {
+    userSession.logIn().setNonSystemAdministrator();
+    CeQueueDto queue = createTaskSubmit(null);
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    tester.newRequest()
+      .setParam("id", queue.getUuid())
+      .execute();
+  }
+
+  @Test
+  public void throw_ForbiddenException_if_not_enough_permission_when_canceling_task_when_project_does_not_exist() {
+    userSession.logIn().setNonSystemAdministrator();
+    CeQueueDto queue = createTaskSubmit("UNKNOWN");
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    tester.newRequest()
+      .setParam("id", queue.getUuid())
       .execute();
   }
 
@@ -103,10 +172,10 @@ public class CancelActionTest {
     userSession.logIn().setSystemAdministrator();
   }
 
-  private CeQueueDto createTaskSubmit(ComponentDto component) {
+  private CeQueueDto createTaskSubmit(@Nullable String componentUuid) {
     CeTaskSubmit.Builder submission = queue.prepareSubmit();
     submission.setType(CeTaskTypes.REPORT);
-    submission.setComponentUuid(component.uuid());
+    submission.setComponentUuid(componentUuid);
     submission.setSubmitterLogin(null);
     CeTask task = queue.submit(submission.build());
     return db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();

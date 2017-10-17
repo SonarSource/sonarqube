@@ -19,16 +19,20 @@
  */
 package org.sonar.server.ce.ws;
 
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
+
 import java.util.Optional;
 
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.user.UserSession;
 
 public class CancelAction implements CeWsAction {
@@ -69,15 +73,29 @@ public class CancelAction implements CeWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) {
-    userSession.checkIsSystemAdministrator();
     String taskId = wsRequest.mandatoryParam(PARAM_TASK_ID);
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<CeQueueDto> queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, taskId);
       queueDto.ifPresent(dto -> {
+        checkPermission(dbSession, dto);
         queue.cancel(dbSession, dto);
       });
     }
     wsResponse.noContent();
   }
 
+  private void checkPermission(DbSession dbSession, CeQueueDto ceQueueDto) {
+    if (userSession.isSystemAdministrator()) {
+      return;
+    }
+    String componentUuid = ceQueueDto.getComponentUuid();
+    if (componentUuid == null) {
+      throw insufficientPrivilegesException();
+    }
+    com.google.common.base.Optional<ComponentDto> component = dbClient.componentDao().selectByUuid(dbSession, componentUuid);
+    if (!component.isPresent()) {
+      throw insufficientPrivilegesException();
+    }
+    userSession.checkComponentPermission(UserRole.ADMIN, component.get());
+  }
 }
