@@ -22,6 +22,8 @@ package org.sonar.db.component;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 public final class SnapshotDto {
 
   /**
@@ -29,6 +31,7 @@ public final class SnapshotDto {
    */
   public static final String STATUS_UNPROCESSED = "U";
   public static final String STATUS_PROCESSED = "P";
+  public static final int MAX_VERSION_LENGTH = 100;
 
   private Long id;
   private String uuid;
@@ -116,6 +119,10 @@ public final class SnapshotDto {
   }
 
   public SnapshotDto setVersion(@Nullable String version) {
+    if (version != null) {
+      checkArgument(version.length() <= MAX_VERSION_LENGTH,
+        "Event name length (%s) is longer than the maximum authorized (%s). '%s' was provided.", version.length(), MAX_VERSION_LENGTH, version);
+    }
     this.version = version;
     return this;
   }
