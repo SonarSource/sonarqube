@@ -80,6 +80,7 @@ function getWrapper(props = {}) {
       editionsUrl=""
       sonarqubeVersion="6.7.5"
       updateCenterActive={true}
+      updateEditionStatus={jest.fn()}
       {...props}
     />
   );

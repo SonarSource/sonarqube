@@ -30,6 +30,7 @@ export interface Props {
   editionsUrl: string;
   sonarqubeVersion: string;
   updateCenterActive: boolean;
+  updateEditionStatus: (editionStatus: EditionStatus) => void;
 }
 
 interface State {
@@ -108,7 +109,11 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
         )}
 
         {installEdition && (
-          <LicenseEditionForm edition={installEdition} onClose={this.handleCloseLicenseForm} />
+          <LicenseEditionForm
+            edition={installEdition}
+            onClose={this.handleCloseLicenseForm}
+            updateEditionStatus={this.props.updateEditionStatus}
+          />
         )}
       </div>
     );

@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { translate } from '../../helpers/l10n';
-import { cancelPendingPlugins, PluginPending } from '../../api/plugins';
 import RestartForm from '../../components/common/RestartForm';
+import { cancelPendingPlugins, PluginPending } from '../../api/plugins';
+import { translate } from '../../helpers/l10n';
 
 interface Props {
   pending: {
@@ -40,7 +40,6 @@ export default class PendingActions extends React.PureComponent<Props, State> {
   state: State = { openRestart: false };
 
   handleOpenRestart = () => this.setState({ openRestart: true });
-
   hanleCloseRestart = () => this.setState({ openRestart: false });
 
   handleRevert = () => {
