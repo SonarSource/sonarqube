@@ -49,6 +49,8 @@ public class DefaultIndexSettings {
   public static final String INDEX_NOT_SEARCHABLE = "false";
   public static final String FIELD_TYPE_TEXT = "text";
   public static final String FIELD_TYPE_KEYWORD = "keyword";
+  public static final String NORMS = "norms";
+  public static final String STORE = "store";
   public static final String FIELD_FIELDDATA = "fielddata";
   public static final String FIELDDATA_ENABLED = "true";
   public static final String FIELD_TERM_VECTOR = "term_vector";
