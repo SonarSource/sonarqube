@@ -24,20 +24,17 @@ import { connect } from 'react-redux';
 import SettingsNav from './nav/settings/SettingsNav';
 import { getAppState } from '../../store/rootReducer';
 import { getSettingsNavigation } from '../../api/nav';
-import { EditionStatus, getEditionStatus } from '../../api/marketplace';
-import { setAdminPages, setEditionStatus } from '../../store/appState/duck';
+import { setAdminPages } from '../../store/appState/duck';
 import { translate } from '../../helpers/l10n';
 import { Extension } from '../types';
 
 interface Props {
   appState: {
     adminPages: Extension[];
-    editionStatus?: EditionStatus;
     organizationsEnabled: boolean;
   };
   location: {};
   setAdminPages: (adminPages: Extension[]) => void;
-  setEditionStatus: (editionStatus: EditionStatus) => void;
 }
 
 class AdminContainer extends React.PureComponent<Props> {
@@ -56,17 +53,16 @@ class AdminContainer extends React.PureComponent<Props> {
   }
 
   loadData() {
-    Promise.all([getSettingsNavigation(), getEditionStatus()]).then(
-      ([r, editionStatus]) => {
+    getSettingsNavigation().then(
+      r => {
         this.props.setAdminPages(r.extensions);
-        this.props.setEditionStatus(editionStatus);
       },
       () => {}
     );
   }
 
   render() {
-    const { adminPages, editionStatus, organizationsEnabled } = this.props.appState;
+    const { adminPages, organizationsEnabled } = this.props.appState;
 
     // Check that the adminPages are loaded
     if (!adminPages) {
@@ -80,7 +76,6 @@ class AdminContainer extends React.PureComponent<Props> {
         <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />
         <SettingsNav
           customOrganizations={organizationsEnabled}
-          editionStatus={editionStatus}
           extensions={adminPages}
           location={this.props.location}
         />
@@ -94,6 +89,6 @@ const mapStateToProps = (state: any) => ({
   appState: getAppState(state)
 });
 
-const mapDispatchToProps = { setAdminPages, setEditionStatus };
+const mapDispatchToProps = { setAdminPages };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AdminContainer as any);
