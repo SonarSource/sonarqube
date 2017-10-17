@@ -20,14 +20,13 @@
 import * as React from 'react';
 import Modal from 'react-modal';
 import LicenseEditionSet from './LicenseEditionSet';
-import getStore from '../../../app/utils/getStore';
-import { setEditionStatus } from '../../../store/appState/duck';
-import { Edition, applyLicense } from '../../../api/marketplace';
+import { Edition, EditionStatus, applyLicense } from '../../../api/marketplace';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface Props {
   edition: Edition;
   onClose: () => void;
+  updateEditionStatus: (editionStatus: EditionStatus) => void;
 }
 
 interface State {
@@ -66,7 +65,7 @@ export default class LicenseEditionForm extends React.PureComponent<Props, State
       this.setState({ loading: true });
       applyLicense({ license }).then(
         editionStatus => {
-          getStore().dispatch(setEditionStatus(editionStatus));
+          this.props.updateEditionStatus(editionStatus);
           this.props.onClose();
         },
         () => {
