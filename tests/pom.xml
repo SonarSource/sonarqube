@@ -83,8 +83,8 @@
       <artifactId>assertj-core</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-all</artifactId>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-guava</artifactId>
     </dependency>
     <dependency>
       <groupId>com.googlecode.json-simple</groupId>

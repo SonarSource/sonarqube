@@ -53,9 +53,8 @@ public class QualityProfileProvider extends ProviderAdapter {
 
   @CheckForNull
   private static String getSonarProfile(AnalysisProperties props) {
-    String profile = null;
-    if (props.properties().containsKey(ModuleQProfiles.SONAR_PROFILE_PROP)) {
-      profile = props.property(ModuleQProfiles.SONAR_PROFILE_PROP);
+    String profile = props.property(ModuleQProfiles.SONAR_PROFILE_PROP);
+    if (profile != null) {
       LOG.warn("Ability to set quality profile from command line using '" + ModuleQProfiles.SONAR_PROFILE_PROP
         + "' is deprecated and will be dropped in a future SonarQube version. Please configure quality profile used by your project on SonarQube server.");
     }

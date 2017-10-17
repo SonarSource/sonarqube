@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InOrder;
-import org.mockito.Mockito;
+import org.sonar.core.platform.ComponentContainer;
 import org.sonar.db.DBSessions;
 import org.sonar.server.authentication.UserSessionInitializer;
 import org.sonar.server.organization.DefaultOrganizationCache;
@@ -48,7 +48,8 @@ import static org.mockito.Mockito.when;
 public class UserSessionFilterTest {
 
   private UserSessionInitializer userSessionInitializer = mock(UserSessionInitializer.class);
-  private Platform platform = mock(Platform.class, Mockito.RETURNS_DEEP_STUBS);
+  private ComponentContainer container = new ComponentContainer();
+  private Platform platform = mock(Platform.class);
   private HttpServletRequest request = mock(HttpServletRequest.class);
   private HttpServletResponse response = mock(HttpServletResponse.class);
   private FilterChain chain = mock(FilterChain.class);
@@ -59,9 +60,8 @@ public class UserSessionFilterTest {
 
   @Before
   public void setUp() {
-    when(platform.getContainer().getComponentByType(DBSessions.class)).thenReturn(dbSessions);
-    when(platform.getContainer().getComponentByType(ThreadLocalSettings.class)).thenReturn(settings);
-    when(platform.getContainer().getComponentByType(DefaultOrganizationCache.class)).thenReturn(defaultOrganizationCache);
+    container.add(dbSessions, settings, defaultOrganizationCache);
+    when(platform.getContainer()).thenReturn(container);
   }
 
   @Test
@@ -86,8 +86,6 @@ public class UserSessionFilterTest {
 
   @Test
   public void does_nothing_when_not_initialized() throws Exception {
-    mockNoUserSessionInitializer();
-
     underTest.doFilter(request, response, chain);
 
     verify(chain).doFilter(request, response);
@@ -96,8 +94,6 @@ public class UserSessionFilterTest {
 
   @Test
   public void doFilter_loads_and_unloads_settings() throws Exception {
-    mockNoUserSessionInitializer();
-
     underTest.doFilter(request, response, chain);
 
     InOrder inOrder = inOrder(settings);
@@ -108,7 +104,6 @@ public class UserSessionFilterTest {
 
   @Test
   public void doFilter_unloads_Settings_even_if_chain_throws_exception() throws Exception {
-    mockNoUserSessionInitializer();
     RuntimeException thrown = mockChainDoFilterError();
 
     try {
@@ -122,8 +117,6 @@ public class UserSessionFilterTest {
 
   @Test
   public void doFilter_enables_and_disables_caching_in_DbSessions() throws Exception {
-    mockNoUserSessionInitializer();
-
     underTest.doFilter(request, response, chain);
 
     InOrder inOrder = inOrder(dbSessions);
@@ -134,7 +127,6 @@ public class UserSessionFilterTest {
 
   @Test
   public void doFilter_disables_caching_in_DbSessions_even_if_chain_throws_exception() throws Exception {
-    mockNoUserSessionInitializer();
     RuntimeException thrown = mockChainDoFilterError();
 
     try {
@@ -148,7 +140,6 @@ public class UserSessionFilterTest {
 
   @Test
   public void doFilter_unloads_Settings_even_if_DefaultOrganizationCache_unload_fails() throws Exception {
-    mockNoUserSessionInitializer();
     RuntimeException thrown = new RuntimeException("Faking DefaultOrganizationCache.unload failing");
     doThrow(thrown)
         .when(defaultOrganizationCache)
@@ -178,8 +169,6 @@ public class UserSessionFilterTest {
 
   @Test
   public void doFilter_loads_and_unloads_DefaultOrganizationCache() throws Exception {
-    mockNoUserSessionInitializer();
-
     underTest.doFilter(request, response, chain);
 
     InOrder inOrder = inOrder(defaultOrganizationCache);
@@ -190,7 +179,6 @@ public class UserSessionFilterTest {
 
   @Test
   public void doFilter_unloads_DefaultOrganizationCache_even_if_chain_throws_exception() throws Exception {
-    mockNoUserSessionInitializer();
     RuntimeException thrown = mockChainDoFilterError();
 
     try {
@@ -204,7 +192,6 @@ public class UserSessionFilterTest {
 
   @Test
   public void doFilter_unloads_DefaultOrganizationCache_even_if_Settings_unload_fails() throws Exception {
-    mockNoUserSessionInitializer();
     RuntimeException thrown = new RuntimeException("Faking Settings.unload failing");
     doThrow(thrown)
         .when(settings)
@@ -240,17 +227,13 @@ public class UserSessionFilterTest {
     // do not fail
   }
 
-  private void mockNoUserSessionInitializer() {
-    when(platform.getContainer().getComponentByType(UserSessionInitializer.class)).thenReturn(null);
-  }
-
   private void mockUserSessionInitializer(boolean value) {
-    when(platform.getContainer().getComponentByType(UserSessionInitializer.class)).thenReturn(userSessionInitializer);
+    container.add(userSessionInitializer);
     when(userSessionInitializer.initUserSession(request, response)).thenReturn(value);
   }
 
   private RuntimeException mockUserSessionInitializerRemoveUserSessionFailing() {
-    when(platform.getContainer().getComponentByType(UserSessionInitializer.class)).thenReturn(userSessionInitializer);
+    container.add(userSessionInitializer);
     RuntimeException thrown = new RuntimeException("Faking UserSessionInitializer.removeUserSession failing");
     doThrow(thrown)
         .when(userSessionInitializer)

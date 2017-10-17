@@ -25,7 +25,7 @@ import org.hamcrest.TypeSafeMatcher;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
 
-import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.CoreMatchers.hasItem;
 
 public class CloneGroupMatcher extends TypeSafeMatcher<CloneGroup> {
 

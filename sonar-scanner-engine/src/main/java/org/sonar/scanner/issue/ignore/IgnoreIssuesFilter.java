@@ -41,9 +41,8 @@ public class IgnoreIssuesFilter implements IssueFilter {
   public boolean accept(FilterableIssue issue, IssueFilterChain chain) {
     if (hasMatchFor(issue)) {
       return false;
-    } else {
-      return chain.accept(issue);
     }
+    return chain.accept(issue);
   }
 
   private boolean hasMatchFor(FilterableIssue issue) {

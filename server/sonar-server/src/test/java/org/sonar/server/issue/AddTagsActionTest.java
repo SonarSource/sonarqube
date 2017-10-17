@@ -20,53 +20,40 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.ImmutableSet;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Matchers;
+import org.mockito.Mockito;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
 
-import static com.google.common.collect.Maps.newHashMap;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class AddTagsActionTest {
 
-  private AddTagsAction action;
-
-  private IssueFieldsSetter issueUpdater = mock(IssueFieldsSetter.class);
-
   @Rule
   public ExpectedException throwable = ExpectedException.none();
 
-  @Before
-  public void before() {
-    action = new AddTagsAction(issueUpdater);
-  }
+  private IssueFieldsSetter issueUpdater = new IssueFieldsSetter();
+  private AddTagsAction underTest = new AddTagsAction(issueUpdater);
 
   @Test
   @SuppressWarnings("unchecked")
   public void should_execute() {
-    Map<String, Object> properties = newHashMap();
+    Map<String, Object> properties = new HashMap<>();
     properties.put("tags", "tag2,tag3");
 
     DefaultIssue issue = mock(DefaultIssue.class);
     when(issue.tags()).thenReturn(ImmutableSet.of("tag1", "tag3"));
 
-    Action.Context context = mock(Action.Context.class);
+    Action.Context context = mock(Action.Context.class, Mockito.RETURNS_DEEP_STUBS);
     when(context.issue()).thenReturn(issue);
 
-    action.execute(properties, context);
-    verify(issueUpdater).setTags(eq(issue),
-      (Collection<String>) Matchers.argThat(org.hamcrest.Matchers.containsInAnyOrder("tag1", "tag2", "tag3")),
-      any(IssueChangeContext.class));
+    underTest.execute(properties, context);
+    verify(issue).setTags(ImmutableSet.of("tag1", "tag2", "tag3"));
   }
 
   @Test
@@ -74,7 +61,7 @@ public class AddTagsActionTest {
     throwable.expect(IllegalArgumentException.class);
     throwable.expectMessage("Tag 'th ag' is invalid. Rule tags accept only the characters: a-z, 0-9, '+', '-', '#', '.'");
 
-    Map<String, Object> properties = newHashMap();
+    Map<String, Object> properties = new HashMap<>();
     properties.put("tags", "th ag");
 
     DefaultIssue issue = mock(DefaultIssue.class);
@@ -83,6 +70,6 @@ public class AddTagsActionTest {
     Action.Context context = mock(Action.Context.class);
     when(context.issue()).thenReturn(issue);
 
-    action.execute(properties, context);
+    underTest.execute(properties, context);
   }
 }

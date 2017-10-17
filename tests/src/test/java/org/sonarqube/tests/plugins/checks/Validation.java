@@ -22,18 +22,19 @@ package org.sonarqube.tests.plugins.checks;
 import com.google.common.base.Joiner;
 import com.google.gson.Gson;
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.plugins.Project;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-import org.hamcrest.Matchers;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.rules.ErrorCollector;
+import org.sonarqube.tests.plugins.Project;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNull.notNullValue;
 import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
 import static util.ItUtils.newAdminWsClient;
 
@@ -57,22 +58,22 @@ public class Validation {
 
   public void mustHaveIssues(String path) {
     // TODO use the WS api/issues
-    mustHaveMeasuresGreaterThan(path, 1, "violations");
+    mustHaveMeasuresGreaterThanOrEquals(path, 1, "violations");
   }
 
   public void mustHaveComments(String path) {
-    mustHaveMeasuresGreaterThan(path, 0, "comment_lines", "comment_lines_density");
+    mustHaveMeasuresGreaterThanOrEquals(path, 0, "comment_lines", "comment_lines_density");
   }
 
   public void mustHaveComplexity(String path) {
-    mustHaveMeasuresGreaterThan(path, 0, "complexity");
+    mustHaveMeasuresGreaterThanOrEquals(path, 0, "complexity");
   }
 
   public void mustHaveSize(String path) {
-    mustHaveMeasuresGreaterThan(path, 0, "ncloc", "lines");
+    mustHaveMeasuresGreaterThanOrEquals(path, 0, "ncloc", "lines");
   }
 
-  public void mustHaveMeasuresGreaterThan(String path, int min, String... metricKeys) {
+  public void mustHaveMeasuresGreaterThanOrEquals(String path, int min, String... metricKeys) {
     for (String filePath : toFiles(path)) {
       fileMustHaveMeasures(filePath, metricKeys, min);
     }
@@ -87,7 +88,17 @@ public class Validation {
         Double measure = measures.get(metricKey);
         errorCollector.checkThat("Measure " + metricKey + " is set on file " + filePath, measure, notNullValue());
         if (measure != null) {
-          errorCollector.checkThat("Measure " + metricKey + " is positive on file " + filePath, measure.intValue(), Matchers.greaterThanOrEqualTo(min));
+          errorCollector.checkThat("Measure " + metricKey + " is positive on file " + filePath, measure.intValue(), new TypeSafeMatcher<Integer>() {
+            @Override
+            protected boolean matchesSafely(Integer item) {
+              return item >= min;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+              description.appendText(metricKey).appendValue(min);
+            }
+          });
         }
       }
     }
@@ -111,7 +122,17 @@ public class Validation {
       errorCollector.checkThat("Source is set on file " + filePath, response.isSuccessful(), is(true));
       Sources source = Sources.parse(response.content());
       if (source != null) {
-        errorCollector.checkThat("Source is empty on file " + filePath, source.getSources().size(), Matchers.greaterThanOrEqualTo(minLines));
+        errorCollector.checkThat("Source is empty on file " + filePath, source.getSources().size(), new TypeSafeMatcher<Integer>() {
+          @Override
+          protected boolean matchesSafely(Integer item) {
+            return item >= minLines;
+          }
+
+          @Override
+          public void describeTo(Description description) {
+            description.appendValue(minLines);
+          }
+        });
       }
     }
   }

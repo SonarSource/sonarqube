@@ -19,14 +19,13 @@
  */
 package org.sonar.duplications.block;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-
 import java.util.List;
-
 import org.junit.Test;
 import org.sonar.duplications.statement.Statement;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class BlockChunkerTest extends BlockChunkerTestCase {
 

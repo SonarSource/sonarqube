@@ -19,8 +19,8 @@
  */
 package org.sonar.scanner.issue.ignore;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
@@ -35,32 +35,26 @@ import static org.mockito.Mockito.when;
 
 public class IgnoreIssuesFilterTest {
 
-  private PatternMatcher exclusionPatternMatcher;
-  private IgnoreIssuesFilter ignoreFilter;
-  private FilterableIssue issue;
-  private IssueFilterChain chain;
-
-  @Before
-  public void init() {
-    exclusionPatternMatcher = mock(PatternMatcher.class);
-    issue = mock(FilterableIssue.class);
-    chain = mock(IssueFilterChain.class);
-    when(chain.accept(issue)).thenReturn(true);
-
-    ignoreFilter = new IgnoreIssuesFilter(exclusionPatternMatcher);
-  }
+  private PatternMatcher exclusionPatternMatcher = mock(PatternMatcher.class);
+  private FilterableIssue issue = mock(FilterableIssue.class, Mockito.RETURNS_DEEP_STUBS);
+  private IssueFilterChain chain = mock(IssueFilterChain.class);
+  private IgnoreIssuesFilter underTest = new IgnoreIssuesFilter(exclusionPatternMatcher);
 
   @Test
   public void shouldPassToChainIfMatcherHasNoPatternForIssue() {
-    when(exclusionPatternMatcher.getMatchingPattern(anyString(), any(RuleKey.class), any(Integer.class))).thenReturn(null);
-
-    assertThat(ignoreFilter.accept(issue, chain)).isTrue();
+    when(exclusionPatternMatcher.getMatchingPattern(anyString(), any(RuleKey.class), any(Integer.class)))
+      .thenReturn(null);
+    when(chain.accept(issue)).thenReturn(true);
+    assertThat(underTest.accept(issue, chain)).isTrue();
   }
 
   @Test
-  public void shouldAcceptOrRefuseIfMatcherHasPatternForIssue() {
-    when(exclusionPatternMatcher.getMatchingPattern(anyString(), any(RuleKey.class), any(Integer.class))).thenReturn(mock(IssuePattern.class));
+  public void shouldRejectIfPatternMatches() {
+    IssuePattern pattern = mock(IssuePattern.class);
+    when(exclusionPatternMatcher.getMatchingPattern(anyString(), any(RuleKey.class), any(Integer.class)))
+      .thenReturn(pattern);
 
-    assertThat(ignoreFilter.accept(issue, chain)).isFalse();
+    assertThat(underTest.accept(issue, chain)).isFalse();
   }
+
 }

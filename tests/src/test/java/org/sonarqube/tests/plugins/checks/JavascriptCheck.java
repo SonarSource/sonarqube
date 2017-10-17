@@ -30,6 +30,6 @@ public class JavascriptCheck implements Check {
     validation.mustHaveComments(SRC_DIR);
     validation.mustHaveComplexity(SRC_DIR);
     validation.mustHaveIssues(SRC_DIR + "/HasIssues.js");
-    validation.mustHaveMeasuresGreaterThan(SRC_DIR + "/Person.js", 0, "coverage");
+    validation.mustHaveMeasuresGreaterThanOrEquals(SRC_DIR + "/Person.js", 0, "coverage");
   }
 }

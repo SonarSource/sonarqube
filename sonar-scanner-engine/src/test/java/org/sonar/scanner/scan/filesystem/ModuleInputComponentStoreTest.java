@@ -36,6 +36,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ModuleInputComponentStoreTest {
   @Rule
@@ -120,10 +121,12 @@ public class ModuleInputComponentStoreTest {
   public void should_find_module_components_with_non_global_strategy() {
     InputComponentStore inputComponentStore = mock(InputComponentStore.class);
     SensorStrategy strategy = new SensorStrategy();
-    ModuleInputComponentStore store = new ModuleInputComponentStore(mock(InputModule.class), inputComponentStore, strategy);
+    InputModule module = mock(InputModule.class);
+    when(module.key()).thenReturn("foo");
+    ModuleInputComponentStore store = new ModuleInputComponentStore(module, inputComponentStore, strategy);
 
     store.inputFiles();
-    verify(inputComponentStore).filesByModule(any(String.class));
+    verify(inputComponentStore).filesByModule("foo");
 
     String relativePath = "somepath";
     store.inputFile(relativePath);
