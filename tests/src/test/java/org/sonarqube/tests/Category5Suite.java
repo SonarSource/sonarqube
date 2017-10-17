@@ -25,7 +25,6 @@ import org.sonarqube.tests.analysis.AnalysisEsResilienceTest;
 import org.sonarqube.tests.authorisation.SystemPasscodeTest;
 import org.sonarqube.tests.ce.CeShutdownTest;
 import org.sonarqube.tests.ce.CeWorkersTest;
-import org.sonarqube.tests.cluster.ClusterTest;
 import org.sonarqube.tests.issue.IssueCreationDatePluginChangedTest;
 import org.sonarqube.tests.qualityProfile.ActiveRuleEsResilienceTest;
 import org.sonarqube.tests.qualityProfile.BuiltInQualityProfilesNotificationTest;
@@ -51,7 +50,6 @@ import org.sonarqube.tests.user.UserEsResilienceTest;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  ClusterTest.class,
   ServerSystemRestartingOrchestrator.class,
   RestartTest.class,
   SettingsTestRestartingOrchestrator.class,

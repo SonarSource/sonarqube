@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
-import org.sonar.server.cluster.StartableHazelcastMember;
+import org.sonar.process.cluster.hz.HazelcastMember;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
@@ -45,7 +45,7 @@ public class CeDistributedInformationImplTest {
     clientUUID3, ImmutableSet.of("4", "5", "6")
   );
 
-  private StartableHazelcastMember hzClientWrapper = mock(StartableHazelcastMember.class);
+  private HazelcastMember hzClientWrapper = mock(HazelcastMember.class);
 
   @Test
   public void getWorkerUUIDs_returns_union_of_workers_uuids_of_local_and_cluster_worker_uuids() {

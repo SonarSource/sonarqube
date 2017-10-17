@@ -78,7 +78,6 @@ import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
-import org.sonar.server.cluster.StartableHazelcastMember;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.computation.task.projectanalysis.ProjectAnalysisTaskModule;
@@ -426,8 +425,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
     if (props.valueAsBoolean(ProcessProperties.CLUSTER_ENABLED)) {
       container.add(
-        StartableHazelcastMember.class,
-
         // system health
         CeDistributedInformationImpl.class,
 

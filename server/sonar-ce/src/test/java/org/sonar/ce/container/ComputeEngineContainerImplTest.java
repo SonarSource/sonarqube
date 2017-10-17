@@ -21,13 +21,10 @@ package org.sonar.ce.container;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.util.Date;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import org.apache.commons.dbcp.BasicDataSource;
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,23 +39,15 @@ import org.sonar.ce.CeDistributedInformationImpl;
 import org.sonar.ce.StandaloneCeDistributedInformation;
 import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
-import org.sonar.server.cluster.StartableHazelcastMember;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assume.assumeThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
-import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_KEY;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
-import static org.sonar.process.ProcessProperties.CLUSTER_ENABLED;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_HOST;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_PORT;
-import static org.sonar.process.ProcessProperties.CLUSTER_NODE_TYPE;
 import static org.sonar.process.ProcessProperties.PATH_DATA;
 import static org.sonar.process.ProcessProperties.PATH_HOME;
 import static org.sonar.process.ProcessProperties.PATH_TEMP;
@@ -86,36 +75,7 @@ public class ComputeEngineContainerImplTest {
   }
 
   @Test
-  public void real_start_with_cluster() throws IOException {
-    Optional<InetAddress> localhost = NetworkUtilsImpl.INSTANCE.getLocalNonLoopbackIpv4Address();
-    // test is ignored if offline
-    assumeThat(localhost.isPresent(), CoreMatchers.is(true));
-
-    Properties properties = getProperties();
-    properties.setProperty(PROPERTY_PROCESS_KEY, ProcessId.COMPUTE_ENGINE.getKey());
-    properties.setProperty(CLUSTER_ENABLED, "true");
-    properties.setProperty(CLUSTER_NODE_TYPE, "application");
-    properties.setProperty(CLUSTER_NODE_HOST, localhost.get().getHostAddress());
-    properties.setProperty(CLUSTER_NODE_PORT, "" + NetworkUtilsImpl.INSTANCE.getNextAvailablePort(localhost.get()));
-
-    // required persisted properties
-    insertProperty(CoreProperties.SERVER_ID, "a_startup_id");
-    insertProperty(CoreProperties.SERVER_STARTTIME, DateUtils.formatDateTime(new Date()));
-
-    underTest
-      .start(new Props(properties));
-
-    MutablePicoContainer picoContainer = underTest.getComponentContainer().getPicoContainer();
-    assertThat(
-      picoContainer.getComponentAdapters().stream()
-        .map(ComponentAdapter::getComponentImplementation)
-        .collect(Collectors.toList())).contains((Class) StartableHazelcastMember.class,
-          (Class) CeDistributedInformationImpl.class);
-    underTest.stop();
-  }
-
-  @Test
-  public void real_start_without_cluster() throws IOException {
+  public void test_real_start() throws IOException {
     Properties properties = getProperties();
 
     // required persisted properties
@@ -160,7 +120,7 @@ public class ComputeEngineContainerImplTest {
     assertThat(
       picoContainer.getComponentAdapters().stream()
         .map(ComponentAdapter::getComponentImplementation)
-        .collect(Collectors.toList())).doesNotContain((Class) StartableHazelcastMember.class,
+        .collect(Collectors.toList())).doesNotContain(
           (Class) CeDistributedInformationImpl.class).contains(
             (Class) StandaloneCeDistributedInformation.class);
     assertThat(picoContainer.getParent().getParent().getParent().getParent()).isNull();
