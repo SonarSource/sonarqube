@@ -22,7 +22,6 @@ package org.sonarqube.tests.dbCleaner;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category4Suite;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -35,9 +34,13 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
+import org.sonarqube.tests.Category4Suite;
+import org.sonarqube.tests.Tester;
+import org.sonarqube.ws.ProjectAnalyses;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.SearchHistoryResponse.HistoryValue;
 import org.sonarqube.ws.client.measure.SearchHistoryRequest;
+import org.sonarqube.ws.client.projectanalysis.SearchRequest;
 import util.ItUtils;
 
 import static java.util.Collections.singletonList;
@@ -46,8 +49,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static util.ItUtils.formatDate;
 import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.restoreProfile;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
+import static util.ItUtils.toDatetime;
 
 @Ignore
 public class PurgeTest {
@@ -62,7 +67,8 @@ public class PurgeTest {
 
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
-
+  @Rule
+  public Tester tester = new Tester(orchestrator);
   @Rule
   public ErrorCollector collector = new ErrorCollector();
 
@@ -72,11 +78,7 @@ public class PurgeTest {
 
     orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
 
-    ItUtils.restoreProfile(orchestrator, getClass().getResource("/dbCleaner/one-issue-per-line-profile.xml"));
-
-    setServerProperty(orchestrator, "sonar.dbcleaner.cleanDirectory", null);
-    setServerProperty(orchestrator, "sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay", null);
-    setServerProperty(orchestrator, "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByWeek", null);
+    restoreProfile(orchestrator, getClass().getResource("/dbCleaner/one-issue-per-line-profile.xml"));
   }
 
   @Test
@@ -214,6 +216,25 @@ public class PurgeTest {
       .build());
     assertThat(response.getMeasuresCount()).isEqualTo(1);
     assertThat(response.getMeasuresList().get(0).getHistoryList()).extracting(HistoryValue::getDate).doesNotContain(lastWednesdayFormatted, lastThursdayFormatted);
+  }
+
+  @Test
+  public void keep_only_analyses_with_a_version() {
+    tester.settings().setGlobalSettings("sonar.dbcleaner.weeksBeforeKeepingOnlyAnalysesWithVersion", "1");
+
+    Date now = new Date();
+    String heightDaysAgo = formatDate(addDays(now, -8));
+    String nineDaysAgo = formatDate(addDays(now, -9));
+
+    runProjectAnalysis(orchestrator, PROJECT_SAMPLE_PATH, "sonar.projectDate", nineDaysAgo, "sonar.projectVersion", "V1");
+    runProjectAnalysis(orchestrator, PROJECT_SAMPLE_PATH, "sonar.projectDate", heightDaysAgo);
+    runProjectAnalysis(orchestrator, PROJECT_SAMPLE_PATH);
+
+    ProjectAnalyses.SearchResponse result = tester.wsClient().projectAnalysis().search(SearchRequest.builder().setProject(PROJECT_KEY).build());
+
+    assertThat(result.getAnalysesList()).extracting(a -> formatDate(toDatetime(a.getDate())))
+      .contains(nineDaysAgo, formatDate(now))
+      .doesNotContain(heightDaysAgo);
   }
 
   /**

@@ -132,7 +132,7 @@
              period5_date="[null]"
              created_at="1228222680000"
              build_date="1228222680000"
-             version="[null]"
+             version="V5"
   />
 
   <events id="2"
@@ -141,7 +141,7 @@
           component_uuid="1"
           category="Version"
           description="[null]"
-          name="Version 1.0"
+          name="V5"
           event_date="1228222680000"
           created_at="1228222680000"
           event_data="[null]"/>

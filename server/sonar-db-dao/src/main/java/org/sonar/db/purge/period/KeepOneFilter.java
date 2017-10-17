@@ -57,7 +57,7 @@ class KeepOneFilter implements Filter {
     Loggers.get(getClass()).debug("-> Keep one snapshot per {} between {} and {}", label, DateUtils.formatDate(start), DateUtils.formatDate(end));
   }
 
-  private void appendSnapshotsToDelete(Interval interval, List<PurgeableAnalysisDto> toDelete) {
+  private static void appendSnapshotsToDelete(Interval interval, List<PurgeableAnalysisDto> toDelete) {
     if (interval.count() > 1) {
       List<PurgeableAnalysisDto> deletables = Lists.newArrayList();
       List<PurgeableAnalysisDto> toKeep = Lists.newArrayList();

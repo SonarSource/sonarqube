@@ -101,6 +101,17 @@ public final class PurgeProperties {
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
         .index(6)
+        .build(),
+
+      PropertyDefinition.builder(PurgeConstants.WEEKS_BEFORE_KEEPING_ONLY_ANALYSES_WITH_VERSION)
+        .defaultValue("104")
+        .name("Keep only analyses with a version event after")
+        .description("After this number of weeks, the DbCleaner keeps only analyses with a version event associated.")
+        .type(PropertyType.INTEGER)
+        .onQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
+        .index(7)
         .build()
       );
   }

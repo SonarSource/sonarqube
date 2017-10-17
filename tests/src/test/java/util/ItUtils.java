@@ -477,6 +477,11 @@ public class ItUtils {
     return sdf.format(d);
   }
 
+  public static String formatDateTime(Date d) {
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+    return sdf.format(d);
+  }
+
   public static String extractCeTaskId(BuildResult buildResult) {
     List<String> taskIds = extractCeTaskIds(buildResult);
     checkState(taskIds.size() == 1, "More than one task id retrieved from logs");

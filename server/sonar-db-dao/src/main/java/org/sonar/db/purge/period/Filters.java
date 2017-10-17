@@ -34,11 +34,13 @@ class Filters {
     Date dateToStartKeepingOneSnapshotByDay = getDateFromHours(config, PurgeConstants.HOURS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_DAY);
     Date dateToStartKeepingOneSnapshotByWeek = getDateFromWeeks(config, PurgeConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK);
     Date dateToStartKeepingOneSnapshotByMonth = getDateFromWeeks(config, PurgeConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH);
+    Date dateToStartKeepingOnlyAnalysisWithVersion = getDateFromWeeks(config, PurgeConstants.WEEKS_BEFORE_KEEPING_ONLY_ANALYSES_WITH_VERSION);
     Date dateToStartDeletingAllSnapshots = getDateFromWeeks(config, PurgeConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS);
 
     all.add(new KeepOneFilter(dateToStartKeepingOneSnapshotByWeek, dateToStartKeepingOneSnapshotByDay, Calendar.DAY_OF_YEAR, "day"));
     all.add(new KeepOneFilter(dateToStartKeepingOneSnapshotByMonth, dateToStartKeepingOneSnapshotByWeek, Calendar.WEEK_OF_YEAR, "week"));
     all.add(new KeepOneFilter(dateToStartDeletingAllSnapshots, dateToStartKeepingOneSnapshotByMonth, Calendar.MONTH, "month"));
+    all.add(new KeepWithVersionFilter(dateToStartKeepingOnlyAnalysisWithVersion));
     all.add(new DeleteAllFilter(dateToStartDeletingAllSnapshots));
   }
 
