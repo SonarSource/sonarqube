@@ -47,6 +47,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.Settings;
+import org.sonarqube.ws.Settings.Definition;
 import org.sonarqube.ws.Settings.ListDefinitionsWsResponse;
 
 import static java.lang.String.format;
@@ -113,7 +114,7 @@ public class ListDefinitionsActionTest {
     ListDefinitionsWsResponse result = executeRequest();
 
     assertThat(result.getDefinitionsList()).hasSize(1);
-    Settings.Definition definition = result.getDefinitions(0);
+    Definition definition = result.getDefinitions(0);
     assertThat(definition.getKey()).isEqualTo("foo");
     assertThat(definition.getName()).isEqualTo("Foo");
     assertThat(definition.getDescription()).isEqualTo("desc");
@@ -134,7 +135,7 @@ public class ListDefinitionsActionTest {
     ListDefinitionsWsResponse result = executeRequest();
 
     assertThat(result.getDefinitionsList()).hasSize(1);
-    Settings.Definition definition = result.getDefinitions(0);
+    Definition definition = result.getDefinitions(0);
     assertThat(definition.getKey()).isEqualTo("foo");
     assertThat(definition.getType()).isEqualTo(STRING);
     assertThat(definition.getNameOneOfCase()).isEqualTo(NAMEONEOF_NOT_SET);
@@ -159,7 +160,7 @@ public class ListDefinitionsActionTest {
     ListDefinitionsWsResponse result = executeRequest();
 
     assertThat(result.getDefinitionsList()).hasSize(1);
-    Settings.Definition definition = result.getDefinitions(0);
+    Definition definition = result.getDefinitions(0);
     assertThat(definition.getKey()).isEqualTo("foo");
     assertThat(definition.getName()).isEqualTo("Foo");
     assertThat(definition.getDeprecatedKey()).isEqualTo("deprecated");
@@ -190,7 +191,7 @@ public class ListDefinitionsActionTest {
     ListDefinitionsWsResponse result = executeRequest();
 
     assertThat(result.getDefinitionsList()).hasSize(1);
-    Settings.Definition definition = result.getDefinitions(0);
+    Definition definition = result.getDefinitions(0);
     assertThat(definition.getType()).isEqualTo(SINGLE_SELECT_LIST);
     assertThat(definition.getOptionsList()).containsExactly("one", "two");
   }
@@ -209,7 +210,7 @@ public class ListDefinitionsActionTest {
     ListDefinitionsWsResponse result = executeRequest();
 
     assertThat(result.getDefinitionsList()).hasSize(1);
-    Settings.Definition definition = result.getDefinitions(0);
+    Definition definition = result.getDefinitions(0);
     assertThat(definition.getType()).isEqualTo(PROPERTY_SET);
     assertThat(definition.getFieldsList()).hasSize(2);
 
@@ -249,6 +250,20 @@ public class ListDefinitionsActionTest {
     ListDefinitionsWsResponse result = executeRequest();
 
     assertThat(result.getDefinitionsList()).hasSize(1);
+  }
+
+  @Test
+  public void definitions_are_ordered_by_category_then_index_then_name_case_insensitive() {
+    logIn();
+    propertyDefinitions.addComponent(PropertyDefinition.builder("sonar.prop.11").category("cat-1").index(1).name("prop 1").build());
+    propertyDefinitions.addComponent(PropertyDefinition.builder("sonar.prop.12").category("cat-1").index(2).name("prop 2").build());
+    propertyDefinitions.addComponent(PropertyDefinition.builder("sonar.prop.13").category("CAT-1").index(1).name("prop 3").build());
+    propertyDefinitions.addComponent(PropertyDefinition.builder("sonar.prop.41").category("cat-0").index(25).name("prop 1").build());
+
+    ListDefinitionsWsResponse result = executeRequest();
+
+    assertThat(result.getDefinitionsList()).extracting(Definition::getKey)
+      .containsExactly("sonar.prop.41", "sonar.prop.11", "sonar.prop.13", "sonar.prop.12");
   }
 
   @Test
@@ -311,7 +326,7 @@ public class ListDefinitionsActionTest {
 
     ListDefinitionsWsResponse result = executeRequest();
 
-    assertThat(result.getDefinitionsList()).extracting(Settings.Definition::getKey, Settings.Definition::getType)
+    assertThat(result.getDefinitionsList()).extracting(Definition::getKey, Definition::getType)
       .containsOnly(tuple("plugin.license.secured", LICENSE), tuple("commercial.plugin", LICENSE));
   }
 
@@ -325,7 +340,7 @@ public class ListDefinitionsActionTest {
 
     ListDefinitionsWsResponse result = executeRequest();
 
-    assertThat(result.getDefinitionsList()).extracting(Settings.Definition::getKey).containsOnly("foo");
+    assertThat(result.getDefinitionsList()).extracting(Definition::getKey).containsOnly("foo");
   }
 
   @Test
@@ -339,7 +354,7 @@ public class ListDefinitionsActionTest {
 
     ListDefinitionsWsResponse result = executeRequest();
 
-    assertThat(result.getDefinitionsList()).extracting(Settings.Definition::getKey).containsOnly("foo", "plugin.license.secured", "commercial.plugin");
+    assertThat(result.getDefinitionsList()).extracting(Definition::getKey).containsOnly("foo", "plugin.license.secured", "commercial.plugin");
   }
 
   @Test
@@ -353,7 +368,7 @@ public class ListDefinitionsActionTest {
 
     ListDefinitionsWsResponse result = executeRequest();
 
-    assertThat(result.getDefinitionsList()).extracting(Settings.Definition::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured", "commercial.plugin");
+    assertThat(result.getDefinitionsList()).extracting(Definition::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured", "commercial.plugin");
   }
 
   @Test
@@ -366,7 +381,7 @@ public class ListDefinitionsActionTest {
 
     ListDefinitionsWsResponse result = executeRequest();
 
-    assertThat(result.getDefinitionsList()).extracting(Settings.Definition::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured");
+    assertThat(result.getDefinitionsList()).extracting(Definition::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured");
   }
 
   @Test
@@ -379,7 +394,7 @@ public class ListDefinitionsActionTest {
 
     ListDefinitionsWsResponse result = executeRequest(project.getDbKey());
 
-    assertThat(result.getDefinitionsList()).extracting(Settings.Definition::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured");
+    assertThat(result.getDefinitionsList()).extracting(Definition::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured");
   }
 
   @Test
@@ -396,7 +411,7 @@ public class ListDefinitionsActionTest {
       .setParam("branch", branch.getBranch())
       .executeProtobuf(Settings.ListDefinitionsWsResponse.class);
 
-    assertThat(result.getDefinitionsList()).extracting(Settings.Definition::getKey).containsExactlyInAnyOrder("sonar.leak.period");
+    assertThat(result.getDefinitionsList()).extracting(Definition::getKey).containsExactlyInAnyOrder("sonar.leak.period");
   }
 
   @Test
