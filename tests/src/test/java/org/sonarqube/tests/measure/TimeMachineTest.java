@@ -22,7 +22,6 @@ package org.sonarqube.tests.measure;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category1Suite;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
@@ -30,6 +29,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonarqube.tests.Category1Suite;
 import org.sonarqube.ws.WsMeasures.Measure;
 import org.sonarqube.ws.WsMeasures.SearchHistoryResponse;
 import org.sonarqube.ws.WsMeasures.SearchHistoryResponse.HistoryValue;
@@ -39,6 +39,7 @@ import util.ItUtils;
 import util.ItUtils.ComponentNavigation;
 
 import static java.util.Collections.singletonList;
+import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.formatDate;
 import static util.ItUtils.getComponentNavigation;
@@ -51,8 +52,6 @@ import static util.ItUtils.setServerProperty;
 public class TimeMachineTest {
 
   private static final String PROJECT = "sample";
-  private static final String FIRST_ANALYSIS_DATE = "2014-10-19";
-  private static final String SECOND_ANALYSIS_DATE = "2014-11-13";
 
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
@@ -65,8 +64,12 @@ public class TimeMachineTest {
     ItUtils.restoreProfile(orchestrator, TimeMachineTest.class.getResource("/measure/one-issue-per-line-profile.xml"));
     orchestrator.getServer().provisionProject("sample", "Sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    analyzeProject("measure/xoo-history-v1", FIRST_ANALYSIS_DATE);
-    analyzeProject("measure/xoo-history-v2", SECOND_ANALYSIS_DATE);
+
+    Date now = new Date();
+    String yesterday = formatDate(addDays(now, -1));
+    String aMonthAgo = formatDate(addDays(now, -30));
+    analyzeProject("measure/xoo-history-v1", aMonthAgo);
+    analyzeProject("measure/xoo-history-v2", yesterday);
 
     wsMeasures = newAdminWsClient(orchestrator).measures();
   }
@@ -88,7 +91,6 @@ public class TimeMachineTest {
   public void projectIsAnalyzed() {
     ComponentNavigation component = getComponentNavigation(orchestrator, PROJECT);
     assertThat(component.getVersion()).isEqualTo("1.0-SNAPSHOT");
-    assertThat(component.getDate().getMonth()).isEqualTo(10); // November
   }
 
   @Test

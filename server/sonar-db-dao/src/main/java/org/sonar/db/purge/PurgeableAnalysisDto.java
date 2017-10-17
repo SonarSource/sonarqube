@@ -20,16 +20,19 @@
 package org.sonar.db.purge;
 
 import java.util.Date;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
- * Represents an analysis, aka. root snapshot, aka. snapshot of a project, developer or view
+ * Represents an analysis, aka. root snapshot, aka. snapshot of a project or portfolio
  */
 public class PurgeableAnalysisDto implements Comparable<PurgeableAnalysisDto> {
   private Date date;
   private long analysisId;
   private String analysisUuid;
+  private String version;
   private boolean hasEvents;
   private boolean isLast;
 
@@ -75,6 +78,16 @@ public class PurgeableAnalysisDto implements Comparable<PurgeableAnalysisDto> {
 
   public PurgeableAnalysisDto setLast(boolean last) {
     isLast = last;
+    return this;
+  }
+
+  @CheckForNull
+  public String getVersion() {
+    return version;
+  }
+
+  public PurgeableAnalysisDto setVersion(@Nullable String version) {
+    this.version = version;
     return this;
   }
 

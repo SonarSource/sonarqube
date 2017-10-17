@@ -27,9 +27,9 @@
 
   <select id="selectPurgeableAnalysesWithEvents" parameterType="String" resultType="PurgeableAnalysis">
     select
-      s.id as "analysisId", s.uuid as "analysisUuid", s.created_at as "date", ${_true} as "hasEvents", islast as "isLast"
-    from
-      snapshots s
+      s.id as "analysisId", s.uuid as "analysisUuid", s.created_at as "date", ${_true} as "hasEvents", islast as "isLast", ve.name as "version"
+    from snapshots s
+      left outer join events ve on ve.analysis_uuid=s.uuid and ve.category='Version'
     where
       s.component_uuid=#{componentUuid,jdbcType=VARCHAR}
       and s.status='P'
@@ -38,9 +38,8 @@
 
   <select id="selectPurgeableAnalysesWithoutEvents" parameterType="String" resultType="PurgeableAnalysis">
     select
-      s.id as "analysisId", s.uuid as "analysisUuid", s.created_at as "date", ${_false} as "hasEvents", islast as "isLast"
-    from
-      snapshots s
+      s.id as "analysisId", s.uuid as "analysisUuid", s.created_at as "date", ${_false} as "hasEvents", islast as "isLast", NULL as "version"
+    from snapshots s
     where
       s.component_uuid=#{componentUuid,jdbcType=VARCHAR}
       and s.status='P'

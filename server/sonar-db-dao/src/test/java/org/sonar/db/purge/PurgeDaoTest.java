@@ -161,17 +161,20 @@ public class PurgeDaoTest {
   }
 
   @Test
-  public void shouldSelectPurgeableAnalysis() {
+  public void selectPurgeableAnalyses() {
     dbTester.prepareDbUnit(getClass(), "shouldSelectPurgeableAnalysis.xml");
     List<PurgeableAnalysisDto> analyses = underTest.selectPurgeableAnalyses(THE_PROJECT_UUID, dbSession);
 
     assertThat(analyses).hasSize(3);
     assertThat(getById(analyses, "u1").isLast()).isTrue();
     assertThat(getById(analyses, "u1").hasEvents()).isFalse();
+    assertThat(getById(analyses, "u1").getVersion()).isNull();
     assertThat(getById(analyses, "u4").isLast()).isFalse();
     assertThat(getById(analyses, "u4").hasEvents()).isFalse();
+    assertThat(getById(analyses, "u4").getVersion()).isNull();
     assertThat(getById(analyses, "u5").isLast()).isFalse();
     assertThat(getById(analyses, "u5").hasEvents()).isTrue();
+    assertThat(getById(analyses, "u5").getVersion()).isEqualTo("V5");
   }
 
   @Test

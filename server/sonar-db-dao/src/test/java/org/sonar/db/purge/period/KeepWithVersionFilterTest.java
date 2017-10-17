@@ -17,16 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.config;
+package org.sonar.db.purge.period;
 
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
+import org.sonar.db.purge.DbCleanerTestUtils;
+import org.sonar.db.purge.PurgeableAnalysisDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.utils.DateUtils.parseDate;
 
-public class PurgePropertiesTest {
+public class KeepWithVersionFilterTest {
 
   @Test
-  public void shouldGetExtensions() {
-    assertThat(PurgeProperties.all()).hasSize(7);
+  public void keep_only_analyses_with_a_version() {
+    Filter underTest = new KeepWithVersionFilter(parseDate("2015-10-18"));
+
+    List<PurgeableAnalysisDto> result = underTest.filter(Arrays.asList(
+      DbCleanerTestUtils.createAnalysisWithDate("u1", "2015-10-17").setVersion("V1"),
+      DbCleanerTestUtils.createAnalysisWithDate("u2", "2015-10-17").setVersion(null),
+      DbCleanerTestUtils.createAnalysisWithDate("u3", "2015-10-19").setVersion(null)));
+
+    assertThat(result).extracting(PurgeableAnalysisDto::getAnalysisUuid).containsExactlyInAnyOrder("u2");
   }
 }
