@@ -61,6 +61,11 @@ export default class SettingsNav extends React.PureComponent<Props> {
     return this.isSomethingActive(urls);
   }
 
+  isMarketplace() {
+    const urls = ['/admin/marketplace'];
+    return this.isSomethingActive(urls);
+  }
+
   renderExtension = ({ key, name }: Extension) => {
     return (
       <li key={key}>
@@ -81,7 +86,7 @@ export default class SettingsNav extends React.PureComponent<Props> {
     const projectsClassName = classNames('dropdown-toggle', { active: isProjects });
     const systemClassName = classNames('dropdown-toggle', { active: isSystem });
     const configurationClassNames = classNames('dropdown-toggle', {
-      active: !isSecurity && !isProjects && !isSystem
+      active: !isSecurity && !isProjects && !isSystem && !this.isMarketplace()
     });
 
     return (
