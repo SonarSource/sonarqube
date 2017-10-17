@@ -30,7 +30,7 @@ public class AuthenticationModuleTest {
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
     new AuthenticationModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 22);
+    assertThat(container.size()).isEqualTo(2 + 21);
   }
 
 }

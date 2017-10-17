@@ -19,10 +19,9 @@
  */
 package org.sonarqube.tests.user;
 
-import com.codeborne.selenide.Condition;
 import com.sonar.orchestrator.Orchestrator;
+import org.sonarqube.tests.Category4Suite;
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -32,18 +31,17 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.pageobjects.Navigation;
-import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.WsUsers.SearchWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.user.CreateRequest;
+import org.sonarqube.pageobjects.Navigation;
 
-import static com.codeborne.selenide.Condition.visible;
-import static com.codeborne.selenide.Selenide.$;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.resetSettings;
+import static util.ItUtils.setServerProperty;
+import static util.selenium.Selenese.runSelenese;
 
 /**
  * There's only tests specific to OAuth2 in this class
@@ -81,7 +79,7 @@ public class OAuth2IdentityProviderTest {
   }
 
   private void resetData() {
-    tester.settings().resetSettings(
+    resetSettings(orchestrator, null,
       "sonar.auth.fake-oauth2-id-provider.enabled",
       "sonar.auth.fake-oauth2-id-provider.url",
       "sonar.auth.fake-oauth2-id-provider.user",
@@ -119,34 +117,14 @@ public class OAuth2IdentityProviderTest {
   }
 
   @Test
-  public void redirect_to_requested_page() throws UnsupportedEncodingException {
-    simulateRedirectionToCallback();
-    enablePlugin();
-    tester.users().generate(u -> u.setLogin(USER_LOGIN));
-    // Give user global admin permission as we want to go to a page where authentication is required
-    tester.wsClient().permissions().addUser(new AddUserWsRequest().setLogin(USER_LOGIN).setPermission("admin"));
-
-    Navigation nav = tester.openBrowser();
-    // Try to go to the settings page
-    nav.open("/settings");
-    // User should be redirected to login page
-    $("#login_form").should(Condition.exist);
-    // User click on the link to authenticate with OAuth2
-    $(".oauth-providers a").click();
-
-    // User is correctly redirected to the settings page
-    $("#settings-page").shouldBe(visible);
-  }
-
-  @Test
   public void display_unauthorized_page_when_authentication_failed_in_callback() throws Exception {
     simulateRedirectionToCallback();
     enablePlugin();
 
     // As this property is null, the plugin will throw an exception
-    tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.user", null);
+    setServerProperty(orchestrator, "sonar.auth.fake-oauth2-id-provider.user", null);
 
-    tester.runHtmlTests("/user/OAuth2IdentityProviderTest/display_unauthorized_page_when_authentication_failed.html");
+    runSelenese(orchestrator, "/user/OAuth2IdentityProviderTest/display_unauthorized_page_when_authentication_failed.html");
 
     assertThatUserDoesNotExist(USER_LOGIN);
   }
@@ -155,9 +133,9 @@ public class OAuth2IdentityProviderTest {
   public void fail_to_authenticate_when_not_allowed_to_sign_up() throws Exception {
     simulateRedirectionToCallback();
     enablePlugin();
-    tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.allowsUsersToSignUp", "false");
+    setServerProperty(orchestrator, "sonar.auth.fake-oauth2-id-provider.allowsUsersToSignUp", "false");
 
-    tester.runHtmlTests("/user/OAuth2IdentityProviderTest/fail_to_authenticate_when_not_allowed_to_sign_up.html");
+    runSelenese(orchestrator, "/user/OAuth2IdentityProviderTest/fail_to_authenticate_when_not_allowed_to_sign_up.html");
 
     assertThatUserDoesNotExist(USER_LOGIN);
   }
@@ -166,7 +144,7 @@ public class OAuth2IdentityProviderTest {
   public void display_message_in_ui_but_not_in_log_when_unauthorized_exception_in_callback() throws Exception {
     simulateRedirectionToCallback();
     enablePlugin();
-    tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.throwUnauthorizedMessage", "true");
+    setServerProperty(orchestrator, "sonar.auth.fake-oauth2-id-provider.throwUnauthorizedMessage", "true");
 
     tester.runHtmlTests("/user/OAuth2IdentityProviderTest/display_message_in_ui_but_not_in_log_when_unauthorized_exception.html");
 
@@ -216,7 +194,6 @@ public class OAuth2IdentityProviderTest {
     assertThat(user.getExternalProvider()).isEqualTo(FAKE_PROVIDER_KEY);
   }
 
-
   private void authenticateWithFakeAuthProvider() {
     WsResponse response = tester.wsClient().wsConnector().call(
       new GetRequest(("/sessions/init/" + FAKE_PROVIDER_KEY)));
@@ -231,9 +208,9 @@ public class OAuth2IdentityProviderTest {
   }
 
   private void enablePlugin() {
-    tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.enabled", "true");
-    tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.url", fakeServerAuthProviderUrl);
-    tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.user", USER_LOGIN + "," + USER_PROVIDER_ID + "," + USER_NAME + "," + USER_EMAIL);
+    setServerProperty(orchestrator, "sonar.auth.fake-oauth2-id-provider.enabled", "true");
+    setServerProperty(orchestrator, "sonar.auth.fake-oauth2-id-provider.url", fakeServerAuthProviderUrl);
+    setServerProperty(orchestrator, "sonar.auth.fake-oauth2-id-provider.user", USER_LOGIN + "," + USER_PROVIDER_ID + "," + USER_NAME + "," + USER_EMAIL);
   }
 
   private void assertThatUserDoesNotExist(String login) {
