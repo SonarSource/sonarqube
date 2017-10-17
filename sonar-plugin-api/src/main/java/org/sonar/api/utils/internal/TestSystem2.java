@@ -19,11 +19,13 @@
  */
 package org.sonar.api.utils.internal;
 
+import java.util.TimeZone;
 import org.sonar.api.utils.System2;
 
 public class TestSystem2 extends System2 {
 
   private long now = 0L;
+  private TimeZone defaultTimeZone = System2.INSTANCE.getDefaultTimeZone();
 
   public TestSystem2 setNow(long l) {
     this.now = l;
@@ -36,5 +38,15 @@ public class TestSystem2 extends System2 {
       throw new IllegalStateException("Method setNow() was not called by test");
     }
     return now;
+  }
+
+  public TestSystem2 setDefaultTimeZone(TimeZone defaultTimeZone) {
+    this.defaultTimeZone = defaultTimeZone;
+    return this;
+  }
+
+  @Override
+  public TimeZone getDefaultTimeZone() {
+    return defaultTimeZone;
   }
 }
