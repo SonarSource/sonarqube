@@ -49,6 +49,8 @@ import static org.sonar.server.es.DefaultIndexSettings.FIELD_TYPE_TEXT;
 import static org.sonar.server.es.DefaultIndexSettings.INDEX;
 import static org.sonar.server.es.DefaultIndexSettings.INDEX_NOT_SEARCHABLE;
 import static org.sonar.server.es.DefaultIndexSettings.INDEX_SEARCHABLE;
+import static org.sonar.server.es.DefaultIndexSettings.NORMS;
+import static org.sonar.server.es.DefaultIndexSettings.STORE;
 import static org.sonar.server.es.DefaultIndexSettings.TYPE;
 import static org.sonar.server.es.DefaultIndexSettingsElement.UUID_MODULE_ANALYZER;
 
@@ -358,8 +360,8 @@ public class NewIndex {
       Map<String, Object> hash = new TreeMap<>();
       hash.put("type", getFieldType());
       hash.put(INDEX, disableSearch ? INDEX_NOT_SEARCHABLE : INDEX_SEARCHABLE);
-      hash.put("norms", valueOf(!disableNorms));
-      hash.put("store", valueOf(store));
+      hash.put(NORMS, valueOf(!disableNorms));
+      hash.put(STORE, valueOf(store));
       if (FIELD_TYPE_KEYWORD.equals(getFieldType())) {
         hash.put("doc_values", valueOf(!disabledDocValues));
       }
@@ -373,8 +375,8 @@ public class NewIndex {
       Map<String, Object> hash = new TreeMap<>();
       hash.put("type", getFieldType());
       hash.put(INDEX, disableSearch ? INDEX_NOT_SEARCHABLE : INDEX_SEARCHABLE);
-      hash.put("norms", "false");
-      hash.put("store", valueOf(store));
+      hash.put(NORMS, "false");
+      hash.put(STORE, valueOf(store));
       if (FIELD_TYPE_KEYWORD.equals(getFieldType())) {
         hash.put("doc_values", valueOf(!disabledDocValues));
       }
@@ -404,8 +406,8 @@ public class NewIndex {
     private Map<String, String> configureSubField(Map<String, String> subFieldMapping) {
       Map<String, String> subHash = new TreeMap<>(subFieldMapping);
       subHash.put(INDEX, INDEX_SEARCHABLE);
-      subHash.put("norms", "false");
-      subHash.put("store", valueOf(store));
+      subHash.put(NORMS, "false");
+      subHash.put(STORE, valueOf(store));
       if (termVectorWithPositionOffsets) {
         subHash.put(FIELD_TERM_VECTOR, "with_positions_offsets");
       }
