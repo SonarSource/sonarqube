@@ -21,6 +21,7 @@ import { checkStatus, corsRequest, getJSON, parseJSON, postJSON } from '../helpe
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface Edition {
+  key: string;
   name: string;
   desc: string;
   more_link: string;
@@ -28,8 +29,8 @@ export interface Edition {
   download_link: string;
 }
 
-export interface Editions {
-  [key: string]: Edition;
+export interface EditionsPerVersion {
+  [version: string]: Edition[];
 }
 
 export interface EditionStatus {
@@ -47,10 +48,7 @@ export function getEditionStatus(): Promise<EditionStatus> {
   return getJSON('/api/editions/status').catch(throwGlobalError);
 }
 
-export function getEditionsList(): Promise<Editions> {
-  // TODO Replace with real url
-  const url =
-    'https://gist.githubusercontent.com/gregaubert/e34535494f8a94bec7cbc4d750ae7d06/raw/ba8670a28d4bc6fbac18f92e450ec42029cc5dcb/editions.json';
+export function getEditionsList(url: string): Promise<EditionsPerVersion> {
   return corsRequest(url)
     .submit()
     .then(checkStatus)
