@@ -53,9 +53,8 @@ export default class PendingActions extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const nbPluginsClass = 'big little-spacer-left little-spacer-right';
     return (
-      <div className="js-pending panel panel-warning big-spacer-bottom">
+      <div className="js-pending alert alert-warning">
         <div className="display-inline-block">
           <p>{translate('marketplace.sonarqube_needs_to_be_restarted_to')}</p>
           <ul className="list-styled spacer-top">
@@ -64,13 +63,7 @@ export default class PendingActions extends React.PureComponent<Props, State> {
                 <FormattedMessage
                   defaultMessage={translate('marketplace.install_x_plugins')}
                   id="marketplace.install_x_plugins"
-                  values={{
-                    nb: (
-                      <strong className={'text-success ' + nbPluginsClass}>
-                        {installing.length}
-                      </strong>
-                    )
-                  }}
+                  values={{ nb: <strong>{installing.length}</strong> }}
                 />
               </li>
             )}
@@ -79,13 +72,7 @@ export default class PendingActions extends React.PureComponent<Props, State> {
                 <FormattedMessage
                   defaultMessage={translate('marketplace.update_x_plugins')}
                   id="marketplace.update_x_plugins"
-                  values={{
-                    nb: (
-                      <strong className={'text-success ' + nbPluginsClass}>
-                        {updating.length}
-                      </strong>
-                    )
-                  }}
+                  values={{ nb: <strong>{updating.length}</strong> }}
                 />
               </li>
             )}
@@ -94,18 +81,14 @@ export default class PendingActions extends React.PureComponent<Props, State> {
                 <FormattedMessage
                   defaultMessage={translate('marketplace.uninstall_x_plugins')}
                   id="marketplace.uninstall_x_plugins"
-                  values={{
-                    nb: (
-                      <strong className={'text-danger ' + nbPluginsClass}>{removing.length}</strong>
-                    )
-                  }}
+                  values={{ nb: <strong>{removing.length}</strong> }}
                 />
               </li>
             )}
           </ul>
         </div>
-        <div className="pull-right button-group">
-          <button className="js-restart" onClick={this.handleOpenRestart}>
+        <div className="pull-right">
+          <button className="js-restart little-spacer-right" onClick={this.handleOpenRestart}>
             {translate('marketplace.restart')}
           </button>
           <button className="js-cancel-all button-red" onClick={this.handleRevert}>

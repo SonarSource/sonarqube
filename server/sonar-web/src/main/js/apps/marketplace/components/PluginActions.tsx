@@ -134,7 +134,7 @@ export default class PluginActions extends React.PureComponent<Props, State> {
         )}
         {loading && <i className="spinner spacer-right" />}
         {isPluginInstalled(plugin) && (
-          <div className="button-group">
+          <div className="display-inlin-block">
             {plugin.updates &&
               plugin.updates.map((update, idx) => (
                 <PluginUpdateButton
@@ -145,7 +145,7 @@ export default class PluginActions extends React.PureComponent<Props, State> {
                 />
               ))}
             <button
-              className="js-uninstall button-red"
+              className="js-uninstall button-red little-spacer-left"
               disabled={loading}
               onClick={this.handleUninstall}>
               {translate('marketplace.uninstall')}
