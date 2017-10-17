@@ -28,22 +28,24 @@ const DEFAULT_STATUS: EditionStatus = {
   installationStatus: 'NONE'
 };
 
-const DEFAULT_EDITIONS = {
-  foo: {
+const DEFAULT_EDITIONS = [
+  {
+    key: 'foo',
     name: 'Foo',
     desc: 'Foo desc',
     download_link: 'download_url',
     more_link: 'more_url',
     request_license_link: 'license_url'
   },
-  bar: {
+  {
+    key: 'bar',
     name: 'Bar',
     desc: 'Bar desc',
     download_link: 'download_url',
     more_link: 'more_url',
     request_license_link: 'license_url'
   }
-};
+];
 
 it('should display the edition boxes', () => {
   const wrapper = getWrapper();
@@ -67,12 +69,18 @@ it('should open the license form', () => {
     editions: DEFAULT_EDITIONS,
     loading: false
   });
-  (wrapper.instance() as EditionBoxes).handleOpenLicenseForm(DEFAULT_EDITIONS.foo);
+  (wrapper.instance() as EditionBoxes).handleOpenLicenseForm(DEFAULT_EDITIONS[0]);
   expect(wrapper.find('LicenseEditionForm').exists()).toBeTruthy();
 });
 
 function getWrapper(props = {}) {
   return shallow(
-    <EditionBoxes editionStatus={DEFAULT_STATUS} updateCenterActive={true} {...props} />
+    <EditionBoxes
+      editionStatus={DEFAULT_STATUS}
+      editionsUrl=""
+      sonarqubeVersion="6.7.5"
+      updateCenterActive={true}
+      {...props}
+    />
   );
 }
