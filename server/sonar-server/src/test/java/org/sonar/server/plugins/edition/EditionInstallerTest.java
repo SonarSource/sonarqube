@@ -105,6 +105,17 @@ public class EditionInstallerTest {
   }
 
   @Test
+  public void is_offline() {
+    when(updateCenterMatrixFactory.getUpdateCenter(true)).thenReturn(Optional.absent());
+    assertThat(installer.isOffline()).isTrue();
+  }
+
+  @Test
+  public void is_not_offline() {
+    assertThat(installer.isOffline()).isFalse();
+  }
+
+  @Test
   public void requires_installation_change() {
     PluginInfo commercial1 = createPluginInfo("p1", true);
     PluginInfo commercial2 = createPluginInfo("p2", true);
