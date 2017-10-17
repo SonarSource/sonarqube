@@ -1,19 +1,11 @@
 <div class="bubble-popup-container">
-  <div class="bubble-popup-title">
-    {{#if row.lineHits}}
+  {{#each testFiles}}
+    <div class="bubble-popup-title">
       {{t 'source_viewer.covered'}}
       {{#if row.conditions}}
         ({{default row.coveredConditions 0}} of {{row.conditions}} {{t 'source_viewer.conditions'}})
       {{/if}}
-    {{else}}
-      {{t 'source_viewer.not_covered'}}
-      {{#if row.conditions}}
-        ({{row.conditions}} {{t 'source_viewer.conditions'}})
-      {{/if}}
-    {{/if}}
-  </div>
-
-  {{#each testFiles}}
+    </div>
     <div class="bubble-popup-section">
       <a class="component-viewer-popup-test-file link-action" data-key="{{file.key}}" title="{{file.longName}}">
         <span>{{collapsePath file.longName}}</span>
@@ -33,6 +25,8 @@
         {{/each}}
       </ul>
     </div>
+  {{else}}
+    {{t 'source_viewer.tooltip.no_information_about_tests'}}
   {{/each}}
 </div>
 
