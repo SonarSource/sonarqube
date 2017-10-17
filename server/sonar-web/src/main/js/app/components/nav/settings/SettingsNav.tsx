@@ -21,14 +21,11 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { IndexLink, Link } from 'react-router';
 import ContextNavBar from '../../../../components/nav/ContextNavBar';
-import SettingsEditionsNotif from './SettingsEditionsNotif';
 import NavBarTabs from '../../../../components/nav/NavBarTabs';
-import { EditionStatus } from '../../../../api/marketplace';
 import { Extension } from '../../../types';
 import { translate } from '../../../../helpers/l10n';
 
 interface Props {
-  editionStatus?: EditionStatus;
   extensions: Extension[];
   customOrganizations: boolean;
   location: {};
@@ -75,7 +72,7 @@ export default class SettingsNav extends React.PureComponent<Props> {
   };
 
   render() {
-    const { customOrganizations, editionStatus, extensions } = this.props;
+    const { customOrganizations, extensions } = this.props;
     const isSecurity = this.isSecurityActive();
     const isProjects = this.isProjectsActive();
     const isSystem = this.isSystemActive();
@@ -94,15 +91,8 @@ export default class SettingsNav extends React.PureComponent<Props> {
 
     const hasSupportExtension = extensionsWithoutSupport.length < extensions.length;
 
-    let notifComponent;
-    if (editionStatus && editionStatus.installationStatus !== 'NONE') {
-      notifComponent = <SettingsEditionsNotif editionStatus={editionStatus} />;
-    }
     return (
-      <ContextNavBar
-        id="context-navigation"
-        height={notifComponent ? 95 : 65}
-        notif={notifComponent}>
+      <ContextNavBar id="context-navigation" height={65}>
         <h1 className="navbar-context-header">
           <strong>{translate('layout.settings')}</strong>
         </h1>
