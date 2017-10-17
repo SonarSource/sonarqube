@@ -40,10 +40,19 @@ public class DropTableResourceIndex extends DdlChange {
       .setName("resource_index_key")
       .build());
 
-    context.execute(new DropIndexBuilder(getDialect())
-      .setTable(TABLE_RESOURCE_INDEX)
-      .setName("resource_index_component")
-      .build());
+    try {
+      context.execute(new DropIndexBuilder(getDialect())
+        .setTable(TABLE_RESOURCE_INDEX)
+        .setName("resource_index_component")
+        .build());
+    } catch (Exception e) {
+      // migrating from 5.6. The migration 1204 MakeUuidColumnsNotNullOnResourceIndex,
+      // introduced in 6.0, has been dropped in 6.7 for performance reasons. There was no need to
+      // alter the table resource_index while it's dropped later in 6.3.
+      // As a consequence this index may not exist when upgrading from 6.1+.
+      // Note that the "delete index if exists" is still not supported by MySQL, Oracle and MSSQL < 2016,
+      // that's why an exception is raised if the index does not exist.
+    }
 
     context.execute(new DropTableBuilder(getDialect(), TABLE_RESOURCE_INDEX).build());
   }

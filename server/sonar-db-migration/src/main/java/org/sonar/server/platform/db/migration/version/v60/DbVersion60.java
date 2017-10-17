@@ -36,12 +36,7 @@ public class DbVersion60 implements DbVersion {
   public void addSteps(MigrationStepRegistry registry) {
     registry
       .add(1200, "Create table PERM_TPL_CHARACTERISTICS", CreatePermTemplatesCharacteristics.class)
-      .add(1201, "Add columns RESOURCE_INDEX.*_UUID", AddUuidColumnsToResourceIndex.class)
-      .add(1202, "Populate columns RESOURCE_INDEX.*_UUID", PopulateUuidColumnsOfResourceIndex.class)
-      .add(1203, "Clean orphan rows in RESOURCE_INDEX", CleanOrphanRowsInResourceIndex.class)
-      .add(1204, "Make columns RESOURCE_INDEX.*_UUID not nullable", MakeUuidColumnsNotNullOnResourceIndex.class)
-      .add(1205, "Make column RESOURCE_INDEX.resource_index_rid", DropResourceIndexRidFromResourceIndex.class)
-      .add(1206, "Drop columns RESOURCE_INDEX.*_ID", DropIdColumnsFromResourceIndex.class)
+      .add(1205, "Drop index resource_index_rid from RESOURCE_INDEX", DropResourceIndexRidFromResourceIndex.class)
       .add(1207, "Drop unused columns on PROJECT_MEASURES", DropUnusedMeasuresColumns.class)
       .add(1208, "Add columns SNAPSHOTS.*COMPONENT_UUID", AddComponentUuidColumnsToSnapshots.class)
       .add(1209, "Populate column SNAPSHOTS.*COMPONENT_UUID", PopulateComponentUuidColumnsOfSnapshots.class)
