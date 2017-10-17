@@ -37,6 +37,7 @@ import org.sonarqube.ws.Settings.ListDefinitionsWsResponse;
 import org.sonarqube.ws.client.setting.ListDefinitionsRequest;
 
 import static com.google.common.base.Strings.emptyToNull;
+import static java.util.Comparator.comparing;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.setting.ws.SettingsWs.SETTING_ON_BRANCHES;
@@ -95,9 +96,12 @@ public class ListDefinitionsAction implements SettingsWsAction {
     Optional<String> qualifier = getQualifier(component);
     ListDefinitionsWsResponse.Builder wsResponse = ListDefinitionsWsResponse.newBuilder();
     propertyDefinitions.getAll().stream()
-      .filter(definition -> qualifier.isPresent() ? definition.qualifiers().contains(qualifier.get()) : definition.global())
+      .filter(definition -> qualifier.map(s -> definition.qualifiers().contains(s)).orElseGet(definition::global))
       .filter(definition -> wsRequest.getBranch() == null || SETTING_ON_BRANCHES.contains(definition.key()))
       .filter(settingsWsSupport.isDefinitionVisible(component))
+      .sorted(comparing(PropertyDefinition::category, String::compareToIgnoreCase)
+        .thenComparingInt(PropertyDefinition::index)
+        .thenComparing(PropertyDefinition::name, String::compareToIgnoreCase))
       .forEach(definition -> addDefinition(definition, wsResponse));
     return wsResponse.build();
   }
