@@ -283,7 +283,7 @@ public class IssueIndexCreationDateTest {
   }
 
   @Test
-  public void facet_on_created_at_with_one_day() {
+  public void facet_on_created_at_with_one_day_with_after_and_before() {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
@@ -291,8 +291,20 @@ public class IssueIndexCreationDateTest {
         .createdBefore(parseDateTime("2014-09-02T00:00:00-0100")).build(),
       options);
     Map<String, Long> createdAt = new Facets(result).get("createdAt");
-    assertThat(createdAt).containsOnly(
+    assertThat(createdAt).containsExactly(
       entry("2014-09-01T01:00:00+0000", 2L));
+  }
+
+  @Test
+  public void facet_on_created_at_with_one_day_with_after() {
+    SearchOptions options = fixtureForCreatedAtFacet();
+
+    SearchResponse result = underTest.search(IssueQuery.builder()
+        .createdAfter(parseDateTime("2016-07-08T00:00:00-0100")).build(),
+      options);
+    Map<String, Long> createdAt = new Facets(result).get("createdAt");
+    assertThat(createdAt).containsOnly(
+      entry("2016-07-08T01:00:00+0000", 0L));
   }
 
   @Test

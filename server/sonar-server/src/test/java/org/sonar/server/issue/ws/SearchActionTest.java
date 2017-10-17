@@ -67,9 +67,12 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.server.ws.WsResponseCommonFormat;
+import org.sonarqube.ws.Common;
+import org.sonarqube.ws.Issues;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_MODE_DEBT;
@@ -437,6 +440,21 @@ public class SearchActionTest {
       .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,assigned_to_me,languages,actionPlans")
       .execute()
       .assertJson(this.getClass(), "display_zero_facets.json");
+  }
+
+  @Test
+  public void display_one_bar_facet_when_filtering_on_one_day() throws Exception {
+    Issues.SearchWsResponse result = ws.newRequest()
+      .setParam("createdAfter", "2017-01-01")
+      .setParam("createdBefore", "2017-01-01")
+      .setParam(WebService.Param.FACETS, "createdAt")
+      .executeProtobuf(Issues.SearchWsResponse.class);
+
+    assertThat(result
+      .getFacets()
+      .getFacets(0)
+      .getValuesList()).extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactly(tuple("2017-01-01T00:00:00+0000", 0L));
   }
 
   @Test
