@@ -24,7 +24,6 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   edition: Edition;
-  editionKey: string;
   editionStatus?: EditionStatus;
   onInstall: (edition: Edition) => void;
 }
@@ -33,9 +32,9 @@ export default class EditionBox extends React.PureComponent<Props> {
   handleInstall = () => this.props.onInstall(this.props.edition);
 
   render() {
-    const { edition, editionKey, editionStatus } = this.props;
-    const isInstalled = editionStatus && editionStatus.currentEditionKey === editionKey;
-    const isInstalling = editionStatus && editionStatus.nextEditionKey === editionKey;
+    const { edition, editionStatus } = this.props;
+    const isInstalled = editionStatus && editionStatus.currentEditionKey === edition.key;
+    const isInstalling = editionStatus && editionStatus.nextEditionKey === edition.key;
     const installInProgress =
       editionStatus && editionStatus.installationStatus === 'AUTOMATIC_IN_PROGRESS';
     return (

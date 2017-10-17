@@ -21,16 +21,19 @@ import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
 import EditionBox from './components/EditionBox';
 import LicenseEditionForm from './components/LicenseEditionForm';
-import { Edition, Editions, EditionStatus, getEditionsList } from '../../api/marketplace';
+import { Edition, EditionStatus, getEditionsList } from '../../api/marketplace';
+import { getEditionsForVersion } from './utils';
 import { translate } from '../../helpers/l10n';
 
 export interface Props {
   editionStatus?: EditionStatus;
+  editionsUrl: string;
+  sonarqubeVersion: string;
   updateCenterActive: boolean;
 }
 
 interface State {
-  editions: Editions;
+  editions?: Edition[];
   editionsError: boolean;
   loading: boolean;
   installEdition?: Edition;
@@ -38,7 +41,7 @@ interface State {
 
 export default class EditionBoxes extends React.PureComponent<Props, State> {
   mounted: boolean;
-  state: State = { editions: {}, editionsError: false, loading: true };
+  state: State = { editionsError: false, loading: true };
 
   componentDidMount() {
     this.mounted = true;
@@ -51,12 +54,12 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
 
   fetchEditions = () => {
     this.setState({ loading: true });
-    getEditionsList().then(
-      editions => {
+    getEditionsList(this.props.editionsUrl).then(
+      editionsPerVersion => {
         if (this.mounted) {
           this.setState({
             loading: false,
-            editions,
+            editions: getEditionsForVersion(editionsPerVersion, this.props.sonarqubeVersion),
             editionsError: false
           });
         }
@@ -73,13 +76,13 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
   handleCloseLicenseForm = () => this.setState({ installEdition: undefined });
 
   render() {
-    const { editions, loading, installEdition } = this.state;
+    const { editions, editionsError, loading, installEdition } = this.state;
     if (loading) {
-      return null;
+      return <i className="big-spacer-bottom spinner" />;
     }
     return (
       <div className="spacer-bottom marketplace-editions">
-        {this.state.editionsError ? (
+        {!editions || editionsError ? (
           <span className="alert alert-info">
             <FormattedMessage
               defaultMessage={translate('marketplace.editions_unavailable')}
@@ -94,12 +97,11 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
             />
           </span>
         ) : (
-          Object.keys(editions).map(key => (
+          editions.map(edition => (
             <EditionBox
-              edition={editions[key]}
-              editionKey={key}
+              edition={edition}
               editionStatus={this.props.editionStatus}
-              key={key}
+              key={edition.key}
               onInstall={this.handleOpenLicenseForm}
             />
           ))

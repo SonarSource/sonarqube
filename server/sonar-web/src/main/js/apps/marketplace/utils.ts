@@ -19,6 +19,7 @@
  */
 import { memoize } from 'lodash';
 import { Plugin, PluginAvailable, PluginInstalled, PluginPending } from '../../api/plugins';
+import { Edition, EditionsPerVersion } from '../../api/marketplace';
 import { cleanQuery, parseAsString, RawQuery, serializeString } from '../../helpers/query';
 
 export interface Query {
@@ -49,6 +50,19 @@ export function filterPlugins(plugins: Plugin[], search: string): Plugin[] {
       (plugin.category || '').toLowerCase().includes(s)
     );
   });
+}
+
+export function getEditionsForVersion(
+  editions: EditionsPerVersion,
+  version: string
+): Edition[] | undefined {
+  const matchResult = version.match(/\d+\.\d+/);
+  if (matchResult) {
+    if (editions[matchResult[0]]) {
+      return editions[matchResult[0]];
+    }
+  }
+  return undefined;
 }
 
 export const parseQuery = memoize((urlQuery: RawQuery): Query => ({
