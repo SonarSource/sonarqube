@@ -19,11 +19,16 @@
  */
 package org.sonar.server.ce.ws;
 
+import java.util.Optional;
+
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.core.util.Uuids;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.ce.CeQueueDto;
 import org.sonar.server.user.UserSession;
 
 public class CancelAction implements CeWsAction {
@@ -31,17 +36,25 @@ public class CancelAction implements CeWsAction {
   public static final String PARAM_TASK_ID = "id";
 
   private final UserSession userSession;
+  private DbClient dbClient;
   private final CeQueue queue;
 
-  public CancelAction(UserSession userSession, CeQueue queue) {
+  public CancelAction(UserSession userSession, DbClient dbClient, CeQueue queue) {
     this.userSession = userSession;
+    this.dbClient = dbClient;
     this.queue = queue;
   }
 
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("cancel")
-      .setDescription("Cancels a pending task. Requires system administration permission. In-progress tasks cannot be canceled.")
+      .setDescription("Cancels a pending task.<br/>" +
+        "In-progress tasks cannot be canceled.<br/>" +
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "<li>'Administer System'</li>" +
+        "<li>'Administer' rights on the project related to the task</li>" +
+        "</ul>")
       .setInternal(true)
       .setPost(true)
       .setSince("5.2")
@@ -58,7 +71,13 @@ public class CancelAction implements CeWsAction {
   public void handle(Request wsRequest, Response wsResponse) {
     userSession.checkIsSystemAdministrator();
     String taskId = wsRequest.mandatoryParam(PARAM_TASK_ID);
-    queue.cancel(taskId);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Optional<CeQueueDto> queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, taskId);
+      queueDto.ifPresent(dto -> {
+        queue.cancel(dbSession, dto);
+      });
+    }
     wsResponse.noContent();
   }
+
 }

@@ -19,13 +19,22 @@
  */
 package org.sonar.ce.queue;
 
-import com.google.common.collect.ImmutableSet;
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.ce.container.ComputeEngineStatus.Status.STARTED;
+import static org.sonar.ce.container.ComputeEngineStatus.Status.STOPPING;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+
 import javax.annotation.Nullable;
+
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
@@ -50,13 +59,7 @@ import org.sonar.server.computation.task.step.TypedException;
 import org.sonar.server.organization.DefaultOrganization;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.ce.container.ComputeEngineStatus.Status.STARTED;
-import static org.sonar.ce.container.ComputeEngineStatus.Status.STOPPING;
+import com.google.common.collect.ImmutableSet;
 
 public class InternalCeQueueImplTest {
 
@@ -69,19 +72,19 @@ public class InternalCeQueueImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2);
 
-  private DbSession session = dbTester.getSession();
+  private DbSession session = db.getSession();
 
   private UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
-  private CEQueueStatus queueStatus = new CEQueueStatusImpl(dbTester.getDbClient());
+  private CEQueueStatus queueStatus = new CEQueueStatusImpl(db.getDbClient());
   private DefaultOrganizationProvider defaultOrganizationProvider = mock(DefaultOrganizationProvider.class);
   private ComputeEngineStatus computeEngineStatus = mock(ComputeEngineStatus.class);
-  private InternalCeQueue underTest = new InternalCeQueueImpl(system2, dbTester.getDbClient(), uuidFactory, queueStatus, defaultOrganizationProvider, computeEngineStatus);
+  private InternalCeQueue underTest = new InternalCeQueueImpl(system2, db.getDbClient(), uuidFactory, queueStatus, defaultOrganizationProvider, computeEngineStatus);
 
   @Before
   public void setUp() throws Exception {
-    OrganizationDto defaultOrganization = dbTester.getDefaultOrganization();
+    OrganizationDto defaultOrganization = db.getDefaultOrganization();
     when(defaultOrganizationProvider.get()).thenReturn(DefaultOrganization.newBuilder()
       .setUuid(defaultOrganization.getUuid())
       .setKey(defaultOrganization.getKey())
@@ -172,11 +175,11 @@ public class InternalCeQueueImplTest {
     underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, null, null);
 
     // queue is empty
-    assertThat(dbTester.getDbClient().ceQueueDao().selectByUuid(dbTester.getSession(), task.getUuid()).isPresent()).isFalse();
+    assertThat(db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).isPresent()).isFalse();
     assertThat(underTest.peek(WORKER_UUID_2).isPresent()).isFalse();
 
     // available in history
-    Optional<CeActivityDto> history = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), task.getUuid());
+    Optional<CeActivityDto> history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), task.getUuid());
     assertThat(history.isPresent()).isTrue();
     assertThat(history.get().getStatus()).isEqualTo(CeActivityDto.Status.SUCCESS);
     assertThat(history.get().getIsLast()).isTrue();
@@ -206,7 +209,7 @@ public class InternalCeQueueImplTest {
     underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, newTaskResult(null), null);
 
     // available in history
-    Optional<CeActivityDto> history = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), task.getUuid());
+    Optional<CeActivityDto> history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), task.getUuid());
     assertThat(history.isPresent()).isTrue();
     assertThat(history.get().getAnalysisUuid()).isNull();
   }
@@ -219,7 +222,7 @@ public class InternalCeQueueImplTest {
     underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, newTaskResult(AN_ANALYSIS_UUID), null);
 
     // available in history
-    Optional<CeActivityDto> history = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), task.getUuid());
+    Optional<CeActivityDto> history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), task.getUuid());
     assertThat(history.isPresent()).isTrue();
     assertThat(history.get().getAnalysisUuid()).isEqualTo("U1");
   }
@@ -232,7 +235,7 @@ public class InternalCeQueueImplTest {
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_1);
     underTest.remove(peek.get(), CeActivityDto.Status.FAILED, null, error);
 
-    Optional<CeActivityDto> activityDto = dbTester.getDbClient().ceActivityDao().selectByUuid(session, task.getUuid());
+    Optional<CeActivityDto> activityDto = db.getDbClient().ceActivityDao().selectByUuid(session, task.getUuid());
     assertThat(activityDto).isPresent();
 
     assertThat(activityDto.get().getErrorMessage()).isEqualTo(error.getMessage());
@@ -248,7 +251,7 @@ public class InternalCeQueueImplTest {
     Optional<CeTask> peek = underTest.peek(WORKER_UUID_1);
     underTest.remove(peek.get(), CeActivityDto.Status.FAILED, null, error);
 
-    CeActivityDto activityDto = dbTester.getDbClient().ceActivityDao().selectByUuid(session, task.getUuid()).get();
+    CeActivityDto activityDto = db.getDbClient().ceActivityDao().selectByUuid(session, task.getUuid()).get();
     assertThat(activityDto.getErrorType()).isEqualTo("aType");
     assertThat(activityDto.getErrorMessage()).isEqualTo("aMessage");
     assertThat(activityDto.getErrorStacktrace()).isEqualToIgnoringWhitespace(stacktraceToString(error));
@@ -270,13 +273,13 @@ public class InternalCeQueueImplTest {
 
   @Test
   public void remove_copies_executionCount_and_workerUuid() {
-    dbTester.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
+    db.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
       .setUuid("uuid")
       .setTaskType("foo")
       .setStatus(CeQueueDto.Status.PENDING)
       .setWorkerUuid("Dustin")
       .setExecutionCount(2));
-    dbTester.commit();
+    db.commit();
 
     underTest.remove(new CeTask.Builder()
       .setOrganizationUuid("foo")
@@ -284,7 +287,7 @@ public class InternalCeQueueImplTest {
       .setType("bar")
       .build(), CeActivityDto.Status.SUCCESS, null, null);
 
-    CeActivityDto dto = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), "uuid").get();
+    CeActivityDto dto = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), "uuid").get();
     assertThat(dto.getExecutionCount()).isEqualTo(2);
     assertThat(dto.getWorkerUuid()).isEqualTo("Dustin");
   }
@@ -316,16 +319,16 @@ public class InternalCeQueueImplTest {
 
   @Test
   public void peek_overrides_workerUuid_to_argument() {
-    dbTester.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
+    db.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
       .setUuid("uuid")
       .setTaskType("foo")
       .setStatus(CeQueueDto.Status.PENDING)
       .setWorkerUuid("must be overriden"));
-    dbTester.commit();
+    db.commit();
 
     underTest.peek(WORKER_UUID_1);
 
-    CeQueueDto ceQueueDto = dbTester.getDbClient().ceQueueDao().selectByUuid(session, "uuid").get();
+    CeQueueDto ceQueueDto = db.getDbClient().ceQueueDao().selectByUuid(session, "uuid").get();
     assertThat(ceQueueDto.getWorkerUuid()).isEqualTo(WORKER_UUID_1);
   }
 
@@ -340,50 +343,50 @@ public class InternalCeQueueImplTest {
 
   @Test
   public void peek_peeks_pending_tasks_with_executionCount_equal_to_0_and_increases_it() {
-    dbTester.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
+    db.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
       .setUuid("uuid")
       .setTaskType("foo")
       .setStatus(CeQueueDto.Status.PENDING)
       .setExecutionCount(0));
-    dbTester.commit();
+    db.commit();
 
     assertThat(underTest.peek(WORKER_UUID_1).get().getUuid()).isEqualTo("uuid");
-    assertThat(dbTester.getDbClient().ceQueueDao().selectByUuid(session, "uuid").get().getExecutionCount()).isEqualTo(1);
+    assertThat(db.getDbClient().ceQueueDao().selectByUuid(session, "uuid").get().getExecutionCount()).isEqualTo(1);
   }
 
   @Test
   public void peek_peeks_pending_tasks_with_executionCount_equal_to_1_and_increases_it() {
-    dbTester.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
+    db.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
       .setUuid("uuid")
       .setTaskType("foo")
       .setStatus(CeQueueDto.Status.PENDING)
       .setExecutionCount(1));
-    dbTester.commit();
+    db.commit();
 
     assertThat(underTest.peek(WORKER_UUID_1).get().getUuid()).isEqualTo("uuid");
-    assertThat(dbTester.getDbClient().ceQueueDao().selectByUuid(session, "uuid").get().getExecutionCount()).isEqualTo(2);
+    assertThat(db.getDbClient().ceQueueDao().selectByUuid(session, "uuid").get().getExecutionCount()).isEqualTo(2);
   }
 
   @Test
   public void peek_ignores_pending_tasks_with_executionCount_equal_to_2() {
-    dbTester.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
+    db.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
       .setUuid("uuid")
       .setTaskType("foo")
       .setStatus(CeQueueDto.Status.PENDING)
       .setExecutionCount(2));
-    dbTester.commit();
+    db.commit();
 
     assertThat(underTest.peek(WORKER_UUID_1).isPresent()).isFalse();
   }
 
   @Test
   public void peek_ignores_pending_tasks_with_executionCount_greater_than_2() {
-    dbTester.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
+    db.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
       .setUuid("uuid")
       .setTaskType("foo")
       .setStatus(CeQueueDto.Status.PENDING)
       .setExecutionCount(2 + Math.abs(new Random().nextInt(100))));
-    dbTester.commit();
+    db.commit();
 
     assertThat(underTest.peek(WORKER_UUID_1).isPresent()).isFalse();
   }
@@ -451,7 +454,7 @@ public class InternalCeQueueImplTest {
   }
 
   private void verifyResetTask(CeQueueDto originalDto) {
-    CeQueueDto dto = dbTester.getDbClient().ceQueueDao().selectByUuid(session, originalDto.getUuid()).get();
+    CeQueueDto dto = db.getDbClient().ceQueueDao().selectByUuid(session, originalDto.getUuid()).get();
     assertThat(dto.getStatus()).isEqualTo(CeQueueDto.Status.PENDING);
     assertThat(dto.getExecutionCount()).isEqualTo(originalDto.getExecutionCount());
     assertThat(dto.getCreatedAt()).isEqualTo(originalDto.getCreatedAt());
@@ -459,7 +462,7 @@ public class InternalCeQueueImplTest {
   }
 
   private void verifyUnmodifiedTask(CeQueueDto originalDto) {
-    CeQueueDto dto = dbTester.getDbClient().ceQueueDao().selectByUuid(session, originalDto.getUuid()).get();
+    CeQueueDto dto = db.getDbClient().ceQueueDao().selectByUuid(session, originalDto.getUuid()).get();
     assertThat(dto.getStatus()).isEqualTo(originalDto.getStatus());
     assertThat(dto.getExecutionCount()).isEqualTo(originalDto.getExecutionCount());
     assertThat(dto.getCreatedAt()).isEqualTo(originalDto.getCreatedAt());
@@ -474,8 +477,8 @@ public class InternalCeQueueImplTest {
       .setStatus(CeQueueDto.Status.IN_PROGRESS)
       .setWorkerUuid(workerUuid)
       .setExecutionCount(executionCount);
-    dbTester.getDbClient().ceQueueDao().insert(session, dto);
-    dbTester.commit();
+    db.getDbClient().ceQueueDao().insert(session, dto);
+    db.commit();
     return dto;
   }
 
@@ -487,52 +490,50 @@ public class InternalCeQueueImplTest {
       .setStatus(CeQueueDto.Status.PENDING)
       .setWorkerUuid(workerUuid)
       .setExecutionCount(executionCount);
-    dbTester.getDbClient().ceQueueDao().insert(session, dto);
-    dbTester.commit();
+    db.getDbClient().ceQueueDao().insert(session, dto);
+    db.commit();
     return dto;
   }
 
   @Test
   public void cancel_pending() throws Exception {
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
+    CeQueueDto queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
 
-    // ignore
-    boolean canceled = underTest.cancel("UNKNOWN");
-    assertThat(canceled).isFalse();
+    underTest.cancel(db.getSession(), queueDto);
 
-    canceled = underTest.cancel(task.getUuid());
-    assertThat(canceled).isTrue();
-    Optional<CeActivityDto> activity = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), task.getUuid());
+    Optional<CeActivityDto> activity = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), task.getUuid());
     assertThat(activity.isPresent()).isTrue();
     assertThat(activity.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
   }
 
   @Test
   public void cancel_copies_executionCount_and_workerUuid() {
-    dbTester.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
+    CeQueueDto ceQueueDto = db.getDbClient().ceQueueDao().insert(session, new CeQueueDto()
       .setUuid("uuid")
       .setTaskType("foo")
       .setStatus(CeQueueDto.Status.PENDING)
       .setWorkerUuid("Dustin")
       .setExecutionCount(2));
-    dbTester.commit();
+    db.commit();
 
-    underTest.cancel("uuid");
+    underTest.cancel(db.getSession(), ceQueueDto);
 
-    CeActivityDto dto = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), "uuid").get();
+    CeActivityDto dto = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), "uuid").get();
     assertThat(dto.getExecutionCount()).isEqualTo(2);
     assertThat(dto.getWorkerUuid()).isEqualTo("Dustin");
   }
 
   @Test
   public void fail_to_cancel_if_in_progress() throws Exception {
+    CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
+    underTest.peek(WORKER_UUID_2);
+    CeQueueDto queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
+
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage(Matchers.startsWith("Task is in progress and can't be canceled"));
 
-    CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
-    underTest.peek(WORKER_UUID_2);
-
-    underTest.cancel(task.getUuid());
+    underTest.cancel(db.getSession(), queueDto);
   }
 
   @Test
@@ -545,11 +546,11 @@ public class InternalCeQueueImplTest {
     int canceledCount = underTest.cancelAll();
     assertThat(canceledCount).isEqualTo(2);
 
-    Optional<CeActivityDto> history = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), pendingTask1.getUuid());
+    Optional<CeActivityDto> history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), pendingTask1.getUuid());
     assertThat(history.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
-    history = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), pendingTask2.getUuid());
+    history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), pendingTask2.getUuid());
     assertThat(history.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
-    history = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), inProgressTask.getUuid());
+    history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), inProgressTask.getUuid());
     assertThat(history.isPresent()).isFalse();
   }
 
@@ -657,7 +658,7 @@ public class InternalCeQueueImplTest {
   }
 
   private void verifyReset(CeQueueDto original) {
-    CeQueueDto dto = dbTester.getDbClient().ceQueueDao().selectByUuid(dbTester.getSession(), original.getUuid()).get();
+    CeQueueDto dto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), original.getUuid()).get();
     // We do not touch ExecutionCount nor CreatedAt
     assertThat(dto.getExecutionCount()).isEqualTo(original.getExecutionCount());
     assertThat(dto.getCreatedAt()).isEqualTo(original.getCreatedAt());
@@ -673,7 +674,7 @@ public class InternalCeQueueImplTest {
   }
 
   private void verifyUnmodified(CeQueueDto original) {
-    CeQueueDto dto = dbTester.getDbClient().ceQueueDao().selectByUuid(dbTester.getSession(), original.getUuid()).get();
+    CeQueueDto dto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), original.getUuid()).get();
     assertThat(dto.getStatus()).isEqualTo(original.getStatus());
     assertThat(dto.getExecutionCount()).isEqualTo(original.getExecutionCount());
     assertThat(dto.getCreatedAt()).isEqualTo(original.getCreatedAt());
@@ -681,8 +682,8 @@ public class InternalCeQueueImplTest {
   }
 
   private void verifyCanceled(CeQueueDto original) {
-    assertThat(dbTester.getDbClient().ceQueueDao().selectByUuid(dbTester.getSession(), original.getUuid())).isEmpty();
-    CeActivityDto dto = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), original.getUuid()).get();
+    assertThat(db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), original.getUuid())).isEmpty();
+    CeActivityDto dto = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), original.getUuid()).get();
     assertThat(dto.getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
     assertThat(dto.getExecutionCount()).isEqualTo(original.getExecutionCount());
     assertThat(dto.getWorkerUuid()).isEqualTo(original.getWorkerUuid());
@@ -695,8 +696,8 @@ public class InternalCeQueueImplTest {
       .setStatus(status)
       .setExecutionCount(executionCount)
       .setWorkerUuid(workerUuid);
-    dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), dto);
-    dbTester.commit();
+    db.getDbClient().ceQueueDao().insert(db.getSession(), dto);
+    db.commit();
     return dto;
   }
 
@@ -729,7 +730,7 @@ public class InternalCeQueueImplTest {
   }
 
   private void verifyCeQueueDtoForTaskSubmit(CeTaskSubmit taskSubmit) {
-    Optional<CeQueueDto> queueDto = dbTester.getDbClient().ceQueueDao().selectByUuid(dbTester.getSession(), taskSubmit.getUuid());
+    Optional<CeQueueDto> queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), taskSubmit.getUuid());
     assertThat(queueDto.isPresent()).isTrue();
     CeQueueDto dto = queueDto.get();
     assertThat(dto.getTaskType()).isEqualTo(taskSubmit.getType());
@@ -739,7 +740,7 @@ public class InternalCeQueueImplTest {
   }
 
   private ComponentDto newComponentDto(String uuid) {
-    return ComponentTesting.newPublicProjectDto(dbTester.getDefaultOrganization(), uuid).setName("name_" + uuid).setDbKey("key_" + uuid);
+    return ComponentTesting.newPublicProjectDto(db.getDefaultOrganization(), uuid).setName("name_" + uuid).setDbKey("key_" + uuid);
   }
 
   private CeTask submit(String reportType, String componentUuid) {
@@ -765,7 +766,7 @@ public class InternalCeQueueImplTest {
   }
 
   private ComponentDto insertComponent(ComponentDto componentDto) {
-    dbTester.getDbClient().componentDao().insert(session, componentDto);
+    db.getDbClient().componentDao().insert(session, componentDto);
     session.commit();
     return componentDto;
   }
