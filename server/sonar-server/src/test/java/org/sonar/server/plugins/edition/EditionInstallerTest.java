@@ -21,28 +21,42 @@ package org.sonar.server.plugins.edition;
 
 import com.google.common.base.Optional;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.server.edition.License;
 import org.sonar.server.edition.MutableEditionManagementState;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.updatecenter.common.UpdateCenter;
 
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anySetOf;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class EditionInstallerTest {
+  @Rule
+  public LogTester logTester = new LogTester();
+
   private static final String PLUGIN_KEY = "key";
 
   private EditionPluginDownloader downloader = mock(EditionPluginDownloader.class);
@@ -52,13 +66,17 @@ public class EditionInstallerTest {
   private UpdateCenter updateCenter = mock(UpdateCenter.class);
   private MutableEditionManagementState editionManagementState = mock(MutableEditionManagementState.class);
 
-  private EditionInstallerExecutor executor = new EditionInstallerExecutor() {
+  private EditionInstallerExecutor synchronousExecutor = new EditionInstallerExecutor() {
     public void execute(Runnable r) {
       r.run();
     }
   };
+  private EditionInstallerExecutor mockedExecutor = mock(EditionInstallerExecutor.class);
 
-  private EditionInstaller installer = new EditionInstaller(downloader, uninstaller, pluginRepository, executor, updateCenterMatrixFactory, editionManagementState);
+  private EditionInstaller underTestSynchronousExecutor = new EditionInstaller(downloader, uninstaller, pluginRepository, synchronousExecutor, updateCenterMatrixFactory,
+    editionManagementState);
+  private EditionInstaller underTestMockedExecutor = new EditionInstaller(downloader, uninstaller, pluginRepository, mockedExecutor, updateCenterMatrixFactory,
+    editionManagementState);
 
   @Before
   public void setUp() {
@@ -67,8 +85,78 @@ public class EditionInstallerTest {
 
   @Test
   public void launch_task_download_plugins() {
-    assertThat(installer.install(Collections.singleton(PLUGIN_KEY))).isTrue();
-    verify(downloader).downloadEditionPlugins(Collections.singleton(PLUGIN_KEY), updateCenter);
+    underTestSynchronousExecutor.install(licenseWithPluginKeys(PLUGIN_KEY));
+
+    verify(downloader).downloadEditionPlugins(singleton(PLUGIN_KEY), updateCenter);
+  }
+
+  @Test
+  public void editionManagementState_is_changed_before_running_background_thread() {
+    PluginInfo commercial1 = createPluginInfo("p1", true);
+    PluginInfo commercial2 = createPluginInfo("p2", true);
+    PluginInfo open1 = createPluginInfo("p3", false);
+    mockPluginRepository(commercial1, commercial2, open1);
+    License newLicense = licenseWithPluginKeys("p1", "p4");
+
+    underTestMockedExecutor.install(newLicense);
+
+    verify(editionManagementState).startAutomaticInstall(newLicense);
+    verify(editionManagementState, times(0)).automaticInstallReady();
+    verifyNoMoreInteractions(editionManagementState);
+    ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
+    verify(mockedExecutor).execute(runnableCaptor.capture());
+
+    reset(editionManagementState);
+    runnableCaptor.getValue().run();
+
+    verify(editionManagementState).automaticInstallReady();
+    verifyNoMoreInteractions(editionManagementState);
+  }
+
+  @Test
+  public void editionManagementState_is_changed_to_automatic_failure_when_read_existing_plugins_fails() {
+    RuntimeException fakeException = new RuntimeException("Faking getPluginInfosByKeys throwing an exception");
+    when(pluginRepository.getPluginInfosByKeys())
+      .thenThrow(fakeException);
+    License newLicense = licenseWithPluginKeys("p1", "p4");
+
+    underTestSynchronousExecutor.install(newLicense);
+
+    verifyMoveToAutomaticFailureAndLogsError(newLicense, fakeException.getMessage());
+  }
+
+  @Test
+  public void editionManagementState_is_changed_to_automatic_failure_when_downloader_fails() {
+    PluginInfo commercial1 = createPluginInfo("p1", true);
+    PluginInfo commercial2 = createPluginInfo("p2", true);
+    PluginInfo open1 = createPluginInfo("p3", false);
+    mockPluginRepository(commercial1, commercial2, open1);
+    RuntimeException fakeException = new RuntimeException("Faking downloadEditionPlugins throwing an exception");
+    doThrow(fakeException)
+      .when(downloader)
+      .downloadEditionPlugins(anySetOf(String.class), any(UpdateCenter.class));
+    License newLicense = licenseWithPluginKeys("p1", "p4");
+
+    underTestSynchronousExecutor.install(newLicense);
+
+    verifyMoveToAutomaticFailureAndLogsError(newLicense, fakeException.getMessage());
+  }
+
+  @Test
+  public void editionManagementState_is_changed_to_automatic_failure_when_uninstaller_fails() {
+    PluginInfo commercial1 = createPluginInfo("p1", true);
+    PluginInfo commercial2 = createPluginInfo("p2", true);
+    PluginInfo open1 = createPluginInfo("p3", false);
+    mockPluginRepository(commercial1, commercial2, open1);
+    RuntimeException fakeException = new RuntimeException("Faking uninstall throwing an exception");
+    doThrow(fakeException)
+      .when(uninstaller)
+      .uninstall(anyString());
+    License newLicense = licenseWithPluginKeys("p1", "p4");
+
+    underTestSynchronousExecutor.install(newLicense);
+
+    verifyMoveToAutomaticFailureAndLogsError(newLicense, fakeException.getMessage());
   }
 
   @Test
@@ -77,14 +165,14 @@ public class EditionInstallerTest {
     PluginInfo commercial2 = createPluginInfo("p2", true);
     PluginInfo open1 = createPluginInfo("p3", false);
     mockPluginRepository(commercial1, commercial2, open1);
+    License newLicense = licenseWithPluginKeys("p1", "p4");
 
-    Set<String> editionPlugins = new HashSet<>();
-    editionPlugins.add("p1");
-    editionPlugins.add("p4");
-    installer.install(editionPlugins);
+    underTestSynchronousExecutor.install(newLicense);
 
+    verify(editionManagementState).startAutomaticInstall(newLicense);
     verify(editionManagementState).automaticInstallReady();
-    verify(downloader).downloadEditionPlugins(Collections.singleton("p4"), updateCenter);
+    verifyNoMoreInteractions(editionManagementState);
+    verify(downloader).downloadEditionPlugins(singleton("p4"), updateCenter);
     verify(uninstaller).uninstall("p2");
     verifyNoMoreInteractions(uninstaller);
     verifyNoMoreInteractions(downloader);
@@ -97,7 +185,7 @@ public class EditionInstallerTest {
     PluginInfo open1 = createPluginInfo("p3", false);
     mockPluginRepository(commercial1, commercial2, open1);
 
-    installer.uninstall();
+    underTestSynchronousExecutor.uninstall();
 
     verify(uninstaller).uninstall("p2");
     verify(uninstaller).uninstall("p1");
@@ -107,28 +195,31 @@ public class EditionInstallerTest {
   }
 
   @Test
-  public void do_nothing_if_offline() {
+  public void move_to_manualInstall_state_when_offline() {
     mockPluginRepository(createPluginInfo("p1", true));
-    executor = mock(EditionInstallerExecutor.class);
+    synchronousExecutor = mock(EditionInstallerExecutor.class);
     when(updateCenterMatrixFactory.getUpdateCenter(true)).thenReturn(Optional.absent());
-    installer = new EditionInstaller(downloader, uninstaller, pluginRepository, executor, updateCenterMatrixFactory, editionManagementState);
-    assertThat(installer.install(Collections.singleton("p1"))).isFalse();
+    underTestSynchronousExecutor = new EditionInstaller(downloader, uninstaller, pluginRepository, synchronousExecutor, updateCenterMatrixFactory, editionManagementState);
+    License newLicense = licenseWithPluginKeys("p1");
 
-    verifyZeroInteractions(executor);
+    underTestSynchronousExecutor.install(newLicense);
+
+    verifyZeroInteractions(synchronousExecutor);
     verifyZeroInteractions(uninstaller);
     verifyZeroInteractions(downloader);
-    verifyZeroInteractions(editionManagementState);
+    verify(editionManagementState).startManualInstall(newLicense);
+    verifyNoMoreInteractions(editionManagementState);
   }
 
   @Test
   public void is_offline() {
     when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.absent());
-    assertThat(installer.isOffline()).isTrue();
+    assertThat(underTestSynchronousExecutor.isOffline()).isTrue();
   }
 
   @Test
   public void is_not_offline() {
-    assertThat(installer.isOffline()).isFalse();
+    assertThat(underTestSynchronousExecutor.isOffline()).isFalse();
   }
 
   @Test
@@ -142,7 +233,9 @@ public class EditionInstallerTest {
     editionPlugins.add("p1");
     editionPlugins.add("p4");
 
-    assertThat(installer.requiresInstallationChange(editionPlugins)).isTrue();
+    boolean flag = underTestSynchronousExecutor.requiresInstallationChange(editionPlugins);
+
+    assertThat(flag).isTrue();
     verifyZeroInteractions(downloader);
     verifyZeroInteractions(uninstaller);
     verifyZeroInteractions(editionManagementState);
@@ -159,14 +252,16 @@ public class EditionInstallerTest {
     editionPlugins.add("p1");
     editionPlugins.add("p2");
 
-    assertThat(installer.requiresInstallationChange(editionPlugins)).isFalse();
+    boolean flag = underTestSynchronousExecutor.requiresInstallationChange(editionPlugins);
+
+    assertThat(flag).isFalse();
     verifyZeroInteractions(downloader);
     verifyZeroInteractions(uninstaller);
     verifyZeroInteractions(editionManagementState);
   }
 
   private void mockPluginRepository(PluginInfo... installedPlugins) {
-    Map<String, PluginInfo> pluginsByKey = Arrays.asList(installedPlugins).stream().collect(Collectors.toMap(p -> p.getKey(), p -> p));
+    Map<String, PluginInfo> pluginsByKey = Arrays.stream(installedPlugins).collect(uniqueIndex(PluginInfo::getKey));
     when(pluginRepository.getPluginInfosByKeys()).thenReturn(pluginsByKey);
     when(pluginRepository.getPluginInfos()).thenReturn(Arrays.asList(installedPlugins));
   }
@@ -178,6 +273,19 @@ public class EditionInstallerTest {
       info.setLicense("Commercial");
     }
     return info;
+  }
+
+  private static License licenseWithPluginKeys(String... pluginKeys) {
+    return new License("edition-key", Arrays.asList(pluginKeys), "foo");
+  }
+
+  private void verifyMoveToAutomaticFailureAndLogsError(License newLicense, String expectedErrorMessage) {
+    verify(editionManagementState).startAutomaticInstall(newLicense);
+    verify(editionManagementState).installFailed(expectedErrorMessage);
+    verifyNoMoreInteractions(editionManagementState);
+    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.ERROR))
+      .containsOnly("Failed to install edition " + newLicense.getEditionKey() + " with plugins " + newLicense.getPluginKeys());
   }
 
 }
