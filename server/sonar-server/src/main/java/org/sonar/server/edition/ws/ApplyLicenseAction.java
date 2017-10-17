@@ -83,18 +83,14 @@ public class ApplyLicenseAction implements EditionsWsAction {
     String licenseParam = request.mandatoryParam(PARAM_LICENSE);
     License newLicense = License.parse(licenseParam).orElseThrow(() -> BadRequestException.create("The license provided is invalid"));
 
-    if (!editionInstaller.requiresInstallationChange(newLicense.getPluginKeys())) {
-      editionManagementState.newEditionWithoutInstall(newLicense.getEditionKey());
+    if (editionInstaller.requiresInstallationChange(newLicense.getPluginKeys())) {
+      editionInstaller.install(newLicense);
+    } else {
       checkState(licenseCommit != null,
         "Can't decide edition does not require install if LicenseCommit instance is null. " +
           "License-manager plugin should be installed.");
-      licenseCommit.update(newLicense.getContent());    } else {
-      boolean online = editionInstaller.install(newLicense.getPluginKeys());
-      if (online) {
-        editionManagementState.startAutomaticInstall(newLicense);
-      } else {
-        editionManagementState.startManualInstall(newLicense);
-      }
+      editionManagementState.newEditionWithoutInstall(newLicense.getEditionKey());
+      licenseCommit.update(newLicense.getContent());
     }
 
     WsUtils.writeProtobuf(buildResponse(), request, response);
