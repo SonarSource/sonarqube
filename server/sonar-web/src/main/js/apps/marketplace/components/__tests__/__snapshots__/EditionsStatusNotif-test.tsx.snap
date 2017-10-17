@@ -2,7 +2,7 @@
 
 exports[`should display a ready notification 1`] = `
 <div
-  className="alert alert-page alert-success"
+  className="alert alert-success"
 >
   <span>
     marketplace.status.AUTOMATIC_READY
@@ -18,7 +18,7 @@ exports[`should display a ready notification 1`] = `
 
 exports[`should display an error notification 1`] = `
 <div
-  className="alert alert-page alert-danger"
+  className="alert alert-danger"
 >
   marketplace.status.AUTOMATIC_FAILURE
   <a
@@ -33,7 +33,7 @@ exports[`should display an error notification 1`] = `
 
 exports[`should display an in progress notif 1`] = `
 <div
-  className="alert alert-page alert-info"
+  className="alert alert-info"
 >
   <i
     className="spinner spacer-right text-bottom"

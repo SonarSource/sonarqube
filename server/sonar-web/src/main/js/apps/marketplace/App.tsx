@@ -164,24 +164,21 @@ export default class App extends React.PureComponent<Props, State> {
     this.setState({ editionStatus: editionStatus });
 
   updateQuery = (newQuery: Partial<Query>) => {
-    const query = serializeQuery({
-      ...parseQuery(this.props.location.query),
-      ...newQuery
-    });
-    this.context.router.push({
-      pathname: this.props.location.pathname,
-      query
-    });
+    const query = serializeQuery({ ...parseQuery(this.props.location.query), ...newQuery });
+    this.context.router.push({ pathname: this.props.location.pathname, query });
   };
 
   render() {
-    const { editionStatus, plugins, pending } = this.state;
+    const { editionStatus, loading, plugins, pending } = this.state;
     const query = parseQuery(this.props.location.query);
     const filteredPlugins = query.search ? filterPlugins(plugins, query.search) : plugins;
     return (
       <div className="page page-limited" id="marketplace-page">
         <Helmet title={translate('marketplace.page')} />
-        {editionStatus && <EditionsStatusNotif editionStatus={editionStatus} />}
+        <div className="marketplace-notifs">
+          {editionStatus && <EditionsStatusNotif editionStatus={editionStatus} />}
+          <PendingActions refreshPending={this.fetchPendingPlugins} pending={pending} />
+        </div>
         <Header />
         <EditionBoxes
           editionStatus={editionStatus}
@@ -190,19 +187,21 @@ export default class App extends React.PureComponent<Props, State> {
           updateCenterActive={this.props.updateCenterActive}
           updateEditionStatus={this.updateEditionStatus}
         />
-        <PendingActions refreshPending={this.fetchPendingPlugins} pending={pending} />
         <Search
           query={query}
           updateCenterActive={this.props.updateCenterActive}
           updateQuery={this.updateQuery}
         />
-        <PluginsList
-          plugins={filteredPlugins}
-          pending={pending}
-          refreshPending={this.fetchPendingPlugins}
-          updateQuery={this.updateQuery}
-        />
-        <Footer total={filteredPlugins.length} />
+        {loading && <i className="spinner" />}
+        {!loading && (
+          <PluginsList
+            plugins={filteredPlugins}
+            pending={pending}
+            refreshPending={this.fetchPendingPlugins}
+            updateQuery={this.updateQuery}
+          />
+        )}
+        {!loading && <Footer total={filteredPlugins.length} />}
       </div>
     );
   }
