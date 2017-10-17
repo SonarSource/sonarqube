@@ -36,6 +36,7 @@ const applyLicense = require('../../../../api/marketplace').applyLicense as jest
 const getStore = require('../../../../app/utils/getStore').default as jest.Mock<any>;
 
 const DEFAULT_EDITION = {
+  key: 'foo',
   name: 'Foo',
   desc: 'Foo desc',
   download_link: 'download_url',

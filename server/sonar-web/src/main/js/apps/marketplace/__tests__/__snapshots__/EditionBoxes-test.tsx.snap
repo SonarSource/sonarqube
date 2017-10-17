@@ -25,7 +25,11 @@ exports[`should display an error message 1`] = `
 </div>
 `;
 
-exports[`should display the edition boxes 1`] = `null`;
+exports[`should display the edition boxes 1`] = `
+<i
+  className="big-spacer-bottom spinner"
+/>
+`;
 
 exports[`should display the edition boxes 2`] = `
 <div
@@ -36,12 +40,12 @@ exports[`should display the edition boxes 2`] = `
       Object {
         "desc": "Foo desc",
         "download_link": "download_url",
+        "key": "foo",
         "more_link": "more_url",
         "name": "Foo",
         "request_license_link": "license_url",
       }
     }
-    editionKey="foo"
     editionStatus={
       Object {
         "currentEditionKey": "foo",
@@ -56,12 +60,12 @@ exports[`should display the edition boxes 2`] = `
       Object {
         "desc": "Bar desc",
         "download_link": "download_url",
+        "key": "bar",
         "more_link": "more_url",
         "name": "Bar",
         "request_license_link": "license_url",
       }
     }
-    editionKey="bar"
     editionStatus={
       Object {
         "currentEditionKey": "foo",
