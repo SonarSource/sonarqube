@@ -22,7 +22,13 @@ package org.sonar.server.edition.ws;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.Properties;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,10 +38,16 @@ import org.sonar.server.edition.EditionManagementState;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.plugins.edition.EditionInstaller;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.WsEditions;
+import org.sonarqube.ws.WsEditions.PreviewResponse;
+import org.sonarqube.ws.WsEditions.PreviewStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -52,7 +64,8 @@ public class PreviewActionTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private EditionManagementState editionManagementState = mock(EditionManagementState.class);
-  private PreviewAction underTest = new PreviewAction(userSessionRule, editionManagementState);
+  private EditionInstaller editionInstaller = mock(EditionInstaller.class);
+  private PreviewAction underTest = new PreviewAction(userSessionRule, editionManagementState, editionInstaller);
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
@@ -104,6 +117,32 @@ public class PreviewActionTest {
 
     request.execute();
   }
+  
+  @Test
+  public void request_fails_if_license_param_is_empty() {
+    userSessionRule.logIn().setSystemAdministrator();
+    when(editionManagementState.getPendingInstallationStatus()).thenReturn(NONE);
+    TestRequest request = actionTester.newRequest()
+      .setParam(PARAM_LICENSE, "");
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'license' parameter is empty");
+
+    request.execute();
+  }
+
+  @Test
+  public void request_fails_if_license_param_is_invalid() {
+    userSessionRule.logIn().setSystemAdministrator();
+    when(editionManagementState.getPendingInstallationStatus()).thenReturn(NONE);
+    TestRequest request = actionTester.newRequest()
+      .setParam(PARAM_LICENSE, "foo");
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("The license provided is invalid");
+
+    request.execute();
+  }
 
   @Test
   @UseDataProvider("notNonePendingInstallationStatuses")
@@ -120,14 +159,74 @@ public class PreviewActionTest {
   }
 
   @Test
-  public void verify_example() {
+  public void verify_example() throws IOException {
     userSessionRule.logIn().setSystemAdministrator();
     when(editionManagementState.getPendingInstallationStatus()).thenReturn(NONE);
+    when(editionInstaller.requiresInstallationChange(Collections.singleton("plugin1"))).thenReturn(true);
+    when(editionInstaller.isOffline()).thenReturn(false);
 
     TestRequest request = actionTester.newRequest()
-      .setParam(PARAM_LICENSE, "developer-edition");
+      .setParam(PARAM_LICENSE, createLicenseParam("developer-edition", "plugin1"));
 
     JsonAssert.assertJson(request.execute().getInput()).isSimilarTo(actionTester.getDef().responseExampleAsString());
+  }
+
+  @Test
+  public void license_requires_no_installation() throws IOException {
+    userSessionRule.logIn().setSystemAdministrator();
+    when(editionManagementState.getPendingInstallationStatus()).thenReturn(NONE);
+    when(editionInstaller.requiresInstallationChange(Collections.singleton("plugin1"))).thenReturn(false);
+
+    TestRequest request = actionTester.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
+      .setParam(PARAM_LICENSE, createLicenseParam("developer-edition", "plugin1"));
+
+    assertResponse(request.execute(), "developer-edition", PreviewStatus.NO_INSTALL);
+  }
+
+  @Test
+  public void license_will_result_in_auto_install() throws IOException {
+    userSessionRule.logIn().setSystemAdministrator();
+    when(editionManagementState.getPendingInstallationStatus()).thenReturn(NONE);
+    when(editionInstaller.requiresInstallationChange(Collections.singleton("plugin1"))).thenReturn(true);
+    when(editionInstaller.isOffline()).thenReturn(false);
+
+    TestRequest request = actionTester.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
+      .setParam(PARAM_LICENSE, createLicenseParam("developer-edition", "plugin1"));
+
+    assertResponse(request.execute(), "developer-edition", PreviewStatus.AUTOMATIC_INSTALL);
+  }
+
+  @Test
+  public void license_will_result_in_manual_install() throws IOException {
+    userSessionRule.logIn().setSystemAdministrator();
+    when(editionManagementState.getPendingInstallationStatus()).thenReturn(NONE);
+    when(editionInstaller.requiresInstallationChange(Collections.singleton("plugin1"))).thenReturn(true);
+    when(editionInstaller.isOffline()).thenReturn(true);
+
+    TestRequest request = actionTester.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
+      .setParam(PARAM_LICENSE, createLicenseParam("developer-edition", "plugin1"));
+
+    assertResponse(request.execute(), "developer-edition", PreviewStatus.MANUAL_INSTALL);
+  }
+
+  private void assertResponse(TestResponse response, String expectedNextEditionKey, PreviewStatus expectedPreviewStatus) throws IOException {
+    PreviewResponse parsedResponse = WsEditions.PreviewResponse.parseFrom(response.getInputStream());
+    assertThat(parsedResponse.getPreviewStatus()).isEqualTo(expectedPreviewStatus);
+    assertThat(parsedResponse.getNextEditionKey()).isEqualTo(expectedNextEditionKey);
+  }
+
+  private static String createLicenseParam(String editionKey, String... pluginKeys) throws IOException {
+    Properties props = new Properties();
+    props.setProperty("Plugins", String.join(",", pluginKeys));
+    props.setProperty("Edition", editionKey);
+    StringWriter writer = new StringWriter();
+    props.store(writer, "");
+
+    byte[] encoded = Base64.getEncoder().encode(writer.toString().getBytes());
+    return new String(encoded, StandardCharsets.UTF_8);
   }
 
   @DataProvider

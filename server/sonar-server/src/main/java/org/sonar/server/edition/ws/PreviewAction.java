@@ -19,7 +19,6 @@
  */
 package org.sonar.server.edition.ws;
 
-import java.util.Collections;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
@@ -28,6 +27,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.server.edition.EditionManagementState;
 import org.sonar.server.edition.License;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.plugins.edition.EditionInstaller;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsEditions;
@@ -42,10 +42,12 @@ public class PreviewAction implements EditionsWsAction {
 
   private final UserSession userSession;
   private final EditionManagementState editionManagementState;
+  private final EditionInstaller editionInstaller;
 
-  public PreviewAction(UserSession userSession, EditionManagementState editionManagementState) {
+  public PreviewAction(UserSession userSession, EditionManagementState editionManagementState, EditionInstaller editionInstaller) {
     this.userSession = userSession;
     this.editionManagementState = editionManagementState;
+    this.editionInstaller = editionInstaller;
   }
 
   @Override
@@ -71,10 +73,13 @@ public class PreviewAction implements EditionsWsAction {
       throw BadRequestException.create("Can't apply a license when applying one is already in progress");
     }
 
-    String license = request.mandatoryParam(PARAM_LICENSE);
-    License newLicense = new License(license, Collections.emptyList(), license);
-    NextState nextState = computeNextState(newLicense);
+    String licenseParam = request.mandatoryParam(PARAM_LICENSE);
+    if (licenseParam.isEmpty()) {
+      throw new IllegalArgumentException(String.format("The '%s' parameter is empty", PARAM_LICENSE));
+    }
+    License newLicense = License.parse(licenseParam).orElseThrow(() -> BadRequestException.create("The license provided is invalid"));
 
+    NextState nextState = computeNextState(newLicense);
     WsUtils.writeProtobuf(buildResponse(nextState), request, response);
   }
 
@@ -85,14 +90,14 @@ public class PreviewAction implements EditionsWsAction {
       .build();
   }
 
-  private static NextState computeNextState(License newLicense) {
-    String licenseContent = newLicense.getContent();
-    if (licenseContent.contains("manual")) {
-      return new NextState(newLicense.getEditionKey(), MANUAL_INSTALL);
-    } else if (licenseContent.contains("done")) {
+  private NextState computeNextState(License newLicense) {
+    if (!editionInstaller.requiresInstallationChange(newLicense.getPluginKeys())) {
       return new NextState(newLicense.getEditionKey(), NO_INSTALL);
+    } else if (editionInstaller.isOffline()) {
+      return new NextState(newLicense.getEditionKey(), MANUAL_INSTALL);
+    } else {
+      return new NextState(newLicense.getEditionKey(), AUTOMATIC_INSTALL);
     }
-    return new NextState(newLicense.getEditionKey(), AUTOMATIC_INSTALL);
   }
 
   private static final class NextState {
