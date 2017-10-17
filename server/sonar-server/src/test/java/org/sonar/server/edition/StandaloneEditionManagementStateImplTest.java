@@ -21,6 +21,7 @@ package org.sonar.server.edition;
 
 import java.util.Collections;
 import java.util.Random;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -45,6 +46,9 @@ public class StandaloneEditionManagementStateImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
+  @Nullable
+  private String nullableErrorMessage = new Random().nextBoolean() ? null : randomAlphanumeric(5);
+  private String errorMessage = randomAlphanumeric(5);
   private DbClient dbClient = dbTester.getDbClient();
   private final StandaloneEditionManagementStateImpl underTest = new StandaloneEditionManagementStateImpl(dbClient);
 
@@ -242,6 +246,7 @@ public class StandaloneEditionManagementStateImplTest {
     assertThat(underTest.getPendingEditionKey()).contains(LICENSE_WITHOUT_PLUGINS.getEditionKey());
     assertThat(underTest.getPendingLicense()).contains(LICENSE_WITHOUT_PLUGINS.getContent());
     assertThat(underTest.getCurrentEditionKey()).isEmpty();
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
   }
 
   @Test
@@ -257,6 +262,7 @@ public class StandaloneEditionManagementStateImplTest {
     assertThat(underTest.getPendingEditionKey()).contains(LICENSE_WITHOUT_PLUGINS.getEditionKey());
     assertThat(underTest.getPendingLicense()).contains(LICENSE_WITHOUT_PLUGINS.getContent());
     assertThat(underTest.getCurrentEditionKey()).contains(value);
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
   }
 
   @Test
@@ -272,6 +278,7 @@ public class StandaloneEditionManagementStateImplTest {
     assertThat(underTest.getPendingEditionKey()).contains(LICENSE_WITHOUT_PLUGINS.getEditionKey());
     assertThat(underTest.getPendingLicense()).contains(LICENSE_WITHOUT_PLUGINS.getContent());
     assertThat(underTest.getCurrentEditionKey()).contains(value);
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
   }
 
   @Test
@@ -405,6 +412,22 @@ public class StandaloneEditionManagementStateImplTest {
   }
 
   @Test
+  public void startAutomaticInstall_succeeds_if_called_after_installFailed_and_clears_errorMessage() {
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    underTest.installFailed(errorMessage);
+
+    PendingStatus newStatus = underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+
+    assertThat(newStatus).isEqualTo(AUTOMATIC_IN_PROGRESS);
+    assertThat(underTest.getPendingInstallationStatus()).isEqualTo(AUTOMATIC_IN_PROGRESS);
+    assertThat(underTest.getPendingEditionKey()).contains(LICENSE_WITHOUT_PLUGINS.getEditionKey());
+    assertThat(underTest.getPendingLicense()).contains(LICENSE_WITHOUT_PLUGINS.getContent());
+    assertThat(underTest.getCurrentEditionKey()).isEmpty();
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
+  }
+
+  @Test
   public void startManualInstall_fails_with_ISE_if_not_started() {
     expectISENotStarted();
 
@@ -432,6 +455,7 @@ public class StandaloneEditionManagementStateImplTest {
     assertThat(underTest.getPendingEditionKey()).contains(LICENSE_WITHOUT_PLUGINS.getEditionKey());
     assertThat(underTest.getPendingLicense()).contains(LICENSE_WITHOUT_PLUGINS.getContent());
     assertThat(underTest.getCurrentEditionKey()).isEmpty();
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
   }
 
   @Test
@@ -447,6 +471,7 @@ public class StandaloneEditionManagementStateImplTest {
     assertThat(underTest.getPendingEditionKey()).contains(LICENSE_WITHOUT_PLUGINS.getEditionKey());
     assertThat(underTest.getPendingLicense()).contains(LICENSE_WITHOUT_PLUGINS.getContent());
     assertThat(underTest.getCurrentEditionKey()).contains(value);
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
   }
 
   @Test
@@ -462,6 +487,7 @@ public class StandaloneEditionManagementStateImplTest {
     assertThat(underTest.getPendingEditionKey()).contains(LICENSE_WITHOUT_PLUGINS.getEditionKey());
     assertThat(underTest.getPendingLicense()).contains(LICENSE_WITHOUT_PLUGINS.getContent());
     assertThat(underTest.getCurrentEditionKey()).contains(value);
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
   }
 
   @Test
@@ -508,6 +534,22 @@ public class StandaloneEditionManagementStateImplTest {
     expectedException.expectMessage("Can't move to MANUAL_IN_PROGRESS when status is UNINSTALL_IN_PROGRESS (should be any of [NONE])");
 
     underTest.startManualInstall(LICENSE_WITHOUT_PLUGINS);
+  }
+
+  @Test
+  public void startManualInstall_succeeds_if_called_after_installFailed_and_clears_errorMessage() {
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    underTest.installFailed(errorMessage);
+
+    PendingStatus newStatus = underTest.startManualInstall(LICENSE_WITHOUT_PLUGINS);
+
+    assertThat(newStatus).isEqualTo(MANUAL_IN_PROGRESS);
+    assertThat(underTest.getPendingInstallationStatus()).isEqualTo(MANUAL_IN_PROGRESS);
+    assertThat(underTest.getPendingEditionKey()).contains(LICENSE_WITHOUT_PLUGINS.getEditionKey());
+    assertThat(underTest.getPendingLicense()).contains(LICENSE_WITHOUT_PLUGINS.getContent());
+    assertThat(underTest.getCurrentEditionKey()).isEmpty();
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
   }
 
   @Test
@@ -584,6 +626,19 @@ public class StandaloneEditionManagementStateImplTest {
     assertThat(underTest.getPendingEditionKey()).contains(LICENSE_WITHOUT_PLUGINS.getEditionKey());
     assertThat(underTest.getPendingLicense()).contains(LICENSE_WITHOUT_PLUGINS.getContent());
     assertThat(underTest.getCurrentEditionKey()).isEmpty();
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
+  }
+
+  @Test
+  public void automaticInstallReady_fails_with_ISE_if_called_after_installFailed() {
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    underTest.installFailed(nullableErrorMessage);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't move to AUTOMATIC_READY when status is NONE (should be any of [AUTOMATIC_IN_PROGRESS])");
+
+    underTest.automaticInstallReady();
   }
 
   @Test
@@ -625,6 +680,7 @@ public class StandaloneEditionManagementStateImplTest {
     assertThat(underTest.getPendingEditionKey()).isEmpty();
     assertThat(underTest.getPendingLicense()).isEmpty();
     assertThat(underTest.getCurrentEditionKey()).contains(newEditionKey);
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
   }
 
   @Test
@@ -639,6 +695,7 @@ public class StandaloneEditionManagementStateImplTest {
     assertThat(underTest.getPendingEditionKey()).isEmpty();
     assertThat(underTest.getPendingLicense()).isEmpty();
     assertThat(underTest.getCurrentEditionKey()).contains(newEditionKey);
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
   }
 
   @Test
@@ -655,6 +712,7 @@ public class StandaloneEditionManagementStateImplTest {
     assertThat(underTest.getPendingEditionKey()).isEmpty();
     assertThat(underTest.getPendingLicense()).isEmpty();
     assertThat(underTest.getCurrentEditionKey()).contains(newEditionKey2);
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
   }
 
   @Test
@@ -692,6 +750,23 @@ public class StandaloneEditionManagementStateImplTest {
     expectedException.expectMessage("Can't move to NONE when status is UNINSTALL_IN_PROGRESS (should be any of [NONE])");
 
     underTest.newEditionWithoutInstall(newEditionKey);
+  }
+
+  @Test
+  public void newEditionWithoutInstall_succeeds_if_called_after_installFailed_and_clear_error_message() {
+    String newEditionKey = randomAlphanumeric(3);
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    underTest.installFailed(errorMessage);
+
+    PendingStatus newStatus = underTest.newEditionWithoutInstall(newEditionKey);
+
+    assertThat(newStatus).isEqualTo(NONE);
+    assertThat(underTest.getPendingInstallationStatus()).isEqualTo(NONE);
+    assertThat(underTest.getPendingEditionKey()).isEmpty();
+    assertThat(underTest.getPendingLicense()).isEmpty();
+    assertThat(underTest.getCurrentEditionKey()).contains(newEditionKey);
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
   }
 
   @Test
@@ -746,6 +821,7 @@ public class StandaloneEditionManagementStateImplTest {
     assertThat(underTest.getPendingEditionKey()).isEmpty();
     assertThat(underTest.getPendingLicense()).isEmpty();
     assertThat(underTest.getCurrentEditionKey()).contains(LICENSE_WITHOUT_PLUGINS.getEditionKey());
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
   }
 
   @Test
@@ -760,6 +836,7 @@ public class StandaloneEditionManagementStateImplTest {
     assertThat(underTest.getPendingEditionKey()).isEmpty();
     assertThat(underTest.getPendingLicense()).isEmpty();
     assertThat(underTest.getCurrentEditionKey()).contains(LICENSE_WITHOUT_PLUGINS.getEditionKey());
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
   }
 
   @Test
@@ -776,6 +853,19 @@ public class StandaloneEditionManagementStateImplTest {
     assertThat(underTest.getPendingEditionKey()).isEmpty();
     assertThat(underTest.getPendingLicense()).isEmpty();
     assertThat(underTest.getCurrentEditionKey()).contains(LICENSE_WITHOUT_PLUGINS.getEditionKey());
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
+  }
+
+  @Test
+  public void finalizeInstallation_fails_with_ISE_after_installFailed() {
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    underTest.installFailed(nullableErrorMessage);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't move to NONE when status is NONE (should be any of [AUTOMATIC_READY, MANUAL_IN_PROGRESS, UNINSTALL_IN_PROGRESS])");
+
+    underTest.finalizeInstallation();
   }
 
   @Test
@@ -804,6 +894,191 @@ public class StandaloneEditionManagementStateImplTest {
     expectedException.expectMessage("Can't move to NONE when status is NONE (should be any of [AUTOMATIC_READY, MANUAL_IN_PROGRESS, UNINSTALL_IN_PROGRESS])");
 
     underTest.finalizeInstallation();
+  }
+
+  @Test
+  public void installFailed_fails_with_ISE_if_not_started() {
+    expectISENotStarted();
+
+    underTest.installFailed(nullableErrorMessage);
+  }
+
+  @Test
+  public void installFailed_fails_with_ISE_if_called_after_start() {
+    underTest.start();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't move to NONE when status is NONE (should be any of [AUTOMATIC_IN_PROGRESS, AUTOMATIC_READY, MANUAL_IN_PROGRESS])");
+
+    underTest.installFailed(nullableErrorMessage);
+  }
+
+  @Test
+  public void installFailed_after_manualInstall_changes_status_to_NONE_stores_non_null_error_message_and_clear_pending_fields() {
+    underTest.start();
+    underTest.startManualInstall(LICENSE_WITHOUT_PLUGINS);
+    String errorMessage = randomAlphanumeric(4);
+
+    PendingStatus newStatus = underTest.installFailed(errorMessage);
+
+    assertThat(newStatus).isEqualTo(NONE);
+    assertThat(underTest.getPendingInstallationStatus()).isEqualTo(NONE);
+    assertThat(underTest.getPendingEditionKey()).isEmpty();
+    assertThat(underTest.getPendingLicense()).isEmpty();
+    assertThat(underTest.getCurrentEditionKey()).isEmpty();
+    assertThat(underTest.getInstallErrorMessage()).contains(errorMessage);
+  }
+
+  @Test
+  public void installFailed_after_manualInstall_changes_status_to_NONE_without_error_message_and_clear_pending_fields() {
+    underTest.start();
+    underTest.startManualInstall(LICENSE_WITHOUT_PLUGINS);
+
+    PendingStatus newStatus = underTest.installFailed(null);
+
+    assertThat(newStatus).isEqualTo(NONE);
+    assertThat(underTest.getPendingInstallationStatus()).isEqualTo(NONE);
+    assertThat(underTest.getPendingEditionKey()).isEmpty();
+    assertThat(underTest.getPendingLicense()).isEmpty();
+    assertThat(underTest.getCurrentEditionKey()).isEmpty();
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
+  }
+
+  @Test
+  public void installFailed_after_startAutomaticInstall_changes_status_to_NONE_stores_non_null_error_message_and_clear_pending_fields() {
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    String errorMessage = randomAlphanumeric(4);
+
+    PendingStatus newStatus = underTest.installFailed(errorMessage);
+
+    assertThat(newStatus).isEqualTo(NONE);
+    assertThat(underTest.getPendingInstallationStatus()).isEqualTo(NONE);
+    assertThat(underTest.getPendingEditionKey()).isEmpty();
+    assertThat(underTest.getPendingLicense()).isEmpty();
+    assertThat(underTest.getCurrentEditionKey()).isEmpty();
+    assertThat(underTest.getInstallErrorMessage()).contains(errorMessage);
+  }
+
+  @Test
+  public void installFailed_after_startAutomaticInstall_changes_status_to_NONE_without_error_message_and_clear_pending_fields() {
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+
+    PendingStatus newStatus = underTest.installFailed(null);
+
+    assertThat(newStatus).isEqualTo(NONE);
+    assertThat(underTest.getPendingInstallationStatus()).isEqualTo(NONE);
+    assertThat(underTest.getPendingEditionKey()).isEmpty();
+    assertThat(underTest.getPendingLicense()).isEmpty();
+    assertThat(underTest.getCurrentEditionKey()).isEmpty();
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
+  }
+
+  @Test
+  public void installFailed_after_startAutomaticInstall_changes_status_to_NONE_stores_non_null_error_message_and_clear_pending_fields_when_current_install_exists() {
+    underTest.start();
+    String currentEdition = "current-edition";
+    underTest.newEditionWithoutInstall(currentEdition);
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    String errorMessage = randomAlphanumeric(4);
+
+    PendingStatus newStatus = underTest.installFailed(errorMessage);
+
+    assertThat(newStatus).isEqualTo(NONE);
+    assertThat(underTest.getPendingInstallationStatus()).isEqualTo(NONE);
+    assertThat(underTest.getPendingEditionKey()).isEmpty();
+    assertThat(underTest.getPendingLicense()).isEmpty();
+    assertThat(underTest.getCurrentEditionKey()).contains(currentEdition);
+    assertThat(underTest.getInstallErrorMessage()).contains(errorMessage);
+  }
+
+  @Test
+  public void installFailed_after_startAutomaticInstall_changes_status_to_NONE_without_error_message_and_clear_pending_fields_when_current_install_exists() {
+    underTest.start();
+    String currentEdition = "current-edition";
+    underTest.newEditionWithoutInstall(currentEdition);
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+
+    PendingStatus newStatus = underTest.installFailed(null);
+
+    assertThat(newStatus).isEqualTo(NONE);
+    assertThat(underTest.getPendingInstallationStatus()).isEqualTo(NONE);
+    assertThat(underTest.getPendingEditionKey()).isEmpty();
+    assertThat(underTest.getPendingLicense()).isEmpty();
+    assertThat(underTest.getCurrentEditionKey()).contains(currentEdition);
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
+  }
+
+  @Test
+  public void installFailed_considers_empty_message_as_no_message() {
+    underTest.start();
+    underTest.newEditionWithoutInstall("current-edition");
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+
+    underTest.installFailed("");
+
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
+  }
+
+  @Test
+  public void installFailed_considers_empty_message_after_trim_as_no_message() {
+    underTest.start();
+    underTest.newEditionWithoutInstall("current-edition");
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+
+    underTest.installFailed("  ");
+
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
+  }
+
+  @Test
+  public void installFailed_after_automaticInstallReady_changes_status_to_NONE_stores_non_null_error_message_and_clear_pending_fields_when_current_install_exists() {
+    underTest.start();
+    String currentEdition = "current-edition";
+    underTest.newEditionWithoutInstall(currentEdition);
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    underTest.automaticInstallReady();
+    String errorMessage = randomAlphanumeric(4);
+
+    PendingStatus newStatus = underTest.installFailed(errorMessage);
+
+    assertThat(newStatus).isEqualTo(NONE);
+    assertThat(underTest.getPendingInstallationStatus()).isEqualTo(NONE);
+    assertThat(underTest.getPendingEditionKey()).isEmpty();
+    assertThat(underTest.getPendingLicense()).isEmpty();
+    assertThat(underTest.getCurrentEditionKey()).contains(currentEdition);
+    assertThat(underTest.getInstallErrorMessage()).contains(errorMessage);
+  }
+
+  @Test
+  public void installFailed_after_automaticInstallReady_changes_status_to_NONE_without_error_message_and_clear_pending_fields_when_current_install_exists() {
+    underTest.start();
+    String currentEdition = "current-edition";
+    underTest.newEditionWithoutInstall(currentEdition);
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    underTest.automaticInstallReady();
+
+    PendingStatus newStatus = underTest.installFailed(null);
+
+    assertThat(newStatus).isEqualTo(NONE);
+    assertThat(underTest.getPendingInstallationStatus()).isEqualTo(NONE);
+    assertThat(underTest.getPendingEditionKey()).isEmpty();
+    assertThat(underTest.getPendingLicense()).isEmpty();
+    assertThat(underTest.getCurrentEditionKey()).contains(currentEdition);
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
+  }
+
+  @Test
+  public void installFailed_after_installFailed() {
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    underTest.installFailed(nullableErrorMessage);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't move to NONE when status is NONE (should be any of [AUTOMATIC_IN_PROGRESS, AUTOMATIC_READY, MANUAL_IN_PROGRESS])");
+
+    underTest.installFailed(nullableErrorMessage);
   }
 
   private void expectISENotStarted() {
