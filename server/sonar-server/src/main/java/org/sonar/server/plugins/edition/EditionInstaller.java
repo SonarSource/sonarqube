@@ -19,11 +19,17 @@
  */
 package org.sonar.server.plugins.edition;
 
+import com.google.common.base.Optional;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.server.edition.MutableEditionManagementState;
 import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.updatecenter.common.UpdateCenter;
 
 public class EditionInstaller {
   private final ReentrantLock lock = new ReentrantLock();
@@ -31,23 +37,35 @@ public class EditionInstaller {
   private final EditionPluginDownloader editionPluginDownloader;
   private final EditionPluginUninstaller editionPluginUninstaller;
   private final ServerPluginRepository pluginRepository;
+  private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
+  private final MutableEditionManagementState editionManagementState;
 
   public EditionInstaller(EditionPluginDownloader editionDownloader, EditionPluginUninstaller editionPluginUninstaller,
-    ServerPluginRepository pluginRepository, EditionInstallerExecutor executor) {
+    ServerPluginRepository pluginRepository, EditionInstallerExecutor executor, UpdateCenterMatrixFactory updateCenterMatrixFactory,
+    MutableEditionManagementState editionManagementState) {
     this.editionPluginDownloader = editionDownloader;
     this.editionPluginUninstaller = editionPluginUninstaller;
     this.pluginRepository = pluginRepository;
     this.executor = executor;
+    this.updateCenterMatrixFactory = updateCenterMatrixFactory;
+    this.editionManagementState = editionManagementState;
   }
 
-  public void install(Set<String> editionPlugins) {
+  /**
+   * Refreshes the update center, and submits in a executor a task to download all the needed plugins (asynchronously).
+   * If the update center is disabled or if we are offline, the task is not submitted and false is returned. 
+   * @return true if a task was submitted to perform the download, false if update center is unavailable.
+   * @throws IllegalStateException if an installation is already in progress
+   */
+  public boolean install(Set<String> editionPluginKeys) {
     if (lock.tryLock()) {
       try {
-        if (!requiresInstallationChange(editionPlugins)) {
-          return;
+        Optional<UpdateCenter> updateCenter = updateCenterMatrixFactory.getUpdateCenter(true);
+        if (!updateCenter.isPresent()) {
+          return false;
         }
-
-        executor.execute(() -> asyncInstall(editionPlugins));
+        executor.execute(() -> asyncInstall(editionPluginKeys, updateCenter.get()));
+        return true;
       } catch (RuntimeException e) {
         lock.unlock();
         throw e;
@@ -57,33 +75,42 @@ public class EditionInstaller {
     }
   }
 
-  public boolean requiresInstallationChange(Set<String> editionPluginKeys) {
-    return !pluginsToInstall(editionPluginKeys).isEmpty() || !pluginsToRemove(editionPluginKeys).isEmpty();
+  public boolean isOffline() {
+    return !updateCenterMatrixFactory.getUpdateCenter(true).isPresent();
   }
 
-  private void asyncInstall(Set<String> editionPluginKeys) {
+  public boolean requiresInstallationChange(Set<String> editionPluginKeys) {
+    Map<String, PluginInfo> pluginInfosByKeys = pluginRepository.getPluginInfosByKeys();
+
+    return !pluginsToInstall(editionPluginKeys, pluginInfosByKeys.keySet()).isEmpty()
+      || !pluginsToRemove(editionPluginKeys, pluginInfosByKeys.values()).isEmpty();
+  }
+
+  private void asyncInstall(Set<String> editionPluginKeys, UpdateCenter updateCenter) {
+    Map<String, PluginInfo> pluginInfosByKeys = pluginRepository.getPluginInfosByKeys();
+    Set<String> pluginsToRemove = pluginsToRemove(editionPluginKeys, pluginInfosByKeys.values());
+    Set<String> pluginsToInstall = pluginsToInstall(editionPluginKeys, pluginInfosByKeys.keySet());
+
     try {
-      // TODO clean previously staged edition installations, or fail?
-      // editionPluginDownloader.cancelDownloads();
-      // editionPluginUninstaller.cancelUninstalls();
-      editionPluginDownloader.installEdition(pluginsToInstall(editionPluginKeys));
-      for (String pluginKey : pluginsToRemove(editionPluginKeys)) {
+      editionPluginDownloader.downloadEditionPlugins(pluginsToInstall, updateCenter);
+      for (String pluginKey : pluginsToRemove) {
         editionPluginUninstaller.uninstall(pluginKey);
       }
+      editionManagementState.automaticInstallReady();
     } finally {
       lock.unlock();
+      // TODO: catch exceptions and set error status
     }
   }
 
-  private Set<String> pluginsToInstall(Set<String> editionPluginKeys) {
-    Set<String> installedKeys = pluginRepository.getPluginInfosByKeys().keySet();
+  private Set<String> pluginsToInstall(Set<String> editionPluginKeys, Set<String> installedPluginKeys) {
     return editionPluginKeys.stream()
-      .filter(p -> !installedKeys.contains(p))
+      .filter(p -> !installedPluginKeys.contains(p))
       .collect(Collectors.toSet());
   }
 
-  private Set<String> pluginsToRemove(Set<String> editionPluginKeys) {
-    Set<String> installedCommercialPluginKeys = pluginRepository.getPluginInfos().stream()
+  private Set<String> pluginsToRemove(Set<String> editionPluginKeys, Collection<PluginInfo> installedPluginInfos) {
+    Set<String> installedCommercialPluginKeys = installedPluginInfos.stream()
       .filter(EditionInstaller::isSonarSourceCommercialPlugin)
       .map(PluginInfo::getKey)
       .collect(Collectors.toSet());

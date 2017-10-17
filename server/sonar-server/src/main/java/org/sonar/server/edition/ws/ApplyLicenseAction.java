@@ -19,7 +19,6 @@
  */
 package org.sonar.server.edition.ws;
 
-import java.util.Collections;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
@@ -30,6 +29,7 @@ import org.sonar.server.edition.License;
 import org.sonar.server.edition.MutableEditionManagementState;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.license.LicenseCommit;
+import org.sonar.server.plugins.edition.EditionInstaller;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsEditions;
@@ -41,17 +41,19 @@ public class ApplyLicenseAction implements EditionsWsAction {
 
   private final UserSession userSession;
   private final MutableEditionManagementState editionManagementState;
+  private final EditionInstaller editionInstaller;
   @CheckForNull
   private final LicenseCommit licenseCommit;
 
-  public ApplyLicenseAction(UserSession userSession, MutableEditionManagementState editionManagementState) {
-    this(userSession, editionManagementState, null);
+  public ApplyLicenseAction(UserSession userSession, MutableEditionManagementState editionManagementState, EditionInstaller editionInstaller) {
+    this(userSession, editionManagementState, editionInstaller, null);
   }
 
-  public ApplyLicenseAction(UserSession userSession, MutableEditionManagementState editionManagementState,
+  public ApplyLicenseAction(UserSession userSession, MutableEditionManagementState editionManagementState, EditionInstaller editionInstaller,
     @Nullable LicenseCommit licenseCommit) {
     this.userSession = userSession;
     this.editionManagementState = editionManagementState;
+    this.editionInstaller = editionInstaller;
     this.licenseCommit = licenseCommit;
   }
 
@@ -78,18 +80,21 @@ public class ApplyLicenseAction implements EditionsWsAction {
       throw BadRequestException.create("Can't apply a license when applying one is already in progress");
     }
 
-    String license = request.mandatoryParam(PARAM_LICENSE);
-    License newLicense = new License(license, Collections.emptyList(), license);
-    if (license.contains("manual")) {
-      editionManagementState.startManualInstall(newLicense);
-    } else if (license.contains("done")) {
+    String licenseParam = request.mandatoryParam(PARAM_LICENSE);
+    License newLicense = License.parse(licenseParam).orElseThrow(() -> BadRequestException.create("The license provided is invalid"));
+
+    if (!editionInstaller.requiresInstallationChange(newLicense.getPluginKeys())) {
+      editionManagementState.newEditionWithoutInstall(newLicense.getEditionKey());
       checkState(licenseCommit != null,
         "Can't decide edition does not require install if LicenseCommit instance is null. " +
           "License-manager plugin should be installed.");
-      licenseCommit.update(newLicense.getContent());
-      editionManagementState.newEditionWithoutInstall(newLicense.getEditionKey());
-    } else {
-      editionManagementState.startAutomaticInstall(newLicense);
+      licenseCommit.update(newLicense.getContent());    } else {
+      boolean online = editionInstaller.install(newLicense.getPluginKeys());
+      if (online) {
+        editionManagementState.startAutomaticInstall(newLicense);
+      } else {
+        editionManagementState.startManualInstall(newLicense);
+      }
     }
 
     WsUtils.writeProtobuf(buildResponse(), request, response);
