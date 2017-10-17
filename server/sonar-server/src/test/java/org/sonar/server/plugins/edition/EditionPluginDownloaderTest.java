@@ -19,7 +19,6 @@
  */
 package org.sonar.server.plugins.edition;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.IOException;
@@ -31,11 +30,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.sonar.api.utils.HttpDownloader;
 import org.sonar.server.platform.ServerFileSystem;
-import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
@@ -43,7 +39,6 @@ import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -52,14 +47,10 @@ import static org.mockito.Mockito.when;
 public class EditionPluginDownloaderTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  @Mock
-  private UpdateCenterMatrixFactory updateCenterMatrixFactory;
-  @Mock
-  private UpdateCenter updateCenter;
-  @Mock
-  private ServerFileSystem fs;
-  @Mock
-  private HttpDownloader httpDownloader;
+
+  private ServerFileSystem fs = mock(ServerFileSystem.class);
+  private HttpDownloader httpDownloader = mock(HttpDownloader.class);
+  private UpdateCenter updateCenter = mock(UpdateCenter.class);
 
   private File downloadDir;
   private File tmpDir;
@@ -67,12 +58,10 @@ public class EditionPluginDownloaderTest {
 
   @Before
   public void setUp() throws IOException {
-    MockitoAnnotations.initMocks(this);
-    downloadDir = temp.newFolder();
+    downloadDir = temp.newFolder("download");
     tmpDir = new File(downloadDir.getParentFile(), downloadDir.getName() + "_tmp");
-    when(updateCenterMatrixFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.of(updateCenter));
     when(fs.getEditionDownloadedPluginsDir()).thenReturn(downloadDir);
-    downloader = new EditionPluginDownloader(updateCenterMatrixFactory, httpDownloader, fs);
+    downloader = new EditionPluginDownloader(httpDownloader, fs);
   }
 
   @Test
@@ -81,7 +70,7 @@ public class EditionPluginDownloaderTest {
       createRelease("plugin2", "1.0", "http://host/plugin2.jar"));
 
     when(updateCenter.findInstallablePlugins("plugins", Version.create(""))).thenReturn(releases);
-    downloader.installEdition(Collections.singleton("plugins"));
+    downloader.downloadEditionPlugins(Collections.singleton("plugins"), updateCenter);
 
     verify(httpDownloader).download(new URI("http://host/plugin1.jar"), new File(tmpDir, "plugin1.jar"));
     verify(httpDownloader).download(new URI("http://host/plugin2.jar"), new File(tmpDir, "plugin2.jar"));
@@ -100,14 +89,13 @@ public class EditionPluginDownloaderTest {
     when(updateCenter.findInstallablePlugins("plugins", Version.create(""))).thenReturn(releases);
 
     try {
-      downloader.installEdition(Collections.singleton("plugins"));
+      downloader.downloadEditionPlugins(Collections.singleton("plugins"), updateCenter);
       fail("expecting exception");
     } catch (IllegalStateException e) {
 
     }
 
     verify(httpDownloader).download(new URI("http://host/plugin1.jar"), new File(tmpDir, "plugin1.jar"));
-    verify(httpDownloader).download(new URI("http://host/plugin2.jar"), new File(tmpDir, "plugin2.jar"));
 
     assertThat(downloadDir.list()).isEmpty();
     assertThat(tmpDir).doesNotExist();

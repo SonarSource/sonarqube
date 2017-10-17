@@ -97,10 +97,23 @@ public class LicenseTest {
   }
 
   @Test
-  public void parse_is_empty_if_no_plugin() throws IOException {
+  public void parse_is_empty_if_license_has_no_plugin() throws IOException {
     Properties props = new Properties();
     props.setProperty("Plugins", "");
     props.setProperty("Edition", "dev");
+    StringWriter writer = new StringWriter();
+    props.store(writer, "");
+
+    byte[] encoded = Base64.getEncoder().encode(writer.toString().getBytes());
+
+    Optional<License> license = License.parse(new String(encoded));
+    assertThat(license).isEmpty();
+  }
+
+  @Test
+  public void parse_is_empty_if_license_has_no_edition_key() throws IOException {
+    Properties props = new Properties();
+    props.setProperty("Plugins", "plugin1,plugin2");
     StringWriter writer = new StringWriter();
     props.store(writer, "");
 
