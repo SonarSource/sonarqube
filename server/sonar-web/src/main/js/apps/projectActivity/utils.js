@@ -40,8 +40,8 @@ export const DEFAULT_GRAPH = 'issues';
 export const GRAPH_TYPES = ['issues', 'coverage', 'duplications', 'custom'];
 export const GRAPHS_METRICS_DISPLAYED = {
   issues: ['bugs', 'code_smells', 'vulnerabilities'],
-  coverage: ['uncovered_lines', 'lines_to_cover'],
-  duplications: ['duplicated_lines', 'ncloc']
+  coverage: ['lines_to_cover', 'uncovered_lines'],
+  duplications: ['ncloc', 'duplicated_lines']
 };
 export const GRAPHS_METRICS = {
   issues: GRAPHS_METRICS_DISPLAYED['issues'].concat([
@@ -125,7 +125,8 @@ export function generateSeries(
           type: metric ? metric.type : 'INT'
         };
       }),
-    serie => displayedMetrics.indexOf(serie.name)
+    serie =>
+      displayedMetrics.indexOf(serie.name === 'covered_lines' ? 'uncovered_lines' : serie.name)
   );
 }
 
