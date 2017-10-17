@@ -19,13 +19,11 @@
  */
 
 import { Extension } from '../../app/types';
-import { EditionStatus } from '../../api/marketplace';
 
 interface AppState {
   adminPages?: Extension[];
   authenticationError: boolean;
   authorizationError: boolean;
-  editionStatus?: EditionStatus;
   organizationsEnabled: boolean;
   qualifiers?: string[];
 }
@@ -40,20 +38,11 @@ interface SetAdminPagesAction {
   adminPages: Extension[];
 }
 
-interface SetEditionStatusAction {
-  type: 'SET_EDITION_STATUS';
-  editionStatus: EditionStatus;
-}
-
 interface RequireAuthorizationAction {
   type: 'REQUIRE_AUTHORIZATION';
 }
 
-export type Action =
-  | SetAppStateAction
-  | SetAdminPagesAction
-  | SetEditionStatusAction
-  | RequireAuthorizationAction;
+export type Action = SetAppStateAction | SetAdminPagesAction | RequireAuthorizationAction;
 
 export function setAppState(appState: AppState): SetAppStateAction {
   return {
@@ -70,10 +59,6 @@ export function requireAuthorization(): RequireAuthorizationAction {
   return { type: 'REQUIRE_AUTHORIZATION' };
 }
 
-export function setEditionStatus(editionStatus: EditionStatus): SetEditionStatusAction {
-  return { type: 'SET_EDITION_STATUS', editionStatus };
-}
-
 const defaultValue: AppState = {
   authenticationError: false,
   authorizationError: false,
@@ -87,10 +72,6 @@ export default function(state: AppState = defaultValue, action: Action): AppStat
 
   if (action.type === 'SET_ADMIN_PAGES') {
     return { ...state, adminPages: action.adminPages };
-  }
-
-  if (action.type === 'SET_EDITION_STATUS') {
-    return { ...state, editionStatus: action.editionStatus };
   }
 
   if (action.type === 'REQUIRE_AUTHORIZATION') {

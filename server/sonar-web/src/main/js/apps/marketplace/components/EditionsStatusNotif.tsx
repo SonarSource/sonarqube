@@ -18,41 +18,53 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import NavBarNotif from '../../../../components/nav/NavBarNotif';
-import { EditionStatus } from '../../../../api/marketplace';
-import { translate } from '../../../../helpers/l10n';
+import RestartForm from '../../../components/common/RestartForm';
+import { EditionStatus } from '../../../api/marketplace';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   editionStatus: EditionStatus;
 }
 
-export default class SettingsEditionsNotif extends React.PureComponent<Props> {
+interface State {
+  openRestart: boolean;
+}
+
+export default class EditionsStatusNotif extends React.PureComponent<Props, State> {
+  state: State = { openRestart: false };
+
+  handleOpenRestart = () => this.setState({ openRestart: true });
+  hanleCloseRestart = () => this.setState({ openRestart: false });
+
   render() {
     const { editionStatus } = this.props;
-
     if (editionStatus.installationStatus === 'AUTOMATIC_IN_PROGRESS') {
       return (
-        <NavBarNotif className="alert alert-info">
+        <div className="alert alert-page alert-info">
           <i className="spinner spacer-right text-bottom" />
           <span>{translate('marketplace.status.AUTOMATIC_IN_PROGRESS')}</span>
-        </NavBarNotif>
+        </div>
       );
     } else if (editionStatus.installationStatus === 'AUTOMATIC_READY') {
       return (
-        <NavBarNotif className="alert alert-success">
+        <div className="alert alert-page alert-success">
           <span>{translate('marketplace.status.AUTOMATIC_READY')}</span>
-        </NavBarNotif>
+          <button className="js-restart spacer-left" onClick={this.handleOpenRestart}>
+            {translate('marketplace.restart')}
+          </button>
+          {this.state.openRestart && <RestartForm onClose={this.hanleCloseRestart} />}
+        </div>
       );
     } else if (
       ['MANUAL_IN_PROGRESS', 'AUTOMATIC_FAILURE'].includes(editionStatus.installationStatus)
     ) {
       return (
-        <NavBarNotif className="alert alert-danger">
+        <div className="alert alert-page alert-danger">
           {translate('marketplace.status', editionStatus.installationStatus)}
           <a className="little-spacer-left" href="https://www.sonarsource.com" target="_blank">
             {translate('marketplace.how_to_install')}
           </a>
-        </NavBarNotif>
+        </div>
       );
     }
     return null;

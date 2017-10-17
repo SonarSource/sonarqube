@@ -23,7 +23,6 @@ import { getAppState, getGlobalSettingValue } from '../../store/rootReducer';
 import './style.css';
 
 const mapStateToProps = (state: any) => ({
-  editionStatus: getAppState(state).editionStatus,
   editionsUrl: (getGlobalSettingValue(state, 'sonar.editions.jsonUrl') || {}).value,
   sonarqubeVersion: getAppState(state).version,
   updateCenterActive: (getGlobalSettingValue(state, 'sonar.updatecenter.activate') || {}).value
