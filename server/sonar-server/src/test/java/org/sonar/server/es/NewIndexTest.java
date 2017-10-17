@@ -131,7 +131,6 @@ public class NewIndexTest {
     mapping.keywordFieldBuilder("dumb_text_storage")
       .disableSearch()
       .disableNorms()
-      .disableSortingAndAggregating()
       .build();
 
     Map<String, Object> props = (Map) mapping.getProperty("basic_field");
@@ -144,7 +143,7 @@ public class NewIndexTest {
     assertThat(props.get("index")).isEqualTo("false");
     assertThat(props.get("norms")).isEqualTo("true");
     assertThat(props.get("store")).isEqualTo("false");
-    assertThat(props.get("doc_values")).isEqualTo("true");
+    assertThat(props.get("doc_values")).isEqualTo("false");
     assertThat(props.get("fields")).isNull();
 
     props = (Map) mapping.getProperty("all_capabilities_field");
@@ -190,10 +189,21 @@ public class NewIndexTest {
   }
 
   @Test
-  public void use_doc_values_by_default() {
+  public void do_not_use_doc_values_by_default() {
     NewIndex index = new NewIndex("issues", defaultSettingsConfiguration);
     NewIndex.NewIndexType mapping = index.createType("issue");
     mapping.keywordFieldBuilder("the_doc_value").build();
+
+    Map<String, Object> props = (Map) mapping.getProperty("the_doc_value");
+    assertThat(props.get("type")).isEqualTo("keyword");
+    assertThat(props.get("doc_values")).isEqualTo("false");
+  }
+
+  @Test
+  public void use_doc_values_if_explicitly_required() {
+    NewIndex index = new NewIndex("issues", defaultSettingsConfiguration);
+    NewIndex.NewIndexType mapping = index.createType("issue");
+    mapping.keywordFieldBuilder("the_doc_value").enableSortingAndAggregating().build();
 
     Map<String, Object> props = (Map) mapping.getProperty("the_doc_value");
     assertThat(props.get("type")).isEqualTo("keyword");

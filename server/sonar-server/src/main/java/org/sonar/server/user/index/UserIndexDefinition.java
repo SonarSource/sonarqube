@@ -57,7 +57,7 @@ public class UserIndexDefinition implements IndexDefinition {
     // type "user"
     NewIndex.NewIndexType mapping = index.createType(INDEX_TYPE_USER.getType());
     mapping.keywordFieldBuilder(FIELD_LOGIN).addSubFields(USER_SEARCH_GRAMS_ANALYZER).build();
-    mapping.keywordFieldBuilder(FIELD_NAME).addSubFields(USER_SEARCH_GRAMS_ANALYZER).build();
+    mapping.keywordFieldBuilder(FIELD_NAME).enableSortingAndAggregating().addSubFields(USER_SEARCH_GRAMS_ANALYZER).build();
     mapping.keywordFieldBuilder(FIELD_EMAIL).addSubFields(USER_SEARCH_GRAMS_ANALYZER, SORTABLE_ANALYZER).build();
     mapping.createBooleanField(FIELD_ACTIVE);
     mapping.keywordFieldBuilder(FIELD_SCM_ACCOUNTS).disableNorms().addSubFields(SORTABLE_ANALYZER).build();

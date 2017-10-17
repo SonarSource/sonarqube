@@ -283,7 +283,7 @@ public class NewIndex {
     private boolean termVectorWithPositionOffsets = false;
     private SortedMap<String, Object> subFields = Maps.newTreeMap();
     private boolean store = false;
-    protected boolean disabledDocValues = false;
+    protected boolean docValues = false;
 
     private StringFieldBuilder(NewIndexType indexType, String fieldName) {
       this.indexType = indexType;
@@ -361,7 +361,7 @@ public class NewIndex {
       hash.put("norms", valueOf(!disableNorms));
       hash.put("store", valueOf(store));
       if (FIELD_TYPE_KEYWORD.equals(getFieldType())) {
-        hash.put("doc_values", valueOf(!disabledDocValues));
+        hash.put("doc_values", valueOf(docValues));
       }
       if (getFieldData()) {
         hash.put(FIELD_FIELDDATA, FIELDDATA_ENABLED);
@@ -376,7 +376,7 @@ public class NewIndex {
       hash.put("norms", "false");
       hash.put("store", valueOf(store));
       if (FIELD_TYPE_KEYWORD.equals(getFieldType())) {
-        hash.put("doc_values", valueOf(!disabledDocValues));
+        hash.put("doc_values", valueOf(docValues));
       }
       if (getFieldData()) {
         hash.put(FIELD_FIELDDATA, FIELDDATA_ENABLED);
@@ -433,13 +433,13 @@ public class NewIndex {
     }
 
     /**
-     * By default, field is stored on disk in a column-stride fashion, so that it can later be used for sorting,
+     * By default, values are not stored on disk in a column-stride fashion. They cannot be used for sorting,
      * aggregations, or scripting.
-     * Disabling this reduces the size of the index and drop the constraint of single term max size of
+     * Enabling this increases the size of the index and also adds the constraint of single term max size of
      * 32766 bytes (which, if there is no tokenizing enabled on the field, equals the size of the whole data).
      */
-    public KeywordFieldBuilder disableSortingAndAggregating() {
-      this.disabledDocValues = true;
+    public KeywordFieldBuilder enableSortingAndAggregating() {
+      this.docValues = true;
       return this;
     }
   }

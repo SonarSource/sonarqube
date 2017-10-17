@@ -127,30 +127,30 @@ public class IssueIndexDefinition implements IndexDefinition {
     type.requireProjectAuthorization();
     type.setEnableSource(enableSource);
 
-    type.keywordFieldBuilder(FIELD_ISSUE_ASSIGNEE).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
-    type.keywordFieldBuilder(FIELD_ISSUE_AUTHOR_LOGIN).disableNorms().build();
-    type.keywordFieldBuilder(FIELD_ISSUE_COMPONENT_UUID).disableNorms().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_ASSIGNEE).disableNorms().enableSortingAndAggregating().addSubFields(SORTABLE_ANALYZER).build();
+    type.keywordFieldBuilder(FIELD_ISSUE_AUTHOR_LOGIN).disableNorms().enableSortingAndAggregating().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_COMPONENT_UUID).disableNorms().enableSortingAndAggregating().build();
     type.createLongField(FIELD_ISSUE_EFFORT);
-    type.keywordFieldBuilder(FIELD_ISSUE_FILE_PATH).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
+    type.keywordFieldBuilder(FIELD_ISSUE_FILE_PATH).disableNorms().enableSortingAndAggregating().addSubFields(SORTABLE_ANALYZER).build();
     type.createDateTimeField(FIELD_ISSUE_FUNC_CREATED_AT);
     type.createDateTimeField(FIELD_ISSUE_FUNC_UPDATED_AT);
     type.createDateTimeField(FIELD_ISSUE_FUNC_CLOSED_AT);
-    type.keywordFieldBuilder(FIELD_ISSUE_KEY).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
-    type.keywordFieldBuilder(FIELD_ISSUE_LANGUAGE).disableNorms().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_KEY).disableNorms().enableSortingAndAggregating().addSubFields(SORTABLE_ANALYZER).build();
+    type.keywordFieldBuilder(FIELD_ISSUE_LANGUAGE).disableNorms().enableSortingAndAggregating().build();
     type.createIntegerField(FIELD_ISSUE_LINE);
-    type.keywordFieldBuilder(FIELD_ISSUE_MODULE_UUID).disableNorms().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_MODULE_UUID).disableNorms().enableSortingAndAggregating().build();
     type.createUuidPathField(FIELD_ISSUE_MODULE_PATH);
     type.keywordFieldBuilder(FIELD_ISSUE_ORGANIZATION_UUID).disableNorms().build();
-    type.keywordFieldBuilder(FIELD_ISSUE_PROJECT_UUID).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
-    type.keywordFieldBuilder(FIELD_ISSUE_BRANCH_UUID).disableNorms().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_PROJECT_UUID).disableNorms().enableSortingAndAggregating().addSubFields(SORTABLE_ANALYZER).build();
+    type.keywordFieldBuilder(FIELD_ISSUE_BRANCH_UUID).disableNorms().enableSortingAndAggregating().build();
     type.createBooleanField(FIELD_ISSUE_IS_MAIN_BRANCH);
-    type.keywordFieldBuilder(FIELD_ISSUE_DIRECTORY_PATH).disableNorms().build();
-    type.keywordFieldBuilder(FIELD_ISSUE_RESOLUTION).disableNorms().build();
-    type.keywordFieldBuilder(FIELD_ISSUE_RULE_KEY).disableNorms().build();
-    type.keywordFieldBuilder(FIELD_ISSUE_SEVERITY).disableNorms().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_DIRECTORY_PATH).disableNorms().enableSortingAndAggregating().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_RESOLUTION).disableNorms().enableSortingAndAggregating().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_RULE_KEY).disableNorms().enableSortingAndAggregating().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_SEVERITY).disableNorms().enableSortingAndAggregating().build();
     type.createByteField(FIELD_ISSUE_SEVERITY_VALUE);
-    type.keywordFieldBuilder(FIELD_ISSUE_STATUS).disableNorms().addSubFields(SORTABLE_ANALYZER).build();
-    type.keywordFieldBuilder(FIELD_ISSUE_TAGS).disableNorms().build();
-    type.keywordFieldBuilder(FIELD_ISSUE_TYPE).disableNorms().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_STATUS).disableNorms().enableSortingAndAggregating().addSubFields(SORTABLE_ANALYZER).build();
+    type.keywordFieldBuilder(FIELD_ISSUE_TAGS).disableNorms().enableSortingAndAggregating().build();
+    type.keywordFieldBuilder(FIELD_ISSUE_TYPE).disableNorms().enableSortingAndAggregating().build();
   }
 }

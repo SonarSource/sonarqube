@@ -119,10 +119,10 @@ public class RuleIndexDefinition implements IndexDefinition {
 
     activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_ID).disableNorms().build();
     activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
-    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_REPOSITORY).build();
+    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_REPOSITORY).enableSortingAndAggregating().build();
     activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_PROFILE_UUID).disableNorms().build();
     activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_INHERITANCE).disableNorms().build();
-    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_SEVERITY).disableNorms().build();
+    activeRuleMapping.keywordFieldBuilder(FIELD_ACTIVE_RULE_SEVERITY).disableNorms().enableSortingAndAggregating().build();
 
     // Rule extension type
     NewIndex.NewIndexType ruleExtensionType = index.createType(INDEX_TYPE_RULE_EXTENSION.getType());
@@ -131,7 +131,7 @@ public class RuleIndexDefinition implements IndexDefinition {
 
     ruleExtensionType.keywordFieldBuilder(FIELD_RULE_EXTENSION_SCOPE).disableNorms().build();
     ruleExtensionType.keywordFieldBuilder(FIELD_RULE_EXTENSION_RULE_KEY).disableNorms().build();
-    ruleExtensionType.keywordFieldBuilder(FIELD_RULE_EXTENSION_TAGS).build();
+    ruleExtensionType.keywordFieldBuilder(FIELD_RULE_EXTENSION_TAGS).enableSortingAndAggregating().build();
 
     // Rule type
     NewIndex.NewIndexType ruleMapping = index.createType(INDEX_TYPE_RULE.getType());
@@ -139,24 +139,23 @@ public class RuleIndexDefinition implements IndexDefinition {
 
     ruleMapping.keywordFieldBuilder(FIELD_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_RULE_KEY).addSubFields(SORTABLE_ANALYZER).build();
-    ruleMapping.keywordFieldBuilder(FIELD_RULE_REPOSITORY).build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_REPOSITORY).enableSortingAndAggregating().build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_INTERNAL_KEY).disableNorms().disableSearch().build();
 
     ruleMapping.keywordFieldBuilder(FIELD_RULE_NAME).addSubFields(SORTABLE_ANALYZER, SEARCH_GRAMS_ANALYZER).build();
     ruleMapping.keywordFieldBuilder(FIELD_RULE_HTML_DESCRIPTION)
       .disableSearch()
       .disableNorms()
-      .disableSortingAndAggregating()
       .addSubFields(ENGLISH_HTML_ANALYZER)
       .build();
-    ruleMapping.keywordFieldBuilder(FIELD_RULE_SEVERITY).disableNorms().build();
-    ruleMapping.keywordFieldBuilder(FIELD_RULE_STATUS).disableNorms().build();
-    ruleMapping.keywordFieldBuilder(FIELD_RULE_LANGUAGE).disableNorms().build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_SEVERITY).disableNorms().enableSortingAndAggregating().build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_STATUS).disableNorms().enableSortingAndAggregating().build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_LANGUAGE).disableNorms().enableSortingAndAggregating().build();
 
     ruleMapping.createBooleanField(FIELD_RULE_IS_TEMPLATE);
     ruleMapping.keywordFieldBuilder(FIELD_RULE_TEMPLATE_KEY).disableNorms().build();
 
-    ruleMapping.keywordFieldBuilder(FIELD_RULE_TYPE).disableNorms().build();
+    ruleMapping.keywordFieldBuilder(FIELD_RULE_TYPE).disableNorms().enableSortingAndAggregating().build();
 
     ruleMapping.createLongField(FIELD_RULE_CREATED_AT);
     ruleMapping.createLongField(FIELD_RULE_UPDATED_AT);
