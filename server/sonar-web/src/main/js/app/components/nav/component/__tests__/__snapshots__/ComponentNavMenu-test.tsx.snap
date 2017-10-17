@@ -243,6 +243,24 @@ exports[`should work for all qualifiers 2`] = `
       code.page
     </Link>
   </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/project/activity",
+          "query": Object {
+            "branch": undefined,
+            "id": "foo",
+          },
+        }
+      }
+    >
+      project_activity.page
+    </Link>
+  </li>
   <li
     className="dropdown"
   >
