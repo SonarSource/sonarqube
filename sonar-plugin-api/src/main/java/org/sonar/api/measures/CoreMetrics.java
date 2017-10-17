@@ -355,7 +355,7 @@ public final class CoreMetrics {
   // --------------------------------------------------------------------------------------------------------------------
 
   public static final String COMPLEXITY_KEY = "complexity";
-  public static final Metric<Integer> COMPLEXITY = new Metric.Builder(COMPLEXITY_KEY, "Complexity", Metric.ValueType.INT)
+  public static final Metric<Integer> COMPLEXITY = new Metric.Builder(COMPLEXITY_KEY, "Cyclomatic Complexity", Metric.ValueType.INT)
     .setDescription("Cyclomatic complexity")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)

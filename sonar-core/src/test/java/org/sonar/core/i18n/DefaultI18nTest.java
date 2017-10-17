@@ -26,13 +26,10 @@ import java.util.Locale;
 import java.util.TimeZone;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 
@@ -40,11 +37,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class DefaultI18nTest {
 
-  @Mock
-  System2 system2;
+  private TestSystem2 system2 = new TestSystem2();
 
   DefaultI18n underTest;
 
@@ -189,7 +184,7 @@ public class DefaultI18nTest {
 
   @Test
   public void get_age_from_now() {
-    when(system2.now()).thenReturn(DateUtils.parseDate("2014-01-02").getTime());
+    system2.setNow(DateUtils.parseDate("2014-01-02").getTime());
     assertThat(underTest.ageFromNow(Locale.ENGLISH, DateUtils.parseDate("2014-01-01"))).isEqualTo("a day");
   }
 
