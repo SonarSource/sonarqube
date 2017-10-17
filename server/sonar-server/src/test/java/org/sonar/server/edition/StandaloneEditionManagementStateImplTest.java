@@ -31,6 +31,7 @@ import org.sonar.server.edition.EditionManagementState.PendingStatus;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.edition.EditionManagementState.PendingStatus.AUTOMATIC_FAILED;
 import static org.sonar.server.edition.EditionManagementState.PendingStatus.AUTOMATIC_IN_PROGRESS;
 import static org.sonar.server.edition.EditionManagementState.PendingStatus.AUTOMATIC_READY;
 import static org.sonar.server.edition.EditionManagementState.PendingStatus.MANUAL_IN_PROGRESS;
@@ -277,6 +278,18 @@ public class StandaloneEditionManagementStateImplTest {
   }
 
   @Test
+  public void startAutomaticInstall_fails_with_ISE_if_called_after_automaticInstallFailed() {
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    underTest.automaticInstallFailed();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't move to AUTOMATIC_IN_PROGRESS when status is AUTOMATIC_FAILED (should be any of [NONE])");
+
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+  }
+
+  @Test
   public void startManualInstall_fails_with_ISE_if_not_started() {
     expectISENotStarted();
 
@@ -371,6 +384,18 @@ public class StandaloneEditionManagementStateImplTest {
   }
 
   @Test
+  public void startManualInstall_fails_with_ISE_if_called_after_automaticInstallFailed() {
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    underTest.automaticInstallFailed();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't move to MANUAL_IN_PROGRESS when status is AUTOMATIC_FAILED (should be any of [NONE])");
+
+    underTest.startManualInstall(LICENSE_WITHOUT_PLUGINS);
+  }
+
+  @Test
   public void automaticInstallReady_fails_with_ISE_if_not_started() {
     expectISENotStarted();
 
@@ -410,6 +435,18 @@ public class StandaloneEditionManagementStateImplTest {
     assertThat(underTest.getPendingEditionKey()).contains(LICENSE_WITHOUT_PLUGINS.getEditionKey());
     assertThat(underTest.getPendingLicense()).contains(LICENSE_WITHOUT_PLUGINS.getContent());
     assertThat(underTest.getCurrentEditionKey()).isEmpty();
+  }
+
+  @Test
+  public void automaticInstallReady_fails_with_ISE_if_called_after_automaticInstallFailed() {
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    underTest.automaticInstallFailed();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't move to AUTOMATIC_READY when status is AUTOMATIC_FAILED (should be any of [AUTOMATIC_IN_PROGRESS])");
+
+    underTest.automaticInstallReady();
   }
 
   @Test
@@ -508,6 +545,19 @@ public class StandaloneEditionManagementStateImplTest {
   }
 
   @Test
+  public void newEditionWithoutInstall_fails_with_ISE_if_called_after_automaticInstallFailed() {
+    String newEditionKey = randomAlphanumeric(3);
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    underTest.automaticInstallFailed();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't move to NONE when status is AUTOMATIC_FAILED (should be any of [NONE])");
+
+    underTest.newEditionWithoutInstall(newEditionKey);
+  }
+
+  @Test
   public void finalizeInstallation_fails_with_ISE_if_not_started() {
     expectISENotStarted();
 
@@ -592,6 +642,18 @@ public class StandaloneEditionManagementStateImplTest {
   }
 
   @Test
+  public void finalizeInstallation_fails_with_ISE_after_automaticInstallFailed() {
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    underTest.automaticInstallFailed();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't move to NONE when status is AUTOMATIC_FAILED (should be any of [AUTOMATIC_READY, MANUAL_IN_PROGRESS])");
+
+    underTest.finalizeInstallation();
+  }
+
+  @Test
   public void finalizeInstallation_fails_with_ISE_after_finalizeInstallation() {
     underTest.start();
     underTest.startManualInstall(LICENSE_WITHOUT_PLUGINS);
@@ -601,6 +663,72 @@ public class StandaloneEditionManagementStateImplTest {
     expectedException.expectMessage("Can't move to NONE when status is NONE (should be any of [AUTOMATIC_READY, MANUAL_IN_PROGRESS])");
 
     underTest.finalizeInstallation();
+  }
+
+  @Test
+  public void automaticInstallFailed_fails_with_ISE_if_not_started() {
+    expectISENotStarted();
+
+    underTest.automaticInstallFailed();
+  }
+
+  @Test
+  public void automaticInstallFailed_fails_with_ISE_if_called_after_start() {
+    underTest.start();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't move to AUTOMATIC_FAILED when status is NONE (should be any of [AUTOMATIC_IN_PROGRESS])");
+
+    underTest.automaticInstallFailed();
+  }
+
+  @Test
+  public void automaticInstallFailed_fails_with_ISE_if_called_after_manualInstall() {
+    underTest.start();
+    underTest.startManualInstall(LICENSE_WITHOUT_PLUGINS);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't move to AUTOMATIC_FAILED when status is MANUAL_IN_PROGRESS (should be any of [AUTOMATIC_IN_PROGRESS])");
+
+    underTest.automaticInstallFailed();
+  }
+
+  @Test
+  public void automaticInstallFailed_after_startAutomaticInstall_changes_status_to_AUTOMATIC_FAILED_but_does_not_change_editions() {
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+
+    PendingStatus newStatus = underTest.automaticInstallFailed();
+
+    assertThat(newStatus).isEqualTo(AUTOMATIC_FAILED);
+    assertThat(underTest.getPendingInstallationStatus()).isEqualTo(AUTOMATIC_FAILED);
+    assertThat(underTest.getPendingEditionKey()).contains(LICENSE_WITHOUT_PLUGINS.getEditionKey());
+    assertThat(underTest.getPendingLicense()).contains(LICENSE_WITHOUT_PLUGINS.getContent());
+    assertThat(underTest.getCurrentEditionKey()).isEmpty();
+  }
+
+  @Test
+  public void automaticInstallFailed_fails_with_ISE_if_called_after_automaticInstallReady() {
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    underTest.automaticInstallReady();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't move to AUTOMATIC_FAILED when status is AUTOMATIC_READY (should be any of [AUTOMATIC_IN_PROGRESS])");
+
+    underTest.automaticInstallFailed();
+  }
+
+  @Test
+  public void automaticInstallFailed_fails_with_ISE_if_called_after_automaticInstallFailed() {
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    underTest.automaticInstallFailed();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't move to AUTOMATIC_FAILED when status is AUTOMATIC_FAILED (should be any of [AUTOMATIC_IN_PROGRESS])");
+
+    underTest.automaticInstallFailed();
   }
 
   private void expectISENotStarted() {

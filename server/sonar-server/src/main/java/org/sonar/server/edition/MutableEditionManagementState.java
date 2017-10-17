@@ -63,6 +63,15 @@ public interface MutableEditionManagementState extends EditionManagementState {
   PendingStatus automaticInstallReady();
 
   /**
+   * Records that automatic install failed.
+   *
+   * @return the new pending status, always {@link PendingStatus#AUTOMATIC_FAILED}
+   *
+   * @throws IllegalStateException if current status is not {@link PendingStatus#AUTOMATIC_IN_PROGRESS}
+   */
+  PendingStatus automaticInstallFailed();
+
+  /**
    * Finalize an automatic or manual install
    *
    * @return the new pending status, always {@link PendingStatus#NONE}

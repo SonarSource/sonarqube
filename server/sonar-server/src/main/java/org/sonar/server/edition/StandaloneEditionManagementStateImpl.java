@@ -32,6 +32,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.empty;
+import static org.sonar.server.edition.EditionManagementState.PendingStatus.AUTOMATIC_FAILED;
 import static org.sonar.server.edition.EditionManagementState.PendingStatus.AUTOMATIC_IN_PROGRESS;
 import static org.sonar.server.edition.EditionManagementState.PendingStatus.AUTOMATIC_READY;
 import static org.sonar.server.edition.EditionManagementState.PendingStatus.MANUAL_IN_PROGRESS;
@@ -142,6 +143,14 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
   public synchronized PendingStatus automaticInstallReady() {
     ensureStarted();
     changeStatusToFrom(AUTOMATIC_READY, AUTOMATIC_IN_PROGRESS);
+    persistProperties();
+    return this.pendingInstallationStatus;
+  }
+
+  @Override
+  public PendingStatus automaticInstallFailed() {
+    ensureStarted();
+    changeStatusToFrom(AUTOMATIC_FAILED, AUTOMATIC_IN_PROGRESS);
     persistProperties();
     return this.pendingInstallationStatus;
   }
