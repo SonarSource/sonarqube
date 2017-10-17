@@ -57,8 +57,10 @@ export default ModalForm.extend({
       .map(function() {
         return $(this).val();
       })
-      .toArray();
-    return scmAccounts.filter(value => !!value);
+      .toArray()
+      .filter(value => !!value);
+    // return empty string to reset the field when updating
+    return scmAccounts.length ? scmAccounts : '';
   },
 
   addScmAccount() {
