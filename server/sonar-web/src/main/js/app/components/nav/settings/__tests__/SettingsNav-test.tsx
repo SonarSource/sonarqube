@@ -24,24 +24,7 @@ import SettingsNav from '../SettingsNav';
 it('should work with extensions', () => {
   const extensions = [{ key: 'foo', name: 'Foo' }];
   const wrapper = shallow(
-    <SettingsNav
-      customOrganizations={false}
-      editionStatus={{ installationStatus: 'NONE' }}
-      extensions={extensions}
-      location={{}}
-    />
+    <SettingsNav customOrganizations={false} extensions={extensions} location={{}} />
   );
   expect(wrapper).toMatchSnapshot();
-});
-
-it('should display an edition notification', () => {
-  const wrapper = shallow(
-    <SettingsNav
-      customOrganizations={false}
-      editionStatus={{ installationStatus: 'AUTOMATIC_IN_PROGRESS' }}
-      extensions={[]}
-      location={{}}
-    />
-  );
-  expect({ ...wrapper.find('ContextNavBar').props(), children: [] }).toMatchSnapshot();
 });

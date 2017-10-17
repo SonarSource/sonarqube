@@ -19,25 +19,25 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import SettingsEditionsNotif from '../SettingsEditionsNotif';
+import EditionsStatusNotif from '../EditionsStatusNotif';
 
 it('should display an in progress notif', () => {
   const wrapper = shallow(
-    <SettingsEditionsNotif editionStatus={{ installationStatus: 'AUTOMATIC_IN_PROGRESS' }} />
+    <EditionsStatusNotif editionStatus={{ installationStatus: 'AUTOMATIC_IN_PROGRESS' }} />
   );
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should display an error notification', () => {
   const wrapper = shallow(
-    <SettingsEditionsNotif editionStatus={{ installationStatus: 'AUTOMATIC_FAILURE' }} />
+    <EditionsStatusNotif editionStatus={{ installationStatus: 'AUTOMATIC_FAILURE' }} />
   );
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should display a ready notification', () => {
   const wrapper = shallow(
-    <SettingsEditionsNotif editionStatus={{ installationStatus: 'AUTOMATIC_READY' }} />
+    <EditionsStatusNotif editionStatus={{ installationStatus: 'AUTOMATIC_READY' }} />
   );
   expect(wrapper).toMatchSnapshot();
 });

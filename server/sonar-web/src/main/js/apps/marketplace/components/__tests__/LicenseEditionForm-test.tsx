@@ -22,10 +22,6 @@ import { shallow } from 'enzyme';
 import { click } from '../../../../helpers/testUtils';
 import LicenseEditionForm from '../LicenseEditionForm';
 
-jest.mock('../../../../app/utils/getStore', () => {
-  const dispatch = jest.fn();
-  return { default: () => ({ dispatch }) };
-});
 jest.mock('../../../../api/marketplace', () => ({
   applyLicense: jest.fn(() =>
     Promise.resolve({ nextEditionKey: 'foo', installationStatus: 'AUTOMATIC_IN_PROGRESS' })
@@ -33,7 +29,6 @@ jest.mock('../../../../api/marketplace', () => ({
 }));
 
 const applyLicense = require('../../../../api/marketplace').applyLicense as jest.Mock<any>;
-const getStore = require('../../../../app/utils/getStore').default as jest.Mock<any>;
 
 const DEFAULT_EDITION = {
   key: 'foo',
@@ -46,7 +41,6 @@ const DEFAULT_EDITION = {
 
 beforeEach(() => {
   applyLicense.mockClear();
-  getStore().dispatch.mockClear();
 });
 
 it('should display correctly', () => {
@@ -65,16 +59,27 @@ it('should correctly change the button based on the status', () => {
 });
 
 it('should update the edition status after install', async () => {
-  const wrapper = getWrapper();
+  const updateEditionStatus = jest.fn();
+  const wrapper = getWrapper({ updateEditionStatus });
   const form = wrapper.instance() as LicenseEditionForm;
   form.mounted = true;
   form.handleLicenseChange('mylicense', 'AUTOMATIC_INSTALL');
   click(wrapper.find('button'));
   expect(applyLicense).toHaveBeenCalledWith({ license: 'mylicense' });
   await new Promise(setImmediate);
-  expect(getStore().dispatch).toHaveBeenCalled();
+  expect(updateEditionStatus).toHaveBeenCalledWith({
+    nextEditionKey: 'foo',
+    installationStatus: 'AUTOMATIC_IN_PROGRESS'
+  });
 });
 
 function getWrapper(props = {}) {
-  return shallow(<LicenseEditionForm edition={DEFAULT_EDITION} onClose={jest.fn()} {...props} />);
+  return shallow(
+    <LicenseEditionForm
+      edition={DEFAULT_EDITION}
+      onClose={jest.fn()}
+      updateEditionStatus={jest.fn()}
+      {...props}
+    />
+  );
 }

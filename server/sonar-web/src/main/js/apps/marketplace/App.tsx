@@ -22,6 +22,7 @@ import * as PropTypes from 'prop-types';
 import { sortBy, uniqBy } from 'lodash';
 import Helmet from 'react-helmet';
 import Header from './Header';
+import EditionsStatusNotif from './components/EditionsStatusNotif';
 import EditionBoxes from './EditionBoxes';
 import Footer from './Footer';
 import PendingActions from './PendingActions';
@@ -35,13 +36,12 @@ import {
   Plugin,
   PluginPending
 } from '../../api/plugins';
-import { EditionStatus } from '../../api/marketplace';
+import { EditionStatus, getEditionStatus } from '../../api/marketplace';
 import { RawQuery } from '../../helpers/query';
 import { translate } from '../../helpers/l10n';
 import { filterPlugins, parseQuery, Query, serializeQuery } from './utils';
 
 export interface Props {
-  editionStatus?: EditionStatus;
   editionsUrl: string;
   location: { pathname: string; query: RawQuery };
   sonarqubeVersion: string;
@@ -49,6 +49,7 @@ export interface Props {
 }
 
 interface State {
+  editionStatus?: EditionStatus;
   loading: boolean;
   pending: {
     installing: PluginPending[];
@@ -81,6 +82,7 @@ export default class App extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
     this.fetchPendingPlugins();
+    this.fetchEditionStatus();
     this.fetchQueryPlugins();
   }
 
@@ -148,6 +150,19 @@ export default class App extends React.PureComponent<Props, State> {
       () => {}
     );
 
+  fetchEditionStatus = () =>
+    getEditionStatus().then(
+      editionStatus => {
+        if (this.mounted) {
+          this.updateEditionStatus(editionStatus);
+        }
+      },
+      () => {}
+    );
+
+  updateEditionStatus = (editionStatus: EditionStatus) =>
+    this.setState({ editionStatus: editionStatus });
+
   updateQuery = (newQuery: Partial<Query>) => {
     const query = serializeQuery({
       ...parseQuery(this.props.location.query),
@@ -160,18 +175,20 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { plugins, pending } = this.state;
+    const { editionStatus, plugins, pending } = this.state;
     const query = parseQuery(this.props.location.query);
     const filteredPlugins = query.search ? filterPlugins(plugins, query.search) : plugins;
     return (
       <div className="page page-limited" id="marketplace-page">
         <Helmet title={translate('marketplace.page')} />
+        {editionStatus && <EditionsStatusNotif editionStatus={editionStatus} />}
         <Header />
         <EditionBoxes
-          editionStatus={this.props.editionStatus}
+          editionStatus={editionStatus}
           editionsUrl={this.props.editionsUrl}
           sonarqubeVersion={this.props.sonarqubeVersion}
           updateCenterActive={this.props.updateCenterActive}
+          updateEditionStatus={this.updateEditionStatus}
         />
         <PendingActions refreshPending={this.fetchPendingPlugins} pending={pending} />
         <Search
