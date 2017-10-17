@@ -124,6 +124,7 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
     changeStatusToFrom(AUTOMATIC_IN_PROGRESS, NONE);
     this.pendingLicense = license.getContent();
     this.pendingEditionKey = license.getEditionKey();
+    this.installErrorMessage = null;
     persistProperties();
     return this.pendingInstallationStatus;
   }
@@ -136,6 +137,7 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
     this.pendingLicense = license.getContent();
     this.pendingEditionKey = license.getEditionKey();
     this.pendingInstallationStatus = MANUAL_IN_PROGRESS;
+    this.installErrorMessage = null;
     persistProperties();
     return this.pendingInstallationStatus;
   }
@@ -147,6 +149,7 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
     checkArgument(!newEditionKey.isEmpty(), "newEditionKey can't be empty");
     changeStatusToFrom(NONE, NONE);
     this.currentEditionKey = newEditionKey;
+    this.installErrorMessage = null;
     persistProperties();
     return this.pendingInstallationStatus;
   }
@@ -155,6 +158,18 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
   public synchronized PendingStatus automaticInstallReady() {
     ensureStarted();
     changeStatusToFrom(AUTOMATIC_READY, AUTOMATIC_IN_PROGRESS);
+    this.installErrorMessage = null;
+    persistProperties();
+    return this.pendingInstallationStatus;
+  }
+
+  @Override
+  public synchronized PendingStatus installFailed(@Nullable String errorMessage) {
+    ensureStarted();
+    changeStatusToFrom(NONE, AUTOMATIC_IN_PROGRESS, AUTOMATIC_READY, MANUAL_IN_PROGRESS);
+    this.installErrorMessage = nullableTrimmedEmptyToNull(errorMessage);
+    this.pendingEditionKey = null;
+    this.pendingLicense = null;
     persistProperties();
     return this.pendingInstallationStatus;
   }
@@ -218,6 +233,14 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
 
   private static void checkLicense(License license) {
     requireNonNull(license, "license can't be null");
+  }
+
+  private static String nullableTrimmedEmptyToNull(@Nullable String s) {
+    if (s == null) {
+      return null;
+    }
+    String v = s.trim();
+    return v.isEmpty() ? null : v;
   }
 
   private static String emptyToNull(String s) {

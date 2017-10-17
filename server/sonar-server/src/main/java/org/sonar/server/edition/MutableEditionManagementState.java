@@ -19,6 +19,8 @@
  */
 package org.sonar.server.edition;
 
+import javax.annotation.Nullable;
+
 /**
  * Provides access to operations which will alter the Edition management state.
  */
@@ -63,15 +65,26 @@ public interface MutableEditionManagementState extends EditionManagementState {
   PendingStatus automaticInstallReady();
 
   /**
+   * Records that install failed with the specified (optional) error message to explain the cause of the
+   * failure.
+   *
+   * @return the new pending status, always {@link PendingStatus#NONE}
+   *
+   * @throws IllegalStateException if current status is neither {@link PendingStatus#AUTOMATIC_IN_PROGRESS},
+   *         {@link PendingStatus#AUTOMATIC_READY} nor {@link PendingStatus#MANUAL_IN_PROGRESS}
+   */
+  PendingStatus installFailed(@Nullable String errorMessage);
+
+  /**
    * Uninstalls the currently installed edition
    *
    * @return the new pending status, always {@link PendingStatus#UNINSTALL_IN_PROGRESS}
    *
-   * @throws IllegalStateException if current status is not {@link PendingStatus#NONE} or if there is 
+   * @throws IllegalStateException if current status is not {@link PendingStatus#NONE} or if there is
    * no edition currently installed.
    */
   PendingStatus uninstall();
-  
+
   /**
    * Finalize an automatic or manual install
    *
