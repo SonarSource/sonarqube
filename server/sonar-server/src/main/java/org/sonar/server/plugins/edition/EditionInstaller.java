@@ -59,8 +59,7 @@ public class EditionInstaller {
 
   /**
    * Refreshes the update center, and submits in a executor a task to download all the needed plugins (asynchronously).
-   * If the update center is disabled or if we are offline, the task is not submitted and false is returned.
-   * In all case
+   * If the update center is disabled or if we are offline, the task is not submitted.
    *
    * @throws IllegalStateException if an installation is already in progress
    */
@@ -134,17 +133,13 @@ public class EditionInstaller {
 
   private Set<String> pluginsToRemove(Set<String> editionPluginKeys, Collection<PluginInfo> installedPluginInfos) {
     Set<String> installedCommercialPluginKeys = installedPluginInfos.stream()
-      .filter(EditionInstaller::isSonarSourceCommercialPlugin)
+      .filter(EditionBundledPlugins::isEditionBundled)
       .map(PluginInfo::getKey)
       .collect(Collectors.toSet());
 
     return installedCommercialPluginKeys.stream()
       .filter(p -> !editionPluginKeys.contains(p))
       .collect(Collectors.toSet());
-  }
-
-  private static boolean isSonarSourceCommercialPlugin(PluginInfo pluginInfo) {
-    return "Commercial".equals(pluginInfo.getLicense()) && "SonarSource".equals(pluginInfo.getOrganizationName());
   }
 
 }
