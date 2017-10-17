@@ -39,6 +39,7 @@ const getLicensePreview = require('../../../../api/marketplace').getLicensePrevi
 >;
 
 const DEFAULT_EDITION = {
+  key: 'foo',
   name: 'Foo',
   desc: 'Foo desc',
   download_link: 'download_url',
