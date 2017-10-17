@@ -48,21 +48,21 @@ import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.ws.WsResponseCommonFormat;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
+import org.sonarqube.ws.Issues.Actions;
+import org.sonarqube.ws.Issues.Comment;
+import org.sonarqube.ws.Issues.Comments;
+import org.sonarqube.ws.Issues.Component;
+import org.sonarqube.ws.Issues.Flow;
+import org.sonarqube.ws.Issues.Issue;
+import org.sonarqube.ws.Issues.Location;
+import org.sonarqube.ws.Issues.Operation;
+import org.sonarqube.ws.Issues.SearchWsResponse;
+import org.sonarqube.ws.Issues.Transitions;
+import org.sonarqube.ws.Issues.Users;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.nullToEmpty;
 import static org.sonar.core.util.Protobuf.setNullable;
-import static org.sonarqube.ws.Issues.Actions;
-import static org.sonarqube.ws.Issues.Comment;
-import static org.sonarqube.ws.Issues.Comments;
-import static org.sonarqube.ws.Issues.Component;
-import static org.sonarqube.ws.Issues.Flow;
-import static org.sonarqube.ws.Issues.Issue;
-import static org.sonarqube.ws.Issues.Location;
-import static org.sonarqube.ws.Issues.Operation;
-import static org.sonarqube.ws.Issues.SearchWsResponse;
-import static org.sonarqube.ws.Issues.Transitions;
-import static org.sonarqube.ws.Issues.Users;
 
 public class SearchResponseFormat {
 
@@ -272,7 +272,7 @@ public class SearchResponseFormat {
           .setKey(comment.getKey())
           .setLogin(nullToEmpty(comment.getUserLogin()))
           .setUpdatable(data.isUpdatableComment(comment.getKey()))
-          .setCreatedAt(DateUtils.formatDateTime(new Date(comment.getCreatedAt())));
+          .setCreatedAt(DateUtils.formatDateTime(new Date(comment.getIssueChangeCreationDate())));
         if (markdown != null) {
           wsComment
             .setHtmlText(Markdown.convertToHtml(markdown))
