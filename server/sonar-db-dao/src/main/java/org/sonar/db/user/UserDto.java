@@ -26,7 +26,6 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.core.user.DefaultUser;
 
 import static java.util.Objects.requireNonNull;
@@ -117,7 +116,7 @@ public class UserDto {
     return this;
   }
 
-  public UserDto setScmAccounts(@Nullable List list) {
+  public UserDto setScmAccounts(@Nullable List<String> list) {
     this.scmAccounts = encodeScmAccounts(list);
     return this;
   }
@@ -125,7 +124,7 @@ public class UserDto {
   @CheckForNull
   public static String encodeScmAccounts(@Nullable List<String> scmAccounts) {
     if (scmAccounts != null && !scmAccounts.isEmpty()) {
-      return String.format("%s%s%s", SCM_ACCOUNTS_SEPARATOR, StringUtils.join(scmAccounts, SCM_ACCOUNTS_SEPARATOR), SCM_ACCOUNTS_SEPARATOR);
+      return String.format("%s%s%s", SCM_ACCOUNTS_SEPARATOR, String.join(String.valueOf(SCM_ACCOUNTS_SEPARATOR), scmAccounts), SCM_ACCOUNTS_SEPARATOR);
     }
     return null;
   }

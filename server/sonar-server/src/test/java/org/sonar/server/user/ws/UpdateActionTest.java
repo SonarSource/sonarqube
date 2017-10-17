@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user.ws;
 
+import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -167,6 +168,32 @@ public class UpdateActionTest {
 
     UserDto user = dbClient.userDao().selectByLogin(dbSession, "john");
     assertThat(user.getScmAccountsAsList()).containsOnly("jon,snow");
+  }
+
+  @Test
+  public void update_scm_account_ignores_duplicates() throws Exception {
+    createUser();
+
+    ws.newRequest()
+      .setParam("login", "john")
+      .setMultiParam("scmAccount", Arrays.asList("jon.snow", "jon.snow", "jon.jon", "jon.snow"))
+      .execute();
+
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, "john");
+    assertThat(user.getScmAccountsAsList()).containsExactlyInAnyOrder("jon.jon", "jon.snow");
+  }
+
+  @Test
+  public void update_scm_account_ordered_case_insensitive() throws Exception {
+    createUser();
+
+    ws.newRequest()
+      .setParam("login", "john")
+      .setMultiParam("scmAccount", Arrays.asList("jon.3", "Jon.1", "JON.2"))
+      .execute();
+
+    UserDto user = dbClient.userDao().selectByLogin(dbSession, "john");
+    assertThat(user.getScmAccountsAsList()).containsExactly("Jon.1", "JON.2", "jon.3");
   }
 
   @Test

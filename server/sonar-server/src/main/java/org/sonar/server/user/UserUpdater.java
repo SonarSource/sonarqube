@@ -24,6 +24,7 @@ import com.google.common.base.Strings;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -33,7 +34,6 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationMemberDto;
@@ -52,6 +52,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static org.sonar.core.config.CorePropertyDefinitions.ONBOARDING_TUTORIAL_SHOW_TO_NEW_USERS;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.user.UserDto.encryptPassword;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -351,7 +352,11 @@ public class UserUpdater {
 
   private static List<String> sanitizeScmAccounts(@Nullable List<String> scmAccounts) {
     if (scmAccounts != null) {
-      return scmAccounts.stream().filter(s -> !Strings.isNullOrEmpty(s)).collect(MoreCollectors.toList());
+      return new HashSet<>(scmAccounts).stream()
+        .map(Strings::emptyToNull)
+        .filter(Objects::nonNull)
+        .sorted(String::compareToIgnoreCase)
+        .collect(toList(scmAccounts.size()));
     }
     return Collections.emptyList();
   }
