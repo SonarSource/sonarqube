@@ -1,8 +1,0 @@
-{
-  "settings": {
-    "sonar.lf.logoUrl": "http://example.com/my-custom-logo.png",
-    "sonar.lf.logoWidthPx": "135"
-  },
-  "logoUrl": "http://example.com/my-custom-logo.png",
-  "logoWidth": "135"
-}
