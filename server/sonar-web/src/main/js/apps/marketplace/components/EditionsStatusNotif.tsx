@@ -40,14 +40,14 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
     const { editionStatus } = this.props;
     if (editionStatus.installationStatus === 'AUTOMATIC_IN_PROGRESS') {
       return (
-        <div className="alert alert-page alert-info">
+        <div className="alert alert-info">
           <i className="spinner spacer-right text-bottom" />
           <span>{translate('marketplace.status.AUTOMATIC_IN_PROGRESS')}</span>
         </div>
       );
     } else if (editionStatus.installationStatus === 'AUTOMATIC_READY') {
       return (
-        <div className="alert alert-page alert-success">
+        <div className="alert alert-success">
           <span>{translate('marketplace.status.AUTOMATIC_READY')}</span>
           <button className="js-restart spacer-left" onClick={this.handleOpenRestart}>
             {translate('marketplace.restart')}
@@ -59,7 +59,7 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
       ['MANUAL_IN_PROGRESS', 'AUTOMATIC_FAILURE'].includes(editionStatus.installationStatus)
     ) {
       return (
-        <div className="alert alert-page alert-danger">
+        <div className="alert alert-danger">
           {translate('marketplace.status', editionStatus.installationStatus)}
           <a className="little-spacer-left" href="https://www.sonarsource.com" target="_blank">
             {translate('marketplace.how_to_install')}

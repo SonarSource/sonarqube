@@ -69,7 +69,7 @@ export default class Search extends React.PureComponent<Props, State> {
     ];
     return (
       <div id="marketplace-search" className="panel panel-vertical bordered-bottom spacer-bottom">
-        <div className="display-inline-block text-top nowrap big-spacer-right">
+        <div className="display-inline-block text-top nowrap abs-width-150 spacer-right">
           <RadioToggle
             name="marketplace-filter"
             onCheck={this.handleFilterChange}

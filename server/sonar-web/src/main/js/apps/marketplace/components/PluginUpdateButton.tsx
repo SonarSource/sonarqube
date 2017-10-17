@@ -36,7 +36,10 @@ export default class PluginUpdateButton extends React.PureComponent<Props> {
       return null;
     }
     return (
-      <button className="js-update" onClick={this.handleClick} disabled={disabled}>
+      <button
+        className="js-update little-spacer-bottom"
+        onClick={this.handleClick}
+        disabled={disabled}>
         {translateWithParameters('marketplace.update_to_x', update.release.version)}
       </button>
     );
