@@ -36,8 +36,6 @@ it('render uncovered line', () => {
   const onClick = jest.fn();
   const wrapper = shallow(<LineCoverage line={line} onClick={onClick} />);
   expect(wrapper).toMatchSnapshot();
-  click(wrapper.find('[tabIndex]'));
-  expect(onClick).toHaveBeenCalled();
 });
 
 it('render line with unknown coverage', () => {

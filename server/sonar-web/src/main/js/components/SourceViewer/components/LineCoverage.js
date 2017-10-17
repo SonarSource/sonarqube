@@ -43,13 +43,15 @@ export default class LineCoverage extends React.PureComponent {
     const className =
       'source-meta source-line-coverage' +
       (line.coverageStatus != null ? ` source-line-${line.coverageStatus}` : '');
+    const hasPopup =
+      line.coverageStatus === 'covered' || line.coverageStatus === 'partially-covered';
     const cell = (
       <td
         className={className}
         data-line-number={line.line}
-        role={line.coverageStatus != null ? 'button' : undefined}
-        tabIndex={line.coverageStatus != null ? 0 : undefined}
-        onClick={line.coverageStatus != null ? this.handleClick : undefined}>
+        role={hasPopup ? 'button' : undefined}
+        tabIndex={hasPopup ? 0 : undefined}
+        onClick={hasPopup ? this.handleClick : undefined}>
         <div className="source-line-bar" />
       </td>
     );
