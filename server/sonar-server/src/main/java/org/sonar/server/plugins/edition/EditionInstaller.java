@@ -134,17 +134,13 @@ public class EditionInstaller {
 
   private Set<String> pluginsToRemove(Set<String> editionPluginKeys, Collection<PluginInfo> installedPluginInfos) {
     Set<String> installedCommercialPluginKeys = installedPluginInfos.stream()
-      .filter(EditionInstaller::isSonarSourceCommercialPlugin)
+      .filter(EditionBundledPlugins::isEditionBundled)
       .map(PluginInfo::getKey)
       .collect(Collectors.toSet());
 
     return installedCommercialPluginKeys.stream()
       .filter(p -> !editionPluginKeys.contains(p))
       .collect(Collectors.toSet());
-  }
-
-  private static boolean isSonarSourceCommercialPlugin(PluginInfo pluginInfo) {
-    return "Commercial".equals(pluginInfo.getLicense()) && "SonarSource".equals(pluginInfo.getOrganizationName());
   }
 
 }
