@@ -19,7 +19,6 @@
  */
 package org.sonar.server.plugins.edition;
 
-import com.google.common.base.Optional;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -33,7 +32,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.FileUtils;
 import org.sonar.server.platform.ServerFileSystem;
-import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.updatecenter.common.Release;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
@@ -45,37 +43,32 @@ public class EditionPluginDownloader {
   private static final Logger LOG = Loggers.get(EditionPluginDownloader.class);
   private static final String PLUGIN_EXTENSION = "jar";
 
-  private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
   private final Path tmpDir;
   private final Path downloadDir;
   private final HttpDownloader downloader;
 
-  public EditionPluginDownloader(UpdateCenterMatrixFactory updateCenterMatrixFactory, HttpDownloader downloader, ServerFileSystem fileSystem) {
+  public EditionPluginDownloader(HttpDownloader downloader, ServerFileSystem fileSystem) {
     this.downloadDir = fileSystem.getEditionDownloadedPluginsDir().toPath();
-    this.updateCenterMatrixFactory = updateCenterMatrixFactory;
     this.downloader = downloader;
     this.tmpDir = downloadDir.resolveSibling(downloadDir.getFileName() + "_tmp");
   }
 
-  public void installEdition(Set<String> pluginKeys) {
+  public void downloadEditionPlugins(Set<String> pluginKeys, UpdateCenter updateCenter) {
     try {
-      Optional<UpdateCenter> updateCenter = updateCenterMatrixFactory.getUpdateCenter(true);
-      if (updateCenter.isPresent()) {
-        Set<Release> pluginsToInstall = new HashSet<>();
-        for (String pluginKey : pluginKeys) {
-          pluginsToInstall.addAll(updateCenter.get().findInstallablePlugins(pluginKey, Version.create("")));
-        }
-
-        FileUtils.deleteQuietly(tmpDir);
-        Files.createDirectories(tmpDir);
-
-        for (Release r : pluginsToInstall) {
-          download(r);
-        }
-
-        FileUtils.deleteQuietly(downloadDir);
-        Files.move(tmpDir, downloadDir);
+      Set<Release> pluginsToInstall = new HashSet<>();
+      for (String pluginKey : pluginKeys) {
+        pluginsToInstall.addAll(updateCenter.findInstallablePlugins(pluginKey, Version.create("")));
       }
+
+      FileUtils.deleteQuietly(tmpDir);
+      Files.createDirectories(tmpDir);
+
+      for (Release r : pluginsToInstall) {
+        download(r);
+      }
+
+      FileUtils.deleteQuietly(downloadDir);
+      Files.move(tmpDir, downloadDir);
     } catch (Exception e) {
       FileUtils.deleteQuietly(tmpDir);
       throw new IllegalStateException("Failed to install edition", e);
