@@ -42,7 +42,6 @@ const Meta = ({
   const { qualifier, description, qualityProfiles, qualityGate } = component;
 
   const isProject = qualifier === 'TRK';
-  const isApplication = qualifier === 'APP';
 
   const hasDescription = !!description;
   const hasQualityProfiles = Array.isArray(qualityProfiles) && qualityProfiles.length > 0;
@@ -62,15 +61,13 @@ const Meta = ({
 
       {isProject && <MetaTags component={component} onComponentChange={onComponentChange} />}
 
-      {(isProject || isApplication) && (
-        <AnalysesList
-          branch={branch}
-          project={component.key}
-          qualifier={component.qualifier}
-          history={history}
-          router={router}
-        />
-      )}
+      <AnalysesList
+        branch={branch}
+        component={component}
+        qualifier={component.qualifier}
+        history={history}
+        router={router}
+      />
 
       {shouldShowQualityGate && (
         <MetaQualityGate

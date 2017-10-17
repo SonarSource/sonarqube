@@ -31,8 +31,8 @@ import { translate } from '../../../helpers/l10n';
 /*::
 type Props = {
   branch?: string,
+  component: Object,
   history: ?History,
-  project: string,
   qualifier: string,
   router: { push: ({ pathname: string, query?: {} }) => void }
 };
@@ -59,7 +59,7 @@ export default class AnalysesList extends React.PureComponent {
   }
 
   componentDidUpdate(prevProps /*: Props */) {
-    if (prevProps.project !== this.props.project) {
+    if (prevProps.component !== this.props.component) {
       this.fetchData();
     }
   }
@@ -68,12 +68,24 @@ export default class AnalysesList extends React.PureComponent {
     this.mounted = false;
   }
 
+  getTopLevelComponent = () => {
+    const { component } = this.props;
+    let current = component.breadcrumbs.length - 1;
+    while (
+      current > 0 &&
+      !['TRK', 'VW', 'APP'].includes(component.breadcrumbs[current].qualifier)
+    ) {
+      current--;
+    }
+    return component.breadcrumbs[current].key;
+  };
+
   fetchData() {
     this.setState({ loading: true });
     Promise.all([
       getProjectActivity({
         branch: this.props.branch,
-        project: this.props.project,
+        project: this.getTopLevelComponent(),
         ps: PAGE_SIZE
       }),
       getMetrics()
@@ -112,7 +124,7 @@ export default class AnalysesList extends React.PureComponent {
         <PreviewGraph
           branch={this.props.branch}
           history={this.props.history}
-          project={this.props.project}
+          project={this.props.component.key}
           metrics={this.state.metrics}
         />
 
@@ -122,7 +134,7 @@ export default class AnalysesList extends React.PureComponent {
           <Link
             to={{
               pathname: '/project/activity',
-              query: { id: this.props.project, branch: this.props.branch }
+              query: { id: this.props.component.key, branch: this.props.branch }
             }}>
             {translate('show_more')}
           </Link>

@@ -42,6 +42,9 @@ export default function Analysis(props /*: Props */) {
     'category'
   );
 
+  // use `TRK` for all components but applications
+  const qualifier = props.qualifier === 'APP' ? 'APP' : 'TRK';
+
   return (
     <li className="overview-analysis">
       <div className="small little-spacer-bottom">
@@ -55,7 +58,7 @@ export default function Analysis(props /*: Props */) {
           {sortedEvents.map(event => <Event event={event} key={event.key} />)}
         </div>
       ) : (
-        <span className="note">{translate('project_activity.analyzed', props.qualifier)}</span>
+        <span className="note">{translate('project_activity.analyzed', qualifier)}</span>
       )}
     </li>
   );
