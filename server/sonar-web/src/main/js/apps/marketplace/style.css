@@ -30,3 +30,11 @@
   align-items: baseline;
   justify-content: space-between;
 }
+
+.marketplace-notifs .alert {
+  padding: 8px;
+}
+
+.marketplace-notifs .alert:last-child {
+  margin-bottom: 16px;
+}
