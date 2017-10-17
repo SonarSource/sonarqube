@@ -19,17 +19,26 @@
  */
 package org.sonar.server.ce.ws;
 
+import static org.assertj.core.api.Java6Assertions.assertThat;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.ce.queue.CeQueue;
+import org.sonar.ce.queue.CeQueueImpl;
+import org.sonar.ce.queue.CeTask;
+import org.sonar.ce.queue.CeTaskSubmit;
+import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.db.DbTester;
+import org.sonar.db.ce.CeActivityDto;
+import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.ce.CeTaskTypes;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class CancelActionTest {
 
@@ -37,20 +46,35 @@ public class CancelActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public DbTester db = DbTester.create();
 
-  private CeQueue queue = mock(CeQueue.class);
-  private CancelAction underTest = new CancelAction(userSession, queue);
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private CeQueue queue = new CeQueueImpl(db.getDbClient(), UuidFactoryFast.getInstance(), defaultOrganizationProvider);
+
+  private CancelAction underTest = new CancelAction(userSession, db.getDbClient(), queue);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
   public void cancel_pending_task() {
     logInAsSystemAdministrator();
+    ComponentDto project = db.components().insertPrivateProject();
+    CeQueueDto queue = createTaskSubmit(project);
 
     tester.newRequest()
-      .setParam("id", "T1")
+      .setParam("id", queue.getUuid())
       .execute();
 
-    verify(queue).cancel("T1");
+    assertThat(db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), queue.getUuid()).get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
+  }
+
+  @Test
+  public void does_not_fail_on_unknown_task() {
+    logInAsSystemAdministrator();
+
+    tester.newRequest()
+      .setParam("id", "UNKNOWN")
+      .execute();
   }
 
   @Test
@@ -61,8 +85,6 @@ public class CancelActionTest {
     expectedException.expectMessage("The 'id' parameter is missing");
 
     tester.newRequest().execute();
-
-    verifyZeroInteractions(queue);
   }
 
   @Test
@@ -75,11 +97,18 @@ public class CancelActionTest {
     tester.newRequest()
       .setParam("id", "T1")
       .execute();
-
-    verifyZeroInteractions(queue);
   }
 
   private void logInAsSystemAdministrator() {
     userSession.logIn().setSystemAdministrator();
+  }
+
+  private CeQueueDto createTaskSubmit(ComponentDto component) {
+    CeTaskSubmit.Builder submission = queue.prepareSubmit();
+    submission.setType(CeTaskTypes.REPORT);
+    submission.setComponentUuid(component.uuid());
+    submission.setSubmitterLogin(null);
+    CeTask task = queue.submit(submission.build());
+    return db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
   }
 }

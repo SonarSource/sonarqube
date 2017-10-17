@@ -19,9 +19,15 @@
  */
 package org.sonar.ce.queue;
 
+import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.startsWith;
+
 import java.util.List;
 import java.util.Optional;
+
 import javax.annotation.Nullable;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -39,10 +45,6 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
-import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.startsWith;
-
 public class CeQueueImplTest {
 
   private static final String WORKER_UUID = "workerUuid";
@@ -53,18 +55,19 @@ public class CeQueueImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester db = DbTester.create(system2);
 
-  private DbSession session = dbTester.getSession();
+  private DbSession session = db.getSession();
 
   private UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
-  private CeQueue underTest = new CeQueueImpl(dbTester.getDbClient(), uuidFactory, defaultOrganizationProvider);
+  private CeQueue underTest = new CeQueueImpl(db.getDbClient(), uuidFactory, defaultOrganizationProvider);
 
   @Test
   public void submit_returns_task_populated_from_CeTaskSubmit_and_creates_CeQueue_row() {
     CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, "PROJECT_1", "rob");
+
     CeTask task = underTest.submit(taskSubmit);
 
     verifyCeTask(taskSubmit, task, null);
@@ -73,7 +76,7 @@ public class CeQueueImplTest {
 
   @Test
   public void submit_populates_component_name_and_key_of_CeTask_if_component_exists() {
-    ComponentDto componentDto = insertComponent(ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert(), "PROJECT_1"));
+    ComponentDto componentDto = insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert(), "PROJECT_1"));
     CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, componentDto.uuid(), null);
 
     CeTask task = underTest.submit(taskSubmit);
@@ -116,7 +119,7 @@ public class CeQueueImplTest {
 
   @Test
   public void massSubmit_populates_component_name_and_key_of_CeTask_if_component_exists() {
-    ComponentDto componentDto1 = insertComponent(ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization(), "PROJECT_1"));
+    ComponentDto componentDto1 = insertComponent(ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization(), "PROJECT_1"));
     CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, componentDto1.uuid(), null);
     CeTaskSubmit taskSubmit2 = createTaskSubmit("something", "non existing component uuid", null);
 
@@ -130,28 +133,24 @@ public class CeQueueImplTest {
   @Test
   public void cancel_pending() throws Exception {
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
+    CeQueueDto queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), task.getUuid()).get();
 
-    // ignore
-    boolean canceled = underTest.cancel("UNKNOWN");
-    assertThat(canceled).isFalse();
+    underTest.cancel(db.getSession(), queueDto);
 
-    canceled = underTest.cancel(task.getUuid());
-    assertThat(canceled).isTrue();
-    Optional<CeActivityDto> activity = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), task.getUuid());
+    Optional<CeActivityDto> activity = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), task.getUuid());
     assertThat(activity.isPresent()).isTrue();
     assertThat(activity.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
   }
 
   @Test
   public void fail_to_cancel_if_in_progress() throws Exception {
+    submit(CeTaskTypes.REPORT, "PROJECT_1");
+    CeQueueDto ceQueueDto = db.getDbClient().ceQueueDao().peek(session, WORKER_UUID, MAX_EXECUTION_COUNT).get();
+
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage(startsWith("Task is in progress and can't be canceled"));
 
-    CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
-
-    dbTester.getDbClient().ceQueueDao().peek(session, WORKER_UUID, MAX_EXECUTION_COUNT);
-
-    underTest.cancel(task.getUuid());
+    underTest.cancel(db.getSession(), ceQueueDto);
   }
 
   @Test
@@ -160,16 +159,16 @@ public class CeQueueImplTest {
     CeTask pendingTask1 = submit(CeTaskTypes.REPORT, "PROJECT_2");
     CeTask pendingTask2 = submit(CeTaskTypes.REPORT, "PROJECT_3");
 
-    dbTester.getDbClient().ceQueueDao().peek(session, WORKER_UUID, MAX_EXECUTION_COUNT);
+    db.getDbClient().ceQueueDao().peek(session, WORKER_UUID, MAX_EXECUTION_COUNT);
 
     int canceledCount = underTest.cancelAll();
     assertThat(canceledCount).isEqualTo(2);
 
-    Optional<CeActivityDto> history = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), pendingTask1.getUuid());
+    Optional<CeActivityDto> history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), pendingTask1.getUuid());
     assertThat(history.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
-    history = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), pendingTask2.getUuid());
+    history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), pendingTask2.getUuid());
     assertThat(history.get().getStatus()).isEqualTo(CeActivityDto.Status.CANCELED);
-    history = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), inProgressTask.getUuid());
+    history = db.getDbClient().ceActivityDao().selectByUuid(db.getSession(), inProgressTask.getUuid());
     assertThat(history.isPresent()).isFalse();
   }
 
@@ -202,7 +201,7 @@ public class CeQueueImplTest {
   }
 
   private void verifyCeQueueDtoForTaskSubmit(CeTaskSubmit taskSubmit) {
-    Optional<CeQueueDto> queueDto = dbTester.getDbClient().ceQueueDao().selectByUuid(dbTester.getSession(), taskSubmit.getUuid());
+    Optional<CeQueueDto> queueDto = db.getDbClient().ceQueueDao().selectByUuid(db.getSession(), taskSubmit.getUuid());
     assertThat(queueDto.isPresent()).isTrue();
     assertThat(queueDto.get().getTaskType()).isEqualTo(taskSubmit.getType());
     assertThat(queueDto.get().getComponentUuid()).isEqualTo(taskSubmit.getComponentUuid());
@@ -227,7 +226,7 @@ public class CeQueueImplTest {
   }
 
   private ComponentDto insertComponent(ComponentDto componentDto) {
-    dbTester.getDbClient().componentDao().insert(session, componentDto);
+    db.getDbClient().componentDao().insert(session, componentDto);
     session.commit();
     return componentDto;
   }

@@ -19,17 +19,22 @@
  */
 package org.sonar.ce.queue;
 
-import com.google.common.base.Function;
-import com.google.common.collect.ImmutableMap;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Predicates.notNull;
+import static com.google.common.collect.FluentIterable.from;
+import static java.util.Collections.singleton;
+import static java.util.Objects.requireNonNull;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
@@ -39,11 +44,8 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.base.Predicates.notNull;
-import static com.google.common.collect.FluentIterable.from;
-import static java.util.Collections.singleton;
-import static java.util.Objects.requireNonNull;
+import com.google.common.base.Function;
+import com.google.common.collect.ImmutableMap;
 
 @ComputeEngineSide
 public class CeQueueImpl implements CeQueue {
@@ -121,16 +123,9 @@ public class CeQueueImpl implements CeQueue {
   }
 
   @Override
-  public boolean cancel(String taskUuid) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<CeQueueDto> queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, taskUuid);
-      if (queueDto.isPresent()) {
-        checkState(CeQueueDto.Status.PENDING.equals(queueDto.get().getStatus()), "Task is in progress and can't be canceled [uuid=%s]", taskUuid);
-        cancelImpl(dbSession, queueDto.get());
-        return true;
-      }
-      return false;
-    }
+  public void cancel(DbSession dbSession, CeQueueDto ceQueueDto) {
+    checkState(CeQueueDto.Status.PENDING.equals(ceQueueDto.getStatus()), "Task is in progress and can't be canceled [uuid=%s]", ceQueueDto.getUuid());
+    cancelImpl(dbSession, ceQueueDto);
   }
 
   private void cancelImpl(DbSession dbSession, CeQueueDto q) {

@@ -22,6 +22,9 @@ package org.sonar.ce.queue;
 import java.util.Collection;
 import java.util.List;
 
+import org.sonar.db.DbSession;
+import org.sonar.db.ce.CeQueueDto;
+
 /**
  * Queue of pending Compute Engine tasks. Both producer and consumer actions
  * are implemented.
@@ -60,11 +63,8 @@ public interface CeQueue {
   /**
    * Cancels a task in status {@link org.sonar.db.ce.CeQueueDto.Status#PENDING}. An unchecked
    * exception is thrown if the status is not {@link org.sonar.db.ce.CeQueueDto.Status#PENDING}.
-   * The method does nothing and returns {@code false} if the task does not exist.
-   *
-   * @return true if the task exists and is successfully canceled.
    */
-  boolean cancel(String taskUuid);
+  void cancel(DbSession dbSession, CeQueueDto ceQueueDto);
 
   /**
    * Removes all the tasks from the queue, except the tasks with status
