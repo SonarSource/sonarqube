@@ -8,7 +8,6 @@
         "comment",
         "assign",
         "set_tags",
-        "assign_to_me",
         "set_type",
         "set_severity"
       ],

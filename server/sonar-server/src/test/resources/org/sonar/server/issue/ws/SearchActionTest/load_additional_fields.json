@@ -7,8 +7,7 @@
       "actions": [
         "comment",
         "assign",
-        "set_tags",
-        "assign_to_me"
+        "set_tags"
       ],
       "transitions": [
         "confirm",

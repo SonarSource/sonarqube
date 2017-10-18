@@ -33,7 +33,6 @@
       "assign",
       "set_tags",
       "set_type",
-      "assign_to_me",
       "set_severity"
     ],
     "comments": [
