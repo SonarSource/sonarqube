@@ -2,6 +2,11 @@
 
 exports[`generates token 1`] = `
 <TokenStep
+  currentUser={
+    Object {
+      "login": "user",
+    }
+  }
   finished={false}
   onContinue={[Function]}
   onOpen={[Function]}
@@ -99,6 +104,11 @@ exports[`generates token 1`] = `
 
 exports[`generates token 2`] = `
 <TokenStep
+  currentUser={
+    Object {
+      "login": "user",
+    }
+  }
   finished={false}
   onContinue={[Function]}
   onOpen={[Function]}
@@ -193,6 +203,11 @@ exports[`generates token 2`] = `
 
 exports[`generates token 3`] = `
 <TokenStep
+  currentUser={
+    Object {
+      "login": "user",
+    }
+  }
   finished={false}
   onContinue={[Function]}
   onOpen={[Function]}
@@ -285,6 +300,11 @@ exports[`generates token 3`] = `
 
 exports[`revokes token 1`] = `
 <TokenStep
+  currentUser={
+    Object {
+      "login": "user",
+    }
+  }
   finished={false}
   onContinue={[Function]}
   onOpen={[Function]}
@@ -377,6 +397,11 @@ exports[`revokes token 1`] = `
 
 exports[`revokes token 2`] = `
 <TokenStep
+  currentUser={
+    Object {
+      "login": "user",
+    }
+  }
   finished={false}
   onContinue={[Function]}
   onOpen={[Function]}
@@ -451,6 +476,11 @@ exports[`revokes token 2`] = `
 
 exports[`revokes token 3`] = `
 <TokenStep
+  currentUser={
+    Object {
+      "login": "user",
+    }
+  }
   finished={false}
   onContinue={[Function]}
   onOpen={[Function]}

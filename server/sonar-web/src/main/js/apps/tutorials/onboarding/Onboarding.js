@@ -190,6 +190,7 @@ export default class Onboarding extends React.PureComponent {
           )}
 
           <TokenStep
+            currentUser={this.props.currentUser}
             finished={this.state.token != null}
             onContinue={this.handleTokenDone}
             onOpen={this.handleTokenOpen}

@@ -24,13 +24,17 @@ import TokenStep from '../TokenStep';
 import { change, click, doAsync, submit } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/user-tokens', () => ({
+  getTokens: () => Promise.resolve([{ name: 'foo' }]),
   generateToken: () => Promise.resolve({ token: 'abcd1234' }),
   revokeToken: () => Promise.resolve()
 }));
 
-it('generates token', () => {
+const currentUser = { login: 'user' };
+
+it('generates token', async () => {
   const wrapper = mount(
     <TokenStep
+      currentUser={currentUser}
       finished={false}
       open={true}
       onContinue={jest.fn()}
@@ -38,6 +42,7 @@ it('generates token', () => {
       stepNumber={1}
     />
   );
+  await new Promise(setImmediate);
   expect(wrapper).toMatchSnapshot();
   change(wrapper.find('input'), 'my token');
   submit(wrapper.find('form'));
@@ -45,9 +50,10 @@ it('generates token', () => {
   return doAsync(() => expect(wrapper).toMatchSnapshot());
 });
 
-it('revokes token', () => {
+it('revokes token', async () => {
   const wrapper = mount(
     <TokenStep
+      currentUser={currentUser}
       finished={false}
       open={true}
       onContinue={jest.fn()}
@@ -55,6 +61,7 @@ it('revokes token', () => {
       stepNumber={1}
     />
   );
+  await new Promise(setImmediate);
   wrapper.setState({ token: 'abcd1234', tokenName: 'my token' });
   expect(wrapper).toMatchSnapshot();
   submit(wrapper.find('form'));
@@ -62,10 +69,11 @@ it('revokes token', () => {
   return doAsync(() => expect(wrapper).toMatchSnapshot());
 });
 
-it('continues', () => {
+it('continues', async () => {
   const onContinue = jest.fn();
   const wrapper = mount(
     <TokenStep
+      currentUser={currentUser}
       finished={false}
       open={true}
       onContinue={onContinue}
@@ -73,15 +81,17 @@ it('continues', () => {
       stepNumber={1}
     />
   );
+  await new Promise(setImmediate);
   wrapper.setState({ token: 'abcd1234', tokenName: 'my token' });
   click(wrapper.find('.js-continue'));
   expect(onContinue).toBeCalledWith('abcd1234');
 });
 
-it('uses existing token', () => {
+it('uses existing token', async () => {
   const onContinue = jest.fn();
   const wrapper = mount(
     <TokenStep
+      currentUser={currentUser}
       finished={false}
       open={true}
       onContinue={onContinue}
@@ -89,6 +99,7 @@ it('uses existing token', () => {
       stepNumber={1}
     />
   );
+  await new Promise(setImmediate);
   wrapper.setState({ existingToken: 'abcd1234', selection: 'use-existing' });
   click(wrapper.find('.js-continue'));
   expect(onContinue).toBeCalledWith('abcd1234');
