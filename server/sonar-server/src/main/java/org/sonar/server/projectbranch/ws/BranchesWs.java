@@ -37,20 +37,24 @@ public class BranchesWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController(CONTROLLER)
-      .setSince("6.6");
+      .setSince("6.6")
+      .setDescription("Manage branch (only available when the Branch plugin is installed)");
     Arrays.stream(actions).forEach(action -> action.define(controller));
     controller.done();
   }
 
-  static void addProjectBranchParams(NewAction action) {
+  static void addProjectParam(NewAction action) {
     action
       .createParam(PARAM_PROJECT)
       .setDescription("Project key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001)
       .setRequired(true);
+  }
+
+  static void addBranchParam(NewAction action) {
     action
       .createParam(PARAM_BRANCH)
-      .setDescription("Name of the branch to delete. Can't be the main branch of the project.")
+      .setDescription("Name of the branch")
       .setExampleValue("branch1")
       .setRequired(true);
   }

@@ -58,8 +58,8 @@ public class RenameActionTest {
     WebService.Action definition = tester.getDef();
     assertThat(definition.key()).isEqualTo("rename");
     assertThat(definition.isPost()).isTrue();
-    assertThat(definition.isInternal()).isTrue();
-    assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("project", "branch");
+    assertThat(definition.isInternal()).isFalse();
+    assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("project", "name");
     assertThat(definition.since()).isEqualTo("6.6");
   }
 
@@ -78,7 +78,7 @@ public class RenameActionTest {
     userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'branch' parameter is missing");
+    expectedException.expectMessage("The 'name' parameter is missing");
 
     tester.newRequest().setParam("project", "projectName").execute();
   }
@@ -101,12 +101,12 @@ public class RenameActionTest {
 
     tester.newRequest()
       .setParam("project", project.getKey())
-      .setParam("branch", "branch1")
+      .setParam("name", "branch1")
       .execute();
   }
 
   @Test
-  public void successfully_rename() {
+  public void rename() {
     userSession.logIn();
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
@@ -114,7 +114,7 @@ public class RenameActionTest {
 
     tester.newRequest()
       .setParam("project", project.getKey())
-      .setParam("branch", "master")
+      .setParam("name", "master")
       .execute();
 
     assertThat(db.countRowsOfTable("project_branches")).isEqualTo(2);
@@ -126,7 +126,7 @@ public class RenameActionTest {
   }
 
   @Test
-  public void successfully_rename_with_same_name() {
+  public void rename_with_same_name() {
     userSession.logIn();
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("branch"));
@@ -134,12 +134,12 @@ public class RenameActionTest {
 
     tester.newRequest()
       .setParam("project", project.getKey())
-      .setParam("branch", "master")
+      .setParam("name", "master")
       .execute();
 
     tester.newRequest()
       .setParam("project", project.getKey())
-      .setParam("branch", "master")
+      .setParam("name", "master")
       .execute();
 
     assertThat(db.countRowsOfTable("project_branches")).isEqualTo(2);
@@ -162,7 +162,7 @@ public class RenameActionTest {
 
     tester.newRequest()
       .setParam("project", project.getKey())
-      .setParam("branch", "branch")
+      .setParam("name", "branch")
       .execute();
   }
 
@@ -175,7 +175,7 @@ public class RenameActionTest {
 
     tester.newRequest()
       .setParam("project", "foo")
-      .setParam("branch", "branch1")
+      .setParam("name", "branch1")
       .execute();
   }
 }

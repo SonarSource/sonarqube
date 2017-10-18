@@ -32,8 +32,10 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.server.projectbranch.ws.BranchesWs.addProjectParam;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_RENAME;
-import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_BRANCH;
+import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
 
 public class RenameAction implements BranchWsAction {
@@ -51,31 +53,34 @@ public class RenameAction implements BranchWsAction {
   public void define(NewController context) {
     WebService.NewAction action = context.createAction(ACTION_RENAME)
       .setSince("6.6")
-      .setDescription("Rename the main branch of a project. <br />"
+      .setDescription("Rename the main branch of a project.<br/>"
         + "Requires 'Administer' permission on the specified project.")
-      .setInternal(true)
       .setPost(true)
       .setHandler(this);
 
-    BranchesWs.addProjectBranchParams(action);
+    addProjectParam(action);
+    action
+      .createParam(PARAM_NAME)
+      .setDescription("New name of the main branch")
+      .setExampleValue("branch1")
+      .setRequired(true);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
     String projectKey = request.mandatoryParam(PARAM_PROJECT);
-    String branchKey = request.mandatoryParam(PARAM_BRANCH);
+    String newBranchName = request.mandatoryParam(PARAM_NAME);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto project = componentFinder.getRootComponentByUuidOrKey(dbSession, null, projectKey);
       checkPermission(project);
 
-      Optional<BranchDto> branch = dbClient.branchDao().selectByKey(dbSession, project.uuid(), branchKey);
-      if (branch.isPresent() && !branch.get().isMain()) {
-        throw new IllegalArgumentException("Impossible to update branch name: a branch with name \"" + branchKey + "\" already exists in the project.");
-      }
+      Optional<BranchDto> existingBranch = dbClient.branchDao().selectByKey(dbSession, project.uuid(), newBranchName);
+      checkArgument(!existingBranch.filter(b -> !b.isMain()).isPresent(),
+        "Impossible to update branch name: a branch with name \"%s\" already exists in the project.", newBranchName);
 
-      dbClient.branchDao().updateMainBranchName(dbSession, project.uuid(), branchKey);
+      dbClient.branchDao().updateMainBranchName(dbSession, project.uuid(), newBranchName);
       dbSession.commit();
       response.noContent();
     }

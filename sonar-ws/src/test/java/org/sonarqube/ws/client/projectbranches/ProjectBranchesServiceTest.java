@@ -32,6 +32,7 @@ import org.sonarqube.ws.client.WsConnector;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_BRANCH;
+import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
 
 public class ProjectBranchesServiceTest {
@@ -88,7 +89,7 @@ public class ProjectBranchesServiceTest {
     serviceTester.assertThat(postRequest)
       .hasPath("rename")
       .hasParam(PARAM_PROJECT, "projectKey")
-      .hasParam(PARAM_BRANCH, "my_branch")
+      .hasParam(PARAM_NAME, "my_branch")
       .andNoOtherParam();
   }
 

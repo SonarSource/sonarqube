@@ -57,7 +57,7 @@ import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.BranchType.SHORT;
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.projectbranch.ws.BranchesWs.addProjectParam;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_LIST;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
 
@@ -79,16 +79,12 @@ public class ListAction implements BranchWsAction {
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction(ACTION_LIST)
       .setSince("6.6")
-      .setDescription("List the branches of a project")
+      .setDescription("List the branches of a project.<br/>" +
+        "Requires 'Administer' rights on the specified project.")
       .setResponseExample(Resources.getResource(getClass(), "list-example.json"))
-      .setInternal(true)
       .setHandler(this);
 
-    action
-      .createParam(PARAM_PROJECT)
-      .setDescription("Project key")
-      .setExampleValue(KEY_PROJECT_EXAMPLE_001)
-      .setRequired(true);
+    addProjectParam(action);
   }
 
   @Override

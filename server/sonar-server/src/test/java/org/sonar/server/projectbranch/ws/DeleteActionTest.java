@@ -63,7 +63,7 @@ public class DeleteActionTest {
     WebService.Action definition = tester.getDef();
     assertThat(definition.key()).isEqualTo("delete");
     assertThat(definition.isPost()).isTrue();
-    assertThat(definition.isInternal()).isTrue();
+    assertThat(definition.isInternal()).isFalse();
     assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("project", "branch");
     assertThat(definition.since()).isEqualTo("6.6");
   }
