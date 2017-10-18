@@ -20,7 +20,6 @@
 package org.sonar.server.issue.ws;
 
 import org.sonar.core.platform.Module;
-import org.sonar.server.issue.ActionFinder;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueQueryFactory;
@@ -37,7 +36,6 @@ public class IssueWsModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      ActionFinder.class,
       IssueUpdater.class,
       IssueFinder.class,
       TransitionService.class,

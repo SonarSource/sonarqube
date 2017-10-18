@@ -50,7 +50,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.StartupIndexer;
-import org.sonar.server.issue.ActionFinder;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQueryFactory;
@@ -99,8 +98,7 @@ public class SearchActionTest {
   private IssueQueryFactory issueQueryFactory = new IssueQueryFactory(dbClient, Clock.systemUTC(), userSessionRule);
   private IssueFieldsSetter issueFieldsSetter = new IssueFieldsSetter();
   private IssueWorkflow issueWorkflow = new IssueWorkflow(new FunctionExecutor(issueFieldsSetter), issueFieldsSetter);
-  private SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSessionRule, dbClient, new ActionFinder(userSessionRule),
-    new TransitionService(userSessionRule, issueWorkflow));
+  private SearchResponseLoader searchResponseLoader = new SearchResponseLoader(userSessionRule, dbClient, new TransitionService(userSessionRule, issueWorkflow));
   private Languages languages = new Languages();
   private SearchResponseFormat searchResponseFormat = new SearchResponseFormat(new Durations(), new WsResponseCommonFormat(languages), languages, new AvatarResolverImpl());
   private WsActionTester ws = new WsActionTester(new SearchAction(userSessionRule, issueIndex, issueQueryFactory, searchResponseLoader, searchResponseFormat));

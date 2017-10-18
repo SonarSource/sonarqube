@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.SetMultimap;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +41,6 @@ import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.es.Facets;
-import org.sonar.server.issue.ActionFinder;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.issue.IssuesWsParameters;
@@ -51,7 +51,12 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.difference;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Stream.concat;
+import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
+import static org.sonar.server.issue.AssignAction.ASSIGN_KEY;
+import static org.sonar.server.issue.CommentAction.COMMENT_KEY;
+import static org.sonar.server.issue.SetSeverityAction.SET_SEVERITY_KEY;
+import static org.sonar.server.issue.SetTypeAction.SET_TYPE_KEY;
 import static org.sonar.server.issue.ws.SearchAdditionalField.ACTIONS;
 import static org.sonar.server.issue.ws.SearchAdditionalField.COMMENTS;
 import static org.sonar.server.issue.ws.SearchAdditionalField.RULES;
@@ -65,13 +70,11 @@ public class SearchResponseLoader {
 
   private final UserSession userSession;
   private final DbClient dbClient;
-  private final ActionFinder actionService;
   private final TransitionService transitionService;
 
-  public SearchResponseLoader(UserSession userSession, DbClient dbClient, ActionFinder actionService, TransitionService transitionService) {
+  public SearchResponseLoader(UserSession userSession, DbClient dbClient, TransitionService transitionService) {
     this.userSession = userSession;
     this.dbClient = dbClient;
-    this.actionService = actionService;
     this.transitionService = transitionService;
   }
 
@@ -241,10 +244,16 @@ public class SearchResponseLoader {
 
   private void loadActionsAndTransitions(Collector collector, SearchResponseData result) {
     if (collector.contains(ACTIONS) || collector.contains(TRANSITIONS)) {
+      Map<String, ComponentDto> componentsByProjectUuid =
+        result.getComponents()
+          .stream()
+          .filter(ComponentDto::isRootProject)
+          .collect(MoreCollectors.uniqueIndex(ComponentDto::projectUuid));
       for (IssueDto dto : result.getIssues()) {
         // so that IssueDto can be used.
         if (collector.contains(ACTIONS)) {
-          result.addActions(dto.getKey(), actionService.listAvailableActions(dto));
+          ComponentDto project = componentsByProjectUuid.get(dto.getProjectUuid());
+          result.addActions(dto.getKey(), listAvailableActions(dto, project));
         }
         if (collector.contains(TRANSITIONS)) {
           // TODO workflow and action engines must not depend on org.sonar.api.issue.Issue but on a generic interface
@@ -253,6 +262,25 @@ public class SearchResponseLoader {
         }
       }
     }
+  }
+
+  private List<String> listAvailableActions(IssueDto issue, ComponentDto project) {
+    List<String> availableActions = newArrayList();
+    String login = userSession.getLogin();
+    if (login == null) {
+      return Collections.emptyList();
+    }
+    availableActions.add(COMMENT_KEY);
+    if (issue.getResolution() != null) {
+      return availableActions;
+    }
+    availableActions.add(ASSIGN_KEY);
+    availableActions.add("set_tags");
+    if (userSession.hasComponentPermission(ISSUE_ADMIN, project)) {
+      availableActions.add(SET_TYPE_KEY);
+      availableActions.add(SET_SEVERITY_KEY);
+    }
+    return availableActions;
   }
 
   private static void completeTotalEffortFromFacet(@Nullable Facets facets, SearchResponseData result) {
