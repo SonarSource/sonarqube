@@ -20,6 +20,8 @@ syntax = "proto2";
 
 package sonarqube.ws.webhooks;
 
+import "ws-commons.proto";
+
 option java_package = "org.sonarqube.ws";
 option java_outer_classname = "Webhooks";
 option optimize_for = SPEED;
@@ -46,4 +48,7 @@ message Delivery {
   optional int32 durationMs = 9;
   optional string payload = 10;
   optional string errorStacktrace = 11;
+  optional string branch = 12;
+  optional sonarqube.ws.commons.BranchType branchType = 13;
+  optional bool isMainBranch = 14;
 }

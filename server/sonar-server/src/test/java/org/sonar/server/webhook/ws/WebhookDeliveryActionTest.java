@@ -29,7 +29,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.webhook.WebhookDeliveryDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
@@ -65,7 +64,7 @@ public class WebhookDeliveryActionTest {
     ComponentFinder componentFinder = TestComponentFinder.from(db);
     WebhookDeliveryAction underTest = new WebhookDeliveryAction(dbClient, userSession, componentFinder);
     ws = new WsActionTester(underTest);
-    project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey("my-project"));
+    project = db.components().insertMainBranch(db.organizations().insert(), p -> p.setDbKey("my-project"));
   }
 
   @Test

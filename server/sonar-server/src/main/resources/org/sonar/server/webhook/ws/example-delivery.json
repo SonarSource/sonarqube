@@ -9,6 +9,9 @@
     "success": true,
     "httpStatus": 200,
     "durationMs": 10,
-    "payload": "{\"status\"=\"SUCCESS\"}"
+    "payload": "{\"status\"=\"SUCCESS\"}",
+    "branch": "master",
+    "branchType": "LONG",
+    "isMainBranch": true
   }
 }
