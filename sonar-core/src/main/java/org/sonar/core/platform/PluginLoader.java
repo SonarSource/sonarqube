@@ -56,7 +56,7 @@ public class PluginLoader {
    * Defines the base keys (defined by {@link #basePluginKey(PluginInfo, Map)}) of the plugins which are allowed to
    * run a full server extensions.
    */
-  private static final Set<String> PRIVILEGED_PLUGINS_BASE_KEYS = unmodifiableSet(new HashSet<>(asList("billing", "branch", "developer", "governance", "license")));
+  private static final Set<String> PRIVILEGED_PLUGINS_BASE_KEYS = unmodifiableSet(new HashSet<>(asList("billing", "branch", "developer", "governance", "ha", "license")));
 
   public static final Version COMPATIBILITY_MODE_MAX_VERSION = Version.create("5.2");
 

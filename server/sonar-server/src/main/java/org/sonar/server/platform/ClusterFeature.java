@@ -19,25 +19,13 @@
  */
 package org.sonar.server.platform;
 
-import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.ExtensionPoint;
 import org.sonar.api.server.ServerSide;
 
-@ComputeEngineSide
 @ServerSide
-public interface WebServer {
+@ExtensionPoint
+public interface ClusterFeature {
 
-  /**
-   * WebServer is standalone when property {@link org.sonar.process.ProcessProperties#CLUSTER_ENABLED} is {@code false} or
-   * undefined.
-   */
-  boolean isStandalone();
-
-  /**
-   * The startup leader is the first node to be started in a cluster. It's the only one
-   * to create and populate datastores.
-   * A standard node is automatically marked as "startup leader" when cluster
-   * is disabled (default).
-   */
-  boolean isStartupLeader();
+  boolean isEnabled();
 
 }
