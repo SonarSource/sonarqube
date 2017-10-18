@@ -56,7 +56,7 @@ class DateHistogramBuilder {
   }
 
   private long getMin() {
-    return startTime;
+    return startTime - (getOffsetInSeconds() * 1_000L);
   }
 
   private long getMax() {
