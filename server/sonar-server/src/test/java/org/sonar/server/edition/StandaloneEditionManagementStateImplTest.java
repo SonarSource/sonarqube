@@ -1070,7 +1070,7 @@ public class StandaloneEditionManagementStateImplTest {
   }
 
   @Test
-  public void installFailed_after_installFailed() {
+  public void installFailed_fails_with_ISE_after_installFailed() {
     underTest.start();
     underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
     underTest.installFailed(nullableErrorMessage);
