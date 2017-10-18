@@ -21,6 +21,7 @@ package org.sonar.server.plugins.edition;
 
 import com.google.common.base.Optional;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
@@ -75,6 +76,12 @@ public class EditionInstaller {
     }
   }
 
+  public void uninstall() {
+    Map<String, PluginInfo> pluginInfosByKeys = pluginRepository.getPluginInfosByKeys();
+    Set<String> pluginsToRemove = pluginsToRemove(Collections.emptySet(), pluginInfosByKeys.values());
+    uninstallPlugins(pluginsToRemove);
+  }
+
   public boolean isOffline() {
     return !updateCenterMatrixFactory.getUpdateCenter(true).isPresent();
   }
@@ -93,14 +100,16 @@ public class EditionInstaller {
 
     try {
       editionPluginDownloader.downloadEditionPlugins(pluginsToInstall, updateCenter);
-      for (String pluginKey : pluginsToRemove) {
-        editionPluginUninstaller.uninstall(pluginKey);
-      }
+      uninstallPlugins(pluginsToRemove);
       editionManagementState.automaticInstallReady();
     } finally {
       lock.unlock();
       // TODO: catch exceptions and set error status
     }
+  }
+
+  private void uninstallPlugins(Set<String> pluginsToRemove) {
+    pluginsToRemove.stream().forEach(editionPluginUninstaller::uninstall);
   }
 
   private Set<String> pluginsToInstall(Set<String> editionPluginKeys, Set<String> installedPluginKeys) {
