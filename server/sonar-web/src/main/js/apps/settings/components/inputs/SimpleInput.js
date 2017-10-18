@@ -26,12 +26,26 @@ export default class SimpleInput extends React.PureComponent {
     ...defaultInputPropTypes,
     value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     type: PropTypes.string.isRequired,
-    className: PropTypes.string.isRequired
+    className: PropTypes.string.isRequired,
+    onCancel: PropTypes.func,
+    onSave: PropTypes.func
   };
 
-  handleInputChange(e) {
-    this.props.onChange(e.target.value);
-  }
+  handleInputChange = event => {
+    this.props.onChange(event.currentTarget.value);
+  };
+
+  handleKeyDown = event => {
+    if (event.keyCode === 13) {
+      if (this.props.onSave) {
+        this.props.onSave();
+      }
+    } else if (event.keyCode === 27) {
+      if (this.props.onCancel) {
+        this.props.onCancel();
+      }
+    }
+  };
 
   render() {
     return (
@@ -40,7 +54,8 @@ export default class SimpleInput extends React.PureComponent {
         className={this.props.className + ' text-top'}
         type={this.props.type}
         value={this.props.value || ''}
-        onChange={e => this.handleInputChange(e)}
+        onChange={this.handleInputChange}
+        onKeyDown={this.handleKeyDown}
       />
     );
   }
