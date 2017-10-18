@@ -77,11 +77,11 @@ public class License {
       Properties props = new Properties();
       props.load(new StringReader(data));
 
-      Collection<String> plugins = Arrays.asList(StringUtils.split(props.getProperty(PLUGINS_KEY), ','));
+      String[] plugins = StringUtils.split(props.getProperty(PLUGINS_KEY), ',');
       String editionKey = props.getProperty(EDITION_KEY);
 
-      if (editionKey != null && !plugins.isEmpty()) {
-        return Optional.of(new License(editionKey, plugins, base64));
+      if (StringUtils.isNotBlank(editionKey) && plugins.length > 0) {
+        return Optional.of(new License(editionKey, Arrays.asList(plugins), base64));
       } else {
         LOG.debug("Failed to parse license: no edition key and/or no plugin found");
       }
