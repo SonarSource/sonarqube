@@ -46,6 +46,14 @@ public interface EditionManagementState {
    */
   Optional<String> getPendingLicense();
 
+  /**
+   * The message explaining the error that made the install fail (if any).
+   *
+   * @return a {@link String} if {@link #getPendingInstallationStatus()} returns {@link PendingStatus#NONE} and an error
+   *         occurred during install, otherwise {@link Optional#empty() empty}
+   */
+  Optional<String> getInstallErrorMessage();
+
   enum PendingStatus {
     NONE,
     AUTOMATIC_IN_PROGRESS,
