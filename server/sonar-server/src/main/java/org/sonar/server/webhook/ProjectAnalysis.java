@@ -32,18 +32,18 @@ public class ProjectAnalysis {
   private final CeTask ceTask;
   private final Branch branch;
   private final QualityGate qualityGate;
-  private final Long date;
+  private final Long updatedAt;
   private final Map<String, String> properties;
   private final Analysis analysis;
 
   public ProjectAnalysis(Project project, @Nullable CeTask ceTask, @Nullable Analysis analysis,
-    @Nullable Branch branch, @Nullable QualityGate qualityGate, @Nullable Long date,
+    @Nullable Branch branch, @Nullable QualityGate qualityGate, @Nullable Long updatedAt,
     Map<String, String> properties) {
     this.project = requireNonNull(project, "project can't be null");
     this.ceTask = ceTask;
     this.branch = branch;
     this.qualityGate = qualityGate;
-    this.date = date;
+    this.updatedAt = updatedAt;
     this.properties = copyOf(requireNonNull(properties, "properties can't be null"));
     this.analysis = analysis;
   }
@@ -72,6 +72,10 @@ public class ProjectAnalysis {
     return Optional.ofNullable(analysis);
   }
 
+  public Optional<Long> getUpdatedAt() {
+    return Optional.ofNullable(updatedAt);
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -85,14 +89,14 @@ public class ProjectAnalysis {
       Objects.equals(ceTask, that.ceTask) &&
       Objects.equals(branch, that.branch) &&
       Objects.equals(qualityGate, that.qualityGate) &&
-      Objects.equals(date, that.date) &&
+      Objects.equals(updatedAt, that.updatedAt) &&
       Objects.equals(properties, that.properties) &&
       Objects.equals(analysis, that.analysis);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(project, ceTask, branch, qualityGate, date, properties, analysis);
+    return Objects.hash(project, ceTask, branch, qualityGate, updatedAt, properties, analysis);
   }
 
   @Override
@@ -102,7 +106,7 @@ public class ProjectAnalysis {
       ", ceTask=" + ceTask +
       ", branch=" + branch +
       ", qualityGate=" + qualityGate +
-      ", date=" + date +
+      ", updatedAt=" + updatedAt +
       ", properties=" + properties +
       ", analysis=" + analysis +
       '}';
