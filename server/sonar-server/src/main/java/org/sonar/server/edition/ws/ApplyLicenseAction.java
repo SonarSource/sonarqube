@@ -62,7 +62,9 @@ public class ApplyLicenseAction implements EditionsWsAction {
     WebService.NewAction action = controller.createAction("apply_license")
       .setSince("6.7")
       .setPost(true)
-      .setDescription("Apply changes to SonarQube to match the specified license. Require 'Administer System' permission.")
+      .setDescription("Apply changes to SonarQube to match the specified license." +
+        " Clear error message of previous automatic install of an edition, if there is any." +
+        " Require 'Administer System' permission.")
       .setResponseExample(getClass().getResource("example-edition-apply_license.json"))
       .setHandler(this);
 
