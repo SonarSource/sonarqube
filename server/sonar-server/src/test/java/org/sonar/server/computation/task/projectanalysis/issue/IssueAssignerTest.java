@@ -19,8 +19,8 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
-import org.junit.Test;
 import org.junit.Rule;
+import org.junit.Test;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -31,6 +31,8 @@ import org.sonar.server.computation.task.projectanalysis.scm.Changeset;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepositoryRule;
 import org.sonar.server.issue.IssueFieldsSetter;
 
+import static java.util.stream.Collectors.joining;
+import static java.util.stream.IntStream.range;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -95,6 +97,21 @@ public class IssueAssignerTest {
     underTest.onIssue(FILE, issue);
 
     assertThat(issue.assignee()).isEqualTo("John C");
+  }
+
+  @Test
+  public void dont_store_author_too_long() throws Exception {
+    String scmAuthor = range(0, 256).mapToObj(i -> "s").collect(joining());
+    addScmUser(scmAuthor, "John C");
+    setSingleChangeset(scmAuthor, 123456789L, "rev-1");
+    DefaultIssue issue = new DefaultIssue().setLine(1);
+
+    underTest.onIssue(FILE, issue);
+
+    assertThat(issue.authorLogin()).isNull();
+    assertThat(issue.assignee()).isEqualTo("John C");
+
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("SCM account '" + scmAuthor + "' is too long to be stored as issue author");
   }
 
   @Test
@@ -167,7 +184,6 @@ public class IssueAssignerTest {
 
     assertThat(issue.assignee()).isEqualTo("DefaultAssignee");
   }
-
 
   @Test
   public void set_last_committer_when_line_is_bigger_than_changeset_size() throws Exception {
