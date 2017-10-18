@@ -69,7 +69,7 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
 
   private static void writeDates(JsonWriter writer, ProjectAnalysis analysis, System2 system2) {
     analysis.getAnalysis().ifPresent(a -> writer.propDateTime("analysedAt", a.getDate()));
-    writer.propDateTime("changedAt", analysis.getAnalysis().map(Analysis::getDate).orElseGet(() -> new Date(system2.now())));
+    writer.propDateTime("changedAt", new Date(analysis.getUpdatedAt().orElse(system2.now())));
   }
 
   private void writeProject(ProjectAnalysis analysis, JsonWriter writer, Project project) {

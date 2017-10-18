@@ -134,6 +134,6 @@ public class ProjectAnalysisTest {
   @Test
   public void verify_toString() {
     assertThat(underTest.toString()).isEqualTo(
-      "ProjectAnalysis{project=Project{uuid='uuid', key='key', name='name'}, ceTask=CeTask{id='id', status=SUCCESS}, branch=Branch{main=true, name='name', type=SHORT}, qualityGate=QualityGate{id='id', name='name', status=WARN, conditions=[]}, date=1, properties={a=b}, analysis=Analysis{uuid='analysis_uuid', date=1500}}");
+      "ProjectAnalysis{project=Project{uuid='uuid', key='key', name='name'}, ceTask=CeTask{id='id', status=SUCCESS}, branch=Branch{main=true, name='name', type=SHORT}, qualityGate=QualityGate{id='id', name='name', status=WARN, conditions=[]}, updatedAt=1, properties={a=b}, analysis=Analysis{uuid='analysis_uuid', date=1500}}");
   }
 }
