@@ -91,6 +91,22 @@ public class EditionInstallerTest {
   }
 
   @Test
+  public void uninstall_commercial_plugins() {
+    PluginInfo commercial1 = createPluginInfo("p1", true);
+    PluginInfo commercial2 = createPluginInfo("p2", true);
+    PluginInfo open1 = createPluginInfo("p3", false);
+    mockPluginRepository(commercial1, commercial2, open1);
+
+    installer.uninstall();
+
+    verify(uninstaller).uninstall("p2");
+    verify(uninstaller).uninstall("p1");
+
+    verifyNoMoreInteractions(uninstaller);
+    verifyZeroInteractions(downloader);
+  }
+
+  @Test
   public void do_nothing_if_offline() {
     mockPluginRepository(createPluginInfo("p1", true));
     executor = mock(EditionInstallerExecutor.class);
