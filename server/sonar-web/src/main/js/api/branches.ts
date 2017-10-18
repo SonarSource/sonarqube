@@ -28,6 +28,6 @@ export function deleteBranch(project: string, branch: string): Promise<void | Re
   return post('/api/project_branches/delete', { project, branch }).catch(throwGlobalError);
 }
 
-export function renameBranch(project: string, branch: string): Promise<void | Response> {
-  return post('/api/project_branches/rename', { project, branch }).catch(throwGlobalError);
+export function renameBranch(project: string, name: string): Promise<void | Response> {
+  return post('/api/project_branches/rename', { project, name }).catch(throwGlobalError);
 }

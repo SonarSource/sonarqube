@@ -102,7 +102,7 @@ public class ListActionTest {
     WebService.Action definition = ws.getDef();
     assertThat(definition.key()).isEqualTo("list");
     assertThat(definition.isPost()).isFalse();
-    assertThat(definition.isInternal()).isTrue();
+    assertThat(definition.isInternal()).isFalse();
     assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("project");
     assertThat(definition.since()).isEqualTo("6.6");
   }

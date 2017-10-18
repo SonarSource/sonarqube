@@ -26,12 +26,13 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
-import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_LIST;
-import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_SHOW;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_DELETE;
+import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_LIST;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_RENAME;
+import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_SHOW;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.CONTROLLER;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_BRANCH;
+import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
 
 public class ProjectBranchesService extends BaseService {
@@ -60,10 +61,10 @@ public class ProjectBranchesService extends BaseService {
     call(post);
   }
 
-  public void rename(String project, String branch) {
+  public void rename(String project, String name) {
     PostRequest post = new PostRequest(path(ACTION_RENAME))
       .setParam(PARAM_PROJECT, project)
-      .setParam(PARAM_BRANCH, branch);
+      .setParam(PARAM_NAME, name);
     call(post);
   }
 

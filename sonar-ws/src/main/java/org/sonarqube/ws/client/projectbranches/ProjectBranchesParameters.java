@@ -33,6 +33,7 @@ public class ProjectBranchesParameters {
   public static final String PARAM_PROJECT = "project";
   public static final String PARAM_COMPONENT = "component";
   public static final String PARAM_BRANCH = "branch";
+  public static final String PARAM_NAME = "name";
 
   private ProjectBranchesParameters() {
     // static utility class
