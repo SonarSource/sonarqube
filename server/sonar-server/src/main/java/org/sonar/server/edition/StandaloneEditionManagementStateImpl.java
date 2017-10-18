@@ -36,6 +36,7 @@ import static org.sonar.server.edition.EditionManagementState.PendingStatus.AUTO
 import static org.sonar.server.edition.EditionManagementState.PendingStatus.AUTOMATIC_READY;
 import static org.sonar.server.edition.EditionManagementState.PendingStatus.MANUAL_IN_PROGRESS;
 import static org.sonar.server.edition.EditionManagementState.PendingStatus.NONE;
+import static org.sonar.server.edition.EditionManagementState.PendingStatus.UNINSTALL_IN_PROGRESS;
 
 public class StandaloneEditionManagementStateImpl implements MutableEditionManagementState, Startable {
   private static final String CURRENT_EDITION_KEY = "currentEditionKey";
@@ -149,12 +150,26 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
   @Override
   public synchronized PendingStatus finalizeInstallation() {
     ensureStarted();
-    changeStatusToFrom(NONE, AUTOMATIC_READY, MANUAL_IN_PROGRESS);
+    changeStatusToFrom(NONE, AUTOMATIC_READY, MANUAL_IN_PROGRESS, UNINSTALL_IN_PROGRESS);
 
     this.pendingInstallationStatus = NONE;
     this.currentEditionKey = this.pendingEditionKey;
     this.pendingEditionKey = null;
     this.pendingLicense = null;
+    persistProperties();
+    return this.pendingInstallationStatus;
+  }
+
+  @Override
+  public synchronized PendingStatus uninstall() {
+    ensureStarted();
+    changeStatusToFrom(UNINSTALL_IN_PROGRESS, NONE);
+    checkState(currentEditionKey != null, "There is no edition currently installed");
+
+    this.pendingInstallationStatus = UNINSTALL_IN_PROGRESS;
+    this.pendingEditionKey = null;
+    this.pendingLicense = null;
+    this.currentEditionKey = null;
     persistProperties();
     return this.pendingInstallationStatus;
   }
@@ -173,7 +188,7 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
   private void persistProperties() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       InternalPropertiesDao internalPropertiesDao = dbClient.internalPropertiesDao();
-      if (pendingInstallationStatus == NONE) {
+      if (pendingInstallationStatus == NONE || pendingInstallationStatus == UNINSTALL_IN_PROGRESS) {
         internalPropertiesDao.saveAsEmpty(dbSession, PENDING_EDITION_KEY);
         internalPropertiesDao.saveAsEmpty(dbSession, PENDING_LICENSE);
       } else {

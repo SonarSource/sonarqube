@@ -63,6 +63,16 @@ public interface MutableEditionManagementState extends EditionManagementState {
   PendingStatus automaticInstallReady();
 
   /**
+   * Uninstalls the currently installed edition
+   *
+   * @return the new pending status, always {@link PendingStatus#UNINSTALL_IN_PROGRESS}
+   *
+   * @throws IllegalStateException if current status is not {@link PendingStatus#NONE} or if there is 
+   * no edition currently installed.
+   */
+  PendingStatus uninstall();
+  
+  /**
    * Finalize an automatic or manual install
    *
    * @return the new pending status, always {@link PendingStatus#NONE}
