@@ -175,6 +175,15 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
   }
 
   @Override
+  public synchronized void clearInstallErrorMessage() {
+    ensureStarted();
+    if (this.installErrorMessage != null) {
+      this.installErrorMessage = null;
+      persistProperties();
+    }
+  }
+
+  @Override
   public synchronized PendingStatus finalizeInstallation() {
     ensureStarted();
     changeStatusToFrom(NONE, AUTOMATIC_READY, MANUAL_IN_PROGRESS, UNINSTALL_IN_PROGRESS);
