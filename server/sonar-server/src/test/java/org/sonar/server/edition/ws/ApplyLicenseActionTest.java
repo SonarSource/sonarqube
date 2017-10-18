@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.Properties;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -159,7 +160,7 @@ public class ApplyLicenseActionTest {
   @Test
   public void verify_example() throws IOException {
     userSessionRule.logIn().setSystemAdministrator();
-    setPendingLicense(AUTOMATIC_IN_PROGRESS);
+    setPendingLicense(AUTOMATIC_IN_PROGRESS, null);
 
     TestRequest request = actionTester.newRequest()
       .setParam(PARAM_LICENSE, createLicenseParam("dev", "plugin1"));
@@ -170,7 +171,7 @@ public class ApplyLicenseActionTest {
   @Test
   public void apply_without_need_to_install() throws IOException {
     userSessionRule.logIn().setSystemAdministrator();
-    setPendingLicense(NONE);
+    setPendingLicense(NONE, null);
     when(editionInstaller.requiresInstallationChange(singleton("plugin1"))).thenReturn(false);
 
     TestRequest request = actionTester.newRequest()
@@ -185,7 +186,7 @@ public class ApplyLicenseActionTest {
   @Test
   public void apply_offline() throws IOException {
     userSessionRule.logIn().setSystemAdministrator();
-    setPendingLicense(PendingStatus.MANUAL_IN_PROGRESS);
+    setPendingLicense(PendingStatus.MANUAL_IN_PROGRESS, null);
     when(editionInstaller.requiresInstallationChange(singleton("plugin1"))).thenReturn(true);
 
     TestRequest request = actionTester.newRequest()
@@ -202,7 +203,7 @@ public class ApplyLicenseActionTest {
   @Test
   public void apply_successfully_auto_installation() throws IOException {
     userSessionRule.logIn().setSystemAdministrator();
-    setPendingLicense(PendingStatus.AUTOMATIC_IN_PROGRESS);
+    setPendingLicense(PendingStatus.AUTOMATIC_IN_PROGRESS, null);
     when(editionInstaller.requiresInstallationChange(singleton("plugin1"))).thenReturn(true);
 
     TestRequest request = actionTester.newRequest()
@@ -216,6 +217,24 @@ public class ApplyLicenseActionTest {
     verify(mutableEditionManagementState, times(0)).startManualInstall(any(License.class));
   }
 
+  @Test
+  public void returns_auto_install_fails_instantly() throws IOException {
+    userSessionRule.logIn().setSystemAdministrator();
+    String errorMessage = "error! an error!";
+    setPendingLicense(PendingStatus.NONE, errorMessage);
+    when(editionInstaller.requiresInstallationChange(singleton("plugin1"))).thenReturn(true);
+    when(mutableEditionManagementState.getInstallErrorMessage()).thenReturn(Optional.of(errorMessage));
+
+    TestRequest request = actionTester.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
+      .setParam(PARAM_LICENSE, createLicenseParam(PENDING_EDITION_NAME, "plugin1"));
+
+    TestResponse response = request.execute();
+
+    StatusResponse parsedResponse = WsEditions.StatusResponse.parseFrom(response.getInputStream());
+    assertThat(parsedResponse.getInstallError()).isEqualTo(errorMessage);
+  }
+
   private void assertResponse(TestResponse response, String expectedNextEditionKey, String expectedEditionKey,
     PendingStatus expectedPendingStatus) throws IOException {
     StatusResponse parsedResponse = WsEditions.StatusResponse.parseFrom(response.getInputStream());
@@ -224,12 +243,13 @@ public class ApplyLicenseActionTest {
     assertThat(parsedResponse.getInstallationStatus()).isEqualTo(WsEditions.InstallationStatus.valueOf(expectedPendingStatus.toString()));
   }
 
-  private void setPendingLicense(PendingStatus pendingStatus) {
+  private void setPendingLicense(PendingStatus pendingStatus, @Nullable String errorMessage) {
     when(mutableEditionManagementState.getCurrentEditionKey()).thenReturn(Optional.empty());
     when(mutableEditionManagementState.getPendingEditionKey()).thenReturn(Optional.of(PENDING_EDITION_NAME));
     when(mutableEditionManagementState.getPendingInstallationStatus())
       .thenReturn(NONE)
       .thenReturn(pendingStatus);
+    when(mutableEditionManagementState.getInstallErrorMessage()).thenReturn(Optional.ofNullable(errorMessage));
   }
 
   private static String createLicenseParam(String editionKey, String... pluginKeys) throws IOException {
