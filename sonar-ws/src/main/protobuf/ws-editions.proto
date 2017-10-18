@@ -30,6 +30,7 @@ message StatusResponse {
   optional string currentEditionKey = 1;
   optional InstallationStatus installationStatus = 2;
   optional string nextEditionKey = 3;
+  optional string installError = 4;
 }
 
 enum InstallationStatus {

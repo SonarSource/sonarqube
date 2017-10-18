@@ -19,7 +19,6 @@
  */
 package org.sonar.server.edition.ws;
 
-import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,9 +31,12 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.edition.EditionManagementState.PendingStatus.NONE;
 
 public class StatusActionTest {
   @Rule
@@ -81,9 +83,10 @@ public class StatusActionTest {
   @Test
   public void verify_example() {
     userSessionRule.logIn().setSystemAdministrator();
-    when(editionManagementState.getCurrentEditionKey()).thenReturn(Optional.empty());
-    when(editionManagementState.getPendingEditionKey()).thenReturn(Optional.of("developer-edition"));
+    when(editionManagementState.getCurrentEditionKey()).thenReturn(empty());
+    when(editionManagementState.getPendingEditionKey()).thenReturn(of("developer-edition"));
     when(editionManagementState.getPendingInstallationStatus()).thenReturn(EditionManagementState.PendingStatus.AUTOMATIC_READY);
+    when(editionManagementState.getInstallErrorMessage()).thenReturn(empty());
 
     TestRequest request = actionTester.newRequest();
 
@@ -93,9 +96,10 @@ public class StatusActionTest {
   @Test
   public void response_contains_optional_fields_as_empty_string() {
     userSessionRule.logIn().setSystemAdministrator();
-    when(editionManagementState.getCurrentEditionKey()).thenReturn(Optional.empty());
-    when(editionManagementState.getPendingEditionKey()).thenReturn(Optional.empty());
-    when(editionManagementState.getPendingInstallationStatus()).thenReturn(EditionManagementState.PendingStatus.NONE);
+    when(editionManagementState.getCurrentEditionKey()).thenReturn(empty());
+    when(editionManagementState.getPendingEditionKey()).thenReturn(empty());
+    when(editionManagementState.getPendingInstallationStatus()).thenReturn(NONE);
+    when(editionManagementState.getInstallErrorMessage()).thenReturn(empty());
 
     TestRequest request = actionTester.newRequest();
 
@@ -104,6 +108,25 @@ public class StatusActionTest {
         "  \"currentEditionKey\": \"\"," +
         "  \"installationStatus\": \"NONE\"," +
         "  \"nextEditionKey\": \"\"" +
+        "}");
+  }
+
+  @Test
+  public void response_contains_automaticInstallError_when_present() {
+    userSessionRule.logIn().setSystemAdministrator();
+    when(editionManagementState.getCurrentEditionKey()).thenReturn(empty());
+    when(editionManagementState.getPendingEditionKey()).thenReturn(empty());
+    when(editionManagementState.getPendingInstallationStatus()).thenReturn(NONE);
+    String errorMessage = "an error! oh god, an error!";
+    when(editionManagementState.getInstallErrorMessage()).thenReturn(of(errorMessage));
+    TestRequest request = actionTester.newRequest();
+
+    JsonAssert.assertJson(request.execute().getInput())
+      .isSimilarTo("{" +
+        "  \"currentEditionKey\": \"\"," +
+        "  \"installationStatus\": \"NONE\"," +
+        "  \"nextEditionKey\": \"\"," +
+        "  \"installError\": \"" + errorMessage + "\"" +
         "}");
   }
 }
