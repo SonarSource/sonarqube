@@ -3,6 +3,7 @@
 exports[`should correctly change the button based on the status 1`] = `
 <button
   className="js-confirm"
+  disabled={false}
   onClick={[Function]}
 >
   save
@@ -12,6 +13,7 @@ exports[`should correctly change the button based on the status 1`] = `
 exports[`should correctly change the button based on the status 2`] = `
 <button
   className="js-confirm"
+  disabled={false}
   onClick={[Function]}
 >
   marketplace.install
@@ -50,6 +52,18 @@ exports[`should display correctly 1`] = `
         "name": "Foo",
         "request_license_link": "license_url",
       }
+    }
+    editions={
+      Array [
+        Object {
+          "desc": "Foo desc",
+          "download_link": "download_url",
+          "key": "foo",
+          "more_link": "more_url",
+          "name": "Foo",
+          "request_license_link": "license_url",
+        },
+      ]
     }
     updateLicense={[Function]}
   />
