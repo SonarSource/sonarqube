@@ -22,6 +22,7 @@ package org.sonar.server.edition;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.license.LicenseCommit;
 
 public class CommitPendingEditionOnStartup implements Startable {
@@ -53,9 +54,7 @@ public class CommitPendingEditionOnStartup implements Startable {
         finalizeInstall(status);
         break;
       case AUTOMATIC_IN_PROGRESS:
-        // FIXME temporary hack until download of edition is implemented, should move status to AUTOMATIC_FAILURE
-        editionManagementState.automaticInstallReady();
-        finalizeInstall(status);
+        editionManagementState.installFailed("SonarQube was restarted before asynchronous installation of edition completed");
         break;
       case UNINSTALL_IN_PROGRESS:
         failIfLicenseCommitIsPresent();
@@ -75,6 +74,7 @@ public class CommitPendingEditionOnStartup implements Startable {
   private void finalizeInstall(EditionManagementState.PendingStatus status) {
     // license manager is not installed, can't finalize
     if (licenseCommit == null) {
+      Loggers.get(CommitPendingEditionOnStartup.class).debug("No LicenseCommit instance is not available, can not finalize installation");
       return;
     }
 
