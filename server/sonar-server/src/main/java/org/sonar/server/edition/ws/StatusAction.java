@@ -56,6 +56,7 @@ public class StatusAction implements EditionsWsAction {
       .setCurrentEditionKey(editionManagementState.getCurrentEditionKey().orElse(""))
       .setNextEditionKey(editionManagementState.getPendingEditionKey().orElse(""))
       .setInstallationStatus(WsEditions.InstallationStatus.valueOf(editionManagementState.getPendingInstallationStatus().name()));
+    editionManagementState.getInstallErrorMessage().ifPresent(responseBuilder::setInstallError);
 
     WsUtils.writeProtobuf(responseBuilder.build(), request, response);
   }
