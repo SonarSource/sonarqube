@@ -33,10 +33,13 @@ export default class EditionBox extends React.PureComponent<Props> {
 
   render() {
     const { edition, editionStatus } = this.props;
-    const isInstalled = editionStatus && editionStatus.currentEditionKey === edition.key;
-    const isInstalling = editionStatus && editionStatus.nextEditionKey === edition.key;
     const installInProgress =
-      editionStatus && editionStatus.installationStatus === 'AUTOMATIC_IN_PROGRESS';
+      editionStatus &&
+      ['AUTOMATIC_IN_PROGRESS', 'AUTOMATIC_READY'].includes(editionStatus.installationStatus);
+    const installReady = editionStatus && editionStatus.installationStatus === 'AUTOMATIC_READY';
+    const isInstalled = editionStatus && editionStatus.currentEditionKey === edition.key;
+    const isInstalling =
+      installInProgress && editionStatus && editionStatus.nextEditionKey === edition.key;
     return (
       <div className="boxed-group boxed-group-inner marketplace-edition">
         {isInstalled &&
@@ -48,7 +51,7 @@ export default class EditionBox extends React.PureComponent<Props> {
         )}
         {isInstalling && (
           <span className="marketplace-edition-badge badge badge-normal-size">
-            {translate('marketplace.installing')}
+            {installReady ? translate('marketplace.pending') : translate('marketplace.installing')}
           </span>
         )}
         <div>

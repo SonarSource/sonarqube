@@ -59,7 +59,19 @@ it('should display installing badge', () => {
       editionStatus: {
         currentEditionKey: 'foo',
         nextEditionKey: 'foo',
-        installationStatus: 'NONE'
+        installationStatus: 'AUTOMATIC_IN_PROGRESS'
+      }
+    })
+  ).toMatchSnapshot();
+});
+
+it('should display pending badge', () => {
+  expect(
+    getWrapper({
+      editionStatus: {
+        currentEditionKey: '',
+        nextEditionKey: 'foo',
+        installationStatus: 'AUTOMATIC_READY'
       }
     })
   ).toMatchSnapshot();
@@ -69,9 +81,18 @@ it('should disable install button', () => {
   expect(
     getWrapper({
       editionStatus: {
-        currentEditionKey: 'foo',
-        nextEditionKey: '',
+        currentEditionKey: '',
+        nextEditionKey: 'foo',
         installationStatus: 'AUTOMATIC_IN_PROGRESS'
+      }
+    })
+  ).toMatchSnapshot();
+  expect(
+    getWrapper({
+      editionStatus: {
+        currentEditionKey: '',
+        nextEditionKey: 'foo',
+        installationStatus: 'AUTOMATIC_READY'
       }
     })
   ).toMatchSnapshot();
@@ -81,7 +102,7 @@ it('should disable uninstall button', () => {
   expect(
     getWrapper({
       editionStatus: {
-        currentEditionKey: '',
+        currentEditionKey: 'foo',
         nextEditionKey: 'foo',
         installationStatus: 'AUTOMATIC_IN_PROGRESS'
       }
