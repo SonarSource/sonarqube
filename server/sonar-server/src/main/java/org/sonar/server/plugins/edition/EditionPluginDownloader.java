@@ -60,18 +60,19 @@ public class EditionPluginDownloader {
         pluginsToInstall.addAll(updateCenter.findInstallablePlugins(pluginKey, Version.create("")));
       }
 
-      FileUtils.deleteQuietly(tmpDir);
+      FileUtils.deleteDirectory(tmpDir);
       Files.createDirectories(tmpDir);
 
       for (Release r : pluginsToInstall) {
         download(r);
       }
 
-      FileUtils.deleteQuietly(downloadDir);
+      FileUtils.deleteDirectory(downloadDir);
       Files.move(tmpDir, downloadDir);
-    } catch (Exception e) {
+    } catch (IOException e) {
+      throw new RuntimeException(e.getMessage(), e);
+    } finally {
       FileUtils.deleteQuietly(tmpDir);
-      throw new IllegalStateException("Failed to install edition", e);
     }
   }
 
