@@ -69,7 +69,7 @@ export type Props = {
   branch?: { name: string },
   component?: Component,
   currentUser: CurrentUser,
-  fetchIssues: (query: RawQuery) => Promise<*>,
+  fetchIssues: (query: RawQuery, requestOrganizations?: boolean) => Promise<*>,
   location: { pathname: string, query: RawQuery },
   organization?: { key: string },
   router: {
@@ -367,7 +367,11 @@ export default class App extends React.PureComponent {
     }
   };
 
-  fetchIssues = (additional /*: ?{} */, requestFacets /*: ?boolean */ = false) => {
+  fetchIssues = (
+    additional /*: ?{} */,
+    requestFacets /*: ?boolean */ = false,
+    requestOrganizations /*: boolean | void */ = true
+  ) => {
     const { component, organization } = this.props;
     const { myIssues, openFacets, query } = this.state;
 
@@ -398,7 +402,7 @@ export default class App extends React.PureComponent {
       Object.assign(parameters, { assignees: '__me__' });
     }
 
-    return this.props.fetchIssues(parameters);
+    return this.props.fetchIssues(parameters, requestOrganizations);
   };
 
   fetchFirstIssues() {
@@ -527,7 +531,8 @@ export default class App extends React.PureComponent {
   };
 
   fetchFacet = (facet /*: string */) => {
-    return this.fetchIssues({ ps: 1, facets: mapFacet(facet) }).then(
+    const requestOrganizations = facet === 'projects';
+    return this.fetchIssues({ ps: 1, facets: mapFacet(facet) }, false, requestOrganizations).then(
       ({ facets, ...other }) => {
         if (this.mounted) {
           this.setState(state => ({

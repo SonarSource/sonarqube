@@ -24,7 +24,7 @@ import { withRouter } from 'react-router';
 import { uniq } from 'lodash';
 import App from './App';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
-import { getCurrentUser } from '../../../store/rootReducer';
+import { getCurrentUser, areThereCustomOrganizations } from '../../../store/rootReducer';
 import { getOrganizations } from '../../../api/organizations';
 import { receiveOrganizations } from '../../../store/organizations/duck';
 import { searchIssues } from '../../../api/issues';
@@ -47,16 +47,25 @@ const fetchIssueOrganizations = issues => dispatch => {
   );
 };
 
-const fetchIssues = (query /*: RawQuery */) => dispatch =>
-  searchIssues({ ...query, additionalFields: '_all' })
+const fetchIssues = (query /*: RawQuery */, requestOrganizations /*: boolean */ = true) => (
+  dispatch,
+  getState
+) => {
+  const organizationsEnabled = areThereCustomOrganizations(getState());
+  return searchIssues({ ...query, additionalFields: '_all' })
     .then(response => {
       const parsedIssues = response.issues.map(issue =>
         parseIssueFromResponse(issue, response.components, response.users, response.rules)
       );
       return { ...response, issues: parsedIssues };
     })
-    .then(response => dispatch(fetchIssueOrganizations(response.issues)).then(() => response))
+    .then(response => {
+      return organizationsEnabled && requestOrganizations
+        ? dispatch(fetchIssueOrganizations(response.issues)).then(() => response)
+        : response;
+    })
     .catch(throwGlobalError);
+};
 
 const mapDispatchToProps = { fetchIssues };
 
