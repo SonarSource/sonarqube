@@ -26,6 +26,7 @@ interface Props {
   edition: Edition;
   editionStatus?: EditionStatus;
   onInstall: (edition: Edition) => void;
+  onUninstall: () => void;
 }
 
 export default class EditionBox extends React.PureComponent<Props> {
@@ -68,7 +69,10 @@ export default class EditionBox extends React.PureComponent<Props> {
             </button>
           )}
           {isInstalled && (
-            <button className="button-red" disabled={installInProgress}>
+            <button
+              className="button-red"
+              disabled={installInProgress}
+              onClick={this.props.onUninstall}>
               {translate('marketplace.uninstall')}
             </button>
           )}

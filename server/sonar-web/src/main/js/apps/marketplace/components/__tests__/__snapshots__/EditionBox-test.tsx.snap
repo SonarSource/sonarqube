@@ -107,6 +107,7 @@ exports[`should disable uninstall button 1`] = `
     <button
       className="button-red"
       disabled={true}
+      onClick={[Function]}
     >
       marketplace.uninstall
     </button>
@@ -149,6 +150,7 @@ exports[`should display installed badge 1`] = `
     <button
       className="button-red"
       disabled={false}
+      onClick={[Function]}
     >
       marketplace.uninstall
     </button>
@@ -187,6 +189,7 @@ exports[`should display installing badge 1`] = `
     <button
       className="button-red"
       disabled={true}
+      onClick={[Function]}
     >
       marketplace.uninstall
     </button>

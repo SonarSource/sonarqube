@@ -41,7 +41,8 @@ export interface EditionStatus {
     | 'AUTOMATIC_IN_PROGRESS'
     | 'MANUAL_IN_PROGRESS'
     | 'AUTOMATIC_READY'
-    | 'AUTOMATIC_FAILURE';
+    | 'AUTOMATIC_FAILURE'
+    | 'UNINSTALL_IN_PROGRESS';
 }
 
 export function getEditionStatus(): Promise<EditionStatus> {
@@ -66,4 +67,8 @@ export function getLicensePreview(data: {
 
 export function applyLicense(data: { license: string }): Promise<EditionStatus> {
   return postJSON('/api/editions/apply_license', data).catch(throwGlobalError);
+}
+
+export function uninstallEdition(): Promise<void | Response> {
+  return postJSON('/api/editions/uninstall').catch(throwGlobalError);
 }
