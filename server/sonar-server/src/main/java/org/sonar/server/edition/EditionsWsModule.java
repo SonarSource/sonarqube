@@ -25,6 +25,7 @@ import org.sonar.server.edition.ws.EditionsWs;
 import org.sonar.server.edition.ws.FormDataAction;
 import org.sonar.server.edition.ws.PreviewAction;
 import org.sonar.server.edition.ws.StatusAction;
+import org.sonar.server.edition.ws.UninstallAction;
 
 public class EditionsWsModule extends Module {
   @Override
@@ -34,6 +35,7 @@ public class EditionsWsModule extends Module {
       ApplyLicenseAction.class,
       PreviewAction.class,
       FormDataAction.class,
+      UninstallAction.class,
       EditionsWs.class);
   }
 }
