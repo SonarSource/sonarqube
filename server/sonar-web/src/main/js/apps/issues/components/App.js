@@ -57,7 +57,7 @@ import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthe
 import ListFooter from '../../../components/controls/ListFooter';
 import EmptySearch from '../../../components/common/EmptySearch';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import { getBranchName } from '../../../helpers/branches';
+import { getBranchName, isShortLivingBranch } from '../../../helpers/branches';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { scrollToElement } from '../../../helpers/scrolling';
 /*:: import type { Issue } from '../../../components/issue/types'; */
@@ -71,6 +71,7 @@ export type Props = {
   currentUser: CurrentUser,
   fetchIssues: (query: RawQuery, requestOrganizations?: boolean) => Promise<*>,
   location: { pathname: string, query: RawQuery },
+  onBranchesChange: () => void,
   organization?: { key: string },
   router: {
     push: ({ pathname: string, query?: RawQuery }) => void,
@@ -684,6 +685,9 @@ export default class App extends React.PureComponent {
 
   handleReload = () => {
     this.fetchFirstIssues();
+    if (isShortLivingBranch(this.props.branch)) {
+      this.props.onBranchesChange();
+    }
   };
 
   handleReloadAndOpenFirst = () => {
