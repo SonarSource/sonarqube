@@ -50,7 +50,6 @@ public interface EditionManagementState {
     NONE,
     AUTOMATIC_IN_PROGRESS,
     AUTOMATIC_READY,
-    AUTOMATIC_FAILED,
     MANUAL_IN_PROGRESS,
     UNINSTALL_IN_PROGRESS
   }
