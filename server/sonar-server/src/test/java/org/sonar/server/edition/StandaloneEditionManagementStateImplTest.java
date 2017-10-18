@@ -35,6 +35,7 @@ import static org.sonar.server.edition.EditionManagementState.PendingStatus.AUTO
 import static org.sonar.server.edition.EditionManagementState.PendingStatus.AUTOMATIC_READY;
 import static org.sonar.server.edition.EditionManagementState.PendingStatus.MANUAL_IN_PROGRESS;
 import static org.sonar.server.edition.EditionManagementState.PendingStatus.NONE;
+import static org.sonar.server.edition.EditionManagementState.PendingStatus.UNINSTALL_IN_PROGRESS;
 
 public class StandaloneEditionManagementStateImplTest {
   private static final License LICENSE_WITHOUT_PLUGINS = new License(randomAlphanumeric(3), Collections.emptyList(), randomAlphanumeric(10));
@@ -274,6 +275,90 @@ public class StandaloneEditionManagementStateImplTest {
     expectedException.expectMessage("Can't move to AUTOMATIC_IN_PROGRESS when status is MANUAL_IN_PROGRESS (should be any of [NONE])");
 
     underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+  }
+
+  @Test
+  public void uninstall_fails_with_ISE_if_not_started() {
+    expectISENotStarted();
+
+    underTest.uninstall();
+  }
+
+  @Test
+  public void uninstall_resets_fields_after_start_and_install() {
+    String value = randomAlphanumeric(10);
+
+    underTest.start();
+    underTest.newEditionWithoutInstall(value);
+    PendingStatus newStatus = underTest.uninstall();
+
+    assertThat(newStatus).isEqualTo(UNINSTALL_IN_PROGRESS);
+    assertThat(underTest.getPendingInstallationStatus()).isEqualTo(UNINSTALL_IN_PROGRESS);
+    assertThat(underTest.getPendingEditionKey()).isEmpty();
+    assertThat(underTest.getPendingLicense()).isEmpty();
+    assertThat(underTest.getCurrentEditionKey()).isEmpty();
+  }
+
+  @Test
+  public void uninstall_fails_with_ISE_if_called_after_uninstall() {
+    String value = randomAlphanumeric(10);
+    underTest.start();
+    underTest.newEditionWithoutInstall(value);
+    underTest.uninstall();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't move to UNINSTALL_IN_PROGRESS when status is UNINSTALL_IN_PROGRESS (should be any of [NONE])");
+
+    underTest.uninstall();
+  }
+
+  @Test
+  public void uninstall_resets_fields_after_newEditionWithoutInstall() {
+    String value = randomAlphanumeric(10);
+    underTest.start();
+    underTest.newEditionWithoutInstall(value);
+
+    PendingStatus newStatus = underTest.uninstall();
+
+    assertThat(newStatus).isEqualTo(UNINSTALL_IN_PROGRESS);
+    assertThat(underTest.getPendingInstallationStatus()).isEqualTo(UNINSTALL_IN_PROGRESS);
+    assertThat(underTest.getPendingEditionKey()).isEmpty();
+    assertThat(underTest.getPendingLicense()).isEmpty();
+    assertThat(underTest.getCurrentEditionKey()).isEmpty();
+  }
+
+  @Test
+  public void uninstall_fails_with_ISE_if_called_after_startAutomaticInstall() {
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't move to UNINSTALL_IN_PROGRESS when status is AUTOMATIC_IN_PROGRESS (should be any of [NONE])");
+
+    underTest.uninstall();
+  }
+
+  @Test
+  public void uninstall_fails_with_ISE_if_called_after_automaticInstallReady() {
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    underTest.automaticInstallReady();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't move to UNINSTALL_IN_PROGRESS when status is AUTOMATIC_READY (should be any of [NONE])");
+
+    underTest.uninstall();
+  }
+
+  @Test
+  public void uninstall_fails_with_ISE_if_called_after_manualInstall() {
+    underTest.start();
+    underTest.startManualInstall(LICENSE_WITHOUT_PLUGINS);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't move to UNINSTALL_IN_PROGRESS when status is MANUAL_IN_PROGRESS (should be any of [NONE])");
+
+    underTest.uninstall();
   }
 
   @Test
@@ -519,7 +604,7 @@ public class StandaloneEditionManagementStateImplTest {
     underTest.start();
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Can't move to NONE when status is NONE (should be any of [AUTOMATIC_READY, MANUAL_IN_PROGRESS])");
+    expectedException.expectMessage("Can't move to NONE when status is NONE (should be any of [AUTOMATIC_READY, MANUAL_IN_PROGRESS, UNINSTALL_IN_PROGRESS])");
 
     underTest.finalizeInstallation();
   }
@@ -530,7 +615,7 @@ public class StandaloneEditionManagementStateImplTest {
     underTest.newEditionWithoutInstall(randomAlphanumeric(3));
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Can't move to NONE when status is NONE (should be any of [AUTOMATIC_READY, MANUAL_IN_PROGRESS])");
+    expectedException.expectMessage("Can't move to NONE when status is NONE (should be any of [AUTOMATIC_READY, MANUAL_IN_PROGRESS, UNINSTALL_IN_PROGRESS])");
 
     underTest.finalizeInstallation();
   }
@@ -541,7 +626,7 @@ public class StandaloneEditionManagementStateImplTest {
     underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Can't move to NONE when status is AUTOMATIC_IN_PROGRESS (should be any of [AUTOMATIC_READY, MANUAL_IN_PROGRESS])");
+    expectedException.expectMessage("Can't move to NONE when status is AUTOMATIC_IN_PROGRESS (should be any of [AUTOMATIC_READY, MANUAL_IN_PROGRESS, UNINSTALL_IN_PROGRESS])");
 
     underTest.finalizeInstallation();
   }
@@ -576,6 +661,22 @@ public class StandaloneEditionManagementStateImplTest {
   }
 
   @Test
+  public void finalizeInstallation_set_new_edition_and_clear_pending_fields_after_uninstall() {
+    underTest.start();
+    String value = randomAlphanumeric(10);
+    underTest.newEditionWithoutInstall(value);
+    underTest.uninstall();
+
+    PendingStatus newStatus = underTest.finalizeInstallation();
+
+    assertThat(newStatus).isEqualTo(NONE);
+    assertThat(underTest.getPendingInstallationStatus()).isEqualTo(NONE);
+    assertThat(underTest.getPendingEditionKey()).isEmpty();
+    assertThat(underTest.getPendingLicense()).isEmpty();
+    assertThat(underTest.getCurrentEditionKey()).isEmpty();
+  }
+
+  @Test
   public void finalizeInstallation_overwrites_current_edition_and_clear_pending_fields_after_startManualInstall() {
     String value = randomAlphanumeric(10);
     dbTester.properties().insertInternal("currentEditionKey", value);
@@ -598,7 +699,7 @@ public class StandaloneEditionManagementStateImplTest {
     underTest.finalizeInstallation();
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Can't move to NONE when status is NONE (should be any of [AUTOMATIC_READY, MANUAL_IN_PROGRESS])");
+    expectedException.expectMessage("Can't move to NONE when status is NONE (should be any of [AUTOMATIC_READY, MANUAL_IN_PROGRESS, UNINSTALL_IN_PROGRESS])");
 
     underTest.finalizeInstallation();
   }
