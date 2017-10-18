@@ -333,6 +333,20 @@ public class ScannerTest {
       .contains("Allowed characters");
   }
 
+  @Test
+  public void display_explicit_message_when_using_existing_module_key_as_project_key() {
+    String projectKey = "com.sonarsource.it.samples:multi-modules-sample";
+    String moduleKey = "com.sonarsource.it.samples:multi-modules-sample:module_a";
+    scan("shared/xoo-multi-modules-sample", "sonar.projectKey", projectKey);
+
+    BuildResult buildResult = scanQuietly("shared/xoo-sample", "sonar.projectKey", moduleKey);
+    assertThat(buildResult.getLastStatus()).isEqualTo(1);
+    assertThat(buildResult.getLogs())
+      .contains(String.format("Component '%s' is not a project", moduleKey))
+      .contains(String.format("The project '%s' is already defined in SonarQube but as a module of project '%s'. If you really want to stop directly analysing project '%s', " +
+        "please first delete it from SonarQube and then relaunch the analysis of project '%s'", moduleKey, projectKey, projectKey, moduleKey));
+  }
+
   /**
    * SONAR-4547
    */

@@ -71,53 +71,6 @@ public class ValidateProjectStepTest {
   ValidateProjectStep underTest = new ValidateProjectStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
 
   @Test
-  public void fail_if_root_component_is_not_a_project_in_db() {
-    reportReader.putComponent(ScannerReport.Component.newBuilder()
-      .setRef(1)
-      .setType(ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .build());
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
-
-    ComponentDto project = ComponentTesting.newView(dbTester.organizations().insert(), "ABCD").setDbKey(PROJECT_KEY);
-    dbClient.componentDao().insert(dbTester.getSession(), project);
-    dbTester.getSession().commit();
-
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Validation of project failed:\n" +
-      "  o Component (uuid=ABCD, key=PROJECT_KEY) is not a project");
-
-    underTest.execute();
-  }
-
-  @Test
-  public void fail_on_invalid_key() {
-    String invalidProjectKey = "Project\\Key";
-
-    reportReader.putComponent(ScannerReport.Component.newBuilder()
-      .setRef(1)
-      .setType(ComponentType.PROJECT)
-      .setKey(invalidProjectKey)
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(ScannerReport.Component.newBuilder()
-      .setRef(2)
-      .setType(ComponentType.MODULE)
-      .setKey("Module$Key")
-      .build());
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(invalidProjectKey).addChildren(
-      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("Module$Key").build())
-      .build());
-
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Validation of project failed:\n" +
-      "  o \"Project\\Key\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.\n" +
-      "  o \"Module$Key\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit");
-
-    underTest.execute();
-  }
-
-  @Test
   public void fail_if_module_key_is_already_used_as_project_key() {
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
@@ -178,42 +131,6 @@ public class ValidateProjectStepTest {
     thrown.expect(MessageException.class);
     thrown.expectMessage("Validation of project failed:\n" +
       "  o Module \"" + MODULE_KEY + "\" is already part of project \"" + anotherProjectKey + "\"");
-
-    underTest.execute();
-  }
-
-  @Test
-  public void fail_if_project_key_already_exists_as_module() {
-    String anotherProjectKey = "ANOTHER_PROJECT_KEY";
-
-    reportReader.putComponent(ScannerReport.Component.newBuilder()
-      .setRef(1)
-      .setType(ComponentType.PROJECT)
-      .setKey(PROJECT_KEY)
-      .addChildRef(2)
-      .build());
-    reportReader.putComponent(ScannerReport.Component.newBuilder()
-      .setRef(2)
-      .setType(ComponentType.MODULE)
-      .setKey(MODULE_KEY)
-      .build());
-
-    ComponentDto anotherProject = ComponentTesting.newPrivateProjectDto(dbTester.organizations().insert()).setDbKey(anotherProjectKey);
-    dbClient.componentDao().insert(dbTester.getSession(), anotherProject);
-    ComponentDto module = ComponentTesting.newModuleDto("ABCD", anotherProject).setDbKey(PROJECT_KEY);
-    dbClient.componentDao().insert(dbTester.getSession(), module);
-    dbTester.getSession().commit();
-
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
-      ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
-      .build());
-
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Validation of project failed:\n" +
-      "  o Component (uuid=ABCD, key=PROJECT_KEY) is not a project\n" +
-      "  o The project \"" + PROJECT_KEY + "\" is already defined in SonarQube but as a module of project \"" + anotherProjectKey + "\". " +
-      "If you really want to stop directly analysing project \"" + anotherProjectKey + "\", please first delete it from SonarQube and then relaunch the analysis of project \""
-      + PROJECT_KEY + "\".");
 
     underTest.execute();
   }
