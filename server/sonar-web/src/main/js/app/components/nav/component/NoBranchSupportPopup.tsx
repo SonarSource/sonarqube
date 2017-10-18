@@ -32,14 +32,8 @@ export default function NoBranchSupportPopup(props: Props) {
         <h6 className="spacer-bottom">{translate('branches.no_support.header')}</h6>
         <p className="big-spacer-bottom markdown">{translate('branches.no_support.header.text')}</p>
         <p>
-          <a href="https://redirect.sonarsource.com/doc/branches.html" target="_blank">
+          <a href="https://redirect.sonarsource.com/editions/developer.html" target="_blank">
             {translate('learn_more')}
-          </a>
-          <a
-            className="button spacer-left"
-            href="https://www.sonarsource.com/company/contact/"
-            target="_blank">
-            {translate('branches.buy_developer_pack')}
           </a>
         </p>
       </div>
