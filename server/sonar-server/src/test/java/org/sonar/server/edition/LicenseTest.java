@@ -111,6 +111,20 @@ public class LicenseTest {
   }
 
   @Test
+  public void parse_is_empty_if_license_has_empty_edition_key() throws IOException {
+    Properties props = new Properties();
+    props.setProperty("Plugins", "p1");
+    props.setProperty("Edition", "");
+    StringWriter writer = new StringWriter();
+    props.store(writer, "");
+
+    byte[] encoded = Base64.getEncoder().encode(writer.toString().getBytes());
+
+    Optional<License> license = License.parse(new String(encoded));
+    assertThat(license).isEmpty();
+  }
+
+  @Test
   public void parse_is_empty_if_license_has_no_edition_key() throws IOException {
     Properties props = new Properties();
     props.setProperty("Plugins", "plugin1,plugin2");
