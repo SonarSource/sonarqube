@@ -57,8 +57,18 @@ public class CommitPendingEditionOnStartup implements Startable {
         editionManagementState.automaticInstallReady();
         finalizeInstall(status);
         break;
+      case UNINSTALL_IN_PROGRESS:
+        failIfLicenseCommitIsPresent();
+        editionManagementState.finalizeInstallation();
+        break;
       default:
         throw new IllegalStateException("Unsupported status " + status);
+    }
+  }
+
+  private void failIfLicenseCommitIsPresent() {
+    if (licenseCommit != null) {
+      throw new IllegalStateException("License Manager plugin is still present after uninstallation of the edition. Please remove it.");
     }
   }
 
