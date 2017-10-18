@@ -78,15 +78,15 @@ class Definition extends React.PureComponent {
     }
   }
 
-  handleChange(value) {
+  handleChange = value => {
     clearTimeout(this.timeout);
     this.props.changeValue(this.props.setting.definition.key, value);
     if (this.props.setting.definition.type === TYPE_PASSWORD) {
       this.handleSave();
     }
-  }
+  };
 
-  handleReset() {
+  handleReset = () => {
     const componentKey = this.props.component ? this.props.component.key : null;
     const { definition } = this.props.setting;
     return this.props
@@ -98,27 +98,29 @@ class Definition extends React.PureComponent {
       .catch(() => {
         /* do nothing */
       });
-  }
+  };
 
-  handleCancel() {
+  handleCancel = () => {
     const componentKey = this.props.component ? this.props.component.key : null;
     this.props.cancelChange(this.props.setting.definition.key, componentKey);
     this.props.passValidation(this.props.setting.definition.key);
-  }
+  };
 
-  handleSave() {
-    this.safeSetState({ success: false });
-    const componentKey = this.props.component ? this.props.component.key : null;
-    this.props
-      .saveValue(this.props.setting.definition.key, componentKey)
-      .then(() => {
-        this.safeSetState({ success: true });
-        this.timeout = setTimeout(() => this.safeSetState({ success: false }), 3000);
-      })
-      .catch(() => {
-        /* do nothing */
-      });
-  }
+  handleSave = () => {
+    if (this.props.changedValue != null) {
+      this.safeSetState({ success: false });
+      const componentKey = this.props.component ? this.props.component.key : null;
+      this.props
+        .saveValue(this.props.setting.definition.key, componentKey)
+        .then(() => {
+          this.safeSetState({ success: true });
+          this.timeout = setTimeout(() => this.safeSetState({ success: false }), 3000);
+        })
+        .catch(() => {
+          /* do nothing */
+        });
+    }
+  };
 
   render() {
     const { setting, changedValue, loading } = this.props;
@@ -183,21 +185,24 @@ class Definition extends React.PureComponent {
             )}
           </div>
 
-          <Input setting={setting} value={effectiveValue} onChange={this.handleChange.bind(this)} />
+          <Input
+            setting={setting}
+            value={effectiveValue}
+            onCancel={this.handleCancel}
+            onChange={this.handleChange}
+            onSave={this.handleSave}
+          />
 
           {!hasValueChanged && (
             <DefinitionDefaults
               setting={setting}
               isDefault={isDefault}
-              onReset={() => this.handleReset()}
+              onReset={this.handleReset}
             />
           )}
 
           {hasValueChanged && (
-            <DefinitionChanges
-              onSave={this.handleSave.bind(this)}
-              onCancel={this.handleCancel.bind(this)}
-            />
+            <DefinitionChanges onSave={this.handleSave} onCancel={this.handleCancel} />
           )}
         </div>
       </div>
