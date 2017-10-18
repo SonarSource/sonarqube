@@ -63,7 +63,12 @@ it('should correctly display status message after checking license', async () =>
 
 function getWrapper(props = {}) {
   return shallow(
-    <LicenseEditionSet edition={DEFAULT_EDITION} updateLicense={jest.fn()} {...props} />
+    <LicenseEditionSet
+      edition={DEFAULT_EDITION}
+      editions={[DEFAULT_EDITION]}
+      updateLicense={jest.fn()}
+      {...props}
+    />
   );
 }
 
