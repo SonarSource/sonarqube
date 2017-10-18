@@ -18,14 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
-import React from 'react';
 import { connect } from 'react-redux';
 import SubCategoryDefinitionsList from './SubCategoryDefinitionsList';
+import { fetchValues } from '../store/actions';
 import { getSettingsAppSettingsForCategory } from '../../../store/rootReducer';
-
-function CategoryDefinitionsList(props) {
-  return <SubCategoryDefinitionsList {...props} />;
-}
 
 const mapStateToProps = (state, ownProps) => ({
   settings: getSettingsAppSettingsForCategory(
@@ -35,4 +31,6 @@ const mapStateToProps = (state, ownProps) => ({
   )
 });
 
-export default connect(mapStateToProps)(CategoryDefinitionsList);
+const mapDispatchToProps = { fetchValues };
+
+export default connect(mapStateToProps, mapDispatchToProps)(SubCategoryDefinitionsList);

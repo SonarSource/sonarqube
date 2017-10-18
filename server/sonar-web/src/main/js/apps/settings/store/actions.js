@@ -35,8 +35,8 @@ import { translate } from '../../../helpers/l10n';
 import { getSettingsAppDefinition, getSettingsAppChangedValue } from '../../../store/rootReducer';
 
 export const fetchSettings = componentKey => dispatch => {
-  return getDefinitions(componentKey)
-    .then(definitions => {
+  return getDefinitions(componentKey).then(
+    definitions => {
       const filtered = definitions
         .filter(definition => definition.type !== 'LICENSE')
         // do not display this setting on project level
@@ -45,15 +45,19 @@ export const fetchSettings = componentKey => dispatch => {
             componentKey == null || definition.key !== 'sonar.branch.longLivedBranches.regex'
         );
       dispatch(receiveDefinitions(filtered));
-      const keys = filtered.map(definition => definition.key).join();
-      return getValues(keys, componentKey);
-    })
-    .then(settings => {
+    },
+    e => parseError(e).then(message => dispatch(addGlobalErrorMessage(message)))
+  );
+};
+
+export const fetchValues = (keys, componentKey) => dispatch =>
+  getValues(keys, componentKey).then(
+    settings => {
       dispatch(receiveValues(settings, componentKey));
       dispatch(closeAllGlobalMessages());
-    })
-    .catch(e => parseError(e).then(message => dispatch(addGlobalErrorMessage(message))));
-};
+    },
+    () => {}
+  );
 
 export const saveValue = (key, componentKey) => (dispatch, getState) => {
   dispatch(startLoading(key));
