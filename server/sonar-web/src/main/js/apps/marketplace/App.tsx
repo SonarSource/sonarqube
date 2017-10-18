@@ -155,6 +155,7 @@ export default class App extends React.PureComponent<Props, State> {
       editionStatus => {
         if (this.mounted) {
           this.updateEditionStatus(editionStatus);
+          setTimeout(this.fetchEditionStatus, 5000);
         }
       },
       () => {}
