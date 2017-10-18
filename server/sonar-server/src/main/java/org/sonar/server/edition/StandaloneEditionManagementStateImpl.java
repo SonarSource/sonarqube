@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.picocontainer.Startable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -43,12 +44,14 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
   private static final String PENDING_INSTALLATION_STATUS = "pendingInstallStatus";
   private static final String PENDING_EDITION_KEY = "pendingEditionKey";
   private static final String PENDING_LICENSE = "pendingLicense";
+  private static final String INSTALL_ERROR_MESSAGE = "installError";
 
   private final DbClient dbClient;
   private String currentEditionKey;
   private PendingStatus pendingInstallationStatus;
   private String pendingEditionKey;
   private String pendingLicense;
+  private String installErrorMessage;
 
   public StandaloneEditionManagementStateImpl(DbClient dbClient) {
     this.dbClient = dbClient;
@@ -59,7 +62,7 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
     try (DbSession dbSession = dbClient.openSession(false)) {
       // load current state value
       Map<String, Optional<String>> internalPropertyValues = dbClient.internalPropertiesDao().selectByKeys(dbSession,
-        ImmutableSet.of(CURRENT_EDITION_KEY, PENDING_INSTALLATION_STATUS, PENDING_EDITION_KEY, PENDING_LICENSE));
+        ImmutableSet.of(CURRENT_EDITION_KEY, PENDING_INSTALLATION_STATUS, PENDING_EDITION_KEY, PENDING_LICENSE, INSTALL_ERROR_MESSAGE));
       this.currentEditionKey = internalPropertyValues.getOrDefault(CURRENT_EDITION_KEY, empty())
         .map(StandaloneEditionManagementStateImpl::emptyToNull)
         .orElse(null);
@@ -71,6 +74,9 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
         .map(StandaloneEditionManagementStateImpl::emptyToNull)
         .orElse(null);
       this.pendingLicense = internalPropertyValues.getOrDefault(PENDING_LICENSE, empty())
+        .map(StandaloneEditionManagementStateImpl::emptyToNull)
+        .orElse(null);
+      this.installErrorMessage = internalPropertyValues.getOrDefault(INSTALL_ERROR_MESSAGE, empty())
         .map(StandaloneEditionManagementStateImpl::emptyToNull)
         .orElse(null);
     }
@@ -103,6 +109,12 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
   public Optional<String> getPendingLicense() {
     ensureStarted();
     return Optional.ofNullable(pendingLicense);
+  }
+
+  @Override
+  public Optional<String> getInstallErrorMessage() {
+    ensureStarted();
+    return Optional.ofNullable(installErrorMessage);
   }
 
   @Override
@@ -187,20 +199,20 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
   private void persistProperties() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       InternalPropertiesDao internalPropertiesDao = dbClient.internalPropertiesDao();
-      if (pendingInstallationStatus == NONE || pendingInstallationStatus == UNINSTALL_IN_PROGRESS) {
-        internalPropertiesDao.saveAsEmpty(dbSession, PENDING_EDITION_KEY);
-        internalPropertiesDao.saveAsEmpty(dbSession, PENDING_LICENSE);
-      } else {
-        internalPropertiesDao.save(dbSession, PENDING_EDITION_KEY, pendingEditionKey);
-        internalPropertiesDao.save(dbSession, PENDING_LICENSE, pendingLicense);
-      }
-      if (currentEditionKey == null) {
-        internalPropertiesDao.saveAsEmpty(dbSession, CURRENT_EDITION_KEY);
-      } else {
-        internalPropertiesDao.save(dbSession, CURRENT_EDITION_KEY, currentEditionKey);
-      }
-      internalPropertiesDao.save(dbSession, PENDING_INSTALLATION_STATUS, pendingInstallationStatus.name());
+      saveInternalProperty(internalPropertiesDao, dbSession, PENDING_EDITION_KEY, pendingEditionKey);
+      saveInternalProperty(internalPropertiesDao, dbSession, PENDING_LICENSE, pendingLicense);
+      saveInternalProperty(internalPropertiesDao, dbSession, INSTALL_ERROR_MESSAGE, installErrorMessage);
+      saveInternalProperty(internalPropertiesDao, dbSession, CURRENT_EDITION_KEY, currentEditionKey);
+      saveInternalProperty(internalPropertiesDao, dbSession, PENDING_INSTALLATION_STATUS, pendingInstallationStatus.name());
       dbSession.commit();
+    }
+  }
+
+  private static void saveInternalProperty(InternalPropertiesDao dao, DbSession dbSession, String key, @Nullable String value) {
+    if (value == null) {
+      dao.saveAsEmpty(dbSession, key);
+    } else {
+      dao.save(dbSession, key, value);
     }
   }
 
