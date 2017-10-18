@@ -37,35 +37,37 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
   hanleCloseRestart = () => this.setState({ openRestart: false });
 
   render() {
-    const { editionStatus } = this.props;
-    if (editionStatus.installationStatus === 'AUTOMATIC_IN_PROGRESS') {
-      return (
-        <div className="alert alert-info">
-          <i className="spinner spacer-right text-bottom" />
-          <span>{translate('marketplace.status.AUTOMATIC_IN_PROGRESS')}</span>
-        </div>
-      );
-    } else if (editionStatus.installationStatus === 'AUTOMATIC_READY') {
-      return (
-        <div className="alert alert-success">
-          <span>{translate('marketplace.status.AUTOMATIC_READY')}</span>
-          <button className="js-restart spacer-left" onClick={this.handleOpenRestart}>
-            {translate('marketplace.restart')}
-          </button>
-          {this.state.openRestart && <RestartForm onClose={this.hanleCloseRestart} />}
-        </div>
-      );
-    } else if (
-      ['MANUAL_IN_PROGRESS', 'AUTOMATIC_FAILURE'].includes(editionStatus.installationStatus)
-    ) {
-      return (
-        <div className="alert alert-danger">
-          {translate('marketplace.status', editionStatus.installationStatus)}
-          <a className="little-spacer-left" href="https://www.sonarsource.com" target="_blank">
-            {translate('marketplace.how_to_install')}
-          </a>
-        </div>
-      );
+    const { installationStatus } = this.props.editionStatus;
+
+    switch (installationStatus) {
+      case 'AUTOMATIC_IN_PROGRESS':
+        return (
+          <div className="alert alert-info">
+            <i className="spinner spacer-right text-bottom" />
+            <span>{translate('marketplace.status.AUTOMATIC_IN_PROGRESS')}</span>
+          </div>
+        );
+      case 'AUTOMATIC_READY':
+      case 'UNINSTALL_IN_PROGRESS':
+        return (
+          <div className="alert alert-success">
+            <span>{translate('marketplace.status', installationStatus)}</span>
+            <button className="js-restart spacer-left" onClick={this.handleOpenRestart}>
+              {translate('marketplace.restart')}
+            </button>
+            {this.state.openRestart && <RestartForm onClose={this.hanleCloseRestart} />}
+          </div>
+        );
+      case 'MANUAL_IN_PROGRESS':
+      case 'AUTOMATIC_FAILURE':
+        return (
+          <div className="alert alert-danger">
+            {translate('marketplace.status', installationStatus)}
+            <a className="little-spacer-left" href="https://www.sonarsource.com" target="_blank">
+              {translate('marketplace.how_to_install')}
+            </a>
+          </div>
+        );
     }
     return null;
   }
