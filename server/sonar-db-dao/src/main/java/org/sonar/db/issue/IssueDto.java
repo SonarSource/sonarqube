@@ -51,6 +51,7 @@ import static org.sonar.api.utils.DateUtils.longToDate;
 
 public final class IssueDto implements Serializable {
 
+  public static final int AUTHOR_MAX_SIZE = 255;
   private static final char TAGS_SEPARATOR = ',';
   private static final Joiner TAGS_JOINER = Joiner.on(TAGS_SEPARATOR).skipNulls();
   private static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
@@ -350,7 +351,7 @@ public final class IssueDto implements Serializable {
   }
 
   public IssueDto setAuthorLogin(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 255, "Value is too long for issue author login: %s", s);
+    checkArgument(s == null || s.length() <= AUTHOR_MAX_SIZE, "Value is too long for issue author login: %s", s);
     this.authorLogin = s;
     return this;
   }

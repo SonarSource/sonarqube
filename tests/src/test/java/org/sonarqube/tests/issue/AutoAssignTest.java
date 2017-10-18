@@ -39,6 +39,7 @@ import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.setServerProperty;
 
@@ -81,8 +82,8 @@ public class AutoAssignTest extends AbstractIssueTest {
     // verify that SCM account matches, case-insensitive
     createUser("user7", "User 7", "user7@email.com", "user7ScmAccount");
     createUser("user8", "User 8", "user8@email.com", "user8SCMaccOUNT");
-    // SCM accounts long then 255 chars will be ignored
-    createUser("user9", "User 9", "user9@email.com", IntStream.range(0,256).mapToObj(i -> "s").collect(Collectors.joining()));
+    // SCM accounts longer than 255
+    createUser("user9", "User 9", "user9@email.com", IntStream.range(0, 256).mapToObj(i -> "s").collect(Collectors.joining()));
 
     projectAnalysis.run();
 
@@ -99,8 +100,8 @@ public class AutoAssignTest extends AbstractIssueTest {
     // SCM account match, case-insensitive
     verifyIssueAssignee(issues, 7, "user7");
     verifyIssueAssignee(issues, 8, "user8");
-    // SCM accounts long then 255 chars will be ignored
-    verifyIssueAssignee(issues, 10, null);
+    // SCM accounts longer than 255 chars
+    verifyIssueAssignee(issues, 10, "user9");
   }
 
   private static void verifyIssueAssignee(List<Issue> issues, int line, @Nullable String expectedAssignee) {
@@ -116,7 +117,7 @@ public class AutoAssignTest extends AbstractIssueTest {
 
     // user1 is assigned to his issues. All other issues are assigned to the default assignee.
     assertThat(search(IssueQuery.create().assignees("user1")).list()).hasSize(1);
-    assertThat(search(IssueQuery.create().assignees("user2")).list()).hasSize(8);
+    assertThat(search(IssueQuery.create().assignees("user2")).list()).hasSize(9);
     // No unassigned issues
     assertThat(search(IssueQuery.create().assigned(false)).list()).isEmpty();
   }
@@ -139,9 +140,19 @@ public class AutoAssignTest extends AbstractIssueTest {
     assertThat(issues).isNotEmpty();
 
     // No author and assignee are set
-    for (Issue issue : issues) {
-      assertThat(issue.author()).isEmpty();
-    }
+    assertThat(issues)
+      .extracting(Issue::line, Issue::author)
+      .containsExactlyInAnyOrder(
+        tuple(1, ""),
+        tuple(2, ""),
+        tuple(3, ""),
+        tuple(4, ""),
+        tuple(5, ""),
+        tuple(6, ""),
+        tuple(7, ""),
+        tuple(8, ""),
+        tuple(9, ""),
+        tuple(10, ""));
     assertThat(search(IssueQuery.create().assigned(true)).list()).isEmpty();
 
     // Run a second analysis with SCM
@@ -150,9 +161,20 @@ public class AutoAssignTest extends AbstractIssueTest {
     assertThat(issues).isNotEmpty();
 
     // Authors and assignees are set
-    for (Issue issue : issues) {
-      assertThat(issue.author()).isNotEmpty();
-    }
+    assertThat(issues)
+      .extracting(Issue::line, Issue::author)
+      .containsExactlyInAnyOrder(
+        tuple(1, "user1"),
+        tuple(2, "user2"),
+        tuple(3, "user3name"),
+        tuple(4, "user4name"),
+        tuple(5, "user5@email.com"),
+        tuple(6, "user6@email.com"),
+        tuple(7, "user7scmaccount"),
+        tuple(8, "user8scmaccount"),
+        tuple(9, "user8scmaccount"),
+        // SONAR-8727
+        tuple(10, ""));
     assertThat(search(IssueQuery.create().assignees("user1")).list()).hasSize(1);
   }
 

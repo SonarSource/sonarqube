@@ -28,6 +28,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.db.issue.IssueDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfo;
@@ -75,11 +76,15 @@ public class IssueAssigner extends IssueVisitor {
       String scmAuthor = guessScmAuthor(issue);
 
       if (!Strings.isNullOrEmpty(scmAuthor)) {
-        issueUpdater.setNewAuthor(issue, scmAuthor, changeContext);
+        if (scmAuthor.length() <= IssueDto.AUTHOR_MAX_SIZE) {
+          issueUpdater.setNewAuthor(issue, scmAuthor, changeContext);
+        } else {
+          LOGGER.debug("SCM account '{}' is too long to be stored as issue author", scmAuthor);
+        }
       }
 
       if (issue.assignee() == null) {
-        String author = issue.authorLogin() == null ? null : scmAccountToUser.getNullable(issue.authorLogin());
+        String author = Strings.isNullOrEmpty(scmAuthor) ? null : scmAccountToUser.getNullable(scmAuthor);
         String assigneeLogin = StringUtils.defaultIfEmpty(author, defaultAssignee.loadDefaultAssigneeLogin());
 
         issueUpdater.setNewAssignee(issue, assigneeLogin, changeContext);
