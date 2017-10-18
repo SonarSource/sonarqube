@@ -1086,4 +1086,83 @@ public class StandaloneEditionManagementStateImplTest {
     expectedException.expectMessage("StandaloneEditionManagementStateImpl is not started");
   }
 
+  @Test
+  public void clearInstallErrorMessage_fails_with_ISE_if_not_started() {
+    expectISENotStarted();
+
+    underTest.clearInstallErrorMessage();
+  }
+
+  @Test
+  public void clearInstallErrorMessage_succeeds_after_state() {
+    underTest.start();
+
+    underTest.clearInstallErrorMessage();
+
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
+  }
+
+  @Test
+  public void clearInstallErrorMessage_succeeds_after_manualInstall() {
+    underTest.start();
+    underTest.startManualInstall(LICENSE_WITHOUT_PLUGINS);
+
+    underTest.clearInstallErrorMessage();
+
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
+  }
+
+  @Test
+  public void clearInstallErrorMessage_succeeds_after_automaticInstall() {
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+
+    underTest.clearInstallErrorMessage();
+
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
+  }
+
+  @Test
+  public void clearInstallErrorMessage_succeeds_after_automaticInstallReady() {
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    underTest.automaticInstallReady();
+
+    underTest.clearInstallErrorMessage();
+
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
+  }
+
+  @Test
+  public void clearInstallErrorMessage_succeeds_after_automaticInstallFailed_and_clears_message() {
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    underTest.installFailed(errorMessage);
+
+    underTest.clearInstallErrorMessage();
+
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
+  }
+
+  @Test
+  public void clearInstallErrorMessage_succeeds_after_automaticInstallFailed_without_message() {
+    underTest.start();
+    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
+    underTest.installFailed(null);
+
+    underTest.clearInstallErrorMessage();
+
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
+  }
+
+  @Test
+  public void clearInstallErrorMessage_succeeds_after_newEditionWithoutInstall() {
+    underTest.start();
+    underTest.newEditionWithoutInstall(randomAlphanumeric(4));
+
+    underTest.clearInstallErrorMessage();
+
+    assertThat(underTest.getInstallErrorMessage()).isEmpty();
+  }
+
 }
