@@ -44,6 +44,7 @@ import org.sonar.db.organization.OrganizationDao;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationTesting;
 import org.sonar.db.permission.GroupPermissionDto;
+import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
@@ -455,6 +456,35 @@ public class SearchActionTest {
       .getFacets(0)
       .getValuesList()).extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
       .containsExactly(tuple("2017-01-01T00:00:00+0000", 0L));
+  }
+
+  @Test
+  public void created_before_is_exclusive() throws Exception {
+    ComponentDto project = db.components().insertPublicProject(otherOrganization1);
+    indexPermissions();
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto issue1 = db.issues().insert(rule, project, file, issue -> issue.setIssueCreationDate(DateUtils.parseDate("2016-12-31")));
+    IssueDto issue2 = db.issues().insert(rule, project, file, issue -> issue.setIssueCreationDate(DateUtils.parseDate("2017-01-01")));
+    IssueDto issue3 = db.issues().insert(rule, project, file, issue -> issue.setIssueCreationDate(DateUtils.parseDate("2017-01-02")));
+    indexIssues();
+
+    Issues.SearchWsResponse result = ws.newRequest()
+      .setParam("createdBefore", "2017-01-01")
+      .setParam(WebService.Param.FACETS, "createdAt")
+      .executeProtobuf(Issues.SearchWsResponse.class);
+
+    // check search results
+    assertThat(result
+      .getIssuesList()).extracting(Issues.Issue::getKey)
+      .containsExactly(issue1.getKey());
+
+    // check date histogram
+    assertThat(result
+      .getFacets()
+      .getFacets(0)
+      .getValuesList()).extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
+      .containsExactly(tuple("2016-12-31T00:00:00+0000", 1L));
   }
 
   @Test
