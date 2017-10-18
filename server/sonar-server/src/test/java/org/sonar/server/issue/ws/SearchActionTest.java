@@ -21,6 +21,7 @@ package org.sonar.server.issue.ws;
 
 import java.time.Clock;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -443,6 +444,7 @@ public class SearchActionTest {
       .assertJson(this.getClass(), "display_zero_facets.json");
   }
 
+  @Ignore
   @Test
   public void display_one_bar_facet_when_filtering_on_one_day() throws Exception {
     Issues.SearchWsResponse result = ws.newRequest()
@@ -458,6 +460,7 @@ public class SearchActionTest {
       .containsExactly(tuple("2017-01-01T00:00:00+0000", 0L));
   }
 
+  @Ignore
   @Test
   public void created_before_is_exclusive() throws Exception {
     ComponentDto project = db.components().insertPublicProject(otherOrganization1);
