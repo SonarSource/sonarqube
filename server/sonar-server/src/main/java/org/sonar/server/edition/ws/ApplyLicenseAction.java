@@ -99,10 +99,11 @@ public class ApplyLicenseAction implements EditionsWsAction {
   }
 
   private WsEditions.StatusResponse buildResponse() {
-    return WsEditions.StatusResponse.newBuilder()
+    WsEditions.StatusResponse.Builder builder = WsEditions.StatusResponse.newBuilder()
       .setNextEditionKey(editionManagementState.getPendingEditionKey().orElse(""))
       .setCurrentEditionKey(editionManagementState.getCurrentEditionKey().orElse(""))
-      .setInstallationStatus(WsEditions.InstallationStatus.valueOf(editionManagementState.getPendingInstallationStatus().name()))
-      .build();
+      .setInstallationStatus(WsEditions.InstallationStatus.valueOf(editionManagementState.getPendingInstallationStatus().name()));
+    editionManagementState.getInstallErrorMessage().ifPresent(builder::setInstallError);
+    return builder.build();
   }
 }
