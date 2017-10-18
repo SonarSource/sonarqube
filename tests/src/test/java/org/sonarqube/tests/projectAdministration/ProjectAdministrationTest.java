@@ -184,7 +184,7 @@ public class ProjectAdministrationTest {
       .assertMenuContains("DEV")
       .assertMenuContains("project-only")
       .assertMenuContains("Xoo")
-      .assertSettingDisplayed("sonar.dbcleaner.daysBeforeDeletingClosedIssues");
+      .assertSettingDisplayed("sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay");
 
     page.openCategory("project-only")
       .assertSettingDisplayed("prop_only_on_project");
@@ -193,8 +193,8 @@ public class ProjectAdministrationTest {
       .assertStringSettingValue("sonar.dbcleaner.daysBeforeDeletingClosedIssues", "30")
       .assertStringSettingValue("sonar.leak.period", "previous_version")
       .assertBooleanSettingValue("sonar.dbcleaner.cleanDirectory", true)
-      .setStringValue("sonar.dbcleaner.daysBeforeDeletingClosedIssues", "1")
-      .assertStringSettingValue("sonar.dbcleaner.daysBeforeDeletingClosedIssues", "1");
+      .setStringValue("sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay", "48")
+      .assertStringSettingValue("sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay", "48");
   }
 
   @Test

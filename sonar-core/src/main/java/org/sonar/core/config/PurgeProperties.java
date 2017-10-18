@@ -34,15 +34,63 @@ public final class PurgeProperties {
 
   public static List<PropertyDefinition> all() {
     return asList(
-      PropertyDefinition.builder(PurgeConstants.PROPERTY_CLEAN_DIRECTORY)
-        .defaultValue("true")
-        .name("Clean directory/package history")
-        .description("If set to true, no history is kept at directory/package level. Setting this to false can cause database bloat.")
-        .type(PropertyType.BOOLEAN)
+      PropertyDefinition.builder(PurgeConstants.HOURS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_DAY)
+        .defaultValue("24")
+        .name("Keep only one analysis a day after")
+        .description("After this number of hours, if there are several analyses during the same day, "
+          + "the DbCleaner keeps the most recent one and fully deletes the other ones.")
+        .type(PropertyType.INTEGER)
         .onQualifiers(Qualifiers.PROJECT)
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
         .index(1)
+        .build(),
+
+      PropertyDefinition.builder(PurgeConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK)
+        .defaultValue("4")
+        .name("Keep only one analysis a week after")
+        .description("After this number of weeks, if there are several analyses during the same week, "
+          + "the DbCleaner keeps the most recent one and fully deletes the other ones")
+        .type(PropertyType.INTEGER)
+        .onQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
+        .index(2)
+        .build(),
+
+      PropertyDefinition.builder(PurgeConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH)
+        .defaultValue("52")
+        .name("Keep only one analysis a month after")
+        .description("After this number of weeks, if there are several analyses during the same month, "
+          + "the DbCleaner keeps the most recent one and fully deletes the other ones.")
+        .type(PropertyType.INTEGER)
+        .onQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
+        .index(3)
+        .build(),
+
+
+      PropertyDefinition.builder(PurgeConstants.WEEKS_BEFORE_KEEPING_ONLY_ANALYSES_WITH_VERSION)
+        .defaultValue("104")
+        .name("Keep only analyses with a version event after")
+        .description("After this number of weeks, the DbCleaner keeps only analyses with a version event associated.")
+        .type(PropertyType.INTEGER)
+        .onQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
+        .index(4)
+        .build(),
+
+      PropertyDefinition.builder(PurgeConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS)
+        .defaultValue("260")
+        .name("Delete all analyses after")
+        .description("After this number of weeks, all analyses are fully deleted.")
+        .type(PropertyType.INTEGER)
+        .onQualifiers(Qualifiers.PROJECT)
+        .category(CoreProperties.CATEGORY_GENERAL)
+        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
+        .index(5)
         .build(),
 
       PropertyDefinition.builder(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES)
@@ -53,61 +101,14 @@ public final class PurgeProperties {
         .onQualifiers(Qualifiers.PROJECT)
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
-        .index(2)
-        .build(),
-
-      PropertyDefinition.builder(PurgeConstants.HOURS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_DAY)
-        .defaultValue("24")
-        .name("Keep only one snapshot a day after")
-        .description("After this number of hours, if there are several snapshots during the same day, "
-          + "the DbCleaner keeps the most recent one and fully deletes the other ones.")
-        .type(PropertyType.INTEGER)
-        .onQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
-        .index(3)
-        .build(),
-
-      PropertyDefinition.builder(PurgeConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_WEEK)
-        .defaultValue("4")
-        .name("Keep only one snapshot a week after")
-        .description("After this number of weeks, if there are several snapshots during the same week, "
-          + "the DbCleaner keeps the most recent one and fully deletes the other ones")
-        .type(PropertyType.INTEGER)
-        .onQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
-        .index(4)
-        .build(),
-
-      PropertyDefinition.builder(PurgeConstants.WEEKS_BEFORE_KEEPING_ONLY_ONE_SNAPSHOT_BY_MONTH)
-        .defaultValue("52")
-        .name("Keep only one snapshot a month after")
-        .description("After this number of weeks, if there are several snapshots during the same month, "
-          + "the DbCleaner keeps the most recent one and fully deletes the other ones.")
-        .type(PropertyType.INTEGER)
-        .onQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
-        .index(5)
-        .build(),
-
-      PropertyDefinition.builder(PurgeConstants.WEEKS_BEFORE_DELETING_ALL_SNAPSHOTS)
-        .defaultValue("260")
-        .name("Delete all snapshots after")
-        .description("After this number of weeks, all snapshots are fully deleted.")
-        .type(PropertyType.INTEGER)
-        .onQualifiers(Qualifiers.PROJECT)
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
         .index(6)
         .build(),
 
-      PropertyDefinition.builder(PurgeConstants.WEEKS_BEFORE_KEEPING_ONLY_ANALYSES_WITH_VERSION)
-        .defaultValue("104")
-        .name("Keep only analyses with a version event after")
-        .description("After this number of weeks, the DbCleaner keeps only analyses with a version event associated.")
-        .type(PropertyType.INTEGER)
+      PropertyDefinition.builder(PurgeConstants.PROPERTY_CLEAN_DIRECTORY)
+        .defaultValue("true")
+        .name("Clean directory/package history")
+        .description("If set to true, no history is kept at directory/package level. Setting this to false can cause database bloat.")
+        .type(PropertyType.BOOLEAN)
         .onQualifiers(Qualifiers.PROJECT)
         .category(CoreProperties.CATEGORY_GENERAL)
         .subCategory(CoreProperties.SUBCATEGORY_DATABASE_CLEANER)
