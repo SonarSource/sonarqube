@@ -21,6 +21,7 @@ package org.sonar.server.edition;
 
 import org.sonar.core.platform.Module;
 import org.sonar.server.edition.ws.ApplyLicenseAction;
+import org.sonar.server.edition.ws.ClearErrorMessageAction;
 import org.sonar.server.edition.ws.EditionsWs;
 import org.sonar.server.edition.ws.FormDataAction;
 import org.sonar.server.edition.ws.PreviewAction;
@@ -35,6 +36,7 @@ public class EditionsWsModule extends Module {
       ApplyLicenseAction.class,
       PreviewAction.class,
       FormDataAction.class,
+      ClearErrorMessageAction.class,
       UninstallAction.class,
       EditionsWs.class);
   }
