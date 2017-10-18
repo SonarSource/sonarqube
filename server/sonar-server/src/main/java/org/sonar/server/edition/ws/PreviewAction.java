@@ -55,7 +55,7 @@ public class PreviewAction implements EditionsWsAction {
     WebService.NewAction action = controller.createAction("preview")
       .setSince("6.7")
       .setPost(true)
-      .setDescription("Preview the changes to SonarQube to match the specified license. Require 'Administer System' permission.")
+      .setDescription("Preview the changes to SonarQube to match the specified license. Requires 'Administer System' permission.")
       .setResponseExample(getClass().getResource("example-edition-preview.json"))
       .setHandler(this);
 
