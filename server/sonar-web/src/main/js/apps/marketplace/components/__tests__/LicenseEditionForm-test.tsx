@@ -77,6 +77,7 @@ function getWrapper(props = {}) {
   return shallow(
     <LicenseEditionForm
       edition={DEFAULT_EDITION}
+      editions={[DEFAULT_EDITION]}
       onClose={jest.fn()}
       updateEditionStatus={jest.fn()}
       {...props}

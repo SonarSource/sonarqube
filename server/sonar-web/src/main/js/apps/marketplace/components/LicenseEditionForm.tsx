@@ -25,6 +25,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface Props {
   edition: Edition;
+  editions: Edition[];
   onClose: () => void;
   updateEditionStatus: (editionStatus: EditionStatus) => void;
 }
@@ -79,7 +80,7 @@ export default class LicenseEditionForm extends React.PureComponent<Props, State
 
   render() {
     const { edition } = this.props;
-    const { status } = this.state;
+    const { loading, status } = this.state;
     const header = translateWithParameters('marketplace.install_x', edition.name);
     return (
       <Modal
@@ -95,14 +96,15 @@ export default class LicenseEditionForm extends React.PureComponent<Props, State
         <LicenseEditionSet
           className="modal-body"
           edition={edition}
+          editions={this.props.editions}
           updateLicense={this.handleLicenseChange}
         />
 
         <footer className="modal-foot">
-          {this.state.loading && <i className="spinner spacer-right" />}
+          {loading && <i className="spinner spacer-right" />}
           {status &&
           ['NO_INSTALL', 'AUTOMATIC_INSTALL'].includes(status) && (
-            <button className="js-confirm" onClick={this.handleConfirmClick}>
+            <button className="js-confirm" onClick={this.handleConfirmClick} disabled={loading}>
               {status === 'NO_INSTALL' ? translate('save') : translate('marketplace.install')}
             </button>
           )}

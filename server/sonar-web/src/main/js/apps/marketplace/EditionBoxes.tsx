@@ -108,9 +108,11 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
           ))
         )}
 
-        {installEdition && (
+        {editions &&
+        installEdition && (
           <LicenseEditionForm
             edition={installEdition}
+            editions={editions}
             onClose={this.handleCloseLicenseForm}
             updateEditionStatus={this.props.updateEditionStatus}
           />
