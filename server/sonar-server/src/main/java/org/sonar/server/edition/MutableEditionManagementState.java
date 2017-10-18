@@ -76,6 +76,12 @@ public interface MutableEditionManagementState extends EditionManagementState {
   PendingStatus installFailed(@Nullable String errorMessage);
 
   /**
+   * Clears the error message set by {@link #installFailed(String)} (String)} if there is any and which ever the current
+   * status.
+   */
+  void clearInstallErrorMessage();
+
+  /**
    * Uninstalls the currently installed edition
    *
    * @return the new pending status, always {@link PendingStatus#UNINSTALL_IN_PROGRESS}
