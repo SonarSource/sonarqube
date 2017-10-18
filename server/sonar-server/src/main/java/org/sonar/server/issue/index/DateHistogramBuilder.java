@@ -34,7 +34,7 @@ class DateHistogramBuilder {
   private DateHistogramInterval bucketSize;
   private long startTime;
   private long endTime;
-  private long timeZoneRawOffsetMillis;
+  private TimeZone timeZone;
 
   DateHistogramAggregationBuilder build() {
     return AggregationBuilders.dateHistogram(aggregationName)
@@ -52,7 +52,7 @@ class DateHistogramBuilder {
    * @return the time difference of this machine's local time to UTC (as seconds)
    */
   private long getOffsetInSeconds() {
-    return -timeZoneRawOffsetMillis / 1_000L;
+    return -timeZone.getRawOffset() / 1_000L;
   }
 
   private long getMin() {
@@ -88,8 +88,8 @@ class DateHistogramBuilder {
     return this;
   }
 
-  public DateHistogramBuilder setTimeZoneRawOffsetMillis(long timeZoneRawOffsetMillis) {
-    this.timeZoneRawOffsetMillis = timeZoneRawOffsetMillis;
+  public DateHistogramBuilder setTimeZone(TimeZone timeZone) {
+    this.timeZone = timeZone;
     return this;
   }
 }

@@ -539,7 +539,7 @@ public class IssueIndex {
       .setBucketSize(bucketSize)
       .setStartTime(startTime)
       .setEndTime(endTime)
-      .setTimeZoneRawOffsetMillis(system.getDefaultTimeZone().getRawOffset())
+      .setTimeZone(system.getDefaultTimeZone())
       .build();
     addEffortAggregationIfNeeded(query, dateHistogram);
     return Optional.of(dateHistogram);

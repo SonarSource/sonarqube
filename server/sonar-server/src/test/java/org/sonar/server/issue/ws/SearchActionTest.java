@@ -447,7 +447,7 @@ public class SearchActionTest {
   public void display_one_bar_facet_when_filtering_on_one_day() throws Exception {
     Issues.SearchWsResponse result = ws.newRequest()
       .setParam("createdAfter", "2017-01-01")
-      .setParam("createdBefore", "2017-01-01")
+      .setParam("createdBefore", "2017-01-02")
       .setParam(WebService.Param.FACETS, "createdAt")
       .executeProtobuf(Issues.SearchWsResponse.class);
 

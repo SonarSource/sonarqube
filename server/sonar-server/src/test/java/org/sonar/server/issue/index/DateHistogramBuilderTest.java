@@ -1,5 +1,7 @@
 package org.sonar.server.issue.index;
 
+import java.time.ZoneId;
+import java.util.TimeZone;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.junit.Test;
@@ -18,7 +20,7 @@ public class DateHistogramBuilderTest {
       .setBucketSize(DateHistogramInterval.DAY)
       .setStartTime(startOfLocalDay("2017-01-01"))
       .setEndTime(startOfLocalDay("2017-01-02"))
-      .setTimeZoneRawOffsetMillis(startOfUtcDay("2017-01-01") - startOfLocalDay("2017-01-01"))
+      .setTimeZone(TimeZone.getTimeZone(ZoneId.of("CET")))
       .build();
     dateAssert(dateHistogram.extendedBounds().getMin(), "min", startOfUtcDay("2017-01-01"));
     dateAssert(dateHistogram.extendedBounds().getMax(), "max", endOfUtcDay("2017-01-01"));
