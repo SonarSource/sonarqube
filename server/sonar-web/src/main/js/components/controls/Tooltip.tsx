@@ -21,6 +21,7 @@ import * as React from 'react';
 import TooltipCore from 'rc-tooltip';
 
 interface Props {
+  mouseEnterDelay?: number;
   overlay: React.ReactNode;
   placement?: string;
   [attr: string]: any;

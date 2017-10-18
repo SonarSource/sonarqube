@@ -19,8 +19,8 @@
  */
 // @flow
 import React from 'react';
+import Tooltip from '../../../components/controls/Tooltip';
 import ProjectEventIcon from '../../../components/icons-components/ProjectEventIcon';
-import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Event as EventType } from '../types'; */
 
@@ -28,20 +28,18 @@ export default function EventInner(props /*: { event: EventType } */) {
   const { event } = props;
 
   return (
-    <TooltipsContainer>
-      <div className="project-activity-event-inner">
-        <div className="project-activity-event-inner-icon little-spacer-right">
-          <ProjectEventIcon
-            className={'project-activity-event-icon margin-align ' + event.category}
-          />
-        </div>
+    <div className="project-activity-event-inner">
+      <div className="project-activity-event-inner-icon little-spacer-right">
+        <ProjectEventIcon
+          className={'project-activity-event-icon margin-align ' + event.category}
+        />
+      </div>
+      <Tooltip mouseEnterDelay={0.5} overlay={event.name}>
         <span className="project-activity-event-inner-text">
           <span className="note">{translate('event.category', event.category)}:</span>{' '}
-          <strong title={event.description} data-toggle="tooltip">
-            {event.name}
-          </strong>
+          <strong title={event.description}>{event.name}</strong>
         </span>
-      </div>
-    </TooltipsContainer>
+      </Tooltip>
+    </div>
   );
 }
