@@ -21,10 +21,14 @@ package org.sonar.server.plugins.ws;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.plugins.PluginDownloader;
@@ -43,6 +47,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@RunWith(DataProviderRunner.class)
 public class InstallActionTest {
   private static final String DUMMY_CONTROLLER_KEY = "dummy";
   private static final String CONTROLLER_KEY = "api/plugins";
@@ -129,6 +134,31 @@ public class InstallActionTest {
     expectedException.expectMessage("No plugin with key 'pluginKey'");
 
     validRequest.execute();
+  }
+
+  @Test
+  @UseDataProvider("editionBundledOrganizationAndLicense")
+  public void IAE_is_raised_when_plugin_is_edition_bundled(String organization, String license) throws Exception {
+    logInAsSystemAdministrator();
+    Version version = Version.create("1.0");
+    when(updateCenter.findAvailablePlugins()).thenReturn(ImmutableList.of(
+      PluginUpdate.createWithStatus(new Release(Plugin.factory(PLUGIN_KEY)
+        .setLicense(license)
+        .setOrganization(organization), version), PluginUpdate.Status.COMPATIBLE)));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("SonarSource commercial plugin with key '" + PLUGIN_KEY + "' can only be installed as part of a SonarSource edition");
+
+    validRequest.execute();
+  }
+
+  @DataProvider
+  public static Object[][] editionBundledOrganizationAndLicense() {
+    return new Object[][] {
+      {"SonarSource", "SonarSource"},
+      {"SonarSource", "Commercial"},
+      {"sonarsource", "SOnArSOURCE"}
+    };
   }
 
   @Test
