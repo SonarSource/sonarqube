@@ -46,6 +46,7 @@ exports[`should correctly display status message after checking license 3`] = `
 exports[`should display correctly 1`] = `
 <div>
   <label
+    className="spacer-bottom"
     htmlFor="set-license"
   >
     marketplace.enter_license_for_x.Foo
@@ -57,7 +58,7 @@ exports[`should display correctly 1`] = `
   </label>
   <textarea
     autoFocus={true}
-    className="spacer-top display-block"
+    className="display-block"
     cols={62}
     id="set-license"
     onChange={[Function]}
