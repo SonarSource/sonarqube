@@ -23,40 +23,42 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.edition.EditionManagementState;
+import org.sonar.server.edition.MutableEditionManagementState;
+import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.plugins.edition.EditionInstaller;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.ws.WsUtils;
-import org.sonarqube.ws.WsEditions;
 
-public class StatusAction implements EditionsWsAction {
+public class UninstallAction implements EditionsWsAction {
   private final UserSession userSession;
-  private final EditionManagementState editionManagementState;
+  private final MutableEditionManagementState mutableEditionManagementState;
+  private final EditionInstaller editionInstaller;
 
-  public StatusAction(UserSession userSession, EditionManagementState editionManagementState) {
+  public UninstallAction(UserSession userSession, MutableEditionManagementState mutableEditionManagementState, EditionInstaller editionInstaller) {
     this.userSession = userSession;
-    this.editionManagementState = editionManagementState;
+    this.mutableEditionManagementState = mutableEditionManagementState;
+    this.editionInstaller = editionInstaller;
   }
 
   @Override
   public void define(WebService.NewController controller) {
-    controller.createAction("status")
+    controller.createAction("uninstall")
       .setSince("6.7")
-      .setPost(false)
-      .setDescription("Provide status of SonarSource commercial edition of the current SonarQube. Requires 'Administer System' permission.")
-      .setResponseExample(getClass().getResource("example-edition-status.json"))
+      .setPost(true)
+      .setDescription("Uninstall the currently installed edition. Requires 'Administer System' permission.")
       .setHandler(this);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    userSession
-      .checkLoggedIn()
-      .checkIsSystemAdministrator();
+    userSession.checkLoggedIn().checkIsSystemAdministrator();
 
-    WsEditions.StatusResponse.Builder responseBuilder = WsEditions.StatusResponse.newBuilder()
-      .setCurrentEditionKey(editionManagementState.getCurrentEditionKey().orElse(""))
-      .setNextEditionKey(editionManagementState.getPendingEditionKey().orElse(""))
-      .setInstallationStatus(WsEditions.InstallationStatus.valueOf(editionManagementState.getPendingInstallationStatus().name()));
+    if (mutableEditionManagementState.getPendingInstallationStatus() != EditionManagementState.PendingStatus.NONE
+      && mutableEditionManagementState.getPendingInstallationStatus() != EditionManagementState.PendingStatus.UNINSTALL_IN_PROGRESS) {
+      throw BadRequestException.create("Uninstall of the current edition is not allowed when install of an edition is in progress");
+    }
 
-    WsUtils.writeProtobuf(responseBuilder.build(), request, response);
+    editionInstaller.uninstall();
+    mutableEditionManagementState.uninstall();
+    response.noContent();
   }
 }

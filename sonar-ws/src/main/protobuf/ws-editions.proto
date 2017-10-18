@@ -38,6 +38,7 @@ enum InstallationStatus {
   AUTOMATIC_READY = 2;
   AUTOMATIC_FAILED = 3;
   MANUAL_IN_PROGRESS = 4;
+  UNINSTALL_IN_PROGRESS = 5;
 }
 
 // POST api/editions/preview
