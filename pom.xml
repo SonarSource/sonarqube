@@ -48,13 +48,13 @@
   <properties>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/dotnet/sonar-csharp-plugin/ -->
     <!-- Do not forget to exclude any new transitive dependencies -->
-    <sonarCSharp.version>5.10.1.1411</sonarCSharp.version>
+    <sonarCSharp.version>6.4.1.3596</sonarCSharp.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/java/sonar-java-plugin/ -->
     <!-- Do not forget to exclude any new transitive dependencies -->
-    <sonarJava.version>4.12.0.11033</sonarJava.version>
+    <sonarJava.version>4.14.0.11784</sonarJava.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/javascript/sonar-javascript-plugin/ -->
     <!-- Do not forget to exclude any new transitive dependencies -->
-    <sonarJavaScript.version>3.1.1.5128</sonarJavaScript.version>
+    <sonarJavaScript.version>3.2.0.5506</sonarJavaScript.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/php/sonar-php-plugin/ -->
     <!-- Do not forget to exclude any new transitive dependencies -->
     <sonarPhp.version>2.10.0.2087</sonarPhp.version>
@@ -67,11 +67,12 @@
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/xml/sonar-xml-plugin/ -->
     <!-- Do not forget to exclude any new transitive dependencies -->
     <sonarXml.version>1.4.3.1027</sonarXml.version>
-    <sonarGit.version>1.2</sonarGit.version>
-    <sonarSvn.version>1.5.0.715</sonarSvn.version>
     <!-- see https://repo1.maven.org/maven2/org/sonarsource/typescript/sonar-typescript-plugin/ -->
     <sonarTs.version>1.0.0.340</sonarTs.version>
-
+    <!-- see http://repo1.maven.org/maven2/org/sonarsource/scm/git/sonar-scm-git-plugin/ -->
+    <sonarGit.version>1.3.0.869</sonarGit.version>
+    <!-- see http://repo1.maven.org/maven2/org/sonarsource/scm/svn/sonar-scm-svn-plugin/ -->
+    <sonarSvn.version>1.6.0.860</sonarSvn.version>
     <sonarUpdateCenter.version>1.18.0.487</sonarUpdateCenter.version>
     <h2.version>1.3.176</h2.version>
     <jetty.version>8.1.12.v20130726</jetty.version>
@@ -926,7 +927,7 @@
              http://www.oracle.com/technetwork/database/enterprise-edition/jdbc-faq-090281.html#01_02
         -->
         <version>12.2.0.1.0</version>
-     </dependency>
+      </dependency>
       <dependency>
         <groupId>org.postgresql</groupId>
         <artifactId>postgresql</artifactId>
