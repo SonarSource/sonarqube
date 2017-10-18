@@ -88,7 +88,8 @@ public final class IssueExclusionProperties {
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("Ignore Issues in Blocks")
-        .description("Patterns to ignore all issues on specific blocks of code, while continuing to scan and mark issues on the remainder of the file.")
+        .description("Patterns to ignore all issues (except the ones from the common repository) on specific blocks of code, " +
+          "while continuing to scan and mark issues on the remainder of the file.")
         .onQualifiers(Qualifiers.PROJECT)
         .index(2)
         .fields(
@@ -110,7 +111,7 @@ public final class IssueExclusionProperties {
         .category(CoreProperties.CATEGORY_EXCLUSIONS)
         .subCategory(SUB_CATEGORY_IGNORE_ISSUES)
         .name("Ignore Issues on Files")
-        .description("Patterns to ignore all issues on files that contain a block of code matching a given regular expression.")
+        .description("Patterns to ignore all issues (except the ones from the common repository) on files that contain a block of code matching a given regular expression.")
         .onQualifiers(Qualifiers.PROJECT)
         .index(1)
         .fields(
