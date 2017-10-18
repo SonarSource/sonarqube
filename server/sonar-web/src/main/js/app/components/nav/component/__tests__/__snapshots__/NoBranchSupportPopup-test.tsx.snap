@@ -19,17 +19,10 @@ exports[`renders 1`] = `
     </p>
     <p>
       <a
-        href="https://redirect.sonarsource.com/doc/branches.html"
+        href="https://redirect.sonarsource.com/editions/developer.html"
         target="_blank"
       >
         learn_more
-      </a>
-      <a
-        className="button spacer-left"
-        href="https://www.sonarsource.com/company/contact/"
-        target="_blank"
-      >
-        branches.buy_developer_pack
       </a>
     </p>
   </div>

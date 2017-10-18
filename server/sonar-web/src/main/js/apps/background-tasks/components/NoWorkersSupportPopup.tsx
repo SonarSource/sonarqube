@@ -34,7 +34,7 @@ export default function NoWorkersSupportPopup(props: Props) {
           {translate('background_tasks.add_more_workers.text')}
         </p>
         <p>
-          <a href="https://redirect.sonarsource.com/plugins/governance.html" target="_blank">
+          <a href="https://redirect.sonarsource.com/editions/enterprise.html" target="_blank">
             {translate('learn_more')}
           </a>
         </p>
