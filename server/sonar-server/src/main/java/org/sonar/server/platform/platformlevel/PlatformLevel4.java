@@ -105,6 +105,7 @@ import org.sonar.server.permission.index.PermissionIndexer;
 import org.sonar.server.permission.ws.PermissionsWsModule;
 import org.sonar.server.permission.ws.template.DefaultTemplatesResolverImpl;
 import org.sonar.server.platform.BackendCleanup;
+import org.sonar.server.platform.ClusterVerification;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.platform.SettingsChangeNotifier;
@@ -252,6 +253,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ChangeLogLevelStandaloneService.class);
 
     add(
+      ClusterVerification.class,
       LogServerId.class,
       LogOAuthWarning.class,
       PluginDownloader.class,

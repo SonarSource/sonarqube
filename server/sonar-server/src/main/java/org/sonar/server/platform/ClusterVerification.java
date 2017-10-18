@@ -19,25 +19,39 @@
  */
 package org.sonar.server.platform;
 
-import org.sonar.api.ce.ComputeEngineSide;
+import javax.annotation.Nullable;
+import org.sonar.api.Startable;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.MessageException;
 
-@ComputeEngineSide
 @ServerSide
-public interface WebServer {
+public class ClusterVerification implements Startable {
 
-  /**
-   * WebServer is standalone when property {@link org.sonar.process.ProcessProperties#CLUSTER_ENABLED} is {@code false} or
-   * undefined.
-   */
-  boolean isStandalone();
+  private final WebServer server;
+  @Nullable
+  private final ClusterFeature feature;
 
-  /**
-   * The startup leader is the first node to be started in a cluster. It's the only one
-   * to create and populate datastores.
-   * A standard node is automatically marked as "startup leader" when cluster
-   * is disabled (default).
-   */
-  boolean isStartupLeader();
+  public ClusterVerification(WebServer server, @Nullable ClusterFeature feature) {
+    this.server = server;
+    this.feature = feature;
+  }
 
+  public ClusterVerification(WebServer server) {
+    this(server, null);
+  }
+
+  @Override
+  public void start() {
+    if (server.isStandalone()) {
+      return;
+    }
+    if (feature == null || !feature.isEnabled()) {
+      throw MessageException.of("Cluster mode can't be enabled. Please install the High Availability plugin.");
+    }
+  }
+
+  @Override
+  public void stop() {
+    // nothing to do
+  }
 }
