@@ -48,14 +48,17 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.component.NewComponent;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.favorite.FavoriteUpdater;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.tester.UserSessionRule;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.argThat;
@@ -65,6 +68,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
+import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
@@ -77,7 +81,7 @@ public class ReportSubmitterTest {
   private static final String TASK_UUID = "TASK_1";
 
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -100,24 +104,6 @@ public class ReportSubmitterTest {
   }
 
   @Test
-  public void submit_fails_with_NotFoundException_if_organization_with_specified_key_does_not_exist() {
-    thrown.expect(NotFoundException.class);
-    thrown.expectMessage("Organization with key 'fop' does not exist");
-
-    underTest.submit("fop", PROJECT_KEY, null, null, null /* method will fail before parameter is used */);
-  }
-
-  @Test
-  public void submit_fails_with_organizationKey_does_not_match_organization_of_specified_component() {
-    userSession.logIn().setRoot();
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
-    mockSuccessfulPrepareSubmitCall();
-
-    underTest.submit(organization.getKey(), project.getDbKey(), null, project.name(), IOUtils.toInputStream("{binary}"));
-  }
-
-  @Test
   public void submit_inserts_characteristics() {
     userSession
       .addPermission(OrganizationPermission.SCAN, db.getDefaultOrganization().getUuid())
@@ -128,7 +114,7 @@ public class ReportSubmitterTest {
     when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(project);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyInt(), eq(PROJECT_KEY),
       eq(Qualifiers.PROJECT)))
-      .thenReturn(true);
+        .thenReturn(true);
 
     Map<String, String> taskCharacteristics = new HashMap<>();
     taskCharacteristics.put("incremental", "true");
@@ -184,7 +170,7 @@ public class ReportSubmitterTest {
     when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(createdProject);
     when(
       permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(organization.getUuid()), anyInt(), eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
-      .thenReturn(true);
+        .thenReturn(true);
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), eq(organization.getUuid()), any(ComponentDto.class))).thenReturn(true);
 
     underTest.submit(organization.getKey(), PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
@@ -215,7 +201,7 @@ public class ReportSubmitterTest {
     when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(createdProject);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyInt(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
-      .thenReturn(true);
+        .thenReturn(true);
     when(permissionTemplateService.hasDefaultTemplateWithPermissionOnProjectCreator(any(DbSession.class), eq(defaultOrganizationUuid), any(ComponentDto.class))).thenReturn(false);
 
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
@@ -234,7 +220,7 @@ public class ReportSubmitterTest {
     when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(project);
     when(permissionTemplateService.wouldUserHaveScanPermissionWithDefaultTemplate(any(DbSession.class), eq(defaultOrganizationUuid), anyInt(),
       eq(PROJECT_KEY), eq(Qualifiers.PROJECT)))
-      .thenReturn(true);
+        .thenReturn(true);
 
     underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
 
@@ -266,24 +252,6 @@ public class ReportSubmitterTest {
     verify(queue).submit(any(CeTaskSubmit.class));
   }
 
-  @Test
-  public void fail_with_forbidden_exception_when_no_scan_permission() {
-    thrown.expect(ForbiddenException.class);
-
-    underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
-  }
-
-  @Test
-  public void fail_with_forbidden_exception_on_new_project_when_only_project_scan_permission() {
-    userSession.addProjectPermission(SCAN_EXECUTION, ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID));
-
-    mockSuccessfulPrepareSubmitCall();
-    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(new ComponentDto().setUuid(PROJECT_UUID).setDbKey(PROJECT_KEY));
-
-    thrown.expect(ForbiddenException.class);
-    underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
-  }
-
   /**
    * SONAR-8757
    */
@@ -296,8 +264,74 @@ public class ReportSubmitterTest {
     String branchName = "branchFoo";
     ComponentDto branchProject = db.components().insertPrivateProject(p -> p.setDbKey(mainProject.getDbKey() + ":" + branchName));
 
-    thrown.expect(ForbiddenException.class);
+    expectedException.expect(ForbiddenException.class);
     underTest.submit(defaultOrganizationKey, mainProject.getDbKey(), branchName, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
+  }
+
+  @Test
+  public void fail_with_NotFoundException_if_organization_with_specified_key_does_not_exist() {
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Organization with key 'fop' does not exist");
+
+    underTest.submit("fop", PROJECT_KEY, null, null, null /* method will fail before parameter is used */);
+  }
+
+  @Test
+  public void fail_with_organizationKey_does_not_match_organization_of_specified_component() {
+    userSession.logIn().setRoot();
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    mockSuccessfulPrepareSubmitCall();
+
+    underTest.submit(organization.getKey(), project.getDbKey(), null, project.name(), IOUtils.toInputStream("{binary}"));
+  }
+
+  @Test
+  public void fail_if_component_is_not_a_project() {
+    ComponentDto component = db.components().insertPublicPortfolio(db.getDefaultOrganization());
+    userSession.logIn().addProjectPermission(SCAN_EXECUTION, component);
+    mockSuccessfulPrepareSubmitCall();
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage(format("Component '%s' is not a project", component.getKey()));
+
+    underTest.submit(defaultOrganizationKey, component.getDbKey(), null, component.name(), IOUtils.toInputStream("{binary}"));
+  }
+
+  @Test
+  public void fail_if_project_key_already_exists_as_module() {
+    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    userSession.logIn().addProjectPermission(SCAN_EXECUTION, project);
+    mockSuccessfulPrepareSubmitCall();
+
+    try {
+      underTest.submit(defaultOrganizationKey, module.getDbKey(), null, module.name(), IOUtils.toInputStream("{binary}"));
+      fail();
+    } catch (BadRequestException e) {
+      assertThat(e.errors()).contains(
+        format("The project '%s' is already defined in SonarQube but as a module of project '%s'. " +
+          "If you really want to stop directly analysing project '%s', please first delete it from SonarQube and then relaunch the analysis of project '%s'.",
+          module.getKey(), project.getKey(), project.getKey(), module.getKey()));
+    }
+  }
+
+  @Test
+  public void fail_with_forbidden_exception_when_no_scan_permission() {
+    expectedException.expect(ForbiddenException.class);
+
+    underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
+  }
+
+  @Test
+  public void fail_with_forbidden_exception_on_new_project_when_only_project_scan_permission() {
+    userSession.addProjectPermission(SCAN_EXECUTION, ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization(), PROJECT_UUID));
+
+    mockSuccessfulPrepareSubmitCall();
+    when(componentUpdater.create(any(DbSession.class), any(NewComponent.class), eq(null))).thenReturn(new ComponentDto().setUuid(PROJECT_UUID).setDbKey(PROJECT_KEY));
+
+    expectedException.expect(ForbiddenException.class);
+    underTest.submit(defaultOrganizationKey, PROJECT_KEY, null, PROJECT_NAME, IOUtils.toInputStream("{binary}"));
   }
 
   private void verifyReportIsPersisted(String taskUuid) {
