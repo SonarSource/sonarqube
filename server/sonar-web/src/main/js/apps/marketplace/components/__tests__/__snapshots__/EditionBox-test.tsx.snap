@@ -7,11 +7,7 @@ exports[`should disable install button 1`] = `
   <span
     className="marketplace-edition-badge badge badge-normal-size"
   >
-    <CheckIcon
-      className="little-spacer-right text-text-top"
-      size={14}
-    />
-    marketplace.installed
+    marketplace.installing
   </span>
   <div>
     <h3
@@ -33,10 +29,48 @@ exports[`should disable install button 1`] = `
       marketplace.learn_more
     </a>
     <button
-      className="button-red"
       disabled={true}
+      onClick={[Function]}
     >
-      marketplace.uninstall
+      marketplace.install
+    </button>
+  </div>
+</div>
+`;
+
+exports[`should disable install button 2`] = `
+<div
+  className="boxed-group boxed-group-inner marketplace-edition"
+>
+  <span
+    className="marketplace-edition-badge badge badge-normal-size"
+  >
+    marketplace.pending
+  </span>
+  <div>
+    <h3
+      className="spacer-bottom"
+    >
+      Foo
+    </h3>
+    <p>
+      Foo desc
+    </p>
+  </div>
+  <div
+    className="marketplace-edition-action spacer-top"
+  >
+    <a
+      href="more_url"
+      target="_blank"
+    >
+      marketplace.learn_more
+    </a>
+    <button
+      disabled={true}
+      onClick={[Function]}
+    >
+      marketplace.install
     </button>
   </div>
 </div>
@@ -71,10 +105,10 @@ exports[`should disable uninstall button 1`] = `
       marketplace.learn_more
     </a>
     <button
+      className="button-red"
       disabled={true}
-      onClick={[Function]}
     >
-      marketplace.install
+      marketplace.uninstall
     </button>
   </div>
 </div>
@@ -152,9 +186,47 @@ exports[`should display installing badge 1`] = `
     </a>
     <button
       className="button-red"
-      disabled={false}
+      disabled={true}
     >
       marketplace.uninstall
+    </button>
+  </div>
+</div>
+`;
+
+exports[`should display pending badge 1`] = `
+<div
+  className="boxed-group boxed-group-inner marketplace-edition"
+>
+  <span
+    className="marketplace-edition-badge badge badge-normal-size"
+  >
+    marketplace.pending
+  </span>
+  <div>
+    <h3
+      className="spacer-bottom"
+    >
+      Foo
+    </h3>
+    <p>
+      Foo desc
+    </p>
+  </div>
+  <div
+    className="marketplace-edition-action spacer-top"
+  >
+    <a
+      href="more_url"
+      target="_blank"
+    >
+      marketplace.learn_more
+    </a>
+    <button
+      disabled={true}
+      onClick={[Function]}
+    >
+      marketplace.install
     </button>
   </div>
 </div>
