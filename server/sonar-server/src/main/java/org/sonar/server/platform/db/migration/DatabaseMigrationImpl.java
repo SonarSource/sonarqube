@@ -20,16 +20,14 @@
 package org.sonar.server.platform.db.migration;
 
 import java.util.Date;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Semaphore;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.db.migration.DatabaseMigrationState.Status;
 import org.sonar.server.platform.db.migration.engine.MigrationEngine;
 import org.sonar.server.platform.db.migration.step.MigrationStepExecutionException;
-
-import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status;
 
 /**
  * Handles concurrency to make sure only one DB migration can run at a time.
@@ -46,9 +44,9 @@ public class DatabaseMigrationImpl implements DatabaseMigration {
   private final Platform platform;
   private final MutableDatabaseMigrationState migrationState;
   /**
-   * This lock implements thread safety from concurrent calls of method {@link #startIt()}
+   * This semaphore implements thread safety from concurrent calls of method {@link #startIt()}
    */
-  private final ReentrantLock lock = new ReentrantLock();
+  private final Semaphore semaphore = new Semaphore(1);
 
   public DatabaseMigrationImpl(DatabaseMigrationExecutorService executorService, MutableDatabaseMigrationState migrationState,
     MigrationEngine migrationEngine, Platform platform) {
@@ -60,11 +58,11 @@ public class DatabaseMigrationImpl implements DatabaseMigration {
 
   @Override
   public void startIt() {
-    if (lock.tryLock()) {
+    if (semaphore.tryAcquire()) {
       try {
         executorService.execute(this::doDatabaseMigration);
-      } catch(RuntimeException e) {
-        lock.unlock();
+      } catch (RuntimeException e) {
+        semaphore.release();
         throw e;
       }
     } else {
@@ -92,7 +90,7 @@ public class DatabaseMigrationImpl implements DatabaseMigration {
       LOGGER.error("Container restart failed", t);
       saveStatus(t);
     } finally {
-      lock.unlock();
+      semaphore.release();
     }
   }
 
