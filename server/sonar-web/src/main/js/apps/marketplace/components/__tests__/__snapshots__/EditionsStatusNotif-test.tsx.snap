@@ -36,7 +36,7 @@ exports[`should display an in progress notif 1`] = `
 exports[`should display install errors 1`] = `
 <div>
   <div
-    className="alert alert-danger"
+    className="alert alert-danger diplay-flex-row"
   >
     Foo error
     <a

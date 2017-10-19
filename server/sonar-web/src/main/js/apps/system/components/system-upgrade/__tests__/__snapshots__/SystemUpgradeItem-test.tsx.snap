@@ -1,0 +1,84 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display correctly 1`] = `
+<div
+  className="system-upgrade-version"
+>
+  <p>
+    <FormattedMessage
+      defaultMessage="system.version_is_availble"
+      id="system.version_is_availble"
+      values={
+        Object {
+          "version": <b>
+            SonarQube 
+            5.6.7
+        </b>,
+        }
+      }
+    />
+  </p>
+  <p
+    className="spacer-top"
+  >
+    Version 5.6.7 description
+  </p>
+  <div
+    className="big-spacer-top"
+  >
+    <DateFormatter
+      date="2017-03-01"
+      long={true}
+    />
+    <a
+      className="spacer-left"
+      href="changelogurl"
+      target="_blank"
+    >
+      system.release_notes
+    </a>
+  </div>
+  <SystemUpgradeIntermediate
+    className="spacer-top"
+    upgrades={
+      Array [
+        Object {
+          "changeLogUrl": "changelogurl",
+          "description": "Version 5.6.6 description",
+          "downloadUrl": "downloadurl",
+          "plugins": Object {},
+          "releaseDate": "2017-04-02",
+          "version": "5.6.6",
+        },
+        Object {
+          "changeLogUrl": "changelogurl",
+          "description": "Version 5.6.5 description",
+          "downloadUrl": "downloadurl",
+          "plugins": Object {},
+          "releaseDate": "2017-03-01",
+          "version": "5.6.5",
+        },
+      ]
+    }
+  />
+  <div
+    className="big-spacer-top"
+  >
+    <a
+      className="button"
+      download="sonarqube-5.6.7.zip"
+      href="downloadurl"
+      target="blank"
+    >
+      system.download_x.5.6.7
+    </a>
+    <a
+      className="spacer-left"
+      href="https://redirect.sonarsource.com/doc/upgrading.html"
+      target="_blank"
+    >
+      system.how_to_upgrade
+    </a>
+  </div>
+</div>
+`;
