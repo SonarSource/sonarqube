@@ -172,7 +172,7 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
   @Override
   public synchronized PendingStatus installFailed(@Nullable String errorMessage) {
     ensureStarted();
-    State newState = changeStatusToFrom(NONE, AUTOMATIC_IN_PROGRESS, AUTOMATIC_READY, MANUAL_IN_PROGRESS)
+    State newState = changeStatusToFrom(NONE, AUTOMATIC_IN_PROGRESS, MANUAL_IN_PROGRESS)
       .setInstallErrorMessage(nullableTrimmedEmptyToNull(errorMessage))
       .clearPendingFields()
       .build();

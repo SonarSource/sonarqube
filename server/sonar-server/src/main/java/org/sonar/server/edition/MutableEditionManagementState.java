@@ -70,8 +70,8 @@ public interface MutableEditionManagementState extends EditionManagementState {
    *
    * @return the new pending status, always {@link PendingStatus#NONE}
    *
-   * @throws IllegalStateException if current status is neither {@link PendingStatus#AUTOMATIC_IN_PROGRESS},
-   *         {@link PendingStatus#AUTOMATIC_READY} nor {@link PendingStatus#MANUAL_IN_PROGRESS}
+   * @throws IllegalStateException if current status is neither {@link PendingStatus#AUTOMATIC_IN_PROGRESS} nor
+   *         {@link PendingStatus#MANUAL_IN_PROGRESS}
    */
   PendingStatus installFailed(@Nullable String errorMessage);
 
