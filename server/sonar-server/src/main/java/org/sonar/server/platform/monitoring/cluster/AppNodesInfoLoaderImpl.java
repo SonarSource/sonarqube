@@ -48,6 +48,10 @@ public class AppNodesInfoLoaderImpl implements AppNodesInfoLoader {
     this.hzMember = hzMember;
   }
 
+  public AppNodesInfoLoaderImpl() {
+    this(null);
+  }
+
   public Collection<NodeInfo> load() throws InterruptedException {
     Map<String, NodeInfo> nodesByName = new HashMap<>();
     MemberSelector memberSelector = HazelcastMemberSelectors.selectorForProcessIds(ProcessId.WEB_SERVER, ProcessId.COMPUTE_ENGINE);

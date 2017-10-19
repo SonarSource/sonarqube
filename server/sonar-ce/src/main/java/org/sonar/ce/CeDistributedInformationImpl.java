@@ -25,8 +25,8 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import org.picocontainer.Startable;
 import org.sonar.ce.taskprocessor.CeWorkerFactory;
-import org.sonar.process.cluster.hz.HazelcastObjects;
 import org.sonar.process.cluster.hz.HazelcastMember;
+import org.sonar.process.cluster.hz.HazelcastObjects;
 
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.process.cluster.hz.HazelcastObjects.WORKER_UUIDS;
@@ -41,6 +41,10 @@ public class CeDistributedInformationImpl implements CeDistributedInformation, S
   public CeDistributedInformationImpl(HazelcastMember hazelcastMember, CeWorkerFactory ceCeWorkerFactory) {
     this.hazelcastMember = hazelcastMember;
     this.ceCeWorkerFactory = ceCeWorkerFactory;
+  }
+
+  public CeDistributedInformationImpl(CeWorkerFactory ceCeWorkerFactory) {
+    this(null, ceCeWorkerFactory);
   }
 
   @Override
