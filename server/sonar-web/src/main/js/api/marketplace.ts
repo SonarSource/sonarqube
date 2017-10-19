@@ -65,6 +65,10 @@ export function getLicensePreview(data: {
   return postJSON('/api/editions/preview', data).catch(throwGlobalError);
 }
 
+export function getFormData(): Promise<{ serverId: string; ncloc: number }> {
+  return getJSON('/api/editions/form_data').catch(throwGlobalError);
+}
+
 export function applyLicense(data: { license: string }): Promise<EditionStatus> {
   return postJSON('/api/editions/apply_license', data).catch(throwGlobalError);
 }
