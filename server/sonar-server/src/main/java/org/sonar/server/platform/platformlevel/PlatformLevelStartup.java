@@ -53,14 +53,14 @@ public class PlatformLevelStartup extends PlatformLevel {
     add(GeneratePluginIndex.class,
       RegisterPlugins.class,
       ServerLifecycleNotifier.class,
-      DefaultOrganizationEnforcer.class,
-      CommitPendingEditionOnStartup.class);
+      DefaultOrganizationEnforcer.class);
 
     addIfStartupLeader(
       IndexerStartupTask.class,
       RegisterMetrics.class,
       RegisterQualityGates.class,
-      RegisterRules.class);
+      RegisterRules.class,
+      CommitPendingEditionOnStartup.class);
     add(BuiltInQProfileLoader.class);
     addIfStartupLeader(
       BuiltInQualityProfilesUpdateListener.class,
