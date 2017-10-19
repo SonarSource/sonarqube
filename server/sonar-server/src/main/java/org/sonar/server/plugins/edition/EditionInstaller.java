@@ -76,7 +76,7 @@ public class EditionInstaller {
   }
 
   public boolean isOffline() {
-    return !updateCenterMatrixFactory.getUpdateCenter(true).isPresent();
+    return !updateCenterMatrixFactory.getUpdateCenter(false).isPresent();
   }
 
   public boolean requiresInstallationChange(Set<String> editionPluginKeys) {

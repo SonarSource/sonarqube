@@ -106,7 +106,7 @@ public class EditionInstallerTest {
 
   @Test
   public void is_offline() {
-    when(updateCenterMatrixFactory.getUpdateCenter(true)).thenReturn(Optional.absent());
+    when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.absent());
     assertThat(installer.isOffline()).isTrue();
   }
 
