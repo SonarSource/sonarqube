@@ -19,8 +19,10 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { stringify } from 'querystring';
 import { debounce } from 'lodash';
-import { Edition, getLicensePreview } from '../../../api/marketplace';
+import { omitNil } from '../../../helpers/request';
+import { Edition, getFormData, getLicensePreview } from '../../../api/marketplace';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface Props {
@@ -33,8 +35,11 @@ export interface Props {
 interface State {
   license: string;
   licenseEdition?: Edition;
-  loading: boolean;
   previewStatus?: string;
+  formData?: {
+    serverId?: string;
+    ncloc?: number;
+  };
 }
 
 export default class LicenseEditionSet extends React.PureComponent<Props, State> {
@@ -42,12 +47,13 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
 
   constructor(props: Props) {
     super(props);
-    this.state = { license: '', loading: false };
+    this.state = { license: '' };
     this.fetchLicensePreview = debounce(this.fetchLicensePreview, 100);
   }
 
   componentDidMount() {
     this.mounted = true;
+    this.fetchFormData();
   }
 
   componentWillUnmount() {
@@ -72,6 +78,28 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
       }
     );
 
+  fetchFormData = () => {
+    getFormData().then(
+      formData => {
+        if (this.mounted) {
+          this.setState({ formData });
+        }
+      },
+      () => {}
+    );
+  };
+
+  getLicenseFormUrl = (edition: Edition) => {
+    let url = edition.request_license_link;
+    if (this.state.formData) {
+      const query = stringify(omitNil(this.state.formData));
+      if (query) {
+        url += '?' + query;
+      }
+    }
+    return url;
+  };
+
   handleLicenseChange = (event: React.SyntheticEvent<HTMLTextAreaElement>) => {
     const license = event.currentTarget.value;
     if (license) {
@@ -94,7 +122,7 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
     return (
       <div className={className}>
         {edition && (
-          <label className="spacer-bottom" htmlFor="set-license">
+          <label className="display-inline-block spacer-bottom" htmlFor="set-license">
             {translateWithParameters('marketplace.enter_license_for_x', edition.name)}
             <em className="mandatory">*</em>
           </label>
@@ -143,7 +171,7 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
         {edition && (
           <a
             className="display-inline-block spacer-top"
-            href={edition.request_license_link}
+            href={this.getLicenseFormUrl(edition)}
             target="_blank">
             {translate('marketplace.i_need_a_license')}
           </a>
