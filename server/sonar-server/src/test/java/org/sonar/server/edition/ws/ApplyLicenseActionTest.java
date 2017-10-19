@@ -43,6 +43,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.license.LicenseCommit;
+import org.sonar.server.platform.WebServer;
 import org.sonar.server.plugins.edition.EditionInstaller;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -59,6 +60,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.edition.EditionManagementState.PendingStatus.AUTOMATIC_IN_PROGRESS;
 import static org.sonar.server.edition.EditionManagementState.PendingStatus.NONE;
@@ -76,7 +78,9 @@ public class ApplyLicenseActionTest {
   private EditionInstaller editionInstaller = mock(EditionInstaller.class);
   private MutableEditionManagementState mutableEditionManagementState = mock(MutableEditionManagementState.class);
   private LicenseCommit licenseCommit = mock(LicenseCommit.class);
-  private ApplyLicenseAction underTest = new ApplyLicenseAction(userSessionRule, mutableEditionManagementState, editionInstaller, licenseCommit);
+  private WebServer webServer = mock(WebServer.class);
+  private ApplyLicenseAction underTest = new ApplyLicenseAction(userSessionRule, mutableEditionManagementState, editionInstaller,
+    webServer, licenseCommit);
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
@@ -158,6 +162,54 @@ public class ApplyLicenseActionTest {
   }
 
   @Test
+  public void request_fails_with_ISE_if_is_cluster_and_license_plugin_is_not_installed() throws IOException {
+    underTest = new ApplyLicenseAction(userSessionRule, mutableEditionManagementState, editionInstaller, webServer, null);
+    actionTester = new WsActionTester(underTest);
+    userSessionRule.logIn().setSystemAdministrator();
+
+    when(mutableEditionManagementState.getPendingInstallationStatus()).thenReturn(NONE);
+    when(webServer.isStandalone()).thenReturn(false);
+
+    TestRequest request = actionTester.newRequest().setParam(PARAM_LICENSE, createLicenseParam("dev", "plugin1"));
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("License-manager plugin should be installed");
+    request.execute();
+  }
+
+  @Test
+  public void request_fails_with_ISE_if_no_change_needed_but_license_plugin_is_not_installed() throws IOException {
+    underTest = new ApplyLicenseAction(userSessionRule, mutableEditionManagementState, editionInstaller, webServer, null);
+    actionTester = new WsActionTester(underTest);
+    userSessionRule.logIn().setSystemAdministrator();
+
+    setPendingLicense(NONE);
+    when(webServer.isStandalone()).thenReturn(true);
+
+    TestRequest request = actionTester.newRequest().setParam(PARAM_LICENSE, createLicenseParam("dev", "plugin1"));
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't decide edition does not require install if LicenseCommit instance is null");
+    request.execute();
+  }
+
+  @Test
+  public void always_apply_license_when_is_cluster() throws IOException {
+    userSessionRule.logIn().setSystemAdministrator();
+    when(webServer.isStandalone()).thenReturn(false);
+    setPendingLicense(NONE);
+
+    TestRequest request = actionTester.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
+      .setParam(PARAM_LICENSE, createLicenseParam(PENDING_EDITION_NAME, "plugin1"));
+
+    TestResponse response = request.execute();
+    assertResponse(response, PENDING_EDITION_NAME, "", NONE);
+    verify(mutableEditionManagementState).newEditionWithoutInstall(PENDING_EDITION_NAME);
+    verifyZeroInteractions(editionInstaller);
+  }
+
+  @Test
   public void verify_example() throws IOException {
     userSessionRule.logIn().setSystemAdministrator();
     setPendingLicense(AUTOMATIC_IN_PROGRESS, null);
@@ -171,8 +223,9 @@ public class ApplyLicenseActionTest {
   @Test
   public void apply_without_need_to_install() throws IOException {
     userSessionRule.logIn().setSystemAdministrator();
-    setPendingLicense(NONE, null);
+    setPendingLicense(NONE);
     when(editionInstaller.requiresInstallationChange(singleton("plugin1"))).thenReturn(false);
+    when(webServer.isStandalone()).thenReturn(true);
 
     TestRequest request = actionTester.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
@@ -186,8 +239,9 @@ public class ApplyLicenseActionTest {
   @Test
   public void apply_offline() throws IOException {
     userSessionRule.logIn().setSystemAdministrator();
-    setPendingLicense(PendingStatus.MANUAL_IN_PROGRESS, null);
+    setPendingLicense(PendingStatus.MANUAL_IN_PROGRESS);
     when(editionInstaller.requiresInstallationChange(singleton("plugin1"))).thenReturn(true);
+    when(webServer.isStandalone()).thenReturn(true);
 
     TestRequest request = actionTester.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
@@ -203,8 +257,9 @@ public class ApplyLicenseActionTest {
   @Test
   public void apply_successfully_auto_installation() throws IOException {
     userSessionRule.logIn().setSystemAdministrator();
-    setPendingLicense(PendingStatus.AUTOMATIC_IN_PROGRESS, null);
+    setPendingLicense(PendingStatus.AUTOMATIC_IN_PROGRESS);
     when(editionInstaller.requiresInstallationChange(singleton("plugin1"))).thenReturn(true);
+    when(webServer.isStandalone()).thenReturn(true);
 
     TestRequest request = actionTester.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
@@ -241,6 +296,10 @@ public class ApplyLicenseActionTest {
     assertThat(parsedResponse.getCurrentEditionKey()).isEqualTo(expectedEditionKey);
     assertThat(parsedResponse.getNextEditionKey()).isEqualTo(expectedNextEditionKey);
     assertThat(parsedResponse.getInstallationStatus()).isEqualTo(WsEditions.InstallationStatus.valueOf(expectedPendingStatus.toString()));
+  }
+
+  private void setPendingLicense(PendingStatus pendingStatus) {
+    setPendingLicense(pendingStatus, null);
   }
 
   private void setPendingLicense(PendingStatus pendingStatus, @Nullable String errorMessage) {
