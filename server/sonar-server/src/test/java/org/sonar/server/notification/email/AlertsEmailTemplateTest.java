@@ -77,7 +77,8 @@ public class AlertsEmailTemplateTest {
     assertThat(message.getMessageId(), is("alerts/45"));
     assertThat(message.getSubject(), is("Quality gate status changed on \"Foo (feature)\""));
     assertThat(message.getMessage(), is("" +
-      "Project: Foo (feature)\n" +
+      "Project: Foo\n" +
+      "Branch: feature\n" +
       "Version: V1-SNAP\n" +
       "Quality gate status: Orange (was Red)\n" +
       "\n" +
@@ -150,7 +151,8 @@ public class AlertsEmailTemplateTest {
     assertThat(message.getMessageId(), is("alerts/45"));
     assertThat(message.getSubject(), is("New quality gate threshold reached on \"Foo (feature)\""));
     assertThat(message.getMessage(), is("" +
-      "Project: Foo (feature)\n" +
+      "Project: Foo\n" +
+      "Branch: feature\n" +
       "Version: V1-SNAP\n" +
       "Quality gate status: Orange (was Red)\n" +
       "\n" +
@@ -184,7 +186,8 @@ public class AlertsEmailTemplateTest {
     assertThat(message.getMessageId(), is("alerts/45"));
     assertThat(message.getSubject(), is("\"Foo (feature)\" is back to green"));
     assertThat(message.getMessage(), is("" +
-      "Project: Foo (feature)\n" +
+      "Project: Foo\n" +
+      "Branch: feature\n" +
       "Version: V1-SNAP\n" +
       "Quality gate status: Green (was Red)\n" +
       "\n" +

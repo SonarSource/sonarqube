@@ -99,11 +99,15 @@ public class IssueChangesEmailTemplate extends EmailTemplate {
 
   private static void appendHeader(Notification notif, StringBuilder sb) {
     appendLine(sb, StringUtils.defaultString(notif.getFieldValue("componentName"), notif.getFieldValue("componentKey")));
+    String branchName = notif.getFieldValue("branch");
+    if (branchName != null) {
+      appendField(sb, "Branch", null, branchName);
+    }
     appendField(sb, "Rule", null, notif.getFieldValue("ruleName"));
     appendField(sb, "Message", null, notif.getFieldValue("message"));
   }
 
-  private void appendFooter(StringBuilder sb, Notification notification){
+  private void appendFooter(StringBuilder sb, Notification notification) {
     String issueKey = notification.getFieldValue("key");
     try {
       sb.append("More details at: ").append(settings.getServerBaseURL())

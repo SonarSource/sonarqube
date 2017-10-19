@@ -78,10 +78,12 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
     }
     String projectName = checkNotNull(notification.getFieldValue(FIELD_PROJECT_NAME));
     String branchName = notification.getFieldValue(FIELD_BRANCH);
-    String fullProjectName = computeFullProjectName(projectName, branchName);
 
     StringBuilder message = new StringBuilder();
-    message.append("Project: ").append(fullProjectName).append(NEW_LINE);
+    message.append("Project: ").append(projectName).append(NEW_LINE);
+    if (branchName != null) {
+      message.append("Branch: ").append(branchName).append(NEW_LINE);
+    }
     String version = notification.getFieldValue(FIELD_PROJECT_VERSION);
     if (version != null) {
       message.append("Version: ").append(version).append(NEW_LINE);
@@ -96,7 +98,7 @@ public abstract class AbstractNewIssuesEmailTemplate extends EmailTemplate {
 
     return new EmailMessage()
       .setMessageId(notification.getType() + "/" + notification.getFieldValue(FIELD_PROJECT_KEY))
-      .setSubject(subject(notification, fullProjectName))
+      .setSubject(subject(notification, computeFullProjectName(projectName, branchName)))
       .setMessage(message.toString());
   }
 

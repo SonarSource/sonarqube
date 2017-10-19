@@ -168,7 +168,8 @@ public class MyNewIssuesEmailTemplateTest {
 
     // TODO datetime to be completed when test is isolated from JVM timezone
     assertThat(message.getMessage())
-      .startsWith("Project: Struts (feature1)\n" +
+      .startsWith("Project: Struts\n" +
+        "Branch: feature1\n" +
         "Version: 52.0\n" +
         "\n" +
         "32 new issues (new debt: 1d3h)\n" +
@@ -200,7 +201,8 @@ public class MyNewIssuesEmailTemplateTest {
 
     // TODO datetime to be completed when test is isolated from JVM timezone
     assertThat(message.getMessage())
-      .startsWith("Project: Struts (feature1)\n" +
+      .startsWith("Project: Struts\n" +
+        "Branch: feature1\n" +
         "\n" +
         "32 new issues (new debt: 1d3h)\n" +
         "\n" +

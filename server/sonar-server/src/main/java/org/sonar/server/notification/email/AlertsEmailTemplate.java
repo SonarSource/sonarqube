@@ -60,7 +60,7 @@ public class AlertsEmailTemplate extends EmailTemplate {
 
     // Generate text
     String subject = generateSubject(fullProjectName, alertLevel, isNewAlert);
-    String messageBody = generateMessageBody(fullProjectName, projectKey, projectVersion, branchName, alertName, alertText, isNewAlert);
+    String messageBody = generateMessageBody(projectName, projectKey, projectVersion, branchName, alertName, alertText, isNewAlert);
 
     // And finally return the email that will be sent
     return new EmailMessage()
@@ -88,11 +88,14 @@ public class AlertsEmailTemplate extends EmailTemplate {
     return subjectBuilder.toString();
   }
 
-  private String generateMessageBody(String fullProjectName, String projectKey,
+  private String generateMessageBody(String projectName, String projectKey,
     @Nullable String projectVersion, @Nullable String branchName,
     String alertName, String alertText, boolean isNewAlert) {
     StringBuilder messageBody = new StringBuilder();
-    messageBody.append("Project: ").append(fullProjectName).append("\n");
+    messageBody.append("Project: ").append(projectName).append("\n");
+    if (branchName != null) {
+      messageBody.append("Branch: ").append(branchName).append("\n");
+    }
     if (projectVersion != null) {
       messageBody.append("Version: ").append(projectVersion).append("\n");
     }
