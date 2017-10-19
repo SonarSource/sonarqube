@@ -41,3 +41,12 @@ it('should display a ready notification', () => {
   );
   expect(wrapper).toMatchSnapshot();
 });
+
+it('should display install errors', () => {
+  const wrapper = shallow(
+    <EditionsStatusNotif
+      editionStatus={{ installationStatus: 'AUTOMATIC_IN_PROGRESS', installError: 'Foo error' }}
+    />
+  );
+  expect(wrapper).toMatchSnapshot();
+});
