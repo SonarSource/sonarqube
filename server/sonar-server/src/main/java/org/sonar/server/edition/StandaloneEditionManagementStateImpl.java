@@ -143,7 +143,7 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
   }
 
   @Override
-  public PendingStatus newEditionWithoutInstall(String newEditionKey) {
+  public synchronized PendingStatus newEditionWithoutInstall(String newEditionKey) {
     ensureStarted();
     requireNonNull(newEditionKey, "newEditionKey can't be null");
     checkArgument(!newEditionKey.isEmpty(), "newEditionKey can't be empty");
