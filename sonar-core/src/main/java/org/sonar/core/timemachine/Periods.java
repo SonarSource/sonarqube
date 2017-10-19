@@ -33,7 +33,6 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DATE;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DAYS;
-import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_VERSION;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_VERSION;
 
@@ -92,8 +91,6 @@ public class Periods {
         return labelForDays(param, date, shortLabel);
       case LEAK_PERIOD_MODE_VERSION:
         return labelForVersion(param, date, shortLabel);
-      case LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS:
-        return labelForPreviousAnalysis(date, shortLabel);
       case LEAK_PERIOD_MODE_PREVIOUS_VERSION:
         return labelForPreviousVersion(param, date, shortLabel);
       case LEAK_PERIOD_MODE_DATE:
@@ -115,13 +112,6 @@ public class Periods {
       return label("since_version", shortLabel, param);
     }
     return label("since_version_detailed", shortLabel, param, date);
-  }
-
-  private String labelForPreviousAnalysis(@Nullable String date, boolean shortLabel) {
-    if (date == null) {
-      return label("since_previous_analysis", shortLabel);
-    }
-    return label("since_previous_analysis_detailed", shortLabel, date);
   }
 
   private String labelForPreviousVersion(@Nullable String param, @Nullable String date, boolean shortLabel) {
@@ -156,7 +146,7 @@ public class Periods {
       checkArgument(isNotBlank(periodProperty), "Period property should not be empty");
       Integer possibleDaysValue = findByDays(periodProperty);
       Date possibleDatesValue = findByDate(periodProperty);
-      if (LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS.equals(periodProperty) || LEAK_PERIOD_MODE_PREVIOUS_VERSION.equals(periodProperty)) {
+      if (LEAK_PERIOD_MODE_PREVIOUS_VERSION.equals(periodProperty)) {
         mode = periodProperty;
       } else if (possibleDaysValue != null) {
         mode = LEAK_PERIOD_MODE_DAYS;

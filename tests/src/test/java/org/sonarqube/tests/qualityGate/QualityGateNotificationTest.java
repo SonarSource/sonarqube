@@ -67,7 +67,7 @@ public class QualityGateNotificationTest {
 
   @Test
   public void status_on_metric_variation_and_send_notifications() throws Exception {
-    tester.settings().setGlobalSettings("sonar.leak.period", "previous_analysis");
+    tester.settings().setGlobalSettings("sonar.leak.period", "previous_version");
     tester.settings().setGlobalSettings("email.smtp_host.secured", "localhost");
     tester.settings().setGlobalSettings("email.smtp_port.secured", Integer.toString(SMTP_SERVER.getServer().getPort()));
 
@@ -113,7 +113,7 @@ public class QualityGateNotificationTest {
       .contains("Project: Sample")
       .contains("Version: 1.0-SNAPSHOT")
       .contains("Quality gate status: Orange (was Green)")
-      .contains("Quality gate threshold: Lines of Code variation = 0 since previous analysis")
+      .contains("Quality gate threshold: Lines of Code variation = 0 since previous version")
       .contains("/dashboard?id=" + project.getKey());
     assertThat(emails.hasNext()).isFalse();
   }

@@ -75,7 +75,7 @@ public class TimeMachineTest {
   }
 
   private static void initPeriod() {
-    setServerProperty(orchestrator, "sonar.leak.period", "previous_analysis");
+    setServerProperty(orchestrator, "sonar.leak.period", "previous_version");
   }
 
   @AfterClass
