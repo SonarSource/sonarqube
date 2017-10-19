@@ -55,23 +55,23 @@ exports[`should display correctly 1`] = `
     className="modal-body"
     edition={
       Object {
-        "desc": "Foo desc",
-        "download_link": "download_url",
+        "downloadUrl": "download_url",
+        "homeUrl": "more_url",
         "key": "foo",
-        "more_link": "more_url",
         "name": "Foo",
-        "request_license_link": "license_url",
+        "requestUrl": "license_url",
+        "textDescription": "Foo desc",
       }
     }
     editions={
       Array [
         Object {
-          "desc": "Foo desc",
-          "download_link": "download_url",
+          "downloadUrl": "download_url",
+          "homeUrl": "more_url",
           "key": "foo",
-          "more_link": "more_url",
           "name": "Foo",
-          "request_license_link": "license_url",
+          "requestUrl": "license_url",
+          "textDescription": "Foo desc",
         },
       ]
     }

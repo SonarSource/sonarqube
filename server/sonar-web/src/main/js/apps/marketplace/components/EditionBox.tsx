@@ -32,35 +32,44 @@ interface Props {
 export default class EditionBox extends React.PureComponent<Props> {
   handleInstall = () => this.props.onInstall(this.props.edition);
 
+  renderBadge(isInstalled?: boolean, installInProgress?: boolean) {
+    const { edition, editionStatus } = this.props;
+    const installReady = editionStatus && editionStatus.installationStatus === 'AUTOMATIC_READY';
+    const isInstalling =
+      installInProgress && editionStatus && editionStatus.nextEditionKey === edition.key;
+    if (isInstalling) {
+      return (
+        <span className="marketplace-edition-badge badge badge-normal-size">
+          {installReady ? translate('marketplace.pending') : translate('marketplace.installing')}
+        </span>
+      );
+    }
+    if (isInstalled) {
+      return (
+        <span className="marketplace-edition-badge badge badge-normal-size">
+          <CheckIcon size={14} className="little-spacer-right text-text-top" />
+          {translate('marketplace.installed')}
+        </span>
+      );
+    }
+    return null;
+  }
+
   render() {
     const { edition, editionStatus } = this.props;
+    const isInstalled = editionStatus && editionStatus.currentEditionKey === edition.key;
     const installInProgress =
       editionStatus &&
       ['AUTOMATIC_IN_PROGRESS', 'AUTOMATIC_READY'].includes(editionStatus.installationStatus);
-    const installReady = editionStatus && editionStatus.installationStatus === 'AUTOMATIC_READY';
-    const isInstalled = editionStatus && editionStatus.currentEditionKey === edition.key;
-    const isInstalling =
-      installInProgress && editionStatus && editionStatus.nextEditionKey === edition.key;
     return (
       <div className="boxed-group boxed-group-inner marketplace-edition">
-        {isInstalled &&
-        !isInstalling && (
-          <span className="marketplace-edition-badge badge badge-normal-size">
-            <CheckIcon size={14} className="little-spacer-right text-text-top" />
-            {translate('marketplace.installed')}
-          </span>
-        )}
-        {isInstalling && (
-          <span className="marketplace-edition-badge badge badge-normal-size">
-            {installReady ? translate('marketplace.pending') : translate('marketplace.installing')}
-          </span>
-        )}
+        {this.renderBadge(isInstalled, installInProgress)}
         <div>
           <h3 className="spacer-bottom">{edition.name}</h3>
-          <p>{edition.desc}</p>
+          <p>{edition.textDescription}</p>
         </div>
         <div className="marketplace-edition-action spacer-top">
-          <a href={edition.more_link} target="_blank">
+          <a href={edition.homeUrl} target="_blank">
             {translate('marketplace.learn_more')}
           </a>
           {!isInstalled && (
