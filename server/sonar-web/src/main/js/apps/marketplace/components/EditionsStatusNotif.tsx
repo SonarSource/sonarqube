@@ -36,9 +36,8 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
   handleOpenRestart = () => this.setState({ openRestart: true });
   hanleCloseRestart = () => this.setState({ openRestart: false });
 
-  render() {
+  renderStatusAlert() {
     const { installationStatus } = this.props.editionStatus;
-
     switch (installationStatus) {
       case 'AUTOMATIC_IN_PROGRESS':
         return (
@@ -59,7 +58,6 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
           </div>
         );
       case 'MANUAL_IN_PROGRESS':
-      case 'AUTOMATIC_FAILURE':
         return (
           <div className="alert alert-danger">
             {translate('marketplace.status', installationStatus)}
@@ -70,5 +68,15 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
         );
     }
     return null;
+  }
+
+  render() {
+    const { installError } = this.props.editionStatus;
+    return (
+      <div>
+        {installError && <div className="alert alert-danger">{installError}</div>}
+        {this.renderStatusAlert}
+      </div>
+    );
   }
 }

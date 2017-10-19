@@ -36,6 +36,7 @@ export interface EditionsPerVersion {
 export interface EditionStatus {
   currentEditionKey?: string;
   nextEditionKey?: string;
+  installError?: string;
   installationStatus:
     | 'NONE'
     | 'AUTOMATIC_IN_PROGRESS'
