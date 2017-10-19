@@ -193,11 +193,12 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
   }
 
   @Override
-  public synchronized PendingStatus finalizeInstallation() {
+  public synchronized PendingStatus finalizeInstallation(@Nullable String errorMessage) {
     ensureStarted();
     State newState = changeStatusToFrom(NONE, AUTOMATIC_READY, MANUAL_IN_PROGRESS, UNINSTALL_IN_PROGRESS)
       .commitPendingEditionKey()
       .clearPendingFields()
+      .setInstallErrorMessage(nullableTrimmedEmptyToNull(errorMessage))
       .build();
     persistProperties(newState);
     return newState.getPendingInstallationStatus();

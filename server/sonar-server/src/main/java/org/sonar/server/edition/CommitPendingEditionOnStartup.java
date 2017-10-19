@@ -58,7 +58,7 @@ public class CommitPendingEditionOnStartup implements Startable {
         break;
       case UNINSTALL_IN_PROGRESS:
         failIfLicenseCommitIsPresent();
-        editionManagementState.finalizeInstallation();
+        editionManagementState.finalizeInstallation(null);
         break;
       default:
         throw new IllegalStateException("Unsupported status " + status);
@@ -81,7 +81,7 @@ public class CommitPendingEditionOnStartup implements Startable {
     String newLicense = editionManagementState.getPendingLicense()
       .orElseThrow(() -> new IllegalStateException(String.format("When state is %s, a license should be available in staging", status)));
     licenseCommit.update(newLicense);
-    editionManagementState.finalizeInstallation();
+    editionManagementState.finalizeInstallation(null);
   }
 
   @Override
