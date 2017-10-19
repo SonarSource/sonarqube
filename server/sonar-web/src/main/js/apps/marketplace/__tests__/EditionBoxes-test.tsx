@@ -32,18 +32,18 @@ const DEFAULT_EDITIONS = [
   {
     key: 'foo',
     name: 'Foo',
-    desc: 'Foo desc',
-    download_link: 'download_url',
-    more_link: 'more_url',
-    request_license_link: 'license_url'
+    textDescription: 'Foo desc',
+    downloadUrl: 'download_url',
+    homeUrl: 'more_url',
+    requestUrl: 'license_url'
   },
   {
     key: 'bar',
     name: 'Bar',
-    desc: 'Bar desc',
-    download_link: 'download_url',
-    more_link: 'more_url',
-    request_license_link: 'license_url'
+    textDescription: 'Bar desc',
+    downloadUrl: 'download_url',
+    homeUrl: 'more_url',
+    requestUrl: 'license_url'
   }
 ];
 

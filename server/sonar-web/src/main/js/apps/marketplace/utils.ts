@@ -56,10 +56,16 @@ export function getEditionsForVersion(
   editions: EditionsPerVersion,
   version: string
 ): Edition[] | undefined {
-  const matchResult = version.match(/\d+\.\d+/);
-  if (matchResult) {
-    if (editions[matchResult[0]]) {
-      return editions[matchResult[0]];
+  const minorVersion = version.match(/\d+\.\d+.\d+/);
+  if (minorVersion) {
+    if (editions[minorVersion[0]]) {
+      return editions[minorVersion[0]];
+    }
+  }
+  const majorVersion = version.match(/\d+\.\d+/);
+  if (majorVersion) {
+    if (editions[majorVersion[0]]) {
+      return editions[majorVersion[0]];
     }
   }
   return undefined;
