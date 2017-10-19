@@ -44,7 +44,7 @@ public class CommitPendingEditionOnStartupTest {
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public LogTester logTester = new LogTester()
-      .setLevel(LoggerLevel.DEBUG);
+    .setLevel(LoggerLevel.DEBUG);
 
   private MutableEditionManagementState editionManagementState = mock(MutableEditionManagementState.class);
   private LicenseCommit licenseCommit = mock(LicenseCommit.class);
@@ -83,7 +83,7 @@ public class CommitPendingEditionOnStartupTest {
     verifyZeroInteractions(licenseCommit);
     assertThat(logTester.logs()).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.DEBUG))
-        .containsOnly("No LicenseCommit instance is not available, can not finalize installation");
+      .containsOnly("No LicenseCommit instance is not available, can not finalize installation");
   }
 
   @Test
@@ -113,7 +113,7 @@ public class CommitPendingEditionOnStartupTest {
     verifyZeroInteractions(licenseCommit);
     assertThat(logTester.logs()).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.DEBUG))
-        .containsOnly("No LicenseCommit instance is not available, can not finalize installation");
+      .containsOnly("No LicenseCommit instance is not available, can not finalize installation");
   }
 
   @Test
