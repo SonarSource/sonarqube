@@ -46,7 +46,7 @@ exports[`should correctly display status message after checking license 3`] = `
 exports[`should display correctly 1`] = `
 <div>
   <label
-    className="spacer-bottom"
+    className="display-inline-block spacer-bottom"
     htmlFor="set-license"
   >
     marketplace.enter_license_for_x.Foo
