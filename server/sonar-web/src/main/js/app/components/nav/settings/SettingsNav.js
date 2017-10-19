@@ -70,13 +70,20 @@ class SettingsNav extends React.PureComponent {
     const isSecurity = this.isSecurityActive();
     const isProjects = this.isProjectsActive();
     const isSystem = this.isSystemActive();
+    const isSupport = this.isSomethingActive(['/admin/extension/license/support']);
 
     const securityClassName = classNames('dropdown-toggle', { active: isSecurity });
     const projectsClassName = classNames('dropdown-toggle', { active: isProjects });
     const systemClassName = classNames('dropdown-toggle', { active: isSystem });
     const configurationClassNames = classNames('dropdown-toggle', {
-      active: !isSecurity && !isProjects && !isSystem
+      active: !isSecurity && !isProjects && !isSystem && !isSupport
     });
+
+    const extensionsWithoutSupport = this.props.extensions.filter(
+      extension => extension.key !== 'license/support'
+    );
+
+    const hasSupportExtension = extensionsWithoutSupport.length < this.props.extensions.length;
 
     return (
       <ContextNavBar id="context-navigation" height={65}>
@@ -109,7 +116,7 @@ class SettingsNav extends React.PureComponent {
                   {translate('custom_metrics.page')}
                 </IndexLink>
               </li>
-              {this.props.extensions.map(this.renderExtension)}
+              {extensionsWithoutSupport.map(this.renderExtension)}
             </ul>
           </li>
 
@@ -184,6 +191,14 @@ class SettingsNav extends React.PureComponent {
               </li>
             </ul>
           </li>
+
+          {hasSupportExtension && (
+            <li>
+              <IndexLink to="/admin/extension/license/support" activeClassName="active">
+                {translate('support')}
+              </IndexLink>
+            </li>
+          )}
         </NavBarTabs>
       </ContextNavBar>
     );
