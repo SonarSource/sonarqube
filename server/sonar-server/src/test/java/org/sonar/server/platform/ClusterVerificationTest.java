@@ -29,6 +29,8 @@ import static org.mockito.Mockito.when;
 
 public class ClusterVerificationTest {
 
+  private static final String ERROR_MESSAGE = "Cluster mode can't be enabled. Please install the Data Center Edition. More details at https://redirect.sonarsource.com/editions/datacenter.html.";
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -42,7 +44,7 @@ public class ClusterVerificationTest {
     ClusterVerification underTest = new ClusterVerification(webServer);
 
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Cluster mode can't be enabled. Please install the High Availability plugin.");
+    expectedException.expectMessage(ERROR_MESSAGE);
     underTest.start();
   }
 
@@ -53,7 +55,7 @@ public class ClusterVerificationTest {
     ClusterVerification underTest = new ClusterVerification(webServer, feature);
 
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Cluster mode can't be enabled. Please install the High Availability plugin.");
+    expectedException.expectMessage(ERROR_MESSAGE);
     underTest.start();
   }
 

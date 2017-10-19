@@ -46,7 +46,8 @@ public class ClusterVerification implements Startable {
       return;
     }
     if (feature == null || !feature.isEnabled()) {
-      throw MessageException.of("Cluster mode can't be enabled. Please install the High Availability plugin.");
+      throw MessageException.of(
+        "Cluster mode can't be enabled. Please install the Data Center Edition. More details at https://redirect.sonarsource.com/editions/datacenter.html.");
     }
   }
 
