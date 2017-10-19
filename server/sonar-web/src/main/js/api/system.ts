@@ -58,6 +58,15 @@ export interface ClusterSysInfo extends SysInfo {
   'Search Nodes': NodeInfo[];
 }
 
+export interface SystemUpgrade {
+  version: string;
+  description: string;
+  releaseDate: string;
+  changeLogUrl: string;
+  downloadUrl: string;
+  plugins: any;
+}
+
 export function setLogLevel(level: string): Promise<void | Response> {
   return post('/api/system/change_log_level', { level }).catch(throwGlobalError);
 }
@@ -68,6 +77,13 @@ export function getSystemInfo(): Promise<SysInfo> {
 
 export function getSystemStatus(): Promise<any> {
   return getJSON('/api/system/status');
+}
+
+export function getSystemUpgrades(): Promise<{
+  upgrades: SystemUpgrade[];
+  updateCenterRefresh: string;
+}> {
+  return getJSON('/api/system/upgrades');
 }
 
 export function getMigrationStatus(): Promise<any> {
