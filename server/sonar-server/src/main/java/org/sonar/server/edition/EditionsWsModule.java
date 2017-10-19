@@ -32,6 +32,7 @@ public class EditionsWsModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      StandaloneEditionManagementStateImpl.class,
       StatusAction.class,
       ApplyLicenseAction.class,
       PreviewAction.class,
