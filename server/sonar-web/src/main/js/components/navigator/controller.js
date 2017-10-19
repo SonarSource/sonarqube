@@ -68,7 +68,7 @@ export default Marionette.Controller.extend({
     if (facet.has('values') || this.options.app.state.get('facetsFromServer').indexOf(id) === -1) {
       facet.set({ enabled: true });
     } else {
-      this.requestFacet(id).done(() => {
+      this.requestFacet(id).then(() => {
         facet.set({ enabled: true });
       });
     }
@@ -130,7 +130,7 @@ export default Marionette.Controller.extend({
       this.options.app.state.set({ selectedIndex: index });
     } else if (!this.options.app.state.get('maxResultsReached')) {
       const that = this;
-      this.fetchNextPage().done(() => {
+      this.fetchNextPage().then(() => {
         that.options.app.state.set({ selectedIndex: index });
       });
     } else {

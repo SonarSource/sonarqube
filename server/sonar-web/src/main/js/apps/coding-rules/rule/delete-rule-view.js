@@ -17,21 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import $ from 'jquery';
 import ModalFormView from '../../../components/common/modal-form';
 import Template from '../templates/rule/coding-rules-delete-rule.hbs';
+import { deleteRule } from '../../../api/rules';
 
 export default ModalFormView.extend({
   template: Template,
 
   onFormSubmit() {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
-
-    const url = window.baseUrl + '/api/rules/delete';
-    const options = { key: this.model.id };
-    $.post(url, options).done(() => {
-      this.destroy();
-      this.trigger('delete');
-    });
+    deleteRule({ key: this.model.id }).then(
+      () => {
+        this.destroy();
+        this.trigger('delete');
+      },
+      () => {}
+    );
   }
 });

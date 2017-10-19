@@ -22,6 +22,7 @@ import { difference, union } from 'lodash';
 import Marionette from 'backbone.marionette';
 import RuleFilterMixin from './rule-filter-mixin';
 import Template from '../templates/rule/coding-rules-rule-meta.hbs';
+import { getRuleTags } from '../../../api/rules';
 
 export default Marionette.ItemView.extend(RuleFilterMixin).extend({
   template: Template,
@@ -56,27 +57,21 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  requestTags() {
-    const url = window.baseUrl + '/api/rules/tags';
-    const data = this.options.app.organization
-      ? { organization: this.options.app.organization }
-      : undefined;
-    return $.get(url, data);
-  },
-
   changeTags() {
-    const that = this;
-    this.requestTags().done(r => {
-      that.ui.tagInput.select2({
-        tags: difference(difference(r.tags, that.model.get('tags')), that.model.get('sysTags')),
-        width: '300px'
-      });
+    getRuleTags({ organization: this.options.app.organization }).then(
+      tags => {
+        this.ui.tagInput.select2({
+          tags: difference(difference(tags, this.model.get('tags')), this.model.get('sysTags')),
+          width: '300px'
+        });
 
-      that.ui.tagsEdit.removeClass('hidden');
-      that.ui.tagsList.addClass('hidden');
-      that.tagsBuffer = that.ui.tagInput.select2('val');
-      that.ui.tagInput.select2('open');
-    });
+        this.ui.tagsEdit.removeClass('hidden');
+        this.ui.tagsList.addClass('hidden');
+        this.tagsBuffer = this.ui.tagInput.select2('val');
+        this.ui.tagInput.select2('open');
+      },
+      () => {}
+    );
   },
 
   cancelEdit() {

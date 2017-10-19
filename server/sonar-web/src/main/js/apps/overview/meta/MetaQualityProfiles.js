@@ -55,16 +55,19 @@ class MetaQualityProfiles extends React.PureComponent {
     const requests = this.props.profiles.map(profile =>
       this.loadDeprecatedRulesForProfile(profile.key)
     );
-    Promise.all(requests).then(responses => {
-      if (this.mounted) {
-        const deprecatedByKey = {};
-        responses.forEach((count, i) => {
-          const profileKey = this.props.profiles[i].key;
-          deprecatedByKey[profileKey] = count;
-        });
-        this.setState({ deprecatedByKey });
-      }
-    });
+    Promise.all(requests).then(
+      responses => {
+        if (this.mounted) {
+          const deprecatedByKey = {};
+          responses.forEach((count, i) => {
+            const profileKey = this.props.profiles[i].key;
+            deprecatedByKey[profileKey] = count;
+          });
+          this.setState({ deprecatedByKey });
+        }
+      },
+      () => {}
+    );
   }
 
   loadDeprecatedRulesForProfile(profileKey) {

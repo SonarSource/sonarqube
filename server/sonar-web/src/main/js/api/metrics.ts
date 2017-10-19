@@ -19,7 +19,16 @@
  */
 import { getJSON } from '../helpers/request';
 import { Metric } from '../app/types';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
 export function getMetrics(): Promise<Metric[]> {
   return getJSON('/api/metrics/search', { ps: 9999 }).then(r => r.metrics);
+}
+
+export function getMetricDomains(): Promise<string[]> {
+  return getJSON('/api/metrics/domains').then(r => r.domains, throwGlobalError);
+}
+
+export function getMetricTypes(): Promise<string[]> {
+  return getJSON('/api/metrics/types').then(r => r.types, throwGlobalError);
 }

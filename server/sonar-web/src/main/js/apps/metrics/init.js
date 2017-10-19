@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import $ from 'jquery';
 import Marionette from 'backbone.marionette';
 import Layout from './layout';
 import Metrics from './metrics';
 import HeaderView from './header-view';
 import ListView from './list-view';
 import ListFooterView from './list-footer-view';
+import { getMetricDomains, getMetricTypes } from '../../api/metrics';
 
 const App = new Marionette.Application();
 const init = function(el) {
@@ -59,21 +59,15 @@ const init = function(el) {
   this.metrics.fetch();
 };
 
-App.requestDomains = function() {
-  return $.get(window.baseUrl + '/api/metrics/domains').done(r => {
-    App.domains = r.domains;
-  });
-};
-App.requestTypes = function() {
-  return $.get(window.baseUrl + '/api/metrics/types').done(r => {
-    App.types = r.types;
-  });
-};
-
 App.on('start', el => {
-  $.when(App.requestDomains(), App.requestTypes()).done(() => {
-    init.call(App, el);
-  });
+  Promise.all([getMetricDomains(), getMetricTypes()]).then(
+    ([domains, types]) => {
+      App.domains = domains;
+      App.types = types;
+      init.call(App, el);
+    },
+    () => {}
+  );
 });
 
 export default function(el) {

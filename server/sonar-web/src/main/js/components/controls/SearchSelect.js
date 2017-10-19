@@ -73,11 +73,18 @@ export default class SearchSelect extends React.PureComponent {
   }
 
   search = (query /*: string */) => {
-    this.props.onSearch(query).then(options => {
-      if (this.mounted) {
-        this.setState({ loading: false, options });
+    this.props.onSearch(query).then(
+      options => {
+        if (this.mounted) {
+          this.setState({ loading: false, options });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
       }
-    });
+    );
   };
 
   handleBlur = () => {

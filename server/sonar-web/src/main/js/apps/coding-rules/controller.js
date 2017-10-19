@@ -17,12 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import $ from 'jquery';
 import key from 'keymaster';
 import Controller from '../../components/navigator/controller';
 import Rule from './models/rule';
 import RuleDetailsView from './rule-details-view';
-import throwGlobalError from '../../app/utils/throwGlobalError';
+import { searchRules, getRuleDetails } from '../../api/rules';
 
 export default Controller.extend({
   pageSize: 200,
@@ -67,36 +66,34 @@ export default Controller.extend({
 
     this.hideDetails(firstPage);
 
-    const that = this;
-    const url = window.baseUrl + '/api/rules/search';
     const options = { ...this._searchParameters(), ...this.app.state.get('query') };
-    return $.get(url, options)
-      .done(r => {
-        const rules = that.app.list.parseRules(r);
+    return searchRules(options).then(
+      r => {
+        const rules = this.app.list.parseRules(r);
         if (firstPage) {
-          that.app.list.reset(rules);
+          this.app.list.reset(rules);
         } else {
-          that.app.list.add(rules);
+          this.app.list.add(rules);
         }
-        that.app.list.setIndex();
-        that.app.list.addExtraAttributes(that.app.repositories);
-        that.app.facets.reset(that._allFacets());
-        that.app.facets.add(r.facets, { merge: true });
-        that.enableFacets(that._enabledFacets());
-        that.app.state.set({
+        this.app.list.setIndex();
+        this.app.list.addExtraAttributes(this.app.repositories);
+        this.app.facets.reset(this._allFacets());
+        this.app.facets.add(r.facets, { merge: true });
+        this.enableFacets(this._enabledFacets());
+        this.app.state.set({
           page: r.p,
           pageSize: r.ps,
           total: r.total,
           maxResultsReached: r.p * r.ps >= r.total
         });
-        if (firstPage && that.isRulePermalink()) {
-          that.showDetails(that.app.list.first());
+        if (firstPage && this.isRulePermalink()) {
+          this.showDetails(this.app.list.first());
         }
-      })
-      .fail(error => {
+      },
+      () => {
         this.app.state.set({ maxResultsReached: true });
-        throwGlobalError(error);
-      });
+      }
+    );
   },
 
   isRulePermalink() {
@@ -105,10 +102,9 @@ export default Controller.extend({
   },
 
   requestFacet(id) {
-    const url = window.baseUrl + '/api/rules/search';
     const facet = this.app.facets.get(id);
     const options = { facets: id, ps: 1, ...this.app.state.get('query') };
-    return $.get(url, options).done(r => {
+    return searchRules(options).then(r => {
       const facetData = r.facets.find(facet => facet.property === id);
       if (facetData) {
         facet.set(facetData);
@@ -124,18 +120,11 @@ export default Controller.extend({
   },
 
   getRuleDetails(rule) {
-    const that = this;
-    const url = window.baseUrl + '/api/rules/show';
-    const options = {
-      key: rule.id,
-      actives: true
-    };
-    if (this.app.organization) {
-      options.organization = this.app.organization;
-    }
-    return $.get(url, options).done(data => {
-      rule.set(data.rule);
-      rule.addExtraAttributes(that.app.repositories);
+    const parameters = { key: rule.id, actives: true, organization: this.app.organization };
+    return getRuleDetails(parameters).then(r => {
+      rule.set(r.rule);
+      rule.addExtraAttributes(this.app.repositories);
+      return r;
     });
   },
 
@@ -143,18 +132,21 @@ export default Controller.extend({
     const that = this;
     const ruleModel = typeof rule === 'string' ? new Rule({ key: rule }) : rule;
     this.app.layout.workspaceDetailsRegion.reset();
-    this.getRuleDetails(ruleModel).done(data => {
-      key.setScope('details');
-      that.app.workspaceListView.unbindScrollEvents();
-      that.app.state.set({ rule: ruleModel });
-      that.app.workspaceDetailsView = new RuleDetailsView({
-        app: that.app,
-        model: ruleModel,
-        actives: data.actives
-      });
-      that.app.layout.showDetails();
-      that.app.layout.workspaceDetailsRegion.show(that.app.workspaceDetailsView);
-    });
+    this.getRuleDetails(ruleModel).then(
+      r => {
+        key.setScope('details');
+        that.app.workspaceListView.unbindScrollEvents();
+        that.app.state.set({ rule: ruleModel });
+        that.app.workspaceDetailsView = new RuleDetailsView({
+          app: that.app,
+          model: ruleModel,
+          actives: r.actives
+        });
+        that.app.layout.showDetails();
+        that.app.layout.workspaceDetailsRegion.show(that.app.workspaceDetailsView);
+      },
+      () => {}
+    );
   },
 
   showDetailsForSelected() {

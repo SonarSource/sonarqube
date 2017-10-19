@@ -24,6 +24,7 @@ import Items from './models/items';
 import ItemsView from './views/items-view';
 import ViewerView from './views/viewer-view';
 import RuleView from './views/rule-view';
+import { getRuleDetails } from '../../api/rules';
 
 let instance = null;
 const Workspace = function() {
@@ -117,23 +118,16 @@ Workspace.prototype = {
 
   showRule(model) {
     const that = this;
-    this.fetchRule(model)
-      .done(() => {
-        model.set({ exist: true });
+    getRuleDetails({ key: model.get('key') }).then(
+      r => {
+        model.set({ ...r.rule, exist: true });
         that.showViewer(RuleView, model);
-      })
-      .fail(() => {
+      },
+      () => {
         model.set({ exist: false });
         that.showViewer(RuleView, model);
-      });
-  },
-
-  fetchRule(model) {
-    const url = window.baseUrl + '/api/rules/show';
-    const options = { key: model.get('key') };
-    return $.get(url, options).done(r => {
-      model.set(r.rule);
-    });
+      }
+    );
   }
 };
 

@@ -107,23 +107,26 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
 
   loadRules() {
     this.setState({ loading: true });
-    Promise.all([
-      this.loadAllRules(),
-      this.loadActivatedRules(),
-      this.loadProfile()
-    ]).then(responses => {
-      if (this.mounted) {
-        const [allRules, activatedRules, showProfile] = responses;
-        this.setState({
-          activatedTotal: activatedRules.total,
-          allByType: keyBy<ByType>(takeFacet(allRules, 'types'), 'val'),
-          activatedByType: keyBy<ByType>(takeFacet(activatedRules, 'types'), 'val'),
-          compareToSonarWay: showProfile && showProfile.compareToSonarWay,
-          loading: false,
-          total: allRules.total
-        });
+    Promise.all([this.loadAllRules(), this.loadActivatedRules(), this.loadProfile()]).then(
+      responses => {
+        if (this.mounted) {
+          const [allRules, activatedRules, showProfile] = responses;
+          this.setState({
+            activatedTotal: activatedRules.total,
+            allByType: keyBy<ByType>(takeFacet(allRules, 'types'), 'val'),
+            activatedByType: keyBy<ByType>(takeFacet(activatedRules, 'types'), 'val'),
+            compareToSonarWay: showProfile && showProfile.compareToSonarWay,
+            loading: false,
+            total: allRules.total
+          });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
       }
-    });
+    );
   }
 
   getRulesCountForType(type: string) {

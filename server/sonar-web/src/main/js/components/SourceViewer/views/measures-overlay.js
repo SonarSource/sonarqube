@@ -23,8 +23,10 @@ import { arc as d3Arc, pie as d3Pie } from 'd3-shape';
 import { groupBy, sortBy, toPairs } from 'lodash';
 import ModalView from '../../common/modals';
 import Template from './templates/source-viewer-measures.hbs';
+import { searchIssues } from '../../../api/issues';
 import { getMeasures } from '../../../api/measures';
 import { getMetrics } from '../../../api/metrics';
+import { getTests, getCoveredFiles } from '../../../api/tests';
 import { getLocalizedMetricName, getLocalizedMetricDomain } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 
@@ -174,17 +176,16 @@ export default ModalView.extend({
   },
 
   requestIssues() {
-    return new Promise(resolve => {
-      const url = window.baseUrl + '/api/issues/search';
-      const options = {
-        branch: this.options.branch,
-        componentKeys: this.options.component.key,
-        resolved: false,
-        ps: 1,
-        facets: 'types,severities,tags'
-      };
+    const options = {
+      branch: this.options.branch,
+      componentKeys: this.options.component.key,
+      resolved: false,
+      ps: 1,
+      facets: 'types,severities,tags'
+    };
 
-      $.get(url, options).done(data => {
+    return searchIssues(options).then(
+      data => {
         const typesFacet = data.facets.find(facet => facet.property === 'types').values;
         const typesOrder = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
         const sortedTypesFacet = sortBy(typesFacet, v => typesOrder.indexOf(v.val));
@@ -200,25 +201,21 @@ export default ModalView.extend({
         this.typesFacet = sortedTypesFacet;
         this.severitiesFacet = sortedSeveritiesFacet;
         this.issuesCount = data.total;
-
-        resolve();
-      });
-    });
+      },
+      () => {}
+    );
   },
 
   requestTests() {
-    return new Promise(resolve => {
-      const url = window.baseUrl + '/api/tests/list';
-      const options = { branch: this.options.branch, testFileKey: this.options.component.key };
-
-      $.get(url, options).done(data => {
+    return getTests({ branch: this.options.branch, testFileKey: this.options.component.key }).then(
+      data => {
         this.tests = data.tests;
         this.testSorting = 'status';
         this.testAsc = true;
         this.sortTests(test => `${this.testsOrder.indexOf(test.status)}_______${test.name}`);
-        resolve();
-      });
-    });
+      },
+      () => {}
+    );
   },
 
   sortTests(condition) {
@@ -261,16 +258,17 @@ export default ModalView.extend({
 
   showTest(e) {
     const testId = $(e.currentTarget).data('id');
-    const url = window.baseUrl + '/api/tests/covered_files';
-    const options = { testId };
     this.testsScroll = $(e.currentTarget)
       .scrollParent()
       .scrollTop();
-    return $.get(url, options).done(data => {
-      this.coveredFiles = data.files;
-      this.selectedTest = this.tests.find(test => test.id === testId);
-      this.render();
-    });
+    getCoveredFiles({ testId }).then(
+      data => {
+        this.coveredFiles = data.files;
+        this.selectedTest = this.tests.find(test => test.id === testId);
+        this.render();
+      },
+      () => {}
+    );
   },
 
   showAllMeasures() {
