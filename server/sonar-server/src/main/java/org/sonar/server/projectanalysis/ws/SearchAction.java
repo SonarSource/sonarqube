@@ -100,13 +100,15 @@ public class SearchAction implements ProjectAnalysesWsAction {
       .setExampleValue(OTHER.name());
 
     action.createParam(PARAM_FROM)
-      .setDescription("Filter analyses created after the given date (inclusive). Format: date or datetime ISO formats")
+      .setDescription("Filter analyses created after the given date (inclusive). <br>" +
+        "Either a date (server timezone) or datetime can be provided")
       .setExampleValue("2013-05-01")
       .setSince("6.5");
 
     action.createParam(PARAM_TO)
-      .setDescription("Filter analyses created before the given date (inclusive). Format: date or datetime ISO formats")
-      .setExampleValue("2013-05-01T13:00:00+0100")
+      .setDescription("Filter analyses created before the given date (inclusive). <br>" +
+        "Either a date (server timezone) or datetime can be provided")
+      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200")
       .setSince("6.5");
 
   }

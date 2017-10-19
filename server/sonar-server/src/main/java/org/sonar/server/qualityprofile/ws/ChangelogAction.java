@@ -81,12 +81,14 @@ public class ChangelogAction implements QProfileWsAction {
     wsAction.addPagingParams(50, MAX_LIMIT);
 
     wsAction.createParam(PARAM_SINCE)
-      .setDescription("Start date for the changelog.")
-      .setExampleValue("2011-04-25T01:15:42+0100");
+      .setDescription("Start date for the changelog. <br>" +
+        "Either a date (server timezone) or datetime can be provided.")
+      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
 
     wsAction.createParam(PARAM_TO)
-      .setDescription("End date for the changelog.")
-      .setExampleValue("2013-07-25T07:35:42+0200");
+      .setDescription("End date for the changelog. <br>" +
+        "Either a date (server timezone) or datetime can be provided.")
+      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
   }
 
   @Override
@@ -145,7 +147,6 @@ public class ChangelogAction implements QProfileWsAction {
     json.endObject();
   }
 
-
   /**
    * @return non-null list of changes, by descending order of date
    */
@@ -177,7 +178,6 @@ public class ChangelogAction implements QProfileWsAction {
     });
   }
 
-
   static class Change {
     private String key;
     private String type;
@@ -195,7 +195,7 @@ public class ChangelogAction implements QProfileWsAction {
 
     @VisibleForTesting
     Change(String key, String type, long at, @Nullable String severity, @Nullable String userLogin,
-           @Nullable String userName, @Nullable String inheritance, @Nullable RuleKey ruleKey, @Nullable String ruleName) {
+      @Nullable String userName, @Nullable String inheritance, @Nullable RuleKey ruleKey, @Nullable String ruleName) {
       this.key = key;
       this.type = type;
       this.at = at;
