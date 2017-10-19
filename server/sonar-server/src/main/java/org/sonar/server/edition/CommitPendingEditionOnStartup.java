@@ -57,7 +57,7 @@ public class CommitPendingEditionOnStartup implements Startable {
         editionManagementState.installFailed("SonarQube was restarted before asynchronous installation of edition completed");
         break;
       case UNINSTALL_IN_PROGRESS:
-        failIfLicenseCommitIsPresent();
+        //failIfLicenseCommitIsPresent();
         editionManagementState.finalizeInstallation();
         break;
       default:
