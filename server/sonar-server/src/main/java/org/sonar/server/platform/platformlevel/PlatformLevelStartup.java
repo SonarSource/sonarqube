@@ -20,6 +20,7 @@
 package org.sonar.server.platform.platformlevel;
 
 import org.sonar.server.app.ProcessCommandWrapper;
+import org.sonar.server.edition.CommitPendingEditionOnStartup;
 import org.sonar.server.es.IndexerStartupTask;
 import org.sonar.server.organization.DefaultOrganizationEnforcer;
 import org.sonar.server.platform.ServerLifecycleNotifier;
@@ -52,7 +53,8 @@ public class PlatformLevelStartup extends PlatformLevel {
     add(GeneratePluginIndex.class,
       RegisterPlugins.class,
       ServerLifecycleNotifier.class,
-      DefaultOrganizationEnforcer.class);
+      DefaultOrganizationEnforcer.class,
+      CommitPendingEditionOnStartup.class);
 
     addIfStartupLeader(
       IndexerStartupTask.class,
