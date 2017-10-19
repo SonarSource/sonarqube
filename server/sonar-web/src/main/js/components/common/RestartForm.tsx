@@ -59,7 +59,8 @@ export default class RestartForm extends React.PureComponent<Props, State> {
         contentLabel={header}
         className="modal"
         overlayClassName="modal-overlay"
-        onRequestClose={this.props.onClose}>
+        onRequestClose={this.props.onClose}
+        shouldCloseOnOverlayClick={!restarting}>
         <form id="restart-form" onSubmit={this.handleFormSubmit}>
           <div className="modal-head">
             <h2>{header}</h2>
