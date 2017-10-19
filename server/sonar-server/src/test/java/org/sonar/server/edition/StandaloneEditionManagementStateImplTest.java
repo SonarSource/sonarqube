@@ -908,7 +908,7 @@ public class StandaloneEditionManagementStateImplTest {
     underTest.start();
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Can't move to NONE when status is NONE (should be any of [AUTOMATIC_IN_PROGRESS, AUTOMATIC_READY, MANUAL_IN_PROGRESS])");
+    expectedException.expectMessage("Can't move to NONE when status is NONE (should be any of [AUTOMATIC_IN_PROGRESS, MANUAL_IN_PROGRESS])");
 
     underTest.installFailed(nullableErrorMessage);
   }
@@ -1033,40 +1033,17 @@ public class StandaloneEditionManagementStateImplTest {
   }
 
   @Test
-  public void installFailed_after_automaticInstallReady_changes_status_to_NONE_stores_non_null_error_message_and_clear_pending_fields_when_current_install_exists() {
-    underTest.start();
-    String currentEdition = "current-edition";
-    underTest.newEditionWithoutInstall(currentEdition);
-    underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
-    underTest.automaticInstallReady();
-    String errorMessage = randomAlphanumeric(4);
-
-    PendingStatus newStatus = underTest.installFailed(errorMessage);
-
-    assertThat(newStatus).isEqualTo(NONE);
-    assertThat(underTest.getPendingInstallationStatus()).isEqualTo(NONE);
-    assertThat(underTest.getPendingEditionKey()).isEmpty();
-    assertThat(underTest.getPendingLicense()).isEmpty();
-    assertThat(underTest.getCurrentEditionKey()).contains(currentEdition);
-    assertThat(underTest.getInstallErrorMessage()).contains(errorMessage);
-  }
-
-  @Test
-  public void installFailed_after_automaticInstallReady_changes_status_to_NONE_without_error_message_and_clear_pending_fields_when_current_install_exists() {
+  public void installFailed_fails_with_ISE_after_automaticInstallReady() {
     underTest.start();
     String currentEdition = "current-edition";
     underTest.newEditionWithoutInstall(currentEdition);
     underTest.startAutomaticInstall(LICENSE_WITHOUT_PLUGINS);
     underTest.automaticInstallReady();
 
-    PendingStatus newStatus = underTest.installFailed(null);
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't move to NONE when status is AUTOMATIC_READY (should be any of [AUTOMATIC_IN_PROGRESS, MANUAL_IN_PROGRESS])");
 
-    assertThat(newStatus).isEqualTo(NONE);
-    assertThat(underTest.getPendingInstallationStatus()).isEqualTo(NONE);
-    assertThat(underTest.getPendingEditionKey()).isEmpty();
-    assertThat(underTest.getPendingLicense()).isEmpty();
-    assertThat(underTest.getCurrentEditionKey()).contains(currentEdition);
-    assertThat(underTest.getInstallErrorMessage()).isEmpty();
+    underTest.installFailed(nullableErrorMessage);
   }
 
   @Test
@@ -1076,7 +1053,7 @@ public class StandaloneEditionManagementStateImplTest {
     underTest.installFailed(nullableErrorMessage);
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Can't move to NONE when status is NONE (should be any of [AUTOMATIC_IN_PROGRESS, AUTOMATIC_READY, MANUAL_IN_PROGRESS])");
+    expectedException.expectMessage("Can't move to NONE when status is NONE (should be any of [AUTOMATIC_IN_PROGRESS, MANUAL_IN_PROGRESS])");
 
     underTest.installFailed(nullableErrorMessage);
   }
