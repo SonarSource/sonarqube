@@ -31,10 +31,10 @@ const DEFAULT_STATUS: EditionStatus = {
 const DEFAULT_EDITION: Edition = {
   key: 'foo',
   name: 'Foo',
-  desc: 'Foo desc',
-  download_link: 'download_url',
-  more_link: 'more_url',
-  request_license_link: 'license_url'
+  textDescription: 'Foo desc',
+  downloadUrl: 'download_url',
+  homeUrl: 'more_url',
+  requestUrl: 'license_url'
 };
 
 it('should display the edition', () => {

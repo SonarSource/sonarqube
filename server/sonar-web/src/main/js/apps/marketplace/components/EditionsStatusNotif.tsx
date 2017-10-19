@@ -21,7 +21,7 @@ import * as React from 'react';
 import RestartForm from '../../../components/common/RestartForm';
 import CloseIcon from '../../../components/icons-components/CloseIcon';
 import { dismissErrorMessage, Edition, EditionStatus } from '../../../api/marketplace';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 interface Props {
   editions?: Edition[];
@@ -67,7 +67,10 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
           <div className="alert alert-success">
             <span>
               {nextEdition ? (
-                translate('marketplace.status_x.' + installationStatus, nextEdition.name)
+                translateWithParameters(
+                  'marketplace.status_x.' + installationStatus,
+                  nextEdition.name
+                )
               ) : (
                 translate('marketplace.status', installationStatus)
               )}
@@ -82,7 +85,10 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
         return (
           <div className="alert alert-danger">
             {nextEdition ? (
-              translate('marketplace.status_x.' + installationStatus, nextEdition.name)
+              translateWithParameters(
+                'marketplace.status_x.' + installationStatus,
+                nextEdition.name
+              )
             ) : (
               translate('marketplace.status', installationStatus)
             )}
@@ -91,7 +97,7 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
                 <a
                   className="button spacer-right"
                   download={`sonarqube-${nextEdition.name}.zip`}
-                  href={nextEdition.download_link}
+                  href={nextEdition.downloadUrl}
                   target="_blank">
                   {translate('marketplace.download_package')}
                 </a>
