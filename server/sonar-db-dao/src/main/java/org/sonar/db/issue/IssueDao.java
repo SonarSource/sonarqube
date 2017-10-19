@@ -103,8 +103,8 @@ public class IssueDao implements Dao {
     mapper(dbSession).scrollNonClosedByModuleOrProject(module.projectUuid(), likeModuleUuidPath, handler);
   }
 
-  public List<ShortBranchIssueDto> selectResolvedOrConfirmedByComponentUuids(DbSession dbSession, Collection<String> componentUuids) {
-    return executeLargeInputs(componentUuids, mapper(dbSession)::selectResolvedOrConfirmedByComponentUuids);
+  public List<ShortBranchIssueDto> selectOpenByComponentUuids(DbSession dbSession, Collection<String> componentUuids) {
+    return executeLargeInputs(componentUuids, mapper(dbSession)::selectOpenByComponentUuids);
   }
 
   public void insert(DbSession session, IssueDto dto) {

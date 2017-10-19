@@ -56,7 +56,7 @@ public class ShortBranchIssuesLoader {
       return Collections.emptyList();
     }
     try (DbSession session = dbClient.openSession(false)) {
-      return dbClient.issueDao().selectResolvedOrConfirmedByComponentUuids(session, uuids)
+      return dbClient.issueDao().selectOpenByComponentUuids(session, uuids)
         .stream()
         .map(ShortBranchIssueDto::toShortBranchIssue)
         .collect(Collectors.toList());

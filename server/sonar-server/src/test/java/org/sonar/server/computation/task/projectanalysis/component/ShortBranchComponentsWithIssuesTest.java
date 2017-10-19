@@ -111,7 +111,7 @@ public class ShortBranchComponentsWithIssuesTest {
     setRootUuid(long1.uuid());
 
     assertThat(underTest.getUuids(fileWithNoIssues.getKey())).isEmpty();
-    assertThat(underTest.getUuids(fileWithOneOpenIssue.getKey())).isEmpty();
+    assertThat(underTest.getUuids(fileWithOneOpenIssue.getKey())).containsOnly(fileWithOneOpenIssue.uuid());
     assertThat(underTest.getUuids(fileWithOneResolvedIssue.getKey())).containsOnly(fileWithOneResolvedIssue.uuid());
     assertThat(underTest.getUuids(fileWithOneOpenTwoResolvedIssues.getKey())).containsOnly(fileWithOneOpenTwoResolvedIssues.uuid());
 
@@ -128,7 +128,7 @@ public class ShortBranchComponentsWithIssuesTest {
 
     assertThat(underTest.getUuids(fileWithOneResolvedIssue.getKey())).isEmpty();
     assertThat(underTest.getUuids(fileWithOneResolvedIssueOnLong2.getKey())).containsOnly(fileWithOneResolvedIssueOnLong2.uuid());
-    assertThat(underTest.getUuids(fileWithOneOpenIssueOnLong2.getKey())).isEmpty();
+    assertThat(underTest.getUuids(fileWithOneOpenIssueOnLong2.getKey())).containsOnly(fileWithOneOpenIssueOnLong2.uuid());
   }
 
   @Test

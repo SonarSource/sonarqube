@@ -27,6 +27,8 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.ShortBranchIssue;
 
+import static org.sonar.api.utils.DateUtils.longToDate;
+
 public final class ShortBranchIssueDto implements Serializable {
 
   private String kee;
@@ -34,6 +36,7 @@ public final class ShortBranchIssueDto implements Serializable {
   private Integer line;
   private String checksum;
   private String status;
+  private Long issueCreationDate;
 
   // joins
   private String ruleKey;
@@ -114,7 +117,7 @@ public final class ShortBranchIssueDto implements Serializable {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
-  public static ShortBranchIssue toShortBranchIssue(ShortBranchIssueDto dto) {
-    return new ShortBranchIssue(dto.getKey(), dto.getLine(), dto.getMessage(), dto.getChecksum(), dto.getRuleKey(), dto.getStatus(), dto.getBranchName());
+  public ShortBranchIssue toShortBranchIssue() {
+    return new ShortBranchIssue(getKey(), getLine(), getMessage(), getChecksum(), getRuleKey(), getStatus(), getBranchName(), longToDate(issueCreationDate));
   }
 }
