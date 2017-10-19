@@ -59,7 +59,7 @@ export default class InputForPassword extends React.PureComponent {
           <input
             value={this.state.value}
             name={this.props.name}
-            className="js-password-input input-large text-top"
+            className="js-password-input settings-large-input text-top"
             type="password"
             autoFocus={true}
             autoComplete={false}

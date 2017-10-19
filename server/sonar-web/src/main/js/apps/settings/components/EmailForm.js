@@ -76,6 +76,7 @@ class EmailForm extends React.PureComponent {
               <em className="mandatory">*</em>
             </label>
             <input
+              className="settings-large-input"
               id="test-email-to"
               type="email"
               required={true}
@@ -89,6 +90,7 @@ class EmailForm extends React.PureComponent {
               {translate('email_configuration.test.subject')}
             </label>
             <input
+              className="settings-large-input"
               id="test-email-subject"
               type="text"
               value={this.state.subject}
@@ -102,6 +104,7 @@ class EmailForm extends React.PureComponent {
               <em className="mandatory">*</em>
             </label>
             <textarea
+              className="settings-large-input"
               id="test-email-title"
               required={true}
               rows="5"

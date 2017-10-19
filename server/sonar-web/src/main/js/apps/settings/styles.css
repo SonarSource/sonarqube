@@ -83,3 +83,9 @@
   margin-bottom: 20px;
   color: #777;
 }
+
+.settings-large-input {
+  width: 100% !important;
+  max-width: 400px;
+  min-width: 200px;
+}
