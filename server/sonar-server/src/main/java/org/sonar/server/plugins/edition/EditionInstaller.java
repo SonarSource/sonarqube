@@ -82,8 +82,12 @@ public class EditionInstaller {
     uninstallPlugins(pluginsToRemove);
   }
 
+  /**
+   * Check if the update center is disabled or unreachable. It uses the cached status (it doesn't refresh),
+   * to be a cost-free check.
+   */
   public boolean isOffline() {
-    return !updateCenterMatrixFactory.getUpdateCenter(true).isPresent();
+    return !updateCenterMatrixFactory.getUpdateCenter(false).isPresent();
   }
 
   public boolean requiresInstallationChange(Set<String> editionPluginKeys) {
