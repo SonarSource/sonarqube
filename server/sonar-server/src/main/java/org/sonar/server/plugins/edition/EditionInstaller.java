@@ -59,8 +59,7 @@ public class EditionInstaller {
 
   /**
    * Refreshes the update center, and submits in a executor a task to download all the needed plugins (asynchronously).
-   * If the update center is disabled or if we are offline, the task is not submitted and false is returned.
-   * In all case
+   * If the update center is disabled or if we are offline, the task is not submitted.
    *
    * @throws IllegalStateException if an installation is already in progress
    */

@@ -38,6 +38,7 @@ import org.sonar.server.edition.EditionManagementState;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.platform.WebServer;
 import org.sonar.server.plugins.edition.EditionInstaller;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -65,7 +66,8 @@ public class PreviewActionTest {
 
   private EditionManagementState editionManagementState = mock(EditionManagementState.class);
   private EditionInstaller editionInstaller = mock(EditionInstaller.class);
-  private PreviewAction underTest = new PreviewAction(userSessionRule, editionManagementState, editionInstaller);
+  private WebServer webServer = mock(WebServer.class);
+  private PreviewAction underTest = new PreviewAction(userSessionRule, editionManagementState, editionInstaller, webServer);
   private WsActionTester actionTester = new WsActionTester(underTest);
 
   @Test
@@ -117,7 +119,7 @@ public class PreviewActionTest {
 
     request.execute();
   }
-  
+
   @Test
   public void request_fails_if_license_param_is_empty() {
     userSessionRule.logIn().setSystemAdministrator();
@@ -161,6 +163,7 @@ public class PreviewActionTest {
   @Test
   public void verify_example() throws IOException {
     userSessionRule.logIn().setSystemAdministrator();
+    when(webServer.isStandalone()).thenReturn(true);
     when(editionManagementState.getPendingInstallationStatus()).thenReturn(NONE);
     when(editionInstaller.requiresInstallationChange(Collections.singleton("plugin1"))).thenReturn(true);
     when(editionInstaller.isOffline()).thenReturn(false);
@@ -173,6 +176,21 @@ public class PreviewActionTest {
 
   @Test
   public void license_requires_no_installation() throws IOException {
+    when(webServer.isStandalone()).thenReturn(true);
+    userSessionRule.logIn().setSystemAdministrator();
+    when(editionManagementState.getPendingInstallationStatus()).thenReturn(NONE);
+    when(editionInstaller.requiresInstallationChange(Collections.singleton("plugin1"))).thenReturn(false);
+
+    TestRequest request = actionTester.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
+      .setParam(PARAM_LICENSE, createLicenseParam("developer-edition", "plugin1"));
+
+    assertResponse(request.execute(), "developer-edition", PreviewStatus.NO_INSTALL);
+  }
+
+  @Test
+  public void cluster_require_no_installation() throws IOException {
+    when(webServer.isStandalone()).thenReturn(false);
     userSessionRule.logIn().setSystemAdministrator();
     when(editionManagementState.getPendingInstallationStatus()).thenReturn(NONE);
     when(editionInstaller.requiresInstallationChange(Collections.singleton("plugin1"))).thenReturn(false);
@@ -187,6 +205,7 @@ public class PreviewActionTest {
   @Test
   public void license_will_result_in_auto_install() throws IOException {
     userSessionRule.logIn().setSystemAdministrator();
+    when(webServer.isStandalone()).thenReturn(true);
     when(editionManagementState.getPendingInstallationStatus()).thenReturn(NONE);
     when(editionInstaller.requiresInstallationChange(Collections.singleton("plugin1"))).thenReturn(true);
     when(editionInstaller.isOffline()).thenReturn(false);
@@ -201,6 +220,7 @@ public class PreviewActionTest {
   @Test
   public void license_will_result_in_manual_install() throws IOException {
     userSessionRule.logIn().setSystemAdministrator();
+    when(webServer.isStandalone()).thenReturn(true);
     when(editionManagementState.getPendingInstallationStatus()).thenReturn(NONE);
     when(editionInstaller.requiresInstallationChange(Collections.singleton("plugin1"))).thenReturn(true);
     when(editionInstaller.isOffline()).thenReturn(true);
