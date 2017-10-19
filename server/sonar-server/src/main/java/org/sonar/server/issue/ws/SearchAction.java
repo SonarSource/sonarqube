@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
@@ -51,6 +52,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.concat;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
@@ -107,6 +109,8 @@ public class SearchAction implements IssuesWsAction {
 
   private static final String INTERNAL_PARAMETER_DISCLAIMER = "This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. ";
   private static final Set<String> IGNORED_FACETS = newHashSet(PARAM_PLANNED, DEPRECATED_PARAM_ACTION_PLANS, PARAM_REPORTERS);
+  private static final Set<String> FACETS_REQUIRING_PROJECT_OR_ORGANIZATION = newHashSet(PARAM_FILE_UUIDS, PARAM_DIRECTORIES, PARAM_MODULE_UUIDS);
+  private static final Joiner COMA_JOINER = Joiner.on(",");
 
   private final UserSession userSession;
   private final IssueIndex issueIndex;
@@ -333,6 +337,13 @@ public class SearchAction implements IssuesWsAction {
       // This is a constraint from webapp UX.
       completeFacets(facets, request, wsRequest);
       collectFacets(collector, facets);
+
+      Set<String> facetsRequiringProjectOrOrganizationParameter = facets.getNames().stream()
+        .filter(FACETS_REQUIRING_PROJECT_OR_ORGANIZATION::contains)
+        .collect(MoreCollectors.toSet());
+      checkArgument(facetsRequiringProjectOrOrganizationParameter.isEmpty() ||
+        (!query.projectUuids().isEmpty()) || query.organizationUuid() != null, "Facet(s) '%s' require to also filter by project or organization",
+        COMA_JOINER.join(facetsRequiringProjectOrOrganizationParameter));
     }
     SearchResponseData data = searchResponseLoader.load(collector, facets);
 

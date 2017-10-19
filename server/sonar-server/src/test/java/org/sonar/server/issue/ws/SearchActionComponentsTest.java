@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Qualifiers;
@@ -82,6 +83,8 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_SINCE_LEAK_
 
 public class SearchActionComponentsTest {
 
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
@@ -322,8 +325,9 @@ public class SearchActionComponentsTest {
   }
 
   @Test
-  public void display_file_facet() throws Exception {
-    ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey("PK1"));
+  public void display_file_facet_with_project() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization, p -> p.setDbKey("PK1"));
     ComponentDto file1 = db.components().insertComponent(newFileDto(project, null, "F1").setDbKey("FK1"));
     ComponentDto file2 = db.components().insertComponent(newFileDto(project, null, "F2").setDbKey("FK2"));
     ComponentDto file3 = db.components().insertComponent(newFileDto(project, null, "F3").setDbKey("FK3"));
@@ -334,11 +338,50 @@ public class SearchActionComponentsTest {
     indexIssues();
 
     ws.newRequest()
-      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, project.uuid())
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_KEYS, project.getKey())
       .setParam(IssuesWsParameters.PARAM_FILE_UUIDS, file1.uuid() + "," + file3.uuid())
       .setParam(WebService.Param.FACETS, "fileUuids")
       .execute()
       .assertJson(this.getClass(), "display_file_facet.json");
+  }
+
+  @Test
+  public void display_file_facet_with_organization() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization, p -> p.setDbKey("PK1"));
+    ComponentDto file1 = db.components().insertComponent(newFileDto(project, null, "F1").setDbKey("FK1"));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(project, null, "F2").setDbKey("FK2"));
+    ComponentDto file3 = db.components().insertComponent(newFileDto(project, null, "F3").setDbKey("FK3"));
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
+    db.issues().insert(rule, project, file1, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
+    db.issues().insert(rule, project, file2, i -> i.setKee("2bd4eac2-b650-4037-80bc-7b1182fd47d4"));
+    allowAnyoneOnProjects(project);
+    indexIssues();
+
+    ws.newRequest()
+      .setParam(IssuesWsParameters.PARAM_ORGANIZATION, organization.getKey())
+      .setParam(IssuesWsParameters.PARAM_FILE_UUIDS, file1.uuid() + "," + file3.uuid())
+      .setParam(WebService.Param.FACETS, "fileUuids")
+      .execute()
+      .assertJson(this.getClass(), "display_file_facet.json");
+  }
+
+  @Test
+  public void fail_to_display_file_facet_when_no_organization_or_project_is_set() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert();
+    db.issues().insert(rule, project, file);
+    allowAnyoneOnProjects(project);
+    indexIssues();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Facet(s) 'fileUuids' require to also filter by project or organization");
+
+    ws.newRequest()
+      .setParam(IssuesWsParameters.PARAM_FILE_UUIDS, file.uuid())
+      .setParam(WebService.Param.FACETS, "fileUuids")
+      .execute();
   }
 
   @Test
@@ -420,7 +463,7 @@ public class SearchActionComponentsTest {
   }
 
   @Test
-  public void display_module_facet() throws Exception {
+  public void display_module_facet_using_project() throws Exception {
     ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey("PK1"));
     ComponentDto module = db.components().insertComponent(newModuleDto("M1", project).setDbKey("MK1"));
     ComponentDto subModule1 = db.components().insertComponent(newModuleDto("SUBM1", module).setDbKey("SUBMK1"));
@@ -435,6 +478,7 @@ public class SearchActionComponentsTest {
     indexIssues();
 
     ws.newRequest()
+      .setParam(IssuesWsParameters.PARAM_PROJECTS, project.getKey())
       .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, module.uuid())
       .setParam(IssuesWsParameters.PARAM_MODULE_UUIDS, subModule1.uuid() + "," + subModule3.uuid())
       .setParam(WebService.Param.FACETS, "moduleUuids")
@@ -443,7 +487,51 @@ public class SearchActionComponentsTest {
   }
 
   @Test
-  public void display_directory_facet() throws Exception {
+  public void display_module_facet_using_organization() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization, p -> p.setDbKey("PK1"));
+    ComponentDto module = db.components().insertComponent(newModuleDto("M1", project).setDbKey("MK1"));
+    ComponentDto subModule1 = db.components().insertComponent(newModuleDto("SUBM1", module).setDbKey("SUBMK1"));
+    ComponentDto subModule2 = db.components().insertComponent(newModuleDto("SUBM2", module).setDbKey("SUBMK2"));
+    ComponentDto subModule3 = db.components().insertComponent(newModuleDto("SUBM3", module).setDbKey("SUBMK3"));
+    ComponentDto file1 = db.components().insertComponent(newFileDto(subModule1, null, "F1").setDbKey("FK1"));
+    ComponentDto file2 = db.components().insertComponent(newFileDto(subModule2, null, "F2").setDbKey("FK2"));
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
+    IssueDto issue1 = db.issues().insert(rule, project, file1, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
+    IssueDto issue2 = db.issues().insert(rule, project, file2, i -> i.setKee("2bd4eac2-b650-4037-80bc-7b1182fd47d4"));
+    allowAnyoneOnProjects(project);
+    indexIssues();
+
+    ws.newRequest()
+      .setParam(IssuesWsParameters.PARAM_ORGANIZATION, organization.getKey())
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, module.uuid())
+      .setParam(IssuesWsParameters.PARAM_MODULE_UUIDS, subModule1.uuid() + "," + subModule3.uuid())
+      .setParam(WebService.Param.FACETS, "moduleUuids")
+      .execute()
+      .assertJson(this.getClass(), "display_module_facet.json");
+  }
+
+  @Test
+  public void fail_to_display_module_facet_when_no_organization_or_project_is_set() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto module = db.components().insertComponent(newModuleDto(project));
+    ComponentDto file = db.components().insertComponent(newFileDto(module, null));
+    RuleDefinitionDto rule = db.rules().insert();
+    db.issues().insert(rule, project, file);
+    allowAnyoneOnProjects(project);
+    indexIssues();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Facet(s) 'moduleUuids' require to also filter by project or organization");
+
+    ws.newRequest()
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_UUIDS, module.uuid())
+      .setParam(WebService.Param.FACETS, "moduleUuids")
+      .execute();
+  }
+
+  @Test
+  public void display_directory_facet_using_project() throws Exception {
     ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey("PK1"));
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "D1", "src/main/java/dir"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory, "F1").setDbKey("FK1").setPath(directory.path() + "/MyComponent.java"));
@@ -455,9 +543,48 @@ public class SearchActionComponentsTest {
     userSession.logIn("john");
     ws.newRequest()
       .setParam("resolved", "false")
+      .setParam(IssuesWsParameters.PARAM_COMPONENT_KEYS, project.getKey())
       .setParam(WebService.Param.FACETS, "directories")
       .execute()
       .assertJson(this.getClass(), "display_directory_facet.json");
+  }
+
+  @Test
+  public void display_directory_facet_using_organization() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPublicProject(organization, p -> p.setDbKey("PK1"));
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "D1", "src/main/java/dir"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, directory, "F1").setDbKey("FK1").setPath(directory.path() + "/MyComponent.java"));
+    RuleDefinitionDto rule = db.rules().insert(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
+    IssueDto issue = db.issues().insert(rule, project, file, i -> i.setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2"));
+    allowAnyoneOnProjects(project);
+    indexIssues();
+
+    userSession.logIn("john");
+    ws.newRequest()
+      .setParam("resolved", "false")
+      .setParam(IssuesWsParameters.PARAM_ORGANIZATION, organization.getKey())
+      .setParam(WebService.Param.FACETS, "directories")
+      .execute()
+      .assertJson(this.getClass(), "display_directory_facet.json");
+  }
+
+  @Test
+  public void fail_to_display_directory_facet_when_no_organization_or_project_is_set() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
+    ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
+    RuleDefinitionDto rule = db.rules().insert();
+    db.issues().insert(rule, project, file);
+    allowAnyoneOnProjects(project);
+    indexIssues();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Facet(s) 'directories' require to also filter by project or organization");
+
+    ws.newRequest()
+      .setParam(WebService.Param.FACETS, "directories")
+      .execute();
   }
 
   @Test

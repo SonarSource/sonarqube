@@ -75,6 +75,7 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENTS;
+import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMPONENT_KEYS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_HIDE_COMMENTS;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_PAGE_INDEX;
@@ -381,6 +382,7 @@ public class SearchActionTest {
     userSessionRule.logIn("john");
     ws.newRequest()
       .setParam("resolved", "false")
+      .setParam(PARAM_COMPONENT_KEYS, project.getKey())
       .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans,types")
       .execute()
       .assertJson(this.getClass(), "display_facets.json");
@@ -405,6 +407,7 @@ public class SearchActionTest {
     userSessionRule.logIn("john");
     ws.newRequest()
       .setParam("resolved", "false")
+      .setParam(PARAM_COMPONENT_KEYS, project.getKey())
       .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans")
       .setParam("facetMode", FACET_MODE_EFFORT)
       .execute()
@@ -429,6 +432,7 @@ public class SearchActionTest {
 
     userSessionRule.logIn("john");
     ws.newRequest()
+      .setParam(PARAM_COMPONENT_KEYS, project.getKey())
       .setParam("resolved", "false")
       .setParam("severities", "MAJOR,MINOR")
       .setParam("languages", "xoo,polop,palap")
