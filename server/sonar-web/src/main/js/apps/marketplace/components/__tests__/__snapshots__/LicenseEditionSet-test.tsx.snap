@@ -21,25 +21,6 @@ exports[`should correctly display status message after checking license 3`] = `
   className="alert spacer-top alert-danger"
 >
   marketplace.license_preview_status.MANUAL_INSTALL.Foo
-  <p
-    className="spacer-top"
-  >
-    <a
-      className="button"
-      download="sonarqube-Foo.zip"
-      href="download_url"
-      target="_blank"
-    >
-      marketplace.download_package
-    </a>
-    <a
-      className="spacer-left"
-      href="https://redirect.sonarsource.com/doc/how-to-install-an-edition.html"
-      target="_blank"
-    >
-      marketplace.how_to_install
-    </a>
-  </p>
 </p>
 `;
 

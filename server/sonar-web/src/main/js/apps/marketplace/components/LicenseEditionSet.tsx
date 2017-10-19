@@ -137,8 +137,7 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
           rows={6}
           value={license}
         />
-        {previewStatus &&
-        licenseEdition && (
+        {previewStatus && (
           <p
             className={classNames('alert spacer-top', {
               'alert-warning': previewStatus === 'AUTOMATIC_INSTALL',
@@ -147,24 +146,7 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
             })}>
             {translateWithParameters(
               'marketplace.license_preview_status.' + previewStatus,
-              licenseEdition.name
-            )}
-            {previewStatus === 'MANUAL_INSTALL' && (
-              <p className="spacer-top">
-                <a
-                  className="button"
-                  download={`sonarqube-${licenseEdition.name}.zip`}
-                  href={licenseEdition.download_link}
-                  target="_blank">
-                  {translate('marketplace.download_package')}
-                </a>
-                <a
-                  className="spacer-left"
-                  href="https://redirect.sonarsource.com/doc/how-to-install-an-edition.html"
-                  target="_blank">
-                  {translate('marketplace.how_to_install')}
-                </a>
-              </p>
+              licenseEdition ? licenseEdition.name : translate('marketplace.commercial_edition')
             )}
           </p>
         )}
