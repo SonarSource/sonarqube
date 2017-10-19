@@ -42,6 +42,10 @@ public class SharedHealthStateImpl implements SharedHealthState {
     this.hzMember = hzMember;
   }
 
+  public SharedHealthStateImpl() {
+    this(null);
+  }
+
   @Override
   public void writeMine(NodeHealth nodeHealth) {
     requireNonNull(nodeHealth, "nodeHealth can't be null");
