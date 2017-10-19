@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display correctly 1`] = `null`;
+
+exports[`should display correctly 2`] = `
+<div
+  className="page-notifs"
+>
+  <div
+    className="alert alert-info"
+  >
+    system.new_version_available
+    <button
+      className="spacer-left"
+      onClick={[Function]}
+    >
+      learn_more
+    </button>
+  </div>
+</div>
+`;
+
+exports[`should display nothing 1`] = `null`;

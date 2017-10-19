@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { each, memoize, omit, omitBy, pickBy, sortBy } from 'lodash';
+import { each, groupBy, memoize, omit, omitBy, pickBy, sortBy } from 'lodash';
 import {
   cleanQuery,
   parseAsArray,
@@ -31,7 +31,8 @@ import {
   NodeInfo,
   SysInfo,
   SysInfoSection,
-  SysValueObject
+  SysValueObject,
+  SystemUpgrade
 } from '../../api/system';
 import { formatMeasure } from '../../helpers/measures';
 
@@ -185,3 +186,17 @@ export const serializeQuery = memoize((query: Query): RawQuery =>
     expand: serializeStringArray(query.expandedCards)
   })
 );
+
+export function sortUpgrades(upgrades: SystemUpgrade[]): SystemUpgrade[] {
+  return sortBy(upgrades, [
+    (upgrade: SystemUpgrade) => -Number(upgrade.version.split('.')[0]),
+    (upgrade: SystemUpgrade) => -Number(upgrade.version.split('.')[1] || 0),
+    (upgrade: SystemUpgrade) => -Number(upgrade.version.split('.')[2] || 0)
+  ]);
+}
+
+export function groupUpgrades(upgrades: SystemUpgrade[]): SystemUpgrade[][] {
+  const groupedVersions = groupBy(upgrades, upgrade => upgrade.version.split('.')[0]);
+  const sortedMajor = sortBy(Object.keys(groupedVersions), key => -Number(key));
+  return sortedMajor.map(key => groupedVersions[key]);
+}

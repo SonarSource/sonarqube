@@ -23,6 +23,7 @@ import Helmet from 'react-helmet';
 import ClusterSysInfos from './ClusterSysInfos';
 import PageHeader from './PageHeader';
 import StandaloneSysInfos from './StandaloneSysInfos';
+import SystemUpgradeNotif from './system-upgrade/SystemUpgradeNotif';
 import { translate } from '../../../helpers/l10n';
 import { ClusterSysInfo, getSystemInfo, SysInfo } from '../../../api/system';
 import { getSystemLogsLevel, isCluster, parseQuery, Query, serializeQuery } from '../utils';
@@ -117,6 +118,7 @@ export default class App extends React.PureComponent<Props, State> {
     return (
       <div className="page page-limited">
         <Helmet title={translate('system_info.page')} />
+        <SystemUpgradeNotif />
         <PageHeader
           loading={loading}
           isCluster={isCluster(sysInfoData)}

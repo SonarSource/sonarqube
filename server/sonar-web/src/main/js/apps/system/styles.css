@@ -61,3 +61,17 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.system-upgrade-version {
+  padding: 8px;
+}
+
+.system-upgrade-version ~ .system-upgrade-version {
+  margin-top: 10px;
+  padding-top: 18px;
+  border-top: solid 1px #e6e6e6;
+}
+
+.system-upgrade-intermediate {
+  padding: 6px 10px;
+}
