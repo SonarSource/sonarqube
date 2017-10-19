@@ -57,6 +57,7 @@ import org.sonarqube.ws.WsEditions.StatusResponse;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -225,15 +226,38 @@ public class ApplyLicenseActionTest {
     userSessionRule.logIn().setSystemAdministrator();
     setPendingLicense(NONE);
     when(editionInstaller.requiresInstallationChange(singleton("plugin1"))).thenReturn(false);
+    String base64License = createLicenseParam(PENDING_EDITION_NAME, "plugin1");
     when(webServer.isStandalone()).thenReturn(true);
 
     TestRequest request = actionTester.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
-      .setParam(PARAM_LICENSE, createLicenseParam(PENDING_EDITION_NAME, "plugin1"));
+      .setParam(PARAM_LICENSE, base64License);
 
     TestResponse response = request.execute();
+
     assertResponse(response, PENDING_EDITION_NAME, "", NONE);
     verify(mutableEditionManagementState).newEditionWithoutInstall(PENDING_EDITION_NAME);
+    verify(licenseCommit).update(base64License);
+  }
+
+  @Test
+  public void execute_throws_BadRequestException_if_license_validation_fails_when_there_is_no_need_to_install() throws IOException {
+    userSessionRule.logIn().setSystemAdministrator();
+    setPendingLicense(NONE, null);
+    when(editionInstaller.requiresInstallationChange(singleton("plugin1"))).thenReturn(false);
+    String base64License = createLicenseParam(PENDING_EDITION_NAME, "plugin1");
+    TestRequest request = actionTester.newRequest()
+      .setMediaType(MediaTypes.PROTOBUF)
+      .setParam(PARAM_LICENSE, base64License);
+    IllegalArgumentException fakeValidationError = new IllegalArgumentException("Faking failed validation of license on update call");
+    doThrow(fakeValidationError)
+      .when(licenseCommit)
+      .update(base64License);
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage(fakeValidationError.getMessage());
+
+    request.execute();
   }
 
   @Test
