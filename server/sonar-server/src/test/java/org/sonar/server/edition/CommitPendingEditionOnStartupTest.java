@@ -29,6 +29,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.license.LicenseCommit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -43,8 +44,7 @@ public class CommitPendingEditionOnStartupTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
-  public LogTester logTester = new LogTester()
-    .setLevel(LoggerLevel.DEBUG);
+  public LogTester logTester = new LogTester();
 
   private MutableEditionManagementState editionManagementState = mock(MutableEditionManagementState.class);
   private LicenseCommit licenseCommit = mock(LicenseCommit.class);
@@ -82,7 +82,7 @@ public class CommitPendingEditionOnStartupTest {
     verifyNoMoreInteractions(editionManagementState);
     verifyZeroInteractions(licenseCommit);
     assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(LoggerLevel.INFO))
       .containsOnly("No LicenseCommit instance is not available, can not finalize installation");
   }
 
@@ -103,6 +103,28 @@ public class CommitPendingEditionOnStartupTest {
   }
 
   @Test
+  public void start_commit_license_and_finalizeInstallation_with_error_in_editionManagementState_when_status_is_AUTOMATIC_READY_and_license_is_invalid() {
+    when(editionManagementState.getPendingInstallationStatus()).thenReturn(AUTOMATIC_READY);
+    String license = RandomStringUtils.randomAlphanumeric(20);
+    when(editionManagementState.getPendingLicense()).thenReturn(Optional.of(license));
+    doThrow(new IllegalArgumentException("Faking an IAE because of an invalid license"))
+      .when(licenseCommit)
+      .update(license);
+
+    underTestWithLicenseCommit.start();
+
+    verify(editionManagementState).getPendingInstallationStatus();
+    verify(editionManagementState).getPendingLicense();
+    verify(editionManagementState).finalizeInstallation("Invalid staged license could not be commit on startup. Please input a new license.");
+    verifyNoMoreInteractions(editionManagementState);
+    verify(licenseCommit).update(license);
+    verifyNoMoreInteractions(licenseCommit);
+    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .containsOnly("Invalid staged license could not be commit on startup. Please input a new license.");
+  }
+
+  @Test
   public void starts_has_no_effect_when_status_is_MANUAL_IN_PROGRESS_and_no_LicenseCommit_is_available_but_logs_at_debug_level() {
     when(editionManagementState.getPendingInstallationStatus()).thenReturn(MANUAL_IN_PROGRESS);
 
@@ -112,7 +134,7 @@ public class CommitPendingEditionOnStartupTest {
     verifyNoMoreInteractions(editionManagementState);
     verifyZeroInteractions(licenseCommit);
     assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG))
+    assertThat(logTester.logs(LoggerLevel.INFO))
       .containsOnly("No LicenseCommit instance is not available, can not finalize installation");
   }
 
@@ -130,6 +152,28 @@ public class CommitPendingEditionOnStartupTest {
     verifyNoMoreInteractions(editionManagementState);
     verify(licenseCommit).update(license);
     verifyNoMoreInteractions(licenseCommit);
+  }
+
+  @Test
+  public void start_commit_license_and_finalizeInstallation_with_error_in_editionManagementState_when_status_is_MANUAL_IN_PROGRESS_and_license_is_invalid() {
+    when(editionManagementState.getPendingInstallationStatus()).thenReturn(MANUAL_IN_PROGRESS);
+    String license = RandomStringUtils.randomAlphanumeric(20);
+    when(editionManagementState.getPendingLicense()).thenReturn(Optional.of(license));
+    doThrow(new IllegalArgumentException("Faking an IAE because of an invalid license"))
+      .when(licenseCommit)
+      .update(license);
+
+    underTestWithLicenseCommit.start();
+
+    verify(editionManagementState).getPendingInstallationStatus();
+    verify(editionManagementState).getPendingLicense();
+    verify(editionManagementState).finalizeInstallation("Invalid staged license could not be commit on startup. Please input a new license.");
+    verifyNoMoreInteractions(editionManagementState);
+    verify(licenseCommit).update(license);
+    verifyNoMoreInteractions(licenseCommit);
+    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .containsOnly("Invalid staged license could not be commit on startup. Please input a new license.");
   }
 
   @Test
