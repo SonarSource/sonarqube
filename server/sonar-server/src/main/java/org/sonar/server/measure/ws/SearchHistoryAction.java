@@ -114,12 +114,14 @@ public class SearchHistoryAction implements MeasuresWsAction {
       .setExampleValue("ncloc,coverage,new_violations");
 
     action.createParam(PARAM_FROM)
-      .setDescription("Filter measures created after the given date (inclusive). Format: date or datetime ISO formats")
-      .setExampleValue("2013-05-01T13:00:00+0100");
+      .setDescription("Filter measures created after the given date (inclusive). <br>" +
+        "Either a date (server timezone) or datetime can be provided")
+      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
 
     action.createParam(PARAM_TO)
-      .setDescription("Filter measures created before the given date (inclusive). Format: date or datetime ISO formats")
-      .setExampleValue("2013-05-01");
+      .setDescription("Filter measures created before the given date (inclusive). <br>" +
+        "Either a date (server timezone) or datetime can be provided")
+      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
 
     action.addPagingParams(DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
   }

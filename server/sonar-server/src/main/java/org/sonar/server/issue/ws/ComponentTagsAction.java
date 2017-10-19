@@ -58,13 +58,17 @@ public class ComponentTagsAction implements IssuesWsAction {
       .setInternal(true)
       .setDescription("List tags for the issues under a given component (including issues on the descendants of the component)")
       .setResponseExample(Resources.getResource(getClass(), "component-tags-example.json"));
+
     action.createParam(PARAM_COMPONENT_UUID)
       .setDescription("A component UUID")
       .setRequired(true)
       .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
+
     action.createParam(PARAM_CREATED_AFTER)
-      .setDescription("To retrieve tags on issues created after the given date (inclusive). Format: date or datetime ISO formats")
-      .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
+      .setDescription("To retrieve tags on issues created after the given date (inclusive). <br>" +
+        "Either a date (server timezone) or datetime can be provided.")
+      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
+
     action.createParam(PAGE_SIZE)
       .setDescription("The maximum size of the list to return")
       .setExampleValue("25")
