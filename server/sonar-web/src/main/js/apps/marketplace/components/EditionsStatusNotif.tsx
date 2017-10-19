@@ -122,7 +122,7 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
     return (
       <div>
         {installError && (
-          <div className="alert alert-danger">
+          <div className="alert alert-danger diplay-flex-row">
             {installError}
             <a
               className="pull-right button-link text-danger"
