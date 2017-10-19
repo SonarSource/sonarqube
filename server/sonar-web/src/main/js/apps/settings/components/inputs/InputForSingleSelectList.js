@@ -41,7 +41,7 @@ export default class InputForSingleSelectList extends React.PureComponent {
     return (
       <Select
         name={this.props.name}
-        className="input-large"
+        className="settings-large-input"
         options={options}
         clearable={false}
         value={this.props.value}

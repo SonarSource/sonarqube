@@ -21,5 +21,5 @@ import React from 'react';
 import SimpleInput from './SimpleInput';
 
 export default function InputForString(props) {
-  return <SimpleInput {...props} className="input-large" type="text" />;
+  return <SimpleInput {...props} className="settings-large-input" type="text" />;
 }
