@@ -30,6 +30,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.webhook.WebhookDeliveryLiteDto;
 import org.sonar.server.component.ComponentFinder;
@@ -39,12 +40,14 @@ import org.sonarqube.ws.Webhooks;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.webhook.ws.WebhookWsSupport.copyDtoToProtobuf;
+import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class WebhookDeliveriesAction implements WebhooksWsAction {
 
   private static final String PARAM_COMPONENT = "componentKey";
   private static final String PARAM_TASK = "ceTaskId";
+  private static final String PARAM_BRANCH = "branch";
 
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -73,6 +76,12 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
     action.createParam(PARAM_TASK)
       .setDescription("Id of the Compute Engine task")
       .setExampleValue(Uuids.UUID_EXAMPLE_01);
+
+    action
+      .createParam(PARAM_BRANCH)
+      .setSince("6.7")
+      .setDescription("Branch key. Should only be used with '" + PARAM_COMPONENT + "' parameter")
+      .setExampleValue(KEY_BRANCH_EXAMPLE_001);
   }
 
   @Override
@@ -82,19 +91,22 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
 
     String ceTaskId = request.param(PARAM_TASK);
     String componentKey = request.param(PARAM_COMPONENT);
+    String branchKey = request.param(PARAM_BRANCH);
     checkArgument(ceTaskId != null ^ componentKey != null, "Either '%s' or '%s' must be provided", PARAM_TASK, PARAM_COMPONENT);
+    checkArgument(ceTaskId == null || branchKey == null, "'%s' should not be used with '%s'", PARAM_BRANCH, PARAM_TASK);
 
-    Data data = loadFromDatabase(ceTaskId, componentKey);
+    Data data = loadFromDatabase(ceTaskId, componentKey, branchKey);
     data.ensureAdminPermission(userSession);
     data.writeTo(request, response);
   }
 
-  private Data loadFromDatabase(@Nullable String ceTaskId, @Nullable String componentKey) {
+  private Data loadFromDatabase(@Nullable String ceTaskId, @Nullable String componentKey, @Nullable String branchKey) {
     ComponentDto component = null;
+    BranchDto branch = null;
     List<WebhookDeliveryLiteDto> deliveries;
     try (DbSession dbSession = dbClient.openSession(false)) {
       if (componentKey != null) {
-        component = componentFinder.getByKey(dbSession, componentKey);
+        component = loadComponent(dbSession, componentKey, branchKey);
         deliveries = dbClient.webhookDeliveryDao().selectOrderedByComponentUuid(dbSession, component.uuid());
       } else {
         deliveries = dbClient.webhookDeliveryDao().selectOrderedByCeTaskUuid(dbSession, ceTaskId);
@@ -106,20 +118,34 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
           component = componentFinder.getByUuid(dbSession, deliveredComponentUuid.get());
         }
       }
+      if (component != null) {
+        branch = dbClient.branchDao().selectByUuid(dbSession, component.uuid())
+          .orElseThrow(() -> new IllegalStateException("Unable to find branch '" + branchKey + "' for project '" + componentKey + "'"));
+      }
     }
-    return new Data(component, deliveries);
+    return new Data(component, branch, deliveries);
+  }
+
+  private ComponentDto loadComponent(DbSession dbSession, String componentKey, @Nullable String branchKey) {
+    if (branchKey != null) {
+      return componentFinder.getByKeyAndBranch(dbSession, componentKey, branchKey);
+    }
+    return componentFinder.getByKey(dbSession, componentKey);
   }
 
   private static class Data {
     private final ComponentDto component;
     private final List<WebhookDeliveryLiteDto> deliveryDtos;
+    private final BranchDto branch;
 
-    Data(@Nullable ComponentDto component, List<WebhookDeliveryLiteDto> deliveries) {
+    Data(@Nullable ComponentDto component, @Nullable BranchDto branch, List<WebhookDeliveryLiteDto> deliveries) {
       this.deliveryDtos = deliveries;
       if (deliveries.isEmpty()) {
         this.component = null;
+        this.branch = null;
       } else {
         this.component = requireNonNull(component);
+        this.branch = requireNonNull(branch);
       }
     }
 
@@ -133,7 +159,7 @@ public class WebhookDeliveriesAction implements WebhooksWsAction {
       Webhooks.DeliveriesWsResponse.Builder responseBuilder = Webhooks.DeliveriesWsResponse.newBuilder();
       Webhooks.Delivery.Builder deliveryBuilder = Webhooks.Delivery.newBuilder();
       for (WebhookDeliveryLiteDto dto : deliveryDtos) {
-        copyDtoToProtobuf(component, dto, deliveryBuilder);
+        copyDtoToProtobuf(component, branch, dto, deliveryBuilder);
         responseBuilder.addDeliveries(deliveryBuilder);
       }
       writeProtobuf(responseBuilder.build(), request, response);

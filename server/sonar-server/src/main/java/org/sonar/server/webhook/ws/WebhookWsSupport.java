@@ -19,9 +19,11 @@
  */
 package org.sonar.server.webhook.ws;
 
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.webhook.WebhookDeliveryDto;
 import org.sonar.db.webhook.WebhookDeliveryLiteDto;
+import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Webhooks;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -31,7 +33,7 @@ class WebhookWsSupport {
     // only statics
   }
 
-  static Webhooks.Delivery.Builder copyDtoToProtobuf(ComponentDto component, WebhookDeliveryLiteDto dto, Webhooks.Delivery.Builder builder) {
+  static Webhooks.Delivery.Builder copyDtoToProtobuf(ComponentDto component, BranchDto branch, WebhookDeliveryLiteDto dto, Webhooks.Delivery.Builder builder) {
     builder
       .clear()
       .setId(dto.getUuid())
@@ -40,7 +42,10 @@ class WebhookWsSupport {
       .setUrl(dto.getUrl())
       .setSuccess(dto.isSuccess())
       .setCeTaskId(dto.getCeTaskUuid())
-      .setComponentKey(component.getDbKey());
+      .setComponentKey(component.getDbKey())
+      .setBranch(branch.getKey())
+      .setBranchType(Common.BranchType.valueOf(branch.getBranchType().name()))
+      .setIsMainBranch(branch.isMain());
     if (dto.getHttpStatus() != null) {
       builder.setHttpStatus(dto.getHttpStatus());
     }
@@ -50,8 +55,8 @@ class WebhookWsSupport {
     return builder;
   }
 
-  static Webhooks.Delivery.Builder copyDtoToProtobuf(ComponentDto component, WebhookDeliveryDto dto, Webhooks.Delivery.Builder builder) {
-    copyDtoToProtobuf(component, (WebhookDeliveryLiteDto) dto, builder);
+  static Webhooks.Delivery.Builder copyDtoToProtobuf(ComponentDto component, BranchDto branch, WebhookDeliveryDto dto, Webhooks.Delivery.Builder builder) {
+    copyDtoToProtobuf(component, branch, (WebhookDeliveryLiteDto) dto, builder);
     builder.setPayload(dto.getPayload());
     if (dto.getErrorStacktrace() != null) {
       builder.setErrorStacktrace(dto.getErrorStacktrace());

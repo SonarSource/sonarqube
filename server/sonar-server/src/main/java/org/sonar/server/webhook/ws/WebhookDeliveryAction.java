@@ -28,6 +28,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.webhook.WebhookDeliveryDto;
 import org.sonar.server.component.ComponentFinder;
@@ -84,17 +85,21 @@ public class WebhookDeliveryAction implements WebhooksWsAction {
       Optional<WebhookDeliveryDto> delivery = dbClient.webhookDeliveryDao().selectByUuid(dbSession, deliveryUuid);
       checkFoundWithOptional(delivery, "Webhook delivery not found");
       ComponentDto component = componentFinder.getByUuid(dbSession, delivery.get().getComponentUuid());
-      return new Data(component, delivery.get());
+      BranchDto branch = dbClient.branchDao().selectByUuid(dbSession, component.uuid())
+        .orElseThrow(() -> new IllegalStateException("Unable to find branch for project '" + component.getKey() + "'"));
+      return new Data(component, branch, delivery.get());
     }
   }
 
   private static class Data {
     private final ComponentDto component;
+    private final BranchDto branch;
     private final WebhookDeliveryDto deliveryDto;
 
-    Data(ComponentDto component, WebhookDeliveryDto delivery) {
+    Data(ComponentDto component, BranchDto branch, WebhookDeliveryDto delivery) {
       this.deliveryDto = requireNonNull(delivery);
       this.component = requireNonNull(component);
+      this.branch = requireNonNull(branch);
     }
 
     void ensureAdminPermission(UserSession userSession) {
@@ -104,7 +109,7 @@ public class WebhookDeliveryAction implements WebhooksWsAction {
     void writeTo(Request request, Response response) {
       Webhooks.DeliveryWsResponse.Builder responseBuilder = Webhooks.DeliveryWsResponse.newBuilder();
       Webhooks.Delivery.Builder deliveryBuilder = Webhooks.Delivery.newBuilder();
-      copyDtoToProtobuf(component, deliveryDto, deliveryBuilder);
+      copyDtoToProtobuf(component, branch, deliveryDto, deliveryBuilder);
       responseBuilder.setDelivery(deliveryBuilder);
 
       writeProtobuf(responseBuilder.build(), request, response);

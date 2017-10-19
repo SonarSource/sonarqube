@@ -28,8 +28,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.webhook.WebhookDeliveryDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.TestComponentFinder;
@@ -63,12 +63,12 @@ public class WebhookDeliveriesActionTest {
     ComponentFinder componentFinder = TestComponentFinder.from(db);
     WebhookDeliveriesAction underTest = new WebhookDeliveriesAction(dbClient, userSession, componentFinder);
     ws = new WsActionTester(underTest);
-    project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey("my-project"));
+    project = db.components().insertMainBranch(db.organizations().insert(), p -> p.setDbKey("my-project"));
   }
 
   @Test
   public void test_definition() {
-    assertThat(ws.getDef().params()).extracting(WebService.Param::key).containsOnly("componentKey", "ceTaskId");
+    assertThat(ws.getDef().params()).extracting(WebService.Param::key).containsOnly("componentKey", "ceTaskId", "branch");
     assertThat(ws.getDef().isPost()).isFalse();
     assertThat(ws.getDef().isInternal()).isFalse();
     assertThat(ws.getDef().responseExampleAsString()).isNotEmpty();
@@ -125,6 +125,49 @@ public class WebhookDeliveriesActionTest {
       .getInput();
 
     assertJson(json).isSimilarTo(ws.getDef().responseExampleAsString());
+  }
+
+  @Test
+  public void search_by_component_and_branch() throws Exception {
+    ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey("release-2.x").setBranchType(BranchType.SHORT));
+    WebhookDeliveryDto dto = newWebhookDeliveryDto()
+      .setUuid("d1")
+      .setComponentUuid(branch.uuid())
+      .setCeTaskUuid("task-1")
+      .setName("Jenkins")
+      .setUrl("http://jenkins")
+      .setCreatedAt(1_500_000_000_000L)
+      .setSuccess(true)
+      .setDurationMs(10)
+      .setHttpStatus(200);
+    dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
+    db.commit();
+    userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
+
+    String json = ws.newRequest()
+      .setParam("componentKey", project.getDbKey())
+      .setParam("branch", "release-2.x")
+      .execute()
+      .getInput();
+
+    assertJson(json).isSimilarTo("{" +
+      "  \"deliveries\": [" +
+      "    {" +
+      "      \"id\": \"d1\"," +
+      "      \"componentKey\": \"my-project:BRANCH:release-2.x\"," +
+      "      \"ceTaskId\": \"task-1\"," +
+      "      \"name\": \"Jenkins\"," +
+      "      \"url\": \"http://jenkins\"," +
+      "      \"at\": \"2017-07-14T04:40:00+0200\"," +
+      "      \"success\": true," +
+      "      \"httpStatus\": 200," +
+      "      \"durationMs\": 10," +
+      "      \"branch\": \"release-2.x\"," +
+      "      \"branchType\": \"SHORT\"," +
+      "      \"isMainBranch\": false" +
+      "    }" +
+      "  ]" +
+      "}");
   }
 
   @Test
@@ -186,6 +229,19 @@ public class WebhookDeliveriesActionTest {
 
     ws.newRequest()
       .setParam("componentKey", project.getDbKey())
+      .setParam("ceTaskId", "t1")
+      .execute();
+  }
+
+  @Test
+  public void throw_IAE_if_both_branch_and_task_parameters_are_set() throws Exception {
+    userSession.logIn();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'branch' should not be used with 'ceTaskId'");
+
+    ws.newRequest()
+      .setParam("branch", "foo")
       .setParam("ceTaskId", "t1")
       .execute();
   }
