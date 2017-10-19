@@ -82,14 +82,17 @@ export default class EvolutionRules extends React.PureComponent<Props, State> {
       f: 'name,langName,actives'
     };
 
-    searchRules(data).then((r: any) => {
-      if (this.mounted) {
-        this.setState({
-          latestRules: sortBy<Rule>(parseRules(r), 'langName'),
-          latestRulesTotal: r.total
-        });
-      }
-    });
+    searchRules(data).then(
+      (r: any) => {
+        if (this.mounted) {
+          this.setState({
+            latestRules: sortBy<Rule>(parseRules(r), 'langName'),
+            latestRulesTotal: r.total
+          });
+        }
+      },
+      () => {}
+    );
   }
 
   render() {

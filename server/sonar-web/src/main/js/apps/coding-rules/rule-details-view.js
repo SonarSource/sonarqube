@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import $ from 'jquery';
 import { union } from 'lodash';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
@@ -32,6 +31,7 @@ import CustomRuleCreationView from './rule/custom-rule-creation-view';
 import DeleteRuleView from './rule/delete-rule-view';
 import IssuesView from './rule/rule-issues-view';
 import Template from './templates/coding-rules-rule-details.hbs';
+import { searchRules } from '../../api/rules';
 
 export default Marionette.LayoutView.extend({
   className: 'coding-rule-details',
@@ -107,15 +107,11 @@ export default Marionette.LayoutView.extend({
   },
 
   fetchCustomRules() {
-    const that = this;
-    const url = window.baseUrl + '/api/rules/search';
     const options = {
       template_key: this.model.get('key'),
       f: 'name,severity,params'
     };
-    return $.get(url, options).done(data => {
-      that.customRules.reset(data.rules);
-    });
+    searchRules(options).then(r => this.customRules.reset(r.rules), () => {});
   },
 
   getQualityProfiles() {

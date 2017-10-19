@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import $ from 'jquery';
 import ModalFormView from '../../components/common/modal-form';
 import Template from './templates/coding-rules-bulk-change-modal.hbs';
 import { translateWithParameters } from '../../helpers/l10n';
+import { postJSON } from '../../helpers/request';
 
 export default ModalFormView.extend({
   template: Template,
@@ -75,12 +75,12 @@ export default ModalFormView.extend({
 
   sendRequests(url, options, profiles) {
     const that = this;
-    let looper = $.Deferred().resolve();
+    let looper = Promise.resolve();
     this.disableForm();
     profiles.forEach(profile => {
       const opts = { ...options, profile_key: profile };
-      looper = looper.then(() => {
-        return $.post(url, opts).done(r => {
+      looper = looper.then(() =>
+        postJSON(url, opts).then(r => {
           if (!that.isDestroyed) {
             if (r.failed) {
               that.showWarnMessage(profile, r.succeeded, r.failed);
@@ -88,18 +88,21 @@ export default ModalFormView.extend({
               that.showSuccessMessage(profile, r.succeeded);
             }
           }
-        });
-      });
+        })
+      );
     });
-    looper.done(() => {
-      that.options.app.controller.fetchList();
-      if (!that.isDestroyed) {
-        that.$(that.ui.codingRulesSubmitBulkChange.selector).hide();
-        that.enableForm();
-        that.$('.modal-field').hide();
-        that.$('.js-modal-close').focus();
-      }
-    });
+    looper.then(
+      () => {
+        that.options.app.controller.fetchList();
+        if (!that.isDestroyed) {
+          that.$(that.ui.codingRulesSubmitBulkChange.selector).hide();
+          that.enableForm();
+          that.$('.modal-field').hide();
+          that.$('.js-modal-close').focus();
+        }
+      },
+      () => {}
+    );
   },
 
   getAvailableQualityProfiles() {

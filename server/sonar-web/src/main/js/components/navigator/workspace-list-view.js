@@ -95,7 +95,7 @@ export default Marionette.CompositeView.extend({
     if (!this.options.app.state.get('maxResultsReached')) {
       const that = this;
       this.unbindScrollEvents();
-      this.options.app.controller.fetchNextPage().done(() => {
+      this.options.app.controller.fetchNextPage().then(() => {
         that.bindScrollEvents();
       });
     }
