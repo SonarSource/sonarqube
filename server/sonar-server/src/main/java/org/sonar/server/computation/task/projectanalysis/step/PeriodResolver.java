@@ -38,7 +38,6 @@ import org.sonar.server.computation.task.projectanalysis.period.Period;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DATE;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DAYS;
-import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_VERSION;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_VERSION;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
@@ -70,10 +69,6 @@ public class PeriodResolver {
     if (StringUtils.isBlank(propertyValue)) {
       return null;
     }
-    if (propertyValue.equals(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS)) {
-      LOG.warn("Leak period is set to deprecated value '{}'. This value will be removed in next SonarQube LTS, please use another one instead.",
-        LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS);
-    }
     Period period = resolve(propertyValue);
     if (period == null && StringUtils.isNotBlank(propertyValue)) {
       LOG.debug("Property " + LEAK_PERIOD + " is not valid: " + propertyValue);
@@ -90,9 +85,6 @@ public class PeriodResolver {
     Date date = DateUtils.parseDateQuietly(property);
     if (date != null) {
       return findByDate(date);
-    }
-    if (StringUtils.equals(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS, property)) {
-      return findByPreviousAnalysis();
     }
     if (StringUtils.equals(LEAK_PERIOD_MODE_PREVIOUS_VERSION, property)) {
       return findByPreviousVersion();
@@ -119,16 +111,6 @@ public class PeriodResolver {
     }
     LOG.debug("Compare over {} days ({}, analysis of {})", String.valueOf(days), formatDate(targetDate), formatDate(snapshot.getCreatedAt()));
     return new Period(LEAK_PERIOD_MODE_DAYS, String.valueOf(days), snapshot.getCreatedAt(), snapshot.getUuid());
-  }
-
-  @CheckForNull
-  private Period findByPreviousAnalysis() {
-    SnapshotDto snapshot = findFirstSnapshot(session, createCommonQuery(projectUuid).setCreatedBefore(analysisDate).setIsLast(true).setSort(BY_DATE, DESC));
-    if (snapshot == null) {
-      return null;
-    }
-    LOG.debug("Compare to previous analysis ({})", formatDate(snapshot.getCreatedAt()));
-    return new Period(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS, formatDate(snapshot.getCreatedAt()), snapshot.getCreatedAt(), snapshot.getUuid());
   }
 
   @CheckForNull

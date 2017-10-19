@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.System2;
@@ -46,7 +47,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DATE;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DAYS;
-import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_VERSION;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_VERSION;
 
@@ -66,6 +66,8 @@ public class LoadPeriodsStepTest extends BaseStepTest {
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
   @Rule
   public LogTester logTester = new LogTester();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   private PeriodHolderImpl periodsHolder = new PeriodHolderImpl();
   private DbClient dbClient = dbTester.getDbClient();
@@ -229,49 +231,6 @@ public class LoadPeriodsStepTest extends BaseStepTest {
     underTest.execute();
 
     assertThat(periodsHolder.getPeriod()).isNull();
-  }
-
-  @Test
-  public void feed_period_by_previous_analysis() {
-    setupRoot(PROJECT_ROOT);
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-    settings.setProperty("sonar.leak.period", "previous_analysis");
-
-    underTest.execute();
-
-    // return analysis from 2008-11-29
-    Period period = periodsHolder.getPeriod();
-    assertThat(period).isNotNull();
-    assertThat(period.getMode()).isEqualTo(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS);
-    assertThat(period.getModeParameter()).isNotNull();
-    assertThat(period.getSnapshotDate()).isEqualTo(1227934800000L);
-    assertThat(period.getAnalysisUuid()).isEqualTo("u1004");
-
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.DEBUG).get(0)).startsWith("Compare to previous analysis (");
-  }
-
-  @Test
-  public void no_period_by_previous_analysis() {
-    setupRoot(PROJECT_ROOT);
-    dbTester.prepareDbUnit(getClass(), "empty.xml");
-    settings.setProperty("sonar.leak.period", "previous_analysis");
-
-    underTest.execute();
-
-    assertThat(periodsHolder.getPeriod()).isNull();
-  }
-
-  @Test
-  public void display_warning_log_when_using_previous_analysis() {
-    setupRoot(PROJECT_ROOT);
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-    settings.setProperty("sonar.leak.period", "previous_analysis");
-
-    underTest.execute();
-
-    assertThat(logTester.logs(LoggerLevel.WARN))
-      .containsOnly("Leak period is set to deprecated value 'previous_analysis'. This value will be removed in next SonarQube LTS, please use another one instead.");
   }
 
   @Test

@@ -82,7 +82,7 @@ public class DifferentialPeriodsTest {
     orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
 
     // Set a global property and a project property to ensure project property is used
-    setServerProperty(orchestrator, "sonar.leak.period", "previous_analysis");
+    setServerProperty(orchestrator, "sonar.leak.period", "previous_version");
     setServerProperty(orchestrator, PROJECT_KEY, "sonar.leak.period", "30");
 
     // Execute an analysis in the past to have a past snapshot without any issues
@@ -133,7 +133,7 @@ public class DifferentialPeriodsTest {
   @Test
   public void compute_no_new_lines_measures_when_changes_but_no_scm() throws Exception {
     orchestrator.getServer().provisionProject(MULTI_MODULE_PROJECT_KEY, MULTI_MODULE_PROJECT_KEY);
-    setServerProperty(orchestrator, MULTI_MODULE_PROJECT_KEY, "sonar.leak.period", "previous_analysis");
+    setServerProperty(orchestrator, MULTI_MODULE_PROJECT_KEY, "sonar.leak.period", "previous_version");
 
     // Execute an analysis 60 days ago without module b
     orchestrator.getServer().associateProjectToQualityProfile(MULTI_MODULE_PROJECT_KEY, "xoo", "empty");
@@ -156,7 +156,7 @@ public class DifferentialPeriodsTest {
   public void compute_zero_new_lines_measures_when_no_changes_and_scm_available() throws Exception {
     String projectKey = "sample-scm";
     orchestrator.getServer().provisionProject(projectKey, projectKey);
-    setServerProperty(orchestrator, projectKey, "sonar.leak.period", "previous_analysis");
+    setServerProperty(orchestrator, projectKey, "sonar.leak.period", "previous_version");
 
     // Execute an analysis 60 days ago
     runProjectAnalysis(orchestrator, "scm/xoo-sample-with-scm", "sonar.projectDate", formatDate(addDays(new Date(), -60)),

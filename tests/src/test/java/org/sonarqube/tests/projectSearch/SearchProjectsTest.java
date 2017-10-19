@@ -220,7 +220,7 @@ public class SearchProjectsTest {
 
   @Test
   public void should_return_facets_on_leak() throws Exception {
-    setServerProperty(orchestrator, "sonar.leak.period", "previous_analysis");
+    setServerProperty(orchestrator, "sonar.leak.period", "previous_version");
     // This project has no duplication on new code
     String projectKey1 = newProjectKey();
     analyzeProject(projectKey1, "shared/xoo-sample", "sonar.projectDate", "2016-12-31");

@@ -37,7 +37,6 @@ import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DATE;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DAYS;
-import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_VERSION;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_VERSION;
 
@@ -126,43 +125,6 @@ public class PeriodsTest {
     periods.label(PERIOD_INDEX);
 
     verify(i18n).message(any(Locale.class), eq("since_version"), isNull(String.class), eq(VERSION));
-  }
-
-  @Test
-  public void return_since_previous_analysis_label_when_no_date() {
-    periods.label(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS, null, (String) null);
-
-    verify(i18n).message(any(Locale.class), eq("since_previous_analysis"), isNull(String.class));
-  }
-
-  @Test
-  public void return_since_previous_analysis_abbreviation_when_no_date() {
-    periods.abbreviation(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS, null, null);
-
-    verify(i18n).message(any(Locale.class), eq("since_previous_analysis.short"), isNull(String.class));
-  }
-
-  @Test
-  public void return_since_previous_analysis_detailed_label_when_date_is_set() {
-    periods.label(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS, null, STRING_DATE);
-
-    verify(i18n).message(any(Locale.class), eq("since_previous_analysis_detailed"), isNull(String.class), eq(STRING_DATE));
-  }
-
-  @Test
-  public void return_since_previous_analysis_detailed_abbreviation_when_date_is_set() {
-    periods.abbreviation(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS, null, DATE);
-
-    verify(i18n).message(any(Locale.class), eq("since_previous_analysis_detailed.short"), isNull(String.class), anyString());
-  }
-
-  @Test
-  public void return_since_previous_analysis_label_using_settings() {
-    settings.setProperty(LEAK_PERIOD + PERIOD_INDEX, LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS);
-
-    periods.label(PERIOD_INDEX);
-
-    verify(i18n).message(any(Locale.class), eq("since_previous_analysis"), isNull(String.class));
   }
 
   @Test

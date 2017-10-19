@@ -64,7 +64,7 @@ public class NewDebtRatioMeasureTest {
 
   @Test
   public void new_debt_ratio_is_computed_from_new_debt_and_new_ncloc_count_per_file() throws Exception {
-    setServerProperty(orchestrator, "sonar.leak.period", "previous_analysis");
+    setServerProperty(orchestrator, "sonar.leak.period", "previous_version");
 
     // run analysis on the day of after the first commit, with 'one-issue-per-line' profile
     defineQualityProfile("one-issue-per-line");

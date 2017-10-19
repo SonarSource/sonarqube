@@ -20,23 +20,30 @@
 
 package org.sonar.server.platform.db.migration.version.v67;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
+import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class MigratePreviousAnalysisToPreviousVersion extends DataChange {
 
-public class DbVersion67Test {
-
-  private DbVersion67 underTest = new DbVersion67();
-
-  @Test
-  public void migrationNumber_starts_at_1830() {
-    verifyMinimumMigrationNumber(underTest, 1830);
+  public MigratePreviousAnalysisToPreviousVersion(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 7);
+  @Override
+  protected void execute(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("select id from properties " +
+      " where prop_key = 'sonar.leak.period' and text_value='previous_analysis'");
+    massUpdate.update("update properties " +
+      " set text_value='previous_version', " +
+      " clob_value = null " +
+      " where id = ?");
+    massUpdate.rowPluralName("leak periods");
+    massUpdate.execute((row, update) -> {
+      update.setLong(1, row.getLong(1));
+      return true;
+    });
   }
-
 }

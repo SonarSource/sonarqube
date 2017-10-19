@@ -67,7 +67,7 @@ public class QualityGateOnRatingMeasuresTest {
     Project project = tester.projects().generate(null);
     WsQualityGates.CreateWsResponse qualityGate = tester.qGates().generate();
     tester.qGates().associateProject(qualityGate, project);
-    tester.settings().setGlobalSetting("sonar.leak.period", "previous_analysis");
+    tester.settings().setGlobalSetting("sonar.leak.period", "previous_version");
     tester.wsClient().qualityGates().createCondition(CreateConditionRequest.builder()
       .setQualityGateId(qualityGate.getId())
       .setMetricKey("new_security_rating")

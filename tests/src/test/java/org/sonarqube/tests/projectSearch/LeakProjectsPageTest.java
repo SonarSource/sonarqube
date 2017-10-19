@@ -56,7 +56,7 @@ public class LeakProjectsPageTest {
 
   @BeforeClass
   public static void beforeClass() {
-    setServerProperty(orchestrator, "sonar.leak.period", "previous_analysis");
+    setServerProperty(orchestrator, "sonar.leak.period", "previous_version");
   }
 
   @AfterClass

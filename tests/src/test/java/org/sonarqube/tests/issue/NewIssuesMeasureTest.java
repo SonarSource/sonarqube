@@ -53,7 +53,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
 
   @Test
   public void new_issues_measures() throws Exception {
-    setServerProperty(ORCHESTRATOR, "sonar.leak.period", "previous_analysis");
+    setServerProperty(ORCHESTRATOR, "sonar.leak.period", "previous_version");
     ORCHESTRATOR.getServer().provisionProject("sample", "Sample");
 
     // Execute an analysis in the past with no issue to have a past snapshot
@@ -96,7 +96,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
    */
   @Test
   public void new_issues_measures_consistent_with_variations() throws Exception {
-    setServerProperty(ORCHESTRATOR, "sonar.leak.period", "previous_analysis");
+    setServerProperty(ORCHESTRATOR, "sonar.leak.period", "previous_version");
     ORCHESTRATOR.getServer().provisionProject("sample", "Sample");
     ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/one-issue-per-line-profile.xml"));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line-profile");
@@ -124,7 +124,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
 
   @Test
   public void new_issues_measures_should_be_correctly_calculated_when_adding_a_new_module() throws Exception {
-    setServerProperty(ORCHESTRATOR, "sonar.leak.period", "previous_analysis");
+    setServerProperty(ORCHESTRATOR, "sonar.leak.period", "previous_version");
     ORCHESTRATOR.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "com.sonarsource.it.samples:multi-modules-sample");
 
     // First analysis without module b

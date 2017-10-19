@@ -56,7 +56,7 @@ public class QualityGateUiTest {
 
   @Before
   public void initPeriod() throws Exception {
-    tester.settings().setGlobalSettings("sonar.leak.period", "previous_analysis");
+    tester.settings().setGlobalSettings("sonar.leak.period", "previous_version");
   }
 
   /**

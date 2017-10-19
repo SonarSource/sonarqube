@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_DATE;
-import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS;
+import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD_MODE_PREVIOUS_VERSION;
 
 public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
@@ -157,7 +157,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
 
   @Test
   public void only_persist_snapshots_with_leak_period_on_project_and_module() {
-    periodsHolder.setPeriod(new Period(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS, null, analysisDate, "u1"));
+    periodsHolder.setPeriod(new Period(LEAK_PERIOD_MODE_PREVIOUS_VERSION, null, analysisDate, "u1"));
 
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto projectDto = ComponentTesting.newPrivateProjectDto(organizationDto, "ABCD").setDbKey(PROJECT_KEY).setName("Project");
@@ -190,7 +190,7 @@ public class ReportPersistAnalysisStepTest extends BaseStepTest {
     underTest.execute();
 
     SnapshotDto newProjectSnapshot = getUnprocessedSnapshot(projectDto.uuid());
-    assertThat(newProjectSnapshot.getPeriodMode()).isEqualTo(LEAK_PERIOD_MODE_PREVIOUS_ANALYSIS);
+    assertThat(newProjectSnapshot.getPeriodMode()).isEqualTo(LEAK_PERIOD_MODE_PREVIOUS_VERSION);
   }
 
   @Test

@@ -52,7 +52,7 @@ public class MeasuresWsTest {
 
   @BeforeClass
   public static void initPeriod() throws Exception {
-    setServerProperty(orchestrator, "sonar.leak.period", "previous_analysis");
+    setServerProperty(orchestrator, "sonar.leak.period", "previous_version");
   }
 
   @AfterClass
