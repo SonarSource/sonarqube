@@ -29,6 +29,7 @@ import org.sonar.server.edition.License;
 import org.sonar.server.edition.MutableEditionManagementState;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.license.LicenseCommit;
+import org.sonar.server.platform.WebServer;
 import org.sonar.server.plugins.edition.EditionInstaller;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
@@ -42,18 +43,21 @@ public class ApplyLicenseAction implements EditionsWsAction {
   private final UserSession userSession;
   private final MutableEditionManagementState editionManagementState;
   private final EditionInstaller editionInstaller;
+  private final WebServer webServer;
   @CheckForNull
   private final LicenseCommit licenseCommit;
 
-  public ApplyLicenseAction(UserSession userSession, MutableEditionManagementState editionManagementState, EditionInstaller editionInstaller) {
-    this(userSession, editionManagementState, editionInstaller, null);
+  public ApplyLicenseAction(UserSession userSession, MutableEditionManagementState editionManagementState,
+    EditionInstaller editionInstaller, WebServer webServer) {
+    this(userSession, editionManagementState, editionInstaller, webServer, null);
   }
 
-  public ApplyLicenseAction(UserSession userSession, MutableEditionManagementState editionManagementState, EditionInstaller editionInstaller,
-    @Nullable LicenseCommit licenseCommit) {
+  public ApplyLicenseAction(UserSession userSession, MutableEditionManagementState editionManagementState,
+    EditionInstaller editionInstaller, WebServer webServer, @Nullable LicenseCommit licenseCommit) {
     this.userSession = userSession;
     this.editionManagementState = editionManagementState;
     this.editionInstaller = editionInstaller;
+    this.webServer = webServer;
     this.licenseCommit = licenseCommit;
   }
 
@@ -85,17 +89,24 @@ public class ApplyLicenseAction implements EditionsWsAction {
     String licenseParam = request.mandatoryParam(PARAM_LICENSE);
     License newLicense = License.parse(licenseParam).orElseThrow(() -> BadRequestException.create("The license provided is invalid"));
 
-    if (editionInstaller.requiresInstallationChange(newLicense.getPluginKeys())) {
+    if (!webServer.isStandalone()) {
+      checkState(licenseCommit != null, "LicenseCommit instance not found. License-manager plugin should be installed.");
+      setLicenseWithoutInstall(newLicense);
+    } else if (editionInstaller.requiresInstallationChange(newLicense.getPluginKeys())) {
       editionInstaller.install(newLicense);
     } else {
       checkState(licenseCommit != null,
         "Can't decide edition does not require install if LicenseCommit instance is null. " +
           "License-manager plugin should be installed.");
-      editionManagementState.newEditionWithoutInstall(newLicense.getEditionKey());
-      licenseCommit.update(newLicense.getContent());
+      setLicenseWithoutInstall(newLicense);
     }
 
     WsUtils.writeProtobuf(buildResponse(), request, response);
+  }
+
+  private void setLicenseWithoutInstall(License newLicense) {
+    editionManagementState.newEditionWithoutInstall(newLicense.getEditionKey());
+    licenseCommit.update(newLicense.getContent());
   }
 
   private WsEditions.StatusResponse buildResponse() {
