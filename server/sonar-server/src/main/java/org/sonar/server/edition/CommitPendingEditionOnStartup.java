@@ -22,10 +22,13 @@ package org.sonar.server.edition;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
+import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.license.LicenseCommit;
 
 public class CommitPendingEditionOnStartup implements Startable {
+  private static final Logger LOG = Loggers.get(CommitPendingEditionOnStartup.class);
+
   private final MutableEditionManagementState editionManagementState;
   @CheckForNull
   private final LicenseCommit licenseCommit;
@@ -74,14 +77,20 @@ public class CommitPendingEditionOnStartup implements Startable {
   private void finalizeInstall(EditionManagementState.PendingStatus status) {
     // license manager is not installed, can't finalize
     if (licenseCommit == null) {
-      Loggers.get(CommitPendingEditionOnStartup.class).debug("No LicenseCommit instance is not available, can not finalize installation");
+      LOG.info("No LicenseCommit instance is not available, can not finalize installation");
       return;
     }
 
     String newLicense = editionManagementState.getPendingLicense()
       .orElseThrow(() -> new IllegalStateException(String.format("When state is %s, a license should be available in staging", status)));
-    licenseCommit.update(newLicense);
-    editionManagementState.finalizeInstallation(null);
+    try {
+      licenseCommit.update(newLicense);
+      editionManagementState.finalizeInstallation(null);
+    } catch (IllegalArgumentException e) {
+      String errorMessage = "Invalid staged license could not be commit on startup. Please input a new license.";
+      LOG.warn(errorMessage, e);
+      editionManagementState.finalizeInstallation(errorMessage);
+    }
   }
 
   @Override
