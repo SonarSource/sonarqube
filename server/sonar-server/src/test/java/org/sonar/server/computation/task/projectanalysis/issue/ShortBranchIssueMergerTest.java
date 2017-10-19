@@ -20,9 +20,12 @@
 package org.sonar.server.computation.task.projectanalysis.issue;
 
 import com.google.common.collect.ImmutableMap;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +65,7 @@ public class ShortBranchIssueMergerTest {
   @Test
   public void do_nothing_if_no_match() {
     when(resolvedShortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component)).thenReturn(Collections.emptyList());
-    DefaultIssue i = createIssue("issue1", "rule1", Issue.STATUS_CONFIRMED, null);
+    DefaultIssue i = createIssue("issue1", "rule1", Issue.STATUS_CONFIRMED, null, new Date());
     copier.tryMerge(component, Collections.singleton(i));
 
     verify(resolvedShortBranchIssuesLoader).loadCandidateIssuesForMergingInTargetBranch(component);
@@ -71,7 +74,7 @@ public class ShortBranchIssueMergerTest {
 
   @Test
   public void do_nothing_if_no_new_issue() {
-    DefaultIssue i = createIssue("issue1", "rule1", Issue.STATUS_CONFIRMED, null);
+    DefaultIssue i = createIssue("issue1", "rule1", Issue.STATUS_CONFIRMED, null, new Date());
     when(resolvedShortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component)).thenReturn(Collections.singleton(newShortBranchIssue(i, "myBranch")));
     copier.tryMerge(component, Collections.emptyList());
 
@@ -81,9 +84,9 @@ public class ShortBranchIssueMergerTest {
 
   @Test
   public void update_status_on_matches() {
-    DefaultIssue issue1 = createIssue("issue1", "rule1", Issue.STATUS_CONFIRMED, null);
+    DefaultIssue issue1 = createIssue("issue1", "rule1", Issue.STATUS_CONFIRMED, null, new Date());
     ShortBranchIssue shortBranchIssue = newShortBranchIssue(issue1, "myBranch");
-    DefaultIssue newIssue = createIssue("issue2", "rule1", Issue.STATUS_OPEN, null);
+    DefaultIssue newIssue = createIssue("issue2", "rule1", Issue.STATUS_OPEN, null, new Date());
 
     when(resolvedShortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component)).thenReturn(Collections.singleton(shortBranchIssue));
     when(resolvedShortBranchIssuesLoader.loadDefaultIssuesWithChanges(anyListOf(ShortBranchIssue.class))).thenReturn(ImmutableMap.of(shortBranchIssue, issue1));
@@ -96,11 +99,11 @@ public class ShortBranchIssueMergerTest {
 
   @Test
   public void prefer_resolved_issues() {
-    ShortBranchIssue shortBranchIssue1 = newShortBranchIssue(createIssue("issue1", "rule1", Issue.STATUS_CONFIRMED, null), "myBranch1");
-    ShortBranchIssue shortBranchIssue2 = newShortBranchIssue(createIssue("issue2", "rule1", Issue.STATUS_CONFIRMED, null), "myBranch2");
-    DefaultIssue issue3 = createIssue("issue3", "rule1", Issue.STATUS_RESOLVED, Issue.RESOLUTION_FALSE_POSITIVE);
+    ShortBranchIssue shortBranchIssue1 = newShortBranchIssue(createIssue("issue1", "rule1", Issue.STATUS_REOPENED, null, new Date()), "myBranch1");
+    ShortBranchIssue shortBranchIssue2 = newShortBranchIssue(createIssue("issue2", "rule1", Issue.STATUS_CONFIRMED, null, new Date()), "myBranch2");
+    DefaultIssue issue3 = createIssue("issue3", "rule1", Issue.STATUS_RESOLVED, Issue.RESOLUTION_FALSE_POSITIVE, new Date());
     ShortBranchIssue shortBranchIssue3 = newShortBranchIssue(issue3, "myBranch3");
-    DefaultIssue newIssue = createIssue("newIssue", "rule1", Issue.STATUS_OPEN, null);
+    DefaultIssue newIssue = createIssue("newIssue", "rule1", Issue.STATUS_OPEN, null, new Date());
 
     when(resolvedShortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component)).thenReturn(Arrays.asList(shortBranchIssue1, shortBranchIssue2, shortBranchIssue3));
     when(resolvedShortBranchIssuesLoader.loadDefaultIssuesWithChanges(anyListOf(ShortBranchIssue.class))).thenReturn(ImmutableMap.of(shortBranchIssue3, issue3));
@@ -108,7 +111,36 @@ public class ShortBranchIssueMergerTest {
     verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranch(newIssue, issue3, "myBranch3");
   }
 
-  private static DefaultIssue createIssue(String key, String ruleKey, String status, @Nullable String resolution) {
+  @Test
+  public void prefer_confirmed_issues() {
+    ShortBranchIssue shortBranchIssue1 = newShortBranchIssue(createIssue("issue1", "rule1", Issue.STATUS_REOPENED, null, new Date()), "myBranch1");
+    ShortBranchIssue shortBranchIssue2 = newShortBranchIssue(createIssue("issue2", "rule1", Issue.STATUS_OPEN, null, new Date()), "myBranch2");
+    DefaultIssue issue3 = createIssue("issue3", "rule1", Issue.STATUS_CONFIRMED, null, new Date());
+    ShortBranchIssue shortBranchIssue3 = newShortBranchIssue(issue3, "myBranch3");
+    DefaultIssue newIssue = createIssue("newIssue", "rule1", Issue.STATUS_OPEN, null, new Date());
+
+    when(resolvedShortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component)).thenReturn(Arrays.asList(shortBranchIssue1, shortBranchIssue2, shortBranchIssue3));
+    when(resolvedShortBranchIssuesLoader.loadDefaultIssuesWithChanges(anyListOf(ShortBranchIssue.class))).thenReturn(ImmutableMap.of(shortBranchIssue3, issue3));
+    copier.tryMerge(component, Collections.singleton(newIssue));
+    verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranch(newIssue, issue3, "myBranch3");
+  }
+
+  @Test
+  public void prefer_older_issues() {
+    Instant now = Instant.now();
+    ShortBranchIssue shortBranchIssue1 = newShortBranchIssue(createIssue("issue1", "rule1", Issue.STATUS_REOPENED, null, Date.from(now.plus(2, ChronoUnit.SECONDS))), "myBranch1");
+    ShortBranchIssue shortBranchIssue2 = newShortBranchIssue(createIssue("issue2", "rule1", Issue.STATUS_OPEN, null, Date.from(now.plus(1, ChronoUnit.SECONDS))), "myBranch2");
+    DefaultIssue issue3 = createIssue("issue3", "rule1", Issue.STATUS_OPEN, null, Date.from(now));
+    ShortBranchIssue shortBranchIssue3 = newShortBranchIssue(issue3, "myBranch3");
+    DefaultIssue newIssue = createIssue("newIssue", "rule1", Issue.STATUS_OPEN, null, new Date());
+
+    when(resolvedShortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component)).thenReturn(Arrays.asList(shortBranchIssue1, shortBranchIssue2, shortBranchIssue3));
+    when(resolvedShortBranchIssuesLoader.loadDefaultIssuesWithChanges(anyListOf(ShortBranchIssue.class))).thenReturn(ImmutableMap.of(shortBranchIssue3, issue3));
+    copier.tryMerge(component, Collections.singleton(newIssue));
+    verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranch(newIssue, issue3, "myBranch3");
+  }
+
+  private static DefaultIssue createIssue(String key, String ruleKey, String status, @Nullable String resolution, Date creationDate) {
     DefaultIssue issue = new DefaultIssue();
     issue.setKey(key);
     issue.setRuleKey(RuleKey.of("repo", ruleKey));
@@ -116,10 +148,11 @@ public class ShortBranchIssueMergerTest {
     issue.setLine(1);
     issue.setStatus(status);
     issue.setResolution(resolution);
+    issue.setCreationDate(creationDate);
     return issue;
   }
 
   private ShortBranchIssue newShortBranchIssue(DefaultIssue i, String originBranch) {
-    return new ShortBranchIssue(i.key(), i.line(), i.message(), i.getLineHash(), i.ruleKey(), i.status(), originBranch);
+    return new ShortBranchIssue(i.key(), i.line(), i.message(), i.getLineHash(), i.ruleKey(), i.status(), originBranch, i.creationDate());
   }
 }

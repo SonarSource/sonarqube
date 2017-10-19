@@ -184,7 +184,7 @@ public class IssueDaoTest {
   }
 
   @Test
-  public void selectResolvedOrConfirmedByComponentUuid() {
+  public void selectOpenByComponentUuid() {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto projectBranch = db.components().insertProjectBranch(project,
@@ -200,13 +200,13 @@ public class IssueDaoTest {
     IssueDto wontfixIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_WONT_FIX));
     IssueDto fpIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus(Issue.STATUS_RESOLVED).setResolution(Issue.RESOLUTION_FALSE_POSITIVE));
 
-    assertThat(underTest.selectResolvedOrConfirmedByComponentUuids(db.getSession(), Collections.singletonList(file.uuid())))
+    assertThat(underTest.selectOpenByComponentUuids(db.getSession(), Collections.singletonList(file.uuid())))
       .extracting("kee")
-      .containsOnly(confirmedIssue.getKey(), wontfixIssue.getKey(), fpIssue.getKey());
+      .containsOnly(openIssue.getKey(), reopenedIssue.getKey(), confirmedIssue.getKey(), wontfixIssue.getKey(), fpIssue.getKey());
   }
 
   @Test
-  public void selectResolvedOrConfirmedByComponentUuid_should_correctly_map_required_fields() {
+  public void selectOpenByComponentUuid_should_correctly_map_required_fields() {
     RuleDefinitionDto rule = db.rules().insert();
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto projectBranch = db.components().insertProjectBranch(project,
@@ -216,7 +216,7 @@ public class IssueDaoTest {
     ComponentDto file = db.components().insertComponent(newFileDto(projectBranch));
     IssueDto fpIssue = db.issues().insert(rule, projectBranch, file, i -> i.setStatus("RESOLVED").setResolution("FALSE-POSITIVE"));
 
-    ShortBranchIssueDto fp = underTest.selectResolvedOrConfirmedByComponentUuids(db.getSession(), Collections.singletonList(file.uuid())).get(0);
+    ShortBranchIssueDto fp = underTest.selectOpenByComponentUuids(db.getSession(), Collections.singletonList(file.uuid())).get(0);
     assertThat(fp.getLine()).isEqualTo(fpIssue.getLine());
     assertThat(fp.getMessage()).isEqualTo(fpIssue.getMessage());
     assertThat(fp.getChecksum()).isEqualTo(fpIssue.getChecksum());

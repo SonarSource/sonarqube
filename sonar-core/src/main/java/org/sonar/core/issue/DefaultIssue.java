@@ -653,4 +653,9 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   public String getStatus() {
     return status;
   }
+
+  @Override
+  public Date getCreationDate() {
+    return creationDate;
+  }
 }

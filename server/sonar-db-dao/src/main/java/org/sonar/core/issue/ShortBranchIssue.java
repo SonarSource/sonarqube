@@ -19,6 +19,7 @@
  */
 package org.sonar.core.issue;
 
+import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -34,8 +35,9 @@ public class ShortBranchIssue implements Trackable {
   private final RuleKey ruleKey;
   private final String status;
   private final String branchName;
+  private final Date creationDate;
 
-  public ShortBranchIssue(String key, @Nullable Integer line, String message, @Nullable String lineHash, RuleKey ruleKey, String status, String branchName) {
+  public ShortBranchIssue(String key, @Nullable Integer line, String message, @Nullable String lineHash, RuleKey ruleKey, String status, String branchName, Date creationDate) {
     this.key = key;
     this.line = line;
     this.message = message;
@@ -43,6 +45,7 @@ public class ShortBranchIssue implements Trackable {
     this.ruleKey = ruleKey;
     this.status = status;
     this.branchName = branchName;
+    this.creationDate = creationDate;
   }
 
   public String getKey() {
@@ -78,6 +81,11 @@ public class ShortBranchIssue implements Trackable {
 
   public String getBranchName() {
     return branchName;
+  }
+
+  @Override
+  public Date getCreationDate() {
+    return creationDate;
   }
 
   @Override

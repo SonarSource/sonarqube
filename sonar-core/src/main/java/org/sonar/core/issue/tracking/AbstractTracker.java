@@ -29,13 +29,11 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 
+import static java.util.Comparator.comparing;
+
 public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
 
   protected void match(Tracking<RAW, BASE> tracking, Function<Trackable, SearchKey> searchKeyFactory) {
-    match(tracking, searchKeyFactory, false);
-  }
-
-  protected void match(Tracking<RAW, BASE> tracking, Function<Trackable, SearchKey> searchKeyFactory, boolean preferResolved) {
 
     if (tracking.isComplete()) {
       return;
@@ -49,21 +47,25 @@ public class AbstractTracker<RAW extends Trackable, BASE extends Trackable> {
     for (RAW raw : tracking.getUnmatchedRaws()) {
       SearchKey rawKey = searchKeyFactory.apply(raw);
       Collection<BASE> bases = baseSearch.get(rawKey);
-      if (!bases.isEmpty()) {
-        BASE match;
-        if (preferResolved) {
-          match = bases.stream()
-            .filter(i -> Issue.STATUS_RESOLVED.equals(i.getStatus()))
-            .findFirst()
-            .orElse(bases.iterator().next());
-        } else {
-          // TODO taking the first one. Could be improved if there are more than 2 issues on the same line.
-          // Message could be checked to take the best one.
-          match = bases.iterator().next();
-        }
-        tracking.match(raw, match);
-        baseSearch.remove(rawKey, match);
-      }
+      bases.stream()
+        .sorted(comparing(this::statusRank).reversed()
+          .thenComparing(comparing(Trackable::getCreationDate)))
+        .findFirst()
+        .ifPresent(match -> {
+          tracking.match(raw, match);
+          baseSearch.remove(rawKey, match);
+        });
+    }
+  }
+
+  private int statusRank(BASE i) {
+    switch (i.getStatus()) {
+      case Issue.STATUS_RESOLVED:
+        return 2;
+      case Issue.STATUS_CONFIRMED:
+        return 1;
+      default:
+        return 0;
     }
   }
 

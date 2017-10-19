@@ -21,6 +21,7 @@ package org.sonar.core.issue.tracking;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -186,7 +187,7 @@ public class TrackerTest {
   @Test
   public void do_not_fail_if_raw_line_does_not_exist() {
     FakeInput baseInput = new FakeInput();
-    FakeInput rawInput = new FakeInput("H1").addIssue(new Issue(200, "H200", RULE_SYSTEM_PRINT, "msg", org.sonar.api.issue.Issue.STATUS_OPEN));
+    FakeInput rawInput = new FakeInput("H1").addIssue(new Issue(200, "H200", RULE_SYSTEM_PRINT, "msg", org.sonar.api.issue.Issue.STATUS_OPEN, new Date()));
 
     Tracking<Issue, Issue> tracking = tracker.track(rawInput, baseInput);
 
@@ -386,12 +387,14 @@ public class TrackerTest {
     private final Integer line;
     private final String message, lineHash;
     private final String status;
+    private final Date creationDate;
 
-    Issue(@Nullable Integer line, String lineHash, RuleKey ruleKey, String message, String status) {
+    Issue(@Nullable Integer line, String lineHash, RuleKey ruleKey, String message, String status, Date creationDate) {
       this.line = line;
       this.lineHash = lineHash;
       this.ruleKey = ruleKey;
       this.status = status;
+      this.creationDate = creationDate;
       this.message = trim(message);
     }
 
@@ -419,6 +422,11 @@ public class TrackerTest {
     public String getStatus() {
       return status;
     }
+
+    @Override
+    public Date getCreationDate() {
+      return creationDate;
+    }
   }
 
   private static class FakeInput implements Input<Issue> {
@@ -438,7 +446,7 @@ public class TrackerTest {
     }
 
     Issue createIssueOnLine(int line, RuleKey ruleKey, String message) {
-      Issue issue = new Issue(line, lineHashes.get(line - 1), ruleKey, message, org.sonar.api.issue.Issue.STATUS_OPEN);
+      Issue issue = new Issue(line, lineHashes.get(line - 1), ruleKey, message, org.sonar.api.issue.Issue.STATUS_OPEN, new Date());
       issues.add(issue);
       return issue;
     }
@@ -447,7 +455,7 @@ public class TrackerTest {
      * No line (line 0)
      */
     Issue createIssue(RuleKey ruleKey, String message) {
-      Issue issue = new Issue(null, "", ruleKey, message, org.sonar.api.issue.Issue.STATUS_OPEN);
+      Issue issue = new Issue(null, "", ruleKey, message, org.sonar.api.issue.Issue.STATUS_OPEN, new Date());
       issues.add(issue);
       return issue;
     }

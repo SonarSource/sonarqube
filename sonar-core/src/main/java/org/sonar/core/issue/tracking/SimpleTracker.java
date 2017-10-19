@@ -31,10 +31,10 @@ public class SimpleTracker<RAW extends Trackable, BASE extends Trackable> extend
     Tracking<RAW, BASE> tracking = new Tracking<>(rawInput, baseInput);
 
     // 1. match issues with same rule, same line and same line hash, but not necessarily with same message
-    match(tracking, LineAndLineHashKey::new, true);
+    match(tracking, LineAndLineHashKey::new);
 
     // 2. match issues with same rule, same message and same line hash
-    match(tracking, LineHashAndMessageKey::new, true);
+    match(tracking, LineHashAndMessageKey::new);
 
     return tracking;
   }
