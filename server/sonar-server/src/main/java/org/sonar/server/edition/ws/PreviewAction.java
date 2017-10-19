@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.server.edition.EditionManagementState;
 import org.sonar.server.edition.License;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.platform.WebServer;
 import org.sonar.server.plugins.edition.EditionInstaller;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
@@ -43,11 +44,14 @@ public class PreviewAction implements EditionsWsAction {
   private final UserSession userSession;
   private final EditionManagementState editionManagementState;
   private final EditionInstaller editionInstaller;
+  private final WebServer webServer;
 
-  public PreviewAction(UserSession userSession, EditionManagementState editionManagementState, EditionInstaller editionInstaller) {
+  public PreviewAction(UserSession userSession, EditionManagementState editionManagementState, EditionInstaller editionInstaller,
+    WebServer webServer) {
     this.userSession = userSession;
     this.editionManagementState = editionManagementState;
     this.editionInstaller = editionInstaller;
+    this.webServer = webServer;
   }
 
   @Override
@@ -91,7 +95,7 @@ public class PreviewAction implements EditionsWsAction {
   }
 
   private NextState computeNextState(License newLicense) {
-    if (!editionInstaller.requiresInstallationChange(newLicense.getPluginKeys())) {
+    if (!webServer.isStandalone() || !editionInstaller.requiresInstallationChange(newLicense.getPluginKeys())) {
       return new NextState(newLicense.getEditionKey(), NO_INSTALL);
       // this won't refresh the update center (uses cached state). Preview is called while typing (must be fast)
       // and anyway the status is refreshed when arriving at the marketplace page.
