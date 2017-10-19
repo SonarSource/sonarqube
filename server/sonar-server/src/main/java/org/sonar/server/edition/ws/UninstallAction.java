@@ -22,11 +22,14 @@ package org.sonar.server.edition.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.edition.EditionManagementState;
+import org.sonar.server.edition.EditionManagementState.PendingStatus;
 import org.sonar.server.edition.MutableEditionManagementState;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.plugins.edition.EditionInstaller;
 import org.sonar.server.user.UserSession;
+
+import static org.sonar.server.edition.EditionManagementState.PendingStatus.NONE;
+import static org.sonar.server.edition.EditionManagementState.PendingStatus.UNINSTALL_IN_PROGRESS;
 
 public class UninstallAction implements EditionsWsAction {
   private final UserSession userSession;
@@ -51,9 +54,8 @@ public class UninstallAction implements EditionsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
-
-    if (mutableEditionManagementState.getPendingInstallationStatus() != EditionManagementState.PendingStatus.NONE
-      && mutableEditionManagementState.getPendingInstallationStatus() != EditionManagementState.PendingStatus.UNINSTALL_IN_PROGRESS) {
+    PendingStatus status = mutableEditionManagementState.getPendingInstallationStatus();
+    if (status != NONE && status != UNINSTALL_IN_PROGRESS) {
       throw BadRequestException.create("Uninstall of the current edition is not allowed when install of an edition is in progress");
     }
 
