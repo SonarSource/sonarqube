@@ -227,7 +227,7 @@ public class ServerPluginRepositoryTest {
   public void uninstall() throws Exception {
     File installedJar = copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
     File uninstallDir = temp.newFolder("uninstallDir");
-    
+
     underTest.start();
     assertThat(underTest.getPluginInfosByKeys()).containsOnlyKeys("testbase");
     underTest.uninstall("testbase", uninstallDir);
@@ -246,6 +246,23 @@ public class ServerPluginRepositoryTest {
 
     underTest.start();
     assertThat(underTest.getPluginInfos()).hasSize(2);
+    underTest.uninstall("testbase", uninstallDir);
+    assertThat(base).doesNotExist();
+    assertThat(extension).doesNotExist();
+    assertThat(uninstallDir.list()).containsOnly(base.getName(), extension.getName());
+  }
+
+  @Test
+  public void dont_uninstall_non_existing_dependents() throws IOException {
+    File base = copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
+    File extension = copyTestPluginTo("test-require-plugin", fs.getInstalledPluginsDir());
+    File uninstallDir = temp.newFolder("uninstallDir");
+
+    underTest.start();
+    assertThat(underTest.getPluginInfos()).hasSize(2);
+    underTest.uninstall("testrequire", uninstallDir);
+    assertThat(underTest.getPluginInfos()).hasSize(2);
+
     underTest.uninstall("testbase", uninstallDir);
     assertThat(base).doesNotExist();
     assertThat(extension).doesNotExist();
