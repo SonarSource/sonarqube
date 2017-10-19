@@ -55,7 +55,7 @@ it('should correctly change the button based on the status', () => {
   wrapper.setState({ status: 'AUTOMATIC_INSTALL' });
   expect(wrapper.find('button')).toMatchSnapshot();
   wrapper.setState({ status: 'MANUAL_INSTALL' });
-  expect(wrapper.find('button').exists()).toBeFalsy();
+  expect(wrapper.find('button')).toMatchSnapshot();
 });
 
 it('should update the edition status after install', async () => {

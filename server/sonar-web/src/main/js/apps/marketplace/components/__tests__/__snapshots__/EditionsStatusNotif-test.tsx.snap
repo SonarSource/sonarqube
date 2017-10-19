@@ -1,10 +1,39 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display a ready notification 1`] = `<div />`;
+exports[`should display a ready notification 1`] = `
+<div>
+  <div
+    className="alert alert-success"
+  >
+    <span>
+      marketplace.status.AUTOMATIC_READY
+    </span>
+    <button
+      className="js-restart spacer-left"
+      onClick={[Function]}
+    >
+      marketplace.restart
+    </button>
+  </div>
+</div>
+`;
 
 exports[`should display an error notification 1`] = `<div />`;
 
-exports[`should display an in progress notif 1`] = `<div />`;
+exports[`should display an in progress notif 1`] = `
+<div>
+  <div
+    className="alert alert-info"
+  >
+    <i
+      className="spinner spacer-right text-bottom"
+    />
+    <span>
+      marketplace.status.AUTOMATIC_IN_PROGRESS
+    </span>
+  </div>
+</div>
+`;
 
 exports[`should display install errors 1`] = `
 <div>
@@ -19,6 +48,16 @@ exports[`should display install errors 1`] = `
     >
       <CloseIcon />
     </a>
+  </div>
+  <div
+    className="alert alert-info"
+  >
+    <i
+      className="spinner spacer-right text-bottom"
+    />
+    <span>
+      marketplace.status.AUTOMATIC_IN_PROGRESS
+    </span>
   </div>
 </div>
 `;
