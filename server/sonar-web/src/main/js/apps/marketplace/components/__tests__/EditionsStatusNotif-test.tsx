@@ -19,25 +19,45 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
+import { click } from '../../../../helpers/testUtils';
 import EditionsStatusNotif from '../EditionsStatusNotif';
+
+jest.mock('../../../../api/marketplace', () => ({
+  dismissErrorMessage: jest.fn(() => Promise.resolve())
+}));
+
+const dismissMsg = require('../../../../api/marketplace').dismissErrorMessage as jest.Mock<any>;
+
+beforeEach(() => {
+  dismissMsg.mockClear();
+});
 
 it('should display an in progress notif', () => {
   const wrapper = shallow(
-    <EditionsStatusNotif editionStatus={{ installationStatus: 'AUTOMATIC_IN_PROGRESS' }} />
+    <EditionsStatusNotif
+      editionStatus={{ installationStatus: 'AUTOMATIC_IN_PROGRESS' }}
+      updateEditionStatus={jest.fn()}
+    />
   );
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should display an error notification', () => {
   const wrapper = shallow(
-    <EditionsStatusNotif editionStatus={{ installationStatus: 'AUTOMATIC_FAILURE' }} />
+    <EditionsStatusNotif
+      editionStatus={{ installationStatus: 'AUTOMATIC_FAILURE' }}
+      updateEditionStatus={jest.fn()}
+    />
   );
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should display a ready notification', () => {
   const wrapper = shallow(
-    <EditionsStatusNotif editionStatus={{ installationStatus: 'AUTOMATIC_READY' }} />
+    <EditionsStatusNotif
+      editionStatus={{ installationStatus: 'AUTOMATIC_READY' }}
+      updateEditionStatus={jest.fn()}
+    />
   );
   expect(wrapper).toMatchSnapshot();
 });
@@ -46,7 +66,25 @@ it('should display install errors', () => {
   const wrapper = shallow(
     <EditionsStatusNotif
       editionStatus={{ installationStatus: 'AUTOMATIC_IN_PROGRESS', installError: 'Foo error' }}
+      updateEditionStatus={jest.fn()}
     />
   );
   expect(wrapper).toMatchSnapshot();
+});
+
+it('should allow to dismiss install errors', async () => {
+  const updateEditionStatus = jest.fn();
+  const wrapper = shallow(
+    <EditionsStatusNotif
+      editionStatus={{ installationStatus: 'NONE', installError: 'Foo error' }}
+      updateEditionStatus={updateEditionStatus}
+    />
+  );
+  click(wrapper.find('a'));
+  expect(dismissMsg).toHaveBeenCalled();
+  await new Promise(setImmediate);
+  expect(updateEditionStatus).toHaveBeenCalledWith({
+    installationStatus: 'NONE',
+    installError: undefined
+  });
 });
