@@ -92,12 +92,13 @@ public interface MutableEditionManagementState extends EditionManagementState {
   PendingStatus uninstall();
 
   /**
-   * Finalize an automatic or manual install
+   * Finalize an automatic or manual install with the specified (optional) error message to explain a partially
+   * finalized install.
    *
    * @return the new pending status, always {@link PendingStatus#NONE}
    *
    * @throws IllegalStateException if current status is neither {@link PendingStatus#AUTOMATIC_READY} nor
    *         {@link PendingStatus#MANUAL_IN_PROGRESS}
    */
-  PendingStatus finalizeInstallation();
+  PendingStatus finalizeInstallation(@Nullable String errorMessage);
 }
