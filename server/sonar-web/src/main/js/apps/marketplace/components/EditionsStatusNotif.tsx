@@ -20,10 +20,11 @@
 import * as React from 'react';
 import RestartForm from '../../../components/common/RestartForm';
 import CloseIcon from '../../../components/icons-components/CloseIcon';
-import { dismissErrorMessage, EditionStatus } from '../../../api/marketplace';
+import { dismissErrorMessage, Edition, EditionStatus } from '../../../api/marketplace';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
+  editions?: Edition[];
   editionStatus: EditionStatus;
   updateEditionStatus: (editionStatus: EditionStatus) => void;
 }
@@ -48,7 +49,10 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
   };
 
   renderStatusAlert() {
-    const { installationStatus } = this.props.editionStatus;
+    const { installationStatus, nextEditionKey } = this.props.editionStatus;
+    const nextEdition =
+      this.props.editions && this.props.editions.find(edition => edition.key === nextEditionKey);
+
     switch (installationStatus) {
       case 'AUTOMATIC_IN_PROGRESS':
         return (
@@ -61,7 +65,13 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
       case 'UNINSTALL_IN_PROGRESS':
         return (
           <div className="alert alert-success">
-            <span>{translate('marketplace.status', installationStatus)}</span>
+            <span>
+              {nextEdition ? (
+                translate('marketplace.status_x.' + installationStatus, nextEdition.name)
+              ) : (
+                translate('marketplace.status', installationStatus)
+              )}
+            </span>
             <button className="js-restart spacer-left" onClick={this.handleOpenRestart}>
               {translate('marketplace.restart')}
             </button>
@@ -71,7 +81,27 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
       case 'MANUAL_IN_PROGRESS':
         return (
           <div className="alert alert-danger">
-            {translate('marketplace.status', installationStatus)}
+            {nextEdition ? (
+              translate('marketplace.status_x.' + installationStatus, nextEdition.name)
+            ) : (
+              translate('marketplace.status', installationStatus)
+            )}
+            <p className="spacer-left">
+              {nextEdition && (
+                <a
+                  className="button spacer-right"
+                  download={`sonarqube-${nextEdition.name}.zip`}
+                  href={nextEdition.download_link}
+                  target="_blank">
+                  {translate('marketplace.download_package')}
+                </a>
+              )}
+              <a
+                href="https://redirect.sonarsource.com/doc/how-to-install-an-edition.html"
+                target="_blank">
+                {translate('marketplace.how_to_install')}
+              </a>
+            </p>
             <a className="little-spacer-left" href="https://www.sonarsource.com" target="_blank">
               {translate('marketplace.how_to_install')}
             </a>
@@ -96,7 +126,7 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
             </a>
           </div>
         )}
-        {this.renderStatusAlert}
+        {this.renderStatusAlert()}
       </div>
     );
   }

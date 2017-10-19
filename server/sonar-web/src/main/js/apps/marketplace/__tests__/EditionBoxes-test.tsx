@@ -48,27 +48,19 @@ const DEFAULT_EDITIONS = [
 ];
 
 it('should display the edition boxes', () => {
-  const wrapper = getWrapper();
+  const wrapper = getWrapper({ editions: DEFAULT_EDITIONS, loading: true });
   expect(wrapper).toMatchSnapshot();
-  wrapper.setState({
-    editions: DEFAULT_EDITIONS,
-    loading: false
-  });
+  wrapper.setProps({ loading: false });
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should display an error message', () => {
   const wrapper = getWrapper();
-  wrapper.setState({ loading: false, editionsError: true });
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should open the license form', () => {
-  const wrapper = getWrapper();
-  wrapper.setState({
-    editions: DEFAULT_EDITIONS,
-    loading: false
-  });
+  const wrapper = getWrapper({ editions: DEFAULT_EDITIONS });
   (wrapper.instance() as EditionBoxes).handleOpenLicenseForm(DEFAULT_EDITIONS[0]);
   expect(wrapper.find('LicenseEditionForm').exists()).toBeTruthy();
 });
@@ -76,6 +68,7 @@ it('should open the license form', () => {
 function getWrapper(props = {}) {
   return shallow(
     <EditionBoxes
+      loading={false}
       editionStatus={DEFAULT_STATUS}
       editionsUrl=""
       sonarqubeVersion="6.7.5"

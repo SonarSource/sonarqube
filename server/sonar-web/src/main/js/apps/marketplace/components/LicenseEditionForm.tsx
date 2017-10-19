@@ -62,7 +62,7 @@ export default class LicenseEditionForm extends React.PureComponent<Props, State
   handleConfirmClick = (event: React.SyntheticEvent<HTMLButtonElement>) => {
     event.preventDefault();
     const { license, status } = this.state;
-    if (license && status && ['AUTOMATIC_INSTALL', 'NO_INSTALL'].includes(status)) {
+    if (license && status) {
       this.setState({ submitting: true });
       applyLicense({ license }).then(
         editionStatus => {
@@ -102,10 +102,13 @@ export default class LicenseEditionForm extends React.PureComponent<Props, State
 
         <footer className="modal-foot">
           {submitting && <i className="spinner spacer-right" />}
-          {status &&
-          ['NO_INSTALL', 'AUTOMATIC_INSTALL'].includes(status) && (
+          {status && (
             <button className="js-confirm" onClick={this.handleConfirmClick} disabled={submitting}>
-              {status === 'NO_INSTALL' ? translate('save') : translate('marketplace.install')}
+              {status === 'AUTOMATIC_INSTALL' ? (
+                translate('marketplace.install')
+              ) : (
+                translate('save')
+              )}
             </button>
           )}
           <a className="js-modal-close" href="#" onClick={this.handleCancelClick}>

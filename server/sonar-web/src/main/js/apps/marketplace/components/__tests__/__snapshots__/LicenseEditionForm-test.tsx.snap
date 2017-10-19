@@ -20,6 +20,16 @@ exports[`should correctly change the button based on the status 2`] = `
 </button>
 `;
 
+exports[`should correctly change the button based on the status 3`] = `
+<button
+  className="js-confirm"
+  disabled={false}
+  onClick={[Function]}
+>
+  save
+</button>
+`;
+
 exports[`should display correctly 1`] = `
 <Modal
   ariaHideApp={true}
