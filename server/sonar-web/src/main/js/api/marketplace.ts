@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { checkStatus, corsRequest, getJSON, parseJSON, postJSON } from '../helpers/request';
+import { checkStatus, corsRequest, getJSON, parseJSON, post, postJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface Edition {
@@ -75,5 +75,9 @@ export function applyLicense(data: { license: string }): Promise<EditionStatus> 
 }
 
 export function uninstallEdition(): Promise<void | Response> {
-  return postJSON('/api/editions/uninstall').catch(throwGlobalError);
+  return post('/api/editions/uninstall').catch(throwGlobalError);
+}
+
+export function dismissErrorMessage(): Promise<void | Response> {
+  return post('/api/editions/clear_error_message').catch(throwGlobalError);
 }

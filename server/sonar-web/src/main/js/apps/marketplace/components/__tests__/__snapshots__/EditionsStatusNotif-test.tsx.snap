@@ -12,6 +12,13 @@ exports[`should display install errors 1`] = `
     className="alert alert-danger"
   >
     Foo error
+    <a
+      className="pull-right button-link text-danger"
+      href="#"
+      onClick={[Function]}
+    >
+      <CloseIcon />
+    </a>
   </div>
 </div>
 `;
