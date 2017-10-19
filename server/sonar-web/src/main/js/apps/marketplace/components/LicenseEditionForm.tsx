@@ -32,13 +32,13 @@ export interface Props {
 
 interface State {
   license: string;
-  loading: boolean;
   status?: string;
+  submitting: boolean;
 }
 
 export default class LicenseEditionForm extends React.PureComponent<Props, State> {
   mounted: boolean;
-  state: State = { license: '', loading: false };
+  state: State = { license: '', submitting: false };
 
   componentDidMount() {
     this.mounted = true;
@@ -63,7 +63,7 @@ export default class LicenseEditionForm extends React.PureComponent<Props, State
     event.preventDefault();
     const { license, status } = this.state;
     if (license && status && ['AUTOMATIC_INSTALL', 'NO_INSTALL'].includes(status)) {
-      this.setState({ loading: true });
+      this.setState({ submitting: true });
       applyLicense({ license }).then(
         editionStatus => {
           this.props.updateEditionStatus(editionStatus);
@@ -71,7 +71,7 @@ export default class LicenseEditionForm extends React.PureComponent<Props, State
         },
         () => {
           if (this.mounted) {
-            this.setState({ loading: false });
+            this.setState({ submitting: false });
           }
         }
       );
@@ -80,7 +80,7 @@ export default class LicenseEditionForm extends React.PureComponent<Props, State
 
   render() {
     const { edition } = this.props;
-    const { loading, status } = this.state;
+    const { submitting, status } = this.state;
     const header = translateWithParameters('marketplace.install_x', edition.name);
     return (
       <Modal
@@ -101,10 +101,10 @@ export default class LicenseEditionForm extends React.PureComponent<Props, State
         />
 
         <footer className="modal-foot">
-          {loading && <i className="spinner spacer-right" />}
+          {submitting && <i className="spinner spacer-right" />}
           {status &&
           ['NO_INSTALL', 'AUTOMATIC_INSTALL'].includes(status) && (
-            <button className="js-confirm" onClick={this.handleConfirmClick} disabled={loading}>
+            <button className="js-confirm" onClick={this.handleConfirmClick} disabled={submitting}>
               {status === 'NO_INSTALL' ? translate('save') : translate('marketplace.install')}
             </button>
           )}

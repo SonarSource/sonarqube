@@ -17,38 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
 
-/*::
-type Props = {
-  children?: React.Element<*>,
-  className?: string,
-  loading?: boolean,
-  timeout: number
-};
-*/
+interface Props {
+  children?: JSX.Element;
+  className?: string;
+  loading?: boolean;
+  timeout: number;
+}
 
-/*::
-type State = {
-  showSpinner: boolean
-};
-*/
+interface State {
+  showSpinner: boolean;
+}
 
-export default class DeferredSpinner extends React.PureComponent {
-  /*:: props: Props; */
-  /*:: state: State; */
-  /*:: timer: number; */
+export default class DeferredSpinner extends React.PureComponent<Props, State> {
+  timer: any;
 
   static defaultProps = {
     timeout: 100
   };
 
-  constructor(props /*: Props */) {
-    super(props);
-    this.state = { showSpinner: false };
-  }
+  state: State = { showSpinner: false };
 
   componentDidMount() {
     if (this.props.loading == null || this.props.loading === true) {
@@ -56,7 +46,7 @@ export default class DeferredSpinner extends React.PureComponent {
     }
   }
 
-  componentWillReceiveProps(nextProps /*: Props */) {
+  componentWillReceiveProps(nextProps: Props) {
     if (this.props.loading === false && nextProps.loading === true) {
       this.stopTimer();
       this.startTimer();
@@ -80,10 +70,9 @@ export default class DeferredSpinner extends React.PureComponent {
   };
 
   render() {
-    return this.state.showSpinner ? (
-      <i className={classNames('spinner', this.props.className)} />
-    ) : (
-      this.props.children || null
-    );
+    if (this.state.showSpinner) {
+      return <i className={classNames('spinner', this.props.className)} />;
+    }
+    return (this.props.children as JSX.Element) || null;
   }
 }
