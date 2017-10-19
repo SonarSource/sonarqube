@@ -93,6 +93,8 @@ public class PreviewAction implements EditionsWsAction {
   private NextState computeNextState(License newLicense) {
     if (!editionInstaller.requiresInstallationChange(newLicense.getPluginKeys())) {
       return new NextState(newLicense.getEditionKey(), NO_INSTALL);
+      // this won't refresh the update center (uses cached state). Preview is called while typing (must be fast)
+      // and anyway the status is refreshed when arriving at the marketplace page.
     } else if (editionInstaller.isOffline()) {
       return new NextState(newLicense.getEditionKey(), MANUAL_INSTALL);
     } else {
