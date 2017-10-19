@@ -50,6 +50,7 @@ public class LicenseCommitMock implements LicenseCommit {
   public void delete() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       dbClient.internalPropertiesDao().saveAsEmpty(dbSession, LICENSE_PROPERTY_KEY);
+      dbSession.commit();
     }
   }
 }
