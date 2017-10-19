@@ -19,11 +19,13 @@
  */
 import * as React from 'react';
 import RestartForm from '../../../components/common/RestartForm';
-import { EditionStatus } from '../../../api/marketplace';
+import CloseIcon from '../../../components/icons-components/CloseIcon';
+import { dismissErrorMessage, EditionStatus } from '../../../api/marketplace';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
   editionStatus: EditionStatus;
+  updateEditionStatus: (editionStatus: EditionStatus) => void;
 }
 
 interface State {
@@ -35,6 +37,15 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
 
   handleOpenRestart = () => this.setState({ openRestart: true });
   hanleCloseRestart = () => this.setState({ openRestart: false });
+
+  handleDismissError = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    dismissErrorMessage().then(
+      () =>
+        this.props.updateEditionStatus({ ...this.props.editionStatus, installError: undefined }),
+      () => {}
+    );
+  };
 
   renderStatusAlert() {
     const { installationStatus } = this.props.editionStatus;
@@ -74,7 +85,17 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
     const { installError } = this.props.editionStatus;
     return (
       <div>
-        {installError && <div className="alert alert-danger">{installError}</div>}
+        {installError && (
+          <div className="alert alert-danger">
+            {installError}
+            <a
+              className="pull-right button-link text-danger"
+              href="#"
+              onClick={this.handleDismissError}>
+              <CloseIcon />
+            </a>
+          </div>
+        )}
         {this.renderStatusAlert}
       </div>
     );
