@@ -51,3 +51,9 @@ enum PreviewStatus {
   AUTOMATIC_INSTALL = 1;
   MANUAL_INSTALL = 2;
 }
+
+// POST api/editions/form_data
+message FormDataResponse {
+  optional string serverId = 1;
+  optional int64  ncloc = 2;
+}
