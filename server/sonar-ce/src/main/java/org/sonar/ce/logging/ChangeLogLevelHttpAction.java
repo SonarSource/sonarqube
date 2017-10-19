@@ -63,7 +63,7 @@ public class ChangeLogLevelHttpAction implements HttpAction {
       logging.changeLevel(level);
       return newFixedLengthResponse(OK, MIME_PLAINTEXT, null);
     } catch (IllegalArgumentException e) {
-      Loggers.get(ChangeLogLevelHttpAction.class).debug("Value '{}' for parameter '{}' is invalid", levelStr, PARAM_LEVEL, e);
+      Loggers.get(ChangeLogLevelHttpAction.class).debug("Value '{}' for parameter '" + PARAM_LEVEL + "' is invalid: {}", levelStr, e);
       return newFixedLengthResponse(BAD_REQUEST, MIME_PLAINTEXT, format("Value '%s' for parameter '%s' is invalid", levelStr, PARAM_LEVEL));
     }
   }

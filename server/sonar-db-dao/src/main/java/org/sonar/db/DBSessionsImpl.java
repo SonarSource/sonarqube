@@ -69,7 +69,7 @@ public class DBSessionsImpl implements DBSessions {
         checkState(!((boolean) f.get(sqlSession)), "Autocommit must be false");
       }
     } catch (NoSuchFieldException | IllegalAccessException e) {
-      LOG.debug("Failed to check the autocommit status of SqlSession", e);
+      LOG.debug("Failed to check the autocommit status of SqlSession: {}", e);
     }
   }
 

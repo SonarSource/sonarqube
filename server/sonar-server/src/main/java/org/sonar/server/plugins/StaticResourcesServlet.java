@@ -69,7 +69,7 @@ public class StaticResourcesServlet extends HttpServlet {
         silentlySendError(response, SC_NOT_FOUND);
       }
     } catch (ClientAbortException e) {
-      LOG.trace(format("Client canceled loading resource [%s] from plugin [%s]", resource, pluginKey), e);
+      LOG.trace("Client canceled loading resource [{}] from plugin [{}]: {}", resource, pluginKey, e);
     } catch (Exception e) {
       LOG.error(format("Unable to load resource [%s] from plugin [%s]", resource, pluginKey), e);
       silentlySendError(response, SC_INTERNAL_SERVER_ERROR);
@@ -92,7 +92,7 @@ public class StaticResourcesServlet extends HttpServlet {
     try {
       response.sendError(error);
     } catch (IOException e) {
-      LOG.trace(format("Failed to send error code %s", error), e);
+      LOG.trace("Failed to send error code {}: {}", error, e);
     }
   }
 
