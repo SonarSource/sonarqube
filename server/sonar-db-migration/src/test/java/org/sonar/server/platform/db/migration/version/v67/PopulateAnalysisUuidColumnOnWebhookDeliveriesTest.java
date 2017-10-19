@@ -1,4 +1,4 @@
-package org.sonar.server.platform.db.migration.version.v66;/*
+package org.sonar.server.platform.db.migration.version.v67;/*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
  * mailto:info AT sonarsource DOT com

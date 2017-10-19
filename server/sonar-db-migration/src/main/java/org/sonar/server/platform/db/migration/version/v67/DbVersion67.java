@@ -30,6 +30,8 @@ public class DbVersion67 implements DbVersion {
       .add(1831, "Add webhook_deliveries.analysis_uuid", AddAnalysisUuidToWebhookDeliveries.class)
       .add(1832, "Create table ANALYSIS_PROPERTIES", CreateTableAnalysisProperties.class)
       .add(1833, "Cleanup disabled users", CleanupDisabledUsers.class)
+      .add(1834, "Set WEBHOOK_DELIVERIES.CE_TASK_UUID as nullable", UpdateCeTaskUuidColumnToNullableOnWebhookDeliveries.class)
+      .add(1835, "Populate WEBHOOK_DELIVERIES.ANALYSIS_UUID", PopulateAnalysisUuidColumnOnWebhookDeliveries.class)
     ;
   }
 }
