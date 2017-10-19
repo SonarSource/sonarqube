@@ -23,10 +23,10 @@ import throwGlobalError from '../app/utils/throwGlobalError';
 export interface Edition {
   key: string;
   name: string;
-  desc: string;
-  more_link: string;
-  request_license_link: string;
-  download_link: string;
+  textDescription: string;
+  homeUrl: string;
+  requestUrl: string;
+  downloadUrl: string;
 }
 
 export interface EditionsPerVersion {
@@ -47,7 +47,7 @@ export interface EditionStatus {
 }
 
 export function getEditionStatus(): Promise<EditionStatus> {
-  return getJSON('/api/editions/status').catch(throwGlobalError);
+  return getJSON('/api/editions/status');
 }
 
 export function getEditionsList(url: string): Promise<EditionsPerVersion> {
