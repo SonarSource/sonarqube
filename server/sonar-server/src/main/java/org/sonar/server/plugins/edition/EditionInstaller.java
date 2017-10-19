@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -38,7 +38,7 @@ import org.sonar.updatecenter.common.UpdateCenter;
 public class EditionInstaller {
   private static final Logger LOG = Loggers.get(EditionInstaller.class);
 
-  private final ReentrantLock lock = new ReentrantLock();
+  private final Semaphore semaphore = new Semaphore(1);
   private final EditionInstallerExecutor executor;
   private final EditionPluginDownloader editionPluginDownloader;
   private final EditionPluginUninstaller editionPluginUninstaller;
@@ -65,7 +65,7 @@ public class EditionInstaller {
    * @throws IllegalStateException if an installation is already in progress
    */
   public void install(License newLicense) {
-    if (lock.tryLock()) {
+    if (semaphore.tryAcquire()) {
       try {
         Optional<UpdateCenter> updateCenter = updateCenterMatrixFactory.getUpdateCenter(true);
         if (!updateCenter.isPresent()) {
@@ -75,7 +75,7 @@ public class EditionInstaller {
         editionManagementState.startAutomaticInstall(newLicense);
         executor.execute(() -> asyncInstall(newLicense, updateCenter.get()));
       } catch (RuntimeException e) {
-        lock.unlock();
+        semaphore.release();
         throw e;
       }
     } else {
@@ -118,7 +118,7 @@ public class EditionInstaller {
       LOG.error("Failed to install edition {} with plugins {}", newLicense.getEditionKey(), newLicense.getPluginKeys(), t);
       editionManagementState.installFailed(t.getMessage());
     } finally {
-      lock.unlock();
+      semaphore.release();
     }
   }
 
