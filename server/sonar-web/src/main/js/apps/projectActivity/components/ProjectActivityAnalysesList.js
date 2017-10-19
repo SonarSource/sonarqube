@@ -40,6 +40,7 @@ type Props = {
   analyses: Array<Analysis>,
   analysesLoading: boolean,
   canAdmin: boolean,
+  canDeleteAnalyses: boolean,
   className?: string,
   changeEvent: (event: string, name: string) => Promise<*>,
   deleteAnalysis: (analysis: string) => Promise<*>,
@@ -206,6 +207,7 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
                             addVersion={this.props.addVersion}
                             analysis={analysis}
                             canAdmin={this.props.canAdmin}
+                            canDeleteAnalyses={this.props.canDeleteAnalyses}
                             canCreateVersion={this.props.project.qualifier === 'TRK'}
                             changeEvent={this.props.changeEvent}
                             deleteAnalysis={this.props.deleteAnalysis}
