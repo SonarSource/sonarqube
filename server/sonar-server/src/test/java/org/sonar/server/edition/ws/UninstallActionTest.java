@@ -95,7 +95,7 @@ public class UninstallActionTest {
 
   @Test
   @UseDataProvider("notNoneOrUninstallStatuses")
-  public void request_fails_if_current_status_is_not_none(EditionManagementState.PendingStatus notNoneOrUninstall) {
+  public void request_fails_if_current_status_is_not_none_nor_uninstall(EditionManagementState.PendingStatus notNoneOrUninstall) {
     userSessionRule.logIn().setSystemAdministrator();
     when(mutableEditionManagementState.getPendingInstallationStatus()).thenReturn(notNoneOrUninstall);
 
