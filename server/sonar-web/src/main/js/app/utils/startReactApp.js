@@ -66,7 +66,6 @@ import qualityProfilesRoutes from '../../apps/quality-profiles/routes';
 import sessionsRoutes from '../../apps/sessions/routes';
 import settingsRoutes from '../../apps/settings/routes';
 import systemRoutes from '../../apps/system/routes';
-import updateCenterRoutes from '../../apps/update-center/routes';
 import usersRoutes from '../../apps/users/routes';
 import webAPIRoutes from '../../apps/web-api/routes';
 import { maintenanceRoutes, setupRoutes } from '../../apps/maintenance/routes';
@@ -141,11 +140,6 @@ const startReactApp = () => {
         <Redirect from="/system/index" to="/admin/system" />
         <Redirect from="/view" to="/portfolio" />
         <Redirect from="/users" to="/admin/users" />
-        <Redirect from="/updatecenter" to="/admin/update_center" />
-        <Redirect from="/updatecenter/available" to="/admin/update_center/available" />
-        <Redirect from="/updatecenter/installed" to="/admin/update_center/installed" />
-        <Redirect from="/updatecenter/system" to="/admin/update_center/system" />
-        <Redirect from="/updatecenter/updates" to="/admin/update_center/updates" />
 
         <Route path="markdown/help" component={MarkdownHelp} />
 
@@ -227,7 +221,6 @@ const startReactApp = () => {
                     <Route path="projects_management" childRoutes={projectsManagementRoutes} />
                     <Route path="settings" childRoutes={settingsRoutes} />
                     <Route path="system" childRoutes={systemRoutes} />
-                    <Route path="update_center" childRoutes={updateCenterRoutes} />
                     <Route path="marketplace" childRoutes={marketplaceRoutes} />
                     <Route path="users" childRoutes={usersRoutes} />
                   </Route>
