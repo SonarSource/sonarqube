@@ -130,12 +130,12 @@
 }
 
 .issues .issue {
+  outline: 1px dashed transparent;
   cursor: pointer;
 }
 
 .issues .issue:hover {
-  border-color: #dd4040;
-  border-style: dashed;
+  outline-color: #dd4040;
 }
 
 @media (max-width: 1320px) {
