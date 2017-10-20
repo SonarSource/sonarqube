@@ -21,7 +21,6 @@ package org.sonar.server.computation.task.projectanalysis.analysis;
 
 import java.util.Date;
 import java.util.Map;
-import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
@@ -143,15 +142,15 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   }
 
   @Override
-  public AnalysisMetadataHolderRule setBranch(@Nullable Branch branch) {
+  public AnalysisMetadataHolderRule setBranch(Branch branch) {
     this.branch.setProperty(branch);
     return this;
   }
 
   @Override
-  public Optional<Branch> getBranch() {
+  public Branch getBranch() {
     checkState(branch.isInitialized(), "Branch has not been set");
-    return Optional.ofNullable(branch.getProperty());
+    return branch.getProperty();
   }
 
   @Override

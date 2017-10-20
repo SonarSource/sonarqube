@@ -46,7 +46,7 @@ public class MergeBranchComponentUuids {
 
   private void lazyInit() {
     if (uuidsByKey == null) {
-      String mergeBranchUuid = analysisMetadataHolder.getBranch().get().getMergeBranchUuid().get();
+      String mergeBranchUuid = analysisMetadataHolder.getBranch().getMergeBranchUuid().get();
 
       uuidsByKey = new HashMap<>();
       try (DbSession dbSession = dbClient.openSession(false)) {

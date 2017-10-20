@@ -19,7 +19,6 @@
  */
 package org.sonar.ce.settings;
 
-import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
@@ -27,6 +26,7 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
+import org.sonar.server.computation.task.projectanalysis.component.DefaultBranchImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -47,7 +47,7 @@ public class ProjectConfigurationFactoryTest {
   @Test
   public void return_global_settings() {
     settings.setProperty("key", "value");
-    Configuration config = underTest.newProjectConfiguration(PROJECT_KEY, Optional.empty());
+    Configuration config = underTest.newProjectConfiguration(PROJECT_KEY, new DefaultBranchImpl());
 
     assertThat(config.get("key")).hasValue("value");
   }
@@ -60,7 +60,7 @@ public class ProjectConfigurationFactoryTest {
       newComponentPropertyDto(project).setKey("2").setValue("val2"),
       newComponentPropertyDto(project).setKey("3").setValue("val3"));
 
-    Configuration config = underTest.newProjectConfiguration(project.getDbKey(), Optional.empty());
+    Configuration config = underTest.newProjectConfiguration(project.getDbKey(), new DefaultBranchImpl());
 
     assertThat(config.get("1")).hasValue("val1");
     assertThat(config.get("2")).hasValue("val2");
@@ -73,7 +73,7 @@ public class ProjectConfigurationFactoryTest {
     ComponentDto project = db.components().insertPrivateProject();
     db.properties().insertProperties(newComponentPropertyDto(project).setKey("key").setValue("value2"));
 
-    Configuration projectConfig = underTest.newProjectConfiguration(project.getDbKey(), Optional.empty());
+    Configuration projectConfig = underTest.newProjectConfiguration(project.getDbKey(), new DefaultBranchImpl());
 
     assertThat(projectConfig.get("key")).hasValue("value2");
   }
@@ -84,7 +84,7 @@ public class ProjectConfigurationFactoryTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     db.properties().insertProperties(newComponentPropertyDto(branch).setKey("sonar.leak.period").setValue("1"));
 
-    Configuration config = underTest.newProjectConfiguration(project.getKey(), Optional.of(createBranch(branch.getBranch(), false)));
+    Configuration config = underTest.newProjectConfiguration(project.getKey(), createBranch(branch.getBranch(), false));
 
     assertThat(config.get("sonar.leak.period")).hasValue("1");
   }
@@ -96,7 +96,7 @@ public class ProjectConfigurationFactoryTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     db.properties().insertProperties(newComponentPropertyDto(branch).setKey("sonar.leak.period").setValue("1"));
 
-    Configuration config = underTest.newProjectConfiguration(project.getKey(), Optional.of(createBranch(branch.getBranch(), false)));
+    Configuration config = underTest.newProjectConfiguration(project.getKey(), createBranch(branch.getBranch(), false));
 
     assertThat(config.get("global")).hasValue("global_value");
     assertThat(config.get("sonar.leak.period")).hasValue("1");
@@ -109,7 +109,7 @@ public class ProjectConfigurationFactoryTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     db.properties().insertProperties(newComponentPropertyDto(branch).setKey("sonar.leak.period").setValue("1"));
 
-    Configuration config = underTest.newProjectConfiguration(project.getKey(), Optional.of(createBranch(branch.getBranch(), false)));
+    Configuration config = underTest.newProjectConfiguration(project.getKey(), createBranch(branch.getBranch(), false));
 
     assertThat(config.get("key")).hasValue("value");
     assertThat(config.get("sonar.leak.period")).hasValue("1");
@@ -122,7 +122,7 @@ public class ProjectConfigurationFactoryTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     db.properties().insertProperties(newComponentPropertyDto(branch).setKey("sonar.leak.period").setValue("2"));
 
-    Configuration config = underTest.newProjectConfiguration(project.getKey(), Optional.of(createBranch(branch.getBranch(), false)));
+    Configuration config = underTest.newProjectConfiguration(project.getKey(), createBranch(branch.getBranch(), false));
 
     assertThat(config.get("sonar.leak.period")).hasValue("2");
   }
@@ -134,7 +134,7 @@ public class ProjectConfigurationFactoryTest {
     Branch branch = createBranch("master", true);
     when(branch.isMain()).thenReturn(true);
 
-    Configuration config = underTest.newProjectConfiguration(project.getKey(), Optional.of(createBranch(branch.getName(), true)));
+    Configuration config = underTest.newProjectConfiguration(project.getKey(), createBranch(branch.getName(), true));
 
     assertThat(config.get("sonar.leak.period")).hasValue("1");
   }
@@ -146,7 +146,7 @@ public class ProjectConfigurationFactoryTest {
     Branch branch = createBranch("legacy", true);
     when(branch.isLegacyFeature()).thenReturn(true);
 
-    Configuration config = underTest.newProjectConfiguration(project.getKey(), Optional.of(createBranch(branch.getName(), true)));
+    Configuration config = underTest.newProjectConfiguration(project.getKey(), createBranch(branch.getName(), true));
 
     assertThat(config.get("sonar.leak.period")).hasValue("1");
   }

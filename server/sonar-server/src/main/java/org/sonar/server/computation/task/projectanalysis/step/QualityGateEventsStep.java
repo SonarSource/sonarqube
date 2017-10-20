@@ -26,6 +26,7 @@ import org.sonar.api.notifications.Notification;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
+import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
@@ -136,8 +137,10 @@ public class QualityGateEventsStep implements ComputationStep {
       .setFieldValue("alertText", rawStatus.getText())
       .setFieldValue("alertLevel", rawStatus.getStatus().toString())
       .setFieldValue("isNewAlert", Boolean.toString(isNewAlert));
-    analysisMetadataHolder.getBranch().filter(b -> !b.isMain())
-      .ifPresent(branch -> notification.setFieldValue("branch", branch.getName()));
+    Branch branch = analysisMetadataHolder.getBranch();
+    if (!branch.isMain()) {
+      notification.setFieldValue("branch", branch.getName());
+    }
     notificationService.deliver(notification);
   }
 

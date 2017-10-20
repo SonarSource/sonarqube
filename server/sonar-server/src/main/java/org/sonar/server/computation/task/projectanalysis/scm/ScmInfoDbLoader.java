@@ -71,8 +71,9 @@ public class ScmInfoDbLoader {
       return Optional.of(file.getUuid());
     }
 
-    Optional<Branch> branch = analysisMetadataHolder.getBranch();
-    if (branch.isPresent()) {
+    // at this point, it's the first analysis but had copyFromPrevious flag true
+    Branch branch = analysisMetadataHolder.getBranch();
+    if (branch.getMergeBranchUuid().isPresent()) {
       return Optional.ofNullable(mergeBranchComponentUuid.getUuid(file.getKey()));
     }
 

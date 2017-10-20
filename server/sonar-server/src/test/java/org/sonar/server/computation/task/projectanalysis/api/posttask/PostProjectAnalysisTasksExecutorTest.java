@@ -101,7 +101,9 @@ public class PostProjectAnalysisTasksExecutorTest {
     qualityGateStatusHolder.setStatus(QualityGateStatus.OK, ImmutableMap.of(
       CONDITION_1, ConditionStatus.create(ConditionStatus.EvaluationStatus.OK, "value"),
       CONDITION_2, ConditionStatus.NO_VALUE_STATUS));
-    analysisMetadataHolder.setBranch(null);
+    Branch branch = mock(Branch.class);
+    when(branch.getType()).thenReturn(BranchType.LONG);
+    analysisMetadataHolder.setBranch(branch);
   }
 
   @Test
@@ -213,15 +215,6 @@ public class PostProjectAnalysisTasksExecutorTest {
     verify(postProjectAnalysisTask).finished(projectAnalysisArgumentCaptor.capture());
 
     assertThat(projectAnalysisArgumentCaptor.getValue().getAnalysis()).isEmpty();
-  }
-
-  @Test
-  public void branch_is_empty_when_not_set_in_AnalysisMetadataHolder() {
-    underTest.finished(false);
-
-    verify(postProjectAnalysisTask).finished(projectAnalysisArgumentCaptor.capture());
-
-    assertThat(projectAnalysisArgumentCaptor.getValue().getBranch()).isEmpty();
   }
 
   @Test

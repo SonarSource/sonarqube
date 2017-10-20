@@ -267,7 +267,7 @@ public class IntegrateIssuesVisitorTest {
     Branch branch = mock(Branch.class);
     when(branch.isMain()).thenReturn(false);
     when(branch.getType()).thenReturn(BranchType.LONG);
-    when(analysisMetadataHolder.getBranch()).thenReturn(java.util.Optional.of(branch));
+    when(analysisMetadataHolder.getBranch()).thenReturn(branch);
 
     RuleKey ruleKey = RuleTesting.XOO_X1;
     // Issue from main branch has severity major

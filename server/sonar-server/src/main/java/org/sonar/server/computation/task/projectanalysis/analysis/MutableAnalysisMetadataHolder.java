@@ -53,7 +53,7 @@ public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
   /**
    * @throws IllegalStateException if branch has already been set
    */
-  MutableAnalysisMetadataHolder setBranch(@Nullable Branch branch);
+  MutableAnalysisMetadataHolder setBranch(Branch branch);
 
   /**
    * @throws IllegalStateException if project has already been set

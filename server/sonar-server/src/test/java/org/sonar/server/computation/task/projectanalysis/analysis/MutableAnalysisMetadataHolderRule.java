@@ -20,7 +20,6 @@
 package org.sonar.server.computation.task.projectanalysis.analysis;
 
 import java.util.Map;
-import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
@@ -100,7 +99,7 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
-  public Optional<Branch> getBranch() {
+  public Branch getBranch() {
     return delegate.getBranch();
   }
 

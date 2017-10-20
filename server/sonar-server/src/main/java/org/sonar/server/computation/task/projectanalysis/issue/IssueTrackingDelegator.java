@@ -19,17 +19,15 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-
-import java.util.Optional;
-
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.db.component.BranchType;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 
 public class IssueTrackingDelegator {
   private final ShortBranchTrackerExecution shortBranchTracker;
@@ -65,10 +63,8 @@ public class IssueTrackingDelegator {
    */
   private boolean isFirstAnalysisSecondaryLongLivingBranch() {
     if (analysisMetadataHolder.isFirstAnalysis()) {
-      Optional<Branch> branch = analysisMetadataHolder.getBranch();
-      if (branch.isPresent()) {
-        return !branch.get().isMain() && branch.get().getType() == BranchType.LONG;
-      }
+      Branch branch = analysisMetadataHolder.getBranch();
+      return !branch.isMain() && branch.getType() == BranchType.LONG;
     }
     return false;
   }
