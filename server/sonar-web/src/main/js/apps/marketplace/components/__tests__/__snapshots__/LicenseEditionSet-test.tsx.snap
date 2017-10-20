@@ -39,12 +39,16 @@ exports[`should display correctly 1`] = `
   </label>
   <textarea
     autoFocus={true}
-    className="display-block"
-    cols={62}
+    className="display-block input-super-large"
     id="set-license"
     onChange={[Function]}
     required={true}
-    rows={6}
+    rows={8}
+    style={
+      Object {
+        "resize": "none",
+      }
+    }
     value=""
   />
   <a

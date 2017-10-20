@@ -53,7 +53,7 @@ it('should update the edition status after uninstall', async () => {
   expect(uninstallEdition).toHaveBeenCalled();
   await new Promise(setImmediate);
   expect(updateEditionStatus).toHaveBeenCalledWith({
-    currentEditionKey: 'foo',
+    currentEditionKey: undefined,
     installationStatus: 'UNINSTALL_IN_PROGRESS'
   });
 });

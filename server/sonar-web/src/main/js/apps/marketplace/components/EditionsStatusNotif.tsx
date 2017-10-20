@@ -49,8 +49,67 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
     );
   };
 
-  renderStatusAlert() {
+  renderRestartMsg(edition?: Edition) {
     const { editionStatus, readOnly } = this.props;
+    return (
+      <div className="alert alert-success">
+        <span>
+          {edition ? (
+            translateWithParameters(
+              'marketplace.status_x.' + editionStatus.installationStatus,
+              edition.name
+            )
+          ) : (
+            translate('marketplace.status', editionStatus.installationStatus)
+          )}
+        </span>
+        {!readOnly && (
+          <button className="js-restart spacer-left" onClick={this.handleOpenRestart}>
+            {translate('marketplace.restart')}
+          </button>
+        )}
+        {!readOnly && this.state.openRestart && <RestartForm onClose={this.hanleCloseRestart} />}
+      </div>
+    );
+  }
+
+  renderManualMsg(edition?: Edition) {
+    const { editionStatus } = this.props;
+    return (
+      <div className="alert alert-danger">
+        {edition ? (
+          translateWithParameters(
+            'marketplace.status_x.' + editionStatus.installationStatus,
+            edition.name
+          )
+        ) : (
+          translate('marketplace.status', editionStatus.installationStatus)
+        )}
+        <p className="spacer-left">
+          {edition && (
+            <a
+              className="button spacer-right"
+              download={`sonarqube-${edition.name}.zip`}
+              href={edition.downloadUrl}
+              target="_blank">
+              {translate('marketplace.download_package')}
+            </a>
+          )}
+          <a
+            href="https://redirect.sonarsource.com/doc/how-to-install-an-edition.html"
+            target="_blank">
+            {translate('marketplace.how_to_install')}
+          </a>
+        </p>
+        <a className="little-spacer-left" href="https://www.sonarsource.com" target="_blank">
+          {translate('marketplace.how_to_install')}
+        </a>
+      </div>
+    );
+  }
+
+  renderStatusAlert() {
+    const { editionStatus } = this.props;
     const { installationStatus, nextEditionKey } = editionStatus;
     const nextEdition =
       this.props.editions && this.props.editions.find(edition => edition.key === nextEditionKey);
@@ -65,59 +124,9 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
         );
       case 'AUTOMATIC_READY':
       case 'UNINSTALL_IN_PROGRESS':
-        return (
-          <div className="alert alert-success">
-            <span>
-              {nextEdition ? (
-                translateWithParameters(
-                  'marketplace.status_x.' + installationStatus,
-                  nextEdition.name
-                )
-              ) : (
-                translate('marketplace.status', installationStatus)
-              )}
-            </span>
-            {!readOnly && (
-              <button className="js-restart spacer-left" onClick={this.handleOpenRestart}>
-                {translate('marketplace.restart')}
-              </button>
-            )}
-            {!readOnly &&
-            this.state.openRestart && <RestartForm onClose={this.hanleCloseRestart} />}
-          </div>
-        );
+        return this.renderRestartMsg(nextEdition);
       case 'MANUAL_IN_PROGRESS':
-        return (
-          <div className="alert alert-danger">
-            {nextEdition ? (
-              translateWithParameters(
-                'marketplace.status_x.' + installationStatus,
-                nextEdition.name
-              )
-            ) : (
-              translate('marketplace.status', installationStatus)
-            )}
-            <p className="spacer-left">
-              {nextEdition && (
-                <a
-                  className="button spacer-right"
-                  download={`sonarqube-${nextEdition.name}.zip`}
-                  href={nextEdition.downloadUrl}
-                  target="_blank">
-                  {translate('marketplace.download_package')}
-                </a>
-              )}
-              <a
-                href="https://redirect.sonarsource.com/doc/how-to-install-an-edition.html"
-                target="_blank">
-                {translate('marketplace.how_to_install')}
-              </a>
-            </p>
-            <a className="little-spacer-left" href="https://www.sonarsource.com" target="_blank">
-              {translate('marketplace.how_to_install')}
-            </a>
-          </div>
-        );
+        return this.renderManualMsg(nextEdition);
     }
     return null;
   }
@@ -127,12 +136,9 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
     return (
       <div>
         {installError && (
-          <div className="alert alert-danger">
+          <div className="alert alert-danger alert-cancel">
             {installError}
-            <a
-              className="pull-right button-link text-danger"
-              href="#"
-              onClick={this.handleDismissError}>
+            <a className="button-link text-danger" href="#" onClick={this.handleDismissError}>
               <CloseIcon />
             </a>
           </div>

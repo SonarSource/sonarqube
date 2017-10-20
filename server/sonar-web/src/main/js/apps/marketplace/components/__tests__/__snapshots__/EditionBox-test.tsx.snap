@@ -123,7 +123,7 @@ exports[`should display installed badge 1`] = `
     className="marketplace-edition-badge badge badge-normal-size"
   >
     <CheckIcon
-      className="little-spacer-right text-text-top"
+      className="little-spacer-right text-bottom"
       size={14}
     />
     marketplace.installed
