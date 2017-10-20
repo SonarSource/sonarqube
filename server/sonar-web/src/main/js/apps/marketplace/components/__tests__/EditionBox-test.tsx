@@ -117,6 +117,7 @@ function getWrapper(props = {}) {
       editionStatus={DEFAULT_STATUS}
       onInstall={jest.fn()}
       onUninstall={jest.fn()}
+      readOnly={false}
       {...props}
     />
   );

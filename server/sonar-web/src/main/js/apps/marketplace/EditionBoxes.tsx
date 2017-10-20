@@ -30,6 +30,7 @@ export interface Props {
   editionStatus?: EditionStatus;
   editionsUrl: string;
   loading: boolean;
+  readOnly: boolean;
   sonarqubeVersion: string;
   updateCenterActive: boolean;
   updateEditionStatus: (editionStatus: EditionStatus) => void;
@@ -50,7 +51,7 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
   handleCloseUninstallForm = () => this.setState({ openUninstallForm: false });
 
   render() {
-    const { editions, editionStatus, loading } = this.props;
+    const { editions, editionStatus, loading, readOnly } = this.props;
     const { installEdition, openUninstallForm } = this.state;
     if (loading) {
       return <i className="big-spacer-bottom spinner" />;
@@ -85,10 +86,12 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
             key={edition.key}
             onInstall={this.handleOpenLicenseForm}
             onUninstall={this.handleOpenUninstallForm}
+            readOnly={readOnly}
           />
         ))}
 
-        {installEdition && (
+        {!readOnly &&
+        installEdition && (
           <LicenseEditionForm
             edition={installEdition}
             editions={editions}
@@ -97,7 +100,8 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
           />
         )}
 
-        {openUninstallForm &&
+        {!readOnly &&
+        openUninstallForm &&
         editionStatus &&
         editionStatus.currentEditionKey && (
           <UninstallEditionForm

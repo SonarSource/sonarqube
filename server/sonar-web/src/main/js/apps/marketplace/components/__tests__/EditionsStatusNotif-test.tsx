@@ -36,6 +36,7 @@ it('should display an in progress notif', () => {
   const wrapper = shallow(
     <EditionsStatusNotif
       editionStatus={{ installationStatus: 'AUTOMATIC_IN_PROGRESS' }}
+      readOnly={false}
       updateEditionStatus={jest.fn()}
     />
   );
@@ -46,6 +47,7 @@ it('should display a ready notification', () => {
   const wrapper = shallow(
     <EditionsStatusNotif
       editionStatus={{ installationStatus: 'AUTOMATIC_READY' }}
+      readOnly={false}
       updateEditionStatus={jest.fn()}
     />
   );
@@ -56,6 +58,7 @@ it('should display install errors', () => {
   const wrapper = shallow(
     <EditionsStatusNotif
       editionStatus={{ installationStatus: 'AUTOMATIC_IN_PROGRESS', installError: 'Foo error' }}
+      readOnly={false}
       updateEditionStatus={jest.fn()}
     />
   );
@@ -67,6 +70,7 @@ it('should allow to dismiss install errors', async () => {
   const wrapper = shallow(
     <EditionsStatusNotif
       editionStatus={{ installationStatus: 'NONE', installError: 'Foo error' }}
+      readOnly={false}
       updateEditionStatus={updateEditionStatus}
     />
   );

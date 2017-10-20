@@ -43,12 +43,7 @@ export default function PluginStatus({ plugin, refreshPending, status }: Props) 
         <p className="text-danger">{translate('marketplace.uninstall_pending')}</p>
       )}
 
-      {status == null && (
-        <div>
-          <i className="js-spinner spinner hidden" />
-          <PluginActions plugin={plugin} refreshPending={refreshPending} />
-        </div>
-      )}
+      {status == null && <PluginActions plugin={plugin} refreshPending={refreshPending} />}
     </td>
   );
 }
