@@ -89,7 +89,10 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       }
     };
 
-    Promise.all([getComponentNavigation(id), getComponentData(id, branch)]).then(([nav, data]) => {
+    Promise.all([
+      getComponentNavigation(id, branch),
+      getComponentData(id, branch)
+    ]).then(([nav, data]) => {
       const component = this.addQualifier({ ...nav, ...data });
 
       if (this.props.organizationsEnabled) {
