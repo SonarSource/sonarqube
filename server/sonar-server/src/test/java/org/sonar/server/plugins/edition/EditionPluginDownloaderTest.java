@@ -31,6 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.utils.HttpDownloader;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.server.platform.ServerFileSystem;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.Release;
@@ -45,6 +46,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class EditionPluginDownloaderTest {
+  @Rule
+  public LogTester logTester = new LogTester();
+
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
@@ -75,6 +79,7 @@ public class EditionPluginDownloaderTest {
     verify(httpDownloader).download(new URI("http://host/plugin1.jar"), new File(tmpDir, "plugin1.jar"));
     verify(httpDownloader).download(new URI("http://host/plugin2.jar"), new File(tmpDir, "plugin2.jar"));
 
+    assertThat(logTester.logs()).containsOnly("Downloading plugin: plugin1", "Downloading plugin: plugin2");
     assertThat(downloadDir).isDirectory();
     assertThat(tmpDir).doesNotExist();
   }
