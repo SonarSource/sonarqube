@@ -21,7 +21,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
-import key from 'keymaster';
 import TokenStep from './TokenStep';
 import OrganizationStep from './OrganizationStep';
 import AnalysisStep from './AnalysisStep';
@@ -72,28 +71,26 @@ export default class Onboarding extends React.PureComponent {
 
   componentDidMount() {
     this.mounted = true;
-    this.attachShortcuts();
+
+    // useCapture = true to receive the event before inputs
+    window.addEventListener('keydown', this.onKeyDown, true);
+
     if (!this.props.currentUser.isLoggedIn) {
       handleRequiredAuthentication();
     }
   }
 
   componentWillUnmount() {
+    window.removeEventListener('keydown', this.onKeyDown, true);
     this.mounted = false;
-    this.detachShortcuts();
   }
 
-  attachShortcuts() {
-    key.setScope('onboarding');
-    key('esc', 'onboarding', () => {
+  onKeyDown = (event /*: KeyboardEvent */) => {
+    // ESC key
+    if (event.keyCode === 27) {
       this.finishOnboarding();
-      return false;
-    });
-  }
-
-  detachShortcuts() {
-    key.deleteScope('onboarding');
-  }
+    }
+  };
 
   finishOnboarding = () => {
     this.setState({ skipping: true });
