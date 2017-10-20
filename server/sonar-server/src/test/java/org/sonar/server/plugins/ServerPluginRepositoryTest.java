@@ -270,6 +270,23 @@ public class ServerPluginRepositoryTest {
   }
 
   @Test
+  public void dont_uninstall_non_existing_files() throws IOException {
+    File base = copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
+    File extension = copyTestPluginTo("test-require-plugin", fs.getInstalledPluginsDir());
+    File uninstallDir = temp.newFolder("uninstallDir");
+
+    underTest.start();
+    assertThat(underTest.getPluginInfos()).hasSize(2);
+    underTest.uninstall("testbase", uninstallDir);
+    assertThat(underTest.getPluginInfos()).hasSize(2);
+
+    underTest.uninstall("testbase", uninstallDir);
+    assertThat(base).doesNotExist();
+    assertThat(extension).doesNotExist();
+    assertThat(uninstallDir.list()).containsOnly(base.getName(), extension.getName());
+  }
+
+  @Test
   public void install_plugin_and_its_extension_plugins_at_startup() throws Exception {
     copyTestPluginTo("test-base-plugin", fs.getInstalledPluginsDir());
     copyTestPluginTo("test-extend-plugin", fs.getInstalledPluginsDir());
