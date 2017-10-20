@@ -231,3 +231,77 @@ textarea.coding-rules-markdown-description {
 .coding-rules-most-violated-projects .coding-rules-detail-list-name {
   font-weight: 400;
 }
+
+.coding-rule {
+  padding: 8px 10px 8px 8px;
+  border: 1px solid transparent;
+  background-color: #fff;
+}
+
+.coding-rule.selected {
+  border-color: #4b9fd5 !important;
+}
+
+.coding-rule + .coding-rule {
+  border-top-color: #e6e6e6;
+}
+
+.coding-rule.selected + .coding-rule {
+  border-top-color: transparent;
+}
+
+.coding-rule-table {
+  width: 100%;
+}
+
+.coding-rule-table td {
+  vertical-align: top;
+}
+
+.coding-rule-table + .coding-rule-table {
+  margin-top: 5px;
+}
+
+.coding-rule-table-meta-cell {
+  width: 1px;
+  white-space: nowrap;
+}
+
+.coding-rule-title {
+  line-height: 19.5px;
+  font-size: 13px;
+}
+
+.coding-rule-meta {
+  padding-left: 30px;
+  line-height: 19.5px;
+  font-size: 12px;
+}
+
+.coding-rule-meta .icon-tags:before {
+  color: #777;
+  font-size: 12px;
+}
+
+.coding-rule-meta .js-tag:after {
+  content: ',';
+}
+
+.coding-rule-meta .js-tag:last-child:after {
+  content: '';
+}
+
+.coding-rule-activation {
+  width: 40px;
+  line-height: 19.5px;
+}
+
+.coding-rule-activation-actions {
+  padding-left: 20px;
+}
+
+.coding-rule-section-separator {
+  height: 0;
+  margin: 10px 0;
+  border-top: 1px solid #e6e6e6;
+}
