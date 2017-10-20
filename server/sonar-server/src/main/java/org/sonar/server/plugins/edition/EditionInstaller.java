@@ -68,6 +68,7 @@ public class EditionInstaller {
       try {
         Optional<UpdateCenter> updateCenter = updateCenterMatrixFactory.getUpdateCenter(true);
         if (!updateCenter.isPresent()) {
+          LOG.info("Installation of edition '{}' needs to be done manually", newLicense.getEditionKey());
           editionManagementState.startManualInstall(newLicense);
           return;
         }
@@ -110,6 +111,9 @@ public class EditionInstaller {
       Set<String> pluginsToRemove = pluginsToRemove(editionPluginKeys, pluginInfosByKeys.values());
       Set<String> pluginsToInstall = pluginsToInstall(editionPluginKeys, pluginInfosByKeys.keySet());
 
+      LOG.info("Installing edition '{}', download: {}, remove: {}", 
+        newLicense.getEditionKey(), pluginsToInstall, pluginsToRemove);
+
       editionPluginDownloader.downloadEditionPlugins(pluginsToInstall, updateCenter);
       uninstallPlugins(pluginsToRemove);
       editionManagementState.automaticInstallReady();
@@ -125,13 +129,13 @@ public class EditionInstaller {
     pluginsToRemove.stream().forEach(editionPluginUninstaller::uninstall);
   }
 
-  private Set<String> pluginsToInstall(Set<String> editionPluginKeys, Set<String> installedPluginKeys) {
+  private static Set<String> pluginsToInstall(Set<String> editionPluginKeys, Set<String> installedPluginKeys) {
     return editionPluginKeys.stream()
       .filter(p -> !installedPluginKeys.contains(p))
       .collect(Collectors.toSet());
   }
 
-  private Set<String> pluginsToRemove(Set<String> editionPluginKeys, Collection<PluginInfo> installedPluginInfos) {
+  private static Set<String> pluginsToRemove(Set<String> editionPluginKeys, Collection<PluginInfo> installedPluginInfos) {
     Set<String> installedCommercialPluginKeys = installedPluginInfos.stream()
       .filter(EditionBundledPlugins::isEditionBundled)
       .map(PluginInfo::getKey)
