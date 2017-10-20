@@ -22,6 +22,7 @@ package org.sonarqube.tests.updateCenter;
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.After;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import util.user.UserRule;
@@ -47,6 +48,7 @@ public class UpdateCenterTest {
     userRule.resetUsers();
   }
 
+  @Ignore
   @Test
   public void test_console() {
     runSelenese(orchestrator, "/updateCenter/installed-plugins.html");

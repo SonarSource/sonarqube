@@ -153,40 +153,13 @@ exports[`should work with extensions 1`] = `
         </li>
       </ul>
     </li>
-    <li
-      className="dropdown"
-    >
-      <a
-        className="dropdown-toggle"
-        data-toggle="dropdown"
-        href="#"
+    <li>
+      <IndexLink
+        activeClassName="active"
+        to="/admin/system"
       >
         sidebar.system
-         
-        <i
-          className="icon-dropdown"
-        />
-      </a>
-      <ul
-        className="dropdown-menu"
-      >
-        <li>
-          <IndexLink
-            activeClassName="active"
-            to="/admin/update_center"
-          >
-            update_center.page
-          </IndexLink>
-        </li>
-        <li>
-          <IndexLink
-            activeClassName="active"
-            to="/admin/system"
-          >
-            system_info.page
-          </IndexLink>
-        </li>
-      </ul>
+      </IndexLink>
     </li>
     <li>
       <IndexLink
