@@ -19,13 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -36,6 +29,11 @@ import org.sonar.db.component.BranchType;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class IssueTrackingDelegatorTest {
   @Mock
@@ -65,7 +63,7 @@ public class IssueTrackingDelegatorTest {
   @Test
   public void delegate_regular_tracker() {
     when(analysisMetadataHolder.isShortLivingBranch()).thenReturn(false);
-    when(analysisMetadataHolder.getBranch()).thenReturn(Optional.empty());
+    when(analysisMetadataHolder.getBranch()).thenReturn(mock(Branch.class));
 
     underTest.track(component);
 
@@ -79,7 +77,7 @@ public class IssueTrackingDelegatorTest {
     Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(BranchType.LONG);
     when(branch.isMain()).thenReturn(false);
-    when(analysisMetadataHolder.getBranch()).thenReturn(Optional.of(branch));
+    when(analysisMetadataHolder.getBranch()).thenReturn(branch);
     when(analysisMetadataHolder.isFirstAnalysis()).thenReturn(true);
 
     underTest.track(component);
@@ -94,7 +92,7 @@ public class IssueTrackingDelegatorTest {
   public void delegate_short_branch_tracker() {
     Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(BranchType.SHORT);
-    when(analysisMetadataHolder.getBranch()).thenReturn(Optional.empty());
+    when(analysisMetadataHolder.getBranch()).thenReturn(mock(Branch.class));
     when(analysisMetadataHolder.isShortLivingBranch()).thenReturn(true);
 
     underTest.track(component);

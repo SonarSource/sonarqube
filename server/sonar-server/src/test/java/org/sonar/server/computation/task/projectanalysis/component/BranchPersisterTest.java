@@ -65,13 +65,6 @@ public class BranchPersisterTest {
   }
 
   @Test
-  public void skip_if_no_branch() {
-    analysisMetadataHolder.setBranch(null);
-    underTest.persist(dbTester.getSession());
-    dbTester.assertTableDoesNotExist("project_branch");
-  }
-
-  @Test
   public void persist_secondary_branch() {
     analysisMetadataHolder.setBranch(createBranch(BranchType.LONG, false, "branch"));
     treeRootHolder.setRoot(BRANCH);

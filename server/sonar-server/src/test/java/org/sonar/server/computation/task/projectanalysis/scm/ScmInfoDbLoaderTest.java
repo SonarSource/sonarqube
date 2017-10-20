@@ -22,6 +22,7 @@ package org.sonar.server.computation.task.projectanalysis.scm;
 import com.google.common.collect.ImmutableList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -94,6 +95,7 @@ public class ScmInfoDbLoaderTest {
     analysisMetadataHolder.setBaseAnalysis(null);
     analysisMetadataHolder.setBranch(branch);
     String mergeFileUuid = "mergeFileUuid";
+    when(branch.getMergeBranchUuid()).thenReturn(Optional.of("mergeBranchUuid"));
 
     when(mergeBranchComponentUuids.getUuid(FILE.getKey())).thenReturn(mergeFileUuid);
     addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1), mergeFileUuid);
@@ -109,6 +111,7 @@ public class ScmInfoDbLoaderTest {
     analysisMetadataHolder.setBaseAnalysis(null);
     analysisMetadataHolder.setBranch(branch);
     String mergeFileUuid = "mergeFileUuid";
+    when(branch.getMergeBranchUuid()).thenReturn(Optional.of("mergeBranchUuid"));
 
     when(mergeBranchComponentUuids.getUuid(FILE.getKey())).thenReturn(mergeFileUuid);
     addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1) + "dif", mergeFileUuid);
@@ -131,9 +134,11 @@ public class ScmInfoDbLoaderTest {
   }
 
   @Test
-  public void not_read_in_db_on_first_analysis() throws Exception {
+  public void not_read_in_db_on_first_analysis_and_no_merge_branch() throws Exception {
+    Branch branch = mock(Branch.class);
+    when(branch.getMergeBranchUuid()).thenReturn(Optional.empty());
     analysisMetadataHolder.setBaseAnalysis(null);
-    analysisMetadataHolder.setBranch(null);
+    analysisMetadataHolder.setBranch(branch);
 
     addFileSourceInReport(1);
 

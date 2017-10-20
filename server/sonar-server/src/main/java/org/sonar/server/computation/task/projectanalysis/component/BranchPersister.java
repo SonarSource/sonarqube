@@ -20,7 +20,6 @@
 package org.sonar.server.computation.task.projectanalysis.component;
 
 import java.util.Date;
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -47,12 +46,7 @@ public class BranchPersister {
   }
 
   public void persist(DbSession dbSession) {
-    Optional<Branch> branchOpt = analysisMetadataHolder.getBranch();
-    if (!branchOpt.isPresent()) {
-      return;
-    }
-
-    Branch branch = branchOpt.get();
+    Branch branch = analysisMetadataHolder.getBranch();
     String branchUuid = treeRootHolder.getRoot().getUuid();
 
     com.google.common.base.Optional<ComponentDto> branchComponentDtoOpt = dbClient.componentDao().selectByUuid(dbSession, branchUuid);

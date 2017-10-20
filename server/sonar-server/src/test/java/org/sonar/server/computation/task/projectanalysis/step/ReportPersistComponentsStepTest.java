@@ -901,14 +901,14 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
   private ComponentDto prepareBranch(String branchName, Consumer<ComponentDto>... populators) {
     ComponentDto dto = db.components().insertPrivateProject(db.organizations().insert(), populators);
     analysisMetadataHolder.setProject(Project.copyOf(dto));
-    analysisMetadataHolder.setBranch(new BranchImpl(branchName));
+    analysisMetadataHolder.setBranch(new TestBranch(branchName));
     return dto;
   }
 
-  private static class BranchImpl implements Branch {
+  private static class TestBranch implements Branch {
     private final String name;
 
-    public BranchImpl(String name) {
+    public TestBranch(String name) {
       this.name = name;
     }
 
@@ -944,7 +944,7 @@ public class ReportPersistComponentsStepTest extends BaseStepTest {
 
     @Override
     public String generateKey(ScannerReport.Component module, @Nullable ScannerReport.Component fileOrDir) {
-      String moduleKey =  module.getKey();
+      String moduleKey = module.getKey();
       if (fileOrDir == null || isEmpty(fileOrDir.getPath())) {
         return moduleKey;
       }

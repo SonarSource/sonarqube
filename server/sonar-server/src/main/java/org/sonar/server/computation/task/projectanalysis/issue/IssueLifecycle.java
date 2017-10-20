@@ -75,12 +75,12 @@ public class IssueLifecycle {
     raw.setKey(Uuids.create());
     raw.setNew(false);
     copyIssueAttributes(raw, base);
-    raw.setFieldChange(changeContext, IssueFieldsSetter.FROM_LONG_BRANCH, fromLongBranchName, analysisMetadataHolder.getBranch().get().getName());
+    raw.setFieldChange(changeContext, IssueFieldsSetter.FROM_LONG_BRANCH, fromLongBranchName, analysisMetadataHolder.getBranch().getName());
   }
 
   public void mergeConfirmedOrResolvedFromShortLivingBranch(DefaultIssue raw, DefaultIssue base, String fromShortBranchName) {
     copyIssueAttributes(raw, base);
-    raw.setFieldChange(changeContext, IssueFieldsSetter.FROM_SHORT_BRANCH, fromShortBranchName, analysisMetadataHolder.getBranch().get().getName());
+    raw.setFieldChange(changeContext, IssueFieldsSetter.FROM_SHORT_BRANCH, fromShortBranchName, analysisMetadataHolder.getBranch().getName());
   }
 
   private void copyIssueAttributes(DefaultIssue to, DefaultIssue from) {

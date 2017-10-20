@@ -186,7 +186,8 @@ public class SendIssueNotificationsStep implements ComputationStep {
   }
 
   private String getBranchName() {
-    return analysisMetadataHolder.getBranch().filter(b -> !b.isMain()).map(Branch::getName).orElse(null);
+    Branch branch = analysisMetadataHolder.getBranch();
+    return branch.isMain() ? null : branch.getName();
   }
 
 }

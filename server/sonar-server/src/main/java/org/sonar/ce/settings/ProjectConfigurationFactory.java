@@ -41,11 +41,10 @@ public class ProjectConfigurationFactory {
     this.dbClient = dbClient;
   }
 
-  public Configuration newProjectConfiguration(String projectKey, Optional<Branch> branch) {
+  public Configuration newProjectConfiguration(String projectKey, Branch branch) {
     Settings projectSettings = new ChildSettings(globalSettings);
     addSettings(projectSettings, projectKey);
-    getBranchName(branch).ifPresent(
-      b -> addSettings(projectSettings, generateBranchKey(projectKey, b)));
+    addSettings(projectSettings, generateBranchKey(projectKey, branch.getName()));
     return new ConfigurationBridge(projectSettings);
   }
 
@@ -55,11 +54,7 @@ public class ProjectConfigurationFactory {
       .forEach(property -> settings.setProperty(property.getKey(), property.getValue()));
   }
 
-  private static Optional<String> getBranchName(Optional<Branch> branchOpt) {
-    if (!branchOpt.isPresent()) {
-      return Optional.empty();
-    }
-    Branch branch = branchOpt.get();
+  private static Optional<String> getBranchName(Branch branch) {
     if (!branch.isLegacyFeature() && !branch.isMain()) {
       return Optional.of(branch.getName());
     }
