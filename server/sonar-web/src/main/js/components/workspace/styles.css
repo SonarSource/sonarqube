@@ -17,18 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) "../mixins";
-@import (reference) "../variables";
-
-@workspace-height: 30px;
-@workspace-padding: (@workspace-height - @formControlHeight) / 2;
-
 .workspace-nav {
   position: fixed;
-  z-index: @workspace-nav-z-index;
+  z-index: 451;
   bottom: 0;
   right: 0;
-  height: @workspace-height;
+  height: 30px;
 }
 
 .workspace-nav-list {
@@ -39,23 +33,23 @@
   float: left;
   vertical-align: middle;
   margin-right: 10px;
-  padding: @workspace-padding 10px;
+  padding: 3px 10px;
   background-color: #404040;
   color: #fff;
-  font-size: @smallFontSize;
+  font-size: 12px;
   font-weight: 300;
   cursor: pointer;
+}
 
-  & > i {
-    position: relative;
-    top: -2px;
-    vertical-align: middle;
-  }
+.workspace-nav-item > i {
+  position: relative;
+  top: -2px;
+  vertical-align: middle;
 }
 
 .workspace-viewer {
   position: fixed;
-  z-index: @workspace-viewer-z-index;
+  z-index: 450;
   bottom: 0;
   left: 0;
   right: 0;
@@ -65,10 +59,9 @@
 }
 
 .workspace-viewer-header {
-  @topPadding: (30px - @formControlHeight) / 2;
   position: relative;
   height: 30px;
-  padding: @topPadding 10px;
+  padding: 3px 10px;
   box-sizing: border-box;
   background-color: #404040;
   color: #fff;
@@ -77,13 +70,13 @@
 
 .workspace-viewer-name {
   float: left;
-  line-height: @formControlHeight;
-  color: @white;
+  line-height: 24px;
+  color: #fff;
   font-weight: 300;
+}
 
-  i {
-    margin-top: 3px;
-  }
+.workspace-viewer-name i {
+  margin-top: 3px;
 }
 
 .workspace-viewer-resize {
@@ -99,24 +92,23 @@
 
 .workspace-viewer-actions {
   float: right;
-  line-height: @formControlHeight;
+  line-height: 24px;
+}
 
-  a {
-    color: inherit;
-  }
+.workspace-viewer-actions a {
+  color: inherit;
 }
 
 .workspace-viewer-container {
-  height: ~'calc(40vh - 30px)';
+  height: calc(40vh - 30px);
   min-height: 100px;
-  max-height: ~'calc(95vh - 30px)';
+  max-height: calc(95vh - 30px);
   padding: 5px 10px;
   overflow-y: scroll;
   overflow-x: auto;
   box-sizing: border-box;
 }
 
-// Misc
 .with-workspace .source-viewer {
   padding-bottom: 40vh;
 }
