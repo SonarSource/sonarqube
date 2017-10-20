@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rules.RuleType;
 
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssueChangeWebhookTest {
@@ -49,5 +50,39 @@ public class IssueChangeWebhookTest {
     IssueChangeWebhook.IssueChange transitionKeyAndRuleType = new IssueChangeWebhookImpl.IssueChange(RuleType.VULNERABILITY, "bar");
     assertThat(transitionKeyAndRuleType.getTransitionKey()).contains("bar");
     assertThat(transitionKeyAndRuleType.getRuleType()).contains(RuleType.VULNERABILITY);
+  }
+
+  @Test
+  public void verify_IssueChange_equality() {
+    IssueChangeWebhook.IssueChange underTest = new IssueChangeWebhook.IssueChange(RuleType.BUG);
+
+    assertThat(underTest).isEqualTo(new IssueChangeWebhook.IssueChange(RuleType.BUG));
+    assertThat(underTest).isEqualTo(new IssueChangeWebhook.IssueChange(RuleType.BUG, null));
+
+    assertThat(underTest).isNotEqualTo(null);
+    assertThat(underTest).isNotEqualTo(new IssueChangeWebhook.IssueChange(RuleType.BUG, randomAlphanumeric(10)));
+    assertThat(underTest).isNotEqualTo(new IssueChangeWebhook.IssueChange(RuleType.CODE_SMELL));
+    assertThat(underTest).isNotEqualTo(new IssueChangeWebhook.IssueChange(RuleType.CODE_SMELL, randomAlphanumeric(10)));
+    assertThat(underTest).isNotEqualTo(new IssueChangeWebhook.IssueChange(RuleType.VULNERABILITY));
+    assertThat(underTest).isNotEqualTo(new IssueChangeWebhook.IssueChange(RuleType.VULNERABILITY, randomAlphanumeric(10)));
+    assertThat(underTest).isNotEqualTo(new IssueChangeWebhook.IssueChange(randomAlphanumeric(10)));
+
+    String transitionKey = randomAlphanumeric(10);
+    underTest = new IssueChangeWebhook.IssueChange(transitionKey);
+
+    assertThat(underTest).isEqualTo(new IssueChangeWebhook.IssueChange(transitionKey));
+    assertThat(underTest).isEqualTo(new IssueChangeWebhook.IssueChange(null, transitionKey));
+
+    assertThat(underTest).isNotEqualTo(null);
+    assertThat(underTest).isNotEqualTo(new IssueChangeWebhook.IssueChange(RuleType.BUG));
+    assertThat(underTest).isNotEqualTo(new IssueChangeWebhook.IssueChange(RuleType.BUG, transitionKey));
+    assertThat(underTest).isNotEqualTo(new IssueChangeWebhook.IssueChange(RuleType.BUG, randomAlphanumeric(10)));
+    assertThat(underTest).isNotEqualTo(new IssueChangeWebhook.IssueChange(RuleType.CODE_SMELL));
+    assertThat(underTest).isNotEqualTo(new IssueChangeWebhook.IssueChange(RuleType.CODE_SMELL, randomAlphanumeric(10)));
+    assertThat(underTest).isNotEqualTo(new IssueChangeWebhook.IssueChange(RuleType.CODE_SMELL, transitionKey));
+    assertThat(underTest).isNotEqualTo(new IssueChangeWebhook.IssueChange(RuleType.VULNERABILITY));
+    assertThat(underTest).isNotEqualTo(new IssueChangeWebhook.IssueChange(RuleType.VULNERABILITY, randomAlphanumeric(10)));
+    assertThat(underTest).isNotEqualTo(new IssueChangeWebhook.IssueChange(RuleType.VULNERABILITY, transitionKey));
+    assertThat(underTest).isNotEqualTo(new IssueChangeWebhook.IssueChange(randomAlphanumeric(9)));
   }
 }

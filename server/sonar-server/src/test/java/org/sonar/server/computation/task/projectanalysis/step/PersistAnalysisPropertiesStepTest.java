@@ -61,14 +61,10 @@ public class PersistAnalysisPropertiesStepTest {
   private AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
   private PersistAnalysisPropertiesStep underTest = new PersistAnalysisPropertiesStep(dbTester.getDbClient(), analysisMetadataHolder, batchReportReader, UuidFactoryFast.getInstance());
 
-  @Before
-  public void setup() {
-    when(batchReportReader.readContextProperties()).thenReturn(CloseableIterator.from(PROPERTIES.iterator()));
-    when(analysisMetadataHolder.getUuid()).thenReturn(SNAPSHOT_UUID);
-  }
-
   @Test
   public void persist_should_store_only_sonarDotAnalysis_properties() {
+    when(batchReportReader.readContextProperties()).thenReturn(CloseableIterator.from(PROPERTIES.iterator()));
+    when(analysisMetadataHolder.getUuid()).thenReturn(SNAPSHOT_UUID);
     underTest.execute();
     assertThat(dbTester.countRowsOfTable("analysis_properties")).isEqualTo(4);
 
@@ -83,6 +79,20 @@ public class PersistAnalysisPropertiesStepTest {
         tuple(SNAPSHOT_UUID, "sonar.analysis.big_value", BIG_VALUE),
         tuple(SNAPSHOT_UUID, "sonar.analysis.", SMALL_VALUE2)
       );
+  }
+
+  @Test
+  public void persist_should_not_store_anything_if_there_is_no_sonarDotAnalysis_properties() {
+    when(batchReportReader.readContextProperties()).thenReturn(CloseableIterator.emptyCloseableIterator());
+    when(analysisMetadataHolder.getUuid()).thenReturn(SNAPSHOT_UUID);
+
+    underTest.execute();
+    assertThat(dbTester.countRowsOfTable("analysis_properties")).isEqualTo(0);
+  }
+
+  @Test
+  public void verify_description_value() {
+    assertThat(underTest.getDescription()).isEqualTo("Persist analysis properties");
   }
 
   private static ScannerReport.ContextProperty newContextProperty(String key, String value) {
