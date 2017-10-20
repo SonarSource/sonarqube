@@ -161,15 +161,14 @@ export default class CreationDateFacet extends React.PureComponent {
     }
 
     const { formatDate } = this.context.intl;
-    const beforeDate = createdBefore ? createdBefore : undefined;
     const data = periods.map((start, index) => {
       const startDate = parseDate(start);
-      let nextStartDate = index < periods.length - 1 ? periods[index + 1] : beforeDate;
       let endDate;
-      if (nextStartDate) {
-        nextStartDate = parseDate(nextStartDate);
-        endDate = parseDate(nextStartDate);
+      if (index < periods.length - 1) {
+        endDate = parseDate(periods[index + 1]);
         endDate.setDate(endDate.getDate() - 1);
+      } else {
+        endDate = createdBefore && parseDate(createdBefore);
       }
 
       let tooltip =
@@ -182,7 +181,7 @@ export default class CreationDateFacet extends React.PureComponent {
 
       return {
         createdAfter: startDate,
-        createdBefore: nextStartDate,
+        createdBefore: endDate,
         tooltip,
         x: index,
         y: stats[start]
