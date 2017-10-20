@@ -28,5 +28,6 @@
   "organizationsEnabled": false,
   "branchesEnabled": false,
   "defaultOrganization": "key_foo",
-  "canAdmin": false
+  "canAdmin": false,
+  "standalone": true
 }

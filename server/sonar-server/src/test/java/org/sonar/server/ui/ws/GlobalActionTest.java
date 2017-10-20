@@ -36,6 +36,7 @@ import org.sonar.server.branch.BranchFeatureRule;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
+import org.sonar.server.platform.WebServer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ws.WsActionTester;
@@ -55,6 +56,7 @@ public class GlobalActionTest {
   private MapSettings settings = new MapSettings();
 
   private Server server = mock(Server.class);
+  private WebServer webServer = mock(WebServer.class);
   private DbClient dbClient = mock(DbClient.class, RETURNS_DEEP_STUBS);
 
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
@@ -226,6 +228,26 @@ public class GlobalActionTest {
   }
 
   @Test
+  public void standalone_flag() {
+    init();
+    userSession.logIn().setRoot();
+    when(webServer.isStandalone()).thenReturn(true);
+
+
+    assertJson(call()).isSimilarTo("{\"standalone\":true}");
+  }
+
+  @Test
+  public void not_standalone_flag() {
+    init();
+    userSession.logIn().setRoot();
+    when(webServer.isStandalone()).thenReturn(false);
+
+
+    assertJson(call()).isSimilarTo("{\"standalone\":false}");
+  }
+
+  @Test
   public void test_example_response() throws Exception {
     init(createPages(), new ResourceTypeTree[] {
       ResourceTypeTree.builder()
@@ -247,9 +269,10 @@ public class GlobalActionTest {
     settings.setProperty("sonar.technicalDebt.ratingGrid", "0.05,0.1,0.2,0.5");
     when(server.getVersion()).thenReturn("6.2");
     when(dbClient.getDatabase().getDialect()).thenReturn(new MySql());
+    when(webServer.isStandalone()).thenReturn(true);
 
     String result = call();
-    assertJson(ws.getDef().responseExampleAsString()).isSimilarTo(result);
+    assertJson(result).isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
   private void init() {
@@ -268,7 +291,7 @@ public class GlobalActionTest {
     }});
     pageRepository.start();
     ws = new WsActionTester(new GlobalAction(pageRepository, settings.asConfig(), new ResourceTypes(resourceTypeTrees), server,
-      dbClient, organizationFlags, defaultOrganizationProvider, branchFeature, userSession));
+        webServer, dbClient, organizationFlags, defaultOrganizationProvider, branchFeature, userSession));
   }
 
   private String call() {
