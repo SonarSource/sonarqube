@@ -55,6 +55,7 @@ exports[`should display the edition boxes 2`] = `
     }
     onInstall={[Function]}
     onUninstall={[Function]}
+    readOnly={false}
   />
   <EditionBox
     edition={
@@ -76,6 +77,7 @@ exports[`should display the edition boxes 2`] = `
     }
     onInstall={[Function]}
     onUninstall={[Function]}
+    readOnly={false}
   />
 </div>
 `;

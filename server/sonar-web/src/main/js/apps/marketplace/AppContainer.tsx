@@ -25,6 +25,7 @@ import './style.css';
 const mapStateToProps = (state: any) => ({
   editionsUrl: (getGlobalSettingValue(state, 'sonar.editions.jsonUrl') || {}).value,
   sonarqubeVersion: getAppState(state).version,
+  standaloneMode: getAppState(state).standalone,
   updateCenterActive:
     (getGlobalSettingValue(state, 'sonar.updatecenter.activate') || {}).value === 'true'
 });

@@ -26,6 +26,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 interface Props {
   editions?: Edition[];
   editionStatus: EditionStatus;
+  readOnly: boolean;
   updateEditionStatus: (editionStatus: EditionStatus) => void;
 }
 
@@ -49,7 +50,8 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
   };
 
   renderStatusAlert() {
-    const { installationStatus, nextEditionKey } = this.props.editionStatus;
+    const { editionStatus, readOnly } = this.props;
+    const { installationStatus, nextEditionKey } = editionStatus;
     const nextEdition =
       this.props.editions && this.props.editions.find(edition => edition.key === nextEditionKey);
 
@@ -75,10 +77,13 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
                 translate('marketplace.status', installationStatus)
               )}
             </span>
-            <button className="js-restart spacer-left" onClick={this.handleOpenRestart}>
-              {translate('marketplace.restart')}
-            </button>
-            {this.state.openRestart && <RestartForm onClose={this.hanleCloseRestart} />}
+            {!readOnly && (
+              <button className="js-restart spacer-left" onClick={this.handleOpenRestart}>
+                {translate('marketplace.restart')}
+              </button>
+            )}
+            {!readOnly &&
+            this.state.openRestart && <RestartForm onClose={this.hanleCloseRestart} />}
           </div>
         );
       case 'MANUAL_IN_PROGRESS':

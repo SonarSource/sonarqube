@@ -30,6 +30,7 @@ interface Props {
     updating: PluginPending[];
     removing: PluginPending[];
   };
+  readOnly: boolean;
   refreshPending: () => void;
   updateQuery: (newQuery: Partial<Query>) => void;
 }
@@ -56,6 +57,7 @@ export default class PluginsList extends React.PureComponent<Props> {
         <PluginInstalled
           plugin={plugin}
           status={status}
+          readOnly={this.props.readOnly}
           refreshPending={this.props.refreshPending}
           updateQuery={this.props.updateQuery}
         />
@@ -66,6 +68,7 @@ export default class PluginsList extends React.PureComponent<Props> {
         <PluginAvailable
           plugin={plugin}
           status={status}
+          readOnly={this.props.readOnly}
           refreshPending={this.props.refreshPending}
           updateQuery={this.props.updateQuery}
         />

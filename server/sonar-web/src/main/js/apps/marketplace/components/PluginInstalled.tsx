@@ -30,12 +30,19 @@ import { Query } from '../utils';
 
 interface Props {
   plugin: PluginInstalled;
+  readOnly: boolean;
   refreshPending: () => void;
   status?: string;
   updateQuery: (newQuery: Partial<Query>) => void;
 }
 
-export default function PluginInstalled({ plugin, refreshPending, status, updateQuery }: Props) {
+export default function PluginInstalled({
+  plugin,
+  readOnly,
+  refreshPending,
+  status,
+  updateQuery
+}: Props) {
   return (
     <tr>
       <PluginDescription plugin={plugin} updateQuery={updateQuery} />
@@ -59,7 +66,9 @@ export default function PluginInstalled({ plugin, refreshPending, status, update
         </ul>
       </td>
 
-      <PluginStatus plugin={plugin} status={status} refreshPending={refreshPending} />
+      {!readOnly && (
+        <PluginStatus plugin={plugin} status={status} refreshPending={refreshPending} />
+      )}
     </tr>
   );
 }
