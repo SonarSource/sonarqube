@@ -194,7 +194,8 @@ BUILD)
         -Dsonar.branch.target=$TRAVIS_BRANCH \
         -Dsonar.analysis.buildNumber=$TRAVIS_BUILD_NUMBER \
         -Dsonar.analysis.pipeline=$TRAVIS_BUILD_NUMBER \
-        -Dsonar.analysis.sha1=$TRAVIS_COMMIT \
+        -Dsonar.analysis.sha1=$TRAVIS_PULL_REQUEST_SHA \
+        -Dsonar.analysis.prNumber=$TRAVIS_PULL_REQUEST \
         -Dsonar.analysis.repository=$TRAVIS_REPO_SLUG
   else
     echo 'Build feature branch or external pull request'
