@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.TimeZone;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -537,18 +536,14 @@ public class IssueIndex {
       bucketSize = DateHistogramInterval.MONTH;
     }
 
-    // from GMT to server TZ
-    int offsetInSeconds = -system.getDefaultTimeZone().getRawOffset() / 1_000;
-
     AggregationBuilder dateHistogram = AggregationBuilders.dateHistogram(PARAM_CREATED_AT)
       .field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
       .dateHistogramInterval(bucketSize)
       .minDocCount(0L)
       .format(DateUtils.DATETIME_FORMAT)
-      .timeZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone("GMT")))
-      .offset(offsetInSeconds + "s")
+      .timeZone(DateTimeZone.forOffsetMillis(system.getDefaultTimeZone().getRawOffset()))
       // ES dateHistogram bounds are inclusive while createdBefore parameter is exclusive
-      .extendedBounds(new ExtendedBounds(startTime, endTime - (offsetInSeconds * 1_000L) - 1L));
+      .extendedBounds(new ExtendedBounds(startTime, endTime - 1L));
     addEffortAggregationIfNeeded(query, dateHistogram);
     return Optional.of(dateHistogram);
   }
