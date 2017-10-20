@@ -138,7 +138,7 @@ public class SchedulerImpl implements Scheduler, ProcessEventListener, ProcessLi
 
   private void tryToStartCe() {
     SQProcess process = processesById.get(ProcessId.COMPUTE_ENGINE);
-    if (process != null && appState.isOperational(ProcessId.WEB_SERVER, false) && isEsClientStartable()) {
+    if (process != null && appState.isOperational(ProcessId.WEB_SERVER, true) && isEsClientStartable()) {
       tryToStartProcess(process, commandFactory::createCeCommand);
     }
   }
