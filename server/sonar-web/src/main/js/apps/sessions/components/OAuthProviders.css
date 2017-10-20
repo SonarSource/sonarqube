@@ -17,20 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import init from '../init';
-import '../styles.css';
-
-interface Props {
-  location: { query: { return_to: string } };
+.oauth-providers > ul {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
 }
 
-export default class MaintenanceAppContainer extends React.PureComponent<Props> {
-  componentDidMount() {
-    init(this.refs.container, false, this.props.location.query['return_to']);
-  }
+.oauth-providers > ul > li {
+  margin-bottom: 30px;
+}
 
-  render() {
-    return <div ref="container" />;
-  }
+.oauth-providers > ul > li > a {
+  display: block;
+  width: 180px;
+  line-height: 22px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 2px;
+  box-sizing: border-box;
+  background-color: #236a97;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: center;
+  text-overflow: ellipsis;
+}
+
+.oauth-providers > ul > li > a:hover,
+.oauth-providers > ul > li > a:focus {
+  box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.3);
+}
+
+.oauth-providers > ul > li > a > span {
+  padding-left: 6px;
+}
+
+.oauth-providers + form {
+  padding-top: 30px;
+  border-top: 1px solid #e6e6e6;
 }

@@ -17,20 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import init from '../init';
-import '../styles.css';
-
-interface Props {
-  location: { query: { return_to: string } };
+.login-title {
+  margin-bottom: 40px;
+  line-height: 1.5;
+  font-size: 24px;
+  font-weight: 300;
+  text-align: center;
 }
 
-export default class MaintenanceAppContainer extends React.PureComponent<Props> {
-  componentDidMount() {
-    init(this.refs.container, false, this.props.location.query['return_to']);
-  }
+.login-input {
+  width: 100% !important;
+  height: auto !important;
+  padding: 5px 12px !important;
+  font-size: 20px;
+  font-weight: 300;
+}
 
-  render() {
-    return <div ref="container" />;
-  }
+.login-label {
+  display: none;
+  margin-bottom: 8px;
+  font-size: 15px;
 }

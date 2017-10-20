@@ -17,19 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) '../mixins';
-@import (reference) '../variables';
-@import (reference) '../init/links';
-@import (reference) '../components/ui';
+.coding-rules-extended-view .coding-rules-list {
+  display: none;
+}
 
-.coding-rules-extended-view {
-  .coding-rules-list {
-    display: none;
-  }
-
-  .coding-rules-details {
-    display: block;
-  }
+.coding-rules-extended-view .coding-rules-details {
+  display: block;
 }
 
 /*
@@ -40,7 +33,7 @@
   position: relative;
   display: inline-block;
   margin: 16px 0;
-  font-size: @bigFontSize;
+  font-size: 16px;
   font-weight: 400;
 }
 
@@ -48,64 +41,63 @@
   display: block;
   height: 100%;
   padding-top: 0;
-  padding-right: @navigatorPadding;
-
-  .key,
-  .value,
-  .sep {
-    display: inline;
-    vertical-align: top;
-  }
-
-  .value {
-    display: inline-block;
-    vertical-align: top;
-    line-height: 23px;
-    max-width: 300px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-family: @monoFontFamily;
-  }
+  padding-right: 10px;
 }
+
+.coding-rules-detail-quality-profile-parameter .key,
+.coding-rules-detail-quality-profile-parameter .value,
+.coding-rules-detail-quality-profile-parameter .sep {
+  display: inline;
+  vertical-align: top;
+}
+
+.coding-rules-detail-quality-profile-parameter .value {
+  display: inline-block;
+  vertical-align: top;
+  line-height: 23px;
+  max-width: 300px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+}
+
 .coding-rules-detail-quality-profile-parameter + .coding-rules-detail-quality-profile-parameter {
   margin-top: 0;
 }
 
 .coding-rules-detail-properties {
-  margin: @navigatorPadding 0;
+  margin: 10px 0;
   font-size: 0;
 }
 
 .coding-rules-detail-properties + .coding-rules-detail-properties {
-  margin-top: -@navigatorPadding;
+  margin-top: -10px;
 }
 
 .coding-rules-detail-property {
   display: inline-block;
   vertical-align: middle;
-  margin-right: 2 * @navigatorPadding;
-  font-size: @smallFontSize;
+  margin-right: 20px;
+  font-size: 12px;
   height: 22px;
   line-height: 18px;
+}
 
-  .select2-search-field {
-    line-height: 1;
-  }
+.coding-rules-detail-property .select2-search-field {
+  line-height: 1;
 }
 
 .coding-rules-detail-tag + .coding-rules-detail-tag {
-  margin-left: @navigatorPadding;
+  margin-left: 10px;
 }
 
 .coding-rules-detail-tags-change {
   cursor: pointer;
+}
 
-  &:hover {
-    span {
-      text-decoration: underline;
-    }
-  }
+.coding-rules-detail-tags-change:hover span {
+  text-decoration: underline;
 }
 
 .coding-rules-detail-tag-edit {
@@ -117,20 +109,20 @@
 }
 
 .coding-rules-detail-description {
-  margin: 2 * @navigatorPadding 0;
+  margin: 20px 0;
 }
 
 .coding-rules-detail-description-extra {
-  margin-top: -@navigatorPadding;
+  margin-top: -10px;
 }
 
 .coding-rules-detail-extend-description-form {
-  margin: @navigatorPadding 0;
+  margin: 10px 0;
 }
 
 .coding-rules-detail-parameters {
   width: 100%;
-  margin: @navigatorPadding 0 @navigatorPadding * 2;
+  margin: 10px 0 20px;
 }
 
 .coding-rules-detail-parameter-name {
@@ -146,24 +138,24 @@
 }
 
 .coding-rules-detail-parameter-value {
-  font-family: @monoFontFamily;
+  font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
   word-break: break-all;
 }
-
-// Quality Profiles
 
 .coding-rules-detail-quality-profiles,
 .coding-rules-detail-list {
   width: 100%;
   line-height: 22px;
+}
 
-  td {
-    border-top: 1px solid @barBorderColor;
-  }
+.coding-rules-detail-quality-profiles td,
+.coding-rules-detail-list td {
+  border-top: 1px solid #e6e6e6;
+}
 
-  tr:first-child td {
-    border-top: none;
-  }
+.coding-rules-detail-quality-profiles tr:first-child td,
+.coding-rules-detail-list tr:first-child td {
+  border-top: none;
 }
 
 .coding-rules-detail-quality-profile-name,
@@ -204,22 +196,21 @@
 
 .coding-rules-detail-quality-profile-inheritance {
   margin-top: 4px;
-  font-size: @smallFontSize;
+  font-size: 12px;
   font-weight: normal;
+}
 
-  i {
-    position: relative;
-    top: -1px;
-    font-size: @iconSmallFontSize;
-  }
+.coding-rules-detail-quality-profile-inheritance i {
+  position: relative;
+  top: -1px;
+  font-size: 14px;
 }
 
 .coding-rules-detail-quality-profiles-activation {
   margin-top: -3px;
-  margin-left: @navigatorPadding;
+  margin-left: 10px;
 }
 
-// Bulk Change
 input.coding-rules-name-key {
   width: 100%;
 }
@@ -229,16 +220,14 @@ textarea.coding-rules-markdown-description {
   margin-bottom: 4px;
 }
 
-.coding-rules-most-violated-projects {
-  td {
-    border-top-color: transparent;
-  }
+.coding-rules-most-violated-projects td {
+  border-top-color: transparent;
+}
 
-  tr:first-child + tr td {
-    border-top-color: @barBorderColor;
-  }
+.coding-rules-most-violated-projects tr:first-child + tr td {
+  border-top-color: #e6e6e6;
+}
 
-  .coding-rules-detail-list-name {
-    font-weight: 400;
-  }
+.coding-rules-most-violated-projects .coding-rules-detail-list-name {
+  font-weight: 400;
 }

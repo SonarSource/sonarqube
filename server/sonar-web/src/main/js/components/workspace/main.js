@@ -25,6 +25,7 @@ import ItemsView from './views/items-view';
 import ViewerView from './views/viewer-view';
 import RuleView from './views/rule-view';
 import { getRuleDetails } from '../../api/rules';
+import '../../apps/coding-rules/styles.css';
 
 let instance = null;
 const Workspace = function() {
