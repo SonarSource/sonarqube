@@ -130,11 +130,11 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
         <textarea
           autoFocus={true}
           id="set-license"
-          className="display-block"
-          cols={62}
+          className="display-block input-super-large"
           onChange={this.handleLicenseChange}
           required={true}
-          rows={6}
+          rows={8}
+          style={{ resize: 'none' }}
           value={license}
         />
         {previewStatus && (

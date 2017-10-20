@@ -57,6 +57,7 @@ export default class UninstallEditionForm extends React.PureComponent<Props, Sta
       .then(() => {
         this.props.updateEditionStatus({
           ...this.props.editionStatus,
+          currentEditionKey: undefined,
           installationStatus: 'UNINSTALL_IN_PROGRESS'
         });
         this.props.onClose();
