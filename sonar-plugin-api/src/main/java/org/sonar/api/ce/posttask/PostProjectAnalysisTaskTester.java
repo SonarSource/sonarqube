@@ -193,7 +193,7 @@ public class PostProjectAnalysisTaskTester {
     requireNonNull(date, DATE_CAN_NOT_BE_NULL);
 
     Analysis analysis = null;
-    if (date != null && analysisUuid != null) {
+    if (analysisUuid != null) {
       analysis = new AnalysisBuilder()
         .setDate(date)
         .setAnalysisUuid(analysisUuid)
