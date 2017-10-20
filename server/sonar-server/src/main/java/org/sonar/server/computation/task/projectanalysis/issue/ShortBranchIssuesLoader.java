@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.ShortBranchIssue;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -38,6 +37,7 @@ import org.sonar.server.computation.task.projectanalysis.component.ShortBranchCo
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toMap;
+import static org.sonar.api.utils.DateUtils.longToDate;
 
 public class ShortBranchIssuesLoader {
 
@@ -58,9 +58,14 @@ public class ShortBranchIssuesLoader {
     try (DbSession session = dbClient.openSession(false)) {
       return dbClient.issueDao().selectOpenByComponentUuids(session, uuids)
         .stream()
-        .map(ShortBranchIssueDto::toShortBranchIssue)
+        .map(ShortBranchIssuesLoader::toShortBranchIssue)
         .collect(Collectors.toList());
     }
+  }
+
+  private static ShortBranchIssue toShortBranchIssue(ShortBranchIssueDto dto) {
+    return new ShortBranchIssue(dto.getKey(), dto.getLine(), dto.getMessage(), dto.getChecksum(), dto.getRuleKey(), dto.getStatus(), dto.getBranchName(),
+      longToDate(dto.getIssueCreationDate()));
   }
 
   public Map<ShortBranchIssue, DefaultIssue> loadDefaultIssuesWithChanges(Collection<ShortBranchIssue> lightIssues) {
