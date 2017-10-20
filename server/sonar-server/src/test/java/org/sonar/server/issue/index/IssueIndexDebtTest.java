@@ -240,11 +240,11 @@ public class IssueIndexDebtTest {
     Builder query = newQueryBuilder().createdBefore(DateUtils.parseDateTime("2016-01-01T00:00:00+0100"));
     Map<String, Long> createdAt = new Facets(underTest.search(query.build(), searchOptions)).get("createdAt");
     assertThat(createdAt).containsOnly(
-      entry("2011-01-01T00:00:00+0000", 10L),
-      entry("2012-01-01T00:00:00+0000", 0L),
-      entry("2013-01-01T00:00:00+0000", 0L),
-      entry("2014-01-01T00:00:00+0000", 50L),
-      entry("2015-01-01T00:00:00+0000", 10L));
+      entry("2011-01-01", 10L),
+      entry("2012-01-01", 0L),
+      entry("2013-01-01", 0L),
+      entry("2014-01-01", 50L),
+      entry("2015-01-01", 10L));
   }
 
   @Test
