@@ -42,7 +42,6 @@ export interface EditionStatus {
     | 'AUTOMATIC_IN_PROGRESS'
     | 'MANUAL_IN_PROGRESS'
     | 'AUTOMATIC_READY'
-    | 'AUTOMATIC_FAILURE'
     | 'UNINSTALL_IN_PROGRESS';
 }
 

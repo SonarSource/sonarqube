@@ -18,8 +18,6 @@ exports[`should display a ready notification 1`] = `
 </div>
 `;
 
-exports[`should display an error notification 1`] = `<div />`;
-
 exports[`should display an in progress notif 1`] = `
 <div>
   <div
