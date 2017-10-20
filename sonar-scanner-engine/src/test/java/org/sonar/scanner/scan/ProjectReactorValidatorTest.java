@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.scan;
 
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,7 +29,11 @@ import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
+import org.sonar.core.config.ScannerProperties;
+import org.sonar.scanner.bootstrap.GlobalConfiguration;
 
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -39,11 +44,14 @@ public class ProjectReactorValidatorTest {
 
   private AnalysisMode mode;
   private ProjectReactorValidator validator;
+  private GlobalConfiguration settings;
 
   @Before
   public void prepare() {
     mode = mock(AnalysisMode.class);
-    validator = new ProjectReactorValidator(mode);
+    settings = mock(GlobalConfiguration.class);
+    when(settings.get(anyString())).thenReturn(Optional.empty());
+    validator = new ProjectReactorValidator(mode, settings);
   }
 
   @Test
@@ -150,6 +158,32 @@ public class ProjectReactorValidatorTest {
 
     thrown.expect(MessageException.class);
     thrown.expectMessage("\"12345\" is not a valid project or module key");
+    validator.validate(reactor);
+  }
+
+  @Test
+  public void fail_when_branch_name_is_specified_but_branch_plugin_not_present() {
+    ProjectDefinition def = ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "foo");
+    ProjectReactor reactor = new ProjectReactor(def);
+
+    when(settings.get(eq(ScannerProperties.BRANCH_NAME))).thenReturn(Optional.of("feature1"));
+
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("the branch plugin is required but not installed");
+
+    validator.validate(reactor);
+  }
+
+  @Test
+  public void fail_when_branch_target_is_specified_but_branch_plugin_not_present() {
+    ProjectDefinition def = ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "foo");
+    ProjectReactor reactor = new ProjectReactor(def);
+
+    when(settings.get(eq(ScannerProperties.BRANCH_TARGET))).thenReturn(Optional.of("feature1"));
+
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("the branch plugin is required but not installed");
+
     validator.validate(reactor);
   }
 

@@ -174,14 +174,16 @@ public class FileSystemMediumTest {
     File srcDir = new File(baseDir, "src");
     assertThat(srcDir.mkdir()).isTrue();
 
+    // Using sonar.branch.name when the branch plugin is not installed is an error.
+    // IllegalStateException is expected here, because this test is in a bit artificial,
+    // the fail-fast mechanism in the scanner should have prevented reaching this point.
+    thrown.expect(IllegalStateException.class);
+
     tester.newTask()
       .properties(builder
         .put("sonar.sources", "src")
         .build())
       .execute();
-
-    assertThat(logs.getAllAsString()).contains("Project key: com.foo.project");
-    assertThat(logs.getAllAsString()).contains("Branch name: my-branch, type: long living");
   }
 
   @Test
