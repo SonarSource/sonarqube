@@ -45,6 +45,7 @@ export interface Props {
   editionsUrl: string;
   location: { pathname: string; query: RawQuery };
   sonarqubeVersion: string;
+  standaloneMode: boolean;
   updateCenterActive: boolean;
 }
 
@@ -204,6 +205,7 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   render() {
+    const { standaloneMode } = this.props;
     const { editions, editionStatus, loadingPlugins, plugins, pending } = this.state;
     const query = parseQuery(this.props.location.query);
     const filteredPlugins = query.search ? filterPlugins(plugins, query.search) : plugins;
@@ -216,10 +218,13 @@ export default class App extends React.PureComponent<Props, State> {
             <EditionsStatusNotif
               editions={editions}
               editionStatus={editionStatus}
+              readOnly={!standaloneMode}
               updateEditionStatus={this.updateEditionStatus}
             />
           )}
-          <PendingActions refreshPending={this.fetchPendingPlugins} pending={pending} />
+          {!standaloneMode && (
+            <PendingActions refreshPending={this.fetchPendingPlugins} pending={pending} />
+          )}
         </div>
         <Header />
         <EditionBoxes
@@ -227,6 +232,7 @@ export default class App extends React.PureComponent<Props, State> {
           loading={this.state.loadingEditions}
           editionStatus={editionStatus}
           editionsUrl={this.props.editionsUrl}
+          readOnly={!standaloneMode}
           sonarqubeVersion={this.props.sonarqubeVersion}
           updateCenterActive={this.props.updateCenterActive}
           updateEditionStatus={this.updateEditionStatus}
@@ -241,6 +247,7 @@ export default class App extends React.PureComponent<Props, State> {
           <PluginsList
             plugins={filteredPlugins}
             pending={pending}
+            readOnly={!standaloneMode}
             refreshPending={this.fetchPendingPlugins}
             updateQuery={this.updateQuery}
           />
