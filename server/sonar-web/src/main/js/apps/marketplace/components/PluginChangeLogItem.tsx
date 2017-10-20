@@ -48,7 +48,7 @@ export default function PluginChangeLogItem({ release, update }: Props) {
         </span>
         {release.changeLogUrl && (
           <a className="js-plugin-changelog-link" href={release.changeLogUrl} target="_blank">
-            {translate('update_center.release_notes')}
+            {translate('marketplace.release_notes')}
           </a>
         )}
       </div>

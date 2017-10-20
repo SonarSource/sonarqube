@@ -57,7 +57,7 @@ export default class SettingsNav extends React.PureComponent<Props> {
   }
 
   isSystemActive() {
-    const urls = ['/admin/update_center', '/admin/system'];
+    const urls = ['/admin/system'];
     return this.isSomethingActive(urls);
   }
 
@@ -84,7 +84,6 @@ export default class SettingsNav extends React.PureComponent<Props> {
 
     const securityClassName = classNames('dropdown-toggle', { active: isSecurity });
     const projectsClassName = classNames('dropdown-toggle', { active: isProjects });
-    const systemClassName = classNames('dropdown-toggle', { active: isSystem });
     const configurationClassNames = classNames('dropdown-toggle', {
       active: !isSecurity && !isProjects && !isSystem && !this.isMarketplace()
     });
@@ -177,23 +176,10 @@ export default class SettingsNav extends React.PureComponent<Props> {
               </li>
             </ul>
           </li>
-
-          <li className="dropdown">
-            <a className={systemClassName} data-toggle="dropdown" href="#">
-              {translate('sidebar.system')} <i className="icon-dropdown" />
-            </a>
-            <ul className="dropdown-menu">
-              <li>
-                <IndexLink to="/admin/update_center" activeClassName="active">
-                  {translate('update_center.page')}
-                </IndexLink>
-              </li>
-              <li>
-                <IndexLink to="/admin/system" activeClassName="active">
-                  {translate('system_info.page')}
-                </IndexLink>
-              </li>
-            </ul>
+          <li>
+            <IndexLink to="/admin/system" activeClassName="active">
+              {translate('sidebar.system')}
+            </IndexLink>
           </li>
 
           <li>
