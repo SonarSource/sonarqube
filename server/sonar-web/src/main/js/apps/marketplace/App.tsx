@@ -39,7 +39,14 @@ import {
 import { Edition, EditionStatus, getEditionsList, getEditionStatus } from '../../api/marketplace';
 import { RawQuery } from '../../helpers/query';
 import { translate } from '../../helpers/l10n';
-import { getEditionsForVersion, filterPlugins, parseQuery, Query, serializeQuery } from './utils';
+import {
+  getEditionsForLastVersion,
+  getEditionsForVersion,
+  filterPlugins,
+  parseQuery,
+  Query,
+  serializeQuery
+} from './utils';
 
 export interface Props {
   editionsUrl: string;
@@ -51,6 +58,7 @@ export interface Props {
 
 interface State {
   editions?: Edition[];
+  editionsReadOnly: boolean;
   editionStatus?: EditionStatus;
   loadingEditions: boolean;
   loadingPlugins: boolean;
@@ -73,6 +81,7 @@ export default class App extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
+      editionsReadOnly: false,
       loadingEditions: true,
       loadingPlugins: true,
       pending: {
@@ -171,10 +180,16 @@ export default class App extends React.PureComponent<Props, State> {
     getEditionsList(this.props.editionsUrl).then(
       editionsPerVersion => {
         if (this.mounted) {
-          this.setState({
+          const newState = {
             editions: getEditionsForVersion(editionsPerVersion, this.props.sonarqubeVersion),
+            editionsReadOnly: false,
             loadingEditions: false
-          });
+          };
+          if (!newState.editions) {
+            newState.editions = getEditionsForLastVersion(editionsPerVersion);
+            newState.editionsReadOnly = true;
+          }
+          this.setState(newState);
         }
       },
       () => {
@@ -232,7 +247,7 @@ export default class App extends React.PureComponent<Props, State> {
           loading={this.state.loadingEditions}
           editionStatus={editionStatus}
           editionsUrl={this.props.editionsUrl}
-          readOnly={!standaloneMode}
+          readOnly={!standaloneMode || this.state.editionsReadOnly}
           sonarqubeVersion={this.props.sonarqubeVersion}
           updateCenterActive={this.props.updateCenterActive}
           updateEditionStatus={this.updateEditionStatus}

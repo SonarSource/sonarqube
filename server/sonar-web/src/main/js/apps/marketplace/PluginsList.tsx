@@ -74,6 +74,7 @@ export default class PluginsList extends React.PureComponent<Props> {
         />
       );
     }
+    return null;
   };
 
   render() {

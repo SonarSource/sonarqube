@@ -55,6 +55,10 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
     const nextEdition =
       this.props.editions && this.props.editions.find(edition => edition.key === nextEditionKey);
 
+    const editionStatusMessage = nextEdition
+      ? translateWithParameters('marketplace.status_x.' + installationStatus, nextEdition.name)
+      : translate('marketplace.status', installationStatus);
+
     switch (installationStatus) {
       case 'AUTOMATIC_IN_PROGRESS':
         return (
@@ -67,16 +71,7 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
       case 'UNINSTALL_IN_PROGRESS':
         return (
           <div className="alert alert-success">
-            <span>
-              {nextEdition ? (
-                translateWithParameters(
-                  'marketplace.status_x.' + installationStatus,
-                  nextEdition.name
-                )
-              ) : (
-                translate('marketplace.status', installationStatus)
-              )}
-            </span>
+            <span>{editionStatusMessage}</span>
             {!readOnly && (
               <button className="js-restart spacer-left" onClick={this.handleOpenRestart}>
                 {translate('marketplace.restart')}
@@ -89,14 +84,7 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
       case 'MANUAL_IN_PROGRESS':
         return (
           <div className="alert alert-danger">
-            {nextEdition ? (
-              translateWithParameters(
-                'marketplace.status_x.' + installationStatus,
-                nextEdition.name
-              )
-            ) : (
-              translate('marketplace.status', installationStatus)
-            )}
+            {editionStatusMessage}
             <p className="spacer-left">
               {nextEdition && (
                 <a

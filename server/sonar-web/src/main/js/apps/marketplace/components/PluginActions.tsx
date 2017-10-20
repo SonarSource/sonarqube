@@ -69,47 +69,53 @@ export default class PluginActions extends React.PureComponent<Props, State> {
   handleUninstall = () => this.doPluginAction(uninstallPlugin);
   handleTermsCheck = (checked: boolean) => this.setState({ acceptTerms: checked });
 
+  renderBundled() {
+    const { plugin } = this.props;
+
+    return (
+      <div className="js-actions">
+        {isPluginAvailable(plugin) && (
+          <div>
+            <p className="little-spacer-bottom">
+              {translate('marketplace.available_under_commercial_license')}
+            </p>
+            <a href={plugin.homepageUrl} target="_blank">
+              {translate('marketplace.learn_more')}
+            </a>
+          </div>
+        )}
+        {isPluginInstalled(plugin) && (
+          <p>
+            <CheckIcon className="little-spacer-right" />
+            {translate('marketplace.installed')}
+          </p>
+        )}
+        {isPluginInstalled(plugin) &&
+        plugin.updates &&
+        plugin.updates.length > 0 && (
+          <div className="spacer-top button-group">
+            {plugin.updates.map((update, idx) => (
+              <PluginUpdateButton
+                key={idx}
+                onClick={this.handleUpdate}
+                update={update}
+                disabled={this.state.loading}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   render() {
     const { plugin } = this.props;
-    const { loading } = this.state;
 
     if (plugin.editionBundled) {
-      return (
-        <div className="js-actions">
-          {isPluginAvailable(plugin) && (
-            <div>
-              <p className="little-spacer-bottom">
-                {translate('marketplace.available_under_commercial_license')}
-              </p>
-              <a href={plugin.homepageUrl} target="_blank">
-                {translate('marketplace.learn_more')}
-              </a>
-            </div>
-          )}
-          {isPluginInstalled(plugin) && (
-            <p>
-              <CheckIcon className="little-spacer-right" />
-              {translate('marketplace.installed')}
-            </p>
-          )}
-          {isPluginInstalled(plugin) &&
-          plugin.updates &&
-          plugin.updates.length > 0 && (
-            <div className="spacer-top button-group">
-              {plugin.updates.map((update, idx) => (
-                <PluginUpdateButton
-                  key={idx}
-                  onClick={this.handleUpdate}
-                  update={update}
-                  disabled={loading}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      );
+      return this.renderBundled();
     }
 
+    const { loading } = this.state;
     return (
       <div className="js-actions">
         {isPluginAvailable(plugin) &&
