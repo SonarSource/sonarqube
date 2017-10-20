@@ -20,7 +20,6 @@
 package org.sonar.server.computation.task.projectanalysis.analysis;
 
 import java.util.Map;
-import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.sonar.server.qualityprofile.QualityProfile;
 
@@ -84,12 +83,9 @@ public interface AnalysisMetadataHolder {
   boolean isCrossProjectDuplicationEnabled();
 
   /**
-   * Branch is present whatever the type of branch (long or short, main or not). However
-   * it is absent when analyzing a pull request.
-   *
-   * @throws IllegalStateException if branch has not been set
+   * Branch being analyzed. Can be of any type: long or short, main or not. 
    */
-  Optional<Branch> getBranch();
+  Branch getBranch();
 
   /**
    * The project as represented by the main branch. It is used to load settings

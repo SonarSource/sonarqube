@@ -19,8 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import java.util.Optional;
-import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
@@ -92,22 +90,17 @@ public class BuildComponentTreeStep implements ComputationStep {
   }
 
   private ComponentKeyGenerator loadKeyGenerator() {
-    return Stream.of(analysisMetadataHolder.getBranch(), Optional.of(new DefaultBranchImpl()))
-      .filter(Optional::isPresent)
-      .flatMap(x -> x.map(Stream::of).orElseGet(Stream::empty))
-      .findFirst()
-      .get();
+    return analysisMetadataHolder.getBranch();
   }
 
   private ComponentKeyGenerator loadPublicKeyGenerator() {
-    Optional<Branch> branch = analysisMetadataHolder.getBranch();
-    if (!branch.isPresent()) {
-      // Used for pull request
+    Branch branch = analysisMetadataHolder.getBranch();
+
+    // for non-legacy branches, the public key is different from the DB key.
+    if (!branch.isLegacyFeature() && !branch.isMain()) {
       return new DefaultBranchImpl();
     }
-    return branch.filter(Branch::isLegacyFeature)
-      .map(b -> new DefaultBranchImpl(b.getName()))
-      .orElseGet(DefaultBranchImpl::new);
+    return branch;
   }
 
   @CheckForNull

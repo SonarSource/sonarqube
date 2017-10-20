@@ -19,13 +19,11 @@
  */
 package org.sonar.server.computation.task.projectanalysis.duplication;
 
-import java.util.Optional;
 import javax.annotation.CheckForNull;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -50,8 +48,7 @@ public class CrossProjectDuplicationStatusHolderImpl implements CrossProjectDupl
   @Override
   public void start() {
     boolean enabledInReport = analysisMetadataHolder.isCrossProjectDuplicationEnabled();
-    Optional<Branch> branch = analysisMetadataHolder.getBranch();
-    boolean supportedByBranch = !branch.isPresent() || branch.get().supportsCrossProjectCpd();
+    boolean supportedByBranch = analysisMetadataHolder.getBranch().supportsCrossProjectCpd();
     if (enabledInReport && supportedByBranch) {
       LOGGER.debug("Cross project duplication is enabled");
       this.enabled = true;

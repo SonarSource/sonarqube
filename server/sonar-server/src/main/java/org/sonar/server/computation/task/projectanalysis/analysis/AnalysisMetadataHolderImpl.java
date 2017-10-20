@@ -21,7 +21,6 @@ package org.sonar.server.computation.task.projectanalysis.analysis;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
-import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.component.BranchType;
@@ -123,16 +122,16 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   }
 
   @Override
-  public MutableAnalysisMetadataHolder setBranch(@Nullable Branch branch) {
+  public MutableAnalysisMetadataHolder setBranch(Branch branch) {
     checkState(!this.branch.isInitialized(), "Branch has already been set");
     this.branch.setProperty(branch);
     return this;
   }
 
   @Override
-  public Optional<Branch> getBranch() {
+  public Branch getBranch() {
     checkState(branch.isInitialized(), BRANCH_NOT_SET);
-    return Optional.ofNullable(branch.getProperty());
+    return branch.getProperty();
   }
 
   @Override

@@ -24,7 +24,6 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -229,11 +228,7 @@ public class BuildComponentTreeStepTest {
 
   @Test
   public void generate_keys_when_using_main_branch() {
-    Branch branch = mock(Branch.class);
-    when(branch.getName()).thenReturn("origin/master");
-    when(branch.isMain()).thenReturn(true);
-    when(branch.isLegacyFeature()).thenReturn(false);
-    when(branch.generateKey(any(ScannerReport.Component.class), any(ScannerReport.Component.class))).thenReturn("generated");
+    Branch branch = new DefaultBranchImpl();
     analysisMetadataHolder.setRootComponentRef(ROOT_REF)
       .setAnalysisDate(ANALYSIS_DATE)
       .setProject(new Project("U1", REPORT_PROJECT_KEY, REPORT_PROJECT_KEY))
@@ -246,10 +241,10 @@ public class BuildComponentTreeStepTest {
 
     underTest.execute();
 
-    verifyComponent(ROOT_REF, "generated", REPORT_PROJECT_KEY, null);
-    verifyComponent(MODULE_REF, "generated", REPORT_MODULE_KEY, null);
-    verifyComponent(DIR_REF_1, "generated", REPORT_MODULE_KEY + ":" + REPORT_DIR_KEY_1, null);
-    verifyComponent(FILE_1_REF, "generated", REPORT_MODULE_KEY + ":" + REPORT_FILE_KEY_1, null);
+    verifyComponent(ROOT_REF, REPORT_PROJECT_KEY, REPORT_PROJECT_KEY, null);
+    verifyComponent(MODULE_REF, REPORT_MODULE_KEY, REPORT_MODULE_KEY, null);
+    verifyComponent(DIR_REF_1, REPORT_MODULE_KEY + ":" + REPORT_DIR_KEY_1, REPORT_MODULE_KEY + ":" + REPORT_DIR_KEY_1, null);
+    verifyComponent(FILE_1_REF, REPORT_MODULE_KEY + ":" + REPORT_FILE_KEY_1, REPORT_MODULE_KEY + ":" + REPORT_FILE_KEY_1, null);
   }
 
   @Test
@@ -270,26 +265,6 @@ public class BuildComponentTreeStepTest {
     verifyComponent(MODULE_REF, REPORT_MODULE_KEY + ":origin/feature", null);
     verifyComponent(DIR_REF_1, REPORT_MODULE_KEY + ":origin/feature:" + REPORT_DIR_KEY_1, null);
     verifyComponent(FILE_1_REF, REPORT_MODULE_KEY + ":origin/feature:" + REPORT_FILE_KEY_1, null);
-  }
-
-  @Test
-  public void compute_keys_when_no_branch() {
-    analysisMetadataHolder.setRootComponentRef(ROOT_REF)
-      .setAnalysisDate(ANALYSIS_DATE)
-      .setProject(new Project("U1", REPORT_PROJECT_KEY, REPORT_PROJECT_KEY))
-      .setBranch(null);
-    BuildComponentTreeStep underTest = new BuildComponentTreeStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
-    reportReader.putComponent(componentWithKey(ROOT_REF, PROJECT, REPORT_PROJECT_KEY, MODULE_REF));
-    reportReader.putComponent(componentWithKey(MODULE_REF, MODULE, REPORT_MODULE_KEY, DIR_REF_1));
-    reportReader.putComponent(componentWithPath(DIR_REF_1, DIRECTORY, REPORT_DIR_KEY_1, FILE_1_REF));
-    reportReader.putComponent(componentWithPath(FILE_1_REF, FILE, REPORT_FILE_KEY_1));
-
-    underTest.execute();
-
-    verifyComponent(ROOT_REF, REPORT_PROJECT_KEY);
-    verifyComponent(MODULE_REF, REPORT_MODULE_KEY);
-    verifyComponent(DIR_REF_1, REPORT_MODULE_KEY + ":" + REPORT_DIR_KEY_1);
-    verifyComponent(FILE_1_REF, REPORT_MODULE_KEY + ":" + REPORT_FILE_KEY_1);
   }
 
   @Test

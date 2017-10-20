@@ -19,13 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import static com.google.common.collect.FluentIterable.from;
-import static java.util.Optional.ofNullable;
-import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
-import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
-import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
-import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
-
+import com.google.common.base.Predicate;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -33,11 +27,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
@@ -49,7 +41,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentUpdateDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
-import org.sonar.server.computation.task.projectanalysis.analysis.Branch;
 import org.sonar.server.computation.task.projectanalysis.component.BranchPersister;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
@@ -62,7 +53,12 @@ import org.sonar.server.computation.task.projectanalysis.component.PathAwareVisi
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-import com.google.common.base.Predicate;
+import static com.google.common.collect.FluentIterable.from;
+import static java.util.Optional.ofNullable;
+import static org.sonar.db.component.ComponentDto.UUID_PATH_OF_ROOT;
+import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
+import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
+import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 
 /**
  * Persist report components
@@ -127,8 +123,7 @@ public class PersistComponentsStep implements ComputationStep {
    */
   @CheckForNull
   private String loadProjectUuidOfMainBranch() {
-    Optional<Branch> branch = analysisMetadataHolder.getBranch();
-    if (branch.isPresent() && !branch.get().isMain()) {
+    if (!analysisMetadataHolder.getBranch().isMain()) {
       return analysisMetadataHolder.getProject().getUuid();
     }
     return null;

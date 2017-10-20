@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.component;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Configuration;
@@ -46,12 +47,20 @@ public class ConfigurationRepositoryTest {
 
   private DbClient dbClient = db.getDbClient();
   private MapSettings globalSettings = new MapSettings();
+  private Branch branch = mock(Branch.class);
   private AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
-  private ConfigurationRepository underTest = new ConfigurationRepositoryImpl(analysisMetadataHolder, new ProjectConfigurationFactory(globalSettings, dbClient));
+  private ConfigurationRepository underTest;
+
+  @Before
+  public void setUp() {
+    when(branch.getName()).thenReturn("branchName");
+    analysisMetadataHolder.setBranch(branch);
+    underTest = new ConfigurationRepositoryImpl(analysisMetadataHolder, new ProjectConfigurationFactory(globalSettings, dbClient));
+  }
 
   @Test
   public void get_project_settings_from_global_settings() {
-    analysisMetadataHolder.setProject(PROJECT).setBranch(null);
+    analysisMetadataHolder.setProject(PROJECT);
     globalSettings.setProperty("key", "value");
 
     Configuration config = underTest.getConfiguration();
@@ -62,7 +71,7 @@ public class ConfigurationRepositoryTest {
   @Test
   public void get_project_settings_from_db() {
     ComponentDto project = db.components().insertPrivateProject();
-    analysisMetadataHolder.setProject(Project.copyOf(project)).setBranch(null);
+    analysisMetadataHolder.setProject(Project.copyOf(project));
     insertProjectProperty(project, "key", "value");
 
     Configuration config = underTest.getConfiguration();
@@ -72,7 +81,7 @@ public class ConfigurationRepositoryTest {
 
   @Test
   public void call_twice_get_project_settings() {
-    analysisMetadataHolder.setProject(PROJECT).setBranch(null);
+    analysisMetadataHolder.setProject(PROJECT);
     globalSettings.setProperty("key", "value");
 
     Configuration config = underTest.getConfiguration();
@@ -87,7 +96,7 @@ public class ConfigurationRepositoryTest {
     globalSettings.setProperty("key", "value1");
     ComponentDto project = db.components().insertPrivateProject();
     insertProjectProperty(project, "key", "value2");
-    analysisMetadataHolder.setProject(Project.copyOf(project)).setBranch(null);
+    analysisMetadataHolder.setProject(Project.copyOf(project));
 
     Configuration config = underTest.getConfiguration();
     assertThat(config.get("key")).hasValue("value2");
@@ -97,7 +106,7 @@ public class ConfigurationRepositoryTest {
   public void project_settings_are_cached_to_avoid_db_access() {
     ComponentDto project = db.components().insertPrivateProject();
     insertProjectProperty(project, "key", "value");
-    analysisMetadataHolder.setProject(Project.copyOf(project)).setBranch(null);
+    analysisMetadataHolder.setProject(Project.copyOf(project));
 
     Configuration config = underTest.getConfiguration();
     assertThat(config.get("key")).hasValue("value");

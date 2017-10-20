@@ -43,8 +43,8 @@ public interface Branch extends ComponentKeyGenerator {
   String getName();
 
   /**
-   * For short living branches, indicates the branch from which it was forked.
-   * It will be empty for other types of branches.
+   * Indicates the branch from which it was forked.
+   * It will be empty for main branches or legacy branches.
    */
   Optional<String> getMergeBranchUuid();
 
