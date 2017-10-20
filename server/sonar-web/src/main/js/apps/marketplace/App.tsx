@@ -63,6 +63,7 @@ interface State {
 
 export default class App extends React.PureComponent<Props, State> {
   mounted: boolean;
+  timer?: NodeJS.Timer;
 
   static contextTypes = {
     router: PropTypes.object.isRequired
@@ -159,7 +160,6 @@ export default class App extends React.PureComponent<Props, State> {
       editionStatus => {
         if (this.mounted) {
           this.updateEditionStatus(editionStatus);
-          setTimeout(this.fetchEditionStatus, 5000);
         }
       },
       () => {}
@@ -184,8 +184,19 @@ export default class App extends React.PureComponent<Props, State> {
     );
   };
 
-  updateEditionStatus = (editionStatus: EditionStatus) =>
+  updateEditionStatus = (editionStatus: EditionStatus) => {
     this.setState({ editionStatus: editionStatus });
+    if (this.timer) {
+      global.clearTimeout(this.timer);
+      this.timer = undefined;
+    }
+    if (editionStatus.installationStatus === 'AUTOMATIC_IN_PROGRESS') {
+      this.timer = global.setTimeout(() => {
+        this.fetchEditionStatus();
+        this.timer = undefined;
+      }, 2000);
+    }
+  };
 
   updateQuery = (newQuery: Partial<Query>) => {
     const query = serializeQuery({ ...parseQuery(this.props.location.query), ...newQuery });
