@@ -230,6 +230,8 @@ public class IssueDaoTest {
     assertThat(fp.getChecksum()).isNotEmpty();
     assertThat(fp.getRuleKey()).isNotNull();
     assertThat(fp.getStatus()).isNotNull();
+    assertThat(fp.getBranchName()).isEqualTo("feature/foo");
+    assertThat(fp.getIssueCreationDate()).isNotNull();
   }
 
   private static IssueDto newIssueDto(String key) {

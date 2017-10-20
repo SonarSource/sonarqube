@@ -22,7 +22,6 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 import java.util.Collection;
 import java.util.Map;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.ShortBranchIssue;
 import org.sonar.core.issue.tracking.SimpleTracker;
 import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.task.projectanalysis.component.Component;

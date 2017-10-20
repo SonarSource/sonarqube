@@ -19,15 +19,13 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
-import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import javax.annotation.Nullable;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -35,124 +33,194 @@ import org.mockito.MockitoAnnotations;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.ShortBranchIssue;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.tracking.SimpleTracker;
-import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.BranchType;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.issue.IssueDto;
+import org.sonar.db.issue.IssueTesting;
+import org.sonar.db.rule.RuleDefinitionDto;
+import org.sonar.server.computation.task.projectanalysis.component.ShortBranchComponentsWithIssues;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
 
 public class ShortBranchIssueMergerTest {
   @Mock
-  private ShortBranchIssuesLoader resolvedShortBranchIssuesLoader;
-  @Mock
   private IssueLifecycle issueLifecycle;
-  @Mock
-  private Component component;
+
+  @Rule
+  public DbTester db = DbTester.create();
+
+  @Rule
+  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule()
+    .setRoot(builder(org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT, PROJECT_REF).setKey(PROJECT_KEY).setUuid(PROJECT_UUID)
+      .addChildren(FILE_1)
+      .build());
+
+  private static final String PROJECT_KEY = "project";
+  private static final int PROJECT_REF = 1;
+  private static final String PROJECT_UUID = "projectUuid";
+  private static final int FILE_1_REF = 12341;
+  private static final String FILE_1_KEY = "fileKey";
+  private static final String FILE_1_UUID = "fileUuid";
+
+  private static final org.sonar.server.computation.task.projectanalysis.component.Component FILE_1 = builder(
+    org.sonar.server.computation.task.projectanalysis.component.Component.Type.FILE, FILE_1_REF)
+      .setKey(FILE_1_KEY)
+      .setUuid(FILE_1_UUID)
+      .build();
 
   private SimpleTracker<DefaultIssue, ShortBranchIssue> tracker = new SimpleTracker<>();
   private ShortBranchIssueMerger copier;
+  private ComponentDto fileOnBranch1Dto;
+  private ComponentDto fileOnBranch2Dto;
+  private ComponentDto fileOnBranch3Dto;
+  private ComponentDto projectDto;
+  private ComponentDto branch1Dto;
+  private ComponentDto branch2Dto;
+  private ComponentDto branch3Dto;
+  private RuleDefinitionDto rule;
 
   @Before
   public void setUp() {
     MockitoAnnotations.initMocks(this);
-    copier = new ShortBranchIssueMerger(resolvedShortBranchIssuesLoader, tracker, issueLifecycle);
+    copier = new ShortBranchIssueMerger(new ShortBranchIssuesLoader(new ShortBranchComponentsWithIssues(treeRootHolder, db.getDbClient()), db.getDbClient()), tracker,
+      issueLifecycle);
+    projectDto = db.components().insertMainBranch(p -> p.setDbKey(PROJECT_KEY).setUuid(PROJECT_UUID));
+    branch1Dto = db.components().insertProjectBranch(projectDto, b -> b.setKey("myBranch1")
+      .setBranchType(BranchType.SHORT)
+      .setMergeBranchUuid(projectDto.uuid()));
+    branch2Dto = db.components().insertProjectBranch(projectDto, b -> b.setKey("myBranch2")
+      .setBranchType(BranchType.SHORT)
+      .setMergeBranchUuid(projectDto.uuid()));
+    branch3Dto = db.components().insertProjectBranch(projectDto, b -> b.setKey("myBranch3")
+      .setBranchType(BranchType.SHORT)
+      .setMergeBranchUuid(projectDto.uuid()));
+    fileOnBranch1Dto = db.components().insertComponent(newFileDto(branch1Dto).setDbKey(FILE_1_KEY + ":BRANCH:myBranch1"));
+    fileOnBranch2Dto = db.components().insertComponent(newFileDto(branch2Dto).setDbKey(FILE_1_KEY + ":BRANCH:myBranch2"));
+    fileOnBranch3Dto = db.components().insertComponent(newFileDto(branch3Dto).setDbKey(FILE_1_KEY + ":BRANCH:myBranch3"));
+    rule = db.rules().insert();
   }
 
   @Test
   public void do_nothing_if_no_match() {
-    when(resolvedShortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component)).thenReturn(Collections.emptyList());
-    DefaultIssue i = createIssue("issue1", "rule1", Issue.STATUS_CONFIRMED, null, new Date());
-    copier.tryMerge(component, Collections.singleton(i));
+    DefaultIssue i = createIssue("issue1", rule.getKey(), Issue.STATUS_CONFIRMED, null, new Date());
+    copier.tryMerge(FILE_1, Collections.singleton(i));
 
-    verify(resolvedShortBranchIssuesLoader).loadCandidateIssuesForMergingInTargetBranch(component);
     verifyZeroInteractions(issueLifecycle);
   }
 
   @Test
   public void do_nothing_if_no_new_issue() {
-    DefaultIssue i = createIssue("issue1", "rule1", Issue.STATUS_CONFIRMED, null, new Date());
-    when(resolvedShortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component)).thenReturn(Collections.singleton(newShortBranchIssue(i, "myBranch")));
-    copier.tryMerge(component, Collections.emptyList());
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch1Dto, fileOnBranch1Dto).setKee("issue1").setStatus(Issue.STATUS_CONFIRMED).setLine(1).setChecksum("checksum"));
+    copier.tryMerge(FILE_1, Collections.emptyList());
 
-    verify(resolvedShortBranchIssuesLoader).loadCandidateIssuesForMergingInTargetBranch(component);
     verifyZeroInteractions(issueLifecycle);
   }
 
   @Test
-  public void update_status_on_matches() {
-    DefaultIssue issue1 = createIssue("issue1", "rule1", Issue.STATUS_CONFIRMED, null, new Date());
-    ShortBranchIssue shortBranchIssue = newShortBranchIssue(issue1, "myBranch");
-    DefaultIssue newIssue = createIssue("issue2", "rule1", Issue.STATUS_OPEN, null, new Date());
+  public void merge_confirmed_issues() {
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch1Dto, fileOnBranch1Dto).setKee("issue1").setStatus(Issue.STATUS_CONFIRMED).setLine(1).setChecksum("checksum"));
+    DefaultIssue newIssue = createIssue("issue2", rule.getKey(), Issue.STATUS_OPEN, null, new Date());
 
-    when(resolvedShortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component)).thenReturn(Collections.singleton(shortBranchIssue));
-    when(resolvedShortBranchIssuesLoader.loadDefaultIssuesWithChanges(anyListOf(ShortBranchIssue.class))).thenReturn(ImmutableMap.of(shortBranchIssue, issue1));
-    copier.tryMerge(component, Collections.singleton(newIssue));
-    ArgumentCaptor<Collection> captor = ArgumentCaptor.forClass(Collection.class);
-    verify(resolvedShortBranchIssuesLoader).loadDefaultIssuesWithChanges(captor.capture());
-    assertThat(captor.getValue()).containsOnly(shortBranchIssue);
-    verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranch(newIssue, issue1, "myBranch");
+    copier.tryMerge(FILE_1, Collections.singleton(newIssue));
+
+    ArgumentCaptor<DefaultIssue> issueToMerge = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranch(eq(newIssue), issueToMerge.capture(), eq("myBranch1"));
+
+    assertThat(issueToMerge.getValue().key()).isEqualTo("issue1");
   }
 
   @Test
   public void prefer_resolved_issues() {
-    ShortBranchIssue shortBranchIssue1 = newShortBranchIssue(createIssue("issue1", "rule1", Issue.STATUS_REOPENED, null, new Date()), "myBranch1");
-    ShortBranchIssue shortBranchIssue2 = newShortBranchIssue(createIssue("issue2", "rule1", Issue.STATUS_CONFIRMED, null, new Date()), "myBranch2");
-    DefaultIssue issue3 = createIssue("issue3", "rule1", Issue.STATUS_RESOLVED, Issue.RESOLUTION_FALSE_POSITIVE, new Date());
-    ShortBranchIssue shortBranchIssue3 = newShortBranchIssue(issue3, "myBranch3");
-    DefaultIssue newIssue = createIssue("newIssue", "rule1", Issue.STATUS_OPEN, null, new Date());
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch1Dto, fileOnBranch1Dto).setKee("issue1").setStatus(Issue.STATUS_REOPENED).setLine(1).setChecksum("checksum"));
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch2Dto, fileOnBranch2Dto).setKee("issue2").setStatus(Issue.STATUS_CONFIRMED).setLine(1).setChecksum("checksum"));
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch3Dto, fileOnBranch3Dto).setKee("issue3").setStatus(Issue.STATUS_RESOLVED)
+      .setResolution(Issue.RESOLUTION_FALSE_POSITIVE).setLine(1).setChecksum("checksum"));
+    DefaultIssue newIssue = createIssue("newIssue", rule.getKey(), Issue.STATUS_OPEN, null, new Date());
 
-    when(resolvedShortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component)).thenReturn(Arrays.asList(shortBranchIssue1, shortBranchIssue2, shortBranchIssue3));
-    when(resolvedShortBranchIssuesLoader.loadDefaultIssuesWithChanges(anyListOf(ShortBranchIssue.class))).thenReturn(ImmutableMap.of(shortBranchIssue3, issue3));
-    copier.tryMerge(component, Collections.singleton(newIssue));
-    verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranch(newIssue, issue3, "myBranch3");
+    copier.tryMerge(FILE_1, Collections.singleton(newIssue));
+
+    ArgumentCaptor<DefaultIssue> issueToMerge = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranch(eq(newIssue), issueToMerge.capture(), eq("myBranch3"));
+
+    assertThat(issueToMerge.getValue().key()).isEqualTo("issue3");
   }
 
   @Test
-  public void prefer_confirmed_issues() {
-    ShortBranchIssue shortBranchIssue1 = newShortBranchIssue(createIssue("issue1", "rule1", Issue.STATUS_REOPENED, null, new Date()), "myBranch1");
-    ShortBranchIssue shortBranchIssue2 = newShortBranchIssue(createIssue("issue2", "rule1", Issue.STATUS_OPEN, null, new Date()), "myBranch2");
-    DefaultIssue issue3 = createIssue("issue3", "rule1", Issue.STATUS_CONFIRMED, null, new Date());
-    ShortBranchIssue shortBranchIssue3 = newShortBranchIssue(issue3, "myBranch3");
-    DefaultIssue newIssue = createIssue("newIssue", "rule1", Issue.STATUS_OPEN, null, new Date());
+  public void prefer_confirmed_issues_if_no_resolved() {
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch1Dto, fileOnBranch1Dto).setKee("issue1").setStatus(Issue.STATUS_REOPENED).setLine(1).setChecksum("checksum"));
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch2Dto, fileOnBranch2Dto).setKee("issue2").setStatus(Issue.STATUS_OPEN).setLine(1).setChecksum("checksum"));
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch3Dto, fileOnBranch3Dto).setKee("issue3").setStatus(Issue.STATUS_CONFIRMED).setLine(1).setChecksum("checksum"));
+    DefaultIssue newIssue = createIssue("newIssue", rule.getKey(), Issue.STATUS_OPEN, null, new Date());
 
-    when(resolvedShortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component)).thenReturn(Arrays.asList(shortBranchIssue1, shortBranchIssue2, shortBranchIssue3));
-    when(resolvedShortBranchIssuesLoader.loadDefaultIssuesWithChanges(anyListOf(ShortBranchIssue.class))).thenReturn(ImmutableMap.of(shortBranchIssue3, issue3));
-    copier.tryMerge(component, Collections.singleton(newIssue));
-    verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranch(newIssue, issue3, "myBranch3");
+    copier.tryMerge(FILE_1, Collections.singleton(newIssue));
+
+    ArgumentCaptor<DefaultIssue> issueToMerge = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranch(eq(newIssue), issueToMerge.capture(), eq("myBranch3"));
+
+    assertThat(issueToMerge.getValue().key()).isEqualTo("issue3");
   }
 
   @Test
   public void prefer_older_issues() {
     Instant now = Instant.now();
-    ShortBranchIssue shortBranchIssue1 = newShortBranchIssue(createIssue("issue1", "rule1", Issue.STATUS_REOPENED, null, Date.from(now.plus(2, ChronoUnit.SECONDS))), "myBranch1");
-    ShortBranchIssue shortBranchIssue2 = newShortBranchIssue(createIssue("issue2", "rule1", Issue.STATUS_OPEN, null, Date.from(now.plus(1, ChronoUnit.SECONDS))), "myBranch2");
-    DefaultIssue issue3 = createIssue("issue3", "rule1", Issue.STATUS_OPEN, null, Date.from(now));
-    ShortBranchIssue shortBranchIssue3 = newShortBranchIssue(issue3, "myBranch3");
-    DefaultIssue newIssue = createIssue("newIssue", "rule1", Issue.STATUS_OPEN, null, new Date());
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch1Dto, fileOnBranch1Dto).setKee("issue1").setStatus(Issue.STATUS_REOPENED).setLine(1).setChecksum("checksum")
+      .setIssueCreationDate(Date.from(now.plus(2, ChronoUnit.SECONDS))));
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch2Dto, fileOnBranch2Dto).setKee("issue2").setStatus(Issue.STATUS_OPEN).setLine(1).setChecksum("checksum")
+      .setIssueCreationDate(Date.from(now.plus(1, ChronoUnit.SECONDS))));
+    db.issues().insertIssue(IssueTesting.newIssue(rule, branch3Dto, fileOnBranch3Dto).setKee("issue3").setStatus(Issue.STATUS_OPEN).setLine(1).setChecksum("checksum")
+      .setIssueCreationDate(Date.from(now)));
+    DefaultIssue newIssue = createIssue("newIssue", rule.getKey(), Issue.STATUS_OPEN, null, new Date());
 
-    when(resolvedShortBranchIssuesLoader.loadCandidateIssuesForMergingInTargetBranch(component)).thenReturn(Arrays.asList(shortBranchIssue1, shortBranchIssue2, shortBranchIssue3));
-    when(resolvedShortBranchIssuesLoader.loadDefaultIssuesWithChanges(anyListOf(ShortBranchIssue.class))).thenReturn(ImmutableMap.of(shortBranchIssue3, issue3));
-    copier.tryMerge(component, Collections.singleton(newIssue));
-    verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranch(newIssue, issue3, "myBranch3");
+    copier.tryMerge(FILE_1, Collections.singleton(newIssue));
+
+    ArgumentCaptor<DefaultIssue> issueToMerge = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranch(eq(newIssue), issueToMerge.capture(), eq("myBranch3"));
+
+    assertThat(issueToMerge.getValue().key()).isEqualTo("issue3");
   }
 
-  private static DefaultIssue createIssue(String key, String ruleKey, String status, @Nullable String resolution, Date creationDate) {
+  @Test
+  public void lazy_load_changes() {
+    IssueDto issue1 = db.issues()
+      .insertIssue(IssueTesting.newIssue(rule, branch1Dto, fileOnBranch1Dto).setKee("issue1").setStatus(Issue.STATUS_REOPENED).setLine(1).setChecksum("checksum"));
+    db.issues().insertComment(issue1, "user1", "A comment 1");
+    db.issues().insertFieldDiffs(issue1, FieldDiffs.parse("severity=BLOCKER|INFO,assignee=toto|titi"));
+    IssueDto issue2 = db.issues()
+      .insertIssue(IssueTesting.newIssue(rule, branch2Dto, fileOnBranch2Dto).setKee("issue2").setStatus(Issue.STATUS_CONFIRMED).setLine(1).setChecksum("checksum"));
+    db.issues().insertComment(issue2, "user2", "A comment 2");
+    db.issues().insertFieldDiffs(issue2, FieldDiffs.parse("severity=BLOCKER|MINOR,assignee=foo|bar"));
+    DefaultIssue newIssue = createIssue("newIssue", rule.getKey(), Issue.STATUS_OPEN, null, new Date());
+
+    copier.tryMerge(FILE_1, Collections.singleton(newIssue));
+
+    ArgumentCaptor<DefaultIssue> issueToMerge = ArgumentCaptor.forClass(DefaultIssue.class);
+    verify(issueLifecycle).mergeConfirmedOrResolvedFromShortLivingBranch(eq(newIssue), issueToMerge.capture(), eq("myBranch2"));
+
+    assertThat(issueToMerge.getValue().key()).isEqualTo("issue2");
+    assertThat(issueToMerge.getValue().comments()).isNotEmpty();
+    assertThat(issueToMerge.getValue().changes()).isNotEmpty();
+  }
+
+  private static DefaultIssue createIssue(String key, RuleKey ruleKey, String status, @Nullable String resolution, Date creationDate) {
     DefaultIssue issue = new DefaultIssue();
     issue.setKey(key);
-    issue.setRuleKey(RuleKey.of("repo", ruleKey));
+    issue.setRuleKey(ruleKey);
     issue.setMessage("msg");
     issue.setLine(1);
     issue.setStatus(status);
     issue.setResolution(resolution);
     issue.setCreationDate(creationDate);
+    issue.setChecksum("checksum");
     return issue;
   }
 
-  private ShortBranchIssue newShortBranchIssue(DefaultIssue i, String originBranch) {
-    return new ShortBranchIssue(i.key(), i.line(), i.message(), i.getLineHash(), i.ruleKey(), i.status(), originBranch, i.creationDate());
-  }
 }
