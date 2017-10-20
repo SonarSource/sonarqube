@@ -24,6 +24,7 @@ import escapeHtml from 'escape-html';
 import { translate } from '../../helpers/l10n';
 import ItemTemplate from './templates/item.hbs';
 import ListTemplate from './templates/list.hbs';
+import './styles.css';
 
 let showError = null;
 

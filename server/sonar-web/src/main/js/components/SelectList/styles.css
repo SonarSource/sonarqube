@@ -17,9 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) '../variables';
-@import (reference) '../mixins';
-
 .select-list-container {
   min-width: 500px;
   box-sizing: border-box;
@@ -120,16 +117,16 @@
 
 .select-list-control-button {
   position: relative;
-  z-index: @normal-z-index;
+  z-index: 2;
   display: inline-block;
   vertical-align: middle;
   height: 27px;
   line-height: 25px;
   padding: 0 12px;
   box-sizing: border-box;
-  border: 1px solid @darkBlue;
-  color: @darkBlue;
-  font-size: @smallFontSize;
+  border: 1px solid #236a97;
+  color: #236a97;
+  font-size: 12px;
   text-align: center;
   cursor: pointer;
   transition: none;
@@ -146,13 +143,13 @@
 }
 
 .select-list-control-button:hover {
-  color: @darkBlue;
+  color: #236a97;
 }
 
 .select-list-control-button:active,
 .select-list-control-button.active {
-  z-index: @above-normal-z-index;
-  background-color: @darkBlue;
+  z-index: 3;
+  background-color: #236a97;
   color: #fff;
   font-weight: 600;
 }
@@ -170,7 +167,7 @@
 
 .select-list-wrapper {
   height: 30vw;
-  border-top: 1px solid @barBorderColor;
-  border-bottom: 1px solid @barBorderColor;
+  border-top: 1px solid #e6e6e6;
+  border-bottom: 1px solid #e6e6e6;
   overflow: auto;
 }
