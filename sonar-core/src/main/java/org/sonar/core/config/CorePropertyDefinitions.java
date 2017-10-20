@@ -260,7 +260,7 @@ public class CorePropertyDefinitions {
       // EDITIONS
       PropertyDefinition.builder(EDITIONS_CONFIG_URL)
         .name("Defines URL of JSON file with the definitions of SonarSource editions.")
-        .defaultValue("https://resources.sonarsource.com/editions.json")
+        .defaultValue("https://update.sonarsource.org/editions.json")
         .category(CATEGORY_ORGANIZATIONS)
         .type(BOOLEAN)
         .hidden()
