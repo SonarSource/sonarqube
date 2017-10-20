@@ -17,3 +17,79 @@
   border-color: #f4b1b0;
   background-color: #f4b1b0;
 }
+
+.measures + .measures {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e6e6e6;
+}
+
+.measures-chart {
+  display: inline-block;
+  vertical-align: middle;
+  width: 70px;
+  margin-right: 20px;
+  text-align: center;
+}
+
+.measures-chart .rating {
+  font-size: 32px;
+}
+
+.measure {
+  line-height: 1.3333333333333;
+}
+
+.measure-name {
+  display: block;
+  font-size: 13px;
+}
+
+.measure-value {
+  color: #236a97;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.measure-big {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.measure-big .measure-name {
+  margin-top: 2px;
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.measure-big .measure-value {
+  font-size: 22px;
+  font-weight: 300;
+}
+
+.measure-big .rating {
+  font-size: 22px;
+}
+
+.measure-big + .measure-big {
+  margin-left: 20px;
+}
+
+.measure-one-line:before,
+.measure-one-line:after {
+  display: table;
+  content: '';
+  line-height: 0;
+}
+
+.measure-one-line:after {
+  clear: both;
+}
+
+.measure-one-line .measure-name {
+  float: left;
+}
+
+.measure-one-line .measure-value {
+  float: right;
+}
