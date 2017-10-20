@@ -787,14 +787,14 @@ public class IssueIndexTest {
     SearchResponse result = underTest.search(query, options);
     Map<String, Long> buckets = new Facets(result).get("createdAt");
     assertThat(buckets).containsOnly(
-      entry("2014-08-31T01:00:00+0000", 0L),
-      entry("2014-09-01T01:00:00+0000", 2L),
-      entry("2014-09-02T01:00:00+0000", 1L),
-      entry("2014-09-03T01:00:00+0000", 0L),
-      entry("2014-09-04T01:00:00+0000", 0L),
-      entry("2014-09-05T01:00:00+0000", 1L),
-      entry("2014-09-06T01:00:00+0000", 0L),
-      entry("2014-09-07T01:00:00+0000", 0L));
+      entry("2014-08-31T00:00:00-0100", 0L),
+      entry("2014-09-01T00:00:00-0100", 2L),
+      entry("2014-09-02T00:00:00-0100", 1L),
+      entry("2014-09-03T00:00:00-0100", 0L),
+      entry("2014-09-04T00:00:00-0100", 0L),
+      entry("2014-09-05T00:00:00-0100", 1L),
+      entry("2014-09-06T00:00:00-0100", 0L),
+      entry("2014-09-07T00:00:00-0100", 0L));
   }
 
   @Test
@@ -807,10 +807,10 @@ public class IssueIndexTest {
       options);
     Map<String, Long> createdAt = new Facets(result).get("createdAt");
     assertThat(createdAt).containsOnly(
-      entry("2014-08-25T01:00:00+0000", 0L),
-      entry("2014-09-01T01:00:00+0000", 4L),
-      entry("2014-09-08T01:00:00+0000", 0L),
-      entry("2014-09-15T01:00:00+0000", 1L));
+      entry("2014-08-25T00:00:00-0100", 0L),
+      entry("2014-09-01T00:00:00-0100", 4L),
+      entry("2014-09-08T00:00:00-0100", 0L),
+      entry("2014-09-15T00:00:00-0100", 1L));
   }
 
   @Test
@@ -823,12 +823,12 @@ public class IssueIndexTest {
       options);
     Map<String, Long> createdAt = new Facets(result).get("createdAt");
     assertThat(createdAt).containsOnly(
-      entry("2014-08-01T01:00:00+0000", 0L),
-      entry("2014-09-01T01:00:00+0000", 5L),
-      entry("2014-10-01T01:00:00+0000", 0L),
-      entry("2014-11-01T01:00:00+0000", 0L),
-      entry("2014-12-01T01:00:00+0000", 0L),
-      entry("2015-01-01T01:00:00+0000", 1L));
+      entry("2014-08-01T00:00:00-0100", 0L),
+      entry("2014-09-01T00:00:00-0100", 5L),
+      entry("2014-10-01T00:00:00-0100", 0L),
+      entry("2014-11-01T00:00:00-0100", 0L),
+      entry("2014-12-01T00:00:00-0100", 0L),
+      entry("2015-01-01T00:00:00-0100", 1L));
   }
 
   @Test
@@ -841,13 +841,12 @@ public class IssueIndexTest {
       options);
     Map<String, Long> createdAt = new Facets(result).get("createdAt");
     assertThat(createdAt).containsOnly(
-      entry("2010-01-01T01:00:00+0000", 0L),
-      entry("2011-01-01T01:00:00+0000", 1L),
-      entry("2012-01-01T01:00:00+0000", 0L),
-      entry("2013-01-01T01:00:00+0000", 0L),
-      entry("2014-01-01T01:00:00+0000", 5L),
-      entry("2015-01-01T01:00:00+0000", 1L));
-
+      entry("2010-01-01T00:00:00-0100", 0L),
+      entry("2011-01-01T00:00:00-0100", 1L),
+      entry("2012-01-01T00:00:00-0100", 0L),
+      entry("2013-01-01T00:00:00-0100", 0L),
+      entry("2014-01-01T00:00:00-0100", 5L),
+      entry("2015-01-01T00:00:00-0100", 1L));
   }
 
   @Test
@@ -860,7 +859,7 @@ public class IssueIndexTest {
       options);
     Map<String, Long> createdAt = new Facets(result).get("createdAt");
     assertThat(createdAt).containsOnly(
-      entry("2014-09-01T01:00:00+0000", 2L));
+      entry("2014-09-01T00:00:00-0100", 2L));
   }
 
   @Test
@@ -873,14 +872,14 @@ public class IssueIndexTest {
       .build(), options);
     Map<String, Long> createdAt = new Facets(result).get("createdAt");
     assertThat(createdAt).containsOnly(
-      entry("2008-01-01T01:00:00+0000", 0L),
-      entry("2009-01-01T01:00:00+0000", 0L),
-      entry("2010-01-01T01:00:00+0000", 0L),
-      entry("2011-01-01T01:00:00+0000", 1L),
-      entry("2012-01-01T01:00:00+0000", 0L),
-      entry("2013-01-01T01:00:00+0000", 0L),
-      entry("2014-01-01T01:00:00+0000", 5L),
-      entry("2015-01-01T01:00:00+0000", 1L));
+      entry("2008-01-01T00:00:00-0100", 0L),
+      entry("2009-01-01T00:00:00-0100", 0L),
+      entry("2010-01-01T00:00:00-0100", 0L),
+      entry("2011-01-01T00:00:00-0100", 1L),
+      entry("2012-01-01T00:00:00-0100", 0L),
+      entry("2013-01-01T00:00:00-0100", 0L),
+      entry("2014-01-01T00:00:00-0100", 5L),
+      entry("2015-01-01T00:00:00-0100", 1L));
   }
 
   @Test
@@ -892,11 +891,11 @@ public class IssueIndexTest {
       searchOptions);
     Map<String, Long> createdAt = new Facets(result).get("createdAt");
     assertThat(createdAt).containsOnly(
-      entry("2011-01-01T01:00:00+0000", 1L),
-      entry("2012-01-01T01:00:00+0000", 0L),
-      entry("2013-01-01T01:00:00+0000", 0L),
-      entry("2014-01-01T01:00:00+0000", 5L),
-      entry("2015-01-01T01:00:00+0000", 1L));
+      entry("2011-01-01T00:00:00-0100", 1L),
+      entry("2012-01-01T00:00:00-0100", 0L),
+      entry("2013-01-01T00:00:00-0100", 0L),
+      entry("2014-01-01T00:00:00-0100", 5L),
+      entry("2015-01-01T00:00:00-0100", 1L));
   }
 
   @Test
