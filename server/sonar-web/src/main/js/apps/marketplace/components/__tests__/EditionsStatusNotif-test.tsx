@@ -42,16 +42,6 @@ it('should display an in progress notif', () => {
   expect(wrapper).toMatchSnapshot();
 });
 
-it('should display an error notification', () => {
-  const wrapper = shallow(
-    <EditionsStatusNotif
-      editionStatus={{ installationStatus: 'AUTOMATIC_FAILURE' }}
-      updateEditionStatus={jest.fn()}
-    />
-  );
-  expect(wrapper).toMatchSnapshot();
-});
-
 it('should display a ready notification', () => {
   const wrapper = shallow(
     <EditionsStatusNotif
