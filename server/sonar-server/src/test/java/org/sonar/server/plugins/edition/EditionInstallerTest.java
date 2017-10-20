@@ -176,6 +176,8 @@ public class EditionInstallerTest {
     verify(uninstaller).uninstall("p2");
     verifyNoMoreInteractions(uninstaller);
     verifyNoMoreInteractions(downloader);
+    assertThat(logTester.logs()).containsOnly("Installing edition 'edition-key', download: [p4], remove: [p2]");
+
   }
 
   @Test
@@ -209,6 +211,7 @@ public class EditionInstallerTest {
     verifyZeroInteractions(downloader);
     verify(editionManagementState).startManualInstall(newLicense);
     verifyNoMoreInteractions(editionManagementState);
+    assertThat(logTester.logs()).containsOnly("Installation of edition 'edition-key' needs to be done manually");
   }
 
   @Test
@@ -283,7 +286,6 @@ public class EditionInstallerTest {
     verify(editionManagementState).startAutomaticInstall(newLicense);
     verify(editionManagementState).installFailed(expectedErrorMessage);
     verifyNoMoreInteractions(editionManagementState);
-    assertThat(logTester.logs()).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.ERROR))
       .containsOnly("Failed to install edition " + newLicense.getEditionKey() + " with plugins " + newLicense.getPluginKeys());
   }

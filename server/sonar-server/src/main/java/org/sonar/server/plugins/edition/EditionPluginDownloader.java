@@ -78,6 +78,7 @@ public class EditionPluginDownloader {
 
   protected void download(Release release) {
     try {
+      LOG.info("Downloading plugin: {}", release.getArtifact().getKey());
       downloadRelease(release);
     } catch (Exception e) {
       String message = String.format("Fail to download the plugin (%s, version %s) from %s (error is : %s)",
