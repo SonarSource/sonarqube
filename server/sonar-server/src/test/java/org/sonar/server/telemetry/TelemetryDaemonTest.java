@@ -20,12 +20,10 @@
 
 package org.sonar.server.telemetry;
 
-import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.IntStream;
 import org.junit.After;
 import org.junit.Rule;
@@ -63,6 +61,8 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -91,7 +91,7 @@ public class TelemetryDaemonTest {
   public LogTester logger = new LogTester().setLevel(LoggerLevel.DEBUG);
 
   private TelemetryClient client = mock(TelemetryClient.class);
-  private InternalProperties internalProperties = new MapInternalProperties();
+  private InternalProperties internalProperties = spy(new MapInternalProperties());
   private FakeServer server = new FakeServer();
   private PluginRepository pluginRepository = mock(PluginRepository.class);
   private TestSystem2 system2 = new TestSystem2().setNow(System.currentTimeMillis());
@@ -245,11 +245,12 @@ public class TelemetryDaemonTest {
     system2.setNow(today + 15 * ONE_HOUR);
     long sevenDaysAgo = today - (ONE_DAY * 7L);
     internalProperties.write("telemetry.lastPing", String.valueOf(sevenDaysAgo));
+    reset(internalProperties);
 
     underTest.start();
 
-    verify(client, timeout(2_000).times(1)).upload(anyString());
-    assertThat(internalProperties.read("telemetry.lastPing").get()).isEqualTo(String.valueOf(today));
+    verify(internalProperties, timeout(4_000)).write("telemetry.lastPing", String.valueOf(today));
+    verify(client).upload(anyString());
   }
 
   @Test
@@ -267,9 +268,5 @@ public class TelemetryDaemonTest {
   private PluginInfo newPlugin(String key, String version) {
     return new PluginInfo(key)
       .setVersion(Version.create(version));
-  }
-
-  private static Map<String, Object> newMeasure(String key, Object value) {
-    return ImmutableMap.of("key", key, "value", value);
   }
 }
