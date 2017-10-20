@@ -7,6 +7,10 @@ const eslintFormatter = require('react-dev-utils/eslintFormatter');
 const webpack = require('webpack');
 const paths = require('./paths');
 
+const cssMinimizeOptions = {
+  discardComments: { removeAll: true }
+};
+
 module.exports = ({ production = true, fast = false }) => ({
   bail: production,
 
@@ -97,7 +101,10 @@ module.exports = ({ production = true, fast = false }) => ({
         test: /\.css$/,
         use: [
           'style-loader',
-          'css-loader',
+          {
+            loader: 'css-loader',
+            options: { minimize: production && !fast && cssMinimizeOptions }
+          },
           {
             loader: 'postcss-loader',
             options: {
@@ -113,7 +120,7 @@ module.exports = ({ production = true, fast = false }) => ({
           use: [
             {
               loader: 'css-loader',
-              options: { url: false }
+              options: { url: false, minimize: production && !fast && cssMinimizeOptions }
             },
             {
               loader: 'postcss-loader',
