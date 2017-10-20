@@ -47,7 +47,13 @@ export const PLUGINS_FIELD = 'Plugins';
 export const SETTINGS_FIELD = 'Settings';
 
 export function ignoreInfoFields(sysInfoObject: SysValueObject): SysValueObject {
-  return omit(sysInfoObject, [HEALTH_FIELD, HEALTHCAUSES_FIELD, 'Name', SETTINGS_FIELD]);
+  return omit(sysInfoObject, [
+    HEALTH_FIELD,
+    HEALTHCAUSES_FIELD,
+    'Name',
+    PLUGINS_FIELD,
+    SETTINGS_FIELD
+  ]);
 }
 
 export function getHealth(sysInfoObject: SysValueObject): HealthType {
