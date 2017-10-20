@@ -80,7 +80,7 @@ it("loads branches for module's project", () => {
   return doAsync().then(() => {
     expect(getBranches).toBeCalledWith('projectKey');
     expect(getComponentData).toBeCalledWith('moduleKey', undefined);
-    expect(getComponentNavigation).toBeCalledWith('moduleKey');
+    expect(getComponentNavigation).toBeCalledWith('moduleKey', undefined);
   });
 });
 
@@ -102,7 +102,7 @@ it("doesn't load branches portfolio", () => {
   return doAsync().then(() => {
     expect(getBranches).not.toBeCalled();
     expect(getComponentData).toBeCalledWith('portfolioKey', undefined);
-    expect(getComponentNavigation).toBeCalledWith('portfolioKey');
+    expect(getComponentNavigation).toBeCalledWith('portfolioKey', undefined);
     expect(wrapper.find(Inner).exists()).toBeTruthy();
   });
 });
