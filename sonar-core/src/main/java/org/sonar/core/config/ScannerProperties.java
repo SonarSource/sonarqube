@@ -21,7 +21,6 @@ package org.sonar.core.config;
 
 import java.util.List;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
@@ -40,14 +39,6 @@ public class ScannerProperties {
 
   public static List<PropertyDefinition> all() {
     return asList(
-      PropertyDefinition.builder(CoreProperties.ANALYSIS_MODE)
-        .name("Analysis mode")
-        .type(PropertyType.SINGLE_SELECT_LIST)
-        .options(asList(CoreProperties.ANALYSIS_MODE_ANALYSIS, CoreProperties.ANALYSIS_MODE_PREVIEW, CoreProperties.ANALYSIS_MODE_INCREMENTAL))
-        .category(CoreProperties.CATEGORY_GENERAL)
-        .defaultValue(CoreProperties.ANALYSIS_MODE_ANALYSIS)
-        .hidden()
-        .build(),
       PropertyDefinition.builder(CoreProperties.SCM_DISABLED_KEY)
         .name("Disable the SCM Sensor")
         .description("Disable the retrieval of blame information from Source Control Manager")
