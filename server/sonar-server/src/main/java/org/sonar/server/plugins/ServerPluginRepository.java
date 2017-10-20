@@ -316,10 +316,16 @@ public class ServerPluginRepository implements PluginRepository, Startable {
 
     for (String uninstallKey : uninstallKeys) {
       PluginInfo info = getPluginInfo(uninstallKey);
+
       try {
+        if (!getPluginFile(info).exists()) {
+          LOG.info("Plugin already uninstalled: {} [{}]", info.getName(), info.getKey());
+          continue;
+        }
+
         LOG.info("Uninstalling plugin {} [{}]", info.getName(), info.getKey());
 
-        File masterFile = pluginFile(info);
+        File masterFile = getPluginFile(info);
         moveFileToDirectory(masterFile, uninstallDir, true);
       } catch (IOException e) {
         throw new IllegalStateException(format("Fail to uninstall plugin %s [%s]", info.getName(), info.getKey()), e);
@@ -344,7 +350,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
     for (PluginInfo otherPlugin : getPluginInfos()) {
       if (!otherPlugin.getKey().equals(pluginKey)) {
         for (PluginInfo.RequiredPlugin requirement : otherPlugin.getRequiredPlugins()) {
-          if (requirement.getKey().equals(pluginKey) && pluginFile(otherPlugin).exists()) {
+          if (requirement.getKey().equals(pluginKey)) {
             appendTo.add(otherPlugin.getKey());
             appendDependentPluginKeys(otherPlugin.getKey(), appendTo);
           }
@@ -353,7 +359,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
     }
   }
 
-  private File pluginFile(PluginInfo info) {
+  private File getPluginFile(PluginInfo info) {
     // we don't reuse info.getFile() just to be sure that file is located in from extensions/plugins
     return new File(fs.getInstalledPluginsDir(), info.getNonNullJarFile().getName());
   }
