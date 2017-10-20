@@ -100,6 +100,24 @@ public class OAuth2RedirectionTest {
   }
 
   @Test
+  public void get_and_delete_returns_nothing_when_no_cookie() throws Exception {
+    when(request.getCookies()).thenReturn(new Cookie[]{});
+
+    Optional<String> redirection = underTest.getAndDelete(request, response);
+
+    assertThat(redirection).isEmpty();
+  }
+
+  @Test
+  public void get_and_delete_returns_nothing_redirect_value_is_null() throws Exception {
+    when(request.getCookies()).thenReturn(new Cookie[]{new Cookie("REDIRECT_TO", null)});
+
+    Optional<String> redirection = underTest.getAndDelete(request, response);
+
+    assertThat(redirection).isEmpty();
+  }
+
+  @Test
   public void delete() throws Exception {
     when(request.getCookies()).thenReturn(new Cookie[]{new Cookie("REDIRECT_TO", "/settings")});
 
