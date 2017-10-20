@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.TimeZone;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -49,7 +48,6 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.filter.InternalFilter;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
-import org.elasticsearch.search.aggregations.bucket.histogram.ExtendedBounds;
 import org.elasticsearch.search.aggregations.bucket.terms.InternalTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -61,9 +59,7 @@ import org.elasticsearch.search.aggregations.metrics.min.Min;
 import org.elasticsearch.search.aggregations.metrics.sum.SumAggregationBuilder;
 import org.elasticsearch.search.aggregations.metrics.valuecount.InternalValueCount;
 import org.elasticsearch.search.sort.FieldSortBuilder;
-import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.organization.OrganizationDto;
@@ -537,18 +533,14 @@ public class IssueIndex {
       bucketSize = DateHistogramInterval.MONTH;
     }
 
-    // from GMT to server TZ
-    int offsetInSeconds = -system.getDefaultTimeZone().getRawOffset() / 1_000;
-
-    AggregationBuilder dateHistogram = AggregationBuilders.dateHistogram(PARAM_CREATED_AT)
-      .field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
-      .dateHistogramInterval(bucketSize)
-      .minDocCount(0L)
-      .format(DateUtils.DATETIME_FORMAT)
-      .timeZone(DateTimeZone.forTimeZone(TimeZone.getTimeZone("GMT")))
-      .offset(offsetInSeconds + "s")
-      // ES dateHistogram bounds are inclusive while createdBefore parameter is exclusive
-      .extendedBounds(new ExtendedBounds(startTime, endTime - (offsetInSeconds * 1_000L) - 1L));
+    AggregationBuilder dateHistogram = new DateHistogramBuilder()
+      .setAggregationName(PARAM_CREATED_AT)
+      .setField(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
+      .setBucketSize(bucketSize)
+      .setStartTime(startTime)
+      .setEndTime(endTime)
+      .setTimeZone(system.getDefaultTimeZone())
+      .build();
     addEffortAggregationIfNeeded(query, dateHistogram);
     return Optional.of(dateHistogram);
   }
