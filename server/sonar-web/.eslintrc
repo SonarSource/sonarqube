@@ -24,7 +24,7 @@
 
   "parser": "typescript-eslint-parser",
 
-  "plugins": ["import", "jsx-a11y", "flowtype", "react"],
+  "plugins": ["import", "jsx-a11y", "react"],
 
   "rules": {
     // possible errors
@@ -114,25 +114,6 @@
     // https://github.com/eslint/typescript-eslint-parser/issues/77
     "no-undef": "off",
     "no-unused-vars": "off",
-
-    "flowtype/boolean-style": 2,
-    "flowtype/generic-spacing": 2,
-    "flowtype/no-dupe-keys": 2,
-    "flowtype/no-primitive-constructor-types": 2,
-    "flowtype/no-weak-types": [
-      2,
-      {
-        "any": true,
-        "Object": false,
-        "Function": false
-      }
-    ],
-    "flowtype/object-type-delimiter": 2,
-    "flowtype/semi": 2,
-    "flowtype/space-after-type-colon": 2,
-    "flowtype/space-before-generic-bracket": 2,
-    "flowtype/space-before-type-colon": 2,
-    "flowtype/union-intersection-spacing": 2,
 
     "import/no-unresolved": 0,
     "import/named": 2,
