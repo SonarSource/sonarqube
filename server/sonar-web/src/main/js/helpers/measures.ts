@@ -313,7 +313,7 @@ function formatDurationShort(
 
 function durationFormatter(value: string | number): string {
   if (typeof value === 'string') {
-    value = parseInt(value);
+    value = parseInt(value, 10);
   }
   if (value === 0) {
     return '0';
@@ -330,7 +330,7 @@ function durationFormatter(value: string | number): string {
 
 function shortDurationFormatter(value: string | number): string {
   if (typeof value === 'string') {
-    value = parseInt(value);
+    value = parseInt(value, 10);
   }
   if (value === 0) {
     return '0';

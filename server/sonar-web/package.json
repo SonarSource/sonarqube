@@ -118,7 +118,7 @@
     "test": "node scripts/test.js",
     "coverage": "npm test -- --coverage",
     "format": "prettier --write --list-different 'src/main/{js,less}/!(libs)/**/*.{js,ts,tsx,css,less}'",
-    "lint": "eslint --ext js,ts,tsx src/main/js",
+    "lint": "eslint --ext js,ts,tsx --quiet src/main/js",
     "typecheck": "flow src/main/js",
     "validate": "eslint src/main/js && flow check src/main/js && NODE_ENV=test jest"
   },

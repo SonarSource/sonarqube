@@ -83,7 +83,7 @@ it('searches', () => {
   expect(getComponents).lastCalledWith({ ...defaultSearchParameters, q: 'foo', qualifiers: 'TRK' });
 });
 
-it('loads more', async () => {
+it('loads more', () => {
   const wrapper = mountRender();
   wrapper.find('ListFooter').prop<Function>('loadMore')();
   expect(getComponents).lastCalledWith({ ...defaultSearchParameters, p: 2, qualifiers: 'TRK' });

@@ -248,7 +248,7 @@ function convertToQueryData(
   if (sort.s) {
     data.s = sort.s;
   }
-  if (sort.hasOwnProperty('asc')) {
+  if (sort.asc) {
     data.asc = sort.asc;
   }
   return data;
