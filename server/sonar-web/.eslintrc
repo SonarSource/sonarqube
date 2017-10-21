@@ -1,5 +1,5 @@
 {
-  "extends": ["eslint:recommended", "plugin:import/errors"],
+  "extends": ["eslint:recommended", "plugin:import/errors", "plugin:react/recommended"],
 
   "env": {
     "browser": true,
@@ -149,26 +149,18 @@
     "jsx-a11y/role-supports-aria-props": 2,
     "jsx-a11y/tabindex-no-positive": 2,
 
-    "react/jsx-boolean-value": [2, "always"],
-    "react/jsx-key": 2,
-    "react/jsx-no-duplicate-props": 2,
-    "react/jsx-no-undef": 2,
-    "react/jsx-pascal-case": 2,
-    "react/jsx-uses-react": 2,
-    "react/jsx-uses-vars": 2,
-    "react/no-children-prop": 2,
-    "react/no-danger-with-children": 2,
-    "react/no-deprecated": 2,
-    "react/no-direct-mutation-state": 2,
-    "react/no-is-mounted": 2,
-    "react/no-render-return-value": 2,
-    "react/no-unescaped-entities": 2,
-    "react/no-unknown-property": 2,
-    "react/react-in-jsx-scope": 2,
-    "react/require-render-return": 2,
-    "react/self-closing-comp": 2,
+    // react
+    // TODO turn all rules to "error" eventually
+    "react/display-name": "warn",
+    "react/jsx-boolean-value": ["error", "always"],
+    "react/jsx-no-comment-textnodes": "warn",
+    "react/jsx-no-target-blank": "warn",
+    "react/jsx-pascal-case": "error",
+    "react/no-find-dom-node": "warn",
+    "react/no-string-refs": "warn",
+    "react/self-closing-comp": "error",
     "react/sort-comp": [
-      2,
+      "error",
       {
         "order": [
           "type-annotations",
@@ -177,11 +169,12 @@
           "everything-else",
           "rendering"
         ],
-        "groups": {
-          "rendering": ["/^render.+$/", "render"]
-        }
+        "groups": { "rendering": ["/^render.+$/", "render"] }
       }
-    ]
+    ],
+
+    // turn off prop types validation, better use ts ;)
+    "react/prop-types": "off"
   },
 
   "settings": {
