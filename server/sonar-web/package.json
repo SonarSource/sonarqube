@@ -106,7 +106,7 @@
     "rimraf": "2.5.4",
     "style-loader": "0.18.2",
     "ts-jest": "20.0.10",
-    "typescript": "2.4.2",
+    "typescript": "2.5.3",
     "webpack": "2.6.1",
     "webpack-bundle-analyzer": "2.8.2",
     "webpack-dev-server": "2.4.5"
