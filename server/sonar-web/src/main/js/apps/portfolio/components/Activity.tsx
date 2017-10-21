@@ -103,8 +103,8 @@ export default class Activity extends React.PureComponent<Props> {
         {this.state.loading ? (
           <i className="spinner" />
         ) : (
-          this.state.metrics != undefined &&
-          this.state.history != undefined && (
+          this.state.metrics !== undefined &&
+          this.state.history !== undefined && (
             <AnyPreviewGraph
               history={this.state.history}
               metrics={this.state.metrics}

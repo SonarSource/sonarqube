@@ -198,7 +198,7 @@ export function fetchProjects(
               const value = isDiffMetric(measure.metric)
                 ? getPeriodValue(measure, 1)
                 : measure.value;
-              if (value != undefined) {
+              if (value !== undefined) {
                 componentMeasures[measure.metric] = value;
               }
             });

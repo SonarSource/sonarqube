@@ -44,16 +44,20 @@ interface State {
 
 export default class WebApiApp extends React.PureComponent<Props, State> {
   mounted: boolean;
-  state: State = {
-    domains: [],
-    searchQuery: '',
-    showDeprecated: false,
-    showInternal: false
-  };
 
   static contextTypes = {
     router: PropTypes.object.isRequired
   };
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      domains: [],
+      searchQuery: '',
+      showDeprecated: false,
+      showInternal: false
+    };
+  }
 
   componentDidMount() {
     this.mounted = true;

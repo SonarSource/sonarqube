@@ -59,7 +59,7 @@ export default function ComponentName(props: Props) {
   const { branch, component, rootComponent, previous, canBrowse = false } = props;
   const areBothDirs = component.qualifier === 'DIR' && previous && previous.qualifier === 'DIR';
   const prefix =
-    areBothDirs && previous != undefined
+    areBothDirs && previous !== undefined
       ? mostCommitPrefix([component.name + '/', previous.name + '/'])
       : '';
   const name = prefix ? (

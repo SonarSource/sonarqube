@@ -101,7 +101,7 @@ function useFormatter(
   formatter: Formatter,
   options?: any
 ): string {
-  return value != undefined && value !== '' ? formatter(value, options) : '';
+  return value !== undefined && value !== '' ? formatter(value, options) : '';
 }
 
 function getFormatter(type: string): Formatter {
