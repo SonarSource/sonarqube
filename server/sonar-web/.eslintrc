@@ -3,7 +3,8 @@
     "eslint:recommended",
     "plugin:import/errors",
     "plugin:react/recommended",
-    "plugin:jsx-a11y/recommended"
+    "plugin:jsx-a11y/recommended",
+    "plugin:promise/recommended"
   ],
 
   "env": {
@@ -29,7 +30,7 @@
 
   "parser": "typescript-eslint-parser",
 
-  "plugins": ["import", "jsx-a11y", "react"],
+  "plugins": ["import", "jsx-a11y", "react", "promise"],
 
   "rules": {
     // possible errors
@@ -178,7 +179,13 @@
     "jsx-a11y/no-autofocus": "off",
     "jsx-a11y/no-noninteractive-element-interactions": "off",
     // has FPs
-    "jsx-a11y/label-has-for": "off"
+    "jsx-a11y/label-has-for": "off",
+
+    // promise
+    "promise/catch-or-return": ["warn", { "allowThen": true }],
+
+    "promise/always-return": "off",
+    "promise/avoid-new": "off"
   },
 
   "settings": {

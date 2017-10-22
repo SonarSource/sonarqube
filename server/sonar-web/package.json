@@ -86,6 +86,7 @@
     "eslint-loader": "1.8.0",
     "eslint-plugin-import": "2.8.0",
     "eslint-plugin-jsx-a11y": "6.0.2",
+    "eslint-plugin-promise": "3.6.0",
     "eslint-plugin-react": "7.4.0",
     "expose-loader": "0.7.3",
     "extract-text-webpack-plugin": "2.1.2",
