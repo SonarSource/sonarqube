@@ -95,8 +95,6 @@
     "handlebars-loader": "1.5.0",
     "html-webpack-plugin": "2.28.0",
     "jest": "20.0.4",
-    "less": "2.7.1",
-    "less-loader": "4.0.4",
     "postcss-loader": "2.0.6",
     "prettier": "1.6.1",
     "react-dev-utils": "3.0.0",
@@ -117,7 +115,7 @@
     "build": "node scripts/build.js",
     "test": "node scripts/test.js",
     "coverage": "npm test -- --coverage",
-    "format": "prettier --write --list-different 'src/main/{js,less}/!(libs)/**/*.{js,ts,tsx,css,less}'",
+    "format": "prettier --write --list-different 'src/main/js/!(libs)/**/*.{js,ts,tsx,css}'",
     "lint": "eslint --ext js,ts,tsx --quiet src/main/js",
     "typecheck": "flow src/main/js",
     "validate": "eslint src/main/js && flow check src/main/js && NODE_ENV=test jest"

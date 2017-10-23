@@ -11,6 +11,23 @@ const cssMinimizeOptions = {
   discardComments: { removeAll: true }
 };
 
+const cssLoader = ({ production, fast }) => ({
+  loader: 'css-loader',
+  options: {
+    importLoaders: 1,
+    minimize: production && !fast && cssMinimizeOptions,
+    url: false
+  }
+});
+
+const postcssLoader = () => ({
+  loader: 'postcss-loader',
+  options: {
+    ident: 'postcss',
+    plugins: () => [autoprefixer]
+  }
+});
+
 module.exports = ({ production = true, fast = false }) => ({
   bail: production,
 
@@ -97,41 +114,18 @@ module.exports = ({ production = true, fast = false }) => ({
           }
         ]
       },
-      {
-        test: /\.css$/,
-        use: [
-          'style-loader',
-          {
-            loader: 'css-loader',
-            options: { minimize: production && !fast && cssMinimizeOptions }
-          },
-          {
-            loader: 'postcss-loader',
-            options: {
-              plugins: () => [autoprefixer]
-            }
+      production
+        ? {
+            test: /\.css$/,
+            loader: ExtractTextPlugin.extract({
+              fallback: 'style-loader',
+              use: [cssLoader({ production, fast }), postcssLoader()]
+            })
           }
-        ]
-      },
-      {
-        test: /\.less$/,
-        use: ExtractTextPlugin.extract({
-          fallback: 'style-loader',
-          use: [
-            {
-              loader: 'css-loader',
-              options: { url: false, minimize: production && !fast && cssMinimizeOptions }
-            },
-            {
-              loader: 'postcss-loader',
-              options: {
-                plugins: () => [autoprefixer]
-              }
-            },
-            'less-loader'
-          ]
-        })
-      },
+        : {
+            test: /\.css$/,
+            use: ['style-loader', cssLoader({ production, fast }), postcssLoader()]
+          },
       { test: require.resolve('jquery'), loader: 'expose-loader?$!expose-loader?jQuery' },
       { test: require.resolve('underscore'), loader: 'expose-loader?_' },
       { test: require.resolve('backbone'), loader: 'expose-loader?Backbone' },
@@ -143,10 +137,10 @@ module.exports = ({ production = true, fast = false }) => ({
   plugins: [
     new webpack.optimize.CommonsChunkPlugin({ name: 'vendor' }),
 
-    new ExtractTextPlugin({
-      filename: production ? 'css/sonar.[chunkhash:8].css' : 'css/sonar.css',
-      allChunks: true
-    }),
+    production &&
+      new ExtractTextPlugin({
+        filename: production ? 'css/sonar.[chunkhash:8].css' : 'css/sonar.css'
+      }),
 
     !production && new InterpolateHtmlPlugin({ WEB_CONTEXT: '' }),
 
