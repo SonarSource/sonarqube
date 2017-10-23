@@ -26,7 +26,7 @@ import '../helpers/isolatedScroll';
 // styles
 import '../components/ui/Level.css';
 import '../components/ui/Rating.css';
-import '../../less/sonar.css';
+import './styles/sonar.css';
 
 startAjaxMonitoring();
 installGlobal();
