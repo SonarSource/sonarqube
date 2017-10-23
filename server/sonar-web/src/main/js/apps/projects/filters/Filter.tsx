@@ -85,7 +85,7 @@ export default class Filter extends React.PureComponent<Props> {
   }
 
   renderOptionBar(facetValue: number | undefined) {
-    if (facetValue == undefined || !this.props.maxFacetValue) {
+    if (facetValue === undefined || !this.props.maxFacetValue) {
       return null;
     }
     return (

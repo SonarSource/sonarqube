@@ -41,11 +41,15 @@ interface State {
 
 export default class App extends React.PureComponent<Props, State> {
   mounted: boolean;
-  state: State = { loading: true };
 
   static contextTypes = {
     router: PropTypes.object
   };
+
+  constructor(props: Props) {
+    super(props);
+    this.state = { loading: true };
+  }
 
   componentDidMount() {
     this.mounted = true;

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable import/first, import/order */
 jest.mock('../../../../api/settings', () => ({
   getValues: jest.fn(() => Promise.resolve([]))
 }));
@@ -40,7 +41,7 @@ it('renders', () => {
 
 it('opens form', () => {
   const wrapper = shallow(<LongBranchesPattern project="project" />);
-  (wrapper.instance() as LongBranchesPattern) .mounted = true;
+  (wrapper.instance() as LongBranchesPattern).mounted = true;
   wrapper.setState({ loading: false, setting: { value: 'release-.*' } });
 
   click(wrapper.find('a'));

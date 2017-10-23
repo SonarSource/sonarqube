@@ -48,6 +48,10 @@ export const BarChart = createReactClass({
     };
   },
 
+  getInitialState() {
+    return { width: this.props.width, height: this.props.height };
+  },
+
   componentDidUpdate(prevProps) {
     if (this.props.width && prevProps.width !== this.props.width) {
       this.setState({ width: this.props.width });
@@ -55,10 +59,6 @@ export const BarChart = createReactClass({
     if (this.props.height && prevProps.height !== this.props.height) {
       this.setState({ height: this.props.height });
     }
-  },
-
-  getInitialState() {
-    return { width: this.props.width, height: this.props.height };
   },
 
   handleClick(point) {

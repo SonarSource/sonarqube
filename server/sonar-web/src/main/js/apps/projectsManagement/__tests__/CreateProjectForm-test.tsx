@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable import/first, import/order */
 jest.mock('../../../api/components', () => ({
   createProject: jest.fn(({ name }: { name: string }) =>
     Promise.resolve({ project: { key: name, name } })

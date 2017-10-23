@@ -27,5 +27,5 @@ interface Props {
 }
 
 export default function DateFromNow({ children, date }: Props) {
-  return <FormattedRelative children={children} value={parseDate(date)} />;
+  return <FormattedRelative value={parseDate(date)}>{children}</FormattedRelative>;
 }

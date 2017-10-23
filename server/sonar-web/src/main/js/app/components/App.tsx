@@ -40,13 +40,17 @@ interface State {
 
 class App extends React.PureComponent<Props, State> {
   mounted: boolean;
-  state: State = { branchesEnabled: false, canAdmin: false, loading: true, onSonarCloud: false };
 
   static childContextTypes = {
     branchesEnabled: PropTypes.bool.isRequired,
     canAdmin: PropTypes.bool.isRequired,
     onSonarCloud: PropTypes.bool
   };
+
+  constructor(props: Props) {
+    super(props);
+    this.state = { branchesEnabled: false, canAdmin: false, loading: true, onSonarCloud: false };
+  }
 
   getChildContext() {
     return {
@@ -73,7 +77,7 @@ class App extends React.PureComponent<Props, State> {
     return this.props.fetchAppState().then(appState => {
       if (this.mounted) {
         const onSonarCloud =
-          appState.settings != undefined &&
+          appState.settings !== undefined &&
           appState.settings['sonar.sonarcloud.enabled'] === 'true';
         this.setState({
           branchesEnabled: appState.branchesEnabled,

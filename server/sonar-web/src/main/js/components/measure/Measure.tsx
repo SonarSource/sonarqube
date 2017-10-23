@@ -31,14 +31,14 @@ interface Props {
 }
 
 export default function Measure({ className, decimals, measure }: Props) {
-  if (measure == undefined) {
+  if (measure === undefined) {
     return <span>{'–'}</span>;
   }
 
   const metric = measure.metric;
   const value = isDiffMetric(metric.key) ? measure.leak : measure.value;
 
-  if (value == undefined) {
+  if (value === undefined) {
     return <span>{'–'}</span>;
   }
 
