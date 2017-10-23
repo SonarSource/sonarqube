@@ -42,7 +42,7 @@ function randomProfile(key: string, language: string) {
     activeDeprecatedRuleCount: 0,
     key,
     name: key,
-    language: language,
+    language,
     languageName: language,
     organization: 'org'
   };

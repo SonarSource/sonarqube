@@ -42,6 +42,7 @@ export function translate(...keys: string[]): string {
   const messageKey = keys.join('.');
   if (process.env.NODE_ENV === 'development') {
     if (!messages[messageKey]) {
+      // eslint-disable-next-line
       console.error(`No message for: ${messageKey}`);
     }
   }
@@ -59,6 +60,7 @@ export function translateWithParameters(
       .reduce((acc, parameter, index) => acc.replace(`{${index}}`, parameter), message);
   } else {
     if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line
       console.error(`No message for: ${messageKey}`);
     }
     return `${messageKey}.${parameters.join('.')}`;

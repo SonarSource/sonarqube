@@ -35,5 +35,9 @@ export const formatterOption = {
 };
 
 export default function DateTimeFormatter({ children, date }: Props) {
-  return <FormattedDate children={children} value={parseDate(date)} {...formatterOption} />;
+  return (
+    <FormattedDate value={parseDate(date)} {...formatterOption}>
+      {children}
+    </FormattedDate>
+  );
 }

@@ -127,7 +127,6 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
   }
 
   renderActivityLink() {
-
     if (this.props.branch && isShortLivingBranch(this.props.branch)) {
       return null;
     }

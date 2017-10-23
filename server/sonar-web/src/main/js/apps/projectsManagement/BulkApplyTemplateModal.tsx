@@ -69,7 +69,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
             loading: false,
             permissionTemplate:
               permissionTemplates.length > 0 ? permissionTemplates[0].id : undefined,
-            permissionTemplates: permissionTemplates
+            permissionTemplates
           });
         }
       },
