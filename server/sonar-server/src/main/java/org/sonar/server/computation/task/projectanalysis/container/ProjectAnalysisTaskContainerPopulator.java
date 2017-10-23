@@ -34,7 +34,7 @@ import org.sonar.server.computation.task.projectanalysis.api.posttask.PostProjec
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReaderImpl;
 import org.sonar.server.computation.task.projectanalysis.component.BranchLoader;
-import org.sonar.server.computation.task.projectanalysis.component.BranchPersister;
+import org.sonar.server.computation.task.projectanalysis.component.BranchPersisterImpl;
 import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.component.DisabledComponentsHolderImpl;
@@ -64,7 +64,6 @@ import org.sonar.server.computation.task.projectanalysis.issue.IssueCache;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueCounter;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueCreationDateCalculator;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueLifecycle;
-import org.sonar.server.computation.task.projectanalysis.issue.ShortBranchIssueMerger;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueTrackingDelegator;
 import org.sonar.server.computation.task.projectanalysis.issue.IssueVisitors;
 import org.sonar.server.computation.task.projectanalysis.issue.IssuesRepositoryVisitor;
@@ -73,12 +72,13 @@ import org.sonar.server.computation.task.projectanalysis.issue.MergeBranchTracke
 import org.sonar.server.computation.task.projectanalysis.issue.MovedIssueVisitor;
 import org.sonar.server.computation.task.projectanalysis.issue.NewEffortAggregator;
 import org.sonar.server.computation.task.projectanalysis.issue.RemoveProcessedComponentsVisitor;
-import org.sonar.server.computation.task.projectanalysis.issue.ShortBranchIssuesLoader;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleTagsCopier;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleTypeCopier;
 import org.sonar.server.computation.task.projectanalysis.issue.ScmAccountToUser;
 import org.sonar.server.computation.task.projectanalysis.issue.ScmAccountToUserLoader;
+import org.sonar.server.computation.task.projectanalysis.issue.ShortBranchIssueMerger;
+import org.sonar.server.computation.task.projectanalysis.issue.ShortBranchIssuesLoader;
 import org.sonar.server.computation.task.projectanalysis.issue.ShortBranchTrackerExecution;
 import org.sonar.server.computation.task.projectanalysis.issue.TrackerBaseInputFactory;
 import org.sonar.server.computation.task.projectanalysis.issue.TrackerExecution;
@@ -251,7 +251,7 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       ComponentIssuesLoader.class,
       BaseIssuesLoader.class,
       IssueTrackingDelegator.class,
-      BranchPersister.class,
+      BranchPersisterImpl.class,
       ShortBranchIssuesLoader.class,
       ShortBranchIssueMerger.class,
 
