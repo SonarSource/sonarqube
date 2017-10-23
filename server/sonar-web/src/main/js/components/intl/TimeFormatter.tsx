@@ -33,10 +33,8 @@ export const longFormatterOption = { hour: 'numeric', minute: 'numeric', second:
 
 export default function TimeFormatter({ children, date, long }: Props) {
   return (
-    <FormattedTime
-      children={children}
-      value={parseDate(date)}
-      {...(long ? longFormatterOption : formatterOption)}
-    />
+    <FormattedTime value={parseDate(date)} {...(long ? longFormatterOption : formatterOption)}>
+      {children}
+    </FormattedTime>
   );
 }

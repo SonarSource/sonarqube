@@ -17,19 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable import/first, import/order */
 jest.mock('../ProjectsList', () => ({
+  // eslint-disable-next-line
   default: function ProjectsList() {
     return null;
   }
 }));
 
 jest.mock('../PageHeader', () => ({
+  // eslint-disable-next-line
   default: function PageHeader() {
     return null;
   }
 }));
 
 jest.mock('../PageSidebar', () => ({
+  // eslint-disable-next-line
   default: function PageSidebar() {
     return null;
   }

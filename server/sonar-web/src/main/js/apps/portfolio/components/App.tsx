@@ -98,10 +98,10 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 
-  isEmpty = () => this.state.measures == undefined || this.state.measures['ncloc'] == undefined;
+  isEmpty = () => this.state.measures === undefined || this.state.measures['ncloc'] === undefined;
 
   isNotComputed = () =>
-    this.state.measures && this.state.measures['reliability_rating'] == undefined;
+    this.state.measures && this.state.measures['reliability_rating'] === undefined;
 
   renderSpinner() {
     return (
@@ -151,8 +151,8 @@ export default class App extends React.PureComponent<Props, State> {
           <MaintainabilityBox component={component.key} measures={measures!} />
         </div>
 
-        {subComponents != undefined &&
-        totalSubComponents != undefined && (
+        {subComponents !== undefined &&
+        totalSubComponents !== undefined && (
           <WorstProjects
             component={component.key}
             subComponents={subComponents}

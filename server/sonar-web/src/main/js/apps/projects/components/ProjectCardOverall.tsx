@@ -43,7 +43,7 @@ export default function ProjectCardOverall({ organization, project }: Props) {
   return (
     <div data-key={project.key} className="boxed-group project-card">
       <div className="boxed-group-header clearfix">
-        {project.isFavorite != undefined && (
+        {project.isFavorite !== undefined && (
           <Favorite
             className="spacer-right"
             component={project.key}

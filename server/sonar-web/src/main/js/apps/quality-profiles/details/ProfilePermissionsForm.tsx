@@ -82,7 +82,7 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
     const { selected } = this.state;
     if (selected) {
       this.setState({ submitting: true });
-      if ((selected as User).login != undefined) {
+      if ((selected as User).login !== undefined) {
         this.handleUserAdd(selected as User);
       } else {
         this.handleGroupAdd(selected as Group);

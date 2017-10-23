@@ -109,7 +109,7 @@ export default class RenameBranchModal extends React.PureComponent<Props, State>
                 required={true}
                 size={50}
                 type="text"
-                value={this.state.name != undefined ? this.state.name : branch.name}
+                value={this.state.name !== undefined ? this.state.name : branch.name}
               />
             </div>
           </div>

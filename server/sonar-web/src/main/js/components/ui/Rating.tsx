@@ -30,7 +30,7 @@ interface Props {
 }
 
 export default function Rating({ className, muted = false, small = false, value }: Props) {
-  if (value == undefined) {
+  if (value === undefined) {
     return <span>{'–'}</span>;
   }
   const formatted = formatMeasure(value, 'RATING');
