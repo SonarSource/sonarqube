@@ -25,7 +25,6 @@ exports[`should display correctly 1`] = `
     className="modal-body"
   >
     <SystemUpgradeItem
-      badge="system.latest_version"
       systemUpgrades={
         Array [
           Object {
@@ -46,9 +45,9 @@ exports[`should display correctly 1`] = `
           },
         ]
       }
+      type="system.latest_version"
     />
     <SystemUpgradeItem
-      badge="system.latest_lts_version"
       systemUpgrades={
         Array [
           Object {
@@ -77,6 +76,7 @@ exports[`should display correctly 1`] = `
           },
         ]
       }
+      type="system.lts_version"
     />
   </div>
   <div

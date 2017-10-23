@@ -54,6 +54,6 @@ it('should display correctly', () => {
 });
 
 it('should display a badge', () => {
-  const wrapper = shallow(<SystemUpgradeItem badge="test badge" systemUpgrades={UPGRADES} />);
-  expect(wrapper.find('.badge').exists()).toBeTruthy();
+  const wrapper = shallow(<SystemUpgradeItem type="LTS Version" systemUpgrades={UPGRADES} />);
+  expect(wrapper.find('h1').exists()).toBeTruthy();
 });
