@@ -215,7 +215,9 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
         })}>
         <a className="link-base-color link-no-underline" href="#" onClick={this.handleClick}>
           <BranchIcon branch={currentBranch} className="little-spacer-right" />
-          {currentBranch.name}
+          <Tooltip overlay={currentBranch.name} mouseEnterDelay={1}>
+            <span className="text-limited text-top">{currentBranch.name}</span>
+          </Tooltip>
           <i className="icon-dropdown little-spacer-left" />
         </a>
         {this.renderDropdown()}
