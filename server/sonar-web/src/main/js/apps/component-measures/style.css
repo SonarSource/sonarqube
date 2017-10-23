@@ -12,8 +12,8 @@
 }
 
 .domain-measures-leak {
-  background-color: #fbf3d5;
-  border: 1px solid #eae3c7;
+  background-color: var(--leakColor);
+  border: 1px solid var(--leakBorderColor);
   padding: 4px 6px;
 }
 
@@ -24,8 +24,8 @@
 
 .domain-measures-leak-header {
   display: inline-block;
-  background-color: #fbf3d5;
-  border: 1px solid #eae3c7;
+  background-color: var(--leakColor);
+  border: 1px solid var(--leakBorderColor);
   padding: 4px 10px;
   white-space: nowrap;
 }
@@ -63,7 +63,7 @@
 }
 
 .measure-details-component-row.selected {
-  background-color: #cae3f2 !important;
+  background-color: var(--lightBlue) !important;
 }
 
 .measure-details-component-cell {
@@ -81,7 +81,7 @@
   line-height: 18px;
   margin-top: -2px;
   margin-bottom: -2px;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }
 
 .domain-measures-value .level {
@@ -122,7 +122,7 @@
 
 .measure-overview-bubble-chart {
   position: relative;
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--barBorderColor);
   background-color: #fff;
 }
 
@@ -135,7 +135,7 @@
   display: flex;
   align-items: center;
   padding: 16px;
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid var(--barBorderColor);
 }
 
 .measure-overview-bubble-chart-title {
@@ -151,15 +151,15 @@
 
 .measure-overview-bubble-chart-footer {
   padding: 15px 60px;
-  border-top: 1px solid #e6e6e6;
+  border-top: 1px solid var(--barBorderColor);
   text-align: center;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
   line-height: 1.4;
 }
 
 .measure-overview-bubble-chart-axis {
-  color: #777;
-  font-size: 12px;
+  color: var(--secondFontColor);
+  font-size: var(--smallFontSize);
 }
 
 .measure-overview-bubble-chart-axis.x {

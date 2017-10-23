@@ -81,7 +81,7 @@
 .select-list-list > li.empty-message {
   padding: 6px 5px;
   border: 1px solid #ddd;
-  background-color: #efefef;
+  background-color: var(--gray94);
 }
 
 .select-list-list-checkbox {
@@ -117,16 +117,16 @@
 
 .select-list-control-button {
   position: relative;
-  z-index: 2;
+  z-index: var(--normalZIndex);
   display: inline-block;
   vertical-align: middle;
   height: 27px;
   line-height: 25px;
   padding: 0 12px;
   box-sizing: border-box;
-  border: 1px solid #236a97;
-  color: #236a97;
-  font-size: 12px;
+  border: 1px solid var(--darkBlue);
+  color: var(--darkBlue);
+  font-size: var(--smallFontSize);
   text-align: center;
   cursor: pointer;
   transition: none;
@@ -143,13 +143,13 @@
 }
 
 .select-list-control-button:hover {
-  color: #236a97;
+  color: var(--darkBlue);
 }
 
 .select-list-control-button:active,
 .select-list-control-button.active {
-  z-index: 3;
-  background-color: #236a97;
+  z-index: var(--aboveNormalZIndex);
+  background-color: var(--darkBlue);
   color: #fff;
   font-weight: 600;
 }
@@ -167,7 +167,7 @@
 
 .select-list-wrapper {
   height: 30vw;
-  border-top: 1px solid #e6e6e6;
-  border-bottom: 1px solid #e6e6e6;
+  border-top: 1px solid var(--barBorderColor);
+  border-bottom: 1px solid var(--barBorderColor);
   overflow: auto;
 }

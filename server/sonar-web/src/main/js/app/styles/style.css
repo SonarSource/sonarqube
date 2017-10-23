@@ -19,7 +19,7 @@
  */
 .dashboard-page,
 .dashboard-page body {
-  background-color: #f3f3f3;
+  background-color: var(--barBackgroundColor);
 }
 
 .tabs {
@@ -34,7 +34,7 @@
   display: inline;
   list-style-type: none;
   font-weight: normal;
-  color: #777;
+  color: var(--secondFontColor);
   vertical-align: baseline;
   white-space: nowrap;
   margin: 0;
@@ -44,7 +44,7 @@
 
 .tabs li a {
   float: left;
-  color: #777;
+  color: var(--secondFontColor);
   vertical-align: bottom;
   height: 17px;
   margin: 0 1px 0 0;
@@ -62,8 +62,8 @@
 }
 
 .markdown-tips {
-  font-size: 12px;
-  color: #777;
+  font-size: var(--smallFontSize);
+  color: var(--secondFontColor);
 }
 
 .rule-desc,
@@ -98,7 +98,7 @@
 
 .rule-desc h2,
 .markdown h2 {
-  font-size: 16px;
+  font-size: var(--bigFontSize);
   font-weight: 400;
 }
 
@@ -110,7 +110,7 @@
 .markdown h5,
 .rule-desc h6,
 .markdown h6 {
-  font-size: 13px;
+  font-size: var(--baseFontSize);
   font-weight: 600;
 }
 
@@ -119,14 +119,14 @@
 .rule-desc code,
 .markdown code {
   font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }
 
 .rule-desc pre,
 .markdown pre {
   padding: 10px;
-  border-top: 1px solid #e6e6e6;
-  border-bottom: 1px solid #e6e6e6;
+  border-top: 1px solid var(--barBorderColor);
+  border-bottom: 1px solid var(--barBorderColor);
   line-height: 18px;
   overflow: auto;
 }
@@ -175,14 +175,14 @@
 .markdown table {
   min-width: 50%;
   border-collapse: collapse;
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--barBorderColor);
 }
 
 .rule-desc th,
 .markdown th {
   padding: 5px 10px;
-  border: 1px solid #e6e6e6;
-  background-color: #f3f3f3;
+  border: 1px solid var(--barBorderColor);
+  background-color: var(--barBackgroundColor);
   font-weight: 600;
   text-align: center;
 }
@@ -190,7 +190,7 @@
 .rule-desc td,
 .markdown td {
   padding: 5px 10px;
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--barBorderColor);
 }
 
 .property p {
@@ -206,7 +206,7 @@
   padding: 10px !important;
   border: 1px dashed #aaa;
   box-sizing: border-box;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
   font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
 }
 

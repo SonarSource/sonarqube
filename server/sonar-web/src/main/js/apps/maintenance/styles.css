@@ -28,7 +28,7 @@
 .maintenance-text {
   margin-bottom: 16px;
   line-height: 1.5;
-  font-size: 16px;
+  font-size: var(--bigFontSize);
   font-weight: 300;
 }
 

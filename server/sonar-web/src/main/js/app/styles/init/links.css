@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 a {
-  border-bottom: 1px solid #cae3f2;
-  color: #236a97;
+  border-bottom: 1px solid var(--lightBlue);
+  color: var(--darkBlue);
   cursor: pointer;
   outline: none;
   text-decoration: none;
@@ -29,31 +29,31 @@ a {
 a:hover,
 a:active,
 a:focus {
-  color: #4b9fd5;
+  color: var(--blue);
 }
 
 .link-base-color {
   border-bottom: 1px solid #d0d0d0;
-  color: #444;
+  color: var(--baseFontColor);
 }
 
 .link-base-color:hover,
 .link-base-color:active,
 .link-base-color:focus {
-  color: #4b9fd5;
+  color: var(--blue);
 }
 
 .link-base-color:hover {
-  border-bottom-color: #cae3f2;
+  border-bottom-color: var(--lightBlue);
 }
 
 .link-base-color:active,
 .link-base-color:focus {
-  border-bottom-color: #cae3f2;
+  border-bottom-color: var(--lightBlue);
 }
 
 .tooltip a {
-  color: #cae3f2;
+  color: var(--lightBlue);
 }
 
 .link-no-underline {
@@ -61,7 +61,7 @@ a:focus {
 }
 
 .link-underline {
-  border-bottom: 1px solid #cae3f2 !important;
+  border-bottom: 1px solid var(--lightBlue) !important;
 }
 
 .link-with-icon {
@@ -69,7 +69,7 @@ a:focus {
 }
 
 .link-with-icon > span:last-child {
-  border-bottom: 1px solid #cae3f2;
+  border-bottom: 1px solid var(--lightBlue);
 }
 
 .link-checkbox {
@@ -98,7 +98,7 @@ a.active-link,
 .link-red,
 a.text-danger {
   border-bottom: 1px solid #f8dbde;
-  color: #d4333f;
+  color: var(--red);
 }
 
 .link-red:hover,
@@ -112,7 +112,7 @@ a.text-danger:focus {
 
 a.text-muted {
   border-bottom: 1px solid #dddddd;
-  color: #777;
+  color: var(--secondFontColor);
 }
 
 a.text-muted:hover,
@@ -123,7 +123,7 @@ a.text-muted:focus {
 
 a.text-warning {
   border-bottom: 1px solid #fcebdd;
-  color: #ed7d20;
+  color: var(--orange);
 }
 
 a.text-warning:hover,
@@ -134,7 +134,7 @@ a.text-warning:focus {
 
 a.text-success {
   border-bottom: 1px solid #77ff77;
-  color: #00aa00;
+  color: var(--green);
 }
 
 a.text-success:hover,

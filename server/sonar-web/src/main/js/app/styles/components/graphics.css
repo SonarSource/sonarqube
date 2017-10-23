@@ -62,11 +62,11 @@
 
 .sonar-d3 .treemap-link {
   position: absolute;
-  z-index: 2;
+  z-index: var(--normalZIndex);
   top: 5px;
   right: 5px;
   line-height: 14px;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
   border-bottom: none;
 }
 
@@ -99,12 +99,12 @@
 
 .line-chart-path {
   fill: none;
-  stroke: #4b9fd5;
+  stroke: var(--blue);
   stroke-width: 2px;
 }
 
 .line-chart-path.line-chart-path-1 {
-  stroke: #236a97;
+  stroke: var(--darkBlue);
 }
 
 .line-chart-path.line-chart-path-2 {
@@ -125,11 +125,11 @@
 }
 
 .line-chart-legend {
-  color: #4b9fd5;
+  color: var(--blue);
 }
 
 .line-chart-legend.line-chart-legend-1 {
-  color: #236a97;
+  color: var(--darkBlue);
 }
 
 .line-chart-legend.line-chart-legend-2 {
@@ -137,11 +137,11 @@
 }
 
 .line-chart-dot {
-  fill: #4b9fd5;
+  fill: var(--blue);
 }
 
 .line-chart-dot.line-chart-dot-1 {
-  fill: #236a97;
+  fill: var(--darkBlue);
 }
 
 .line-chart-dot.line-chart-dot-2 {
@@ -150,35 +150,35 @@
 
 .line-chart-point {
   fill: #fff;
-  stroke: #4b9fd5;
+  stroke: var(--blue);
   stroke-width: 2px;
 }
 
 .line-chart-event {
   fill: #fff;
-  stroke: #4b9fd5;
+  stroke: var(--blue);
   stroke-width: 2px;
 }
 
 .line-chart-event.VERSION {
-  stroke: #4b9fd5;
+  stroke: var(--blue);
 }
 
 .line-chart-event.QUALITY_GATE {
-  stroke: #00aa00;
+  stroke: var(--green);
 }
 
 .line-chart-event.QUALITY_PROFILE {
-  stroke: #ed7d20;
+  stroke: var(--orange);
 }
 
 .line-chart-event.OTHER {
-  stroke: #9139d4;
+  stroke: var(--purple);
 }
 
 .line-chart-tick {
-  fill: #777;
-  font-size: 12px;
+  fill: var(--secondFontColor);
+  font-size: var(--smallFontSize);
   text-anchor: middle;
 }
 
@@ -200,9 +200,9 @@
  */
 
 .bubble-chart-bubble {
-  fill: #4b9fd5;
+  fill: var(--blue);
   fill-opacity: 0.2;
-  stroke: #4b9fd5;
+  stroke: var(--blue);
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -217,8 +217,8 @@
 }
 
 .bubble-chart-tick {
-  fill: #777;
-  font-size: 12px;
+  fill: var(--secondFontColor);
+  font-size: var(--smallFontSize);
   text-anchor: middle;
 }
 
@@ -260,7 +260,7 @@
 .gradient-legend-text,
 .gradient-legend-na {
   text-anchor: middle;
-  fill: #777;
+  fill: var(--secondFontColor);
   font-size: 10px;
 }
 
@@ -277,12 +277,12 @@
  */
 
 .bar-chart-bar {
-  fill: #4b9fd5;
+  fill: var(--blue);
 }
 
 .bar-chart-tick {
-  fill: #777;
-  font-size: 12px;
+  fill: var(--secondFontColor);
+  font-size: var(--smallFontSize);
   text-anchor: middle;
 }
 
@@ -315,7 +315,7 @@
 }
 
 .chart-zoom-tick {
-  fill: #777;
+  fill: var(--secondFontColor);
   font-size: 10px;
   text-anchor: middle;
   user-select: none;
@@ -335,9 +335,9 @@
 }
 
 .chart-zoom .zoom-selection {
-  fill: #777;
+  fill: var(--secondFontColor);
   fill-opacity: 0.2;
-  stroke: #777;
+  stroke: var(--secondFontColor);
   shape-rendering: crispEdges;
   cursor: move;
 }
@@ -354,7 +354,7 @@
 
 .line-tooltip {
   fill: none;
-  stroke: #777;
+  stroke: var(--secondFontColor);
   stroke-width: 1px;
   shape-rendering: crispEdges;
 }

@@ -24,7 +24,7 @@
 
 .list-group-item {
   position: relative;
-  z-index: 2;
+  z-index: var(--normalZIndex);
   display: block;
   margin-bottom: -1px;
   padding: 5px 10px;
@@ -38,17 +38,17 @@
 .list-group-item.active,
 .list-group-item.active:hover,
 .list-group-item.active:focus {
-  z-index: 3;
-  border-color: #4b9fd5 !important;
-  background-color: #cae3f2;
+  z-index: var(--aboveNormalZIndex);
+  border-color: var(--blue) !important;
+  background-color: var(--lightBlue);
 }
 
 .list-group-item + .list-group-item {
-  border-top-color: #e6e6e6;
+  border-top-color: var(--barBorderColor);
 }
 
 a.list-group-item {
-  color: #444;
+  color: var(--baseFontColor);
 }
 
 .list-group-item-heading {

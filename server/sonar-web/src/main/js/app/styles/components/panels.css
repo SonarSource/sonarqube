@@ -22,7 +22,7 @@
 }
 
 .panel:not(:last-child) {
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid var(--barBorderColor);
 }
 
 .panel-vertical {
@@ -31,13 +31,13 @@
 }
 
 .panel-white {
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--barBorderColor);
   background-color: #fff;
 }
 
 .panel-info {
-  border: 1px solid #4b9fd5;
-  background-color: #cae3f2;
+  border: 1px solid var(--blue);
+  background-color: var(--lightBlue);
 }
 
 .panel-warning {

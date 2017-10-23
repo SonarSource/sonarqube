@@ -22,13 +22,13 @@
 }
 
 .select2-container .select2-choice {
-  height: 24px;
+  height: var(--controlHeight);
   line-height: 22px;
-  border-color: #cdcdcd;
+  border-color: var(--gray80);
   border-radius: 2px;
   box-sizing: border-box;
   background: #fff;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
   text-align: left;
 }
 
@@ -64,7 +64,7 @@
 
 .select2-container-active .select2-choice,
 .select2-container-active .select2-choices {
-  border-color: #4b9fd5;
+  border-color: var(--blue);
   box-shadow: none;
 }
 
@@ -73,24 +73,24 @@
 }
 
 .select2-drop {
-  z-index: 7500;
-  border-color: #cdcdcd;
+  z-index: var(--dropdownMenuZIndex);
+  border-color: var(--gray80);
   border-radius: 0;
 }
 
 .select2-drop-active {
-  border-color: #4b9fd5;
+  border-color: var(--blue);
 }
 
 .select2-dropdown-open.select2-drop-above .select2-choice,
 .select2-dropdown-open.select2-drop-above .select2-choices {
-  border-color: #4b9fd5;
+  border-color: var(--blue);
   border-radius: 0;
   background: #fff;
 }
 
 .select2-drop.select2-drop-above.select2-drop-active {
-  border-color: #4b9fd5;
+  border-color: var(--blue);
   border-radius: 0;
 }
 
@@ -101,14 +101,14 @@
 .select2-results {
   margin: 0;
   padding: 5px 0;
-  border-top: 1px solid #cdcdcd;
+  border-top: 1px solid var(--gray80);
 }
 
 .select2-results .select2-result-label {
   height: 20px;
   line-height: 20px;
   padding: 0 8px;
-  color: #444;
+  color: var(--baseFontColor);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -125,7 +125,7 @@
 
 .select2-results .select2-highlighted {
   background: transparent;
-  color: #444;
+  color: var(--baseFontColor);
 }
 
 .select2-results .select2-highlighted .select2-result-label {
@@ -139,19 +139,19 @@
 .select2-search input {
   height: 20px;
   padding: 0 7px;
-  border-color: #cdcdcd;
+  border-color: var(--gray80);
   background: #fff !important;
 }
 
 .select2-container-multi .select2-choices {
   min-height: 19px;
   padding-bottom: 1px;
-  border-color: #cdcdcd;
+  border-color: var(--gray80);
   background: #fff;
 }
 
 .select2-container-multi.select2-container-active .select2-choices {
-  border-color: #4b9fd5;
+  border-color: var(--blue);
   box-shadow: none;
 }
 
@@ -164,8 +164,8 @@
   margin: 1px 1px 0 1px;
   padding: 1px 5px 2px 18px;
   border-radius: 0;
-  border-color: #cdcdcd;
-  background: #efefef;
+  border-color: var(--gray80);
+  background: var(--gray94);
   box-shadow: none;
 }
 

@@ -19,20 +19,20 @@
  */
 html,
 body {
-  color: #444;
+  color: var(--baseFontColor);
 }
 
 body {
   font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, Arial, sans-serif;
-  font-size: 13px;
+  font-size: var(--baseFontSize);
   line-height: 1.23076923;
 }
 
 h1,
 .h1 {
-  line-height: 24px;
-  color: #444;
-  font-size: 16px;
+  line-height: var(--controlHeight);
+  color: var(--baseFontColor);
+  font-size: var(--bigFontSize);
   font-weight: 400;
 }
 
@@ -46,8 +46,8 @@ h1 svg,
 
 h2,
 .h2 {
-  line-height: 24px;
-  color: #444;
+  line-height: var(--controlHeight);
+  color: var(--baseFontColor);
   font-size: 15px;
   font-weight: 400;
 }
@@ -62,9 +62,9 @@ h2 svg,
 
 h3,
 .h3 {
-  line-height: 24px;
-  color: #444;
-  font-size: 14px;
+  line-height: var(--controlHeight);
+  color: var(--baseFontColor);
+  font-size: var(--mediumFontSize);
   font-weight: 600;
 }
 
@@ -78,9 +78,9 @@ h3 svg,
 
 h4,
 .h4 {
-  line-height: 24px;
-  color: #444;
-  font-size: 13px;
+  line-height: var(--controlHeight);
+  color: var(--baseFontColor);
+  font-size: var(--baseFontSize);
   font-weight: 600;
 }
 
@@ -94,9 +94,9 @@ h4 svg,
 
 h5,
 .h5 {
-  line-height: 24px;
-  color: #444;
-  font-size: 13px;
+  line-height: var(--controlHeight);
+  color: var(--baseFontColor);
+  font-size: var(--baseFontSize);
   font-weight: 600;
 }
 
@@ -110,9 +110,9 @@ h5 svg,
 
 h6,
 .h6 {
-  line-height: 24px;
-  color: #444;
-  font-size: 13px;
+  line-height: var(--controlHeight);
+  color: var(--baseFontColor);
+  font-size: var(--baseFontSize);
   font-weight: 600;
 }
 
@@ -151,15 +151,15 @@ mark {
 }
 
 blockquote {
-  border-left: 3px solid #e6e6e6;
+  border-left: 3px solid var(--barBorderColor);
   padding: 0 8px;
   line-height: 1.5;
 }
 
 blockquote cite {
   line-height: 1.5;
-  color: #777;
-  font-size: 12px;
+  color: var(--secondFontColor);
+  font-size: var(--smallFontSize);
 }
 
 small,
@@ -242,31 +242,31 @@ small,
 }
 
 .text-muted {
-  color: #777;
+  color: var(--secondFontColor);
 }
 
 .text-muted-2 {
-  color: #b4b4b4;
+  color: var(--gray71);
 }
 
 .text-danger {
-  color: #d4333f;
+  color: var(--red);
 }
 
 .text-warning {
-  color: #ed7d20;
+  color: var(--orange);
 }
 
 .text-info {
-  color: #4b9fd5;
+  color: var(--blue);
 }
 
 .text-success {
-  color: #00aa00;
+  color: var(--green);
 }
 
 .monospaced {
   line-height: 18px;
   font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }

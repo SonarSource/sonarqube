@@ -19,7 +19,7 @@
  */
 .component-name {
   line-height: 16px;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }
 
 .component-name:before,

@@ -20,10 +20,10 @@
 .tooltip,
 .rc-tooltip {
   position: absolute;
-  z-index: 8000;
+  z-index: var(--tooltipZIndex);
   display: block;
   height: auto;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
   font-weight: 300;
   line-height: 1.5;
   animation: fadeIn 0.3s forwards;

@@ -67,7 +67,7 @@
 .page-simple {
   width: 400px;
   padding: 40px;
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--barBorderColor);
   background-color: #fff;
 }
 
@@ -96,14 +96,14 @@
 .page-title {
   float: left;
   margin-bottom: 0;
-  line-height: 24px;
+  line-height: var(--controlHeight);
 }
 
 .page-actions {
   float: right;
   margin-bottom: 10px;
   margin-left: 10px;
-  line-height: 24px;
+  line-height: var(--controlHeight);
 }
 
 .page-actions .badge {
@@ -126,32 +126,32 @@
   min-height: 60px;
   padding: 10px;
   line-height: 1.5;
-  border-top: 1px solid #e6e6e6;
+  border-top: 1px solid var(--barBorderColor);
   box-sizing: border-box;
-  background-color: #f3f3f3;
+  background-color: var(--barBackgroundColor);
   color: #595959;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
   text-align: center;
 }
 
 .page-footer a {
   border-bottom: 1px solid #d0d0d0;
-  color: #444;
+  color: var(--baseFontColor);
 }
 
 .page-footer a:hover,
 .page-footer a:active,
 .page-footer a:focus {
-  color: #4b9fd5;
+  color: var(--blue);
 }
 
 .page-footer a:hover {
-  border-bottom-color: #cae3f2;
+  border-bottom-color: var(--lightBlue);
 }
 
 .page-footer a:active,
 .page-footer a:focus {
-  border-bottom-color: #cae3f2;
+  border-bottom-color: var(--lightBlue);
 }
 
 .page-footer-with-sidebar {
@@ -209,9 +209,9 @@
   left: 0;
   overflow: auto;
   width: calc(50vw - 640px + 280px + 3px);
-  border-right: 1px solid #e6e6e6;
+  border-right: 1px solid var(--barBorderColor);
   box-sizing: border-box;
-  background: #f3f3f3;
+  background: var(--barBackgroundColor);
 }
 
 @media (max-width: 1335px) {
@@ -258,7 +258,7 @@
   width: calc(50vw - 370px);
   flex-grow: 0;
   flex-shrink: 0;
-  background-color: #f3f3f3;
+  background-color: var(--barBackgroundColor);
 }
 
 .layout-page-side {
@@ -268,16 +268,16 @@
   bottom: 0;
   left: 0;
   width: calc(50vw - 370px);
-  border-right: 1px solid #e6e6e6;
+  border-right: 1px solid var(--barBorderColor);
   overflow-y: auto;
   overflow-x: hidden;
-  background-color: #f3f3f3;
+  background-color: var(--barBackgroundColor);
 }
 
 .layout-page-side-inner {
   width: 300px;
   margin-left: calc(50vw - 670px);
-  background-color: #f3f3f3;
+  background-color: var(--barBackgroundColor);
 }
 
 .layout-page-header-panel,
@@ -293,11 +293,11 @@
 .layout-page-header-panel-inner {
   position: fixed;
   z-index: 30;
-  line-height: 24px;
+  line-height: var(--controlHeight);
   padding-top: 16px;
   padding-bottom: 16px;
-  border-bottom: 1px solid #e6e6e6;
-  background-color: #f3f3f3;
+  border-bottom: 1px solid var(--barBorderColor);
+  background-color: var(--barBackgroundColor);
 }
 
 .layout-page-main-header {
@@ -305,7 +305,7 @@
 }
 
 .layout-page-main-header .component-name {
-  line-height: 24px;
+  line-height: var(--controlHeight);
 }
 
 .layout-page-main-header-inner {

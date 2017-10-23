@@ -83,7 +83,7 @@
   padding-left: 10px;
   padding-right: 10px;
   line-height: 1.5;
-  font-size: 13px;
+  font-size: var(--baseFontSize);
   font-weight: 600;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -106,7 +106,7 @@
   padding-left: 10px;
   padding-right: 10px;
   line-height: 1.5;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }
 
 .issue-age {
@@ -115,7 +115,7 @@
   margin-top: -19.5px;
   padding-right: 10px;
   line-height: 1.5;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }
 
 .issue-age:before {
@@ -134,7 +134,7 @@
 
 .issue-meta {
   line-height: 16px;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }
 
 .issue-meta-on-right {
@@ -174,7 +174,7 @@
   margin-top: 5px;
   padding-left: 10px;
   padding-right: 10px;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }
 
 .issue-comment {
@@ -192,7 +192,7 @@
   max-width: 130px;
   width: 1px;
   line-height: 18px;
-  color: #777;
+  color: var(--secondFontColor);
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -205,7 +205,7 @@
   width: 1px;
   line-height: 18px;
   white-space: nowrap;
-  color: #777;
+  color: var(--secondFontColor);
 }
 
 .issue-comment-text {
@@ -233,7 +233,7 @@
 }
 
 .issue-comment-text h2 {
-  font-size: 16px;
+  font-size: var(--bigFontSize);
   font-weight: 400;
 }
 
@@ -241,20 +241,20 @@
 .issue-comment-text h4,
 .issue-comment-text h5,
 .issue-comment-text h6 {
-  font-size: 13px;
+  font-size: var(--baseFontSize);
   font-weight: 600;
 }
 
 .issue-comment-text pre,
 .issue-comment-text code {
   font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }
 
 .issue-comment-text pre {
   padding: 10px;
-  border-top: 1px solid #e6e6e6;
-  border-bottom: 1px solid #e6e6e6;
+  border-top: 1px solid var(--barBorderColor);
+  border-bottom: 1px solid var(--barBorderColor);
   line-height: 18px;
   overflow: auto;
 }
@@ -296,20 +296,20 @@
 .issue-comment-text table {
   min-width: 50%;
   border-collapse: collapse;
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--barBorderColor);
 }
 
 .issue-comment-text th {
   padding: 5px 10px;
-  border: 1px solid #e6e6e6;
-  background-color: #f3f3f3;
+  border: 1px solid var(--barBorderColor);
+  background-color: var(--barBackgroundColor);
   font-weight: 600;
   text-align: center;
 }
 
 .issue-comment-text td {
   padding: 5px 10px;
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--barBorderColor);
 }
 
 .issue-comment-actions {
@@ -330,17 +330,17 @@ input.issue-action-options-search {
   position: absolute;
   top: 3px;
   left: 10px;
-  color: #777;
+  color: var(--secondFontColor);
 }
 
 .issue-action-options-search-icon:before {
-  font-size: 14px;
+  font-size: var(--mediumFontSize);
 }
 
 .issue-comment-bubble-popup {
   width: 440px;
   margin-left: -220px;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }
 
 .issue-comment-bubble-popup .bubble-popup-arrow {
@@ -349,7 +349,7 @@ input.issue-action-options-search {
 
 .issue-edit-comment-bubble-popup {
   width: 440px;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }
 
 .issue-comment-form-text textarea {
@@ -383,7 +383,7 @@ input.issue-action-options-search {
 
 .issue-more-actions {
   line-height: 1.5;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }
 
 .issue-navigate {

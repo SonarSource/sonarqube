@@ -25,15 +25,15 @@
 
 .modal .side-tabs-layout {
   padding-left: 10px;
-  background-color: #f3f3f3;
+  background-color: var(--barBackgroundColor);
 }
 
 .side-tabs-main {
   position: relative;
-  z-index: 2;
+  z-index: var(--normalZIndex);
   flex-grow: 1;
   padding: 15px 20px;
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--barBorderColor);
   box-sizing: border-box;
   background-color: #fff;
   overflow: auto;
@@ -47,7 +47,7 @@
 
 .side-tabs-side {
   position: relative;
-  z-index: 3;
+  z-index: var(--aboveNormalZIndex);
   width: 160px;
   flex-shrink: 0;
   padding: 10px 0;
@@ -65,7 +65,7 @@
   line-height: 1.5;
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--barBorderColor);
   border-right: none;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -79,6 +79,6 @@
 }
 
 .side-tabs-menu > li > a.active {
-  color: #444;
+  color: var(--baseFontColor);
   cursor: default;
 }

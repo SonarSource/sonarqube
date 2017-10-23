@@ -38,12 +38,12 @@ table {
 
 .table > tfoot > tr > td {
   font-size: 93%;
-  color: #777;
+  color: var(--secondFontColor);
   padding: 4px 5px;
 }
 
 .table > tfoot > tr > td a {
-  color: #777;
+  color: var(--secondFontColor);
 }
 
 .odd {
@@ -61,7 +61,7 @@ table {
 .even.selected span:not(.rating),
 .odd.selected span:not(.rating) {
   background-color: #d9edf7;
-  color: #444;
+  color: var(--baseFontColor);
 }
 
 table.data,
@@ -79,7 +79,7 @@ table.data > thead > tr > th {
   vertical-align: top;
   line-height: 18px;
   padding: 8px 10px;
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid var(--barBorderColor);
   font-weight: 600;
 }
 
@@ -91,7 +91,7 @@ table.data > thead > tr > th > .small {
 
 table.data > tfoot > tr > td {
   font-size: 93%;
-  color: #777;
+  color: var(--secondFontColor);
   padding: 5px;
 }
 
@@ -149,7 +149,7 @@ table.data.no-outer-padding > tbody > tr > td:last-child {
 }
 
 .data thead tr.total {
-  background-color: #efefef;
+  background-color: var(--gray94);
   font-weight: normal;
   border: 1px solid #ddd;
 }
@@ -165,7 +165,7 @@ table.data.no-outer-padding > tbody > tr > td:last-child {
 }
 
 .data tr.highlight {
-  background-color: #cae3f2;
+  background-color: var(--lightBlue);
 }
 
 .data input,
@@ -175,7 +175,7 @@ table.data.no-outer-padding > tbody > tr > td:last-child {
 }
 
 .hoverable:hover {
-  background-color: #cae3f2;
+  background-color: var(--lightBlue);
 }
 
 .hoverable:hover a {
@@ -224,7 +224,7 @@ td.sep {
 
 .formError {
   display: inline-block;
-  background-color: #ed7d20;
+  background-color: var(--orange);
   color: #000;
   padding: 0 5px;
 }

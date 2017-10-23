@@ -45,7 +45,7 @@ Version: 3.2 Timestamp: Mon Sep 10 10:38:04 PDT 2012
   height: 26px;
   line-height: 26px;
   padding: 0 0 0 8px;
-  color: #444;
+  color: var(--baseFontColor);
   text-decoration: none;
 }
 
@@ -394,7 +394,7 @@ Version: 3.2 Timestamp: Mon Sep 10 10:38:04 PDT 2012
   box-shadow: 0 0 2px #ffffff inset, 0 1px 0 rgba(0, 0, 0, 0.05);
   color: #333;
   border: 1px solid #aaaaaa;
-  line-height: 13px;
+  line-height: var(--baseFontSize);
   padding: 3px 5px 3px 18px;
   margin: 3px 0 3px 5px;
   position: relative;
@@ -415,7 +415,7 @@ Version: 3.2 Timestamp: Mon Sep 10 10:38:04 PDT 2012
   right: 3px;
   top: 4px;
   width: 12px;
-  height: 13px;
+  height: var(--baseFontSize);
   font-size: 1px;
   background: url('../images/select2.png') right top no-repeat;
   outline: none;

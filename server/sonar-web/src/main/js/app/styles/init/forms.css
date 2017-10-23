@@ -28,11 +28,11 @@ input[type='date'],
 input[type='number'],
 textarea,
 select {
-  border: 1px solid #cdcdcd;
+  border: 1px solid var(--gray80);
   box-sizing: border-box;
   border-radius: 2px;
   background: #fff;
-  color: #444;
+  color: var(--baseFontColor);
   transition: border-color 0.2s ease;
 }
 
@@ -52,7 +52,7 @@ input[type='date']:focus,
 input[type='number']:focus,
 textarea:focus,
 select:focus {
-  border-color: #4b9fd5;
+  border-color: var(--blue);
   box-shadow: none;
   outline: none;
 }
@@ -77,7 +77,7 @@ input[type='date'].invalid,
 input[type='number'].invalid,
 textarea.invalid,
 select.invalid {
-  border-color: #d4333f;
+  border-color: var(--red);
 }
 
 input[type='text'],
@@ -86,7 +86,7 @@ input[type='email'],
 input[type='search'],
 input[type='date'],
 input[type='number'] {
-  height: 24px;
+  height: var(--controlHeight);
   padding: 0 6px;
 }
 
@@ -107,8 +107,8 @@ textarea.width-100 {
 }
 
 select {
-  height: 24px;
-  line-height: 24px;
+  height: var(--controlHeight);
+  line-height: var(--controlHeight);
 }
 
 button,
@@ -117,16 +117,16 @@ input[type='submit'],
 input[type='button'] {
   display: inline-block;
   vertical-align: baseline;
-  height: 24px;
+  height: var(--controlHeight);
   line-height: 22px;
   padding: 0 12px;
-  border: 1px solid #236a97;
+  border: 1px solid var(--darkBlue);
   border-radius: 2px;
   box-sizing: border-box;
   background: transparent;
-  color: #236a97;
+  color: var(--darkBlue);
   font-weight: 600;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
   text-align: center;
   text-decoration: none;
   cursor: pointer;
@@ -146,7 +146,7 @@ button.button-active,
 .button.button-active,
 input[type='submit'].button-active,
 input[type='button'].button-active {
-  background: #236a97;
+  background: var(--darkBlue);
   color: #fff;
 }
 
@@ -186,8 +186,8 @@ input[type='button']:disabled:focus {
 
 .button-red,
 input[type='submit'].button-red {
-  border-color: #d4333f;
-  color: #d4333f;
+  border-color: var(--red);
+  color: var(--red);
 }
 
 .button-red:hover,
@@ -196,14 +196,14 @@ input[type='submit'].button-red:hover,
 input[type='submit'].button-red:focus,
 .button-red.active,
 input[type='submit'].button-red.active {
-  background: #d4333f;
+  background: var(--red);
   color: #fff;
 }
 
 .button-success,
 input[type='submit'].button-success {
-  border-color: #00aa00;
-  color: #00aa00;
+  border-color: var(--green);
+  color: var(--green);
 }
 
 .button-success:hover,
@@ -212,14 +212,14 @@ input[type='submit'].button-success:hover,
 input[type='submit'].button-success:focus,
 .button-success.active,
 input[type='submit'].button-success.active {
-  background: #00aa00;
+  background: var(--green);
   color: #fff;
 }
 
 .button-grey,
 input[type='submit'].button-grey {
-  border-color: #b4b4b4;
-  color: #777;
+  border-color: var(--gray71);
+  color: var(--secondFontColor);
 }
 
 .button-grey:hover,
@@ -228,14 +228,14 @@ input[type='submit'].button-grey:hover,
 input[type='submit'].button-grey:focus,
 .button-grey.active,
 input[type='submit'].button-grey.active {
-  background: #b4b4b4;
+  background: var(--gray71);
   color: #ffffff;
 }
 
 .button-grey.button-active,
 input[type='submit'].button-grey.button-active {
-  background: #777;
-  border-color: #777;
+  background: var(--secondFontColor);
+  border-color: var(--secondFontColor);
   color: #ffffff;
 }
 
@@ -247,7 +247,7 @@ input[type='submit'].button-grey.button-active {
   border: none;
   background: transparent;
   box-shadow: none;
-  color: #444;
+  color: var(--baseFontColor);
 }
 
 .button-clean path {
@@ -265,7 +265,7 @@ input[type='submit'].button-grey.button-active {
   padding: 0;
   border: none;
   background: transparent;
-  color: #236a97;
+  color: var(--darkBlue);
   font-weight: 400;
   font-size: inherit;
   line-height: inherit;
@@ -275,7 +275,7 @@ input[type='submit'].button-grey.button-active {
 .button-link:hover,
 .button-link:focus {
   background: transparent;
-  color: #4b9fd5;
+  color: var(--blue);
 }
 
 .button-link:active {
@@ -287,14 +287,14 @@ input[type='submit'].button-grey.button-active {
 .button-link:disabled:hover,
 .button-link:disabled:active,
 .button-link:disabled:focus {
-  color: #777;
+  color: var(--secondFontColor);
   background: transparent;
   cursor: default;
 }
 
 .button-icon {
   border: none;
-  color: #777;
+  color: var(--secondFontColor);
 }
 
 .button-small {
@@ -320,7 +320,7 @@ input[type='submit'].button-grey.button-active {
 .button-group > button,
 .button-group > .button {
   position: relative;
-  z-index: 2;
+  z-index: var(--normalZIndex);
   display: inline-block;
   vertical-align: middle;
   margin: 0;
@@ -335,12 +335,12 @@ input[type='submit'].button-grey.button-active {
 .button-group > .button:active:not(:disabled),
 .button-group > button.active:not(:disabled),
 .button-group > .button.active:not(:disabled) {
-  z-index: 3;
+  z-index: var(--aboveNormalZIndex);
 }
 
 .button-group > button:disabled,
 .button-group > .button:disabled {
-  z-index: 1;
+  z-index: var(--belowNormalZIndex);
 }
 
 .button-group > button:not(:first-child),
@@ -365,7 +365,7 @@ input[type='submit'].button-grey.button-active {
 .button-group > a:not(.button) {
   vertical-align: middle;
   margin: 0 8px;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }
 
 .input-tiny {
@@ -403,7 +403,7 @@ textarea.input-super-large {
 
 .input-code {
   font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }
 
 em.mandatory {
@@ -425,7 +425,7 @@ label[for] {
 .radio-toggle > li {
   display: inline-block;
   vertical-align: middle;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }
 
 .radio-toggle > li:first-child > label {
@@ -446,8 +446,8 @@ label[for] {
   display: inline-block;
   padding: 3px 12px 5px;
   margin: 0;
-  border: 1px solid #236a97;
-  color: #236a97;
+  border: 1px solid var(--darkBlue);
+  color: var(--darkBlue);
 }
 
 .radio-toggle input[type='radio'] {
@@ -455,7 +455,7 @@ label[for] {
 }
 
 .radio-toggle input[type='radio']:checked + label {
-  background-color: #236a97;
+  background-color: var(--darkBlue);
   color: #fff;
   font-weight: 600;
 }

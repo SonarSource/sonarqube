@@ -35,7 +35,7 @@
   border: none;
   border-radius: 2px;
   box-sizing: border-box;
-  background-color: #236a97;
+  background-color: var(--darkBlue);
   color: #fff;
   white-space: nowrap;
   overflow: hidden;
@@ -54,5 +54,5 @@
 
 .oauth-providers + form {
   padding-top: 30px;
-  border-top: 1px solid #e6e6e6;
+  border-top: 1px solid var(--barBorderColor);
 }

@@ -21,7 +21,7 @@
   display: block;
   margin-bottom: 8px;
   padding: 5px 8px;
-  border: 1px solid #777;
+  border: 1px solid var(--secondFontColor);
 }
 
 .alert:empty {

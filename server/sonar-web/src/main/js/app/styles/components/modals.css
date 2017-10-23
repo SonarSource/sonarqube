@@ -20,7 +20,7 @@
 .modal,
 .ReactModal__Content {
   position: fixed;
-  z-index: 6001;
+  z-index: var(--modalZIndex);
   top: 0;
   left: 50%;
   margin-left: -270px;
@@ -57,7 +57,7 @@
 .modal-overlay,
 .ReactModal__Overlay {
   position: fixed;
-  z-index: 6000;
+  z-index: var(--modalOverlayZIndex);
   top: 0;
   bottom: 0;
   left: 0;
@@ -88,7 +88,7 @@
 
 .modal-head {
   padding: 0 10px;
-  background-color: #efefef;
+  background-color: var(--gray94);
   border-bottom: 1px solid #ddd;
 }
 
@@ -107,7 +107,7 @@ ul.modal-head-metadata li {
   float: left;
   position: relative;
   font-size: 85%;
-  color: #777;
+  color: var(--secondFontColor);
 }
 
 .modal-body {
@@ -219,17 +219,17 @@ ul.modal-head-metadata li {
 .modal-field-description {
   padding-bottom: 4px;
   line-height: 1.4;
-  color: #777;
-  font-size: 12px;
+  color: var(--secondFontColor);
+  font-size: var(--smallFontSize);
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .modal-foot {
-  line-height: 24px;
+  line-height: var(--controlHeight);
   padding: 10px;
   border-top: 1px solid #ccc;
-  background-color: #efefef;
+  background-color: var(--gray94);
   text-align: right;
 }
 

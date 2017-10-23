@@ -1,18 +1,18 @@
 .boxed-group {
   margin-bottom: 20px;
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--barBorderColor);
   border-radius: 2px;
   background-color: #fff;
 }
 
 .boxed-group > h2 {
-  line-height: 24px;
+  line-height: var(--controlHeight);
   padding: 15px 20px 0;
 }
 
 .boxed-group hr {
   height: 0;
-  border-top: 1px solid #efefef;
+  border-top: 1px solid var(--gray94);
   margin: 15px -20px;
 }
 
@@ -25,7 +25,7 @@
 .boxed-group-header > h2 {
   display: inline-block;
   vertical-align: middle;
-  line-height: 24px;
+  line-height: var(--controlHeight);
 }
 
 .boxed-group-header [class^='icon-'] {

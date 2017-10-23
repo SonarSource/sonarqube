@@ -29,18 +29,18 @@
   min-width: 160px;
   padding: 5px 0;
   list-style: none;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
   text-align: left;
   background-color: #fff;
   position: absolute;
   top: 100%;
   left: 0;
-  z-index: 7500;
+  z-index: var(--dropdownMenuZIndex);
   display: none;
   float: left;
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--barBorderColor);
   background-clip: padding-box;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  box-shadow: var(--defaultShadow);
 }
 
 .dropdown-menu:focus {
@@ -60,7 +60,7 @@
 }
 
 .dropdown-menu > li > a {
-  color: #444;
+  color: var(--baseFontColor);
   border-bottom: none;
   transition: none;
 }
@@ -69,14 +69,14 @@
   height: 1px;
   margin: 6px 0;
   overflow: hidden;
-  background-color: #e6e6e6;
+  background-color: var(--barBorderColor);
 }
 
 .dropdown-menu > li > a:hover,
 .dropdown-menu > li > a:focus {
   text-decoration: none;
-  color: #444;
-  background-color: #f3f3f3;
+  color: var(--baseFontColor);
+  background-color: var(--barBackgroundColor);
 }
 
 .dropdown-menu > .active > a,
@@ -85,10 +85,10 @@
 .dropdown-menu > li > .active:hover,
 .dropdown-menu > .active > a:focus,
 .dropdown-menu > li > .active:focus {
-  color: #444;
+  color: var(--baseFontColor);
   text-decoration: none;
   outline: 0;
-  background-color: #f3f3f3;
+  background-color: var(--barBackgroundColor);
 }
 
 .dropdown-menu .menu-vertically-limited {
@@ -97,8 +97,8 @@
 }
 
 .dropdown-menu .menu-footer > a > span {
-  border-bottom: 1px solid #cdcdcd;
-  color: #777;
+  border-bottom: 1px solid var(--gray80);
+  color: var(--secondFontColor);
 }
 
 .dropdown-menu .menu-footer-note {
@@ -136,8 +136,8 @@
 .dropdown-header {
   display: block;
   padding: 3px 8px 5px;
-  font-size: 12px;
-  color: #777;
+  font-size: var(--smallFontSize);
+  color: var(--secondFontColor);
   white-space: nowrap;
 }
 
@@ -149,7 +149,7 @@
   height: 1px;
   margin: 4px 20px;
   overflow: hidden;
-  background-color: #f3f3f3;
+  background-color: var(--barBackgroundColor);
 }
 
 .dropdown-backdrop {
@@ -166,8 +166,8 @@
   margin-top: 5px;
   margin-bottom: -5px;
   padding: 5px 10px;
-  border-top: 1px solid #e6e6e6;
-  background-color: #f3f3f3;
-  color: #777;
+  border-top: 1px solid var(--barBorderColor);
+  background-color: var(--barBackgroundColor);
+  color: var(--secondFontColor);
   font-size: 11px;
 }

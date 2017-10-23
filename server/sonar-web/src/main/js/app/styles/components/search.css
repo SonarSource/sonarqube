@@ -27,7 +27,7 @@
   vertical-align: middle;
   width: 250px;
   border: none !important;
-  font-size: 13px;
+  font-size: var(--baseFontSize);
 }
 
 .search-box-input ~ .note {
@@ -45,8 +45,8 @@
 }
 
 .search-box-submit .icon-search:before {
-  color: #777;
-  font-size: 14px;
+  color: var(--secondFontColor);
+  font-size: var(--mediumFontSize);
 }
 
 .search-box-submit .icon-search-new {
@@ -59,7 +59,7 @@
   top: 100%;
   left: 0;
   line-height: 1;
-  color: #777;
-  font-size: 12px;
+  color: var(--secondFontColor);
+  font-size: var(--smallFontSize);
   white-space: nowrap;
 }

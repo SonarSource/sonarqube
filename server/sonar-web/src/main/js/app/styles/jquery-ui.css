@@ -433,11 +433,11 @@ button.ui-button::-moz-focus-inner {
 .ui-datepicker .ui-datepicker-header {
   position: relative;
   padding: 0.2em 0;
-  color: #444;
+  color: var(--baseFontColor);
 }
 
 .ui-datepicker .ui-widget-header a {
-  color: #444;
+  color: var(--baseFontColor);
 }
 
 .ui-datepicker .ui-datepicker-prev,
@@ -457,7 +457,7 @@ button.ui-button::-moz-focus-inner {
 .ui-datepicker .ui-datepicker-title {
   margin: 0 48px;
   line-height: 1.8em;
-  color: #444;
+  color: var(--baseFontColor);
   text-align: center;
 }
 
@@ -525,7 +525,7 @@ button.ui-button::-moz-focus-inner {
 }
 
 .ui-datepicker-current-day {
-  background-color: #4b9fd5;
+  background-color: var(--blue);
 }
 
 .ui-datepicker-current-day a {

@@ -19,15 +19,15 @@
  */
 .bubble-popup {
   position: absolute;
-  z-index: 5000;
+  z-index: var(--bubblePopupZIndex);
   margin-top: -16px;
   margin-left: 8px;
   padding: 10px;
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--barBorderColor);
   border-radius: 3px;
   box-sizing: border-box;
   background-color: #ffffff;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  box-shadow: var(--defaultShadow);
   cursor: default;
 }
 
@@ -48,7 +48,7 @@
   top: 15px;
   left: -8px;
   border-left-width: 0;
-  border-right-color: #e6e6e6;
+  border-right-color: var(--barBorderColor);
 }
 
 .bubble-popup-arrow:after {
@@ -70,7 +70,7 @@
   border-left-width: 8px;
   border-top-width: 0;
   border-right-color: transparent;
-  border-bottom-color: #e6e6e6;
+  border-bottom-color: var(--barBorderColor);
 }
 
 .bubble-popup-bottom .bubble-popup-arrow:after {
@@ -95,7 +95,7 @@
   border-left-width: 8px;
   border-top-width: 0;
   border-right-color: transparent;
-  border-bottom-color: #e6e6e6;
+  border-bottom-color: var(--barBorderColor);
 }
 
 .bubble-popup-bottom-right .bubble-popup-arrow:after {
@@ -121,7 +121,7 @@
   left: auto;
   border-right-width: 0;
   border-left-width: 8px;
-  border-left-color: #e6e6e6;
+  border-left-color: var(--barBorderColor);
   border-right-color: transparent;
 }
 

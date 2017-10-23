@@ -101,7 +101,7 @@ kbd,
 samp,
 tt {
   font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
   line-height: 18px;
 }
 
@@ -115,5 +115,5 @@ hr {
   padding: 0;
   height: 1px;
   border: none;
-  background-color: #e6e6e6;
+  background-color: var(--barBorderColor);
 }

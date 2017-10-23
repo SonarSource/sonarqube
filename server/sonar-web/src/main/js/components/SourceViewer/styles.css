@@ -20,7 +20,7 @@
 .source-viewer {
   width: 100%;
   min-height: 200px;
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--barBorderColor);
   box-sizing: border-box;
   background-color: #fff;
   overflow-x: auto;
@@ -69,7 +69,7 @@
 }
 
 .source-line-filtered .source-line-code {
-  background-color: #fbf3d5 !important;
+  background-color: var(--leakColor) !important;
 }
 
 .source-line-filtered.source-line-filtered-dark .source-line-code {
@@ -89,7 +89,7 @@
 .source-meta {
   line-height: 18px;
   font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }
 
 .source-line-code {
@@ -141,14 +141,14 @@
 }
 
 .source-meta + .source-meta {
-  border-left: 1px solid #f3f3f3;
+  border-left: 1px solid var(--barBackgroundColor);
 }
 
 .source-line-number {
   min-width: 18px;
   padding: 0 10px;
-  background-color: #f3f3f3;
-  color: #777;
+  background-color: var(--barBackgroundColor);
+  color: var(--secondFontColor);
   text-align: right;
 }
 
@@ -159,7 +159,7 @@
 .source-line-issues {
   position: relative;
   padding: 0 2px;
-  background-color: #f3f3f3;
+  background-color: var(--barBackgroundColor);
 }
 
 .source-line-issues-counter {
@@ -171,12 +171,12 @@
 }
 
 .source-line-coverage {
-  background-color: #f3f3f3;
+  background-color: var(--barBackgroundColor);
 }
 
 .source-line-duplications,
 .source-line-duplications-extra {
-  background-color: #f3f3f3;
+  background-color: var(--barBackgroundColor);
 }
 
 .source-line-duplications-extra {
@@ -193,7 +193,7 @@
 
 .source-line-scm {
   padding: 0 5px;
-  background-color: #f3f3f3;
+  background-color: var(--barBackgroundColor);
 }
 
 .source-line-scm-inner {
@@ -213,15 +213,15 @@
 }
 
 .source-line-covered {
-  background-color: #00aa00 !important;
+  background-color: var(--green) !important;
 }
 
 .source-line-uncovered {
-  background-color: #d4333f !important;
+  background-color: var(--red) !important;
 }
 
 .source-line-partially-covered {
-  background-color: #ed7d20 !important;
+  background-color: var(--orange) !important;
   background-image: repeating-linear-gradient(
     45deg,
     rgba(255, 255, 255, 0.5) 4px,
@@ -243,8 +243,8 @@
 .source-viewer-header {
   position: relative;
   padding: 2px 10px 4px;
-  border-bottom: 1px solid #e6e6e6;
-  background-color: #f3f3f3;
+  border-bottom: 1px solid var(--barBorderColor);
+  background-color: var(--barBackgroundColor);
 }
 
 .source-viewer-header:before,
@@ -259,7 +259,7 @@
 }
 
 .source-viewer-header-bar + .source-viewer-header-bar {
-  border-top: 1px solid #e6e6e6;
+  border-top: 1px solid var(--barBorderColor);
 }
 
 .source-viewer-header-component {
@@ -268,8 +268,8 @@
 }
 
 .source-viewer-header-component-project {
-  color: #777;
-  font-size: 12px;
+  color: var(--secondFontColor);
+  font-size: var(--smallFontSize);
 }
 
 .source-viewer-header-component-name {
@@ -296,7 +296,7 @@
   display: inline-block;
   vertical-align: middle;
   padding: 3px 0;
-  font-size: 13px;
+  font-size: var(--baseFontSize);
 }
 
 .source-viewer-header-measure .rating {
@@ -310,15 +310,15 @@
 .source-viewer-header-measure-label {
   display: block;
   margin-top: 4px;
-  line-height: 12px;
-  color: #777;
-  font-size: 12px;
+  line-height: var(--smallFontSize);
+  color: var(--secondFontColor);
+  font-size: var(--smallFontSize);
 }
 
 .source-viewer-header-measure-value {
   display: block;
   line-height: 18px;
-  color: #444;
+  color: var(--baseFontColor);
   font-size: 18px;
   font-weight: 300;
 }
@@ -341,11 +341,11 @@
 
 .source-viewer-header-more-actions {
   position: absolute;
-  z-index: 7500;
+  z-index: var(--dropdownMenuZIndex);
   right: 0;
   top: 100%;
   padding: 10px;
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--barBorderColor);
   border-right: none;
   background-color: #fff;
   line-height: 1.8;
@@ -357,7 +357,7 @@
   right: auto;
   margin-left: -550px;
   padding: 20px 10px;
-  background-color: #f3f3f3;
+  background-color: var(--barBackgroundColor);
 }
 
 .source-viewer-measures-overlay .modal-foot {
@@ -373,12 +373,12 @@
 }
 
 .source-viewer-measures-modal {
-  background-color: #f3f3f3;
+  background-color: var(--barBackgroundColor);
 }
 
 .source-viewer-measures {
   margin: 0 -10px;
-  background-color: #f3f3f3;
+  background-color: var(--barBackgroundColor);
 }
 
 .source-viewer-measures:before,
@@ -425,7 +425,7 @@
 .source-viewer-measures-card {
   margin: 20px 10px;
   padding: 10px;
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--barBorderColor);
   background-color: #fff;
 }
 
@@ -440,7 +440,7 @@
 
 .source-viewer-tests-list {
   width: 100%;
-  font-size: 13px;
+  font-size: var(--baseFontSize);
 }
 
 .source-viewer-test-status,
@@ -489,8 +489,8 @@
 
 .source-viewer-more-code {
   padding: 40px 0;
-  border-bottom: 1px solid #e6e6e6;
-  background-color: #f3f3f3;
+  border-bottom: 1px solid var(--barBorderColor);
+  background-color: var(--barBackgroundColor);
   text-align: center;
 }
 
@@ -500,7 +500,7 @@
 
 .source-table + .source-viewer-more-code {
   border-bottom: none;
-  border-top: 1px solid #e6e6e6;
+  border-top: 1px solid var(--barBorderColor);
 }
 
 .issue-location {
@@ -526,7 +526,7 @@
 .measures + .measures {
   margin-top: 15px;
   padding-top: 15px;
-  border-top: 1px solid #e6e6e6;
+  border-top: 1px solid var(--barBorderColor);
 }
 
 .measures-chart {
@@ -547,12 +547,12 @@
 
 .measure-name {
   display: block;
-  font-size: 13px;
+  font-size: var(--baseFontSize);
 }
 
 .measure-value {
-  color: #236a97;
-  font-size: 16px;
+  color: var(--darkBlue);
+  font-size: var(--bigFontSize);
   font-weight: 400;
 }
 

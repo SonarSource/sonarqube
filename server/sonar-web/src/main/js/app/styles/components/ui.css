@@ -19,7 +19,7 @@
  */
 .processes-container {
   position: fixed;
-  z-index: 7000;
+  z-index: var(--processContainerZIndex);
   top: 0;
   left: 50%;
   width: 350px;
@@ -29,7 +29,7 @@
 .process-spinner {
   position: relative;
   padding: 0 10px;
-  line-height: 24px;
+  line-height: var(--controlHeight);
   border-radius: 0 0 3px 3px;
   box-sizing: border-box;
   background-color: #f0e8ac;
@@ -49,13 +49,13 @@
 
 .process-spinner-failed {
   padding-right: 30px;
-  background-color: #d4333f;
+  background-color: var(--red);
   color: #ffffff;
 }
 
 .process-spinner-success {
   padding-right: 30px;
-  background-color: #00aa00;
+  background-color: var(--green);
   color: #ffffff;
 }
 
@@ -85,7 +85,7 @@
 .shortcut-button {
   display: inline-block;
   min-width: 24px;
-  height: 24px;
+  height: var(--controlHeight);
   line-height: 21px;
   padding: 0 4px;
   box-sizing: border-box;
@@ -93,7 +93,7 @@
   border-radius: 3px;
   background-image: linear-gradient(to bottom, #f5f5f5, #eee);
   box-shadow: inset 0 1px 0 #fff, 0 1px 0 #ccc;
-  color: #777;
+  color: var(--secondFontColor);
   font-size: 11px;
   text-align: center;
 }
@@ -124,6 +124,6 @@
   line-height: 14px;
   padding: 3px 5px;
   border-radius: 3px;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
   color: #fff;
 }

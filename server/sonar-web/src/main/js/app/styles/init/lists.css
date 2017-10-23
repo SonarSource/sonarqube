@@ -71,8 +71,8 @@ ol.list-styled {
 }
 
 .list-item-checkable-link[disabled] a::before {
-  background-color: #cdcdcd;
-  border-color: #cdcdcd;
+  background-color: var(--gray80);
+  border-color: var(--gray80);
 }
 
 dl {
