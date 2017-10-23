@@ -18,7 +18,17 @@ exports[`renders main branch 1`] = `
       }
       className="little-spacer-right"
     />
-    master
+    <Tooltip
+      mouseEnterDelay={1}
+      overlay="master"
+      placement="bottom"
+    >
+      <span
+        className="text-limited text-top"
+      >
+        master
+      </span>
+    </Tooltip>
     <i
       className="icon-dropdown little-spacer-left"
     />
@@ -92,7 +102,17 @@ exports[`renders short-living branch 1`] = `
       }
       className="little-spacer-right"
     />
-    foo
+    <Tooltip
+      mouseEnterDelay={1}
+      overlay="foo"
+      placement="bottom"
+    >
+      <span
+        className="text-limited text-top"
+      >
+        foo
+      </span>
+    </Tooltip>
     <i
       className="icon-dropdown little-spacer-left"
     />
