@@ -70,7 +70,7 @@ public class EditionPluginDownloader {
       FileUtils.deleteDirectory(downloadDir);
       Files.move(tmpDir, downloadDir);
     } catch (IOException e) {
-      throw new RuntimeException(e.getMessage(), e);
+      throw new IllegalStateException(e.getMessage(), e);
     } finally {
       FileUtils.deleteQuietly(tmpDir);
     }

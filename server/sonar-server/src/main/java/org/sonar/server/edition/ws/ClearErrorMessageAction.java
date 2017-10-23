@@ -36,7 +36,7 @@ public class ClearErrorMessageAction implements EditionsWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    WebService.NewAction action = controller.createAction("clear_error_message")
+    controller.createAction("clear_error_message")
       .setSince("6.7")
       .setPost(true)
       .setDescription("Clear error message of last install of an edition (if any). Require 'Administer System' permission.")
