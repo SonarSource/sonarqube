@@ -38,7 +38,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
 
-public class BranchPersisterTest {
+public class BranchPersisterImplTest {
   private final static Component MAIN = builder(PROJECT, 1).setUuid("PROJECT_UUID").setKey("PROJECT_KEY").build();
   private final static Component BRANCH = builder(PROJECT, 1).setUuid("BRANCH_UUID").setKey("BRANCH_KEY").build();
 
@@ -51,7 +51,7 @@ public class BranchPersisterTest {
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
-  BranchPersister underTest = new BranchPersister(dbTester.getDbClient(), System2.INSTANCE, treeRootHolder, analysisMetadataHolder);
+  BranchPersister underTest = new BranchPersisterImpl(dbTester.getDbClient(), System2.INSTANCE, treeRootHolder, analysisMetadataHolder);
 
   @Test
   public void fail_if_no_component_for_main_branches() {
