@@ -1,0 +1,140 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+.badge {
+  display: inline-block;
+  min-width: 10px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: normal;
+  letter-spacing: 0.03em;
+  color: #ffffff;
+  line-height: 12px;
+  vertical-align: baseline;
+  white-space: nowrap;
+  text-align: center;
+  background-color: #4b9fd5;
+}
+
+.badge:empty {
+  display: none;
+}
+
+a.badge:hover,
+a.badge:focus,
+a.badge:active {
+  color: #ffffff;
+}
+
+a.badge {
+  border-bottom: none;
+}
+
+.badge.is-rounded {
+  padding-left: 5px;
+  padding-right: 5px;
+  border-radius: 50px;
+}
+
+.list-group-item > .badge,
+.list-group-item-heading > .badge {
+  float: right;
+  margin-top: 3px;
+}
+
+.list-group-item > .badge + .badge,
+.list-group-item-heading > .badge + .badge {
+  margin-right: 5px;
+}
+
+.badge-normal-size {
+  font-size: inherit;
+  letter-spacing: inherit;
+}
+
+.badge-muted {
+  background-color: transparent;
+  color: #777;
+}
+
+.badge-muted:hover,
+.badge-muted:focus,
+.badge-muted:active {
+  color: #4b9fd5;
+}
+
+.badge-success,
+.badge-ok {
+  background-color: #00aa00;
+}
+
+.badge-warning,
+.badge-warn {
+  background-color: #ed7d20;
+}
+
+.badge-danger,
+.badge-error {
+  background-color: #d4333f;
+}
+
+.badge-danger-light {
+  border: 1px solid #ebccd1 !important;
+  border-radius: 3px;
+  background-color: #f2dede;
+  color: #a94442;
+}
+
+a.badge-danger-light:hover,
+a.badge-danger-light:focus,
+a.badge-danger-light:active {
+  color: #a94442;
+}
+
+.badge-focus {
+  border: 1px solid #faebcc;
+  border-radius: 3px;
+  background-color: #fcf8e3;
+  color: #8a6d3b;
+  font-weight: 400;
+}
+
+a.badge-focus:hover,
+a.badge-focus:focus,
+a.badge-focus:active {
+  color: #8a6d3b;
+}
+
+.badge-secondary {
+  background-color: #b4b4b4;
+}
+
+.outline-badge {
+  display: inline-block;
+  vertical-align: middle;
+  height: 20px;
+  line-height: 19px;
+  padding: 0 8px;
+  border: 1px solid #cdcdcd;
+  border-radius: 2px;
+  box-sizing: border-box;
+  color: #777;
+  font-size: 12px;
+  font-weight: 400;
+}

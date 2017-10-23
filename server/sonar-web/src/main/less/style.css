@@ -1,0 +1,270 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+.dashboard-page,
+.dashboard-page body {
+  background-color: #f3f3f3;
+}
+
+.tabs {
+  height: 20px;
+  border-bottom: 1px solid #ddd;
+  margin: 0;
+  padding: 0;
+  font-size: 93%;
+}
+
+.tabs li {
+  display: inline;
+  list-style-type: none;
+  font-weight: normal;
+  color: #777;
+  vertical-align: baseline;
+  white-space: nowrap;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.tabs li a {
+  float: left;
+  color: #777;
+  vertical-align: bottom;
+  height: 17px;
+  margin: 0 1px 0 0;
+  padding: 1px 5px;
+  border-bottom: none;
+  transition: none;
+}
+
+.tabs li a.selected,
+.tabs .ui-tabs-active a {
+  text-decoration: none;
+  color: #555 !important;
+  font-weight: bold;
+  margin: 0 1px 0 0;
+}
+
+.markdown-tips {
+  font-size: 12px;
+  color: #777;
+}
+
+.rule-desc,
+.markdown {
+  line-height: 1.5;
+}
+
+.rule-desc p,
+.markdown p,
+.rule-desc ul,
+.markdown ul,
+.rule-desc ol,
+.markdown ol,
+.rule-desc pre,
+.markdown pre,
+.rule-desc blockquote,
+.markdown blockquote,
+.rule-desc table,
+.markdown table,
+.rule-desc h2,
+.markdown h2,
+.rule-desc h3,
+.markdown h3,
+.rule-desc h4,
+.markdown h4,
+.rule-desc h5,
+.markdown h5,
+.rule-desc h6,
+.markdown h6 {
+  margin: 1em 0;
+}
+
+.rule-desc h2,
+.markdown h2 {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.rule-desc h3,
+.markdown h3,
+.rule-desc h4,
+.markdown h4,
+.rule-desc h5,
+.markdown h5,
+.rule-desc h6,
+.markdown h6 {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.rule-desc pre,
+.markdown pre,
+.rule-desc code,
+.markdown code {
+  font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font-size: 12px;
+}
+
+.rule-desc pre,
+.markdown pre {
+  padding: 10px;
+  border-top: 1px solid #e6e6e6;
+  border-bottom: 1px solid #e6e6e6;
+  line-height: 18px;
+  overflow: auto;
+}
+
+.rule-desc code,
+.markdown code {
+  padding: 0.2em 0.45em;
+  margin: 0;
+  background-color: rgba(0, 0, 0, 0.06);
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.rule-desc pre > code,
+.markdown pre > code {
+  padding: 0;
+  background-color: transparent;
+  white-space: pre;
+}
+
+.rule-desc blockquote,
+.markdown blockquote {
+  line-height: 1.5;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.rule-desc ul,
+.markdown ul {
+  padding-left: 40px;
+  list-style: disc;
+}
+
+.rule-desc li > ul,
+.markdown li > ul {
+  margin: 0.3em 0;
+}
+
+.rule-desc ol,
+.markdown ol {
+  padding-left: 40px;
+  list-style: decimal;
+}
+
+.rule-desc table,
+.markdown table {
+  min-width: 50%;
+  border-collapse: collapse;
+  border: 1px solid #e6e6e6;
+}
+
+.rule-desc th,
+.markdown th {
+  padding: 5px 10px;
+  border: 1px solid #e6e6e6;
+  background-color: #f3f3f3;
+  font-weight: 600;
+  text-align: center;
+}
+
+.rule-desc td,
+.markdown td {
+  padding: 5px 10px;
+  border: 1px solid #e6e6e6;
+}
+
+.property p {
+  margin-top: 10px;
+}
+
+.property pre,
+.bubble-popup pre,
+.coding-rules-detail-parameter pre {
+  display: inline-block;
+  min-width: 100%;
+  margin: 10px 0 !important;
+  padding: 10px !important;
+  border: 1px dashed #aaa;
+  box-sizing: border-box;
+  font-size: 12px;
+  font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+}
+
+.property blockquote,
+.bubble-popup blockquote,
+.coding-rules-detail-parameter blockquote {
+  margin-top: 10px;
+  padding: 10px;
+}
+
+.property ul {
+  list-style-type: disc;
+  list-style-position: inside;
+  margin: 10px;
+}
+
+.property ol {
+  list-style-type: decimal;
+  list-style-position: inside;
+  margin: 10px;
+}
+
+.width100 {
+  width: 100%;
+}
+
+textarea.width100 {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.property {
+  margin-bottom: 10px;
+}
+
+.property h3 {
+  float: none;
+  max-width: 20em;
+}
+
+.property > th,
+.property > td {
+  vertical-align: top;
+  padding: 10px;
+}
+
+.property > th {
+  text-align: right;
+}
+
+.property table.data {
+  width: 480px;
+}
+
+.property textarea {
+  vertical-align: text-top;
+}
+
+.property .note {
+  margin-top: 5px;
+}

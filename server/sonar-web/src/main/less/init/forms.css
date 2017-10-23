@@ -1,0 +1,468 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+/*
+ * Inputs
+ */
+input[type='text'],
+input[type='password'],
+input[type='email'],
+input[type='search'],
+input[type='date'],
+input[type='number'],
+textarea,
+select {
+  border: 1px solid #cdcdcd;
+  box-sizing: border-box;
+  border-radius: 2px;
+  background: #fff;
+  color: #444;
+  transition: border-color 0.2s ease;
+}
+
+input[type='text']:active,
+input[type='password']:active,
+input[type='email']:active,
+input[type='search']:active,
+input[type='date']:active,
+input[type='number']:active,
+textarea:active,
+select:active,
+input[type='text']:focus,
+input[type='password']:focus,
+input[type='email']:focus,
+input[type='search']:focus,
+input[type='date']:focus,
+input[type='number']:focus,
+textarea:focus,
+select:focus {
+  border-color: #4b9fd5;
+  box-shadow: none;
+  outline: none;
+}
+
+input[type='text']:invalid,
+input[type='password']:invalid,
+input[type='email']:invalid,
+input[type='search']:invalid,
+input[type='date']:invalid,
+input[type='number']:invalid,
+textarea:invalid,
+select:invalid {
+  box-shadow: none;
+  outline: none;
+}
+
+input[type='text'].invalid,
+input[type='password'].invalid,
+input[type='email'].invalid,
+input[type='search'].invalid,
+input[type='date'].invalid,
+input[type='number'].invalid,
+textarea.invalid,
+select.invalid {
+  border-color: #d4333f;
+}
+
+input[type='text'],
+input[type='password'],
+input[type='email'],
+input[type='search'],
+input[type='date'],
+input[type='number'] {
+  height: 24px;
+  padding: 0 6px;
+}
+
+input[type='search'] {
+  -webkit-appearance: textfield;
+}
+
+input[type='search']::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+textarea {
+  padding: 3px;
+}
+
+textarea.width-100 {
+  max-width: 100%;
+}
+
+select {
+  height: 24px;
+  line-height: 24px;
+}
+
+button,
+.button,
+input[type='submit'],
+input[type='button'] {
+  display: inline-block;
+  vertical-align: baseline;
+  height: 24px;
+  line-height: 22px;
+  padding: 0 12px;
+  border: 1px solid #236a97;
+  border-radius: 2px;
+  box-sizing: border-box;
+  background: transparent;
+  color: #236a97;
+  font-weight: 600;
+  font-size: 12px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+button:hover,
+.button:hover,
+input[type='submit']:hover,
+input[type='button']:hover,
+button:focus,
+.button:focus,
+input[type='submit']:focus,
+input[type='button']:focus,
+button.button-active,
+.button.button-active,
+input[type='submit'].button-active,
+input[type='button'].button-active {
+  background: #236a97;
+  color: #fff;
+}
+
+button:active,
+.button:active,
+input[type='submit']:active,
+input[type='button']:active {
+  box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+}
+
+button.disabled,
+.button.disabled,
+input[type='submit'].disabled,
+input[type='button'].disabled,
+button:disabled,
+.button:disabled,
+input[type='submit']:disabled,
+input[type='button']:disabled,
+button:disabled:hover,
+.button:disabled:hover,
+input[type='submit']:disabled:hover,
+input[type='button']:disabled:hover,
+button:disabled:active,
+.button:disabled:active,
+input[type='submit']:disabled:active,
+input[type='button']:disabled:active,
+button:disabled:focus,
+.button:disabled:focus,
+input[type='submit']:disabled:focus,
+input[type='button']:disabled:focus {
+  color: #bbb;
+  border-color: #ddd;
+  background: #ebebeb;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.button-red,
+input[type='submit'].button-red {
+  border-color: #d4333f;
+  color: #d4333f;
+}
+
+.button-red:hover,
+input[type='submit'].button-red:hover,
+.button-red:focus,
+input[type='submit'].button-red:focus,
+.button-red.active,
+input[type='submit'].button-red.active {
+  background: #d4333f;
+  color: #fff;
+}
+
+.button-success,
+input[type='submit'].button-success {
+  border-color: #00aa00;
+  color: #00aa00;
+}
+
+.button-success:hover,
+input[type='submit'].button-success:hover,
+.button-success:focus,
+input[type='submit'].button-success:focus,
+.button-success.active,
+input[type='submit'].button-success.active {
+  background: #00aa00;
+  color: #fff;
+}
+
+.button-grey,
+input[type='submit'].button-grey {
+  border-color: #b4b4b4;
+  color: #777;
+}
+
+.button-grey:hover,
+input[type='submit'].button-grey:hover,
+.button-grey:focus,
+input[type='submit'].button-grey:focus,
+.button-grey.active,
+input[type='submit'].button-grey.active {
+  background: #b4b4b4;
+  color: #ffffff;
+}
+
+.button-grey.button-active,
+input[type='submit'].button-grey.button-active {
+  background: #777;
+  border-color: #777;
+  color: #ffffff;
+}
+
+.button-clean,
+.button-clean:hover,
+.button-clean:focus {
+  padding: 0;
+  line-height: 1;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  color: #444;
+}
+
+.button-clean path {
+  transition: opacity 0.3s ease;
+}
+
+.button-clean:hover path {
+  opacity: 0.8;
+}
+
+.button-link {
+  display: inline;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #236a97;
+  font-weight: 400;
+  font-size: inherit;
+  line-height: inherit;
+  transition: all 0.2s ease;
+}
+
+.button-link:hover,
+.button-link:focus {
+  background: transparent;
+  color: #4b9fd5;
+}
+
+.button-link:active {
+  box-shadow: none;
+  outline: thin dotted #ccc;
+}
+
+.button-link:disabled,
+.button-link:disabled:hover,
+.button-link:disabled:active,
+.button-link:disabled:focus {
+  color: #777;
+  background: transparent;
+  cursor: default;
+}
+
+.button-icon {
+  border: none;
+  color: #777;
+}
+
+.button-small {
+  height: 20px;
+  line-height: 18px;
+}
+
+.button-small > svg {
+  margin-top: 2px;
+}
+
+.button-compact {
+  padding: 0 6px;
+}
+
+.button-group {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 0;
+  white-space: nowrap;
+}
+
+.button-group > button,
+.button-group > .button {
+  position: relative;
+  z-index: 2;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0;
+  cursor: pointer;
+}
+
+.button-group > button:hover:not(:disabled),
+.button-group > .button:hover:not(:disabled),
+.button-group > button:focus:not(:disabled),
+.button-group > .button:focus:not(:disabled),
+.button-group > button:active:not(:disabled),
+.button-group > .button:active:not(:disabled),
+.button-group > button.active:not(:disabled),
+.button-group > .button.active:not(:disabled) {
+  z-index: 3;
+}
+
+.button-group > button:disabled,
+.button-group > .button:disabled {
+  z-index: 1;
+}
+
+.button-group > button:not(:first-child),
+.button-group > .button:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.button-group > button:not(:last-child):not(.dropdown-toggle),
+.button-group > .button:not(:last-child):not(.dropdown-toggle) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.button-group > button + button,
+.button-group > button + .button,
+.button-group > .button + button,
+.button-group > .button + .button {
+  margin-left: -1px;
+}
+
+.button-group > a:not(.button) {
+  vertical-align: middle;
+  margin: 0 8px;
+  font-size: 12px;
+}
+
+.input-tiny {
+  width: 60px !important;
+}
+
+.input-small {
+  width: 100px !important;
+}
+
+.input-medium {
+  width: 150px !important;
+}
+
+.input-large {
+  width: 200px !important;
+}
+
+.input-super-large {
+  width: 100%;
+  max-width: 300px;
+  min-width: 200px;
+}
+
+textarea.input-super-large {
+  max-width: 600px;
+  min-width: 300px;
+}
+
+.input-clear {
+  padding: 0 !important;
+  border: none !important;
+  background-color: transparent !important;
+}
+
+.input-code {
+  font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font-size: 12px;
+}
+
+em.mandatory {
+  color: #990000;
+  font-style: italic;
+}
+
+label[for] {
+  cursor: pointer;
+}
+
+.radio-toggle {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 0;
+  white-space: nowrap;
+}
+
+.radio-toggle > li {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 12px;
+}
+
+.radio-toggle > li:first-child > label {
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+}
+
+.radio-toggle > li:last-child > label {
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+
+.radio-toggle > li + li > label {
+  border-left: none;
+}
+
+.radio-toggle > li > label {
+  display: inline-block;
+  padding: 3px 12px 5px;
+  margin: 0;
+  border: 1px solid #236a97;
+  color: #236a97;
+}
+
+.radio-toggle input[type='radio'] {
+  display: none;
+}
+
+.radio-toggle input[type='radio']:checked + label {
+  background-color: #236a97;
+  color: #fff;
+  font-weight: 600;
+}
+
+.radio-toggle input[type='radio']:disabled + label {
+  color: #bbb;
+  border-color: #ddd;
+  background: #ebebeb;
+  cursor: not-allowed;
+}

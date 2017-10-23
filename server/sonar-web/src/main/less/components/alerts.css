@@ -17,9 +17,50 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import '../../components/ui/Level.css';
-import '../../components/ui/Rating.css';
-import './boxed-group.css';
+.alert {
+  display: block;
+  margin-bottom: 8px;
+  padding: 5px 8px;
+  border: 1px solid #777;
+}
 
-// these styles are extracted to a separate file
-import '../../../less/sonar.css';
+.alert:empty {
+  display: none;
+}
+
+.alert-inline {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.modal-alert {
+  margin: -10px -10px 16px;
+  padding: 10px;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.alert-danger {
+  border-color: #ebccd1;
+  background-color: #f2dede;
+  color: #a94442;
+}
+
+.alert-warning {
+  border-color: #faebcc;
+  background-color: #fcf8e3;
+  color: #8a6d3b;
+}
+
+.alert-info {
+  border-color: #bce8f1;
+  background-color: #d9edf7;
+  color: #31708f;
+}
+
+.alert-success {
+  border-color: #d6e9c6;
+  background-color: #dff0d8;
+  color: #3c763d;
+}

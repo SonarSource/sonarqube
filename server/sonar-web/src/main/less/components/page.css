@@ -1,0 +1,338 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+.global-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100vh;
+}
+
+.page {
+  position: relative;
+  padding: 10px 20px;
+}
+
+.page:before,
+.page:after {
+  display: table;
+  content: '';
+  line-height: 0;
+}
+
+.page:after {
+  clear: both;
+}
+
+.page-limited {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.page-container {
+  min-width: 1080px;
+}
+
+.page-wrapper {
+  box-sizing: border-box;
+  flex: 1 0 auto;
+}
+
+.page-wrapper-simple {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 100px 0;
+}
+
+.page-simple {
+  width: 400px;
+  padding: 40px;
+  border: 1px solid #e6e6e6;
+  background-color: #fff;
+}
+
+.page-header {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.page-header:before,
+.page-header:after {
+  display: table;
+  content: '';
+  line-height: 0;
+}
+
+.page-header:after {
+  clear: both;
+}
+
+.page-header .spinner {
+  position: relative;
+  top: 3px;
+  margin-left: 8px;
+}
+
+.page-title {
+  float: left;
+  margin-bottom: 0;
+  line-height: 24px;
+}
+
+.page-actions {
+  float: right;
+  margin-bottom: 10px;
+  margin-left: 10px;
+  line-height: 24px;
+}
+
+.page-actions .badge {
+  margin: 3px 0;
+}
+
+.page-actions .spinner {
+  top: 0 !important;
+}
+
+.page-description {
+  float: left;
+  clear: left;
+  max-width: 800px;
+  line-height: 1.5;
+  margin-top: 6px;
+}
+
+.page-footer {
+  min-height: 60px;
+  padding: 10px;
+  line-height: 1.5;
+  border-top: 1px solid #e6e6e6;
+  box-sizing: border-box;
+  background-color: #f3f3f3;
+  color: #595959;
+  font-size: 12px;
+  text-align: center;
+}
+
+.page-footer a {
+  border-bottom: 1px solid #d0d0d0;
+  color: #444;
+}
+
+.page-footer a:hover,
+.page-footer a:active,
+.page-footer a:focus {
+  color: #4b9fd5;
+}
+
+.page-footer a:hover {
+  border-bottom-color: #cae3f2;
+}
+
+.page-footer a:active,
+.page-footer a:focus {
+  border-bottom-color: #cae3f2;
+}
+
+.page-footer-with-sidebar {
+  padding-left: calc(50vw - 370px + 10px) !important;
+}
+
+.page-footer-with-sidebar div {
+  max-width: 980px;
+}
+
+.page-with-sidebar {
+  display: flex;
+}
+
+.page-main {
+  flex-grow: 1;
+}
+
+.page-sidebar {
+  width: 30%;
+  min-width: 300px;
+  flex-shrink: 0;
+  padding-left: 40px;
+  box-sizing: border-box;
+}
+
+.page-sidebar-fixed {
+  width: 30%;
+  min-width: 300px;
+  flex-shrink: 0;
+  padding-left: 40px;
+  box-sizing: border-box;
+  width: 300px;
+}
+
+.page-sidebar-sticky {
+  width: 320px !important;
+  padding-right: 0;
+}
+
+.page-limited .page-sidebar-sticky {
+  margin: -20px 0 -20px -20px;
+  padding-right: 0 !important;
+}
+
+.page-limited .page-sidebar-sticky .page-sidebar-sticky-inner {
+  padding: 20px 0;
+}
+
+.page-sidebar-sticky .page-sidebar-sticky-inner {
+  position: fixed;
+  z-index: 10;
+  top: 30px;
+  bottom: 0;
+  left: 0;
+  overflow: auto;
+  width: calc(50vw - 640px + 280px + 3px);
+  border-right: 1px solid #e6e6e6;
+  box-sizing: border-box;
+  background: #f3f3f3;
+}
+
+@media (max-width: 1335px) {
+  .page-sidebar-sticky .page-sidebar-sticky-inner {
+    width: 310px;
+  }
+}
+
+.page-sidebar-sticky .page-sidebar-sticky-inner .search-navigator-facets-list {
+  width: 260px;
+  margin-left: calc(50vw - 640px + 290px - 260px - 37px);
+}
+
+@media (max-width: 1335px) {
+  .page-sidebar-sticky .page-sidebar-sticky-inner .search-navigator-facets-list {
+    margin-left: 20px;
+  }
+}
+
+.layout-page {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  flex-grow: 1;
+}
+
+.layout-page-filters {
+  width: 260px;
+  padding: 20px;
+}
+
+.layout-page-main {
+  flex-grow: 1;
+  min-width: 740px;
+  padding: 20px;
+}
+
+.layout-page-main-inner {
+  min-width: 740px;
+  max-width: 980px;
+}
+
+.layout-page-side-outer {
+  width: calc(50vw - 370px);
+  flex-grow: 0;
+  flex-shrink: 0;
+  background-color: #f3f3f3;
+}
+
+.layout-page-side {
+  position: fixed;
+  z-index: 40;
+  top: 30px;
+  bottom: 0;
+  left: 0;
+  width: calc(50vw - 370px);
+  border-right: 1px solid #e6e6e6;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: #f3f3f3;
+}
+
+.layout-page-side-inner {
+  width: 300px;
+  margin-left: calc(50vw - 670px);
+  background-color: #f3f3f3;
+}
+
+.layout-page-header-panel,
+.layout-page-header-panel-inner {
+  height: 56px;
+  box-sizing: border-box;
+}
+
+.layout-page-header-panel {
+  margin-top: -20px;
+}
+
+.layout-page-header-panel-inner {
+  position: fixed;
+  z-index: 30;
+  line-height: 24px;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e6e6e6;
+  background-color: #f3f3f3;
+}
+
+.layout-page-main-header {
+  margin-bottom: 20px;
+}
+
+.layout-page-main-header .component-name {
+  line-height: 24px;
+}
+
+.layout-page-main-header-inner {
+  left: calc(50vw - 370px + 1px);
+  right: 0;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+@media (max-width: 1320px) {
+  .layout-page-side-outer {
+    width: 300px;
+  }
+
+  .layout-page-side {
+    width: 300px;
+  }
+
+  .layout-page-side-inner {
+    margin-left: 0;
+  }
+
+  .layout-page-main-header-inner {
+    left: 301px;
+  }
+
+  .page-footer-with-sidebar {
+    padding-left: 310px !important;
+  }
+}

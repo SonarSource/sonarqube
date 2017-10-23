@@ -17,9 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import '../../components/ui/Level.css';
-import '../../components/ui/Rating.css';
-import './boxed-group.css';
+.component-name {
+  line-height: 16px;
+  font-size: 12px;
+}
 
-// these styles are extracted to a separate file
-import '../../../less/sonar.css';
+.component-name:before,
+.component-name:after {
+  display: table;
+  content: '';
+  line-height: 0;
+}
+
+.component-name:after {
+  clear: both;
+}
+
+.component-name-parent {
+  float: left;
+  margin-right: 20px;
+}
+
+.component-name-parent:last-child {
+  margin-right: 0;
+}
+
+.component-name-path {
+  float: left;
+  clear: left;
+}
+
+.component-name-parent + .component-name-path {
+  margin-top: 4px;
+}
+
+.component-name-favorite {
+  position: relative;
+  top: -1px;
+  margin-left: 4px;
+  padding: 2px 0;
+}

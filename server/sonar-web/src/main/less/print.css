@@ -17,9 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import '../../components/ui/Level.css';
-import '../../components/ui/Rating.css';
-import './boxed-group.css';
+@media print {
+  .noprint {
+    display: none !important;
+  }
 
-// these styles are extracted to a separate file
-import '../../../less/sonar.css';
+  a {
+    color: #444;
+    border-bottom: none;
+  }
+
+  .page-footer {
+    display: none !important;
+  }
+
+  .dashboard-page,
+  .dashboard-page body {
+    background-color: #fff;
+  }
+
+  .widget thead,
+  .widget tfoot {
+    display: table-row-group;
+  }
+}

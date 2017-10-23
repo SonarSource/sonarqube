@@ -1,0 +1,265 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.table > thead > tr > th {
+  border-top: 0 none;
+  font-weight: bold;
+  line-height: 16px;
+  padding: 4px 5px;
+  vertical-align: bottom;
+}
+
+.table > tbody > tr > td {
+  line-height: 16px;
+  padding: 4px 5px;
+  vertical-align: top;
+}
+
+.table > tfoot > tr > td {
+  font-size: 93%;
+  color: #777;
+  padding: 4px 5px;
+}
+
+.table > tfoot > tr > td a {
+  color: #777;
+}
+
+.odd {
+  background-color: #fff;
+}
+
+.even {
+  background-color: #f5f5f5;
+}
+
+.odd.selected,
+.even.selected,
+.odd.selected a,
+.even.selected a,
+.even.selected span:not(.rating),
+.odd.selected span:not(.rating) {
+  background-color: #d9edf7;
+  color: #444;
+}
+
+table.data,
+table.spaced {
+  width: 100%;
+}
+
+table.data > thead:after {
+  display: block;
+  line-height: 5px;
+  content: '\200C';
+}
+
+table.data > thead > tr > th {
+  vertical-align: top;
+  line-height: 18px;
+  padding: 8px 10px;
+  border-bottom: 1px solid #e6e6e6;
+  font-weight: 600;
+}
+
+table.data > thead > tr > th > .small {
+  display: block;
+  line-height: 1.4;
+  font-weight: 400;
+}
+
+table.data > tfoot > tr > td {
+  font-size: 93%;
+  color: #777;
+  padding: 5px;
+}
+
+table.data > tbody > tr > td {
+  padding: 8px 10px;
+  vertical-align: text-top;
+  line-height: 16px;
+}
+
+table.data > tbody > tr > td.text-middle {
+  vertical-align: middle;
+}
+
+table.data td.small,
+table.data th.small {
+  padding: 0;
+  white-space: nowrap;
+}
+
+table.data.zebra:not(.zebra-inversed) > tbody > tr:nth-child(even) {
+  background-color: #f5f5f5;
+}
+
+table.data.zebra.zebra-inversed > tbody > tr:nth-child(odd) {
+  background-color: #f5f5f5;
+}
+
+table.data.zebra-hover > tbody > tr:hover {
+  background-color: #ecf6fe !important;
+}
+
+table.data.zebra > tbody > tr.selected {
+  background-color: #d9edf7 !important;
+}
+
+table.data.condensed > tbody > tr > td {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+table.data.no-outer-padding > thead > tr > th:first-child {
+  padding-left: 0;
+}
+
+table.data.no-outer-padding > thead > tr > th:last-child {
+  padding-right: 0;
+}
+
+table.data.no-outer-padding > tbody > tr > td:first-child {
+  padding-left: 0;
+}
+
+table.data.no-outer-padding > tbody > tr > td:last-child {
+  padding-right: 0;
+}
+
+.data thead tr.total {
+  background-color: #efefef;
+  font-weight: normal;
+  border: 1px solid #ddd;
+}
+
+.data thead tr.total th {
+  font-weight: normal;
+}
+
+.data tr.blank,
+.data tr.blank > td {
+  background-color: #fff !important;
+  line-height: 15px;
+}
+
+.data tr.highlight {
+  background-color: #cae3f2;
+}
+
+.data input,
+.data select,
+.data button {
+  vertical-align: middle;
+}
+
+.hoverable:hover {
+  background-color: #cae3f2;
+}
+
+.hoverable:hover a {
+  color: #111;
+}
+
+table.spaced th {
+  font-weight: bold;
+  color: #333;
+  padding: 4px 5px;
+}
+
+table.spaced td,
+table.matrix tfoot td {
+  padding: 3px 5px;
+  line-height: 18px;
+}
+
+table.spaced td img {
+  vertical-align: text-bottom;
+}
+
+table.spacedicon th {
+  font-weight: bold;
+  color: #333;
+  padding: 4px 5px;
+}
+
+table.spacedicon td {
+  padding: 0 5px;
+  height: 24px;
+}
+
+.thin {
+  width: 1%;
+}
+
+td.sep {
+  width: 10px;
+}
+
+.spacer {
+  width: 5px;
+  display: inline-block;
+}
+
+.formError {
+  display: inline-block;
+  background-color: #ed7d20;
+  color: #000;
+  padding: 0 5px;
+}
+
+table.form td {
+  padding: 2px 5px;
+  vertical-align: top;
+}
+
+table.form th {
+  padding: 2px 5px;
+  font-weight: 600;
+}
+
+table.form td.keyCell {
+  width: 1%;
+  white-space: nowrap;
+  text-align: right;
+  font-weight: bold;
+  vertical-align: top;
+}
+
+table.form td img {
+  vertical-align: bottom;
+}
+
+.admin hr {
+  background: transparent;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  border-bottom: 1px dashed #ffd324;
+  height: 1px;
+}
+
+table#project-history tr > td {
+  vertical-align: top;
+}

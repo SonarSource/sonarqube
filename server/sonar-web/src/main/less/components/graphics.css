@@ -1,0 +1,360 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+.sonar-d3 .treemap-container {
+  position: relative;
+}
+
+.sonar-d3 .treemap-cell {
+  position: absolute;
+  border-right: 1px solid #fff;
+  border-bottom: 1px solid #fff;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.sonar-d3 .treemap-cell:focus {
+  outline: none;
+}
+
+.sonar-d3 .treemap-inner {
+  display: inline-flex;
+  vertical-align: middle;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 0 4px;
+  box-sizing: border-box;
+  line-height: 1.2;
+}
+
+.sonar-d3 .treemap-inner .treemap-icon {
+  flex-shrink: 0;
+}
+
+.sonar-d3 .treemap-inner .treemap-icon svg {
+  margin-top: 2px;
+}
+
+.sonar-d3 .treemap-inner .treemap-text {
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.sonar-d3 .treemap-link {
+  position: absolute;
+  z-index: 2;
+  top: 5px;
+  right: 5px;
+  line-height: 14px;
+  font-size: 12px;
+  border-bottom: none;
+}
+
+.sonar-d3 .treemap-link:hover {
+  color: #d1eafb;
+}
+
+.sonar-d3 .treemap-link i,
+.sonar-d3 .treemap-link i:before {
+  vertical-align: top;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.word-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.word-cloud a {
+  padding: 5px;
+  border-bottom: none;
+}
+
+/*
+ * Line Chart
+ */
+
+.line-chart-path {
+  fill: none;
+  stroke: #4b9fd5;
+  stroke-width: 2px;
+}
+
+.line-chart-path.line-chart-path-1 {
+  stroke: #236a97;
+}
+
+.line-chart-path.line-chart-path-2 {
+  stroke: #24c6e0;
+}
+
+.line-chart-area {
+  fill: rgba(75, 159, 213, 0.3);
+  stroke-width: 0;
+}
+
+.line-chart-area.line-chart-area-1 {
+  fill: rgba(35, 106, 151, 0.3);
+}
+
+.line-chart-area.line-chart-area-2 {
+  fill: rgba(36, 198, 224, 0.3);
+}
+
+.line-chart-legend {
+  color: #4b9fd5;
+}
+
+.line-chart-legend.line-chart-legend-1 {
+  color: #236a97;
+}
+
+.line-chart-legend.line-chart-legend-2 {
+  color: #24c6e0;
+}
+
+.line-chart-dot {
+  fill: #4b9fd5;
+}
+
+.line-chart-dot.line-chart-dot-1 {
+  fill: #236a97;
+}
+
+.line-chart-dot.line-chart-dot-2 {
+  fill: #24c6e0;
+}
+
+.line-chart-point {
+  fill: #fff;
+  stroke: #4b9fd5;
+  stroke-width: 2px;
+}
+
+.line-chart-event {
+  fill: #fff;
+  stroke: #4b9fd5;
+  stroke-width: 2px;
+}
+
+.line-chart-event.VERSION {
+  stroke: #4b9fd5;
+}
+
+.line-chart-event.QUALITY_GATE {
+  stroke: #00aa00;
+}
+
+.line-chart-event.QUALITY_PROFILE {
+  stroke: #ed7d20;
+}
+
+.line-chart-event.OTHER {
+  stroke: #9139d4;
+}
+
+.line-chart-tick {
+  fill: #777;
+  font-size: 12px;
+  text-anchor: middle;
+}
+
+.line-chart-tick-x {
+  text-anchor: end;
+}
+
+.line-chart-tick-x-right {
+  text-anchor: start;
+}
+
+.line-chart-grid {
+  shape-rendering: crispedges;
+  stroke: #eee;
+}
+
+/*
+ * Bubble Chart
+ */
+
+.bubble-chart-bubble {
+  fill: #4b9fd5;
+  fill-opacity: 0.2;
+  stroke: #4b9fd5;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bubble-chart-bubble:hover {
+  fill-opacity: 0.8;
+}
+
+.bubble-chart-grid {
+  shape-rendering: crispedges;
+  stroke: #eee;
+}
+
+.bubble-chart-tick {
+  fill: #777;
+  font-size: 12px;
+  text-anchor: middle;
+}
+
+.bubble-chart-tick-y {
+  text-anchor: end;
+}
+
+/*
+ * Legends
+ */
+
+.color-box-legend {
+  display: flex;
+  justify-content: center;
+}
+
+.color-box-legend > *:not(:first-child) {
+  margin-left: 24px;
+}
+
+.color-box-legend .color-box-legend-rect {
+  display: inline-block;
+  margin-top: 1px;
+  margin-right: 4px;
+  border: 1px solid;
+}
+
+.color-box-legend .color-box-legend-rect-inner {
+  display: block;
+  width: 8px;
+  height: 8px;
+  opacity: 0.2;
+}
+
+.color-box-legend.color-box-full .color-box-legend-rect-inner {
+  opacity: 1;
+}
+
+.gradient-legend-text,
+.gradient-legend-na {
+  text-anchor: middle;
+  fill: #777;
+  font-size: 10px;
+}
+
+.gradient-legend-text:first-of-type {
+  text-anchor: start;
+}
+
+.gradient-legend-text:last-of-type {
+  text-anchor: end;
+}
+
+/*
+ * Bar Chart
+ */
+
+.bar-chart-bar {
+  fill: #4b9fd5;
+}
+
+.bar-chart-tick {
+  fill: #777;
+  font-size: 12px;
+  text-anchor: middle;
+}
+
+.histogram-tick {
+  text-anchor: end;
+}
+
+.histogram-tick-start {
+  text-anchor: start;
+}
+
+.histogram-value {
+  text-anchor: start;
+}
+
+/*
+ * Charts zooming
+ */
+
+.chart-zoomed .line-chart-area {
+  clip-path: url(#chart-clip);
+}
+
+.chart-zoomed .line-chart-path {
+  clip-path: url(#chart-clip);
+}
+
+.chart-zoomed .leak-chart-rect {
+  clip-path: url(#chart-clip);
+}
+
+.chart-zoom-tick {
+  fill: #777;
+  font-size: 10px;
+  text-anchor: middle;
+  user-select: none;
+}
+
+.chart-mouse-events-overlay {
+  fill: none;
+  stroke: none;
+  pointer-events: all;
+}
+
+.chart-zoom .zoom-overlay {
+  fill: none;
+  stroke: none;
+  cursor: crosshair;
+  pointer-events: all;
+}
+
+.chart-zoom .zoom-selection {
+  fill: #777;
+  fill-opacity: 0.2;
+  stroke: #777;
+  shape-rendering: crispEdges;
+  cursor: move;
+}
+
+.chart-zoom .zoom-selection-handle {
+  cursor: ew-resize;
+  fill-opacity: 0;
+  stroke: none;
+}
+
+/*
+ * Charts tooltips
+ */
+
+.line-tooltip {
+  fill: none;
+  stroke: #777;
+  stroke-width: 1px;
+  shape-rendering: crispEdges;
+}

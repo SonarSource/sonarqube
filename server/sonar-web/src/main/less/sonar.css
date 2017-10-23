@@ -1,0 +1,57 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+@import './jquery-ui.css';
+@import './select2.css';
+@import './select2-sonar.css';
+
+@import './init/base.css';
+@import './init/type.css';
+@import './init/links.css';
+@import './init/tables.css';
+@import './init/lists.css';
+@import './init/forms.css';
+@import './init/icons.css';
+@import './init/misc.css';
+
+@import './components/ui.css';
+@import './components/global-loading.css';
+@import './components/bubble-popup.css';
+@import './components/modals.css';
+@import './components/alerts.css';
+@import './components/issues.css';
+@import './components/search-navigator.css';
+@import './components/tooltips.css';
+@import './components/dropdowns.css';
+@import './components/menu.css';
+@import './components/page.css';
+@import './components/component-name.css';
+@import './components/graphics.css';
+@import './components/list-groups.css';
+@import './components/panels.css';
+@import './components/badges.css';
+@import './components/columns.css';
+@import './components/search.css';
+@import './components/react-select.css';
+@import './components/side-tabs.css';
+
+@import './style.css';
+@import './print.css';
+@import './sonar-colorizer.css';
+@import './mixins.css';

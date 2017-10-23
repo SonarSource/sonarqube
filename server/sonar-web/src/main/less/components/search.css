@@ -17,9 +17,49 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import '../../components/ui/Level.css';
-import '../../components/ui/Rating.css';
-import './boxed-group.css';
+.search-box {
+  position: relative;
+  font-size: 0;
+  white-space: nowrap;
+}
 
-// these styles are extracted to a separate file
-import '../../../less/sonar.css';
+.search-box-input {
+  vertical-align: middle;
+  width: 250px;
+  border: none !important;
+  font-size: 13px;
+}
+
+.search-box-input ~ .note {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.search-box-input.touched ~ .note {
+  opacity: 1;
+}
+
+.search-box-submit {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.search-box-submit .icon-search:before {
+  color: #777;
+  font-size: 14px;
+}
+
+.search-box-submit .icon-search-new {
+  position: relative;
+  top: 1px;
+}
+
+.search-box-input-note {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  line-height: 1;
+  color: #777;
+  font-size: 12px;
+  white-space: nowrap;
+}

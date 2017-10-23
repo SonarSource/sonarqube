@@ -1,0 +1,173 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-toggle:focus {
+  outline: 0;
+}
+
+.dropdown-menu {
+  min-width: 160px;
+  padding: 5px 0;
+  list-style: none;
+  font-size: 12px;
+  text-align: left;
+  background-color: #fff;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 7500;
+  display: none;
+  float: left;
+  border: 1px solid #e6e6e6;
+  background-clip: padding-box;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+}
+
+.dropdown-menu:focus {
+  outline: none;
+}
+
+.dropdown-menu > li > a,
+.dropdown-menu > li > span {
+  display: block;
+  padding: 4px 16px;
+  line-height: 16px;
+  clear: both;
+  font-weight: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdown-menu > li > a {
+  color: #444;
+  border-bottom: none;
+  transition: none;
+}
+
+.dropdown-menu .divider {
+  height: 1px;
+  margin: 6px 0;
+  overflow: hidden;
+  background-color: #e6e6e6;
+}
+
+.dropdown-menu > li > a:hover,
+.dropdown-menu > li > a:focus {
+  text-decoration: none;
+  color: #444;
+  background-color: #f3f3f3;
+}
+
+.dropdown-menu > .active > a,
+.dropdown-menu > li > .active,
+.dropdown-menu > .active > a:hover,
+.dropdown-menu > li > .active:hover,
+.dropdown-menu > .active > a:focus,
+.dropdown-menu > li > .active:focus {
+  color: #444;
+  text-decoration: none;
+  outline: 0;
+  background-color: #f3f3f3;
+}
+
+.dropdown-menu .menu-vertically-limited {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.dropdown-menu .menu-footer > a > span {
+  border-bottom: 1px solid #cdcdcd;
+  color: #777;
+}
+
+.dropdown-menu .menu-footer-note {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.dropdown-menu .menu-footer.active .menu-footer-note {
+  opacity: 1;
+}
+
+.dropdown-menu.pull-right {
+  right: 0;
+  left: auto;
+}
+
+.open > .dropdown-menu {
+  display: block;
+}
+
+.open > a {
+  outline: 0;
+}
+
+.dropdown-menu-right {
+  left: auto;
+  right: 0;
+}
+
+.dropdown-menu-left {
+  left: 0;
+  right: auto;
+}
+
+.dropdown-header {
+  display: block;
+  padding: 3px 8px 5px;
+  font-size: 12px;
+  color: #777;
+  white-space: nowrap;
+}
+
+.dropdown-item {
+  padding: 5px 16px;
+}
+
+.dropdown-menu .small-divider {
+  height: 1px;
+  margin: 4px 20px;
+  overflow: hidden;
+  background-color: #f3f3f3;
+}
+
+.dropdown-backdrop {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  z-index: 990;
+}
+
+.dropdown-bottom-hint {
+  line-height: 16px;
+  margin-top: 5px;
+  margin-bottom: -5px;
+  padding: 5px 10px;
+  border-top: 1px solid #e6e6e6;
+  background-color: #f3f3f3;
+  color: #777;
+  font-size: 11px;
+}
