@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Branch } from '../../../app/types';
 import * as classNames from 'classnames';
+import { Branch } from '../../../app/types';
 import DeleteBranchModal from './DeleteBranchModal';
 import LeakPeriodForm from './LeakPeriodForm';
 import BranchStatus from '../../../components/common/BranchStatus';

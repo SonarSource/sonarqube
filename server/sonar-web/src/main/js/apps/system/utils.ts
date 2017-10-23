@@ -94,7 +94,7 @@ export function getSearchNodes(sysInfoData: ClusterSysInfo): NodeInfo[] {
 
 export function isCluster(sysInfoData?: SysInfo): boolean {
   return (
-    sysInfoData != undefined && sysInfoData['System'] && sysInfoData['System'][HA_FIELD] === true
+    sysInfoData !== undefined && sysInfoData['System'] && sysInfoData['System'][HA_FIELD] === true
   );
 }
 
@@ -165,8 +165,8 @@ export function getStandaloneSecondarySections(sysInfoData: SysInfo): SysInfoSec
 }
 
 export function groupSections(sysInfoData: SysValueObject) {
-  let mainSection: SysValueObject = {};
-  let sections: SysInfoSection = {};
+  const mainSection: SysValueObject = {};
+  const sections: SysInfoSection = {};
   each(sysInfoData, (item, key) => {
     if (typeof item !== 'object' || item instanceof Array) {
       mainSection[key] = item;

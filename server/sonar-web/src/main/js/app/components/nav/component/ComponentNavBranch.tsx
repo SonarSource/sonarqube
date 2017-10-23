@@ -46,16 +46,20 @@ interface State {
 
 export default class ComponentNavBranch extends React.PureComponent<Props, State> {
   mounted: boolean;
-  state: State = {
-    dropdownOpen: false,
-    noBranchSupportPopupOpen: false,
-    singleBranchPopupOpen: false
-  };
 
   static contextTypes = {
     branchesEnabled: PropTypes.bool.isRequired,
     onSonarCloud: PropTypes.bool
   };
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      dropdownOpen: false,
+      noBranchSupportPopupOpen: false,
+      singleBranchPopupOpen: false
+    };
+  }
 
   componentDidMount() {
     this.mounted = true;
@@ -94,7 +98,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   };
 
   toggleSingleBranchPopup = (show?: boolean) => {
-    if (show != undefined) {
+    if (show !== undefined) {
       this.setState({ singleBranchPopupOpen: show });
     } else {
       this.setState(state => ({ singleBranchPopupOpen: !state.singleBranchPopupOpen }));
@@ -102,7 +106,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
   };
 
   toggleNoBranchSupportPopup = (show?: boolean) => {
-    if (show != undefined) {
+    if (show !== undefined) {
       this.setState({ noBranchSupportPopupOpen: show });
     } else {
       this.setState(state => ({ noBranchSupportPopupOpen: !state.noBranchSupportPopupOpen }));

@@ -81,7 +81,7 @@ function injectRelational(
 ) {
   const newFields: { [x: string]: any } = {};
   const baseValue = issue[baseField];
-  if (baseValue != undefined && source != undefined) {
+  if (baseValue !== undefined && source !== undefined) {
     const lookupValue = source.find(candidate => candidate[lookupField] === baseValue);
     if (lookupValue != null) {
       Object.keys(lookupValue).forEach(key => {

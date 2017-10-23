@@ -34,7 +34,7 @@ interface Props {
 }
 
 export default function ProjectCardOverallMeasures({ measures }: Props) {
-  if (measures == undefined) {
+  if (measures === undefined) {
     return null;
   }
 

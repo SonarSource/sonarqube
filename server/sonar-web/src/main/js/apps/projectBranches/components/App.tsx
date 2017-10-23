@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router';
 import BranchRow from './BranchRow';
 import LongBranchesPattern from './LongBranchesPattern';
 import { Branch } from '../../../app/types';
 import { sortBranchesAsTree } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';
 import { getValues } from '../../../api/settings';
-import { FormattedMessage } from 'react-intl';
 import { formatMeasure } from '../../../helpers/measures';
-import { Link } from 'react-router';
 
 interface Props {
   branches: Branch[];

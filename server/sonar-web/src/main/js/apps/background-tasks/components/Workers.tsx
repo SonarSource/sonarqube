@@ -83,7 +83,7 @@ export default class Workers extends React.PureComponent<{}, State> {
   };
 
   toggleNoSupportPopup = (show?: boolean) => {
-    if (show != undefined) {
+    if (show !== undefined) {
       this.setState({ noSupportPopup: show });
     } else {
       this.setState(state => ({ noSupportPopup: !state.noSupportPopup }));

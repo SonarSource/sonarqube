@@ -33,10 +33,8 @@ export const longFormatterOption = { year: 'numeric', month: 'long', day: 'numer
 
 export default function DateFormatter({ children, date, long }: Props) {
   return (
-    <FormattedDate
-      children={children}
-      value={parseDate(date)}
-      {...(long ? longFormatterOption : formatterOption)}
-    />
+    <FormattedDate value={parseDate(date)} {...(long ? longFormatterOption : formatterOption)}>
+      {children}
+    </FormattedDate>
   );
 }
