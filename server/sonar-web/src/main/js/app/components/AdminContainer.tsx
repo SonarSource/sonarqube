@@ -45,8 +45,9 @@ class AdminContainer extends React.PureComponent<Props> {
   componentDidMount() {
     if (!this.context.canAdmin) {
       // workaround cyclic dependencies
-      const handleRequiredAuthorization = require('../utils/handleRequiredAuthorization').default;
-      handleRequiredAuthorization();
+      import('../utils/handleRequiredAuthorization').then(handleRequredAuthorization =>
+        handleRequredAuthorization.default()
+      );
     } else {
       this.loadData();
     }
