@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.System2;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 
@@ -51,7 +52,7 @@ public class UserIndexTest {
 
   @Before
   public void setUp() {
-    underTest = new UserIndex(esTester.client());
+    underTest = new UserIndex(esTester.client(), System2.INSTANCE);
   }
 
   @Test

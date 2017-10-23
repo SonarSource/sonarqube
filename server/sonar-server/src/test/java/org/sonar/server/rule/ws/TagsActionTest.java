@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
@@ -54,7 +55,7 @@ public class TagsActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private EsClient esClient = es.client();
-  private RuleIndex ruleIndex = new RuleIndex(esClient);
+  private RuleIndex ruleIndex = new RuleIndex(esClient, System2.INSTANCE);
   private RuleIndexer ruleIndexer = new RuleIndexer(esClient, dbClient);
 
   private WsActionTester ws = new WsActionTester(new org.sonar.server.rule.ws.TagsAction(ruleIndex, dbClient, TestDefaultOrganizationProvider.from(db)));

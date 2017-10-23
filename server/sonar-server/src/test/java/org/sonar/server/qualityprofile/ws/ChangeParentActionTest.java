@@ -104,7 +104,7 @@ public class ChangeParentActionTest {
     dbClient = db.getDbClient();
     dbSession = db.getSession();
     EsClient esClient = esTester.client();
-    ruleIndex = new RuleIndex(esClient);
+    ruleIndex = new RuleIndex(esClient, System2.INSTANCE);
     ruleIndexer = new RuleIndexer(esClient, dbClient);
     activeRuleIndexer = new ActiveRuleIndexer(dbClient, esClient);
     RuleActivatorContextFactory ruleActivatorContextFactory = new RuleActivatorContextFactory(dbClient);

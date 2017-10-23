@@ -43,6 +43,7 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.ScoreSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
+import org.sonar.api.utils.System2;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
@@ -71,10 +72,12 @@ public class ComponentIndex {
 
   private final EsClient client;
   private final AuthorizationTypeSupport authorizationTypeSupport;
+  private final System2 system2;
 
-  public ComponentIndex(EsClient client, AuthorizationTypeSupport authorizationTypeSupport) {
+  public ComponentIndex(EsClient client, AuthorizationTypeSupport authorizationTypeSupport, System2 system2) {
     this.client = client;
     this.authorizationTypeSupport = authorizationTypeSupport;
+    this.system2 = system2;
   }
 
   public SearchIdResult<String> search(ComponentQuery query, SearchOptions searchOptions) {
@@ -100,7 +103,7 @@ public class ComponentIndex {
     requestBuilder.setQuery(esQuery);
     requestBuilder.addSort(SORTABLE_ANALYZER.subField(FIELD_NAME), SortOrder.ASC);
 
-    return new SearchIdResult<>(requestBuilder.get(), id -> id);
+    return new SearchIdResult<>(requestBuilder.get(), id -> id, system2.getDefaultTimeZone());
   }
 
   public ComponentIndexResults searchSuggestions(SuggestionQuery query) {

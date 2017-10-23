@@ -22,6 +22,7 @@ package org.sonar.server.computation.task.projectanalysis.issue;
 import java.util.Collections;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
@@ -51,7 +52,7 @@ public class ScmAccountToUserLoaderTest {
       .setScmAccounts(asList("charlie", "jesuis@charlie.com"));
     esTester.putDocuments(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType(), user);
 
-    UserIndex index = new UserIndex(esTester.client());
+    UserIndex index = new UserIndex(esTester.client(), System2.INSTANCE);
     ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index);
 
     assertThat(underTest.load("missing")).isNull();
@@ -75,7 +76,7 @@ public class ScmAccountToUserLoaderTest {
       .setScmAccounts(asList("charlie"));
     esTester.putDocuments(UserIndexDefinition.INDEX_TYPE_USER.getIndex(), UserIndexDefinition.INDEX_TYPE_USER.getType(), user2);
 
-    UserIndex index = new UserIndex(esTester.client());
+    UserIndex index = new UserIndex(esTester.client(), System2.INSTANCE);
     ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index);
 
     assertThat(underTest.load("charlie")).isNull();
@@ -84,7 +85,7 @@ public class ScmAccountToUserLoaderTest {
 
   @Test
   public void load_by_multiple_scm_accounts_is_not_supported_yet() {
-    UserIndex index = new UserIndex(esTester.client());
+    UserIndex index = new UserIndex(esTester.client(), System2.INSTANCE);
     ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index);
     try {
       underTest.loadAll(Collections.<String>emptyList());

@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -68,7 +69,7 @@ public class AddMemberActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone().logIn().setRoot();
   @Rule
   public EsTester es = new EsTester(new UserIndexDefinition(new MapSettings().asConfig()));
-  private UserIndex userIndex = new UserIndex(es.client());
+  private UserIndex userIndex = new UserIndex(es.client(), System2.INSTANCE);
   @Rule
   public DbTester db = DbTester.create();
   private DbClient dbClient = db.getDbClient();

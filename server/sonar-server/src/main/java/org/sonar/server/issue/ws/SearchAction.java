@@ -42,6 +42,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
+import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
@@ -117,14 +118,16 @@ public class SearchAction implements IssuesWsAction {
   private final IssueQueryFactory issueQueryFactory;
   private final SearchResponseLoader searchResponseLoader;
   private final SearchResponseFormat searchResponseFormat;
+  private final System2 system2;
 
   public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryFactory issueQueryFactory,
-    SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat) {
+    SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat, System2 system2) {
     this.userSession = userSession;
     this.issueIndex = issueIndex;
     this.issueQueryFactory = issueQueryFactory;
     this.searchResponseLoader = searchResponseLoader;
     this.searchResponseFormat = searchResponseFormat;
+    this.system2 = system2;
   }
 
   @Override
@@ -331,7 +334,7 @@ public class SearchAction implements IssuesWsAction {
     collectRequestParams(collector, request);
     Facets facets = null;
     if (!options.getFacets().isEmpty()) {
-      facets = new Facets(result);
+      facets = new Facets(result, system2.getDefaultTimeZone());
       // add missing values to facets. For example if assignee "john" and facet on "assignees" are requested, then
       // "john" should always be listed in the facet. If it is not present, then it is added with value zero.
       // This is a constraint from webapp UX.
@@ -368,7 +371,7 @@ public class SearchAction implements IssuesWsAction {
     return options;
   }
 
-  private static Facets reorderFacets(@Nullable Facets facets, Collection<String> orderedNames) {
+  private Facets reorderFacets(@Nullable Facets facets, Collection<String> orderedNames) {
     if (facets == null) {
       return null;
     }
@@ -379,7 +382,7 @@ public class SearchAction implements IssuesWsAction {
         orderedFacets.put(facetName, facet);
       }
     }
-    return new Facets(orderedFacets);
+    return new Facets(orderedFacets, system2.getDefaultTimeZone());
   }
 
   private void completeFacets(Facets facets, SearchWsRequest request, Request wsRequest) {

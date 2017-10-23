@@ -98,7 +98,7 @@ public class SuggestionsActionTest {
 
   private ComponentIndexer componentIndexer = new ComponentIndexer(db.getDbClient(), es.client());
   private FavoriteFinder favoriteFinder = mock(FavoriteFinder.class);
-  private ComponentIndex index = new ComponentIndex(es.client(), new AuthorizationTypeSupport(userSessionRule));
+  private ComponentIndex index = new ComponentIndex(es.client(), new AuthorizationTypeSupport(userSessionRule), System2.INSTANCE);
   private SuggestionsAction underTest = new SuggestionsAction(db.getDbClient(), index, favoriteFinder, userSessionRule, resourceTypes);
   private OrganizationDto organization;
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, componentIndexer);

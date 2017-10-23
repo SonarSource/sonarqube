@@ -104,7 +104,7 @@ public class RuleIndexTest {
   public void setUp() {
     ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
     activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
-    underTest = new RuleIndex(es.client());
+    underTest = new RuleIndex(es.client(), system2);
   }
 
   @Test

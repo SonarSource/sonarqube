@@ -55,6 +55,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.QProfileDto;
@@ -131,9 +132,11 @@ public class RuleIndex {
   private static final String AGGREGATION_NAME_FOR_TAGS = "tagsAggregation";
 
   private final EsClient client;
+  private final System2 system2;
 
-  public RuleIndex(EsClient client) {
+  public RuleIndex(EsClient client, System2 system2) {
     this.client = client;
+    this.system2 = system2;
   }
 
   public SearchIdResult<RuleKey> search(RuleQuery query, SearchOptions options) {
@@ -158,7 +161,7 @@ public class RuleIndex {
     }
 
     esSearch.setQuery(boolQuery().must(qb).filter(fb));
-    return new SearchIdResult<>(esSearch.get(), RuleKey::parse);
+    return new SearchIdResult<>(esSearch.get(), RuleKey::parse, system2.getDefaultTimeZone());
   }
 
   /**

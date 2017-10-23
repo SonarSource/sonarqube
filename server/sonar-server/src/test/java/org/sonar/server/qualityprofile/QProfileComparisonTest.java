@@ -74,7 +74,7 @@ public class QProfileComparisonTest {
     ruleActivator = new RuleActivator(
       System2.INSTANCE,
       db,
-      new RuleIndex(esTester.client()),
+      new RuleIndex(esTester.client(), System2.INSTANCE),
       new RuleActivatorContextFactory(db),
       new TypeValidations(singletonList(new IntegerTypeValidation())),
       new ActiveRuleIndexer(db, esTester.client()),

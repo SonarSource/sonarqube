@@ -66,7 +66,7 @@ public class SearchActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private UserIndex index = new UserIndex(esTester.client());
+  private UserIndex index = new UserIndex(esTester.client(), system2);
   private UserIndexer userIndexer = new UserIndexer(dbClient, esTester.client());
   private WsTester ws = new WsTester(new UsersWs(new SearchAction(userSession, index, dbClient, new AvatarResolverImpl())));
 

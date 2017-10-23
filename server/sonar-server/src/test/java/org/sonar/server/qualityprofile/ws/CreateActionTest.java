@@ -90,7 +90,7 @@ public class CreateActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private RuleIndex ruleIndex = new RuleIndex(es.client());
+  private RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
   private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), dbClient);
   private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, es.client());
   private ProfileImporter[] profileImporters = createImporters();

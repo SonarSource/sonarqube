@@ -85,7 +85,7 @@ public class DeleteActionTest {
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone().setEnabled(true);
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private QProfileFactory qProfileFactory = new QProfileFactoryImpl(dbClient, mock(UuidFactory.class), System2.INSTANCE, mock(ActiveRuleIndexer.class));
-  private UserIndex userIndex = new UserIndex(es.client());
+  private UserIndex userIndex = new UserIndex(es.client(), System2.INSTANCE);
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
 
   private WsActionTester wsTester = new WsActionTester(new DeleteAction(userSession, dbClient, defaultOrganizationProvider, componentCleanerService, organizationFlags, userIndexer, qProfileFactory));

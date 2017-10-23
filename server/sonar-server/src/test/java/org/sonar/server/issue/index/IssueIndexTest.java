@@ -34,7 +34,6 @@ import org.assertj.core.api.Fail;
 import org.assertj.core.groups.Tuple;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -43,6 +42,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
@@ -71,8 +71,6 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
@@ -101,7 +99,7 @@ public class IssueIndexTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-  private System2 system2 = mock(System2.class);
+  private System2 system2 = new TestSystem2().setNow(1_500_000_000_000L).setDefaultTimeZone(TimeZone.getTimeZone("GMT-01:00"));
   @Rule
   public DbTester db = DbTester.create(system2);
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()));
@@ -110,12 +108,6 @@ public class IssueIndexTest {
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, issueIndexer);
 
   private IssueIndex underTest = new IssueIndex(es.client(), system2, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
-
-  @Before
-  public void setUp() {
-    when(system2.getDefaultTimeZone()).thenReturn(TimeZone.getTimeZone("GMT-1:00"));
-    when(system2.now()).thenReturn(System.currentTimeMillis());
-  }
 
   @Test
   public void filter_by_keys() {
@@ -785,7 +777,7 @@ public class IssueIndexTest {
       .checkAuthorization(false)
       .build();
     SearchResponse result = underTest.search(query, options);
-    Map<String, Long> buckets = new Facets(result).get("createdAt");
+    Map<String, Long> buckets = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
     assertThat(buckets).containsOnly(
       entry("2014-08-31", 0L),
       entry("2014-09-01", 2L),
@@ -805,7 +797,7 @@ public class IssueIndexTest {
       .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
       .createdBefore(parseDateTime("2014-09-21T00:00:00+0100")).build(),
       options);
-    Map<String, Long> createdAt = new Facets(result).get("createdAt");
+    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2014-08-25", 0L),
       entry("2014-09-01", 4L),
@@ -821,7 +813,7 @@ public class IssueIndexTest {
       .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
       .createdBefore(parseDateTime("2015-01-19T00:00:00+0100")).build(),
       options);
-    Map<String, Long> createdAt = new Facets(result).get("createdAt");
+    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2014-08-01", 0L),
       entry("2014-09-01", 5L),
@@ -839,7 +831,7 @@ public class IssueIndexTest {
       .createdAfter(parseDateTime("2011-01-01T00:00:00+0100"))
       .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
       options);
-    Map<String, Long> createdAt = new Facets(result).get("createdAt");
+    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2010-01-01", 0L),
       entry("2011-01-01", 1L),
@@ -857,7 +849,7 @@ public class IssueIndexTest {
       .createdAfter(parseDateTime("2014-09-01T00:00:00-0100"))
       .createdBefore(parseDateTime("2014-09-02T00:00:00-0100")).build(),
       options);
-    Map<String, Long> createdAt = new Facets(result).get("createdAt");
+    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2014-09-01", 2L));
   }
@@ -870,7 +862,7 @@ public class IssueIndexTest {
       .createdAfter(parseDateTime("2009-01-01T00:00:00+0100"))
       .createdBefore(parseDateTime("2016-01-01T00:00:00+0100"))
       .build(), options);
-    Map<String, Long> createdAt = new Facets(result).get("createdAt");
+    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2008-01-01", 0L),
       entry("2009-01-01", 0L),
@@ -889,7 +881,7 @@ public class IssueIndexTest {
     SearchResponse result = underTest.search(IssueQuery.builder()
       .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
       searchOptions);
-    Map<String, Long> createdAt = new Facets(result).get("createdAt");
+    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2011-01-01", 1L),
       entry("2012-01-01", 0L),
@@ -903,7 +895,7 @@ public class IssueIndexTest {
     SearchOptions searchOptions = new SearchOptions().addFacets("createdAt");
 
     SearchResponse result = underTest.search(IssueQuery.builder().build(), searchOptions);
-    Map<String, Long> createdAt = new Facets(result).get("createdAt");
+    Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
     assertThat(createdAt).isNull();
   }
 
@@ -1422,14 +1414,14 @@ public class IssueIndexTest {
 
   private void assertThatFacetHasExactly(IssueQuery.Builder query, String facet, Map.Entry<String, Long>... expectedEntries) {
     SearchResponse result = underTest.search(query.build(), new SearchOptions().addFacets(asList(facet)));
-    Facets facets = new Facets(result);
+    Facets facets = new Facets(result, system2.getDefaultTimeZone());
     assertThat(facets.getNames()).containsOnly(facet);
     assertThat(facets.get(facet)).containsExactly(expectedEntries);
   }
 
   private void assertThatFacetHasOnly(IssueQuery.Builder query, String facet, Map.Entry<String, Long>... expectedEntries) {
     SearchResponse result = underTest.search(query.build(), new SearchOptions().addFacets(asList(facet)));
-    Facets facets = new Facets(result);
+    Facets facets = new Facets(result, system2.getDefaultTimeZone());
     assertThat(facets.getNames()).containsOnly(facet);
     assertThat(facets.get(facet)).containsOnly(expectedEntries);
   }

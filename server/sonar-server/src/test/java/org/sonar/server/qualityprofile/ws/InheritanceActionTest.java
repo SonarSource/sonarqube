@@ -101,7 +101,7 @@ public class InheritanceActionTest {
     ruleActivator = new RuleActivator(
       System2.INSTANCE,
       dbClient,
-      new RuleIndex(esClient),
+      new RuleIndex(esClient, System2.INSTANCE),
       new RuleActivatorContextFactory(dbClient),
       new TypeValidations(new ArrayList<>()),
       activeRuleIndexer,

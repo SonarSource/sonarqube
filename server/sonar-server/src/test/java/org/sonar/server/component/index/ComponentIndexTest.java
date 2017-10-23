@@ -60,7 +60,7 @@ public abstract class ComponentIndexTest {
   public ComponentTextSearchFeatureRule features = new ComponentTextSearchFeatureRule();
 
   protected ComponentIndexer indexer = new ComponentIndexer(db.getDbClient(), es.client());
-  protected ComponentIndex index = new ComponentIndex(es.client(), new AuthorizationTypeSupport(userSession));
+  protected ComponentIndex index = new ComponentIndex(es.client(), new AuthorizationTypeSupport(userSession), System2.INSTANCE);
   protected PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, indexer);
   private OrganizationDto organization;
 

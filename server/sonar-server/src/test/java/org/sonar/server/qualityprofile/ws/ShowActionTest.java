@@ -28,6 +28,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.rule.RuleDefinitionDto;
@@ -73,7 +74,7 @@ public class ShowActionTest {
 
   private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
   private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
-  private RuleIndex ruleIndex = new RuleIndex(es.client());
+  private RuleIndex ruleIndex = new RuleIndex(es.client(), System2.INSTANCE);
 
   private WsActionTester ws = new WsActionTester(
     new ShowAction(db.getDbClient(), new QProfileWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db)), LANGUAGES, ruleIndex));

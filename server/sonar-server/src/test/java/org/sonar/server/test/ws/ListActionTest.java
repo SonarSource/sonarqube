@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -74,7 +75,7 @@ public class ListActionTest {
 
   private DbClient dbClient = db.getDbClient();
 
-  private TestIndex testIndex = new TestIndex(es.client());
+  private TestIndex testIndex = new TestIndex(es.client(), System2.INSTANCE);
   private TestIndexer testIndexer = new TestIndexer(db.getDbClient(), es.client());
 
   private ComponentDto project;

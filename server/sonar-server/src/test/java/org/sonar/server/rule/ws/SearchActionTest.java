@@ -106,7 +106,7 @@ public class SearchActionTest {
   public EsTester es = new EsTester(new RuleIndexDefinition(new MapSettings().asConfig()));
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private RuleIndex ruleIndex = new RuleIndex(es.client());
+  private RuleIndex ruleIndex = new RuleIndex(es.client() ,system2);
   private RuleIndexer ruleIndexer = new RuleIndexer(es.client(), db.getDbClient());
   private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(db.getDbClient(), es.client());
   private Languages languages = LanguageTesting.newLanguages(JAVA, "js");
