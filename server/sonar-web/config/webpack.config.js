@@ -1,5 +1,4 @@
 const path = require('path');
-const autoprefixer = require('autoprefixer');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
@@ -24,7 +23,12 @@ const postcssLoader = () => ({
   loader: 'postcss-loader',
   options: {
     ident: 'postcss',
-    plugins: () => [autoprefixer]
+    plugins: () => [
+      require('autoprefixer'),
+      require('postcss-custom-properties')({
+        variables: require('../src/main/js/app/theme')
+      })
+    ]
   }
 });
 
