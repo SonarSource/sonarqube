@@ -86,7 +86,7 @@
     <orchestrator.version>3.15.0.1256</orchestrator.version>
     <okhttp.version>3.7.0</okhttp.version>
     <jackson.version>2.6.6</jackson.version>
-
+    <jjwt.version>0.9.0</jjwt.version>
     <protobuf.version>3.0.0-beta-2</protobuf.version>
 
     <hazelcast.version>3.8.6</hazelcast.version>
@@ -237,10 +237,11 @@
         <plugin>
           <groupId>org.owasp</groupId>
           <artifactId>dependency-check-maven</artifactId>
-          <version>1.2.11</version>
+          <version>3.0.1</version>
           <configuration>
             <failBuildOnCVSS>8</failBuildOnCVSS>
-            <suppressionFile>cve-false-positives.xml</suppressionFile>
+            <suppressionFile>dependency-check-suppressions.xml</suppressionFile>
+            <enableExperimental>true</enableExperimental>
           </configuration>
         </plugin>
         <plugin>
@@ -817,7 +818,7 @@
       <dependency>
         <groupId>io.jsonwebtoken</groupId>
         <artifactId>jjwt</artifactId>
-        <version>0.6.0</version>
+        <version>${jjwt.version}</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
