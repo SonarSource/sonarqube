@@ -47,7 +47,7 @@ export default class SelectListItem extends React.PureComponent {
 
   renderLink() {
     let children = this.props.item;
-    if (this.props.hasOwnProperty('children')) {
+    if (this.props.children) {
       children = this.props.children;
     }
     return (

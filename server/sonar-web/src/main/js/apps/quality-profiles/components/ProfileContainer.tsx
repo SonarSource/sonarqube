@@ -32,7 +32,7 @@ interface Props {
   onRequestFail: (reasong: any) => void;
   organization: string | null;
   profiles: Profile[];
-  router: { replace: ({}) => void };
+  router: { replace: (path: any) => void };
   updateProfiles: () => Promise<void>;
 }
 

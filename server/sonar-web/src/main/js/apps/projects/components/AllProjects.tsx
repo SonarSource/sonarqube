@@ -51,13 +51,17 @@ interface State {
 
 export default class AllProjects extends React.PureComponent<Props, State> {
   mounted: boolean;
-  state: State = { loading: true, query: {} };
 
   static contextTypes = {
     currentUser: PropTypes.object.isRequired,
     organizationsEnabled: PropTypes.bool,
     router: PropTypes.object.isRequired
   };
+
+  constructor(props: Props) {
+    super(props);
+    this.state = { loading: true, query: {} };
+  }
 
   componentDidMount() {
     this.mounted = true;
@@ -88,7 +92,7 @@ export default class AllProjects extends React.PureComponent<Props, State> {
 
   getSort = () => this.state.query.sort || 'name';
 
-  isFiltered = () => Object.values(this.state.query).some(value => value != undefined);
+  isFiltered = () => Object.values(this.state.query).some(value => value !== undefined);
 
   stopLoading = () => {
     if (this.mounted) {
@@ -280,10 +284,10 @@ export default class AllProjects extends React.PureComponent<Props, State> {
           />
         )}
         <ListFooter
-          count={this.state.projects != undefined ? this.state.projects.length : 0}
+          count={this.state.projects !== undefined ? this.state.projects.length : 0}
           loadMore={this.fetchMoreProjects}
           ready={!this.state.loading}
-          total={this.state.total != undefined ? this.state.total : 0}
+          total={this.state.total !== undefined ? this.state.total : 0}
         />
       </div>
     );

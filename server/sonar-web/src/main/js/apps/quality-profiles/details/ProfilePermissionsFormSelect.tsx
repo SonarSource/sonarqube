@@ -113,7 +113,7 @@ export default class ProfilePermissionsFormSelect extends React.PureComponent<Pr
 }
 
 function isUser(option: Option): option is User {
-  return (option as User).login != undefined;
+  return (option as User).login !== undefined;
 }
 
 function getStringValue(option: Option) {

@@ -44,7 +44,7 @@ export default class ComponentNavBgTaskNotif extends React.PureComponent<Props> 
   renderMessage(messageKey: string) {
     const { component } = this.props;
     const canSeeBackgroundTasks =
-      component.configuration != undefined && component.configuration.showBackgroundTasks;
+      component.configuration !== undefined && component.configuration.showBackgroundTasks;
     const bgTaskUrl = getComponentBackgroundTaskUrl(component.key);
 
     if (canSeeBackgroundTasks) {

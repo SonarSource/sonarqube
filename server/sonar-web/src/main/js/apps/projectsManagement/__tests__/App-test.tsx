@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable import/first, import/order */
 jest.mock('lodash', () => {
   const lodash = require.requireActual('lodash');
   lodash.debounce = (fn: Function) => (...args: any[]) => fn(args);
@@ -25,6 +26,7 @@ jest.mock('lodash', () => {
 
 // actual version breaks `mount`
 jest.mock('rc-tooltip', () => ({
+  // eslint-disable-next-line
   default: function Tooltip() {
     return null;
   }
@@ -81,7 +83,7 @@ it('searches', () => {
   expect(getComponents).lastCalledWith({ ...defaultSearchParameters, q: 'foo', qualifiers: 'TRK' });
 });
 
-it('loads more', async () => {
+it('loads more', () => {
   const wrapper = mountRender();
   wrapper.find('ListFooter').prop<Function>('loadMore')();
   expect(getComponents).lastCalledWith({ ...defaultSearchParameters, p: 2, qualifiers: 'TRK' });

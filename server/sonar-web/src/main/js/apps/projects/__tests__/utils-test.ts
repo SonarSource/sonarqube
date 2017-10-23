@@ -49,6 +49,7 @@ describe('cumulativeMapFacetValues', () => {
         { val: '4', count: 2 },
         { val: '5', count: 0 }
       ])
+      // eslint-disable-next-line
     ).toEqual({ '1': 50, '2': 9, '3': 8, '4': 2, '5': 0 });
   });
   it('should correctly cumulate facets with NO_DATA items', () => {
