@@ -24,6 +24,7 @@ import { flatten, isEqual, sortBy, throttle, uniq } from 'lodash';
 import { bisector, extent, max } from 'd3-array';
 import { scaleLinear, scalePoint, scaleTime } from 'd3-scale';
 import { line as d3Line, area, curveBasis } from 'd3-shape';
+import * as theme from '../../app/theme';
 
 /*::
 type Event = { className?: string, name: string, date: Date };
@@ -381,7 +382,7 @@ export default class AdvancedTimeline extends React.PureComponent {
         y={yRange[yRange.length - 1]}
         width={leakWidth}
         height={yRange[0] - yRange[yRange.length - 1]}
-        fill="#fbf3d5"
+        fill={theme.leakColor}
       />
     );
   };
