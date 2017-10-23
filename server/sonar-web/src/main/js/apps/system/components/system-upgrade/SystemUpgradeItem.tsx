@@ -25,15 +25,19 @@ import { SystemUpgrade } from '../../../../api/system';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
 interface Props {
-  badge?: string;
+  type?: string;
   systemUpgrades: SystemUpgrade[];
 }
 
-export default function SystemUpgradeItem({ badge, systemUpgrades }: Props) {
+export default function SystemUpgradeItem({ type, systemUpgrades }: Props) {
   const lastUpgrade = systemUpgrades[0];
   return (
     <div className="system-upgrade-version">
-      {badge && <span className="spacer-bottom badge badge-secondary">{badge}</span>}
+      {type && (
+        <h1 className="spacer-bottom">
+          <strong>{type}</strong>
+        </h1>
+      )}
       <p>
         <FormattedMessage
           defaultMessage={translate('system.version_is_availble')}
@@ -48,9 +52,11 @@ export default function SystemUpgradeItem({ badge, systemUpgrades }: Props) {
             <span>{translateWithParameters('system.released_x', formattedDate)}</span>
           )}
         </DateFormatter>
-        <a className="spacer-left" href={lastUpgrade.changeLogUrl} target="_blank">
-          {translate('system.release_notes')}
-        </a>
+        {lastUpgrade.changeLogUrl && (
+          <a className="spacer-left" href={lastUpgrade.changeLogUrl} target="_blank">
+            {translate('system.release_notes')}
+          </a>
+        )}
       </div>
       <SystemUpgradeIntermediate className="spacer-top" upgrades={systemUpgrades.slice(1)} />
       <div className="big-spacer-top">

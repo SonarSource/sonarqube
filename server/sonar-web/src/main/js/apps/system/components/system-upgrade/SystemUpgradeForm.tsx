@@ -35,16 +35,6 @@ interface State {
 export default class SystemUpgradeForm extends React.PureComponent<Props, State> {
   state: State = { upgrading: false };
 
-  getBadge = (idx: number) => {
-    if (this.props.systemUpgrades.length <= 1) {
-      return undefined;
-    }
-    if (idx === 0) {
-      return translate('system.latest_version');
-    }
-    return translate('system.latest_lts_version');
-  };
-
   handleCancelClick = (event: React.SyntheticEvent<HTMLElement>) => {
     event.preventDefault();
     event.stopPropagation();
@@ -69,7 +59,9 @@ export default class SystemUpgradeForm extends React.PureComponent<Props, State>
           {systemUpgrades.map((upgrades, idx) => (
             <SystemUpgradeItem
               key={upgrades[upgrades.length - 1].version}
-              badge={this.getBadge(idx)}
+              type={
+                idx === 0 ? translate('system.latest_version') : translate('system.lts_version')
+              }
               systemUpgrades={upgrades}
             />
           ))}

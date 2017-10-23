@@ -74,6 +74,11 @@ export default class SystemUpgradeIntermediate extends React.PureComponent<Props
                   <p>
                     <b className="little-spacer-right">SonarQube {upgrade.version}</b>
                     {formattedDate}
+                    {upgrade.changeLogUrl && (
+                      <a className="spacer-left" href={upgrade.changeLogUrl} target="_blank">
+                        {translate('system.release_notes')}
+                      </a>
+                    )}
                   </p>
                 )}
               </DateFormatter>
