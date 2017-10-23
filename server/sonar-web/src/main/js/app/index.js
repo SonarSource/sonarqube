@@ -23,7 +23,10 @@ import startReactApp from './utils/startReactApp';
 import installExtensionsHandler from './utils/installExtensionsHandler';
 import { installGlobal } from '../helpers/l10n';
 import '../helpers/isolatedScroll';
-import './styles/index';
+// styles
+import '../components/ui/Level.css';
+import '../components/ui/Rating.css';
+import '../../less/sonar.css';
 
 startAjaxMonitoring();
 installGlobal();
