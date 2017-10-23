@@ -194,4 +194,38 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <!--
+    This module contains deprecated dependencies (containing vulnerability issues) for plugins built for SonarQube < 5.2
+    It will be removed for 7.0
+    -->
+    <profile>
+      <!--
+      check if maven dependencies have vulnerabilities listed in CVE
+      Standalone command: mvn org.owasp:dependency-check-maven:check
+      See http://jeremylong.github.io/DependencyCheck
+      -->
+      <id>securityCheck</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.owasp</groupId>
+            <artifactId>dependency-check-maven</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+                <configuration>
+                  <skip>true</skip>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
 </project>
