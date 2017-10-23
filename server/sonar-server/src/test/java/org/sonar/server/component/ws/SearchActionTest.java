@@ -96,7 +96,7 @@ public class SearchActionTest {
   private Languages languages = mock(Languages.class);
   private ComponentIndexer indexer = new ComponentIndexer(db.getDbClient(), es.client());
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, indexer);
-  private ComponentIndex index = new ComponentIndex(es.client(), new AuthorizationTypeSupport(userSession));
+  private ComponentIndex index = new ComponentIndex(es.client(), new AuthorizationTypeSupport(userSession), System2.INSTANCE);
 
   private UserDto user;
 

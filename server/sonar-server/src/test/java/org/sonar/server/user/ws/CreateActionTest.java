@@ -77,7 +77,7 @@ public class CreateActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private UserIndex index = new UserIndex(esTester.client());
+  private UserIndex index = new UserIndex(esTester.client(), System2.INSTANCE);
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), esTester.client());
   private GroupDto defaultGroupInDefaultOrg;
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);

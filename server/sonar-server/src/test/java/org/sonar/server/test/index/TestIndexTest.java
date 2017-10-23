@@ -24,6 +24,7 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
+import org.sonar.api.utils.System2;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 
@@ -36,7 +37,7 @@ public class TestIndexTest {
   @Rule
   public EsTester es = new EsTester(new TestIndexDefinition(new MapSettings().asConfig()));
 
-  TestIndex underTest = new TestIndex(es.client());
+  TestIndex underTest = new TestIndex(es.client(), System2.INSTANCE);
 
   @Test
   public void coveredFiles() throws Exception {

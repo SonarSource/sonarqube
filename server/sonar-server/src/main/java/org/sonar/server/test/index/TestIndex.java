@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.search.SearchHit;
+import org.sonar.api.utils.System2;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -41,9 +42,11 @@ import static org.sonar.server.test.index.TestIndexDefinition.FIELD_TEST_UUID;
 
 public class TestIndex {
   private final EsClient client;
+  private final System2 system2;
 
-  public TestIndex(EsClient client) {
+  public TestIndex(EsClient client, System2 system2) {
     this.client = client;
+    this.system2 = system2;
   }
 
   public List<CoveredFileDoc> coveredFiles(String testUuid) {
@@ -65,7 +68,7 @@ public class TestIndex {
       .setFrom(searchOptions.getOffset())
       .setQuery(boolQuery().must(matchAllQuery()).filter(termQuery(FIELD_FILE_UUID, testFileUuid)));
 
-    return new SearchResult<>(searchRequest.get(), TestDoc::new);
+    return new SearchResult<>(searchRequest.get(), TestDoc::new, system2.getDefaultTimeZone());
   }
 
   public SearchResult<TestDoc> searchBySourceFileUuidAndLineNumber(String sourceFileUuid, int lineNumber, SearchOptions searchOptions) {
@@ -79,7 +82,7 @@ public class TestIndex {
           .must(termQuery(FIELD_COVERED_FILES + "." + FIELD_COVERED_FILE_LINES, lineNumber)),
         ScoreMode.Avg));
 
-    return new SearchResult<>(searchRequest.get(), TestDoc::new);
+    return new SearchResult<>(searchRequest.get(), TestDoc::new, system2.getDefaultTimeZone());
   }
 
   public TestDoc getByTestUuid(String testUuid) {
@@ -108,6 +111,6 @@ public class TestIndex {
       .setFrom(searchOptions.getOffset())
       .setQuery(boolQuery().must(matchAllQuery()).filter(termQuery(FIELD_TEST_UUID, testUuid)));
 
-    return new SearchResult<>(searchRequest.get(), TestDoc::new);
+    return new SearchResult<>(searchRequest.get(), TestDoc::new, system2.getDefaultTimeZone());
   }
 }

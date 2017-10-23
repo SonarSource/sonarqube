@@ -68,7 +68,7 @@ public class TagsActionTest {
   private RuleIndexer ruleIndexer = new RuleIndexer(esTester.client(), dbTester.getDbClient());
   private PermissionIndexerTester permissionIndexerTester = new PermissionIndexerTester(esTester, issueIndexer);
   private IssueIndex issueIndex = new IssueIndex(esTester.client(), System2.INSTANCE, userSession, new AuthorizationTypeSupport(userSession));
-  private RuleIndex ruleIndex = new RuleIndex(esTester.client());
+  private RuleIndex ruleIndex = new RuleIndex(esTester.client(), System2.INSTANCE);
 
   private WsActionTester ws = new WsActionTester(new TagsAction(issueIndex, ruleIndex, dbTester.getDbClient(), TestDefaultOrganizationProvider.from(dbTester)));
   private OrganizationDto organization;

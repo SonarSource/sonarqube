@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -58,7 +59,7 @@ public class CoveredFilesActionTest {
   @Rule
   public DbTester db = DbTester.create();
 
-  private TestIndex testIndex = new TestIndex(es.client());
+  private TestIndex testIndex = new TestIndex(es.client(), System2.INSTANCE);
   private TestIndexer testIndexer = new TestIndexer(db.getDbClient(), es.client());
 
   private WsActionTester ws = new WsActionTester(new CoveredFilesAction(db.getDbClient(), testIndex, userSession));

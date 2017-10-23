@@ -31,6 +31,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
@@ -71,14 +72,16 @@ public class IssueChangeWebhookImpl implements IssueChangeWebhook {
   private final ProjectConfigurationLoader projectConfigurationLoader;
   private final WebhookPayloadFactory webhookPayloadFactory;
   private final IssueIndex issueIndex;
+  private final System2 system2;
 
   public IssueChangeWebhookImpl(DbClient dbClient, WebHooks webhooks, ProjectConfigurationLoader projectConfigurationLoader,
-    WebhookPayloadFactory webhookPayloadFactory, IssueIndex issueIndex) {
+    WebhookPayloadFactory webhookPayloadFactory, IssueIndex issueIndex, System2 system2) {
     this.dbClient = dbClient;
     this.webhooks = webhooks;
     this.projectConfigurationLoader = projectConfigurationLoader;
     this.webhookPayloadFactory = webhookPayloadFactory;
     this.issueIndex = issueIndex;
+    this.system2 = system2;
   }
 
   @Override
@@ -167,7 +170,7 @@ public class IssueChangeWebhookImpl implements IssueChangeWebhook {
     return webhookPayloadFactory.create(projectAnalysis);
   }
 
-  private static QualityGate createQualityGate(ComponentDto branch, IssueIndex issueIndex) {
+  private QualityGate createQualityGate(ComponentDto branch, IssueIndex issueIndex) {
     SearchResponse searchResponse = issueIndex.search(IssueQuery.builder()
       .projectUuids(singletonList(branch.getMainBranchProjectUuid()))
       .branchUuid(branch.uuid())
@@ -176,7 +179,7 @@ public class IssueChangeWebhookImpl implements IssueChangeWebhook {
       .checkAuthorization(false)
       .build(),
       new SearchOptions().addFacets(RuleIndex.FACET_TYPES));
-    LinkedHashMap<String, Long> typeFacet = new Facets(searchResponse)
+    LinkedHashMap<String, Long> typeFacet = new Facets(searchResponse, system2.getDefaultTimeZone())
       .get(RuleIndex.FACET_TYPES);
 
     Set<QualityGate.Condition> conditions = ShortLivingBranchQualityGate.CONDITIONS.stream()

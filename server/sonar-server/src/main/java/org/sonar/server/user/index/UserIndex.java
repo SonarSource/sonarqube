@@ -35,6 +35,7 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.System2;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -57,9 +58,11 @@ import static org.sonar.server.user.index.UserIndexDefinition.FIELD_SCM_ACCOUNTS
 public class UserIndex {
 
   private final EsClient esClient;
+  private final System2 system2;
 
-  public UserIndex(EsClient esClient) {
+  public UserIndex(EsClient esClient, System2 system2) {
     this.esClient = esClient;
+    this.system2 = system2;
   }
 
   @CheckForNull
@@ -123,7 +126,7 @@ public class UserIndex {
 
     request.setQuery(boolQuery().must(esQuery).filter(filter));
 
-    return new SearchResult<>(request.get(), UserDoc::new);
+    return new SearchResult<>(request.get(), UserDoc::new, system2.getDefaultTimeZone());
   }
 
 }

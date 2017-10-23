@@ -84,7 +84,7 @@ public class QProfilesWsMediumTest {
 
   private DbClient dbClient = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
-  private RuleIndex ruleIndex = new RuleIndex(esTester.client());
+  private RuleIndex ruleIndex = new RuleIndex(esTester.client(), System2.INSTANCE);
   private RuleIndexer ruleIndexer = new RuleIndexer(esTester.client(), dbClient);
   private ActiveRuleIndexer activeRuleIndexer = new ActiveRuleIndexer(dbClient, esTester.client());
   private RuleActivatorContextFactory ruleActivatorContextFactory = new RuleActivatorContextFactory(dbClient);

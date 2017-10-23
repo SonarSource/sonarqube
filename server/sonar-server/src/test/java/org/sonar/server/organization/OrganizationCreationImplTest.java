@@ -104,7 +104,7 @@ public class OrganizationCreationImplTest {
   private OrganizationValidation organizationValidation = mock(OrganizationValidation.class);
   private MapSettings settings = new MapSettings();
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
-  private UserIndex userIndex = new UserIndex(es.client());
+  private UserIndex userIndex = new UserIndex(es.client(), system2);
   private DefaultGroupCreator defaultGroupCreator = new DefaultGroupCreatorImpl(dbClient);
   private OrganizationCreationImpl underTest = new OrganizationCreationImpl(dbClient, system2, uuidFactory, organizationValidation, settings.asConfig(), userIndexer,
     builtInQProfileRepositoryRule, defaultGroupCreator);

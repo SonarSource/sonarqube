@@ -83,7 +83,7 @@ public class DeactivateActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private UserIndex index = new UserIndex(esTester.client());
+  private UserIndex index = new UserIndex(esTester.client(), system2);
   private DbClient dbClient = db.getDbClient();
   private UserIndexer userIndexer = new UserIndexer(dbClient, esTester.client());
   private DbSession dbSession = db.getSession();

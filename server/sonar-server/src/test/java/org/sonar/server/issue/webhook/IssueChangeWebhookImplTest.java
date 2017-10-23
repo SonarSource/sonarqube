@@ -145,10 +145,10 @@ public class IssueChangeWebhookImplTest {
   private IssueIndex issueIndex = new IssueIndex(esTester.client(), System2.INSTANCE, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
   private DbClient spiedOnDbClient = spy(dbClient);
   private ProjectConfigurationLoader projectConfigurationLoader = mock(ProjectConfigurationLoader.class);
-  private IssueChangeWebhookImpl underTest = new IssueChangeWebhookImpl(spiedOnDbClient, webHooks, projectConfigurationLoader, webhookPayloadFactory, issueIndex);
+  private IssueChangeWebhookImpl underTest = new IssueChangeWebhookImpl(spiedOnDbClient, webHooks, projectConfigurationLoader, webhookPayloadFactory, issueIndex, System2.INSTANCE);
   private DbClient mockedDbClient = mock(DbClient.class);
   private IssueIndex spiedOnIssueIndex = spy(issueIndex);
-  private IssueChangeWebhookImpl mockedUnderTest = new IssueChangeWebhookImpl(mockedDbClient, webHooks, projectConfigurationLoader, webhookPayloadFactory, spiedOnIssueIndex);
+  private IssueChangeWebhookImpl mockedUnderTest = new IssueChangeWebhookImpl(mockedDbClient, webHooks, projectConfigurationLoader, webhookPayloadFactory, spiedOnIssueIndex, System2.INSTANCE);
 
   @Test
   public void on_type_change_has_no_effect_if_SearchResponseData_has_no_issue() {

@@ -58,7 +58,7 @@ public class ComponentIndexSearchTest {
   private ComponentIndexer indexer = new ComponentIndexer(db.getDbClient(), es.client());
   private PermissionIndexerTester authorizationIndexerTester = new PermissionIndexerTester(es, indexer);
 
-  private ComponentIndex underTest = new ComponentIndex(es.client(), new AuthorizationTypeSupport(userSession));
+  private ComponentIndex underTest = new ComponentIndex(es.client(), new AuthorizationTypeSupport(userSession), System2.INSTANCE);
 
   @Test
   public void filter_by_language() {

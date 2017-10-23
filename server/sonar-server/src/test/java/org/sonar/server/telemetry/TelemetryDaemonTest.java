@@ -99,8 +99,8 @@ public class TelemetryDaemonTest {
   private ProjectMeasuresIndexer projectMeasuresIndexer = new ProjectMeasuresIndexer(db.getDbClient(), es.client());
   private UserIndexer userIndexer = new UserIndexer(db.getDbClient(), es.client());
 
-  private TelemetryDaemon underTest = new TelemetryDaemon(new TelemetryDataLoader(server, db.getDbClient(), pluginRepository, new UserIndex(es.client()),
-    new ProjectMeasuresIndex(es.client(), null)), client, settings.asConfig(), internalProperties, system2);
+  private TelemetryDaemon underTest = new TelemetryDaemon(new TelemetryDataLoader(server, db.getDbClient(), pluginRepository, new UserIndex(es.client(), system2),
+    new ProjectMeasuresIndex(es.client(), null, system2)), client, settings.asConfig(), internalProperties, system2);
 
   @After
   public void tearDown() throws Exception {
