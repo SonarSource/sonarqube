@@ -224,9 +224,11 @@ public class StandaloneEditionManagementStateImpl implements MutableEditionManag
 
   private State.Builder changeStatusToFrom(PendingStatus newStatus, PendingStatus... validPendingStatuses) {
     State currentState = this.state;
-    checkState(Arrays.stream(validPendingStatuses).anyMatch(s -> s == currentState.getPendingInstallationStatus()),
-      "Can't move to %s when status is %s (should be any of %s)",
-      newStatus, currentState.getPendingInstallationStatus(), Arrays.toString(validPendingStatuses));
+    if (Arrays.stream(validPendingStatuses).noneMatch(s -> s == currentState.getPendingInstallationStatus())) {
+      throw new IllegalStateException(String.format("Can't move to %s when status is %s (should be any of %s)",
+        newStatus, currentState.getPendingInstallationStatus(), Arrays.toString(validPendingStatuses)));
+    }
+
     return State.newBuilder(currentState, newStatus);
   }
 
