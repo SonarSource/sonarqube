@@ -37,7 +37,7 @@ export default class ProjectCardLanguages extends React.PureComponent<Props> {
   };
 
   render() {
-    if (this.props.distribution == undefined) {
+    if (this.props.distribution === undefined) {
       return null;
     }
 

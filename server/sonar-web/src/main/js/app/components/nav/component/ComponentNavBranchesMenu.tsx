@@ -46,11 +46,15 @@ interface State {
 
 export default class ComponentNavBranchesMenu extends React.PureComponent<Props, State> {
   private node: HTMLElement | null;
-  state = { query: '', selected: null };
 
   static contextTypes = {
     router: PropTypes.object
   };
+
+  constructor(props: Props) {
+    super(props);
+    this.state = { query: '', selected: null };
+  }
 
   componentDidMount() {
     window.addEventListener('click', this.handleClickOutside);

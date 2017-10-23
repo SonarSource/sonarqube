@@ -61,8 +61,8 @@ export default function ComponentBreadcrumbs({ branch, component, issue, organiz
       )}
 
       {displaySubProject &&
-      issue.subProject != undefined &&
-      issue.subProjectName != undefined && (
+      issue.subProject !== undefined &&
+      issue.subProjectName !== undefined && (
         <span title={issue.subProjectName}>
           <Link to={getProjectUrl(issue.subProject, branch)} className="link-no-underline">
             {limitComponentName(issue.subProjectName)}

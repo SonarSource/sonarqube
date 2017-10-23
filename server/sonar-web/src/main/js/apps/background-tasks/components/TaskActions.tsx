@@ -69,9 +69,9 @@ export default class TaskActions extends React.PureComponent<Props, State> {
   render() {
     const { component, task } = this.props;
 
-    const canFilter = component == undefined;
+    const canFilter = component === undefined;
     const canCancel = task.status === STATUSES.PENDING;
-    const canShowStacktrace = task.errorMessage != undefined;
+    const canShowStacktrace = task.errorMessage !== undefined;
     const hasActions = canFilter || canCancel || task.hasScannerContext || canShowStacktrace;
 
     if (!hasActions) {

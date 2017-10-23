@@ -222,8 +222,8 @@ export default class App extends React.PureComponent<Props, State> {
             <Breadcrumbs branch={branchName} breadcrumbs={breadcrumbs} rootComponent={component} />
           )}
 
-          {sourceViewer == undefined &&
-          components != undefined && (
+          {sourceViewer === undefined &&
+          components !== undefined && (
             <div className={componentsClassName}>
               <Components
                 baseComponent={baseComponent}
@@ -234,12 +234,12 @@ export default class App extends React.PureComponent<Props, State> {
             </div>
           )}
 
-          {sourceViewer == undefined &&
-          components != undefined && (
+          {sourceViewer === undefined &&
+          components !== undefined && (
             <ListFooter count={components.length} total={total} loadMore={this.handleLoadMore} />
           )}
 
-          {sourceViewer != undefined && (
+          {sourceViewer !== undefined && (
             <div className="spacer-top">
               <SourceViewer branch={branchName} component={sourceViewer.key} />
             </div>
