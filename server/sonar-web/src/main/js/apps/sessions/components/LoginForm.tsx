@@ -23,6 +23,7 @@ import OAuthProviders from './OAuthProviders';
 import GlobalMessagesContainer from '../../../app/components/GlobalMessagesContainer';
 import { translate } from '../../../helpers/l10n';
 import { IdentityProvider } from '../../../api/users';
+import './LoginForm.css';
 
 interface Props {
   onSonarCloud: boolean;

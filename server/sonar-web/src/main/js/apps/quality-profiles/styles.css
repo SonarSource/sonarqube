@@ -16,10 +16,10 @@
 }
 
 .quality-profiles-list-header {
-  line-height: 24px;
+  line-height: var(--controlHeight);
   margin-bottom: 20px;
   padding: 5px 10px;
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid var(--barBorderColor);
 }
 
 .quality-profile-grid {

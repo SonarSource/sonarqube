@@ -15,20 +15,20 @@
 }
 
 .status-indicator.big-status-indicator {
-  width: 24px;
-  height: 24px;
-  border-radius: 24px;
+  width: var(--controlHeight);
+  height: var(--controlHeight);
+  border-radius: var(--controlHeight);
   margin: 0;
 }
 
 .status-indicator.red {
-  background-color: #d4333f;
+  background-color: var(--red);
 }
 
 .status-indicator.yellow {
-  background-color: #eabe06;
+  background-color: var(--yellow);
 }
 
 .status-indicator.green {
-  background-color: #00aa00;
+  background-color: var(--green);
 }

@@ -9,11 +9,11 @@
 }
 
 .system-info-health-card:not(.no-hover):hover {
-  border-color: #4b9fd5;
+  border-color: var(--blue);
 }
 
 .system-info-health-card:not(.no-hover):hover .system-info-health-card-title {
-  color: #4b9fd5;
+  color: var(--blue);
 }
 
 .system-info-health-card .boxed-group-header {

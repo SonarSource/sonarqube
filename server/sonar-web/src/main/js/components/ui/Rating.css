@@ -1,12 +1,12 @@
 .rating {
   display: inline-block;
-  width: 24px;
-  height: 24px;
-  line-height: 24px;
-  border-radius: 24px;
+  width: var(--controlHeight);
+  height: var(--controlHeight);
+  line-height: var(--controlHeight);
+  border-radius: var(--controlHeight);
   box-sizing: border-box;
   color: #fff;
-  font-size: 16px;
+  font-size: var(--bigFontSize);
   font-weight: 400;
   text-align: center;
   text-shadow: 0 0 1px rgba(0, 0, 0, 0.35);
@@ -30,35 +30,35 @@ a > .rating:hover {
 
 .rating-A {
   line-height: 23px;
-  background-color: #00aa00;
+  background-color: var(--green);
 }
 
 a > .rating-A {
-  border-bottom-color: #00aa00;
+  border-bottom-color: var(--green);
 }
 
 .rating-B {
-  background-color: #b0d513;
+  background-color: var(--lightGreen);
 }
 
 a .rating-B {
-  border-bottom-color: #b0d513;
+  border-bottom-color: var(--lightGreen);
 }
 
 .rating-C {
-  background-color: #eabe06;
+  background-color: var(--yellow);
 }
 
 a .rating-C {
-  border-bottom-color: #eabe06;
+  border-bottom-color: var(--yellow);
 }
 
 .rating-D {
-  background-color: #ed7d20;
+  background-color: var(--orange);
 }
 
 a .rating-D {
-  border-bottom-color: #ed7d20;
+  border-bottom-color: var(--orange);
 }
 
 .rating-E {
@@ -75,5 +75,5 @@ a .rating-E {
   line-height: 18px;
   margin-top: -1px;
   margin-bottom: -1px;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }
