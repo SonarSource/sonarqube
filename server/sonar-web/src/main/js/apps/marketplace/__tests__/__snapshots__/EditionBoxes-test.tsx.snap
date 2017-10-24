@@ -13,7 +13,7 @@ exports[`should display an error message 1`] = `
       values={
         Object {
           "url": <a
-            href="https://www.sonarsource.com"
+            href="https://redirect.sonarsource.com/editions/editions.html"
             target="_blank"
         >
             SonarSource.com
