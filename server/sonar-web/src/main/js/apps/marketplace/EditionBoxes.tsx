@@ -64,7 +64,7 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
               id="marketplace.editions_unavailable"
               values={{
                 url: (
-                  <a href="https://www.sonarsource.com" target="_blank">
+                  <a href="https://redirect.sonarsource.com/editions/editions.html" target="_blank">
                     SonarSource.com
                   </a>
                 )
