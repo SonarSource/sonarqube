@@ -34,7 +34,6 @@ import org.openqa.selenium.html5.WebStorage;
 import org.sonarqube.pageobjects.measures.MeasuresPage;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.pageobjects.issues.IssuesPage;
-import org.sonarqube.pageobjects.licenses.LicensesPage;
 import org.sonarqube.pageobjects.organization.MembersPage;
 import org.sonarqube.pageobjects.projects.ProjectsPage;
 import org.sonarqube.pageobjects.settings.SettingsPage;
@@ -162,16 +161,8 @@ public class Navigation {
     return open(url, SettingsPage.class);
   }
 
-  public LicensesPage openLicenses() {
-    return open("/settings/licenses", LicensesPage.class);
-  }
-
   public EncryptionPage openEncryption() {
     return open("/settings/encryption", EncryptionPage.class);
-  }
-
-  public ServerIdPage openServerId() {
-    return open("/settings/server_id", ServerIdPage.class);
   }
 
   public SystemInfoPage openSystemInfo() {
