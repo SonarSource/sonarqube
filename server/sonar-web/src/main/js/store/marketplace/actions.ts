@@ -39,7 +39,7 @@ interface SetEditionStatusAction {
 
 export type Action = LoadEditionsAction | SetEditionsAction | SetEditionStatusAction;
 
-export function loadEditions(loading: boolean = true): LoadEditionsAction {
+export function loadEditions(loading = true): LoadEditionsAction {
   return { type: 'LOAD_EDITIONS', loading };
 }
 

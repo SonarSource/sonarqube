@@ -79,24 +79,118 @@ export default class SettingsNav extends React.PureComponent<Props> {
     );
   };
 
-  render() {
-    const { customOrganizations, editionStatus, extensions } = this.props;
-    const isSecurity = this.isSecurityActive();
-    const isProjects = this.isProjectsActive();
-    const isSystem = this.isSystemActive();
-    const isSupport = this.isSomethingActive(['/admin/extension/license/support']);
-
-    const securityClassName = classNames('dropdown-toggle', { active: isSecurity });
-    const projectsClassName = classNames('dropdown-toggle', { active: isProjects });
+  renderConfigurationTab() {
     const configurationClassNames = classNames('dropdown-toggle', {
-      active: !isSecurity && !isProjects && !isSystem && !isSupport && !this.isMarketplace()
+      active:
+        !this.isSecurityActive() &&
+        !this.isProjectsActive() &&
+        !this.isSystemActive() &&
+        !this.isSomethingActive(['/admin/extension/license/support']) &&
+        !this.isMarketplace()
     });
-
-    const extensionsWithoutSupport = extensions.filter(
+    const extensionsWithoutSupport = this.props.extensions.filter(
       extension => extension.key !== 'license/support'
     );
+    return (
+      <li className="dropdown">
+        <a
+          className={configurationClassNames}
+          data-toggle="dropdown"
+          id="settings-navigation-configuration"
+          href="#">
+          {translate('sidebar.project_settings')} <i className="icon-dropdown" />
+        </a>
+        <ul className="dropdown-menu">
+          <li>
+            <IndexLink to="/admin/settings" activeClassName="active">
+              {translate('settings.page')}
+            </IndexLink>
+          </li>
+          <li>
+            <IndexLink to="/admin/settings/encryption" activeClassName="active">
+              {translate('property.category.security.encryption')}
+            </IndexLink>
+          </li>
+          <li>
+            <IndexLink to="/admin/custom_metrics" activeClassName="active">
+              {translate('custom_metrics.page')}
+            </IndexLink>
+          </li>
+          {extensionsWithoutSupport.map(this.renderExtension)}
+        </ul>
+      </li>
+    );
+  }
 
-    const hasSupportExtension = extensionsWithoutSupport.length < extensions.length;
+  renderProjectsTab() {
+    const { customOrganizations } = this.props;
+    const projectsClassName = classNames('dropdown-toggle', { active: this.isProjectsActive() });
+    return (
+      <li className="dropdown">
+        <a className={projectsClassName} data-toggle="dropdown" href="#">
+          {translate('sidebar.projects')} <i className="icon-dropdown" />
+        </a>
+        <ul className="dropdown-menu">
+          {!customOrganizations && (
+            <li>
+              <IndexLink to="/admin/projects_management" activeClassName="active">
+                {translate('management')}
+              </IndexLink>
+            </li>
+          )}
+          <li>
+            <IndexLink to="/admin/background_tasks" activeClassName="active">
+              {translate('background_tasks.page')}
+            </IndexLink>
+          </li>
+        </ul>
+      </li>
+    );
+  }
+
+  renderSecurityTab() {
+    const { customOrganizations } = this.props;
+    const securityClassName = classNames('dropdown-toggle', { active: this.isSecurityActive() });
+    return (
+      <li className="dropdown">
+        <a className={securityClassName} data-toggle="dropdown" href="#">
+          {translate('sidebar.security')} <i className="icon-dropdown" />
+        </a>
+        <ul className="dropdown-menu">
+          <li>
+            <IndexLink to="/admin/users" activeClassName="active">
+              {translate('users.page')}
+            </IndexLink>
+          </li>
+          {!customOrganizations && (
+            <li>
+              <IndexLink to="/admin/groups" activeClassName="active">
+                {translate('user_groups.page')}
+              </IndexLink>
+            </li>
+          )}
+          {!customOrganizations && (
+            <li>
+              <IndexLink to="/admin/permissions" activeClassName="active">
+                {translate('global_permissions.page')}
+              </IndexLink>
+            </li>
+          )}
+          {!customOrganizations && (
+            <li>
+              <IndexLink to="/admin/permission_templates" activeClassName="active">
+                {translate('permission_templates')}
+              </IndexLink>
+            </li>
+          )}
+        </ul>
+      </li>
+    );
+  }
+
+  render() {
+    const { editionStatus, extensions } = this.props;
+    const hasSupportExtension = extensions.find(extension => extension.key === 'license/support');
 
     let notifComponent;
     if (
@@ -105,6 +199,7 @@ export default class SettingsNav extends React.PureComponent<Props> {
     ) {
       notifComponent = <SettingsEditionsNotifContainer editionStatus={editionStatus} />;
     }
+
     return (
       <ContextNavBar
         id="context-navigation"
@@ -115,87 +210,10 @@ export default class SettingsNav extends React.PureComponent<Props> {
         </h1>
 
         <NavBarTabs>
-          <li className="dropdown">
-            <a
-              className={configurationClassNames}
-              data-toggle="dropdown"
-              id="settings-navigation-configuration"
-              href="#">
-              {translate('sidebar.project_settings')} <i className="icon-dropdown" />
-            </a>
-            <ul className="dropdown-menu">
-              <li>
-                <IndexLink to="/admin/settings" activeClassName="active">
-                  {translate('settings.page')}
-                </IndexLink>
-              </li>
-              <li>
-                <IndexLink to="/admin/settings/encryption" activeClassName="active">
-                  {translate('property.category.security.encryption')}
-                </IndexLink>
-              </li>
-              <li>
-                <IndexLink to="/admin/custom_metrics" activeClassName="active">
-                  {translate('custom_metrics.page')}
-                </IndexLink>
-              </li>
-              {extensionsWithoutSupport.map(this.renderExtension)}
-            </ul>
-          </li>
+          {this.renderConfigurationTab()}
+          {this.renderSecurityTab()}
+          {this.renderProjectsTab()}
 
-          <li className="dropdown">
-            <a className={securityClassName} data-toggle="dropdown" href="#">
-              {translate('sidebar.security')} <i className="icon-dropdown" />
-            </a>
-            <ul className="dropdown-menu">
-              <li>
-                <IndexLink to="/admin/users" activeClassName="active">
-                  {translate('users.page')}
-                </IndexLink>
-              </li>
-              {!customOrganizations && (
-                <li>
-                  <IndexLink to="/admin/groups" activeClassName="active">
-                    {translate('user_groups.page')}
-                  </IndexLink>
-                </li>
-              )}
-              {!customOrganizations && (
-                <li>
-                  <IndexLink to="/admin/permissions" activeClassName="active">
-                    {translate('global_permissions.page')}
-                  </IndexLink>
-                </li>
-              )}
-              {!customOrganizations && (
-                <li>
-                  <IndexLink to="/admin/permission_templates" activeClassName="active">
-                    {translate('permission_templates')}
-                  </IndexLink>
-                </li>
-              )}
-            </ul>
-          </li>
-
-          <li className="dropdown">
-            <a className={projectsClassName} data-toggle="dropdown" href="#">
-              {translate('sidebar.projects')} <i className="icon-dropdown" />
-            </a>
-            <ul className="dropdown-menu">
-              {!customOrganizations && (
-                <li>
-                  <IndexLink to="/admin/projects_management" activeClassName="active">
-                    {translate('management')}
-                  </IndexLink>
-                </li>
-              )}
-              <li>
-                <IndexLink to="/admin/background_tasks" activeClassName="active">
-                  {translate('background_tasks.page')}
-                </IndexLink>
-              </li>
-            </ul>
-          </li>
           <li>
             <IndexLink to="/admin/system" activeClassName="active">
               {translate('sidebar.system')}
