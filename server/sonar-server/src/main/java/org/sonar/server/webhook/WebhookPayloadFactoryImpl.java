@@ -110,7 +110,7 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
   }
 
   private String projectUrlOf(Project project) {
-    return format("%s/project/dashboard?id=%s", server.getPublicRootUrl(), encode(project.getKey()));
+    return format("%s/dashboard?id=%s", server.getPublicRootUrl(), encode(project.getKey()));
   }
 
   private String branchUrlOf(Project project, Branch branch) {
@@ -118,7 +118,7 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
       if (branch.isMain()) {
         return projectUrlOf(project);
       }
-      return format("%s/project/dashboard?branch=%s&id=%s",
+      return format("%s/dashboard?branch=%s&id=%s",
         server.getPublicRootUrl(), encode(branch.getName().orElse("")), encode(project.getKey()));
     } else {
       return format("%s/project/issues?branch=%s&id=%s&resolved=false",

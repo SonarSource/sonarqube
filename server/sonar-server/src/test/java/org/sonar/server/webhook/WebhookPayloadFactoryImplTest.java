@@ -69,7 +69,7 @@ public class WebhookPayloadFactoryImplTest {
         "  \"project\": {" +
         "    \"key\": \"P1\"," +
         "    \"name\": \"Project One\"," +
-        "    \"url\": \"http://foo/project/dashboard?id=P1\"" +
+        "    \"url\": \"http://foo/dashboard?id=P1\"" +
         "  }," +
         "  \"qualityGate\": {" +
         "    \"name\": \"Gate One\"," +
@@ -110,7 +110,7 @@ public class WebhookPayloadFactoryImplTest {
         "  \"project\": {" +
         "    \"key\": \"P1\"," +
         "    \"name\": \"Project One\"," +
-        "    \"url\": \"http://foo/project/dashboard?id=P1\"" +
+        "    \"url\": \"http://foo/dashboard?id=P1\"" +
         "  }," +
         "  \"qualityGate\": {" +
         "    \"name\": \"Gate One\"," +
@@ -151,7 +151,7 @@ public class WebhookPayloadFactoryImplTest {
         "  \"project\": {" +
         "    \"key\": \"P1\"," +
         "    \"name\": \"Project One\"," +
-        "    \"url\": \"http://foo/project/dashboard?id=P1\"" +
+        "    \"url\": \"http://foo/dashboard?id=P1\"" +
         "  }," +
         "  \"qualityGate\": {" +
         "    \"name\": \"Gate One\"," +
@@ -186,7 +186,7 @@ public class WebhookPayloadFactoryImplTest {
         "  \"project\": {" +
         "    \"key\": \"P1\"," +
         "    \"name\": \"Project One\"," +
-        "    \"url\": \"http://foo/project/dashboard?id=P1\"" +
+        "    \"url\": \"http://foo/dashboard?id=P1\"" +
         "  }," +
         "  \"properties\": {" +
         "  }" +
@@ -266,7 +266,7 @@ public class WebhookPayloadFactoryImplTest {
         "  \"name\": \"feature/foo\"" +
         "  \"type\": \"LONG\"" +
         "  \"isMain\": false," +
-        "  \"url\": \"http://foo/project/dashboard?branch=feature%2Ffoo&id=P1\"" +
+        "  \"url\": \"http://foo/dashboard?branch=feature%2Ffoo&id=P1\"" +
         "}" +
         "}");
   }
@@ -282,7 +282,7 @@ public class WebhookPayloadFactoryImplTest {
         "\"branch\": {" +
         "  \"type\": \"LONG\"" +
         "  \"isMain\": true," +
-        "  \"url\": \"http://foo/project/dashboard?id=P1\"" +
+        "  \"url\": \"http://foo/dashboard?id=P1\"" +
         "}" +
         "}");
   }
