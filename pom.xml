@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>40</version>
+    <version>41</version>
   </parent>
   <groupId>org.sonarsource.sonarqube</groupId>
   <artifactId>sonarqube</artifactId>
