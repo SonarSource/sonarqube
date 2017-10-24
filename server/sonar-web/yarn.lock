@@ -93,9 +93,9 @@
   version "2.3.2"
   resolved "https://registry.yarnpkg.com/@types/react-intl/-/react-intl-2.3.2.tgz#a57433871dedf2f12ba8eeca645e5ce5a37d102a"
 
-"@types/react-modal@2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@types/react-modal/-/react-modal-2.2.0.tgz#e92bb8454e53030581f263e3fb7e7d27e3eb85b8"
+"@types/react-modal@2.2.2":
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/@types/react-modal/-/react-modal-2.2.2.tgz#651157522ba45c1ffd8831a2e7bbd8094390a925"
   dependencies:
     "@types/react" "*"
 
@@ -2688,11 +2688,7 @@ execa@^0.7.0:
     signal-exit "^3.0.0"
     strip-eof "^1.0.0"
 
-exenv@1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/exenv/-/exenv-1.2.0.tgz#3835f127abf075bfe082d0aed4484057c78e3c89"
-
-exenv@^1.2.1:
+exenv@^1.2.0, exenv@^1.2.1:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/exenv/-/exenv-1.2.2.tgz#2ae78e85d9894158670b03d47bec1f03bd91bb9d"
 
@@ -5768,10 +5764,6 @@ react-dev-utils@^3.0.0:
     strip-ansi "3.0.1"
     text-table "0.2.0"
 
-react-dom-factories@^1.0.0:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/react-dom-factories/-/react-dom-factories-1.0.1.tgz#c50692ac5ff1adb39d86dfe6dbe3485dacf58455"
-
 react-dom@15.6.2:
   version "15.6.2"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-15.6.2.tgz#41cfadf693b757faf2708443a1d1fd5a02bef730"
@@ -5824,13 +5816,12 @@ react-intl@2.4.0:
     intl-relativeformat "^2.0.0"
     invariant "^2.1.1"
 
-react-modal@2.2.2:
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/react-modal/-/react-modal-2.2.2.tgz#4bbf98bc506e61c446c9f57329c7a488ea7d504b"
+react-modal@3.0.4:
+  version "3.0.4"
+  resolved "https://registry.yarnpkg.com/react-modal/-/react-modal-3.0.4.tgz#61f3c9a701b27d2015fe5ac0c419e3c977e4092a"
   dependencies:
-    exenv "1.2.0"
+    exenv "^1.2.0"
     prop-types "^15.5.10"
-    react-dom-factories "^1.0.0"
 
 react-redux@5.0.6:
   version "5.0.6"

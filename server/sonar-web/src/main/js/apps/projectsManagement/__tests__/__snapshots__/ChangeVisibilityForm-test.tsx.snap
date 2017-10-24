@@ -12,7 +12,9 @@ exports[`changes visibility 1`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <header
     className="modal-head"
@@ -116,7 +118,9 @@ exports[`changes visibility 2`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <header
     className="modal-head"
@@ -220,7 +224,9 @@ exports[`renders disabled 1`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <header
     className="modal-head"

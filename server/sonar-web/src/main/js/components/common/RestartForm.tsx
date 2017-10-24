@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import Modal from 'react-modal';
+import * as Modal from 'react-modal';
 import { restartAndWait } from '../../api/system';
 import { translate } from '../../helpers/l10n';
 
