@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import * as Modal from 'react-modal';
-import * as Select from 'react-select';
+import Select from 'react-select';
 import {
   getPermissionTemplates,
   bulkApplyTemplate,
