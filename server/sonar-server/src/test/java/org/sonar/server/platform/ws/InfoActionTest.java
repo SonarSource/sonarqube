@@ -19,26 +19,16 @@
  */
 package org.sonar.server.platform.ws;
 
-import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
-import org.sonar.ce.http.CeHttpClient;
-import org.sonar.ce.http.CeHttpClientImpl;
-import org.sonar.process.systeminfo.SystemInfoSection;
-import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
+import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.health.TestStandaloneHealthChecker;
-import org.sonar.server.telemetry.TelemetryDataLoader;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.process.systeminfo.SystemInfoUtils.setAttribute;
 
 public class InfoActionTest {
   @Rule
@@ -48,13 +38,13 @@ public class InfoActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private SystemInfoSection section1 = mock(SystemInfoSection.class);
-  private SystemInfoSection section2 = mock(SystemInfoSection.class);
-  private CeHttpClient ceHttpClient = mock(CeHttpClientImpl.class, Mockito.RETURNS_MOCKS);
-  private TestStandaloneHealthChecker healthChecker = new TestStandaloneHealthChecker();
-  private TelemetryDataLoader telemetry = mock(TelemetryDataLoader.class, Mockito.RETURNS_MOCKS);
-
-  private InfoAction underTest = new InfoAction(userSessionRule, telemetry, ceHttpClient, healthChecker, section1, section2);
+  private SystemInfoWriter jsonWriter = new SystemInfoWriter(null) {
+    @Override
+    public void write(JsonWriter json) throws Exception {
+      json.prop("key", "value");
+    }
+  };
+  private InfoAction underTest = new InfoAction(userSessionRule, jsonWriter);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -85,23 +75,8 @@ public class InfoActionTest {
   public void write_json() {
     logInAsSystemAdministrator();
 
-    ProtobufSystemInfo.Section.Builder attributes1 = ProtobufSystemInfo.Section.newBuilder()
-      .setName("Section One");
-    setAttribute(attributes1, "foo", "bar");
-    when(section1.toProtobuf()).thenReturn(attributes1.build());
-
-    ProtobufSystemInfo.Section.Builder attributes2 = ProtobufSystemInfo.Section.newBuilder()
-      .setName("Section Two");
-    setAttribute(attributes2, "one", 1);
-    setAttribute(attributes2, "two", 2);
-    when(section2.toProtobuf()).thenReturn(attributes2.build());
-    when(ceHttpClient.retrieveSystemInfo()).thenReturn(Optional.empty());
-
     TestResponse response = ws.newRequest().execute();
-    // response does not contain empty "Section Three"
-    assertThat(response.getInput()).isEqualTo("{\"Health\":\"GREEN\",\"Health Causes\":[],\"Section One\":{\"foo\":\"bar\"},\"Section Two\":{\"one\":1,\"two\":2}," +
-      "\"Statistics\":{\"id\":\"\",\"version\":\"\",\"database\":{\"name\":\"\",\"version\":\"\"},\"plugins\":[],\"userCount\":0,\"projectCount\":0,\"usingBranches\":false," +
-      "\"lines\":0,\"ncloc\":0,\"projectCountByLanguage\":[],\"nclocByLanguage\":[]}}");
+    assertThat(response.getInput()).isEqualTo("{\"key\":\"value\"}");
   }
 
   private void logInAsSystemAdministrator() {
