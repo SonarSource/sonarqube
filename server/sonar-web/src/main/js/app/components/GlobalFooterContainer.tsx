@@ -17,29 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import ExtensionContainer from './ExtensionContainer';
-import ExtensionNotFound from './ExtensionNotFound';
-import { Component } from '../../types';
+import { connect } from 'react-redux';
+import { getAppState, getGlobalSettingValue } from '../../store/rootReducer';
+import GlobalFooter from './GlobalFooter';
 
-interface Props {
-  component: Component;
-  location: { query: { id: string } };
-  params: {
-    extensionKey: string;
-    pluginKey: string;
-  };
-}
+const mapStateToProps = (state: any) => ({
+  sonarqubeVersion: getAppState(state).version,
+  productionDatabase: getAppState(state).productionDatabase,
+  onSonarCloud: getGlobalSettingValue(state, 'sonar.sonarcloud.enabled')
+});
 
-export default function ProjectPageExtension(props: Props) {
-  const { extensionKey, pluginKey } = props.params;
-  const { component } = props;
-  const extension =
-    component.extensions &&
-    component.extensions.find(p => p.key === `${pluginKey}/${extensionKey}`);
-  return extension ? (
-    <ExtensionContainer extension={extension} options={{ component }} />
-  ) : (
-    <ExtensionNotFound />
-  );
-}
+export default connect(mapStateToProps)(GlobalFooter);
