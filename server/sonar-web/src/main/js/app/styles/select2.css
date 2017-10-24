@@ -415,7 +415,7 @@ Version: 3.2 Timestamp: Mon Sep 10 10:38:04 PDT 2012
   right: 3px;
   top: 4px;
   width: 12px;
-  height: var(--baseFontSize);
+  height: 13px;
   font-size: 1px;
   background: url('../images/select2.png') right top no-repeat;
   outline: none;
