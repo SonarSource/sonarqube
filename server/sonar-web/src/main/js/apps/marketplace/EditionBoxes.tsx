@@ -28,10 +28,8 @@ import { translate } from '../../helpers/l10n';
 export interface Props {
   editions?: Edition[];
   editionStatus?: EditionStatus;
-  editionsUrl: string;
   loading: boolean;
   readOnly: boolean;
-  sonarqubeVersion: string;
   updateCenterActive: boolean;
   updateEditionStatus: (editionStatus: EditionStatus) => void;
 }

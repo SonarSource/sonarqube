@@ -18,41 +18,38 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import RestartForm from '../../../components/common/RestartForm';
-import CloseIcon from '../../../components/icons-components/CloseIcon';
-import { dismissErrorMessage, Edition, EditionStatus } from '../../../api/marketplace';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import NavBarNotif from '../../../../components/nav/NavBarNotif';
+import RestartForm from '../../../../components/common/RestartForm';
+import { dismissErrorMessage, Edition, EditionStatus } from '../../../../api/marketplace';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
 interface Props {
   editions?: Edition[];
   editionStatus: EditionStatus;
-  readOnly: boolean;
-  updateEditionStatus: (editionStatus: EditionStatus) => void;
+  preventRestart: boolean;
+  setEditionStatus: (editionStatus: EditionStatus) => void;
 }
 
 interface State {
   openRestart: boolean;
 }
 
-export default class EditionsStatusNotif extends React.PureComponent<Props, State> {
+export default class SettingsEditionsNotif extends React.PureComponent<Props, State> {
   state: State = { openRestart: false };
 
   handleOpenRestart = () => this.setState({ openRestart: true });
   hanleCloseRestart = () => this.setState({ openRestart: false });
 
-  handleDismissError = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
+  handleDismissError = () =>
     dismissErrorMessage().then(
-      () =>
-        this.props.updateEditionStatus({ ...this.props.editionStatus, installError: undefined }),
+      () => this.props.setEditionStatus({ ...this.props.editionStatus, installError: undefined }),
       () => {}
     );
-  };
 
   renderRestartMsg(edition?: Edition) {
-    const { editionStatus, readOnly } = this.props;
+    const { editionStatus, preventRestart } = this.props;
     return (
-      <div className="alert alert-success">
+      <NavBarNotif className="alert alert-success">
         <span>
           {edition ? (
             translateWithParameters(
@@ -63,20 +60,21 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
             translate('marketplace.status', editionStatus.installationStatus)
           )}
         </span>
-        {!readOnly && (
+        {!preventRestart && (
           <button className="js-restart spacer-left" onClick={this.handleOpenRestart}>
             {translate('marketplace.restart')}
           </button>
         )}
-        {!readOnly && this.state.openRestart && <RestartForm onClose={this.hanleCloseRestart} />}
-      </div>
+        {!preventRestart &&
+        this.state.openRestart && <RestartForm onClose={this.hanleCloseRestart} />}
+      </NavBarNotif>
     );
   }
 
   renderManualMsg(edition?: Edition) {
     const { editionStatus } = this.props;
     return (
-      <div className="alert alert-danger">
+      <NavBarNotif className="alert alert-danger">
         {edition ? (
           translateWithParameters(
             'marketplace.status_x.' + editionStatus.installationStatus,
@@ -85,26 +83,22 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
         ) : (
           translate('marketplace.status', editionStatus.installationStatus)
         )}
-        <p className="spacer-left">
-          {edition && (
-            <a
-              className="button spacer-right"
-              download={`sonarqube-${edition.name}.zip`}
-              href={edition.downloadUrl}
-              target="_blank">
-              {translate('marketplace.download_package')}
-            </a>
-          )}
+        {edition && (
           <a
-            href="https://redirect.sonarsource.com/doc/how-to-install-an-edition.html"
+            className="button spacer-left"
+            download={`sonarqube-${edition.name}.zip`}
+            href={edition.downloadUrl}
             target="_blank">
-            {translate('marketplace.how_to_install')}
+            {translate('marketplace.download_package')}
           </a>
-        </p>
-        <a className="little-spacer-left" href="https://www.sonarsource.com" target="_blank">
+        )}
+        <a
+          className="spacer-left"
+          href="https://redirect.sonarsource.com/doc/how-to-install-an-edition.html"
+          target="_blank">
           {translate('marketplace.how_to_install')}
         </a>
-      </div>
+      </NavBarNotif>
     );
   }
 
@@ -117,10 +111,10 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
     switch (installationStatus) {
       case 'AUTOMATIC_IN_PROGRESS':
         return (
-          <div className="alert alert-info">
+          <NavBarNotif className="alert alert-info">
             <i className="spinner spacer-right text-bottom" />
             <span>{translate('marketplace.status.AUTOMATIC_IN_PROGRESS')}</span>
-          </div>
+          </NavBarNotif>
         );
       case 'AUTOMATIC_READY':
       case 'UNINSTALL_IN_PROGRESS':
@@ -133,18 +127,14 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
 
   render() {
     const { installError } = this.props.editionStatus;
-    return (
-      <div>
-        {installError && (
-          <div className="alert alert-danger alert-cancel">
-            {installError}
-            <a className="button-link text-danger" href="#" onClick={this.handleDismissError}>
-              <CloseIcon />
-            </a>
-          </div>
-        )}
-        {this.renderStatusAlert()}
-      </div>
-    );
+    if (installError) {
+      return (
+        <NavBarNotif className="alert alert-danger" onCancel={this.handleDismissError}>
+          {installError}
+        </NavBarNotif>
+      );
+    }
+
+    return this.renderStatusAlert();
   }
 }

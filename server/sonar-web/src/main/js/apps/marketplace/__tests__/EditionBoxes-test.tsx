@@ -70,9 +70,7 @@ function getWrapper(props = {}) {
     <EditionBoxes
       loading={false}
       editionStatus={DEFAULT_STATUS}
-      editionsUrl=""
       readOnly={false}
-      sonarqubeVersion="6.7.5"
       updateCenterActive={true}
       updateEditionStatus={jest.fn()}
       {...props}

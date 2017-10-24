@@ -22,9 +22,15 @@ import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import SettingsNav from './nav/settings/SettingsNav';
-import { getAppState } from '../../store/rootReducer';
+import {
+  getAppState,
+  getGlobalSettingValue,
+  getMarketplaceEditionStatus
+} from '../../store/rootReducer';
 import { getSettingsNavigation } from '../../api/nav';
+import { EditionStatus, getEditionStatus } from '../../api/marketplace';
 import { setAdminPages } from '../../store/appState/duck';
+import { fetchEditions, setEditionStatus } from '../../store/marketplace/actions';
 import { translate } from '../../helpers/l10n';
 import { Extension } from '../types';
 
@@ -32,9 +38,14 @@ interface Props {
   appState: {
     adminPages: Extension[];
     organizationsEnabled: boolean;
+    version: string;
   };
+  editionsUrl: string;
+  editionStatus?: EditionStatus;
+  fetchEditions: (url: string, version: string) => void;
   location: {};
   setAdminPages: (adminPages: Extension[]) => void;
+  setEditionStatus: (editionStatus: EditionStatus) => void;
 }
 
 class AdminContainer extends React.PureComponent<Props> {
@@ -49,18 +60,17 @@ class AdminContainer extends React.PureComponent<Props> {
         handleRequredAuthorization.default()
       );
     } else {
-      this.loadData();
+      this.fetchNavigationSettings();
+      this.props.fetchEditions(this.props.editionsUrl, this.props.appState.version);
+      this.fetchEditionStatus();
     }
   }
 
-  loadData() {
-    getSettingsNavigation().then(
-      r => {
-        this.props.setAdminPages(r.extensions);
-      },
-      () => {}
-    );
-  }
+  fetchNavigationSettings = () =>
+    getSettingsNavigation().then(r => this.props.setAdminPages(r.extensions), () => { });
+
+  fetchEditionStatus = () =>
+    getEditionStatus().then(editionStatus => this.props.setEditionStatus(editionStatus), () => { });
 
   render() {
     const { adminPages, organizationsEnabled } = this.props.appState;
@@ -77,6 +87,7 @@ class AdminContainer extends React.PureComponent<Props> {
         <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />
         <SettingsNav
           customOrganizations={organizationsEnabled}
+          editionStatus={this.props.editionStatus}
           extensions={adminPages}
           location={this.props.location}
         />
@@ -87,9 +98,11 @@ class AdminContainer extends React.PureComponent<Props> {
 }
 
 const mapStateToProps = (state: any) => ({
-  appState: getAppState(state)
+  appState: getAppState(state),
+  editionStatus: getMarketplaceEditionStatus(state),
+  editionsUrl: (getGlobalSettingValue(state, 'sonar.editions.jsonUrl') || {}).value
 });
 
-const mapDispatchToProps = { setAdminPages };
+const mapDispatchToProps = { setAdminPages, setEditionStatus, fetchEditions };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AdminContainer as any);

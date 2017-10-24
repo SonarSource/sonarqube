@@ -22,7 +22,6 @@ import * as PropTypes from 'prop-types';
 import { sortBy, uniqBy } from 'lodash';
 import Helmet from 'react-helmet';
 import Header from './Header';
-import EditionsStatusNotif from './components/EditionsStatusNotif';
 import EditionBoxes from './EditionBoxes';
 import Footer from './Footer';
 import PendingActions from './PendingActions';
@@ -36,31 +35,24 @@ import {
   Plugin,
   PluginPending
 } from '../../api/plugins';
-import { Edition, EditionStatus, getEditionsList, getEditionStatus } from '../../api/marketplace';
+import { Edition, EditionStatus } from '../../api/marketplace';
 import { RawQuery } from '../../helpers/query';
 import { translate } from '../../helpers/l10n';
-import {
-  getEditionsForLastVersion,
-  getEditionsForVersion,
-  filterPlugins,
-  parseQuery,
-  Query,
-  serializeQuery
-} from './utils';
+import { filterPlugins, parseQuery, Query, serializeQuery } from './utils';
+import './style.css';
 
 export interface Props {
-  editionsUrl: string;
-  location: { pathname: string; query: RawQuery };
-  sonarqubeVersion: string;
-  standaloneMode: boolean;
-  updateCenterActive: boolean;
-}
-
-interface State {
   editions?: Edition[];
   editionsReadOnly: boolean;
   editionStatus?: EditionStatus;
   loadingEditions: boolean;
+  location: { pathname: string; query: RawQuery };
+  standaloneMode: boolean;
+  updateCenterActive: boolean;
+  setEditionStatus: (editionStatus: EditionStatus) => void;
+}
+
+interface State {
   loadingPlugins: boolean;
   pending: {
     installing: PluginPending[];
@@ -72,7 +64,6 @@ interface State {
 
 export default class App extends React.PureComponent<Props, State> {
   mounted: boolean;
-  timer?: NodeJS.Timer;
 
   static contextTypes = {
     router: PropTypes.object.isRequired
@@ -81,8 +72,6 @@ export default class App extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      editionsReadOnly: false,
-      loadingEditions: true,
       loadingPlugins: true,
       pending: {
         installing: [],
@@ -95,9 +84,7 @@ export default class App extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    this.fetchEditions();
     this.fetchPendingPlugins();
-    this.fetchEditionStatus();
     this.fetchQueryPlugins();
   }
 
@@ -154,55 +141,6 @@ export default class App extends React.PureComponent<Props, State> {
       () => {}
     );
 
-  fetchEditionStatus = () =>
-    getEditionStatus().then(
-      editionStatus => {
-        if (this.mounted) {
-          this.updateEditionStatus(editionStatus);
-        }
-      },
-      () => {}
-    );
-
-  fetchEditions = () => {
-    this.setState({ loadingEditions: true });
-    getEditionsList(this.props.editionsUrl).then(
-      editionsPerVersion => {
-        if (this.mounted) {
-          const newState = {
-            editions: getEditionsForVersion(editionsPerVersion, this.props.sonarqubeVersion),
-            editionsReadOnly: false,
-            loadingEditions: false
-          };
-          if (!newState.editions) {
-            newState.editions = getEditionsForLastVersion(editionsPerVersion);
-            newState.editionsReadOnly = true;
-          }
-          this.setState(newState);
-        }
-      },
-      () => {
-        if (this.mounted) {
-          this.setState({ loadingEditions: false });
-        }
-      }
-    );
-  };
-
-  updateEditionStatus = (editionStatus: EditionStatus) => {
-    this.setState({ editionStatus });
-    if (this.timer) {
-      global.clearTimeout(this.timer);
-      this.timer = undefined;
-    }
-    if (editionStatus.installationStatus === 'AUTOMATIC_IN_PROGRESS') {
-      this.timer = global.setTimeout(() => {
-        this.fetchEditionStatus();
-        this.timer = undefined;
-      }, 2000);
-    }
-  };
-
   updateQuery = (newQuery: Partial<Query>) => {
     const query = serializeQuery({ ...parseQuery(this.props.location.query), ...newQuery });
     this.context.router.push({ pathname: this.props.location.pathname, query });
@@ -215,8 +153,8 @@ export default class App extends React.PureComponent<Props, State> {
   };
 
   render() {
-    const { standaloneMode } = this.props;
-    const { editions, editionStatus, loadingPlugins, plugins, pending } = this.state;
+    const { editions, editionStatus, standaloneMode } = this.props;
+    const { loadingPlugins, plugins, pending } = this.state;
     const query = parseQuery(this.props.location.query);
     const filteredPlugins = query.search ? filterPlugins(plugins, query.search) : plugins;
 
@@ -224,14 +162,6 @@ export default class App extends React.PureComponent<Props, State> {
       <div className="page page-limited" id="marketplace-page">
         <Helmet title={translate('marketplace.page')} />
         <div className="page-notifs">
-          {editionStatus && (
-            <EditionsStatusNotif
-              editions={editions}
-              editionStatus={editionStatus}
-              readOnly={!standaloneMode}
-              updateEditionStatus={this.updateEditionStatus}
-            />
-          )}
           {standaloneMode && (
             <PendingActions refreshPending={this.fetchPendingPlugins} pending={pending} />
           )}
@@ -239,13 +169,11 @@ export default class App extends React.PureComponent<Props, State> {
         <Header />
         <EditionBoxes
           editions={editions}
-          loading={this.state.loadingEditions}
+          loading={this.props.loadingEditions}
           editionStatus={editionStatus}
-          editionsUrl={this.props.editionsUrl}
-          readOnly={!standaloneMode || this.state.editionsReadOnly}
-          sonarqubeVersion={this.props.sonarqubeVersion}
+          readOnly={!standaloneMode || this.props.editionsReadOnly}
           updateCenterActive={this.props.updateCenterActive}
-          updateEditionStatus={this.updateEditionStatus}
+          updateEditionStatus={this.props.setEditionStatus}
         />
         <Search
           query={query}

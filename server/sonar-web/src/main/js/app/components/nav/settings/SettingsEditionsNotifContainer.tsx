@@ -18,43 +18,27 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { connect } from 'react-redux';
-import App from './App';
-import {
-  getAppState,
-  getGlobalSettingValue,
-  getMarketplaceState,
-  getMarketplaceEditions,
-  getMarketplaceEditionStatus
-} from '../../store/rootReducer';
-import { Edition, EditionStatus } from '../../api/marketplace';
-import { setEditionStatus } from '../../store/marketplace/actions';
-import { RawQuery } from '../../helpers/query';
+import SettingsEditionsNotif from './SettingsEditionsNotif';
+import { getAppState, getMarketplaceEditions } from '../../../../store/rootReducer';
+import { Edition, EditionStatus } from '../../../../api/marketplace';
+import { setEditionStatus } from '../../../../store/marketplace/actions';
 
 interface OwnProps {
-  location: { pathname: string; query: RawQuery };
+  editionStatus: EditionStatus;
 }
 
 interface StateToProps {
   editions?: Edition[];
-  editionsReadOnly: boolean;
-  editionStatus?: EditionStatus;
-  loadingEditions: boolean;
-  standaloneMode: boolean;
-  updateCenterActive: boolean;
+  preventRestart: boolean;
 }
 
 interface DispatchToProps {
   setEditionStatus: (editionStatus: EditionStatus) => void;
 }
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: any): StateToProps => ({
   editions: getMarketplaceEditions(state),
-  editionsReadOnly: getMarketplaceState(state).readOnly,
-  editionStatus: getMarketplaceEditionStatus(state),
-  loadingEditions: getMarketplaceState(state).loading,
-  standaloneMode: getAppState(state).standalone,
-  updateCenterActive:
-    (getGlobalSettingValue(state, 'sonar.updatecenter.activate') || {}).value === 'true'
+  preventRestart: !getAppState(state).standalone
 });
 
 const mapDispatchToProps = { setEditionStatus };
@@ -62,4 +46,4 @@ const mapDispatchToProps = { setEditionStatus };
 export default connect<StateToProps, DispatchToProps, OwnProps>(
   mapStateToProps,
   mapDispatchToProps
-)(App);
+)(SettingsEditionsNotif);
