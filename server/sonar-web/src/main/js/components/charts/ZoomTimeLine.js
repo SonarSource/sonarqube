@@ -27,6 +27,7 @@ import { line as d3Line, area, curveBasis } from 'd3-shape';
 import Draggable, { DraggableCore } from 'react-draggable';
 /*:: import type { DraggableData } from 'react-draggable'; */
 /*:: import type { Point, Serie } from './AdvancedTimeline'; */
+import * as theme from '../../app/theme';
 
 /*::
 type Scale = Function;
@@ -236,7 +237,7 @@ export default class ZoomTimeLine extends React.PureComponent {
         y={yRange[yRange.length - 1]}
         width={xScale.range()[1] - xScale(this.props.leakPeriodDate)}
         height={yRange[0] - yRange[yRange.length - 1]}
-        fill="#fbf3d5"
+        fill={theme.leakColor}
       />
     );
   };

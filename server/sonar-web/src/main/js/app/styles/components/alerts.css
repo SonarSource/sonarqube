@@ -1,0 +1,79 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+.alert {
+  display: block;
+  margin-bottom: 8px;
+  padding: 5px 8px;
+  border: 1px solid var(--secondFontColor);
+}
+
+.alert:empty {
+  display: none;
+}
+
+.alert-inline {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.modal-alert {
+  margin: -10px -10px 16px;
+  padding: 10px;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.alert-danger {
+  border-color: #ebccd1;
+  background-color: #f2dede;
+  color: #a94442;
+}
+
+.alert-warning {
+  border-color: #faebcc;
+  background-color: #fcf8e3;
+  color: #8a6d3b;
+}
+
+.alert-info {
+  border-color: #bce8f1;
+  background-color: #d9edf7;
+  color: #31708f;
+}
+
+.alert-success {
+  border-color: #d6e9c6;
+  background-color: #dff0d8;
+  color: #3c763d;
+}
+
+.alert-cancel {
+  display: flex;
+  justify-content: space-between;
+}
+
+.page-notifs .alert {
+  padding: 8px 10px;
+}
+
+.page-notifs .alert:last-child {
+  margin-bottom: 16px;
+}

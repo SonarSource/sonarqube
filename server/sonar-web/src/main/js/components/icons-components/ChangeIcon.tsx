@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as theme from '../../app/theme';
 
 interface Props {
   className?: string;
@@ -33,7 +34,7 @@ export default function ChangeIcon({ className, size = 12 }: Props) {
       width={size}
       height={size}>
       <path
-        fill="#236a97"
+        fill={theme.darkBlue}
         d="M3.35 12.82l.85-.84L2.02 9.8l-.84.85v.98h1.2v1.2h.97zM8.2 4.24c0-.13-.08-.2-.22-.2-.06 0-.1.02-.15.06l-5 5c-.05.05-.08.1-.08.17 0 .13.07.2.2.2.07 0 .12-.02.16-.06l5.02-5c.05-.04.07-.1.07-.16zm-.5-1.77l3.83 3.84-7.7 7.7H0v-3.84l7.7-7.7zm6.3.88c0 .33-.1.6-.34.84L12.12 5.7 8.28 1.88 9.8.35c.24-.23.5-.35.85-.35.32 0 .6.12.84.35l2.16 2.16c.23.25.34.53.34.85z"
       />
     </svg>

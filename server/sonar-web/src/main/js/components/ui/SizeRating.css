@@ -1,13 +1,13 @@
 .size-rating {
   display: inline-block;
   vertical-align: top;
-  width: 24px;
-  height: 24px;
-  line-height: 24px;
-  border-radius: 24px;
-  background-color: #4b9fd5;
+  width: var(--controlHeight);
+  height: var(--controlHeight);
+  line-height: var(--controlHeight);
+  border-radius: var(--controlHeight);
+  background-color: var(--blue);
   color: #fff;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
   text-align: center;
   text-shadow: 0 0 1px rgba(0, 0, 0, 0.35);
 }

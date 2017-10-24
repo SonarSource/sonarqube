@@ -1,5 +1,5 @@
 .about-page {
-  font-size: 14px;
+  font-size: var(--mediumFontSize);
 }
 
 .about-page .boxed-group {
@@ -28,12 +28,12 @@
   align-items: center;
   margin-bottom: 45px;
   padding: 65px 0 65px;
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid var(--barBorderColor);
 }
 
 .about-page-intro {
   padding-right: 65px;
-  border-right: 1px solid #e6e6e6;
+  border-right: 1px solid var(--barBorderColor);
 }
 
 .about-page-intro > h1 {
@@ -48,7 +48,7 @@
   padding-left: 15px;
   padding-right: 15px;
   border-radius: 3px;
-  font-size: 13px;
+  font-size: var(--baseFontSize);
   font-weight: 400;
 }
 
@@ -60,7 +60,7 @@
 .about-page-projects {
   margin-left: 65px;
   line-height: 1.4;
-  font-size: 16px;
+  font-size: var(--bigFontSize);
   text-align: center;
   min-width: 128px;
 }
@@ -91,7 +91,7 @@
 }
 
 .about-page-issue-type-link {
-  font-size: 16px;
+  font-size: var(--bigFontSize);
   font-weight: bold;
 }
 
@@ -109,7 +109,7 @@
 }
 
 .about-page-link-more > span {
-  border-bottom: 1px solid #cae3f2;
+  border-bottom: 1px solid var(--lightBlue);
 }
 
 .about-page-languages {
@@ -125,7 +125,7 @@
 .about-quality-model .flex-column + .flex-column {
   margin-left: 30px;
   padding-left: 30px;
-  border-left: 1px solid #e6e6e6;
+  border-left: 1px solid var(--barBorderColor);
 }
 
 .about-quality-model svg {

@@ -20,6 +20,7 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import Truncated from './Truncated';
+import * as theme from '../../../app/theme';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
 import { Component } from '../types';
 
@@ -64,7 +65,7 @@ export default function ComponentName(props: Props) {
       : '';
   const name = prefix ? (
     <span>
-      <span style={{ color: '#777' }}>{prefix}</span>
+      <span style={{ color: theme.secondFontColor }}>{prefix}</span>
       <span>{component.name.substr(prefix.length)}</span>
     </span>
   ) : (
