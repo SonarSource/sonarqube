@@ -3,7 +3,7 @@
 }
 
 .tags-list i::before {
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }
 
 .tags-list span {

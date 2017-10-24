@@ -1,5 +1,5 @@
 .portfolio-measure-secondary-value {
-  line-height: 24px;
+  line-height: var(--controlHeight);
   font-size: 18px;
   font-weight: 300;
 }
@@ -23,17 +23,17 @@
 }
 
 .portfolio-freshness {
-  line-height: 24px;
+  line-height: var(--controlHeight);
   margin-top: 12px;
-  color: #777;
-  font-size: 12px;
+  color: var(--secondFontColor);
+  font-size: var(--smallFontSize);
   white-space: nowrap;
 }
 
 .portfolio-effort {
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid #e6e6e6;
+  border-top: 1px solid var(--barBorderColor);
 }
 
 .portfolio-boxes {
@@ -42,7 +42,7 @@
   align-items: stretch;
   margin-bottom: 20px;
   padding: 15px 0;
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--barBorderColor);
   background-color: #fff;
 }
 
@@ -57,7 +57,7 @@
 
 .portfolio-box-title {
   margin-bottom: 25px;
-  font-size: 16px;
+  font-size: var(--bigFontSize);
 }
 
 .portfolio-box-title > .button-small > svg {
@@ -84,7 +84,7 @@
 }
 
 .portfolio-sub-components table.data > thead > tr > th {
-  font-size: 13px;
+  font-size: var(--baseFontSize);
   text-transform: none;
 }
 

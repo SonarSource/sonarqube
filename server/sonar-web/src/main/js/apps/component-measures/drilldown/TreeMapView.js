@@ -21,6 +21,7 @@
 import React from 'react';
 import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer';
 import { scaleLinear, scaleOrdinal } from 'd3-scale';
+import * as theme from '../../../app/theme';
 import ColorBoxLegend from '../../../components/charts/ColorBoxLegend';
 import ColorGradientLegend from '../../../components/charts/ColorGradientLegend';
 import EmptyResult from './EmptyResult';
@@ -45,8 +46,8 @@ import { getProjectUrl } from '../../../helpers/urls';
 }; */
 
 const HEIGHT = 500;
-const COLORS = ['#00aa00', '#b0d513', '#eabe06', '#ed7d20', '#d4333f'];
-const LEVEL_COLORS = ['#d4333f', '#ed7d20', '#00aa00', '#b4b4b4'];
+const COLORS = [theme.green, theme.lightGreen, theme.yellow, theme.orange, theme.red];
+const LEVEL_COLORS = [theme.red, theme.orange, theme.green, theme.gray71];
 
 export default class TreeMapView extends React.PureComponent {
   /*:: props: Props; */
@@ -84,8 +85,8 @@ export default class TreeMapView extends React.PureComponent {
         return {
           key: component.refKey || component.key,
           size: sizeValue,
-          color: colorValue != null ? colorScale(colorValue) : '#777',
-          icon: <QualifierIcon color="#444" qualifier={component.qualifier} />,
+          color: colorValue != null ? colorScale(colorValue) : theme.secondFontColor,
+          icon: <QualifierIcon color={theme.baseFontColor} qualifier={component.qualifier} />,
           tooltip: this.getTooltip(
             component.name,
             colorMeasure.metric,
@@ -162,7 +163,7 @@ export default class TreeMapView extends React.PureComponent {
       <ColorGradientLegend
         className="measure-details-treemap-legend"
         colorScale={colorScale}
-        colorNA="#777"
+        colorNA={theme.secondFontColor}
         direction={metric.direction}
         height={20}
         width={200}
