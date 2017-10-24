@@ -12,8 +12,8 @@
 }
 
 .onboarding-step .boxed-group-actions {
-  height: 24px;
-  line-height: 24px;
+  height: var(--controlHeight);
+  line-height: var(--controlHeight);
 }
 
 .onboarding-step-number {
@@ -26,12 +26,12 @@
   border-radius: 24px;
   background-color: #b9b9b9;
   color: #fff;
-  font-size: 14px;
+  font-size: var(--mediumFontSize);
   text-align: center;
 }
 
 .onboarding-step.is-open .onboarding-step-number {
-  background-color: #236a97;
+  background-color: var(--darkBlue);
 }
 
 .onboarding-step.is-finished {

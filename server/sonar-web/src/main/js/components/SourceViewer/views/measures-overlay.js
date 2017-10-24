@@ -27,6 +27,7 @@ import { searchIssues } from '../../../api/issues';
 import { getMeasures } from '../../../api/measures';
 import { getMetrics } from '../../../api/metrics';
 import { getTests, getCoveredFiles } from '../../../api/tests';
+import * as theme from '../../../app/theme';
 import { getLocalizedMetricName, getLocalizedMetricDomain } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 
@@ -68,7 +69,7 @@ export default ModalView.extend({
       size: 40,
       thickness: 8,
       color: '#1f77b4',
-      baseColor: '#e6e6e6'
+      baseColor: theme.barBorderColor
     };
 
     this.$('.js-pie-chart').each(function() {

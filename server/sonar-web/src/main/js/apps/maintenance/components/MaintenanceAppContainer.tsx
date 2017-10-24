@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import init from '../init';
+import '../styles.css';
 
 interface Props {
   location: { query: { return_to: string } };

@@ -15,7 +15,7 @@
   position: relative;
   top: -1px;
   padding-left: 10px;
-  color: #777;
+  color: var(--secondFontColor);
   font-size: 11px;
   content: '>';
 }

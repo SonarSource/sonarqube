@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { DonutChart } from '../charts/donut-chart';
+import * as theme from '../../app/theme';
 
 const SIZE_TO_WIDTH_MAPPING = { small: 16, normal: 24, big: 40, huge: 60 };
 
@@ -36,8 +37,8 @@ export default function CoverageRating({ muted = false, size = 'normal', value }
   if (value != null) {
     const numberValue = Number(value);
     data = [
-      { value: numberValue, fill: muted ? '#bdbdbd' : '#00aa00' },
-      { value: 100 - numberValue, fill: muted ? '#f3f3f3' : '#d4333f' }
+      { value: numberValue, fill: muted ? theme.gray71 : theme.green },
+      { value: 100 - numberValue, fill: muted ? theme.barBackgroundColor : theme.red }
     ];
   }
 

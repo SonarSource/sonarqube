@@ -20,6 +20,7 @@
 import * as React from 'react';
 import WorkersForm from './WorkersForm';
 import NoWorkersSupportPopup from './NoWorkersSupportPopup';
+import * as theme from '../../../app/theme';
 import Tooltip from '../../../components/controls/Tooltip';
 import { getWorkers } from '../../../api/ce';
 import { translate } from '../../../helpers/l10n';
@@ -121,7 +122,7 @@ export default class Workers extends React.PureComponent<{}, State> {
         !canSetWorkerCount && (
           <span className="spacer-left">
             <a className="link-no-underline" href="#" onClick={this.handleHelpClick}>
-              <HelpIcon className="text-text-bottom" fill="#cdcdcd" />
+              <HelpIcon className="text-text-bottom" fill={theme.gray80} />
             </a>
             <BubblePopupHelper
               isOpen={this.state.noSupportPopup}

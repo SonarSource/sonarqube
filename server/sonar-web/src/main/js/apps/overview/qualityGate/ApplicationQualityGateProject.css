@@ -22,5 +22,5 @@
   margin-right: -9px;
   padding-left: 9px;
   padding-right: 9px;
-  background-color: #fbf3d5;
+  background-color: var(--leakColor);
 }

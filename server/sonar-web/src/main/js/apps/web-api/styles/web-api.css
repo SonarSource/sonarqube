@@ -5,12 +5,12 @@
 .web-api-search {
   margin: 20px 10px 0;
   padding: 0 10px 20px;
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid var(--barBorderColor);
   white-space: nowrap;
 }
 
 .web-api-search .icon-search {
-  color: #cdcdcd;
+  color: var(--gray80);
 }
 
 .web-api-domain-header,
@@ -66,7 +66,7 @@
 .web-api-params td {
   vertical-align: top;
   padding: 8px 10px;
-  border-top: 1px solid #e6e6e6;
+  border-top: 1px solid var(--barBorderColor);
 }
 
 .web-api-params tr:first-child td {

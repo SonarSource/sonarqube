@@ -58,7 +58,7 @@
 .settings-definition-changes {
   margin-top: 20px;
   padding-top: 20px;
-  border-top: 1px dotted #e6e6e6;
+  border-top: 1px dotted var(--barBorderColor);
 }
 
 .settings-sub-categories-list {
@@ -70,18 +70,18 @@
 .settings-sub-categories-list > li + li {
   margin: 30px -20px 0;
   padding: 30px 20px;
-  border-top: 1px solid #e6e6e6;
+  border-top: 1px solid var(--barBorderColor);
 }
 
 .settings-sub-category-name {
   margin-bottom: 20px;
-  font-size: 16px;
+  font-size: var(--bigFontSize);
 }
 
 .settings-sub-category-description {
   margin-top: -15px;
   margin-bottom: 20px;
-  color: #777;
+  color: var(--secondFontColor);
 }
 
 .settings-large-input {

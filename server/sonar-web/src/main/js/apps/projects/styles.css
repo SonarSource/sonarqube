@@ -52,7 +52,7 @@
   position: absolute;
   top: 1px;
   left: 80px;
-  line-height: 24px;
+  line-height: var(--controlHeight);
   pointer-events: none;
 }
 
@@ -79,8 +79,8 @@
 .project-card-leak-date {
   padding: 4px 8px;
   margin: -5px -4px -5px 24px;
-  background-color: #fbf3d5;
-  border: 1px solid #eae3c7;
+  background-color: var(--leakColor);
+  border: 1px solid var(--leakBorderColor);
 }
 
 .project-card-measures {
@@ -93,17 +93,17 @@
   display: flex;
   padding: 8px 0;
   margin: 4px -4px;
-  background-color: #fbf3d5;
-  border: 1px solid #eae3c7;
+  background-color: var(--leakColor);
+  border: 1px solid var(--leakBorderColor);
 }
 
 .projects-leak-sorting-option {
-  background-color: #fbf3d5;
+  background-color: var(--leakColor);
   margin-bottom: 2px;
 }
 
 .projects-leak-sorting-option.is-focused {
-  background-color: #eae3c7;
+  background-color: var(--leakBorderColor);
 }
 
 .project-card-measure {
@@ -128,9 +128,9 @@
   top: 50%;
   left: 0;
   width: 0;
-  height: 24px;
+  height: var(--controlHeight);
   margin-top: -12px;
-  border-left: 1px solid #e6e6e6;
+  border-left: 1px solid var(--barBorderColor);
   content: '';
 }
 
@@ -152,12 +152,12 @@
 
 .project-card-measure-label {
   margin-top: 4px;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }
 
 .project-card-measure-label-with-icon {
   margin-top: 2px;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
   white-space: nowrap;
 }
 
@@ -183,7 +183,7 @@
 }
 
 .project-card-quality-gate {
-  line-height: 24px;
+  line-height: var(--controlHeight);
 }
 
 .project-card-not-analyzed {
@@ -204,7 +204,7 @@
   float: right;
   font-weight: normal;
   font-size: 11px;
-  color: #777;
+  color: var(--secondFontColor);
   text-transform: lowercase;
 }
 
@@ -221,7 +221,7 @@
 .projects-facets-header {
   margin-bottom: 10px;
   padding: 10px 0;
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid var(--barBorderColor);
 }
 
 .projects-facets-reset {
@@ -240,7 +240,7 @@
 .projects-facet-bar-inner {
   min-width: 1px;
   height: 10px;
-  background-color: #b4b4b4;
+  background-color: var(--gray71);
   transition: width 0.3s ease;
 }
 
@@ -249,7 +249,7 @@
   .search-navigator-facet.active
   ~ .search-navigator-facet
   .projects-facet-bar-inner {
-  background-color: #4b9fd5;
+  background-color: var(--blue);
 }
 
 .projects-visualization {
@@ -268,8 +268,8 @@
 .projects-visualizations-footer {
   margin-top: 8px;
   padding: 15px 60px;
-  border-top: 1px solid #e6e6e6;
-  font-size: 12px;
+  border-top: 1px solid var(--barBorderColor);
+  font-size: var(--smallFontSize);
   line-height: 1.4;
   text-align: center;
 }
@@ -280,8 +280,8 @@
 
 .measure-details-bubble-chart-axis {
   position: absolute;
-  color: #777;
-  font-size: 12px;
+  color: var(--secondFontColor);
+  font-size: var(--smallFontSize);
 }
 
 .measure-details-bubble-chart-axis.x {

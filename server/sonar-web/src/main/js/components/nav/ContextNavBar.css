@@ -1,12 +1,12 @@
 .navbar-context,
 .navbar-context .navbar-inner {
-  background-color: #f3f3f3;
+  background-color: var(--barBackgroundColor);
   z-index: 420;
 }
 
 .navbar-context .navbar-inner {
   padding-top: 5px;
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid var(--barBorderColor);
 }
 
 .navbar-context .navbar-inner-with-notif {
@@ -25,17 +25,17 @@
   right: 0;
   line-height: 30px;
   padding: 0 10px;
-  color: #777;
-  font-size: 12px;
+  color: var(--secondFontColor);
+  font-size: var(--smallFontSize);
   text-align: right;
 }
 
 .navbar-context-description {
   display: inline-block;
-  line-height: 24px;
+  line-height: var(--controlHeight);
   margin-left: 16px;
   padding-top: 4px;
   padding-left: 4px;
-  color: #777;
-  font-size: 12px;
+  color: var(--secondFontColor);
+  font-size: var(--smallFontSize);
 }

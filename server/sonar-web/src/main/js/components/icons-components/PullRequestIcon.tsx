@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import * as theme from '../../app/theme';
 
 interface Props {
   className?: string;
@@ -25,7 +26,7 @@ interface Props {
   size?: number;
 }
 
-export default function PullRequestIcon({ className, color = '#4b9fd5', size = 16 }: Props) {
+export default function PullRequestIcon({ className, color = theme.blue, size = 16 }: Props) {
   /* eslint-disable max-len */
   return (
     <svg
