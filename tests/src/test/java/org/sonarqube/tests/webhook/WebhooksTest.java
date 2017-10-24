@@ -20,7 +20,6 @@
 package org.sonarqube.tests.webhook;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category3Suite;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +30,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.sonarqube.tests.Category3Suite;
 import org.sonarqube.ws.Webhooks;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsClient;
@@ -107,6 +107,7 @@ public class WebhooksTest {
     Map<String, String> project = (Map<String, String>) payload.get("project");
     assertThat(project.get("key")).isEqualTo(PROJECT_KEY);
     assertThat(project.get("name")).isEqualTo(PROJECT_NAME);
+    assertThat(project.get("url")).isEqualTo(orchestrator.getServer().getUrl() + "/dashboard?id=" + PROJECT_KEY);
     Map<String, Object> gate = (Map<String, Object>) payload.get("qualityGate");
     assertThat(gate.get("name")).isEqualTo("SonarQube way");
     assertThat(gate.get("status")).isEqualTo("OK");
