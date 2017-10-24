@@ -20,20 +20,15 @@
 package org.sonar.server.platform.ws;
 
 import java.util.Collection;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.Response;
-import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.process.systeminfo.SystemInfoUtils;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.health.Health;
 import org.sonar.server.telemetry.TelemetryDataLoader;
-import org.sonar.server.user.UserSession;
 
 import static org.sonar.server.telemetry.TelemetryDataJsonWriter.writeTelemetryData;
 
-public abstract class BaseInfoWsAction implements SystemWsAction {
-
+public abstract class SystemInfoWriter {
   private static final String[] ORDERED_SECTION_NAMES = {
     // standalone
     "System", "Database", "Plugins",
@@ -43,33 +38,13 @@ public abstract class BaseInfoWsAction implements SystemWsAction {
     "Compute Engine Tasks", "Compute Engine JVM State", "Compute Engine Database Connection", "Compute Engine Logging", "Compute Engine JVM Properties",
     "Search State", "Search Indexes"};
 
-  private final UserSession userSession;
   private final TelemetryDataLoader telemetry;
 
-  public BaseInfoWsAction(UserSession userSession, TelemetryDataLoader telemetry) {
-    this.userSession = userSession;
+  SystemInfoWriter(TelemetryDataLoader telemetry) {
     this.telemetry = telemetry;
   }
 
-  @Override
-  public void define(WebService.NewController controller) {
-    controller.createAction("info")
-      .setDescription("Get detailed information about system configuration.<br/>" +
-        "Requires 'Administer' permissions.<br/>" +
-        "Since 5.5, this web service becomes internal in order to more easily update result.")
-      .setSince("5.1")
-      .setInternal(true)
-      .setResponseExample(getClass().getResource("/org/sonar/server/platform/ws/info-example.json"))
-      .setHandler(this);
-  }
-
-  @Override
-  public void handle(Request request, Response response) throws InterruptedException {
-    userSession.checkIsSystemAdministrator();
-    doHandle(request, response);
-  }
-
-  protected abstract void doHandle(Request request, Response response) throws InterruptedException;
+  public abstract void write(JsonWriter json) throws Exception;
 
   protected void writeSections(Collection<ProtobufSystemInfo.Section> sections, JsonWriter json) {
     SystemInfoUtils

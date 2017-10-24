@@ -30,8 +30,9 @@ import org.sonar.server.platform.monitoring.cluster.NodeSystemSection;
 import org.sonar.server.platform.monitoring.cluster.ProcessInfoProvider;
 import org.sonar.server.platform.monitoring.cluster.EsClusterStateSection;
 import org.sonar.server.platform.monitoring.cluster.SearchNodesInfoLoaderImpl;
-import org.sonar.server.platform.ws.ClusterInfoAction;
+import org.sonar.server.platform.ws.ClusterSystemInfoWriter;
 import org.sonar.server.platform.ws.InfoAction;
+import org.sonar.server.platform.ws.StandaloneSystemInfoWriter;
 
 public class WebSystemInfoModule {
 
@@ -53,7 +54,7 @@ public class WebSystemInfoModule {
       StandaloneSystemSection.class,
 
       OfficialDistribution.class,
-
+      StandaloneSystemInfoWriter.class,
       InfoAction.class
     };
   }
@@ -79,7 +80,8 @@ public class WebSystemInfoModule {
       GlobalInfoLoader.class,
       AppNodesInfoLoaderImpl.class,
       SearchNodesInfoLoaderImpl.class,
-      ClusterInfoAction.class
+      ClusterSystemInfoWriter.class,
+      InfoAction.class
     };
   }
 }

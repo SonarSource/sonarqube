@@ -19,64 +19,45 @@
  */
 package org.sonar.server.platform.ws;
 
-import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.ce.http.CeHttpClient;
-import org.sonar.core.util.stream.MoreCollectors;
-import org.sonar.process.systeminfo.SystemInfoSection;
-import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
-import org.sonar.server.health.Health;
-import org.sonar.server.health.HealthChecker;
-import org.sonar.server.telemetry.TelemetryDataLoader;
 import org.sonar.server.user.UserSession;
-
-import static java.util.Arrays.stream;
 
 /**
  * Implementation of the {@code info} action for the System WebService.
  */
-public class InfoAction extends BaseInfoWsAction {
+public class InfoAction implements SystemWsAction {
+  private final SystemInfoWriter systemInfoWriter;
+  private final UserSession userSession;
 
-  private final CeHttpClient ceHttpClient;
-  private final SystemInfoSection[] systemInfoSections;
-  private final HealthChecker healthChecker;
-
-  public InfoAction(UserSession userSession, TelemetryDataLoader telemetry, CeHttpClient ceHttpClient, HealthChecker healthChecker,
-    SystemInfoSection... systemInfoSections) {
-    super(userSession, telemetry);
-    this.ceHttpClient = ceHttpClient;
-    this.healthChecker = healthChecker;
-    this.systemInfoSections = systemInfoSections;
+  public InfoAction(UserSession userSession, SystemInfoWriter systemInfoWriter) {
+    this.userSession = userSession;
+    this.systemInfoWriter = systemInfoWriter;
   }
 
   @Override
-  protected void doHandle(Request request, Response response) {
+  public void define(WebService.NewController controller) {
+    controller.createAction("info")
+      .setDescription("Get detailed information about system configuration.<br/>" +
+        "Requires 'Administer' permissions.<br/>" +
+        "Since 5.5, this web service becomes internal in order to more easily update result.")
+      .setSince("5.1")
+      .setInternal(true)
+      .setResponseExample(getClass().getResource("/org/sonar/server/platform/ws/info-example.json"))
+      .setHandler(this);
+
+  }
+
+  @Override
+  public void handle(Request request, Response response) throws Exception {
+    userSession.checkIsSystemAdministrator();
     try (JsonWriter json = response.newJsonWriter()) {
-      writeJson(json);
+      json.beginObject();
+      systemInfoWriter.write(json);
+      json.endObject();
     }
   }
 
-  private void writeJson(JsonWriter json) {
-    json.beginObject();
-
-    writeHealth(json);
-
-    List<ProtobufSystemInfo.Section> sections = stream(systemInfoSections)
-      .map(SystemInfoSection::toProtobuf)
-      .collect(MoreCollectors.toArrayList());
-    ceHttpClient.retrieveSystemInfo()
-      .ifPresent(ce -> sections.addAll(ce.getSectionsList()));
-
-    writeSections(sections, json);
-    writeTelemetry(json);
-
-    json.endObject();
-  }
-
-  private void writeHealth(JsonWriter json) {
-    Health health = healthChecker.checkNode();
-    writeHealth(health, json);
-  }
 }

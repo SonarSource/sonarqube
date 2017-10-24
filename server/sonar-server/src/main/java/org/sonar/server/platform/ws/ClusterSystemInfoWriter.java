@@ -20,8 +20,6 @@
 package org.sonar.server.platform.ws;
 
 import java.util.Collection;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.health.ClusterHealth;
 import org.sonar.server.health.HealthChecker;
@@ -30,19 +28,16 @@ import org.sonar.server.platform.monitoring.cluster.GlobalInfoLoader;
 import org.sonar.server.platform.monitoring.cluster.NodeInfo;
 import org.sonar.server.platform.monitoring.cluster.SearchNodesInfoLoader;
 import org.sonar.server.telemetry.TelemetryDataLoader;
-import org.sonar.server.user.UserSession;
 
-public class ClusterInfoAction extends BaseInfoWsAction {
-
+public class ClusterSystemInfoWriter extends SystemInfoWriter {
   private final GlobalInfoLoader globalInfoLoader;
   private final AppNodesInfoLoader appNodesInfoLoader;
   private final SearchNodesInfoLoader searchNodesInfoLoader;
   private final HealthChecker healthChecker;
 
-  public ClusterInfoAction(UserSession userSession, GlobalInfoLoader globalInfoLoader,
-    AppNodesInfoLoader appNodesInfoLoader, SearchNodesInfoLoader searchNodesInfoLoader,
+  public ClusterSystemInfoWriter(GlobalInfoLoader globalInfoLoader, AppNodesInfoLoader appNodesInfoLoader, SearchNodesInfoLoader searchNodesInfoLoader,
     HealthChecker healthChecker, TelemetryDataLoader telemetry) {
-    super(userSession, telemetry);
+    super(telemetry);
     this.globalInfoLoader = globalInfoLoader;
     this.appNodesInfoLoader = appNodesInfoLoader;
     this.searchNodesInfoLoader = searchNodesInfoLoader;
@@ -50,27 +45,20 @@ public class ClusterInfoAction extends BaseInfoWsAction {
   }
 
   @Override
-  protected void doHandle(Request request, Response response) throws InterruptedException {
+  public void write(JsonWriter json) throws InterruptedException {
     ClusterHealth clusterHealth = healthChecker.checkCluster();
-    try (JsonWriter json = response.newJsonWriter()) {
-      json.beginObject();
-
-      writeHealth(clusterHealth.getHealth(), json);
-      writeGlobalSections(json);
-      writeApplicationNodes(json, clusterHealth);
-      writeSearchNodes(json, clusterHealth);
-      writeTelemetry(json);
-
-      json.endObject();
-    }
+    writeHealth(clusterHealth.getHealth(), json);
+    writeGlobalSections(json);
+    writeApplicationNodes(json, clusterHealth);
+    writeSearchNodes(json, clusterHealth);
+    writeTelemetry(json);
   }
 
   private void writeGlobalSections(JsonWriter json) {
     writeSections(globalInfoLoader.load(), json);
   }
 
-  private void writeApplicationNodes(JsonWriter json, ClusterHealth clusterHealth)
-    throws InterruptedException {
+  private void writeApplicationNodes(JsonWriter json, ClusterHealth clusterHealth) throws InterruptedException {
     json.name("Application Nodes").beginArray();
 
     Collection<NodeInfo> appNodes = appNodesInfoLoader.load();
@@ -103,4 +91,5 @@ public class ClusterInfoAction extends BaseInfoWsAction {
     writeSections(nodeInfo.getSections(), json);
     json.endObject();
   }
+
 }
