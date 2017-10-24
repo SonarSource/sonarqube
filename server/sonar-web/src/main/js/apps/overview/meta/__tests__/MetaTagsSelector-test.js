@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 /* eslint-disable import/order, import/first */
-import * as React from 'react';
+import React from 'react';
 import { mount, shallow } from 'enzyme';
 import MetaTagsSelector from '../MetaTagsSelector';
 
