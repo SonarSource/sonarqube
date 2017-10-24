@@ -4,10 +4,10 @@
   vertical-align: top;
   justify-content: center;
   align-items: center;
-  width: 24px;
-  height: 24px;
-  border: 3px solid #ed7d20;
-  border-radius: 24px;
+  width: var(--controlHeight);
+  height: var(--controlHeight);
+  border: 3px solid var(--orange);
+  border-radius: var(--controlHeight);
   box-sizing: border-box;
 }
 
@@ -39,12 +39,12 @@
 }
 
 .duplications-rating:after {
-  border-radius: 24px;
+  border-radius: var(--controlHeight);
   content: '';
 }
 
 .duplications-rating-A {
-  border-color: #00aa00;
+  border-color: var(--green);
 }
 
 .duplications-rating-A:after {
@@ -52,13 +52,13 @@
 }
 
 .duplications-rating-B {
-  border-color: #b0d513;
+  border-color: var(--lightGreen);
 }
 
 .duplications-rating-B:after {
   width: 6px;
   height: 6px;
-  background-color: #b0d513;
+  background-color: var(--lightGreen);
 }
 
 .duplications-rating-small.duplications-rating-B:after {
@@ -67,8 +67,8 @@
 }
 
 .duplications-rating-big.duplications-rating-B:after {
-  width: 12px;
-  height: 12px;
+  width: var(--smallFontSize);
+  height: var(--smallFontSize);
 }
 
 .duplications-rating-huge.duplications-rating-B:after {
@@ -77,13 +77,13 @@
 }
 
 .duplications-rating-C {
-  border-color: #eabe06;
+  border-color: var(--yellow);
 }
 
 .duplications-rating-C:after {
   width: 8px;
   height: 8px;
-  background-color: #eabe06;
+  background-color: var(--yellow);
 }
 
 .duplications-rating-small.duplications-rating-C:after {
@@ -97,18 +97,18 @@
 }
 
 .duplications-rating-huge.duplications-rating-C:after {
-  width: 24px;
-  height: 24px;
+  width: var(--controlHeight);
+  height: var(--controlHeight);
 }
 
 .duplications-rating-D {
-  border-color: #ed7d20;
+  border-color: var(--orange);
 }
 
 .duplications-rating-D:after {
-  width: 12px;
-  height: 12px;
-  background-color: #ed7d20;
+  width: var(--smallFontSize);
+  height: var(--smallFontSize);
+  background-color: var(--orange);
 }
 
 .duplications-rating-small.duplications-rating-D:after {
@@ -117,8 +117,8 @@
 }
 
 .duplications-rating-big.duplications-rating-D:after {
-  width: 24px;
-  height: 24px;
+  width: var(--controlHeight);
+  height: var(--controlHeight);
 }
 
 .duplications-rating-huge.duplications-rating-D:after {
@@ -127,13 +127,13 @@
 }
 
 .duplications-rating-E {
-  border-color: #d4333f;
+  border-color: var(--red);
 }
 
 .duplications-rating-E:after {
   width: 14px;
   height: 14px;
-  background-color: #d4333f;
+  background-color: var(--red);
 }
 
 .duplications-rating-small.duplications-rating-E:after {

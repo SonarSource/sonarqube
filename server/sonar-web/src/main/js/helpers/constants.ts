@@ -17,16 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as theme from '../app/theme';
+
 export const SEVERITIES = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'];
 export const STATUSES = ['OPEN', 'REOPENED', 'CONFIRMED', 'RESOLVED', 'CLOSED'];
 
-export const CHART_COLORS_RANGE_PERCENT = ['#00aa00', '#b0d513', '#eabe06', '#ed7d20', '#d4333f'];
+export const CHART_COLORS_RANGE_PERCENT = [
+  theme.green,
+  theme.lightGreen,
+  theme.yellow,
+  theme.orange,
+  theme.red
+];
 export const CHART_REVERSED_COLORS_RANGE_PERCENT = [
-  '#d4333f',
-  '#ed7d20',
-  '#eabe06',
-  '#b0d513',
-  '#00aa00'
+  theme.red,
+  theme.orange,
+  theme.yellow,
+  theme.lightGreen,
+  theme.green
 ];
 
-export const RATING_COLORS = ['#00aa00', '#b0d513', '#eabe06', '#ed7d20', '#e00'];
+export const RATING_COLORS = [theme.green, theme.lightGreen, theme.yellow, theme.orange, '#e00'];

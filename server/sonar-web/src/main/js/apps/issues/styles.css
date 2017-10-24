@@ -1,5 +1,5 @@
 .issues-main-header .component-name {
-  line-height: 24px;
+  line-height: var(--controlHeight);
 }
 
 .issues-main-header-spinner {
@@ -29,12 +29,12 @@
 }
 
 .concise-issues-list-header-button path {
-  fill: #777;
+  fill: var(--secondFontColor);
   transition: fill 0.3s ease;
 }
 
 .concise-issues-list-header-button:hover path {
-  fill: #4b9fd5;
+  fill: var(--blue);
 }
 
 .concise-issue-component {
@@ -46,10 +46,10 @@
 
 .concise-issue-box {
   position: relative;
-  z-index: 1;
+  z-index: var(--belowNormalZIndex);
   margin-bottom: 4px;
   padding: 8px;
-  border: 1px solid #e6e6e6;
+  border: 1px solid var(--barBorderColor);
   background-color: #fff;
   cursor: pointer;
   transition: background-color 0.3s ease, border-color 0.3s ease;
@@ -64,7 +64,7 @@
 }
 
 .concise-issue-box.selected {
-  z-index: 2;
+  z-index: var(--normalZIndex);
   border-color: #dd4040;
   background-color: #ffeaea;
   cursor: default;
@@ -79,7 +79,7 @@
 .concise-issue-box-attributes {
   margin-top: 8px;
   line-height: 16px;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }
 
 .concise-issue-box:not(.selected) .location-index {
@@ -105,7 +105,7 @@
 .issues-filters-header {
   margin-bottom: 12px;
   padding-bottom: 11px;
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid var(--barBorderColor);
 }
 
 .issues-my-issues-filter {

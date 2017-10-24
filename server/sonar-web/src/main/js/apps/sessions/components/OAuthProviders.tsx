@@ -21,6 +21,7 @@ import * as React from 'react';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { IdentityProvider } from '../../../api/users';
 import { getBaseUrl } from '../../../helpers/urls';
+import './OAuthProviders.css';
 
 interface Props {
   formatLabel?: (name: string) => string;

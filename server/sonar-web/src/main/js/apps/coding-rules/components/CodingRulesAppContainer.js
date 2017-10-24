@@ -25,6 +25,7 @@ import { withRouter } from 'react-router';
 import { getAppState } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 import init from '../init';
+import '../styles.css';
 
 class CodingRulesAppContainer extends React.PureComponent {
   /*:: stop: ?() => void; */

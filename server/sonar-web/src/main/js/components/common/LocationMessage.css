@@ -7,7 +7,7 @@
   background-color: #9e9e9e;
   color: #fff;
   font-family: 'Helvetica Neue', 'Segoe UI', Helvetica, Arial, sans-serif;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
   text-overflow: ellipsis;
   overflow: hidden;
   transition: background-color 0.3s ease;
