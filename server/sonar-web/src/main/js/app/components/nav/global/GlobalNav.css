@@ -44,7 +44,7 @@
   line-height: 14px;
   border: none;
   color: #ccc;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
   letter-spacing: 0.05em;
   transition: none;
 }
@@ -52,7 +52,7 @@
 .global-navbar-menu > li > a.active,
 .global-navbar-menu > li > a:hover,
 .global-navbar-menu > li > a:focus {
-  background-color: #4b9fd5;
+  background-color: var(--blue);
   color: #fff;
 }
 

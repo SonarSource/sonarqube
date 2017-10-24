@@ -7,8 +7,8 @@
 .account-header {
   padding-top: 20px;
   padding-bottom: 20px;
-  border-bottom: 1px solid #e6e6e6;
-  background-color: #f3f3f3;
+  border-bottom: 1px solid var(--barBorderColor);
+  background-color: var(--barBackgroundColor);
 }
 
 .account-nav {
@@ -43,16 +43,16 @@
 .account-separator {
   height: 0;
   margin: 40px 0;
-  border-top: 1px solid #e6e6e6;
+  border-top: 1px solid var(--barBorderColor);
 }
 
 .account-bar-chart .bar-chart-bar {
-  fill: #4b9fd5;
+  fill: var(--blue);
 }
 
 .account-bar-chart .bar-chart-tick {
-  fill: #777;
-  font-size: 12px;
+  fill: var(--secondFontColor);
+  font-size: var(--smallFontSize);
   text-anchor: middle;
 }
 
@@ -74,7 +74,7 @@
 }
 
 .account-projects-list > li + li {
-  border-top: 1px solid #e6e6e6;
+  border-top: 1px solid var(--barBorderColor);
 }
 
 .account-project-side {
@@ -84,9 +84,9 @@
 }
 
 .account-project-analysis {
-  line-height: 24px;
-  color: #777;
-  font-size: 12px;
+  line-height: var(--controlHeight);
+  color: var(--secondFontColor);
+  font-size: var(--smallFontSize);
 }
 
 .account-project-card {
@@ -105,18 +105,18 @@
 
 .account-project-name > a {
   border-bottom-color: #d0d0d0;
-  color: #444;
+  color: var(--baseFontColor);
 }
 
 .account-project-name > a:hover {
-  border-bottom-color: #cae3f2;
-  color: #4b9fd5;
+  border-bottom-color: var(--lightBlue);
+  color: var(--blue);
 }
 
 .account-project-quality-gate {
   display: inline-block;
   vertical-align: top;
-  line-height: 24px;
+  line-height: var(--controlHeight);
   margin-left: 8px;
 }
 
@@ -131,8 +131,8 @@
 
 .account-project-key {
   margin-top: 6px;
-  color: #777;
-  font-size: 12px;
+  color: var(--secondFontColor);
+  font-size: var(--smallFontSize);
 }
 
 .my-activity-issues {
@@ -149,7 +149,7 @@
   left: 50%;
   width: 1px;
   height: 100px;
-  background-color: #e6e6e6;
+  background-color: var(--barBorderColor);
   transform: rotate(30deg);
   content: '';
 }
@@ -159,11 +159,11 @@
   padding: 15px 20px;
   border: none;
   border-radius: 2px;
-  color: #444;
+  color: var(--baseFontColor);
 }
 
 .my-activity-issues > a:hover {
-  background-color: #f3f3f3;
+  background-color: var(--barBackgroundColor);
 }
 
 .my-activity-recent-issues {
@@ -193,7 +193,7 @@
   padding-left: 10px;
   padding-top: 2px;
   line-height: 16px;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
 }
 
 .my-activity-projects {
@@ -203,13 +203,13 @@
 }
 
 .my-activity-projects-header {
-  line-height: 24px;
+  line-height: var(--controlHeight);
   margin-bottom: 15px;
   padding: 0 10px;
 }
 
 .my-activity-projects > ul > li + li {
-  border-top: 1px solid #e6e6e6;
+  border-top: 1px solid var(--barBorderColor);
 }
 
 .my-activity-projects > ul > li > a {
@@ -219,7 +219,7 @@
 }
 
 .my-activity-projects > ul > li > a:hover {
-  background-color: #f3f3f3;
+  background-color: var(--barBackgroundColor);
 }
 
 .my-activity-projects .level {

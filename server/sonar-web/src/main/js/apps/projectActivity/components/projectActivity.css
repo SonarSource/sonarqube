@@ -78,7 +78,7 @@
 }
 
 .project-activity-graph-legend-actionable:not(.alert-warning) {
-  border-color: #e6e6e6;
+  border-color: var(--barBorderColor);
 }
 
 .project-activity-graph-tooltip {
@@ -142,8 +142,8 @@
   position: relative;
   min-height: 20px;
   padding: 4px;
-  border-top: 1px solid #e6e6e6;
-  border-bottom: 1px solid #e6e6e6;
+  border-top: 1px solid var(--barBorderColor);
+  border-bottom: 1px solid var(--barBorderColor);
   cursor: pointer;
 }
 
@@ -172,7 +172,7 @@
   width: 54px;
   line-height: 20px;
   box-sizing: border-box;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
   font-weight: bold;
   text-align: right;
 }
@@ -182,7 +182,7 @@
   width: 10px;
   height: 10px;
   margin-top: 5px;
-  border: 2px solid #4b9fd5;
+  border: 2px solid var(--blue);
   border-radius: 10px;
   box-sizing: border-box;
   content: '';
@@ -236,11 +236,11 @@
 }
 
 .project-activity-event-icon.VERSION {
-  color: #4b9fd5;
+  color: var(--blue);
 }
 
 .project-activity-event-icon.QUALITY_GATE {
-  color: #9139d4;
+  color: var(--purple);
 }
 
 .project-activity-event-icon.QUALITY_PROFILE {
@@ -265,7 +265,7 @@
   left: 12px;
   right: 16px;
   padding-top: 24px;
-  z-index: 1;
+  z-index: var(--belowNormalZIndex);
 }
 
 .project-activity-version-badge.sticky + .project-activity-days-list {
@@ -279,7 +279,7 @@
   box-sizing: border-box;
   border-radius: 0 2px 2px 0;
   font-weight: bold;
-  font-size: 12px;
+  font-size: var(--smallFontSize);
   letter-spacing: 0;
   overflow: hidden;
   text-overflow: ellipsis;

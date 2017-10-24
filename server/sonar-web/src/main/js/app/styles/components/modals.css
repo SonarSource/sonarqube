@@ -1,0 +1,246 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+.modal,
+.ReactModal__Content {
+  position: fixed;
+  z-index: var(--modalZIndex);
+  top: 0;
+  left: 50%;
+  margin-left: -270px;
+  width: 540px;
+  background-color: #fff;
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.modal:focus,
+.ReactModal__Content:focus {
+  outline: none;
+}
+
+.modal.in,
+.ReactModal__Content--after-open {
+  top: 15%;
+  opacity: 1;
+}
+
+.modal-medium {
+  width: 800px;
+  margin-left: -400px;
+}
+
+.modal-large {
+  width: calc(100% - 40px);
+  max-width: 1280px;
+  min-width: 1040px;
+  margin-left: 0;
+  transform: translateX(-50%);
+}
+
+.modal-overlay,
+.ReactModal__Overlay {
+  position: fixed;
+  z-index: var(--modalOverlayZIndex);
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.modal-overlay.in,
+.ReactModal__Overlay--after-open {
+  opacity: 1;
+}
+
+.modal-open,
+.ReactModal__Body--open {
+  overflow: hidden;
+  margin-right: 15px;
+}
+
+.modal-container {
+  max-height: 70vh;
+  padding: 10px;
+  box-sizing: border-box;
+  overflow: auto;
+}
+
+.modal-head {
+  padding: 0 10px;
+  background-color: var(--gray94);
+  border-bottom: 1px solid #ddd;
+}
+
+.modal-head h1,
+.modal-head h2 {
+  line-height: 30px;
+  min-height: 30px;
+}
+
+ul.modal-head-metadata {
+  overflow: hidden;
+  padding: 0 0 5px 0;
+}
+
+ul.modal-head-metadata li {
+  float: left;
+  position: relative;
+  font-size: 85%;
+  color: var(--secondFontColor);
+}
+
+.modal-body {
+  padding: 10px;
+}
+
+.modal-body-select2 {
+  margin-bottom: 10px;
+}
+
+.modal-body .notes {
+  height: auto;
+}
+
+.modal-field {
+  clear: both;
+  display: block;
+  padding: 5px 0 5px 130px;
+}
+
+.modal-large-field {
+  clear: both;
+  display: block;
+  padding: 20px 40px;
+}
+
+.modal-field label {
+  position: relative;
+  left: -140px;
+  display: block;
+  float: left;
+  width: 120px;
+  margin-right: -130px;
+  padding-top: 5px;
+  padding-bottom: 2px;
+  padding-left: 10px;
+  line-height: 1;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.modal-field label.simple-label {
+  display: inline-block;
+  vertical-align: middle;
+  float: none;
+  position: static;
+  margin: 0 0 0 -5px;
+  padding: 0;
+  text-align: left;
+}
+
+.modal-large-field label {
+  display: inline-block;
+  padding-bottom: 15px;
+  font-weight: bold;
+}
+
+.readonly-field {
+  padding-top: 5px;
+  margin-left: -5px;
+  line-height: 1;
+}
+
+.modal-field input,
+.modal-large-field input,
+.modal-field select,
+.modal-large-field select,
+.modal-field textarea,
+.modal-large-field textarea,
+.modal-field .Select,
+.modal-large-field .Select {
+  margin-right: 5px;
+  margin-bottom: 10px;
+}
+
+.modal-field input[type='radio'],
+.modal-large-field input[type='radio'],
+.modal-field input[type='checkbox'],
+.modal-large-field input[type='checkbox'] {
+  margin-top: 5px;
+  margin-bottom: 4px;
+}
+
+.modal-field > .icon-checkbox,
+.modal-large-field > .icon-checkbox {
+  padding-top: 6px;
+  padding-right: 8px;
+}
+
+.modal-field input[type='text'],
+.modal-field input[type='email'],
+.modal-field input[type='password'],
+.modal-field textarea,
+.modal-field select,
+.modal-field .Select {
+  width: 250px;
+}
+
+.modal-large-field input[type='text'],
+.modal-large-field input[type='email'],
+.modal-large-field input[type='password'],
+.modal-large-field textarea,
+.modal-large-field select,
+.modal-large-field .Select {
+  width: 100%;
+}
+
+.modal-field-description {
+  padding-bottom: 4px;
+  line-height: 1.4;
+  color: var(--secondFontColor);
+  font-size: var(--smallFontSize);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.modal-foot {
+  line-height: var(--controlHeight);
+  padding: 10px;
+  border-top: 1px solid #ccc;
+  background-color: var(--gray94);
+  text-align: right;
+}
+
+.modal-foot button,
+.modal-foot .button,
+.modal-foot input[type='submit'],
+.modal-foot input[type='button'] {
+  margin-right: 10px;
+}
+
+.modal-error,
+.modal-warning,
+.modal-notice {
+  display: none;
+}

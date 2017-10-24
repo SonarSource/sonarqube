@@ -1,0 +1,138 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+.menu {
+  min-width: 160px;
+  padding: 5px 0;
+  list-style: none;
+  font-size: var(--smallFontSize);
+  text-align: left;
+  background-color: #fff;
+  background-clip: padding-box;
+}
+
+.menu:focus {
+  outline: none;
+}
+
+.menu > li > a,
+.menu > li > span {
+  display: block;
+  padding: 4px 16px;
+  line-height: 16px;
+  clear: both;
+  font-weight: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menu > li > a {
+  color: var(--baseFontColor);
+  border-bottom: none;
+  transition: none;
+}
+
+.menu .divider {
+  height: 1px;
+  margin: 6px 0;
+  overflow: hidden;
+  background-color: var(--barBorderColor);
+}
+
+.menu > li > a:hover,
+.menu > li > a:focus {
+  text-decoration: none;
+  color: var(--baseFontColor);
+  background-color: var(--barBackgroundColor);
+}
+
+.menu > .active > a,
+.menu > li > .active,
+.menu > .active > a:hover,
+.menu > li > .active:hover,
+.menu > .active > a:focus,
+.menu > li > .active:focus {
+  color: var(--baseFontColor);
+  text-decoration: none;
+  outline: 0;
+  background-color: var(--barBackgroundColor);
+}
+
+.menu .menu-vertically-limited {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.menu .menu-footer > a > span {
+  border-bottom: 1px solid var(--gray80);
+  color: var(--secondFontColor);
+}
+
+.menu .menu-footer-note {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.menu .menu-footer.active .menu-footer-note {
+  opacity: 1;
+}
+
+.menu-search {
+  position: relative;
+  padding: 4px 16px 0;
+}
+
+.menu-search .search-box-input {
+  font-size: var(--smallFontSize);
+}
+
+.menu-search .search-box-submit {
+  vertical-align: baseline;
+}
+
+.menu-search-full-width {
+  display: flex;
+  align-items: center;
+}
+
+.menu-search-full-width .search-box-input {
+  flex-grow: 1;
+  width: auto;
+}
+
+.menu-search ~ .menu > li > a:hover,
+.menu-search ~ .menu > li > a:focus {
+  background-color: transparent;
+}
+
+.menu-search ~ .menu > .active > a,
+.menu-search ~ .menu > li > .active,
+.menu-search ~ .menu > .active > a:hover,
+.menu-search ~ .menu > li > .active:hover,
+.menu-search ~ .menu > .active > a:focus,
+.menu-search ~ .menu > li > .active:focus {
+  background-color: var(--barBackgroundColor);
+}
+
+.menu-message {
+  display: block;
+  padding: 4px 16px;
+  line-height: 16px;
+}

@@ -13,7 +13,7 @@
 
   <properties>
     <!-- self-analysis -->
-    <sonar.sources>src/main/js,src/main/less</sonar.sources>
+    <sonar.sources>src/main/js</sonar.sources>
     <sonar.tests>src/main/js</sonar.tests>
     <sonar.test.inclusions>src/main/js/**/__tests__/**</sonar.test.inclusions>
     <sonar.exclusions>src/main/js/libs/third-party/**/*,src/main/js/libs/require.js,src/main/js/**/__tests__/**</sonar.exclusions>
@@ -122,7 +122,7 @@
         <configuration>
           <packagingExcludes>
             **/*.log,*.iml,WEB-INF/script/,WEB-INF/test/,javascripts/*-min.js,stylesheets/*-min.css,javascripts/tests/**/*,
-            build/**,less/**,templates/**
+            build/**,templates/**
           </packagingExcludes>
           <warSourceExcludes>
             js/**,css/**
