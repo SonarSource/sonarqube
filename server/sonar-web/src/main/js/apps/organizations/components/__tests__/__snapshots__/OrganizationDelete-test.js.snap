@@ -5,6 +5,7 @@ exports[`smoke test 1`] = `
   className="page page-limited"
 >
   <HelmetWrapper
+    defer={true}
     encodeSpecialCharacters={true}
     title="organization.delete"
   />
@@ -39,6 +40,7 @@ exports[`smoke test 2`] = `
   className="page page-limited"
 >
   <HelmetWrapper
+    defer={true}
     encodeSpecialCharacters={true}
     title="organization.delete"
   />
@@ -122,6 +124,7 @@ exports[`smoke test 3`] = `
   className="page page-limited"
 >
   <HelmetWrapper
+    defer={true}
     encodeSpecialCharacters={true}
     title="organization.delete"
   />

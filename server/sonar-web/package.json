@@ -31,7 +31,7 @@
     "react": "15.6.2",
     "react-dom": "15.6.2",
     "react-draggable": "3.0.3",
-    "react-helmet": "5.1.3",
+    "react-helmet": "5.2.0",
     "react-intl": "2.4.0",
     "react-modal": "2.2.2",
     "react-redux": "5.0.6",
