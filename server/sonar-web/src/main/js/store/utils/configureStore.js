@@ -24,7 +24,7 @@ const middlewares = [thunk];
 const composed = [];
 
 if (process.env.NODE_ENV !== 'production') {
-  const createLogger = require('redux-logger');
+  const { createLogger } = require('redux-logger');
   middlewares.push(createLogger());
 
   composed.push(window.devToolsExtension ? window.devToolsExtension() : f => f);
