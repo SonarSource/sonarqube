@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow } from 'enzyme';
-import { click } from '../../../../helpers/testUtils';
-import EditionsStatusNotif from '../EditionsStatusNotif';
+import { mount, shallow } from 'enzyme';
+import { click } from '../../../../../helpers/testUtils';
+import SettingsEditionsNotif from '../SettingsEditionsNotif';
 
-jest.mock('../../../../api/marketplace', () => ({
+jest.mock('../../../../../api/marketplace', () => ({
   dismissErrorMessage: jest.fn(() => Promise.resolve())
 }));
 
-const dismissMsg = require('../../../../api/marketplace').dismissErrorMessage as jest.Mock<any>;
+const dismissMsg = require('../../../../../api/marketplace').dismissErrorMessage as jest.Mock<any>;
 
 beforeEach(() => {
   dismissMsg.mockClear();
@@ -34,10 +34,10 @@ beforeEach(() => {
 
 it('should display an in progress notif', () => {
   const wrapper = shallow(
-    <EditionsStatusNotif
+    <SettingsEditionsNotif
       editionStatus={{ installationStatus: 'AUTOMATIC_IN_PROGRESS' }}
-      readOnly={false}
-      updateEditionStatus={jest.fn()}
+      preventRestart={false}
+      setEditionStatus={jest.fn()}
     />
   );
   expect(wrapper).toMatchSnapshot();
@@ -45,10 +45,31 @@ it('should display an in progress notif', () => {
 
 it('should display a ready notification', () => {
   const wrapper = shallow(
-    <EditionsStatusNotif
+    <SettingsEditionsNotif
       editionStatus={{ installationStatus: 'AUTOMATIC_READY' }}
-      readOnly={false}
-      updateEditionStatus={jest.fn()}
+      preventRestart={false}
+      setEditionStatus={jest.fn()}
+    />
+  );
+  expect(wrapper).toMatchSnapshot();
+});
+
+it('should display a manual installation notification', () => {
+  const wrapper = shallow(
+    <SettingsEditionsNotif
+      editionStatus={{ installationStatus: 'MANUAL_IN_PROGRESS', nextEditionKey: 'foo' }}
+      editions={[
+        {
+          key: 'foo',
+          name: 'Foo',
+          textDescription: 'Foo desc',
+          downloadUrl: 'download_url',
+          homeUrl: 'more_url',
+          requestUrl: 'license_url'
+        }
+      ]}
+      preventRestart={false}
+      setEditionStatus={jest.fn()}
     />
   );
   expect(wrapper).toMatchSnapshot();
@@ -56,29 +77,40 @@ it('should display a ready notification', () => {
 
 it('should display install errors', () => {
   const wrapper = shallow(
-    <EditionsStatusNotif
+    <SettingsEditionsNotif
       editionStatus={{ installationStatus: 'AUTOMATIC_IN_PROGRESS', installError: 'Foo error' }}
-      readOnly={false}
-      updateEditionStatus={jest.fn()}
+      preventRestart={false}
+      setEditionStatus={jest.fn()}
     />
   );
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should allow to dismiss install errors', async () => {
-  const updateEditionStatus = jest.fn();
-  const wrapper = shallow(
-    <EditionsStatusNotif
+  const setEditionStatus = jest.fn();
+  const wrapper = mount(
+    <SettingsEditionsNotif
       editionStatus={{ installationStatus: 'NONE', installError: 'Foo error' }}
-      readOnly={false}
-      updateEditionStatus={updateEditionStatus}
+      preventRestart={false}
+      setEditionStatus={setEditionStatus}
     />
   );
   click(wrapper.find('a'));
   expect(dismissMsg).toHaveBeenCalled();
   await new Promise(setImmediate);
-  expect(updateEditionStatus).toHaveBeenCalledWith({
+  expect(setEditionStatus).toHaveBeenCalledWith({
     installationStatus: 'NONE',
     installError: undefined
   });
+});
+
+it('should not display the restart button', () => {
+  const wrapper = shallow(
+    <SettingsEditionsNotif
+      editionStatus={{ installationStatus: 'AUTOMATIC_READY' }}
+      preventRestart={true}
+      setEditionStatus={jest.fn()}
+    />
+  );
+  expect(wrapper.find('button.js-restart').exists()).toBeFalsy();
 });

@@ -19,20 +19,38 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import CloseIcon from '../icons-components/CloseIcon';
 
 interface Props {
   children?: React.ReactNode;
   className?: string;
+  onCancel?: () => {};
 }
 
 export default class NavBarNotif extends React.PureComponent<Props> {
+  handleCancel = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    if (this.props.onCancel) {
+      this.props.onCancel();
+    }
+  };
+
   render() {
     if (!this.props.children) {
       return null;
     }
     return (
       <div className={classNames('navbar-notif', this.props.className)}>
-        <div className="navbar-limited clearfix">{this.props.children}</div>
+        <div className="navbar-limited clearfix">
+          <div className={classNames({ 'navbar-notif-cancelable': !!this.props.onCancel })}>
+            {this.props.children}
+            {this.props.onCancel && (
+              <a className="button-link text-danger" href="#" onClick={this.handleCancel}>
+                <CloseIcon />
+              </a>
+            )}
+          </div>
+        </div>
       </div>
     );
   }

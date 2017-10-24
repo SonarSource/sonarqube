@@ -17,9 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { memoize, sortBy } from 'lodash';
+import { memoize } from 'lodash';
 import { Plugin, PluginAvailable, PluginInstalled, PluginPending } from '../../api/plugins';
-import { Edition, EditionsPerVersion } from '../../api/marketplace';
 import { cleanQuery, parseAsString, RawQuery, serializeString } from '../../helpers/query';
 
 export interface Query {
@@ -50,34 +49,6 @@ export function filterPlugins(plugins: Plugin[], search: string): Plugin[] {
       (plugin.category || '').toLowerCase().includes(s)
     );
   });
-}
-
-export function getEditionsForLastVersion(editions: EditionsPerVersion): Edition[] {
-  const sortedVersion = sortBy(Object.keys(editions), [
-    (version: string) => -Number(version.split('.')[0]),
-    (version: string) => -Number(version.split('.')[1] || 0),
-    (version: string) => -Number(version.split('.')[2] || 0)
-  ]);
-  return editions[sortedVersion[0]];
-}
-
-export function getEditionsForVersion(
-  editions: EditionsPerVersion,
-  version: string
-): Edition[] | undefined {
-  const minorVersion = version.match(/\d+\.\d+.\d+/);
-  if (minorVersion) {
-    if (editions[minorVersion[0]]) {
-      return editions[minorVersion[0]];
-    }
-  }
-  const majorVersion = version.match(/\d+\.\d+/);
-  if (majorVersion) {
-    if (editions[majorVersion[0]]) {
-      return editions[majorVersion[0]];
-    }
-  }
-  return undefined;
 }
 
 export const parseQuery = memoize((urlQuery: RawQuery): Query => ({
