@@ -33,9 +33,9 @@ exports[`renders sorted list of branches 1`] = `
               onlyActiveOnIndex={false}
               style={Object {}}
               to="/admin/settings"
-          >
+            >
               settings.page
-          </Link>,
+            </Link>,
           }
         }
       />

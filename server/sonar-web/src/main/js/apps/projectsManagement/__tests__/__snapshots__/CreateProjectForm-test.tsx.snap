@@ -432,17 +432,17 @@ exports[`creates project 4`] = `
                 onlyActiveOnIndex={false}
                 style={Object {}}
                 to={
-                    Object {
-                        "pathname": "/dashboard",
-                        "query": Object {
-                          "branch": undefined,
-                          "id": "name",
-                        },
-                      }
+                  Object {
+                    "pathname": "/dashboard",
+                    "query": Object {
+                      "branch": undefined,
+                      "id": "name",
+                    },
+                  }
                 }
-            >
+              >
                 name
-            </Link>,
+              </Link>,
             }
           }
         />

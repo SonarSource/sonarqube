@@ -15,9 +15,9 @@ exports[`should display an error message 1`] = `
           "url": <a
             href="https://www.sonarsource.com"
             target="_blank"
-        >
+          >
             SonarSource.com
-        </a>,
+          </a>,
         }
       }
     />
