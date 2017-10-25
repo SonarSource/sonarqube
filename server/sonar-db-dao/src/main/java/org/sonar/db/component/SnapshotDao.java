@@ -98,7 +98,10 @@ public class SnapshotDao implements Dao {
   }
 
   /**
+   * Returned finished analysis from a list of projects and dates.
+   * "Finished" analysis means that the status in the CE_ACTIVITY table is SUCCESS => the goal is to be sure that the CE task is completely finished.
    *
+   * Note that branches analysis of projects are also returned.
    */
   public List<SnapshotDto> selectFinishedByComponentUuidsAndFromDates(DbSession dbSession, List<String> componentUuids, List<Long> fromDates) {
     checkArgument(componentUuids.size() == fromDates.size(), "The number of components (%s) and from dates (%s) must be the same.",

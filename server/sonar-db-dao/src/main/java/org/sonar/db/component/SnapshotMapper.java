@@ -57,4 +57,5 @@ public interface SnapshotMapper {
 
   List<SnapshotDto> selectFinishedByComponentUuidsAndFromDates(@Param("componentUuidFromDatePairs") List<ComponentUuidFromDatePair> pairs,
     @Param("ceStatus") CeActivityDto.Status ceStatus);
+
 }

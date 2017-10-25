@@ -104,10 +104,11 @@
     <include refid="snapshotColumns" />
     from snapshots s
       inner join projects p on p.uuid=s.component_uuid and p.enabled=${_true}
-      inner join ce_activity ca on s.uuid = ca.analysis_uuid and s.component_uuid = ca.component_uuid
+      inner join project_branches pb on pb.uuid=p.uuid
+      inner join ce_activity ca on ca.analysis_uuid = s.uuid and ca.component_uuid = pb.project_uuid
     where
       <foreach collection="componentUuidFromDatePairs" open="(" close=")" item="componentUuidFromDatePair" separator=" or ">
-        (s.component_uuid=#{componentUuidFromDatePair.componentUuid, jdbcType=VARCHAR} and s.created_at >= #{componentUuidFromDatePair.from, jdbcType=BIGINT})
+        (pb.project_uuid=#{componentUuidFromDatePair.componentUuid, jdbcType=VARCHAR} and s.created_at >= #{componentUuidFromDatePair.from, jdbcType=BIGINT})
       </foreach>
       and s.status = 'P'
       and ca.status=#{ceStatus, jdbcType=VARCHAR}
