@@ -27,7 +27,11 @@ export default function Event(props /*: { event: EventType } */) {
   const { event } = props;
 
   if (event.category === 'VERSION') {
-    return <span className="overview-analysis-event badge">{props.event.name}</span>;
+    return (
+      <Tooltip overlay={`${translate('version')} ${props.event.name}`} mouseEnterDelay={0.5}>
+        <span className="overview-analysis-event badge">{props.event.name}</span>
+      </Tooltip>
+    );
   }
 
   return (

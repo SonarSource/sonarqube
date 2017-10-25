@@ -23,6 +23,7 @@ import classNames from 'classnames';
 import { throttle } from 'lodash';
 import ProjectActivityAnalysis from './ProjectActivityAnalysis';
 import DateFormatter from '../../../components/intl/DateFormatter';
+import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import { toShortNotSoISOString } from '../../../helpers/dates';
 import {
@@ -187,7 +188,11 @@ export default class ProjectActivityAnalysesList extends React.PureComponent {
             <li key={version.key || 'noversion'}>
               {version.version && (
                 <div className={classNames('project-activity-version-badge', { first: idx === 0 })}>
-                  <span className="badge">{version.version}</span>
+                  <Tooltip
+                    overlay={`${translate('version')} ${version.version}`}
+                    mouseEnterDelay={0.5}>
+                    <span className="badge">{version.version}</span>
+                  </Tooltip>
                 </div>
               )}
               <ul className="project-activity-days-list">
