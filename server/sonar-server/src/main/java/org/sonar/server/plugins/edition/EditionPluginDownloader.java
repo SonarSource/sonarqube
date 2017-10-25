@@ -95,7 +95,7 @@ public class EditionPluginDownloader {
     if (url.startsWith("file:")) {
       // used for tests
       File file = toFile(uri.toURL());
-      Files.copy(file.toPath(), tmpDir);
+      Files.copy(file.toPath(), tmpDir.resolve(file.getName()));
     } else {
       String filename = substringAfterLast(uri.getPath(), "/");
       if (!filename.endsWith("." + PLUGIN_EXTENSION)) {
