@@ -70,7 +70,7 @@ function renderOption(option: number, selected: boolean) {
     <span>
       <Rating value={option} small={true} muted={!selected} />
       {option > 1 &&
-      option < 5 && <span className="note spacer-left">{translate('and_worse')}</span>}
+        option < 5 && <span className="note spacer-left">{translate('and_worse')}</span>}
     </span>
   );
 }

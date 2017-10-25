@@ -61,15 +61,15 @@ export default function ComponentBreadcrumbs({ branch, component, issue, organiz
       )}
 
       {displaySubProject &&
-      issue.subProject !== undefined &&
-      issue.subProjectName !== undefined && (
-        <span title={issue.subProjectName}>
-          <Link to={getProjectUrl(issue.subProject, branch)} className="link-no-underline">
-            {limitComponentName(issue.subProjectName)}
-          </Link>
-          <span className="slash-separator" />
-        </span>
-      )}
+        issue.subProject !== undefined &&
+        issue.subProjectName !== undefined && (
+          <span title={issue.subProjectName}>
+            <Link to={getProjectUrl(issue.subProject, branch)} className="link-no-underline">
+              {limitComponentName(issue.subProjectName)}
+            </Link>
+            <span className="slash-separator" />
+          </span>
+        )}
 
       <Link to={getProjectUrl(issue.component, branch)} className="link-no-underline">
         <span title={issue.componentLongName}>{collapsePath(issue.componentLongName)}</span>

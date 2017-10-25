@@ -49,18 +49,16 @@ export default class ProjectsList extends React.PureComponent<Props> {
 
     return (
       <div className="projects-list">
-        {projects.length > 0 ? (
-          projects.map(project => (
-            <ProjectCard
-              key={project.key}
-              project={project}
-              organization={this.props.organization}
-              type={this.props.cardType}
-            />
-          ))
-        ) : (
-          this.renderNoProjects()
-        )}
+        {projects.length > 0
+          ? projects.map(project => (
+              <ProjectCard
+                key={project.key}
+                project={project}
+                organization={this.props.organization}
+                type={this.props.cardType}
+              />
+            ))
+          : this.renderNoProjects()}
       </div>
     );
   }

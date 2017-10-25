@@ -12,7 +12,9 @@ exports[`changes visibility 1`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <header
     className="modal-head"
@@ -26,6 +28,7 @@ exports[`changes visibility 1`] = `
   >
     <div
       className="big-spacer-bottom"
+      key="public"
     >
       <p>
         <a
@@ -53,6 +56,7 @@ exports[`changes visibility 1`] = `
     </div>
     <div
       className="big-spacer-bottom"
+      key="private"
     >
       <p>
         <a
@@ -116,7 +120,9 @@ exports[`changes visibility 2`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <header
     className="modal-head"
@@ -130,6 +136,7 @@ exports[`changes visibility 2`] = `
   >
     <div
       className="big-spacer-bottom"
+      key="public"
     >
       <p>
         <a
@@ -157,6 +164,7 @@ exports[`changes visibility 2`] = `
     </div>
     <div
       className="big-spacer-bottom"
+      key="private"
     >
       <p>
         <a
@@ -220,7 +228,9 @@ exports[`renders disabled 1`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <header
     className="modal-head"
@@ -234,6 +244,7 @@ exports[`renders disabled 1`] = `
   >
     <div
       className="big-spacer-bottom"
+      key="public"
     >
       <p>
         <a
@@ -261,6 +272,7 @@ exports[`renders disabled 1`] = `
     </div>
     <div
       className="big-spacer-bottom"
+      key="private"
     >
       <p>
         <span

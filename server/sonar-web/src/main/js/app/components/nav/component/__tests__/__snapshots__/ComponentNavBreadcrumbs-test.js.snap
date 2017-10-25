@@ -8,7 +8,9 @@ exports[`should not render breadcrumbs with one element 1`] = `
     organization={null}
     title="My Project"
   />
-  <span>
+  <span
+    key="my-project"
+  >
     <span
       className="navbar-context-title-qualifier little-spacer-right"
     >
@@ -74,7 +76,9 @@ exports[`should render organization 1`] = `
       className="slash-separator"
     />
   </span>
-  <span>
+  <span
+    key="my-project"
+  >
     <Link
       className="link-base-color link-no-underline"
       onlyActiveOnIndex={false}

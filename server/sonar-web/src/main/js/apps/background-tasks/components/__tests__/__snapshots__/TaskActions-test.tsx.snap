@@ -251,8 +251,6 @@ exports[`shows scanner context 1`] = `
 />
 `;
 
-exports[`shows scanner context 2`] = `undefined`;
-
 exports[`shows stack trace 1`] = `
 <Stacktrace
   onClose={[Function]}
@@ -268,5 +266,3 @@ exports[`shows stack trace 1`] = `
   }
 />
 `;
-
-exports[`shows stack trace 2`] = `undefined`;

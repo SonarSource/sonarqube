@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import Modal from 'react-modal';
+import * as Modal from 'react-modal';
 import { restartAndWait } from '../../api/system';
 import { translate } from '../../helpers/l10n';
 
@@ -59,8 +59,7 @@ export default class RestartForm extends React.PureComponent<Props, State> {
         contentLabel={header}
         className="modal"
         overlayClassName="modal-overlay"
-        onRequestClose={this.props.onClose}
-        shouldCloseOnOverlayClick={!restarting}>
+        onRequestClose={restarting ? undefined : this.props.onClose}>
         <form id="restart-form" onSubmit={this.handleFormSubmit}>
           <div className="modal-head">
             <h2>{header}</h2>

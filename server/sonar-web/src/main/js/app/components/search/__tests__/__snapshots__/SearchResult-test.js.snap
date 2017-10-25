@@ -1,7 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders favorite 1`] = `
-<li>
+<li
+  key="foo"
+>
   <Tooltip
     mouseEnterDelay={1}
     overlay="foo"
@@ -48,7 +50,9 @@ exports[`renders favorite 1`] = `
 `;
 
 exports[`renders match 1`] = `
-<li>
+<li
+  key="foo"
+>
   <Tooltip
     mouseEnterDelay={1}
     overlay="foo"
@@ -94,7 +98,9 @@ exports[`renders match 1`] = `
 `;
 
 exports[`renders organizations 1`] = `
-<li>
+<li
+  key="foo"
+>
   <Tooltip
     mouseEnterDelay={1}
     overlay="foo"
@@ -145,7 +151,9 @@ exports[`renders organizations 1`] = `
 `;
 
 exports[`renders organizations 2`] = `
-<li>
+<li
+  key="foo"
+>
   <Tooltip
     mouseEnterDelay={1}
     overlay="foo"
@@ -191,7 +199,9 @@ exports[`renders organizations 2`] = `
 `;
 
 exports[`renders projects 1`] = `
-<li>
+<li
+  key="qwe"
+>
   <Tooltip
     mouseEnterDelay={1}
     overlay="qwe"
@@ -242,7 +252,9 @@ exports[`renders projects 1`] = `
 `;
 
 exports[`renders recently browsed 1`] = `
-<li>
+<li
+  key="foo"
+>
   <Tooltip
     mouseEnterDelay={1}
     overlay="foo"
@@ -288,7 +300,9 @@ exports[`renders recently browsed 1`] = `
 `;
 
 exports[`renders selected 1`] = `
-<li>
+<li
+  key="foo"
+>
   <Tooltip
     mouseEnterDelay={1}
     overlay="foo"
@@ -333,6 +347,7 @@ exports[`renders selected 1`] = `
 exports[`renders selected 2`] = `
 <li
   className="active"
+  key="foo"
 >
   <Tooltip
     mouseEnterDelay={1}

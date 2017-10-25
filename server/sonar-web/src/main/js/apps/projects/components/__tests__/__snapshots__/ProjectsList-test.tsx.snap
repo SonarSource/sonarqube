@@ -5,6 +5,7 @@ exports[`renders 1`] = `
   className="projects-list"
 >
   <ProjectCard
+    key="foo"
     project={
       Object {
         "key": "foo",
@@ -14,6 +15,7 @@ exports[`renders 1`] = `
     type="overall"
   />
   <ProjectCard
+    key="bar"
     project={
       Object {
         "key": "bar",

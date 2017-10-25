@@ -91,26 +91,26 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
         ))}
 
         {canInstall &&
-        installEdition && (
-          <LicenseEditionForm
-            edition={installEdition}
-            editions={editions}
-            onClose={this.handleCloseLicenseForm}
-            updateEditionStatus={this.props.updateEditionStatus}
-          />
-        )}
+          installEdition && (
+            <LicenseEditionForm
+              edition={installEdition}
+              editions={editions}
+              onClose={this.handleCloseLicenseForm}
+              updateEditionStatus={this.props.updateEditionStatus}
+            />
+          )}
 
         {canUninstall &&
-        openUninstallForm &&
-        editionStatus &&
-        editionStatus.currentEditionKey && (
-          <UninstallEditionForm
-            edition={editions.find(edition => edition.key === editionStatus.currentEditionKey)}
-            editionStatus={editionStatus}
-            onClose={this.handleCloseUninstallForm}
-            updateEditionStatus={this.props.updateEditionStatus}
-          />
-        )}
+          openUninstallForm &&
+          editionStatus &&
+          editionStatus.currentEditionKey && (
+            <UninstallEditionForm
+              edition={editions.find(edition => edition.key === editionStatus.currentEditionKey)}
+              editionStatus={editionStatus}
+              onClose={this.handleCloseUninstallForm}
+              updateEditionStatus={this.props.updateEditionStatus}
+            />
+          )}
       </div>
     );
   }

@@ -24,7 +24,9 @@ exports[`should render and open the modal 2`] = `
     overlayClassName="modal-overlay"
     parentSelector={[Function]}
     portalClassName="ReactModalPortal"
+    shouldCloseOnEsc={true}
     shouldCloseOnOverlayClick={true}
+    shouldFocusAfterRender={true}
   >
     <header
       className="modal-head"

@@ -11,6 +11,7 @@ exports[`highlights under 1`] = `
     <Link
       className="facet search-navigator-facet projects-facet"
       data-key={1}
+      key="1"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -35,6 +36,7 @@ exports[`highlights under 1`] = `
       <Link
         className="facet search-navigator-facet projects-facet"
         data-key={2}
+        key="2"
         onClick={[Function]}
         onlyActiveOnIndex={false}
         style={Object {}}
@@ -56,6 +58,7 @@ exports[`highlights under 1`] = `
       <Link
         className="facet search-navigator-facet projects-facet"
         data-key={3}
+        key="3"
         onClick={[Function]}
         onlyActiveOnIndex={false}
         style={Object {}}
@@ -90,6 +93,7 @@ exports[`hightlights under selected 1`] = `
     <Link
       className="facet search-navigator-facet projects-facet"
       data-key={1}
+      key="1"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -114,6 +118,7 @@ exports[`hightlights under selected 1`] = `
       <Link
         className="facet search-navigator-facet projects-facet active"
         data-key={2}
+        key="2"
         onClick={[Function]}
         onlyActiveOnIndex={false}
         style={Object {}}
@@ -133,6 +138,7 @@ exports[`hightlights under selected 1`] = `
       <Link
         className="facet search-navigator-facet projects-facet"
         data-key={3}
+        key="3"
         onClick={[Function]}
         onlyActiveOnIndex={false}
         style={Object {}}
@@ -167,6 +173,7 @@ exports[`renders 1`] = `
     <Link
       className="facet search-navigator-facet projects-facet"
       data-key={1}
+      key="1"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -188,6 +195,7 @@ exports[`renders 1`] = `
     <Link
       className="facet search-navigator-facet projects-facet"
       data-key={2}
+      key="2"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -209,6 +217,7 @@ exports[`renders 1`] = `
     <Link
       className="facet search-navigator-facet projects-facet"
       data-key={3}
+      key="3"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -242,6 +251,7 @@ exports[`renders facet bar chart 1`] = `
     <Link
       className="facet search-navigator-facet projects-facet"
       data-key="a"
+      key="a"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -280,6 +290,7 @@ exports[`renders facet bar chart 1`] = `
     <Link
       className="facet search-navigator-facet projects-facet"
       data-key="b"
+      key="b"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -318,6 +329,7 @@ exports[`renders facet bar chart 1`] = `
     <Link
       className="facet search-navigator-facet projects-facet"
       data-key="c"
+      key="c"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -369,6 +381,7 @@ exports[`renders header and footer 1`] = `
     <Link
       className="facet search-navigator-facet projects-facet"
       data-key={1}
+      key="1"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -390,6 +403,7 @@ exports[`renders header and footer 1`] = `
     <Link
       className="facet search-navigator-facet projects-facet"
       data-key={2}
+      key="2"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -411,6 +425,7 @@ exports[`renders header and footer 1`] = `
     <Link
       className="facet search-navigator-facet projects-facet"
       data-key={3}
+      key="3"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -445,6 +460,7 @@ exports[`renders multiple selected 1`] = `
     <Link
       className="facet search-navigator-facet projects-facet active"
       data-key={1}
+      key="1"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -466,6 +482,7 @@ exports[`renders multiple selected 1`] = `
     <Link
       className="facet search-navigator-facet projects-facet active"
       data-key={2}
+      key="2"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -487,6 +504,7 @@ exports[`renders multiple selected 1`] = `
     <Link
       className="facet search-navigator-facet projects-facet"
       data-key={3}
+      key="3"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -533,6 +551,7 @@ exports[`renders selected 1`] = `
     <Link
       className="facet search-navigator-facet projects-facet"
       data-key={1}
+      key="1"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -554,6 +573,7 @@ exports[`renders selected 1`] = `
     <Link
       className="facet search-navigator-facet projects-facet active"
       data-key={2}
+      key="2"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -573,6 +593,7 @@ exports[`renders selected 1`] = `
     <Link
       className="facet search-navigator-facet projects-facet"
       data-key={3}
+      key="3"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}

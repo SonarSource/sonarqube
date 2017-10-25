@@ -51,12 +51,12 @@ export default class EncryptionApp extends React.PureComponent {
         </header>
 
         {!this.props.loading &&
-        !this.props.secretKeyAvailable && (
-          <GenerateSecretKeyForm
-            secretKey={this.props.secretKey}
-            generateSecretKey={this.props.generateSecretKey}
-          />
-        )}
+          !this.props.secretKeyAvailable && (
+            <GenerateSecretKeyForm
+              secretKey={this.props.secretKey}
+              generateSecretKey={this.props.generateSecretKey}
+            />
+          )}
 
         {this.props.secretKeyAvailable && (
           <EncryptionForm

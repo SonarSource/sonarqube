@@ -355,37 +355,37 @@ export default class Search extends React.PureComponent {
         )}
 
         {this.state.open &&
-        Object.keys(this.state.results).length > 0 && (
-          <div
-            className="dropdown-menu dropdown-menu-right global-navbar-search-dropdown"
-            ref={node => (this.node = node)}>
-            <SearchResults
-              allowMore={this.state.query.length !== 1}
-              loadingMore={this.state.loadingMore}
-              more={this.state.more}
-              onMoreClick={this.searchMore}
-              onSelect={this.handleSelect}
-              renderNoResults={this.renderNoResults}
-              renderResult={this.renderResult}
-              results={this.state.results}
-              selected={this.state.selected}
-            />
-            <div className="dropdown-bottom-hint">
-              <div className="pull-right">
-                <ClockIcon className="little-spacer-right" size={12} />
-                {translate('recently_browsed')}
-              </div>
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: translateWithParameters(
-                    'search.shortcut_hint',
-                    '<span class="shortcut-button shortcut-button-small">s</span>'
-                  )
-                }}
+          Object.keys(this.state.results).length > 0 && (
+            <div
+              className="dropdown-menu dropdown-menu-right global-navbar-search-dropdown"
+              ref={node => (this.node = node)}>
+              <SearchResults
+                allowMore={this.state.query.length !== 1}
+                loadingMore={this.state.loadingMore}
+                more={this.state.more}
+                onMoreClick={this.searchMore}
+                onSelect={this.handleSelect}
+                renderNoResults={this.renderNoResults}
+                renderResult={this.renderResult}
+                results={this.state.results}
+                selected={this.state.selected}
               />
+              <div className="dropdown-bottom-hint">
+                <div className="pull-right">
+                  <ClockIcon className="little-spacer-right" size={12} />
+                  {translate('recently_browsed')}
+                </div>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: translateWithParameters(
+                      'search.shortcut_hint',
+                      '<span class="shortcut-button shortcut-button-small">s</span>'
+                    )
+                  }}
+                />
+              </div>
             </div>
-          </div>
-        )}
+          )}
       </li>
     );
   }

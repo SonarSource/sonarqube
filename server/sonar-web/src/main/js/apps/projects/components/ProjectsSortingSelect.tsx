@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { sortBy } from 'lodash';
-import * as Select from 'react-select';
+import Select from 'react-select';
 import ProjectsSortingSelectOption, { Option } from './ProjectsSortingSelectOption';
 import SortAscIcon from '../../../components/icons-components/SortAscIcon';
 import SortDescIcon from '../../../components/icons-components/SortDescIcon';

@@ -45,14 +45,24 @@ it('logs in with simple credentials', () => {
 
 it('logs in with identity provider', () => {
   const wrapper = shallow(
-    <LoginForm onSonarCloud={false} identityProviders={[identityProvider]} onSubmit={jest.fn()} returnTo="" />
+    <LoginForm
+      onSonarCloud={false}
+      identityProviders={[identityProvider]}
+      onSubmit={jest.fn()}
+      returnTo=""
+    />
   );
   expect(wrapper).toMatchSnapshot();
 });
 
 it('expands more options', () => {
   const wrapper = shallow(
-    <LoginForm onSonarCloud={false} identityProviders={[identityProvider]} onSubmit={jest.fn()} returnTo="" />
+    <LoginForm
+      onSonarCloud={false}
+      identityProviders={[identityProvider]}
+      onSubmit={jest.fn()}
+      returnTo=""
+    />
   );
   expect(wrapper).toMatchSnapshot();
 

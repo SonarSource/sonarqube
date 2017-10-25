@@ -50,19 +50,19 @@ export default function ReleasabilityBox({ component, measures }: Props) {
       <RatingFreshness lastChange={lastReleasabilityChange} />
 
       {effort &&
-      Number(effort) > 0 && (
-        <div className="portfolio-effort">
-          <Link to={getComponentDrilldownUrl(component, 'alert_status')}>
-            <span>
-              <Measure
-                measure={{ metric: { key: 'projects', type: 'SHORT_INT' }, value: effort }}
-              />{' '}
-              {Number(effort) === 1 ? 'project' : 'projects'}
-            </span>
-          </Link>{' '}
-          <span className="level level-ERROR level-small">{translate('metric.level.ERROR')}</span>
-        </div>
-      )}
+        Number(effort) > 0 && (
+          <div className="portfolio-effort">
+            <Link to={getComponentDrilldownUrl(component, 'alert_status')}>
+              <span>
+                <Measure
+                  measure={{ metric: { key: 'projects', type: 'SHORT_INT' }, value: effort }}
+                />{' '}
+                {Number(effort) === 1 ? 'project' : 'projects'}
+              </span>
+            </Link>{' '}
+            <span className="level level-ERROR level-small">{translate('metric.level.ERROR')}</span>
+          </div>
+        )}
     </div>
   );
 }

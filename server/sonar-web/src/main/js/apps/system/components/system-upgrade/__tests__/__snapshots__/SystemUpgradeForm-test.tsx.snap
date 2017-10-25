@@ -12,7 +12,9 @@ exports[`should display correctly 1`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <div
     className="modal-head"
@@ -25,6 +27,7 @@ exports[`should display correctly 1`] = `
     className="modal-body"
   >
     <SystemUpgradeItem
+      key="6.3"
       systemUpgrades={
         Array [
           Object {
@@ -48,6 +51,7 @@ exports[`should display correctly 1`] = `
       type="system.latest_version"
     />
     <SystemUpgradeItem
+      key="5.6.5"
       systemUpgrades={
         Array [
           Object {

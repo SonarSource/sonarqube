@@ -28,6 +28,7 @@ exports[`should render correctly 1`] = `
     className="spacer-right"
     health="RED"
     healthCause="foo"
+    key="0"
   />
   <Tooltip
     overlay="system.current_health_of_x.Foo"
@@ -51,11 +52,13 @@ exports[`should render multiple health causes 1`] = `
     className="spacer-right"
     health="YELLOW"
     healthCause="foo"
+    key="0"
   />
   <HealthCauseItem
     className="spacer-right"
     health="YELLOW"
     healthCause="bar"
+    key="1"
   />
   <StatusIndicator
     color="yellow"

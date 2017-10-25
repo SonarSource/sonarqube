@@ -188,6 +188,7 @@ exports[`should render the languages facet with the selected languages 2`] = `
     <Link
       className="facet search-navigator-facet projects-facet active"
       data-key="java"
+      key="java"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -222,6 +223,7 @@ exports[`should render the languages facet with the selected languages 2`] = `
     <Link
       className="facet search-navigator-facet projects-facet active"
       data-key="cs"
+      key="cs"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -256,6 +258,7 @@ exports[`should render the languages facet with the selected languages 2`] = `
     <Link
       className="facet search-navigator-facet projects-facet"
       data-key="js"
+      key="js"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}

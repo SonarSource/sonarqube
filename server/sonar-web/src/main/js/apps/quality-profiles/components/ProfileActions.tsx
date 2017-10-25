@@ -134,11 +134,11 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
     return (
       <ul className="dropdown-menu dropdown-menu-right">
         {actions.edit &&
-        !profile.isBuiltIn && (
-          <li>
-            <Link to={activateMoreUrl}>{translate('quality_profiles.activate_more_rules')}</Link>
-          </li>
-        )}
+          !profile.isBuiltIn && (
+            <li>
+              <Link to={activateMoreUrl}>{translate('quality_profiles.activate_more_rules')}</Link>
+            </li>
+          )}
         {!profile.isBuiltIn && (
           <li>
             <a id="quality-profile-backup" href={backupUrl}>
@@ -161,30 +161,30 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
           </li>
         )}
         {actions.edit &&
-        !profile.isBuiltIn && (
-          <li>
-            <a id="quality-profile-rename" href="#" onClick={this.handleRenameClick}>
-              {translate('rename')}
-            </a>
-          </li>
-        )}
+          !profile.isBuiltIn && (
+            <li>
+              <a id="quality-profile-rename" href="#" onClick={this.handleRenameClick}>
+                {translate('rename')}
+              </a>
+            </li>
+          )}
         {actions.setAsDefault &&
-        !profile.isDefault && (
-          <li>
-            <a id="quality-profile-set-as-default" href="#" onClick={this.handleSetDefaultClick}>
-              {translate('set_as_default')}
-            </a>
-          </li>
-        )}
+          !profile.isDefault && (
+            <li>
+              <a id="quality-profile-set-as-default" href="#" onClick={this.handleSetDefaultClick}>
+                {translate('set_as_default')}
+              </a>
+            </li>
+          )}
         {actions.edit &&
-        !profile.isDefault &&
-        !profile.isBuiltIn && (
-          <li>
-            <a id="quality-profile-delete" href="#" onClick={this.handleDeleteClick}>
-              {translate('delete')}
-            </a>
-          </li>
-        )}
+          !profile.isDefault &&
+          !profile.isBuiltIn && (
+            <li>
+              <a id="quality-profile-delete" href="#" onClick={this.handleDeleteClick}>
+                {translate('delete')}
+              </a>
+            </li>
+          )}
 
         {this.state.copyFormOpen && (
           <CopyProfileForm

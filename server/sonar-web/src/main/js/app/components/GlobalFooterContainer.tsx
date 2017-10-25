@@ -17,23 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { translateWithParameters } from '../../../helpers/l10n';
+import { connect } from 'react-redux';
+import { getAppState, getGlobalSettingValue } from '../../store/rootReducer';
+import GlobalFooter from './GlobalFooter';
 
-interface Props {
-  name: string;
-  value: string | null;
-}
+const mapStateToProps = (state: any) => ({
+  sonarqubeVersion: getAppState(state).version,
+  productionDatabase: getAppState(state).productionDatabase,
+  onSonarCloud: getGlobalSettingValue(state, 'sonar.sonarcloud.enabled')
+});
 
-export default function ParameterChange({ name, value }: Props) {
-  return (
-    <div className="quality-profile-changelog-parameter">
-      {value == null
-        ? translateWithParameters(
-            'quality_profiles.changelog.parameter_reset_to_default_value',
-            name
-          )
-        : translateWithParameters('quality_profiles.parameter_set_to', name, value)}
-    </div>
-  );
-}
+export default connect(mapStateToProps)(GlobalFooter);

@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import { connect } from 'react-redux';
-import { getAppState, getGlobalSettingValue } from '../../store/rootReducer';
-import GlobalFooter from './GlobalFooter';
+import { getCurrentUser } from '../../../store/rootReducer';
+import { addGlobalErrorMessage } from '../../../store/globalMessages/duck';
+import Extension from './Extension';
 
-const mapStateToProps = state => ({
-  sonarqubeVersion: getAppState(state).version,
-  productionDatabase: getAppState(state).productionDatabase,
-  onSonarCloud: getGlobalSettingValue(state, 'sonar.sonarcloud.enabled')
+const mapStateToProps = (state: any) => ({
+  currentUser: getCurrentUser(state)
 });
 
-export default connect(mapStateToProps)(GlobalFooter);
+const mapDispatchToProps = { onFail: addGlobalErrorMessage };
+
+export default connect<any, any, any>(mapStateToProps, mapDispatchToProps)(Extension);
