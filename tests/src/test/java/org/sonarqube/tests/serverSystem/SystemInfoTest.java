@@ -76,7 +76,7 @@ public class SystemInfoTest {
       .shouldHaveSection("Compute Engine Logging")
       .shouldHaveSection("Compute Engine Tasks");
 
-    page.getCardItem("Search")
+    page.getCardItem("Search Engine")
       .shouldHaveSection("Search State")
       .shouldHaveSection("Search Indexes");
   }

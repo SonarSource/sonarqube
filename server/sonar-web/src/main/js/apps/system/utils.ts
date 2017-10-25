@@ -160,7 +160,7 @@ export function getStandaloneSecondarySections(sysInfoData: SysInfo): SysInfoSec
   return {
     Web: pickBy(sysInfoData, (_, key) => key.startsWith('Web')),
     'Compute Engine': pickBy(sysInfoData, (_, key) => key.startsWith('Compute Engine')),
-    Search: pickBy(sysInfoData, (_, key) => key.startsWith('Search'))
+    'Search Engine': pickBy(sysInfoData, (_, key) => key.startsWith('Search'))
   };
 }
 
