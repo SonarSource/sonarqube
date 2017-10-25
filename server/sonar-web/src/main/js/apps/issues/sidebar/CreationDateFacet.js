@@ -175,8 +175,9 @@ export default class CreationDateFacet extends React.PureComponent {
         formatMeasure(stats[start], 'SHORT_INT') +
         '<br/>' +
         formatDate(startDate, longFormatterOption);
-      if (endDate && !isSameDay(endDate, startDate)) {
-        tooltip += ' – ' + formatDate(endDate, longFormatterOption);
+      const tooltipEndDate = endDate || Date.now();
+      if (!isSameDay(tooltipEndDate, startDate)) {
+        tooltip += ' – ' + formatDate(tooltipEndDate, longFormatterOption);
       }
 
       return {
