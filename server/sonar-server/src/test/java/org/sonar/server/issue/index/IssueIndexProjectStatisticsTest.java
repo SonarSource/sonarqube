@@ -27,7 +27,6 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.System2;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
@@ -42,6 +41,9 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
+import static org.sonar.db.component.ComponentTesting.newBranchDto;
+import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.db.component.ComponentTesting.newProjectBranch;
 import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.server.issue.IssueDocTesting.newDoc;
 
@@ -74,10 +76,10 @@ public class IssueIndexProjectStatisticsTest {
   @Test
   public void searchProjectStatistics_returns_something() throws Exception {
     OrganizationDto org = newOrganizationDto();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(org);
+    ComponentDto project = newPrivateProjectDto(org);
     String userLogin = randomAlphanumeric(20);
     long from = 1_111_234_567_890L;
-    indexIssues(newDoc("issue1", project).setAssignee(userLogin).setFuncCreationDate(new Date(from+1L)));
+    indexIssues(newDoc("issue1", project).setAssignee(userLogin).setFuncCreationDate(new Date(from + 1L)));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userLogin);
 
@@ -87,11 +89,11 @@ public class IssueIndexProjectStatisticsTest {
   @Test
   public void searchProjectStatistics_does_not_return_results_if_assignee_does_not_match() throws Exception {
     OrganizationDto org1 = newOrganizationDto();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(org1);
+    ComponentDto project = newPrivateProjectDto(org1);
     String userLogin1 = randomAlphanumeric(20);
     String userLogin2 = randomAlphanumeric(20);
     long from = 1_111_234_567_890L;
-    indexIssues(newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from+1L)));
+    indexIssues(newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userLogin2);
 
@@ -101,10 +103,10 @@ public class IssueIndexProjectStatisticsTest {
   @Test
   public void searchProjectStatistics_returns_results_if_assignee_matches() throws Exception {
     OrganizationDto org1 = newOrganizationDto();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(org1);
+    ComponentDto project = newPrivateProjectDto(org1);
     String userLogin1 = randomAlphanumeric(20);
     long from = 1_111_234_567_890L;
-    indexIssues(newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from+1L)));
+    indexIssues(newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userLogin1);
 
@@ -114,10 +116,10 @@ public class IssueIndexProjectStatisticsTest {
   @Test
   public void searchProjectStatistics_returns_results_if_functional_date_is_strictly_after_from_date() throws Exception {
     OrganizationDto org1 = newOrganizationDto();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(org1);
+    ComponentDto project = newPrivateProjectDto(org1);
     String userLogin1 = randomAlphanumeric(20);
     long from = 1_111_234_567_890L;
-    indexIssues(newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from+1L)));
+    indexIssues(newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userLogin1);
 
@@ -127,7 +129,7 @@ public class IssueIndexProjectStatisticsTest {
   @Test
   public void searchProjectStatistics_does_not_return_results_if_functional_date_is_same_as_from_date() throws Exception {
     OrganizationDto org1 = newOrganizationDto();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(org1);
+    ComponentDto project = newPrivateProjectDto(org1);
     String userLogin1 = randomAlphanumeric(20);
     long from = 1_111_234_567_890L;
     indexIssues(newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from)));
@@ -140,15 +142,14 @@ public class IssueIndexProjectStatisticsTest {
   @Test
   public void searchProjectStatistics_does_not_return_resolved_issues() throws Exception {
     OrganizationDto org1 = newOrganizationDto();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(org1);
+    ComponentDto project = newPrivateProjectDto(org1);
     String userLogin1 = randomAlphanumeric(20);
     long from = 1_111_234_567_890L;
     indexIssues(
-      newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from+1L)).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
-      newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from+1L)).setResolution(Issue.RESOLUTION_FIXED),
-      newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from+1L)).setResolution(Issue.RESOLUTION_REMOVED),
-      newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from+1L)).setResolution(Issue.RESOLUTION_WONT_FIX)
-    );
+      newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_FALSE_POSITIVE),
+      newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_FIXED),
+      newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_REMOVED),
+      newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)).setResolution(Issue.RESOLUTION_WONT_FIX));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userLogin1);
 
@@ -158,10 +159,10 @@ public class IssueIndexProjectStatisticsTest {
   @Test
   public void searchProjectStatistics_does_not_return_results_if_functional_date_is_before_from_date() throws Exception {
     OrganizationDto org1 = newOrganizationDto();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(org1);
+    ComponentDto project = newPrivateProjectDto(org1);
     String userLogin1 = randomAlphanumeric(20);
     long from = 1_111_234_567_890L;
-    indexIssues(newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from-1000L)));
+    indexIssues(newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from - 1000L)));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userLogin1);
 
@@ -171,14 +172,13 @@ public class IssueIndexProjectStatisticsTest {
   @Test
   public void searchProjectStatistics_returns_issue_count() throws Exception {
     OrganizationDto org1 = newOrganizationDto();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(org1);
+    ComponentDto project = newPrivateProjectDto(org1);
     String userLogin1 = randomAlphanumeric(20);
     long from = 1_111_234_567_890L;
     indexIssues(
-      newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from+1L)),
-      newDoc("issue2", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from+1L)),
-      newDoc("issue3", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from+1L))
-    );
+      newDoc("issue1", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)),
+      newDoc("issue2", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)),
+      newDoc("issue3", project).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userLogin1);
 
@@ -188,22 +188,21 @@ public class IssueIndexProjectStatisticsTest {
   @Test
   public void searchProjectStatistics_returns_issue_count_for_multiple_projects() throws Exception {
     OrganizationDto org1 = newOrganizationDto();
-    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(org1);
-    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(org1);
-    ComponentDto project3 = ComponentTesting.newPrivateProjectDto(org1);
+    ComponentDto project1 = newPrivateProjectDto(org1);
+    ComponentDto project2 = newPrivateProjectDto(org1);
+    ComponentDto project3 = newPrivateProjectDto(org1);
     String userLogin1 = randomAlphanumeric(20);
     long from = 1_111_234_567_890L;
     indexIssues(
-      newDoc("issue1", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from+1L)),
-      newDoc("issue2", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from+1L)),
-      newDoc("issue3", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from+1L)),
+      newDoc("issue1", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)),
+      newDoc("issue2", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)),
+      newDoc("issue3", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)),
 
-      newDoc("issue4", project3).setAssignee(userLogin1).setFuncCreationDate(new Date(from+1L)),
-      newDoc("issue5", project3).setAssignee(userLogin1).setFuncCreationDate(new Date(from+1L))
-    );
+      newDoc("issue4", project3).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)),
+      newDoc("issue5", project3).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1L)));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(
-      asList(project1.uuid(),project2.uuid(), project3.uuid()),
+      asList(project1.uuid(), project2.uuid(), project3.uuid()),
       asList(from, from, from),
       userLogin1);
 
@@ -211,38 +210,56 @@ public class IssueIndexProjectStatisticsTest {
       .extracting(ProjectStatistics::getProjectUuid, ProjectStatistics::getIssueCount)
       .containsExactlyInAnyOrder(
         tuple(project1.uuid(), 3L),
-        tuple(project3.uuid(), 2L)
-      );
+        tuple(project3.uuid(), 2L));
   }
 
   @Test
   public void searchProjectStatistics_returns_max_date_for_multiple_projects() throws Exception {
     OrganizationDto org1 = newOrganizationDto();
-    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(org1);
-    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(org1);
-    ComponentDto project3 = ComponentTesting.newPrivateProjectDto(org1);
+    ComponentDto project1 = newPrivateProjectDto(org1);
+    ComponentDto project2 = newPrivateProjectDto(org1);
+    ComponentDto project3 = newPrivateProjectDto(org1);
     String userLogin1 = randomAlphanumeric(20);
     long from = 1_111_234_567_000L;
     indexIssues(
-      newDoc("issue1", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from+1_000L)),
-      newDoc("issue2", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from+2_000L)),
-      newDoc("issue3", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from+3_000L)),
-      
-      newDoc("issue4", project3).setAssignee(userLogin1).setFuncCreationDate(new Date(from+4_000L)),
-      newDoc("issue5", project3).setAssignee(userLogin1).setFuncCreationDate(new Date(from+5_000L))
-    );
+      newDoc("issue1", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 1_000L)),
+      newDoc("issue2", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 2_000L)),
+      newDoc("issue3", project1).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 3_000L)),
+
+      newDoc("issue4", project3).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 4_000L)),
+      newDoc("issue5", project3).setAssignee(userLogin1).setFuncCreationDate(new Date(from + 5_000L)));
 
     List<ProjectStatistics> result = underTest.searchProjectStatistics(
-      asList(project1.uuid(),project2.uuid(), project3.uuid()),
+      asList(project1.uuid(), project2.uuid(), project3.uuid()),
       asList(from, from, from),
       userLogin1);
 
     assertThat(result)
       .extracting(ProjectStatistics::getProjectUuid, ProjectStatistics::getLastIssueDate)
       .containsExactlyInAnyOrder(
-        tuple(project1.uuid(), from+3_000L),
-        tuple(project3.uuid(), from+5_000L)
-      );
+        tuple(project1.uuid(), from + 3_000L),
+        tuple(project3.uuid(), from + 5_000L));
+  }
+
+  @Test
+  public void searchProjectStatistics_return_branch_issues() throws Exception {
+    OrganizationDto organization = newOrganizationDto();
+    ComponentDto project = newPrivateProjectDto(organization);
+    ComponentDto branch = newProjectBranch(project, newBranchDto(project).setKey("branch"));
+    String userLogin = randomAlphanumeric(20);
+    long from = 1_111_234_567_890L;
+    indexIssues(
+      newDoc("issue1", branch).setAssignee(userLogin).setFuncCreationDate(new Date(from + 1L)),
+      newDoc("issue2", branch).setAssignee(userLogin).setFuncCreationDate(new Date(from + 2L)),
+      newDoc("issue3", project).setAssignee(userLogin).setFuncCreationDate(new Date(from + 1L)));
+
+    List<ProjectStatistics> result = underTest.searchProjectStatistics(singletonList(project.uuid()), singletonList(from), userLogin);
+
+    assertThat(result)
+      .extracting(ProjectStatistics::getIssueCount, ProjectStatistics::getProjectUuid, ProjectStatistics::getLastIssueDate)
+      .containsExactly(
+        tuple(2L, branch.uuid(), from + 2L),
+        tuple(1L, project.uuid(), from + 1L));
   }
 
   private void indexIssues(IssueDoc... issues) {

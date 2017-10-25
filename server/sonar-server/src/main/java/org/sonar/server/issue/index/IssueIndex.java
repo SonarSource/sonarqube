@@ -686,20 +686,26 @@ public class IssueIndex {
           .filter(projectUuid, boolQuery()
             .filter(termQuery(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, projectUuid))
             .filter(rangeQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT).gte(epochMillisToEpochSeconds(from))))
-          .subAggregation(AggregationBuilders.count(projectUuid + "_count").field(IssueIndexDefinition.FIELD_ISSUE_KEY))
-          .subAggregation(AggregationBuilders.max(projectUuid + "_maxFuncCreatedAt").field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)));
+          .subAggregation(
+            AggregationBuilders.terms("branchUuid").field(IssueIndexDefinition.FIELD_ISSUE_BRANCH_UUID)
+              .subAggregation(
+                AggregationBuilders.count("count").field(IssueIndexDefinition.FIELD_ISSUE_KEY))
+              .subAggregation(
+                AggregationBuilders.max("maxFuncCreatedAt").field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT))));
     });
     SearchResponse response = request.get();
     return response.getAggregations().asList().stream()
       .map(x -> (InternalFilter) x)
-      .flatMap(projectBucket -> {
-        long count = ((InternalValueCount) projectBucket.getAggregations().get(projectBucket.getName() + "_count")).getValue();
-        if (count < 1L) {
-          return Stream.empty();
-        }
-        long lastIssueDate = (long) ((InternalMax) projectBucket.getAggregations().get(projectBucket.getName() + "_maxFuncCreatedAt")).getValue();
-        return Stream.of(new ProjectStatistics(projectBucket.getName(), count, lastIssueDate));
-      }).collect(MoreCollectors.toList(projectUuids.size()));
+      .flatMap(projectBucket -> ((StringTerms) projectBucket.getAggregations().get("branchUuid")).getBuckets().stream()
+        .flatMap(branchBucket -> {
+          long count = ((InternalValueCount) branchBucket.getAggregations().get("count")).getValue();
+          if (count < 1L) {
+            return Stream.empty();
+          }
+          long lastIssueDate = (long) ((InternalMax) branchBucket.getAggregations().get("maxFuncCreatedAt")).getValue();
+          return Stream.of(new ProjectStatistics(branchBucket.getKeyAsString(), count, lastIssueDate));
+        }))
+      .collect(MoreCollectors.toList(projectUuids.size()));
   }
 
   public List<BranchStatistics> searchBranchStatistics(String projectUuid, List<String> branchUuids) {
