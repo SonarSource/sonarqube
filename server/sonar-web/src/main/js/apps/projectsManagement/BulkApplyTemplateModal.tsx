@@ -126,17 +126,15 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
   renderWarning = () => (
     <div className="alert alert-warning modal-alert">
       <AlertWarnIcon className="spacer-right" />
-      {this.props.selection.length ? (
-        translateWithParameters(
-          'permission_templates.bulk_apply_permission_template.apply_to_selected',
-          this.props.selection.length
-        )
-      ) : (
-        translateWithParameters(
-          'permission_templates.bulk_apply_permission_template.apply_to_all',
-          this.props.total
-        )
-      )}
+      {this.props.selection.length
+        ? translateWithParameters(
+            'permission_templates.bulk_apply_permission_template.apply_to_selected',
+            this.props.selection.length
+          )
+        : translateWithParameters(
+            'permission_templates.bulk_apply_permission_template.apply_to_all',
+            this.props.total
+          )}
     </div>
   );
 
@@ -188,12 +186,12 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
         <footer className="modal-foot">
           {submitting && <i className="spinner spacer-right" />}
           {!loading &&
-          !done &&
-          permissionTemplates && (
-            <button disabled={submitting} onClick={this.handleConfirmClick}>
-              {translate('apply')}
-            </button>
-          )}
+            !done &&
+            permissionTemplates && (
+              <button disabled={submitting} onClick={this.handleConfirmClick}>
+                {translate('apply')}
+              </button>
+            )}
           <a className="js-modal-close" href="#" onClick={this.handleCancelClick}>
             {done ? translate('close') : translate('cancel')}
           </a>

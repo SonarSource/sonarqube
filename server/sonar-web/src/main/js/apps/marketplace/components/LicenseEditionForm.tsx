@@ -104,11 +104,9 @@ export default class LicenseEditionForm extends React.PureComponent<Props, State
           {submitting && <i className="spinner spacer-right" />}
           {status && (
             <button className="js-confirm" onClick={this.handleConfirmClick} disabled={submitting}>
-              {status === 'AUTOMATIC_INSTALL' ? (
-                translate('marketplace.install')
-              ) : (
-                translate('save')
-              )}
+              {status === 'AUTOMATIC_INSTALL'
+                ? translate('marketplace.install')
+                : translate('save')}
             </button>
           )}
           <a className="js-modal-close" href="#" onClick={this.handleCancelClick}>

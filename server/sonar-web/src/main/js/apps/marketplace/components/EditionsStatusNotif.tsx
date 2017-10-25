@@ -54,14 +54,12 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
     return (
       <div className="alert alert-success">
         <span>
-          {edition ? (
-            translateWithParameters(
-              'marketplace.status_x.' + editionStatus.installationStatus,
-              edition.name
-            )
-          ) : (
-            translate('marketplace.status', editionStatus.installationStatus)
-          )}
+          {edition
+            ? translateWithParameters(
+                'marketplace.status_x.' + editionStatus.installationStatus,
+                edition.name
+              )
+            : translate('marketplace.status', editionStatus.installationStatus)}
         </span>
         {!readOnly && (
           <button className="js-restart spacer-left" onClick={this.handleOpenRestart}>
@@ -77,14 +75,12 @@ export default class EditionsStatusNotif extends React.PureComponent<Props, Stat
     const { editionStatus } = this.props;
     return (
       <div className="alert alert-danger">
-        {edition ? (
-          translateWithParameters(
-            'marketplace.status_x.' + editionStatus.installationStatus,
-            edition.name
-          )
-        ) : (
-          translate('marketplace.status', editionStatus.installationStatus)
-        )}
+        {edition
+          ? translateWithParameters(
+              'marketplace.status_x.' + editionStatus.installationStatus,
+              edition.name
+            )
+          : translate('marketplace.status', editionStatus.installationStatus)}
         <p className="spacer-left">
           {edition && (
             <a

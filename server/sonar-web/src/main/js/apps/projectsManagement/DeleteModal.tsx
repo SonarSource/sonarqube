@@ -87,14 +87,12 @@ export default class DeleteModal extends React.PureComponent<Props, State> {
   renderWarning = () => (
     <div className="alert alert-warning modal-alert">
       <AlertWarnIcon className="spacer-right" />
-      {this.props.selection.length ? (
-        translateWithParameters(
-          'projects_management.delete_selected_warning',
-          this.props.selection.length
-        )
-      ) : (
-        translateWithParameters('projects_management.delete_all_warning', this.props.total)
-      )}
+      {this.props.selection.length
+        ? translateWithParameters(
+            'projects_management.delete_selected_warning',
+            this.props.selection.length
+          )
+        : translateWithParameters('projects_management.delete_all_warning', this.props.total)}
     </div>
   );
 

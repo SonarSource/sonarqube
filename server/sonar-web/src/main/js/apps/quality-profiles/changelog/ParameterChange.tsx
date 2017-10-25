@@ -28,11 +28,12 @@ interface Props {
 export default function ParameterChange({ name, value }: Props) {
   return (
     <div className="quality-profile-changelog-parameter">
-      {value == null ? (
-        translateWithParameters('quality_profiles.changelog.parameter_reset_to_default_value', name)
-      ) : (
-        translateWithParameters('quality_profiles.parameter_set_to', name, value)
-      )}
+      {value == null
+        ? translateWithParameters(
+            'quality_profiles.changelog.parameter_reset_to_default_value',
+            name
+          )
+        : translateWithParameters('quality_profiles.parameter_set_to', name, value)}
     </div>
   );
 }

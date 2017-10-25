@@ -90,11 +90,9 @@ export default class SimilarIssuesPopup extends React.PureComponent {
           </SelectListItem>
 
           <SelectListItem item="resolution">
-            {issue.resolution != null ? (
-              translate('issue.resolution', issue.resolution)
-            ) : (
-              translate('unresolved')
-            )}
+            {issue.resolution != null
+              ? translate('issue.resolution', issue.resolution)
+              : translate('unresolved')}
           </SelectListItem>
 
           <SelectListItem item="assignee">

@@ -229,13 +229,13 @@ export default class OrganizationStep extends React.PureComponent {
         )}
 
         {this.getSelectedOrganization() != null &&
-        !this.state.loading && (
-          <div className="big-spacer-top">
-            <button className="js-continue" onClick={this.handleContinueClick}>
-              {translate('continue')}
-            </button>
-          </div>
-        )}
+          !this.state.loading && (
+            <div className="big-spacer-top">
+              <button className="js-continue" onClick={this.handleContinueClick}>
+                {translate('continue')}
+              </button>
+            </div>
+          )}
       </div>
     );
   };

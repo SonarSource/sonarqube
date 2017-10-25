@@ -86,17 +86,17 @@ export default class TaskActions extends React.PureComponent<Props, State> {
           </button>
           <ul className="dropdown-menu dropdown-menu-right">
             {canFilter &&
-            task.componentName && (
-              <li>
-                <a className="js-task-filter" href="#" onClick={this.handleFilterClick}>
-                  <i className="spacer-right icon-filter icon-gray" />
-                  {translateWithParameters(
-                    'background_tasks.filter_by_component_x',
-                    task.componentName
-                  )}
-                </a>
-              </li>
-            )}
+              task.componentName && (
+                <li>
+                  <a className="js-task-filter" href="#" onClick={this.handleFilterClick}>
+                    <i className="spacer-right icon-filter icon-gray" />
+                    {translateWithParameters(
+                      'background_tasks.filter_by_component_x',
+                      task.componentName
+                    )}
+                  </a>
+                </li>
+              )}
             {canCancel && (
               <li>
                 <a className="js-task-cancel" href="#" onClick={this.handleCancelClick}>

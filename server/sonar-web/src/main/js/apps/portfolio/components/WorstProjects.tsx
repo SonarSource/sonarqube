@@ -79,11 +79,9 @@ export default function WorstProjects({ component, subComponents, total }: Props
                   <QualifierIcon qualifier={component.qualifier} /> {component.name}
                 </Link>
               </td>
-              {component.qualifier === 'TRK' ? (
-                renderCell(component.measures, 'alert_status', 'LEVEL')
-              ) : (
-                renderCell(component.measures, 'releasability_rating', 'RATING')
-              )}
+              {component.qualifier === 'TRK'
+                ? renderCell(component.measures, 'alert_status', 'LEVEL')
+                : renderCell(component.measures, 'releasability_rating', 'RATING')}
               {renderCell(component.measures, 'reliability_rating', 'RATING')}
               {renderCell(component.measures, 'security_rating', 'RATING')}
               {renderCell(component.measures, 'sqale_rating', 'RATING')}

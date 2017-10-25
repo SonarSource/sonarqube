@@ -130,21 +130,21 @@ function getSystemData(sysInfoData: SysInfo): SysValueObject {
 export function getClusterMainCardSection(sysInfoData: ClusterSysInfo): SysValueObject {
   return {
     ...getSystemData(sysInfoData),
-    ...omit(sysInfoData, [
+    ...(omit(sysInfoData, [
       'Application Nodes',
       PLUGINS_FIELD,
       'Search Nodes',
       SETTINGS_FIELD,
       'Statistics',
       'System'
-    ]) as SysValueObject
+    ]) as SysValueObject)
   };
 }
 
 export function getStandaloneMainSections(sysInfoData: SysInfo): SysValueObject {
   return {
     ...getSystemData(sysInfoData),
-    ...omitBy(
+    ...(omitBy(
       sysInfoData,
       (value, key) =>
         value == null ||
@@ -152,7 +152,7 @@ export function getStandaloneMainSections(sysInfoData: SysInfo): SysValueObject 
         key.startsWith('Compute Engine') ||
         key.startsWith('Search') ||
         key.startsWith('Web')
-    ) as SysValueObject
+    ) as SysValueObject)
   };
 }
 

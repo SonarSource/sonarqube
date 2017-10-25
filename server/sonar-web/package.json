@@ -97,7 +97,7 @@
     "jest": "21.2.1",
     "postcss-custom-properties": "6.2.0",
     "postcss-loader": "2.0.8",
-    "prettier": "1.6.1",
+    "prettier": "1.7.4",
     "react-dev-utils": "3.0.0",
     "react-error-overlay": "1.0.7",
     "react-test-renderer": "15.6.2",

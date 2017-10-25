@@ -55,19 +55,19 @@ export default function Params({ params, showDeprecated, showInternal }: Props) 
                 )}
 
                 {showDeprecated &&
-                param.deprecatedKey && (
-                  <div className="little-spacer-top">
-                    <code>{param.deprecatedKey}</code>
-                  </div>
-                )}
+                  param.deprecatedKey && (
+                    <div className="little-spacer-top">
+                      <code>{param.deprecatedKey}</code>
+                    </div>
+                  )}
 
                 {showDeprecated &&
-                param.deprecatedKey &&
-                param.deprecatedKeySince && (
-                  <div className="little-spacer-top">
-                    <DeprecatedBadge since={param.deprecatedKeySince} />
-                  </div>
-                )}
+                  param.deprecatedKey &&
+                  param.deprecatedKeySince && (
+                    <div className="little-spacer-top">
+                      <DeprecatedBadge since={param.deprecatedKeySince} />
+                    </div>
+                  )}
 
                 <div className="note little-spacer-top">
                   {param.required ? 'required' : 'optional'}

@@ -120,11 +120,9 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
                 onChange={this.handleSelectChange}
                 options={options}
                 value={
-                  this.state.selected != null ? (
-                    this.state.selected
-                  ) : (
-                    this.props.profile.parentKey || ''
-                  )
+                  this.state.selected != null
+                    ? this.state.selected
+                    : this.props.profile.parentKey || ''
                 }
               />
             </div>
