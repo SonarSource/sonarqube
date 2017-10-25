@@ -116,11 +116,9 @@ export default class ComponentNavMenu extends React.PureComponent<Props> {
             }
           }}
           activeClassName="active">
-          {this.isPortfolio() || this.isApplication() ? (
-            translate('view_projects.page')
-          ) : (
-            translate('code.page')
-          )}
+          {this.isPortfolio() || this.isApplication()
+            ? translate('view_projects.page')
+            : translate('code.page')}
         </Link>
       </li>
     );

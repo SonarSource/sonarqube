@@ -15,6 +15,7 @@ exports[`should match snapshot 1`] = `
         <th />
         <th
           className="text-center"
+          key="channel1"
         >
           <h4>
             notification.channel.channel1
@@ -22,6 +23,7 @@ exports[`should match snapshot 1`] = `
         </th>
         <th
           className="text-center"
+          key="channel2"
         >
           <h4>
             notification.channel.channel2

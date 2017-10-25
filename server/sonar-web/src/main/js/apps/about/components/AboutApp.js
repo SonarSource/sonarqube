@@ -156,12 +156,12 @@ class AboutApp extends React.PureComponent {
         </div>
 
         {customText != null &&
-        customText.value && (
-          <div
-            className="about-page-section"
-            dangerouslySetInnerHTML={{ __html: customText.value }}
-          />
-        )}
+          customText.value && (
+            <div
+              className="about-page-section"
+              dangerouslySetInnerHTML={{ __html: customText.value }}
+            />
+          )}
 
         <AboutLanguages />
 

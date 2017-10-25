@@ -6,12 +6,14 @@ exports[`should render correctly the list of series 1`] = `
 >
   <GraphsLegendItem
     className="big-spacer-left big-spacer-right"
+    key="bugs"
     metric="bugs"
     name="Bugs"
     style="0"
   />
   <GraphsLegendItem
     className="big-spacer-left big-spacer-right"
+    key="code_smells"
     metric="code_smells"
     name="Code Smells"
     style="1"

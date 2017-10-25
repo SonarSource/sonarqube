@@ -182,20 +182,20 @@ export default class App extends React.PureComponent {
           />
         )}
         {metric == null &&
-        hasBubbleChart(query.metric) && (
-          <MeasureOverviewContainer
-            branch={branch && getBranchName(branch)}
-            className="layout-page-main"
-            rootComponent={component}
-            currentUser={this.props.currentUser}
-            domain={query.metric}
-            leakPeriod={leakPeriod}
-            metrics={metrics}
-            router={this.props.router}
-            selected={query.selected}
-            updateQuery={this.updateQuery}
-          />
-        )}
+          hasBubbleChart(query.metric) && (
+            <MeasureOverviewContainer
+              branch={branch && getBranchName(branch)}
+              className="layout-page-main"
+              rootComponent={component}
+              currentUser={this.props.currentUser}
+              domain={query.metric}
+              leakPeriod={leakPeriod}
+              metrics={metrics}
+              router={this.props.router}
+              selected={query.selected}
+              updateQuery={this.updateQuery}
+            />
+          )}
       </div>
     );
   }

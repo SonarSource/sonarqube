@@ -44,7 +44,7 @@ it('reset function should work correctly with view and visualizations', () => {
       isFavorite={false}
     />
   );
-  expect(sidebar.find('.projects-facets-reset')).toMatchSnapshot();
+  expect(sidebar.find('.projects-facets-reset').exists()).toBeFalsy();
   sidebar.setProps({ query: { size: '3' } });
   expect(sidebar.find('.projects-facets-reset')).toMatchSnapshot();
 });

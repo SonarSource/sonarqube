@@ -19,6 +19,7 @@ exports[`should render tags popup correctly 1`] = `
   >
     <SelectListItem
       item="BLOCKER"
+      key="BLOCKER"
     >
       <SeverityIcon
         className="little-spacer-right"
@@ -28,6 +29,7 @@ exports[`should render tags popup correctly 1`] = `
     </SelectListItem>
     <SelectListItem
       item="CRITICAL"
+      key="CRITICAL"
     >
       <SeverityIcon
         className="little-spacer-right"
@@ -37,6 +39,7 @@ exports[`should render tags popup correctly 1`] = `
     </SelectListItem>
     <SelectListItem
       item="MAJOR"
+      key="MAJOR"
     >
       <SeverityIcon
         className="little-spacer-right"
@@ -46,6 +49,7 @@ exports[`should render tags popup correctly 1`] = `
     </SelectListItem>
     <SelectListItem
       item="MINOR"
+      key="MINOR"
     >
       <SeverityIcon
         className="little-spacer-right"
@@ -55,6 +59,7 @@ exports[`should render tags popup correctly 1`] = `
     </SelectListItem>
     <SelectListItem
       item="INFO"
+      key="INFO"
     >
       <SeverityIcon
         className="little-spacer-right"

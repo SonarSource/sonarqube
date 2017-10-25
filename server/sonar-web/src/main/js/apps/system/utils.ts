@@ -54,7 +54,7 @@ export function ignoreInfoFields(sysInfoObject: SysValueObject): SysValueObject 
     'Name',
     PLUGINS_FIELD,
     SETTINGS_FIELD
-  ]);
+  ]) as SysValueObject;
 }
 
 export function getHealth(sysInfoObject: SysValueObject): HealthType {
@@ -130,21 +130,21 @@ function getSystemData(sysInfoData: SysInfo): SysValueObject {
 export function getClusterMainCardSection(sysInfoData: ClusterSysInfo): SysValueObject {
   return {
     ...getSystemData(sysInfoData),
-    ...omit(sysInfoData, [
+    ...(omit(sysInfoData, [
       'Application Nodes',
       PLUGINS_FIELD,
       'Search Nodes',
       SETTINGS_FIELD,
       'Statistics',
       'System'
-    ])
+    ]) as SysValueObject)
   };
 }
 
 export function getStandaloneMainSections(sysInfoData: SysInfo): SysValueObject {
   return {
     ...getSystemData(sysInfoData),
-    ...omitBy(
+    ...(omitBy(
       sysInfoData,
       (value, key) =>
         value == null ||
@@ -152,15 +152,17 @@ export function getStandaloneMainSections(sysInfoData: SysInfo): SysValueObject 
         key.startsWith('Compute Engine') ||
         key.startsWith('Search') ||
         key.startsWith('Web')
-    )
+    ) as SysValueObject)
   };
 }
 
 export function getStandaloneSecondarySections(sysInfoData: SysInfo): SysInfoSection {
   return {
-    Web: pickBy(sysInfoData, (_, key) => key.startsWith('Web')),
-    'Compute Engine': pickBy(sysInfoData, (_, key) => key.startsWith('Compute Engine')),
-    'Search Engine': pickBy(sysInfoData, (_, key) => key.startsWith('Search'))
+    Web: pickBy(sysInfoData, (_, key) => key.startsWith('Web')) as SysValueObject,
+    'Compute Engine': pickBy(sysInfoData, (_, key) =>
+      key.startsWith('Compute Engine')
+    ) as SysValueObject,
+    'Search Engine': pickBy(sysInfoData, (_, key) => key.startsWith('Search')) as SysValueObject
   };
 }
 

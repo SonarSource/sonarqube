@@ -39,14 +39,17 @@ exports[`renders list 1`] = `
           "key": "component",
         }
       }
+      key="master"
       onSelect={[Function]}
       selected={true}
     />
     <li
       className="divider"
+      key="divider-baz"
     />
     <li
       className="dropdown-header"
+      key="orphans"
     >
       branches.orphan_branches
       <Tooltip
@@ -78,6 +81,7 @@ exports[`renders list 1`] = `
           "key": "component",
         }
       }
+      key="baz"
       onSelect={[Function]}
       selected={false}
     />
@@ -101,11 +105,13 @@ exports[`renders list 1`] = `
           "key": "component",
         }
       }
+      key="foo"
       onSelect={[Function]}
       selected={false}
     />
     <li
       className="divider"
+      key="divider-bar"
     />
     <ComponentNavBranchesMenuItem
       branch={
@@ -120,14 +126,17 @@ exports[`renders list 1`] = `
           "key": "component",
         }
       }
+      key="bar"
       onSelect={[Function]}
       selected={false}
     />
     <li
       className="divider"
+      key="divider-baz"
     />
     <li
       className="dropdown-header"
+      key="orphans"
     >
       branches.orphan_branches
       <Tooltip
@@ -159,6 +168,7 @@ exports[`renders list 1`] = `
           "key": "component",
         }
       }
+      key="baz"
       onSelect={[Function]}
       selected={false}
     />
@@ -213,11 +223,13 @@ exports[`searches 1`] = `
           "key": "component",
         }
       }
+      key="foobar"
       onSelect={[Function]}
       selected={true}
     />
     <li
       className="divider"
+      key="divider-bar"
     />
     <ComponentNavBranchesMenuItem
       branch={
@@ -232,6 +244,7 @@ exports[`searches 1`] = `
           "key": "component",
         }
       }
+      key="bar"
       onSelect={[Function]}
       selected={false}
     />

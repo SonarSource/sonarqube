@@ -13,36 +13,36 @@ exports[`renders 1`] = `
           onlyActiveOnIndex={false}
           style={Object {}}
           to={
-              Object {
-                  "pathname": "/component_measures",
-                  "query": Object {
-                    "branch": undefined,
-                    "id": "foo",
-                    "metric": "security_rating",
-                  },
-                }
+            Object {
+              "pathname": "/component_measures",
+              "query": Object {
+                "branch": undefined,
+                "id": "foo",
+                "metric": "security_rating",
+              },
+            }
           }
-      >
+        >
           <span>
-              <Measure
-                  measure={
-                      Object {
-                          "metric": Object {
-                            "key": "projects",
-                            "type": "SHORT_INT",
-                          },
-                          "value": "3",
-                        }
-                  }
-              />
-               
-              projects_
+            <Measure
+              measure={
+                Object {
+                  "metric": Object {
+                    "key": "projects",
+                    "type": "SHORT_INT",
+                  },
+                  "value": "3",
+                }
+              }
+            />
+             
+            projects_
           </span>
-      </Link>,
+        </Link>,
         "rating": <Rating
           small={true}
           value={2}
-      />,
+        />,
       }
     }
   />

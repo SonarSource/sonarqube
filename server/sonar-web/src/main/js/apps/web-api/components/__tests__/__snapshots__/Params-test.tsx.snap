@@ -16,7 +16,9 @@ exports[`should render deprecated and internal parameters 1`] = `
 >
   <table>
     <tbody>
-      <tr>
+      <tr
+        key="foo"
+      >
         <td
           className="markdown"
           style={
@@ -59,7 +61,9 @@ exports[`should render deprecated and internal parameters 1`] = `
           }
         />
       </tr>
-      <tr>
+      <tr
+        key="foo"
+      >
         <td
           className="markdown"
           style={
@@ -118,7 +122,9 @@ exports[`should render deprecated key 1`] = `
 >
   <table>
     <tbody>
-      <tr>
+      <tr
+        key="foo"
+      >
         <td
           className="markdown"
           style={

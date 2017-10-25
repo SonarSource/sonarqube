@@ -6,6 +6,7 @@ exports[`should render correctly the list of series 1`] = `
 >
   <span
     className="spacer-left spacer-right"
+    key="bugs"
   >
     <GraphsLegendItem
       metric="bugs"
@@ -17,6 +18,7 @@ exports[`should render correctly the list of series 1`] = `
   </span>
   <span
     className="spacer-left spacer-right"
+    key="my_metric"
   >
     <GraphsLegendItem
       metric="my_metric"
@@ -27,6 +29,7 @@ exports[`should render correctly the list of series 1`] = `
     />
   </span>
   <Tooltip
+    key="foo"
     overlay="project_activity.graphs.custom.metric_no_history"
     placement="bottom"
   >

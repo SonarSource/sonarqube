@@ -21,7 +21,7 @@ exports[`should display pending actions 1`] = `
             Object {
               "nb": <strong>
                 2
-            </strong>,
+              </strong>,
             }
           }
         />
@@ -34,7 +34,7 @@ exports[`should display pending actions 1`] = `
             Object {
               "nb": <strong>
                 1
-            </strong>,
+              </strong>,
             }
           }
         />

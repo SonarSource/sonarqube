@@ -25,6 +25,7 @@ exports[`renders list of projects 1`] = `
   </thead>
   <tbody>
     <ProjectRow
+      key="a"
       onApplyTemplateClick={[Function]}
       onProjectCheck={[Function]}
       project={
@@ -38,6 +39,7 @@ exports[`renders list of projects 1`] = `
       selected={true}
     />
     <ProjectRow
+      key="b"
       onApplyTemplateClick={[Function]}
       onProjectCheck={[Function]}
       project={

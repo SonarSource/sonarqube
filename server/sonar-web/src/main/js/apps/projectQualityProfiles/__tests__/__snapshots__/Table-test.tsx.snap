@@ -23,6 +23,7 @@ exports[`renders 1`] = `
   </thead>
   <tbody>
     <ProfileRow
+      key="java"
       onChangeProfile={[Function]}
       possibleProfiles={
         Array [
@@ -68,6 +69,7 @@ exports[`renders 1`] = `
       }
     />
     <ProfileRow
+      key="js"
       onChangeProfile={[Function]}
       possibleProfiles={
         Array [

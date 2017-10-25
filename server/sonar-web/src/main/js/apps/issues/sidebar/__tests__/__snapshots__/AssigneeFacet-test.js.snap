@@ -23,6 +23,7 @@ exports[`should render 1`] = `
       active={false}
       disabled={false}
       halfWidth={false}
+      key="foo"
       name={
         <span>
           <Connect(Avatar)
@@ -42,6 +43,7 @@ exports[`should render 1`] = `
       active={false}
       disabled={false}
       halfWidth={false}
+      key="bar"
       name="bar"
       onClick={[Function]}
       stat="7"
@@ -107,6 +109,7 @@ exports[`should select unassigned 1`] = `
       active={false}
       disabled={false}
       halfWidth={false}
+      key="foo"
       name={
         <span>
           <Connect(Avatar)
@@ -126,6 +129,7 @@ exports[`should select unassigned 1`] = `
       active={false}
       disabled={false}
       halfWidth={false}
+      key="bar"
       name="bar"
       onClick={[Function]}
       stat="7"
@@ -167,6 +171,7 @@ exports[`should select user 1`] = `
       active={true}
       disabled={false}
       halfWidth={false}
+      key="foo"
       name={
         <span>
           <Connect(Avatar)
@@ -186,6 +191,7 @@ exports[`should select user 1`] = `
       active={false}
       disabled={false}
       halfWidth={false}
+      key="bar"
       name="bar"
       onClick={[Function]}
       stat="7"

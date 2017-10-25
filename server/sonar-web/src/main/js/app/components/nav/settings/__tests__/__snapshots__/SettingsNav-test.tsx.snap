@@ -55,7 +55,9 @@ exports[`should work with extensions 1`] = `
             custom_metrics.page
           </IndexLink>
         </li>
-        <li>
+        <li
+          key="foo"
+        >
           <Link
             activeClassName="active"
             onlyActiveOnIndex={false}

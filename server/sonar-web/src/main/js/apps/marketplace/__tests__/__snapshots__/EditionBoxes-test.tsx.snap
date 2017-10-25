@@ -15,9 +15,9 @@ exports[`should display an error message 1`] = `
           "url": <a
             href="https://redirect.sonarsource.com/editions/editions.html"
             target="_blank"
-        >
+          >
             SonarSource.com
-        </a>,
+          </a>,
         }
       }
     />
@@ -56,6 +56,7 @@ exports[`should display the edition boxes correctly 2`] = `
       }
     }
     isDowngrade={true}
+    key="comunity"
     onInstall={[Function]}
     onUninstall={[Function]}
   />
@@ -80,6 +81,7 @@ exports[`should display the edition boxes correctly 2`] = `
       }
     }
     isDowngrade={false}
+    key="developer"
     onInstall={[Function]}
     onUninstall={[Function]}
   />

@@ -295,12 +295,12 @@ export default class MeasureContent extends React.PureComponent {
                 rootComponent={rootComponent}
               />
               {component.key !== rootComponent.key &&
-              isLoggedIn && (
-                <MeasureFavoriteContainer
-                  component={component.key}
-                  className="measure-favorite spacer-right"
-                />
-              )}
+                isLoggedIn && (
+                  <MeasureFavoriteContainer
+                    component={component.key}
+                    className="measure-favorite spacer-right"
+                  />
+                )}
               {!isFile && (
                 <MeasureViewSelect
                   className="measure-view-select"
@@ -324,19 +324,19 @@ export default class MeasureContent extends React.PureComponent {
           <MetricNotFound className="layout-page-main-inner measure-details-content" />
         )}
         {metric != null &&
-        measure != null && (
-          <div className="layout-page-main-inner measure-details-content">
-            <MeasureHeader
-              branch={branch}
-              component={component}
-              components={this.state.components}
-              leakPeriod={this.props.leakPeriod}
-              measure={measure}
-              secondaryMeasure={this.props.secondaryMeasure}
-            />
-            {isFileType(component) ? this.renderCode() : this.renderMeasure()}
-          </div>
-        )}
+          measure != null && (
+            <div className="layout-page-main-inner measure-details-content">
+              <MeasureHeader
+                branch={branch}
+                component={component}
+                components={this.state.components}
+                leakPeriod={this.props.leakPeriod}
+                measure={measure}
+                secondaryMeasure={this.props.secondaryMeasure}
+              />
+              {isFileType(component) ? this.renderCode() : this.renderMeasure()}
+            </div>
+          )}
       </div>
     );
   }

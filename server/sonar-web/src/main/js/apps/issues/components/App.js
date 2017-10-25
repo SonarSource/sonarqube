@@ -806,9 +806,13 @@ export default class App extends React.PureComponent {
           selectedLocationIndex={this.state.selectedLocationIndex}
         />
         {paging != null &&
-        paging.total > 0 && (
-          <ListFooter total={paging.total} count={issues.length} loadMore={this.fetchMoreIssues} />
-        )}
+          paging.total > 0 && (
+            <ListFooter
+              total={paging.total}
+              count={issues.length}
+              loadMore={this.fetchMoreIssues}
+            />
+          )}
       </div>
     );
   }

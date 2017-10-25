@@ -12,7 +12,9 @@ exports[`creates project 1`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <form
     id="create-project-form"
@@ -140,7 +142,9 @@ exports[`creates project 2`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <form
     id="create-project-form"
@@ -268,7 +272,9 @@ exports[`creates project 3`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <form
     id="create-project-form"
@@ -399,7 +405,9 @@ exports[`creates project 4`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <div>
     <header
@@ -424,17 +432,17 @@ exports[`creates project 4`] = `
                 onlyActiveOnIndex={false}
                 style={Object {}}
                 to={
-                    Object {
-                        "pathname": "/dashboard",
-                        "query": Object {
-                          "branch": undefined,
-                          "id": "name",
-                        },
-                      }
+                  Object {
+                    "pathname": "/dashboard",
+                    "query": Object {
+                      "branch": undefined,
+                      "id": "name",
+                    },
+                  }
                 }
-            >
+              >
                 name
-            </Link>,
+              </Link>,
             }
           }
         />
@@ -467,7 +475,9 @@ exports[`shows more 1`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <form
     id="create-project-form"
@@ -595,7 +605,9 @@ exports[`shows more 2`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <form
     id="create-project-form"

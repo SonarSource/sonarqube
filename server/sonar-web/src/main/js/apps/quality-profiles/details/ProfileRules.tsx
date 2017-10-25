@@ -184,14 +184,14 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
           </table>
 
           {profile.actions &&
-          profile.actions.edit &&
-          !profile.isBuiltIn && (
-            <div className="text-right big-spacer-top">
-              <Link to={activateMoreUrl} className="button js-activate-rules">
-                {translate('quality_profiles.activate_more')}
-              </Link>
-            </div>
-          )}
+            profile.actions.edit &&
+            !profile.isBuiltIn && (
+              <div className="text-right big-spacer-top">
+                <Link to={activateMoreUrl} className="button js-activate-rules">
+                  {translate('quality_profiles.activate_more')}
+                </Link>
+              </div>
+            )}
         </div>
         {profile.activeDeprecatedRuleCount > 0 && (
           <ProfileRulesDeprecatedWarning
@@ -201,15 +201,15 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
           />
         )}
         {compareToSonarWay != null &&
-        compareToSonarWay.missingRuleCount > 0 && (
-          <ProfileRulesSonarWayComparison
-            language={profile.language}
-            organization={organization}
-            profile={profile.key}
-            sonarway={compareToSonarWay.profile}
-            sonarWayMissingRules={compareToSonarWay.missingRuleCount}
-          />
-        )}
+          compareToSonarWay.missingRuleCount > 0 && (
+            <ProfileRulesSonarWayComparison
+              language={profile.language}
+              organization={organization}
+              profile={profile.key}
+              sonarway={compareToSonarWay.profile}
+              sonarWayMissingRules={compareToSonarWay.missingRuleCount}
+            />
+          )}
       </div>
     );
   }

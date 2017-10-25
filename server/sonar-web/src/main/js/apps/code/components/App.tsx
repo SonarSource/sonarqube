@@ -223,21 +223,21 @@ export default class App extends React.PureComponent<Props, State> {
           )}
 
           {sourceViewer === undefined &&
-          components !== undefined && (
-            <div className={componentsClassName}>
-              <Components
-                baseComponent={baseComponent}
-                branch={branchName}
-                components={components}
-                rootComponent={component}
-              />
-            </div>
-          )}
+            components !== undefined && (
+              <div className={componentsClassName}>
+                <Components
+                  baseComponent={baseComponent}
+                  branch={branchName}
+                  components={components}
+                  rootComponent={component}
+                />
+              </div>
+            )}
 
           {sourceViewer === undefined &&
-          components !== undefined && (
-            <ListFooter count={components.length} total={total} loadMore={this.handleLoadMore} />
-          )}
+            components !== undefined && (
+              <ListFooter count={components.length} total={total} loadMore={this.handleLoadMore} />
+            )}
 
           {sourceViewer !== undefined && (
             <div className="spacer-top">

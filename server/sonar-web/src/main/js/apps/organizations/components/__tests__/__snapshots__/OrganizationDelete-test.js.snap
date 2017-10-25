@@ -5,6 +5,7 @@ exports[`smoke test 1`] = `
   className="page page-limited"
 >
   <HelmetWrapper
+    defer={true}
     encodeSpecialCharacters={true}
     title="organization.delete"
   />
@@ -39,6 +40,7 @@ exports[`smoke test 2`] = `
   className="page page-limited"
 >
   <HelmetWrapper
+    defer={true}
     encodeSpecialCharacters={true}
     title="organization.delete"
   />
@@ -75,7 +77,9 @@ exports[`smoke test 2`] = `
       overlayClassName="modal-overlay"
       parentSelector={[Function]}
       portalClassName="ReactModalPortal"
+      shouldCloseOnEsc={true}
       shouldCloseOnOverlayClick={true}
+      shouldFocusAfterRender={true}
     >
       <header
         className="modal-head"
@@ -122,6 +126,7 @@ exports[`smoke test 3`] = `
   className="page page-limited"
 >
   <HelmetWrapper
+    defer={true}
     encodeSpecialCharacters={true}
     title="organization.delete"
   />
@@ -158,7 +163,9 @@ exports[`smoke test 3`] = `
       overlayClassName="modal-overlay"
       parentSelector={[Function]}
       portalClassName="ReactModalPortal"
+      shouldCloseOnEsc={true}
       shouldCloseOnOverlayClick={true}
+      shouldFocusAfterRender={true}
     >
       <header
         className="modal-head"

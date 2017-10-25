@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Modal from 'react-modal';
-import * as Select from 'react-select';
+import * as Modal from 'react-modal';
+import Select from 'react-select';
 import { sortBy } from 'lodash';
 import { changeProfileParent } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
@@ -120,11 +120,9 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
                 onChange={this.handleSelectChange}
                 options={options}
                 value={
-                  this.state.selected != null ? (
-                    this.state.selected
-                  ) : (
-                    this.props.profile.parentKey || ''
-                  )
+                  this.state.selected != null
+                    ? this.state.selected
+                    : this.props.profile.parentKey || ''
                 }
               />
             </div>

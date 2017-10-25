@@ -63,22 +63,24 @@ export default function ProjectCardLeak({ organization, project }: Props) {
           {hasTags && <TagsList tags={project.tags} customClass="spacer-left" />}
         </div>
         {project.analysisDate &&
-        project.leakPeriodDate && (
-          <div className="project-card-dates note text-right pull-right">
-            <DateFromNow date={project.leakPeriodDate!}>
-              {fromNow => (
-                <span className="project-card-leak-date pull-right">
-                  {translateWithParameters('projects.leak_period_x', fromNow)}
-                </span>
-              )}
-            </DateFromNow>
-            <DateTimeFormatter date={project.analysisDate!}>
-              {formattedDate => (
-                <span>{translateWithParameters('projects.last_analysis_on_x', formattedDate)}</span>
-              )}
-            </DateTimeFormatter>
-          </div>
-        )}
+          project.leakPeriodDate && (
+            <div className="project-card-dates note text-right pull-right">
+              <DateFromNow date={project.leakPeriodDate!}>
+                {fromNow => (
+                  <span className="project-card-leak-date pull-right">
+                    {translateWithParameters('projects.leak_period_x', fromNow)}
+                  </span>
+                )}
+              </DateFromNow>
+              <DateTimeFormatter date={project.analysisDate!}>
+                {formattedDate => (
+                  <span>
+                    {translateWithParameters('projects.last_analysis_on_x', formattedDate)}
+                  </span>
+                )}
+              </DateTimeFormatter>
+            </div>
+          )}
       </div>
 
       {project.analysisDate && project.leakPeriodDate ? (
@@ -88,11 +90,9 @@ export default function ProjectCardLeak({ organization, project }: Props) {
       ) : (
         <div className="boxed-group-inner">
           <div className="note project-card-not-analyzed">
-            {project.analysisDate ? (
-              translate('projects.no_leak_period')
-            ) : (
-              translate('projects.not_analyzed')
-            )}
+            {project.analysisDate
+              ? translate('projects.no_leak_period')
+              : translate('projects.not_analyzed')}
           </div>
         </div>
       )}
