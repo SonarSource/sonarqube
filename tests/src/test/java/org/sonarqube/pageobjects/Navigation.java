@@ -169,6 +169,8 @@ public class Navigation {
     return open("/admin/system", SystemInfoPage.class);
   }
 
+  public MarketplacePage openMarketplace() { return open("/admin/marketplace", MarketplacePage.class);}
+
   public NotificationsPage openNotifications() {
     return open("/account/notifications", NotificationsPage.class);
   }

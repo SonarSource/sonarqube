@@ -37,7 +37,7 @@ import org.sonarqube.tests.settings.SettingsTestRestartingOrchestrator;
 import org.sonarqube.tests.startup.StartupIndexationTest;
 import org.sonarqube.tests.telemetry.TelemetryOptOutTest;
 import org.sonarqube.tests.telemetry.TelemetryUploadTest;
-import org.sonarqube.tests.updateCenter.UpdateCenterTest;
+import org.sonarqube.tests.marketplace.UpdateCenterTest;
 import org.sonarqube.tests.user.OnboardingTest;
 import org.sonarqube.tests.user.RealmAuthenticationTest;
 import org.sonarqube.tests.user.SsoAuthenticationTest;
