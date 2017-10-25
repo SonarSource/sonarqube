@@ -24,7 +24,8 @@ interface Props {
   children?: JSX.Element;
   className?: string;
   loading?: boolean;
-  timeout: number;
+  customSpinner?: JSX.Element;
+  timeout?: number;
 }
 
 interface State {
@@ -71,7 +72,9 @@ export default class DeferredSpinner extends React.PureComponent<Props, State> {
 
   render() {
     if (this.state.showSpinner) {
-      return <i className={classNames('spinner', this.props.className)} />;
+      return (
+        this.props.customSpinner || <i className={classNames('spinner', this.props.className)} />
+      );
     }
     return (this.props.children as JSX.Element) || null;
   }

@@ -67,10 +67,10 @@ class AdminContainer extends React.PureComponent<Props> {
   }
 
   fetchNavigationSettings = () =>
-    getSettingsNavigation().then(r => this.props.setAdminPages(r.extensions), () => { });
+    getSettingsNavigation().then(r => this.props.setAdminPages(r.extensions), () => {});
 
   fetchEditionStatus = () =>
-    getEditionStatus().then(editionStatus => this.props.setEditionStatus(editionStatus), () => { });
+    getEditionStatus().then(editionStatus => this.props.setEditionStatus(editionStatus), () => {});
 
   render() {
     const { adminPages, organizationsEnabled } = this.props.appState;
