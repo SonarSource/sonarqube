@@ -168,12 +168,7 @@
     "gitDir": "../../",
     "linters": {
       "*.{css,json}": ["prettier --write", "git add"],
-      "*.{js,ts,tsx}": [
-        "eslint --max-warnings 0",
-        "jest --bail --findRelatedTests",
-        "prettier --write",
-        "git add"
-      ]
+      "*.{js,ts,tsx}": ["eslint", "jest --bail --findRelatedTests", "prettier --write", "git add"]
     }
   }
 }
