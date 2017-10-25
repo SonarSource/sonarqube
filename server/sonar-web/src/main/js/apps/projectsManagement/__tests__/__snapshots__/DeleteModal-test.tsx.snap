@@ -12,7 +12,9 @@ exports[`deletes all projects 1`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <header
     className="modal-head"
@@ -67,7 +69,9 @@ exports[`deletes all projects 2`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <header
     className="modal-head"
@@ -125,7 +129,9 @@ exports[`deletes selected projects 1`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <header
     className="modal-head"
@@ -180,7 +186,9 @@ exports[`deletes selected projects 2`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <header
     className="modal-head"

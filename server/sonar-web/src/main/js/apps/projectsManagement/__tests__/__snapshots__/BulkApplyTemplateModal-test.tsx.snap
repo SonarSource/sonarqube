@@ -12,7 +12,9 @@ exports[`bulk applies template to all results 1`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <header
     className="modal-head"
@@ -54,7 +56,9 @@ exports[`bulk applies template to all results 2`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <header
     className="modal-head"
@@ -95,6 +99,7 @@ exports[`bulk applies template to all results 2`] = `
         clearRenderer={[Function]}
         clearValueText="Clear value"
         clearable={false}
+        closeOnSelect={true}
         deleteRemoves={true}
         delimiter=","
         disabled={false}
@@ -115,6 +120,8 @@ exports[`bulk applies template to all results 2`] = `
         onBlurResetsInput={true}
         onChange={[Function]}
         onCloseResetsInput={true}
+        onSelectResetsInput={true}
+        openOnClick={true}
         optionComponent={[Function]}
         options={
           Array [
@@ -173,7 +180,9 @@ exports[`bulk applies template to all results 3`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <header
     className="modal-head"
@@ -214,6 +223,7 @@ exports[`bulk applies template to all results 3`] = `
         clearRenderer={[Function]}
         clearValueText="Clear value"
         clearable={false}
+        closeOnSelect={true}
         deleteRemoves={true}
         delimiter=","
         disabled={true}
@@ -234,6 +244,8 @@ exports[`bulk applies template to all results 3`] = `
         onBlurResetsInput={true}
         onChange={[Function]}
         onCloseResetsInput={true}
+        onSelectResetsInput={true}
+        openOnClick={true}
         optionComponent={[Function]}
         options={
           Array [
@@ -295,7 +307,9 @@ exports[`bulk applies template to all results 4`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <header
     className="modal-head"
@@ -339,7 +353,9 @@ exports[`bulk applies template to selected results 1`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <header
     className="modal-head"
@@ -381,7 +397,9 @@ exports[`bulk applies template to selected results 2`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <header
     className="modal-head"
@@ -422,6 +440,7 @@ exports[`bulk applies template to selected results 2`] = `
         clearRenderer={[Function]}
         clearValueText="Clear value"
         clearable={false}
+        closeOnSelect={true}
         deleteRemoves={true}
         delimiter=","
         disabled={false}
@@ -442,6 +461,8 @@ exports[`bulk applies template to selected results 2`] = `
         onBlurResetsInput={true}
         onChange={[Function]}
         onCloseResetsInput={true}
+        onSelectResetsInput={true}
+        openOnClick={true}
         optionComponent={[Function]}
         options={
           Array [
@@ -500,7 +521,9 @@ exports[`bulk applies template to selected results 3`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <header
     className="modal-head"
@@ -541,6 +564,7 @@ exports[`bulk applies template to selected results 3`] = `
         clearRenderer={[Function]}
         clearValueText="Clear value"
         clearable={false}
+        closeOnSelect={true}
         deleteRemoves={true}
         delimiter=","
         disabled={true}
@@ -561,6 +585,8 @@ exports[`bulk applies template to selected results 3`] = `
         onBlurResetsInput={true}
         onChange={[Function]}
         onCloseResetsInput={true}
+        onSelectResetsInput={true}
+        openOnClick={true}
         optionComponent={[Function]}
         options={
           Array [
@@ -622,7 +648,9 @@ exports[`bulk applies template to selected results 4`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <header
     className="modal-head"

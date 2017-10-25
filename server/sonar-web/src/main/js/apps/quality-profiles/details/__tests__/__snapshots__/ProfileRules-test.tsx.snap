@@ -28,12 +28,14 @@ exports[`should render the quality profiles rules with sonarway comparison 1`] =
       <tbody>
         <ProfileRulesRowTotal
           count={68}
+          key="all"
           organization="foo"
           qprofile="foo"
           total={243}
         />
         <ProfileRulesRowOfType
           count={68}
+          key="BUG"
           organization="foo"
           qprofile="foo"
           total={68}
@@ -41,6 +43,7 @@ exports[`should render the quality profiles rules with sonarway comparison 1`] =
         />
         <ProfileRulesRowOfType
           count={0}
+          key="VULNERABILITY"
           organization="foo"
           qprofile="foo"
           total={7}
@@ -48,6 +51,7 @@ exports[`should render the quality profiles rules with sonarway comparison 1`] =
         />
         <ProfileRulesRowOfType
           count={0}
+          key="CODE_SMELL"
           organization="foo"
           qprofile="foo"
           total={168}

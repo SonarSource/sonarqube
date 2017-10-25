@@ -97,11 +97,11 @@ export default class Workers extends React.PureComponent<{}, State> {
     return (
       <div>
         {!loading &&
-        workerCount > 1 && (
-          <Tooltip overlay={translate('background_tasks.number_of_workers.warning')}>
-            <i className="icon-alert-warn little-spacer-right bt-workers-warning-icon" />
-          </Tooltip>
-        )}
+          workerCount > 1 && (
+            <Tooltip overlay={translate('background_tasks.number_of_workers.warning')}>
+              <i className="icon-alert-warn little-spacer-right bt-workers-warning-icon" />
+            </Tooltip>
+          )}
 
         {translate('background_tasks.number_of_workers')}
 
@@ -112,26 +112,26 @@ export default class Workers extends React.PureComponent<{}, State> {
         )}
 
         {!loading &&
-        canSetWorkerCount && (
-          <Tooltip overlay={translate('background_tasks.change_number_of_workers')}>
-            <a className="icon-edit spacer-left" href="#" onClick={this.handleChangeClick} />
-          </Tooltip>
-        )}
+          canSetWorkerCount && (
+            <Tooltip overlay={translate('background_tasks.change_number_of_workers')}>
+              <a className="icon-edit spacer-left" href="#" onClick={this.handleChangeClick} />
+            </Tooltip>
+          )}
 
         {!loading &&
-        !canSetWorkerCount && (
-          <span className="spacer-left">
-            <a className="link-no-underline" href="#" onClick={this.handleHelpClick}>
-              <HelpIcon className="text-text-bottom" fill={theme.gray80} />
-            </a>
-            <BubblePopupHelper
-              isOpen={this.state.noSupportPopup}
-              position="bottomright"
-              popup={<NoWorkersSupportPopup />}
-              togglePopup={this.toggleNoSupportPopup}
-            />
-          </span>
-        )}
+          !canSetWorkerCount && (
+            <span className="spacer-left">
+              <a className="link-no-underline" href="#" onClick={this.handleHelpClick}>
+                <HelpIcon className="text-text-bottom" fill={theme.gray80} />
+              </a>
+              <BubblePopupHelper
+                isOpen={this.state.noSupportPopup}
+                position="bottomright"
+                popup={<NoWorkersSupportPopup />}
+                togglePopup={this.toggleNoSupportPopup}
+              />
+            </span>
+          )}
 
         {formOpen && <WorkersForm onClose={this.closeForm} workerCount={this.state.workerCount} />}
       </div>

@@ -188,7 +188,11 @@ a.search-navigator-facet:focus .facet-stat {
   bottom: 0;
   right: 100%;
   width: 10px;
-  background-image: linear-gradient(to right, rgba(243, 243, 243, 0), var(--barBackgroundColor) 75%);
+  background-image: linear-gradient(
+    to right,
+    rgba(243, 243, 243, 0),
+    var(--barBackgroundColor) 75%
+  );
 }
 
 .search-navigator-facet .facet-toggle {
@@ -766,7 +770,11 @@ a.search-navigator-facet:focus .facet-stat {
   bottom: 0;
   right: 100%;
   width: 10px;
-  background-image: linear-gradient(to right, rgba(243, 243, 243, 0), var(--barBackgroundColor) 75%);
+  background-image: linear-gradient(
+    to right,
+    rgba(243, 243, 243, 0),
+    var(--barBackgroundColor) 75%
+  );
 }
 
 .search-navigator-header-pagination {

@@ -43,10 +43,13 @@ export default function ProfileDetails(props: Props) {
           <ProfileRules {...props} />
           <ProfileExporters {...props} />
           {profile.actions &&
-          profile.actions.edit &&
-          !profile.isBuiltIn && (
-            <ProfilePermissions organization={props.organization || undefined} profile={profile} />
-          )}
+            profile.actions.edit &&
+            !profile.isBuiltIn && (
+              <ProfilePermissions
+                organization={props.organization || undefined}
+                profile={profile}
+              />
+            )}
         </div>
         <div className="quality-profile-grid-right">
           <ProfileInheritance {...props} />

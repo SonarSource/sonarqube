@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as Select from 'react-select';
+import Select from 'react-select';
 import { debounce, identity } from 'lodash';
 import { User, Group } from './ProfilePermissions';
 import Avatar from '../../../components/ui/Avatar';

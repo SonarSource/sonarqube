@@ -128,17 +128,15 @@ export default class AddGraphMetric extends React.PureComponent {
                 value={this.state.selectedMetric}
               />
               <span className="alert alert-info">
-                {metricsTypeFilter != null && metricsTypeFilter.length > 0 ? (
-                  translateWithParameters(
-                    'project_activity.graphs.custom.type_x_message',
-                    metricsTypeFilter
-                      .map(type => translate('metric.type', type))
-                      .sort()
-                      .join(', ')
-                  )
-                ) : (
-                  translate('project_activity.graphs.custom.add_metric_info')
-                )}
+                {metricsTypeFilter != null && metricsTypeFilter.length > 0
+                  ? translateWithParameters(
+                      'project_activity.graphs.custom.type_x_message',
+                      metricsTypeFilter
+                        .map(type => translate('metric.type', type))
+                        .sort()
+                        .join(', ')
+                    )
+                  : translate('project_activity.graphs.custom.add_metric_info')}
               </span>
             </div>
           </div>

@@ -87,7 +87,10 @@ export default class DateInput extends React.PureComponent<Props> {
   }
 
   render() {
-    const inputProps = pick(this.props, ['placeholder', 'name']);
+    const inputProps: { name?: string; placeholder?: string } = pick(this.props, [
+      'placeholder',
+      'name'
+    ]);
 
     return (
       <span className={classNames('date-input-control', this.props.className)}>

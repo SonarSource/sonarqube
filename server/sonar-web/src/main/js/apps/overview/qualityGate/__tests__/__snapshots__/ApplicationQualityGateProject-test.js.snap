@@ -26,6 +26,7 @@ exports[`renders 1`] = `
     >
       <li
         className="is-on-leak"
+        key="new_coverage"
       >
         <span
           className="text-limited"
@@ -46,6 +47,7 @@ exports[`renders 1`] = `
       </li>
       <li
         className=""
+        key="bugs"
       >
         <span
           className="text-limited"
@@ -66,6 +68,7 @@ exports[`renders 1`] = `
       </li>
       <li
         className=""
+        key="bugs"
       >
         <span
           className="text-limited"

@@ -12,7 +12,9 @@ exports[`should display some warning messages for non INFO levels 1`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <form
     id="set-log-level-form"
@@ -30,6 +32,7 @@ exports[`should display some warning messages for non INFO levels 1`] = `
     >
       <p
         className="spacer-bottom"
+        key="INFO"
       >
         <input
           checked={false}
@@ -49,6 +52,7 @@ exports[`should display some warning messages for non INFO levels 1`] = `
       </p>
       <p
         className="spacer-bottom"
+        key="DEBUG"
       >
         <input
           checked={true}
@@ -68,6 +72,7 @@ exports[`should display some warning messages for non INFO levels 1`] = `
       </p>
       <p
         className="spacer-bottom"
+        key="TRACE"
       >
         <input
           checked={false}
@@ -129,7 +134,9 @@ exports[`should render correctly 1`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <form
     id="set-log-level-form"
@@ -147,6 +154,7 @@ exports[`should render correctly 1`] = `
     >
       <p
         className="spacer-bottom"
+        key="INFO"
       >
         <input
           checked={true}
@@ -166,6 +174,7 @@ exports[`should render correctly 1`] = `
       </p>
       <p
         className="spacer-bottom"
+        key="DEBUG"
       >
         <input
           checked={false}
@@ -185,6 +194,7 @@ exports[`should render correctly 1`] = `
       </p>
       <p
         className="spacer-bottom"
+        key="TRACE"
       >
         <input
           checked={false}

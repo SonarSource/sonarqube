@@ -15,9 +15,9 @@ exports[`should display the license field 1`] = `
         Object {
           "license": <span
             className="js-plugin-license"
-        >
+          >
             SonarSource license
-        </span>,
+          </span>,
         }
       }
     />

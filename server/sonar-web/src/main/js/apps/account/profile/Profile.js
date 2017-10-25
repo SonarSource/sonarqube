@@ -50,11 +50,11 @@ function Profile(props /*: Props */) {
       </div>
 
       {!user.local &&
-      user.externalProvider !== 'sonarqube' && (
-        <div id="identity-provider" className="spacer-bottom">
-          <UserExternalIdentity user={user} />
-        </div>
-      )}
+        user.externalProvider !== 'sonarqube' && (
+          <div id="identity-provider" className="spacer-bottom">
+            <UserExternalIdentity user={user} />
+          </div>
+        )}
 
       {!!user.email && (
         <div className="spacer-bottom">

@@ -12,7 +12,9 @@ exports[`renders 1`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <div />
 </Modal>
@@ -30,7 +32,9 @@ exports[`submits 1`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <button
     disabled={false}
@@ -53,7 +57,9 @@ exports[`submits 2`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <button
     disabled={true}
@@ -76,7 +82,9 @@ exports[`submits 3`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <button
     disabled={false}

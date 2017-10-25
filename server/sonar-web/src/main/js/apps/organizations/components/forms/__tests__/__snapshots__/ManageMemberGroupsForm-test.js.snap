@@ -94,7 +94,9 @@ exports[`should render and open the modal 2`] = `
     overlayClassName="modal-overlay"
     parentSelector={[Function]}
     portalClassName="ReactModalPortal"
+    shouldCloseOnEsc={true}
     shouldCloseOnOverlayClick={true}
+    shouldFocusAfterRender={true}
   >
     <header
       className="modal-head"
@@ -126,6 +128,7 @@ exports[`should render and open the modal 2`] = `
                 "name": "professionals",
               }
             }
+            key="7"
             onCheck={[Function]}
           />
           <OrganizationGroupCheckbox
@@ -138,6 +141,7 @@ exports[`should render and open the modal 2`] = `
                 "name": "pull-request-analysers",
               }
             }
+            key="11"
             onCheck={[Function]}
           />
           <OrganizationGroupCheckbox
@@ -150,6 +154,7 @@ exports[`should render and open the modal 2`] = `
                 "name": "sonar-administrators",
               }
             }
+            key="1"
             onCheck={[Function]}
           />
         </ul>

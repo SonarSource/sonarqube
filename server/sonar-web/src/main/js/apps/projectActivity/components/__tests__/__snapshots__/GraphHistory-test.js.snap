@@ -32,6 +32,8 @@ exports[`should correctly render a graph 1`] = `
     className="project-activity-graph"
   >
     <AutoSizer
+      disableHeight={false}
+      disableWidth={false}
       onResize={[Function]}
     />
   </div>

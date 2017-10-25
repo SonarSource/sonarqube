@@ -179,6 +179,7 @@ exports[`should render the tags facet with the selected tags 2`] = `
     <Link
       className="facet search-navigator-facet projects-facet active"
       data-key="lang"
+      key="lang"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -207,6 +208,7 @@ exports[`should render the tags facet with the selected tags 2`] = `
     <Link
       className="facet search-navigator-facet projects-facet active"
       data-key="sonar"
+      key="sonar"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}
@@ -235,6 +237,7 @@ exports[`should render the tags facet with the selected tags 2`] = `
     <Link
       className="facet search-navigator-facet projects-facet"
       data-key="csharp"
+      key="csharp"
       onClick={[Function]}
       onlyActiveOnIndex={false}
       style={Object {}}

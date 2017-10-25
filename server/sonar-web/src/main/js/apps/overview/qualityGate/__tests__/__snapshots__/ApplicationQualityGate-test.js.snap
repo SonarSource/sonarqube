@@ -34,6 +34,7 @@ exports[`renders 2`] = `
     id="overview-quality-gate-conditions-list"
   >
     <ApplicationQualityGateProject
+      key="project1"
       metrics={Object {}}
       project={
         Object {
@@ -45,6 +46,7 @@ exports[`renders 2`] = `
       }
     />
     <ApplicationQualityGateProject
+      key="project3"
       metrics={Object {}}
       project={
         Object {

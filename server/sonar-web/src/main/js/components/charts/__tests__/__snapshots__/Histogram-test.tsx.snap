@@ -10,7 +10,9 @@ exports[`renders 1`] = `
     transform="translate(10, 10)"
   >
     <g>
-      <g>
+      <g
+        key="0"
+      >
         <rect
           className="bar-chart-bar"
           height={10}
@@ -19,7 +21,9 @@ exports[`renders 1`] = `
           y={10}
         />
       </g>
-      <g>
+      <g
+        key="1"
+      >
         <rect
           className="bar-chart-bar"
           height={10}
@@ -28,7 +32,9 @@ exports[`renders 1`] = `
           y={28}
         />
       </g>
-      <g>
+      <g
+        key="2"
+      >
         <rect
           className="bar-chart-bar"
           height={10}
@@ -52,7 +58,9 @@ exports[`renders with yValues 1`] = `
     transform="translate(10, 10)"
   >
     <g>
-      <g>
+      <g
+        key="0"
+      >
         <rect
           className="bar-chart-bar"
           height={10}
@@ -70,7 +78,9 @@ exports[`renders with yValues 1`] = `
           100.0
         </text>
       </g>
-      <g>
+      <g
+        key="1"
+      >
         <rect
           className="bar-chart-bar"
           height={10}
@@ -88,7 +98,9 @@ exports[`renders with yValues 1`] = `
           75.0
         </text>
       </g>
-      <g>
+      <g
+        key="2"
+      >
         <rect
           className="bar-chart-bar"
           height={10}
@@ -121,7 +133,9 @@ exports[`renders with yValues and yTicks 1`] = `
     transform="translate(10, 10)"
   >
     <g>
-      <g>
+      <g
+        key="0"
+      >
         <rect
           className="bar-chart-bar"
           height={10}
@@ -148,7 +162,9 @@ exports[`renders with yValues and yTicks 1`] = `
           a
         </text>
       </g>
-      <g>
+      <g
+        key="1"
+      >
         <rect
           className="bar-chart-bar"
           height={10}
@@ -175,7 +191,9 @@ exports[`renders with yValues and yTicks 1`] = `
           b
         </text>
       </g>
-      <g>
+      <g
+        key="2"
+      >
         <rect
           className="bar-chart-bar"
           height={10}
@@ -217,7 +235,9 @@ exports[`renders with yValues, yTicks and yTooltips 1`] = `
     transform="translate(10, 10)"
   >
     <g>
-      <g>
+      <g
+        key="0"
+      >
         <rect
           className="bar-chart-bar"
           height={10}
@@ -226,6 +246,7 @@ exports[`renders with yValues, yTicks and yTooltips 1`] = `
           y={10}
         />
         <Tooltip
+          key="0"
           overlay="a - 100"
           placement="top"
         >
@@ -249,7 +270,9 @@ exports[`renders with yValues, yTicks and yTooltips 1`] = `
           a
         </text>
       </g>
-      <g>
+      <g
+        key="1"
+      >
         <rect
           className="bar-chart-bar"
           height={10}
@@ -258,6 +281,7 @@ exports[`renders with yValues, yTicks and yTooltips 1`] = `
           y={28}
         />
         <Tooltip
+          key="1"
           overlay="b - 75"
           placement="top"
         >
@@ -281,7 +305,9 @@ exports[`renders with yValues, yTicks and yTooltips 1`] = `
           b
         </text>
       </g>
-      <g>
+      <g
+        key="2"
+      >
         <rect
           className="bar-chart-bar"
           height={10}
@@ -290,6 +316,7 @@ exports[`renders with yValues, yTicks and yTooltips 1`] = `
           y={46}
         />
         <Tooltip
+          key="2"
           overlay="c - 150"
           placement="top"
         >

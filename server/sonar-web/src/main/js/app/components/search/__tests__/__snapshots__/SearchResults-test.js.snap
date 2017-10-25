@@ -6,17 +6,23 @@ exports[`renders "Show More" link 1`] = `
 >
   <li
     className="dropdown-header"
+    key="header-TRK"
   >
     qualifiers.TRK
   </li>
-  <span>
+  <span
+    key="foo"
+  >
     foo
   </span>
-  <span>
+  <span
+    key="bar"
+  >
     bar
   </span>
   <SearchShowMore
     allowMore={true}
+    key="more-TRK"
     loadingMore={null}
     onMoreClick={[Function]}
     onSelect={[Function]}
@@ -25,16 +31,22 @@ exports[`renders "Show More" link 1`] = `
   />
   <li
     className="divider"
+    key="divider-BRC"
   />
   <li
     className="dropdown-header"
+    key="header-BRC"
   >
     qualifiers.BRC
   </li>
-  <span>
+  <span
+    key="qwe"
+  >
     qwe
   </span>
-  <span>
+  <span
+    key="qux"
+  >
     qux
   </span>
 </ul>
@@ -46,38 +58,53 @@ exports[`renders different components and dividers between them 1`] = `
 >
   <li
     className="dropdown-header"
+    key="header-TRK"
   >
     qualifiers.TRK
   </li>
-  <span>
+  <span
+    key="foo"
+  >
     foo
   </span>
-  <span>
+  <span
+    key="bar"
+  >
     bar
   </span>
   <li
     className="divider"
+    key="divider-BRC"
   />
   <li
     className="dropdown-header"
+    key="header-BRC"
   >
     qualifiers.BRC
   </li>
-  <span>
+  <span
+    key="qwe"
+  >
     qwe
   </span>
-  <span>
+  <span
+    key="qux"
+  >
     qux
   </span>
   <li
     className="divider"
+    key="divider-FIL"
   />
   <li
     className="dropdown-header"
+    key="header-FIL"
   >
     qualifiers.FIL
   </li>
-  <span>
+  <span
+    key="zux"
+  >
     zux
   </span>
 </ul>

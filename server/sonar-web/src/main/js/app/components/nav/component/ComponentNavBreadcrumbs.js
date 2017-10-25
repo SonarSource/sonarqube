@@ -53,11 +53,11 @@ class ComponentNavBreadcrumbs extends React.PureComponent {
       return (
         <span key={item.key}>
           {!displayOrganization &&
-          index === 0 && (
-            <span className="navbar-context-title-qualifier little-spacer-right">
-              <QualifierIcon qualifier={lastItem.qualifier} />
-            </span>
-          )}
+            index === 0 && (
+              <span className="navbar-context-title-qualifier little-spacer-right">
+                <QualifierIcon qualifier={lastItem.qualifier} />
+              </span>
+            )}
           <Link
             title={item.name}
             to={{ pathname: '/dashboard', query: { id: item.key } }}

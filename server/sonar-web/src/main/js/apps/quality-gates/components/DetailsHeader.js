@@ -59,11 +59,9 @@ export default class DetailsHeader extends React.PureComponent {
                     {translate('copy')}
                   </button>
                   <button id="quality-gate-toggle-default" onClick={this.handleSetAsDefaultClick}>
-                    {qualityGate.isDefault ? (
-                      translate('unset_as_default')
-                    ) : (
-                      translate('set_as_default')
-                    )}
+                    {qualityGate.isDefault
+                      ? translate('unset_as_default')
+                      : translate('set_as_default')}
                   </button>
                   <button
                     id="quality-gate-delete"

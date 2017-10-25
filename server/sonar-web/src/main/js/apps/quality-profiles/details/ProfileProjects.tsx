@@ -130,14 +130,14 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
     return (
       <div className="boxed-group quality-profile-projects">
         {profile.actions &&
-        profile.actions.edit &&
-        !profile.isDefault && (
-          <div className="boxed-group-actions">
-            <button className="js-change-projects" onClick={this.handleChangeClick}>
-              {translate('quality_profiles.change_projects')}
-            </button>
-          </div>
-        )}
+          profile.actions.edit &&
+          !profile.isDefault && (
+            <div className="boxed-group-actions">
+              <button className="js-change-projects" onClick={this.handleChangeClick}>
+                {translate('quality_profiles.change_projects')}
+              </button>
+            </div>
+          )}
 
         <header className="boxed-group-header">
           <h2>{translate('projects')}</h2>

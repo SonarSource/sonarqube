@@ -175,19 +175,19 @@ export default class PreviewGraph extends React.PureComponent {
               updateTooltip={this.updateTooltip}
             />
             {selectedDate != null &&
-            tooltipXPos != null &&
-            tooltipIdx != null && (
-              <PreviewGraphTooltips
-                formatValue={this.formatValue}
-                graph={graph}
-                graphWidth={width}
-                metrics={this.props.metrics}
-                selectedDate={selectedDate}
-                series={series}
-                tooltipIdx={tooltipIdx}
-                tooltipPos={tooltipXPos}
-              />
-            )}
+              tooltipXPos != null &&
+              tooltipIdx != null && (
+                <PreviewGraphTooltips
+                  formatValue={this.formatValue}
+                  graph={graph}
+                  graphWidth={width}
+                  metrics={this.props.metrics}
+                  selectedDate={selectedDate}
+                  series={series}
+                  tooltipIdx={tooltipIdx}
+                  tooltipPos={tooltipXPos}
+                />
+              )}
           </div>
         )}
       </AutoSizer>

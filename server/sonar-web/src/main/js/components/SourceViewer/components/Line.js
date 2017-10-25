@@ -137,13 +137,13 @@ export default class Line extends React.PureComponent {
         ))}
 
         {this.props.displayIssues &&
-        !this.props.displayAllIssues && (
-          <LineIssuesIndicator
-            issues={this.props.issues}
-            line={line}
-            onClick={this.handleIssuesIndicatorClick}
-          />
-        )}
+          !this.props.displayAllIssues && (
+            <LineIssuesIndicator
+              issues={this.props.issues}
+              line={line}
+              onClick={this.handleIssuesIndicatorClick}
+            />
+          )}
 
         <LineCode
           branch={this.props.branch}

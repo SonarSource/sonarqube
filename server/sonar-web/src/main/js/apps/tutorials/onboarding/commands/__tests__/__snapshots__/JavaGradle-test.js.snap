@@ -17,8 +17,8 @@ exports[`renders correctly 1`] = `
   />
   <Command
     command="plugins {
-    id \\"org.sonarqube\\" version \\"2.5\\"
-  }"
+  id \\"org.sonarqube\\" version \\"2.5\\"
+}"
   />
   <p
     className="spacer-top spacer-bottom markdown"
@@ -71,8 +71,8 @@ exports[`renders correctly 2`] = `
   />
   <Command
     command="plugins {
-    id \\"org.sonarqube\\" version \\"2.5\\"
-  }"
+  id \\"org.sonarqube\\" version \\"2.5\\"
+}"
   />
   <p
     className="spacer-top spacer-bottom markdown"

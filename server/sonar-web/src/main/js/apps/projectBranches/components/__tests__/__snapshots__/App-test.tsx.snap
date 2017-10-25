@@ -33,9 +33,9 @@ exports[`renders sorted list of branches 1`] = `
               onlyActiveOnIndex={false}
               style={Object {}}
               to="/admin/settings"
-          >
+            >
               settings.page
-          </Link>,
+            </Link>,
           }
         }
       />
@@ -75,6 +75,7 @@ exports[`renders sorted list of branches 1`] = `
           }
         }
         component="foo"
+        key="master"
         onChange={[Function]}
       />
       <BranchRow
@@ -87,6 +88,7 @@ exports[`renders sorted list of branches 1`] = `
           }
         }
         component="foo"
+        key="branch-1.0"
         onChange={[Function]}
       />
       <BranchRow
@@ -98,6 +100,7 @@ exports[`renders sorted list of branches 1`] = `
           }
         }
         component="foo"
+        key="branch-1.0"
         onChange={[Function]}
       />
     </tbody>

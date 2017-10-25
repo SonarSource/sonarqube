@@ -9,11 +9,15 @@ exports[`handles unknown languages 1`] = `
   <Tooltip
     overlay={
       <span>
-        <span>
+        <span
+          key="cpp"
+        >
           cpp
           <br />
         </span>
-        <span>
+        <span
+          key="Java"
+        >
           Java
           <br />
         </span>
@@ -35,11 +39,15 @@ exports[`handles unknown languages 2`] = `
   <Tooltip
     overlay={
       <span>
-        <span>
+        <span
+          key="unknown"
+        >
           unknown
           <br />
         </span>
-        <span>
+        <span
+          key="Java"
+        >
           Java
           <br />
         </span>
@@ -61,11 +69,15 @@ exports[`renders 1`] = `
   <Tooltip
     overlay={
       <span>
-        <span>
+        <span
+          key="Java"
+        >
           Java
           <br />
         </span>
-        <span>
+        <span
+          key="JavaScript"
+        >
           JavaScript
           <br />
         </span>
@@ -87,11 +99,15 @@ exports[`sorts languages 1`] = `
   <Tooltip
     overlay={
       <span>
-        <span>
+        <span
+          key="JavaScript"
+        >
           JavaScript
           <br />
         </span>
-        <span>
+        <span
+          key="Java"
+        >
           Java
           <br />
         </span>

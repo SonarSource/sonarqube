@@ -8,7 +8,9 @@ exports[`should not render a title 1`] = `
     className="data zebra"
   >
     <tbody>
-      <tr>
+      <tr
+        key="foo"
+      >
         <td
           className="thin"
         >
@@ -50,7 +52,9 @@ exports[`should render correctly 1`] = `
     id="foo"
   >
     <tbody>
-      <tr>
+      <tr
+        key="foo"
+      >
         <td
           className="thin"
         >
@@ -73,7 +77,9 @@ exports[`should render correctly 1`] = `
           />
         </td>
       </tr>
-      <tr>
+      <tr
+        key="bar"
+      >
         <td
           className="thin"
         >
@@ -96,7 +102,9 @@ exports[`should render correctly 1`] = `
           />
         </td>
       </tr>
-      <tr>
+      <tr
+        key="baz"
+      >
         <td
           className="thin"
         >

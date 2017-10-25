@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Modal from 'react-modal';
+import * as Modal from 'react-modal';
 import SystemUpgradeItem from './SystemUpgradeItem';
 import { SystemUpgrade } from '../../../../api/system';
 import { translate } from '../../../../helpers/l10n';

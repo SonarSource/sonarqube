@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Modal from 'react-modal';
+import * as Modal from 'react-modal';
 import { restoreQualityProfile } from '../../../api/quality-profiles';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
@@ -102,23 +102,25 @@ export default class RestoreProfileForm extends React.PureComponent<Props, State
           </div>
 
           <div className="modal-body">
-            {profile != null && ruleSuccesses != null ? ruleFailures ? (
-              <div className="alert alert-warning">
-                {translateWithParameters(
-                  'quality_profiles.restore_profile.warning',
-                  profile.name,
-                  ruleSuccesses,
-                  ruleFailures
-                )}
-              </div>
-            ) : (
-              <div className="alert alert-success">
-                {translateWithParameters(
-                  'quality_profiles.restore_profile.success',
-                  profile.name,
-                  ruleSuccesses
-                )}
-              </div>
+            {profile != null && ruleSuccesses != null ? (
+              ruleFailures ? (
+                <div className="alert alert-warning">
+                  {translateWithParameters(
+                    'quality_profiles.restore_profile.warning',
+                    profile.name,
+                    ruleSuccesses,
+                    ruleFailures
+                  )}
+                </div>
+              ) : (
+                <div className="alert alert-success">
+                  {translateWithParameters(
+                    'quality_profiles.restore_profile.success',
+                    profile.name,
+                    ruleSuccesses
+                  )}
+                </div>
+              )
             ) : (
               <div className="modal-field">
                 <label htmlFor="restore-profile-backup">
