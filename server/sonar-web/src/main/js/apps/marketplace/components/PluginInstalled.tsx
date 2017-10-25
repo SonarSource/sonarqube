@@ -24,12 +24,12 @@ import PluginOrganization from './PluginOrganization';
 import PluginStatus from './PluginStatus';
 import PluginUpdates from './PluginUpdates';
 import PluginUrls from './PluginUrls';
-import { PluginInstalled } from '../../../api/plugins';
+import { PluginInstalled as IPluginInstalled } from '../../../api/plugins';
 import { translate } from '../../../helpers/l10n';
 import { Query } from '../utils';
 
 interface Props {
-  plugin: PluginInstalled;
+  plugin: IPluginInstalled;
   readOnly: boolean;
   refreshPending: () => void;
   status?: string;

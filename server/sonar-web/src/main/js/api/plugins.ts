@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post } from '../helpers/request';
 import { findLastIndex } from 'lodash';
+import { getJSON, post } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface Plugin {
