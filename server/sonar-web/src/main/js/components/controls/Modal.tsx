@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2016 SonarSource SA
+ * Copyright (C) 2009-2017 SonarSource SA
  * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,27 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SettingForm from './SettingForm';
-import { translate } from '../../../helpers/l10n';
-import { SettingValue } from '../../../api/settings';
-import Modal from '../../../components/controls/Modal';
+import * as ReactModal from 'react-modal';
+import * as classNames from 'classnames';
 
-interface Props {
-  onChange: () => void;
-  onClose: () => void;
-  project: string;
-  setting: SettingValue;
-}
+// white-list only some props
+type AllowedProps = 'contentLabel' | 'onAfterOpen' | 'onRequestClose';
+type Props = Pick<ReactModal.Props, AllowedProps> & { medium?: boolean; large?: boolean };
 
-export default function LongBranchesPatternForm(props: Props) {
-  const header = translate('branches.detection_of_long_living_branches');
-
+export default function Modal(props: Props) {
   return (
-    <Modal contentLabel={header} onRequestClose={props.onClose}>
-      <header className="modal-head">
-        <h2>{header}</h2>
-      </header>
-      <SettingForm {...props} />
-    </Modal>
+    <ReactModal
+      className={classNames('modal', { 'modal-medium': props.medium, 'modal-large': props.large })}
+      isOpen={true}
+      overlayClassName="modal-overlay"
+      {...props}
+    />
   );
 }

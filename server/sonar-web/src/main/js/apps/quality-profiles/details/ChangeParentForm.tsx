@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as Modal from 'react-modal';
 import Select from 'react-select';
 import { sortBy } from 'lodash';
 import { changeProfileParent } from '../../../api/quality-profiles';
+import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
 
@@ -100,10 +100,7 @@ export default class ChangeParentForm extends React.PureComponent<Props, State> 
 
     return (
       <Modal
-        isOpen={true}
         contentLabel={translate('quality_profiles.change_parent')}
-        className="modal"
-        overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
         <form id="change-profile-parent-form" onSubmit={this.handleFormSubmit}>
           <div className="modal-head">

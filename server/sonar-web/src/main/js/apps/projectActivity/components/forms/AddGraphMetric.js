@@ -20,8 +20,8 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import Modal from 'react-modal';
 import Select from 'react-select';
+import Modal from '../../../../components/controls/Modal';
 import Tooltip from '../../../../components/controls/Tooltip';
 import { isDiffMetric } from '../../../../helpers/measures';
 import {
@@ -103,12 +103,7 @@ export default class AddGraphMetric extends React.PureComponent {
   renderModal() {
     const { metricsTypeFilter } = this.props;
     return (
-      <Modal
-        isOpen={true}
-        contentLabel="graph metric add"
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.closeForm}>
+      <Modal contentLabel="graph metric add" onRequestClose={this.closeForm}>
         <header className="modal-head">
           <h2>{translate('project_activity.graphs.custom.add_metric')}</h2>
         </header>

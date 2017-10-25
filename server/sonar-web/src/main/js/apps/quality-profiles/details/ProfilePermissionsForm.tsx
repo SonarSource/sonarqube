@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as Modal from 'react-modal';
 import ProfilePermissionsFormSelect from './ProfilePermissionsFormSelect';
 import {
   searchUsers,
@@ -27,6 +26,7 @@ import {
   addGroup,
   SearchUsersGroupsParameters
 } from '../../../api/quality-profiles';
+import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
 import { User, Group } from './ProfilePermissions';
 
@@ -116,12 +116,7 @@ export default class ProfilePermissionsForm extends React.PureComponent<Props, S
     const header = translate('quality_profiles.grant_permissions_to_user_or_group');
     const submitDisabled = !this.state.selected || this.state.submitting;
     return (
-      <Modal
-        isOpen={true}
-        contentLabel={header}
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.props.onClose}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
         <header className="modal-head">
           <h2>{header}</h2>
         </header>

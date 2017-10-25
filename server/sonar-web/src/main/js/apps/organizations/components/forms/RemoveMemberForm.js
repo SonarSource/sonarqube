@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import Modal from 'react-modal';
+import Modal from '../../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 /*:: import type { Member } from '../../../../store/organizationsMembers/actions'; */
 /*:: import type { Organization } from '../../../../store/organizations/duck'; */
@@ -62,12 +62,7 @@ export default class RemoveMemberForm extends React.PureComponent {
 
   renderModal() {
     return (
-      <Modal
-        isOpen={true}
-        contentLabel="modal form"
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.closeForm}>
+      <Modal contentLabel="modal form" onRequestClose={this.closeForm}>
         <header className="modal-head">
           <h2>{translate('users.remove')}</h2>
         </header>

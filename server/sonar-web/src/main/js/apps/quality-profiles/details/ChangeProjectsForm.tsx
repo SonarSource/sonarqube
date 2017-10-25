@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as Modal from 'react-modal';
 import * as escapeHtml from 'escape-html';
+import Modal from '../../../components/controls/Modal';
 import SelectList from '../../../components/SelectList';
 import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
@@ -74,11 +74,8 @@ export default class ChangeProjectsForm extends React.PureComponent<Props> {
 
     return (
       <Modal
-        isOpen={true}
         contentLabel={header}
-        className="modal"
         onAfterOpen={this.renderSelectList}
-        overlayClassName="modal-overlay"
         onRequestClose={this.props.onClose}>
         <div className="modal-head">
           <h2>{header}</h2>

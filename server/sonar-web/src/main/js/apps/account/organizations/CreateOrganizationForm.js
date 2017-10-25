@@ -19,10 +19,10 @@
  */
 // @flow
 import React from 'react';
-import Modal from 'react-modal';
 import { debounce } from 'lodash';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
+import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
 import { createOrganization } from '../../organizations/actions';
 
@@ -119,12 +119,7 @@ class CreateOrganizationForm extends React.PureComponent {
 
   render() {
     return (
-      <Modal
-        isOpen={true}
-        contentLabel="modal form"
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.closeForm}>
+      <Modal contentLabel="modal form" onRequestClose={this.closeForm}>
         <header className="modal-head">
           <h2>{translate('my_account.create_organization')}</h2>
         </header>

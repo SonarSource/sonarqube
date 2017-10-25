@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as Modal from 'react-modal';
 import { copyProfile } from '../../../api/quality-profiles';
+import Modal from '../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Profile } from '../types';
 
@@ -86,12 +86,7 @@ export default class CopyProfileForm extends React.PureComponent<Props, State> {
       this.state.loading || !this.state.name || this.state.name === profile.name;
 
     return (
-      <Modal
-        isOpen={true}
-        contentLabel={header}
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.props.onClose}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
         <form id="copy-profile-form" onSubmit={this.handleFormSubmit}>
           <div className="modal-head">
             <h2>{header}</h2>

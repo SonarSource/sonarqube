@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import Modal from 'react-modal';
+import Modal from '../../../../components/controls/Modal';
 import { translate } from '../../../../helpers/l10n';
 /*:: import type { Analysis } from '../../types'; */
 
@@ -89,12 +89,7 @@ export default class RemoveAnalysisForm extends React.PureComponent {
 
   renderModal() {
     return (
-      <Modal
-        isOpen={true}
-        contentLabel="modal form"
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.closeForm}>
+      <Modal contentLabel="modal form" onRequestClose={this.closeForm}>
         <header className="modal-head">
           <h2>{translate('project_activity.delete_analysis')}</h2>
         </header>

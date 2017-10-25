@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as Modal from 'react-modal';
 import { Link } from 'react-router';
 import { FormattedMessage } from 'react-intl';
 import { Organization } from '../../app/types';
@@ -27,6 +26,7 @@ import VisibilitySelector from '../../components/common/VisibilitySelector';
 import { createProject } from '../../api/components';
 import { translate } from '../../helpers/l10n';
 import { getProjectUrl } from '../../helpers/urls';
+import Modal from '../../components/controls/Modal';
 
 interface Props {
   onClose: () => void;
@@ -131,12 +131,7 @@ export default class CreateProjectForm extends React.PureComponent<Props, State>
     const { createdProject } = this.state;
 
     return (
-      <Modal
-        isOpen={true}
-        contentLabel="modal form"
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.props.onClose}>
+      <Modal contentLabel="modal form" onRequestClose={this.props.onClose}>
         {createdProject ? (
           <div>
             <header className="modal-head">
