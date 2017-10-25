@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON, post, RequestData } from '../helpers/request';
+import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface IdentityProvider {
   backgroundColor: string;
@@ -62,6 +63,6 @@ export function searchUsers(query: string, pageSize?: number): Promise<any> {
   return getJSON('/api/users/search', data);
 }
 
-export function skipOnboarding(): Promise<void> {
-  return post('/api/users/skip_onboarding_tutorial');
+export function skipOnboarding(): Promise<void | Response> {
+  return post('/api/users/skip_onboarding_tutorial').catch(throwGlobalError);
 }
