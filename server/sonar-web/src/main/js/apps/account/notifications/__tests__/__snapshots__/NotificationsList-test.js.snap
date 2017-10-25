@@ -2,12 +2,15 @@
 
 exports[`renders project-specific labels 1`] = `
 <tbody>
-  <tr>
+  <tr
+    key="type1"
+  >
     <td>
       notification.dispatcher.type1.project
     </td>
     <td
       className="text-center"
+      key="channel1"
     >
       <Checkbox
         checked={true}
@@ -18,6 +21,7 @@ exports[`renders project-specific labels 1`] = `
     </td>
     <td
       className="text-center"
+      key="channel2"
     >
       <Checkbox
         checked={false}
@@ -27,12 +31,15 @@ exports[`renders project-specific labels 1`] = `
       />
     </td>
   </tr>
-  <tr>
+  <tr
+    key="type2"
+  >
     <td>
       notification.dispatcher.type2.project
     </td>
     <td
       className="text-center"
+      key="channel1"
     >
       <Checkbox
         checked={true}
@@ -43,6 +50,7 @@ exports[`renders project-specific labels 1`] = `
     </td>
     <td
       className="text-center"
+      key="channel2"
     >
       <Checkbox
         checked={true}
@@ -57,12 +65,15 @@ exports[`renders project-specific labels 1`] = `
 
 exports[`should match snapshot 1`] = `
 <tbody>
-  <tr>
+  <tr
+    key="type1"
+  >
     <td>
       notification.dispatcher.type1
     </td>
     <td
       className="text-center"
+      key="channel1"
     >
       <Checkbox
         checked={true}
@@ -73,6 +84,7 @@ exports[`should match snapshot 1`] = `
     </td>
     <td
       className="text-center"
+      key="channel2"
     >
       <Checkbox
         checked={false}
@@ -82,12 +94,15 @@ exports[`should match snapshot 1`] = `
       />
     </td>
   </tr>
-  <tr>
+  <tr
+    key="type2"
+  >
     <td>
       notification.dispatcher.type2
     </td>
     <td
       className="text-center"
+      key="channel1"
     >
       <Checkbox
         checked={true}
@@ -98,6 +113,7 @@ exports[`should match snapshot 1`] = `
     </td>
     <td
       className="text-center"
+      key="channel2"
     >
       <Checkbox
         checked={true}

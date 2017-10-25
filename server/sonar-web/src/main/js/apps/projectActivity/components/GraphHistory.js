@@ -107,19 +107,19 @@ export default class GraphHistory extends React.PureComponent {
                   updateZoom={this.props.updateGraphZoom}
                 />
                 {selectedDate != null &&
-                tooltipXPos != null && (
-                  <GraphsTooltips
-                    events={this.props.events}
-                    formatValue={this.formatTooltipValue}
-                    graph={graph}
-                    graphWidth={width}
-                    measuresHistory={this.props.measuresHistory}
-                    selectedDate={selectedDate}
-                    series={series}
-                    tooltipIdx={tooltipIdx}
-                    tooltipPos={tooltipXPos}
-                  />
-                )}
+                  tooltipXPos != null && (
+                    <GraphsTooltips
+                      events={this.props.events}
+                      formatValue={this.formatTooltipValue}
+                      graph={graph}
+                      graphWidth={width}
+                      measuresHistory={this.props.measuresHistory}
+                      selectedDate={selectedDate}
+                      series={series}
+                      tooltipIdx={tooltipIdx}
+                      tooltipPos={tooltipXPos}
+                    />
+                  )}
               </div>
             )}
           </AutoSizer>

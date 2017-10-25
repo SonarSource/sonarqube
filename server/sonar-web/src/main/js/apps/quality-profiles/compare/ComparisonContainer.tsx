@@ -126,21 +126,21 @@ export default class ComparisonContainer extends React.PureComponent<Props, Stat
         </header>
 
         {left != null &&
-        inLeft != null &&
-        right != null &&
-        inRight != null &&
-        modified != null && (
-          <div className="spacer-top">
-            <ComparisonResults
-              left={left}
-              right={right}
-              inLeft={inLeft}
-              inRight={inRight}
-              modified={modified}
-              organization={this.props.organization}
-            />
-          </div>
-        )}
+          inLeft != null &&
+          right != null &&
+          inRight != null &&
+          modified != null && (
+            <div className="spacer-top">
+              <ComparisonResults
+                left={left}
+                right={right}
+                inLeft={inLeft}
+                inRight={inRight}
+                modified={modified}
+                organization={this.props.organization}
+              />
+            </div>
+          )}
       </div>
     );
   }

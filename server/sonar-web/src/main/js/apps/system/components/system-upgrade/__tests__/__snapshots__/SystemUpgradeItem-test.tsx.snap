@@ -13,7 +13,7 @@ exports[`should display correctly 1`] = `
           "version": <b>
             SonarQube 
             5.6.7
-        </b>,
+          </b>,
         }
       }
     />

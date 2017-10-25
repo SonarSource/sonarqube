@@ -3,6 +3,7 @@
 exports[`should render correctly 1`] = `
 <tr
   className="project-activity-graph-tooltip-line"
+  key="code_smells"
 >
   <td
     className="thin"

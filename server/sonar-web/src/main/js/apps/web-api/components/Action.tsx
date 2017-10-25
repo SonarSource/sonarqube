@@ -169,16 +169,16 @@ export default class Action extends React.PureComponent<Props, State> {
         {this.renderTabs()}
 
         {showParams &&
-        action.params && (
-          <Params
-            params={action.params}
-            showDeprecated={this.props.showDeprecated}
-            showInternal={this.props.showInternal}
-          />
-        )}
+          action.params && (
+            <Params
+              params={action.params}
+              showDeprecated={this.props.showDeprecated}
+              showInternal={this.props.showInternal}
+            />
+          )}
 
         {showResponse &&
-        action.hasResponseExample && <ResponseExample domain={domain} action={action} />}
+          action.hasResponseExample && <ResponseExample domain={domain} action={action} />}
 
         {showChangelog && <ActionChangelog changelog={action.changelog} />}
       </div>

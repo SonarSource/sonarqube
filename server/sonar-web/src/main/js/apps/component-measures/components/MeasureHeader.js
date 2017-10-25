@@ -80,27 +80,27 @@ export default function MeasureHeader(props /*: Props*/) {
         </div>
       </div>
       {secondaryMeasure &&
-      secondaryMeasure.metric.key === 'ncloc_language_distribution' && (
-        <div className="measure-details-secondary">
-          <LanguageDistributionContainer
-            alignTicks={true}
-            distribution={secondaryMeasure.value}
-            width={260}
-          />
-        </div>
-      )}
+        secondaryMeasure.metric.key === 'ncloc_language_distribution' && (
+          <div className="measure-details-secondary">
+            <LanguageDistributionContainer
+              alignTicks={true}
+              distribution={secondaryMeasure.value}
+              width={260}
+            />
+          </div>
+        )}
       {secondaryMeasure &&
-      secondaryMeasure.metric.key === 'function_complexity_distribution' && (
-        <div className="measure-details-secondary">
-          <ComplexityDistribution distribution={secondaryMeasure.value} of="function" />
-        </div>
-      )}
+        secondaryMeasure.metric.key === 'function_complexity_distribution' && (
+          <div className="measure-details-secondary">
+            <ComplexityDistribution distribution={secondaryMeasure.value} of="function" />
+          </div>
+        )}
       {secondaryMeasure &&
-      secondaryMeasure.metric.key === 'file_complexity_distribution' && (
-        <div className="measure-details-secondary">
-          <ComplexityDistribution distribution={secondaryMeasure.value} of="file" />
-        </div>
-      )}
+        secondaryMeasure.metric.key === 'file_complexity_distribution' && (
+          <div className="measure-details-secondary">
+            <ComplexityDistribution distribution={secondaryMeasure.value} of="file" />
+          </div>
+        )}
     </div>
   );
 }

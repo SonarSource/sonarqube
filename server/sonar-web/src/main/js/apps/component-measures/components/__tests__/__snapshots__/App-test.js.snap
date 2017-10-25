@@ -6,6 +6,7 @@ exports[`should render correctly 1`] = `
   id="component-measures"
 >
   <HelmetWrapper
+    defer={true}
     encodeSpecialCharacters={true}
     title="layout.measures"
   />

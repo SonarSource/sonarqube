@@ -45,6 +45,7 @@ exports[`renders 2`] = `
       className="big-spacer-top"
     >
       <ProfilePermissionsUser
+        key="luke"
         onDelete={[Function]}
         profile={
           Object {
@@ -65,6 +66,7 @@ exports[`renders 2`] = `
             "name": "Lambda",
           }
         }
+        key="Lambda"
         onDelete={[Function]}
         profile={
           Object {

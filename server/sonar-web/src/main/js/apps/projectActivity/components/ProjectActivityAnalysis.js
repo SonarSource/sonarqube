@@ -105,7 +105,7 @@ export default class ProjectActivityAnalysis extends React.PureComponent {
                   </li>
                 )}
                 {(canAddVersion || canAddEvent) &&
-                canDeleteAnalyses && <li role="separator" className="divider" />}
+                  canDeleteAnalyses && <li role="separator" className="divider" />}
                 {canDeleteAnalyses && (
                   <li>
                     <RemoveAnalysisForm

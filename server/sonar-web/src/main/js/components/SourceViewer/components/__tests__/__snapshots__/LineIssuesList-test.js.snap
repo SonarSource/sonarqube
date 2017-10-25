@@ -12,6 +12,7 @@ exports[`render issues list 1`] = `
         "key": "foo",
       }
     }
+    key="foo"
     onClick={[Function]}
     onPopupToggle={[Function]}
     openPopup={null}
@@ -25,6 +26,7 @@ exports[`render issues list 1`] = `
         "key": "bar",
       }
     }
+    key="bar"
     onClick={[Function]}
     onPopupToggle={[Function]}
     openPopup={null}

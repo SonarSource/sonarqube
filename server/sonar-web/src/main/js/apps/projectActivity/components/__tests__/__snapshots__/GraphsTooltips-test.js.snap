@@ -61,6 +61,7 @@ exports[`should render correctly for issues graphs 1`] = `
     >
       <tbody>
         <GraphsTooltipsContentIssues
+          key="bugs"
           measuresHistory={Array []}
           name="bugs"
           style="0"
@@ -69,6 +70,7 @@ exports[`should render correctly for issues graphs 1`] = `
           value="Formated.3"
         />
         <GraphsTooltipsContentIssues
+          key="code_smells"
           measuresHistory={Array []}
           name="code_smells"
           style="1"
@@ -77,6 +79,7 @@ exports[`should render correctly for issues graphs 1`] = `
           value="Formated.18"
         />
         <GraphsTooltipsContentIssues
+          key="vulnerabilities"
           measuresHistory={Array []}
           name="vulnerabilities"
           style="2"
@@ -116,18 +119,21 @@ exports[`should render correctly for random graphs 1`] = `
     >
       <tbody>
         <GraphsTooltipsContent
+          key="bugs"
           name="bugs"
           style="0"
           translatedName="Bugs"
           value="Formated.0"
         />
         <GraphsTooltipsContent
+          key="code_smells"
           name="code_smells"
           style="1"
           translatedName="Code Smells"
           value="Formated.15"
         />
         <GraphsTooltipsContent
+          key="vulnerabilities"
           name="vulnerabilities"
           style="2"
           translatedName="Vulnerabilities"

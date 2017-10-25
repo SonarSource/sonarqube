@@ -159,7 +159,9 @@ exports[`should work with extensions 1`] = `
     <ul
       className="dropdown-menu"
     >
-      <li>
+      <li
+        key="foo"
+      >
         <Link
           onlyActiveOnIndex={false}
           style={Object {}}

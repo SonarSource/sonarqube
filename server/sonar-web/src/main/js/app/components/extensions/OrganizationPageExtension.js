@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import { connect } from 'react-redux';
-import Extension from './Extension';
+import ExtensionContainer from './ExtensionContainer';
 import ExtensionNotFound from './ExtensionNotFound';
 import { getOrganizationByKey } from '../../../store/rootReducer';
 import { fetchOrganization } from '../../../apps/organizations/actions';
@@ -55,7 +55,7 @@ class OrganizationPageExtension extends React.PureComponent {
 
     const extension = pages.find(p => p.key === `${pluginKey}/${extensionKey}`);
     return extension ? (
-      <Extension
+      <ExtensionContainer
         extension={extension}
         location={this.props.location}
         options={{ organization, refreshOrganization: this.refreshOrganization }}

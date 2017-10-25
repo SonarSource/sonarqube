@@ -4,7 +4,9 @@ exports[`accepts advanced options fields 1`] = `
 <ul
   className="radio-toggle"
 >
-  <li>
+  <li
+    key="one"
+  >
     <input
       checked={false}
       id="sample__one"
@@ -24,7 +26,9 @@ exports[`accepts advanced options fields 1`] = `
       </label>
     </Tooltip>
   </li>
-  <li>
+  <li
+    key="two"
+  >
     <input
       checked={false}
       disabled={true}
@@ -52,7 +56,9 @@ exports[`renders 1`] = `
 <ul
   className="radio-toggle"
 >
-  <li>
+  <li
+    key="one"
+  >
     <input
       checked={false}
       id="sample__one"
@@ -67,7 +73,9 @@ exports[`renders 1`] = `
       first
     </label>
   </li>
-  <li>
+  <li
+    key="two"
+  >
     <input
       checked={false}
       id="sample__two"

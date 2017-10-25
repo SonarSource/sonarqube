@@ -93,8 +93,10 @@ class Extension extends React.PureComponent {
   }
 
   stopExtension() {
-    this.stop && this.stop();
-    this.stop = null;
+    if (this.stop) {
+      this.stop();
+      this.stop = null;
+    }
   }
 
   render() {
@@ -107,10 +109,4 @@ class Extension extends React.PureComponent {
   }
 }
 
-const mapStateToProps = state => ({
-  currentUser: getCurrentUser(state)
-});
-
-const mapDispatchToProps = { onFail: addGlobalErrorMessage };
-
-export default connect(mapStateToProps, mapDispatchToProps)(injectIntl(withRouter(Extension)));
+export default injectIntl(withRouter(Extension));

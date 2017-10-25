@@ -152,13 +152,13 @@ export default class App extends React.PureComponent<Props, State> {
         </div>
 
         {subComponents !== undefined &&
-        totalSubComponents !== undefined && (
-          <WorstProjects
-            component={component.key}
-            subComponents={subComponents}
-            total={totalSubComponents}
-          />
-        )}
+          totalSubComponents !== undefined && (
+            <WorstProjects
+              component={component.key}
+              subComponents={subComponents}
+              total={totalSubComponents}
+            />
+          )}
       </div>
     );
   }
@@ -178,7 +178,7 @@ export default class App extends React.PureComponent<Props, State> {
 
           <aside className="page-sidebar-fixed">
             {!this.isEmpty() &&
-            !this.isNotComputed() && <Summary component={component} measures={measures!} />}
+              !this.isNotComputed() && <Summary component={component} measures={measures!} />}
             <Activity component={component.key} />
             <Report component={component} />
           </aside>

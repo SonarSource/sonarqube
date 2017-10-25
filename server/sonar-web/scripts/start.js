@@ -72,7 +72,6 @@ function setupCompiler(host, port, protocol) {
         console.log(message);
         console.log();
       });
-      return;
     }
   });
 
@@ -81,6 +80,14 @@ function setupCompiler(host, port, protocol) {
 
 function runDevServer(compiler, host, port, protocol) {
   const devServer = new WebpackDevServer(compiler, {
+    before(app) {
+      app.use(errorOverlayMiddleware());
+      app.get('/api/l10n/index', (req, res) => {
+        getMessages()
+          .then(messages => res.json({ effectiveLocale: 'en', messages }))
+          .catch(() => res.status(500));
+      });
+    },
     compress: true,
     clientLogLevel: 'none',
     contentBase: paths.appPublic,
@@ -102,18 +109,13 @@ function runDevServer(compiler, host, port, protocol) {
       '/fonts': proxy,
       '/images': proxy,
       '/static': proxy
-    },
-    setup(app) {
-      app.use(errorOverlayMiddleware());
-      app.get('/api/l10n/index', (req, res) => {
-        getMessages().then(messages => res.json({ effectiveLocale: 'en', messages }));
-      });
     }
   });
 
   devServer.listen(port, err => {
     if (err) {
-      return console.log(err);
+      console.log(err);
+      return;
     }
 
     clearConsole();

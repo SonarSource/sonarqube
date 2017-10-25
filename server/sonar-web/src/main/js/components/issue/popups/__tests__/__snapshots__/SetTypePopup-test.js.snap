@@ -17,6 +17,7 @@ exports[`should render tags popup correctly 1`] = `
   >
     <SelectListItem
       item="BUG"
+      key="BUG"
     >
       <IssueTypeIcon
         className="little-spacer-right"
@@ -26,6 +27,7 @@ exports[`should render tags popup correctly 1`] = `
     </SelectListItem>
     <SelectListItem
       item="VULNERABILITY"
+      key="VULNERABILITY"
     >
       <IssueTypeIcon
         className="little-spacer-right"
@@ -35,6 +37,7 @@ exports[`should render tags popup correctly 1`] = `
     </SelectListItem>
     <SelectListItem
       item="CODE_SMELL"
+      key="CODE_SMELL"
     >
       <IssueTypeIcon
         className="little-spacer-right"

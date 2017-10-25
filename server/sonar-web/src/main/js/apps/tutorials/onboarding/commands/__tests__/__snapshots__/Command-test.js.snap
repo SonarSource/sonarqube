@@ -6,11 +6,11 @@ exports[`renders correctly 1`] = `
 >
   <pre>
     foo
-    bar
+bar
   </pre>
   <button
     data-clipboard-text="foo
-  bar"
+bar"
   >
     copy
   </button>

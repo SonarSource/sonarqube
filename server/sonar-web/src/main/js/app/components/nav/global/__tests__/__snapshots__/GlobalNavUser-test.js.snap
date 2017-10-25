@@ -197,7 +197,9 @@ exports[`should render the users organizations 1`] = `
         my_organizations
       </Link>
     </li>
-    <li>
+    <li
+      key="bar"
+    >
       <OrganizationLink
         onClick={[Function]}
         organization={
@@ -215,7 +217,9 @@ exports[`should render the users organizations 1`] = `
         </span>
       </OrganizationLink>
     </li>
-    <li>
+    <li
+      key="foo"
+    >
       <OrganizationLink
         onClick={[Function]}
         organization={
@@ -233,7 +237,9 @@ exports[`should render the users organizations 1`] = `
         </span>
       </OrganizationLink>
     </li>
-    <li>
+    <li
+      key="myorg"
+    >
       <OrganizationLink
         onClick={[Function]}
         organization={

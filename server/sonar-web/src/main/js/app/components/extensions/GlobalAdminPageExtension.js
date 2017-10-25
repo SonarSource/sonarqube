@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import { connect } from 'react-redux';
-import Extension from './Extension';
+import ExtensionContainer from './ExtensionContainer';
 import ExtensionNotFound from './ExtensionNotFound';
 import { getAppState } from '../../../store/rootReducer';
 
@@ -37,7 +37,7 @@ type Props = {
 function GlobalAdminPageExtension(props /*: Props */) {
   const { extensionKey, pluginKey } = props.params;
   const extension = props.adminPages.find(p => p.key === `${pluginKey}/${extensionKey}`);
-  return extension ? <Extension extension={extension} /> : <ExtensionNotFound />;
+  return extension ? <ExtensionContainer extension={extension} /> : <ExtensionNotFound />;
 }
 
 const mapStateToProps = state => ({

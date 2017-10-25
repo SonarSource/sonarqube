@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as Select from 'react-select';
+import Select from 'react-select';
 import { some } from 'lodash';
 import { QualityGate } from '../../api/quality-gates';
 import { translate } from '../../helpers/l10n';

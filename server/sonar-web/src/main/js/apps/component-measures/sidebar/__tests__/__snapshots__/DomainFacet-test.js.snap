@@ -13,6 +13,7 @@ exports[`should display facet item list 1`] = `
       active={false}
       disabled={false}
       halfWidth={false}
+      key="Reliability"
       name={
         <span
           id="measure-overview-Reliability-name"
@@ -30,6 +31,7 @@ exports[`should display facet item list 1`] = `
     />
     <span
       className="facet search-navigator-facet facet-category"
+      key="new_code_category"
     >
       <span
         className="facet-name"
@@ -41,6 +43,7 @@ exports[`should display facet item list 1`] = `
       active={false}
       disabled={false}
       halfWidth={false}
+      key="new_bugs"
       name={
         <span
           className="big-spacer-left"
@@ -75,6 +78,7 @@ exports[`should display facet item list 1`] = `
     />
     <span
       className="facet search-navigator-facet facet-category"
+      key="overall_category"
     >
       <span
         className="facet-name"
@@ -86,6 +90,7 @@ exports[`should display facet item list 1`] = `
       active={false}
       disabled={false}
       halfWidth={false}
+      key="bugs"
       name={
         <span
           className="big-spacer-left"
@@ -140,6 +145,7 @@ exports[`should display facet item list with bugs selected 1`] = `
       active={false}
       disabled={false}
       halfWidth={false}
+      key="Reliability"
       name={
         <span
           id="measure-overview-Reliability-name"
@@ -157,6 +163,7 @@ exports[`should display facet item list with bugs selected 1`] = `
     />
     <span
       className="facet search-navigator-facet facet-category"
+      key="new_code_category"
     >
       <span
         className="facet-name"
@@ -168,6 +175,7 @@ exports[`should display facet item list with bugs selected 1`] = `
       active={false}
       disabled={false}
       halfWidth={false}
+      key="new_bugs"
       name={
         <span
           className="big-spacer-left"
@@ -202,6 +210,7 @@ exports[`should display facet item list with bugs selected 1`] = `
     />
     <span
       className="facet search-navigator-facet facet-category"
+      key="overall_category"
     >
       <span
         className="facet-name"
@@ -213,6 +222,7 @@ exports[`should display facet item list with bugs selected 1`] = `
       active={true}
       disabled={false}
       halfWidth={false}
+      key="bugs"
       name={
         <span
           className="big-spacer-left"

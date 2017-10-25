@@ -360,9 +360,9 @@ export default class App extends React.PureComponent {
             visibility={this.props.component.visibility}
           />
           {this.props.component.qualifier === 'TRK' &&
-          !canTurnToPrivate && (
-            <UpgradeOrganizationBox organization={this.props.component.organization} />
-          )}
+            !canTurnToPrivate && (
+              <UpgradeOrganizationBox organization={this.props.component.organization} />
+            )}
           {this.state.disclaimer && (
             <PublicProjectDisclaimer
               component={this.props.component}

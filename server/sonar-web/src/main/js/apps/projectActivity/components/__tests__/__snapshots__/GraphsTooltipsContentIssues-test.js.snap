@@ -3,6 +3,7 @@
 exports[`should render correctly 1`] = `
 <tr
   className="project-activity-graph-tooltip-issues-line"
+  key="bugs"
 >
   <td
     className="thin"
@@ -34,6 +35,7 @@ exports[`should render correctly 1`] = `
 exports[`should render correctly when rating data is missing 1`] = `
 <tr
   className="project-activity-graph-tooltip-issues-line"
+  key="bugs"
 >
   <td
     className="thin"
