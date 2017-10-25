@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.updateCenter;
+package org.sonarqube.tests.marketplace;
 
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.After;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.pageobjects.MarketplacePage;
+import org.sonarqube.pageobjects.Navigation;
 import util.user.UserRule;
 
 import static util.ItUtils.pluginArtifact;
-import static util.selenium.Selenese.runSelenese;
 
 /**
  * This class start its own orchestrator
@@ -37,21 +37,36 @@ public class UpdateCenterTest {
 
   @ClassRule
   public static final Orchestrator orchestrator = Orchestrator.builderEnv()
-    .setServerProperty("sonar.updatecenter.url", UpdateCenterTest.class.getResource("/updateCenter/UpdateCenterTest/update-center.properties").toString())
+    .setServerProperty("sonar.updatecenter.url", UpdateCenterTest.class.getResource("/marketplace/UpdateCenterTest/update-center.properties").toString())
     .addPlugin(pluginArtifact("sonar-fake-plugin"))
     .build();
+
   @Rule
   public UserRule userRule = UserRule.from(orchestrator);
+
+  private Navigation nav = Navigation.create(orchestrator);
 
   @After
   public void tearDown() throws Exception {
     userRule.resetUsers();
   }
 
-  @Ignore
   @Test
-  public void test_console() {
-    runSelenese(orchestrator, "/updateCenter/installed-plugins.html");
-  }
+  public void test_updatecenter_installed_plugins() {
+    MarketplacePage page = nav.logIn().submitCredentials(userRule.createAdminUser()).openMarketplace();
+    page
+      .hasPluginsCount(2)
+      .hasPluginWithText("Fake","installed")
+      .hasPluginWithText("Fake","Uninstall")
+      .hasPluginWithText("Fake","Licensed under GNU LGPL 3")
+      .hasPluginWithText("Fake","Developed by SonarSource");
 
+    page
+      .searchPlugin("fa")
+      .hasPluginsCount(1);
+
+    page
+      .uninstallPlugin("Fake")
+      .hasPendingPlugins("uninstall 1");
+  }
 }
