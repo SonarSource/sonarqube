@@ -21,6 +21,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { stringify } from 'querystring';
 import { debounce } from 'lodash';
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { omitNil } from '../../../helpers/request';
 import { Edition, getFormData, getLicensePreview } from '../../../api/marketplace';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -35,6 +36,7 @@ export interface Props {
 interface State {
   license: string;
   licenseEdition?: Edition;
+  loading: boolean;
   previewStatus?: string;
   formData?: {
     serverId?: string;
@@ -47,7 +49,7 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
 
   constructor(props: Props) {
     super(props);
-    this.state = { license: '' };
+    this.state = { license: '', loading: false };
     this.fetchLicensePreview = debounce(this.fetchLicensePreview, 100);
   }
 
@@ -60,7 +62,8 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
     this.mounted = false;
   }
 
-  fetchLicensePreview = (license: string) =>
+  fetchLicensePreview = (license: string) => {
+    this.setState({ loading: true });
     getLicensePreview({ license }).then(
       ({ previewStatus, nextEditionKey }) => {
         if (this.mounted) {
@@ -77,6 +80,7 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
         }
       }
     );
+  };
 
   fetchFormData = () => {
     getFormData().then(
@@ -85,7 +89,7 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
           this.setState({ formData });
         }
       },
-      () => {}
+      () => { }
     );
   };
 
@@ -111,13 +115,33 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
   };
 
   updateLicense = (license: string, licenseEdition?: Edition, previewStatus?: string) => {
-    this.setState({ license, licenseEdition, previewStatus });
+    this.setState({ license, licenseEdition, loading: false, previewStatus });
     this.props.updateLicense(license, previewStatus);
   };
 
+  renderAlert() {
+    const { licenseEdition, previewStatus } = this.state;
+    if (!previewStatus) {
+      return undefined;
+    }
+    return (
+      <p
+        className={classNames('alert spacer-top', {
+          'alert-warning': previewStatus === 'AUTOMATIC_INSTALL',
+          'alert-success': previewStatus === 'NO_INSTALL',
+          'alert-danger': previewStatus === 'MANUAL_INSTALL'
+        })}>
+        {translateWithParameters(
+          'marketplace.license_preview_status.' + previewStatus,
+          licenseEdition ? licenseEdition.name : translate('marketplace.commercial_edition')
+        )}
+      </p>
+    );
+  }
+
   render() {
     const { className, edition } = this.props;
-    const { license, licenseEdition, previewStatus } = this.state;
+    const { license, loading } = this.state;
 
     return (
       <div className={className}>
@@ -137,19 +161,19 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
           style={{ resize: 'none' }}
           value={license}
         />
-        {previewStatus && (
-          <p
-            className={classNames('alert spacer-top', {
-              'alert-warning': previewStatus === 'AUTOMATIC_INSTALL',
-              'alert-success': previewStatus === 'NO_INSTALL',
-              'alert-danger': previewStatus === 'MANUAL_INSTALL'
-            })}>
-            {translateWithParameters(
-              'marketplace.license_preview_status.' + previewStatus,
-              licenseEdition ? licenseEdition.name : translate('marketplace.commercial_edition')
-            )}
-          </p>
-        )}
+
+        <DeferredSpinner
+          className="spacer-top"
+          loading={loading}
+          customSpinner={
+            <p className="spacer-top">
+              <i className="spinner spacer-right text-bottom" />
+              {translate('marketplace.checking_license')}
+            </p>
+          }>
+          {this.renderAlert()}
+        </DeferredSpinner>
+
         {edition && (
           <a
             className="display-inline-block spacer-top"

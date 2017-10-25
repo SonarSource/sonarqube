@@ -51,6 +51,21 @@ exports[`should display correctly 1`] = `
     }
     value=""
   />
+  <DeferredSpinner
+    className="spacer-top"
+    customSpinner={
+      <p
+        className="spacer-top"
+      >
+        <i
+          className="spinner spacer-right text-bottom"
+        />
+        marketplace.checking_license
+      </p>
+    }
+    loading={false}
+    timeout={100}
+  />
   <a
     className="display-inline-block spacer-top"
     href="license_url"

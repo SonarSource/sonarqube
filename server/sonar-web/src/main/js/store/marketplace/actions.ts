@@ -56,7 +56,7 @@ export const setEditionStatus = (status: EditionStatus) => (dispatch: Dispatch<A
   }
   if (status.installationStatus === 'AUTOMATIC_IN_PROGRESS') {
     editionTimer = window.setTimeout(() => {
-      getEditionStatus().then(status => setEditionStatus(status)(dispatch), () => { });
+      getEditionStatus().then(status => setEditionStatus(status)(dispatch), () => {});
       editionTimer = undefined;
     }, 2000);
   }
