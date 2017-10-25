@@ -202,7 +202,7 @@ public class ProjectReactorValidatorTest {
     ProjectReactor reactor = createProjectReactor("foo", def -> def.setVersion(repeat("a", 101)));
 
     thrown.expect(MessageException.class);
-    thrown.expectMessage("\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\" is not a valid version name. " +
+    thrown.expectMessage("\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\" is not a valid version name for module \"foo\". " +
       "The maximum length for version numbers is 100 characters.");
 
     validator.validate(reactor);

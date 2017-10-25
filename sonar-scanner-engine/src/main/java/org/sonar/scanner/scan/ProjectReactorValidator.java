@@ -106,8 +106,8 @@ public class ProjectReactorValidator {
     }
     String originalVersion = moduleDef.getOriginalVersion();
     if (originalVersion != null && originalVersion.length() > 100) {
-      validationMessages.add(String.format("\"%s\" is not a valid version name. " +
-        "The maximum length for version numbers is 100 characters.", originalVersion));
+      validationMessages.add(String.format("\"%s\" is not a valid version name for module \"%s\". " +
+        "The maximum length for version numbers is 100 characters.", originalVersion, moduleDef.getKey()));
     }
   }
 
