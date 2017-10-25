@@ -202,7 +202,7 @@ export default class TreeMapView extends React.PureComponent {
           </li>
           <li className="pull-right">{this.renderLegend()}</li>
         </ul>
-        <AutoSizer>
+        <AutoSizer disableHeight={true}>
           {({ width }) => (
             <TreeMap
               items={treemapItems}
