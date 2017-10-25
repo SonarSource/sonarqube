@@ -19,6 +19,8 @@
  */
 package org.sonar.scanner.scan;
 
+import java.util.Arrays;
+import java.util.function.Consumer;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,6 +34,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.bootstrap.GlobalConfiguration;
 
+import static org.apache.commons.lang.StringUtils.repeat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -187,17 +190,33 @@ public class ProjectReactorValidatorTest {
     validator.validate(reactor);
   }
 
-  private ProjectReactor createProjectReactor(String projectKey) {
-    ProjectDefinition def = ProjectDefinition.create().setProperty(CoreProperties.PROJECT_KEY_PROPERTY, projectKey);
-    ProjectReactor reactor = new ProjectReactor(def);
-    return reactor;
+  @Test
+  public void not_fail_with_valid_version() {
+    validator.validate(createProjectReactor("foo", def -> def.setVersion("1.0")));
+    validator.validate(createProjectReactor("foo", def -> def.setVersion("2017-10-16")));
+    validator.validate(createProjectReactor("foo", def -> def.setVersion(repeat("a", 100))));
+  }
+
+  @Test
+  public void fail_with_too_long_version() {
+    ProjectReactor reactor = createProjectReactor("foo", def -> def.setVersion(repeat("a", 101)));
+
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\" is not a valid version name for module \"foo\". " +
+      "The maximum length for version numbers is 100 characters.");
+
+    validator.validate(reactor);
   }
 
   private ProjectReactor createProjectReactor(String projectKey, String branch) {
-    ProjectDefinition def = ProjectDefinition.create()
-      .setProperty(CoreProperties.PROJECT_KEY_PROPERTY, projectKey)
-      .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, branch);
-    return new ProjectReactor(def);
+    return createProjectReactor(projectKey, def -> def
+      .setProperty(CoreProperties.PROJECT_BRANCH_PROPERTY, branch));
   }
 
+  private ProjectReactor createProjectReactor(String projectKey, Consumer<ProjectDefinition>... consumers) {
+    ProjectDefinition def = ProjectDefinition.create()
+      .setProperty(CoreProperties.PROJECT_KEY_PROPERTY, projectKey);
+    Arrays.stream(consumers).forEach(c -> c.accept(def));
+    return new ProjectReactor(def);
+  }
 }

@@ -52,6 +52,7 @@ import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameter
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_NAME;
 
 public class UpdateEventAction implements ProjectAnalysesWsAction {
+  private static final int MAX_NAME_LENGTH = 100;
   private final DbClient dbClient;
   private final UserSession userSession;
 
@@ -100,6 +101,7 @@ public class UpdateEventAction implements ProjectAnalysesWsAction {
         .of(getDbEvent(dbSession, request))
         .peek(checkPermissions())
         .peek(checkModifiable())
+        .peek(checkVersionNameLength(request))
         .map(updateNameAndDescription(request))
         .peek(checkNonConflictingOtherEvents(dbSession))
         .peek(updateInDb(dbSession))
@@ -143,6 +145,16 @@ public class UpdateEventAction implements ProjectAnalysesWsAction {
             candidateEvent.getCategory(),
             candidateEvent.getAnalysisUuid()));
         });
+    };
+  }
+
+  private static Consumer<EventDto> checkVersionNameLength(UpdateEventRequest request) {
+    String name = request.getName();
+    return candidateEvent -> {
+      if (name != null && VERSION.getLabel().equals(candidateEvent.getCategory())) {
+        checkArgument(name.length() <= MAX_NAME_LENGTH,
+          "Version length (%s) is longer than the maximum authorized (%s). '%s' was provided.", name.length(), MAX_NAME_LENGTH, name);
+      }
     };
   }
 

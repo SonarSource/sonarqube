@@ -104,6 +104,11 @@ public class ProjectReactorValidator {
       validationMessages.add(String.format("\"%s\" is not a valid project or module key. "
         + "Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.", moduleDef.getKey()));
     }
+    String originalVersion = moduleDef.getOriginalVersion();
+    if (originalVersion != null && originalVersion.length() > 100) {
+      validationMessages.add(String.format("\"%s\" is not a valid version name for module \"%s\". " +
+        "The maximum length for version numbers is 100 characters.", originalVersion, moduleDef.getKey()));
+    }
   }
 
   private static void validateBranch(List<String> validationMessages, @Nullable String branch) {
