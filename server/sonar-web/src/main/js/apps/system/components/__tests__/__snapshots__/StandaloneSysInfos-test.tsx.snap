@@ -45,7 +45,7 @@ exports[`should render correctly 1`] = `
     }
   />
   <HealthCard
-    name="Search"
+    name="Search Engine"
     onClick={[Function]}
     open={false}
     sysInfoData={

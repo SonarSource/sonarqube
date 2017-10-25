@@ -64,7 +64,7 @@ exports[`should render correctly 1`] = `
           id="es-logs-link"
           target="_blank"
         >
-          Elasticsearch
+          Search Engine
         </a>
       </li>
       <li>
