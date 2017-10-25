@@ -273,10 +273,14 @@
 }
 
 .project-activity-version-badge .badge {
+  max-width: 385px;
   vertical-align: middle;
   padding: 4px 14px 4px 14px;
+  box-sizing: border-box;
   border-radius: 0 2px 2px 0;
   font-weight: bold;
   font-size: 12px;
   letter-spacing: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

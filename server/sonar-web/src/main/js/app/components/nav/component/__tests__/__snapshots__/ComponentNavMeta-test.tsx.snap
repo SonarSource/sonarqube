@@ -13,8 +13,19 @@ exports[`renders meta for long-living branch 1`] = `
       />
     </li>
     <li>
-      Version 
-      0.0.1
+      <Tooltip
+        mouseEnterDelay={0.5}
+        overlay="version 0.0.1"
+        placement="bottom"
+      >
+        <span
+          className="text-limited"
+        >
+          version
+           
+          0.0.1
+        </span>
+      </Tooltip>
     </li>
   </ul>
 </div>

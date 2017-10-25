@@ -14,11 +14,17 @@ exports[`should correctly filter analyses by category 1`] = `
     <div
       className="project-activity-version-badge first"
     >
-      <span
-        className="badge"
+      <Tooltip
+        mouseEnterDelay={0.5}
+        overlay="version 6.4"
+        placement="bottom"
       >
-        6.4
-      </span>
+        <span
+          className="badge"
+        >
+          6.4
+        </span>
+      </Tooltip>
     </div>
     <ul
       className="project-activity-days-list"
@@ -84,11 +90,17 @@ exports[`should correctly filter analyses by date range 1`] = `
     <div
       className="project-activity-version-badge first"
     >
-      <span
-        className="badge"
+      <Tooltip
+        mouseEnterDelay={0.5}
+        overlay="version 6.5-SNAPSHOT"
+        placement="bottom"
       >
-        6.5-SNAPSHOT
-      </span>
+        <span
+          className="badge"
+        >
+          6.5-SNAPSHOT
+        </span>
+      </Tooltip>
     </div>
     <ul
       className="project-activity-days-list"
@@ -154,11 +166,17 @@ exports[`should render correctly 1`] = `
     <div
       className="project-activity-version-badge first"
     >
-      <span
-        className="badge"
+      <Tooltip
+        mouseEnterDelay={0.5}
+        overlay="version 6.5-SNAPSHOT"
+        placement="bottom"
       >
-        6.5-SNAPSHOT
-      </span>
+        <span
+          className="badge"
+        >
+          6.5-SNAPSHOT
+        </span>
+      </Tooltip>
     </div>
     <ul
       className="project-activity-days-list"
@@ -230,11 +248,17 @@ exports[`should render correctly 1`] = `
     <div
       className="project-activity-version-badge"
     >
-      <span
-        className="badge"
+      <Tooltip
+        mouseEnterDelay={0.5}
+        overlay="version 6.4"
+        placement="bottom"
       >
-        6.4
-      </span>
+        <span
+          className="badge"
+        >
+          6.4
+        </span>
+      </Tooltip>
     </div>
     <ul
       className="project-activity-days-list"

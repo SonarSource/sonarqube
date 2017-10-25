@@ -21,7 +21,9 @@ import * as React from 'react';
 import BranchStatus from '../../../../components/common/BranchStatus';
 import { Branch, Component } from '../../../types';
 import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
+import Tooltip from '../../../../components/controls/Tooltip';
 import { isShortLivingBranch } from '../../../../helpers/branches';
+import { translate } from '../../../../helpers/l10n';
 
 interface Props {
   branch?: Branch;
@@ -41,7 +43,17 @@ export default function ComponentNavMeta(props: Props) {
   }
 
   if (props.component.version && !shortBranch) {
-    metaList.push(<li key="version">Version {props.component.version}</li>);
+    metaList.push(
+      <li key="version">
+        <Tooltip
+          overlay={`${translate('version')} ${props.component.version}`}
+          mouseEnterDelay={0.5}>
+          <span className="text-limited">
+            {translate('version')} {props.component.version}
+          </span>
+        </Tooltip>
+      </li>
+    );
   }
 
   return (
