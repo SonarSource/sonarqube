@@ -83,6 +83,22 @@ public class EditionPluginDownloaderTest {
     assertThat(downloadDir).isDirectory();
     assertThat(tmpDir).doesNotExist();
   }
+  
+  @Test
+  public void download_plugin_to_tmp_with_file_uri() throws IOException, URISyntaxException {
+    File plugin1 = temp.newFile("plugin1.jar");
+    File plugin2 = temp.newFile("plugin2.jar");
+
+    List<Release> releases = ImmutableList.of(createRelease("plugin1", "1.0", plugin1.toURI().toString()),
+      createRelease("plugin2", "1.0", plugin2.toURI().toString()));
+
+    when(updateCenter.findInstallablePlugins("plugins", Version.create(""))).thenReturn(releases);
+    downloader.downloadEditionPlugins(Collections.singleton("plugins"), updateCenter);
+
+    assertThat(logTester.logs()).containsOnly("Downloading plugin: plugin1", "Downloading plugin: plugin2");
+    assertThat(downloadDir).isDirectory();
+    assertThat(tmpDir).doesNotExist();
+  }
 
   @Test
   public void dont_write_download_dir_if_download_fails() throws URISyntaxException {
