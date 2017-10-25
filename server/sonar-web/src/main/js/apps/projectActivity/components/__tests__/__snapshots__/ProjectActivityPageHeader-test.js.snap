@@ -15,6 +15,7 @@ exports[`should render correctly the list of series 1`] = `
     clearRenderer={[Function]}
     clearValueText="Clear value"
     clearable={true}
+    closeOnSelect={true}
     deleteRemoves={true}
     delimiter=","
     disabled={false}
@@ -35,6 +36,8 @@ exports[`should render correctly the list of series 1`] = `
     onBlurResetsInput={true}
     onChange={[Function]}
     onCloseResetsInput={true}
+    onSelectResetsInput={true}
+    openOnClick={true}
     optionComponent={[Function]}
     options={
       Array [

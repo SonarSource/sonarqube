@@ -6,6 +6,7 @@ exports[`should render one flow 1`] = `
 >
   <ConciseIssueLocationBadge
     count={3}
+    key="0"
     onClick={[Function]}
     selected={false}
   />
@@ -18,6 +19,7 @@ exports[`should render secondary locations 1`] = `
 >
   <ConciseIssueLocationBadge
     count={3}
+    key="-1"
     selected={true}
   />
 </div>
@@ -29,16 +31,19 @@ exports[`should render several flows 1`] = `
 >
   <ConciseIssueLocationBadge
     count={3}
+    key="0"
     onClick={[Function]}
     selected={false}
   />
   <ConciseIssueLocationBadge
     count={2}
+    key="1"
     onClick={[Function]}
     selected={false}
   />
   <ConciseIssueLocationBadge
     count={3}
+    key="2"
     onClick={[Function]}
     selected={false}
   />

@@ -10,7 +10,9 @@ exports[`should correctly filter analyses by category 1`] = `
     }
   }
 >
-  <li>
+  <li
+    key="E2"
+  >
     <div
       className="project-activity-version-badge first"
     >
@@ -26,6 +28,7 @@ exports[`should correctly filter analyses by category 1`] = `
       <li
         className="project-activity-day"
         data-day="ISO.1477267200000"
+        key="1477267200000"
       >
         <div
           className="project-activity-date"
@@ -60,6 +63,7 @@ exports[`should correctly filter analyses by category 1`] = `
             deleteAnalysis={[Function]}
             deleteEvent={[Function]}
             isFirst={false}
+            key="A4"
             selected={false}
             updateSelectedDate={[Function]}
           />
@@ -80,7 +84,9 @@ exports[`should correctly filter analyses by date range 1`] = `
     }
   }
 >
-  <li>
+  <li
+    key="E1"
+  >
     <div
       className="project-activity-version-badge first"
     >
@@ -96,6 +102,7 @@ exports[`should correctly filter analyses by date range 1`] = `
       <li
         className="project-activity-day"
         data-day="ISO.1477526400000"
+        key="1477526400000"
       >
         <div
           className="project-activity-date"
@@ -130,6 +137,7 @@ exports[`should correctly filter analyses by date range 1`] = `
             deleteAnalysis={[Function]}
             deleteEvent={[Function]}
             isFirst={true}
+            key="A1"
             selected={false}
             updateSelectedDate={[Function]}
           />
@@ -150,7 +158,9 @@ exports[`should render correctly 1`] = `
     }
   }
 >
-  <li>
+  <li
+    key="E1"
+  >
     <div
       className="project-activity-version-badge first"
     >
@@ -166,6 +176,7 @@ exports[`should render correctly 1`] = `
       <li
         className="project-activity-day"
         data-day="ISO.1477526400000"
+        key="1477526400000"
       >
         <div
           className="project-activity-date"
@@ -200,6 +211,7 @@ exports[`should render correctly 1`] = `
             deleteAnalysis={[Function]}
             deleteEvent={[Function]}
             isFirst={true}
+            key="A1"
             selected={false}
             updateSelectedDate={[Function]}
           />
@@ -219,6 +231,7 @@ exports[`should render correctly 1`] = `
             deleteAnalysis={[Function]}
             deleteEvent={[Function]}
             isFirst={false}
+            key="A2"
             selected={false}
             updateSelectedDate={[Function]}
           />
@@ -226,7 +239,9 @@ exports[`should render correctly 1`] = `
       </li>
     </ul>
   </li>
-  <li>
+  <li
+    key="E2"
+  >
     <div
       className="project-activity-version-badge"
     >
@@ -242,6 +257,7 @@ exports[`should render correctly 1`] = `
       <li
         className="project-activity-day"
         data-day="ISO.1477440000000"
+        key="1477440000000"
       >
         <div
           className="project-activity-date"
@@ -281,6 +297,7 @@ exports[`should render correctly 1`] = `
             deleteAnalysis={[Function]}
             deleteEvent={[Function]}
             isFirst={false}
+            key="A3"
             selected={false}
             updateSelectedDate={[Function]}
           />
@@ -289,6 +306,7 @@ exports[`should render correctly 1`] = `
       <li
         className="project-activity-day"
         data-day="ISO.1477267200000"
+        key="1477267200000"
       >
         <div
           className="project-activity-date"
@@ -323,6 +341,7 @@ exports[`should render correctly 1`] = `
             deleteAnalysis={[Function]}
             deleteEvent={[Function]}
             isFirst={false}
+            key="A4"
             selected={false}
             updateSelectedDate={[Function]}
           />

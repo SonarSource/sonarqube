@@ -144,14 +144,14 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
     return (
       <div>
         {component &&
-        !['FIL', 'UTS'].includes(component.qualifier) && (
-          <ComponentNav
-            branches={branches}
-            currentBranch={branch}
-            component={component}
-            location={this.props.location}
-          />
-        )}
+          !['FIL', 'UTS'].includes(component.qualifier) && (
+            <ComponentNav
+              branches={branches}
+              currentBranch={branch}
+              component={component}
+              location={this.props.location}
+            />
+          )}
         {loading ? (
           <div className="page page-limited">
             <i className="spinner" />

@@ -1,8 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`reset function should work correctly with view and visualizations 1`] = `undefined`;
-
-exports[`reset function should work correctly with view and visualizations 2`] = `
+exports[`reset function should work correctly with view and visualizations 1`] = `
 <div
   className="projects-facets-reset"
 >
@@ -51,6 +49,7 @@ exports[`should render \`leak\` view correctly 1`] = `
   />
   <NewReliabilityFilter
     isFavorite={false}
+    key="new_reliability"
     query={
       Object {
         "view": "leak",
@@ -59,6 +58,7 @@ exports[`should render \`leak\` view correctly 1`] = `
   />
   <NewSecurityFilter
     isFavorite={false}
+    key="new_security"
     query={
       Object {
         "view": "leak",
@@ -67,6 +67,7 @@ exports[`should render \`leak\` view correctly 1`] = `
   />
   <NewMaintainabilityFilter
     isFavorite={false}
+    key="new_maintainability"
     query={
       Object {
         "view": "leak",
@@ -75,6 +76,7 @@ exports[`should render \`leak\` view correctly 1`] = `
   />
   <NewCoverageFilter
     isFavorite={false}
+    key="new_coverage"
     query={
       Object {
         "view": "leak",
@@ -83,6 +85,7 @@ exports[`should render \`leak\` view correctly 1`] = `
   />
   <NewDuplicationsFilter
     isFavorite={false}
+    key="new_duplications"
     query={
       Object {
         "view": "leak",
@@ -91,6 +94,7 @@ exports[`should render \`leak\` view correctly 1`] = `
   />
   <NewLinesFilter
     isFavorite={false}
+    key="new_lines"
     query={
       Object {
         "view": "leak",
@@ -153,6 +157,7 @@ exports[`should render correctly 1`] = `
   />
   <ReliabilityFilter
     isFavorite={true}
+    key="reliability"
     query={
       Object {
         "size": "3",
@@ -161,6 +166,7 @@ exports[`should render correctly 1`] = `
   />
   <SecurityFilter
     isFavorite={true}
+    key="security"
     query={
       Object {
         "size": "3",
@@ -169,6 +175,7 @@ exports[`should render correctly 1`] = `
   />
   <MaintainabilityFilter
     isFavorite={true}
+    key="maintainability"
     query={
       Object {
         "size": "3",
@@ -177,6 +184,7 @@ exports[`should render correctly 1`] = `
   />
   <CoverageFilter
     isFavorite={true}
+    key="coverage"
     query={
       Object {
         "size": "3",
@@ -185,6 +193,7 @@ exports[`should render correctly 1`] = `
   />
   <DuplicationsFilter
     isFavorite={true}
+    key="duplications"
     query={
       Object {
         "size": "3",
@@ -193,6 +202,7 @@ exports[`should render correctly 1`] = `
   />
   <SizeFilter
     isFavorite={true}
+    key="size"
     query={
       Object {
         "size": "3",

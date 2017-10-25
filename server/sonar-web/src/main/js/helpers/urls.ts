@@ -76,7 +76,7 @@ export function getIssuesUrl(query: Query): Location {
  * Generate URL for a component's issues page
  */
 export function getComponentIssuesUrl(componentKey: string, query?: Query): Location {
-  return { pathname: '/project/issues', query: { ...query || {}, id: componentKey } };
+  return { pathname: '/project/issues', query: { ...(query || {}), id: componentKey } };
 }
 
 export function getComponentIssuesUrlAsString(componentKey: string, query?: Query): string {

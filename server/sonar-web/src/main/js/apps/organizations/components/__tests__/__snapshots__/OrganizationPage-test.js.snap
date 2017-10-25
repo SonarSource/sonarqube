@@ -16,6 +16,7 @@ exports[`smoke test 2`] = `
 <div>
   <HelmetWrapper
     defaultTitle="Foo"
+    defer={true}
     encodeSpecialCharacters={true}
     titleTemplate="%s - Foo"
   />

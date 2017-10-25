@@ -51,14 +51,12 @@ export default class SettingsEditionsNotif extends React.PureComponent<Props, St
     return (
       <NavBarNotif className="alert alert-success">
         <span>
-          {edition ? (
-            translateWithParameters(
-              'marketplace.status_x.' + editionStatus.installationStatus,
-              edition.name
-            )
-          ) : (
-            translate('marketplace.status', editionStatus.installationStatus)
-          )}
+          {edition
+            ? translateWithParameters(
+                'marketplace.status_x.' + editionStatus.installationStatus,
+                edition.name
+              )
+            : translate('marketplace.status', editionStatus.installationStatus)}
         </span>
         {!preventRestart && (
           <button className="js-restart spacer-left" onClick={this.handleOpenRestart}>

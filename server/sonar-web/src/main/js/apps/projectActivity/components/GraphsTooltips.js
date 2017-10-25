@@ -117,9 +117,9 @@ export default class GraphsTooltips extends React.PureComponent {
               />
             )}
             {events &&
-            events.length > 0 && (
-              <GraphsTooltipsContentEvents addSeparator={addSeparator} events={events} />
-            )}
+              events.length > 0 && (
+                <GraphsTooltipsContentEvents addSeparator={addSeparator} events={events} />
+              )}
           </table>
         </div>
       </BubblePopup>

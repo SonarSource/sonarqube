@@ -90,7 +90,8 @@ export default class GlobalHelp extends React.PureComponent {
     <ul className="side-tabs-menu">
       {(this.props.currentUser.isLoggedIn
         ? ['shortcuts', 'tutorials', 'links']
-        : ['shortcuts', 'links']).map(this.renderMenuItem)}
+        : ['shortcuts', 'links']
+      ).map(this.renderMenuItem)}
     </ul>
   );
 

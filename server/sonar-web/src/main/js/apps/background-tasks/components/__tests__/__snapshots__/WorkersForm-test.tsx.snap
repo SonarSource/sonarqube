@@ -12,7 +12,9 @@ exports[`changes select 1`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <header
     className="modal-head"
@@ -38,6 +40,7 @@ exports[`changes select 1`] = `
         clearRenderer={[Function]}
         clearValueText="Clear value"
         clearable={false}
+        closeOnSelect={true}
         deleteRemoves={true}
         delimiter=","
         disabled={false}
@@ -58,6 +61,8 @@ exports[`changes select 1`] = `
         onBlurResetsInput={true}
         onChange={[Function]}
         onCloseResetsInput={true}
+        onSelectResetsInput={true}
+        openOnClick={true}
         optionComponent={[Function]}
         options={
           Array [
@@ -155,7 +160,9 @@ exports[`changes select 2`] = `
   overlayClassName="modal-overlay"
   parentSelector={[Function]}
   portalClassName="ReactModalPortal"
+  shouldCloseOnEsc={true}
   shouldCloseOnOverlayClick={true}
+  shouldFocusAfterRender={true}
 >
   <header
     className="modal-head"
@@ -181,6 +188,7 @@ exports[`changes select 2`] = `
         clearRenderer={[Function]}
         clearValueText="Clear value"
         clearable={false}
+        closeOnSelect={true}
         deleteRemoves={true}
         delimiter=","
         disabled={false}
@@ -201,6 +209,8 @@ exports[`changes select 2`] = `
         onBlurResetsInput={true}
         onChange={[Function]}
         onCloseResetsInput={true}
+        onSelectResetsInput={true}
+        openOnClick={true}
         optionComponent={[Function]}
         options={
           Array [

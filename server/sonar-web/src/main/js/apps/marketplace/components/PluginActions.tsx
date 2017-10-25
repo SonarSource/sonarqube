@@ -91,19 +91,19 @@ export default class PluginActions extends React.PureComponent<Props, State> {
           </p>
         )}
         {isPluginInstalled(plugin) &&
-        plugin.updates &&
-        plugin.updates.length > 0 && (
-          <div className="spacer-top button-group">
-            {plugin.updates.map((update, idx) => (
-              <PluginUpdateButton
-                key={idx}
-                onClick={this.handleUpdate}
-                update={update}
-                disabled={this.state.loading}
-              />
-            ))}
-          </div>
-        )}
+          plugin.updates &&
+          plugin.updates.length > 0 && (
+            <div className="spacer-top button-group">
+              {plugin.updates.map((update, idx) => (
+                <PluginUpdateButton
+                  key={idx}
+                  onClick={this.handleUpdate}
+                  update={update}
+                  disabled={this.state.loading}
+                />
+              ))}
+            </div>
+          )}
       </div>
     );
   }
@@ -119,25 +119,25 @@ export default class PluginActions extends React.PureComponent<Props, State> {
     return (
       <div className="js-actions">
         {isPluginAvailable(plugin) &&
-        plugin.termsAndConditionsUrl && (
-          <p className="little-spacer-bottom">
-            <Checkbox
-              checked={this.state.acceptTerms}
-              className="js-terms"
-              id={'plugin-terms-' + plugin.key}
-              onCheck={this.handleTermsCheck}>
-              <label className="little-spacer-left" htmlFor={'plugin-terms-' + plugin.key}>
-                {translate('marketplace.i_accept_the')}
-              </label>
-            </Checkbox>
-            <a
-              className="js-plugin-terms nowrap little-spacer-left"
-              href={plugin.termsAndConditionsUrl}
-              target="_blank">
-              {translate('marketplace.terms_and_conditions')}
-            </a>
-          </p>
-        )}
+          plugin.termsAndConditionsUrl && (
+            <p className="little-spacer-bottom">
+              <Checkbox
+                checked={this.state.acceptTerms}
+                className="js-terms"
+                id={'plugin-terms-' + plugin.key}
+                onCheck={this.handleTermsCheck}>
+                <label className="little-spacer-left" htmlFor={'plugin-terms-' + plugin.key}>
+                  {translate('marketplace.i_accept_the')}
+                </label>
+              </Checkbox>
+              <a
+                className="js-plugin-terms nowrap little-spacer-left"
+                href={plugin.termsAndConditionsUrl}
+                target="_blank">
+                {translate('marketplace.terms_and_conditions')}
+              </a>
+            </p>
+          )}
         {loading && <i className="spinner spacer-right" />}
         {isPluginInstalled(plugin) && (
           <div className="display-inlin-block">

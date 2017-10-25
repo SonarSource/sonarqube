@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Modal from 'react-modal';
+import * as Modal from 'react-modal';
 import LicenseEditionSet from './LicenseEditionSet';
 import { Edition, EditionStatus, applyLicense } from '../../../api/marketplace';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
@@ -104,11 +104,9 @@ export default class LicenseEditionForm extends React.PureComponent<Props, State
           {submitting && <i className="spinner spacer-right" />}
           {status && (
             <button className="js-confirm" onClick={this.handleConfirmClick} disabled={submitting}>
-              {status === 'AUTOMATIC_INSTALL' ? (
-                translate('marketplace.install')
-              ) : (
-                translate('save')
-              )}
+              {status === 'AUTOMATIC_INSTALL'
+                ? translate('marketplace.install')
+                : translate('save')}
             </button>
           )}
           <a className="js-modal-close" href="#" onClick={this.handleCancelClick}>

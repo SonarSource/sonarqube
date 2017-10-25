@@ -20,7 +20,7 @@
 // @flow
 import React from 'react';
 import { connect } from 'react-redux';
-import Extension from './Extension';
+import ExtensionContainer from './ExtensionContainer';
 import ExtensionNotFound from './ExtensionNotFound';
 import { addGlobalErrorMessage } from '../../../store/globalMessages/duck';
 
@@ -46,7 +46,7 @@ function ProjectAdminPageExtension(props /*: Props */) {
     component.configuration &&
     component.configuration.extensions.find(p => p.key === `${pluginKey}/${extensionKey}`);
   return extension ? (
-    <Extension extension={extension} options={{ component }} />
+    <ExtensionContainer extension={extension} options={{ component }} />
   ) : (
     <ExtensionNotFound />
   );

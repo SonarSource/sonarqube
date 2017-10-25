@@ -12,6 +12,7 @@ exports[`should display correctly with treemap option 1`] = `
   clearRenderer={[Function]}
   clearValueText="Clear value"
   clearable={false}
+  closeOnSelect={true}
   deleteRemoves={true}
   delimiter=","
   disabled={false}
@@ -32,6 +33,8 @@ exports[`should display correctly with treemap option 1`] = `
   onBlurResetsInput={true}
   onChange={[Function]}
   onCloseResetsInput={true}
+  onSelectResetsInput={true}
+  openOnClick={true}
   optionComponent={[Function]}
   options={
     Array [
@@ -39,30 +42,30 @@ exports[`should display correctly with treemap option 1`] = `
         "icon": <ListIcon />,
         "label": <div>
           <ListIcon
-                className="little-spacer-right"
+            className="little-spacer-right"
           />
           component_measures.tab.list
-    </div>,
+        </div>,
         "value": "list",
       },
       Object {
         "icon": <TreeIcon />,
         "label": <div>
           <TreeIcon
-                className="little-spacer-right"
+            className="little-spacer-right"
           />
           component_measures.tab.tree
-    </div>,
+        </div>,
         "value": "tree",
       },
       Object {
         "icon": <TreemapIcon />,
         "label": <div>
           <TreemapIcon
-                className="little-spacer-right"
+            className="little-spacer-right"
           />
           component_measures.tab.treemap
-    </div>,
+        </div>,
         "value": "treemap",
       },
     ]

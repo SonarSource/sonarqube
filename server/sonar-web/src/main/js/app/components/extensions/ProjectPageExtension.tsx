@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Extension from './Extension';
+import ExtensionContainer from './ExtensionContainer';
 import ExtensionNotFound from './ExtensionNotFound';
 import { Component } from '../../types';
 
@@ -38,7 +38,7 @@ export default function ProjectPageExtension(props: Props) {
     component.extensions &&
     component.extensions.find(p => p.key === `${pluginKey}/${extensionKey}`);
   return extension ? (
-    <Extension extension={extension} options={{ component }} />
+    <ExtensionContainer extension={extension} options={{ component }} />
   ) : (
     <ExtensionNotFound />
   );

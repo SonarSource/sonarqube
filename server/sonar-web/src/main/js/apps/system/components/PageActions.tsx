@@ -153,7 +153,7 @@ export default class PageActions extends React.PureComponent<Props, State> {
           </button>
         )}
         {this.props.canRestart &&
-        this.state.openRestartForm && <RestartForm onClose={this.handleServerRestartClose} />}
+          this.state.openRestartForm && <RestartForm onClose={this.handleServerRestartClose} />}
         {this.state.openLogsLevelForm && (
           <ChangeLogLevelForm
             infoMsg={translate(

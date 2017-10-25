@@ -71,6 +71,17 @@ export default class ProfilesList extends React.PureComponent<Props> {
     );
   }
 
+  renderLanguage = (languageKey: string, profiles: Profile[] | undefined) => {
+    return (
+      <div key={languageKey} className="boxed-group boxed-group-inner quality-profiles-table">
+        <table data-language={languageKey} className="data zebra zebra-hover">
+          {profiles !== undefined && this.renderHeader(languageKey, profiles.length)}
+          <tbody>{profiles !== undefined && this.renderProfiles(profiles)}</tbody>
+        </table>
+      </div>
+    );
+  };
+
   render() {
     const { profiles, languages } = this.props;
     const { language } = this.props.location.query;
@@ -80,9 +91,7 @@ export default class ProfilesList extends React.PureComponent<Props> {
       profile => profile.language
     );
 
-    const profilesToShow: { [language: string]: Profile[] } = language
-      ? pick(profilesIndex, language)
-      : profilesIndex;
+    const profilesToShow = language ? pick(profilesIndex, language) : profilesIndex;
 
     const languagesToShow = sortBy(Object.keys(profilesToShow));
 
@@ -98,19 +107,9 @@ export default class ProfilesList extends React.PureComponent<Props> {
           <div className="alert alert-warning spacer-top">{translate('no_results')}</div>
         )}
 
-        {languagesToShow.map(languageKey => (
-          <div key={languageKey} className="boxed-group boxed-group-inner quality-profiles-table">
-            <table data-language={languageKey} className="data zebra zebra-hover">
-              {profilesToShow[languageKey] != null &&
-                this.renderHeader(languageKey, profilesToShow[languageKey].length)}
-
-              <tbody>
-                {profilesToShow[languageKey] != null &&
-                  this.renderProfiles(profilesToShow[languageKey])}
-              </tbody>
-            </table>
-          </div>
-        ))}
+        {languagesToShow.map(languageKey =>
+          this.renderLanguage(languageKey, profilesToShow[languageKey])
+        )}
       </div>
     );
   }

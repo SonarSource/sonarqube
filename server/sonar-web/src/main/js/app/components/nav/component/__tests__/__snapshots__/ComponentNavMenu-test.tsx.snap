@@ -111,7 +111,9 @@ exports[`should work for all qualifiers 1`] = `
     <ul
       className="dropdown-menu"
     >
-      <li>
+      <li
+        key="settings"
+      >
         <Link
           activeClassName="active"
           onlyActiveOnIndex={false}
@@ -129,7 +131,9 @@ exports[`should work for all qualifiers 1`] = `
           project_settings.page
         </Link>
       </li>
-      <li>
+      <li
+        key="branches"
+      >
         <Link
           activeClassName="active"
           onlyActiveOnIndex={false}
@@ -146,7 +150,9 @@ exports[`should work for all qualifiers 1`] = `
           project_branches.page
         </Link>
       </li>
-      <li>
+      <li
+        key="project_delete"
+      >
         <Link
           activeClassName="active"
           onlyActiveOnIndex={false}
@@ -279,7 +285,9 @@ exports[`should work for all qualifiers 2`] = `
     <ul
       className="dropdown-menu"
     >
-      <li>
+      <li
+        key="settings"
+      >
         <Link
           activeClassName="active"
           onlyActiveOnIndex={false}
@@ -413,7 +421,9 @@ exports[`should work for all qualifiers 3`] = `
     <ul
       className="dropdown-menu"
     >
-      <li>
+      <li
+        key="project_delete"
+      >
         <Link
           activeClassName="active"
           onlyActiveOnIndex={false}
@@ -642,7 +652,9 @@ exports[`should work for all qualifiers 5`] = `
     <ul
       className="dropdown-menu"
     >
-      <li>
+      <li
+        key="project_delete"
+      >
         <Link
           activeClassName="active"
           onlyActiveOnIndex={false}
@@ -1009,7 +1021,9 @@ exports[`should work with extensions 1`] = `
     <ul
       className="dropdown-menu"
     >
-      <li>
+      <li
+        key="settings"
+      >
         <Link
           activeClassName="active"
           onlyActiveOnIndex={false}
@@ -1027,7 +1041,9 @@ exports[`should work with extensions 1`] = `
           project_settings.page
         </Link>
       </li>
-      <li>
+      <li
+        key="branches"
+      >
         <Link
           activeClassName="active"
           onlyActiveOnIndex={false}
@@ -1044,7 +1060,9 @@ exports[`should work with extensions 1`] = `
           project_branches.page
         </Link>
       </li>
-      <li>
+      <li
+        key="foo"
+      >
         <Link
           activeClassName="active"
           onlyActiveOnIndex={false}
@@ -1061,7 +1079,9 @@ exports[`should work with extensions 1`] = `
           Foo
         </Link>
       </li>
-      <li>
+      <li
+        key="project_delete"
+      >
         <Link
           activeClassName="active"
           onlyActiveOnIndex={false}
@@ -1098,7 +1118,9 @@ exports[`should work with extensions 1`] = `
     <ul
       className="dropdown-menu"
     >
-      <li>
+      <li
+        key="component-foo"
+      >
         <Link
           activeClassName="active"
           onlyActiveOnIndex={false}
@@ -1231,7 +1253,9 @@ exports[`should work with multiple extensions 1`] = `
     <ul
       className="dropdown-menu"
     >
-      <li>
+      <li
+        key="settings"
+      >
         <Link
           activeClassName="active"
           onlyActiveOnIndex={false}
@@ -1249,7 +1273,9 @@ exports[`should work with multiple extensions 1`] = `
           project_settings.page
         </Link>
       </li>
-      <li>
+      <li
+        key="branches"
+      >
         <Link
           activeClassName="active"
           onlyActiveOnIndex={false}
@@ -1266,7 +1292,9 @@ exports[`should work with multiple extensions 1`] = `
           project_branches.page
         </Link>
       </li>
-      <li>
+      <li
+        key="foo"
+      >
         <Link
           activeClassName="active"
           onlyActiveOnIndex={false}
@@ -1283,7 +1311,9 @@ exports[`should work with multiple extensions 1`] = `
           Foo
         </Link>
       </li>
-      <li>
+      <li
+        key="bar"
+      >
         <Link
           activeClassName="active"
           onlyActiveOnIndex={false}
@@ -1300,7 +1330,9 @@ exports[`should work with multiple extensions 1`] = `
           Bar
         </Link>
       </li>
-      <li>
+      <li
+        key="project_delete"
+      >
         <Link
           activeClassName="active"
           onlyActiveOnIndex={false}
@@ -1337,7 +1369,9 @@ exports[`should work with multiple extensions 1`] = `
     <ul
       className="dropdown-menu"
     >
-      <li>
+      <li
+        key="component-foo"
+      >
         <Link
           activeClassName="active"
           onlyActiveOnIndex={false}
@@ -1354,7 +1388,9 @@ exports[`should work with multiple extensions 1`] = `
           ComponentFoo
         </Link>
       </li>
-      <li>
+      <li
+        key="component-bar"
+      >
         <Link
           activeClassName="active"
           onlyActiveOnIndex={false}

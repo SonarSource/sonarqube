@@ -18,24 +18,28 @@ exports[`should render tags popup correctly 1`] = `
   >
     <SelectListItem
       item="confirm"
+      key="confirm"
       title="issue.transition.confirm.description"
     >
       issue.transition.confirm
     </SelectListItem>
     <SelectListItem
       item="resolve"
+      key="resolve"
       title="issue.transition.resolve.description"
     >
       issue.transition.resolve
     </SelectListItem>
     <SelectListItem
       item="falsepositive"
+      key="falsepositive"
       title="issue.transition.falsepositive.description"
     >
       issue.transition.falsepositive
     </SelectListItem>
     <SelectListItem
       item="wontfix"
+      key="wontfix"
       title="issue.transition.wontfix.description"
     >
       issue.transition.wontfix

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Modal from 'react-modal';
+import * as Modal from 'react-modal';
 import { deleteBranch } from '../../../api/branches';
 import { Branch } from '../../../app/types';
 import { translate, translateWithParameters } from '../../../helpers/l10n';

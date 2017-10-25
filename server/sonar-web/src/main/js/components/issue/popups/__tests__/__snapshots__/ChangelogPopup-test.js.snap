@@ -25,7 +25,9 @@ exports[`should render the changelog popup correctly 1`] = `
             created_by john.david.dalton@gmail.com
           </td>
         </tr>
-        <tr>
+        <tr
+          key="0"
+        >
           <td
             className="thin text-left text-top nowrap"
           >
@@ -53,6 +55,7 @@ exports[`should render the changelog popup correctly 1`] = `
                   "oldValue": "CRITICAL",
                 }
               }
+              key="severity"
             />
           </td>
         </tr>

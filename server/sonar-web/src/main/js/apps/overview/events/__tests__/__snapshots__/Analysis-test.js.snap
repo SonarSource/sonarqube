@@ -25,6 +25,7 @@ exports[`should sort the events with version first 1`] = `
           "name": "6.5-SNAPSHOT",
         }
       }
+      key="2"
     />
     <Event
       event={
@@ -34,6 +35,7 @@ exports[`should sort the events with version first 1`] = `
           "name": "test",
         }
       }
+      key="1"
     />
   </div>
 </li>

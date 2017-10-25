@@ -5,6 +5,7 @@ exports[`should not render actions for non admin 1`] = `
   className="page page-limited"
 >
   <HelmetWrapper
+    defer={true}
     encodeSpecialCharacters={true}
     title="organization.members.page"
   />
@@ -55,6 +56,7 @@ exports[`should render actions for admin 1`] = `
   className="page page-limited"
 >
   <HelmetWrapper
+    defer={true}
     encodeSpecialCharacters={true}
     title="organization.members.page"
   />
