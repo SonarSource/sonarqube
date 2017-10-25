@@ -128,6 +128,7 @@ exports[`should render and open the modal 2`] = `
                 "name": "professionals",
               }
             }
+            key="7"
             onCheck={[Function]}
           />
           <OrganizationGroupCheckbox
@@ -140,6 +141,7 @@ exports[`should render and open the modal 2`] = `
                 "name": "pull-request-analysers",
               }
             }
+            key="11"
             onCheck={[Function]}
           />
           <OrganizationGroupCheckbox
@@ -152,6 +154,7 @@ exports[`should render and open the modal 2`] = `
                 "name": "sonar-administrators",
               }
             }
+            key="1"
             onCheck={[Function]}
           />
         </ul>

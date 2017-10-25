@@ -33,6 +33,7 @@ exports[`should render correctly with children 1`] = `
   <SelectListItem
     active="seconditem"
     item="item"
+    key=".$item"
     onHover={[Function]}
     onSelect={[Function]}
   >
@@ -44,6 +45,7 @@ exports[`should render correctly with children 1`] = `
   <SelectListItem
     active="seconditem"
     item="seconditem"
+    key=".$seconditem"
     onHover={[Function]}
     onSelect={[Function]}
   >
@@ -55,6 +57,7 @@ exports[`should render correctly with children 1`] = `
   <SelectListItem
     active="seconditem"
     item="third"
+    key=".$third"
     onHover={[Function]}
     onSelect={[Function]}
   >
@@ -73,18 +76,21 @@ exports[`should render correctly without children 1`] = `
   <SelectListItem
     active="seconditem"
     item="item"
+    key="item"
     onHover={[Function]}
     onSelect={[Function]}
   />
   <SelectListItem
     active="seconditem"
     item="seconditem"
+    key="seconditem"
     onHover={[Function]}
     onSelect={[Function]}
   />
   <SelectListItem
     active="seconditem"
     item="third"
+    key="third"
     onHover={[Function]}
     onSelect={[Function]}
   />

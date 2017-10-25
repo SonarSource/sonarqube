@@ -41,7 +41,9 @@ exports[`renders 1`] = `
       </tr>
     </thead>
     <tbody>
-      <tr>
+      <tr
+        key="foo"
+      >
         <td>
           <Link
             className="link-with-icon"
@@ -157,7 +159,9 @@ exports[`renders 1`] = `
           </svg>
         </td>
       </tr>
-      <tr>
+      <tr
+        key="bar"
+      >
         <td>
           <Link
             className="link-with-icon"
@@ -273,7 +277,9 @@ exports[`renders 1`] = `
           </svg>
         </td>
       </tr>
-      <tr>
+      <tr
+        key="baz"
+      >
         <td>
           <Link
             className="link-with-icon"

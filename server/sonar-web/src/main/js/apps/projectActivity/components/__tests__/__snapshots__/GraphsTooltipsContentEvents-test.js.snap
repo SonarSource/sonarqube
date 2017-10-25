@@ -22,6 +22,7 @@ exports[`should render correctly 1`] = `
       </span>
       <span
         className="spacer-left"
+        key="1"
       >
         <ProjectEventIcon
           className="project-activity-event-icon VERSION"
@@ -29,6 +30,7 @@ exports[`should render correctly 1`] = `
       </span>
       <span
         className="spacer-left"
+        key="2"
       >
         <ProjectEventIcon
           className="project-activity-event-icon OTHER"

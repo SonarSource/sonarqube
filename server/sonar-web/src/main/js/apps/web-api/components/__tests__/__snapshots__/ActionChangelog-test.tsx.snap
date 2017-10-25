@@ -6,6 +6,7 @@ exports[`should render 1`] = `
 >
   <li
     className="spacer-top"
+    key="0"
   >
     <span
       className="spacer-right badge"
@@ -16,6 +17,7 @@ exports[`should render 1`] = `
   </li>
   <li
     className="spacer-top"
+    key="1"
   >
     <span
       className="spacer-right badge"

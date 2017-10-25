@@ -28,6 +28,7 @@ exports[`should display correctly 1`] = `
   >
     <SystemUpgradeItem
       badge="system.latest_version"
+      key="6.3"
       systemUpgrades={
         Array [
           Object {
@@ -51,6 +52,7 @@ exports[`should display correctly 1`] = `
     />
     <SystemUpgradeItem
       badge="system.latest_lts_version"
+      key="5.6.5"
       systemUpgrades={
         Array [
           Object {

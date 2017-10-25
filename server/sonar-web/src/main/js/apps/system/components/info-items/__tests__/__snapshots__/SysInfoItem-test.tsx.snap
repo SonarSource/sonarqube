@@ -18,7 +18,9 @@ Array [
       className="data"
     >
       <tbody>
-        <tr>
+        <tr
+          key="foo"
+        >
           <td
             className="thin nowrap"
           >
@@ -35,7 +37,9 @@ Array [
             </SysInfoItem>
           </td>
         </tr>
-        <tr>
+        <tr
+          key="bar"
+        >
           <td
             className="thin nowrap"
           >
@@ -63,7 +67,9 @@ Array [
                   className="data"
                 >
                   <tbody>
-                    <tr>
+                    <tr
+                      key="a"
+                    >
                       <td
                         className="thin nowrap"
                       >
@@ -80,7 +86,9 @@ Array [
                         </SysInfoItem>
                       </td>
                     </tr>
-                    <tr>
+                    <tr
+                      key="b"
+                    >
                       <td
                         className="thin nowrap"
                       >
@@ -103,7 +111,9 @@ Array [
             </SysInfoItem>
           </td>
         </tr>
-        <tr>
+        <tr
+          key="baz"
+        >
           <td
             className="thin nowrap"
           >
@@ -154,7 +164,9 @@ Array [
       className="data"
     >
       <tbody>
-        <tr>
+        <tr
+          key="a"
+        >
           <td
             className="thin nowrap"
           >
@@ -171,7 +183,9 @@ Array [
             </SysInfoItem>
           </td>
         </tr>
-        <tr>
+        <tr
+          key="b"
+        >
           <td
             className="thin nowrap"
           >

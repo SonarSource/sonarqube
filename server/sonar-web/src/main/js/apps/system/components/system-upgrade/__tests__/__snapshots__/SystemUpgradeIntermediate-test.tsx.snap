@@ -29,6 +29,7 @@ exports[`should display correctly 2`] = `
   </a>
   <div
     className="note system-upgrade-intermediate"
+    key="5.6.6"
   >
     <DateFormatter
       date="2017-04-02"
@@ -42,6 +43,7 @@ exports[`should display correctly 2`] = `
   </div>
   <div
     className="note system-upgrade-intermediate"
+    key="5.6.5"
   >
     <DateFormatter
       date="2017-03-01"

@@ -28,6 +28,7 @@ exports[`should support more than two nodes 1`] = `
   <HealthCard
     health="GREEN"
     healthCauses={Array []}
+    key="Bar"
     name="Bar"
     onClick={[Function]}
     open={false}
@@ -50,6 +51,7 @@ exports[`should support more than two nodes 1`] = `
   <HealthCard
     health="YELLOW"
     healthCauses={Array []}
+    key="Baz"
     name="Baz"
     onClick={[Function]}
     open={false}

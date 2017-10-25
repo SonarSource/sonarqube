@@ -125,6 +125,7 @@ exports[`should show a main section and multiple sub sections 1`] = `
           "db": "test",
         }
       }
+      key="Database"
       name="Database"
     />
     <Section
@@ -133,6 +134,7 @@ exports[`should show a main section and multiple sub sections 1`] = `
           "Elastic": "search",
         }
       }
+      key="Elasticseach"
       name="Elasticseach"
     />
   </div>

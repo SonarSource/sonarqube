@@ -8,6 +8,7 @@ exports[`should render 1`] = `
         "key": "foo",
       }
     }
+    key="foo"
     previousIssue={null}
     scroll={[Function]}
     selected={false}
@@ -18,6 +19,7 @@ exports[`should render 1`] = `
         "key": "bar",
       }
     }
+    key="bar"
     previousIssue={
       Object {
         "key": "foo",

@@ -35,7 +35,7 @@ it('shows stack trace', () => {
   click(wrapper.find('.js-task-show-stacktrace'));
   expect(wrapper.find('Stacktrace')).toMatchSnapshot();
   wrapper.find('Stacktrace').prop<Function>('onClose')();
-  expect(wrapper.find('Stacktrace')).toMatchSnapshot();
+  expect(wrapper.find('Stacktrace').exists()).toBeFalsy();
 });
 
 it('shows scanner context', () => {
@@ -43,7 +43,7 @@ it('shows scanner context', () => {
   click(wrapper.find('.js-task-show-scanner-context'));
   expect(wrapper.find('ScannerContext')).toMatchSnapshot();
   wrapper.find('ScannerContext').prop<Function>('onClose')();
-  expect(wrapper.find('ScannerContext')).toMatchSnapshot();
+  expect(wrapper.find('ScannerContext').exists()).toBeFalsy();
 });
 
 function shallowRender(fields?: any, props?: any) {

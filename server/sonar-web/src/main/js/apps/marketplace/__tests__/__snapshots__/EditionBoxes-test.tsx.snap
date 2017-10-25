@@ -53,6 +53,7 @@ exports[`should display the edition boxes 2`] = `
         "nextEditionKey": "",
       }
     }
+    key="foo"
     onInstall={[Function]}
     onUninstall={[Function]}
     readOnly={false}
@@ -75,6 +76,7 @@ exports[`should display the edition boxes 2`] = `
         "nextEditionKey": "",
       }
     }
+    key="bar"
     onInstall={[Function]}
     onUninstall={[Function]}
     readOnly={false}

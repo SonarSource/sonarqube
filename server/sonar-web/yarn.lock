@@ -2427,17 +2427,17 @@ entities@^1.1.1, entities@~1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/entities/-/entities-1.1.1.tgz#6e5c2d0a5621b5dadaecef80b90edfb5cd7772f0"
 
-enzyme-to-json@1.5.1:
-  version "1.5.1"
-  resolved "https://registry.yarnpkg.com/enzyme-to-json/-/enzyme-to-json-1.5.1.tgz#e34f4d126bb3f4696ce3800b51f9ed83df708799"
+enzyme-to-json@2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/enzyme-to-json/-/enzyme-to-json-2.0.1.tgz#e8b223040a7cc603bc678a4698c1a83c8c649932"
   dependencies:
     lodash.filter "^4.6.0"
     lodash.isnil "^4.0.0"
     lodash.isplainobject "^4.0.6"
-    lodash.omitby "^4.5.0"
+    lodash.omitby "^4.6.0"
     lodash.range "^3.2.0"
     object-values "^1.0.0"
-    object.entries "^1.0.3"
+    object.entries "^1.0.4"
 
 enzyme@2.9.1:
   version "2.9.1"
@@ -4480,7 +4480,7 @@ lodash.merge@^4.4.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/lodash.merge/-/lodash.merge-4.6.0.tgz#69884ba144ac33fe699737a6086deffadd0f89c5"
 
-lodash.omitby@^4.5.0:
+lodash.omitby@^4.6.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/lodash.omitby/-/lodash.omitby-4.6.0.tgz#5c15ff4754ad555016b53c041311e8f079204791"
 
@@ -4930,7 +4930,7 @@ object.assign@^4.0.4:
     function-bind "^1.1.0"
     object-keys "^1.0.10"
 
-object.entries@^1.0.3, object.entries@^1.0.4:
+object.entries@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/object.entries/-/object.entries-1.0.4.tgz#1bf9a4dd2288f5b33f3a993d257661f05d161a5f"
   dependencies:

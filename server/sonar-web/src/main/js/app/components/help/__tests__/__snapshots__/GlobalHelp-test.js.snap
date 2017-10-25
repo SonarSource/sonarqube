@@ -32,7 +32,9 @@ exports[`does not show tutorials for anonymous 1`] = `
       <ul
         className="side-tabs-menu"
       >
-        <li>
+        <li
+          key="shortcuts"
+        >
           <a
             className="active"
             data-section="shortcuts"
@@ -42,7 +44,9 @@ exports[`does not show tutorials for anonymous 1`] = `
             help.section.shortcuts
           </a>
         </li>
-        <li>
+        <li
+          key="links"
+        >
           <a
             className=""
             data-section="links"
