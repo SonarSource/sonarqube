@@ -19,10 +19,10 @@
  */
 import * as React from 'react';
 import { sortBy } from 'lodash';
-import Select from 'react-select';
 import ProjectsSortingSelectOption, { Option } from './ProjectsSortingSelectOption';
 import SortAscIcon from '../../../components/icons-components/SortAscIcon';
 import SortDescIcon from '../../../components/icons-components/SortDescIcon';
+import Select from '../../../components/controls/Select';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 import { SORTING_METRICS, SORTING_LEAK_METRICS, parseSorting } from '../utils';

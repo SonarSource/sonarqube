@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React, { Component } from 'react';
-import Select from 'react-select';
 import ThresholdInput from './ThresholdInput';
 import DeleteConditionView from '../views/gate-conditions-delete-view';
 import Checkbox from '../../../components/controls/Checkbox';
 import { createCondition, updateCondition } from '../../../api/quality-gates';
+import Select from '../../../components/controls/Select';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 

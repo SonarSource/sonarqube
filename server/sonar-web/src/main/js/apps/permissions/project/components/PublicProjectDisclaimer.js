@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import Modal from 'react-modal';
+import Modal from '../../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
 /*::
@@ -51,12 +51,7 @@ export default class PublicProjectDisclaimer extends React.PureComponent {
     const { qualifier } = this.props.component;
 
     return (
-      <Modal
-        isOpen={true}
-        contentLabel="modal form"
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.props.onClose}>
+      <Modal contentLabel="modal form" onRequestClose={this.props.onClose}>
         <header className="modal-head">
           <h2>
             {translateWithParameters('projects_role.turn_x_to_public', this.props.component.name)}

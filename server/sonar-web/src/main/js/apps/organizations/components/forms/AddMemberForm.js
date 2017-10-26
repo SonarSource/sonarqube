@@ -19,9 +19,9 @@
  */
 // @flow
 import React from 'react';
-import Modal from 'react-modal';
 import UsersSelectSearch from '../../../users/components/UsersSelectSearch';
 import { searchMembers } from '../../../../api/organizations';
+import Modal from '../../../../components/controls/Modal';
 import { translate } from '../../../../helpers/l10n';
 /*:: import type { Organization } from '../../../../store/organizations/duck'; */
 /*:: import type { Member } from '../../../../store/organizationsMembers/actions'; */
@@ -78,12 +78,7 @@ export default class AddMemberForm extends React.PureComponent {
 
   renderModal() {
     return (
-      <Modal
-        isOpen={true}
-        contentLabel="modal form"
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.closeForm}>
+      <Modal contentLabel="modal form" onRequestClose={this.closeForm}>
         <header className="modal-head">
           <h2>{translate('users.add')}</h2>
         </header>

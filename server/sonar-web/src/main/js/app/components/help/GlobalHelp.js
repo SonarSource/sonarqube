@@ -19,12 +19,12 @@
  */
 // @flow
 import React from 'react';
-import Modal from 'react-modal';
 import classNames from 'classnames';
 import LinksHelp from './LinksHelp';
 import LinksHelpSonarCloud from './LinksHelpSonarCloud';
 import ShortcutsHelp from './ShortcutsHelp';
 import TutorialsHelp from './TutorialsHelp';
+import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
 
 /*::
@@ -97,12 +97,7 @@ export default class GlobalHelp extends React.PureComponent {
 
   render() {
     return (
-      <Modal
-        isOpen={true}
-        contentLabel={translate('help')}
-        className="modal modal-medium"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.props.onClose}>
+      <Modal contentLabel={translate('help')} medium={true} onRequestClose={this.props.onClose}>
         <div className="modal-head">
           <h2>{translate('help')}</h2>
         </div>

@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import Select from 'react-select';
+import Select from '../../../components/controls/Select';
 
 export default class ThresholdInput extends React.PureComponent {
   static propTypes = {

@@ -2,49 +2,17 @@
 
 exports[`should render correctly 1`] = `
 <Select
-  addLabelText="Add \\"{label}\\"?"
-  arrowRenderer={[Function]}
-  autosize={true}
-  backspaceRemoves={true}
-  backspaceToRemoveMessage="Press backspace to remove {label}"
   className="Select-big"
-  clearAllText="Clear all"
-  clearRenderer={[Function]}
-  clearValueText="Clear value"
   clearable={false}
-  closeOnSelect={true}
-  deleteRemoves={true}
-  delimiter=","
-  disabled={false}
-  escapeClearsValue={true}
-  filterOptions={[Function]}
-  ignoreAccents={true}
-  ignoreCase={true}
-  inputProps={Object {}}
   isLoading={false}
-  joinValues={false}
   labelKey="name"
-  matchPos="any"
-  matchProp="any"
-  menuBuffer={0}
-  menuRenderer={[Function]}
-  multi={false}
   noResultsText="no_results"
-  onBlurResetsInput={true}
   onChange={[Function]}
-  onCloseResetsInput={true}
   onInputChange={[Function]}
-  onSelectResetsInput={true}
-  openOnClick={true}
   optionComponent={[Function]}
   options={Array []}
-  pageSize={5}
   placeholder=""
-  required={false}
-  scrollMenuIntoView={true}
   searchable={true}
-  simpleValue={false}
-  tabSelectsValue={true}
   value={
     Object {
       "avatar": "7daf6c79d4802916d83f6266e24850af",
@@ -74,40 +42,13 @@ Array [
 
 exports[`should render correctly 3`] = `
 <Select
-  addLabelText="Add \\"{label}\\"?"
-  arrowRenderer={[Function]}
-  autosize={true}
-  backspaceRemoves={true}
-  backspaceToRemoveMessage="Press backspace to remove {label}"
   className="Select-big"
-  clearAllText="Clear all"
-  clearRenderer={[Function]}
-  clearValueText="Clear value"
   clearable={false}
-  closeOnSelect={true}
-  deleteRemoves={true}
-  delimiter=","
-  disabled={false}
-  escapeClearsValue={true}
-  filterOptions={[Function]}
-  ignoreAccents={true}
-  ignoreCase={true}
-  inputProps={Object {}}
   isLoading={false}
-  joinValues={false}
   labelKey="name"
-  matchPos="any"
-  matchProp="any"
-  menuBuffer={0}
-  menuRenderer={[Function]}
-  multi={false}
   noResultsText="no_results"
-  onBlurResetsInput={true}
   onChange={[Function]}
-  onCloseResetsInput={true}
   onInputChange={[Function]}
-  onSelectResetsInput={true}
-  openOnClick={true}
   optionComponent={[Function]}
   options={
     Array [
@@ -123,13 +64,8 @@ exports[`should render correctly 3`] = `
       },
     ]
   }
-  pageSize={5}
   placeholder=""
-  required={false}
-  scrollMenuIntoView={true}
   searchable={true}
-  simpleValue={false}
-  tabSelectsValue={true}
   value={
     Object {
       "avatar": "7daf6c79d4802916d83f6266e24850af",

@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as Modal from 'react-modal';
 import LicenseEditionSet from './LicenseEditionSet';
 import { Edition, EditionStatus, applyLicense } from '../../../api/marketplace';
+import Modal from '../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface Props {
@@ -83,12 +83,7 @@ export default class LicenseEditionForm extends React.PureComponent<Props, State
     const { submitting, status } = this.state;
     const header = translateWithParameters('marketplace.install_x', edition.name);
     return (
-      <Modal
-        isOpen={true}
-        contentLabel={header}
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.props.onClose}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
         <header className="modal-head">
           <h2>{header}</h2>
         </header>

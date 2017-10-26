@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as Modal from 'react-modal';
 import SystemUpgradeItem from './SystemUpgradeItem';
 import { SystemUpgrade } from '../../../../api/system';
+import Modal from '../../../../components/controls/Modal';
 import { translate } from '../../../../helpers/l10n';
 
 interface Props {
@@ -46,12 +46,7 @@ export default class SystemUpgradeForm extends React.PureComponent<Props, State>
     const { systemUpgrades } = this.props;
     const header = translate('system.system_upgrade');
     return (
-      <Modal
-        isOpen={true}
-        contentLabel={header}
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.props.onClose}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
         <div className="modal-head">
           <h2>{header}</h2>
         </div>

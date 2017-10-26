@@ -2,54 +2,18 @@
 
 exports[`should render Select 1`] = `
 <Select
-  addLabelText="Add \\"{label}\\"?"
-  arrowRenderer={[Function]}
   autofocus={true}
-  autosize={true}
-  backspaceRemoves={true}
-  backspaceToRemoveMessage="Press backspace to remove {label}"
   cache={false}
   className="input-super-large"
-  clearAllText="Clear all"
-  clearRenderer={[Function]}
-  clearValueText="Clear value"
   clearable={false}
-  closeOnSelect={true}
-  deleteRemoves={true}
-  delimiter=","
-  disabled={false}
-  escapeClearsValue={true}
   filterOption={[Function]}
-  filterOptions={[Function]}
-  ignoreAccents={true}
-  ignoreCase={true}
-  inputProps={Object {}}
   isLoading={false}
-  joinValues={false}
-  labelKey="label"
-  matchPos="any"
-  matchProp="any"
-  menuBuffer={0}
-  menuRenderer={[Function]}
-  multi={false}
   noResultsText="select2.tooShort.2"
   onBlur={[Function]}
-  onBlurResetsInput={true}
   onChange={[Function]}
-  onCloseResetsInput={true}
   onInputChange={[Function]}
-  onSelectResetsInput={true}
-  openOnClick={true}
-  optionComponent={[Function]}
   options={Array []}
-  pageSize={5}
   placeholder="search_verb"
-  required={false}
-  scrollMenuIntoView={true}
   searchable={true}
-  simpleValue={false}
-  tabSelectsValue={true}
-  valueComponent={[Function]}
-  valueKey="value"
 />
 `;

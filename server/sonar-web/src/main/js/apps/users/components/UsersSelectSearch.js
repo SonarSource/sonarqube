@@ -19,8 +19,8 @@
  */
 //@flow
 import React from 'react';
-import Select from 'react-select';
 import { debounce } from 'lodash';
+import Select from '../../../components/controls/Select';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import UsersSelectSearchOption from './UsersSelectSearchOption';
 import UsersSelectSearchValue from './UsersSelectSearchValue';

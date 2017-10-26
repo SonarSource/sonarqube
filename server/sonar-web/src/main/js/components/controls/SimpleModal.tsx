@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as Modal from 'react-modal';
+import Modal from '../../components/controls/Modal';
 
 export interface ChildrenProps {
   onCloseClick: (event: React.SyntheticEvent<HTMLElement>) => void;
@@ -73,12 +73,7 @@ export default class SimpleModal extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <Modal
-        isOpen={true}
-        contentLabel={this.props.header}
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.props.onClose}>
+      <Modal contentLabel={this.props.header} onRequestClose={this.props.onClose}>
         {this.props.children({
           onCloseClick: this.handleCloseClick,
           onSubmitClick: this.handleSubmitClick,

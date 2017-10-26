@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import Modal from 'react-modal';
+import Modal from '../../../../components/controls/Modal';
 import { translate } from '../../../../helpers/l10n';
 /*:: import type { Event } from '../../types'; */
 
@@ -96,12 +96,7 @@ export default class ChangeEventForm extends React.PureComponent {
 
   render() {
     return (
-      <Modal
-        isOpen={true}
-        contentLabel="modal form"
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.closeForm}>
+      <Modal contentLabel="modal form" onRequestClose={this.closeForm}>
         <header className="modal-head">
           <h2>{translate(this.props.changeEventButtonText)}</h2>
         </header>

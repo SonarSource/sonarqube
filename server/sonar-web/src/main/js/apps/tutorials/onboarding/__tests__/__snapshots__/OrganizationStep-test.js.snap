@@ -1,0 +1,257 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`works with existing organization 1`] = `
+<OrganizationStep
+  currentUser={
+    Object {
+      "isLoggedIn": true,
+      "login": "user",
+    }
+  }
+  finished={false}
+  onContinue={[Function]}
+  onOpen={[Function]}
+  open={true}
+  stepNumber={1}
+>
+  <Step
+    finished={false}
+    onOpen={[Function]}
+    open={true}
+    renderForm={[Function]}
+    renderResult={[Function]}
+    stepNumber={1}
+    stepTitle="onboarding.organization.header"
+  >
+    <div
+      className="boxed-group onboarding-step is-open"
+    >
+      <div
+        className="onboarding-step-number"
+      >
+        1
+      </div>
+      <div
+        className="boxed-group-header"
+      >
+        <h2>
+          onboarding.organization.header
+        </h2>
+      </div>
+      <div
+        className="boxed-group-inner"
+      >
+        <div
+          className="big-spacer-bottom width-50"
+        >
+          onboarding.organization.text
+        </div>
+        <div>
+          <div
+            className="big-spacer-top"
+          >
+            <a
+              className="js-existing link-base-color link-no-underline"
+              href="#"
+              onClick={[Function]}
+            >
+              <i
+                className="icon-radio spacer-right is-checked"
+              />
+              onboarding.organization.exising_organization
+            </a>
+            <div
+              className="big-spacer-top"
+            >
+              <Select
+                className="input-super-large"
+                clearable={false}
+                onChange={[Function]}
+                options={
+                  Array [
+                    Object {
+                      "label": "another",
+                      "value": "another",
+                    },
+                    Object {
+                      "label": "user",
+                      "value": "user",
+                    },
+                  ]
+                }
+              >
+                <Select
+                  addLabelText="Add \\"{label}\\"?"
+                  arrowRenderer={[Function]}
+                  autosize={true}
+                  backspaceRemoves={true}
+                  backspaceToRemoveMessage="Press backspace to remove {label}"
+                  className="input-super-large"
+                  clearAllText="Clear all"
+                  clearRenderer={[Function]}
+                  clearValueText="Clear value"
+                  clearable={false}
+                  closeOnSelect={true}
+                  deleteRemoves={true}
+                  delimiter=","
+                  disabled={false}
+                  escapeClearsValue={true}
+                  filterOptions={[Function]}
+                  ignoreAccents={true}
+                  ignoreCase={true}
+                  inputProps={Object {}}
+                  isLoading={false}
+                  joinValues={false}
+                  labelKey="label"
+                  matchPos="any"
+                  matchProp="any"
+                  menuBuffer={0}
+                  menuRenderer={[Function]}
+                  multi={false}
+                  noResultsText="No results found"
+                  onBlurResetsInput={true}
+                  onChange={[Function]}
+                  onCloseResetsInput={true}
+                  onSelectResetsInput={true}
+                  openOnClick={true}
+                  optionComponent={[Function]}
+                  options={
+                    Array [
+                      Object {
+                        "label": "another",
+                        "value": "another",
+                      },
+                      Object {
+                        "label": "user",
+                        "value": "user",
+                      },
+                    ]
+                  }
+                  pageSize={5}
+                  placeholder="Select..."
+                  required={false}
+                  scrollMenuIntoView={true}
+                  searchable={true}
+                  simpleValue={false}
+                  tabSelectsValue={true}
+                  valueComponent={[Function]}
+                  valueKey="value"
+                >
+                  <div
+                    className="Select input-super-large Select--single is-searchable"
+                  >
+                    <div
+                      className="Select-control"
+                      onKeyDown={[Function]}
+                      onMouseDown={[Function]}
+                      onTouchEnd={[Function]}
+                      onTouchMove={[Function]}
+                      onTouchStart={[Function]}
+                    >
+                      <span
+                        className="Select-multi-value-wrapper"
+                        id="react-select-2--value"
+                      >
+                        <div
+                          className="Select-placeholder"
+                        >
+                          Select...
+                        </div>
+                        <AutosizeInput
+                          aria-activedescendant="react-select-2--value"
+                          aria-expanded="false"
+                          aria-haspopup="false"
+                          aria-owns=""
+                          className="Select-input"
+                          minWidth="5"
+                          onBlur={[Function]}
+                          onChange={[Function]}
+                          onFocus={[Function]}
+                          required={false}
+                          role="combobox"
+                          value=""
+                        >
+                          <div
+                            className="Select-input"
+                            style={
+                              Object {
+                                "display": "inline-block",
+                              }
+                            }
+                          >
+                            <style
+                              dangerouslySetInnerHTML={
+                                Object {
+                                  "__html": "input#undefined::-ms-clear {display: none;}",
+                                }
+                              }
+                            />
+                            <input
+                              aria-activedescendant="react-select-2--value"
+                              aria-expanded="false"
+                              aria-haspopup="false"
+                              aria-owns=""
+                              onBlur={[Function]}
+                              onChange={[Function]}
+                              onFocus={[Function]}
+                              required={false}
+                              role="combobox"
+                              style={
+                                Object {
+                                  "boxSizing": "content-box",
+                                  "width": "5px",
+                                }
+                              }
+                              value=""
+                            />
+                            <div
+                              style={
+                                Object {
+                                  "height": 0,
+                                  "left": 0,
+                                  "overflow": "scroll",
+                                  "position": "absolute",
+                                  "top": 0,
+                                  "visibility": "hidden",
+                                  "whiteSpace": "pre",
+                                }
+                              }
+                            />
+                          </div>
+                        </AutosizeInput>
+                      </span>
+                      <span
+                        className="Select-arrow-zone"
+                        onMouseDown={[Function]}
+                      >
+                        <span
+                          className="Select-arrow"
+                          onMouseDown={[Function]}
+                        />
+                      </span>
+                    </div>
+                  </div>
+                </Select>
+              </Select>
+            </div>
+          </div>
+          <div
+            className="big-spacer-top"
+          >
+            <a
+              className="js-new link-base-color link-no-underline"
+              href="#"
+              onClick={[Function]}
+            >
+              <i
+                className="icon-radio spacer-right"
+              />
+              onboarding.organization.create_another_organization
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Step>
+</OrganizationStep>
+`;

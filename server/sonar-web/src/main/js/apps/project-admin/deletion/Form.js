@@ -19,8 +19,8 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import Modal from 'react-modal';
 import { deleteProject, deletePortfolio } from '../../../api/components';
+import Modal from '../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default class Form extends React.PureComponent {
@@ -80,12 +80,7 @@ export default class Form extends React.PureComponent {
         </button>
 
         {this.state.modalOpen && (
-          <Modal
-            isOpen={true}
-            contentLabel="project deletion"
-            className="modal"
-            overlayClassName="modal-overlay"
-            onRequestClose={this.closeModal}>
+          <Modal contentLabel="project deletion" onRequestClose={this.closeModal}>
             <form onSubmit={this.handleSubmit}>
               <div className="modal-head">
                 <h2>{translate('qualifier.delete.TRK')}</h2>

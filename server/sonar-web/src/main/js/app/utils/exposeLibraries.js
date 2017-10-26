@@ -19,8 +19,6 @@
  */
 import * as ReactRedux from 'react-redux';
 import * as ReactRouter from 'react-router';
-import Select from 'react-select';
-import Modal from 'react-modal';
 import throwGlobalError from './throwGlobalError';
 import * as measures from '../../helpers/measures';
 import * as request from '../../helpers/request';
@@ -31,6 +29,8 @@ import DateTimeFormatter from '../../components/intl/DateTimeFormatter';
 import FavoriteContainer from '../../components/controls/FavoriteContainer';
 import LicenseEditionSet from '../../apps/marketplace/components/LicenseEditionSet';
 import ListFooter from '../../components/controls/ListFooter';
+import Modal from '../../components/controls/Modal';
+import Select from '../../components/controls/Select';
 import Tooltip from '../../components/controls/Tooltip';
 import ModalForm from '../../components/common/modal-form';
 import SelectList from '../../components/SelectList';

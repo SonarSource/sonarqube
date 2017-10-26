@@ -63,7 +63,11 @@ it('works with existing organization', () => {
   );
   return doAsync(() => {
     click(wrapper.find('.js-existing'));
-    wrapper.find('Select').prop('onChange')({ value: 'another' });
+    expect(wrapper).toMatchSnapshot();
+    wrapper
+      .find('Select')
+      .first()
+      .prop('onChange')({ value: 'another' });
     click(wrapper.find('.js-continue'));
     expect(onContinue).toBeCalledWith('another');
   });
