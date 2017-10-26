@@ -22,8 +22,14 @@ import * as ReactModal from 'react-modal';
 import * as classNames from 'classnames';
 
 // white-list only some props
-type AllowedProps = 'contentLabel' | 'onAfterOpen' | 'onRequestClose';
-type Props = Pick<ReactModal.Props, AllowedProps> & { medium?: boolean; large?: boolean };
+type AllowedProps = Pick<ReactModal.Props, 'contentLabel'>;
+
+interface OwnProps {
+  medium?: boolean;
+  large?: boolean;
+}
+
+type Props = Partial<ReactModal.Props> & AllowedProps & OwnProps;
 
 export default function Modal(props: Props) {
   return (
