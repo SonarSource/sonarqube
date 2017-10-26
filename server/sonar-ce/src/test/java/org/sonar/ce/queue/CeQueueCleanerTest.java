@@ -46,14 +46,14 @@ public class CeQueueCleanerTest {
   private CeQueueCleaner underTest = new CeQueueCleaner(dbTester.getDbClient(), serverUpgradeStatus, queue);
 
   @Test
-  public void start_resets_in_progress_tasks_to_pending() throws IOException {
+  public void start_does_not_reset_in_progress_tasks_to_pending() throws IOException {
     insertInQueue("TASK_1", CeQueueDto.Status.PENDING);
     insertInQueue("TASK_2", CeQueueDto.Status.IN_PROGRESS);
 
     underTest.start();
 
-    assertThat(dbTester.getDbClient().ceQueueDao().countByStatus(dbTester.getSession(), CeQueueDto.Status.PENDING)).isEqualTo(2);
-    assertThat(dbTester.getDbClient().ceQueueDao().countByStatus(dbTester.getSession(), CeQueueDto.Status.IN_PROGRESS)).isEqualTo(0);
+    assertThat(dbTester.getDbClient().ceQueueDao().countByStatus(dbTester.getSession(), CeQueueDto.Status.PENDING)).isEqualTo(1);
+    assertThat(dbTester.getDbClient().ceQueueDao().countByStatus(dbTester.getSession(), CeQueueDto.Status.IN_PROGRESS)).isEqualTo(1);
   }
 
   @Test
