@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as Modal from 'react-modal';
 import * as classNames from 'classnames';
 import { Organization, Visibility } from '../../app/types';
 import UpgradeOrganizationBox from '../../components/common/UpgradeOrganizationBox';
 import { translate } from '../../helpers/l10n';
+import Modal from '../../components/controls/Modal';
 
 export interface Props {
   onClose: () => void;
@@ -62,12 +62,7 @@ export default class ChangeVisibilityForm extends React.PureComponent<Props, Sta
     const { canUpdateProjectsVisibilityToPrivate } = this.props.organization;
 
     return (
-      <Modal
-        isOpen={true}
-        contentLabel="modal form"
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.props.onClose}>
+      <Modal contentLabel="modal form" onRequestClose={this.props.onClose}>
         <header className="modal-head">
           <h2>{translate('organization.change_visibility_form.header')}</h2>
         </header>

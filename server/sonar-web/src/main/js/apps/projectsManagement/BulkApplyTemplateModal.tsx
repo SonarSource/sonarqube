@@ -18,8 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as Modal from 'react-modal';
-import Select from 'react-select';
 import {
   getPermissionTemplates,
   bulkApplyTemplate,
@@ -27,6 +25,8 @@ import {
 } from '../../api/permissions';
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import AlertWarnIcon from '../../components/icons-components/AlertWarnIcon';
+import Modal from '../../components/controls/Modal';
+import Select from '../../components/controls/Select';
 
 export interface Props {
   analyzedBefore?: string;
@@ -160,12 +160,7 @@ export default class BulkApplyTemplateModal extends React.PureComponent<Props, S
     const header = translate('permission_templates.bulk_apply_permission_template');
 
     return (
-      <Modal
-        isOpen={true}
-        contentLabel={header}
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.props.onClose}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
         <header className="modal-head">
           <h2>{header}</h2>
         </header>

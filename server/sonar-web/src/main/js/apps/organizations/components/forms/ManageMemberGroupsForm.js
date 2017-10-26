@@ -19,9 +19,9 @@
  */
 // @flow
 import React from 'react';
-import Modal from 'react-modal';
 import { keyBy, pickBy } from 'lodash';
 import { getUserGroups } from '../../../../api/users';
+import Modal from '../../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import OrganizationGroupCheckbox from '../OrganizationGroupCheckbox';
 /*:: import type { Member } from '../../../../store/organizationsMembers/actions'; */
@@ -106,12 +106,7 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
 
   renderModal() {
     return (
-      <Modal
-        isOpen={true}
-        contentLabel="modal form"
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.closeForm}>
+      <Modal contentLabel="modal form" onRequestClose={this.closeForm}>
         <header className="modal-head">
           <h2>{translate('organization.members.manage_groups')}</h2>
         </header>

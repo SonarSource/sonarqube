@@ -19,7 +19,7 @@
  */
 // @flow
 import React from 'react';
-import Modal from 'react-modal';
+import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
 
 /*::
@@ -58,11 +58,7 @@ export default class OnboardingModal extends React.PureComponent {
     const { OnboardingContainer } = this.state;
 
     return (
-      <Modal
-        isOpen={true}
-        contentLabel={translate('tutorials.onboarding')}
-        className="modal modal-large"
-        overlayClassName="modal-overlay">
+      <Modal contentLabel={translate('tutorials.onboarding')} large={true}>
         {OnboardingContainer != null && <OnboardingContainer onFinish={this.props.onFinish} />}
       </Modal>
     );

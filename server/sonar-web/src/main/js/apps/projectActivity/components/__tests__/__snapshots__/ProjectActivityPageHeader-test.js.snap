@@ -5,39 +5,9 @@ exports[`should render correctly the list of series 1`] = `
   className="page-header"
 >
   <Select
-    addLabelText="Add \\"{label}\\"?"
-    arrowRenderer={[Function]}
-    autosize={true}
-    backspaceRemoves={true}
-    backspaceToRemoveMessage="Press backspace to remove {label}"
     className="input-medium pull-left big-spacer-right"
-    clearAllText="Clear all"
-    clearRenderer={[Function]}
-    clearValueText="Clear value"
     clearable={true}
-    closeOnSelect={true}
-    deleteRemoves={true}
-    delimiter=","
-    disabled={false}
-    escapeClearsValue={true}
-    filterOptions={[Function]}
-    ignoreAccents={true}
-    ignoreCase={true}
-    inputProps={Object {}}
-    isLoading={false}
-    joinValues={false}
-    labelKey="label"
-    matchPos="any"
-    matchProp="any"
-    menuBuffer={0}
-    menuRenderer={[Function]}
-    multi={false}
-    noResultsText="No results found"
-    onBlurResetsInput={true}
     onChange={[Function]}
-    onCloseResetsInput={true}
-    onSelectResetsInput={true}
-    openOnClick={true}
     optionComponent={[Function]}
     options={
       Array [
@@ -59,16 +29,10 @@ exports[`should render correctly the list of series 1`] = `
         },
       ]
     }
-    pageSize={5}
     placeholder="project_activity.filter_events..."
-    required={false}
-    scrollMenuIntoView={true}
     searchable={false}
-    simpleValue={false}
-    tabSelectsValue={true}
     value=""
     valueComponent={[Function]}
-    valueKey="value"
   />
   <ProjectActivityDateInput
     className="pull-left"

@@ -20,9 +20,9 @@
 // @flow
 import React from 'react';
 import Helmet from 'react-helmet';
-import Modal from 'react-modal';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
+import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
 import { getOrganizationByKey } from '../../../store/rootReducer';
 import { deleteOrganization } from '../actions';
@@ -63,12 +63,7 @@ class OrganizationDelete extends React.PureComponent {
 
   renderModal() {
     return (
-      <Modal
-        isOpen={true}
-        contentLabel="modal form"
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.handleCloseModal}>
+      <Modal contentLabel="modal form" onRequestClose={this.handleCloseModal}>
         <header className="modal-head">
           <h2>{translate('organization.delete')}</h2>
         </header>

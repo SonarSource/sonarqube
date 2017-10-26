@@ -7,39 +7,9 @@ exports[`should handle the descending sort direction 1`] = `
     :
   </label>
   <Select
-    addLabelText="Add \\"{label}\\"?"
-    arrowRenderer={[Function]}
-    autosize={true}
-    backspaceRemoves={true}
-    backspaceToRemoveMessage="Press backspace to remove {label}"
     className="little-spacer-left input-medium"
-    clearAllText="Clear all"
-    clearRenderer={[Function]}
-    clearValueText="Clear value"
     clearable={false}
-    closeOnSelect={true}
-    deleteRemoves={true}
-    delimiter=","
-    disabled={false}
-    escapeClearsValue={true}
-    filterOptions={[Function]}
-    ignoreAccents={true}
-    ignoreCase={true}
-    inputProps={Object {}}
-    isLoading={false}
-    joinValues={false}
-    labelKey="label"
-    matchPos="any"
-    matchProp="any"
-    menuBuffer={0}
-    menuRenderer={[Function]}
-    multi={false}
-    noResultsText="No results found"
-    onBlurResetsInput={true}
     onChange={[Function]}
-    onCloseResetsInput={true}
-    onSelectResetsInput={true}
-    openOnClick={true}
     optionComponent={[Function]}
     options={
       Array [
@@ -85,16 +55,8 @@ exports[`should handle the descending sort direction 1`] = `
         },
       ]
     }
-    pageSize={5}
-    placeholder="Select..."
-    required={false}
-    scrollMenuIntoView={true}
     searchable={false}
-    simpleValue={false}
-    tabSelectsValue={true}
     value="vulnerability"
-    valueComponent={[Function]}
-    valueKey="value"
   />
   <Tooltip
     overlay="projects.sort_descending"
@@ -120,39 +82,9 @@ exports[`should render correctly for leak view 1`] = `
     :
   </label>
   <Select
-    addLabelText="Add \\"{label}\\"?"
-    arrowRenderer={[Function]}
-    autosize={true}
-    backspaceRemoves={true}
-    backspaceToRemoveMessage="Press backspace to remove {label}"
     className="little-spacer-left input-medium"
-    clearAllText="Clear all"
-    clearRenderer={[Function]}
-    clearValueText="Clear value"
     clearable={false}
-    closeOnSelect={true}
-    deleteRemoves={true}
-    delimiter=","
-    disabled={false}
-    escapeClearsValue={true}
-    filterOptions={[Function]}
-    ignoreAccents={true}
-    ignoreCase={true}
-    inputProps={Object {}}
-    isLoading={false}
-    joinValues={false}
-    labelKey="label"
-    matchPos="any"
-    matchProp="any"
-    menuBuffer={0}
-    menuRenderer={[Function]}
-    multi={false}
-    noResultsText="No results found"
-    onBlurResetsInput={true}
     onChange={[Function]}
-    onCloseResetsInput={true}
-    onSelectResetsInput={true}
-    openOnClick={true}
     optionComponent={[Function]}
     options={
       Array [
@@ -198,16 +130,8 @@ exports[`should render correctly for leak view 1`] = `
         },
       ]
     }
-    pageSize={5}
-    placeholder="Select..."
-    required={false}
-    scrollMenuIntoView={true}
     searchable={false}
-    simpleValue={false}
-    tabSelectsValue={true}
     value="new_coverage"
-    valueComponent={[Function]}
-    valueKey="value"
   />
   <Tooltip
     overlay="projects.sort_ascending"
@@ -233,39 +157,9 @@ exports[`should render correctly for overall view 1`] = `
     :
   </label>
   <Select
-    addLabelText="Add \\"{label}\\"?"
-    arrowRenderer={[Function]}
-    autosize={true}
-    backspaceRemoves={true}
-    backspaceToRemoveMessage="Press backspace to remove {label}"
     className="little-spacer-left input-medium"
-    clearAllText="Clear all"
-    clearRenderer={[Function]}
-    clearValueText="Clear value"
     clearable={false}
-    closeOnSelect={true}
-    deleteRemoves={true}
-    delimiter=","
-    disabled={false}
-    escapeClearsValue={true}
-    filterOptions={[Function]}
-    ignoreAccents={true}
-    ignoreCase={true}
-    inputProps={Object {}}
-    isLoading={false}
-    joinValues={false}
-    labelKey="label"
-    matchPos="any"
-    matchProp="any"
-    menuBuffer={0}
-    menuRenderer={[Function]}
-    multi={false}
-    noResultsText="No results found"
-    onBlurResetsInput={true}
     onChange={[Function]}
-    onCloseResetsInput={true}
-    onSelectResetsInput={true}
-    openOnClick={true}
     optionComponent={[Function]}
     options={
       Array [
@@ -311,16 +205,8 @@ exports[`should render correctly for overall view 1`] = `
         },
       ]
     }
-    pageSize={5}
-    placeholder="Select..."
-    required={false}
-    scrollMenuIntoView={true}
     searchable={false}
-    simpleValue={false}
-    tabSelectsValue={true}
     value="name"
-    valueComponent={[Function]}
-    valueKey="value"
   />
   <Tooltip
     overlay="projects.sort_ascending"

@@ -19,8 +19,8 @@
  */
 // @flow
 import React from 'react';
-import Modal from 'react-modal';
 import { getSettingValue, isEmptyValue, getDefaultValue } from '../utils';
+import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
 
 /*::
@@ -57,12 +57,7 @@ export default class DefinitionDefaults extends React.PureComponent {
   renderModal() {
     const header = translate('settings.reset_confirm.title');
     return (
-      <Modal
-        isOpen={true}
-        contentLabel={header}
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.handleClose}>
+      <Modal contentLabel={header} onRequestClose={this.handleClose}>
         <header className="modal-head">
           <h2>{header}</h2>
         </header>
