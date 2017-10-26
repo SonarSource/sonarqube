@@ -68,9 +68,10 @@ it('should open the license form', () => {
 function getWrapper(props = {}) {
   return shallow(
     <EditionBoxes
+      canInstall={true}
+      canUninstall={true}
       loading={false}
       editionStatus={DEFAULT_STATUS}
-      readOnly={false}
       updateCenterActive={true}
       updateEditionStatus={jest.fn()}
       {...props}
