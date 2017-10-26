@@ -52,28 +52,30 @@ public class CommitPendingEditionOnStartupTest {
   private CommitPendingEditionOnStartup underTestWithLicenseCommit = new CommitPendingEditionOnStartup(editionManagementState, licenseCommit);
 
   @Test
-  public void start_has_no_effect_when_status_is_NONE_without_LicenseCommit() {
+  public void start_clears_error_message_when_status_is_NONE_without_LicenseCommit() {
     when(editionManagementState.getPendingInstallationStatus()).thenReturn(NONE);
 
     underTest.start();
 
     verify(editionManagementState).getPendingInstallationStatus();
+    verify(editionManagementState).clearInstallErrorMessage();
     verifyNoMoreInteractions(editionManagementState);
   }
 
   @Test
-  public void start_has_no_effect_when_status_is_NONE_with_LicenseCommit() {
+  public void start_clears_error_message_when_status_is_NONE_with_LicenseCommit() {
     when(editionManagementState.getPendingInstallationStatus()).thenReturn(NONE);
 
     underTestWithLicenseCommit.start();
 
     verify(editionManagementState).getPendingInstallationStatus();
+    verify(editionManagementState).clearInstallErrorMessage();
     verifyNoMoreInteractions(editionManagementState);
     verifyZeroInteractions(licenseCommit);
   }
 
   @Test
-  public void starts_has_no_effect_when_status_is_AUTOMATIC_READY_and_no_LicenseCommit_is_available_but_logs_at_debug_level() {
+  public void start_has_no_effect_when_status_is_AUTOMATIC_READY_and_no_LicenseCommit_is_available_but_logs_at_debug_level() {
     when(editionManagementState.getPendingInstallationStatus()).thenReturn(AUTOMATIC_READY);
 
     underTest.start();
