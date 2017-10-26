@@ -220,9 +220,8 @@ public class Navigation {
     return this;
   }
 
-  public RulesPage clickOnRules() {
-    $(By.linkText("Rules")).click();
-    return page(RulesPage.class);
+  public RulesPage openRules() {
+    return open("/coding_rules", RulesPage.class);
   }
 
   public SelenideElement clickOnQualityProfiles() {

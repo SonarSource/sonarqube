@@ -43,14 +43,14 @@ export interface GetRuleDetailsParameters {
   organization?: string;
 }
 
-export function getRuleDetails({ key }: GetRuleDetailsParameters): Promise<any> {
-  return getJSON('/api/rules/show', { key }).catch(throwGlobalError);
+export function getRuleDetails(parameters: GetRuleDetailsParameters): Promise<any> {
+  return getJSON('/api/rules/show', parameters).catch(throwGlobalError);
 }
 
 export function getRuleTags(parameters: { organization?: string }): Promise<string[]> {
   return getJSON('/api/rules/tags', parameters).then(r => r.tags, throwGlobalError);
 }
 
-export function deleteRule({ key }: { key: string }) {
-  return post('/api/rules/delete', { key }).catch(throwGlobalError);
+export function deleteRule(parameters: { key: string }) {
+  return post('/api/rules/delete', parameters).catch(throwGlobalError);
 }
