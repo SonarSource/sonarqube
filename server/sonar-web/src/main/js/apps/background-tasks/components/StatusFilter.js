@@ -19,8 +19,8 @@
  */
 /* @flow */
 import React from 'react';
-import Select from 'react-select';
 import { STATUSES } from '../constants';
+import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 
 const StatusFilter = ({ value, onChange } /*: { value: ?string, onChange: Function } */) => {

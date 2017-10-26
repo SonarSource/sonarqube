@@ -19,11 +19,11 @@
  */
 // @flow
 import React from 'react';
-import Select, { Creatable } from 'react-select';
 import { pickBy, sortBy } from 'lodash';
 import SearchSelect from '../../../components/controls/SearchSelect';
 import Checkbox from '../../../components/controls/Checkbox';
 import Modal from '../../../components/controls/Modal';
+import Select, { Creatable } from '../../../components/controls/Select';
 import Tooltip from '../../../components/controls/Tooltip';
 import MarkdownTips from '../../../components/common/MarkdownTips';
 import SeverityHelper from '../../../components/shared/SeverityHelper';

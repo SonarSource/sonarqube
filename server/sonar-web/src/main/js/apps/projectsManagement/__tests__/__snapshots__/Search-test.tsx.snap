@@ -53,41 +53,11 @@ exports[`render qualifiers filter 1`] = `
           className="thin nowrap text-middle"
         >
           <Select
-            addLabelText="Add \\"{label}\\"?"
-            arrowRenderer={[Function]}
-            autosize={true}
-            backspaceRemoves={true}
-            backspaceToRemoveMessage="Press backspace to remove {label}"
             className="input-medium"
-            clearAllText="Clear all"
-            clearRenderer={[Function]}
-            clearValueText="Clear value"
             clearable={false}
-            closeOnSelect={true}
-            deleteRemoves={true}
-            delimiter=","
             disabled={false}
-            escapeClearsValue={true}
-            filterOptions={[Function]}
-            ignoreAccents={true}
-            ignoreCase={true}
-            inputProps={Object {}}
-            isLoading={false}
-            joinValues={false}
-            labelKey="label"
-            matchPos="any"
-            matchProp="any"
-            menuBuffer={0}
-            menuRenderer={[Function]}
-            multi={false}
             name="projects-qualifier"
-            noResultsText="No results found"
-            onBlurResetsInput={true}
             onChange={[Function]}
-            onCloseResetsInput={true}
-            onSelectResetsInput={true}
-            openOnClick={true}
-            optionComponent={[Function]}
             optionRenderer={[Function]}
             options={
               Array [
@@ -105,16 +75,8 @@ exports[`render qualifiers filter 1`] = `
                 },
               ]
             }
-            pageSize={5}
-            placeholder="Select..."
-            required={false}
-            scrollMenuIntoView={true}
             searchable={false}
-            simpleValue={false}
-            tabSelectsValue={true}
             value="TRK"
-            valueComponent={[Function]}
-            valueKey="value"
             valueRenderer={[Function]}
           />
         </td>

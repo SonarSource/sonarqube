@@ -19,40 +19,9 @@ exports[`changes select 1`] = `
       className="modal-body"
     >
       <Select
-        addLabelText="Add \\"{label}\\"?"
-        arrowRenderer={[Function]}
-        autosize={true}
-        backspaceRemoves={true}
-        backspaceToRemoveMessage="Press backspace to remove {label}"
         className="input-tiny spacer-top"
-        clearAllText="Clear all"
-        clearRenderer={[Function]}
-        clearValueText="Clear value"
         clearable={false}
-        closeOnSelect={true}
-        deleteRemoves={true}
-        delimiter=","
-        disabled={false}
-        escapeClearsValue={true}
-        filterOptions={[Function]}
-        ignoreAccents={true}
-        ignoreCase={true}
-        inputProps={Object {}}
-        isLoading={false}
-        joinValues={false}
-        labelKey="label"
-        matchPos="any"
-        matchProp="any"
-        menuBuffer={0}
-        menuRenderer={[Function]}
-        multi={false}
-        noResultsText="No results found"
-        onBlurResetsInput={true}
         onChange={[Function]}
-        onCloseResetsInput={true}
-        onSelectResetsInput={true}
-        openOnClick={true}
-        optionComponent={[Function]}
         options={
           Array [
             Object {
@@ -97,16 +66,8 @@ exports[`changes select 1`] = `
             },
           ]
         }
-        pageSize={5}
-        placeholder="Select..."
-        required={false}
-        scrollMenuIntoView={true}
         searchable={false}
-        simpleValue={false}
-        tabSelectsValue={true}
         value={1}
-        valueComponent={[Function]}
-        valueKey="value"
       />
       <div
         className="big-spacer-top alert alert-success markdown"
@@ -156,40 +117,9 @@ exports[`changes select 2`] = `
       className="modal-body"
     >
       <Select
-        addLabelText="Add \\"{label}\\"?"
-        arrowRenderer={[Function]}
-        autosize={true}
-        backspaceRemoves={true}
-        backspaceToRemoveMessage="Press backspace to remove {label}"
         className="input-tiny spacer-top"
-        clearAllText="Clear all"
-        clearRenderer={[Function]}
-        clearValueText="Clear value"
         clearable={false}
-        closeOnSelect={true}
-        deleteRemoves={true}
-        delimiter=","
-        disabled={false}
-        escapeClearsValue={true}
-        filterOptions={[Function]}
-        ignoreAccents={true}
-        ignoreCase={true}
-        inputProps={Object {}}
-        isLoading={false}
-        joinValues={false}
-        labelKey="label"
-        matchPos="any"
-        matchProp="any"
-        menuBuffer={0}
-        menuRenderer={[Function]}
-        multi={false}
-        noResultsText="No results found"
-        onBlurResetsInput={true}
         onChange={[Function]}
-        onCloseResetsInput={true}
-        onSelectResetsInput={true}
-        openOnClick={true}
-        optionComponent={[Function]}
         options={
           Array [
             Object {
@@ -234,16 +164,8 @@ exports[`changes select 2`] = `
             },
           ]
         }
-        pageSize={5}
-        placeholder="Select..."
-        required={false}
-        scrollMenuIntoView={true}
         searchable={false}
-        simpleValue={false}
-        tabSelectsValue={true}
         value={7}
-        valueComponent={[Function]}
-        valueKey="value"
       />
       <div
         className="big-spacer-top alert alert-success markdown"

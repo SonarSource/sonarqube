@@ -19,11 +19,11 @@
  */
 // @flow
 import React from 'react';
-import Select from 'react-select';
 import ProjectActivityEventSelectOption from './ProjectActivityEventSelectOption';
 import ProjectActivityEventSelectValue from './ProjectActivityEventSelectValue';
 import ProjectActivityDateInput from './ProjectActivityDateInput';
 import { EVENT_TYPES, APPLICATION_EVENT_TYPES } from '../utils';
+import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { RawQuery } from '../../../helpers/query'; */
 

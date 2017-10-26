@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Select from 'react-select';
 import {
   getPermissionTemplates,
   bulkApplyTemplate,
@@ -27,6 +26,7 @@ import {
 import { translate, translateWithParameters } from '../../helpers/l10n';
 import AlertWarnIcon from '../../components/icons-components/AlertWarnIcon';
 import Modal from '../../components/controls/Modal';
+import Select from '../../components/controls/Select';
 
 export interface Props {
   analyzedBefore?: string;

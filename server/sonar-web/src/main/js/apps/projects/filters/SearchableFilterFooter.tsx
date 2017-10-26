@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Select from 'react-select';
 import * as PropTypes from 'prop-types';
 import { getFilterUrl } from './utils';
+import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {

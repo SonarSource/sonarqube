@@ -19,8 +19,8 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import Select from 'react-select';
 import ThresholdInput from '../ThresholdInput';
+import Select from '../../../../components/controls/Select';
 import { change } from '../../../../helpers/testUtils';
 
 describe('on strings', () => {

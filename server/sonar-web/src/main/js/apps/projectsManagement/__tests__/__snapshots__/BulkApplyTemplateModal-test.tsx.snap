@@ -68,39 +68,9 @@ exports[`bulk applies template to all results 2`] = `
         </em>
       </label>
       <Select
-        addLabelText="Add \\"{label}\\"?"
-        arrowRenderer={[Function]}
-        autosize={true}
-        backspaceRemoves={true}
-        backspaceToRemoveMessage="Press backspace to remove {label}"
-        clearAllText="Clear all"
-        clearRenderer={[Function]}
-        clearValueText="Clear value"
         clearable={false}
-        closeOnSelect={true}
-        deleteRemoves={true}
-        delimiter=","
         disabled={false}
-        escapeClearsValue={true}
-        filterOptions={[Function]}
-        ignoreAccents={true}
-        ignoreCase={true}
-        inputProps={Object {}}
-        isLoading={false}
-        joinValues={false}
-        labelKey="label"
-        matchPos="any"
-        matchProp="any"
-        menuBuffer={0}
-        menuRenderer={[Function]}
-        multi={false}
-        noResultsText="No results found"
-        onBlurResetsInput={true}
         onChange={[Function]}
-        onCloseResetsInput={true}
-        onSelectResetsInput={true}
-        openOnClick={true}
-        optionComponent={[Function]}
         options={
           Array [
             Object {
@@ -113,16 +83,8 @@ exports[`bulk applies template to all results 2`] = `
             },
           ]
         }
-        pageSize={5}
-        placeholder="Select..."
-        required={false}
-        scrollMenuIntoView={true}
         searchable={false}
-        simpleValue={false}
-        tabSelectsValue={true}
         value="foo"
-        valueComponent={[Function]}
-        valueKey="value"
       />
     </div>
   </div>
@@ -181,39 +143,9 @@ exports[`bulk applies template to all results 3`] = `
         </em>
       </label>
       <Select
-        addLabelText="Add \\"{label}\\"?"
-        arrowRenderer={[Function]}
-        autosize={true}
-        backspaceRemoves={true}
-        backspaceToRemoveMessage="Press backspace to remove {label}"
-        clearAllText="Clear all"
-        clearRenderer={[Function]}
-        clearValueText="Clear value"
         clearable={false}
-        closeOnSelect={true}
-        deleteRemoves={true}
-        delimiter=","
         disabled={true}
-        escapeClearsValue={true}
-        filterOptions={[Function]}
-        ignoreAccents={true}
-        ignoreCase={true}
-        inputProps={Object {}}
-        isLoading={false}
-        joinValues={false}
-        labelKey="label"
-        matchPos="any"
-        matchProp="any"
-        menuBuffer={0}
-        menuRenderer={[Function]}
-        multi={false}
-        noResultsText="No results found"
-        onBlurResetsInput={true}
         onChange={[Function]}
-        onCloseResetsInput={true}
-        onSelectResetsInput={true}
-        openOnClick={true}
-        optionComponent={[Function]}
         options={
           Array [
             Object {
@@ -226,16 +158,8 @@ exports[`bulk applies template to all results 3`] = `
             },
           ]
         }
-        pageSize={5}
-        placeholder="Select..."
-        required={false}
-        scrollMenuIntoView={true}
         searchable={false}
-        simpleValue={false}
-        tabSelectsValue={true}
         value="foo"
-        valueComponent={[Function]}
-        valueKey="value"
       />
     </div>
   </div>
@@ -365,39 +289,9 @@ exports[`bulk applies template to selected results 2`] = `
         </em>
       </label>
       <Select
-        addLabelText="Add \\"{label}\\"?"
-        arrowRenderer={[Function]}
-        autosize={true}
-        backspaceRemoves={true}
-        backspaceToRemoveMessage="Press backspace to remove {label}"
-        clearAllText="Clear all"
-        clearRenderer={[Function]}
-        clearValueText="Clear value"
         clearable={false}
-        closeOnSelect={true}
-        deleteRemoves={true}
-        delimiter=","
         disabled={false}
-        escapeClearsValue={true}
-        filterOptions={[Function]}
-        ignoreAccents={true}
-        ignoreCase={true}
-        inputProps={Object {}}
-        isLoading={false}
-        joinValues={false}
-        labelKey="label"
-        matchPos="any"
-        matchProp="any"
-        menuBuffer={0}
-        menuRenderer={[Function]}
-        multi={false}
-        noResultsText="No results found"
-        onBlurResetsInput={true}
         onChange={[Function]}
-        onCloseResetsInput={true}
-        onSelectResetsInput={true}
-        openOnClick={true}
-        optionComponent={[Function]}
         options={
           Array [
             Object {
@@ -410,16 +304,8 @@ exports[`bulk applies template to selected results 2`] = `
             },
           ]
         }
-        pageSize={5}
-        placeholder="Select..."
-        required={false}
-        scrollMenuIntoView={true}
         searchable={false}
-        simpleValue={false}
-        tabSelectsValue={true}
         value="foo"
-        valueComponent={[Function]}
-        valueKey="value"
       />
     </div>
   </div>
@@ -478,39 +364,9 @@ exports[`bulk applies template to selected results 3`] = `
         </em>
       </label>
       <Select
-        addLabelText="Add \\"{label}\\"?"
-        arrowRenderer={[Function]}
-        autosize={true}
-        backspaceRemoves={true}
-        backspaceToRemoveMessage="Press backspace to remove {label}"
-        clearAllText="Clear all"
-        clearRenderer={[Function]}
-        clearValueText="Clear value"
         clearable={false}
-        closeOnSelect={true}
-        deleteRemoves={true}
-        delimiter=","
         disabled={true}
-        escapeClearsValue={true}
-        filterOptions={[Function]}
-        ignoreAccents={true}
-        ignoreCase={true}
-        inputProps={Object {}}
-        isLoading={false}
-        joinValues={false}
-        labelKey="label"
-        matchPos="any"
-        matchProp="any"
-        menuBuffer={0}
-        menuRenderer={[Function]}
-        multi={false}
-        noResultsText="No results found"
-        onBlurResetsInput={true}
         onChange={[Function]}
-        onCloseResetsInput={true}
-        onSelectResetsInput={true}
-        openOnClick={true}
-        optionComponent={[Function]}
         options={
           Array [
             Object {
@@ -523,16 +379,8 @@ exports[`bulk applies template to selected results 3`] = `
             },
           ]
         }
-        pageSize={5}
-        placeholder="Select..."
-        required={false}
-        scrollMenuIntoView={true}
         searchable={false}
-        simpleValue={false}
-        tabSelectsValue={true}
         value="foo"
-        valueComponent={[Function]}
-        valueKey="value"
       />
     </div>
   </div>

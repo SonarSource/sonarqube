@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Select from 'react-select';
 import { times } from 'lodash';
 import { setWorkerCount } from '../../../api/ce';
 import Modal from '../../../components/controls/Modal';
+import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 
 const MAX_WORKERS = 10;

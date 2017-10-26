@@ -20,8 +20,8 @@
 // @flow
 import React from 'react';
 import classNames from 'classnames';
-import Select from 'react-select';
 import Modal from '../../../../components/controls/Modal';
+import Select from '../../../../components/controls/Select';
 import Tooltip from '../../../../components/controls/Tooltip';
 import { isDiffMetric } from '../../../../helpers/measures';
 import {
