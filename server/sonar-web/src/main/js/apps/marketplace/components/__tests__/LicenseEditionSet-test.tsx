@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+/* eslint-disable import/order */
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import { change } from '../../../../helpers/testUtils';

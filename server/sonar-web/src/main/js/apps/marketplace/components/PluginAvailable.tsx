@@ -24,12 +24,12 @@ import PluginLicense from './PluginLicense';
 import PluginOrganization from './PluginOrganization';
 import PluginStatus from './PluginStatus';
 import PluginUrls from './PluginUrls';
-import { PluginAvailable } from '../../../api/plugins';
+import { PluginAvailable as IPluginAvailable } from '../../../api/plugins';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { Query } from '../utils';
 
 interface Props {
-  plugin: PluginAvailable;
+  plugin: IPluginAvailable;
   readOnly: boolean;
   refreshPending: () => void;
   status?: string;
