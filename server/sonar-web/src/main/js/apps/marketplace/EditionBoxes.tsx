@@ -26,10 +26,11 @@ import { Edition, EditionStatus } from '../../api/marketplace';
 import { translate } from '../../helpers/l10n';
 
 export interface Props {
+  canInstall: boolean;
+  canUninstall: boolean;
   editions?: Edition[];
   editionStatus?: EditionStatus;
   loading: boolean;
-  readOnly: boolean;
   updateCenterActive: boolean;
   updateEditionStatus: (editionStatus: EditionStatus) => void;
 }
@@ -49,7 +50,7 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
   handleCloseUninstallForm = () => this.setState({ openUninstallForm: false });
 
   render() {
-    const { editions, editionStatus, loading, readOnly } = this.props;
+    const { canInstall, canUninstall, editions, editionStatus, loading } = this.props;
     const { installEdition, openUninstallForm } = this.state;
     if (loading) {
       return <i className="big-spacer-bottom spinner" />;
@@ -79,16 +80,17 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
       <div className="spacer-bottom marketplace-editions">
         {editions.map(edition => (
           <EditionBox
+            canInstall={canInstall}
+            canUninstall={canUninstall}
             edition={edition}
             editionStatus={editionStatus}
             key={edition.key}
             onInstall={this.handleOpenLicenseForm}
             onUninstall={this.handleOpenUninstallForm}
-            readOnly={readOnly}
           />
         ))}
 
-        {!readOnly &&
+        {canInstall &&
         installEdition && (
           <LicenseEditionForm
             edition={installEdition}
@@ -98,7 +100,7 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
           />
         )}
 
-        {!readOnly &&
+        {canUninstall &&
         openUninstallForm &&
         editionStatus &&
         editionStatus.currentEditionKey && (

@@ -36,6 +36,8 @@ exports[`should display the edition boxes 2`] = `
   className="spacer-bottom marketplace-editions"
 >
   <EditionBox
+    canInstall={true}
+    canUninstall={true}
     edition={
       Object {
         "downloadUrl": "download_url",
@@ -55,9 +57,10 @@ exports[`should display the edition boxes 2`] = `
     }
     onInstall={[Function]}
     onUninstall={[Function]}
-    readOnly={false}
   />
   <EditionBox
+    canInstall={true}
+    canUninstall={true}
     edition={
       Object {
         "downloadUrl": "download_url",
@@ -77,7 +80,6 @@ exports[`should display the edition boxes 2`] = `
     }
     onInstall={[Function]}
     onUninstall={[Function]}
-    readOnly={false}
   />
 </div>
 `;

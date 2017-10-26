@@ -23,11 +23,12 @@ import { Edition, EditionStatus } from '../../../api/marketplace';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
+  canInstall: boolean;
+  canUninstall: boolean;
   edition: Edition;
   editionStatus?: EditionStatus;
   onInstall: (edition: Edition) => void;
   onUninstall: () => void;
-  readOnly: boolean;
 }
 
 export default class EditionBox extends React.PureComponent<Props> {
@@ -57,7 +58,7 @@ export default class EditionBox extends React.PureComponent<Props> {
   }
 
   render() {
-    const { edition, editionStatus, readOnly } = this.props;
+    const { canInstall, canUninstall, edition, editionStatus } = this.props;
     const isInstalled = editionStatus && editionStatus.currentEditionKey === edition.key;
     const uninstallInProgress =
       editionStatus && editionStatus.installationStatus === 'UNINSTALL_IN_PROGRESS';
@@ -75,21 +76,23 @@ export default class EditionBox extends React.PureComponent<Props> {
           <a href={edition.homeUrl} target="_blank">
             {translate('marketplace.learn_more')}
           </a>
-          {!readOnly &&
-            (isInstalled ? (
-              <button
-                className="button-red"
-                disabled={installInProgress || uninstallInProgress}
-                onClick={this.props.onUninstall}>
-                {translate('marketplace.uninstall')}
-              </button>
-            ) : (
-              <button
-                disabled={installInProgress || uninstallInProgress}
-                onClick={this.handleInstall}>
-                {translate('marketplace.install')}
-              </button>
-            ))}
+          {canUninstall &&
+          isInstalled && (
+            <button
+              className="button-red"
+              disabled={installInProgress || uninstallInProgress}
+              onClick={this.props.onUninstall}>
+              {translate('marketplace.uninstall')}
+            </button>
+          )}
+          {canInstall &&
+          !isInstalled && (
+            <button
+              disabled={installInProgress || uninstallInProgress}
+              onClick={this.handleInstall}>
+              {translate('marketplace.install')}
+            </button>
+          )}
         </div>
       </div>
     );

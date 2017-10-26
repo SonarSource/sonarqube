@@ -113,11 +113,12 @@ it('should disable uninstall button', () => {
 function getWrapper(props = {}) {
   return shallow(
     <EditionBox
+      canInstall={true}
+      canUninstall={true}
       edition={DEFAULT_EDITION}
       editionStatus={DEFAULT_STATUS}
       onInstall={jest.fn()}
       onUninstall={jest.fn()}
-      readOnly={false}
       {...props}
     />
   );

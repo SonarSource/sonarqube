@@ -168,10 +168,11 @@ export default class App extends React.PureComponent<Props, State> {
         </div>
         <Header />
         <EditionBoxes
+          canInstall={standaloneMode && !this.props.editionsReadOnly}
+          canUninstall={standaloneMode}
           editions={editions}
           loading={this.props.loadingEditions}
           editionStatus={editionStatus}
-          readOnly={!standaloneMode || this.props.editionsReadOnly}
           updateCenterActive={this.props.updateCenterActive}
           updateEditionStatus={this.props.setEditionStatus}
         />
