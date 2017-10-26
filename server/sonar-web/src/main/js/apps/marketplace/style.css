@@ -30,3 +30,14 @@
   align-items: baseline;
   justify-content: space-between;
 }
+
+.marketplace-plugin-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.marketplace-plugin-license {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

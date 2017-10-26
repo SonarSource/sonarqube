@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { FormattedMessage } from 'react-intl';
+import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -30,14 +31,16 @@ export default function PluginLicense({ license }: Props) {
     return null;
   }
   return (
-    <li className="little-spacer-bottom text-limited" title={license}>
-      <FormattedMessage
-        defaultMessage={translate('marketplace.licensed_under_x')}
-        id="marketplace.licensed_under_x"
-        values={{
-          license: <span className="js-plugin-license">{license}</span>
-        }}
-      />
-    </li>
+    <Tooltip overlay={license}>
+      <li className="little-spacer-bottom marketplace-plugin-license">
+        <FormattedMessage
+          defaultMessage={translate('marketplace.licensed_under_x')}
+          id="marketplace.licensed_under_x"
+          values={{
+            license: <span className="js-plugin-license">{license}</span>
+          }}
+        />
+      </li>
+    </Tooltip>
   );
 }

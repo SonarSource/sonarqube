@@ -1,24 +1,28 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should display the license field 1`] = `
-<li
-  className="little-spacer-bottom text-limited"
-  title="SonarSource license"
+<Tooltip
+  overlay="SonarSource license"
+  placement="bottom"
 >
-  <FormattedMessage
-    defaultMessage="marketplace.licensed_under_x"
-    id="marketplace.licensed_under_x"
-    values={
-      Object {
-        "license": <span
-          className="js-plugin-license"
-      >
-          SonarSource license
-      </span>,
+  <li
+    className="little-spacer-bottom marketplace-plugin-license"
+  >
+    <FormattedMessage
+      defaultMessage="marketplace.licensed_under_x"
+      id="marketplace.licensed_under_x"
+      values={
+        Object {
+          "license": <span
+            className="js-plugin-license"
+        >
+            SonarSource license
+        </span>,
+        }
       }
-    }
-  />
-</li>
+    />
+  </li>
+</Tooltip>
 `;
 
 exports[`should not display anything 1`] = `null`;

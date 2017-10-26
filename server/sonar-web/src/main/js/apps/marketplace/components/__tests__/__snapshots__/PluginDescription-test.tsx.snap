@@ -2,7 +2,7 @@
 
 exports[`should display the description and category 1`] = `
 <td
-  className="text-top width-20 big-spacer-right"
+  className="text-top width-25 big-spacer-right"
 >
   <div>
     <strong
@@ -28,7 +28,7 @@ exports[`should display the description and category 1`] = `
 
 exports[`should not display any category 1`] = `
 <td
-  className="text-top width-20 big-spacer-right"
+  className="text-top width-25 big-spacer-right"
 >
   <div>
     <strong
