@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as Modal from 'react-modal';
 import { renameBranch } from '../../../api/branches';
 import { Branch } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
+import Modal from '../../../components/controls/Modal';
 
 interface Props {
   branch: Branch;
@@ -84,12 +84,7 @@ export default class RenameBranchModal extends React.PureComponent<Props, State>
       this.state.loading || !this.state.name || this.state.name === branch.name;
 
     return (
-      <Modal
-        isOpen={true}
-        contentLabel={header}
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.props.onClose}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
         <header className="modal-head">
           <h2>{header}</h2>
         </header>

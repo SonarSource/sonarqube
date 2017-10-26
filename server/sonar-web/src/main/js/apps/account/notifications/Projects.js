@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import Select from 'react-select';
 import { connect } from 'react-redux';
 import { differenceBy } from 'lodash';
 import ProjectNotifications from './ProjectNotifications';
+import Select, { AsyncSelect } from '../../../components/controls/Select';
 import Organization from '../../../components/shared/Organization';
 import { translate } from '../../../helpers/l10n';
 import { getSuggestions } from '../../../api/components';
@@ -126,7 +126,7 @@ class Projects extends React.PureComponent {
           <span className="text-middle spacer-right">
             {translate('my_account.set_notifications_for')}:
           </span>
-          <Select.Async
+          <AsyncSelect
             autoload={false}
             cache={false}
             name="new_project"

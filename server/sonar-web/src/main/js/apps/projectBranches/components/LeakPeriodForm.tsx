@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as Modal from 'react-modal';
 import SettingForm from './SettingForm';
 import { translate } from '../../../helpers/l10n';
 import { getValues, SettingValue } from '../../../api/settings';
+import Modal from '../../../components/controls/Modal';
 
 interface Props {
   branch: string;
@@ -77,12 +77,7 @@ export default class LeakPeriodForm extends React.PureComponent<Props, State> {
     const header = translate('branches.set_leak_period');
 
     return (
-      <Modal
-        isOpen={true}
-        contentLabel={header}
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.props.onClose}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
         <header className="modal-head">
           <h2>{header}</h2>
         </header>

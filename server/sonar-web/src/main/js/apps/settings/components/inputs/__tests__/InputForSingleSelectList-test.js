@@ -19,7 +19,6 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import Select from 'react-select';
 import InputForSingleSelectList from '../InputForSingleSelectList';
 
 it('should render Select', () => {
@@ -32,7 +31,7 @@ it('should render Select', () => {
       isDefault={false}
       onChange={onChange}
     />
-  ).find(Select);
+  ).find('Select');
   expect(select.length).toBe(1);
   expect(select.prop('name')).toBe('foo');
   expect(select.prop('value')).toBe('bar');
@@ -54,7 +53,7 @@ it('should call onChange', () => {
       isDefault={false}
       onChange={onChange}
     />
-  ).find(Select);
+  ).find('Select');
   expect(select.length).toBe(1);
   expect(select.prop('onChange')).toBeTruthy();
 

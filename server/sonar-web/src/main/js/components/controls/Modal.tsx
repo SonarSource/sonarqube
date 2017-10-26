@@ -1,7 +1,7 @@
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,41 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* @flow */
-import React from 'react';
-import { ALL_TYPES } from '../constants';
-import Select from '../../../components/controls/Select';
-import { translate } from '../../../helpers/l10n';
+import * as React from 'react';
+import * as ReactModal from 'react-modal';
+import * as classNames from 'classnames';
 
-const TypesFilter = (
-  { value, onChange, types } /*: {
-  value: string,
-  onChange: Function,
-  types: string[]
-} */
-) => {
-  const options = types.map(t => {
-    return {
-      value: t,
-      label: translate('background_task.type', t)
-    };
-  });
+interface OwnProps {
+  medium?: boolean;
+  large?: boolean;
+}
 
-  const allOptions = [
-    { value: ALL_TYPES, label: translate('background_task.type.ALL') },
-    ...options
-  ];
+type MandatoryProps = Pick<ReactModal.Props, 'contentLabel'>;
 
+type Props = Partial<ReactModal.Props> & MandatoryProps & OwnProps;
+
+export default function Modal(props: Props) {
   return (
-    <Select
-      value={value}
-      onChange={option => onChange(option.value)}
-      className="input-medium"
-      options={allOptions}
-      clearable={false}
-      searchable={false}
+    <ReactModal
+      className={classNames('modal', { 'modal-medium': props.medium, 'modal-large': props.large })}
+      isOpen={true}
+      overlayClassName="modal-overlay"
+      {...props}
     />
   );
-};
-
-export default TypesFilter;
+}

@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as Modal from 'react-modal';
 import { Edition, EditionStatus, uninstallEdition } from '../../../api/marketplace';
+import Modal from '../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export interface Props {
@@ -75,12 +75,7 @@ export default class UninstallEditionForm extends React.PureComponent<Props, Sta
     const currentEdition = edition ? edition.name : translate('marketplace.commercial_edition');
     const header = translateWithParameters('marketplace.uninstall_x', currentEdition);
     return (
-      <Modal
-        isOpen={true}
-        contentLabel={header}
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.props.onClose}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
         <header className="modal-head">
           <h2>{header}</h2>
         </header>

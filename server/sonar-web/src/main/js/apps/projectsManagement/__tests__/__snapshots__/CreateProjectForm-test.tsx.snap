@@ -2,19 +2,8 @@
 
 exports[`creates project 1`] = `
 <Modal
-  ariaHideApp={true}
-  bodyOpenClassName="ReactModal__Body--open"
-  className="modal"
-  closeTimeoutMS={0}
   contentLabel="modal form"
-  isOpen={true}
   onRequestClose={[Function]}
-  overlayClassName="modal-overlay"
-  parentSelector={[Function]}
-  portalClassName="ReactModalPortal"
-  shouldCloseOnEsc={true}
-  shouldCloseOnOverlayClick={true}
-  shouldFocusAfterRender={true}
 >
   <form
     id="create-project-form"
@@ -132,19 +121,8 @@ exports[`creates project 1`] = `
 
 exports[`creates project 2`] = `
 <Modal
-  ariaHideApp={true}
-  bodyOpenClassName="ReactModal__Body--open"
-  className="modal"
-  closeTimeoutMS={0}
   contentLabel="modal form"
-  isOpen={true}
   onRequestClose={[Function]}
-  overlayClassName="modal-overlay"
-  parentSelector={[Function]}
-  portalClassName="ReactModalPortal"
-  shouldCloseOnEsc={true}
-  shouldCloseOnOverlayClick={true}
-  shouldFocusAfterRender={true}
 >
   <form
     id="create-project-form"
@@ -262,19 +240,8 @@ exports[`creates project 2`] = `
 
 exports[`creates project 3`] = `
 <Modal
-  ariaHideApp={true}
-  bodyOpenClassName="ReactModal__Body--open"
-  className="modal"
-  closeTimeoutMS={0}
   contentLabel="modal form"
-  isOpen={true}
   onRequestClose={[Function]}
-  overlayClassName="modal-overlay"
-  parentSelector={[Function]}
-  portalClassName="ReactModalPortal"
-  shouldCloseOnEsc={true}
-  shouldCloseOnOverlayClick={true}
-  shouldFocusAfterRender={true}
 >
   <form
     id="create-project-form"
@@ -395,19 +362,8 @@ exports[`creates project 3`] = `
 
 exports[`creates project 4`] = `
 <Modal
-  ariaHideApp={true}
-  bodyOpenClassName="ReactModal__Body--open"
-  className="modal"
-  closeTimeoutMS={0}
   contentLabel="modal form"
-  isOpen={true}
   onRequestClose={[Function]}
-  overlayClassName="modal-overlay"
-  parentSelector={[Function]}
-  portalClassName="ReactModalPortal"
-  shouldCloseOnEsc={true}
-  shouldCloseOnOverlayClick={true}
-  shouldFocusAfterRender={true}
 >
   <div>
     <header
@@ -465,19 +421,8 @@ exports[`creates project 4`] = `
 
 exports[`shows more 1`] = `
 <Modal
-  ariaHideApp={true}
-  bodyOpenClassName="ReactModal__Body--open"
-  className="modal"
-  closeTimeoutMS={0}
   contentLabel="modal form"
-  isOpen={true}
   onRequestClose={[Function]}
-  overlayClassName="modal-overlay"
-  parentSelector={[Function]}
-  portalClassName="ReactModalPortal"
-  shouldCloseOnEsc={true}
-  shouldCloseOnOverlayClick={true}
-  shouldFocusAfterRender={true}
 >
   <form
     id="create-project-form"
@@ -595,19 +540,8 @@ exports[`shows more 1`] = `
 
 exports[`shows more 2`] = `
 <Modal
-  ariaHideApp={true}
-  bodyOpenClassName="ReactModal__Body--open"
-  className="modal"
-  closeTimeoutMS={0}
   contentLabel="modal form"
-  isOpen={true}
   onRequestClose={[Function]}
-  overlayClassName="modal-overlay"
-  parentSelector={[Function]}
-  portalClassName="ReactModalPortal"
-  shouldCloseOnEsc={true}
-  shouldCloseOnOverlayClick={true}
-  shouldFocusAfterRender={true}
 >
   <form
     id="create-project-form"

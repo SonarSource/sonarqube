@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import Select from 'react-select';
 import { sortBy } from 'lodash';
+import Select from '../../../components/controls/Select';
 import { translate, getLocalizedMetricName, getLocalizedMetricDomain } from '../../../helpers/l10n';
 
 export default function AddConditionForm({ metrics, onSelect }) {

@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as Modal from 'react-modal';
 import { setLogLevel } from '../../../api/system';
+import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
 import { LOGS_LEVELS } from '../utils';
 
@@ -65,12 +65,7 @@ export default class ChangeLogLevelForm extends React.PureComponent<Props, State
     const { updating, newLevel } = this.state;
     const header = translate('system.set_log_level');
     return (
-      <Modal
-        isOpen={true}
-        contentLabel={header}
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.props.onClose}>
+      <Modal contentLabel={header} onRequestClose={this.props.onClose}>
         <form id="set-log-level-form" onSubmit={this.handleFormSubmit}>
           <div className="modal-head">
             <h2>{header}</h2>

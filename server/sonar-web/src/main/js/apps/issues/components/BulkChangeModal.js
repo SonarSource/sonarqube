@@ -19,11 +19,11 @@
  */
 // @flow
 import React from 'react';
-import Modal from 'react-modal';
-import Select, { Creatable } from 'react-select';
 import { pickBy, sortBy } from 'lodash';
 import SearchSelect from '../../../components/controls/SearchSelect';
 import Checkbox from '../../../components/controls/Checkbox';
+import Modal from '../../../components/controls/Modal';
+import Select, { Creatable } from '../../../components/controls/Select';
 import Tooltip from '../../../components/controls/Tooltip';
 import MarkdownTips from '../../../components/common/MarkdownTips';
 import SeverityHelper from '../../../components/shared/SeverityHelper';
@@ -511,12 +511,7 @@ export default class BulkChangeModal extends React.PureComponent {
 
   render() {
     return (
-      <Modal
-        isOpen={true}
-        contentLabel="modal"
-        className="modal"
-        overlayClassName="modal-overlay"
-        onRequestClose={this.props.onClose}>
+      <Modal contentLabel="modal" onRequestClose={this.props.onClose}>
         {this.state.loading ? this.renderLoading() : this.renderForm()}
       </Modal>
     );

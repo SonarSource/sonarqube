@@ -19,9 +19,9 @@
  */
 // @flow
 import React from 'react';
-import Select from 'react-select';
 import AddGraphMetric from './forms/AddGraphMetric';
 import { isCustomGraph, GRAPH_TYPES } from '../utils';
+import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Metric } from '../types'; */
 

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Select from 'react-select';
 import { sortBy } from 'lodash';
 import BulkApplyTemplateModal from './BulkApplyTemplateModal';
 import DeleteModal from './DeleteModal';
@@ -29,6 +28,7 @@ import { translate } from '../../helpers/l10n';
 import QualifierIcon from '../../components/shared/QualifierIcon';
 import Tooltip from '../../components/controls/Tooltip';
 import DateInput from '../../components/controls/DateInput';
+import Select from '../../components/controls/Select';
 
 export interface Props {
   analyzedBefore?: string;

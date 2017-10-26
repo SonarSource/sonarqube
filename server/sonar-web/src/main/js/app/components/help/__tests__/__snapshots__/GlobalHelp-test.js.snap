@@ -2,19 +2,9 @@
 
 exports[`does not show tutorials for anonymous 1`] = `
 <Modal
-  ariaHideApp={true}
-  bodyOpenClassName="ReactModal__Body--open"
-  className="modal modal-medium"
-  closeTimeoutMS={0}
   contentLabel="help"
-  isOpen={true}
+  medium={true}
   onRequestClose={[Function]}
-  overlayClassName="modal-overlay"
-  parentSelector={[Function]}
-  portalClassName="ReactModalPortal"
-  shouldCloseOnEsc={true}
-  shouldCloseOnOverlayClick={true}
-  shouldFocusAfterRender={true}
 >
   <div
     className="modal-head"

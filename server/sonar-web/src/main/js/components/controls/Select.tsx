@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2016 SonarSource SA
+ * Copyright (C) 2009-2017 SonarSource SA
  * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,27 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import SettingForm from './SettingForm';
-import { translate } from '../../../helpers/l10n';
-import { SettingValue } from '../../../api/settings';
-import Modal from '../../../components/controls/Modal';
+import ReactSelect, {
+  Creatable as ReactCreatable,
+  Async,
+  ReactSelectProps,
+  ReactCreatableSelectProps,
+  ReactAsyncSelectProps
+} from 'react-select';
+import './react-select.css';
 
-interface Props {
-  onChange: () => void;
-  onClose: () => void;
-  project: string;
-  setting: SettingValue;
+export default function Select(props: ReactSelectProps) {
+  // TODO try to define good defaults, if any
+  return <ReactSelect {...props} />;
 }
 
-export default function LongBranchesPatternForm(props: Props) {
-  const header = translate('branches.detection_of_long_living_branches');
+export function Creatable(props: ReactCreatableSelectProps) {
+  return <ReactCreatable {...props} />;
+}
 
-  return (
-    <Modal contentLabel={header} onRequestClose={props.onClose}>
-      <header className="modal-head">
-        <h2>{header}</h2>
-      </header>
-      <SettingForm {...props} />
-    </Modal>
-  );
+// TODO figure out why `ref` prop is incompatible
+export function AsyncSelect(props: ReactAsyncSelectProps & { ref: any }) {
+  return <Async {...props} />;
 }

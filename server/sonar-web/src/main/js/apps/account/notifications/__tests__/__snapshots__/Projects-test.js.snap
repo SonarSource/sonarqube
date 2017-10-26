@@ -34,20 +34,15 @@ exports[`should render projects 1`] = `
       my_account.set_notifications_for
       :
     </span>
-    <Async
+    <AsyncSelect
       autoload={false}
       cache={false}
-      ignoreAccents={true}
-      ignoreCase={true}
       loadOptions={[Function]}
-      loadingPlaceholder="Loading..."
       minimumInput={2}
       name="new_project"
       onChange={[Function]}
       optionRenderer={[Function]}
-      options={Array []}
       placeholder="my_account.search_project"
-      searchPromptText="Type to search"
       style={
         Object {
           "width": "300px",
@@ -101,20 +96,15 @@ exports[`should render projects 2`] = `
       my_account.set_notifications_for
       :
     </span>
-    <Async
+    <AsyncSelect
       autoload={false}
       cache={false}
-      ignoreAccents={true}
-      ignoreCase={true}
       loadOptions={[Function]}
-      loadingPlaceholder="Loading..."
       minimumInput={2}
       name="new_project"
       onChange={[Function]}
       optionRenderer={[Function]}
-      options={Array []}
       placeholder="my_account.search_project"
-      searchPromptText="Type to search"
       style={
         Object {
           "width": "300px",
@@ -168,20 +158,15 @@ exports[`should render projects 3`] = `
       my_account.set_notifications_for
       :
     </span>
-    <Async
+    <AsyncSelect
       autoload={false}
       cache={false}
-      ignoreAccents={true}
-      ignoreCase={true}
       loadOptions={[Function]}
-      loadingPlaceholder="Loading..."
       minimumInput={2}
       name="new_project"
       onChange={[Function]}
       optionRenderer={[Function]}
-      options={Array []}
       placeholder="my_account.search_project"
-      searchPromptText="Type to search"
       style={
         Object {
           "width": "300px",
