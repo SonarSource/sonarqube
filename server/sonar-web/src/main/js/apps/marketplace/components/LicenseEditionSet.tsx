@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { stringify } from 'querystring';
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { stringify } from 'querystring';
 import { debounce } from 'lodash';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { omitNil } from '../../../helpers/request';
