@@ -147,14 +147,14 @@ public class EmailSettings {
         .build(),
       PropertyDefinition.builder(FROM)
         .name("From address")
-        .description("Emails will come from this address. For example - \"noreply@sonarsource.com\". Note that server may ignore this setting.")
+        .description("Emails will come from this address. For example - \"noreply@sonarsource.com\". Note that the mail server may ignore this setting.")
         .defaultValue(FROM_DEFAULT)
         .category(CATEGORY_GENERAL)
         .subCategory(SUBCATEGORY_EMAIL)
         .build(),
       PropertyDefinition.builder(FROM_NAME)
         .name("From name")
-        .description("Emails will come from this address name. For example - \"SonarQube\". Note that server may ignore this setting.")
+        .description("Emails will come from this address name. For example - \"SonarQube\". Note that the mail server may ignore this setting.")
         .defaultValue(FROM_NAME_DEFAULT)
         .category(CATEGORY_GENERAL)
         .subCategory(SUBCATEGORY_EMAIL)
