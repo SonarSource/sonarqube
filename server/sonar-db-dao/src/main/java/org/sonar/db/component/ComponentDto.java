@@ -529,7 +529,6 @@ public class ComponentDto {
     return copy;
   }
 
-  // TODO Use it in branch plugin
   public static String generateBranchKey(String componentKey, String branch) {
     return format("%s%s%s", componentKey, BRANCH_KEY_SEPARATOR, branch);
   }
