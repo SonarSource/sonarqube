@@ -66,10 +66,6 @@ public class CeQueueCleaner implements Startable {
   }
 
   private void verifyConsistency(DbSession dbSession) {
-    // server is not being upgraded
-    dbClient.ceQueueDao().resetAllToPendingStatus(dbSession);
-    dbSession.commit();
-
     // Reports that have been processed are not kept in database yet.
     // They are supposed to be systematically dropped.
     // Let's clean-up orphans if any.
