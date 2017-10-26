@@ -30,7 +30,7 @@ interface Props {
 
 export default function PluginStatus({ plugin, refreshPending, status }: Props) {
   return (
-    <td className="text-top text-right width-20">
+    <td className="text-top text-right width-20 little-spacer-left">
       {status === 'installing' && (
         <p className="text-success">{translate('marketplace.install_pending')}</p>
       )}

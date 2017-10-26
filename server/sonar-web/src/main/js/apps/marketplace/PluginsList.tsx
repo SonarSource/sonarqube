@@ -83,7 +83,7 @@ export default class PluginsList extends React.PureComponent<Props> {
         <ul>
           {this.props.plugins.map(plugin => (
             <li key={plugin.key} className="panel panel-vertical">
-              <table className="width-100">
+              <table className="marketplace-plugin-table">
                 <tbody>{this.renderPlugin(plugin)}</tbody>
               </table>
             </li>

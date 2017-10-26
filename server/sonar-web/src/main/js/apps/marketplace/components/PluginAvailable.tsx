@@ -70,7 +70,7 @@ export default function PluginAvailable({
         </ul>
       </td>
 
-      <td className="text-top width-20 big-spacer-right">
+      <td className="text-top width-20">
         <ul>
           <PluginUrls plugin={plugin} />
           <PluginLicense license={plugin.license} />

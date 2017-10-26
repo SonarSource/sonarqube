@@ -35,7 +35,7 @@ export default class PluginDescription extends React.PureComponent<Props> {
   render() {
     const { plugin } = this.props;
     return (
-      <td className="text-top width-20 big-spacer-right">
+      <td className="text-top width-25 big-spacer-right">
         <div>
           <strong className="js-plugin-name">{plugin.name}</strong>
           {plugin.category && (
