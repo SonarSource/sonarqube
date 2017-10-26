@@ -17,27 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.rule;
+package org.sonarqube.pageobjects;
 
-import com.sonar.orchestrator.Orchestrator;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.sonarqube.pageobjects.RulesPage;
-import org.sonarqube.tests.Category2Suite;
-import org.sonarqube.tests.Tester;
+import com.codeborne.selenide.SelenideElement;
 
-public class RulesPageTest {
-  @ClassRule
-  public static Orchestrator ORCHESTRATOR = Category2Suite.ORCHESTRATOR;
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Selenide.$;
 
-  @Rule
-  public Tester tester = new Tester(ORCHESTRATOR).disableOrganizations();
+public class RuleDetails {
 
-  @Test
-  public void should_display_rule_profiles() {
-    RulesPage page = tester.openBrowser().openRules();
-    page.openFacet("qprofile").selectFacetItemByText("qprofile", "Basic").shouldHaveTotalRules(1);
-    page.openFirstRule().shouldBeActivatedOn("Basic");
+  private final SelenideElement elt;
+
+  public RuleDetails(SelenideElement elt) {
+    this.elt = elt;
   }
+
+  public RuleDetails shouldBeActivatedOn(String profileName) {
+    $("#coding-rules-detail-quality-profiles").shouldHave(text(profileName));
+    return this;
+  }
+
 }

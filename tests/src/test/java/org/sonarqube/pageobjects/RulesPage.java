@@ -22,11 +22,10 @@ package org.sonarqube.pageobjects;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.openqa.selenium.By;
 
 import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
@@ -34,17 +33,6 @@ public class RulesPage extends Navigation {
 
   public RulesPage() {
     $(By.cssSelector(".coding-rules")).should(Condition.exist);
-  }
-
-  public ElementsCollection getRules() {
-    return $$(".coding-rules .coding-rule");
-  }
-
-  public List<RuleItem> getRulesAsItems() {
-    return getRules()
-      .stream()
-      .map(elt -> new RuleItem(elt))
-      .collect(Collectors.toList());
   }
 
   public int getTotal() {
@@ -61,4 +49,22 @@ public class RulesPage extends Navigation {
     $("#coding-rules-total").shouldHave(text(total.toString()));
     return this;
   }
+
+  public RulesPage openFacet(String facet) {
+    $(".search-navigator-facet-box[data-property=\"" + facet + "\"] .js-facet-toggle").click();
+    return this;
+  }
+
+  public RulesPage selectFacetItemByText(String facet, String itemText) {
+    $$(".search-navigator-facet-box[data-property=\"" + facet + "\"] .js-facet")
+      .findBy(text(itemText)).click();
+    return this;
+  }
+
+  public RuleDetails openFirstRule() {
+    $$(".js-rule").first().click();
+    $(".coding-rules-details").shouldBe(visible);
+    return new RuleDetails($(".coding-rules-details"));
+  }
+
 }
