@@ -34,7 +34,7 @@ public class CommitPendingEditionOnStartup implements Startable {
   private final LicenseCommit licenseCommit;
 
   /**
-   * Used by Pico when license-manager is not installed and therefor no implementation of {@link LicenseCommit} is
+   * Used by Pico when license-manager is not installed and therefore no implementation of {@link LicenseCommit} is
    * is available.
    */
   public CommitPendingEditionOnStartup(MutableEditionManagementState editionManagementState) {
@@ -51,6 +51,7 @@ public class CommitPendingEditionOnStartup implements Startable {
     EditionManagementState.PendingStatus status = editionManagementState.getPendingInstallationStatus();
     switch (status) {
       case NONE:
+        editionManagementState.clearInstallErrorMessage();
         return;
       case MANUAL_IN_PROGRESS:
       case AUTOMATIC_READY:
