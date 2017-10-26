@@ -123,7 +123,7 @@ export default class App extends React.PureComponent<Props, State> {
           loading={loading}
           isCluster={isCluster(sysInfoData)}
           logLevel={getSystemLogsLevel(sysInfoData)}
-          showActions={sysInfoData != undefined}
+          showActions={sysInfoData !== undefined}
           onLogLevelChange={this.fetchSysInfo}
         />
         {this.renderSysInfo()}

@@ -111,6 +111,7 @@ export default class Issue extends React.PureComponent {
         this.props.onCheck(this.props.issue.key);
         return false;
       }
+      return undefined;
     });
   }
 

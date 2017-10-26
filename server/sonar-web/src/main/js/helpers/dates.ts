@@ -41,7 +41,7 @@ export function parseDate(rawDate: ParsableDate): Date {
 
 export function toShortNotSoISOString(rawDate: ParsableDate): string {
   const date = parseDate(rawDate);
-  return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
 export function toNotSoISOString(rawDate: ParsableDate): string {

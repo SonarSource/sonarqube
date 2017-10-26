@@ -689,8 +689,6 @@ export default class SourceViewerBase extends React.PureComponent {
       'source-duplications-expanded': this.state.displayDuplications
     });
 
-    const displaySources = !notAccessible && !sourceRemoved;
-
     return (
       <div className={className} ref={node => (this.node = node)}>
         <SourceViewerHeader
@@ -703,7 +701,7 @@ export default class SourceViewerBase extends React.PureComponent {
             {translate('code_viewer.no_source_code_displayed_due_to_source_removed')}
           </div>
         )}
-        {displaySources && sources != null && this.renderCode(sources)}
+        {!sourceRemoved && sources != null && this.renderCode(sources)}
       </div>
     );
   }
