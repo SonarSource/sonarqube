@@ -1,8 +1,8 @@
+/* eslint-disable import/no-extraneous-dependencies */
 const path = require('path');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
-const eslintFormatter = require('react-dev-utils/eslintFormatter');
 const webpack = require('webpack');
 const paths = require('./paths');
 
@@ -78,18 +78,6 @@ module.exports = ({ production = true, fast = false }) => ({
   },
   module: {
     rules: [
-      // First, run the linter.
-      // It's important to do this before Babel processes the JS.
-      // Run for development or full build
-      (!production || !fast) && {
-        test: /\.js$/,
-        enforce: 'pre',
-        include: paths.appSrc,
-        use: {
-          loader: 'eslint-loader',
-          options: { formatter: eslintFormatter }
-        }
-      },
       {
         test: /\.js$/,
         loader: 'babel-loader',
@@ -101,6 +89,7 @@ module.exports = ({ production = true, fast = false }) => ({
           {
             loader: 'awesome-typescript-loader',
             options: {
+              transpileOnly: true,
               useBabel: true,
               useCache: true
             }
@@ -152,18 +141,18 @@ module.exports = ({ production = true, fast = false }) => ({
       inject: false,
       template: paths.appHtml,
       minify: production &&
-      !fast && {
-        removeComments: true,
-        collapseWhitespace: true,
-        removeRedundantAttributes: true,
-        useShortDoctype: true,
-        removeEmptyAttributes: true,
-        removeStyleLinkTypeAttributes: true,
-        keepClosingSlash: true,
-        minifyJS: true,
-        minifyCSS: true,
-        minifyURLs: true
-      }
+        !fast && {
+          removeComments: true,
+          collapseWhitespace: true,
+          removeRedundantAttributes: true,
+          useShortDoctype: true,
+          removeEmptyAttributes: true,
+          removeStyleLinkTypeAttributes: true,
+          keepClosingSlash: true,
+          minifyJS: true,
+          minifyCSS: true,
+          minifyURLs: true
+        }
     }),
 
     new webpack.DefinePlugin({

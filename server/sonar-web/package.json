@@ -80,7 +80,6 @@
     "enzyme": "2.9.1",
     "enzyme-to-json": "2.0.1",
     "eslint": "4.9.0",
-    "eslint-loader": "1.9.0",
     "eslint-plugin-import": "2.8.0",
     "eslint-plugin-jsx-a11y": "6.0.2",
     "eslint-plugin-promise": "3.6.0",
@@ -91,6 +90,7 @@
     "fs-extra": "0.30.0",
     "handlebars-loader": "1.6.0",
     "html-webpack-plugin": "2.30.1",
+    "husky": "0.14.3",
     "jest": "21.2.1",
     "lint-staged": "4.3.0",
     "postcss-custom-properties": "6.2.0",
@@ -118,7 +118,7 @@
     "flow-check": "flow check src/main/js",
     "ts-check": "tsc --noEmit",
     "validate": "yarn lint && yarn flow-check && yarn ts-check && NODE_ENV=test jest",
-    "precommit": "lint-staged"
+    "precommit": "yarn ts-check && lint-staged && yarn flow-check"
   },
   "engines": {
     "node": ">=6"
