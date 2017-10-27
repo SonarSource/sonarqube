@@ -23,31 +23,31 @@ import EditionBoxes from '../EditionBoxes';
 import { EditionStatus } from '../../../api/marketplace';
 
 const DEFAULT_STATUS: EditionStatus = {
-  currentEditionKey: 'foo',
+  currentEditionKey: 'developer',
   nextEditionKey: '',
   installationStatus: 'NONE'
 };
 
 const DEFAULT_EDITIONS = [
   {
-    key: 'foo',
-    name: 'Foo',
-    textDescription: 'Foo desc',
+    key: 'developer',
+    name: 'Developer Edition',
+    textDescription: 'foo',
     downloadUrl: 'download_url',
     homeUrl: 'more_url',
     requestUrl: 'license_url'
   },
   {
-    key: 'bar',
-    name: 'Bar',
-    textDescription: 'Bar desc',
+    key: 'comunity',
+    name: 'Comunity Edition',
+    textDescription: 'bar',
     downloadUrl: 'download_url',
     homeUrl: 'more_url',
     requestUrl: 'license_url'
   }
 ];
 
-it('should display the edition boxes', () => {
+it('should display the edition boxes correctly', () => {
   const wrapper = getWrapper({ editions: DEFAULT_EDITIONS, loading: true });
   expect(wrapper).toMatchSnapshot();
   wrapper.setProps({ loading: false });

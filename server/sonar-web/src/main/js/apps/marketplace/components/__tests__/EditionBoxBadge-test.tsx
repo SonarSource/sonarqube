@@ -19,8 +19,8 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { Edition, EditionStatus } from '../../../../api/marketplace';
-import EditionBox from '../EditionBox';
+import { EditionStatus } from '../../../../api/marketplace';
+import EditionBoxBadge from '../EditionBoxBadge';
 
 const DEFAULT_STATUS: EditionStatus = {
   currentEditionKey: '',
@@ -28,29 +28,31 @@ const DEFAULT_STATUS: EditionStatus = {
   installationStatus: 'NONE'
 };
 
-const DEFAULT_EDITION: Edition = {
-  key: 'foo',
-  name: 'Foo',
-  textDescription: 'Foo desc',
-  downloadUrl: 'download_url',
-  homeUrl: 'more_url',
-  requestUrl: 'license_url'
-};
-
-it('should display the edition', () => {
-  expect(getWrapper()).toMatchSnapshot();
-});
-
-it('should disable upgrade button', () => {
+it('should display installed badge', () => {
   expect(
     getWrapper({
       editionStatus: {
-        currentEditionKey: '',
+        currentEditionKey: 'foo',
+        nextEditionKey: '',
+        installationStatus: 'NONE'
+      }
+    })
+  ).toMatchSnapshot();
+});
+
+it('should display installing badge', () => {
+  expect(
+    getWrapper({
+      editionStatus: {
+        currentEditionKey: 'foo',
         nextEditionKey: 'foo',
         installationStatus: 'AUTOMATIC_IN_PROGRESS'
       }
     })
   ).toMatchSnapshot();
+});
+
+it('should display pending badge', () => {
   expect(
     getWrapper({
       editionStatus: {
@@ -62,46 +64,18 @@ it('should disable upgrade button', () => {
   ).toMatchSnapshot();
 });
 
-it('should disable uninstall button', () => {
+it('should not display a badge', () => {
   expect(
     getWrapper({
       editionStatus: {
-        currentEditionKey: 'foo',
-        nextEditionKey: 'foo',
-        installationStatus: 'AUTOMATIC_IN_PROGRESS'
+        currentEditionKey: '',
+        nextEditionKey: 'bar',
+        installationStatus: 'AUTOMATIC_READY'
       }
     })
   ).toMatchSnapshot();
-});
-
-it('should correctly hide upgrade/uninstall buttons', () => {
-  expect(getWrapper({ canInstall: false })).toMatchSnapshot();
-  expect(
-    getWrapper({
-      canUninstall: false,
-      editionStatus: {
-        currentEditionKey: 'foo',
-        nextEditionKey: '',
-        installationStatus: 'NONE'
-      }
-    })
-  ).toMatchSnapshot();
-});
-
-it('should display a downgrade button', () => {
-  expect(getWrapper({ isDowngrade: true })).toMatchSnapshot();
 });
 
 function getWrapper(props = {}) {
-  return shallow(
-    <EditionBox
-      canInstall={true}
-      canUninstall={true}
-      edition={DEFAULT_EDITION}
-      editionStatus={DEFAULT_STATUS}
-      onInstall={jest.fn()}
-      onUninstall={jest.fn()}
-      {...props}
-    />
-  );
+  return shallow(<EditionBoxBadge editionKey="foo" status={DEFAULT_STATUS} {...props} />);
 }

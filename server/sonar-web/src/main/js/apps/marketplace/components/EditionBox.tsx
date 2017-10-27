@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import CheckIcon from '../../../components/icons-components/CheckIcon';
+import EditionBoxBadge from './EditionBoxBadge';
 import { Edition, EditionStatus } from '../../../api/marketplace';
 import { translate } from '../../../helpers/l10n';
 
@@ -27,6 +27,7 @@ interface Props {
   canUninstall: boolean;
   edition: Edition;
   editionStatus?: EditionStatus;
+  isDowngrade?: boolean;
   onInstall: (edition: Edition) => void;
   onUninstall: () => void;
 }
@@ -34,40 +35,45 @@ interface Props {
 export default class EditionBox extends React.PureComponent<Props> {
   handleInstall = () => this.props.onInstall(this.props.edition);
 
-  renderBadge(isInstalled?: boolean, installInProgress?: boolean) {
-    const { edition, editionStatus } = this.props;
-    const installReady = editionStatus && editionStatus.installationStatus === 'AUTOMATIC_READY';
-    const isInstalling =
-      installInProgress && editionStatus && editionStatus.nextEditionKey === edition.key;
-    if (isInstalling) {
+  renderActions(isInstalled?: boolean, installInProgress?: boolean) {
+    const { canInstall, canUninstall, editionStatus } = this.props;
+    const uninstallInProgress =
+      editionStatus && editionStatus.installationStatus === 'UNINSTALL_IN_PROGRESS';
+
+    if (canInstall && !isInstalled) {
       return (
-        <span className="marketplace-edition-badge badge badge-normal-size">
-          {installReady ? translate('marketplace.pending') : translate('marketplace.installing')}
-        </span>
+        <button disabled={installInProgress || uninstallInProgress} onClick={this.handleInstall}>
+          {this.props.isDowngrade ? (
+            translate('marketplace.downgrade')
+          ) : (
+            translate('marketplace.upgrade')
+          )}
+        </button>
       );
     }
-    if (isInstalled) {
+    if (canUninstall && isInstalled) {
       return (
-        <span className="marketplace-edition-badge badge badge-normal-size">
-          <CheckIcon size={14} className="little-spacer-right text-bottom" />
-          {translate('marketplace.installed')}
-        </span>
+        <button
+          className="button-red"
+          disabled={installInProgress || uninstallInProgress}
+          onClick={this.props.onUninstall}>
+          {translate('marketplace.uninstall')}
+        </button>
       );
     }
+
     return null;
   }
 
   render() {
-    const { canInstall, canUninstall, edition, editionStatus } = this.props;
+    const { edition, editionStatus } = this.props;
     const isInstalled = editionStatus && editionStatus.currentEditionKey === edition.key;
-    const uninstallInProgress =
-      editionStatus && editionStatus.installationStatus === 'UNINSTALL_IN_PROGRESS';
     const installInProgress =
       editionStatus &&
       ['AUTOMATIC_IN_PROGRESS', 'AUTOMATIC_READY'].includes(editionStatus.installationStatus);
     return (
       <div className="boxed-group boxed-group-inner marketplace-edition">
-        {this.renderBadge(isInstalled, installInProgress)}
+        {editionStatus && <EditionBoxBadge editionKey={edition.key} status={editionStatus} />}
         <div>
           <h3 className="spacer-bottom">{edition.name}</h3>
           <p>{edition.textDescription}</p>
@@ -76,23 +82,7 @@ export default class EditionBox extends React.PureComponent<Props> {
           <a href={edition.homeUrl} target="_blank">
             {translate('marketplace.learn_more')}
           </a>
-          {canUninstall &&
-          isInstalled && (
-            <button
-              className="button-red"
-              disabled={installInProgress || uninstallInProgress}
-              onClick={this.props.onUninstall}>
-              {translate('marketplace.uninstall')}
-            </button>
-          )}
-          {canInstall &&
-          !isInstalled && (
-            <button
-              disabled={installInProgress || uninstallInProgress}
-              onClick={this.handleInstall}>
-              {translate('marketplace.install')}
-            </button>
-          )}
+          {this.renderActions(isInstalled, installInProgress)}
         </div>
       </div>
     );

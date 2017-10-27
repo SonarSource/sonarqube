@@ -24,6 +24,7 @@ import LicenseEditionForm from './components/LicenseEditionForm';
 import UninstallEditionForm from './components/UninstallEditionForm';
 import { Edition, EditionStatus } from '../../api/marketplace';
 import { translate } from '../../helpers/l10n';
+import { sortEditions } from './utils';
 
 export interface Props {
   canInstall: boolean;
@@ -49,9 +50,45 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
   handleOpenUninstallForm = () => this.setState({ openUninstallForm: true });
   handleCloseUninstallForm = () => this.setState({ openUninstallForm: false });
 
+  renderForms(sortedEditions: Edition[], installedIdx?: number) {
+    const { canInstall, canUninstall, editionStatus } = this.props;
+    const { installEdition, openUninstallForm } = this.state;
+    const installEditionIdx =
+      installEdition && sortedEditions.findIndex(edition => edition.key === installEdition.key);
+
+    if (canInstall && installEdition) {
+      return (
+        <LicenseEditionForm
+          edition={installEdition}
+          editions={sortedEditions}
+          isDowngrade={
+            installedIdx !== undefined &&
+            installEditionIdx !== undefined &&
+            installEditionIdx < installedIdx
+          }
+          onClose={this.handleCloseLicenseForm}
+          updateEditionStatus={this.props.updateEditionStatus}
+        />
+      );
+    }
+
+    if (canUninstall && openUninstallForm && editionStatus && editionStatus.currentEditionKey) {
+      return (
+        <UninstallEditionForm
+          edition={sortedEditions.find(edition => edition.key === editionStatus.currentEditionKey)}
+          editionStatus={editionStatus}
+          onClose={this.handleCloseUninstallForm}
+          updateEditionStatus={this.props.updateEditionStatus}
+        />
+      );
+    }
+
+    return null;
+  }
+
   render() {
     const { canInstall, canUninstall, editions, editionStatus, loading } = this.props;
-    const { installEdition, openUninstallForm } = this.state;
+
     if (loading) {
       return <i className="big-spacer-bottom spinner" />;
     }
@@ -76,41 +113,26 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
       );
     }
 
+    const sortedEditions = sortEditions(editions);
+    const installedIdx =
+      editionStatus &&
+      sortedEditions.findIndex(edition => edition.key === editionStatus.currentEditionKey);
     return (
       <div className="spacer-bottom marketplace-editions">
-        {editions.map(edition => (
+        {sortedEditions.map((edition, idx) => (
           <EditionBox
             canInstall={canInstall}
             canUninstall={canUninstall}
             edition={edition}
             editionStatus={editionStatus}
+            isDowngrade={installedIdx !== undefined && idx < installedIdx}
             key={edition.key}
             onInstall={this.handleOpenLicenseForm}
             onUninstall={this.handleOpenUninstallForm}
           />
         ))}
 
-        {canInstall &&
-        installEdition && (
-          <LicenseEditionForm
-            edition={installEdition}
-            editions={editions}
-            onClose={this.handleCloseLicenseForm}
-            updateEditionStatus={this.props.updateEditionStatus}
-          />
-        )}
-
-        {canUninstall &&
-        openUninstallForm &&
-        editionStatus &&
-        editionStatus.currentEditionKey && (
-          <UninstallEditionForm
-            edition={editions.find(edition => edition.key === editionStatus.currentEditionKey)}
-            editionStatus={editionStatus}
-            onClose={this.handleCloseUninstallForm}
-            updateEditionStatus={this.props.updateEditionStatus}
-          />
-        )}
+        {this.renderForms(sortedEditions, installedIdx)}
       </div>
     );
   }

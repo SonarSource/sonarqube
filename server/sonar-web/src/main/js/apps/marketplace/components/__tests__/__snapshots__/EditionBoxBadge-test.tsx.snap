@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display installed badge 1`] = `null`;
+
+exports[`should display installing badge 1`] = `null`;
+
+exports[`should display pending badge 1`] = `null`;
+
+exports[`should not display a badge 1`] = `null`;
