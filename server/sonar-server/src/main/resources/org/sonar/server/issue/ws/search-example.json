@@ -15,18 +15,14 @@
       "severity": "MINOR",
       "message": "'3' is a magic number.",
       "line": 81,
-      "hash":"a227e508d6646b55a086ee11d63b21e9",
-      "textRange": {
-        "startLine": 81,
-        "endLine": 81,
-        "startOffset": 0,
-        "endOffset": 134
-      },
+      "hash": "a227e508d6646b55a086ee11d63b21e9",
       "author": "Developer 1",
       "effort": "2h1min",
       "creationDate": "2013-05-13T17:55:39+0200",
       "updateDate": "2013-05-13T17:55:39+0200",
-      "tags": ["bug"],
+      "tags": [
+        "bug"
+      ],
       "type": "RELIABILITY",
       "comments": [
         {
@@ -48,6 +44,40 @@
       ],
       "actions": [
         "comment"
+      ],
+      "textRange": {
+        "startLine": 2,
+        "endLine": 2,
+        "startOffset": 0,
+        "endOffset": 204
+      },
+      "flows": [
+        {
+          "locations": [
+            {
+              "textRange": {
+                "startLine": 16,
+                "endLine": 16,
+                "startOffset": 0,
+                "endOffset": 30
+              },
+              "msg": "Expected position: 5"
+            }
+          ]
+        },
+        {
+          "locations": [
+            {
+              "textRange": {
+                "startLine": 15,
+                "endLine": 15,
+                "startOffset": 0,
+                "endOffset": 37
+              },
+              "msg": "Expected position: 6"
+            }
+          ]
+        }
       ]
     }
   ],
@@ -85,5 +115,4 @@
       "avatar": "ab0ec6adc38ad44a15105f207394946f"
     }
   ]
-
 }
