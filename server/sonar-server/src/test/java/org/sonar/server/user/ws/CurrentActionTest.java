@@ -92,9 +92,9 @@ public class CurrentActionTest {
     CurrentWsResponse response = call();
 
     assertThat(response)
-      .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::getAvatar, CurrentWsResponse::getLocal,
+      .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::hasAvatar, CurrentWsResponse::getLocal,
         CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider)
-      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", "", true, "obiwan", "sonarqube");
+      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", false, true, "obiwan", "sonarqube");
     assertThat(response.hasEmail()).isFalse();
     assertThat(response.getScmAccountsList()).isEmpty();
     assertThat(response.getGroupsList()).isEmpty();
