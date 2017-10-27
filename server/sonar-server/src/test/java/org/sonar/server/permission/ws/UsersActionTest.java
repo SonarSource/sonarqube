@@ -31,6 +31,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.issue.ws.AvatarResolverImpl;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.countMatches;
@@ -58,7 +59,7 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
 
   @Override
   protected UsersAction buildWsAction() {
-    return new UsersAction(db.getDbClient(), userSession, newPermissionWsSupport());
+    return new UsersAction(db.getDbClient(), userSession, newPermissionWsSupport(), new AvatarResolverImpl());
   }
 
   @Test
