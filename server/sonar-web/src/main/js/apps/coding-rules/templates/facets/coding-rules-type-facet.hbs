@@ -5,9 +5,7 @@
     <a class="facet search-navigator-facet js-facet"
        data-value="{{val}}">
       <span class="facet-name">{{issueTypeIcon val}} {{t 'issue.type' val}}</span>
-      <span class="facet-stat">
-        {{numberShort count}}
-      </span>
+      <span class="facet-stat">{{formatMeasure count 'SHORT_INT'}}</span>
     </a>
   {{/each}}
 </div>
