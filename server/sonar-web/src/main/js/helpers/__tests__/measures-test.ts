@@ -33,7 +33,10 @@ beforeEach(() => {
     'work_duration.about': '~ {0}',
     'metric.level.ERROR': 'Error',
     'metric.level.WARN': 'Warning',
-    'metric.level.OK': 'Ok'
+    'metric.level.OK': 'Ok',
+    'short_number_suffix.k': 'k',
+    'short_number_suffix.m': 'm',
+    'short_number_suffix.b': 'b'
   });
 });
 

@@ -19,10 +19,8 @@
  */
 const IntlRelativeFormat = require('intl-relativeformat');
 const { parseDate } = require('../../helpers/dates');
-const { DEFAULT_LANGUAGE } = require('../../helpers/l10n');
+const { getCurrentLocale } = require('../../helpers/l10n');
 
 module.exports = function(date) {
-  return new IntlRelativeFormat(localStorage.getItem('l10n.locale') || DEFAULT_LANGUAGE).format(
-    parseDate(date)
-  );
+  return new IntlRelativeFormat(getCurrentLocale()).format(parseDate(date));
 };
