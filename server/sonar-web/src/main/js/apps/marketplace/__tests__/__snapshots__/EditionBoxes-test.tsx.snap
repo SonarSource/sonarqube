@@ -25,13 +25,13 @@ exports[`should display an error message 1`] = `
 </div>
 `;
 
-exports[`should display the edition boxes 1`] = `
+exports[`should display the edition boxes correctly 1`] = `
 <i
   className="big-spacer-bottom spinner"
 />
 `;
 
-exports[`should display the edition boxes 2`] = `
+exports[`should display the edition boxes correctly 2`] = `
 <div
   className="spacer-bottom marketplace-editions"
 >
@@ -42,19 +42,20 @@ exports[`should display the edition boxes 2`] = `
       Object {
         "downloadUrl": "download_url",
         "homeUrl": "more_url",
-        "key": "foo",
-        "name": "Foo",
+        "key": "comunity",
+        "name": "Comunity Edition",
         "requestUrl": "license_url",
-        "textDescription": "Foo desc",
+        "textDescription": "bar",
       }
     }
     editionStatus={
       Object {
-        "currentEditionKey": "foo",
+        "currentEditionKey": "developer",
         "installationStatus": "NONE",
         "nextEditionKey": "",
       }
     }
+    isDowngrade={true}
     onInstall={[Function]}
     onUninstall={[Function]}
   />
@@ -65,19 +66,20 @@ exports[`should display the edition boxes 2`] = `
       Object {
         "downloadUrl": "download_url",
         "homeUrl": "more_url",
-        "key": "bar",
-        "name": "Bar",
+        "key": "developer",
+        "name": "Developer Edition",
         "requestUrl": "license_url",
-        "textDescription": "Bar desc",
+        "textDescription": "foo",
       }
     }
     editionStatus={
       Object {
-        "currentEditionKey": "foo",
+        "currentEditionKey": "developer",
         "installationStatus": "NONE",
         "nextEditionKey": "",
       }
     }
+    isDowngrade={false}
     onInstall={[Function]}
     onUninstall={[Function]}
   />

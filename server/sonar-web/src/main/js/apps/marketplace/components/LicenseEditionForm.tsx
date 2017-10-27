@@ -26,6 +26,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 export interface Props {
   edition: Edition;
   editions: Edition[];
+  isDowngrade: boolean;
   onClose: () => void;
   updateEditionStatus: (editionStatus: EditionStatus) => void;
 }
@@ -79,9 +80,12 @@ export default class LicenseEditionForm extends React.PureComponent<Props, State
   };
 
   render() {
-    const { edition } = this.props;
+    const { edition, isDowngrade } = this.props;
     const { submitting, status } = this.state;
-    const header = translateWithParameters('marketplace.install_x', edition.name);
+
+    const header = isDowngrade
+      ? translateWithParameters('marketplace.downgrade_to_x', edition.name)
+      : translateWithParameters('marketplace.upgrade_to_x', edition.name);
     return (
       <Modal
         isOpen={true}

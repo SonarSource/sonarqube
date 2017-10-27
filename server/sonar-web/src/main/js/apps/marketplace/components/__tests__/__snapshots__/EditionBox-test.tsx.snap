@@ -1,14 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should disable install button 1`] = `
+exports[`should correctly hide upgrade/uninstall buttons 1`] = `
 <div
   className="boxed-group boxed-group-inner marketplace-edition"
 >
-  <span
-    className="marketplace-edition-badge badge badge-normal-size"
-  >
-    marketplace.installing
-  </span>
+  <EditionBoxBadge
+    editionKey="foo"
+    status={
+      Object {
+        "currentEditionKey": "",
+        "installationStatus": "NONE",
+        "nextEditionKey": "",
+      }
+    }
+  />
   <div>
     <h3
       className="spacer-bottom"
@@ -28,25 +33,24 @@ exports[`should disable install button 1`] = `
     >
       marketplace.learn_more
     </a>
-    <button
-      disabled={true}
-      onClick={[Function]}
-    >
-      marketplace.install
-    </button>
   </div>
 </div>
 `;
 
-exports[`should disable install button 2`] = `
+exports[`should correctly hide upgrade/uninstall buttons 2`] = `
 <div
   className="boxed-group boxed-group-inner marketplace-edition"
 >
-  <span
-    className="marketplace-edition-badge badge badge-normal-size"
-  >
-    marketplace.pending
-  </span>
+  <EditionBoxBadge
+    editionKey="foo"
+    status={
+      Object {
+        "currentEditionKey": "foo",
+        "installationStatus": "NONE",
+        "nextEditionKey": "",
+      }
+    }
+  />
   <div>
     <h3
       className="spacer-bottom"
@@ -66,12 +70,6 @@ exports[`should disable install button 2`] = `
     >
       marketplace.learn_more
     </a>
-    <button
-      disabled={true}
-      onClick={[Function]}
-    >
-      marketplace.install
-    </button>
   </div>
 </div>
 `;
@@ -80,11 +78,16 @@ exports[`should disable uninstall button 1`] = `
 <div
   className="boxed-group boxed-group-inner marketplace-edition"
 >
-  <span
-    className="marketplace-edition-badge badge badge-normal-size"
-  >
-    marketplace.installing
-  </span>
+  <EditionBoxBadge
+    editionKey="foo"
+    status={
+      Object {
+        "currentEditionKey": "foo",
+        "installationStatus": "AUTOMATIC_IN_PROGRESS",
+        "nextEditionKey": "foo",
+      }
+    }
+  />
   <div>
     <h3
       className="spacer-bottom"
@@ -115,19 +118,20 @@ exports[`should disable uninstall button 1`] = `
 </div>
 `;
 
-exports[`should display installed badge 1`] = `
+exports[`should disable upgrade button 1`] = `
 <div
   className="boxed-group boxed-group-inner marketplace-edition"
 >
-  <span
-    className="marketplace-edition-badge badge badge-normal-size"
-  >
-    <CheckIcon
-      className="little-spacer-right text-bottom"
-      size={14}
-    />
-    marketplace.installed
-  </span>
+  <EditionBoxBadge
+    editionKey="foo"
+    status={
+      Object {
+        "currentEditionKey": "",
+        "installationStatus": "AUTOMATIC_IN_PROGRESS",
+        "nextEditionKey": "foo",
+      }
+    }
+  />
   <div>
     <h3
       className="spacer-bottom"
@@ -148,88 +152,96 @@ exports[`should display installed badge 1`] = `
       marketplace.learn_more
     </a>
     <button
-      className="button-red"
+      disabled={true}
+      onClick={[Function]}
+    >
+      marketplace.upgrade
+    </button>
+  </div>
+</div>
+`;
+
+exports[`should disable upgrade button 2`] = `
+<div
+  className="boxed-group boxed-group-inner marketplace-edition"
+>
+  <EditionBoxBadge
+    editionKey="foo"
+    status={
+      Object {
+        "currentEditionKey": "",
+        "installationStatus": "AUTOMATIC_READY",
+        "nextEditionKey": "foo",
+      }
+    }
+  />
+  <div>
+    <h3
+      className="spacer-bottom"
+    >
+      Foo
+    </h3>
+    <p>
+      Foo desc
+    </p>
+  </div>
+  <div
+    className="marketplace-edition-action spacer-top"
+  >
+    <a
+      href="more_url"
+      target="_blank"
+    >
+      marketplace.learn_more
+    </a>
+    <button
+      disabled={true}
+      onClick={[Function]}
+    >
+      marketplace.upgrade
+    </button>
+  </div>
+</div>
+`;
+
+exports[`should display a downgrade button 1`] = `
+<div
+  className="boxed-group boxed-group-inner marketplace-edition"
+>
+  <EditionBoxBadge
+    editionKey="foo"
+    status={
+      Object {
+        "currentEditionKey": "",
+        "installationStatus": "NONE",
+        "nextEditionKey": "",
+      }
+    }
+  />
+  <div>
+    <h3
+      className="spacer-bottom"
+    >
+      Foo
+    </h3>
+    <p>
+      Foo desc
+    </p>
+  </div>
+  <div
+    className="marketplace-edition-action spacer-top"
+  >
+    <a
+      href="more_url"
+      target="_blank"
+    >
+      marketplace.learn_more
+    </a>
+    <button
       disabled={false}
       onClick={[Function]}
     >
-      marketplace.uninstall
-    </button>
-  </div>
-</div>
-`;
-
-exports[`should display installing badge 1`] = `
-<div
-  className="boxed-group boxed-group-inner marketplace-edition"
->
-  <span
-    className="marketplace-edition-badge badge badge-normal-size"
-  >
-    marketplace.installing
-  </span>
-  <div>
-    <h3
-      className="spacer-bottom"
-    >
-      Foo
-    </h3>
-    <p>
-      Foo desc
-    </p>
-  </div>
-  <div
-    className="marketplace-edition-action spacer-top"
-  >
-    <a
-      href="more_url"
-      target="_blank"
-    >
-      marketplace.learn_more
-    </a>
-    <button
-      className="button-red"
-      disabled={true}
-      onClick={[Function]}
-    >
-      marketplace.uninstall
-    </button>
-  </div>
-</div>
-`;
-
-exports[`should display pending badge 1`] = `
-<div
-  className="boxed-group boxed-group-inner marketplace-edition"
->
-  <span
-    className="marketplace-edition-badge badge badge-normal-size"
-  >
-    marketplace.pending
-  </span>
-  <div>
-    <h3
-      className="spacer-bottom"
-    >
-      Foo
-    </h3>
-    <p>
-      Foo desc
-    </p>
-  </div>
-  <div
-    className="marketplace-edition-action spacer-top"
-  >
-    <a
-      href="more_url"
-      target="_blank"
-    >
-      marketplace.learn_more
-    </a>
-    <button
-      disabled={true}
-      onClick={[Function]}
-    >
-      marketplace.install
+      marketplace.downgrade
     </button>
   </div>
 </div>
@@ -239,6 +251,16 @@ exports[`should display the edition 1`] = `
 <div
   className="boxed-group boxed-group-inner marketplace-edition"
 >
+  <EditionBoxBadge
+    editionKey="foo"
+    status={
+      Object {
+        "currentEditionKey": "",
+        "installationStatus": "NONE",
+        "nextEditionKey": "",
+      }
+    }
+  />
   <div>
     <h3
       className="spacer-bottom"
@@ -262,7 +284,7 @@ exports[`should display the edition 1`] = `
       disabled={false}
       onClick={[Function]}
     >
-      marketplace.install
+      marketplace.upgrade
     </button>
   </div>
 </div>

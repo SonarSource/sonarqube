@@ -17,16 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { memoize } from 'lodash';
+import { memoize, sortBy } from 'lodash';
 import { Plugin, PluginAvailable, PluginInstalled, PluginPending } from '../../api/plugins';
 import { cleanQuery, parseAsString, RawQuery, serializeString } from '../../helpers/query';
+import { Edition } from '../../api/marketplace';
 
 export interface Query {
   filter: string;
   search?: string;
 }
-
-export const DEFAULT_FILTER = 'all';
 
 export function isPluginAvailable(plugin: Plugin): plugin is PluginAvailable {
   return (plugin as any).release !== undefined;
@@ -51,6 +50,12 @@ export function filterPlugins(plugins: Plugin[], search: string): Plugin[] {
   });
 }
 
+const EDITIONS_ORDER = ['community', 'developer', 'enterprise', 'datacenter'];
+export function sortEditions(editions: Edition[]): Edition[] {
+  return sortBy(editions, edition => EDITIONS_ORDER.indexOf(edition.key));
+}
+
+export const DEFAULT_FILTER = 'all';
 export const parseQuery = memoize((urlQuery: RawQuery): Query => ({
   filter: parseAsString(urlQuery['filter']) || DEFAULT_FILTER,
   search: parseAsString(urlQuery['search'])

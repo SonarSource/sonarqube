@@ -36,7 +36,7 @@ exports[`should display correctly 1`] = `
   bodyOpenClassName="ReactModal__Body--open"
   className="modal"
   closeTimeoutMS={0}
-  contentLabel="marketplace.install_x.Foo"
+  contentLabel="marketplace.upgrade_to_x.Foo"
   isOpen={true}
   onRequestClose={[Function]}
   overlayClassName="modal-overlay"
@@ -48,7 +48,7 @@ exports[`should display correctly 1`] = `
     className="modal-head"
   >
     <h2>
-      marketplace.install_x.Foo
+      marketplace.upgrade_to_x.Foo
     </h2>
   </header>
   <LicenseEditionSet
