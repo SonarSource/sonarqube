@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 const { parseDate } = require('../../helpers/dates');
-const { DEFAULT_LANGUAGE } = require('../../helpers/l10n');
+const { getCurrentLocale } = require('../../helpers/l10n');
 
 module.exports = function(date) {
   if (!date) {
     return '';
   }
-  return new Intl.DateTimeFormat(localStorage.getItem('l10n.locale') || DEFAULT_LANGUAGE, {
+  return new Intl.DateTimeFormat(getCurrentLocale(), {
     year: 'numeric',
     month: 'long',
     day: 'numeric',

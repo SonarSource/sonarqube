@@ -17,7 +17,7 @@ exports[`should render correctly 1`] = `
       className="project-activity-graph-tooltip-value text-right spacer-right thin"
       colSpan="2"
     >
-      10k
+      10short_number_suffix.k
     </td>
     <td>
       metric.uncovered_lines.name
@@ -56,7 +56,7 @@ exports[`should render correctly when data is missing 1`] = `
       className="project-activity-graph-tooltip-value text-right spacer-right thin"
       colSpan="2"
     >
-      41k
+      41short_number_suffix.k
     </td>
     <td>
       metric.uncovered_lines.name

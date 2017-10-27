@@ -175,3 +175,11 @@ export function getLocalizedMetricDomain(domainName: string) {
   const fromBundle = translate(bundleKey);
   return fromBundle !== bundleKey ? fromBundle : domainName;
 }
+
+export function getCurrentLocale() {
+  // check `window && window.localStorage` for tests
+  return (
+    (window && window.localStorage && window.localStorage.getItem('l10n.locale')) ||
+    DEFAULT_LANGUAGE
+  );
+}
