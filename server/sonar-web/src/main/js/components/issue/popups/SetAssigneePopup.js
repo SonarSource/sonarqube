@@ -148,13 +148,7 @@ export default class SetAssigneePopup extends React.PureComponent {
             {this.state.users.map(user => (
               <SelectListItem key={user.login} item={user.login}>
                 {!!user.login && (
-                  <Avatar
-                    className="spacer-right"
-                    email={user.email}
-                    hash={user.avatar}
-                    name={user.name}
-                    size={16}
-                  />
+                  <Avatar className="spacer-right" hash={user.avatar} name={user.name} size={16} />
                 )}
                 <span
                   className="vertical-middle"

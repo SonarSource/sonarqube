@@ -36,7 +36,6 @@ exports[`should render correctly with email instead of hash 1`] = `
     className="Select-value-label"
   >
     <Connect(Avatar)
-      email="admin@admin.ch"
       name="Administrator"
       size={16}
     />

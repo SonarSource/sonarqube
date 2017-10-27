@@ -41,7 +41,7 @@ export default class UsersSelectSearchValue extends React.PureComponent {
         {user &&
           user.login && (
             <div className="Select-value-label">
-              <Avatar hash={user.avatar} email={user.email} name={user.name} size={AVATAR_SIZE} />
+              <Avatar hash={user.avatar} name={user.name} size={AVATAR_SIZE} />
               <strong className="spacer-left">{this.props.children}</strong>
               <span className="note little-spacer-left">{user.login}</span>
             </div>

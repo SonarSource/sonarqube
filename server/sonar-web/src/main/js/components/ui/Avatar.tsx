@@ -17,46 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { connect } from 'react-redux';
-import md5 from 'blueimp-md5';
-import classNames from 'classnames';
+import * as classNames from 'classnames';
 import { getGlobalSettingValue } from '../../store/rootReducer';
 
-function stringToColor(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  let color = '#';
-  for (let i = 0; i < 3; i++) {
-    const value = (hash >> (i * 8)) & 0xff;
-    color += ('00' + value.toString(16)).substr(-2);
-  }
-  return color;
+interface Props {
+  className?: string;
+  enableGravatar: boolean;
+  gravatarServerUrl: string;
+  hash?: string;
+  name: string;
+  size: number;
 }
 
-function getTextColor(background) {
-  const rgb = parseInt(background.substr(1), 16);
-  const r = (rgb >> 16) & 0xff;
-  const g = (rgb >> 8) & 0xff;
-  const b = (rgb >> 0) & 0xff;
-  const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  return luma > 140 ? '#222' : '#fff';
-}
-
-class Avatar extends React.PureComponent {
-  static propTypes = {
-    enableGravatar: PropTypes.bool.isRequired,
-    gravatarServerUrl: PropTypes.string.isRequired,
-    email: PropTypes.string,
-    hash: PropTypes.string,
-    name: PropTypes.string.isRequired,
-    size: PropTypes.number.isRequired,
-    className: PropTypes.string
-  };
-
+class Avatar extends React.PureComponent<Props> {
   renderFallback() {
     const className = classNames(this.props.className, 'rounded');
     const color = stringToColor(this.props.name);
@@ -90,30 +65,27 @@ class Avatar extends React.PureComponent {
   }
 
   render() {
-    if (!this.props.enableGravatar) {
+    if (!this.props.enableGravatar || !this.props.hash) {
       return this.renderFallback();
     }
 
-    const emailHash = this.props.hash || md5((this.props.email || '').toLowerCase()).trim();
     const url = this.props.gravatarServerUrl
-      .replace('{EMAIL_MD5}', emailHash)
-      .replace('{SIZE}', this.props.size * 2);
-
-    const className = classNames(this.props.className, 'rounded');
+      .replace('{EMAIL_MD5}', this.props.hash)
+      .replace('{SIZE}', String(this.props.size * 2));
 
     return (
       <img
-        className={className}
+        className={classNames(this.props.className, 'rounded')}
         src={url}
         width={this.props.size}
         height={this.props.size}
-        alt={this.props.email}
+        alt={this.props.name}
       />
     );
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: any) => ({
   enableGravatar: (getGlobalSettingValue(state, 'sonar.lf.enableGravatar') || {}).value === 'true',
   gravatarServerUrl: (getGlobalSettingValue(state, 'sonar.lf.gravatarServerUrl') || {}).value
 });
@@ -121,3 +93,26 @@ const mapStateToProps = state => ({
 export default connect(mapStateToProps)(Avatar);
 
 export const unconnectedAvatar = Avatar;
+
+/* eslint-disable no-bitwise, no-mixed-operators */
+function stringToColor(str: string) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  let color = '#';
+  for (let i = 0; i < 3; i++) {
+    const value = (hash >> (i * 8)) & 0xff;
+    color += ('00' + value.toString(16)).substr(-2);
+  }
+  return color;
+}
+
+function getTextColor(background: string) {
+  const rgb = parseInt(background.substr(1), 16);
+  const r = (rgb >> 16) & 0xff;
+  const g = (rgb >> 8) & 0xff;
+  const b = (rgb >> 0) & 0xff;
+  const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return luma > 140 ? '#222' : '#fff';
+}
