@@ -67,10 +67,11 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
     getLicensePreview({ license }).then(
       ({ previewStatus, nextEditionKey }) => {
         if (this.mounted) {
+          const { edition } = this.props;
           this.updateLicense(
             license,
             this.props.editions.find(edition => edition.key === nextEditionKey),
-            previewStatus
+            edition && edition.key !== nextEditionKey ? undefined : previewStatus
           );
         }
       },
@@ -89,7 +90,7 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
           this.setState({ formData });
         }
       },
-      () => { }
+      () => {}
     );
   };
 
@@ -122,8 +123,18 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
   renderAlert() {
     const { licenseEdition, previewStatus } = this.state;
     if (!previewStatus) {
+      const { edition } = this.props;
+      if (edition && licenseEdition && edition.key !== licenseEdition.key) {
+        return (
+          <p className="alert alert-danger spacer-top">
+            {translateWithParameters('marketplace.wrong_license_type_x', edition.name)}
+          </p>
+        );
+      }
+
       return undefined;
     }
+
     return (
       <p
         className={classNames('alert spacer-top', {
