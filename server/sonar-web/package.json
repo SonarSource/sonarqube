@@ -120,7 +120,7 @@
     "flow-check": "flow check src/main/js",
     "ts-check": "tsc --noEmit",
     "validate": "yarn lint && yarn flow-check && yarn ts-check && NODE_ENV=test jest",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged && yarn flow-check && yarn ts-check"
   },
   "engines": {
     "node": ">=6"
