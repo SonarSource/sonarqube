@@ -29,6 +29,7 @@ import { translate } from '../../../../helpers/l10n';
 
 /*::
 type CurrentUser = {
+  avatar?: string,
   email?: string,
   isLoggedIn: boolean,
   name: string
@@ -123,7 +124,7 @@ export default class GlobalNavUser extends React.PureComponent {
         className={classNames('dropdown js-user-authenticated', { open: this.state.open })}
         ref={node => (this.node = node)}>
         <a className="dropdown-toggle navbar-avatar" href="#" onClick={this.toggleDropdown}>
-          <Avatar email={currentUser.email} name={currentUser.name} size={24} />
+          <Avatar hash={currentUser.avatar} name={currentUser.name} size={24} />
         </a>
         {this.state.open && (
           <ul className="dropdown-menu dropdown-menu-right">

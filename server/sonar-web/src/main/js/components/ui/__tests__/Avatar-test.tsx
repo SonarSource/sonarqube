@@ -17,24 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import React from 'react';
 import { unconnectedAvatar as Avatar } from '../Avatar';
 
 const gravatarServerUrl = 'http://example.com/{EMAIL_MD5}.jpg?s={SIZE}';
-
-it.skip('should render', () => {
-  const avatar = shallow(
-    <Avatar
-      enableGravatar={true}
-      gravatarServerUrl={gravatarServerUrl}
-      email="mail@example.com"
-      name="Foo"
-      size={20}
-    />
-  );
-  expect(avatar).toMatchSnapshot();
-});
 
 it('should be able to render with hash only', () => {
   const avatar = shallow(

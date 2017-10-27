@@ -30,6 +30,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.issue.ws.AvatarResolverImpl;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.ws.TestRequest;
 import org.sonarqube.ws.WsPermissions;
@@ -51,7 +52,7 @@ public class TemplateUsersActionTest extends BasePermissionWsTest<TemplateUsersA
 
   @Override
   protected TemplateUsersAction buildWsAction() {
-    return new TemplateUsersAction(db.getDbClient(), userSession, newPermissionWsSupport());
+    return new TemplateUsersAction(db.getDbClient(), userSession, newPermissionWsSupport(), new AvatarResolverImpl());
   }
 
   @Test

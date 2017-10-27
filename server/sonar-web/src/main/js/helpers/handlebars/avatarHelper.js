@@ -23,11 +23,11 @@ const Handlebars = require('handlebars/runtime');
 const WithStore = require('../../components/shared/WithStore').default;
 const Avatar = require('../../components/ui/Avatar').default;
 
-module.exports = function(email, name, size) {
+module.exports = function(hash, name, size) {
   return new Handlebars.default.SafeString(
     renderToString(
       <WithStore>
-        <Avatar email={email} name={name} size={size} />
+        <Avatar hash={hash} name={name} size={size} />
       </WithStore>
     )
   );

@@ -24,19 +24,10 @@ exports[`falls back to dummy avatar 1`] = `
 
 exports[`should be able to render with hash only 1`] = `
 <img
+  alt="Foo"
   className="rounded"
   height={30}
   src="http://example.com/7daf6c79d4802916d83f6266e24850af.jpg?s=60"
   width={30}
-/>
-`;
-
-exports[`should render 1`] = `
-<img
-  alt="mail@example.com"
-  className="rounded"
-  height={20}
-  src="http://example.com/7daf6c79d4802916d83f6266e24850af.jpg?s=40"
-  width={20}
 />
 `;

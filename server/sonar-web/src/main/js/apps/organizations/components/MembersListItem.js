@@ -48,7 +48,7 @@ export default class MembersListItem extends React.PureComponent {
     return (
       <tr>
         <td className="thin nowrap">
-          <Avatar hash={member.avatar} email={member.email} name={member.name} size={AVATAR_SIZE} />
+          <Avatar hash={member.avatar} name={member.name} size={AVATAR_SIZE} />
         </td>
         <td className="nowrap text-middle">
           <strong>{member.name}</strong>

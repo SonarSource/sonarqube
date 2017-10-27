@@ -8,7 +8,6 @@
     "babel-polyfill": "6.26.0",
     "backbone": "1.2.3",
     "backbone.marionette": "2.4.3",
-    "blueimp-md5": "1.1.1",
     "classnames": "2.2.5",
     "clipboard": "1.7.1",
     "create-react-class": "15.6.2",

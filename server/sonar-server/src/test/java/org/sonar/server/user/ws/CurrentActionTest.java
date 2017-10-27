@@ -27,6 +27,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.issue.ws.AvatarResolverImpl;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
@@ -52,7 +53,7 @@ public class CurrentActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private WsActionTester ws = new WsActionTester(new CurrentAction(userSessionRule, dbClient, defaultOrganizationProvider));
+  private WsActionTester ws = new WsActionTester(new CurrentAction(userSessionRule, dbClient, defaultOrganizationProvider, new AvatarResolverImpl()));
 
   @Test
   public void return_user_info() {
@@ -70,9 +71,9 @@ public class CurrentActionTest {
     CurrentWsResponse response = call();
 
     assertThat(response)
-      .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::getEmail, CurrentWsResponse::getLocal,
+      .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::getEmail, CurrentWsResponse::getAvatar, CurrentWsResponse::getLocal,
         CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getScmAccountsList, CurrentWsResponse::getShowOnboardingTutorial)
-      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com", true, "obiwan", "sonarqube",
+      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com", "f5aa64437a1821ffe8b563099d506aef", true, "obiwan", "sonarqube",
         newArrayList("obiwan:github", "obiwan:bitbucket"), true);
   }
 
@@ -91,9 +92,9 @@ public class CurrentActionTest {
     CurrentWsResponse response = call();
 
     assertThat(response)
-      .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::getLocal,
+      .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::hasAvatar, CurrentWsResponse::getLocal,
         CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider)
-      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", true, "obiwan", "sonarqube");
+      .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", false, true, "obiwan", "sonarqube");
     assertThat(response.hasEmail()).isFalse();
     assertThat(response.getScmAccountsList()).isEmpty();
     assertThat(response.getGroupsList()).isEmpty();

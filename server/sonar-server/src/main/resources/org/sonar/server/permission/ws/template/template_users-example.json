@@ -9,18 +9,15 @@
       "login": "admin",
       "name": "Administrator",
       "email": "admin@admin.com",
-      "permissions": [
-        "codeviewer"
-      ]
+      "avatar": "64e1b8d34f425d19e1ee2ea7236d3028",
+      "permissions": ["codeviewer"]
     },
     {
       "login": "george.orwell",
       "name": "George Orwell",
       "email": "george.orwell@1984.net",
-      "permissions": [
-        "admin",
-        "codeviewer"
-      ]
+      "avatar": "583af86a274c1027ef078cada831babf",
+      "permissions": ["admin", "codeviewer"]
     }
   ]
 }
