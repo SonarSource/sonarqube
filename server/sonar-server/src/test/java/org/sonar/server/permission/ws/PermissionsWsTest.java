@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
+import org.sonar.server.issue.ws.AvatarResolverImpl;
 import org.sonar.server.permission.ws.template.TemplateGroupsAction;
 import org.sonar.server.permission.ws.template.TemplateUsersAction;
 import org.sonar.server.user.UserSession;
@@ -43,7 +44,7 @@ public class PermissionsWsTest {
     PermissionWsSupport permissionWsSupport = mock(PermissionWsSupport.class);
 
     ws = new WsTester(new PermissionsWs(
-      new TemplateUsersAction(dbClient, userSession, permissionWsSupport),
+      new TemplateUsersAction(dbClient, userSession, permissionWsSupport, new AvatarResolverImpl()),
       new TemplateGroupsAction(dbClient, userSession, permissionWsSupport)));
   }
 
