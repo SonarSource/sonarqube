@@ -38,7 +38,7 @@ exports[`renders 1`] = `
   }
   yValues={
     Array [
-      "1.7k",
+      "1.7short_number_suffix.k",
       "845",
       "73",
       "15",

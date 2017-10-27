@@ -164,13 +164,13 @@ function intVariationFormatter(value: number): string {
 
 function shortIntFormatter(value: number): string {
   if (value >= 1e9) {
-    return numberFormatter(value / 1e9) + 'b';
+    return numberFormatter(value / 1e9) + translate('short_number_suffix.b');
   } else if (value >= 1e6) {
-    return numberFormatter(value / 1e6) + 'm';
+    return numberFormatter(value / 1e6) + translate('short_number_suffix.m');
   } else if (value >= 1e4) {
-    return numberFormatter(value / 1e3) + 'k';
+    return numberFormatter(value / 1e3) + translate('short_number_suffix.k');
   } else if (value >= 1e3) {
-    return numberFormatter(value / 1e3, 0, 1) + 'k';
+    return numberFormatter(value / 1e3, 0, 1) + translate('short_number_suffix.k');
   } else {
     return numberFormatter(value);
   }
