@@ -45,7 +45,7 @@ public class UsersWsTest {
     WsTester tester = new WsTester(new UsersWs(
       new CreateAction(mock(DbClient.class), mock(UserUpdater.class), userSessionRule),
       new UpdateAction(mock(UserUpdater.class), userSessionRule, mock(UserJsonWriter.class), mock(DbClient.class)),
-      new CurrentAction(userSessionRule, mock(DbClient.class), mock(DefaultOrganizationProvider.class)),
+      new CurrentAction(userSessionRule, mock(DbClient.class), mock(DefaultOrganizationProvider.class), mock(AvatarResolver.class)),
       new ChangePasswordAction(mock(DbClient.class), mock(UserUpdater.class), userSessionRule),
       new SearchAction(userSessionRule, mock(UserIndex.class), mock(DbClient.class), mock(AvatarResolver.class))));
     controller = tester.controller("api/users");
