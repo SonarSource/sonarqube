@@ -35,12 +35,14 @@ import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateUserDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.issue.ws.AvatarResolver;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.WsPermissions.UsersWsResponse;
 
+import static com.google.common.base.Strings.emptyToNull;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -60,11 +62,13 @@ public class TemplateUsersAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final PermissionWsSupport support;
+  private final AvatarResolver avatarResolver;
 
-  public TemplateUsersAction(DbClient dbClient, UserSession userSession, PermissionWsSupport support) {
+  public TemplateUsersAction(DbClient dbClient, UserSession userSession, PermissionWsSupport support, AvatarResolver avatarResolver) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.support = support;
+    this.avatarResolver = avatarResolver;
   }
 
   @Override
@@ -122,7 +126,7 @@ public class TemplateUsersAction implements PermissionsWsAction {
     return query.build();
   }
 
-  private static WsPermissions.UsersWsResponse buildResponse(List<UserDto> users, List<PermissionTemplateUserDto> permissionTemplateUsers, Paging paging) {
+  private WsPermissions.UsersWsResponse buildResponse(List<UserDto> users, List<PermissionTemplateUserDto> permissionTemplateUsers, Paging paging) {
     Multimap<Integer, String> permissionsByUserId = TreeMultimap.create();
     permissionTemplateUsers.forEach(userPermission -> permissionsByUserId.put(userPermission.getUserId(), userPermission.getPermission()));
 
@@ -133,6 +137,7 @@ public class TemplateUsersAction implements PermissionsWsAction {
         .addAllPermissions(permissionsByUserId.get(user.getId()));
       setNullable(user.getEmail(), userResponse::setEmail);
       setNullable(user.getName(), userResponse::setName);
+      setNullable(emptyToNull(user.getEmail()), u -> userResponse.setAvatar(avatarResolver.create(user)));
     });
     responseBuilder.getPagingBuilder()
       .setPageIndex(paging.pageIndex())

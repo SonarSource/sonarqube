@@ -36,11 +36,13 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.permission.UserPermissionDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.issue.ws.AvatarResolver;
 import org.sonar.server.permission.ProjectId;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.WsPermissions.UsersWsResponse;
 
+import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Collections.emptyList;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.permission.PermissionQuery.DEFAULT_PAGE_SIZE;
@@ -62,11 +64,13 @@ public class UsersAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final UserSession userSession;
   private final PermissionWsSupport support;
+  private final AvatarResolver avatarResolver;
 
-  public UsersAction(DbClient dbClient, UserSession userSession, PermissionWsSupport support) {
+  public UsersAction(DbClient dbClient, UserSession userSession, PermissionWsSupport support, AvatarResolver avatarResolver) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.support = support;
+    this.avatarResolver = avatarResolver;
   }
 
   @Override
@@ -139,7 +143,7 @@ public class UsersAction implements PermissionsWsAction {
     return permissionQuery.build();
   }
 
-  private static UsersWsResponse buildResponse(List<UserDto> users, List<UserPermissionDto> userPermissions, Paging paging) {
+  private UsersWsResponse buildResponse(List<UserDto> users, List<UserPermissionDto> userPermissions, Paging paging) {
     Multimap<Integer, String> permissionsByUserId = TreeMultimap.create();
     userPermissions.forEach(userPermission -> permissionsByUserId.put(userPermission.getUserId(), userPermission.getPermission()));
 
@@ -149,6 +153,7 @@ public class UsersAction implements PermissionsWsAction {
         .setLogin(user.getLogin())
         .addAllPermissions(permissionsByUserId.get(user.getId()));
       setNullable(user.getEmail(), userResponse::setEmail);
+      setNullable(emptyToNull(user.getEmail()), u -> userResponse.setAvatar(avatarResolver.create(user)));
       setNullable(user.getName(), userResponse::setName);
     });
 

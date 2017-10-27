@@ -10,7 +10,7 @@ exports[`should not render the users organizations when they are not activated 1
     onClick={[Function]}
   >
     <Connect(Avatar)
-      email="foo@bar.baz"
+      hash="abcd1234"
       name="foo"
       size={24}
     />
@@ -83,7 +83,7 @@ exports[`should render the right interface for logged in user 1`] = `
     onClick={[Function]}
   >
     <Connect(Avatar)
-      email="foo@bar.baz"
+      hash="abcd1234"
       name="foo"
       size={24}
     />
@@ -144,7 +144,7 @@ exports[`should render the users organizations 1`] = `
     onClick={[Function]}
   >
     <Connect(Avatar)
-      email="foo@bar.baz"
+      hash="abcd1234"
       name="foo"
       size={24}
     />
@@ -283,7 +283,7 @@ exports[`should update the component correctly when the user changes to anonymou
     onClick={[Function]}
   >
     <Connect(Avatar)
-      email="foo@bar.baz"
+      hash="abcd1234"
       name="foo"
       size={24}
     />

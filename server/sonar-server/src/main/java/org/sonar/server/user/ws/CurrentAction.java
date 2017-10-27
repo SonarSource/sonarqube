@@ -30,6 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.issue.ws.AvatarResolver;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsUsers.CurrentWsResponse;
@@ -47,11 +48,13 @@ public class CurrentAction implements UsersWsAction {
   private final UserSession userSession;
   private final DbClient dbClient;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final AvatarResolver avatarResolver;
 
-  public CurrentAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public CurrentAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider, AvatarResolver avatarResolver) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.avatarResolver = avatarResolver;
   }
 
   @Override
@@ -95,6 +98,7 @@ public class CurrentAction implements UsersWsAction {
       .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
       .setShowOnboardingTutorial(!user.isOnboarded());
     setNullable(emptyToNull(user.getEmail()), builder::setEmail);
+    setNullable(emptyToNull(user.getEmail()), u -> builder.setAvatar(avatarResolver.create(user)));
     setNullable(user.getExternalIdentity(), builder::setExternalIdentity);
     setNullable(user.getExternalIdentityProvider(), builder::setExternalProvider);
     return builder.build();

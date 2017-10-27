@@ -272,10 +272,9 @@ export default class BulkChangeModal extends React.PureComponent {
 
   renderAssigneeOption = (option /*: { avatar?: string, email?: string, label: string } */) => (
     <span>
-      {(option.avatar != null || option.email != null) && (
+      {option.avatar != null && (
         <Avatar
           className="little-spacer-right"
-          email={option.email}
           hash={option.avatar}
           name={option.label}
           size={16}

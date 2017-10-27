@@ -21,7 +21,7 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import GlobalNavUser from '../GlobalNavUser';
 
-const currentUser = { isLoggedIn: true, name: 'foo', email: 'foo@bar.baz' };
+const currentUser = { avatar: 'abcd1234', isLoggedIn: true, name: 'foo', email: 'foo@bar.baz' };
 const organizations = [
   { key: 'myorg', name: 'MyOrg' },
   { key: 'foo', name: 'Foo' },
