@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as numeral from 'numeral';
-import { translate, translateWithParameters } from './l10n';
+import { translate, translateWithParameters, getCurrentLocale } from './l10n';
 
 const HOURS_IN_DAY = 8;
 
@@ -134,8 +133,16 @@ function getVariationFormatter(type: string): Formatter {
   return FORMATTERS[type] || noFormatter;
 }
 
-function genericNumberFormatter(value: number, formatValue?: string): string {
-  return numeral(value).format(formatValue);
+function numberFormatter(
+  value: number,
+  minimumFractionDigits = 0,
+  maximumFractionDigits = minimumFractionDigits
+) {
+  const { format } = new Intl.NumberFormat(getCurrentLocale(), {
+    minimumFractionDigits,
+    maximumFractionDigits
+  });
+  return format(value);
 }
 
 function noFormatter(value: string | number): string | number {
@@ -147,22 +154,26 @@ function emptyFormatter(): string {
 }
 
 function intFormatter(value: number): string {
-  return genericNumberFormatter(value, '0,0');
+  return numberFormatter(value);
 }
 
 function intVariationFormatter(value: number): string {
-  return genericNumberFormatter(value, '+0,0');
+  const prefix = value < 0 ? '-' : '+';
+  return prefix + intFormatter(Math.abs(value));
 }
 
 function shortIntFormatter(value: number): string {
-  let format = '0,0';
-  if (value >= 1000) {
-    format = '0.[0]a';
+  if (value >= 1e9) {
+    return numberFormatter(value / 1e9) + 'b';
+  } else if (value >= 1e6) {
+    return numberFormatter(value / 1e6) + 'm';
+  } else if (value >= 1e4) {
+    return numberFormatter(value / 1e3) + 'k';
+  } else if (value >= 1e3) {
+    return numberFormatter(value / 1e3, 0, 1) + 'k';
+  } else {
+    return numberFormatter(value);
   }
-  if (value >= 10000) {
-    format = '0a';
-  }
-  return genericNumberFormatter(value, format);
 }
 
 function shortIntVariationFormatter(value: number): string {
@@ -171,11 +182,12 @@ function shortIntVariationFormatter(value: number): string {
 }
 
 function floatFormatter(value: number): string {
-  return genericNumberFormatter(value, '0,0.0[0000]');
+  return numberFormatter(value, 1, 5);
 }
 
 function floatVariationFormatter(value: number): string {
-  return value === 0 ? '+0.0' : genericNumberFormatter(value, '+0,0.0[0000]');
+  const prefix = value < 0 ? '-' : '+';
+  return prefix + floatFormatter(Math.abs(value));
 }
 
 function percentFormatter(value: string | number, options: { decimals?: number } = {}): string {
@@ -183,9 +195,9 @@ function percentFormatter(value: string | number, options: { decimals?: number }
     value = parseFloat(value);
   }
   if (options.decimals) {
-    return genericNumberFormatter(value / 100, `0,0.${'0'.repeat(options.decimals)}%`);
+    return numberFormatter(value, options.decimals) + '%';
   }
-  return value === 100 ? '100%' : genericNumberFormatter(value / 100, '0,0.0%');
+  return value === 100 ? '100%' : numberFormatter(value, 1) + '%';
 }
 
 function percentVariationFormatter(
@@ -195,10 +207,8 @@ function percentVariationFormatter(
   if (typeof value === 'string') {
     value = parseFloat(value);
   }
-  if (options.decimals) {
-    return genericNumberFormatter(value / 100, `+0,0.${'0'.repeat(options.decimals)}%`);
-  }
-  return value === 0 ? '+0.0%' : genericNumberFormatter(value / 100, '+0,0.0%');
+  const prefix = value < 0 ? '-' : '+';
+  return prefix + percentFormatter(Math.abs(value), options);
 }
 
 function ratingFormatter(value: string | number): string {
