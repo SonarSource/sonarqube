@@ -53,18 +53,16 @@
       {{#if canEditQualityProfile}}
         {{#unless isSelectedProfileBuiltIn}}
           <td class="coding-rule-table-meta-cell coding-rule-activation-actions">
-            <div class="button-group">
-              {{#if activation}}
-                <button class="coding-rules-detail-quality-profile-deactivate button-red" 
-                        {{#notEq activation.inherit 'NONE'}}disabled  title="{{t 'coding_rules.can_not_deactivate'}}"{{/notEq}}>
-                  {{t 'coding_rules.deactivate'}}
-                </button>
-              {{else}}
-                {{#unless isTemplate}}
-                  <button class="coding-rules-detail-quality-profile-activate">{{t 'coding_rules.activate'}}</button>
-                {{/unless}}
-              {{/if}}
-            </div>
+            {{#if activation}}
+              <button class="coding-rules-detail-quality-profile-deactivate button-red" 
+                      {{#notEq activation.inherit 'NONE'}}disabled  title="{{t 'coding_rules.can_not_deactivate'}}"{{/notEq}}>
+                {{t 'coding_rules.deactivate'}}
+              </button>
+            {{else}}
+              {{#unless isTemplate}}
+                <button class="coding-rules-detail-quality-profile-activate">{{t 'coding_rules.activate'}}</button>
+              {{/unless}}
+            {{/if}}
           </td>
         {{/unless}}
       {{/if}}

@@ -92,13 +92,11 @@ export default class OrganizationMembers extends React.PureComponent {
         <MembersPageHeader loading={status.loading} total={status.total}>
           {organization.canAdmin && (
             <div className="page-actions">
-              <div className="button-group">
-                <AddMemberForm
-                  addMember={this.addMember}
-                  organization={organization}
-                  memberLogins={this.props.memberLogins}
-                />
-              </div>
+              <AddMemberForm
+                addMember={this.addMember}
+                organization={organization}
+                memberLogins={this.props.memberLogins}
+              />
             </div>
           )}
         </MembersPageHeader>
