@@ -7,9 +7,7 @@
         <div class="rule-desc spacer-bottom markdown">{{{htmlNote}}}</div>
       {{/if}}
       {{#if canCustomizeRule}}
-        <div class="button-group">
-          <button id="coding-rules-detail-extend-description">{{t 'coding_rules.extend_description'}}</button>
-        </div>
+        <button id="coding-rules-detail-extend-description">{{t 'coding_rules.extend_description'}}</button>
       {{/if}}
     </div>
 
@@ -25,14 +23,11 @@
           </tr>
           <tr>
             <td>
-              <div class="button-group">
-                <button id="coding-rules-detail-extend-description-submit">{{t 'save'}}</button>
-                {{#if mdNote}}
-                  <button id="coding-rules-detail-extend-description-remove"
-                          class="button-red">{{t 'remove'}}</button>
-                {{/if}}
-              </div>
-              <a id="coding-rules-detail-extend-description-cancel" class="action">{{t 'cancel'}}</a>
+              <button id="coding-rules-detail-extend-description-submit">{{t 'save'}}</button>
+              {{#if mdNote}}
+                <button id="coding-rules-detail-extend-description-remove" class="button-red">{{t 'remove'}}</button>
+              {{/if}}
+              <a id="coding-rules-detail-extend-description-cancel" class="spacer-left">{{t 'cancel'}}</a>
             </td>
             <td class="text-right">
               {{> '../../../../components/common/templates/_markdown-tips' }}

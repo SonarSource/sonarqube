@@ -80,8 +80,8 @@
   vertical-align: middle;
   margin-right: 20px;
   font-size: var(--smallFontSize);
-  height: 22px;
-  line-height: 18px;
+  height: var(--controlHeight);
+  line-height: var(--controlHeight);
 }
 
 .coding-rules-detail-property .select2-search-field {

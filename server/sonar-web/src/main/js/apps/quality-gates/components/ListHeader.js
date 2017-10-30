@@ -32,11 +32,9 @@ export default function ListHeader({ canEdit, onAdd }) {
       <h1 className="page-title">{translate('quality_gates.page')}</h1>
       {canEdit && (
         <div className="page-actions">
-          <div className="button-group">
-            <button id="quality-gate-add" onClick={handleAddClick}>
-              {translate('create')}
-            </button>
-          </div>
+          <button id="quality-gate-add" onClick={handleAddClick}>
+            {translate('create')}
+          </button>
         </div>
       )}
     </header>

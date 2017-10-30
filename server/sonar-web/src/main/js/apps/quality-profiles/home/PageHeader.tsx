@@ -82,20 +82,16 @@ export default class PageHeader extends React.PureComponent<Props, State> {
         <h1 className="page-title">{translate('quality_profiles.page')}</h1>
 
         {this.props.actions.create && (
-          <div className="page-actions button-group dropdown">
+          <div className="page-actions">
             <button id="quality-profiles-create" onClick={this.handleCreateClick}>
               {translate('create')}
             </button>
-            <button className="dropdown-toggle js-more-admin-actions" data-toggle="dropdown">
-              <i className="icon-dropdown" />
+            <button
+              className="little-spacer-left"
+              id="quality-profiles-restore"
+              onClick={this.handleRestoreClick}>
+              {translate('restore')}
             </button>
-            <ul className="dropdown-menu dropdown-menu-right">
-              <li>
-                <a href="#" id="quality-profiles-restore" onClick={this.handleRestoreClick}>
-                  {translate('quality_profiles.restore_profile')}
-                </a>
-              </li>
-            </ul>
           </div>
         )}
 

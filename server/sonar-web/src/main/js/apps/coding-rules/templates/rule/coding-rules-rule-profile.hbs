@@ -52,35 +52,31 @@
     </td>
   {{/unless}}
 
-  {{#if actions.edit}}
-    {{#unless isBuiltIn}}
-      <td class="coding-rules-detail-quality-profile-actions">
-        <div class="button-group">
-          {{#unless isTemplate}}
-            <button class="coding-rules-detail-quality-profile-change">{{t 'change_verb'}}</button>
-          {{/unless}}
-          {{#if parent}}
-            {{#eq inherit 'OVERRIDES'}}
-              <button class="coding-rules-detail-quality-profile-revert button-red">
-                {{t 'coding_rules.revert_to_parent_definition'}}
-              </button>
-            {{/eq}}
-          {{else}}
-            <button class="coding-rules-detail-quality-profile-deactivate button-red">
-              {{t 'coding_rules.deactivate'}}
+  <td class="coding-rules-detail-quality-profile-actions">
+    {{#if actions.edit}}
+      {{#unless isBuiltIn}}
+        {{#unless isTemplate}}
+          <button class="coding-rules-detail-quality-profile-change">{{t 'change_verb'}}</button>
+        {{/unless}}
+        {{#if parent}}
+          {{#eq inherit 'OVERRIDES'}}
+            <button class="coding-rules-detail-quality-profile-revert button-red">
+              {{t 'coding_rules.revert_to_parent_definition'}}
             </button>
-          {{/if}}
-        </div>
-      </td>
-    {{/unless}}
-  {{/if}}
+          {{/eq}}
+        {{else}}
+          <button class="coding-rules-detail-quality-profile-deactivate button-red">
+            {{t 'coding_rules.deactivate'}}
+          </button>
+        {{/if}}
+      {{/unless}}
+    {{/if}}
+  </td>
 
 {{else}}
   {{#if canWrite}}{{#unless isTemplate}}
     <td class="coding-rules-detail-quality-profile-actions">
-      <div class="button-group">
-        <button class="coding-rules-detail-quality-profile-activate">{{t 'coding_rules.activate'}}</button>
-      </div>
+      <button class="coding-rules-detail-quality-profile-activate">{{t 'coding_rules.activate'}}</button>
     </td>
   {{/unless}}{{/if}}
 {{/if}}
