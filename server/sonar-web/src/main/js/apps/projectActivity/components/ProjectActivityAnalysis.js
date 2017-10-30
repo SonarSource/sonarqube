@@ -80,7 +80,7 @@ export default class ProjectActivityAnalysis extends React.PureComponent {
 
         {(canAddVersion || canAddEvent || canDeleteAnalyses) && (
           <div className="project-activity-analysis-actions spacer-left">
-            <ActionsDropdown small={true}>
+            <ActionsDropdown small={true} toggleClassName="js-analysis-actions">
               {canAddVersion && (
                 <AddEventForm
                   addEvent={this.props.addVersion}
