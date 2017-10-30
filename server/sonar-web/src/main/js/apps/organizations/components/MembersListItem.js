@@ -27,7 +27,6 @@ import ManageMemberGroupsForm from './forms/ManageMemberGroupsForm';
 import ActionsDropdown, {
   ActionsDropdownDivider
 } from '../../../components/controls/ActionsDropdown';
-import SettingsIcon from '../../../components/icons-components/SettingsIcon';
 /*:: import type { Member } from '../../../store/organizationsMembers/actions'; */
 /*:: import type { Organization, OrgGroup } from '../../../store/organizations/duck'; */
 
