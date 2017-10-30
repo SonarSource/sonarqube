@@ -20,9 +20,9 @@
 package org.sonar.server.setting.ws;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -47,6 +47,8 @@ import org.sonarqube.ws.client.setting.ValuesRequest;
 import static java.lang.String.format;
 import static java.util.stream.Stream.concat;
 import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.sonar.api.CoreProperties.SERVER_ID;
+import static org.sonar.api.CoreProperties.SERVER_STARTTIME;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
@@ -61,6 +63,7 @@ public class ValuesAction implements SettingsWsAction {
 
   private static final Splitter COMMA_SPLITTER = Splitter.on(",");
   private static final String COMMA_ENCODED_VALUE = "%2C";
+  private static final Set<String> SERVER_SETTING_KEYS = ImmutableSet.of(SERVER_STARTTIME, SERVER_ID);
 
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
@@ -68,17 +71,15 @@ public class ValuesAction implements SettingsWsAction {
   private final PropertyDefinitions propertyDefinitions;
   private final SettingsFinder settingsFinder;
   private final SettingsWsSupport settingsWsSupport;
-  private final ScannerSettings scannerSettings;
 
   public ValuesAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, PropertyDefinitions propertyDefinitions, SettingsFinder settingsFinder,
-    SettingsWsSupport settingsWsSupport, ScannerSettings scannerSettings) {
+    SettingsWsSupport settingsWsSupport) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
     this.propertyDefinitions = propertyDefinitions;
     this.settingsFinder = settingsFinder;
     this.settingsWsSupport = settingsWsSupport;
-    this.scannerSettings = scannerSettings;
   }
 
   @Override
@@ -120,7 +121,7 @@ public class ValuesAction implements SettingsWsAction {
       ValuesRequest valuesRequest = toWsRequest(request);
       Optional<ComponentDto> component = loadComponent(dbSession, valuesRequest);
 
-      Set<String> keys = loadKeys(dbSession, valuesRequest);
+      Set<String> keys = loadKeys(valuesRequest);
       Map<String, String> keysToDisplayMap = getKeysToDisplayMap(keys);
       List<Setting> settings = loadSettings(dbSession, component, keysToDisplayMap.keySet());
       return new ValuesResponseBuilder(settings, component, keysToDisplayMap).build();
@@ -137,12 +138,10 @@ public class ValuesAction implements SettingsWsAction {
     return builder.build();
   }
 
-  private Set<String> loadKeys(DbSession dbSession, ValuesRequest valuesRequest) {
+  private Set<String> loadKeys(ValuesRequest valuesRequest) {
     List<String> keys = valuesRequest.getKeys();
-    if (keys.isEmpty()) {
-      return concat(propertyDefinitions.getAll().stream().map(PropertyDefinition::key), scannerSettings.getScannerSettingKeys(dbSession).stream()).collect(Collectors.toSet());
-    }
-    return new HashSet<>(keys);
+    return keys.isEmpty() ? concat(propertyDefinitions.getAll().stream().map(PropertyDefinition::key), SERVER_SETTING_KEYS.stream()).collect(Collectors.toSet())
+      : ImmutableSet.copyOf(keys);
   }
 
   private Optional<ComponentDto> loadComponent(DbSession dbSession, ValuesRequest valuesRequest) {

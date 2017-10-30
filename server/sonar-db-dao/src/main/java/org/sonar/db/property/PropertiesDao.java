@@ -36,11 +36,9 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.db.WildcardPosition;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.StringUtils.repeat;
-import static org.sonar.db.DaoDatabaseUtils.buildLikeValue;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
@@ -161,10 +159,6 @@ public class PropertiesDao implements Dao {
 
   public List<PropertyDto> selectPropertiesByComponentIds(DbSession session, Set<Long> componentIds) {
     return executeLargeInputs(componentIds, getMapper(session)::selectByComponentIds);
-  }
-
-  public List<PropertyDto> selectGlobalPropertiesByKeyQuery(DbSession session, String keyQuery) {
-    return getMapper(session).selectGlobalPropertiesByKeyQuery(buildLikeValue(keyQuery, WildcardPosition.BEFORE_AND_AFTER));
   }
 
   /**

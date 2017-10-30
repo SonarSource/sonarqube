@@ -437,24 +437,6 @@ public class PropertiesDaoTest {
   }
 
   @Test
-  public void select_global_properties_by_key_query() throws SQLException {
-    // global
-    insertProperty("sonar.plugin1.licenseHash.secured", "one", null, null);
-    insertProperty("sonar.plugin2.licenseHash.secured", "two", null, null);
-    // on component and user
-    insertProperty("sonar.plugin1.licenseHash.secure", "one", 10L, null);
-    insertProperty("sonar.plugin1.licenseHash.secure", "two", 10L, 100);
-
-    assertThat(underTest.selectGlobalPropertiesByKeyQuery(dbTester.getSession(), ".licenseHash.secured")).extracting(PropertyDto::getKey, PropertyDto::getValue)
-      .containsOnly(tuple("sonar.plugin1.licenseHash.secured", "one"), tuple("sonar.plugin2.licenseHash.secured", "two"));
-    assertThat(underTest.selectGlobalPropertiesByKeyQuery(dbTester.getSession(), "plugin1.licenseHash.secured")).extracting(PropertyDto::getKey, PropertyDto::getValue)
-      .containsOnly(tuple("sonar.plugin1.licenseHash.secured", "one"));
-    assertThat(underTest.selectGlobalPropertiesByKeyQuery(dbTester.getSession(), "plugin1")).extracting(PropertyDto::getKey, PropertyDto::getValue)
-      .containsOnly(tuple("sonar.plugin1.licenseHash.secured", "one"));
-    assertThat(underTest.selectGlobalPropertiesByKeyQuery(dbTester.getSession(), "unknown")).isEmpty();
-  }
-
-  @Test
   public void saveProperty_inserts_global_properties_when_they_do_not_exist_in_db() {
     when(system2.now()).thenReturn(DATE_1, DATE_2, DATE_3, DATE_4, DATE_5);
 
