@@ -19,7 +19,6 @@
  */
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import { Link } from 'react-router';
 import RenameProfileForm from './RenameProfileForm';
 import CopyProfileForm from './CopyProfileForm';
 import DeleteProfileForm from './DeleteProfileForm';
@@ -28,8 +27,13 @@ import { getRulesUrl } from '../../../helpers/urls';
 import { setDefaultProfile } from '../../../api/quality-profiles';
 import { getProfilePath, getProfileComparePath, getProfilesPath } from '../utils';
 import { Profile } from '../types';
+import ActionsDropdown, {
+  ActionsDropdownItem,
+  ActionsDropdownDivider
+} from '../../../components/controls/ActionsDropdown';
 
 interface Props {
+  className?: string;
   fromList?: boolean;
   onRequestFail: (reasong: any) => void;
   organization: string | null;
@@ -57,50 +61,52 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
     };
   }
 
-  handleRenameClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
+  handleRenameClick = () => {
     this.setState({ renameFormOpen: true });
   };
 
   handleProfileRename = (name: string) => {
     this.closeRenameForm();
-    this.props.updateProfiles().then(() => {
-      if (!this.props.fromList) {
-        this.context.router.replace(
-          getProfilePath(name, this.props.profile.language, this.props.organization)
-        );
-      }
-    });
+    this.props.updateProfiles().then(
+      () => {
+        if (!this.props.fromList) {
+          this.context.router.replace(
+            getProfilePath(name, this.props.profile.language, this.props.organization)
+          );
+        }
+      },
+      () => {}
+    );
   };
 
   closeRenameForm = () => {
     this.setState({ renameFormOpen: false });
   };
 
-  handleCopyClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
+  handleCopyClick = () => {
     this.setState({ copyFormOpen: true });
   };
 
   handleProfileCopy = (name: string) => {
-    this.props.updateProfiles().then(() => {
-      this.context.router.push(
-        getProfilePath(name, this.props.profile.language, this.props.organization)
-      );
-    });
+    this.props.updateProfiles().then(
+      () => {
+        this.context.router.push(
+          getProfilePath(name, this.props.profile.language, this.props.organization)
+        );
+      },
+      () => {}
+    );
   };
 
   closeCopyForm = () => {
     this.setState({ copyFormOpen: false });
   };
 
-  handleSetDefaultClick = (e: React.SyntheticEvent<HTMLElement>) => {
-    e.preventDefault();
-    setDefaultProfile(this.props.profile.key).then(this.props.updateProfiles);
+  handleSetDefaultClick = () => {
+    setDefaultProfile(this.props.profile.key).then(this.props.updateProfiles, () => {});
   };
 
-  handleDeleteClick = (event: React.SyntheticEvent<HTMLElement>) => {
-    event.preventDefault();
+  handleDeleteClick = () => {
     this.setState({ deleteFormOpen: true });
   };
 
@@ -131,60 +137,64 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
       this.props.organization
     );
 
+    const canActivateRules = actions.edit && !profile.isBuiltIn;
+    const canRename = actions.edit && !profile.isBuiltIn;
+    const canSetAsDefault = actions.setAsDefault && !profile.isDefault;
+    const canDelete = actions.edit && !profile.isDefault && !profile.isBuiltIn;
+
     return (
-      <ul className="dropdown-menu dropdown-menu-right">
-        {actions.edit &&
-          !profile.isBuiltIn && (
-            <li>
-              <Link to={activateMoreUrl}>{translate('quality_profiles.activate_more_rules')}</Link>
-            </li>
-          )}
+      <ActionsDropdown className={this.props.className}>
+        {canActivateRules && (
+          <ActionsDropdownItem to={activateMoreUrl}>
+            {translate('quality_profiles.activate_more_rules')}
+          </ActionsDropdownItem>
+        )}
+
         {!profile.isBuiltIn && (
-          <li>
-            <a id="quality-profile-backup" href={backupUrl}>
-              {translate('backup_verb')}
-            </a>
-          </li>
+          <ActionsDropdownItem
+            download={`${profile.key}.xml`}
+            id="quality-profile-backup"
+            to={backupUrl}>
+            {translate('backup_verb')}
+          </ActionsDropdownItem>
         )}
-        <li>
-          <Link
-            to={getProfileComparePath(profile.name, profile.language, this.props.organization)}
-            id="quality-profile-compare">
-            {translate('compare')}
-          </Link>
-        </li>
+
+        <ActionsDropdownItem
+          id="quality-profile-compare"
+          to={getProfileComparePath(profile.name, profile.language, this.props.organization)}>
+          {translate('compare')}
+        </ActionsDropdownItem>
+
         {actions.copy && (
-          <li>
-            <a id="quality-profile-copy" href="#" onClick={this.handleCopyClick}>
-              {translate('copy')}
-            </a>
-          </li>
+          <ActionsDropdownItem id="quality-profile-copy" onClick={this.handleCopyClick}>
+            {translate('copy')}
+          </ActionsDropdownItem>
         )}
-        {actions.edit &&
-          !profile.isBuiltIn && (
-            <li>
-              <a id="quality-profile-rename" href="#" onClick={this.handleRenameClick}>
-                {translate('rename')}
-              </a>
-            </li>
-          )}
-        {actions.setAsDefault &&
-          !profile.isDefault && (
-            <li>
-              <a id="quality-profile-set-as-default" href="#" onClick={this.handleSetDefaultClick}>
-                {translate('set_as_default')}
-              </a>
-            </li>
-          )}
-        {actions.edit &&
-          !profile.isDefault &&
-          !profile.isBuiltIn && (
-            <li>
-              <a id="quality-profile-delete" href="#" onClick={this.handleDeleteClick}>
-                {translate('delete')}
-              </a>
-            </li>
-          )}
+
+        {canRename && (
+          <ActionsDropdownItem id="quality-profile-rename" onClick={this.handleRenameClick}>
+            {translate('rename')}
+          </ActionsDropdownItem>
+        )}
+
+        {canSetAsDefault && (
+          <ActionsDropdownItem
+            id="quality-profile-set-as-default"
+            onClick={this.handleSetDefaultClick}>
+            {translate('set_as_default')}
+          </ActionsDropdownItem>
+        )}
+
+        {canDelete && <ActionsDropdownDivider />}
+
+        {canDelete && (
+          <ActionsDropdownItem
+            destructive={true}
+            id="quality-profile-delete"
+            onClick={this.handleDeleteClick}>
+            {translate('delete')}
+          </ActionsDropdownItem>
+        )}
 
         {this.state.copyFormOpen && (
           <CopyProfileForm
@@ -212,7 +222,7 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
             profile={profile}
           />
         )}
-      </ul>
+      </ActionsDropdown>
     );
   }
 }
