@@ -17,13 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
 import * as React from 'react';
+import { shallow } from 'enzyme';
 import Helmet from 'react-helmet';
+import { WithRouterProps } from 'react-router';
 import ProfileContainer from '../ProfileContainer';
 import ProfileNotFound from '../ProfileNotFound';
 import ProfileHeader from '../../details/ProfileHeader';
 import { createFakeProfile } from '../../utils';
+
+const routerProps = { router: {} } as WithRouterProps;
 
 it('should render ProfileHeader', () => {
   const targetProfile = createFakeProfile({ language: 'js', name: 'fake' });
@@ -35,8 +38,8 @@ it('should render ProfileHeader', () => {
       onRequestFail={jest.fn()}
       organization={null}
       profiles={profiles}
-      router={{} as any}
-      updateProfiles={updateProfiles}>
+      updateProfiles={updateProfiles}
+      {...routerProps}>
       <div />
     </ProfileContainer>
   );
@@ -57,8 +60,8 @@ it('should render ProfileNotFound', () => {
       onRequestFail={jest.fn()}
       organization={null}
       profiles={profiles}
-      router={{} as any}
-      updateProfiles={jest.fn()}>
+      updateProfiles={jest.fn()}
+      {...routerProps}>
       <div />
     </ProfileContainer>
   );
@@ -74,8 +77,8 @@ it('should render Helmet', () => {
       onRequestFail={jest.fn()}
       organization={null}
       profiles={profiles}
-      router={{} as any}
-      updateProfiles={updateProfiles}>
+      updateProfiles={updateProfiles}
+      {...routerProps}>
       <div />
     </ProfileContainer>
   );

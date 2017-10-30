@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import Helmet from 'react-helmet';
+import { WithRouterProps } from 'react-router';
 import ProfileNotFound from './ProfileNotFound';
 import ProfileHeader from '../details/ProfileHeader';
 import { Profile } from '../types';
@@ -32,11 +33,10 @@ interface Props {
   onRequestFail: (reasong: any) => void;
   organization: string | null;
   profiles: Profile[];
-  router: { replace: (path: any) => void };
   updateProfiles: () => Promise<void>;
 }
 
-export default class ProfileContainer extends React.PureComponent<Props> {
+export default class ProfileContainer extends React.PureComponent<Props & WithRouterProps> {
   componentDidMount() {
     const { location, profiles, router } = this.props;
     if (location.query.key) {

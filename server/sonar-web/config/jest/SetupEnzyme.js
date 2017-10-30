@@ -17,14 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-window.baseUrl = '';
-window.t = window.tp = function() {
-  const args = Array.prototype.slice.call(arguments, 0);
-  return args.join('.');
-};
+import Enzyme from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
 
-// Fix for https://github.com/facebook/jest/issues/4545
-// Try to remove when jest 21.3.0 is out
-window.requestAnimationFrame = function(callback) {
-  setTimeout(callback, 0);
-};
+Enzyme.configure({ adapter: new Adapter() });

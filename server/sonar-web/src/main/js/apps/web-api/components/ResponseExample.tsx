@@ -43,8 +43,8 @@ export default class ResponseExample extends React.PureComponent<Props, State> {
     this.fetchResponseExample();
   }
 
-  componentDidUpdate(nextProps: Props) {
-    if (nextProps.action !== this.props.action) {
+  componentDidUpdate(prevProps: Props) {
+    if (prevProps.action !== this.props.action) {
       this.fetchResponseExample();
     }
   }

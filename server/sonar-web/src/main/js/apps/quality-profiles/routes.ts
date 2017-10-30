@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { withRouter, RouterState, IndexRouteProps, RouteComponent } from 'react-router';
+import { RouterState, IndexRouteProps, RouteComponent, withRouter } from 'react-router';
 
 const routes = [
   {
