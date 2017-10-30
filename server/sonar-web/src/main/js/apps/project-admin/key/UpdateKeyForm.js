@@ -76,15 +76,13 @@ export default class UpdateKeyForm extends React.PureComponent {
           onChange={this.handleInputChange}
         />
 
-        <div className="button-group">
-          <button disabled={!hasChanged} onClick={this.handleUpdateClick}>
-            {translate('update_verb')}
-          </button>
+        <button disabled={!hasChanged} onClick={this.handleUpdateClick}>
+          {translate('update_verb')}
+        </button>
 
-          <button disabled={!hasChanged} onClick={this.handleResetClick}>
-            {translate('reset_verb')}
-          </button>
-        </div>
+        <button className="spacer-left" disabled={!hasChanged} onClick={this.handleResetClick}>
+          {translate('reset_verb')}
+        </button>
       </div>
     );
   }

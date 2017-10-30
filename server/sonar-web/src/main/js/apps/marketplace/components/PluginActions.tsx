@@ -93,7 +93,7 @@ export default class PluginActions extends React.PureComponent<Props, State> {
         {isPluginInstalled(plugin) &&
           plugin.updates &&
           plugin.updates.length > 0 && (
-            <div className="spacer-top button-group">
+            <div className="spacer-top">
               {plugin.updates.map((update, idx) => (
                 <PluginUpdateButton
                   key={idx}
