@@ -41,6 +41,7 @@ export default function ActionsDropdown(props: Props) {
 }
 
 interface ItemProps {
+  className?: string;
   children: React.ReactNode;
   destructive?: boolean;
   /** used to pass a name of downloaded file */
@@ -60,7 +61,7 @@ export class ActionsDropdownItem extends React.PureComponent<ItemProps> {
   };
 
   render() {
-    const className = classNames({ 'text-danger': this.props.destructive });
+    const className = classNames(this.props.className, { 'text-danger': this.props.destructive });
 
     if (this.props.download && typeof this.props.to === 'string') {
       return (

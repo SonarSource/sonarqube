@@ -64,49 +64,26 @@ exports[`renders 1`] = `
   <td
     className="thin nowrap"
   >
-    <div
-      className="dropdown"
-    >
-      <button
-        className="dropdown-toggle"
-        data-toggle="dropdown"
+    <ActionsDropdown>
+      <ActionsDropdownItem
+        to={
+          Object {
+            "pathname": "/project_roles",
+            "query": Object {
+              "id": "project",
+            },
+          }
+        }
       >
-        actions
-         
-        <i
-          className="icon-dropdown"
-        />
-      </button>
-      <ul
-        className="dropdown-menu dropdown-menu-right"
+        edit_permissions
+      </ActionsDropdownItem>
+      <ActionsDropdownItem
+        className="js-apply-template"
+        onClick={[Function]}
       >
-        <li>
-          <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to={
-              Object {
-                "pathname": "/project_roles",
-                "query": Object {
-                  "id": "project",
-                },
-              }
-            }
-          >
-            edit_permissions
-          </Link>
-        </li>
-        <li>
-          <a
-            className="js-apply-template"
-            href="#"
-            onClick={[Function]}
-          >
-            projects_role.apply_template
-          </a>
-        </li>
-      </ul>
-    </div>
+        projects_role.apply_template
+      </ActionsDropdownItem>
+    </ActionsDropdown>
   </td>
 </tr>
 `;
@@ -173,49 +150,26 @@ exports[`renders 2`] = `
   <td
     className="thin nowrap"
   >
-    <div
-      className="dropdown"
-    >
-      <button
-        className="dropdown-toggle"
-        data-toggle="dropdown"
+    <ActionsDropdown>
+      <ActionsDropdownItem
+        to={
+          Object {
+            "pathname": "/project_roles",
+            "query": Object {
+              "id": "project",
+            },
+          }
+        }
       >
-        actions
-         
-        <i
-          className="icon-dropdown"
-        />
-      </button>
-      <ul
-        className="dropdown-menu dropdown-menu-right"
+        edit_permissions
+      </ActionsDropdownItem>
+      <ActionsDropdownItem
+        className="js-apply-template"
+        onClick={[Function]}
       >
-        <li>
-          <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to={
-              Object {
-                "pathname": "/project_roles",
-                "query": Object {
-                  "id": "project",
-                },
-              }
-            }
-          >
-            edit_permissions
-          </Link>
-        </li>
-        <li>
-          <a
-            className="js-apply-template"
-            href="#"
-            onClick={[Function]}
-          >
-            projects_role.apply_template
-          </a>
-        </li>
-      </ul>
-    </div>
+        projects_role.apply_template
+      </ActionsDropdownItem>
+    </ActionsDropdown>
   </td>
 </tr>
 `;
