@@ -24,7 +24,9 @@ import Events from './Events';
 import AddEventForm from './forms/AddEventForm';
 import RemoveAnalysisForm from './forms/RemoveAnalysisForm';
 import TimeTooltipFormatter from '../../../components/intl/TimeTooltipFormatter';
-import SettingsIcon from '../../../components/icons-components/SettingsIcon';
+import ActionsDropdown, {
+  ActionsDropdownDivider
+} from '../../../components/controls/ActionsDropdown';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Analysis } from '../types'; */
 
@@ -78,44 +80,29 @@ export default class ProjectActivityAnalysis extends React.PureComponent {
 
         {(canAddVersion || canAddEvent || canDeleteAnalyses) && (
           <div className="project-activity-analysis-actions spacer-left">
-            <div className="dropdown display-inline-block">
-              <button
-                className="js-analysis-actions button-small button-compact dropdown-toggle"
-                data-toggle="dropdown"
-                onClick={this.stopPropagation}>
-                <SettingsIcon size={12} style={{ marginTop: 3 }} /> <i className="icon-dropdown" />
-              </button>
-              <ul className="dropdown-menu dropdown-menu-right">
-                {canAddVersion && (
-                  <li>
-                    <AddEventForm
-                      addEvent={this.props.addVersion}
-                      analysis={analysis}
-                      addEventButtonText="project_activity.add_version"
-                    />
-                  </li>
-                )}
-                {canAddEvent && (
-                  <li>
-                    <AddEventForm
-                      addEvent={this.props.addCustomEvent}
-                      analysis={analysis}
-                      addEventButtonText="project_activity.add_custom_event"
-                    />
-                  </li>
-                )}
-                {(canAddVersion || canAddEvent) &&
-                  canDeleteAnalyses && <li role="separator" className="divider" />}
-                {canDeleteAnalyses && (
-                  <li>
-                    <RemoveAnalysisForm
-                      analysis={analysis}
-                      deleteAnalysis={this.props.deleteAnalysis}
-                    />
-                  </li>
-                )}
-              </ul>
-            </div>
+            <ActionsDropdown small={true}>
+              {canAddVersion && (
+                <AddEventForm
+                  addEvent={this.props.addVersion}
+                  analysis={analysis}
+                  addEventButtonText="project_activity.add_version"
+                />
+              )}
+              {canAddEvent && (
+                <AddEventForm
+                  addEvent={this.props.addCustomEvent}
+                  analysis={analysis}
+                  addEventButtonText="project_activity.add_custom_event"
+                />
+              )}
+              {(canAddVersion || canAddEvent) && canDeleteAnalyses && <ActionsDropdownDivider />}
+              {canDeleteAnalyses && (
+                <RemoveAnalysisForm
+                  analysis={analysis}
+                  deleteAnalysis={this.props.deleteAnalysis}
+                />
+              )}
+            </ActionsDropdown>
           </div>
         )}
 

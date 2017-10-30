@@ -26,12 +26,15 @@ import SettingsIcon from '../icons-components/SettingsIcon';
 interface Props {
   className?: string;
   children: React.ReactNode;
+  small?: boolean;
 }
 
 export default function ActionsDropdown(props: Props) {
   return (
     <div className={classNames('dropdown', props.className)}>
-      <button className="dropdown-toggle" data-toggle="dropdown">
+      <button
+        className={classNames('dropdown-toggle', { 'button-small button-compact': props.small })}
+        data-toggle="dropdown">
         <SettingsIcon className="text-text-bottom" />
         <i className="icon-dropdown little-spacer-left" />
       </button>

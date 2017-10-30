@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import Modal from '../../../../components/controls/Modal';
+import { ActionsDropdownItem } from '../../../../components/controls/ActionsDropdown';
 import { translate } from '../../../../helpers/l10n';
 /*:: import type { Analysis } from '../../types'; */
 
@@ -53,12 +54,8 @@ export default class RemoveAnalysisForm extends React.PureComponent {
     this.mounted = false;
   }
 
-  openForm = (e /*: Event */) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (this.mounted) {
-      this.setState({ open: true });
-    }
+  openForm = () => {
+    this.setState({ open: true });
   };
 
   closeForm = () => {
@@ -118,10 +115,13 @@ export default class RemoveAnalysisForm extends React.PureComponent {
 
   render() {
     return (
-      <a className="js-delete-analysis" href="#" onClick={this.openForm}>
+      <ActionsDropdownItem
+        className="js-delete-analysis"
+        destructive={true}
+        onClick={this.openForm}>
         {translate('project_activity.delete_analysis')}
         {this.state.open && this.renderModal()}
-      </a>
+      </ActionsDropdownItem>
     );
   }
 }
