@@ -69,17 +69,15 @@ Object {
 `;
 
 exports[`should render and open the modal 1`] = `
-<a
-  href="#"
+<ActionsDropdownItem
   onClick={[Function]}
 >
   organization.members.manage_groups
-</a>
+</ActionsDropdownItem>
 `;
 
 exports[`should render and open the modal 2`] = `
-<a
-  href="#"
+<ActionsDropdownItem
   onClick={[Function]}
 >
   organization.members.manage_groups
@@ -168,7 +166,7 @@ exports[`should render and open the modal 2`] = `
       </footer>
     </form>
   </Modal>
-</a>
+</ActionsDropdownItem>
 `;
 
 exports[`should reset the selected groups when the modal is opened 1`] = `

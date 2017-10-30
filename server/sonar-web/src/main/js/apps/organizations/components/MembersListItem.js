@@ -24,6 +24,9 @@ import { translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 import RemoveMemberForm from './forms/RemoveMemberForm';
 import ManageMemberGroupsForm from './forms/ManageMemberGroupsForm';
+import ActionsDropdown, {
+  ActionsDropdownDivider
+} from '../../../components/controls/ActionsDropdown';
 import SettingsIcon from '../../../components/icons-components/SettingsIcon';
 /*:: import type { Member } from '../../../store/organizationsMembers/actions'; */
 /*:: import type { Organization, OrgGroup } from '../../../store/organizations/duck'; */
@@ -64,31 +67,20 @@ export default class MembersListItem extends React.PureComponent {
         )}
         {organization.canAdmin && (
           <td className="nowrap text-middle text-right">
-            <div className="dropdown">
-              <button
-                className="dropdown-toggle little-spacer-right button-compact"
-                data-toggle="dropdown">
-                <SettingsIcon style={{ marginTop: 4 }} /> <i className="icon-dropdown" />
-              </button>
-              <ul className="dropdown-menu dropdown-menu-right">
-                <li>
-                  <ManageMemberGroupsForm
-                    organizationGroups={this.props.organizationGroups}
-                    organization={this.props.organization}
-                    updateMemberGroups={this.props.updateMemberGroups}
-                    member={this.props.member}
-                  />
-                </li>
-                <li role="separator" className="divider" />
-                <li>
-                  <RemoveMemberForm
-                    organization={this.props.organization}
-                    removeMember={this.props.removeMember}
-                    member={this.props.member}
-                  />
-                </li>
-              </ul>
-            </div>
+            <ActionsDropdown>
+              <ManageMemberGroupsForm
+                organizationGroups={this.props.organizationGroups}
+                organization={this.props.organization}
+                updateMemberGroups={this.props.updateMemberGroups}
+                member={this.props.member}
+              />
+              <ActionsDropdownDivider />
+              <RemoveMemberForm
+                organization={this.props.organization}
+                removeMember={this.props.removeMember}
+                member={this.props.member}
+              />
+            </ActionsDropdown>
           </td>
         )}
       </tr>

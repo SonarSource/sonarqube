@@ -14,17 +14,17 @@ Array [
 `;
 
 exports[`should render and open the modal 1`] = `
-<a
-  href="#"
+<ActionsDropdownItem
+  destructive={true}
   onClick={[Function]}
 >
   organization.members.remove
-</a>
+</ActionsDropdownItem>
 `;
 
 exports[`should render and open the modal 2`] = `
-<a
-  href="#"
+<ActionsDropdownItem
+  destructive={true}
   onClick={[Function]}
 >
   organization.members.remove
@@ -71,5 +71,5 @@ exports[`should render and open the modal 2`] = `
       </footer>
     </form>
   </Modal>
-</a>
+</ActionsDropdownItem>
 `;
