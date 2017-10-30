@@ -105,9 +105,7 @@ exports[`creates new project 3`] = `
       <button
         className="button-clean"
       >
-        <i
-          className="icon-delete"
-        />
+        <DeleteIcon />
       </button>
     </form>
   </div>
@@ -138,9 +136,7 @@ exports[`deletes project 1`] = `
       <button
         className="button-clean"
       >
-        <i
-          className="icon-delete"
-        />
+        <DeleteIcon />
       </button>
     </form>
   </div>

@@ -35,10 +35,14 @@ exports[`renders 1`] = `
         visibility.public
       </strong>
       <a
-        className="js-change-visibility spacer-left icon-edit"
+        className="js-change-visibility spacer-left link-no-underline"
         href="#"
         onClick={[Function]}
-      />
+      >
+        <EditIcon
+          className="text-text-top"
+        />
+      </a>
     </span>
     <button
       id="create-project"
