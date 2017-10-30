@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders status of long-living branches 1`] = `null`;
+exports[`renders status of long-living branches 1`] = `""`;
 
 exports[`renders status of long-living branches 2`] = `
 <Level

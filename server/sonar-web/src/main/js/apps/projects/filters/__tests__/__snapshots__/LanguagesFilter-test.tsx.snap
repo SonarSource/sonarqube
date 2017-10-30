@@ -57,6 +57,7 @@ exports[`should render maximum 10 languages in the searchbox results 1`] = `
           },
         ]
       }
+      organization={undefined}
       property="languages"
       query={
         Object {
@@ -130,6 +131,7 @@ exports[`should render the languages facet with the selected languages 1`] = `
           },
         ]
       }
+      organization={undefined}
       property="languages"
       query={
         Object {
@@ -333,6 +335,7 @@ exports[`should render the languages without the ones in the facet 1`] = `
   }
   footer={
     <SearchableFilterFooter
+      isFavorite={undefined}
       options={
         Array [
           Object {
@@ -349,6 +352,7 @@ exports[`should render the languages without the ones in the facet 1`] = `
           },
         ]
       }
+      organization={undefined}
       property="languages"
       query={
         Object {

@@ -21,7 +21,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import NewOrganizationForm from '../NewOrganizationForm';
-import { change, doAsync, submit } from '../../../../helpers/testUtils';
+import { change, submit } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/organizations', () => ({
   createOrganization: () => Promise.resolve(),
@@ -29,28 +29,28 @@ jest.mock('../../../../api/organizations', () => ({
   getOrganization: () => Promise.resolve(null)
 }));
 
-it('creates new organization', () => {
+it('creates new organization', async () => {
   const onDone = jest.fn();
   const wrapper = mount(<NewOrganizationForm onDelete={jest.fn()} onDone={onDone} />);
   expect(wrapper).toMatchSnapshot();
   change(wrapper.find('input'), 'foo');
   submit(wrapper.find('form'));
   expect(wrapper).toMatchSnapshot(); // spinner
-  return doAsync(() => {
-    expect(wrapper).toMatchSnapshot();
-    expect(onDone).toBeCalledWith('foo');
-  });
+  await new Promise(setImmediate);
+  wrapper.update();
+  expect(wrapper).toMatchSnapshot();
+  expect(onDone).toBeCalledWith('foo');
 });
 
-it('deletes organization', () => {
+it('deletes organization', async () => {
   const onDelete = jest.fn();
   const wrapper = mount(<NewOrganizationForm onDelete={onDelete} onDone={jest.fn()} />);
   wrapper.setState({ done: true, loading: false, organization: 'foo' });
   expect(wrapper).toMatchSnapshot();
   submit(wrapper.find('form'));
   expect(wrapper).toMatchSnapshot(); // spinner
-  return doAsync(() => {
-    expect(wrapper).toMatchSnapshot();
-    expect(onDelete).toBeCalled();
-  });
+  await new Promise(setImmediate);
+  wrapper.update();
+  expect(wrapper).toMatchSnapshot();
+  expect(onDelete).toBeCalled();
 });

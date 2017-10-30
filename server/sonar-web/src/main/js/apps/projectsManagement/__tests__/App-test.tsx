@@ -17,7 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable import/first, import/order */
+/* eslint-disable import/order */
+import * as React from 'react';
+import { mount } from 'enzyme';
+import App, { Props } from '../App';
+
+jest.mock('react-dom', () => {
+  const ReactDOM = require.requireActual('react-dom');
+  ReactDOM.createPortal = (children: React.ReactNode) => children;
+  return ReactDOM;
+});
+
 jest.mock('lodash', () => {
   const lodash = require.requireActual('lodash');
   lodash.debounce = (fn: Function) => (...args: any[]) => fn(args);
@@ -33,10 +43,6 @@ jest.mock('rc-tooltip', () => ({
 }));
 
 jest.mock('../../../api/components', () => ({ getComponents: jest.fn() }));
-
-import * as React from 'react';
-import { mount } from 'enzyme';
-import App, { Props } from '../App';
 
 const getComponents = require('../../../api/components').getComponents as jest.Mock<any>;
 
@@ -121,12 +127,15 @@ it('creates project', () => {
   expect(wrapper.find('CreateProjectForm').exists()).toBeFalsy();
 
   wrapper.find('Header').prop<Function>('onProjectCreate')();
+  wrapper.update();
   expect(wrapper.find('CreateProjectForm').exists()).toBeTruthy();
 
   wrapper.find('CreateProjectForm').prop<Function>('onProjectCreated')();
+  wrapper.update();
   expect(getComponents.mock.calls).toHaveLength(2);
 
   wrapper.find('CreateProjectForm').prop<Function>('onClose')();
+  wrapper.update();
   expect(wrapper.find('CreateProjectForm').exists()).toBeFalsy();
 });
 

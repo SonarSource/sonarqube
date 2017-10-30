@@ -18,9 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import { click } from '../../../../../helpers/testUtils';
 import AddMemberForm from '../AddMemberForm';
+
+jest.mock('react-dom', () => {
+  const ReactDOM = require.requireActual('react-dom');
+  ReactDOM.createPortal = children => children;
+  return ReactDOM;
+});
 
 const memberLogins = ['admin'];
 
@@ -32,7 +38,7 @@ it('should render and open the modal', () => {
 });
 
 it('should correctly handle user interactions', () => {
-  const wrapper = mount(<AddMemberForm memberLogins={memberLogins} addMember={jest.fn()} />);
+  const wrapper = shallow(<AddMemberForm memberLogins={memberLogins} addMember={jest.fn()} />);
   click(wrapper.find('button'));
   expect(wrapper.state('open')).toBeTruthy();
   wrapper.instance().closeForm();

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display correctly 1`] = `null`;
+exports[`should display correctly 1`] = `""`;
 
 exports[`should display correctly 2`] = `
 <div
@@ -20,4 +20,4 @@ exports[`should display correctly 2`] = `
 </div>
 `;
 
-exports[`should display nothing 1`] = `null`;
+exports[`should display nothing 1`] = `""`;

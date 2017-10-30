@@ -35,6 +35,7 @@ it('shows stack trace', () => {
   click(wrapper.find('.js-task-show-stacktrace'));
   expect(wrapper.find('Stacktrace')).toMatchSnapshot();
   wrapper.find('Stacktrace').prop<Function>('onClose')();
+  wrapper.update();
   expect(wrapper.find('Stacktrace').exists()).toBeFalsy();
 });
 
@@ -43,6 +44,7 @@ it('shows scanner context', () => {
   click(wrapper.find('.js-task-show-scanner-context'));
   expect(wrapper.find('ScannerContext')).toMatchSnapshot();
   wrapper.find('ScannerContext').prop<Function>('onClose')();
+  wrapper.update();
   expect(wrapper.find('ScannerContext').exists()).toBeFalsy();
 });
 

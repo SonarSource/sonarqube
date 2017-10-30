@@ -43,11 +43,9 @@ export default class EditionBox extends React.PureComponent<Props> {
     if (canInstall && !isInstalled) {
       return (
         <button disabled={installInProgress || uninstallInProgress} onClick={this.handleInstall}>
-          {this.props.isDowngrade ? (
-            translate('marketplace.downgrade')
-          ) : (
-            translate('marketplace.upgrade')
-          )}
+          {this.props.isDowngrade
+            ? translate('marketplace.downgrade')
+            : translate('marketplace.upgrade')}
         </button>
       );
     }

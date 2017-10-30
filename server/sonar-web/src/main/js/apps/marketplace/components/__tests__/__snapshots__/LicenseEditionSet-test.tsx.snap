@@ -75,3 +75,13 @@ exports[`should display correctly 1`] = `
   </a>
 </div>
 `;
+
+exports[`should display the get license link with parameters 1`] = `
+<a
+  className="display-inline-block spacer-top"
+  href="license_url?serverId=foo&ncloc=1000"
+  target="_blank"
+>
+  marketplace.i_need_a_license
+</a>
+`;

@@ -17,23 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable import/first */
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import ProfilePermissionsFormSelect from '../ProfilePermissionsFormSelect';
+
 jest.mock('lodash', () => {
   const lodash = require.requireActual('lodash');
   lodash.debounce = (fn: Function) => (...args: any[]) => fn(...args);
   return lodash;
 });
 
-import * as React from 'react';
-import { shallow } from 'enzyme';
-import ProfilePermissionsFormSelect from '../ProfilePermissionsFormSelect';
-
 it('renders', () => {
   expect(
     shallow(
       <ProfilePermissionsFormSelect
         onChange={jest.fn()}
-        onSearch={jest.fn()}
+        onSearch={jest.fn(() => Promise.resolve([]))}
         selected={{ name: 'lambda' }}
       />
     )
@@ -49,6 +48,8 @@ it('searches', () => {
       selected={{ name: 'lambda' }}
     />
   );
+  expect(onSearch).toBeCalledWith('');
+  onSearch.mockClear();
 
   wrapper.prop<Function>('onInputChange')('f');
   expect(onSearch).not.toBeCalled();

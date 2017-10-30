@@ -18,9 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import { click, mockEvent } from '../../../../../helpers/testUtils';
 import RemoveMemberForm from '../RemoveMemberForm';
+
+jest.mock('react-dom', () => {
+  const ReactDOM = require.requireActual('react-dom');
+  ReactDOM.createPortal = children => children;
+  return ReactDOM;
+});
 
 const member = { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 };
 const organization = { name: 'MyOrg' };
@@ -36,7 +42,7 @@ it('should render and open the modal', () => {
 
 it('should correctly handle user interactions', () => {
   const removeMember = jest.fn();
-  const wrapper = mount(
+  const wrapper = shallow(
     <RemoveMemberForm member={member} removeMember={removeMember} organization={organization} />
   );
   const instance = wrapper.instance();

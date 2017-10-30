@@ -117,7 +117,11 @@ export default class App extends React.PureComponent {
           });
         }
       },
-      () => this.setState({ loading: false })
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
+      }
     );
   };
 

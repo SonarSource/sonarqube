@@ -26,7 +26,8 @@ import LicenseEditionSet from '../LicenseEditionSet';
 jest.mock('../../../../api/marketplace', () => ({
   getLicensePreview: jest.fn(() =>
     Promise.resolve({ nextEditionKey: 'foo', previewStatus: 'NO_INSTALL' })
-  )
+  ),
+  getFormData: jest.fn(() => Promise.resolve({ serverId: 'foo', ncloc: 1000 }))
 }));
 
 jest.mock('lodash', () => {
@@ -56,6 +57,13 @@ it('should display correctly', () => {
   expect(getWrapper()).toMatchSnapshot();
 });
 
+it('should display the get license link with parameters', async () => {
+  const wrapper = getWrapper();
+  await new Promise(setImmediate);
+  wrapper.update();
+  expect(wrapper.find('a')).toMatchSnapshot();
+});
+
 it('should correctly display status message after checking license', async () => {
   await testLicenseStatus('NO_INSTALL');
   await testLicenseStatus('AUTOMATIC_INSTALL');
@@ -79,10 +87,10 @@ async function testLicenseStatus(status: string) {
   );
   const updateLicense = jest.fn();
   const wrapper = getWrapper({ updateLicense });
-  (wrapper.instance() as LicenseEditionSet).mounted = true;
   change(wrapper.find('textarea'), 'mylicense');
   expect(getLicensePreview).toHaveBeenCalled();
   await new Promise(setImmediate);
   expect(updateLicense).toHaveBeenCalled();
+  wrapper.update();
   expect(wrapper.find('p.alert')).toMatchSnapshot();
 }

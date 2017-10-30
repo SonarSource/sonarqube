@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`does not render 1`] = `null`;
+exports[`does not render 1`] = `""`;
 
 exports[`renders 1`] = `
 <div

@@ -118,6 +118,7 @@ it('shows tooltip after delay', () => {
   expect(wrapper.find('Tooltip').prop('visible')).toBe(false);
 
   jest.runAllTimers();
+  wrapper.update();
   expect(wrapper.find('Tooltip').prop('visible')).toBe(true);
 
   wrapper.setProps({ selected: false });

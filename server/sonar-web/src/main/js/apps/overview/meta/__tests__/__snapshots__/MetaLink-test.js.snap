@@ -67,7 +67,6 @@ exports[`should match snapshot 1`] = `
   <a
     className="link-with-icon"
     href="http://example.com"
-    onClick={false}
     target="_blank"
   >
     <i

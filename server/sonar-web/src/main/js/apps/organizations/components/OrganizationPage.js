@@ -49,7 +49,7 @@ type State = {
 };
 */
 
-class OrganizationPage extends React.PureComponent {
+export class OrganizationPage extends React.PureComponent {
   /*:: mounted: boolean; */
   /*:: props: Props; */
   state /*: State */ = { loading: true };
@@ -108,5 +108,3 @@ const mapStateToProps = (state, ownProps /*: OwnProps */) => ({
 const mapDispatchToProps = { fetchOrganization };
 
 export default connect(mapStateToProps, mapDispatchToProps)(OrganizationPage);
-
-export const UnconnectedOrganizationPage = OrganizationPage;

@@ -39,15 +39,21 @@ const componentWithTags = {
 };
 
 it('should render without tags and admin rights', () => {
-  expect(shallow(<MetaTags component={component} />)).toMatchSnapshot();
+  expect(
+    shallow(<MetaTags component={component} />, { disableLifecycleMethods: true })
+  ).toMatchSnapshot();
 });
 
 it('should render with tags and admin rights', () => {
-  expect(shallow(<MetaTags component={componentWithTags} />)).toMatchSnapshot();
+  expect(
+    shallow(<MetaTags component={componentWithTags} />, { disableLifecycleMethods: true })
+  ).toMatchSnapshot();
 });
 
 it('should open the tag selector on click', () => {
-  const wrapper = shallow(<MetaTags component={componentWithTags} />);
+  const wrapper = shallow(<MetaTags component={componentWithTags} />, {
+    disableLifecycleMethods: true
+  });
   expect(wrapper).toMatchSnapshot();
 
   // open

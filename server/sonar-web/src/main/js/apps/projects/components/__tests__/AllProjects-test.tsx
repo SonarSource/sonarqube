@@ -17,7 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable import/first, import/order */
+/* eslint-disable import/order */
+import * as React from 'react';
+import { mount, shallow } from 'enzyme';
+import AllProjects from '../AllProjects';
+import { getView, saveSort, saveView, saveVisualization } from '../../../../helpers/storage';
+
 jest.mock('../ProjectsList', () => ({
   // eslint-disable-next-line
   default: function ProjectsList() {
@@ -53,11 +58,6 @@ jest.mock('../../../../helpers/storage', () => ({
   saveView: jest.fn(),
   saveVisualization: jest.fn()
 }));
-
-import * as React from 'react';
-import { mount, shallow } from 'enzyme';
-import AllProjects from '../AllProjects';
-import { getView, saveSort, saveView, saveVisualization } from '../../../../helpers/storage';
 
 const fetchProjects = require('../../utils').fetchProjects as jest.Mock<any>;
 

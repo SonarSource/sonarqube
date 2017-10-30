@@ -1,9 +1,31 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display installed badge 1`] = `null`;
+exports[`should display installed badge 1`] = `
+<span
+  className="marketplace-edition-badge badge badge-normal-size"
+>
+  <CheckIcon
+    className="little-spacer-right text-bottom"
+    size={14}
+  />
+  marketplace.installed
+</span>
+`;
 
-exports[`should display installing badge 1`] = `null`;
+exports[`should display installing badge 1`] = `
+<span
+  className="marketplace-edition-badge badge badge-normal-size"
+>
+  marketplace.installing
+</span>
+`;
 
-exports[`should display pending badge 1`] = `null`;
+exports[`should display pending badge 1`] = `
+<span
+  className="marketplace-edition-badge badge badge-normal-size"
+>
+  marketplace.pending
+</span>
+`;
 
-exports[`should not display a badge 1`] = `null`;
+exports[`should not display a badge 1`] = `""`;

@@ -25,7 +25,17 @@ exports[`should render multiselect with selected elements 1`] = `
   </div>
   <ul
     className="menu"
-  />
+  >
+    <MultiSelectOption
+      active={true}
+      custom={false}
+      element="bar"
+      key="bar"
+      onHover={[Function]}
+      onSelectChange={[Function]}
+      selected={true}
+    />
+  </ul>
 </div>
 `;
 
@@ -56,7 +66,7 @@ exports[`should render multiselect with selected elements 2`] = `
     className="menu"
   >
     <MultiSelectOption
-      active={false}
+      active={true}
       custom={false}
       element="bar"
       key="bar"

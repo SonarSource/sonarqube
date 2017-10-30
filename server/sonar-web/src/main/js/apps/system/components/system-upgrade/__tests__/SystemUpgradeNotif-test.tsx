@@ -82,25 +82,16 @@ beforeEach(() => {
 it('should display correctly', async () => {
   const wrapper = shallow(<SystemUpgradeNotif />);
   expect(wrapper).toMatchSnapshot();
-
-  const instance = wrapper.instance() as SystemUpgradeNotif;
-  instance.mounted = true;
-  instance.fetchSystemUpgrade();
-
   await new Promise(setImmediate);
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should display nothing', async () => {
-  getSystemUpgrades.mockImplementationOnce(() =>
-    Promise.resolve({ updateCenterRefresh: '', upgrades: [] })
-  );
+  getSystemUpgrades.mockImplementationOnce(() => {
+    return Promise.resolve({ updateCenterRefresh: '', upgrades: [] });
+  });
   const wrapper = shallow(<SystemUpgradeNotif />);
-  const instance = wrapper.instance() as SystemUpgradeNotif;
-  instance.mounted = true;
-  instance.fetchSystemUpgrade();
-
   await new Promise(setImmediate);
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
@@ -113,12 +104,8 @@ it('should fetch upgrade when mounting', () => {
 
 it('should open the upgrade form', async () => {
   const wrapper = shallow(<SystemUpgradeNotif />);
-  const instance = wrapper.instance() as SystemUpgradeNotif;
-  instance.mounted = true;
-  instance.fetchSystemUpgrade();
   await new Promise(setImmediate);
   wrapper.update();
-
   click(wrapper.find('button'));
   expect(wrapper.find('SystemUpgradeForm').exists()).toBeTruthy();
 });

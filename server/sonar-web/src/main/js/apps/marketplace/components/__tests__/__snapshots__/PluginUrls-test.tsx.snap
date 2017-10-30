@@ -49,4 +49,4 @@ exports[`should display the urls 1`] = `
 </li>
 `;
 
-exports[`should not display anything 1`] = `null`;
+exports[`should not display anything 1`] = `""`;

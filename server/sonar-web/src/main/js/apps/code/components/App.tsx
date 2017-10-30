@@ -94,7 +94,9 @@ export default class App extends React.PureComponent<Props, State> {
     retrieveComponentChildren(component.key, isPortfolio, branch && getBranchName(branch))
       .then(() => {
         addComponent(component);
-        this.handleUpdate();
+        if (this.mounted) {
+          this.handleUpdate();
+        }
       })
       .catch(e => {
         if (this.mounted) {

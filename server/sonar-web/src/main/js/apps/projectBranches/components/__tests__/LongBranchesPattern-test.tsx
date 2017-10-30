@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable import/first, import/order */
+/* eslint-disable import/order */
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import LongBranchesPattern from '../LongBranchesPattern';
+import { click } from '../../../../helpers/testUtils';
+
 jest.mock('../../../../api/settings', () => ({
   getValues: jest.fn(() => Promise.resolve([]))
 }));
-
-import * as React from 'react';
-import { mount, shallow } from 'enzyme';
-import LongBranchesPattern from '../LongBranchesPattern';
-import { click } from '../../../../helpers/testUtils';
 
 const getValues = require('../../../../api/settings').getValues as jest.Mock<any>;
 
@@ -41,25 +41,25 @@ it('renders', () => {
 
 it('opens form', () => {
   const wrapper = shallow(<LongBranchesPattern project="project" />);
-  (wrapper.instance() as LongBranchesPattern).mounted = true;
   wrapper.setState({ loading: false, setting: { value: 'release-.*' } });
 
   click(wrapper.find('a'));
   expect(wrapper.find('LongBranchesPatternForm').exists()).toBeTruthy();
 
   wrapper.find('LongBranchesPatternForm').prop<Function>('onClose')();
+  wrapper.update();
   expect(wrapper.find('LongBranchesPatternForm').exists()).toBeFalsy();
 });
 
 it('fetches setting value on mount', () => {
-  mount(<LongBranchesPattern project="project" />);
+  shallow(<LongBranchesPattern project="project" />);
   expect(getValues).lastCalledWith('sonar.branch.longLivedBranches.regex', 'project');
 });
 
 it('fetches new setting value after change', () => {
-  const wrapper = mount(<LongBranchesPattern project="project" />);
-  expect(getValues.mock.calls).toHaveLength(1);
+  const wrapper = shallow(<LongBranchesPattern project="project" />);
+  expect(getValues).toHaveBeenCalledTimes(1);
 
   (wrapper.instance() as LongBranchesPattern).handleChange();
-  expect(getValues.mock.calls).toHaveLength(2);
+  expect(getValues).toHaveBeenCalledTimes(2);
 });

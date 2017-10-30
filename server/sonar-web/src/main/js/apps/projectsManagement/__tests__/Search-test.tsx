@@ -97,6 +97,7 @@ it('bulk applies permission template', () => {
   click(wrapper.find('.js-bulk-apply-permission-template'));
   expect(wrapper.find('BulkApplyTemplateModal')).toMatchSnapshot();
   wrapper.find('BulkApplyTemplateModal').prop<Function>('onClose')();
+  wrapper.update();
   expect(wrapper.find('BulkApplyTemplateModal').exists()).toBeFalsy();
 });
 
