@@ -4,46 +4,23 @@ exports[`renders 1`] = `
 <td
   className="thin nowrap"
 >
-  <div
-    className="dropdown js-task-action"
+  <ActionsDropdown
+    className="js-task-action"
   >
-    <button
-      className="dropdown-toggle"
-      data-toggle="dropdown"
+    <ActionsDropdownItem
+      className="js-task-filter"
+      onClick={[Function]}
     >
-      <i
-        className="icon-dropdown"
-      />
-    </button>
-    <ul
-      className="dropdown-menu dropdown-menu-right"
+      background_tasks.filter_by_component_x.foo
+    </ActionsDropdownItem>
+    <ActionsDropdownItem
+      className="js-task-cancel"
+      destructive={true}
+      onClick={[Function]}
     >
-      <li>
-        <a
-          className="js-task-filter"
-          href="#"
-          onClick={[Function]}
-        >
-          <i
-            className="spacer-right icon-filter icon-gray"
-          />
-          background_tasks.filter_by_component_x.foo
-        </a>
-      </li>
-      <li>
-        <a
-          className="js-task-cancel"
-          href="#"
-          onClick={[Function]}
-        >
-          <i
-            className="spacer-right icon-delete"
-          />
-          background_tasks.cancel_task
-        </a>
-      </li>
-    </ul>
-  </div>
+      background_tasks.cancel_task
+    </ActionsDropdownItem>
+  </ActionsDropdown>
 </td>
 `;
 
@@ -51,34 +28,16 @@ exports[`renders 2`] = `
 <td
   className="thin nowrap"
 >
-  <div
-    className="dropdown js-task-action"
+  <ActionsDropdown
+    className="js-task-action"
   >
-    <button
-      className="dropdown-toggle"
-      data-toggle="dropdown"
+    <ActionsDropdownItem
+      className="js-task-filter"
+      onClick={[Function]}
     >
-      <i
-        className="icon-dropdown"
-      />
-    </button>
-    <ul
-      className="dropdown-menu dropdown-menu-right"
-    >
-      <li>
-        <a
-          className="js-task-filter"
-          href="#"
-          onClick={[Function]}
-        >
-          <i
-            className="spacer-right icon-filter icon-gray"
-          />
-          background_tasks.filter_by_component_x.foo
-        </a>
-      </li>
-    </ul>
-  </div>
+      background_tasks.filter_by_component_x.foo
+    </ActionsDropdownItem>
+  </ActionsDropdown>
 </td>
 `;
 
@@ -86,58 +45,29 @@ exports[`renders 3`] = `
 <td
   className="thin nowrap"
 >
-  <div
-    className="dropdown js-task-action"
+  <ActionsDropdown
+    className="js-task-action"
   >
-    <button
-      className="dropdown-toggle"
-      data-toggle="dropdown"
+    <ActionsDropdownItem
+      className="js-task-filter"
+      onClick={[Function]}
     >
-      <i
-        className="icon-dropdown"
-      />
-    </button>
-    <ul
-      className="dropdown-menu dropdown-menu-right"
+      background_tasks.filter_by_component_x.foo
+    </ActionsDropdownItem>
+    <ActionsDropdownItem
+      className="js-task-cancel"
+      destructive={true}
+      onClick={[Function]}
     >
-      <li>
-        <a
-          className="js-task-filter"
-          href="#"
-          onClick={[Function]}
-        >
-          <i
-            className="spacer-right icon-filter icon-gray"
-          />
-          background_tasks.filter_by_component_x.foo
-        </a>
-      </li>
-      <li>
-        <a
-          className="js-task-cancel"
-          href="#"
-          onClick={[Function]}
-        >
-          <i
-            className="spacer-right icon-delete"
-          />
-          background_tasks.cancel_task
-        </a>
-      </li>
-      <li>
-        <a
-          className="js-task-show-scanner-context"
-          href="#"
-          onClick={[Function]}
-        >
-          <i
-            className="spacer-right icon-list icon-gray"
-          />
-          background_tasks.show_scanner_context
-        </a>
-      </li>
-    </ul>
-  </div>
+      background_tasks.cancel_task
+    </ActionsDropdownItem>
+    <ActionsDropdownItem
+      className="js-task-show-scanner-context"
+      onClick={[Function]}
+    >
+      background_tasks.show_scanner_context
+    </ActionsDropdownItem>
+  </ActionsDropdown>
 </td>
 `;
 
@@ -145,58 +75,29 @@ exports[`renders 4`] = `
 <td
   className="thin nowrap"
 >
-  <div
-    className="dropdown js-task-action"
+  <ActionsDropdown
+    className="js-task-action"
   >
-    <button
-      className="dropdown-toggle"
-      data-toggle="dropdown"
+    <ActionsDropdownItem
+      className="js-task-filter"
+      onClick={[Function]}
     >
-      <i
-        className="icon-dropdown"
-      />
-    </button>
-    <ul
-      className="dropdown-menu dropdown-menu-right"
+      background_tasks.filter_by_component_x.foo
+    </ActionsDropdownItem>
+    <ActionsDropdownItem
+      className="js-task-cancel"
+      destructive={true}
+      onClick={[Function]}
     >
-      <li>
-        <a
-          className="js-task-filter"
-          href="#"
-          onClick={[Function]}
-        >
-          <i
-            className="spacer-right icon-filter icon-gray"
-          />
-          background_tasks.filter_by_component_x.foo
-        </a>
-      </li>
-      <li>
-        <a
-          className="js-task-cancel"
-          href="#"
-          onClick={[Function]}
-        >
-          <i
-            className="spacer-right icon-delete"
-          />
-          background_tasks.cancel_task
-        </a>
-      </li>
-      <li>
-        <a
-          className="js-task-show-stacktrace"
-          href="#"
-          onClick={[Function]}
-        >
-          <i
-            className="spacer-right icon-list icon-red"
-          />
-          background_tasks.show_stacktrace
-        </a>
-      </li>
-    </ul>
-  </div>
+      background_tasks.cancel_task
+    </ActionsDropdownItem>
+    <ActionsDropdownItem
+      className="js-task-show-stacktrace"
+      onClick={[Function]}
+    >
+      background_tasks.show_stacktrace
+    </ActionsDropdownItem>
+  </ActionsDropdown>
 </td>
 `;
 
@@ -204,34 +105,17 @@ exports[`renders 5`] = `
 <td
   className="thin nowrap"
 >
-  <div
-    className="dropdown js-task-action"
+  <ActionsDropdown
+    className="js-task-action"
   >
-    <button
-      className="dropdown-toggle"
-      data-toggle="dropdown"
+    <ActionsDropdownItem
+      className="js-task-cancel"
+      destructive={true}
+      onClick={[Function]}
     >
-      <i
-        className="icon-dropdown"
-      />
-    </button>
-    <ul
-      className="dropdown-menu dropdown-menu-right"
-    >
-      <li>
-        <a
-          className="js-task-cancel"
-          href="#"
-          onClick={[Function]}
-        >
-          <i
-            className="spacer-right icon-delete"
-          />
-          background_tasks.cancel_task
-        </a>
-      </li>
-    </ul>
-  </div>
+      background_tasks.cancel_task
+    </ActionsDropdownItem>
+  </ActionsDropdown>
 </td>
 `;
 
