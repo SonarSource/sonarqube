@@ -32,7 +32,7 @@ function installMaven {
   pushd ~/maven > /dev/null
   if [ ! -d "apache-maven-3.5" ]; then
     echo "Download Maven 3.5"
-    curl -sSL http://apache.crihan.fr/dist/maven/maven-3/3.5.0/binaries/apache-maven-3.5.0-bin.tar.gz | tar zx -C ~/maven
+    curl -sSL https://archive.apache.org/dist/maven/maven-3/3.5.0/binaries/apache-maven-3.5.0-bin.tar.gz | tar zx -C ~/maven
   fi
   popd > /dev/null
   export M2_HOME=~/maven/apache-maven-3.5.0
