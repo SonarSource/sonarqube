@@ -42,8 +42,9 @@ export default class Condition extends Component {
   componentDidMount() {
     const { condition } = this.props;
 
-    if (!condition.id) {
-      this.refs.operator.focus();
+    // TODO looks like `this.opetator` is always null or undefined
+    if (!condition.id && this.operator) {
+      this.operator.focus();
     }
   }
 
@@ -51,10 +52,9 @@ export default class Condition extends Component {
     this.setState({ changed: true });
   }
 
-  handleOperatorChange(option) {
-    const { value } = option;
+  handleOperatorChange = ({ value }) => {
     this.setState({ changed: true, op: value });
-  }
+  };
 
   handlePeriodChange(checked) {
     const period = checked ? '1' : undefined;
@@ -69,9 +69,9 @@ export default class Condition extends Component {
     this.setState({ changed: true, error: value });
   }
 
-  handleSaveClick(e) {
+  handleSaveClick = e => {
     const { qualityGate, condition, metric, onSaveCondition, onError, onResetError } = this.props;
-    const period = this.state.period;
+    const { period } = this.state;
     const data = {
       metric: condition.metric,
       op: metric.type === 'RATING' ? 'GT' : this.state.op,
@@ -95,11 +95,11 @@ export default class Condition extends Component {
         onResetError();
       })
       .catch(onError);
-  }
+  };
 
-  handleUpdateClick(e) {
+  handleUpdateClick = e => {
     const { condition, onSaveCondition, metric, onError, onResetError } = this.props;
-    const period = this.state.period;
+    const { period } = this.state;
     const data = {
       id: condition.id,
       metric: condition.metric,
@@ -124,9 +124,9 @@ export default class Condition extends Component {
         onResetError();
       })
       .catch(onError);
-  }
+  };
 
-  handleDeleteClick(e) {
+  handleDeleteClick = e => {
     const { qualityGate, condition, metric, onDeleteCondition } = this.props;
 
     e.preventDefault();
@@ -136,14 +136,14 @@ export default class Condition extends Component {
       metric,
       onDelete: () => onDeleteCondition(condition)
     }).render();
-  }
+  };
 
-  handleCancelClick(e) {
+  handleCancelClick = e => {
     const { condition, onDeleteCondition } = this.props;
 
     e.preventDefault();
     onDeleteCondition(condition);
-  }
+  };
 
   renderPeriodValue() {
     const { condition, metric } = this.props;
@@ -201,14 +201,14 @@ export default class Condition extends Component {
 
     return (
       <Select
-        ref="operator"
+        ref={node => (this.operator = node)}
         className="input-medium"
         name="operator"
         value={this.state.op}
         clearable={false}
         searchable={false}
         options={operatorOptions}
-        onChange={this.handleOperatorChange.bind(this)}
+        onChange={this.handleOperatorChange}
       />
     );
   }
@@ -257,28 +257,28 @@ export default class Condition extends Component {
         {edit && (
           <td className="thin text-middle nowrap">
             {condition.id ? (
-              <div className="button-group">
+              <div>
                 <button
                   className="update-condition"
                   disabled={!this.state.changed}
-                  onClick={this.handleUpdateClick.bind(this)}>
+                  onClick={this.handleUpdateClick}>
                   {translate('update_verb')}
                 </button>
                 <button
-                  className="button-red delete-condition"
-                  onClick={this.handleDeleteClick.bind(this)}>
+                  className="button-red delete-condition little-spacer-left"
+                  onClick={this.handleDeleteClick}>
                   {translate('delete')}
                 </button>
               </div>
             ) : (
-              <div className="button-group">
-                <button className="add-condition" onClick={this.handleSaveClick.bind(this)}>
+              <div>
+                <button className="add-condition" onClick={this.handleSaveClick}>
                   {translate('add_verb')}
                 </button>
                 <a
-                  className="action cancel-add-condition"
+                  className="cancel-add-condition spacer-left"
                   href="#"
-                  onClick={this.handleCancelClick.bind(this)}>
+                  onClick={this.handleCancelClick}>
                   {translate('cancel')}
                 </a>
               </div>

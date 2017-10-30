@@ -200,24 +200,6 @@
   padding-right: 10px;
 }
 
-.projects-facet-sort {
-  float: right;
-  font-weight: normal;
-  font-size: 11px;
-  color: var(--secondFontColor);
-  text-transform: lowercase;
-}
-
-.projects-facet-sort .button-group {
-  margin-top: -3px;
-}
-
-.projects-facet-sort .button-small {
-  padding: 0 6px;
-  font-size: 11px;
-  font-weight: normal;
-}
-
 .projects-facets-header {
   margin-bottom: 10px;
   padding: 10px 0;

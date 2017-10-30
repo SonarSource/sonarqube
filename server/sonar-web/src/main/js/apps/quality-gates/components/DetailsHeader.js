@@ -51,25 +51,29 @@ export default class DetailsHeader extends React.PureComponent {
             <h2 className="pull-left">{qualityGate.name}</h2>
             {edit && (
               <div className="pull-right">
-                <div className="button-group">
-                  <button id="quality-gate-rename" onClick={this.handleRenameClick}>
-                    {translate('rename')}
-                  </button>
-                  <button id="quality-gate-copy" onClick={this.handleCopyClick}>
-                    {translate('copy')}
-                  </button>
-                  <button id="quality-gate-toggle-default" onClick={this.handleSetAsDefaultClick}>
-                    {qualityGate.isDefault
-                      ? translate('unset_as_default')
-                      : translate('set_as_default')}
-                  </button>
-                  <button
-                    id="quality-gate-delete"
-                    className="button-red"
-                    onClick={this.handleDeleteClick}>
-                    {translate('delete')}
-                  </button>
-                </div>
+                <button id="quality-gate-rename" onClick={this.handleRenameClick}>
+                  {translate('rename')}
+                </button>
+                <button
+                  className="little-spacer-left"
+                  id="quality-gate-copy"
+                  onClick={this.handleCopyClick}>
+                  {translate('copy')}
+                </button>
+                <button
+                  className="little-spacer-left"
+                  id="quality-gate-toggle-default"
+                  onClick={this.handleSetAsDefaultClick}>
+                  {qualityGate.isDefault
+                    ? translate('unset_as_default')
+                    : translate('set_as_default')}
+                </button>
+                <button
+                  id="quality-gate-delete"
+                  className="little-spacer-left button-red"
+                  onClick={this.handleDeleteClick}>
+                  {translate('delete')}
+                </button>
               </div>
             )}
           </div>

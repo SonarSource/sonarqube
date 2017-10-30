@@ -743,12 +743,6 @@ a.search-navigator-facet:focus .facet-stat {
   font-size: var(--smallFontSize);
 }
 
-.search-navigator-workspace-header .button-group,
-.search-navigator-workspace-header .button-group > button,
-.search-navigator-workspace-header .button-group > .button {
-  vertical-align: top;
-}
-
 .search-navigator-header-component {
   margin-left: 10px;
   white-space: nowrap;
