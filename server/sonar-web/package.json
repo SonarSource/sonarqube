@@ -90,7 +90,6 @@
     "fs-extra": "0.30.0",
     "handlebars-loader": "1.6.0",
     "html-webpack-plugin": "2.30.1",
-    "husky": "0.14.3",
     "jest": "21.2.1",
     "lint-staged": "4.3.0",
     "postcss-custom-properties": "6.2.0",
