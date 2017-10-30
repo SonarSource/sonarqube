@@ -29,6 +29,6 @@ public class SettingsWsModuleTest {
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
     new SettingsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(13 + 2);
+    assertThat(container.size()).isEqualTo(12 + 2);
   }
 }
