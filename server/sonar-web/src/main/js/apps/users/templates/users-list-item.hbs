@@ -63,10 +63,23 @@
 </td>
 
 <td class="thin nowrap text-right">
-  <a class="js-user-update icon-edit little-spacer-right" title="{{t 'update_details'}}" data-toggle="tooltip" href="#"></a>
-  {{#if local}}
-    <a class="js-user-change-password icon-lock little-spacer-right" title="{{t 'my_profile.password.title'}}" data-toggle="tooltip"
-       href="#"></a>
-  {{/if}}
-  <a class="js-user-deactivate icon-delete" title="{{t 'users.deactivate'}}" data-toggle="tooltip" href="#"></a>
+  <div class="dropdown">
+    <button class="dropdown-toggle" data-toggle="dropdown">
+      {{settingsIcon}}<i class="icon-dropdown little-spacer-left" />
+    </button>
+    <ul class="dropdown-menu dropdown-menu-right">
+      <li>
+        <a class="js-user-update" href="#">{{t 'update_details'}}</a>
+      </li>
+      {{#if local}}
+        <li>
+          <a class="js-user-change-password" href="#">{{t 'my_profile.password.title'}}</a>
+        </li>
+      {{/if}}
+      <li class="divider" />
+      <li>
+        <a class="js-user-deactivate text-danger" href="#">{{t 'users.deactivate'}}</a>
+      </li>
+    </ul>
+  </div>
 </td>
