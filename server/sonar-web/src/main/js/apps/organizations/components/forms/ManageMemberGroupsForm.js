@@ -24,6 +24,7 @@ import { getUserGroups } from '../../../../api/users';
 import Modal from '../../../../components/controls/Modal';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 import OrganizationGroupCheckbox from '../OrganizationGroupCheckbox';
+import { ActionsDropdownItem } from '../../../../components/controls/ActionsDropdown';
 /*:: import type { Member } from '../../../../store/organizationsMembers/actions'; */
 /*:: import type { Organization, OrgGroup } from '../../../../store/organizations/duck'; */
 
@@ -45,14 +46,22 @@ type State = {
 */
 
 export default class ManageMemberGroupsForm extends React.PureComponent {
+  /*:: mounted: boolean */
   /*:: props: Props; */
 
   state /*: State */ = {
     open: false
   };
 
-  openForm = (evt /*: MouseEvent */) => {
-    evt.preventDefault();
+  componentDidMount() {
+    this.mounted = true;
+  }
+
+  componentWillUnmount() {
+    this.mounted = false;
+  }
+
+  openForm = () => {
     this.loadUserGroups();
     this.setState({ open: true });
   };
@@ -63,9 +72,18 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
 
   loadUserGroups = () => {
     this.setState({ loading: true });
-    getUserGroups(this.props.member.login, this.props.organization.key).then(response => {
-      this.setState({ loading: false, userGroups: keyBy(response.groups, 'name') });
-    });
+    getUserGroups(this.props.member.login, this.props.organization.key).then(
+      response => {
+        if (this.mounted) {
+          this.setState({ loading: false, userGroups: keyBy(response.groups, 'name') });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
+      }
+    );
   };
 
   isGroupSelected = (groupName /*: string */) => {
@@ -148,9 +166,9 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
 
   render() {
     const buttonComponent = (
-      <a key="manage-member-button" onClick={this.openForm} href="#">
+      <ActionsDropdownItem onClick={this.openForm}>
         {translate('organization.members.manage_groups')}
-      </a>
+      </ActionsDropdownItem>
     );
     if (this.state.open) {
       return [buttonComponent, this.renderModal()];

@@ -42,7 +42,7 @@ it('should correctly handle user interactions', () => {
     <RemoveMemberForm member={member} removeMember={removeMember} organization={organization} />
   );
   const instance = wrapper.instance();
-  click(wrapper.find('a'));
+  wrapper.find('ActionsDropdownItem').prop('onClick')();
   expect(wrapper.state('open')).toBeTruthy();
   instance.handleSubmit(mockEvent);
   expect(removeMember.mock.calls).toMatchSnapshot();

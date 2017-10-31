@@ -23,6 +23,7 @@ import { Link } from 'react-router';
 import { difference } from 'lodash';
 import Backbone from 'backbone';
 import { PermissionTemplateType, CallbackType } from '../propTypes';
+import ActionsDropdown, { ActionsDropdownItem } from '../../../components/controls/ActionsDropdown';
 import QualifierIcon from '../../../components/shared/QualifierIcon';
 import UpdateView from '../views/UpdateView';
 import DeleteView from '../views/DeleteView';
@@ -46,16 +47,14 @@ export default class ActionsCell extends React.PureComponent {
     router: PropTypes.object
   };
 
-  handleUpdateClick(e) {
-    e.preventDefault();
+  handleUpdateClick = () => {
     new UpdateView({
       model: new Backbone.Model(this.props.permissionTemplate),
       refresh: this.props.refresh
     }).render();
-  }
+  };
 
-  handleDeleteClick(e) {
-    e.preventDefault();
+  handleDeleteClick = () => {
     new DeleteView({
       model: new Backbone.Model(this.props.permissionTemplate)
     })
@@ -67,14 +66,14 @@ export default class ActionsCell extends React.PureComponent {
         this.props.refresh();
       })
       .render();
-  }
+  };
 
-  setDefault(qualifier, e) {
-    e.preventDefault();
+  setDefault = qualifier => () => {
     setDefaultPermissionTemplate(this.props.permissionTemplate.id, qualifier).then(
-      this.props.refresh
+      this.props.refresh,
+      () => {}
     );
-  }
+  };
 
   getAvailableQualifiers() {
     const topQualifiers =
@@ -82,16 +81,6 @@ export default class ActionsCell extends React.PureComponent {
         ? ['TRK']
         : this.props.topQualifiers;
     return difference(topQualifiers, this.props.permissionTemplate.defaultFor);
-  }
-
-  renderDropdownIcon(icon) {
-    const style = {
-      display: 'inline-block',
-      width: 16,
-      marginRight: 4,
-      textAlign: 'center'
-    };
-    return <div style={style}>{icon}</div>;
   }
 
   renderSetDefaultsControl() {
@@ -108,16 +97,13 @@ export default class ActionsCell extends React.PureComponent {
 
   renderSetDefaultLink(qualifier, child) {
     return (
-      <li key={qualifier}>
-        <a
-          href="#"
-          className="js-set-default"
-          data-qualifier={qualifier}
-          onClick={this.setDefault.bind(this, qualifier)}>
-          {this.renderDropdownIcon(<i className="icon-check" />)}
-          {child}
-        </a>
-      </li>
+      <ActionsDropdownItem
+        key={qualifier}
+        className="js-set-default"
+        data-qualifier={qualifier}
+        onClick={this.setDefault(qualifier)}>
+        {child}
+      </ActionsDropdownItem>
     );
   }
 
@@ -150,40 +136,25 @@ export default class ActionsCell extends React.PureComponent {
       : '/permission_templates';
 
     return (
-      <div className="dropdown">
-        <button className="dropdown-toggle" data-toggle="dropdown">
-          {translate('actions')} <i className="icon-dropdown" />
-        </button>
+      <ActionsDropdown>
+        {this.renderSetDefaultsControl()}
 
-        <ul className="dropdown-menu dropdown-menu-right">
-          {this.renderSetDefaultsControl()}
+        {!this.props.fromDetails && (
+          <ActionsDropdownItem to={{ pathname, query: { id: t.id } }}>
+            {translate('edit_permissions')}
+          </ActionsDropdownItem>
+        )}
 
-          {!this.props.fromDetails && (
-            <li>
-              <Link to={{ pathname, query: { id: t.id } }}>
-                {this.renderDropdownIcon(<i className="icon-edit" />)}
-                {translate('edit_permissions')}
-              </Link>
-            </li>
-          )}
+        <ActionsDropdownItem className="js-update" onClick={this.handleUpdateClick}>
+          {translate('update_details')}
+        </ActionsDropdownItem>
 
-          <li>
-            <a href="#" className="js-update" onClick={this.handleUpdateClick.bind(this)}>
-              {this.renderDropdownIcon(<i className="icon-edit" />)}
-              {translate('update_details')}
-            </a>
-          </li>
-
-          {t.defaultFor.length === 0 && (
-            <li>
-              <a href="#" className="js-delete" onClick={this.handleDeleteClick.bind(this)}>
-                {this.renderDropdownIcon(<i className="icon-delete" />)}
-                {translate('delete')}
-              </a>
-            </li>
-          )}
-        </ul>
-      </div>
+        {t.defaultFor.length === 0 && (
+          <ActionsDropdownItem className="js-delete" onClick={this.handleDeleteClick}>
+            {translate('delete')}
+          </ActionsDropdownItem>
+        )}
+      </ActionsDropdown>
     );
   }
 }

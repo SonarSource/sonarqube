@@ -65,6 +65,11 @@
   transition: none;
 }
 
+.dropdown-menu > li > a.text-danger,
+.dropdown-menu > li > a.text-danger:hover {
+  color: var(--red) !important;
+}
+
 .dropdown-menu .divider {
   height: 1px;
   margin: 6px 0;

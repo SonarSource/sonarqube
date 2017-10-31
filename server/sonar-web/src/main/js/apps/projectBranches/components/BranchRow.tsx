@@ -28,7 +28,10 @@ import { isShortLivingBranch, isLongLivingBranch } from '../../../helpers/branch
 import { translate } from '../../../helpers/l10n';
 import RenameBranchModal from './RenameBranchModal';
 import DateFromNow from '../../../components/intl/DateFromNow';
-import SettingsIcon from '../../../components/icons-components/SettingsIcon';
+import ActionsDropdown, {
+  ActionsDropdownItem,
+  ActionsDropdownDivider
+} from '../../../components/controls/ActionsDropdown';
 
 interface Props {
   branch: Branch;
@@ -54,9 +57,7 @@ export default class BranchRow extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  handleDeleteClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleDeleteClick = () => {
     this.setState({ deleting: true });
   };
 
@@ -64,9 +65,7 @@ export default class BranchRow extends React.PureComponent<Props, State> {
     this.setState({ deleting: false });
   };
 
-  handleRenameClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleRenameClick = () => {
     this.setState({ renaming: true });
   };
 
@@ -81,9 +80,7 @@ export default class BranchRow extends React.PureComponent<Props, State> {
     this.setState({ renaming: false });
   };
 
-  handleChangeLeakClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleChangeLeakClick = () => {
     this.setState({ changingLeak: true });
   };
 
@@ -93,69 +90,32 @@ export default class BranchRow extends React.PureComponent<Props, State> {
     }
   };
 
-  render() {
+  renderActions() {
     const { branch, component } = this.props;
-
     return (
-      <tr>
-        <td>
-          <BranchIcon
-            branch={branch}
-            className={classNames('little-spacer-right', {
-              'big-spacer-left': isShortLivingBranch(branch) && !branch.isOrphan
-            })}
-          />
-          {branch.name}
-          {branch.isMain && (
-            <div className="outline-badge spacer-left">{translate('branches.main_branch')}</div>
+      <td className="thin nowrap text-right">
+        <ActionsDropdown className="ig-spacer-left">
+          {isLongLivingBranch(branch) && (
+            <ActionsDropdownItem
+              className="js-change-leak-period"
+              onClick={this.handleChangeLeakClick}>
+              {translate('branches.set_leak_period')}
+            </ActionsDropdownItem>
           )}
-        </td>
-        <td className="thin nowrap text-right">
-          <BranchStatus branch={branch} />
-        </td>
-        <td className="thin nowrap text-right">
-          {branch.analysisDate && <DateFromNow date={branch.analysisDate} />}
-        </td>
-        <td className="thin nowrap text-right">
-          <div className="dropdown big-spacer-left">
-            <button
-              className="dropdown-toggle little-spacer-right button-compact"
-              data-toggle="dropdown">
-              <SettingsIcon style={{ marginTop: 4 }} /> <i className="icon-dropdown" />
-            </button>
-            <ul className="dropdown-menu dropdown-menu-right">
-              {isLongLivingBranch(branch) && (
-                <li>
-                  <a
-                    className="js-change-leak-period link-no-underline"
-                    href="#"
-                    onClick={this.handleChangeLeakClick}>
-                    {translate('branches.set_leak_period')}
-                  </a>
-                </li>
-              )}
-              {branch.isMain ? (
-                <li>
-                  <a
-                    className="js-rename link-no-underline"
-                    href="#"
-                    onClick={this.handleRenameClick}>
-                    {translate('branches.rename')}
-                  </a>
-                </li>
-              ) : (
-                <li>
-                  <a
-                    className="js-delete link-no-underline"
-                    href="#"
-                    onClick={this.handleDeleteClick}>
-                    {translate('branches.delete')}
-                  </a>
-                </li>
-              )}
-            </ul>
-          </div>
-        </td>
+          {isLongLivingBranch(branch) && !branch.isMain && <ActionsDropdownDivider />}
+          {branch.isMain ? (
+            <ActionsDropdownItem className="js-rename" onClick={this.handleRenameClick}>
+              {translate('branches.rename')}
+            </ActionsDropdownItem>
+          ) : (
+            <ActionsDropdownItem
+              className="js-delete"
+              destructive={true}
+              onClick={this.handleDeleteClick}>
+              {translate('branches.delete')}
+            </ActionsDropdownItem>
+          )}
+        </ActionsDropdown>
 
         {this.state.deleting && (
           <DeleteBranchModal
@@ -182,6 +142,34 @@ export default class BranchRow extends React.PureComponent<Props, State> {
             project={component}
           />
         )}
+      </td>
+    );
+  }
+
+  render() {
+    const { branch } = this.props;
+
+    return (
+      <tr>
+        <td>
+          <BranchIcon
+            branch={branch}
+            className={classNames('little-spacer-right', {
+              'big-spacer-left': isShortLivingBranch(branch) && !branch.isOrphan
+            })}
+          />
+          {branch.name}
+          {branch.isMain && (
+            <div className="outline-badge spacer-left">{translate('branches.main_branch')}</div>
+          )}
+        </td>
+        <td className="thin nowrap text-right">
+          <BranchStatus branch={branch} />
+        </td>
+        <td className="thin nowrap text-right">
+          {branch.analysisDate && <DateFromNow date={branch.analysisDate} />}
+        </td>
+        {this.renderActions()}
       </tr>
     );
   }
