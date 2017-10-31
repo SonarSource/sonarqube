@@ -31,70 +31,41 @@ exports[`should groups at 0 if the groupCount field is not defined (just added u
   <td
     className="nowrap text-middle text-right"
   >
-    <div
-      className="dropdown"
-    >
-      <button
-        className="dropdown-toggle little-spacer-right button-compact"
-        data-toggle="dropdown"
-      >
-        <SettingsIcon
-          style={
-            Object {
-              "marginTop": 4,
-            }
+    <ActionsDropdown>
+      <ManageMemberGroupsForm
+        member={
+          Object {
+            "avatar": "7daf6c79d4802916d83f6266e24850af",
+            "login": "john",
+            "name": "John Doe",
           }
-        />
-         
-        <i
-          className="icon-dropdown"
-        />
-      </button>
-      <ul
-        className="dropdown-menu dropdown-menu-right"
-      >
-        <li>
-          <ManageMemberGroupsForm
-            member={
-              Object {
-                "avatar": "7daf6c79d4802916d83f6266e24850af",
-                "login": "john",
-                "name": "John Doe",
-              }
-            }
-            organization={
-              Object {
-                "canAdmin": true,
-                "key": "foo",
-                "name": "Foo",
-              }
-            }
-          />
-        </li>
-        <li
-          className="divider"
-          role="separator"
-        />
-        <li>
-          <RemoveMemberForm
-            member={
-              Object {
-                "avatar": "7daf6c79d4802916d83f6266e24850af",
-                "login": "john",
-                "name": "John Doe",
-              }
-            }
-            organization={
-              Object {
-                "canAdmin": true,
-                "key": "foo",
-                "name": "Foo",
-              }
-            }
-          />
-        </li>
-      </ul>
-    </div>
+        }
+        organization={
+          Object {
+            "canAdmin": true,
+            "key": "foo",
+            "name": "Foo",
+          }
+        }
+      />
+      <ActionsDropdownDivider />
+      <RemoveMemberForm
+        member={
+          Object {
+            "avatar": "7daf6c79d4802916d83f6266e24850af",
+            "login": "john",
+            "name": "John Doe",
+          }
+        }
+        organization={
+          Object {
+            "canAdmin": true,
+            "key": "foo",
+            "name": "Foo",
+          }
+        }
+      />
+    </ActionsDropdown>
   </td>
 </tr>
 `;
@@ -156,72 +127,43 @@ exports[`should render actions and groups for admin 1`] = `
   <td
     className="nowrap text-middle text-right"
   >
-    <div
-      className="dropdown"
-    >
-      <button
-        className="dropdown-toggle little-spacer-right button-compact"
-        data-toggle="dropdown"
-      >
-        <SettingsIcon
-          style={
-            Object {
-              "marginTop": 4,
-            }
+    <ActionsDropdown>
+      <ManageMemberGroupsForm
+        member={
+          Object {
+            "avatar": "",
+            "groupCount": 3,
+            "login": "admin",
+            "name": "Admin Istrator",
           }
-        />
-         
-        <i
-          className="icon-dropdown"
-        />
-      </button>
-      <ul
-        className="dropdown-menu dropdown-menu-right"
-      >
-        <li>
-          <ManageMemberGroupsForm
-            member={
-              Object {
-                "avatar": "",
-                "groupCount": 3,
-                "login": "admin",
-                "name": "Admin Istrator",
-              }
-            }
-            organization={
-              Object {
-                "canAdmin": true,
-                "key": "foo",
-                "name": "Foo",
-              }
-            }
-          />
-        </li>
-        <li
-          className="divider"
-          role="separator"
-        />
-        <li>
-          <RemoveMemberForm
-            member={
-              Object {
-                "avatar": "",
-                "groupCount": 3,
-                "login": "admin",
-                "name": "Admin Istrator",
-              }
-            }
-            organization={
-              Object {
-                "canAdmin": true,
-                "key": "foo",
-                "name": "Foo",
-              }
-            }
-          />
-        </li>
-      </ul>
-    </div>
+        }
+        organization={
+          Object {
+            "canAdmin": true,
+            "key": "foo",
+            "name": "Foo",
+          }
+        }
+      />
+      <ActionsDropdownDivider />
+      <RemoveMemberForm
+        member={
+          Object {
+            "avatar": "",
+            "groupCount": 3,
+            "login": "admin",
+            "name": "Admin Istrator",
+          }
+        }
+        organization={
+          Object {
+            "canAdmin": true,
+            "key": "foo",
+            "name": "Foo",
+          }
+        }
+      />
+    </ActionsDropdown>
   </td>
 </tr>
 `;

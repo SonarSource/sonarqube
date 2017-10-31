@@ -21,6 +21,7 @@ import * as React from 'react';
 import ChangeVisibilityForm from './ChangeVisibilityForm';
 import { Organization, Visibility } from '../../app/types';
 import { translate } from '../../helpers/l10n';
+import EditIcon from '../../components/icons-components/EditIcon';
 
 export interface Props {
   hasProvisionPermission?: boolean;
@@ -62,10 +63,11 @@ export default class Header extends React.PureComponent<Props, State> {
             {translate('organization.default_visibility_of_new_projects')}{' '}
             <strong>{translate('visibility', organization.projectVisibility)}</strong>
             <a
-              className="js-change-visibility spacer-left icon-edit"
+              className="js-change-visibility spacer-left link-no-underline"
               href="#"
-              onClick={this.handleChangeVisibilityClick}
-            />
+              onClick={this.handleChangeVisibilityClick}>
+              <EditIcon className="text-text-top" />
+            </a>
           </span>
           {this.props.hasProvisionPermission && (
             <button id="create-project" onClick={this.handleCreateProjectClick}>

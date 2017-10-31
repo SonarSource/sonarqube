@@ -27,6 +27,7 @@ import QualifierIcon from '../../components/shared/QualifierIcon';
 import { translate } from '../../helpers/l10n';
 import { getComponentPermissionsUrl } from '../../helpers/urls';
 import DateTooltipFormatter from '../../components/intl/DateTooltipFormatter';
+import ActionsDropdown, { ActionsDropdownItem } from '../../components/controls/ActionsDropdown';
 
 interface Props {
   onApplyTemplateClick: (project: Project) => void;
@@ -40,9 +41,7 @@ export default class ProjectRow extends React.PureComponent<Props> {
     this.props.onProjectCheck(this.props.project, checked);
   };
 
-  handleApplyTemplateClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleApplyTemplateClick = () => {
     this.props.onApplyTemplateClick(this.props.project);
   };
 
@@ -82,23 +81,16 @@ export default class ProjectRow extends React.PureComponent<Props> {
         </td>
 
         <td className="thin nowrap">
-          <div className="dropdown">
-            <button className="dropdown-toggle" data-toggle="dropdown">
-              {translate('actions')} <i className="icon-dropdown" />
-            </button>
-            <ul className="dropdown-menu dropdown-menu-right">
-              <li>
-                <Link to={getComponentPermissionsUrl(project.key)}>
-                  {translate('edit_permissions')}
-                </Link>
-              </li>
-              <li>
-                <a className="js-apply-template" href="#" onClick={this.handleApplyTemplateClick}>
-                  {translate('projects_role.apply_template')}
-                </a>
-              </li>
-            </ul>
-          </div>
+          <ActionsDropdown>
+            <ActionsDropdownItem to={getComponentPermissionsUrl(project.key)}>
+              {translate('edit_permissions')}
+            </ActionsDropdownItem>
+            <ActionsDropdownItem
+              className="js-apply-template"
+              onClick={this.handleApplyTemplateClick}>
+              {translate('projects_role.apply_template')}
+            </ActionsDropdownItem>
+          </ActionsDropdown>
         </td>
       </tr>
     );

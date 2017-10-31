@@ -82,7 +82,7 @@ it('should render and open the modal', () => {
 
 it('should correctly handle user interactions', () => {
   const form = getMountedForm();
-  click(form.wrapper.find('a'));
+  form.wrapper.find('ActionsDropdownItem').prop('onClick')();
   expect(form.wrapper.state('open')).toBeTruthy();
   expect(form.instance.loadUserGroups).toBeCalled();
   expect(form.wrapper.state()).toMatchSnapshot();

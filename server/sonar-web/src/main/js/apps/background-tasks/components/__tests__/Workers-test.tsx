@@ -50,7 +50,7 @@ it('opens form', () => {
   });
   expect(wrapper).toMatchSnapshot();
 
-  click(wrapper.find('.icon-edit'));
+  click(wrapper.find('.js-edit'));
   expect(wrapper).toMatchSnapshot();
 });
 
