@@ -20,15 +20,14 @@
 package org.sonar.server.computation.task.projectanalysis.step;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
@@ -51,10 +50,17 @@ import org.sonar.server.computation.task.projectanalysis.issue.IssueCache;
 import org.sonar.server.computation.task.projectanalysis.issue.RuleRepositoryImpl;
 import org.sonar.server.computation.task.projectanalysis.issue.UpdateConflictResolver;
 import org.sonar.server.computation.task.step.ComputationStep;
+import org.sonar.server.util.cache.DiskCache;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
+import static org.sonar.api.issue.Issue.STATUS_CLOSED;
+import static org.sonar.api.issue.Issue.STATUS_OPEN;
+import static org.sonar.api.rule.Severity.BLOCKER;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
 
 public class PersistIssuesStepTest extends BaseStepTest {
 
@@ -63,15 +69,15 @@ public class PersistIssuesStepTest extends BaseStepTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
     .setOrganizationUuid("org-1");
 
-  private DbSession session = dbTester.getSession();
-  private DbClient dbClient = dbTester.getDbClient();
+  private DbSession session = db.getSession();
+  private DbClient dbClient = db.getDbClient();
   private System2 system2;
   private IssueCache issueCache;
   private ComputationStep step;
@@ -99,11 +105,11 @@ public class PersistIssuesStepTest extends BaseStepTest {
   @Test
   public void insert_copied_issue() {
     RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
-    dbTester.rules().insert(rule);
-    OrganizationDto organizationDto = dbTester.organizations().insert();
+    db.rules().insert(rule);
+    OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto);
     dbClient.componentDao().insert(session, project);
-    ComponentDto file = ComponentTesting.newFileDto(project, null);
+    ComponentDto file = newFileDto(project, null);
     dbClient.componentDao().insert(session, file);
     session.commit();
 
@@ -113,8 +119,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .setRuleKey(rule.getKey())
       .setComponentUuid(file.uuid())
       .setProjectUuid(project.uuid())
-      .setSeverity(Severity.BLOCKER)
-      .setStatus(Issue.STATUS_OPEN)
+      .setSeverity(BLOCKER)
+      .setStatus(STATUS_OPEN)
       .setNew(false)
       .setCopied(true)
       .setType(RuleType.BUG)
@@ -123,11 +129,14 @@ public class PersistIssuesStepTest extends BaseStepTest {
         .setIssueKey("ISSUE")
         .setUserLogin("john")
         .setMarkdownText("Some text")
+        .setCreatedAt(new Date(NOW))
         .setNew(true))
-      .setCurrentChange(new FieldDiffs()
-        .setIssueKey("ISSUE")
-        .setUserLogin("john")
-        .setDiff("technicalDebt", null, 1L)))
+      .setCurrentChange(
+        new FieldDiffs()
+          .setIssueKey("ISSUE")
+          .setUserLogin("john")
+          .setDiff("technicalDebt", null, 1L)
+          .setCreationDate(new Date(NOW))))
       .close();
 
     step.execute();
@@ -137,8 +146,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
     assertThat(result.getRuleKey()).isEqualTo(rule.getKey());
     assertThat(result.getComponentUuid()).isEqualTo(file.uuid());
     assertThat(result.getProjectUuid()).isEqualTo(project.uuid());
-    assertThat(result.getSeverity()).isEqualTo(Severity.BLOCKER);
-    assertThat(result.getStatus()).isEqualTo(Issue.STATUS_OPEN);
+    assertThat(result.getSeverity()).isEqualTo(BLOCKER);
+    assertThat(result.getStatus()).isEqualTo(STATUS_OPEN);
     assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
 
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList("ISSUE"));
@@ -148,11 +157,11 @@ public class PersistIssuesStepTest extends BaseStepTest {
   @Test
   public void insert_merged_issue() {
     RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
-    dbTester.rules().insert(rule);
-    OrganizationDto organizationDto = dbTester.organizations().insert();
+    db.rules().insert(rule);
+    OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto);
     dbClient.componentDao().insert(session, project);
-    ComponentDto file = ComponentTesting.newFileDto(project, null);
+    ComponentDto file = newFileDto(project, null);
     dbClient.componentDao().insert(session, file);
     session.commit();
 
@@ -162,8 +171,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .setRuleKey(rule.getKey())
       .setComponentUuid(file.uuid())
       .setProjectUuid(project.uuid())
-      .setSeverity(Severity.BLOCKER)
-      .setStatus(Issue.STATUS_OPEN)
+      .setSeverity(BLOCKER)
+      .setStatus(STATUS_OPEN)
       .setNew(true)
       .setCopied(true)
       .setType(RuleType.BUG)
@@ -172,13 +181,14 @@ public class PersistIssuesStepTest extends BaseStepTest {
         .setIssueKey("ISSUE")
         .setUserLogin("john")
         .setMarkdownText("Some text")
+        .setCreatedAt(new Date(NOW))
         .setNew(true))
       .setCurrentChange(new FieldDiffs()
         .setIssueKey("ISSUE")
         .setUserLogin("john")
-        .setDiff("technicalDebt", null, 1L)))
+        .setDiff("technicalDebt", null, 1L)
+        .setCreationDate(new Date(NOW))))
       .close();
-
     step.execute();
 
     IssueDto result = dbClient.issueDao().selectOrFailByKey(session, "ISSUE");
@@ -186,8 +196,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
     assertThat(result.getRuleKey()).isEqualTo(rule.getKey());
     assertThat(result.getComponentUuid()).isEqualTo(file.uuid());
     assertThat(result.getProjectUuid()).isEqualTo(project.uuid());
-    assertThat(result.getSeverity()).isEqualTo(Severity.BLOCKER);
-    assertThat(result.getStatus()).isEqualTo(Issue.STATUS_OPEN);
+    assertThat(result.getSeverity()).isEqualTo(BLOCKER);
+    assertThat(result.getStatus()).isEqualTo(STATUS_OPEN);
     assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
 
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectByIssueKeys(session, Arrays.asList("ISSUE"));
@@ -197,11 +207,11 @@ public class PersistIssuesStepTest extends BaseStepTest {
   @Test
   public void insert_new_issue() {
     RuleDefinitionDto rule = RuleTesting.newRule(RuleKey.of("xoo", "S01"));
-    dbTester.rules().insert(rule);
-    OrganizationDto organizationDto = dbTester.organizations().insert();
+    db.rules().insert(rule);
+    OrganizationDto organizationDto = db.organizations().insert();
     ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto);
     dbClient.componentDao().insert(session, project);
-    ComponentDto file = ComponentTesting.newFileDto(project, null);
+    ComponentDto file = newFileDto(project, null);
     dbClient.componentDao().insert(session, file);
     session.commit();
 
@@ -211,8 +221,8 @@ public class PersistIssuesStepTest extends BaseStepTest {
       .setRuleKey(rule.getKey())
       .setComponentUuid(file.uuid())
       .setProjectUuid(project.uuid())
-      .setSeverity(Severity.BLOCKER)
-      .setStatus(Issue.STATUS_OPEN)
+      .setSeverity(BLOCKER)
+      .setStatus(STATUS_OPEN)
       .setNew(true)
       .setType(RuleType.BUG)).close();
 
@@ -223,85 +233,106 @@ public class PersistIssuesStepTest extends BaseStepTest {
     assertThat(result.getRuleKey()).isEqualTo(rule.getKey());
     assertThat(result.getComponentUuid()).isEqualTo(file.uuid());
     assertThat(result.getProjectUuid()).isEqualTo(project.uuid());
-    assertThat(result.getSeverity()).isEqualTo(Severity.BLOCKER);
-    assertThat(result.getStatus()).isEqualTo(Issue.STATUS_OPEN);
+    assertThat(result.getSeverity()).isEqualTo(BLOCKER);
+    assertThat(result.getStatus()).isEqualTo(STATUS_OPEN);
     assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
   }
 
   @Test
   public void close_issue() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto issue = db.issues().insert(rule, project, file,
+      i -> i.setStatus(STATUS_OPEN)
+        .setResolution(null)
+        .setCreatedAt(NOW - 1_000_000_000L)
+        .setUpdatedAt(NOW - 1_000_000_000L));
+    DiskCache<DefaultIssue>.DiskAppender issueCacheAppender = issueCache.newAppender();
 
-    issueCache.newAppender().append(new DefaultIssue()
-      .setKey("ISSUE")
-      .setType(RuleType.CODE_SMELL)
-      .setRuleKey(RuleKey.of("xoo", "S01"))
-      .setComponentUuid("COMPONENT")
-      .setProjectUuid("PROJECT")
-      .setSeverity(Severity.BLOCKER)
-      .setStatus(Issue.STATUS_CLOSED)
-      .setResolution(Issue.RESOLUTION_FIXED)
-      .setSelectedAt(NOW)
-      .setNew(false)
-      .setChanged(true)).close();
-
+    issueCacheAppender.append(
+      issue.toDefaultIssue()
+        .setStatus(STATUS_CLOSED)
+        .setResolution(RESOLUTION_FIXED)
+        .setSelectedAt(NOW)
+        .setNew(false)
+        .setChanged(true))
+      .close();
     step.execute();
 
-    dbTester.assertDbUnit(getClass(), "close_issue-result.xml", "issues");
+    IssueDto issueReloaded = db.getDbClient().issueDao().selectByKey(db.getSession(), issue.getKey()).get();
+    assertThat(issueReloaded.getStatus()).isEqualTo(STATUS_CLOSED);
+    assertThat(issueReloaded.getResolution()).isEqualTo(RESOLUTION_FIXED);
   }
 
   @Test
   public void add_comment() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto issue = db.issues().insert(rule, project, file,
+      i -> i.setStatus(STATUS_OPEN)
+        .setResolution(null)
+        .setCreatedAt(NOW - 1_000_000_000L)
+        .setUpdatedAt(NOW - 1_000_000_000L));
+    DiskCache<DefaultIssue>.DiskAppender issueCacheAppender = issueCache.newAppender();
 
-    issueCache.newAppender().append(new DefaultIssue()
-      .setKey("ISSUE")
-      .setType(RuleType.CODE_SMELL)
-      .setRuleKey(RuleKey.of("xoo", "S01"))
-      .setComponentUuid("COMPONENT")
-      .setProjectUuid("PROJECT")
-      .setSeverity(Severity.BLOCKER)
-      .setStatus(Issue.STATUS_CLOSED)
-      .setResolution(Issue.RESOLUTION_FIXED)
-      .setNew(false)
-      .setChanged(true)
-      .addComment(new DefaultIssueComment()
-        .setKey("COMMENT")
-        .setIssueKey("ISSUE")
-        .setUserLogin("john")
-        .setMarkdownText("Some text")
-        .setNew(true)))
+    issueCacheAppender.append(
+      issue.toDefaultIssue()
+        .setStatus(STATUS_CLOSED)
+        .setResolution(RESOLUTION_FIXED)
+        .setSelectedAt(NOW)
+        .setNew(false)
+        .setChanged(true)
+        .addComment(new DefaultIssueComment()
+          .setKey("COMMENT")
+          .setIssueKey(issue.getKey())
+          .setUserLogin("john")
+          .setMarkdownText("Some text")
+          .setCreatedAt(new Date(NOW))
+          .setNew(true)))
       .close();
-
     step.execute();
 
-    dbTester.assertDbUnit(getClass(), "add_comment-result.xml", new String[] {"id", "created_at", "updated_at"}, "issue_changes");
+    IssueChangeDto issueChangeDto = db.getDbClient().issueChangeDao().selectByIssueKeys(db.getSession(), singletonList(issue.getKey())).get(0);
+    assertThat(issueChangeDto)
+      .extracting(IssueChangeDto::getChangeType, IssueChangeDto::getUserLogin, IssueChangeDto::getChangeData, IssueChangeDto::getIssueKey,
+        IssueChangeDto::getIssueChangeCreationDate)
+      .containsOnly(IssueChangeDto.TYPE_COMMENT, "john", "Some text", issue.getKey(), NOW);
   }
 
   @Test
   public void add_change() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    ComponentDto project = db.components().insertPrivateProject();
+    ComponentDto file = db.components().insertComponent(newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto issue = db.issues().insert(rule, project, file,
+      i -> i.setStatus(STATUS_OPEN)
+        .setResolution(null)
+        .setCreatedAt(NOW - 1_000_000_000L)
+        .setUpdatedAt(NOW - 1_000_000_000L));
+    DiskCache<DefaultIssue>.DiskAppender issueCacheAppender = issueCache.newAppender();
 
-    issueCache.newAppender().append(new DefaultIssue()
-      .setKey("ISSUE")
-      .setType(RuleType.CODE_SMELL)
-      .setRuleKey(RuleKey.of("xoo", "S01"))
-      .setComponentUuid("COMPONENT")
-      .setProjectUuid("PROJECT")
-      .setSeverity(Severity.BLOCKER)
-      .setStatus(Issue.STATUS_CLOSED)
-      .setResolution(Issue.RESOLUTION_FIXED)
-      .setNew(false)
-      .setChanged(true)
-      .setCurrentChange(new FieldDiffs()
-        .setIssueKey("ISSUE")
-        .setUserLogin("john")
-        .setDiff("technicalDebt", null, 1L)))
+    issueCacheAppender.append(
+      issue.toDefaultIssue()
+        .setStatus(STATUS_CLOSED)
+        .setResolution(RESOLUTION_FIXED)
+        .setSelectedAt(NOW)
+        .setNew(false)
+        .setChanged(true)
+        .setCurrentChange(new FieldDiffs()
+          .setIssueKey("ISSUE")
+          .setUserLogin("john")
+          .setDiff("technicalDebt", null, 1L)
+          .setCreationDate(new Date(NOW))))
       .close();
-
     step.execute();
 
-    dbTester.assertDbUnit(getClass(), "add_change-result.xml", new String[] {"id", "created_at", "updated_at"}, "issue_changes");
+    IssueChangeDto issueChangeDto = db.getDbClient().issueChangeDao().selectByIssueKeys(db.getSession(), singletonList(issue.getKey())).get(0);
+    assertThat(issueChangeDto)
+      .extracting(IssueChangeDto::getChangeType, IssueChangeDto::getUserLogin, IssueChangeDto::getChangeData, IssueChangeDto::getIssueKey,
+        IssueChangeDto::getIssueChangeCreationDate)
+      .containsOnly(IssueChangeDto.TYPE_FIELD_CHANGE, "john", "technicalDebt=1", issue.getKey(), NOW);
   }
 
 }

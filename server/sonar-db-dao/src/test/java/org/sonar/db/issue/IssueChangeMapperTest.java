@@ -57,6 +57,7 @@ public class IssueChangeMapperTest {
     dto.setChangeData("the comment");
     dto.setCreatedAt(1_500_000_000_000L);
     dto.setUpdatedAt(1_500_000_000_000L);
+    dto.setIssueChangeCreationDate(1_500_000_000_000L);
     dbTester.getSession().getMapper(IssueChangeMapper.class).insert(dto);
     dbTester.getSession().commit();
 
