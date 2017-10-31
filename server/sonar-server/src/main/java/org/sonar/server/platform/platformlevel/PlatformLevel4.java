@@ -54,6 +54,7 @@ import org.sonar.server.duplication.ws.DuplicationsParser;
 import org.sonar.server.duplication.ws.DuplicationsWs;
 import org.sonar.server.duplication.ws.ShowResponseBuilder;
 import org.sonar.server.edition.EditionsWsModule;
+import org.sonar.server.edition.FinalizeEditionChange;
 import org.sonar.server.email.ws.EmailsWsModule;
 import org.sonar.server.es.IndexCreator;
 import org.sonar.server.es.IndexDefinitions;
@@ -566,6 +567,9 @@ public class PlatformLevel4 extends PlatformLevel {
     add(TelemetryDataLoader.class);
     addIfStartupLeader(TelemetryDaemon.class, TelemetryClient.class);
 
+    // edition
+    addIfStartupLeader(FinalizeEditionChange.class);
+    
     // system info
     addIfCluster(WebSystemInfoModule.forClusterMode()).otherwiseAdd(WebSystemInfoModule.forStandaloneMode());
 
