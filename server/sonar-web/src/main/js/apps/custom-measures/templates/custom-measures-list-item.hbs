@@ -32,6 +32,18 @@
 </td>
 
 <td class="thin nowrap">
-  <a class="js-custom-measure-update icon-edit" title="Update" data-toggle="tooltip" href="#"></a>
-  <a class="js-custom-measure-delete icon-delete" title="Delete" data-toggle="tooltip" href="#"></a>
+  <div class="dropdown">
+    <button class="dropdown-toggle" data-toggle="dropdown">
+      {{settingsIcon}}<i class="icon-dropdown little-spacer-left" />
+    </button>
+    <ul class="dropdown-menu dropdown-menu-right">
+      <li>
+        <a class="js-custom-measure-update" href="#">{{t 'update_verb'}}</a>
+      </li>
+      <li class="divider" />
+      <li>
+        <a class="js-custom-measure-delete text-danger" href="#">{{t 'delete'}}</a>
+      </li>
+    </ul>
+  </div>
 </td>

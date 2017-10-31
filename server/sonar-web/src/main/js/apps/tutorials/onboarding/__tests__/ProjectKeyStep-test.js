@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 // @flow
+
 import React from 'react';
 import { mount } from 'enzyme';
 import ProjectKeyStep from '../ProjectKeyStep';
@@ -28,28 +29,36 @@ jest.mock('../../../../api/components', () => ({
   deleteProject: () => Promise.resolve()
 }));
 
-it('creates new project', () => {
+jest.mock(
+  '../../../../components/icons-components/DeleteIcon',
+  () =>
+    function DeleteIcon() {
+      return null;
+    }
+);
+
+it('creates new project', async () => {
   const onDone = jest.fn();
   const wrapper = mount(<ProjectKeyStep onDelete={jest.fn()} onDone={onDone} />);
   expect(wrapper).toMatchSnapshot();
   change(wrapper.find('input'), 'foo');
   submit(wrapper.find('form'));
   expect(wrapper).toMatchSnapshot(); // spinner
-  return doAsync(() => {
-    expect(wrapper).toMatchSnapshot();
-    expect(onDone).toBeCalledWith('foo');
-  });
+
+  await new Promise(setImmediate);
+  expect(wrapper).toMatchSnapshot();
+  expect(onDone).toBeCalledWith('foo');
 });
 
-it('deletes project', () => {
+it('deletes project', async () => {
   const onDelete = jest.fn();
   const wrapper = mount(<ProjectKeyStep onDelete={onDelete} onDone={jest.fn()} />);
   wrapper.setState({ done: true, loading: false, projectKey: 'foo' });
   expect(wrapper).toMatchSnapshot();
   submit(wrapper.find('form'));
   expect(wrapper).toMatchSnapshot(); // spinner
-  return doAsync(() => {
-    expect(wrapper).toMatchSnapshot();
-    expect(onDelete).toBeCalled();
-  });
+
+  await new Promise(setImmediate);
+  expect(wrapper).toMatchSnapshot();
+  expect(onDelete).toBeCalled();
 });

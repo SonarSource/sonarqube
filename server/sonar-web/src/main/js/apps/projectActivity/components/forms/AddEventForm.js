@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import Modal from '../../../../components/controls/Modal';
+import { ActionsDropdownItem } from '../../../../components/controls/ActionsDropdown';
 import { translate } from '../../../../helpers/l10n';
 /*:: import type { Analysis } from '../../types'; */
 
@@ -56,12 +57,8 @@ export default class AddEventForm extends React.PureComponent {
     this.mounted = false;
   }
 
-  openForm = (e /*: Event */) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (this.mounted) {
-      this.setState({ open: true });
-    }
+  openForm = () => {
+    this.setState({ open: true });
   };
 
   closeForm = () => {
@@ -137,10 +134,10 @@ export default class AddEventForm extends React.PureComponent {
 
   render() {
     return (
-      <a className="js-add-event" href="#" onClick={this.openForm}>
+      <ActionsDropdownItem className="js-add-event" onClick={this.openForm}>
         {translate(this.props.addEventButtonText)}
         {this.state.open && this.renderModal()}
-      </a>
+      </ActionsDropdownItem>
     );
   }
 }

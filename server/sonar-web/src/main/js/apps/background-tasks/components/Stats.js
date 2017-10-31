@@ -20,6 +20,7 @@
 /* @flow */
 import React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
+import DeleteIcon from '../../../components/icons-components/DeleteIcon';
 import { translate } from '../../../helpers/l10n';
 
 /*::
@@ -65,10 +66,11 @@ export default class Stats extends React.PureComponent {
           {this.props.isSystemAdmin && (
             <Tooltip overlay={translate('background_tasks.cancel_all_tasks')}>
               <a
-                className="js-cancel-pending icon-delete spacer-left"
+                className="js-cancel-pending spacer-left link-no-underline"
                 href="#"
-                onClick={this.handleCancelAllPending}
-              />
+                onClick={this.handleCancelAllPending}>
+                <DeleteIcon className="text-text-top" />
+              </a>
             </Tooltip>
           )}
         </span>
