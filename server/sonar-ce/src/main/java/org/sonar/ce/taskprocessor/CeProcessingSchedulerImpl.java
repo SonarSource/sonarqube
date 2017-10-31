@@ -24,7 +24,6 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
@@ -104,7 +103,7 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
   }
 
   private class ChainingCallback implements FutureCallback<CeWorker.Result> {
-    private final AtomicBoolean keepRunning = new AtomicBoolean(true);
+    private volatile boolean keepRunning = true;
     private final CeWorker worker;
 
     @CheckForNull
@@ -116,19 +115,21 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
 
     @Override
     public void onSuccess(@Nullable CeWorker.Result result) {
-      if (result == null) {
-        chainWithEnabledTaskDelay();
-      } else {
-        switch (result) {
-          case DISABLED:
-            chainWithDisabledTaskDelay();
-            break;
-          case NO_TASK:
-            chainWithEnabledTaskDelay();
-            break;
-          case TASK_PROCESSED:
-          default:
-            chainWithoutDelay();
+      if (keepRunning) {
+        if (result == null) {
+          chainWithEnabledTaskDelay();
+        } else {
+          switch (result) {
+            case DISABLED:
+              chainWithDisabledTaskDelay();
+              break;
+            case NO_TASK:
+              chainWithEnabledTaskDelay();
+              break;
+            case TASK_PROCESSED:
+            default:
+              chainWithoutDelay();
+          }
         }
       }
     }
@@ -137,44 +138,34 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
     public void onFailure(Throwable t) {
       if (t instanceof Error) {
         LOG.error("Compute Engine execution failed. Scheduled processing interrupted.", t);
-      } else {
+      } else if (keepRunning) {
         chainWithoutDelay();
       }
     }
 
     private void chainWithoutDelay() {
-      if (keepRunning()) {
-        workerFuture = executorService.submit(worker);
-      }
+      workerFuture = executorService.submit(worker);
       addCallback();
     }
 
     private void chainWithEnabledTaskDelay() {
-      if (keepRunning()) {
-        workerFuture = executorService.schedule(worker, delayBetweenEnabledTasks, timeUnit);
-      }
+      workerFuture = executorService.schedule(worker, delayBetweenEnabledTasks, timeUnit);
       addCallback();
     }
 
     private void chainWithDisabledTaskDelay() {
-      if (keepRunning()) {
-        workerFuture = executorService.schedule(worker, DELAY_BETWEEN_DISABLED_TASKS, timeUnit);
-      }
+      workerFuture = executorService.schedule(worker, DELAY_BETWEEN_DISABLED_TASKS, timeUnit);
       addCallback();
     }
 
     private void addCallback() {
-      if (workerFuture != null && keepRunning()) {
+      if (workerFuture != null) {
         Futures.addCallback(workerFuture, this);
       }
     }
 
-    private boolean keepRunning() {
-      return keepRunning.get();
-    }
-
     public void stop(boolean interrupt) {
-      this.keepRunning.set(false);
+      keepRunning = false;
       if (workerFuture != null) {
         workerFuture.cancel(interrupt);
       }
