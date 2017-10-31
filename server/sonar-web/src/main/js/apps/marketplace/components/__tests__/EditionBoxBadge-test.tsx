@@ -72,8 +72,8 @@ it('should not display a badge', () => {
         nextEditionKey: 'bar',
         installationStatus: 'AUTOMATIC_READY'
       }
-    })
-  ).toMatchSnapshot();
+    }).type()
+  ).toBeNull();
 });
 
 function getWrapper(props = {}) {

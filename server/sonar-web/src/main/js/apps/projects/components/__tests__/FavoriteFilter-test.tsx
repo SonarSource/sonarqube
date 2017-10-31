@@ -69,6 +69,8 @@ it('does not save last selection with organization', () => {
 
 it('does not render for anonymous', () => {
   expect(
-    shallow(<FavoriteFilter query={query} />, { context: { currentUser: { isLoggedIn: false } } })
-  ).toMatchSnapshot();
+    shallow(<FavoriteFilter query={query} />, {
+      context: { currentUser: { isLoggedIn: false } }
+    }).type()
+  ).toBeNull();
 });

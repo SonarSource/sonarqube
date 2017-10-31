@@ -24,5 +24,3 @@ exports[`should display the license field 1`] = `
   </li>
 </Tooltip>
 `;
-
-exports[`should not display anything 1`] = `""`;

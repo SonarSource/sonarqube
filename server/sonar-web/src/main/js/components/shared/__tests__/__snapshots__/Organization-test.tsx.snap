@@ -17,7 +17,3 @@ exports[`should match snapshot 1`] = `
   />
 </span>
 `;
-
-exports[`should not be displayed 1`] = `""`;
-
-exports[`should not be displayed 2`] = `""`;

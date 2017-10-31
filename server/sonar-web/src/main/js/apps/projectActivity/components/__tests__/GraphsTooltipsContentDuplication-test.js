@@ -48,6 +48,6 @@ it('should render correctly', () => {
 
 it('should render null when data is missing', () => {
   expect(
-    shallow(<GraphsTooltipsContentDuplication {...DEFAULT_PROPS} tooltipIdx={0} />)
-  ).toMatchSnapshot();
+    shallow(<GraphsTooltipsContentDuplication {...DEFAULT_PROPS} tooltipIdx={0} />).type()
+  ).toBeNull();
 });

@@ -1,7 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`does not render 1`] = `""`;
-
 exports[`handles unknown languages 1`] = `
 <div
   className="project-card-languages"

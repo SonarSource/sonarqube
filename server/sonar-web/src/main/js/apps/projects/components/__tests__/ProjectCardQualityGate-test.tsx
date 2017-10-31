@@ -26,5 +26,5 @@ it('renders', () => {
 });
 
 it('does not render', () => {
-  expect(shallow(<ProjectCardQualityGate />)).toMatchSnapshot();
+  expect(shallow(<ProjectCardQualityGate />).type()).toBeNull();
 });

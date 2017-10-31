@@ -13,9 +13,7 @@ Array [
 ]
 `;
 
-exports[`smoke test 1`] = `""`;
-
-exports[`smoke test 2`] = `
+exports[`smoke test 1`] = `
 <div>
   <HelmetWrapper
     defaultTitle="Foo"

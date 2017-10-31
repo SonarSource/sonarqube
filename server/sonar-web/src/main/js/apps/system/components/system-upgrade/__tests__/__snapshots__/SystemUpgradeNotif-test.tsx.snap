@@ -1,8 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should display correctly 1`] = `""`;
-
-exports[`should display correctly 2`] = `
+exports[`should display correctly 1`] = `
 <div
   className="page-notifs"
 >
@@ -19,5 +17,3 @@ exports[`should display correctly 2`] = `
   </div>
 </div>
 `;
-
-exports[`should display nothing 1`] = `""`;

@@ -30,7 +30,7 @@ it('should display only one url', () => {
 });
 
 it('should not display anything', () => {
-  expect(getWrapper({ homepageUrl: undefined, issueTrackerUrl: undefined })).toMatchSnapshot();
+  expect(getWrapper({ homepageUrl: undefined, issueTrackerUrl: undefined }).type()).toBeNull();
 });
 
 function getWrapper(plugin = {}) {

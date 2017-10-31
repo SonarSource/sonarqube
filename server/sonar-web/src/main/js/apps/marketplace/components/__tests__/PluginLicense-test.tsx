@@ -26,5 +26,5 @@ it('should display the license field', () => {
 });
 
 it('should not display anything', () => {
-  expect(shallow(<PluginLicense />)).toMatchSnapshot();
+  expect(shallow(<PluginLicense />).type()).toBeNull();
 });

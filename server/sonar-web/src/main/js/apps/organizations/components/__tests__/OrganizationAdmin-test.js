@@ -41,6 +41,6 @@ it('should not render anything', () => {
       <OrganizationAdmin organization={organization}>
         <div>hello</div>
       </OrganizationAdmin>
-    )
-  ).toMatchSnapshot();
+    ).type()
+  ).toBeNull();
 });

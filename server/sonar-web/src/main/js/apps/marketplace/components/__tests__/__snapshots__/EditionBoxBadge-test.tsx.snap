@@ -27,5 +27,3 @@ exports[`should display pending badge 1`] = `
   marketplace.pending
 </span>
 `;
-
-exports[`should not display a badge 1`] = `""`;

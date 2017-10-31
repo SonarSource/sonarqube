@@ -29,7 +29,7 @@ it('smoke test', () => {
       <div>hello</div>
     </OrganizationPage>
   );
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.type()).toBeNull();
 
   const organization = { key: 'foo', name: 'Foo', isDefault: false, canAdmin: false };
   wrapper.setProps({ organization });

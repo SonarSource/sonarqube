@@ -81,7 +81,7 @@ beforeEach(() => {
 
 it('should display correctly', async () => {
   const wrapper = shallow(<SystemUpgradeNotif />);
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.type()).toBeNull();
   await new Promise(setImmediate);
   wrapper.update();
   expect(wrapper).toMatchSnapshot();
@@ -94,7 +94,7 @@ it('should display nothing', async () => {
   const wrapper = shallow(<SystemUpgradeNotif />);
   await new Promise(setImmediate);
   wrapper.update();
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.type()).toBeNull();
 });
 
 it('should fetch upgrade when mounting', () => {
