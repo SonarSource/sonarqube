@@ -44,6 +44,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonarqube.ws.WsCe;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.ce.ActivityWsRequest;
 import util.ItUtils;
@@ -81,6 +82,8 @@ public class CeWorkersTest {
     OrchestratorBuilder builder = Orchestrator.builderEnv()
       .addPlugin(pluginArtifact("fake-governance-plugin"))
       .setServerProperty("fakeGoverance.workerLatch.sharedMemoryFile", sharedMemory.getAbsolutePath())
+      // overwrite default value to display heap dump on OOM and reduce max heap
+      .setServerProperty("sonar.ce.javaOpts", "-Xmx256m -Xms128m")
       .addPlugin(xooPlugin());
     orchestrator = builder.build();
     orchestrator.start();
@@ -97,6 +100,99 @@ public class CeWorkersTest {
   }
 
   @Test
+  public void ce_worker_is_resilient_to_OOM_and_ISE_during_processing_of_a_task() throws InterruptedException {
+    submitFakeTask("OOM");
+
+    waitForEmptyQueue();
+
+    assertThat(adminWsClient.ce().activity(new ActivityWsRequest()
+      .setType("OOM")
+      .setStatus(ImmutableList.of("FAILED")))
+      .getTasksCount())
+        .isEqualTo(1);
+
+    submitFakeTask("OK");
+
+    waitForEmptyQueue();
+
+    assertThat(adminWsClient.ce().activity(new ActivityWsRequest()
+      .setType("OK")
+      .setStatus(ImmutableList.of("SUCCESS")))
+      .getTasksCount())
+        .isEqualTo(1);
+
+    submitFakeTask("ISE");
+
+    waitForEmptyQueue();
+
+    assertThat(adminWsClient.ce().activity(new ActivityWsRequest()
+      .setType("ISE")
+      .setStatus(ImmutableList.of("FAILED")))
+      .getTasksCount())
+        .isEqualTo(1);
+
+    submitFakeTask("OK");
+
+    waitForEmptyQueue();
+
+    assertThat(adminWsClient.ce().activity(new ActivityWsRequest()
+      .setType("OK")
+      .setStatus(ImmutableList.of("SUCCESS")))
+      .getTasksCount())
+        .isEqualTo(2);
+  }
+
+  private void submitFakeTask(String type) {
+    adminWsClient.wsConnector().call(new PostRequest("api/fake_gov/submit")
+      .setParam("type", type))
+      .failIfNotSuccessful();
+  }
+
+  @Test
+  public void ce_worker_is_resilient_to_OOM_and_RuntimeException_when_stopping_analysis_report_container() throws IOException {
+
+    RandomAccessFile randomAccessFile = null;
+    try {
+      randomAccessFile = new RandomAccessFile(sharedMemory, "rw");
+      MappedByteBuffer mappedByteBuffer = initMappedByteBuffer(randomAccessFile);
+      releaseAnyAnalysisWithFakeGovernancePlugin(mappedByteBuffer);
+
+      SonarScanner sonarRunner = SonarScanner.create(ItUtils.projectDir("shared/xoo-sample"));
+      orchestrator.executeBuild(sonarRunner, true);
+
+      enableComponentBomb("OOM");
+
+      orchestrator.executeBuild(sonarRunner, true);
+
+      enableComponentBomb("NONE");
+
+      orchestrator.executeBuild(sonarRunner, true);
+
+      enableComponentBomb("ISE");
+
+      orchestrator.executeBuild(sonarRunner, true);
+
+      enableComponentBomb("NONE");
+
+      orchestrator.executeBuild(sonarRunner, true);
+
+      assertThat(adminWsClient.ce().activity(new ActivityWsRequest()
+        .setType("REPORT")
+        .setStatus(ImmutableList.of("SUCCESS")))
+        .getTasksCount())
+          .isEqualTo(5);
+    } finally {
+      close(randomAccessFile);
+    }
+  }
+
+  private void enableComponentBomb(String type) {
+    adminWsClient.wsConnector().call(new PostRequest("api/fake_gov/activate_bomb")
+      .setParam("type", type))
+      .failIfNotSuccessful();
+  }
+
+  @Test
   public void enabled_worker_count_is_initially_1_and_can_be_changed_dynamically_by_plugin() throws IOException {
     assertThat(Files.lines(orchestrator.getServer().getCeLogs().toPath())
       .filter(s -> s.contains("Compute Engine will use ")))
@@ -109,7 +205,7 @@ public class CeWorkersTest {
 
       verifyAnalysesRunInParallel(mappedByteBuffer, 1);
 
-      /* 2 <= newWorkerCount <= 7 */
+      /* 4 <= newWorkerCount <= 7 */
       int newWorkerCount = 4 + new Random().nextInt(4);
       updateWorkerCount(newWorkerCount);
 
@@ -233,5 +329,15 @@ public class CeWorkersTest {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
+  }
+
+  private void waitForEmptyQueue() throws InterruptedException {
+    int tasksCount;
+    do {
+      Thread.sleep(100);
+      tasksCount = adminWsClient.ce().activity(new ActivityWsRequest()
+        .setStatus(ImmutableList.of("PENDING", "IN_PROGRESS")))
+        .getTasksCount();
+    } while (tasksCount > 0);
   }
 }

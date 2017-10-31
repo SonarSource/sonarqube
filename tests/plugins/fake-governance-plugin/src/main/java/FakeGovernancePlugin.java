@@ -18,6 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+import ce.BombConfig;
+import ce.ComponentBombReportAnalysisComponentProvider;
+import ce.IseTaskProcessor;
+import ce.OkTaskProcessor;
+import ce.OomTaskProcessor;
+import ce.ws.BombActivatorAction;
+import ce.ws.FakeGovWs;
+import ce.ws.SubmitAction;
 import org.sonar.api.Plugin;
 import systemPasscode.SystemPasscodeWebService;
 import workerCount.FakeWorkerCountProviderImpl;
@@ -36,6 +44,20 @@ public class FakeGovernancePlugin implements Plugin {
       context.addExtension(LatchControllerWorkerMeasureComputer.class);
       context.addExtension(RefreshWorkerCountAction.class);
       context.addExtension(SystemPasscodeWebService.class);
+
+      // WS api/fake_gov
+      context.addExtension(FakeGovWs.class);
+
+      // failing CE tasks
+      context.addExtension(SubmitAction.class);
+      context.addExtension(OomTaskProcessor.class);
+      context.addExtension(IseTaskProcessor.class);
+      context.addExtension(OkTaskProcessor.class);
+
+      // component bombs injection into the Report Analysis processing container in the CE
+      context.addExtension(BombConfig.class);
+      context.addExtension(ComponentBombReportAnalysisComponentProvider.class);
+      context.addExtension(BombActivatorAction.class);
     }
   }
 
