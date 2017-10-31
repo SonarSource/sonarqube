@@ -35,7 +35,7 @@ export default function ActionsDropdown(props: Props) {
     <div className={classNames('dropdown', props.className)}>
       <button
         className={classNames('dropdown-toggle', props.toggleClassName, {
-          'button-small button-compact': props.small
+          'button-small': props.small
         })}
         data-toggle="dropdown">
         <SettingsIcon className="text-text-bottom" />

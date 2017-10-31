@@ -35,6 +35,7 @@ module.exports = {
   gray94: '#efefef',
   gray80: '#cdcdcd',
   gray71: '#b4b4b4',
+  gray60: '#999',
 
   barBackgroundColor: '#f3f3f3',
   barBorderColor: '#e6e6e6',
@@ -52,6 +53,8 @@ module.exports = {
   bigFontSize: '16px',
 
   controlHeight: '24px',
+  smallControlHeight: '20px',
+  tinyControlHeight: '16px',
 
   // different
   defaultShadow: '0 6px 12px rgba(0, 0, 0, 0.175)',

@@ -30,7 +30,7 @@ interface Props {
 export default function MeasuresButtonLink({ component, metric }: Props) {
   return (
     <Link
-      className="button button-small button-compact spacer-left text-text-bottom"
+      className="button button-small spacer-left text-text-bottom"
       to={getComponentDrilldownUrl(component, metric)}>
       <BubblesIcon size={14} />
     </Link>

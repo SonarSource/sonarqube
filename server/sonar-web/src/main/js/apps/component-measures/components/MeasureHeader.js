@@ -66,7 +66,7 @@ export default function MeasureHeader(props /*: Props*/) {
               placement="right"
               overlay={translate('component_measures.show_metric_history')}>
               <Link
-                className="js-show-history spacer-left button button-small button-compact"
+                className="js-show-history spacer-left button button-small"
                 to={getMeasureHistoryUrl(component.key, metric.key, branch)}>
                 <HistoryIcon />
               </Link>
