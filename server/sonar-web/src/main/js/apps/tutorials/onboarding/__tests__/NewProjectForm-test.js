@@ -28,6 +28,8 @@ jest.mock('../../../../api/components', () => ({
   deleteProject: () => Promise.resolve()
 }));
 
+jest.mock('../../../../components/icons-components/ClearIcon');
+
 it('creates new project', () => {
   const onDone = jest.fn();
   const wrapper = mount(<NewProjectForm onDelete={jest.fn()} onDone={onDone} />);
@@ -46,7 +48,7 @@ it('deletes project', () => {
   const wrapper = mount(<NewProjectForm onDelete={onDelete} onDone={jest.fn()} />);
   wrapper.setState({ done: true, loading: false, projectKey: 'foo' });
   expect(wrapper).toMatchSnapshot();
-  submit(wrapper.find('form'));
+  wrapper.find('DeleteButton').prop('onClick')();
   expect(wrapper).toMatchSnapshot(); // spinner
   return doAsync(() => {
     expect(wrapper).toMatchSnapshot();

@@ -25,7 +25,6 @@ jest.mock('../../../../api/settings', () => ({
 import * as React from 'react';
 import { mount, shallow } from 'enzyme';
 import LongBranchesPattern from '../LongBranchesPattern';
-import { click } from '../../../../helpers/testUtils';
 
 const getValues = require('../../../../api/settings').getValues as jest.Mock<any>;
 
@@ -44,7 +43,7 @@ it('opens form', () => {
   (wrapper.instance() as LongBranchesPattern).mounted = true;
   wrapper.setState({ loading: false, setting: { value: 'release-.*' } });
 
-  click(wrapper.find('a'));
+  wrapper.find('EditButton').prop<Function>('onClick')();
   expect(wrapper.find('LongBranchesPatternForm').exists()).toBeTruthy();
 
   wrapper.find('LongBranchesPatternForm').prop<Function>('onClose')();

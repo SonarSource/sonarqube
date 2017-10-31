@@ -71,7 +71,8 @@
 }
 
 .project-activity-graph-legend-actionable {
-  padding: 4px 12px;
+  display: inline-block;
+  padding: 4px 8px 4px 12px;
   border-width: 1px;
   border-style: solid;
   border-radius: 12px;
@@ -193,7 +194,7 @@
 }
 
 .project-activity-event {
-  line-height: 20px;
+  line-height: 18px;
   display: flex;
 }
 
@@ -221,14 +222,6 @@
 
 .project-activity-event-actions {
   display: inline-block;
-}
-
-.project-activity-event-actions button {
-  height: 20px;
-}
-
-.project-activity-event-actions button + button {
-  margin-left: 4px;
 }
 
 .project-activity-event-inner-icon .project-activity-event-icon {
