@@ -19,9 +19,11 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import * as theme from '../../../app/theme';
 import AlertWarnIcon from '../../../components/icons-components/AlertWarnIcon';
 import ChartLegendIcon from '../../../components/icons-components/ChartLegendIcon';
-import CloseIcon from '../../../components/icons-components/CloseIcon';
+import { ButtonIcon } from '../../../components/ui/buttons';
+import ClearIcon from '../../../components/icons-components/ClearIcon';
 
 interface Props {
   className?: string;
@@ -33,8 +35,7 @@ interface Props {
 }
 
 export default class GraphsLegendItem extends React.PureComponent<Props> {
-  handleClick = (e: React.MouseEvent<HTMLElement>) => {
-    e.preventDefault();
+  handleClick = () => {
     if (this.props.removeMetric) {
       this.props.removeMetric(this.props.metric);
     }
@@ -53,16 +54,19 @@ export default class GraphsLegendItem extends React.PureComponent<Props> {
         ) : (
           <ChartLegendIcon
             className={classNames(
-              'spacer-right line-chart-legend',
+              'text-middle spacer-right line-chart-legend',
               'line-chart-legend-' + this.props.style
             )}
           />
         )}
-        {this.props.name}
+        <span className="text-middle">{this.props.name}</span>
         {isActionable && (
-          <a className="spacer-left button-clean text-text-top" href="#" onClick={this.handleClick}>
-            <CloseIcon className="text-danger" />
-          </a>
+          <ButtonIcon
+            className="button-tiny spacer-left text-middle"
+            color={theme.gray60}
+            onClick={this.handleClick}>
+            <ClearIcon size={12} />
+          </ButtonIcon>
         )}
       </span>
     );

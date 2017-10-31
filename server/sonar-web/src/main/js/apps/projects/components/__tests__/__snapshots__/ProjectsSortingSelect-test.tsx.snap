@@ -62,15 +62,15 @@ exports[`should handle the descending sort direction 1`] = `
     overlay="projects.sort_descending"
     placement="bottom"
   >
-    <a
-      className="spacer-left button-icon"
-      href="#"
+    <ButtonIcon
+      className="spacer-left"
+      color="#999"
       onClick={[Function]}
     >
       <SortDescIcon
-        className="little-spacer-top"
+        className=""
       />
-    </a>
+    </ButtonIcon>
   </Tooltip>
 </div>
 `;
@@ -137,15 +137,15 @@ exports[`should render correctly for leak view 1`] = `
     overlay="projects.sort_ascending"
     placement="bottom"
   >
-    <a
-      className="spacer-left button-icon"
-      href="#"
+    <ButtonIcon
+      className="spacer-left"
+      color="#999"
       onClick={[Function]}
     >
       <SortAscIcon
-        className="little-spacer-top"
+        className=""
       />
-    </a>
+    </ButtonIcon>
   </Tooltip>
 </div>
 `;
@@ -212,15 +212,15 @@ exports[`should render correctly for overall view 1`] = `
     overlay="projects.sort_ascending"
     placement="bottom"
   >
-    <a
-      className="spacer-left button-icon"
-      href="#"
+    <ButtonIcon
+      className="spacer-left"
+      color="#999"
       onClick={[Function]}
     >
       <SortAscIcon
-        className="little-spacer-top"
+        className=""
       />
-    </a>
+    </ButtonIcon>
   </Tooltip>
 </div>
 `;
