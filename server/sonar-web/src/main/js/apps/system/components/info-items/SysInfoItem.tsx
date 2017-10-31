@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { map } from 'lodash';
 import CheckIcon from '../../../../components/icons-components/CheckIcon';
-import CloseIcon from '../../../../components/icons-components/CloseIcon';
+import ClearIcon from '../../../../components/icons-components/ClearIcon';
 import HealthItem from './HealthItem';
 import { HealthType, SysValue, SysValueObject } from '../../../../api/system';
 import { HEALTH_FIELD } from '../../utils';
@@ -51,7 +51,7 @@ function BooleanItem({ value }: { value: boolean }) {
   if (value) {
     return <CheckIcon />;
   } else {
-    return <CloseIcon />;
+    return <ClearIcon />;
   }
 }
 
