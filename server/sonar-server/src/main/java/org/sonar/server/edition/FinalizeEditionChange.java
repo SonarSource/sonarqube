@@ -19,15 +19,17 @@
  */
 package org.sonar.server.edition;
 
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.Startable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.server.edition.EditionManagementState.PendingStatus;
 import org.sonar.server.license.LicenseCommit;
 
-public class CommitPendingEditionOnStartup implements Startable {
-  private static final Logger LOG = Loggers.get(CommitPendingEditionOnStartup.class);
+public class FinalizeEditionChange implements Startable {
+  private static final Logger LOG = Loggers.get(FinalizeEditionChange.class);
 
   private final MutableEditionManagementState editionManagementState;
   @CheckForNull
@@ -37,11 +39,11 @@ public class CommitPendingEditionOnStartup implements Startable {
    * Used by Pico when license-manager is not installed and therefore no implementation of {@link LicenseCommit} is
    * is available.
    */
-  public CommitPendingEditionOnStartup(MutableEditionManagementState editionManagementState) {
+  public FinalizeEditionChange(MutableEditionManagementState editionManagementState) {
     this(editionManagementState, null);
   }
 
-  public CommitPendingEditionOnStartup(MutableEditionManagementState editionManagementState, @Nullable LicenseCommit licenseCommit) {
+  public FinalizeEditionChange(MutableEditionManagementState editionManagementState, @Nullable LicenseCommit licenseCommit) {
     this.editionManagementState = editionManagementState;
     this.licenseCommit = licenseCommit;
   }
@@ -55,7 +57,7 @@ public class CommitPendingEditionOnStartup implements Startable {
         return;
       case MANUAL_IN_PROGRESS:
       case AUTOMATIC_READY:
-        finalizeInstall(status);
+        finalizeInstall();
         break;
       case AUTOMATIC_IN_PROGRESS:
         editionManagementState.installFailed("SonarQube was restarted before asynchronous installation of edition completed");
@@ -75,27 +77,44 @@ public class CommitPendingEditionOnStartup implements Startable {
     }
   }
 
-  private void finalizeInstall(EditionManagementState.PendingStatus status) {
-    // license manager is not installed, can't finalize
-    if (licenseCommit == null) {
-      LOG.info("No LicenseCommit instance is not available, can not finalize installation");
-      return;
-    }
+  private void finalizeInstall() {
+    String errorMessage = null;
 
-    String newLicense = editionManagementState.getPendingLicense()
-      .orElseThrow(() -> new IllegalStateException(String.format("When state is %s, a license should be available in staging", status)));
     try {
-      licenseCommit.update(newLicense);
-      editionManagementState.finalizeInstallation(null);
-    } catch (IllegalArgumentException e) {
-      String errorMessage = "Invalid staged license could not be commit on startup. Please input a new license.";
-      LOG.warn(errorMessage, e);
+      if (licenseCommit == null) {
+        errorMessage = "Edition installation didn't complete. Some plugins were not installed.";
+        LOG.warn(errorMessage);
+        return;
+      }
+
+      Optional<String> newLicense = editionManagementState.getPendingLicense();
+      if (!newLicense.isPresent()) {
+        errorMessage = "Edition installation didn't complete. License was not found.";
+        LOG.warn(errorMessage);
+        return;
+      }
+
+      try {
+        licenseCommit.update(newLicense.get());
+      } catch (IllegalArgumentException e) {
+        errorMessage = "Edition installation didn't complete. License is not valid. Please set a new license.";
+        LOG.warn(errorMessage, e);
+      }
+    } finally {
       editionManagementState.finalizeInstallation(errorMessage);
     }
   }
 
   @Override
   public void stop() {
-    // nothing to do
+    EditionManagementState.PendingStatus status = editionManagementState.getPendingInstallationStatus();
+    if (status == PendingStatus.UNINSTALL_IN_PROGRESS) {
+      if (licenseCommit != null) {
+        LOG.debug("Removing license");
+        licenseCommit.delete();
+      } else {
+        LOG.warn("License Manager plugin not found - cannot remove the license");
+      }
+    }
   }
 }

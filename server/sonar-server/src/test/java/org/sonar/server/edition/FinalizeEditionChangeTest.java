@@ -39,8 +39,9 @@ import static org.sonar.server.edition.EditionManagementState.PendingStatus.AUTO
 import static org.sonar.server.edition.EditionManagementState.PendingStatus.AUTOMATIC_READY;
 import static org.sonar.server.edition.EditionManagementState.PendingStatus.MANUAL_IN_PROGRESS;
 import static org.sonar.server.edition.EditionManagementState.PendingStatus.NONE;
+import static org.sonar.server.edition.EditionManagementState.PendingStatus.UNINSTALL_IN_PROGRESS;
 
-public class CommitPendingEditionOnStartupTest {
+public class FinalizeEditionChangeTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
@@ -48,8 +49,8 @@ public class CommitPendingEditionOnStartupTest {
 
   private MutableEditionManagementState editionManagementState = mock(MutableEditionManagementState.class);
   private LicenseCommit licenseCommit = mock(LicenseCommit.class);
-  private CommitPendingEditionOnStartup underTest = new CommitPendingEditionOnStartup(editionManagementState);
-  private CommitPendingEditionOnStartup underTestWithLicenseCommit = new CommitPendingEditionOnStartup(editionManagementState, licenseCommit);
+  private FinalizeEditionChange underTest = new FinalizeEditionChange(editionManagementState);
+  private FinalizeEditionChange underTestWithLicenseCommit = new FinalizeEditionChange(editionManagementState, licenseCommit);
 
   @Test
   public void start_clears_error_message_when_status_is_NONE_without_LicenseCommit() {
@@ -75,17 +76,37 @@ public class CommitPendingEditionOnStartupTest {
   }
 
   @Test
-  public void start_has_no_effect_when_status_is_AUTOMATIC_READY_and_no_LicenseCommit_is_available_but_logs_at_debug_level() {
+  public void start_clears_status_when_status_is_AUTOMATIC_READY_and_no_LicenseCommit_is_available() {
     when(editionManagementState.getPendingInstallationStatus()).thenReturn(AUTOMATIC_READY);
 
     underTest.start();
 
     verify(editionManagementState).getPendingInstallationStatus();
+    verify(editionManagementState).finalizeInstallation("Edition installation didn't complete. Some plugins were not installed.");
+
     verifyNoMoreInteractions(editionManagementState);
     verifyZeroInteractions(licenseCommit);
     assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.INFO))
-      .containsOnly("No LicenseCommit instance is not available, can not finalize installation");
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .containsOnly("Edition installation didn't complete. Some plugins were not installed.");
+  }
+
+  @Test
+  public void start_clears_status_when_status_is_AUTOMATIC_READY_and_license_is_not_available() {
+    when(editionManagementState.getPendingInstallationStatus()).thenReturn(AUTOMATIC_READY);
+    when(editionManagementState.getPendingLicense()).thenReturn(Optional.empty());
+
+    underTestWithLicenseCommit.start();
+
+    verify(editionManagementState).getPendingInstallationStatus();
+    verify(editionManagementState).finalizeInstallation("Edition installation didn't complete. License was not found.");
+    verify(editionManagementState).getPendingLicense();
+
+    verifyNoMoreInteractions(editionManagementState);
+    verifyZeroInteractions(licenseCommit);
+    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .containsOnly("Edition installation didn't complete. License was not found.");
   }
 
   @Test
@@ -117,27 +138,28 @@ public class CommitPendingEditionOnStartupTest {
 
     verify(editionManagementState).getPendingInstallationStatus();
     verify(editionManagementState).getPendingLicense();
-    verify(editionManagementState).finalizeInstallation("Invalid staged license could not be commit on startup. Please input a new license.");
+    verify(editionManagementState).finalizeInstallation("Edition installation didn't complete. License is not valid. Please set a new license.");
     verifyNoMoreInteractions(editionManagementState);
     verify(licenseCommit).update(license);
     verifyNoMoreInteractions(licenseCommit);
     assertThat(logTester.logs()).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.WARN))
-      .containsOnly("Invalid staged license could not be commit on startup. Please input a new license.");
+      .containsOnly("Edition installation didn't complete. License is not valid. Please set a new license.");
   }
 
   @Test
-  public void starts_has_no_effect_when_status_is_MANUAL_IN_PROGRESS_and_no_LicenseCommit_is_available_but_logs_at_debug_level() {
+  public void start_clears_status_when_status_is_MANUAL_IN_PROGRESS_and_no_LicenseCommit_is_available() {
     when(editionManagementState.getPendingInstallationStatus()).thenReturn(MANUAL_IN_PROGRESS);
 
     underTest.start();
 
     verify(editionManagementState).getPendingInstallationStatus();
+    verify(editionManagementState).finalizeInstallation("Edition installation didn't complete. Some plugins were not installed.");
     verifyNoMoreInteractions(editionManagementState);
     verifyZeroInteractions(licenseCommit);
     assertThat(logTester.logs()).hasSize(1);
-    assertThat(logTester.logs(LoggerLevel.INFO))
-      .containsOnly("No LicenseCommit instance is not available, can not finalize installation");
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .containsOnly("Edition installation didn't complete. Some plugins were not installed.");
   }
 
   @Test
@@ -169,17 +191,17 @@ public class CommitPendingEditionOnStartupTest {
 
     verify(editionManagementState).getPendingInstallationStatus();
     verify(editionManagementState).getPendingLicense();
-    verify(editionManagementState).finalizeInstallation("Invalid staged license could not be commit on startup. Please input a new license.");
+    verify(editionManagementState).finalizeInstallation("Edition installation didn't complete. License is not valid. Please set a new license.");
     verifyNoMoreInteractions(editionManagementState);
     verify(licenseCommit).update(license);
     verifyNoMoreInteractions(licenseCommit);
     assertThat(logTester.logs()).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.WARN))
-      .containsOnly("Invalid staged license could not be commit on startup. Please input a new license.");
+      .containsOnly("Edition installation didn't complete. License is not valid. Please set a new license.");
   }
 
   @Test
-  public void starts_put_editionManagement_set_in_automaticInstallError_when_status_is_AUTOMATIC_PROGRESS_and_no_LicenseCommit_is_available() {
+  public void start_put_editionManagement_set_in_automaticInstallError_when_status_is_AUTOMATIC_PROGRESS_and_no_LicenseCommit_is_available() {
     when(editionManagementState.getPendingInstallationStatus()).thenReturn(AUTOMATIC_IN_PROGRESS);
 
     underTest.start();
@@ -191,7 +213,7 @@ public class CommitPendingEditionOnStartupTest {
   }
 
   @Test
-  public void starts_put_editionManagement_set_in_automaticInstallError_when_status_is_AUTOMATIC_PROGRESS_and_LicenseCommit_is_available() {
+  public void start_put_editionManagement_set_in_automaticInstallError_when_status_is_AUTOMATIC_PROGRESS_and_LicenseCommit_is_available() {
     when(editionManagementState.getPendingInstallationStatus()).thenReturn(AUTOMATIC_IN_PROGRESS);
 
     underTestWithLicenseCommit.start();
@@ -200,6 +222,34 @@ public class CommitPendingEditionOnStartupTest {
     verify(editionManagementState).installFailed("SonarQube was restarted before asynchronous installation of edition completed");
     verifyNoMoreInteractions(editionManagementState);
     verifyZeroInteractions(licenseCommit);
+  }
+
+  @Test
+  public void stop_should_remove_license_if_uninstalling_and_LicenseCommit_is_available() {
+    when(editionManagementState.getPendingInstallationStatus()).thenReturn(UNINSTALL_IN_PROGRESS);
+
+    underTestWithLicenseCommit.stop();
+
+    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.DEBUG))
+      .containsOnly("Removing license");
+    verify(licenseCommit).delete();
+    verifyNoMoreInteractions(licenseCommit);
+    verify(editionManagementState).getPendingInstallationStatus();
+    verifyNoMoreInteractions(editionManagementState);
+  }
+
+  @Test
+  public void stop_should_log_if_uninstalling_and_LicenseCommit_is_not_available() {
+    when(editionManagementState.getPendingInstallationStatus()).thenReturn(UNINSTALL_IN_PROGRESS);
+
+    underTest.stop();
+
+    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.WARN))
+      .containsOnly("License Manager plugin not found - cannot remove the license");
+    verify(editionManagementState).getPendingInstallationStatus();
+    verifyNoMoreInteractions(editionManagementState);
   }
 
   @Test
