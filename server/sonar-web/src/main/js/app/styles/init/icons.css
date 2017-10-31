@@ -789,30 +789,6 @@ a:hover > .icon-radio {
   background-repeat: no-repeat;
 }
 
-.icon-pending {
-  position: relative;
-  top: -1px;
-}
-
-.icon-pending path {
-  fill: var(--secondFontColor);
-  animation: animation-pending 2s linear infinite;
-}
-
-@keyframes animation-pending {
-  0% {
-    fill: var(--secondFontColor);
-  }
-
-  50% {
-    fill: #aaa;
-  }
-
-  100% {
-    fill: var(--secondFontColor);
-  }
-}
-
 /*
  * Spinner
  */

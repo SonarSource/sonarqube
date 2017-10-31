@@ -48,7 +48,7 @@ exports[`renders no branch support popup 1`] = `
       }
     }
     className="little-spacer-right"
-    color="#cdcdcd"
+    fill="#cdcdcd"
   />
   <span
     className="note"

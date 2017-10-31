@@ -17,26 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 
-/*:: type Props = { className?: string, size?: number }; */
+interface Props {
+  className?: string;
+  size?: number;
+}
 
-export default function TreemapIcon({ className, size = 14 } /*: Props */) {
-  /* eslint-disable max-len */
+export default function ProjectEventIcon({ className, size = 14 }: Props) {
   return (
     <svg
       className={className}
-      height={size}
       width={size}
+      height={size}
       viewBox="0 0 16 16"
-      fillRule="evenodd"
-      clipRule="evenodd"
-      strokeLinejoin="round"
-      strokeMiterlimit="1.414">
+      version="1.1"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+      xmlSpace="preserve">
       <path
-        fill="currentColor"
-        d="M0 0h8v16h-8zM9.143 0h6.857v9.143h-6.857zM9.143 10.286h6.857v5.714h-6.857z"
+        style={{ fill: '#fff', stroke: 'currentColor', strokeWidth: '2px' }}
+        d="M8 2 L14 8 L8 14 L2 8 L8 2 L14 8"
       />
     </svg>
   );

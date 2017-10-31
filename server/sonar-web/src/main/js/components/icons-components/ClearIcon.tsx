@@ -18,14 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { IconProps } from './types';
 
-interface Props {
-  className?: string;
-  fill?: string;
-  size?: number;
-}
-
-export default function ClearIcon({ className, fill = 'currentColor', size = 16 }: Props) {
+export default function ClearIcon({ className, fill = 'currentColor', size = 16 }: IconProps) {
   return (
     <svg
       className={className}
@@ -36,8 +31,8 @@ export default function ClearIcon({ className, fill = 'currentColor', size = 16 
       xmlnsXlink="http://www.w3.org/1999/xlink"
       xmlSpace="preserve">
       <path
+        style={{ fill }}
         d="M14 4.242L11.758 2l-3.76 3.76L4.242 2 2 4.242l3.756 3.756L2 11.758 4.242 14l3.756-3.76 3.76 3.76L14 11.758l-3.76-3.76L14 4.242z"
-        style={{ fill, fillRule: 'nonzero' }}
       />
     </svg>
   );

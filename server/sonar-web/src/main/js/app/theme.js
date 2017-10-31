@@ -35,6 +35,7 @@ module.exports = {
   gray94: '#efefef',
   gray80: '#cdcdcd',
   gray71: '#b4b4b4',
+  gray67: '#aaa',
   gray60: '#999',
 
   barBackgroundColor: '#f3f3f3',
