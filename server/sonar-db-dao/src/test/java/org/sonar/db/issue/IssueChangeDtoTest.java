@@ -59,6 +59,7 @@ public class IssueChangeDtoTest {
     FieldDiffs diffs = new FieldDiffs();
     diffs.setDiff("severity", "INFO", "BLOCKER");
     diffs.setUserLogin("emmerik");
+    diffs.setCreationDate(parseDate("2015-01-13"));
 
     IssueChangeDto dto = IssueChangeDto.of("ABCDE", diffs);
 
@@ -66,9 +67,9 @@ public class IssueChangeDtoTest {
     assertThat(dto.getChangeType()).isEqualTo("diff");
     assertThat(dto.getCreatedAt()).isNotNull();
     assertThat(dto.getUpdatedAt()).isNotNull();
-    assertThat(dto.getIssueChangeCreationDate()).isNull();
     assertThat(dto.getIssueKey()).isEqualTo("ABCDE");
     assertThat(dto.getUserLogin()).isEqualTo("emmerik");
+    assertThat(dto.getIssueChangeCreationDate()).isEqualTo(parseDate("2015-01-13").getTime());
   }
 
   @Test
@@ -130,6 +131,19 @@ public class IssueChangeDtoTest {
     assertThat(diffs.userLogin()).isEqualTo("emmerik");
     assertThat(diffs.issueKey()).isEqualTo("ABCDE");
     assertThat(diffs.creationDate()).isNotNull();
+  }
+
+  @Test
+  public void getIssueChangeCreationDate_fallback_to_createAt_when_null() {
+    IssueChangeDto changeDto = new IssueChangeDto()
+      .setKey("EFGH")
+      .setUserLogin("emmerik")
+      .setChangeData("Some text")
+      .setIssueKey("ABCDE")
+      .setCreatedAt(10_000_000L)
+      .setUpdatedAt(20_000_000L);
+
+    assertThat(changeDto.getIssueChangeCreationDate()).isEqualTo(10_000_000L);
   }
 
   @Test
