@@ -38,12 +38,24 @@
       <label>{{t 'my_profile.scm_accounts'}}</label>
       <span class="js-scm-input hidden">
         <input name="scmAccounts" type="text" size="50" maxlength="255">
-        <a class="icon-delete js-remove-scm" href="#"></a>
+        <button class="js-remove-scm button-icon text-top" href="#">
+          <svg width="16" height="16" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;">
+            <g transform="matrix(0.0392029,0,0,0.0392029,0.878798,-1.19111)">
+              <path d="M334.7,138.6L277.5,81.4L181.6,177.3L85.8,81.4L28.6,138.6L124.4,234.4L28.6,330.3L85.8,387.5L181.6,291.6L277.5,387.5L334.7,330.3L238.8,234.4L334.7,138.6Z" style="fill: #d4333f"/>
+            </g>
+          </svg>
+        </button>
       </span>
       {{#each scmAccounts}}
         <span class="js-scm-input">
           <input name="scmAccounts" type="text" size="50" maxlength="255" value="{{this}}">
-          <a class="icon-delete js-remove-scm" href="#"></a>
+          <button class="js-remove-scm button-icon text-top" href="#">
+            <svg width="16" height="16" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;">
+              <g transform="matrix(0.0392029,0,0,0.0392029,0.878798,-1.19111)">
+                <path d="M334.7,138.6L277.5,81.4L181.6,177.3L85.8,81.4L28.6,138.6L124.4,234.4L28.6,330.3L85.8,387.5L181.6,291.6L277.5,387.5L334.7,330.3L238.8,234.4L334.7,138.6Z" style="fill: #d4333f"/>
+              </g>
+          </svg>
+          </button>
         </span>
       {{/each}}
       <div class="spacer-bottom">

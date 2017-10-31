@@ -1,7 +1,7 @@
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,15 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import * as theme from '../../app/theme';
-import { ClearIcon } from './icons';
-
-interface Props {
-  className?: string;
-  size?: number;
-}
-
-export default function DeleteIcon(props: Props) {
-  return <ClearIcon fill={theme.red} {...props} />;
+export default function ClearIcon() {
+  return null;
 }

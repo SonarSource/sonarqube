@@ -1,7 +1,7 @@
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,20 +21,23 @@ import * as React from 'react';
 
 interface Props {
   className?: string;
+  fill?: string;
   size?: number;
 }
 
-export default function CloseIcon({ className, size = 16 }: Props) {
+export default function ClearIcon({ className, fill = 'currentColor', size = 16 }: Props) {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       className={className}
-      height={size}
       width={size}
-      viewBox="0 0 16 16">
+      height={size}
+      viewBox="0 0 16 16"
+      version="1.1"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+      xmlSpace="preserve">
       <path
-        fill="currentColor"
-        d="M12.843 11.232q0 0.357-0.25 0.607l-1.214 1.214q-0.25 0.25-0.607 0.25t-0.607-0.25l-2.625-2.625-2.625 2.625q-0.25 0.25-0.607 0.25t-0.607-0.25l-1.214-1.214q-0.25-0.25-0.25-0.607t0.25-0.607l2.625-2.625-2.625-2.625q-0.25-0.25-0.25-0.607t0.25-0.607l1.214-1.214q0.25-0.25 0.607-0.25t0.607 0.25l2.625 2.625 2.625-2.625q0.25-0.25 0.607-0.25t0.607 0.25l1.214 1.214q0.25 0.25 0.25 0.607t-0.25 0.607l-2.625 2.625 2.625 2.625q0.25 0.25 0.25 0.607z"
+        d="M14 4.242L11.758 2l-3.76 3.76L4.242 2 2 4.242l3.756 3.756L2 11.758 4.242 14l3.756-3.76 3.76 3.76L14 11.758l-3.76-3.76L14 4.242z"
+        style={{ fill, fillRule: 'nonzero' }}
       />
     </svg>
   );
