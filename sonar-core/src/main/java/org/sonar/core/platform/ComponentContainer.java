@@ -35,14 +35,11 @@ import org.picocontainer.LifecycleStrategy;
 import org.picocontainer.MutablePicoContainer;
 import org.picocontainer.PicoContainer;
 import org.picocontainer.behaviors.OptInCaching;
-import org.picocontainer.lifecycle.ReflectionLifecycleStrategy;
 import org.picocontainer.monitors.NullComponentMonitor;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.log.Profiler;
 
 import static com.google.common.collect.ImmutableList.copyOf;
 import static java.util.Objects.requireNonNull;
@@ -54,12 +51,8 @@ public class ComponentContainer implements ContainerPopulator.Container {
   public static final int COMPONENTS_IN_EMPTY_COMPONENT_CONTAINER = 2;
 
   private static final class ExtendedDefaultPicoContainer extends DefaultPicoContainer {
-    private ExtendedDefaultPicoContainer(ComponentFactory componentFactory, LifecycleStrategy lifecycleStrategy, PicoContainer parent) {
-      super(componentFactory, lifecycleStrategy, parent);
-    }
-
-    private ExtendedDefaultPicoContainer(final ComponentFactory componentFactory, final LifecycleStrategy lifecycleStrategy, final PicoContainer parent,
-      final ComponentMonitor componentMonitor) {
+    private ExtendedDefaultPicoContainer(ComponentFactory componentFactory, LifecycleStrategy lifecycleStrategy, PicoContainer parent,
+      ComponentMonitor componentMonitor) {
       super(componentFactory, lifecycleStrategy, parent, componentMonitor);
     }
 
@@ -124,12 +117,10 @@ public class ComponentContainer implements ContainerPopulator.Container {
   }
 
   public void execute() {
-    boolean threw = true;
     try {
       startComponents();
-      threw = false;
     } finally {
-      stopComponents(threw);
+      stopComponents();
     }
   }
 
@@ -167,21 +158,12 @@ public class ComponentContainer implements ContainerPopulator.Container {
    * a component twice is not authorized.
    */
   public ComponentContainer stopComponents() {
-    return stopComponents(false);
-  }
-
-  public ComponentContainer stopComponents(boolean swallowException) {
-    stopChildren();
     try {
+      stopChildren();
       if (pico.getLifecycleState().isStarted()) {
         pico.stop();
       }
       pico.dispose();
-
-    } catch (RuntimeException e) {
-      if (!swallowException) {
-        throw PicoUtils.propagate(e);
-      }
     } finally {
       if (parent != null) {
         parent.removeChild(this);
@@ -312,16 +294,8 @@ public class ComponentContainer implements ContainerPopulator.Container {
   }
 
   public static MutablePicoContainer createPicoContainer() {
-    ReflectionLifecycleStrategy lifecycleStrategy = new ReflectionLifecycleStrategy(new NullComponentMonitor(), "start", "stop", "close") {
-      @Override
-      public void start(Object component) {
-        Profiler profiler = Profiler.createIfTrace(Loggers.get(ComponentContainer.class));
-        profiler.start();
-        super.start(component);
-        profiler.stopTrace(component.getClass().getCanonicalName() + " started");
-      }
-    };
-    return new ExtendedDefaultPicoContainer(new OptInCaching(), lifecycleStrategy, null);
+    NullComponentMonitor componentMonitor = new NullComponentMonitor();
+    return new ExtendedDefaultPicoContainer(new OptInCaching(), new StopSafeReflectionLifecycleStrategy(componentMonitor), null, componentMonitor);
   }
 
   public ComponentContainer getParent() {
@@ -339,4 +313,5 @@ public class ComponentContainer implements ContainerPopulator.Container {
   public int size() {
     return pico.getComponentAdapters().size();
   }
+
 }

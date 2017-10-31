@@ -28,6 +28,7 @@ import org.picocontainer.lifecycle.ReflectionLifecycleStrategy;
 import org.picocontainer.monitors.NullComponentMonitor;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.StopSafeReflectionLifecycleStrategy;
 
 import static java.util.Objects.requireNonNull;
 
@@ -49,7 +50,7 @@ public class MigrationContainerImpl extends ComponentContainer implements Migrat
    */
   private static MutablePicoContainer createContainer(ComponentContainer parent) {
     ComponentMonitor componentMonitor = new NullComponentMonitor();
-    ReflectionLifecycleStrategy lifecycleStrategy = new ReflectionLifecycleStrategy(componentMonitor, "start", "stop", "close") {
+    ReflectionLifecycleStrategy lifecycleStrategy = new StopSafeReflectionLifecycleStrategy(componentMonitor) {
       @Override
       public boolean isLazy(ComponentAdapter<?> adapter) {
         return true;
@@ -60,7 +61,7 @@ public class MigrationContainerImpl extends ComponentContainer implements Migrat
 
   @Override
   public void cleanup() {
-    stopComponents(true);
+    stopComponents();
   }
 
   @Override

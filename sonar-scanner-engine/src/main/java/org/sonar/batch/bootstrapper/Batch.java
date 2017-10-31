@@ -67,12 +67,10 @@ public final class Batch {
   public synchronized Batch execute() {
     configureLogging();
     doStart();
-    boolean threw = true;
     try {
       doExecuteTask(globalProperties);
-      threw = false;
     } finally {
-      doStop(threw);
+      doStop();
     }
     return this;
   }
@@ -150,12 +148,12 @@ public final class Batch {
   public synchronized void stop() {
     checkStarted();
     configureLogging();
-    doStop(false);
+    doStop();
   }
 
-  private void doStop(boolean swallowException) {
+  private void doStop() {
     try {
-      bootstrapContainer.stopComponents(swallowException);
+      bootstrapContainer.stopComponents();
     } catch (RuntimeException e) {
       throw handleException(e);
     }

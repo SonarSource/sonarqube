@@ -32,6 +32,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.ContainerPopulator;
 import org.sonar.core.platform.Module;
+import org.sonar.core.platform.StopSafeReflectionLifecycleStrategy;
 
 import static java.util.Objects.requireNonNull;
 
@@ -62,7 +63,7 @@ public class TaskContainerImpl extends ComponentContainer implements TaskContain
    */
   private static MutablePicoContainer createContainer(ComponentContainer parent) {
     ComponentMonitor componentMonitor = new NullComponentMonitor();
-    ReflectionLifecycleStrategy lifecycleStrategy = new ReflectionLifecycleStrategy(componentMonitor, "start", "stop", "close") {
+    ReflectionLifecycleStrategy lifecycleStrategy = new StopSafeReflectionLifecycleStrategy(componentMonitor) {
       @Override
       public boolean isLazy(ComponentAdapter<?> adapter) {
         return adapter.getComponentImplementation().getAnnotation(EagerStart.class) == null;
