@@ -13,10 +13,14 @@ exports[`opens form 1`] = `
     placement="bottom"
   >
     <a
-      className="icon-edit spacer-left"
+      className="js-edit link-no-underline spacer-left"
       href="#"
       onClick={[Function]}
-    />
+    >
+      <EditIcon
+        className="text-text-top"
+      />
+    </a>
   </Tooltip>
 </div>
 `;
@@ -34,10 +38,14 @@ exports[`opens form 2`] = `
     placement="bottom"
   >
     <a
-      className="icon-edit spacer-left"
+      className="js-edit link-no-underline spacer-left"
       href="#"
       onClick={[Function]}
-    />
+    >
+      <EditIcon
+        className="text-text-top"
+      />
+    </a>
   </Tooltip>
   <WorkersForm
     onClose={[Function]}
@@ -68,10 +76,14 @@ exports[`renders 2`] = `
     placement="bottom"
   >
     <a
-      className="icon-edit spacer-left"
+      className="js-edit link-no-underline spacer-left"
       href="#"
       onClick={[Function]}
-    />
+    >
+      <EditIcon
+        className="text-text-top"
+      />
+    </a>
   </Tooltip>
 </div>
 `;
@@ -97,10 +109,14 @@ exports[`renders 3`] = `
     placement="bottom"
   >
     <a
-      className="icon-edit spacer-left"
+      className="js-edit link-no-underline spacer-left"
       href="#"
       onClick={[Function]}
-    />
+    >
+      <EditIcon
+        className="text-text-top"
+      />
+    </a>
   </Tooltip>
 </div>
 `;
@@ -157,10 +173,14 @@ exports[`updates worker count 1`] = `
     placement="bottom"
   >
     <a
-      className="icon-edit spacer-left"
+      className="js-edit link-no-underline spacer-left"
       href="#"
       onClick={[Function]}
-    />
+    >
+      <EditIcon
+        className="text-text-top"
+      />
+    </a>
   </Tooltip>
   <WorkersForm
     onClose={[Function]}
@@ -190,10 +210,14 @@ exports[`updates worker count 2`] = `
     placement="bottom"
   >
     <a
-      className="icon-edit spacer-left"
+      className="js-edit link-no-underline spacer-left"
       href="#"
       onClick={[Function]}
-    />
+    >
+      <EditIcon
+        className="text-text-top"
+      />
+    </a>
   </Tooltip>
 </div>
 `;

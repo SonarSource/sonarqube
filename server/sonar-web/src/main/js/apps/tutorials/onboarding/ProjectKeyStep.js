@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import { createProject, deleteProject } from '../../../api/components';
+import DeleteIcon from '../../../components/icons-components/DeleteIcon';
 import { translate } from '../../../helpers/l10n';
 
 /*::
@@ -116,7 +117,7 @@ export default class ProjectKeyStep extends React.PureComponent {
           <i className="spinner" />
         ) : (
           <button className="button-clean">
-            <i className="icon-delete" />
+            <DeleteIcon />
           </button>
         )}
       </form>

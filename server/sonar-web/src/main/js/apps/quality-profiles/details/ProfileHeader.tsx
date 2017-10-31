@@ -107,17 +107,13 @@ export default class ProfileHeader extends React.PureComponent<Props> {
               </Link>
             </li>
             <li>
-              <div className="pull-left dropdown">
-                <button className="dropdown-toggle" data-toggle="dropdown">
-                  {translate('actions')} <i className="icon-dropdown" />
-                </button>
-                <ProfileActions
-                  onRequestFail={this.props.onRequestFail}
-                  organization={organization}
-                  profile={profile}
-                  updateProfiles={this.props.updateProfiles}
-                />
-              </div>
+              <ProfileActions
+                className="pull-left"
+                onRequestFail={this.props.onRequestFail}
+                organization={organization}
+                profile={profile}
+                updateProfiles={this.props.updateProfiles}
+              />
             </li>
           </ul>
         </div>

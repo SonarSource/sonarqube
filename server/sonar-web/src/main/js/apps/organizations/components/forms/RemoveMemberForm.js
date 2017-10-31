@@ -20,6 +20,7 @@
 // @flow
 import React from 'react';
 import Modal from '../../../../components/controls/Modal';
+import { ActionsDropdownItem } from '../../../../components/controls/ActionsDropdown';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 /*:: import type { Member } from '../../../../store/organizationsMembers/actions'; */
 /*:: import type { Organization } from '../../../../store/organizations/duck'; */
@@ -45,8 +46,7 @@ export default class RemoveMemberForm extends React.PureComponent {
     open: false
   };
 
-  openForm = (evt /*: MouseEvent */) => {
-    evt.preventDefault();
+  openForm = () => {
     this.setState({ open: true });
   };
 
@@ -94,9 +94,9 @@ export default class RemoveMemberForm extends React.PureComponent {
 
   render() {
     const buttonComponent = (
-      <a key="remove-member-button" onClick={this.openForm} href="#">
+      <ActionsDropdownItem destructive={true} onClick={this.openForm}>
         {translate('organization.members.remove')}
-      </a>
+      </ActionsDropdownItem>
     );
     if (this.state.open) {
       return [buttonComponent, this.renderModal()];

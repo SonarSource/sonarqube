@@ -69,23 +69,20 @@ Object {
 `;
 
 exports[`should render and open the modal 1`] = `
-<a
-  href="#"
-  key="manage-member-button"
+<ActionsDropdownItem
   onClick={[Function]}
 >
   organization.members.manage_groups
-</a>
+</ActionsDropdownItem>
 `;
 
 exports[`should render and open the modal 2`] = `
 Array [
-  <a
-    href="#"
+  <ActionsDropdownItem
     onClick={[Function]}
   >
     organization.members.manage_groups
-  </a>,
+  </ActionsDropdownItem>,
   <Modal
     contentLabel="organization.members.manage_groups"
     onRequestClose={[Function]}

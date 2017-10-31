@@ -28,6 +28,14 @@ jest.mock('../../../../api/components', () => ({
   deleteProject: () => Promise.resolve()
 }));
 
+jest.mock(
+  '../../../../components/icons-components/DeleteIcon',
+  () =>
+    function DeleteIcon() {
+      return null;
+    }
+);
+
 it('creates new project', async () => {
   const onDone = jest.fn();
   const wrapper = mount(<ProjectKeyStep onDelete={jest.fn()} onDone={onDone} />);

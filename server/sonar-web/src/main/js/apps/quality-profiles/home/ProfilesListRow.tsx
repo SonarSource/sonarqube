@@ -139,18 +139,13 @@ export default class ProfilesListRow extends React.PureComponent<Props> {
           {this.renderUsageDate()}
         </td>
         <td className="quality-profiles-table-actions thin nowrap text-right">
-          <div className="dropdown">
-            <button className="dropdown-toggle" data-toggle="dropdown">
-              <i className="icon-dropdown" />
-            </button>
-            <ProfileActions
-              fromList={true}
-              onRequestFail={this.props.onRequestFail}
-              organization={this.props.organization}
-              profile={this.props.profile}
-              updateProfiles={this.props.updateProfiles}
-            />
-          </div>
+          <ProfileActions
+            fromList={true}
+            onRequestFail={this.props.onRequestFail}
+            organization={this.props.organization}
+            profile={this.props.profile}
+            updateProfiles={this.props.updateProfiles}
+          />
         </td>
       </tr>
     );

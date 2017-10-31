@@ -21,6 +21,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import PrimitiveInput from './PrimitiveInput';
 import { getEmptyValue } from '../../utils';
+import DeleteIcon from '../../../../components/icons-components/DeleteIcon';
 
 export default class MultiValueInput extends React.PureComponent {
   static propTypes = {
@@ -72,7 +73,7 @@ export default class MultiValueInput extends React.PureComponent {
             <button
               className="js-remove-value button-clean"
               onClick={e => this.handleDeleteValue(e, index)}>
-              <i className="icon-delete" />
+              <DeleteIcon />
             </button>
           </div>
         )}

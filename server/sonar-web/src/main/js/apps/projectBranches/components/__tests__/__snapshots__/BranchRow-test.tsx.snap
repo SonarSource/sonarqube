@@ -37,39 +37,16 @@ exports[`renders main branch 1`] = `
   <td
     className="thin nowrap text-right"
   >
-    <div
-      className="dropdown big-spacer-left"
+    <ActionsDropdown
+      className="ig-spacer-left"
     >
-      <button
-        className="dropdown-toggle little-spacer-right button-compact"
-        data-toggle="dropdown"
+      <ActionsDropdownItem
+        className="js-rename"
+        onClick={[Function]}
       >
-        <SettingsIcon
-          style={
-            Object {
-              "marginTop": 4,
-            }
-          }
-        />
-         
-        <i
-          className="icon-dropdown"
-        />
-      </button>
-      <ul
-        className="dropdown-menu dropdown-menu-right"
-      >
-        <li>
-          <a
-            className="js-rename link-no-underline"
-            href="#"
-            onClick={[Function]}
-          >
-            branches.rename
-          </a>
-        </li>
-      </ul>
-    </div>
+        branches.rename
+      </ActionsDropdownItem>
+    </ActionsDropdown>
   </td>
 </tr>
 `;
@@ -116,39 +93,17 @@ exports[`renders short-living branch 1`] = `
   <td
     className="thin nowrap text-right"
   >
-    <div
-      className="dropdown big-spacer-left"
+    <ActionsDropdown
+      className="ig-spacer-left"
     >
-      <button
-        className="dropdown-toggle little-spacer-right button-compact"
-        data-toggle="dropdown"
+      <ActionsDropdownItem
+        className="js-delete"
+        destructive={true}
+        onClick={[Function]}
       >
-        <SettingsIcon
-          style={
-            Object {
-              "marginTop": 4,
-            }
-          }
-        />
-         
-        <i
-          className="icon-dropdown"
-        />
-      </button>
-      <ul
-        className="dropdown-menu dropdown-menu-right"
-      >
-        <li>
-          <a
-            className="js-delete link-no-underline"
-            href="#"
-            onClick={[Function]}
-          >
-            branches.delete
-          </a>
-        </li>
-      </ul>
-    </div>
+        branches.delete
+      </ActionsDropdownItem>
+    </ActionsDropdown>
   </td>
 </tr>
 `;

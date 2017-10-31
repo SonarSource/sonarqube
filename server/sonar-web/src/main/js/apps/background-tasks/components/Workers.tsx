@@ -26,6 +26,7 @@ import { getWorkers } from '../../../api/ce';
 import { translate } from '../../../helpers/l10n';
 import HelpIcon from '../../../components/icons-components/HelpIcon';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
+import EditIcon from '../../../components/icons-components/EditIcon';
 
 interface State {
   canSetWorkerCount: boolean;
@@ -121,7 +122,12 @@ export default class Workers extends React.PureComponent<{}, State> {
         {!loading &&
           canSetWorkerCount && (
             <Tooltip overlay={translate('background_tasks.change_number_of_workers')}>
-              <a className="icon-edit spacer-left" href="#" onClick={this.handleChangeClick} />
+              <a
+                className="js-edit link-no-underline spacer-left"
+                href="#"
+                onClick={this.handleChangeClick}>
+                <EditIcon className="text-text-top" />
+              </a>
             </Tooltip>
           )}
 
