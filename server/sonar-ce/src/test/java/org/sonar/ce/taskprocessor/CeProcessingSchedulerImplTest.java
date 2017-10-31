@@ -230,7 +230,7 @@ public class CeProcessingSchedulerImplTest {
     for (int i = 0; i < workerCount; i++) {
       verify(processingExecutorService).schedule(workers[i], ceConfiguration.getQueuePollingDelay(), MILLISECONDS);
     }
-    verify(listenableScheduledFuture, times(workerCount)).addListener(any(Runnable.class), eq(processingExecutorService));
+    verify(listenableScheduledFuture, times(workerCount)).addListener(any(Runnable.class), eq(MoreExecutors.directExecutor()));
     for (int i = 0; i < workerCount; i++) {
       verify(ceWorkerFactory).create(i);
     }

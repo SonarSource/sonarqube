@@ -65,7 +65,7 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
   public void startScheduling() {
     for (ChainingCallback chainingCallback : chainingCallbacks) {
       ListenableScheduledFuture<CeWorker.Result> future = executorService.schedule(chainingCallback.worker, delayBetweenEnabledTasks, timeUnit);
-      addCallback(future, chainingCallback, executorService);
+      addCallback(future, chainingCallback);
     }
   }
 
@@ -165,7 +165,7 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
 
     private void addCallback() {
       if (workerFuture != null && keepRunning()) {
-        Futures.addCallback(workerFuture, this, executorService);
+        Futures.addCallback(workerFuture, this);
       }
     }
 
