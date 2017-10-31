@@ -33,7 +33,7 @@ it('should render and open the modal', () => {
   );
   expect(wrapper).toMatchSnapshot();
   wrapper.setState({ open: true });
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.first().getElements()).toMatchSnapshot();
 });
 
 it('should correctly handle user interactions', () => {

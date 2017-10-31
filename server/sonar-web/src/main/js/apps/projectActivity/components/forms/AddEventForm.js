@@ -97,10 +97,11 @@ export default class AddEventForm extends React.PureComponent {
   };
 
   renderModal() {
+    const header = translate(this.props.addEventButtonText);
     return (
-      <Modal contentLabel="modal form" onRequestClose={this.closeForm}>
+      <Modal key="add-event-modal" contentLabel={header} onRequestClose={this.closeForm}>
         <header className="modal-head">
-          <h2>{translate(this.props.addEventButtonText)}</h2>
+          <h2>{header}</h2>
         </header>
 
         <form onSubmit={this.handleSubmit}>
@@ -111,7 +112,6 @@ export default class AddEventForm extends React.PureComponent {
                 value={this.state.name}
                 autoFocus={true}
                 disabled={this.state.processing}
-                className="input-medium"
                 type="text"
                 onChange={this.changeInput}
               />
@@ -136,11 +136,14 @@ export default class AddEventForm extends React.PureComponent {
   }
 
   render() {
-    return (
-      <a className="js-add-event" href="#" onClick={this.openForm}>
+    const linkComponent = (
+      <a key="add-event-link" className="js-add-event" href="#" onClick={this.openForm}>
         {translate(this.props.addEventButtonText)}
-        {this.state.open && this.renderModal()}
       </a>
     );
+    if (this.state.open) {
+      return [linkComponent, this.renderModal()];
+    }
+    return linkComponent;
   }
 }

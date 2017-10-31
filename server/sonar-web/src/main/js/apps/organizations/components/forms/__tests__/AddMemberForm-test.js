@@ -30,7 +30,9 @@ it('should render and open the modal', () => {
   const wrapper = shallow(<AddMemberForm memberLogins={memberLogins} addMember={jest.fn()} />);
   expect(wrapper).toMatchSnapshot();
   wrapper.setState({ open: true });
-  expect(wrapper).toMatchSnapshot();
+
+  // FIXME Can probably be removed when https://github.com/airbnb/enzyme/issues/1149 is resolved
+  expect(wrapper.first().getElements()).toMatchSnapshot();
 });
 
 it('should correctly handle user interactions', () => {

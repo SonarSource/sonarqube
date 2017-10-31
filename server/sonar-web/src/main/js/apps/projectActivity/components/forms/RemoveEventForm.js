@@ -81,10 +81,11 @@ export default class RemoveEventForm extends React.PureComponent {
   };
 
   render() {
+    const header = translate(this.props.removeEventButtonText);
     return (
-      <Modal contentLabel="modal form" onRequestClose={this.closeForm}>
+      <Modal contentLabel={header} onRequestClose={this.closeForm}>
         <header className="modal-head">
-          <h2>{translate(this.props.removeEventButtonText)}</h2>
+          <h2>{header}</h2>
         </header>
 
         <form onSubmit={this.handleSubmit}>

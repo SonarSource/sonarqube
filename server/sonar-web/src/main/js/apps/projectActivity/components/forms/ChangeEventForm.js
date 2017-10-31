@@ -95,10 +95,11 @@ export default class ChangeEventForm extends React.PureComponent {
   };
 
   render() {
+    const header = translate(this.props.changeEventButtonText);
     return (
-      <Modal contentLabel="modal form" onRequestClose={this.closeForm}>
+      <Modal contentLabel={header} onRequestClose={this.closeForm}>
         <header className="modal-head">
-          <h2>{translate(this.props.changeEventButtonText)}</h2>
+          <h2>{header}</h2>
         </header>
 
         <form onSubmit={this.handleSubmit}>
@@ -109,7 +110,6 @@ export default class ChangeEventForm extends React.PureComponent {
                 value={this.state.name}
                 autoFocus={true}
                 disabled={this.state.processing}
-                className="input-medium"
                 type="text"
                 onChange={this.changeInput}
               />

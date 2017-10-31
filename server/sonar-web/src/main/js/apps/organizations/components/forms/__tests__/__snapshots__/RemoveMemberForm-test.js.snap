@@ -16,6 +16,7 @@ Array [
 exports[`should render and open the modal 1`] = `
 <a
   href="#"
+  key="remove-member-button"
   onClick={[Function]}
 >
   organization.members.remove
@@ -23,13 +24,15 @@ exports[`should render and open the modal 1`] = `
 `;
 
 exports[`should render and open the modal 2`] = `
-<a
-  href="#"
-  onClick={[Function]}
->
-  organization.members.remove
+Array [
+  <a
+    href="#"
+    onClick={[Function]}
+  >
+    organization.members.remove
+  </a>,
   <Modal
-    contentLabel="modal form"
+    contentLabel="users.remove"
     onRequestClose={[Function]}
   >
     <header
@@ -70,6 +73,6 @@ exports[`should render and open the modal 2`] = `
         </div>
       </footer>
     </form>
-  </Modal>
-</a>
+  </Modal>,
+]
 `;

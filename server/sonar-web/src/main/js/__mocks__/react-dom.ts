@@ -19,6 +19,7 @@
  */
 const ReactDOM = require.requireActual('react-dom');
 
+//FIXME To be dropped when https://github.com/airbnb/enzyme/issues/1150 is resolved
 module.exports = {
   ...ReactDOM,
   createPortal: (children: React.ReactNode) => children

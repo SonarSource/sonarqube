@@ -102,10 +102,11 @@ export default class AddGraphMetric extends React.PureComponent {
 
   renderModal() {
     const { metricsTypeFilter } = this.props;
+    const header = translate('project_activity.graphs.custom.add_metric');
     return (
-      <Modal contentLabel="graph metric add" onRequestClose={this.closeForm}>
+      <Modal key="add-metric-modal" contentLabel={header} onRequestClose={this.closeForm}>
         <header className="modal-head">
-          <h2>{translate('project_activity.graphs.custom.add_metric')}</h2>
+          <h2>{header}</h2>
         </header>
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body">
@@ -165,11 +166,16 @@ export default class AddGraphMetric extends React.PureComponent {
       );
     }
 
-    return (
-      <button className={this.props.className} onClick={this.openForm}>
+    const buttonComponent = (
+      <button key="add-metric-button" className={this.props.className} onClick={this.openForm}>
         {translate('project_activity.graphs.custom.add')}
-        {this.state.open && this.renderModal()}
       </button>
     );
+
+    if (this.state.open) {
+      return [buttonComponent, this.renderModal()];
+    }
+
+    return buttonComponent;
   }
 }
