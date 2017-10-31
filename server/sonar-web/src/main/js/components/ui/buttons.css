@@ -1,0 +1,56 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+.button-icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  vertical-align: middle;
+  width: var(--controlHeight);
+  height: var(--controlHeight);
+  padding: 0;
+  border: none;
+  color: inherit;
+}
+
+.button-icon.button-small {
+  width: var(--smallControlHeight);
+  height: var(--smallControlHeight);
+  padding: 0;
+}
+
+.button-icon.button-small svg {
+  margin-top: 0;
+}
+
+.button-icon.button-tiny {
+  width: var(--tinyControlHeight);
+  height: var(--tinyControlHeight);
+  padding: 0;
+}
+
+.button-icon:hover,
+.button-icon:focus {
+  background-color: currentColor;
+}
+
+.button-icon:hover svg,
+.button-icon:focus svg {
+  color: #fff;
+}
