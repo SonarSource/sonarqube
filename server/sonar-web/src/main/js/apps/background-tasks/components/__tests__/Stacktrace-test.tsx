@@ -23,11 +23,7 @@ import { mount, shallow } from 'enzyme';
 import Stacktrace from '../Stacktrace';
 import { click } from '../../../../helpers/testUtils';
 
-jest.mock('react-dom', () => {
-  const ReactDOM = require.requireActual('react-dom');
-  ReactDOM.createPortal = (children: React.ReactNode) => children;
-  return ReactDOM;
-});
+jest.mock('react-dom');
 
 jest.mock('../../../../api/ce', () => ({
   getTask: jest.fn(() => Promise.resolve({ errorStacktrace: 'stacktrace' }))

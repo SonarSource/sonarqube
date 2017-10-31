@@ -22,11 +22,7 @@ import * as React from 'react';
 import { mount } from 'enzyme';
 import App, { Props } from '../App';
 
-jest.mock('react-dom', () => {
-  const ReactDOM = require.requireActual('react-dom');
-  ReactDOM.createPortal = (children: React.ReactNode) => children;
-  return ReactDOM;
-});
+jest.mock('react-dom');
 
 jest.mock('lodash', () => {
   const lodash = require.requireActual('lodash');

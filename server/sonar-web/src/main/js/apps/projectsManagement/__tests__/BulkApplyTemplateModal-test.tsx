@@ -23,11 +23,7 @@ import { mount, shallow } from 'enzyme';
 import BulkApplyTemplateModal, { Props } from '../BulkApplyTemplateModal';
 import { click } from '../../../helpers/testUtils';
 
-jest.mock('react-dom', () => {
-  const ReactDOM = require.requireActual('react-dom');
-  ReactDOM.createPortal = (children: React.ReactNode) => children;
-  return ReactDOM;
-});
+jest.mock('react-dom');
 
 jest.mock('../../../api/permissions', () => ({
   bulkApplyTemplate: jest.fn(() => Promise.resolve()),

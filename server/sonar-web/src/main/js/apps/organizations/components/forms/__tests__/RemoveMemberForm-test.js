@@ -22,11 +22,7 @@ import { shallow } from 'enzyme';
 import { click, mockEvent } from '../../../../../helpers/testUtils';
 import RemoveMemberForm from '../RemoveMemberForm';
 
-jest.mock('react-dom', () => {
-  const ReactDOM = require.requireActual('react-dom');
-  ReactDOM.createPortal = children => children;
-  return ReactDOM;
-});
+jest.mock('react-dom');
 
 const member = { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 };
 const organization = { name: 'MyOrg' };

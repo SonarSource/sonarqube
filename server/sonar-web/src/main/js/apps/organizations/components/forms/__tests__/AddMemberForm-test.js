@@ -22,11 +22,7 @@ import { shallow } from 'enzyme';
 import { click } from '../../../../../helpers/testUtils';
 import AddMemberForm from '../AddMemberForm';
 
-jest.mock('react-dom', () => {
-  const ReactDOM = require.requireActual('react-dom');
-  ReactDOM.createPortal = children => children;
-  return ReactDOM;
-});
+jest.mock('react-dom');
 
 const memberLogins = ['admin'];
 
