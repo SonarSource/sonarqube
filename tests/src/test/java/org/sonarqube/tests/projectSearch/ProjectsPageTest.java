@@ -21,22 +21,21 @@ package org.sonarqube.tests.projectSearch;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category1Suite;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
+import org.sonarqube.pageobjects.Navigation;
+import org.sonarqube.pageobjects.projects.ProjectsPage;
+import org.sonarqube.tests.Category1Suite;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.WsUsers;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.project.DeleteRequest;
-import org.sonarqube.pageobjects.Navigation;
-import org.sonarqube.pageobjects.projects.ProjectsPage;
 
-import static com.codeborne.selenide.Selenide.clearBrowserLocalStorage;
 import static com.codeborne.selenide.WebDriverRunner.url;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;

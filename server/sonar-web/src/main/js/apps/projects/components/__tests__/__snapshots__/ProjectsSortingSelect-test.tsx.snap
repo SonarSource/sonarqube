@@ -63,7 +63,7 @@ exports[`should handle the descending sort direction 1`] = `
     placement="bottom"
   >
     <ButtonIcon
-      className="spacer-left"
+      className="js-projects-sorting-invert spacer-left"
       color="#999"
       onClick={[Function]}
     >
@@ -138,7 +138,7 @@ exports[`should render correctly for leak view 1`] = `
     placement="bottom"
   >
     <ButtonIcon
-      className="spacer-left"
+      className="js-projects-sorting-invert spacer-left"
       color="#999"
       onClick={[Function]}
     >
@@ -213,7 +213,7 @@ exports[`should render correctly for overall view 1`] = `
     placement="bottom"
   >
     <ButtonIcon
-      className="spacer-left"
+      className="js-projects-sorting-invert spacer-left"
       color="#999"
       onClick={[Function]}
     >

@@ -79,7 +79,10 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
           overlay={
             sortDesc ? translate('projects.sort_descending') : translate('projects.sort_ascending')
           }>
-          <ButtonIcon className="spacer-left" color={theme.gray60} onClick={this.handleDescToggle}>
+          <ButtonIcon
+            className="js-projects-sorting-invert spacer-left"
+            color={theme.gray60}
+            onClick={this.handleDescToggle}>
             {sortDesc ? <SortDescIcon className="" /> : <SortAscIcon className="" />}
           </ButtonIcon>
         </Tooltip>
