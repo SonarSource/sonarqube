@@ -112,7 +112,9 @@ export default class SearchBox extends React.PureComponent<Props, State> {
         )}
 
         {tooShort && (
-          <span className="search-box-note">
+          <span
+            className="search-box-note"
+            title={translateWithParameters('select2.tooShort', minLength!)}>
             {translateWithParameters('select2.tooShort', minLength!)}
           </span>
         )}
