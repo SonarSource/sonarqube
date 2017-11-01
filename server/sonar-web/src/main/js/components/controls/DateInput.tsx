@@ -21,8 +21,10 @@ import * as $ from 'jquery';
 import * as React from 'react';
 import * as classNames from 'classnames';
 import { pick } from 'lodash';
+import * as theme from '../../app/theme';
+import ClearIcon from '../icons-components/ClearIcon';
+import { ButtonIcon } from '../ui/buttons';
 import './styles.css';
-import CloseIcon from '../icons-components/CloseIcon';
 
 interface Props {
   className?: string;
@@ -65,9 +67,7 @@ export default class DateInput extends React.PureComponent<Props> {
     this.props.onChange(value);
   };
 
-  handleResetClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleResetClick = () => {
     this.props.onChange(undefined);
   };
 
@@ -109,9 +109,12 @@ export default class DateInput extends React.PureComponent<Props> {
           </svg>
         </span>
         {this.props.value !== undefined && (
-          <a className="date-input-control-reset" href="#" onClick={this.handleResetClick}>
-            <CloseIcon className="" />
-          </a>
+          <ButtonIcon
+            className="button-tiny date-input-control-reset"
+            color={theme.gray60}
+            onClick={this.handleResetClick}>
+            <ClearIcon size={12} />
+          </ButtonIcon>
         )}
       </span>
     );

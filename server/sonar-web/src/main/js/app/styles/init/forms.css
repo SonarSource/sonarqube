@@ -292,22 +292,15 @@ input[type='submit'].button-grey.button-active {
   cursor: default;
 }
 
-.button-icon {
-  border: none;
-  color: var(--secondFontColor);
-}
-
 .button-small {
-  height: 20px;
+  height: var(--smallControlHeight);
   line-height: 18px;
+  padding: 0 6px;
+  font-size: 11px;
 }
 
 .button-small > svg {
   margin-top: 2px;
-}
-
-.button-compact {
-  padding: 0 6px;
 }
 
 .button-group {
@@ -395,7 +388,7 @@ textarea.input-super-large {
   min-width: 300px;
 }
 
-.input-clear {
+.input-ghost {
   padding: 0 !important;
   border: none !important;
   background-color: transparent !important;

@@ -21,7 +21,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { differenceBy } from 'lodash';
 import ProjectNotifications from './ProjectNotifications';
-import Select, { AsyncSelect } from '../../../components/controls/Select';
+import { AsyncSelect } from '../../../components/controls/Select';
 import Organization from '../../../components/shared/Organization';
 import { translate } from '../../../helpers/l10n';
 import { getSuggestions } from '../../../api/components';

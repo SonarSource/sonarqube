@@ -29,6 +29,8 @@ jest.mock('../../../../api/organizations', () => ({
   getOrganization: () => Promise.resolve(null)
 }));
 
+jest.mock('../../../../components/icons-components/ClearIcon');
+
 it('creates new organization', async () => {
   const onDone = jest.fn();
   const wrapper = mount(<NewOrganizationForm onDelete={jest.fn()} onDone={onDone} />);
@@ -47,7 +49,8 @@ it('deletes organization', async () => {
   const wrapper = mount(<NewOrganizationForm onDelete={onDelete} onDone={jest.fn()} />);
   wrapper.setState({ done: true, loading: false, organization: 'foo' });
   expect(wrapper).toMatchSnapshot();
-  submit(wrapper.find('form'));
+  wrapper.find('DeleteButton').prop('onClick')();
+  wrapper.update();
   expect(wrapper).toMatchSnapshot(); // spinner
   await new Promise(setImmediate);
   wrapper.update();

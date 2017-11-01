@@ -19,8 +19,8 @@
  */
 // @flow
 import React from 'react';
-import CloseIcon from '../../../components/icons-components/CloseIcon';
 import { createProject, deleteProject } from '../../../api/components';
+import { DeleteButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 /*::
@@ -93,8 +93,7 @@ export default class NewProjectForm extends React.PureComponent {
     }, this.stopLoading);
   };
 
-  handleProjectDelete = (event /*: Event */) => {
-    event.preventDefault();
+  handleProjectDelete = () => {
     const { projectKey } = this.state;
     this.setState({ loading: true });
     deleteProject(projectKey).then(() => {
@@ -111,16 +110,14 @@ export default class NewProjectForm extends React.PureComponent {
     const valid = projectKey.length > 0;
 
     const form = done ? (
-      <form onSubmit={this.handleProjectDelete}>
+      <div>
         <span className="spacer-right text-middle">{projectKey}</span>
         {loading ? (
           <i className="spinner text-middle" />
         ) : (
-          <button className="button-clean text-middle">
-            <CloseIcon className="icon-red" />
-          </button>
+          <DeleteButton className="button-small text-middle" onClick={this.handleProjectDelete} />
         )}
-      </form>
+      </div>
     ) : (
       <form onSubmit={this.handleProjectCreate}>
         <input

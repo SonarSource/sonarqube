@@ -20,15 +20,13 @@
 import * as React from 'react';
 import ShortLivingBranchIcon from './ShortLivingBranchIcon';
 import LongLivingBranchIcon from './LongLivingBranchIcon';
+import { IconProps } from './types';
 // import PullRequestIcon from './PullRequestIcon';
 import { Branch } from '../../app/types';
 import { isShortLivingBranch } from '../../helpers/branches';
 
-interface Props {
+interface Props extends IconProps {
   branch: Branch;
-  className?: string;
-  color?: string;
-  size?: number;
 }
 
 export default function BranchIcon({ branch, ...props }: Props) {

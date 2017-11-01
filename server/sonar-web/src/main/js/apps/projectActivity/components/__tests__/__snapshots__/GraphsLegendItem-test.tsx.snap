@@ -5,9 +5,13 @@ exports[`should render correctly a legend 1`] = `
   className=""
 >
   <ChartLegendIcon
-    className="spacer-right line-chart-legend line-chart-legend-2"
+    className="text-middle spacer-right line-chart-legend line-chart-legend-2"
   />
-  Bugs
+  <span
+    className="text-middle"
+  >
+    Bugs
+  </span>
 </span>
 `;
 
@@ -16,18 +20,22 @@ exports[`should render correctly an actionable legend 1`] = `
   className="project-activity-graph-legend-actionable myclass"
 >
   <ChartLegendIcon
-    className="spacer-right line-chart-legend line-chart-legend-1"
+    className="text-middle spacer-right line-chart-legend line-chart-legend-1"
   />
-  Foo
-  <a
-    className="spacer-left button-clean text-text-top"
-    href="#"
+  <span
+    className="text-middle"
+  >
+    Foo
+  </span>
+  <ButtonIcon
+    className="button-tiny spacer-left text-middle"
+    color="#999"
     onClick={[Function]}
   >
-    <CloseIcon
-      className="text-danger"
+    <ClearIcon
+      size={12}
     />
-  </a>
+  </ButtonIcon>
 </span>
 `;
 
@@ -38,6 +46,10 @@ exports[`should render correctly legends with warning 1`] = `
   <AlertWarnIcon
     className="spacer-right"
   />
-  Foo
+  <span
+    className="text-middle"
+  >
+    Foo
+  </span>
 </span>
 `;

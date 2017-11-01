@@ -100,7 +100,7 @@ exports[`should render correctly 1`] = `
         placement="right"
       >
         <Link
-          className="js-show-history spacer-left button button-small button-compact"
+          className="js-show-history spacer-left button button-small"
           onlyActiveOnIndex={false}
           style={Object {}}
           to={
@@ -219,7 +219,7 @@ exports[`should render correctly for leak 1`] = `
 
 exports[`should render with branch 1`] = `
 <Link
-  className="js-show-history spacer-left button button-small button-compact"
+  className="js-show-history spacer-left button button-small"
   onlyActiveOnIndex={false}
   style={Object {}}
   to={

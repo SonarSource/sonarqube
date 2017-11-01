@@ -25,7 +25,6 @@ jest.mock('../../../../api/quality-profiles', () => ({
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProfilePermissionsUser from '../ProfilePermissionsUser';
-import { click } from '../../../../helpers/testUtils';
 
 const removeUser = require('../../../../api/quality-profiles').removeUser as jest.Mock<any>;
 
@@ -50,7 +49,8 @@ it('removes user', async () => {
   (wrapper.instance() as ProfilePermissionsUser).mounted = true;
   expect(wrapper.find('SimpleModal').exists()).toBeFalsy();
 
-  click(wrapper.find('a'));
+  wrapper.find('DeleteButton').prop<Function>('onClick')();
+  wrapper.update();
   expect(wrapper.find('SimpleModal').exists()).toBeTruthy();
 
   wrapper.find('SimpleModal').prop<Function>('onSubmit')();

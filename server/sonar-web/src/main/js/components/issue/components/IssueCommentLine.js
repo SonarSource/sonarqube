@@ -22,7 +22,7 @@ import React from 'react';
 import Avatar from '../../../components/ui/Avatar';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
 import EditIcon from '../../../components/icons-components/EditIcon';
-import DeleteIcon from '../../../components/icons-components/DeleteIcon';
+import { EditButton, DeleteButton } from '../../../components/ui/buttons';
 import CommentDeletePopup from '../popups/CommentDeletePopup';
 import CommentPopup from '../popups/CommentPopup';
 import DateFromNow from '../../../components/intl/DateFromNow';
@@ -119,11 +119,10 @@ export default class IssueCommentLine extends React.PureComponent {
                   toggleComment={this.toggleEditPopup}
                 />
               }>
-              <button
-                className="js-issue-comment-edit button-link icon-half-transparent"
-                onClick={this.toggleEditPopup}>
-                <EditIcon />
-              </button>
+              <EditButton
+                className="js-issue-comment-edit button-small"
+                onClick={this.toggleEditPopup}
+              />
             </BubblePopupHelper>
           )}
           {comment.updatable && (
@@ -134,11 +133,10 @@ export default class IssueCommentLine extends React.PureComponent {
               position="bottomright"
               togglePopup={this.toggleDeletePopup}
               popup={<CommentDeletePopup onDelete={this.handleDelete} />}>
-              <button
-                className="js-issue-comment-delete button-link icon-half-transparent little-spacer-left"
-                onClick={this.toggleDeletePopup}>
-                <DeleteIcon />
-              </button>
+              <DeleteButton
+                className="js-issue-comment-delete button-small"
+                onClick={this.toggleDeletePopup}
+              />
             </BubblePopupHelper>
           )}
         </div>
