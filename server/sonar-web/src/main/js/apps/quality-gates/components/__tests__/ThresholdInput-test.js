@@ -20,7 +20,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import ThresholdInput from '../ThresholdInput';
-import Select from '../../../../components/controls/Select';
 import { change } from '../../../../helpers/testUtils';
 
 describe('on strings', () => {
@@ -47,7 +46,7 @@ describe('on ratings', () => {
   it('should render Select', () => {
     const select = shallow(
       <ThresholdInput name="foo" value="2" metric={{ type: 'RATING' }} onChange={jest.fn()} />
-    ).find(Select);
+    ).find('Select');
     expect(select.length).toEqual(1);
     expect(select.prop('value')).toEqual('2');
   });
@@ -56,7 +55,7 @@ describe('on ratings', () => {
     const onChange = jest.fn();
     const select = shallow(
       <ThresholdInput name="foo" value="2" metric={{ type: 'RATING' }} onChange={onChange} />
-    ).find(Select);
+    ).find('Select');
     select.prop('onChange')({ label: 'D', value: '4' });
     expect(onChange).toBeCalledWith('4');
   });
@@ -65,7 +64,7 @@ describe('on ratings', () => {
     const onChange = jest.fn();
     const select = shallow(
       <ThresholdInput name="foo" value="2" metric={{ type: 'RATING' }} onChange={onChange} />
-    ).find(Select);
+    ).find('Select');
     select.prop('onChange')(null);
     expect(onChange).toBeCalledWith('');
   });

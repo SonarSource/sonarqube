@@ -42,7 +42,9 @@ export default function Select(props: ReactSelectProps) {
   // TODO try to define good defaults, if any
   // ReactSelect doesn't declare `clearRenderer` prop
   const ReactSelectAny = ReactSelect as any;
-  return <ReactSelectAny {...props} clearRenderer={renderInput} />;
+  // hide the "x" icon when select is empty
+  const clearable = props.clearable ? Boolean(props.value) : false;
+  return <ReactSelectAny {...props} clearable={clearable} clearRenderer={renderInput} />;
 }
 
 export function Creatable(props: ReactCreatableSelectProps) {
