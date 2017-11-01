@@ -120,25 +120,11 @@ exports[`render qualifiers filter 1`] = `
         <td
           className="text-middle"
         >
-          <form
-            className="search-box"
-            onSubmit={[Function]}
-          >
-            <button
-              className="search-box-submit button-clean"
-            >
-              <i
-                className="icon-search"
-              />
-            </button>
-            <input
-              className="search-box-input input-medium"
-              onChange={[Function]}
-              placeholder="search_verb"
-              type="search"
-              value=""
-            />
-          </form>
+          <SearchBox
+            onChange={[Function]}
+            placeholder="search.search_for_projects"
+            value=""
+          />
         </td>
         <td
           className="thin nowrap text-middle"
@@ -223,25 +209,11 @@ exports[`renders 1`] = `
         <td
           className="text-middle"
         >
-          <form
-            className="search-box"
-            onSubmit={[Function]}
-          >
-            <button
-              className="search-box-submit button-clean"
-            >
-              <i
-                className="icon-search"
-              />
-            </button>
-            <input
-              className="search-box-input input-medium"
-              onChange={[Function]}
-              placeholder="search_verb"
-              type="search"
-              value=""
-            />
-          </form>
+          <SearchBox
+            onChange={[Function]}
+            placeholder="search.search_for_projects"
+            value=""
+          />
         </td>
         <td
           className="thin nowrap text-middle"

@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import Search, { Props } from '../Search';
-import { change, click } from '../../../helpers/testUtils';
+import { click } from '../../../helpers/testUtils';
 
 const organization = { key: 'org', name: 'org', projectVisibility: 'public' };
 
@@ -67,7 +67,7 @@ it('updates analysis date', () => {
 it('searches', () => {
   const onSearch = jest.fn();
   const wrapper = shallowRender({ onSearch });
-  change(wrapper.find('input[type="search"]'), 'foo');
+  wrapper.find('SearchBox').prop<Function>('onChange')('foo');
   expect(onSearch).toBeCalledWith('foo');
 });
 
