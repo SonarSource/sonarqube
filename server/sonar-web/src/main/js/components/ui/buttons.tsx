@@ -56,13 +56,13 @@ export class ButtonIcon extends React.PureComponent<ButtonIconProps> {
   }
 }
 
-interface DeleteButtonProps {
+interface ActionButtonProps {
   className?: string;
   onClick?: () => void;
   [x: string]: any;
 }
 
-export function DeleteButton(props: DeleteButtonProps) {
+export function DeleteButton(props: ActionButtonProps) {
   return (
     <ButtonIcon color={theme.red} {...props}>
       <ClearIcon />
@@ -70,7 +70,7 @@ export function DeleteButton(props: DeleteButtonProps) {
   );
 }
 
-export function EditButton(props: DeleteButtonProps) {
+export function EditButton(props: ActionButtonProps) {
   return (
     <ButtonIcon {...props}>
       <EditIcon />
