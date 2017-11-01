@@ -40,6 +40,7 @@ interface State {
 
 export default class SearchBox extends React.PureComponent<Props, State> {
   changeValue: (query: string) => void;
+  input: HTMLInputElement | null;
 
   constructor(props: Props) {
     super(props);
@@ -61,6 +62,9 @@ export default class SearchBox extends React.PureComponent<Props, State> {
 
   handleResetClick = () => {
     this.props.onChange('');
+    if (this.input) {
+      this.input.focus();
+    }
   };
 
   render() {
@@ -81,6 +85,7 @@ export default class SearchBox extends React.PureComponent<Props, State> {
           onChange={this.handleChange}
           onKeyDown={this.props.onKeyDown}
           placeholder={this.props.placeholder}
+          ref={node => (this.input = node)}
           type="text"
           value={value}
         />
