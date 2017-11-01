@@ -103,7 +103,7 @@ export default class SetAssigneePopup extends React.PureComponent {
   };
 
   handleSearchChange = (query /*: string */) => {
-    if (query.length < 2) {
+    if (query.length === 0) {
       this.setState({
         query,
         users: this.defaultUsersArray,

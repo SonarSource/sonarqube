@@ -155,7 +155,7 @@ export default class Search extends React.PureComponent<Props, State> {
 
   handleQueryChange = (query: string) => {
     this.setState({ query });
-    if (query.length < 3) {
+    if (query.length === 0) {
       this.setState({ results: undefined });
     } else {
       this.handleSearch(query);

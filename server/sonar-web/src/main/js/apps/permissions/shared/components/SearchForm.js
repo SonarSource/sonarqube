@@ -41,6 +41,7 @@ export default function SearchForm(props) {
 
       <div className="display-inline-block spacer-left">
         <SearchBox
+          minLength={3}
           onChange={props.onSearch}
           placeholder={translate('search_verb')}
           value={props.query}

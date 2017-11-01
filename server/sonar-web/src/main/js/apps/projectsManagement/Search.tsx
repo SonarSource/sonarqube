@@ -198,6 +198,7 @@ export default class Search extends React.PureComponent<Props, State> {
               {this.renderTypeFilter()}
               <td className="text-middle">
                 <SearchBox
+                  minLength={3}
                   onChange={this.props.onSearch}
                   placeholder={translate('search.search_for_projects')}
                   value={this.props.query}

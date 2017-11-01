@@ -19,12 +19,12 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { debounce } from 'lodash';
+import { debounce, Cancelable } from 'lodash';
 import SearchIcon from '../icons-components/SearchIcon';
+import ClearIcon from '../icons-components/ClearIcon';
+import { ButtonIcon } from '../ui/buttons';
 import * as theme from '../../app/theme';
 import { translateWithParameters } from '../../helpers/l10n';
-import { ButtonIcon } from '../ui/buttons';
-import { ClearIcon } from '../icons-components/icons';
 import './SearchBox.css';
 
 interface Props {
@@ -41,13 +41,13 @@ interface State {
 }
 
 export default class SearchBox extends React.PureComponent<Props, State> {
-  changeValue: (query: string) => void;
+  debouncedOnChange: ((query: string) => void) & Cancelable;
   input: HTMLInputElement | null;
 
   constructor(props: Props) {
     super(props);
     this.state = { value: props.value || '' };
-    this.changeValue = debounce(this.props.onChange, 250);
+    this.debouncedOnChange = debounce(this.props.onChange, 250);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -60,14 +60,30 @@ export default class SearchBox extends React.PureComponent<Props, State> {
     }
   }
 
-  handleChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
+  changeValue = (value: string, debounced = true) => {
+    const { minLength } = this.props;
+    if (value.length === 0) {
+      // immediately notify when value is empty
+      this.props.onChange('');
+      // and cancel scheduled callback
+      this.debouncedOnChange.cancel();
+    } else if (!minLength || minLength <= value.length) {
+      if (debounced) {
+        this.debouncedOnChange(value);
+      } else {
+        this.props.onChange(value);
+      }
+    }
+  };
+
+  handleInputChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
     const { value } = event.currentTarget;
     this.setState({ value });
     this.changeValue(value);
   };
 
   handleResetClick = () => {
-    this.props.onChange('');
+    this.changeValue('', false);
     if (this.props.value === undefined) {
       this.setState({ value: '' });
     }
@@ -92,7 +108,7 @@ export default class SearchBox extends React.PureComponent<Props, State> {
           autoFocus={this.props.autoFocus}
           className={inputClassName}
           maxLength={100}
-          onChange={this.handleChange}
+          onChange={this.handleInputChange}
           onKeyDown={this.props.onKeyDown}
           placeholder={this.props.placeholder}
           ref={node => (this.input = node)}

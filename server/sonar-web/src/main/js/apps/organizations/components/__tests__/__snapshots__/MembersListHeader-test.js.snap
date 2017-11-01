@@ -5,6 +5,7 @@ exports[`should render with the total 1`] = `
   className="panel panel-vertical bordered-bottom spacer-bottom"
 >
   <SearchBox
+    minLength={2}
     onChange={[Function]}
     placeholder="search.search_for_users"
   />
@@ -25,6 +26,7 @@ exports[`should render without the total 1`] = `
   className="panel panel-vertical bordered-bottom spacer-bottom"
 >
   <SearchBox
+    minLength={2}
     onChange={[Function]}
     placeholder="search.search_for_users"
   />
