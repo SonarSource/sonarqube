@@ -65,7 +65,7 @@ it('should display a manual installation notification', () => {
           textDescription: 'Foo desc',
           downloadUrl: 'download_url',
           homeUrl: 'more_url',
-          requestUrl: 'license_url'
+          licenseRequestUrl: 'license_url'
         }
       ]}
       preventRestart={false}

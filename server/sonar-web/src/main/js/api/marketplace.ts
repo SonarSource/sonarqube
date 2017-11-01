@@ -25,7 +25,7 @@ export interface Edition {
   name: string;
   textDescription: string;
   homeUrl: string;
-  requestUrl: string;
+  licenseRequestUrl: string;
   downloadUrl: string;
 }
 

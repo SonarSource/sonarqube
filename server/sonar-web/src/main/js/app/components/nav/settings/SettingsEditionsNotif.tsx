@@ -46,6 +46,25 @@ export default class SettingsEditionsNotif extends React.PureComponent<Props, St
       () => {}
     );
 
+  renderStatusMsg(edition?: Edition) {
+    const { editionStatus } = this.props;
+    return (
+      <NavBarNotif className="alert alert-info">
+        <i className="spinner spacer-right text-bottom" />
+        <span>
+          {edition ? (
+            translateWithParameters(
+              'marketplace.status_x.' + editionStatus.installationStatus,
+              edition.name
+            )
+          ) : (
+            translate('marketplace.status', editionStatus.installationStatus)
+          )}
+        </span>
+      </NavBarNotif>
+    );
+  }
+
   renderRestartMsg(edition?: Edition) {
     const { editionStatus, preventRestart } = this.props;
     return (
@@ -104,21 +123,23 @@ export default class SettingsEditionsNotif extends React.PureComponent<Props, St
 
   renderStatusAlert() {
     const { editionStatus } = this.props;
-    const { installationStatus, nextEditionKey } = editionStatus;
+    const { currentEditionKey, installationStatus, nextEditionKey } = editionStatus;
     const nextEdition =
       this.props.editions && this.props.editions.find(edition => edition.key === nextEditionKey);
+    const currentEdition =
+      this.props.editions &&
+      this.props.editions.find(
+        edition =>
+          edition.key === currentEditionKey || (!currentEditionKey && edition.key === 'community')
+      );
 
     switch (installationStatus) {
       case 'AUTOMATIC_IN_PROGRESS':
-        return (
-          <NavBarNotif className="alert alert-info">
-            <i className="spinner spacer-right text-bottom" />
-            <span>{translate('marketplace.status.AUTOMATIC_IN_PROGRESS')}</span>
-          </NavBarNotif>
-        );
+        return this.renderStatusMsg(nextEdition);
       case 'AUTOMATIC_READY':
-      case 'UNINSTALL_IN_PROGRESS':
         return this.renderRestartMsg(nextEdition);
+      case 'UNINSTALL_IN_PROGRESS':
+        return this.renderRestartMsg(currentEdition);
       case 'MANUAL_IN_PROGRESS':
         return this.renderManualMsg(nextEdition);
     }
