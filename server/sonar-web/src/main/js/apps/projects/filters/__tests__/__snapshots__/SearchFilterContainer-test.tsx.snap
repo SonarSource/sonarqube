@@ -1,8 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`searches 1`] = `
-<SearchFilter
-  handleSearch={[Function]}
-  query={Object {}}
-/>
+<div
+  className="projects-topbar-item projects-topbar-item-search"
+>
+  <SearchBox
+    minLength={2}
+    onChange={[Function]}
+    placeholder="projects.search"
+  />
+</div>
 `;

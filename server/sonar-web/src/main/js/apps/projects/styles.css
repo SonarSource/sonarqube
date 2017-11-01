@@ -41,19 +41,7 @@
 .projects-topbar-item-search {
   position: relative;
   flex: 1;
-}
-
-.projects-topbar-item-search input {
-  width: 100%;
-  max-width: 300px;
-}
-
-.projects-topbar-item-search .note {
-  position: absolute;
-  top: 1px;
-  left: 80px;
-  line-height: var(--controlHeight);
-  pointer-events: none;
+  height: var(--controlHeight);
 }
 
 .projects-list .page-actions {
