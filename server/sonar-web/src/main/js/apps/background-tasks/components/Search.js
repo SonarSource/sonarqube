@@ -25,6 +25,7 @@ import TypesFilter from './TypesFilter';
 import CurrentsFilter from './CurrentsFilter';
 import DateFilter from './DateFilter';
 import { DEFAULT_FILTERS } from './../constants';
+import SearchBox from '../../../components/controls/SearchBox';
 import { translate } from '../../../helpers/l10n';
 
 export default class Search extends React.PureComponent {
@@ -54,9 +55,9 @@ export default class Search extends React.PureComponent {
     this.props.onFilterUpdate(date);
   }
 
-  handleQueryChange(query /*: string */) {
+  handleQueryChange = (query /*: string */) => {
     this.props.onFilterUpdate({ query });
-  }
+  };
 
   handleReload(e /*: Object */) {
     e.target.blur();
@@ -83,13 +84,10 @@ export default class Search extends React.PureComponent {
           {translate('background_tasks.search_by_task_or_component')}
         </h6>
 
-        <input
-          onChange={e => this.handleQueryChange(e.target.value)}
-          value={query}
-          ref="searchInput"
-          className="js-search input-medium"
-          type="search"
+        <SearchBox
+          onChange={this.handleQueryChange}
           placeholder={translate('search_verb')}
+          value={query}
         />
       </li>
     );
