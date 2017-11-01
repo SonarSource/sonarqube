@@ -21,6 +21,7 @@
 import React from 'react';
 import { difference } from 'lodash';
 import MultiSelectOption from './MultiSelectOption';
+import SearchBox from '../controls/SearchBox';
 import { translate } from '../../helpers/l10n';
 
 /*::
@@ -104,8 +105,8 @@ export default class MultiSelect extends React.PureComponent {
     }
   };
 
-  handleSearchChange = ({ target } /*: { target: HTMLInputElement } */) => {
-    this.onSearchQuery(this.props.validateSearchInput(target.value));
+  handleSearchChange = (value /*: string */) => {
+    this.onSearchQuery(this.props.validateSearchInput(value));
   };
 
   handleElementHover = (element /*: string */) => {
@@ -232,18 +233,12 @@ export default class MultiSelect extends React.PureComponent {
 
     return (
       <div className="multi-select" ref={div => (this.container = div)}>
-        <div className="search-box menu-search">
-          <button className="search-box-submit button-clean">
-            <i className="icon-search-new" />
-          </button>
-          <input
-            type="search"
-            value={query}
-            className="search-box-input"
-            placeholder={translate('search_verb')}
+        <div className="menu-search">
+          <SearchBox
+            autoFocus={true}
             onChange={this.handleSearchChange}
-            autoComplete="off"
-            ref={input => (this.searchInput = input)}
+            placeholder={translate('search_verb')}
+            value={query}
           />
         </div>
         <ul className="menu">

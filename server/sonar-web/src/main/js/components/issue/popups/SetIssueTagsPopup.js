@@ -19,7 +19,7 @@
  */
 //@flow
 import React from 'react';
-import { debounce, without } from 'lodash';
+import { without } from 'lodash';
 import TagsSelector from '../../../components/tags/TagsSelector';
 import { searchIssueTags } from '../../../api/issues';
 
@@ -44,13 +44,7 @@ const LIST_SIZE = 10;
 export default class SetIssueTagsPopup extends React.PureComponent {
   /*:: mounted: boolean; */
   /*:: props: Props; */
-  /*:: state: State; */
-
-  constructor(props /*: Props */) {
-    super(props);
-    this.state = { searchResult: [] };
-    this.onSearch = debounce(this.onSearch, 250);
-  }
+  state /*: State */ = { searchResult: [] };
 
   componentDidMount() {
     this.mounted = true;
@@ -63,7 +57,7 @@ export default class SetIssueTagsPopup extends React.PureComponent {
 
   onSearch = (query /*: string */) => {
     searchIssueTags({
-      q: query || '',
+      q: query,
       ps: Math.min(this.props.selectedTags.length - 1 + LIST_SIZE, 100),
       organization: this.props.organization
     }).then((tags /*: Array<string> */) => {
@@ -83,6 +77,7 @@ export default class SetIssueTagsPopup extends React.PureComponent {
 
   render() {
     return (
+      // $FlowFixMe `this.props.popupPosition` is passed from `BabelPopupHelper`
       <TagsSelector
         position={this.props.popupPosition}
         tags={this.state.searchResult}

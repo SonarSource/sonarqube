@@ -102,7 +102,7 @@
 .menu-search .search-box,
 .menu-search .search-box-input {
   max-width: none;
-  min-width: 300px;
+  min-width: 240px;
 }
 
 .menu-search ~ .menu > li > a:hover,

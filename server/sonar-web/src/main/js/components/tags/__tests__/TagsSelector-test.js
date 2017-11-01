@@ -19,7 +19,7 @@
  */
 import { shallow } from 'enzyme';
 import React from 'react';
-import TagsSelector from '../TagsSelector';
+import TagsSelector, { validateTag } from '../TagsSelector';
 
 const props = {
   position: { left: 0, top: 0 },
@@ -41,10 +41,9 @@ it('should render without tags at all', () => {
 
 it('should validate tags correctly', () => {
   const validChars = 'abcdefghijklmnopqrstuvwxyz0123456789+-#.';
-  const tagsSelector = shallow(<TagsSelector {...props} />).instance();
-  expect(tagsSelector.validateTag('test')).toBe('test');
-  expect(tagsSelector.validateTag(validChars)).toBe(validChars);
-  expect(tagsSelector.validateTag(validChars.toUpperCase())).toBe(validChars);
-  expect(tagsSelector.validateTag('T E$ST')).toBe('test');
-  expect(tagsSelector.validateTag('T E$st!^àéèing1')).toBe('testing1');
+  expect(validateTag('test')).toBe('test');
+  expect(validateTag(validChars)).toBe(validChars);
+  expect(validateTag(validChars.toUpperCase())).toBe(validChars);
+  expect(validateTag('T E$ST')).toBe('test');
+  expect(validateTag('T E$st!^àéèing1')).toBe('testing1');
 });

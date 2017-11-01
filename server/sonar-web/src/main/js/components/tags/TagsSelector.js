@@ -35,31 +35,25 @@ type Props = {
 };
 */
 
-export default class TagsSelector extends React.PureComponent {
-  /*:: validateTag: string => string; */
+export default function TagsSelector(props /*: Props */) {
+  return (
+    <BubblePopup
+      position={props.position}
+      customClass="bubble-popup-bottom-right bubble-popup-menu abs-width-300">
+      <MultiSelect
+        elements={props.tags}
+        selectedElements={props.selectedTags}
+        listSize={props.listSize}
+        onSearch={props.onSearch}
+        onSelect={props.onSelect}
+        onUnselect={props.onUnselect}
+        validateSearchInput={validateTag}
+      />
+    </BubblePopup>
+  );
+}
 
-  /*:: props: Props; */
-
-  validateTag(value /*: string */) {
-    // Allow only a-z, 0-9, '+', '-', '#', '.'
-    return value.toLowerCase().replace(/[^a-z0-9\+\-#.]/gi, '');
-  }
-
-  render() {
-    return (
-      <BubblePopup
-        position={this.props.position}
-        customClass="bubble-popup-bottom-right bubble-popup-menu abs-width-300">
-        <MultiSelect
-          elements={this.props.tags}
-          selectedElements={this.props.selectedTags}
-          listSize={this.props.listSize}
-          onSearch={this.props.onSearch}
-          onSelect={this.props.onSelect}
-          onUnselect={this.props.onUnselect}
-          validateSearchInput={this.validateTag}
-        />
-      </BubblePopup>
-    );
-  }
+export function validateTag(value /*: string */) {
+  // Allow only a-z, 0-9, '+', '-', '#', '.'
+  return value.toLowerCase().replace(/[^a-z0-9\+\-#.]/gi, '');
 }

@@ -5,21 +5,12 @@ exports[`should render multiselect with selected elements 1`] = `
   className="multi-select"
 >
   <div
-    className="search-box menu-search"
+    className="menu-search"
   >
-    <button
-      className="search-box-submit button-clean"
-    >
-      <i
-        className="icon-search-new"
-      />
-    </button>
-    <input
-      autoComplete="off"
-      className="search-box-input"
+    <SearchBox
+      autoFocus={true}
       onChange={[Function]}
       placeholder="search_verb"
-      type="search"
       value=""
     />
   </div>
@@ -44,21 +35,12 @@ exports[`should render multiselect with selected elements 2`] = `
   className="multi-select"
 >
   <div
-    className="search-box menu-search"
+    className="menu-search"
   >
-    <button
-      className="search-box-submit button-clean"
-    >
-      <i
-        className="icon-search-new"
-      />
-    </button>
-    <input
-      autoComplete="off"
-      className="search-box-input"
+    <SearchBox
+      autoFocus={true}
       onChange={[Function]}
       placeholder="search_verb"
-      type="search"
       value=""
     />
   </div>
@@ -101,21 +83,12 @@ exports[`should render multiselect with selected elements 3`] = `
   className="multi-select"
 >
   <div
-    className="search-box menu-search"
+    className="menu-search"
   >
-    <button
-      className="search-box-submit button-clean"
-    >
-      <i
-        className="icon-search-new"
-      />
-    </button>
-    <input
-      autoComplete="off"
-      className="search-box-input"
+    <SearchBox
+      autoFocus={true}
       onChange={[Function]}
       placeholder="search_verb"
-      type="search"
       value=""
     />
   </div>
@@ -158,21 +131,12 @@ exports[`should render multiselect with selected elements 4`] = `
   className="multi-select"
 >
   <div
-    className="search-box menu-search"
+    className="menu-search"
   >
-    <button
-      className="search-box-submit button-clean"
-    >
-      <i
-        className="icon-search-new"
-      />
-    </button>
-    <input
-      autoComplete="off"
-      className="search-box-input"
+    <SearchBox
+      autoFocus={true}
       onChange={[Function]}
       placeholder="search_verb"
-      type="search"
       value="test"
     />
   </div>
