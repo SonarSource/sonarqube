@@ -24,10 +24,15 @@ import Template from './templates/groups-search.hbs';
 export default Marionette.ItemView.extend({
   template: Template,
 
+  ui: {
+    reset: '.js-reset'
+  },
+
   events: {
     'submit #groups-search-form': 'onFormSubmit',
-    'search #groups-search-query': 'debouncedOnKeyUp',
-    'keyup #groups-search-query': 'debouncedOnKeyUp'
+    'search #groups-search-query': 'initialOnKeyUp',
+    'keyup #groups-search-query': 'initialOnKeyUp',
+    'click .js-reset': 'onResetClick'
   },
 
   initialize() {
@@ -41,6 +46,12 @@ export default Marionette.ItemView.extend({
 
   onFormSubmit(e) {
     e.preventDefault();
+    this.debouncedOnKeyUp();
+  },
+
+  initialOnKeyUp() {
+    const q = this.getQuery();
+    this.ui.reset.toggleClass('hidden', q.length === 0);
     this.debouncedOnKeyUp();
   },
 
@@ -62,5 +73,14 @@ export default Marionette.ItemView.extend({
 
   search(q) {
     return this.collection.fetch({ reset: true, data: { q } });
+  },
+
+  onResetClick(e) {
+    e.preventDefault();
+    e.currentTarget.blur();
+    this.$('#groups-search-query')
+      .val('')
+      .focus();
+    this.onKeyUp();
   }
 });
