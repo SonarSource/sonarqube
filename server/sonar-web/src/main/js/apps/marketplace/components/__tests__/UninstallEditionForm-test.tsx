@@ -34,7 +34,7 @@ const DEFAULT_EDITION = {
   textDescription: 'Foo desc',
   downloadUrl: 'download_url',
   homeUrl: 'more_url',
-  requestUrl: 'license_url'
+  licenseRequestUrl: 'license_url'
 };
 
 beforeEach(() => {

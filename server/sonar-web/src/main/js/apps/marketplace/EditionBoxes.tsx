@@ -87,7 +87,7 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { canInstall, canUninstall, editions, editionStatus, loading } = this.props;
+    const { canInstall, canUninstall, editions, loading } = this.props;
 
     if (loading) {
       return <i className="big-spacer-bottom spinner" />;
@@ -114,23 +114,47 @@ export default class EditionBoxes extends React.PureComponent<Props, State> {
     }
 
     const sortedEditions = sortEditions(editions);
-    const installedIdx =
-      editionStatus &&
-      sortedEditions.findIndex(edition => edition.key === editionStatus.currentEditionKey);
+    const status = this.props.editionStatus || { installationStatus: 'NONE' };
+    const inProgressStatus = [
+      'AUTOMATIC_IN_PROGRESS',
+      'AUTOMATIC_READY',
+      'UNINSTALL_IN_PROGRESS'
+    ].includes(status.installationStatus);
+    const installedIdx = sortedEditions.findIndex(
+      edition => edition.key === status.currentEditionKey
+    );
+    const nextIdx = sortedEditions.findIndex(edition => edition.key === status.nextEditionKey);
+    const currentIdx = inProgressStatus ? nextIdx : installedIdx;
     return (
       <div className="spacer-bottom marketplace-editions">
-        {sortedEditions.map((edition, idx) => (
-          <EditionBox
-            canInstall={canInstall}
-            canUninstall={canUninstall}
-            edition={edition}
-            editionStatus={editionStatus}
-            isDowngrade={installedIdx !== undefined && idx < installedIdx}
-            key={edition.key}
-            onInstall={this.handleOpenLicenseForm}
-            onUninstall={this.handleOpenUninstallForm}
-          />
-        ))}
+        <EditionBox
+          actionLabel={translate('marketplace.downgrade')}
+          disableAction={inProgressStatus}
+          displayAction={canUninstall && currentIdx > 0}
+          edition={sortedEditions[0]}
+          editionStatus={status}
+          key={sortedEditions[0].key}
+          onAction={this.handleOpenUninstallForm}
+        />
+        {sortedEditions
+          .slice(1)
+          .map((edition, idx) => (
+            <EditionBox
+              actionLabel={
+                currentIdx > idx + 1 ? (
+                  translate('marketplace.downgrade')
+                ) : (
+                  translate('marketplace.upgrade')
+                )
+              }
+              disableAction={inProgressStatus}
+              displayAction={canInstall && currentIdx !== idx + 1}
+              edition={edition}
+              editionStatus={status}
+              key={edition.key}
+              onAction={this.handleOpenLicenseForm}
+            />
+          ))}
 
         {this.renderForms(sortedEditions, installedIdx)}
       </div>

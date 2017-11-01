@@ -73,7 +73,7 @@ export default class UninstallEditionForm extends React.PureComponent<Props, Sta
     const { edition } = this.props;
     const { loading } = this.state;
     const currentEdition = edition ? edition.name : translate('marketplace.commercial_edition');
-    const header = translateWithParameters('marketplace.uninstall_x', currentEdition);
+    const header = translateWithParameters('marketplace.downgrade_to_community_edition');
     return (
       <Modal
         isOpen={true}
@@ -91,8 +91,8 @@ export default class UninstallEditionForm extends React.PureComponent<Props, Sta
 
         <footer className="modal-foot">
           {loading && <i className="spinner spacer-right" />}
-          <button className="button-red" disabled={loading} onClick={this.handleConfirmClick}>
-            {translate('marketplace.uninstall')}
+          <button disabled={loading} onClick={this.handleConfirmClick}>
+            {translate('marketplace.downgrade')}
           </button>
           <a className="js-modal-close" href="#" onClick={this.handleCancelClick}>
             {translate('cancel')}

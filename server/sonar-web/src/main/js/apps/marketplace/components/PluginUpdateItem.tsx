@@ -52,7 +52,7 @@ export default class PluginUpdateItem extends React.PureComponent<Props, State> 
   render() {
     const { release, update } = this.props;
     return (
-      <li key={release.version} className="diplay-flex-row little-spacer-bottom">
+      <li key={release.version} className="display-flex-row little-spacer-bottom">
         <div className="pull-left spacer-right">
           {update.status === 'COMPATIBLE' ? (
             <span className="js-update-version badge badge-success">{release.version}</span>

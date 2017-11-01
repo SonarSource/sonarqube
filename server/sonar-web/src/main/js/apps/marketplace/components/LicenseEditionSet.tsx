@@ -95,7 +95,7 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
   };
 
   getLicenseFormUrl = (edition: Edition) => {
-    let url = edition.requestUrl;
+    let url = edition.licenseRequestUrl;
     if (this.state.formData) {
       const query = stringify(omitNil(this.state.formData));
       if (query) {
