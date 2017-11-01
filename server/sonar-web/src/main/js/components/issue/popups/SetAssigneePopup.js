@@ -19,11 +19,12 @@
  */
 // @flow
 import React from 'react';
-import { debounce, map } from 'lodash';
+import { map } from 'lodash';
 import Avatar from '../../../components/ui/Avatar';
 import BubblePopup from '../../../components/common/BubblePopup';
 import SelectList from '../../../components/common/SelectList';
 import SelectListItem from '../../../components/common/SelectListItem';
+import SearchBox from '../../../components/controls/SearchBox';
 import getCurrentUserFromStore from '../../../app/utils/getCurrentUserFromStore';
 import { areThereCustomOrganizations } from '../../../store/organizations/utils';
 import { searchMembers } from '../../../api/organizations';
@@ -68,8 +69,6 @@ export default class SetAssigneePopup extends React.PureComponent {
   constructor(props /*: Props */) {
     super(props);
     this.organizationEnabled = areThereCustomOrganizations();
-    this.searchUsers = debounce(this.searchUsers, 250);
-    this.searchMembers = debounce(this.searchMembers, 250);
     this.defaultUsersArray = [{ login: '', name: translate('unassigned') }];
 
     const currentUser = getCurrentUserFromStore();
@@ -103,8 +102,7 @@ export default class SetAssigneePopup extends React.PureComponent {
     });
   };
 
-  handleSearchChange = (evt /*: SyntheticInputEvent */) => {
-    const query = evt.target.value;
+  handleSearchChange = (query /*: string */) => {
     if (query.length < 2) {
       this.setState({
         query,
@@ -127,18 +125,13 @@ export default class SetAssigneePopup extends React.PureComponent {
         position={this.props.popupPosition}
         customClass="bubble-popup-menu bubble-popup-bottom">
         <div className="multi-select">
-          <div className="search-box menu-search">
-            <button className="search-box-submit button-clean">
-              <i className="icon-search-new" />
-            </button>
-            <input
-              type="search"
-              value={this.state.query}
-              className="search-box-input"
-              placeholder={translate('search_verb')}
-              onChange={this.handleSearchChange}
-              autoComplete="off"
+          <div className="menu-search">
+            <SearchBox
               autoFocus={true}
+              minLength={2}
+              onChange={this.handleSearchChange}
+              placeholder={translate('search.search_for_users')}
+              value={this.state.query}
             />
           </div>
           <SelectList
