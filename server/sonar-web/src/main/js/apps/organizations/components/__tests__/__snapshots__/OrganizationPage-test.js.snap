@@ -5,14 +5,15 @@ exports[`not found 1`] = `<NotFound />`;
 exports[`should correctly update when the organization changes 1`] = `
 Array [
   Array [
+    "foo",
+  ],
+  Array [
     "bar",
   ],
 ]
 `;
 
-exports[`smoke test 1`] = `null`;
-
-exports[`smoke test 2`] = `
+exports[`smoke test 1`] = `
 <div>
   <HelmetWrapper
     defaultTitle="Foo"

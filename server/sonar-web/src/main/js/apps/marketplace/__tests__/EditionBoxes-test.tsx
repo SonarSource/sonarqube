@@ -62,6 +62,7 @@ it('should display an error message', () => {
 it('should open the license form', () => {
   const wrapper = getWrapper({ editions: DEFAULT_EDITIONS });
   (wrapper.instance() as EditionBoxes).handleOpenLicenseForm(DEFAULT_EDITIONS[0]);
+  wrapper.update();
   expect(wrapper.find('LicenseEditionForm').exists()).toBeTruthy();
 });
 

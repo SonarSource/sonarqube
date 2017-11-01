@@ -23,12 +23,12 @@ import { connect } from 'react-redux';
 import { getOrganizationByKey } from '../../../store/rootReducer';
 import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 
-class OrganizationAdmin extends React.PureComponent {
+export class OrganizationAdmin extends React.PureComponent {
   /*:: props: {
     children?: React.Element<*>,
     organization: { canAdmin: boolean }
   };
-*/
+  */
 
   componentDidMount() {
     this.checkPermissions();
@@ -62,5 +62,3 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 export default connect(mapStateToProps)(OrganizationAdmin);
-
-export const UnconnectedOrganizationAdmin = OrganizationAdmin;

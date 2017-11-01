@@ -105,10 +105,11 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
   };
 
   renderModal() {
+    const header = translate('organization.members.manage_groups');
     return (
-      <Modal contentLabel="modal form" onRequestClose={this.closeForm}>
+      <Modal key="manage-member-modal" contentLabel={header} onRequestClose={this.closeForm}>
         <header className="modal-head">
-          <h2>{translate('organization.members.manage_groups')}</h2>
+          <h2>{header}</h2>
         </header>
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body">
@@ -146,11 +147,14 @@ export default class ManageMemberGroupsForm extends React.PureComponent {
   }
 
   render() {
-    return (
-      <a onClick={this.openForm} href="#">
+    const buttonComponent = (
+      <a key="manage-member-button" onClick={this.openForm} href="#">
         {translate('organization.members.manage_groups')}
-        {this.state.open && this.renderModal()}
       </a>
     );
+    if (this.state.open) {
+      return [buttonComponent, this.renderModal()];
+    }
+    return buttonComponent;
   }
 }

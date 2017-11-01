@@ -18,9 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import { click, mockEvent } from '../../../../../helpers/testUtils';
 import ManageMemberGroupsForm from '../ManageMemberGroupsForm';
+
+jest.mock('react-dom');
 
 const member = { login: 'admin', name: 'Admin Istrator', avatar: '', groupCount: 3 };
 const organization = { name: 'MyOrg', key: 'myorg' };
@@ -48,8 +50,8 @@ const userGroups = {
   11: { id: 11, name: 'pull-request-analysers', description: 'Technical accounts', selected: true }
 };
 
-const getMountedForm = function(updateFunc = jest.fn()) {
-  const wrapper = mount(
+function getMountedForm(updateFunc = jest.fn()) {
+  const wrapper = shallow(
     <ManageMemberGroupsForm
       member={member}
       organization={organization}
@@ -62,7 +64,7 @@ const getMountedForm = function(updateFunc = jest.fn()) {
     instance.setState({ loading: false, userGroups });
   });
   return { wrapper, instance };
-};
+}
 
 it('should render and open the modal', () => {
   const wrapper = shallow(
@@ -75,7 +77,7 @@ it('should render and open the modal', () => {
   );
   expect(wrapper).toMatchSnapshot();
   wrapper.setState({ open: true });
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.first().getElements()).toMatchSnapshot();
 });
 
 it('should correctly handle user interactions', () => {

@@ -49,5 +49,5 @@ it('handles unknown languages', () => {
 });
 
 it('does not render', () => {
-  expect(shallow(<ProjectCardLanguages />, { context: { languages } })).toMatchSnapshot();
+  expect(shallow(<ProjectCardLanguages />, { context: { languages } }).type()).toBeNull();
 });

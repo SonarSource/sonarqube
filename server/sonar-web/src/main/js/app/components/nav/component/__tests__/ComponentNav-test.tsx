@@ -17,7 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable import/first, import/order */
+/* eslint-disable import/order */
+import * as React from 'react';
+import { mount, shallow } from 'enzyme';
+import ComponentNav from '../ComponentNav';
+
 jest.mock('../ComponentNavFavorite', () => ({
   // eslint-disable-next-line
   default: function ComponentNavFavorite() {
@@ -46,10 +50,6 @@ jest.mock('../../../RecentHistory', () => ({
 jest.mock('../../../../../api/ce', () => ({
   getTasksForComponent: jest.fn(() => Promise.resolve({ queue: [] }))
 }));
-
-import * as React from 'react';
-import { mount, shallow } from 'enzyme';
-import ComponentNav from '../ComponentNav';
 
 const getTasksForComponent = require('../../../../../api/ce').getTasksForComponent as jest.Mock<
   any

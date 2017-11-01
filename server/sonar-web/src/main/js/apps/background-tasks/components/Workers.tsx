@@ -56,15 +56,22 @@ export default class Workers extends React.PureComponent<{}, State> {
 
   loadWorkers = () => {
     this.setState({ loading: true });
-    getWorkers().then(({ canSetWorkerCount, value }) => {
-      if (this.mounted) {
-        this.setState({
-          canSetWorkerCount,
-          loading: false,
-          workerCount: value
-        });
+    getWorkers().then(
+      ({ canSetWorkerCount, value }) => {
+        if (this.mounted) {
+          this.setState({
+            canSetWorkerCount,
+            loading: false,
+            workerCount: value
+          });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
       }
-    });
+    );
   };
 
   closeForm = (newWorkerCount?: number) =>

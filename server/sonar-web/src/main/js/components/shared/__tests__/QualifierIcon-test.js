@@ -27,7 +27,7 @@ it('should render icon', () => {
 });
 
 it('should not render icon', () => {
-  expect(shallow(<QualifierIcon qualifier={null} />)).toMatchSnapshot();
+  expect(shallow(<QualifierIcon qualifier={null} />).type()).toBeNull();
 });
 
 it('should render with custom class', () => {

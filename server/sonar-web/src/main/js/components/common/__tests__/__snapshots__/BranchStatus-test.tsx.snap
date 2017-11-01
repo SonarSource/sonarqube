@@ -1,15 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders status of long-living branches 1`] = `null`;
-
-exports[`renders status of long-living branches 2`] = `
+exports[`renders status of long-living branches 1`] = `
 <Level
   level="OK"
   small={true}
 />
 `;
 
-exports[`renders status of long-living branches 3`] = `
+exports[`renders status of long-living branches 2`] = `
 <Level
   level="ERROR"
   small={true}

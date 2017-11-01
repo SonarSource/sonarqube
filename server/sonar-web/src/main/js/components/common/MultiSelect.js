@@ -68,7 +68,9 @@ export default class MultiSelect extends React.PureComponent {
   componentDidMount() {
     this.updateSelectedElements(this.props);
     this.updateUnselectedElements(this.props);
-    this.container.addEventListener('keydown', this.handleKeyboard, true);
+    if (this.container) {
+      this.container.addEventListener('keydown', this.handleKeyboard, true);
+    }
   }
 
   componentWillReceiveProps(nextProps /*: Props */) {

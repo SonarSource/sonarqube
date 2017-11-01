@@ -35,6 +35,7 @@ it('should not render actions for non admin', () => {
       members={members}
       status={status}
       fetchOrganizationMembers={jest.fn()}
+      fetchOrganizationGroups={jest.fn()}
       fetchMoreOrganizationMembers={jest.fn()}
     />
   );
@@ -48,6 +49,7 @@ it('should render actions for admin', () => {
       members={members}
       status={{ ...status, loading: true }}
       fetchOrganizationMembers={jest.fn()}
+      fetchOrganizationGroups={jest.fn()}
       fetchMoreOrganizationMembers={jest.fn()}
     />
   );

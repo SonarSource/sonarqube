@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import OrganizationPage from './components/OrganizationPage';
+import OrganizationPageContainer from './components/OrganizationPage';
 import OrganizationPageExtension from '../../app/components/extensions/OrganizationPageExtension';
 import OrganizationContainer from './components/OrganizationContainer';
 import OrganizationProjects from './components/OrganizationProjects';
 import OrganizationFavoriteProjects from './components/OrganizationFavoriteProjects';
 import OrganizationRules from './components/OrganizationRules';
-import OrganizationAdmin from './components/OrganizationAdmin';
+import OrganizationAdminContainer from './components/OrganizationAdmin';
 import OrganizationEdit from './components/OrganizationEdit';
 import OrganizationGroups from './components/OrganizationGroups';
 import OrganizationMembersContainer from './components/OrganizationMembersContainer';
@@ -38,7 +38,7 @@ import issuesRoutes from '../issues/routes';
 const routes = [
   {
     path: ':organizationKey',
-    component: OrganizationPage,
+    component: OrganizationPageContainer,
     childRoutes: [
       {
         indexRoute: {
@@ -90,7 +90,7 @@ const routes = [
         component: OrganizationPageExtension
       },
       {
-        component: OrganizationAdmin,
+        component: OrganizationAdminContainer,
         childRoutes: [
           { path: 'delete', component: OrganizationDelete },
           { path: 'edit', component: OrganizationEdit },

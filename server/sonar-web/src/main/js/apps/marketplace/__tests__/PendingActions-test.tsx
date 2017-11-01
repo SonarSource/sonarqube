@@ -38,7 +38,7 @@ it('should display pending actions', () => {
 });
 
 it('should not display anything', () => {
-  expect(getWrapper({ pending: { installing: [], updating: [], removing: [] } })).toMatchSnapshot();
+  expect(getWrapper({ pending: { installing: [], updating: [], removing: [] } }).type()).toBeNull();
 });
 
 it('should open the restart form', () => {

@@ -28,28 +28,28 @@ jest.mock('../../../../api/components', () => ({
   deleteProject: () => Promise.resolve()
 }));
 
-it('creates new project', () => {
+it('creates new project', async () => {
   const onDone = jest.fn();
   const wrapper = mount(<ProjectKeyStep onDelete={jest.fn()} onDone={onDone} />);
   expect(wrapper).toMatchSnapshot();
   change(wrapper.find('input'), 'foo');
   submit(wrapper.find('form'));
   expect(wrapper).toMatchSnapshot(); // spinner
-  return doAsync(() => {
-    expect(wrapper).toMatchSnapshot();
-    expect(onDone).toBeCalledWith('foo');
-  });
+  await new Promise(setImmediate);
+  wrapper.update();
+  expect(wrapper).toMatchSnapshot();
+  expect(onDone).toBeCalledWith('foo');
 });
 
-it('deletes project', () => {
+it('deletes project', async () => {
   const onDelete = jest.fn();
   const wrapper = mount(<ProjectKeyStep onDelete={onDelete} onDone={jest.fn()} />);
   wrapper.setState({ done: true, loading: false, projectKey: 'foo' });
   expect(wrapper).toMatchSnapshot();
   submit(wrapper.find('form'));
   expect(wrapper).toMatchSnapshot(); // spinner
-  return doAsync(() => {
-    expect(wrapper).toMatchSnapshot();
-    expect(onDelete).toBeCalled();
-  });
+  await new Promise(setImmediate);
+  wrapper.update();
+  expect(wrapper).toMatchSnapshot();
+  expect(onDelete).toBeCalled();
 });

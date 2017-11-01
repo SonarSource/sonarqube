@@ -61,10 +61,11 @@ export default class RemoveMemberForm extends React.PureComponent {
   };
 
   renderModal() {
+    const header = translate('users.remove');
     return (
-      <Modal contentLabel="modal form" onRequestClose={this.closeForm}>
+      <Modal key="remove-member-modal" contentLabel={header} onRequestClose={this.closeForm}>
         <header className="modal-head">
-          <h2>{translate('users.remove')}</h2>
+          <h2>{header}</h2>
         </header>
         <form onSubmit={this.handleSubmit}>
           <div className="modal-body markdown">
@@ -92,11 +93,14 @@ export default class RemoveMemberForm extends React.PureComponent {
   }
 
   render() {
-    return (
-      <a onClick={this.openForm} href="#">
+    const buttonComponent = (
+      <a key="remove-member-button" onClick={this.openForm} href="#">
         {translate('organization.members.remove')}
-        {this.state.open && this.renderModal()}
       </a>
     );
+    if (this.state.open) {
+      return [buttonComponent, this.renderModal()];
+    }
+    return buttonComponent;
   }
 }

@@ -1,7 +1,7 @@
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,33 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { shallow } from 'enzyme';
-import PluginUrls from '../PluginUrls';
+const ReactDOM = require.requireActual('react-dom');
 
-it('should display the urls', () => {
-  expect(getWrapper()).toMatchSnapshot();
-});
-
-it('should display only one url', () => {
-  expect(getWrapper({ issueTrackerUrl: undefined })).toMatchSnapshot();
-});
-
-it('should not display anything', () => {
-  expect(getWrapper({ homepageUrl: undefined, issueTrackerUrl: undefined }).type()).toBeNull();
-});
-
-function getWrapper(plugin = {}) {
-  return shallow(
-    <PluginUrls
-      plugin={{
-        key: 'foo',
-        name: 'Foo',
-        description: 'foo description',
-        homepageUrl: 'homepageurl',
-        issueTrackerUrl: 'issuetrackerurl',
-        ...plugin
-      }}
-    />
-  );
-}
+//FIXME To be dropped when https://github.com/airbnb/enzyme/issues/1150 is resolved
+module.exports = {
+  ...ReactDOM,
+  createPortal: (children: React.ReactNode) => children
+};

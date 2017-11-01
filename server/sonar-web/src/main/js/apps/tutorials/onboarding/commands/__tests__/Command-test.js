@@ -19,9 +19,9 @@
  */
 // @flow
 import React from 'react';
-import { shallow } from 'enzyme';
+import { mount } from 'enzyme';
 import Command from '../Command';
 
 it('renders correctly', () => {
-  expect(shallow(<Command command={'foo\nbar'} />)).toMatchSnapshot();
+  expect(mount(<Command command={'foo\nbar'} />)).toMatchSnapshot();
 });

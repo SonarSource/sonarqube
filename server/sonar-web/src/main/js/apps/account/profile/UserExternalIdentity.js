@@ -30,8 +30,8 @@ export default class UserExternalIdentity extends React.PureComponent {
     this.fetchIdentityProviders();
   }
 
-  componentDidUpdate(nextProps) {
-    if (nextProps.user !== this.props.user) {
+  componentDidUpdate(prevProps) {
+    if (prevProps.user !== this.props.user) {
       this.this.fetchIdentityProviders();
     }
   }

@@ -25,18 +25,14 @@ exports[`renders 2`] = `
     <ul
       className="text-left"
     >
-      <li
-        key="foo"
-      >
+      <li>
         Foo
         : 
         <DateTooltipFormatter
           date="2017-01-01T11:39:03+0100"
         />
       </li>
-      <li
-        key="bar"
-      >
+      <li>
         Bar
         : 
         <DateTooltipFormatter

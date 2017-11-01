@@ -48,6 +48,7 @@ it('changes default visibility', () => {
   expect(onVisibilityChange).toBeCalledWith(Visibility.Private);
 
   modalWrapper.prop<Function>('onClose')();
+  wrapper.update();
   expect(wrapper.find('ChangeVisibilityForm').exists()).toBeFalsy();
 });
 

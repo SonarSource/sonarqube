@@ -88,10 +88,11 @@ export default class RemoveAnalysisForm extends React.PureComponent {
   };
 
   renderModal() {
+    const header = translate('project_activity.delete_analysis');
     return (
-      <Modal contentLabel="modal form" onRequestClose={this.closeForm}>
+      <Modal key="delete-analysis-modal" contentLabel={header} onRequestClose={this.closeForm}>
         <header className="modal-head">
-          <h2>{translate('project_activity.delete_analysis')}</h2>
+          <h2>{header}</h2>
         </header>
 
         <form onSubmit={this.handleSubmit}>
@@ -117,11 +118,14 @@ export default class RemoveAnalysisForm extends React.PureComponent {
   }
 
   render() {
-    return (
-      <a className="js-delete-analysis" href="#" onClick={this.openForm}>
+    const linkComponent = (
+      <a key="delete-analysis-link" className="js-delete-analysis" href="#" onClick={this.openForm}>
         {translate('project_activity.delete_analysis')}
-        {this.state.open && this.renderModal()}
       </a>
     );
+    if (this.state.open) {
+      return [linkComponent, this.renderModal()];
+    }
+    return linkComponent;
   }
 }

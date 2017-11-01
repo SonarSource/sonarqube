@@ -1,7 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should not render icon 1`] = `null`;
-
 exports[`should render icon 1`] = `
 <i
   className="icon-qualifier-trk"

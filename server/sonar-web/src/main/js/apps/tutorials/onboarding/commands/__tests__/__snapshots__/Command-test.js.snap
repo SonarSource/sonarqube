@@ -1,18 +1,23 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders correctly 1`] = `
-<div
-  className="onboarding-command"
->
-  <pre>
-    foo
-bar
-  </pre>
-  <button
-    data-clipboard-text="foo
+<Command
+  command="foo
 bar"
+>
+  <div
+    className="onboarding-command"
   >
-    copy
-  </button>
-</div>
+    <pre>
+      foo
+bar
+    </pre>
+    <button
+      data-clipboard-text="foo
+bar"
+    >
+      copy
+    </button>
+  </div>
+</Command>
 `;

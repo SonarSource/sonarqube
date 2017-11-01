@@ -25,5 +25,3 @@ exports[`should render correctly 1`] = `
   </tr>
 </tbody>
 `;
-
-exports[`should render null when data is missing 1`] = `null`;

@@ -47,11 +47,18 @@ export default class Stacktrace extends React.PureComponent<Props, State> {
   }
 
   loadStacktrace() {
-    getTask(this.props.task.id, ['stacktrace']).then(task => {
-      if (this.mounted) {
-        this.setState({ loading: false, stacktrace: task.errorStacktrace });
+    getTask(this.props.task.id, ['stacktrace']).then(
+      task => {
+        if (this.mounted) {
+          this.setState({ loading: false, stacktrace: task.errorStacktrace });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
       }
-    });
+    );
   }
 
   handleCloseClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {

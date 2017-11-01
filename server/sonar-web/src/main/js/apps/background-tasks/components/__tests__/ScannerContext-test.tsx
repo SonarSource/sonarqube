@@ -17,15 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable import/first, import/order */
-jest.mock('../../../../api/ce', () => ({
-  getTask: jest.fn()
-}));
-
+/* eslint-disable import/order */
 import * as React from 'react';
 import { mount, shallow } from 'enzyme';
 import ScannerContext from '../ScannerContext';
-import { click, doAsync } from '../../../../helpers/testUtils';
+import { click } from '../../../../helpers/testUtils';
+
+jest.mock('react-dom');
+
+jest.mock('../../../../api/ce', () => ({
+  getTask: jest.fn(() => Promise.resolve({ scannerContext: 'context' }))
+}));
 
 const getTask = require('../../../../api/ce').getTask as jest.Mock<any>;
 
@@ -36,6 +38,10 @@ const task = {
   submittedAt: '2017-01-01',
   type: 'REPORT'
 };
+
+beforeEach(() => {
+  getTask.mockClear();
+});
 
 it('renders', () => {
   const wrapper = shallow(<ScannerContext onClose={jest.fn()} task={task} />);
@@ -50,12 +56,10 @@ it('closes', () => {
   expect(onClose).toBeCalled();
 });
 
-it('fetches scanner context on mount', () => {
-  getTask.mockImplementation(() => Promise.resolve({ scannerContext: 'context' }));
+it('fetches scanner context on mount', async () => {
   const wrapper = mount(<ScannerContext onClose={jest.fn()} task={task} />);
   expect(wrapper.state()).toEqual({});
   expect(getTask).toBeCalledWith('123', ['scannerContext']);
-  return doAsync().then(() => {
-    expect(wrapper.state()).toEqual({ scannerContext: 'context' });
-  });
+  await new Promise(setImmediate);
+  expect(wrapper.state()).toEqual({ scannerContext: 'context' });
 });

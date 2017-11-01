@@ -19,15 +19,17 @@
  */
 import React from 'react';
 import { shallow } from 'enzyme';
-import { UnconnectedOrganizationAdmin } from '../OrganizationAdmin';
+import { OrganizationAdmin } from '../OrganizationAdmin';
+
+jest.mock('../../../../app/utils/handleRequiredAuthorization', () => jest.fn());
 
 it('should render children', () => {
   const organization = { canAdmin: true };
   expect(
     shallow(
-      <UnconnectedOrganizationAdmin organization={organization}>
+      <OrganizationAdmin organization={organization}>
         <div>hello</div>
-      </UnconnectedOrganizationAdmin>
+      </OrganizationAdmin>
     )
   ).toMatchSnapshot();
 });
@@ -36,9 +38,9 @@ it('should not render anything', () => {
   const organization = { canAdmin: false };
   expect(
     shallow(
-      <UnconnectedOrganizationAdmin organization={organization}>
+      <OrganizationAdmin organization={organization}>
         <div>hello</div>
-      </UnconnectedOrganizationAdmin>
-    )
-  ).toMatchSnapshot();
+      </OrganizationAdmin>
+    ).type()
+  ).toBeNull();
 });

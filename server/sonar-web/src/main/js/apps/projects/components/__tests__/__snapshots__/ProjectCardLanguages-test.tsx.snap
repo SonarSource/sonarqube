@@ -1,7 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`does not render 1`] = `null`;
-
 exports[`handles unknown languages 1`] = `
 <div
   className="project-card-languages"
@@ -9,15 +7,11 @@ exports[`handles unknown languages 1`] = `
   <Tooltip
     overlay={
       <span>
-        <span
-          key="cpp"
-        >
+        <span>
           cpp
           <br />
         </span>
-        <span
-          key="Java"
-        >
+        <span>
           Java
           <br />
         </span>
@@ -39,15 +33,11 @@ exports[`handles unknown languages 2`] = `
   <Tooltip
     overlay={
       <span>
-        <span
-          key="unknown"
-        >
+        <span>
           unknown
           <br />
         </span>
-        <span
-          key="Java"
-        >
+        <span>
           Java
           <br />
         </span>
@@ -69,15 +59,11 @@ exports[`renders 1`] = `
   <Tooltip
     overlay={
       <span>
-        <span
-          key="Java"
-        >
+        <span>
           Java
           <br />
         </span>
-        <span
-          key="JavaScript"
-        >
+        <span>
           JavaScript
           <br />
         </span>
@@ -99,15 +85,11 @@ exports[`sorts languages 1`] = `
   <Tooltip
     overlay={
       <span>
-        <span
-          key="JavaScript"
-        >
+        <span>
           JavaScript
           <br />
         </span>
-        <span
-          key="Java"
-        >
+        <span>
           Java
           <br />
         </span>

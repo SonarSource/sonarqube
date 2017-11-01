@@ -63,8 +63,8 @@ it('should update the edition status after install', async () => {
   const updateEditionStatus = jest.fn();
   const wrapper = getWrapper({ updateEditionStatus });
   const form = wrapper.instance() as LicenseEditionForm;
-  form.mounted = true;
   form.handleLicenseChange('mylicense', 'AUTOMATIC_INSTALL');
+  wrapper.update();
   click(wrapper.find('button'));
   expect(applyLicense).toHaveBeenCalledWith({ license: 'mylicense' });
   await new Promise(setImmediate);

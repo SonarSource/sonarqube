@@ -31,10 +31,12 @@ it('should match snapshot', () => {
 
 it('should not be displayed', () => {
   expect(
-    shallow(<UnconnectedOrganization organization={organization} shouldBeDisplayed={false} />)
-  ).toMatchSnapshot();
+    shallow(
+      <UnconnectedOrganization organization={organization} shouldBeDisplayed={false} />
+    ).type()
+  ).toBeNull();
 
   expect(
-    shallow(<UnconnectedOrganization organization={null} shouldBeDisplayed={true} />)
-  ).toMatchSnapshot();
+    shallow(<UnconnectedOrganization organization={null} shouldBeDisplayed={true} />).type()
+  ).toBeNull();
 });

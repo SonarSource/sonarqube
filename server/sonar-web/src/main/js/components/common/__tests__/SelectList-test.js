@@ -70,6 +70,6 @@ it('should correclty handle user actions', () => {
   expect(list.state()).toMatchSnapshot();
   keydown(38);
   expect(list.state()).toMatchSnapshot();
-  click(list.childAt(2).find('a'));
+  click(list.find('a').at(2));
   expect(onSelect.mock.calls).toMatchSnapshot(); // eslint-disable-linelist
 });

@@ -64,7 +64,7 @@ export default class SettingsEditionsNotif extends React.PureComponent<Props, St
           </button>
         )}
         {!preventRestart &&
-        this.state.openRestart && <RestartForm onClose={this.hanleCloseRestart} />}
+          this.state.openRestart && <RestartForm onClose={this.hanleCloseRestart} />}
       </NavBarNotif>
     );
   }
@@ -73,14 +73,12 @@ export default class SettingsEditionsNotif extends React.PureComponent<Props, St
     const { editionStatus } = this.props;
     return (
       <NavBarNotif className="alert alert-danger">
-        {edition ? (
-          translateWithParameters(
-            'marketplace.status_x.' + editionStatus.installationStatus,
-            edition.name
-          )
-        ) : (
-          translate('marketplace.status', editionStatus.installationStatus)
-        )}
+        {edition
+          ? translateWithParameters(
+              'marketplace.status_x.' + editionStatus.installationStatus,
+              edition.name
+            )
+          : translate('marketplace.status', editionStatus.installationStatus)}
         {edition && (
           <a
             className="button spacer-left"

@@ -18,9 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import { click } from '../../../../../helpers/testUtils';
 import AddMemberForm from '../AddMemberForm';
+
+jest.mock('react-dom');
 
 const memberLogins = ['admin'];
 
@@ -28,11 +30,13 @@ it('should render and open the modal', () => {
   const wrapper = shallow(<AddMemberForm memberLogins={memberLogins} addMember={jest.fn()} />);
   expect(wrapper).toMatchSnapshot();
   wrapper.setState({ open: true });
-  expect(wrapper).toMatchSnapshot();
+
+  // FIXME Can probably be removed when https://github.com/airbnb/enzyme/issues/1149 is resolved
+  expect(wrapper.first().getElements()).toMatchSnapshot();
 });
 
 it('should correctly handle user interactions', () => {
-  const wrapper = mount(<AddMemberForm memberLogins={memberLogins} addMember={jest.fn()} />);
+  const wrapper = shallow(<AddMemberForm memberLogins={memberLogins} addMember={jest.fn()} />);
   click(wrapper.find('button'));
   expect(wrapper.state('open')).toBeTruthy();
   wrapper.instance().closeForm();

@@ -42,7 +42,7 @@ const PROPS = {
   branch: { isMain: true, name: 'master' },
   component: { key: 'foo' },
   location: { pathname: '/component_measures', query: { metric: 'coverage' } },
-  fetchMeasures: () => {},
+  fetchMeasures: () => Promise.resolve({ measures: [] }),
   fetchMetrics: () => {},
   metrics: METRICS,
   metricsKey: ['lines_to_cover', 'coverage', 'duplicated_lines_density', 'new_bugs'],

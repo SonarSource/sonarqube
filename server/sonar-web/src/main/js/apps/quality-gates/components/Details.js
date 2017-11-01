@@ -37,8 +37,8 @@ export default class Details extends React.PureComponent {
     this.fetchDetails();
   }
 
-  componentDidUpdate(nextProps) {
-    if (nextProps.params.id !== this.props.params.id) {
+  componentDidUpdate(prevProps) {
+    if (prevProps.params.id !== this.props.params.id) {
       this.fetchDetails();
     }
   }

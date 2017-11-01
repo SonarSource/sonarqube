@@ -59,5 +59,3 @@ exports[`should display pending actions 1`] = `
   </div>
 </div>
 `;
-
-exports[`should not display anything 1`] = `null`;

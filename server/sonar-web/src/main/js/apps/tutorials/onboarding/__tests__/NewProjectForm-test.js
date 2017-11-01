@@ -21,35 +21,35 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import NewProjectForm from '../NewProjectForm';
-import { change, doAsync, submit } from '../../../../helpers/testUtils';
+import { change, submit } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/components', () => ({
   createProject: () => Promise.resolve(),
   deleteProject: () => Promise.resolve()
 }));
 
-it('creates new project', () => {
+it('creates new project', async () => {
   const onDone = jest.fn();
   const wrapper = mount(<NewProjectForm onDelete={jest.fn()} onDone={onDone} />);
   expect(wrapper).toMatchSnapshot();
   change(wrapper.find('input'), 'foo');
   submit(wrapper.find('form'));
   expect(wrapper).toMatchSnapshot(); // spinner
-  return doAsync(() => {
-    expect(wrapper).toMatchSnapshot();
-    expect(onDone).toBeCalledWith('foo');
-  });
+  await new Promise(setImmediate);
+  wrapper.update();
+  expect(wrapper).toMatchSnapshot();
+  expect(onDone).toBeCalledWith('foo');
 });
 
-it('deletes project', () => {
+it('deletes project', async () => {
   const onDelete = jest.fn();
   const wrapper = mount(<NewProjectForm onDelete={onDelete} onDone={jest.fn()} />);
   wrapper.setState({ done: true, loading: false, projectKey: 'foo' });
   expect(wrapper).toMatchSnapshot();
   submit(wrapper.find('form'));
   expect(wrapper).toMatchSnapshot(); // spinner
-  return doAsync(() => {
-    expect(wrapper).toMatchSnapshot();
-    expect(onDelete).toBeCalled();
-  });
+  await new Promise(setImmediate);
+  wrapper.update();
+  expect(wrapper).toMatchSnapshot();
+  expect(onDelete).toBeCalled();
 });

@@ -2,6 +2,7 @@
 
 exports[`should render and open the modal 1`] = `
 <button
+  key="add-member-button"
   onClick={[Function]}
 >
   organization.members.add
@@ -9,12 +10,14 @@ exports[`should render and open the modal 1`] = `
 `;
 
 exports[`should render and open the modal 2`] = `
-<button
-  onClick={[Function]}
->
-  organization.members.add
+Array [
+  <button
+    onClick={[Function]}
+  >
+    organization.members.add
+  </button>,
   <Modal
-    contentLabel="modal form"
+    contentLabel="users.add"
     onRequestClose={[Function]}
   >
     <header
@@ -45,6 +48,7 @@ exports[`should render and open the modal 2`] = `
             }
             handleValueChange={[Function]}
             searchUsers={[Function]}
+            selectedUser={undefined}
           />
         </div>
       </div>
@@ -68,6 +72,6 @@ exports[`should render and open the modal 2`] = `
         </div>
       </footer>
     </form>
-  </Modal>
-</button>
+  </Modal>,
+]
 `;

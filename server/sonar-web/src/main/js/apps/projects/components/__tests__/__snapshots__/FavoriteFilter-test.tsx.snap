@@ -1,7 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`does not render for anonymous 1`] = `null`;
-
 exports[`handles organization 1`] = `
 <header
   className="page-header text-center"

@@ -25,6 +25,9 @@ exports[`works with existing organization 1`] = `
   >
     <div
       className="boxed-group onboarding-step is-open"
+      onClick={undefined}
+      role={undefined}
+      tabIndex={undefined}
     >
       <div
         className="onboarding-step-number"
@@ -79,6 +82,7 @@ exports[`works with existing organization 1`] = `
                     },
                   ]
                 }
+                value={undefined}
               >
                 <Select
                   addLabelText="Add \\"{label}\\"?"
@@ -134,11 +138,13 @@ exports[`works with existing organization 1`] = `
                   searchable={true}
                   simpleValue={false}
                   tabSelectsValue={true}
+                  value={undefined}
                   valueComponent={[Function]}
                   valueKey="value"
                 >
                   <div
                     className="Select input-super-large Select--single is-searchable"
+                    style={undefined}
                   >
                     <div
                       className="Select-control"
@@ -147,6 +153,7 @@ exports[`works with existing organization 1`] = `
                       onTouchEnd={[Function]}
                       onTouchMove={[Function]}
                       onTouchStart={[Function]}
+                      style={undefined}
                     >
                       <span
                         className="Select-multi-value-wrapper"
@@ -159,8 +166,11 @@ exports[`works with existing organization 1`] = `
                         </div>
                         <AutosizeInput
                           aria-activedescendant="react-select-2--value"
+                          aria-describedby={undefined}
                           aria-expanded="false"
                           aria-haspopup="false"
+                          aria-label={undefined}
+                          aria-labelledby={undefined}
                           aria-owns=""
                           className="Select-input"
                           minWidth="5"
@@ -169,6 +179,7 @@ exports[`works with existing organization 1`] = `
                           onFocus={[Function]}
                           required={false}
                           role="combobox"
+                          tabIndex={undefined}
                           value=""
                         >
                           <div
@@ -188,9 +199,14 @@ exports[`works with existing organization 1`] = `
                             />
                             <input
                               aria-activedescendant="react-select-2--value"
+                              aria-describedby={undefined}
                               aria-expanded="false"
                               aria-haspopup="false"
+                              aria-label={undefined}
+                              aria-labelledby={undefined}
                               aria-owns=""
+                              className={undefined}
+                              id={undefined}
                               onBlur={[Function]}
                               onChange={[Function]}
                               onFocus={[Function]}
@@ -202,6 +218,7 @@ exports[`works with existing organization 1`] = `
                                   "width": "5px",
                                 }
                               }
+                              tabIndex={undefined}
                               value=""
                             />
                             <div

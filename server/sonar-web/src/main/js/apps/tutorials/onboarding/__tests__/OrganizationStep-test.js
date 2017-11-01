@@ -21,13 +21,18 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import OrganizationStep from '../OrganizationStep';
-import { click, doAsync } from '../../../../helpers/testUtils';
+import { click } from '../../../../helpers/testUtils';
+import { getMyOrganizations } from '../../../../api/organizations';
 
 jest.mock('../../../../api/organizations', () => ({
-  getMyOrganizations: () => Promise.resolve(['user', 'another'])
+  getMyOrganizations: jest.fn(() => Promise.resolve(['user', 'another']))
 }));
 
 const currentUser = { isLoggedIn: true, login: 'user' };
+
+beforeEach(() => {
+  getMyOrganizations.mockClear();
+});
 
 // FIXME
 // - if `mount` is used, then it's not possible to correctly set the state,
@@ -49,7 +54,7 @@ it.skip('works with personal organization', () => {
   expect(onContinue).toBeCalledWith('user');
 });
 
-it('works with existing organization', () => {
+it('works with existing organization', async () => {
   const onContinue = jest.fn();
   const wrapper = mount(
     <OrganizationStep
@@ -61,19 +66,20 @@ it('works with existing organization', () => {
       stepNumber={1}
     />
   );
-  return doAsync(() => {
-    click(wrapper.find('.js-existing'));
-    expect(wrapper).toMatchSnapshot();
-    wrapper
-      .find('Select')
-      .first()
-      .prop('onChange')({ value: 'another' });
-    click(wrapper.find('.js-continue'));
-    expect(onContinue).toBeCalledWith('another');
-  });
+  await new Promise(setImmediate);
+  wrapper.update();
+  click(wrapper.find('.js-existing'));
+  expect(wrapper).toMatchSnapshot();
+  wrapper
+    .find('Select')
+    .first()
+    .prop('onChange')({ value: 'another' });
+  wrapper.update();
+  click(wrapper.find('.js-continue'));
+  expect(onContinue).toBeCalledWith('another');
 });
 
-it('works with new organization', () => {
+it('works with new organization', async () => {
   const onContinue = jest.fn();
   const wrapper = mount(
     <OrganizationStep
@@ -85,10 +91,11 @@ it('works with new organization', () => {
       stepNumber={1}
     />
   );
-  return doAsync(() => {
-    click(wrapper.find('.js-new'));
-    wrapper.find('NewOrganizationForm').prop('onDone')('new');
-    click(wrapper.find('.js-continue'));
-    expect(onContinue).toBeCalledWith('new');
-  });
+  await new Promise(setImmediate);
+  wrapper.update();
+  click(wrapper.find('.js-new'));
+  wrapper.find('NewOrganizationForm').prop('onDone')('new');
+  wrapper.update();
+  click(wrapper.find('.js-continue'));
+  expect(onContinue).toBeCalledWith('new');
 });

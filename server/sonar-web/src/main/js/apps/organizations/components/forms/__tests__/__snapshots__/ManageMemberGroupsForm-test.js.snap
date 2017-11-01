@@ -71,6 +71,7 @@ Object {
 exports[`should render and open the modal 1`] = `
 <a
   href="#"
+  key="manage-member-button"
   onClick={[Function]}
 >
   organization.members.manage_groups
@@ -78,13 +79,15 @@ exports[`should render and open the modal 1`] = `
 `;
 
 exports[`should render and open the modal 2`] = `
-<a
-  href="#"
-  onClick={[Function]}
->
-  organization.members.manage_groups
+Array [
+  <a
+    href="#"
+    onClick={[Function]}
+  >
+    organization.members.manage_groups
+  </a>,
   <Modal
-    contentLabel="modal form"
+    contentLabel="organization.members.manage_groups"
     onRequestClose={[Function]}
   >
     <header
@@ -117,7 +120,6 @@ exports[`should render and open the modal 2`] = `
                 "name": "professionals",
               }
             }
-            key="7"
             onCheck={[Function]}
           />
           <OrganizationGroupCheckbox
@@ -130,7 +132,6 @@ exports[`should render and open the modal 2`] = `
                 "name": "pull-request-analysers",
               }
             }
-            key="11"
             onCheck={[Function]}
           />
           <OrganizationGroupCheckbox
@@ -143,7 +144,6 @@ exports[`should render and open the modal 2`] = `
                 "name": "sonar-administrators",
               }
             }
-            key="1"
             onCheck={[Function]}
           />
         </ul>
@@ -167,8 +167,8 @@ exports[`should render and open the modal 2`] = `
         </div>
       </footer>
     </form>
-  </Modal>
-</a>
+  </Modal>,
+]
 `;
 
 exports[`should reset the selected groups when the modal is opened 1`] = `

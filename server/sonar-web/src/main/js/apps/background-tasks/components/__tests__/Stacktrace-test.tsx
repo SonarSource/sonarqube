@@ -17,15 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint-disable import/first, import/order */
-jest.mock('../../../../api/ce', () => ({
-  getTask: jest.fn()
-}));
-
+/* eslint-disable import/order */
 import * as React from 'react';
 import { mount, shallow } from 'enzyme';
 import Stacktrace from '../Stacktrace';
-import { click, doAsync } from '../../../../helpers/testUtils';
+import { click } from '../../../../helpers/testUtils';
+
+jest.mock('react-dom');
+
+jest.mock('../../../../api/ce', () => ({
+  getTask: jest.fn(() => Promise.resolve({ errorStacktrace: 'stacktrace' }))
+}));
 
 const getTask = require('../../../../api/ce').getTask as jest.Mock<any>;
 
@@ -36,6 +38,10 @@ const task = {
   submittedAt: '2017-01-01',
   type: 'REPORT'
 };
+
+beforeEach(() => {
+  getTask.mockClear();
+});
 
 it('renders', () => {
   const wrapper = shallow(<Stacktrace onClose={jest.fn()} task={task} />);
@@ -50,12 +56,10 @@ it('closes', () => {
   expect(onClose).toBeCalled();
 });
 
-it('fetches scanner context on mount', () => {
-  getTask.mockImplementation(() => Promise.resolve({ errorStacktrace: 'stacktrace' }));
+it('fetches scanner context on mount', async () => {
   const wrapper = mount(<Stacktrace onClose={jest.fn()} task={task} />);
   expect(wrapper.state()).toEqual({ loading: true });
   expect(getTask).toBeCalledWith('123', ['stacktrace']);
-  return doAsync().then(() => {
-    expect(wrapper.state()).toEqual({ loading: false, stacktrace: 'stacktrace' });
-  });
+  await new Promise(setImmediate);
+  expect(wrapper.state()).toEqual({ loading: false, stacktrace: 'stacktrace' });
 });
