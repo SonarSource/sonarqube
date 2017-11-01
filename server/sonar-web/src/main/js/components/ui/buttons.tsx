@@ -43,7 +43,7 @@ export class ButtonIcon extends React.PureComponent<ButtonIconProps> {
   };
 
   render() {
-    const { children, className, color = theme.darkBlue, ...props } = this.props;
+    const { children, className, color = theme.darkBlue, onClick, ...props } = this.props;
     return (
       <button
         className={classNames(className, 'button-icon')}
