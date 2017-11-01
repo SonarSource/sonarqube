@@ -30,6 +30,7 @@ import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.util.Objects.requireNonNull;
 
 /**
  * @since 3.6
@@ -51,6 +52,7 @@ public final class IssueChangeDto implements Serializable {
   private Long updatedAt;
 
   // functional date
+  @Nullable
   private Long issueChangeCreationDate;
 
   public static IssueChangeDto of(DefaultIssueComment comment) {
@@ -59,7 +61,8 @@ public final class IssueChangeDto implements Serializable {
     dto.setChangeType(IssueChangeDto.TYPE_COMMENT);
     dto.setChangeData(comment.markdownText());
     dto.setUserLogin(comment.userLogin());
-    dto.setIssueChangeCreationDate(comment.createdAt() == null ? null : comment.createdAt().getTime());
+    Date createdAt = requireNonNull(comment.createdAt(), "Comment created at must not be null");
+    dto.setIssueChangeCreationDate(createdAt.getTime());
     return dto;
   }
 
@@ -68,7 +71,8 @@ public final class IssueChangeDto implements Serializable {
     dto.setChangeType(IssueChangeDto.TYPE_FIELD_CHANGE);
     dto.setChangeData(diffs.toString());
     dto.setUserLogin(diffs.userLogin());
-    dto.setIssueChangeCreationDate(diffs.creationDate() == null ? null : diffs.creationDate().getTime());
+    Date createdAt = requireNonNull(diffs.creationDate(), "Diffs created at must not be null");
+    dto.setIssueChangeCreationDate(createdAt.getTime());
     return dto;
   }
 
@@ -157,10 +161,11 @@ public final class IssueChangeDto implements Serializable {
   }
 
   public Long getIssueChangeCreationDate() {
-    return issueChangeCreationDate;
+    // Old comments do not have functional creation date as this column has been added later
+    return issueChangeCreationDate == null ? createdAt : issueChangeCreationDate;
   }
 
-  public IssueChangeDto setIssueChangeCreationDate(@Nullable Long issueChangeCreationDate) {
+  public IssueChangeDto setIssueChangeCreationDate(long issueChangeCreationDate) {
     this.issueChangeCreationDate = issueChangeCreationDate;
     return this;
   }
@@ -174,7 +179,7 @@ public final class IssueChangeDto implements Serializable {
     return new DefaultIssueComment()
       .setMarkdownText(changeData)
       .setKey(kee)
-      .setCreatedAt(new Date(createdAt))
+      .setCreatedAt(new Date(getIssueChangeCreationDate()))
       .setUpdatedAt(updatedAt == null ? null : new Date(updatedAt))
       .setUserLogin(userLogin)
       .setIssueKey(issueKey)
@@ -184,8 +189,7 @@ public final class IssueChangeDto implements Serializable {
   public FieldDiffs toFieldDiffs() {
     return FieldDiffs.parse(changeData)
       .setUserLogin(userLogin)
-      // issueChangeCreationDate can be null as it has been introduced after createdAt
-      .setCreationDate(issueChangeCreationDate != null ? new Date(issueChangeCreationDate) : new Date(createdAt))
+      .setCreationDate(new Date(getIssueChangeCreationDate()))
       .setIssueKey(issueKey);
   }
 }

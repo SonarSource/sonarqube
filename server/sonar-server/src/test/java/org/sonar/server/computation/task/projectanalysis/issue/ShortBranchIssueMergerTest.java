@@ -193,11 +193,11 @@ public class ShortBranchIssueMergerTest {
     IssueDto issue1 = db.issues()
       .insertIssue(IssueTesting.newIssue(rule, branch1Dto, fileOnBranch1Dto).setKee("issue1").setStatus(Issue.STATUS_REOPENED).setLine(1).setChecksum("checksum"));
     db.issues().insertComment(issue1, "user1", "A comment 1");
-    db.issues().insertFieldDiffs(issue1, FieldDiffs.parse("severity=BLOCKER|INFO,assignee=toto|titi"));
+    db.issues().insertFieldDiffs(issue1, FieldDiffs.parse("severity=BLOCKER|INFO,assignee=toto|titi").setCreationDate(new Date()));
     IssueDto issue2 = db.issues()
       .insertIssue(IssueTesting.newIssue(rule, branch2Dto, fileOnBranch2Dto).setKee("issue2").setStatus(Issue.STATUS_CONFIRMED).setLine(1).setChecksum("checksum"));
     db.issues().insertComment(issue2, "user2", "A comment 2");
-    db.issues().insertFieldDiffs(issue2, FieldDiffs.parse("severity=BLOCKER|MINOR,assignee=foo|bar"));
+    db.issues().insertFieldDiffs(issue2, FieldDiffs.parse("severity=BLOCKER|MINOR,assignee=foo|bar").setCreationDate(new Date()));
     DefaultIssue newIssue = createIssue("newIssue", rule.getKey(), Issue.STATUS_OPEN, null, new Date());
 
     copier.tryMerge(FILE_1, Collections.singleton(newIssue));

@@ -20,7 +20,6 @@
 package org.sonar.server.platform.platformlevel;
 
 import org.sonar.server.app.ProcessCommandWrapper;
-import org.sonar.server.edition.FinalizeEditionChange;
 import org.sonar.server.es.IndexerStartupTask;
 import org.sonar.server.organization.DefaultOrganizationEnforcer;
 import org.sonar.server.platform.ServerLifecycleNotifier;
@@ -59,8 +58,7 @@ public class PlatformLevelStartup extends PlatformLevel {
       IndexerStartupTask.class,
       RegisterMetrics.class,
       RegisterQualityGates.class,
-      RegisterRules.class,
-      FinalizeEditionChange.class);
+      RegisterRules.class);
     add(BuiltInQProfileLoader.class);
     addIfStartupLeader(
       BuiltInQualityProfilesUpdateListener.class,
