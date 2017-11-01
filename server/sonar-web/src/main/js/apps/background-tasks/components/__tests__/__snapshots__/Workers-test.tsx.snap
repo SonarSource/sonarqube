@@ -2,50 +2,48 @@
 
 exports[`opens form 1`] = `
 <div>
-  background_tasks.number_of_workers
-  <strong
-    className="little-spacer-left"
+  <span
+    className="text-middle"
   >
-    1
-  </strong>
+    background_tasks.number_of_workers
+    <strong
+      className="little-spacer-left"
+    >
+      1
+    </strong>
+  </span>
   <Tooltip
     overlay="background_tasks.change_number_of_workers"
     placement="bottom"
   >
-    <a
-      className="js-edit link-no-underline spacer-left"
-      href="#"
+    <EditButton
+      className="js-edit button-small spacer-left"
       onClick={[Function]}
-    >
-      <EditIcon
-        className="text-text-top"
-      />
-    </a>
+    />
   </Tooltip>
 </div>
 `;
 
 exports[`opens form 2`] = `
 <div>
-  background_tasks.number_of_workers
-  <strong
-    className="little-spacer-left"
+  <span
+    className="text-middle"
   >
-    1
-  </strong>
+    background_tasks.number_of_workers
+    <strong
+      className="little-spacer-left"
+    >
+      1
+    </strong>
+  </span>
   <Tooltip
     overlay="background_tasks.change_number_of_workers"
     placement="bottom"
   >
-    <a
-      className="js-edit link-no-underline spacer-left"
-      href="#"
+    <EditButton
+      className="js-edit button-small spacer-left"
       onClick={[Function]}
-    >
-      <EditIcon
-        className="text-text-top"
-      />
-    </a>
+    />
   </Tooltip>
   <WorkersForm
     onClose={[Function]}
@@ -56,34 +54,37 @@ exports[`opens form 2`] = `
 
 exports[`renders 1`] = `
 <div>
-  background_tasks.number_of_workers
-  <i
-    className="spinner little-spacer-left"
-  />
+  <span
+    className="text-middle"
+  >
+    background_tasks.number_of_workers
+    <i
+      className="spinner little-spacer-left"
+    />
+  </span>
 </div>
 `;
 
 exports[`renders 2`] = `
 <div>
-  background_tasks.number_of_workers
-  <strong
-    className="little-spacer-left"
+  <span
+    className="text-middle"
   >
-    1
-  </strong>
+    background_tasks.number_of_workers
+    <strong
+      className="little-spacer-left"
+    >
+      1
+    </strong>
+  </span>
   <Tooltip
     overlay="background_tasks.change_number_of_workers"
     placement="bottom"
   >
-    <a
-      className="js-edit link-no-underline spacer-left"
-      href="#"
+    <EditButton
+      className="js-edit button-small spacer-left"
       onClick={[Function]}
-    >
-      <EditIcon
-        className="text-text-top"
-      />
-    </a>
+    />
   </Tooltip>
 </div>
 `;
@@ -98,25 +99,24 @@ exports[`renders 3`] = `
       className="icon-alert-warn little-spacer-right bt-workers-warning-icon"
     />
   </Tooltip>
-  background_tasks.number_of_workers
-  <strong
-    className="little-spacer-left"
+  <span
+    className="text-middle"
   >
-    2
-  </strong>
+    background_tasks.number_of_workers
+    <strong
+      className="little-spacer-left"
+    >
+      2
+    </strong>
+  </span>
   <Tooltip
     overlay="background_tasks.change_number_of_workers"
     placement="bottom"
   >
-    <a
-      className="js-edit link-no-underline spacer-left"
-      href="#"
+    <EditButton
+      className="js-edit button-small spacer-left"
       onClick={[Function]}
-    >
-      <EditIcon
-        className="text-text-top"
-      />
-    </a>
+    />
   </Tooltip>
 </div>
 `;
@@ -131,12 +131,16 @@ exports[`renders 4`] = `
       className="icon-alert-warn little-spacer-right bt-workers-warning-icon"
     />
   </Tooltip>
-  background_tasks.number_of_workers
-  <strong
-    className="little-spacer-left"
+  <span
+    className="text-middle"
   >
-    2
-  </strong>
+    background_tasks.number_of_workers
+    <strong
+      className="little-spacer-left"
+    >
+      2
+    </strong>
+  </span>
   <span
     className="spacer-left"
   >
@@ -162,25 +166,24 @@ exports[`renders 4`] = `
 
 exports[`updates worker count 1`] = `
 <div>
-  background_tasks.number_of_workers
-  <strong
-    className="little-spacer-left"
+  <span
+    className="text-middle"
   >
-    1
-  </strong>
+    background_tasks.number_of_workers
+    <strong
+      className="little-spacer-left"
+    >
+      1
+    </strong>
+  </span>
   <Tooltip
     overlay="background_tasks.change_number_of_workers"
     placement="bottom"
   >
-    <a
-      className="js-edit link-no-underline spacer-left"
-      href="#"
+    <EditButton
+      className="js-edit button-small spacer-left"
       onClick={[Function]}
-    >
-      <EditIcon
-        className="text-text-top"
-      />
-    </a>
+    />
   </Tooltip>
   <WorkersForm
     onClose={[Function]}
@@ -199,25 +202,24 @@ exports[`updates worker count 2`] = `
       className="icon-alert-warn little-spacer-right bt-workers-warning-icon"
     />
   </Tooltip>
-  background_tasks.number_of_workers
-  <strong
-    className="little-spacer-left"
+  <span
+    className="text-middle"
   >
-    7
-  </strong>
+    background_tasks.number_of_workers
+    <strong
+      className="little-spacer-left"
+    >
+      7
+    </strong>
+  </span>
   <Tooltip
     overlay="background_tasks.change_number_of_workers"
     placement="bottom"
   >
-    <a
-      className="js-edit link-no-underline spacer-left"
-      href="#"
+    <EditButton
+      className="js-edit button-small spacer-left"
       onClick={[Function]}
-    >
-      <EditIcon
-        className="text-text-top"
-      />
-    </a>
+    />
   </Tooltip>
 </div>
 `;

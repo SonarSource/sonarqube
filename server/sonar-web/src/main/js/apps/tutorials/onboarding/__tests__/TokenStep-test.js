@@ -29,6 +29,8 @@ jest.mock('../../../../api/user-tokens', () => ({
   revokeToken: () => Promise.resolve()
 }));
 
+jest.mock('../../../../components/icons-components/ClearIcon');
+
 const currentUser = { login: 'user' };
 
 it('generates token', async () => {
@@ -67,7 +69,8 @@ it('revokes token', async () => {
   await new Promise(setImmediate);
   wrapper.setState({ token: 'abcd1234', tokenName: 'my token' });
   expect(wrapper).toMatchSnapshot();
-  submit(wrapper.find('form'));
+  wrapper.find('DeleteButton').prop('onClick')();
+  wrapper.update();
   expect(wrapper).toMatchSnapshot(); // spinner
   await new Promise(setImmediate);
   wrapper.update();

@@ -24,6 +24,8 @@ import { connect } from 'react-redux';
 import init from '../init';
 import { getCurrentUser } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
+// import styles to have the `.button-icon` styles
+import '../../../components/ui/buttons.css';
 
 class UsersAppContainer extends React.PureComponent {
   static propTypes = {

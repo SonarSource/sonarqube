@@ -18,23 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { IconProps } from './types';
 
-interface Props {
-  className?: string;
-  size?: number;
-}
-
-export default function EditIcon({ className, size = 14 }: Props) {
+export default function EditIcon({ className, fill = 'currentColor', size = 16 }: IconProps) {
   return (
     <svg
       className={className}
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 14 14"
       width={size}
-      height={size}>
+      height={size}
+      viewBox="0 0 16 16"
+      version="1.1"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+      xmlSpace="preserve">
       <path
-        fill="currentColor"
-        d="M3.918 11.918l0.711-0.711-1.836-1.836-0.711 0.711v0.836h1v1h0.836zM8.004 4.668q0-0.172-0.172-0.172-0.078 0-0.133 0.055l-4.234 4.234q-0.055 0.055-0.055 0.133 0 0.172 0.172 0.172 0.078 0 0.133-0.055l4.234-4.234q0.055-0.055 0.055-0.133zM7.582 3.168l3.25 3.25-6.5 6.5h-3.25v-3.25zM12.918 3.918q0 0.414-0.289 0.703l-1.297 1.297-3.25-3.25 1.297-1.289q0.281-0.297 0.703-0.297 0.414 0 0.711 0.297l1.836 1.828q0.289 0.305 0.289 0.711z"
+        style={{ fill }}
+        d="M4.875 12.986l.721-.72-1.861-1.862-.721.72v.848h1.014v1.014h.847zm4.143-7.35c0-.117-.058-.175-.174-.175a.183.183 0 0 0-.135.056L4.416 9.81a.183.183 0 0 0-.056.135c0 .116.058.174.175.174a.183.183 0 0 0 .134-.056L8.962 5.77a.183.183 0 0 0 .056-.134zM8.59 4.115l3.295 3.295L5.295 14H2v-3.295l6.59-6.59zm5.41.76a.97.97 0 0 1-.293.713l-1.315 1.315-3.295-3.295L10.412 2.3c.19-.2.428-.301.713-.301.28 0 .52.1.72.301l1.862 1.853c.195.206.293.447.293.721z"
       />
     </svg>
   );

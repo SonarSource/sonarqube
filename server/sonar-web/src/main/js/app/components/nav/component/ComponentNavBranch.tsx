@@ -196,7 +196,7 @@ export default class ComponentNavBranch extends React.PureComponent<Props, State
     if (!this.context.branchesEnabled) {
       return (
         <div className="navbar-context-branches">
-          <BranchIcon branch={currentBranch} className="little-spacer-right" color={theme.gray80} />
+          <BranchIcon branch={currentBranch} className="little-spacer-right" fill={theme.gray80} />
           <span className="note">{currentBranch.name}</span>
           {this.renderNoBranchSupportPopup()}
         </div>

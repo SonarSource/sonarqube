@@ -110,7 +110,7 @@ public class ProjectsPage {
   }
 
   public ProjectsPage invertSorting() {
-    getOpenTopBar().$(".js-projects-sorting-select a.button-icon").should(Condition.exist).click();
+    getOpenTopBar().$(".js-projects-sorting-invert").should(Condition.exist).click();
     return this;
   }
 

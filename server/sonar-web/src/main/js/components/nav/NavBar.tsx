@@ -19,14 +19,13 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import NavBarNotif from './NavBarNotif';
 import './NavBar.css';
 
 interface Props {
   children?: any;
   className?: string;
   height: number;
-  notif?: React.ReactElement<NavBarNotif>;
+  notif?: React.ReactNode;
 }
 
 export default function NavBar({ children, className, height, notif, ...other }: Props) {

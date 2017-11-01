@@ -5,23 +5,22 @@ exports[`should render correctly 1`] = `
   className="page-actions"
 >
   <span>
-    system.logs_level
-    :
-    <strong
-      className="little-spacer-left"
+    <span
+      className="text-middle"
     >
-      INFO
-    </strong>
-    <a
-      className="spacer-left link-no-underline"
-      href="#"
+      system.logs_level
+      :
+      <strong
+        className="little-spacer-left"
+      >
+        INFO
+      </strong>
+    </span>
+    <EditButton
+      className="spacer-left button-small"
       id="edit-logs-level-button"
       onClick={[Function]}
-    >
-      <EditIcon
-        className="little-spacer-top"
-      />
-    </a>
+    />
   </span>
   <div
     className="display-inline-block dropdown spacer-left"
@@ -104,23 +103,22 @@ exports[`should render without restart and log download 1`] = `
   className="page-actions"
 >
   <span>
-    system.logs_level
-    :
-    <strong
-      className="little-spacer-left"
+    <span
+      className="text-middle"
     >
-      INFO
-    </strong>
-    <a
-      className="spacer-left link-no-underline"
-      href="#"
+      system.logs_level
+      :
+      <strong
+        className="little-spacer-left"
+      >
+        INFO
+      </strong>
+    </span>
+    <EditButton
+      className="spacer-left button-small"
       id="edit-logs-level-button"
       onClick={[Function]}
-    >
-      <EditIcon
-        className="little-spacer-top"
-      />
-    </a>
+    />
   </span>
   <a
     className="button spacer-left"

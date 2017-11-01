@@ -20,7 +20,7 @@
 import * as React from 'react';
 import LongBranchesPatternForm from './LongBranchesPatternForm';
 import { getValues, SettingValue } from '../../../api/settings';
-import ChangeIcon from '../../../components/icons-components/ChangeIcon';
+import { EditButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -64,9 +64,7 @@ export default class LongBranchesPattern extends React.PureComponent<Props, Stat
     }
   };
 
-  handleChangeClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleChangeClick = () => {
     this.setState({ formOpen: true });
   };
 
@@ -88,12 +86,7 @@ export default class LongBranchesPattern extends React.PureComponent<Props, Stat
         {translate('branches.long_living_branches_pattern')}
         {': '}
         <strong>{setting.value}</strong>
-        <a
-          className="display-inline-block spacer-left link-no-underline"
-          href="#"
-          onClick={this.handleChangeClick}>
-          <ChangeIcon />
-        </a>
+        <EditButton className="button-small spacer-left" onClick={this.handleChangeClick} />
         {this.state.formOpen && (
           <LongBranchesPatternForm
             onClose={this.closeForm}
