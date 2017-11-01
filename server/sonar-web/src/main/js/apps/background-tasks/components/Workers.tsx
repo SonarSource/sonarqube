@@ -26,7 +26,7 @@ import { getWorkers } from '../../../api/ce';
 import { translate } from '../../../helpers/l10n';
 import HelpIcon from '../../../components/icons-components/HelpIcon';
 import BubblePopupHelper from '../../../components/common/BubblePopupHelper';
-import EditIcon from '../../../components/icons-components/EditIcon';
+import { EditButton } from '../../../components/ui/buttons';
 
 interface State {
   canSetWorkerCount: boolean;
@@ -80,8 +80,7 @@ export default class Workers extends React.PureComponent<{}, State> {
       ? this.setState({ formOpen: false, workerCount: newWorkerCount })
       : this.setState({ formOpen: false });
 
-  handleChangeClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
+  handleChangeClick = () => {
     this.setState({ formOpen: true });
   };
 
@@ -111,23 +110,23 @@ export default class Workers extends React.PureComponent<{}, State> {
             </Tooltip>
           )}
 
-        {translate('background_tasks.number_of_workers')}
+        <span className="text-middle">
+          {translate('background_tasks.number_of_workers')}
 
-        {loading ? (
-          <i className="spinner little-spacer-left" />
-        ) : (
-          <strong className="little-spacer-left">{workerCount}</strong>
-        )}
+          {loading ? (
+            <i className="spinner little-spacer-left" />
+          ) : (
+            <strong className="little-spacer-left">{workerCount}</strong>
+          )}
+        </span>
 
         {!loading &&
           canSetWorkerCount && (
             <Tooltip overlay={translate('background_tasks.change_number_of_workers')}>
-              <a
-                className="js-edit link-no-underline spacer-left"
-                href="#"
-                onClick={this.handleChangeClick}>
-                <EditIcon className="text-text-top" />
-              </a>
+              <EditButton
+                className="js-edit button-small spacer-left"
+                onClick={this.handleChangeClick}
+              />
             </Tooltip>
           )}
 

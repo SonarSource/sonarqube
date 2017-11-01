@@ -22,7 +22,7 @@ import { FormattedMessage } from 'react-intl';
 import { User } from './ProfilePermissions';
 import { removeUser } from '../../../api/quality-profiles';
 import SimpleModal, { ChildrenProps } from '../../../components/controls/SimpleModal';
-import DeleteIcon from '../../../components/icons-components/DeleteIcon';
+import { DeleteButton } from '../../../components/ui/buttons';
 import Avatar from '../../../components/ui/Avatar';
 import { translate } from '../../../helpers/l10n';
 
@@ -49,9 +49,7 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
     this.mounted = false;
   }
 
-  handleDeleteClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleDeleteClick = () => {
     this.setState({ deleteModal: true });
   };
 
@@ -108,12 +106,10 @@ export default class ProfilePermissionsUser extends React.PureComponent<Props, S
 
     return (
       <div className="clearfix big-spacer-bottom">
-        <a
-          className="pull-right spacer-top spacer-left spacer-right button-icon"
-          href="#"
-          onClick={this.handleDeleteClick}>
-          <DeleteIcon />
-        </a>
+        <DeleteButton
+          className="pull-right spacer-top spacer-left spacer-right button-small"
+          onClick={this.handleDeleteClick}
+        />
         <Avatar className="pull-left spacer-right" hash={user.avatar} name={user.name} size={32} />
         <div className="overflow-hidden">
           <strong>{user.name}</strong>

@@ -22,8 +22,8 @@ import { FormattedMessage } from 'react-intl';
 import { Group } from './ProfilePermissions';
 import { removeGroup } from '../../../api/quality-profiles';
 import SimpleModal, { ChildrenProps } from '../../../components/controls/SimpleModal';
-import DeleteIcon from '../../../components/icons-components/DeleteIcon';
 import GroupIcon from '../../../components/icons-components/GroupIcon';
+import { DeleteButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -49,9 +49,7 @@ export default class ProfilePermissionsGroup extends React.PureComponent<Props, 
     this.mounted = false;
   }
 
-  handleDeleteClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
+  handleDeleteClick = () => {
     this.setState({ deleteModal: true });
   };
 
@@ -108,12 +106,10 @@ export default class ProfilePermissionsGroup extends React.PureComponent<Props, 
 
     return (
       <div className="clearfix big-spacer-bottom">
-        <a
-          className="pull-right spacer-top spacer-left spacer-right button-icon"
-          href="#"
-          onClick={this.handleDeleteClick}>
-          <DeleteIcon />
-        </a>
+        <DeleteButton
+          className="pull-right spacer-top spacer-left spacer-right button-small"
+          onClick={this.handleDeleteClick}
+        />
         <GroupIcon className="pull-left spacer-right" size={32} />
         <div className="overflow-hidden" style={{ lineHeight: '32px' }}>
           <strong>{group.name}</strong>

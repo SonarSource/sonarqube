@@ -1,7 +1,7 @@
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,25 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
+import { IconProps } from './types';
 
-/*::
-type Props = { className?: string, size?: number };
-*/
-
-export default function ProjectEventIcon({ className, size = 14 } /*: Props */) {
-  /* eslint-disable max-len */
+export default function ClearIcon({ className, fill = 'currentColor', size = 16 }: IconProps) {
   return (
     <svg
       className={className}
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 16 16"
       width={size}
-      height={size}>
+      height={size}
+      viewBox="0 0 16 16"
+      version="1.1"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+      xmlSpace="preserve">
       <path
-        style={{ fill: '#fff', stroke: 'currentColor', strokeWidth: '2px' }}
-        d="M8 2 L14 8 L8 14 L2 8 L8 2 L14 8"
+        style={{ fill }}
+        d="M14 4.242L11.758 2l-3.76 3.76L4.242 2 2 4.242l3.756 3.756L2 11.758 4.242 14l3.756-3.76 3.76 3.76L14 11.758l-3.76-3.76L14 4.242z"
       />
     </svg>
   );

@@ -94,35 +94,35 @@ exports[`creates new project 3`] = `
     >
       onboarding.language.project_key
     </h4>
-    <form
-      onSubmit={[Function]}
-    >
+    <div>
       <span
         className="spacer-right text-middle"
       >
         foo
       </span>
-      <button
-        className="button-clean text-middle"
+      <DeleteButton
+        className="button-small text-middle"
+        onClick={[Function]}
       >
-        <CloseIcon
-          className="icon-red"
+        <ButtonIcon
+          className="button-small text-middle"
+          color="#d4333f"
+          onClick={[Function]}
         >
-          <svg
-            className="icon-red"
-            height={16}
-            viewBox="0 0 16 16"
-            width={16}
-            xmlns="http://www.w3.org/2000/svg"
+          <button
+            className="button-small text-middle button-icon"
+            onClick={[Function]}
+            style={
+              Object {
+                "color": "#d4333f",
+              }
+            }
           >
-            <path
-              d="M12.843 11.232q0 0.357-0.25 0.607l-1.214 1.214q-0.25 0.25-0.607 0.25t-0.607-0.25l-2.625-2.625-2.625 2.625q-0.25 0.25-0.607 0.25t-0.607-0.25l-1.214-1.214q-0.25-0.25-0.25-0.607t0.25-0.607l2.625-2.625-2.625-2.625q-0.25-0.25-0.25-0.607t0.25-0.607l1.214-1.214q0.25-0.25 0.607-0.25t0.607 0.25l2.625 2.625 2.625-2.625q0.25-0.25 0.607-0.25t0.607 0.25l1.214 1.214q0.25 0.25 0.25 0.607t-0.25 0.607l-2.625 2.625 2.625 2.625q0.25 0.25 0.25 0.607z"
-              fill="currentColor"
-            />
-          </svg>
-        </CloseIcon>
-      </button>
-    </form>
+            <ClearIcon />
+          </button>
+        </ButtonIcon>
+      </DeleteButton>
+    </div>
   </div>
 </NewProjectForm>
 `;
@@ -140,35 +140,35 @@ exports[`deletes project 1`] = `
     >
       onboarding.language.project_key
     </h4>
-    <form
-      onSubmit={[Function]}
-    >
+    <div>
       <span
         className="spacer-right text-middle"
       >
         foo
       </span>
-      <button
-        className="button-clean text-middle"
+      <DeleteButton
+        className="button-small text-middle"
+        onClick={[Function]}
       >
-        <CloseIcon
-          className="icon-red"
+        <ButtonIcon
+          className="button-small text-middle"
+          color="#d4333f"
+          onClick={[Function]}
         >
-          <svg
-            className="icon-red"
-            height={16}
-            viewBox="0 0 16 16"
-            width={16}
-            xmlns="http://www.w3.org/2000/svg"
+          <button
+            className="button-small text-middle button-icon"
+            onClick={[Function]}
+            style={
+              Object {
+                "color": "#d4333f",
+              }
+            }
           >
-            <path
-              d="M12.843 11.232q0 0.357-0.25 0.607l-1.214 1.214q-0.25 0.25-0.607 0.25t-0.607-0.25l-2.625-2.625-2.625 2.625q-0.25 0.25-0.607 0.25t-0.607-0.25l-1.214-1.214q-0.25-0.25-0.25-0.607t0.25-0.607l2.625-2.625-2.625-2.625q-0.25-0.25-0.25-0.607t0.25-0.607l1.214-1.214q0.25-0.25 0.607-0.25t0.607 0.25l2.625 2.625 2.625-2.625q0.25-0.25 0.607-0.25t0.607 0.25l1.214 1.214q0.25 0.25 0.25 0.607t-0.25 0.607l-2.625 2.625 2.625 2.625q0.25 0.25 0.25 0.607z"
-              fill="currentColor"
-            />
-          </svg>
-        </CloseIcon>
-      </button>
-    </form>
+            <ClearIcon />
+          </button>
+        </ButtonIcon>
+      </DeleteButton>
+    </div>
   </div>
 </NewProjectForm>
 `;
@@ -186,9 +186,7 @@ exports[`deletes project 2`] = `
     >
       onboarding.language.project_key
     </h4>
-    <form
-      onSubmit={[Function]}
-    >
+    <div>
       <span
         className="spacer-right text-middle"
       >
@@ -197,7 +195,7 @@ exports[`deletes project 2`] = `
       <i
         className="spinner text-middle"
       />
-    </form>
+    </div>
   </div>
 </NewProjectForm>
 `;

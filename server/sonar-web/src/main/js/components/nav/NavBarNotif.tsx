@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import CloseIcon from '../icons-components/CloseIcon';
+import { DeleteButton } from '../ui/buttons';
 
 interface Props {
   children?: React.ReactNode;
@@ -27,31 +27,18 @@ interface Props {
   onCancel?: () => {};
 }
 
-export default class NavBarNotif extends React.PureComponent<Props> {
-  handleCancel = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    if (this.props.onCancel) {
-      this.props.onCancel();
-    }
-  };
-
-  render() {
-    if (!this.props.children) {
-      return null;
-    }
-    return (
-      <div className={classNames('navbar-notif', this.props.className)}>
-        <div className="navbar-limited clearfix">
-          <div className={classNames({ 'navbar-notif-cancelable': !!this.props.onCancel })}>
-            {this.props.children}
-            {this.props.onCancel && (
-              <a className="button-link text-danger" href="#" onClick={this.handleCancel}>
-                <CloseIcon />
-              </a>
-            )}
-          </div>
+export default function NavBarNotif(props: Props) {
+  if (!props.children) {
+    return null;
+  }
+  return (
+    <div className={classNames('navbar-notif', props.className)}>
+      <div className="navbar-limited clearfix">
+        <div className={classNames({ 'navbar-notif-cancelable': !!props.onCancel })}>
+          {props.children}
+          {props.onCancel && <DeleteButton className="button-small" onClick={props.onCancel} />}
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 }

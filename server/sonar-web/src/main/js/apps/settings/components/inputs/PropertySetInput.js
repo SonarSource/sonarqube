@@ -21,7 +21,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import PrimitiveInput from './PrimitiveInput';
 import { getEmptyValue, getUniqueName } from '../../utils';
-import DeleteIcon from '../../../../components/icons-components/DeleteIcon';
+import { DeleteButton } from '../../../../components/ui/buttons';
 
 export default class PropertySetInput extends React.PureComponent {
   static propTypes = {
@@ -38,10 +38,7 @@ export default class PropertySetInput extends React.PureComponent {
     return getUniqueName(this.props.setting.definition, field.key);
   }
 
-  handleDeleteValue(e, index) {
-    e.preventDefault();
-    e.target.blur();
-
+  handleDeleteValue(index) {
     const newValue = [...this.ensureValue()];
     newValue.splice(index, 1);
     this.props.onChange(newValue);
@@ -70,13 +67,12 @@ export default class PropertySetInput extends React.PureComponent {
             />
           </td>
         ))}
-        <td className="thin nowrap">
+        <td className="thin nowrap text-middle">
           {!isLast && (
-            <button
-              className="js-remove-value button-link"
-              onClick={e => this.handleDeleteValue(e, index)}>
-              <DeleteIcon className="text-middle" />
-            </button>
+            <DeleteButton
+              className="js-remove-value"
+              onClick={this.handleDeleteValue.bind(this, index)}
+            />
           )}
         </td>
       </tr>

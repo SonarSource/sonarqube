@@ -76,10 +76,10 @@ export default class ProjectActivityAnalysis extends React.PureComponent {
         <div className="project-activity-time spacer-right">
           <TimeTooltipFormatter className="text-middle" date={date} placement="right" />
         </div>
-        <div className="project-activity-analysis-icon big-spacer-right" title={analysisTitle} />
+        <div className="project-activity-analysis-icon spacer-right" title={analysisTitle} />
 
         {(canAddVersion || canAddEvent || canDeleteAnalyses) && (
-          <div className="project-activity-analysis-actions spacer-left">
+          <div className="project-activity-analysis-actions big-spacer-right">
             <ActionsDropdown small={true} toggleClassName="js-analysis-actions">
               {canAddVersion && (
                 <AddEventForm

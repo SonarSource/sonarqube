@@ -21,7 +21,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import LongBranchesPattern from '../LongBranchesPattern';
-import { click } from '../../../../helpers/testUtils';
 
 jest.mock('../../../../api/settings', () => ({
   getValues: jest.fn(() => Promise.resolve([]))
@@ -43,7 +42,8 @@ it('opens form', () => {
   const wrapper = shallow(<LongBranchesPattern project="project" />);
   wrapper.setState({ loading: false, setting: { value: 'release-.*' } });
 
-  click(wrapper.find('a'));
+  wrapper.find('EditButton').prop<Function>('onClick')();
+  wrapper.update();
   expect(wrapper.find('LongBranchesPatternForm').exists()).toBeTruthy();
 
   wrapper.find('LongBranchesPatternForm').prop<Function>('onClose')();

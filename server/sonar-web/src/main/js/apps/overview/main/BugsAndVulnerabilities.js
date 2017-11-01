@@ -38,13 +38,13 @@ class BugsAndVulnerabilities extends React.PureComponent {
         <div className="overview-title">
           <span>{translate('metric.bugs.name')}</span>
           <Link
-            className="button button-small button-compact spacer-left text-text-bottom"
+            className="button button-small spacer-left text-text-bottom"
             to={getComponentDrilldownUrl(component.key, 'Reliability', branch)}>
             <BubblesIcon size={14} />
           </Link>
           <span className="big-spacer-left">{translate('metric.vulnerabilities.name')}</span>
           <Link
-            className="button button-small button-compact spacer-left text-text-bottom"
+            className="button button-small spacer-left text-text-bottom"
             to={getComponentDrilldownUrl(component.key, 'Security', branch)}>
             <BubblesIcon size={14} />
           </Link>

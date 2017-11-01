@@ -79,12 +79,10 @@ exports[`should open the right popups when the buttons are clicked 3`] = `
       position="bottomright"
       togglePopup={[Function]}
     >
-      <button
-        className="js-issue-comment-edit button-link icon-half-transparent"
+      <EditButton
+        className="js-issue-comment-edit button-small"
         onClick={[Function]}
-      >
-        <EditIcon />
-      </button>
+      />
     </BubblePopupHelper>
     <BubblePopupHelper
       className="bubble-popup-helper-inline"
@@ -103,12 +101,10 @@ exports[`should open the right popups when the buttons are clicked 3`] = `
       position="bottomright"
       togglePopup={[Function]}
     >
-      <button
-        className="js-issue-comment-delete button-link icon-half-transparent little-spacer-left"
+      <DeleteButton
+        className="js-issue-comment-delete button-small"
         onClick={[Function]}
-      >
-        <DeleteIcon />
-      </button>
+      />
     </BubblePopupHelper>
   </div>
 </div>
@@ -221,12 +217,10 @@ exports[`should render correctly a comment that is updatable 1`] = `
       position="bottomright"
       togglePopup={[Function]}
     >
-      <button
-        className="js-issue-comment-edit button-link icon-half-transparent"
+      <EditButton
+        className="js-issue-comment-edit button-small"
         onClick={[Function]}
-      >
-        <EditIcon />
-      </button>
+      />
     </BubblePopupHelper>
     <BubblePopupHelper
       className="bubble-popup-helper-inline"
@@ -245,12 +239,10 @@ exports[`should render correctly a comment that is updatable 1`] = `
       position="bottomright"
       togglePopup={[Function]}
     >
-      <button
-        className="js-issue-comment-delete button-link icon-half-transparent little-spacer-left"
+      <DeleteButton
+        className="js-issue-comment-delete button-small"
         onClick={[Function]}
-      >
-        <DeleteIcon />
-      </button>
+      />
     </BubblePopupHelper>
   </div>
 </div>

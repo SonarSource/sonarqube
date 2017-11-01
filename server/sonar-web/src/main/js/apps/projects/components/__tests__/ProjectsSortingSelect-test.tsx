@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProjectsSortingSelect from '../ProjectsSortingSelect';
-import { click } from '../../../../helpers/testUtils';
 
 it('should render correctly for overall view', () => {
   expect(
@@ -85,6 +84,6 @@ it('reverses sorting', () => {
       view="overall"
     />
   );
-  click(wrapper.find('a'));
+  wrapper.find('ButtonIcon').prop<Function>('onClick')();
   expect(onChange).toBeCalledWith('size', false);
 });

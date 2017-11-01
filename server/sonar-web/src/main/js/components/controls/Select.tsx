@@ -25,11 +25,26 @@ import ReactSelect, {
   ReactCreatableSelectProps,
   ReactAsyncSelectProps
 } from 'react-select';
+import * as theme from '../../app/theme';
+import ClearIcon from '../icons-components/ClearIcon';
+import { ButtonIcon } from '../ui/buttons';
 import './react-select.css';
+
+function renderInput() {
+  return (
+    <ButtonIcon className="button-tiny spacer-left text-middle" color={theme.gray60}>
+      <ClearIcon size={12} />
+    </ButtonIcon>
+  );
+}
 
 export default function Select(props: ReactSelectProps) {
   // TODO try to define good defaults, if any
-  return <ReactSelect {...props} />;
+  // ReactSelect doesn't declare `clearRenderer` prop
+  const ReactSelectAny = ReactSelect as any;
+  // hide the "x" icon when select is empty
+  const clearable = props.clearable ? Boolean(props.value) : false;
+  return <ReactSelectAny {...props} clearable={clearable} clearRenderer={renderInput} />;
 }
 
 export function Creatable(props: ReactCreatableSelectProps) {

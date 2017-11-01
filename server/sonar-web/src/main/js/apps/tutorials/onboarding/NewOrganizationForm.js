@@ -20,12 +20,12 @@
 // @flow
 import React from 'react';
 import { debounce } from 'lodash';
-import CloseIcon from '../../../components/icons-components/CloseIcon';
 import {
   createOrganization,
   deleteOrganization,
   getOrganization
 } from '../../../api/organizations';
+import { DeleteButton } from '../../../components/ui/buttons';
 import { translate } from '../../../helpers/l10n';
 
 /*::
@@ -109,8 +109,7 @@ export default class NewOrganizationForm extends React.PureComponent {
     }
   };
 
-  handleOrganizationDelete = (event /*: Event */) => {
-    event.preventDefault();
+  handleOrganizationDelete = () => {
     const { organization } = this.state;
     if (organization) {
       this.setState({ loading: true });
@@ -129,16 +128,14 @@ export default class NewOrganizationForm extends React.PureComponent {
     const valid = unique && organization.length >= 2;
 
     return done ? (
-      <form onSubmit={this.handleOrganizationDelete}>
+      <div>
         <span className="spacer-right text-middle">{organization}</span>
         {loading ? (
           <i className="spinner text-middle" />
         ) : (
-          <button className="button-clean text-middle">
-            <CloseIcon className="icon-red" />
-          </button>
+          <DeleteButton className="button-small" onClick={this.handleOrganizationDelete} />
         )}
-      </form>
+      </div>
     ) : (
       <form onSubmit={this.handleOrganizationCreate}>
         <input

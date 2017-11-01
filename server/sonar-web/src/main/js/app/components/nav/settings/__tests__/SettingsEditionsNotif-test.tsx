@@ -96,7 +96,7 @@ it('should allow to dismiss install errors', async () => {
       setEditionStatus={setEditionStatus}
     />
   );
-  click(wrapper.find('a'));
+  click(wrapper.find('button'));
   expect(dismissMsg).toHaveBeenCalled();
   await new Promise(setImmediate);
   expect(setEditionStatus).toHaveBeenCalledWith({
