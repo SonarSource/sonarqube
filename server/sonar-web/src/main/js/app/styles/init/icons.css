@@ -19,11 +19,11 @@
  */
 @font-face {
   font-family: 'sonar';
-  src: url('../../fonts/sonar-5.2.eot?');
-  src: url('../../fonts/sonar-5.2.eot?#iefix') format('embedded-opentype'),
-    url('../../fonts/sonar-5.2.woff?') format('woff'),
-    url('../../fonts/sonar-5.2.ttf?') format('truetype'),
-    url('../../fonts/sonar-5.2.svg?#sonar') format('svg');
+  src: url('../fonts/sonar-5.2.eot?');
+  src: url('../fonts/sonar-5.2.eot?#iefix') format('embedded-opentype'),
+    url('../fonts/sonar-5.2.woff?') format('woff'),
+    url('../fonts/sonar-5.2.ttf?') format('truetype'),
+    url('../fonts/sonar-5.2.svg?#sonar') format('svg');
   font-weight: normal;
   font-style: normal;
 }
