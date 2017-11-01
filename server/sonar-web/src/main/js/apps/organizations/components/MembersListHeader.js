@@ -19,7 +19,7 @@
  */
 //@flow
 import React from 'react';
-import UsersSearch from '../../users/components/UsersSearch';
+import SearchBox from '../../../components/controls/SearchBox';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 
@@ -37,7 +37,10 @@ export default class MembersListHeader extends React.PureComponent {
     const { total } = this.props;
     return (
       <div className="panel panel-vertical bordered-bottom spacer-bottom">
-        <UsersSearch onSearch={this.props.handleSearch} className="display-inline-block" />
+        <SearchBox
+          onChange={this.props.handleSearch}
+          placeholder={translate('search.search_for_users')}
+        />
         {total != null && (
           <span className="pull-right little-spacer-top">
             <strong>{formatMeasure(total, 'INT')}</strong>{' '}

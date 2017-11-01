@@ -33,7 +33,7 @@ interface Props {
   onChange: (value: string) => void;
   onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
   placeholder: string;
-  value: string;
+  value?: string;
 }
 
 interface State {
@@ -46,12 +46,16 @@ export default class SearchBox extends React.PureComponent<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.state = { value: props.value };
+    this.state = { value: props.value || '' };
     this.changeValue = debounce(this.props.onChange, 250);
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.value !== this.props.value && nextProps.value !== this.state.value) {
+    if (
+      nextProps.value !== undefined &&
+      nextProps.value !== this.props.value &&
+      nextProps.value !== this.state.value
+    ) {
       this.setState({ value: nextProps.value });
     }
   }
@@ -64,6 +68,9 @@ export default class SearchBox extends React.PureComponent<Props, State> {
 
   handleResetClick = () => {
     this.props.onChange('');
+    if (this.props.value === undefined) {
+      this.setState({ value: '' });
+    }
     if (this.input) {
       this.input.focus();
     }
