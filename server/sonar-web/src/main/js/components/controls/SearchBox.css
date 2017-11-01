@@ -53,14 +53,6 @@
   font-size: var(--smallFontSize);
 }
 
-.search-box-input ~ .note {
-  visibility: hidden;
-}
-
-.search-box-input.touched ~ .note {
-  visibility: visible;
-}
-
 .search-box-input:focus ~ .search-box-magnifier {
   color: var(--blue);
 }
@@ -77,21 +69,6 @@
   position: absolute;
   top: 4px;
   right: 4px;
-}
-
-.search-box-submit {
-  display: inline-block;
-  vertical-align: middle;
-}
-
-.search-box-submit .icon-search:before {
-  color: var(--secondFontColor);
-  font-size: var(--mediumFontSize);
-}
-
-.search-box-submit .icon-search-new {
-  position: relative;
-  top: 1px;
 }
 
 .search-box-input-note {

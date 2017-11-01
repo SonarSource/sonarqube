@@ -25,6 +25,7 @@ import * as theme from '../../app/theme';
 import { translateWithParameters } from '../../helpers/l10n';
 import { ButtonIcon } from '../ui/buttons';
 import { ClearIcon } from '../icons-components/icons';
+import './SearchBox.css';
 
 interface Props {
   minLength?: number;
