@@ -41,7 +41,7 @@ export default function ActionsDropdown(props: Props) {
         <SettingsIcon className="text-text-bottom" />
         <i className="icon-dropdown little-spacer-left" />
       </button>
-      <ul className="dropdown-menu dropdown-menu-right">{props.children}</ul>
+      <ul className="dropdown-menu">{props.children}</ul>
     </div>
   );
 }
