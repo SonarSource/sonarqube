@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { debounce } from 'lodash';
 import Checkbox from '../../../components/controls/Checkbox';
 import HelpIcon from '../../../components/icons-components/HelpIcon';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
+import SearchBox from '../../../components/controls/SearchBox';
 
 interface Props {
   showDeprecated: boolean;
@@ -32,66 +32,38 @@ interface Props {
   onToggleDeprecated: () => void;
 }
 
-interface State {
-  query: string;
-}
+export default function Search(props: Props) {
+  const { showInternal, showDeprecated, onToggleInternal, onToggleDeprecated } = props;
 
-export default class Search extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { query: '' };
-    this.actuallySearch = debounce(this.actuallySearch, 250);
-  }
-
-  handleSearch = (e: React.SyntheticEvent<HTMLInputElement>) => {
-    this.setState({ query: e.currentTarget.value });
-    this.actuallySearch();
-  };
-
-  actuallySearch = () => this.props.onSearch(this.state.query);
-
-  render() {
-    const { showInternal, showDeprecated, onToggleInternal, onToggleDeprecated } = this.props;
-
-    return (
-      <div className="web-api-search">
-        <div>
-          <i className="icon-search" />
-          <input
-            className="spacer-left input-large"
-            type="search"
-            value={this.state.query}
-            placeholder={translate('search_verb')}
-            onChange={this.handleSearch}
-          />
-        </div>
-
-        <div className="big-spacer-top">
-          <Checkbox checked={showInternal} onCheck={onToggleInternal}>
-            <span className="little-spacer-left">
-              {translate('api_documentation.show_internal')}
-            </span>
-          </Checkbox>
-          <Tooltip overlay={translate('api_documentation.internal_tooltip')} placement="right">
-            <span>
-              <HelpIcon className="spacer-left text-info" />
-            </span>
-          </Tooltip>
-        </div>
-
-        <div className="spacer-top">
-          <Checkbox checked={showDeprecated} onCheck={onToggleDeprecated}>
-            <span className="little-spacer-left">
-              {translate('api_documentation.show_deprecated')}
-            </span>
-          </Checkbox>
-          <Tooltip overlay={translate('api_documentation.deprecation_tooltip')} placement="right">
-            <span>
-              <HelpIcon className="spacer-left text-info" />
-            </span>
-          </Tooltip>
-        </div>
+  return (
+    <div className="web-api-search">
+      <div>
+        <SearchBox onChange={props.onSearch} placeholder={translate('search_verb')} />
       </div>
-    );
-  }
+
+      <div className="big-spacer-top">
+        <Checkbox checked={showInternal} onCheck={onToggleInternal}>
+          <span className="little-spacer-left">{translate('api_documentation.show_internal')}</span>
+        </Checkbox>
+        <Tooltip overlay={translate('api_documentation.internal_tooltip')} placement="right">
+          <span>
+            <HelpIcon className="spacer-left text-info" />
+          </span>
+        </Tooltip>
+      </div>
+
+      <div className="spacer-top">
+        <Checkbox checked={showDeprecated} onCheck={onToggleDeprecated}>
+          <span className="little-spacer-left">
+            {translate('api_documentation.show_deprecated')}
+          </span>
+        </Checkbox>
+        <Tooltip overlay={translate('api_documentation.deprecation_tooltip')} placement="right">
+          <span>
+            <HelpIcon className="spacer-left text-info" />
+          </span>
+        </Tooltip>
+      </div>
+    </div>
+  );
 }
