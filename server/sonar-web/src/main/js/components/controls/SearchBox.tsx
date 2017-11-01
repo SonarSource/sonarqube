@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { debounce } from 'lodash';
 import SearchIcon from '../icons-components/SearchIcon';
 import * as theme from '../../app/theme';
 import { translateWithParameters } from '../../helpers/l10n';
@@ -33,10 +34,29 @@ interface Props {
   value: string;
 }
 
-export default class SearchBox extends React.PureComponent<Props> {
+interface State {
+  value: string;
+}
+
+export default class SearchBox extends React.PureComponent<Props, State> {
+  changeValue: (query: string) => void;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = { value: props.value };
+    this.changeValue = debounce(this.props.onChange, 250);
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.value !== this.props.value && nextProps.value !== this.state.value) {
+      this.setState({ value: nextProps.value });
+    }
+  }
+
   handleChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
     const { value } = event.currentTarget;
-    this.props.onChange(value);
+    this.setState({ value });
+    this.changeValue(value);
   };
 
   handleResetClick = () => {
@@ -44,7 +64,8 @@ export default class SearchBox extends React.PureComponent<Props> {
   };
 
   render() {
-    const { minLength, value } = this.props;
+    const { minLength } = this.props;
+    const { value } = this.state;
 
     const inputClassName = classNames('search-box-input', {
       touched: value.length > 0 && (!minLength || minLength > value.length)
@@ -61,7 +82,7 @@ export default class SearchBox extends React.PureComponent<Props> {
           onKeyDown={this.props.onKeyDown}
           placeholder={this.props.placeholder}
           type="text"
-          value={this.props.value}
+          value={value}
         />
 
         <SearchIcon className="search-box-magnifier" />

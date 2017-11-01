@@ -20,7 +20,6 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import * as classNames from 'classnames';
-import { debounce } from 'lodash';
 import Components from './Components';
 import { getTree } from '../../../api/components';
 import { parseError } from '../utils';
@@ -54,10 +53,6 @@ export default class Search extends React.PureComponent<Props, State> {
     query: '',
     loading: false
   };
-
-  componentWillMount() {
-    this.handleSearch = debounce(this.handleSearch, 250);
-  }
 
   componentDidMount() {
     this.mounted = true;
