@@ -99,22 +99,10 @@
   padding: 4px 16px 0;
 }
 
+.menu-search .search-box,
 .menu-search .search-box-input {
-  font-size: var(--smallFontSize);
-}
-
-.menu-search .search-box-submit {
-  vertical-align: baseline;
-}
-
-.menu-search-full-width {
-  display: flex;
-  align-items: center;
-}
-
-.menu-search-full-width .search-box-input {
-  flex-grow: 1;
-  width: auto;
+  max-width: none;
+  min-width: 300px;
 }
 
 .menu-search ~ .menu > li > a:hover,

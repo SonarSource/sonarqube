@@ -28,6 +28,7 @@ import { ClearIcon } from '../icons-components/icons';
 import './SearchBox.css';
 
 interface Props {
+  autoFocus?: boolean;
   minLength?: number;
   onChange: (value: string) => void;
   onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
@@ -81,6 +82,7 @@ export default class SearchBox extends React.PureComponent<Props, State> {
     return (
       <div className="search-box">
         <input
+          autoFocus={this.props.autoFocus}
           className={inputClassName}
           maxLength={100}
           onChange={this.handleChange}
