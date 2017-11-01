@@ -157,17 +157,6 @@
     </where>
   </select>
 
-  <select id="selectGlobalPropertiesByKeyQuery" resultType="ScrapProperty">
-    select
-    <include refid="columnsToScrapPropertyDto"/>
-    from
-    properties p
-    where
-    p.resource_id is null
-    and p.user_id is null
-    and p.prop_key like #{textQuery,jdbcType=VARCHAR}
-  </select>
-
   <select id="selectIdsByOrganizationAndUser" parameterType="map" resultType="long">
     select py.id
     from properties py

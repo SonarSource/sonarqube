@@ -46,7 +46,7 @@ public class SettingsWsSupport {
   public static final String DOT_SECURED = ".secured";
   public static final String DOT_LICENSE = ".license";
   private static final String LICENSE_SUFFIX = DOT_LICENSE + DOT_SECURED;
-  static final String LICENSE_HASH_SUFFIX = ".licenseHash" + DOT_SECURED;
+  private static final String LICENSE_HASH_SUFFIX = ".licenseHash" + DOT_SECURED;
 
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final UserSession userSession;

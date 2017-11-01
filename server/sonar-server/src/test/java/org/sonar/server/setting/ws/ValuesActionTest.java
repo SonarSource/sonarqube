@@ -88,13 +88,12 @@ public class ValuesActionTest {
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private PropertyDefinitions definitions = new PropertyDefinitions();
   private SettingsFinder settingsFinder = new SettingsFinder(dbClient, definitions);
-  private ScannerSettings scannerSettings = new ScannerSettings(db.getDbClient(), definitions);
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private SettingsWsSupport support = new SettingsWsSupport(defaultOrganizationProvider, userSession);
   private ComponentDto project;
 
   private WsActionTester ws = new WsActionTester(
-    new ValuesAction(dbClient, TestComponentFinder.from(db), userSession, definitions, settingsFinder, support, scannerSettings));
+    new ValuesAction(dbClient, TestComponentFinder.from(db), userSession, definitions, settingsFinder, support));
 
   @Before
   public void setUp() throws Exception {
@@ -518,7 +517,7 @@ public class ValuesActionTest {
   }
 
   @Test
-  public void return_license_with_hash_settings_when_authenticated_but_not_admin() throws Exception {
+  public void return_license_settings_when_authenticated_but_not_admin() throws Exception {
     logIn();
     definitions.addComponents(asList(
       PropertyDefinition.builder("foo").build(),
@@ -529,13 +528,11 @@ public class ValuesActionTest {
       newGlobalPropertyDto().setKey("foo").setValue("one"),
       newGlobalPropertyDto().setKey("secret.secured").setValue("password"),
       newGlobalPropertyDto().setKey("commercial.plugin").setValue("ABCD"),
-      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
-      newGlobalPropertyDto().setKey("sonar.plugin.licenseHash.secured").setValue("987654321"));
+      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties();
 
-    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "commercial.plugin", "plugin.license.secured",
-      "sonar.plugin.licenseHash.secured");
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "commercial.plugin", "plugin.license.secured");
   }
 
   @Test
@@ -550,13 +547,11 @@ public class ValuesActionTest {
       newGlobalPropertyDto().setKey("foo").setValue("one"),
       newGlobalPropertyDto().setKey("secret.secured").setValue("password"),
       newGlobalPropertyDto().setKey("commercial.plugin").setValue("ABCD"),
-      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
-      newGlobalPropertyDto().setKey("sonar.plugin.licenseHash.secured").setValue("987654321"));
+      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties();
 
-    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "secret.secured", "commercial.plugin", "plugin.license.secured",
-      "sonar.plugin.licenseHash.secured");
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "secret.secured", "commercial.plugin", "plugin.license.secured");
   }
 
   @Test
@@ -575,13 +570,12 @@ public class ValuesActionTest {
       newGlobalPropertyDto().setKey("global.secret.secured").setValue("very secret"),
       newComponentPropertyDto(project).setKey("secret.secured").setValue("password"),
       newComponentPropertyDto(project).setKey("commercial.plugin").setValue("ABCD"),
-      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
-      newGlobalPropertyDto().setKey("sonar.plugin.licenseHash.secured").setValue("987654321"));
+      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"));
 
     ValuesWsResponse result = executeRequestForProjectProperties();
 
     assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "global.secret.secured", "secret.secured", "commercial.plugin",
-      "plugin.license.secured", "sonar.plugin.licenseHash.secured");
+      "plugin.license.secured");
   }
 
   @Test
@@ -606,12 +600,11 @@ public class ValuesActionTest {
     propertyDb.insertProperties(
       newGlobalPropertyDto().setKey("foo").setValue("one"),
       newGlobalPropertyDto().setKey("secret.secured").setValue("password"),
-      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
-      newGlobalPropertyDto().setKey("sonar.plugin.licenseHash.secured").setValue("987654321"));
+      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties();
 
-    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured", "sonar.plugin.licenseHash.secured");
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "secret.secured", "plugin.license.secured");
   }
 
   @Test
@@ -626,13 +619,11 @@ public class ValuesActionTest {
       newComponentPropertyDto(project).setKey("foo").setValue("one"),
       newGlobalPropertyDto().setKey("global.secret.secured").setValue("very secret"),
       newComponentPropertyDto(project).setKey("secret.secured").setValue("password"),
-      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
-      newGlobalPropertyDto().setKey("sonar.plugin.licenseHash.secured").setValue("987654321"));
+      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"));
 
     ValuesWsResponse result = executeRequestForProjectProperties();
 
-    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "global.secret.secured", "secret.secured", "plugin.license.secured",
-      "sonar.plugin.licenseHash.secured");
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("foo", "global.secret.secured", "secret.secured", "plugin.license.secured");
   }
 
   @Test
@@ -702,16 +693,12 @@ public class ValuesActionTest {
     logInAsAdmin();
     definitions.addComponent(PropertyDefinition.builder("plugin.license.secured").type(LICENSE).build());
     propertyDb.insertProperties(
-      newGlobalPropertyDto().setKey("sonar.server_id").setValue("12345"),
       newGlobalPropertyDto().setKey("sonar.core.id").setValue("ID"),
-      newGlobalPropertyDto().setKey("sonar.core.startTime").setValue("2017-01-01"),
-      newGlobalPropertyDto().setKey("plugin.license.secured").setValue("ABCD"),
-      newGlobalPropertyDto().setKey("sonar.plugin.licenseHash.secured").setValue("987654321"));
+      newGlobalPropertyDto().setKey("sonar.core.startTime").setValue("2017-01-01"));
 
     ValuesWsResponse result = executeRequestForGlobalProperties();
 
-    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("sonar.core.id", "sonar.core.startTime", "plugin.license.secured",
-      "sonar.plugin.licenseHash.secured");
+    assertThat(result.getSettingsList()).extracting(Settings.Setting::getKey).containsOnly("sonar.core.id", "sonar.core.startTime");
   }
 
   @Test
@@ -735,7 +722,7 @@ public class ValuesActionTest {
     definitions.addComponent(PropertyDefinition.builder("sonar.leak.period").onQualifiers(PROJECT).build());
     propertyDb.insertProperties(newComponentPropertyDto(branch).setKey("sonar.leak.period").setValue("two"));
 
-    ValuesWsResponse result =  ws.newRequest()
+    ValuesWsResponse result = ws.newRequest()
       .setParam("keys", "sonar.leak.period")
       .setParam("component", branch.getKey())
       .setParam("branch", branch.getBranch())
@@ -753,7 +740,7 @@ public class ValuesActionTest {
     definitions.addComponent(PropertyDefinition.builder("sonar.leak.period").onQualifiers(PROJECT).build());
     propertyDb.insertProperties(newComponentPropertyDto(project).setKey("sonar.leak.period").setValue("two"));
 
-    ValuesWsResponse result =  ws.newRequest()
+    ValuesWsResponse result = ws.newRequest()
       .setParam("keys", "sonar.leak.period")
       .setParam("component", branch.getKey())
       .setParam("branch", branch.getBranch())

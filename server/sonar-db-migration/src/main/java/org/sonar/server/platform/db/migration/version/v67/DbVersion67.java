@@ -33,6 +33,7 @@ public class DbVersion67 implements DbVersion {
       .add(1834, "Set WEBHOOK_DELIVERIES.CE_TASK_UUID as nullable", UpdateCeTaskUuidColumnToNullableOnWebhookDeliveries.class)
       .add(1835, "Populate WEBHOOK_DELIVERIES.ANALYSIS_UUID", PopulateAnalysisUuidColumnOnWebhookDeliveries.class)
       .add(1836, "Migrate 'previous_analysis' leak periods to 'previous_version'", MigratePreviousAnalysisToPreviousVersion.class)
+      .add(1837, "Drop old licenses", DropOldLicenses.class)
     ;
   }
 }
