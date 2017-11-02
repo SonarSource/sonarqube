@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.db.migration.engine;
 
-import java.util.OptionalLong;
+import java.util.Optional;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
@@ -45,9 +45,9 @@ public class MigrationEngineImpl implements MigrationEngine {
 
     try {
       MigrationStepsExecutor stepsExecutor = migrationContainer.getComponentByType(MigrationStepsExecutor.class);
-      OptionalLong lastMigrationNumber = migrationHistory.getLastMigrationNumber();
+      Optional<Long> lastMigrationNumber = migrationHistory.getLastMigrationNumber();
       if (lastMigrationNumber.isPresent()) {
-        stepsExecutor.execute(migrationSteps.readFrom(lastMigrationNumber.getAsLong() + 1));
+        stepsExecutor.execute(migrationSteps.readFrom(lastMigrationNumber.get() + 1));
       } else {
         stepsExecutor.execute(migrationSteps.readAll());
       }

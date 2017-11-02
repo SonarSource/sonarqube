@@ -19,7 +19,9 @@
  */
 package org.sonar.server.platform.db.migration.history;
 
-import com.google.common.base.Throwables;
+import static com.google.common.base.Preconditions.checkState;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -28,13 +30,14 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalLong;
+
 import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
 
-import static com.google.common.base.Preconditions.checkState;
-import static org.sonar.core.util.stream.MoreCollectors.toList;
+import com.google.common.base.Throwables;
 
 public class MigrationHistoryImpl implements MigrationHistory {
   private static final String SCHEMA_MIGRATIONS_TABLE = "schema_migrations";
@@ -60,14 +63,14 @@ public class MigrationHistoryImpl implements MigrationHistory {
   }
 
   @Override
-  public OptionalLong getLastMigrationNumber() {
+  public Optional<Long> getLastMigrationNumber() {
     try (Connection connection = database.getDataSource().getConnection()) {
       List<Long> versions = selectVersions(connection);
 
       if (!versions.isEmpty()) {
-        return OptionalLong.of(versions.get(versions.size() - 1));
+        return Optional.of(versions.get(versions.size() - 1));
       }
-      return OptionalLong.empty();
+      return Optional.empty();
     } catch (SQLException e) {
       throw new IllegalStateException("Failed to read content of table " + SCHEMA_MIGRATIONS_TABLE, e);
     }
