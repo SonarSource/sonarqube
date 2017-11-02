@@ -115,6 +115,7 @@ export default class SearchBox extends React.PureComponent<Props, State> {
     return (
       <div className="search-box">
         <input
+          autoComplete="off"
           autoFocus={this.props.autoFocus}
           className={inputClassName}
           maxLength={100}
@@ -124,7 +125,7 @@ export default class SearchBox extends React.PureComponent<Props, State> {
           onKeyDown={this.props.onKeyDown}
           placeholder={this.props.placeholder}
           ref={this.ref}
-          type="text"
+          type="search"
           value={value}
         />
 

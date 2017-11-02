@@ -44,6 +44,21 @@
   opacity: 1;
 }
 
+.search-box-input::-webkit-search-decoration,
+.search-box-input::-webkit-search-cancel-button,
+.search-box-input::-webkit-search-results-button,
+.search-box-input::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  display: none;
+}
+
+.search-box-input::-ms-clear,
+.search-box-input::-ms-reveal {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 .search-box-note {
   position: absolute;
   top: 1px;
