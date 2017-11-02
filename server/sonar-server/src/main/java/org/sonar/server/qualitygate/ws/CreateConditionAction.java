@@ -24,9 +24,9 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsQualityGates.CreateConditionWsResponse;
@@ -61,16 +61,16 @@ public class CreateConditionAction implements QualityGatesWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction createCondition = controller.createAction(ACTION_CREATE_CONDITION)
+      .setPost(true)
       .setDescription("Add a new condition to a quality gate.<br>" +
         "Requires the 'Administer Quality Gates' permission.")
-      .setPost(true)
       .setSince("4.3")
       .setHandler(this);
 
     createCondition
       .createParam(PARAM_GATE_ID)
-      .setDescription("ID of the quality gate")
       .setRequired(true)
+      .setDescription("ID of the quality gate")
       .setExampleValue("1");
 
     addConditionParams(createCondition);
