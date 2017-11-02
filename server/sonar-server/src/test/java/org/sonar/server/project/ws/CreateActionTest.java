@@ -47,7 +47,6 @@ import org.sonarqube.ws.WsProjects.CreateWsResponse;
 import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
 import org.sonarqube.ws.client.project.CreateRequest;
 
-import static joptsimple.internal.Strings.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -287,32 +286,6 @@ public class CreateActionTest {
     expectedException.expect(ForbiddenException.class);
 
     call(CreateRequest.builder().setKey(DEFAULT_PROJECT_KEY).setName(DEFAULT_PROJECT_NAME).build());
-  }
-
-  @Test
-  public void fail_when_project_parameter_is_longer_than_400() {
-    userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'project' length (401) is longer than the maximum authorized (400)");
-
-    ws.newRequest().setMethod(POST.name())
-      .setParam("project", repeat('a', 401))
-      .setParam("name", DEFAULT_PROJECT_NAME)
-      .execute();
-  }
-
-  @Test
-  public void fail_when_name_parameter_is_longer_than_2000() {
-    userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("'name' length (2001) is longer than the maximum authorized (2000)");
-
-    ws.newRequest().setMethod(POST.name())
-      .setParam("project", "key")
-      .setParam("name", repeat('a', 2001))
-      .execute();
   }
 
   @Test
