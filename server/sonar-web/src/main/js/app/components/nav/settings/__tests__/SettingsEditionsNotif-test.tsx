@@ -114,3 +114,16 @@ it('should not display the restart button', () => {
   );
   expect(wrapper.find('button.js-restart').exists()).toBeFalsy();
 });
+
+it('should a link to cluster documentation for datacenter edition', () => {
+  const editions = [{ key: 'datacenter' }] as any;
+  const wrapper = shallow(
+    <SettingsEditionsNotif
+      editions={editions}
+      editionStatus={{ installationStatus: 'AUTOMATIC_READY', nextEditionKey: 'datacenter' }}
+      preventRestart={false}
+      setEditionStatus={jest.fn()}
+    />
+  );
+  expect(wrapper.find('a').exists()).toBeTruthy();
+});

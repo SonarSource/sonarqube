@@ -146,6 +146,16 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
           'marketplace.license_preview_status.' + previewStatus,
           licenseEdition ? licenseEdition.name : translate('marketplace.commercial_edition')
         )}
+        {licenseEdition &&
+        licenseEdition.key === 'datacenter' &&
+        previewStatus !== 'NO_INSTALL' && (
+          <a
+            className="spacer-left"
+            href="https://redirect.sonarsource.com/doc/how-to-install-an-edition.html"
+            target="_blank">
+            {translate('marketplace.how_to_configure_cluster')}
+          </a>
+        )}
       </p>
     );
   }
