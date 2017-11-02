@@ -38,6 +38,9 @@ import org.sonarqube.ws.client.user.CreateRequest;
 import static com.google.common.base.Strings.emptyToNull;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
+import static org.sonar.server.user.UserUpdater.EMAIL_MAX_LENGTH;
+import static org.sonar.server.user.UserUpdater.LOGIN_MAX_LENGTH;
+import static org.sonar.server.user.UserUpdater.NAME_MAX_LENGTH;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CREATE;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
@@ -75,8 +78,9 @@ public class CreateAction implements UsersWsAction {
       .setHandler(this);
 
     action.createParam(PARAM_LOGIN)
-      .setDescription("User login")
       .setRequired(true)
+      .setMaximumLength(LOGIN_MAX_LENGTH)
+      .setDescription("User login")
       .setExampleValue("myuser");
 
     action.createParam(PARAM_PASSWORD)
@@ -84,11 +88,13 @@ public class CreateAction implements UsersWsAction {
       .setExampleValue("mypassword");
 
     action.createParam(PARAM_NAME)
-      .setDescription("User name")
       .setRequired(true)
+      .setMaximumLength(NAME_MAX_LENGTH)
+      .setDescription("User name")
       .setExampleValue("My Name");
 
     action.createParam(PARAM_EMAIL)
+      .setMaximumLength(EMAIL_MAX_LENGTH)
       .setDescription("User email")
       .setExampleValue("myname@email.com");
 

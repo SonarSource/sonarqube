@@ -38,6 +38,9 @@ import org.sonarqube.ws.client.user.UpdateRequest;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Collections.singletonList;
+import static org.sonar.server.user.UserUpdater.EMAIL_MAX_LENGTH;
+import static org.sonar.server.user.UserUpdater.LOGIN_MAX_LENGTH;
+import static org.sonar.server.user.UserUpdater.NAME_MAX_LENGTH;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_UPDATE;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
@@ -73,15 +76,18 @@ public class UpdateAction implements UsersWsAction {
       .setResponseExample(getClass().getResource("update-example.json"));
 
     action.createParam(PARAM_LOGIN)
-      .setDescription("User login")
       .setRequired(true)
+      .setMaximumLength(LOGIN_MAX_LENGTH)
+      .setDescription("User login")
       .setExampleValue("myuser");
 
     action.createParam(PARAM_NAME)
+      .setMaximumLength(NAME_MAX_LENGTH)
       .setDescription("User name")
       .setExampleValue("My Name");
 
     action.createParam(PARAM_EMAIL)
+      .setMaximumLength(EMAIL_MAX_LENGTH)
       .setDescription("User email")
       .setExampleValue("myname@email.com");
 

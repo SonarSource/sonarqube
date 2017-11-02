@@ -68,9 +68,9 @@ public class UserUpdater {
   private static final String EMAIL_PARAM = "Email";
 
   private static final int LOGIN_MIN_LENGTH = 2;
-  private static final int LOGIN_MAX_LENGTH = 255;
-  private static final int EMAIL_MAX_LENGTH = 100;
-  private static final int NAME_MAX_LENGTH = 200;
+  public static final int LOGIN_MAX_LENGTH = 255;
+  public static final int EMAIL_MAX_LENGTH = 100;
+  public static final int NAME_MAX_LENGTH = 200;
 
   private final NewUserNotifier newUserNotifier;
   private final DbClient dbClient;
