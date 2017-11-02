@@ -33,6 +33,10 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.MetricKeyValidator;
 
+import static org.sonar.db.metric.MetricValidator.MAX_DESCRIPTION_LENGTH;
+import static org.sonar.db.metric.MetricValidator.MAX_DOMAIN_LENGTH;
+import static org.sonar.db.metric.MetricValidator.MAX_KEY_LENGTH;
+import static org.sonar.db.metric.MetricValidator.MAX_NAME_LENGTH;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class UpdateAction implements MetricsWsAction {
@@ -73,23 +77,28 @@ public class UpdateAction implements MetricsWsAction {
       .setDescription("Id of the custom metric to update")
       .setExampleValue("42");
 
-    action.createParam(PARAM_NAME)
-      .setDescription("Name")
-      .setExampleValue("Team Size");
-
     action.createParam(PARAM_KEY)
+      .setDescription("Key")
+      .setMaximumLength(MAX_KEY_LENGTH)
       .setDescription("Key")
       .setExampleValue("team_size");
 
+    action.createParam(PARAM_NAME)
+      .setMaximumLength(MAX_NAME_LENGTH)
+      .setDescription("Name");
+
     action.createParam(PARAM_TYPE)
-      .setDescription("Type")
-      .setPossibleValues(Metric.ValueType.names());
+      .setDescription("Metric type key")
+      .setPossibleValues(Metric.ValueType.names())
+      .setExampleValue(Metric.ValueType.INT.name());
 
     action.createParam(PARAM_DESCRIPTION)
       .setDescription("Description")
+      .setMaximumLength(MAX_DESCRIPTION_LENGTH)
       .setExampleValue("Size of the team");
 
     action.createParam(PARAM_DOMAIN)
+      .setMaximumLength(MAX_DOMAIN_LENGTH)
       .setDescription("Domain")
       .setExampleValue("Tests");
   }

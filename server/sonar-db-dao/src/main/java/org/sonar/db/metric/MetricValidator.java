@@ -27,10 +27,10 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 public class MetricValidator {
-  private static final int MAX_KEY_LENGTH = 64;
-  private static final int MAX_NAME_LENGTH = 64;
-  private static final int MAX_DOMAIN_LENGTH = 64;
-  private static final int MAX_DESCRIPTION_LENGTH = 255;
+  public static final int MAX_KEY_LENGTH = 64;
+  public static final int MAX_NAME_LENGTH = 64;
+  public static final int MAX_DOMAIN_LENGTH = 64;
+  public static final int MAX_DESCRIPTION_LENGTH = 255;
 
   private MetricValidator() {
     // static utility methods only
