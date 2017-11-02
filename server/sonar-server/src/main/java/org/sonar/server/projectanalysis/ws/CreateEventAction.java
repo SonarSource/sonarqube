@@ -50,6 +50,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.db.event.EventValidator.MAX_NAME_LENGTH;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.OTHER;
 import static org.sonarqube.ws.client.projectanalysis.EventCategory.VERSION;
@@ -100,9 +101,10 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
       .setPossibleValues(VERSION, OTHER);
 
     action.createParam(PARAM_NAME)
+      .setRequired(true)
+      .setMaximumLength(MAX_NAME_LENGTH)
       .setDescription("Name")
-      .setExampleValue("5.6")
-      .setRequired(true);
+      .setExampleValue("5.6");
   }
 
   @Override

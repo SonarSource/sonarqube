@@ -24,8 +24,8 @@ import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-class EventValidator {
-  private static final int MAX_NAME_LENGTH = 400;
+public class EventValidator {
+  public static final int MAX_NAME_LENGTH = 400;
   private static final int MAX_CATEGORY_LENGTH = 50;
   private static final int MAX_DESCRIPTION_LENGTH = 4000;
 
