@@ -33,6 +33,10 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.db.metric.MetricValidator.MAX_DESCRIPTION_LENGTH;
+import static org.sonar.db.metric.MetricValidator.MAX_DOMAIN_LENGTH;
+import static org.sonar.db.metric.MetricValidator.MAX_KEY_LENGTH;
+import static org.sonar.db.metric.MetricValidator.MAX_NAME_LENGTH;
 import static org.sonar.server.util.MetricKeyValidator.checkMetricKeyFormat;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
@@ -67,15 +71,17 @@ public class CreateAction implements MetricsWsAction {
       .setSince("5.2")
       .setHandler(this);
 
-    action.createParam(PARAM_NAME)
-      .setRequired(true)
-      .setDescription("Name")
-      .setExampleValue("Team Size");
-
     action.createParam(PARAM_KEY)
       .setRequired(true)
+      .setMaximumLength(MAX_KEY_LENGTH)
       .setDescription("Key")
       .setExampleValue("team_size");
+
+    action.createParam(PARAM_NAME)
+      .setRequired(true)
+      .setMaximumLength(MAX_NAME_LENGTH)
+      .setDescription("Name")
+      .setExampleValue("Team Size");
 
     action.createParam(PARAM_TYPE)
       .setRequired(true)
@@ -85,9 +91,11 @@ public class CreateAction implements MetricsWsAction {
 
     action.createParam(PARAM_DESCRIPTION)
       .setDescription("Description")
+      .setMaximumLength(MAX_DESCRIPTION_LENGTH)
       .setExampleValue("Size of the team");
 
     action.createParam(PARAM_DOMAIN)
+      .setMaximumLength(MAX_DOMAIN_LENGTH)
       .setDescription("Domain")
       .setExampleValue("Tests");
   }
