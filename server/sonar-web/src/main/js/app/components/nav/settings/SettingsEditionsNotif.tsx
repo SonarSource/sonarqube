@@ -79,6 +79,15 @@ export default class SettingsEditionsNotif extends React.PureComponent<Props, St
             translate('marketplace.status', editionStatus.installationStatus)
           )}
         </span>
+        {edition &&
+        edition.key === 'datacenter' && (
+          <a
+            className="spacer-left"
+            href="https://redirect.sonarsource.com/doc/how-to-install-an-edition.html"
+            target="_blank">
+            {translate('marketplace.how_to_configure_cluster')}
+          </a>
+        )}
         {!preventRestart && (
           <button className="js-restart spacer-left" onClick={this.handleOpenRestart}>
             {translate('marketplace.restart')}
