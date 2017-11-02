@@ -67,7 +67,13 @@ public abstract class ValidatingRequest extends Request {
   @Override
   @CheckForNull
   public String param(String key) {
-    return param(key, true);
+    WebService.Param definition = action.param(key);
+    String value = readParam(key, definition);
+    String trimmedValue = value == null ? null : CharMatcher.WHITESPACE.trimFrom(value);
+    if (trimmedValue != null) {
+      validateValue(trimmedValue, definition);
+    }
+    return trimmedValue;
   }
 
   @Override
@@ -90,21 +96,10 @@ public abstract class ValidatingRequest extends Request {
   }
 
   @CheckForNull
-  private String param(String key, boolean validateValue) {
-    WebService.Param definition = action.param(key);
-    String value = readParamOrDefaultValue(key, definition);
-    String trimmedValue = value == null ? null : CharMatcher.WHITESPACE.trimFrom(value);
-    if (trimmedValue != null && validateValue) {
-      validateValue(trimmedValue, definition);
-    }
-    return trimmedValue;
-  }
-
-  @CheckForNull
   @Override
   public List<String> paramAsStrings(String key) {
     WebService.Param definition = action.param(key);
-    String value = readParamOrDefaultValue(key, definition);
+    String value = readParam(key, definition);
     if (value == null) {
       return null;
     }
@@ -125,11 +120,15 @@ public abstract class ValidatingRequest extends Request {
   }
 
   @CheckForNull
-  private String readParamOrDefaultValue(String key, @Nullable WebService.Param definition) {
+  private String readParam(String key, @Nullable WebService.Param definition) {
     checkArgument(definition != null, "BUG - parameter '%s' is undefined for action '%s'", key, action.key());
 
     String deprecatedKey = definition.deprecatedKey();
-    String value = deprecatedKey != null ? defaultString(readParam(deprecatedKey), readParam(key)) : readParam(key);
+    return deprecatedKey != null ?
+      defaultString(readParam(deprecatedKey), readParam(key)) :
+      readParam(key);
+
+
     return defaultString(value, definition.defaultValue());
   }
 

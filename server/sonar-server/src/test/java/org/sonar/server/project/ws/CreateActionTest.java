@@ -48,6 +48,7 @@ import org.sonarqube.ws.WsProjects.CreateWsResponse;
 import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
 import org.sonarqube.ws.client.project.CreateRequest;
 
+import static joptsimple.internal.Strings.repeat;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -88,8 +89,7 @@ public class CreateActionTest {
       new ProjectsWsSupport(db.getDbClient(), defaultOrganizationProvider, billingValidations),
       db.getDbClient(), userSession,
       new ComponentUpdater(db.getDbClient(), i18n, system2, mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()),
-        projectIndexers)
-    ));
+        projectIndexers)));
 
   @Test
   public void create_project() throws Exception {
@@ -265,6 +265,8 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_missing_project_parameter() throws Exception {
+    userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
+
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'project' parameter is missing");
 
@@ -273,6 +275,8 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_missing_name_parameter() throws Exception {
+    userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
+
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'name' parameter is missing");
 
@@ -287,8 +291,16 @@ public class CreateActionTest {
   }
 
   @Test
-  public void test() {
+  public void fail_when_key_is_greater_than_400() {
+    userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
 
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'key' length (403) is longer than the maximum authorized (400)");
+
+    call(CreateRequest.builder()
+      .setKey("key" + repeat('a', 400))
+      .setName(DEFAULT_PROJECT_NAME)
+      .build());
   }
 
   @Test
