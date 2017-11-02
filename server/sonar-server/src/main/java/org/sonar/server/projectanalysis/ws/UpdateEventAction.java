@@ -83,6 +83,7 @@ public class UpdateEventAction implements ProjectAnalysesWsAction {
       .setRequired(true);
 
     action.createParam(PARAM_NAME)
+      .setMaximumLength(org.sonar.db.event.EventValidator.MAX_NAME_LENGTH)
       .setDescription("New name")
       .setExampleValue("5.6");
   }
