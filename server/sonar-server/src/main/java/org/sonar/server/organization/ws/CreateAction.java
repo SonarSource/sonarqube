@@ -38,6 +38,7 @@ import org.sonarqube.ws.Organizations.CreateWsResponse;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.organization.OrganizationCreation.NewOrganization.newOrganizationBuilder;
+import static org.sonar.server.organization.OrganizationValidation.KEY_MAX_LENGTH;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -76,6 +77,7 @@ public class CreateAction implements OrganizationsWsAction {
 
     action.createParam(PARAM_KEY)
       .setRequired(false)
+      .setMaximumLength(KEY_MAX_LENGTH)
       .setDescription("Key of the organization. <br />" +
         "The key is unique to the whole SonarQube. <br/>" +
         "When not specified, the key is computed from the name. <br />" +

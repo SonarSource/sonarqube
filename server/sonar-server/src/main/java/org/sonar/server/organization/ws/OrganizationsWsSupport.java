@@ -27,6 +27,9 @@ import org.sonar.server.organization.OrganizationValidation;
 import org.sonarqube.ws.Organizations;
 
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.server.organization.OrganizationValidation.DESCRIPTION_MAX_LENGTH;
+import static org.sonar.server.organization.OrganizationValidation.NAME_MAX_LENGTH;
+import static org.sonar.server.organization.OrganizationValidation.URL_MAX_LENGTH;
 
 /**
  * Factorizes code and constants between Organization WS's actions.
@@ -80,22 +83,26 @@ public class OrganizationsWsSupport {
   void addOrganizationDetailsParams(WebService.NewAction action, boolean isNameRequired) {
     action.createParam(PARAM_NAME)
       .setRequired(isNameRequired)
+      .setMaximumLength(NAME_MAX_LENGTH)
       .setDescription("Name of the organization. <br />" +
         "It must be between 2 and 64 chars longs.")
       .setExampleValue("Foo Company");
 
     action.createParam(PARAM_DESCRIPTION)
       .setRequired(false)
+      .setMaximumLength(DESCRIPTION_MAX_LENGTH)
       .setDescription("Description of the organization.<br/> It must be less than 256 chars long.")
       .setExampleValue("The Foo company produces quality software for Bar.");
 
     action.createParam(PARAM_URL)
       .setRequired(false)
+      .setMaximumLength(URL_MAX_LENGTH)
       .setDescription("URL of the organization.<br/> It must be less than 256 chars long.")
       .setExampleValue("https://www.foo.com");
 
     action.createParam(PARAM_AVATAR_URL)
       .setRequired(false)
+      .setMaximumLength(URL_MAX_LENGTH)
       .setDescription("URL of the organization avatar.<br/> It must be less than 256 chars long.")
       .setExampleValue("https://www.foo.com/foo.png");
   }

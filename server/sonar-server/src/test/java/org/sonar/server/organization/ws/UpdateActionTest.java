@@ -195,7 +195,8 @@ public class UpdateActionTest {
     userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Name '" + STRING_65_CHARS_LONG + "' must be at most 64 chars long");
+    expectedException.expectMessage("'name' length (65) is longer than the maximum authorized (64)");
+
 
     executeKeyRequest(SOME_KEY, STRING_65_CHARS_LONG);
   }
@@ -233,7 +234,7 @@ public class UpdateActionTest {
     userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Description '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
+    expectedException.expectMessage("'description' length (257) is longer than the maximum authorized (256)");
 
     executeKeyRequest(SOME_KEY, "bar", STRING_257_CHARS_LONG, null, null);
   }
@@ -253,7 +254,7 @@ public class UpdateActionTest {
     userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Url '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
+    expectedException.expectMessage("'url' length (257) is longer than the maximum authorized (256)");
 
     executeKeyRequest(SOME_KEY, "bar", null, STRING_257_CHARS_LONG, null);
   }
@@ -273,7 +274,7 @@ public class UpdateActionTest {
     userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Avatar '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
+    expectedException.expectMessage("'avatar' length (257) is longer than the maximum authorized (256)");
 
     executeKeyRequest(SOME_KEY, "bar", null, null, STRING_257_CHARS_LONG);
   }
