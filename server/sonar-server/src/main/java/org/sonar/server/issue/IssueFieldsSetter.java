@@ -286,7 +286,7 @@ public class IssueFieldsSetter {
   public boolean setEffort(DefaultIssue issue, @Nullable Duration value, IssueChangeContext context) {
     Duration oldValue = issue.effort();
     if (!Objects.equals(value, oldValue)) {
-      issue.setEffort(value != null ? value : null);
+      issue.setEffort(value);
       issue.setFieldChange(context, TECHNICAL_DEBT, oldValue != null ? oldValue.toMinutes() : null, value != null ? value.toMinutes() : null);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
