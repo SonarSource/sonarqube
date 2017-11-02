@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { debounce } from 'lodash';
-import RadioToggle from '../../components/controls/RadioToggle';
 import { Query } from './utils';
+import RadioToggle from '../../components/controls/RadioToggle';
+import SearchBox from '../../components/controls/SearchBox';
 import { translate } from '../../helpers/l10n';
 
 interface Props {
@@ -29,32 +29,12 @@ interface Props {
   updateQuery: (newQuery: Partial<Query>) => void;
 }
 
-interface State {
-  search?: string;
-}
-
-export default class Search extends React.PureComponent<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { search: props.query.search };
-    this.updateSearch = debounce(this.updateSearch, 250);
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.query.search !== this.state.search) {
-      this.setState({ search: nextProps.query.search });
-    }
-  }
-
-  handleSearch = (e: React.SyntheticEvent<HTMLInputElement>) => {
-    const search = e.currentTarget.value;
-    this.setState({ search });
-    this.updateSearch(search);
+export default class Search extends React.PureComponent<Props> {
+  handleSearch = (search: string) => {
+    this.props.updateQuery({ search });
   };
 
   handleFilterChange = (filter: string) => this.props.updateQuery({ filter });
-
-  updateSearch = (search: string) => this.props.updateQuery({ search });
 
   render() {
     const { query, updateCenterActive } = this.props;
@@ -77,21 +57,11 @@ export default class Search extends React.PureComponent<Props, State> {
             value={query.filter}
           />
         </div>
-        <div className="search-box display-inline-block text-top">
-          <button className="search-box-submit button-clean">
-            <i className="icon-search" />
-          </button>
-          <input
-            onChange={this.handleSearch}
-            value={this.state.search}
-            className="search-box-input"
-            type="search"
-            name="search"
-            placeholder={translate('search_verb')}
-            maxLength={100}
-            autoComplete="off"
-          />
-        </div>
+        <SearchBox
+          onChange={this.handleSearch}
+          placeholder={translate('search_verb')}
+          value={query.search}
+        />
       </div>
     );
   }
