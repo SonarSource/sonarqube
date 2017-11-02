@@ -22,7 +22,6 @@ package org.sonarqube.tests.telemetry;
 import com.sonar.orchestrator.Orchestrator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import javax.ws.rs.core.HttpHeaders;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.BeforeClass;
@@ -65,7 +64,7 @@ public class TelemetryOptOutTest {
     RecordedRequest request = server.takeRequest(1, TimeUnit.SECONDS);
 
     assertThat(request.getMethod()).isEqualTo("DELETE");
-    assertThat(request.getHeader(HttpHeaders.USER_AGENT)).contains("SonarQube");
+    assertThat(request.getHeader("User-Agent")).contains("SonarQube");
     Map<String, Object> json = jsonToMap(request.getBody().readUtf8());
     assertThat(json.get("id")).isEqualTo(serverId());
   }
