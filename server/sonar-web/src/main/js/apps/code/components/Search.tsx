@@ -124,7 +124,6 @@ export default class Search extends React.PureComponent<Props, State> {
   };
 
   handleSearch = (query: string) => {
-    // first time check if value has changed due to debounce
     if (this.mounted) {
       const { branch, component, onError } = this.props;
       this.setState({ loading: true });
@@ -134,7 +133,6 @@ export default class Search extends React.PureComponent<Props, State> {
 
       getTree(component.key, { branch, q: query, s: 'qualifier,name', qualifiers })
         .then(r => {
-          // second time check if value has change due to api request
           if (this.mounted) {
             this.setState({
               results: r.components,
@@ -144,7 +142,6 @@ export default class Search extends React.PureComponent<Props, State> {
           }
         })
         .catch(e => {
-          // second time check if value has change due to api request
           if (this.mounted) {
             this.setState({ loading: false });
             parseError(e).then(onError);
