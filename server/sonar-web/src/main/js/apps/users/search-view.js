@@ -25,13 +25,15 @@ export default Marionette.ItemView.extend({
   template: Template,
 
   ui: {
-    hint: '.js-hint'
+    hint: '.js-hint',
+    reset: '.js-reset'
   },
 
   events: {
     'submit #users-search-form': 'onFormSubmit',
     'search #users-search-query': 'initialOnKeyUp',
-    'keyup #users-search-query': 'initialOnKeyUp'
+    'keyup #users-search-query': 'initialOnKeyUp',
+    'click .js-reset': 'onResetClick'
   },
 
   initialize() {
@@ -51,6 +53,7 @@ export default Marionette.ItemView.extend({
   initialOnKeyUp() {
     const q = this.getQuery();
     this.ui.hint.toggleClass('hidden', q.length !== 1);
+    this.ui.reset.toggleClass('hidden', q.length === 0);
     this.debouncedOnKeyUp();
   },
 
@@ -64,6 +67,7 @@ export default Marionette.ItemView.extend({
       this.searchRequest.abort();
     }
     this.ui.hint.toggleClass('hidden', q.length !== 1);
+    this.ui.reset.toggleClass('hidden', q.length === 0);
     if (q.length !== 1) {
       this.searchRequest = this.search(q);
     }
@@ -75,5 +79,14 @@ export default Marionette.ItemView.extend({
 
   search(q) {
     return this.collection.fetch({ reset: true, data: { q } });
+  },
+
+  onResetClick(e) {
+    e.preventDefault();
+    e.currentTarget.blur();
+    this.$('#users-search-query')
+      .val('')
+      .focus();
+    this.onKeyUp();
   }
 });

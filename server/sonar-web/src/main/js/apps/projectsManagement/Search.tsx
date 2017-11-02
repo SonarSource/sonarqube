@@ -29,6 +29,7 @@ import QualifierIcon from '../../components/shared/QualifierIcon';
 import Tooltip from '../../components/controls/Tooltip';
 import DateInput from '../../components/controls/DateInput';
 import Select from '../../components/controls/Select';
+import SearchBox from '../../components/controls/SearchBox';
 
 export interface Props {
   analyzedBefore?: string;
@@ -59,16 +60,6 @@ export default class Search extends React.PureComponent<Props, State> {
   input: HTMLInputElement;
   mounted: boolean;
   state: State = { bulkApplyTemplateModal: false, deleteModal: false };
-
-  onSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    this.search();
-  };
-
-  search = (event?: React.SyntheticEvent<HTMLInputElement>) => {
-    const q = event ? event.currentTarget.value : this.input.value;
-    this.props.onSearch(q);
-  };
 
   getQualifierOptions = () => {
     const options = this.props.topLevelQualifiers.map(q => ({
@@ -206,19 +197,12 @@ export default class Search extends React.PureComponent<Props, State> {
               {this.renderDateFilter()}
               {this.renderTypeFilter()}
               <td className="text-middle">
-                <form onSubmit={this.onSubmit} className="search-box">
-                  <button className="search-box-submit button-clean">
-                    <i className="icon-search" />
-                  </button>
-                  <input
-                    onChange={this.search}
-                    value={this.props.query}
-                    ref={node => (this.input = node!)}
-                    className="search-box-input input-medium"
-                    type="search"
-                    placeholder={translate('search_verb')}
-                  />
-                </form>
+                <SearchBox
+                  minLength={3}
+                  onChange={this.props.onSearch}
+                  placeholder={translate('search.search_by_name_or_key')}
+                  value={this.props.query}
+                />
               </td>
               <td className="thin nowrap text-middle">
                 <button

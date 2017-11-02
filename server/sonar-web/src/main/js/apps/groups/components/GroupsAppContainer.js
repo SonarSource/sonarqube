@@ -21,6 +21,7 @@ import React from 'react';
 import Helmet from 'react-helmet';
 import init from '../init';
 import { translate } from '../../../helpers/l10n';
+import '../../../components/controls/SearchBox.css';
 
 export default class GroupsAppContainer extends React.PureComponent {
   componentDidMount() {

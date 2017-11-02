@@ -66,13 +66,13 @@ it('selects next & previous', () => {
       onClose={jest.fn()}
     />
   );
-  elementKeydown(wrapper.find('input'), 40);
+  elementKeydown(wrapper.find('SearchBox'), 40);
   wrapper.update();
   expect(wrapper.state().selected).toBe('foo');
-  elementKeydown(wrapper.find('input'), 40);
+  elementKeydown(wrapper.find('SearchBox'), 40);
   wrapper.update();
   expect(wrapper.state().selected).toBe('foobar');
-  elementKeydown(wrapper.find('input'), 38);
+  elementKeydown(wrapper.find('SearchBox'), 38);
   wrapper.update();
   expect(wrapper.state().selected).toBe('foo');
 });

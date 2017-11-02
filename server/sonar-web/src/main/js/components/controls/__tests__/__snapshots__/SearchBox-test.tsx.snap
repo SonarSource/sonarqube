@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="search-box"
+>
+  <input
+    autoComplete="off"
+    className="search-box-input"
+    maxLength={100}
+    onChange={[Function]}
+    onKeyDown={[Function]}
+    placeholder="placeholder"
+    type="search"
+    value="foo"
+  />
+  <SearchIcon
+    className="search-box-magnifier"
+  />
+  <ButtonIcon
+    className="button-tiny search-box-clear"
+    color="#999"
+    onClick={[Function]}
+  >
+    <ClearIcon
+      size={12}
+    />
+  </ButtonIcon>
+</div>
+`;

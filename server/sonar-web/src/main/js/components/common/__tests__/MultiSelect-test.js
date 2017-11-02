@@ -26,7 +26,8 @@ const props = {
   elements: [],
   onSearch: () => {},
   onSelect: () => {},
-  onUnselect: () => {}
+  onUnselect: () => {},
+  placeholder: ''
 };
 
 const elements = ['foo', 'bar', 'baz'];

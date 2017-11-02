@@ -87,9 +87,7 @@ export const updateQuery = (query /*: string */ = '', organization /*: ?string *
   dispatch /*: Dispatch */
 ) => {
   dispatch({ type: UPDATE_QUERY, query });
-  if (query.length === 0 || query.length > 2) {
-    dispatch(loadHolders(organization));
-  }
+  dispatch(loadHolders(organization));
 };
 
 export const updateFilter = (filter /*: string */, organization /*: ?string */) => (

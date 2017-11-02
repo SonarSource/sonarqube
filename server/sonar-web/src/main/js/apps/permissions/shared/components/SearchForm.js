@@ -20,79 +20,33 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import RadioToggle from '../../../../components/controls/RadioToggle';
+import SearchBox from '../../../../components/controls/SearchBox';
 import { translate, translateWithParameters } from '../../../../helpers/l10n';
 
-export default class SearchForm extends React.PureComponent {
-  static propTypes = {
-    query: PropTypes.string,
-    filter: PropTypes.oneOf(['all', 'users', 'groups']),
-    onSearch: PropTypes.func,
-    onFilter: PropTypes.func
-  };
+export default function SearchForm(props) {
+  const filterOptions = [
+    { value: 'all', label: translate('all') },
+    { value: 'users', label: translate('users.page') },
+    { value: 'groups', label: translate('user_groups.page') }
+  ];
 
-  componentWillMount() {
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleSearch = this.handleSearch.bind(this);
-  }
+  return (
+    <div className="diplay-flex-row">
+      <RadioToggle
+        name="users-or-groups"
+        onCheck={props.onFilter}
+        options={filterOptions}
+        value={props.filter}
+      />
 
-  handleSubmit(e) {
-    e.preventDefault();
-    this.handleSearch();
-  }
-
-  handleSearch() {
-    const { value } = this.refs.searchInput;
-    this.props.onSearch(value);
-  }
-
-  handleFilter(filter) {
-    this.props.onFilter(filter);
-  }
-
-  render() {
-    const { query, filter } = this.props;
-
-    const filterOptions = [
-      { value: 'all', label: translate('all') },
-      { value: 'users', label: translate('users.page') },
-      { value: 'groups', label: translate('user_groups.page') }
-    ];
-
-    return (
-      <div>
-        <RadioToggle
-          value={filter}
-          options={filterOptions}
-          name="users-or-groups"
-          onCheck={this.handleFilter.bind(this)}
+      <div className="flex-1 spacer-left">
+        <SearchBox
+          minLength={3}
+          onChange={props.onSearch}
+          placeholder={translate('search.search_for_users_or_groups')}
+          value={props.query}
         />
-
-        <form
-          className="search-box display-inline-block text-middle big-spacer-left"
-          onSubmit={this.handleSubmit}>
-          <button className="search-box-submit button-clean">
-            <i className="icon-search" />
-          </button>
-          <input
-            ref="searchInput"
-            value={query}
-            className="search-box-input"
-            style={{ width: 100 }}
-            type="search"
-            placeholder={translate('search_verb')}
-            onChange={this.handleSearch.bind(this)}
-          />
-          {query.length > 0 &&
-            query.length < 3 && (
-              <div className="search-box-input-note tooltip bottom fade in">
-                <div className="tooltip-inner">
-                  {translateWithParameters('select2.tooShort', 3)}
-                </div>
-                <div className="tooltip-arrow" style={{ left: 23 }} />
-              </div>
-            )}
-        </form>
       </div>
-    );
-  }
+    </div>
+  );
 }

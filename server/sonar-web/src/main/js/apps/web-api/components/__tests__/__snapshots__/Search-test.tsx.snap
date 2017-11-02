@@ -5,15 +5,9 @@ exports[`should render correctly 1`] = `
   className="web-api-search"
 >
   <div>
-    <i
-      className="icon-search"
-    />
-    <input
-      className="spacer-left input-large"
+    <SearchBox
       onChange={[Function]}
-      placeholder="search_verb"
-      type="search"
-      value=""
+      placeholder="api_documentation.search"
     />
   </div>
   <div

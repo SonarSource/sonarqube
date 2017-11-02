@@ -37,18 +37,14 @@ export default class Template extends React.PureComponent {
     topQualifiers: PropTypes.array.isRequired
   };
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      loading: false,
-      users: [],
-      groups: [],
-      query: '',
-      filter: 'all',
-      selectedPermission: null
-    };
-    this.requestHoldersDebounced = debounce(this.requestHolders, 250);
-  }
+  state = {
+    loading: false,
+    users: [],
+    groups: [],
+    query: '',
+    filter: 'all',
+    selectedPermission: null
+  };
 
   componentDidMount() {
     this.mounted = true;
@@ -140,9 +136,7 @@ export default class Template extends React.PureComponent {
 
   handleSearch = query => {
     this.setState({ query });
-    if (query.length === 0 || query.length > 2) {
-      this.requestHoldersDebounced(query);
-    }
+    this.requestHolders(query);
   };
 
   handleFilter = filter => {

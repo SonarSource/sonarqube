@@ -19,7 +19,7 @@
  */
 //@flow
 import React from 'react';
-import UsersSearch from '../../users/components/UsersSearch';
+import SearchBox from '../../../components/controls/SearchBox';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 
@@ -30,21 +30,19 @@ type Props = {
 };
 */
 
-export default class MembersListHeader extends React.PureComponent {
-  /*:: props: Props; */
-
-  render() {
-    const { total } = this.props;
-    return (
-      <div className="panel panel-vertical bordered-bottom spacer-bottom">
-        <UsersSearch onSearch={this.props.handleSearch} className="display-inline-block" />
-        {total != null && (
-          <span className="pull-right little-spacer-top">
-            <strong>{formatMeasure(total, 'INT')}</strong>{' '}
-            {translate('organization.members.members')}
-          </span>
-        )}
-      </div>
-    );
-  }
+export default function MembersListHeader({ handleSearch, total } /*: Props */) {
+  return (
+    <div className="panel panel-vertical bordered-bottom spacer-bottom">
+      <SearchBox
+        minLength={2}
+        onChange={handleSearch}
+        placeholder={translate('search.search_for_users')}
+      />
+      {total != null && (
+        <span className="pull-right little-spacer-top">
+          <strong>{formatMeasure(total, 'INT')}</strong> {translate('organization.members.members')}
+        </span>
+      )}
+    </div>
+  );
 }

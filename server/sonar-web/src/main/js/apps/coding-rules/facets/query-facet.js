@@ -17,17 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { debounce } from 'lodash';
 import BaseFacet from './base-facet';
 import Template from '../templates/facets/coding-rules-query-facet.hbs';
 
 export default BaseFacet.extend({
   template: Template,
 
-  events() {
+  events(...args) {
     return {
-      ...BaseFacet.prototype.events.apply(this, arguments),
+      ...BaseFacet.prototype.events.apply(this, args),
       'submit form': 'onFormSubmit',
-      'search input': 'onInputSearch'
+      'keyup input': 'onKeyUp',
+      'search input': 'onSearch',
+      'click .js-reset': 'onResetClick'
     };
   },
 
@@ -37,6 +40,8 @@ export default BaseFacet.extend({
     const value = query.q;
     if (value != null) {
       this.$('input').val(value);
+      this.$('.js-hint').toggleClass('hidden', value.length !== 1);
+      this.$('.js-reset').toggleClass('hidden', value.length === 0);
     }
   },
 
@@ -45,8 +50,24 @@ export default BaseFacet.extend({
     this.applyFacet();
   },
 
-  onInputSearch() {
-    this.applyFacet();
+  onKeyUp() {
+    const q = this.$('input').val();
+    this.$('.js-hint').toggleClass('hidden', q.length !== 1);
+    this.$('.js-reset').toggleClass('hidden', q.length === 0);
+  },
+
+  onSearch() {
+    const q = this.$('input').val();
+    if (q.length !== 1) {
+      this.applyFacet();
+    }
+  },
+
+  onResetClick(e) {
+    e.preventDefault();
+    this.$('input')
+      .val('')
+      .focus();
   },
 
   applyFacet() {

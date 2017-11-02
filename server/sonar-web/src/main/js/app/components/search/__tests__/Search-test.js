@@ -38,12 +38,12 @@ function component(key /*: string */, qualifier /*: string */ = 'TRK') {
 }
 
 function next(form /*: ShallowWrapper */, expected /*: string */) {
-  elementKeydown(form.find('input'), 40);
+  elementKeydown(form.find('SearchBox'), 40);
   expect(form.state().selected).toBe(expected);
 }
 
 function prev(form /*: ShallowWrapper */, expected /*: string */) {
-  elementKeydown(form.find('input'), 38);
+  elementKeydown(form.find('SearchBox'), 38);
   expect(form.state().selected).toBe(expected);
 }
 
@@ -83,7 +83,7 @@ it('opens selected on enter', () => {
   });
   const openSelected = jest.fn();
   form.instance().openSelected = openSelected;
-  elementKeydown(form.find('input'), 13);
+  elementKeydown(form.find('SearchBox'), 13);
   expect(openSelected).toBeCalled();
 });
 
@@ -93,14 +93,6 @@ it('shows warning about short input', () => {
   expect(form.find('.navbar-search-input-hint')).toMatchSnapshot();
   form.setState({ query: 'foobar x' });
   expect(form.find('.navbar-search-input-hint')).toMatchSnapshot();
-});
-
-it('closes on escape', () => {
-  const form = render();
-  form.instance().openSearch();
-  expect(form.state().open).toBe(true);
-  elementKeydown(form.find('input'), 27);
-  expect(form.state().open).toBe(false);
 });
 
 it('closes on click outside', () => {
