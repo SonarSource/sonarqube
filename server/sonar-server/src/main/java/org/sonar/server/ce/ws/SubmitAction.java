@@ -33,6 +33,8 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsCe;
 
+import static org.sonar.core.component.ComponentKeys.MAX_COMPONENT_KEY_LENGTH;
+import static org.sonar.db.component.ComponentValidator.MAX_COMPONENT_NAME_LENGTH;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class SubmitAction implements CeWsAction {
@@ -72,6 +74,7 @@ public class SubmitAction implements CeWsAction {
     action
       .createParam(PARAM_PROJECT_KEY)
       .setRequired(true)
+      .setMaximumLength(MAX_COMPONENT_KEY_LENGTH)
       .setDescription("Key of project")
       .setExampleValue("my_project");
 
@@ -83,6 +86,7 @@ public class SubmitAction implements CeWsAction {
     action
       .createParam(PARAM_PROJECT_NAME)
       .setRequired(false)
+      .setMaximumLength(MAX_COMPONENT_NAME_LENGTH)
       .setDescription("Optional name of the project, used only if the project does not exist yet.")
       .setExampleValue("My Project");
 
