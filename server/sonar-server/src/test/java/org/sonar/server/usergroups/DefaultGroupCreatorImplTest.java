@@ -21,6 +21,7 @@
 package org.sonar.server.usergroups;
 
 import java.util.Optional;
+import java.util.OptionalInt;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -47,9 +48,9 @@ public class DefaultGroupCreatorImplTest {
 
     underTest.create(db.getSession(), organizationDto.getUuid());
 
-    Optional<Integer> defaultGroupId = db.getDbClient().organizationDao().getDefaultGroupId(db.getSession(), organizationDto.getUuid());
+    OptionalInt defaultGroupId = db.getDbClient().organizationDao().getDefaultGroupId(db.getSession(), organizationDto.getUuid());
     assertThat(defaultGroupId).isPresent();
-    assertThat(db.getDbClient().groupDao().selectById(db.getSession(), defaultGroupId.get()))
+    assertThat(db.getDbClient().groupDao().selectById(db.getSession(), defaultGroupId.getAsInt()))
       .extracting(GroupDto::getName, GroupDto::getDescription)
       .containsOnly("Members", "All members of the organization");
   }

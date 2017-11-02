@@ -20,6 +20,7 @@
 package org.sonar.server.platform;
 
 import java.util.Optional;
+import java.util.OptionalLong;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.picocontainer.Startable;

@@ -21,6 +21,7 @@ package org.sonar.db.organization;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
@@ -98,9 +99,10 @@ public class OrganizationDao implements Dao {
     getMapper(dbSession).updateDefaultTemplates(uuid, defaultTemplates, now);
   }
 
-  public Optional<Integer> getDefaultGroupId(DbSession dbSession, String organizationUuid) {
+  public OptionalInt getDefaultGroupId(DbSession dbSession, String organizationUuid) {
     checkUuid(organizationUuid);
-    return Optional.ofNullable(getMapper(dbSession).selectDefaultGroupIdByUuid(organizationUuid));
+    return Optional.ofNullable(getMapper(dbSession).selectDefaultGroupIdByUuid(organizationUuid))
+    								.map(OptionalInt::of).orElseGet(OptionalInt::empty);
   }
 
   public void setDefaultGroupId(DbSession dbSession, String uuid, GroupDto defaultGroup) {

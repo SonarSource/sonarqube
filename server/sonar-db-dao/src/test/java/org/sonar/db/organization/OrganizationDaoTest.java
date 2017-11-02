@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Random;
 import javax.annotation.Nullable;
 import org.apache.ibatis.exceptions.PersistenceException;
@@ -596,9 +597,9 @@ public class OrganizationDaoTest {
     insertOrganization(ORGANIZATION_DTO_1);
     underTest.setDefaultGroupId(dbSession, ORGANIZATION_DTO_1.getUuid(), GroupTesting.newGroupDto().setId(10));
 
-    Optional<Integer> optional = underTest.getDefaultGroupId(dbSession, ORGANIZATION_DTO_1.getUuid());
+    OptionalInt optional = underTest.getDefaultGroupId(dbSession, ORGANIZATION_DTO_1.getUuid());
     assertThat(optional).isNotEmpty();
-    assertThat(optional.get()).isEqualTo(10);
+    assertThat(optional.getAsInt()).isEqualTo(10);
     verifyOrganizationUpdatedAt(ORGANIZATION_DTO_1.getUuid(), DATE_3);
   }
 

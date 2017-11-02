@@ -20,6 +20,7 @@
 package org.sonar.server.es.metadata;
 
 import java.util.Optional;
+import java.util.OptionalLong;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.index.get.GetField;
