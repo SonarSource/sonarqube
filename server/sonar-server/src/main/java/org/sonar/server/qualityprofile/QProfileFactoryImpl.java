@@ -55,8 +55,6 @@ public class QProfileFactoryImpl implements QProfileFactory {
     this.activeRuleIndexer = activeRuleIndexer;
   }
 
-  // ------------- CREATION
-
   private static OrganizationDto requireNonNull(@Nullable OrganizationDto organization) {
     Objects.requireNonNull(organization, "Organization is required, when creating a quality profile.");
     return organization;

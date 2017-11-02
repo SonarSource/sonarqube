@@ -36,12 +36,12 @@ import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileResult;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.util.LanguageParamUtils;
 import org.sonarqube.ws.QualityProfiles.CreateWsResponse;
 import org.sonarqube.ws.client.qualityprofile.CreateRequest;
 
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganizationParam;
+import static org.sonar.server.util.LanguageParamUtils.getLanguageKeys;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.ACTION_CREATE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
@@ -51,6 +51,7 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 public class CreateAction implements QProfileWsAction {
 
   private static final String PARAM_BACKUP_FORMAT = "backup_%s";
+  static final int NAME_MAXIMUM_LENGTH = 100;
 
   private final DbClient dbClient;
   private final QProfileFactory profileFactory;
@@ -81,27 +82,28 @@ public class CreateAction implements QProfileWsAction {
   @Override
   public void define(WebService.NewController controller) {
     NewAction create = controller.createAction(ACTION_CREATE)
-      .setSince("5.2")
-      .setDescription("Create a quality profile.<br>" +
-        "Requires to be logged in and the 'Administer Quality Profiles' permission.")
       .setPost(true)
+      .setDescription("Create a quality profile.<br>" +
+    "Requires to be logged in and the 'Administer Quality Profiles' permission.")
       .setResponseExample(getClass().getResource("create-example.json"))
+      .setSince("5.2")
       .setHandler(this);
 
     createOrganizationParam(create)
       .setSince("6.4");
 
     create.createParam(PARAM_NAME)
+      .setRequired(true)
+      .setMaximumLength(NAME_MAXIMUM_LENGTH)
       .setDescription("Quality profile name")
       .setExampleValue("My Sonar way")
-      .setDeprecatedKey("profileName", "6.6")
-      .setRequired(true);
+      .setDeprecatedKey("profileName", "6.6");
 
     create.createParam(PARAM_LANGUAGE)
+      .setRequired(true)
       .setDescription("Quality profile language")
       .setExampleValue("js")
-      .setPossibleValues(LanguageParamUtils.getLanguageKeys(languages))
-      .setRequired(true);
+      .setPossibleValues(getLanguageKeys(languages));
 
     for (ProfileImporter importer : importers) {
       create.createParam(getBackupParamName(importer.getKey()))

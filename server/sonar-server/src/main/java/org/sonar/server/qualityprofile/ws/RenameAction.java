@@ -34,6 +34,7 @@ import org.sonar.server.user.UserSession;
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
+import static org.sonar.server.qualityprofile.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_NAME;
@@ -55,25 +56,26 @@ public class RenameAction implements QProfileWsAction {
   @Override
   public void define(WebService.NewController controller) {
     NewAction setDefault = controller.createAction("rename")
-      .setSince("5.2")
+      .setPost(true)
       .setDescription("Rename a quality profile.<br> " +
         "Requires one of the following permissions:" +
         "<ul>" +
         "  <li>'Administer Quality Profiles'</li>" +
         "  <li>Edit right on the specified quality profile</li>" +
         "</ul>")
-      .setPost(true)
+      .setSince("5.2")
       .setHandler(this);
 
     setDefault.createParam(PARAM_KEY)
+      .setRequired(true)
       .setDescription("Quality profile key")
-      .setExampleValue(UUID_EXAMPLE_01)
-      .setRequired(true);
+      .setExampleValue(UUID_EXAMPLE_01);
 
     setDefault.createParam(PARAM_NAME)
+      .setRequired(true)
+      .setMaximumLength(NAME_MAXIMUM_LENGTH)
       .setDescription("New quality profile name")
-      .setExampleValue("My Sonar way")
-      .setRequired(true);
+      .setExampleValue("My Sonar way");
 
   }
 
