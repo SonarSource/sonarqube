@@ -29,7 +29,6 @@ import { formatMeasure } from '../../../helpers/measures';
 export default class Condition extends Component {
   constructor(props) {
     super(props);
-    this.handleChange = this.handleChange.bind(this);
     this.state = {
       changed: false,
       period: props.condition.period,
@@ -40,34 +39,27 @@ export default class Condition extends Component {
   }
 
   componentDidMount() {
-    const { condition } = this.props;
-
-    // TODO looks like `this.opetator` is always null or undefined
-    if (!condition.id && this.operator) {
+    if (!this.props.condition.id && this.operator) {
       this.operator.focus();
     }
-  }
-
-  handleChange() {
-    this.setState({ changed: true });
   }
 
   handleOperatorChange = ({ value }) => {
     this.setState({ changed: true, op: value });
   };
 
-  handlePeriodChange(checked) {
+  handlePeriodChange = checked => {
     const period = checked ? '1' : undefined;
     this.setState({ changed: true, period });
-  }
+  };
 
-  handleWarningChange(value) {
+  handleWarningChange = value => {
     this.setState({ changed: true, warning: value });
-  }
+  };
 
-  handleErrorChange(value) {
+  handleErrorChange = value => {
     this.setState({ changed: true, error: value });
-  }
+  };
 
   handleSaveClick = e => {
     const { qualityGate, condition, metric, onSaveCondition, onError, onResetError } = this.props;
@@ -177,7 +169,7 @@ export default class Condition extends Component {
       return this.renderPeriodValue();
     }
 
-    return <Checkbox checked={isLeakSelected} onCheck={this.handlePeriodChange.bind(this)} />;
+    return <Checkbox checked={isLeakSelected} onCheck={this.handlePeriodChange} />;
   }
 
   renderOperator() {
@@ -201,14 +193,14 @@ export default class Condition extends Component {
 
     return (
       <Select
-        ref={node => (this.operator = node)}
         className="input-medium"
-        name="operator"
-        value={this.state.op}
         clearable={false}
-        searchable={false}
-        options={operatorOptions}
+        innerRef={node => (this.operator = node)}
+        name="operator"
         onChange={this.handleOperatorChange}
+        options={operatorOptions}
+        searchable={false}
+        value={this.state.op}
       />
     );
   }
@@ -234,7 +226,7 @@ export default class Condition extends Component {
               name="warning"
               value={this.state.warning}
               metric={metric}
-              onChange={value => this.handleWarningChange(value)}
+              onChange={this.handleWarningChange}
             />
           ) : (
             formatMeasure(condition.warning, metric.type)
@@ -247,7 +239,7 @@ export default class Condition extends Component {
               name="error"
               value={this.state.error}
               metric={metric}
-              onChange={value => this.handleErrorChange(value)}
+              onChange={this.handleErrorChange}
             />
           ) : (
             formatMeasure(condition.error, metric.type)

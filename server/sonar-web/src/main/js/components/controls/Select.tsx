@@ -38,13 +38,19 @@ function renderInput() {
   );
 }
 
-export default function Select(props: ReactSelectProps) {
+interface WithInnerRef {
+  innerRef?: (element: ReactSelect) => void;
+}
+
+export default function Select({ innerRef, ...props }: WithInnerRef & ReactSelectProps) {
   // TODO try to define good defaults, if any
   // ReactSelect doesn't declare `clearRenderer` prop
   const ReactSelectAny = ReactSelect as any;
   // hide the "x" icon when select is empty
   const clearable = props.clearable ? Boolean(props.value) : false;
-  return <ReactSelectAny {...props} clearable={clearable} clearRenderer={renderInput} />;
+  return (
+    <ReactSelectAny {...props} clearable={clearable} clearRenderer={renderInput} ref={innerRef} />
+  );
 }
 
 export function Creatable(props: ReactCreatableSelectProps) {
