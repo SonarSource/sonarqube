@@ -21,11 +21,12 @@ package org.sonarqube.tests.sourceCode;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category1Suite;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.tests.Category1Suite;
 import org.sonarqube.tests.Tester;
+import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
 
 import static util.ItUtils.projectDir;
 
@@ -38,27 +39,58 @@ public class ProjectCodeTest {
   public Tester tester = new Tester(orchestrator).disableOrganizations();
 
   @Test
-  public void test_project_code_page() {
-    executeBuild("shared/xoo-sample", "project-for-code", "Project For Code");
+  public void browse() {
+    Project project = tester.projects().generate(null);
+    executeAnalysis(project);
 
-    tester.runHtmlTests(
-      "/sourceCode/ProjectCodeTest/test_project_code_page.html",
-      "/sourceCode/ProjectCodeTest/search.html",
-      "/sourceCode/ProjectCodeTest/permalink.html");
+    tester.openBrowser().openCode(project.getKey())
+      .shouldHaveComponent("src/main/xoo/sample")
+      .openFirstComponent()
+      .shouldHaveComponent("Sample.xoo")
+      .openFirstComponent()
+      .shouldHaveCode("public class Sample")
+      .shouldHaveBreadcrumbs(project.getName(), "src/main/xoo/sample", "Sample.xoo");
   }
 
   @Test
-  public void code_page_should_expand_root_dir() {
-    executeBuild("shared/xoo-sample-with-root-dir", "project-for-code-root-dir", "Project For Code");
+  public void search() {
+    Project project = tester.projects().generate(null);
+    executeAnalysis(project);
 
-    tester.runHtmlTests("/sourceCode/ProjectCodeTest/code_page_should_expand_root_dir.html");
+    tester.openBrowser().openCode(project.getKey())
+      .shouldHaveComponent(project.getName())
+      .search("xoo")
+      .shouldSearchResult("Sample.xoo");
   }
 
-  private void executeBuild(String projectLocation, String projectKey, String projectName) {
+  @Test
+  public void permalink() {
+    Project project = tester.projects().generate(null);
+    executeAnalysis(project);
+
+    tester.openBrowser().openCode(project.getKey(), project.getKey() + "%3Asrc%2Fmain%2Fxoo%2Fsample%2FSample.xoo")
+      .shouldHaveCode("public class Sample")
+      .shouldHaveBreadcrumbs(project.getName(), "src/main/xoo/sample", "Sample.xoo");
+  }
+
+  @Test
+  public void expand_root_dir() {
+    Project project = tester.projects().generate(null);
+    executeAnalysis(project, "shared/xoo-sample-with-root-dir");
+
+    tester.openBrowser().openCode(project.getKey())
+      .shouldHaveComponent("Hello.xoo")
+      .shouldHaveComponent("src/main/xoo/sample");
+  }
+
+  private void executeAnalysis(Project project, String path) {
     orchestrator.executeBuild(
-      SonarScanner.create(projectDir(projectLocation))
-        .setProjectKey(projectKey)
-        .setProjectName(projectName));
+      SonarScanner.create(projectDir(path))
+        .setProjectKey(project.getKey())
+        .setProjectName(project.getName()));
   }
 
+  private void executeAnalysis(Project project) {
+    executeAnalysis(project, "shared/xoo-sample");
+  }
 }
