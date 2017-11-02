@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.projectbranch.ws;
+package org.sonar.server.branch.ws;
 
 import java.util.Optional;
 import org.sonar.api.server.ws.Request;
@@ -33,7 +33,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.server.projectbranch.ws.BranchesWs.addProjectParam;
+import static org.sonar.server.branch.ws.BranchesWs.addProjectParam;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_RENAME;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_NAME;
 import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
