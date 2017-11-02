@@ -36,6 +36,12 @@ public class ComponentBombReportAnalysisComponentProvider implements ReportAnaly
 
   @Override
   public List<Object> getComponents() {
+    if (bombConfig.isOomStartBomb()) {
+      return singletonList(OOMFailingStartComponent.class);
+    }
+    if (bombConfig.isIseStartBomb()) {
+      return singletonList(ISEFailingStartComponent.class);
+    }
     if (bombConfig.isOomStopBomb()) {
       return singletonList(OOMFailingStopComponent.class);
     }
@@ -43,6 +49,34 @@ public class ComponentBombReportAnalysisComponentProvider implements ReportAnaly
       return singletonList(ISEFailingStopComponent.class);
     }
     return emptyList();
+  }
+
+  @EagerStart
+  public static final class OOMFailingStartComponent implements Startable {
+
+    @Override
+    public void start() {
+      OOMGenerator.consumeAvailableMemory();
+    }
+
+    @Override
+    public void stop() {
+      // nothing to do
+    }
+  }
+
+  @EagerStart
+  public static final class ISEFailingStartComponent implements Startable {
+
+    @Override
+    public void start() {
+      throw new IllegalStateException("Faking an IllegalStateException thrown by a startable component in the Analysis Report processing container");
+    }
+
+    @Override
+    public void stop() {
+      // nothing to do
+    }
   }
 
   @EagerStart

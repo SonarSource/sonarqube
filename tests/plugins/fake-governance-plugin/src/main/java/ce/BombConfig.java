@@ -27,6 +27,8 @@ import org.sonar.db.DbSession;
 @ServerSide
 @ComputeEngineSide
 public class BombConfig {
+  private static final String OOM_START_BOMB_KEY = "oomStartBomb";
+  private static final String ISE_START_BOMB_KEY = "iseStartBomb";
   private static final String OOM_STOP_BOMB_KEY = "oomStopBomb";
   private static final String ISE_STOP_BOMB_KEY = "iseStopBomb";
 
@@ -34,6 +36,42 @@ public class BombConfig {
 
   public BombConfig(DbClient dbClient) {
     this.dbClient = dbClient;
+  }
+
+  public void reset() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      dbClient.internalPropertiesDao().save(dbSession, OOM_START_BOMB_KEY, String.valueOf(false));
+      dbClient.internalPropertiesDao().save(dbSession, ISE_START_BOMB_KEY, String.valueOf(false));
+      dbClient.internalPropertiesDao().save(dbSession, OOM_STOP_BOMB_KEY, String.valueOf(false));
+      dbClient.internalPropertiesDao().save(dbSession, ISE_STOP_BOMB_KEY, String.valueOf(false));
+      dbSession.commit();
+    }
+  }
+
+  public boolean isOomStartBomb() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.internalPropertiesDao().selectByKey(dbSession, OOM_START_BOMB_KEY).map(Boolean::valueOf).orElse(false);
+    }
+  }
+
+  public void setOomStartBomb(boolean oomStartBomb) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      dbClient.internalPropertiesDao().save(dbSession, OOM_START_BOMB_KEY, String.valueOf(oomStartBomb));
+      dbSession.commit();
+    }
+  }
+
+  public boolean isIseStartBomb() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.internalPropertiesDao().selectByKey(dbSession, ISE_START_BOMB_KEY).map(Boolean::valueOf).orElse(false);
+    }
+  }
+
+  public void setIseStartBomb(boolean iseStartBomb) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      dbClient.internalPropertiesDao().save(dbSession, ISE_START_BOMB_KEY, String.valueOf(iseStartBomb));
+      dbSession.commit();
+    }
   }
 
   public boolean isOomStopBomb() {

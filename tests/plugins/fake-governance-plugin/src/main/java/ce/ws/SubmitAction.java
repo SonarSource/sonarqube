@@ -23,7 +23,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.ce.queue.CeQueue;
-import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.queue.CeTaskSubmit;
 
 public class SubmitAction implements FakeGoVWsAction {
@@ -53,7 +52,7 @@ public class SubmitAction implements FakeGoVWsAction {
     CeTaskSubmit.Builder submit = ceQueue.prepareSubmit();
     submit.setType(type);
 
-    CeTask ceTask = ceQueue.submit(submit.build());
+    ceQueue.submit(submit.build());
     response.noContent();
   }
 }

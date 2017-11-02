@@ -38,7 +38,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -99,6 +101,28 @@ public class CeWorkersTest {
     }
   }
 
+  @Before
+  public void setup() throws Exception {
+    unlockWorkersAndResetWorkerCount();
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    unlockWorkersAndResetWorkerCount();
+  }
+
+  private void unlockWorkersAndResetWorkerCount() throws IOException {
+    RandomAccessFile randomAccessFile = null;
+    try {
+      randomAccessFile = new RandomAccessFile(sharedMemory, "rw");
+      MappedByteBuffer mappedByteBuffer = initMappedByteBuffer(randomAccessFile);
+      releaseAnyAnalysisWithFakeGovernancePlugin(mappedByteBuffer);
+      updateWorkerCount(1);
+    } finally {
+      close(randomAccessFile);
+    }
+  }
+
   @Test
   public void ce_worker_is_resilient_to_OOM_and_ISE_during_processing_of_a_task() throws InterruptedException {
     submitFakeTask("OOM");
@@ -149,41 +173,65 @@ public class CeWorkersTest {
   }
 
   @Test
-  public void ce_worker_is_resilient_to_OOM_and_RuntimeException_when_stopping_analysis_report_container() throws IOException {
+  public void ce_worker_is_resilient_to_OOM_and_RuntimeException_when_starting_or_stopping_analysis_report_container() throws IOException {
+    int initSuccessReportTaskCount = adminWsClient.ce().activity(new ActivityWsRequest()
+      .setType("REPORT")
+      .setStatus(ImmutableList.of("SUCCESS")))
+      .getTasksCount();
+    int initFailedReportTaskCount = adminWsClient.ce().activity(new ActivityWsRequest()
+      .setType("REPORT")
+      .setStatus(ImmutableList.of("FAILED")))
+      .getTasksCount();
 
-    RandomAccessFile randomAccessFile = null;
-    try {
-      randomAccessFile = new RandomAccessFile(sharedMemory, "rw");
-      MappedByteBuffer mappedByteBuffer = initMappedByteBuffer(randomAccessFile);
-      releaseAnyAnalysisWithFakeGovernancePlugin(mappedByteBuffer);
+    SonarScanner sonarRunner = SonarScanner.create(ItUtils.projectDir("shared/xoo-sample"));
+    orchestrator.executeBuild(sonarRunner, true);
 
-      SonarScanner sonarRunner = SonarScanner.create(ItUtils.projectDir("shared/xoo-sample"));
-      orchestrator.executeBuild(sonarRunner, true);
+    enableComponentBomb("OOM_STOP");
 
-      enableComponentBomb("OOM");
+    orchestrator.executeBuild(sonarRunner, true);
 
-      orchestrator.executeBuild(sonarRunner, true);
+    enableComponentBomb("NONE");
 
-      enableComponentBomb("NONE");
+    orchestrator.executeBuild(sonarRunner, true);
 
-      orchestrator.executeBuild(sonarRunner, true);
+    enableComponentBomb("ISE_START");
 
-      enableComponentBomb("ISE");
+    orchestrator.executeBuild(sonarRunner, true);
 
-      orchestrator.executeBuild(sonarRunner, true);
+    enableComponentBomb("NONE");
 
-      enableComponentBomb("NONE");
+    orchestrator.executeBuild(sonarRunner, true);
 
-      orchestrator.executeBuild(sonarRunner, true);
+    enableComponentBomb("ISE_STOP");
 
-      assertThat(adminWsClient.ce().activity(new ActivityWsRequest()
-        .setType("REPORT")
-        .setStatus(ImmutableList.of("SUCCESS")))
-        .getTasksCount())
-          .isEqualTo(5);
-    } finally {
-      close(randomAccessFile);
-    }
+    orchestrator.executeBuild(sonarRunner, true);
+
+    enableComponentBomb("NONE");
+
+    orchestrator.executeBuild(sonarRunner, true);
+
+    enableComponentBomb("OOM_START");
+
+    orchestrator.executeBuild(sonarRunner, true);
+
+    enableComponentBomb("NONE");
+
+    orchestrator.executeBuild(sonarRunner, true);
+
+    // failure while starting components does fail the tasks
+    assertThat(adminWsClient.ce().activity(new ActivityWsRequest()
+      .setType("REPORT")
+      .setStatus(ImmutableList.of("FAILED")))
+      .getTasksCount())
+        .isEqualTo(initFailedReportTaskCount + 2);
+
+    // failure while stopping components does not fail the tasks
+    assertThat(adminWsClient.ce().activity(new ActivityWsRequest()
+      .setType("REPORT")
+      .setStatus(ImmutableList.of("SUCCESS")))
+      .getTasksCount())
+        .isEqualTo(initSuccessReportTaskCount + 7);
+
   }
 
   private void enableComponentBomb(String type) {
@@ -332,12 +380,17 @@ public class CeWorkersTest {
   }
 
   private void waitForEmptyQueue() throws InterruptedException {
+    int delay = 200;
+    int timeout = 5 * 10; // 10 seconds
+    int i = 0;
     int tasksCount;
     do {
-      Thread.sleep(100);
+      Thread.sleep(delay);
       tasksCount = adminWsClient.ce().activity(new ActivityWsRequest()
         .setStatus(ImmutableList.of("PENDING", "IN_PROGRESS")))
         .getTasksCount();
-    } while (tasksCount > 0);
+      i++;
+    } while (i <= timeout && tasksCount > 0);
+    assertThat(tasksCount).describedAs("Failed to get to an empty CE queue in a timely fashion").isZero();
   }
 }

@@ -20,9 +20,12 @@
 package ce.ws;
 
 import ce.BombConfig;
+import java.util.Arrays;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+
+import static java.util.stream.Collectors.toList;
 
 public class BombActivatorAction implements FakeGoVWsAction {
 
@@ -41,20 +44,25 @@ public class BombActivatorAction implements FakeGoVWsAction {
       .setHandler(this);
     action.createParam(PARAM_BOMB_TYPE)
       .setRequired(true)
-      .setPossibleValues("OOM", "ISE", "NONE");
+      .setPossibleValues(Arrays.stream(BombType.values()).map(Enum::toString).collect(toList()));
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     BombType bombType = BombType.valueOf(request.mandatoryParam(PARAM_BOMB_TYPE));
 
-    bombConfig.setIseStopBomb(false);
-    bombConfig.setOomStopBomb(false);
+    bombConfig.reset();
     switch (bombType) {
-      case ISE:
+      case ISE_START:
+        bombConfig.setIseStartBomb(true);
+        break;
+      case OOM_START:
+        bombConfig.setOomStartBomb(true);
+        break;
+      case ISE_STOP:
         bombConfig.setIseStopBomb(true);
         break;
-      case OOM:
+      case OOM_STOP:
         bombConfig.setOomStopBomb(true);
         break;
       case NONE:
@@ -67,7 +75,7 @@ public class BombActivatorAction implements FakeGoVWsAction {
   }
 
   enum BombType {
-    NONE, OOM, ISE
+    NONE, OOM_START, ISE_START, OOM_STOP, ISE_STOP
 
   }
 
