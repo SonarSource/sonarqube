@@ -173,39 +173,38 @@ export default class Search extends React.PureComponent {
     return uniqBy([...components, ...recentlyBrowsed], 'key');
   };
 
+  stopLoading = () => {
+    if (this.mounted) {
+      this.setState({ loading: false });
+    }
+  };
+
   search = (query /*: string */) => {
     if (query.length === 0 || query.length >= 2) {
       this.setState({ loading: true });
       const recentlyBrowsed = RecentHistory.get().map(component => component.key);
-      getSuggestions(query, recentlyBrowsed).then(
-        response => {
-          // compare `this.state.query` and `query` to handle two request done almost at the same time
-          // in this case only the request that matches the current query should be taken
-          if (this.mounted && this.state.query === query) {
-            const results = {};
-            const more = {};
-            response.results.forEach(group => {
-              results[group.q] = group.items.map(item => ({ ...item, qualifier: group.q }));
-              more[group.q] = group.more;
-            });
-            const list = this.getPlainComponentsList(results, more);
-            this.setState(state => ({
-              loading: false,
-              more,
-              organizations: { ...state.organizations, ...keyBy(response.organizations, 'key') },
-              projects: { ...state.projects, ...keyBy(response.projects, 'key') },
-              results,
-              selected: list.length > 0 ? list[0] : null,
-              shortQuery: query.length > 2 && response.warning === 'short_input'
-            }));
-          }
-        },
-        () => {
-          if (this.mounted) {
-            this.setState({ loading: false });
-          }
+      getSuggestions(query, recentlyBrowsed).then(response => {
+        // compare `this.state.query` and `query` to handle two request done almost at the same time
+        // in this case only the request that matches the current query should be taken
+        if (this.mounted && this.state.query === query) {
+          const results = {};
+          const more = {};
+          response.results.forEach(group => {
+            results[group.q] = group.items.map(item => ({ ...item, qualifier: group.q }));
+            more[group.q] = group.more;
+          });
+          const list = this.getPlainComponentsList(results, more);
+          this.setState(state => ({
+            loading: false,
+            more,
+            organizations: { ...state.organizations, ...keyBy(response.organizations, 'key') },
+            projects: { ...state.projects, ...keyBy(response.projects, 'key') },
+            results,
+            selected: list.length > 0 ? list[0] : null,
+            shortQuery: query.length > 2 && response.warning === 'short_input'
+          }));
         }
-      );
+      }, this.stopLoading);
     } else {
       this.setState({ loading: false });
     }
@@ -215,31 +214,24 @@ export default class Search extends React.PureComponent {
     if (this.state.query.length !== 1) {
       this.setState({ loading: true, loadingMore: qualifier });
       const recentlyBrowsed = RecentHistory.get().map(component => component.key);
-      getSuggestions(this.state.query, recentlyBrowsed, qualifier).then(
-        response => {
-          if (this.mounted) {
-            const group = response.results.find(group => group.q === qualifier);
-            const moreResults = (group ? group.items : []).map(item => ({ ...item, qualifier }));
-            this.setState(state => ({
-              loading: false,
-              loadingMore: null,
-              more: { ...state.more, [qualifier]: 0 },
-              organizations: { ...state.organizations, ...keyBy(response.organizations, 'key') },
-              projects: { ...state.projects, ...keyBy(response.projects, 'key') },
-              results: {
-                ...state.results,
-                [qualifier]: uniqBy([...state.results[qualifier], ...moreResults], 'key')
-              },
-              selected: moreResults.length > 0 ? moreResults[0].key : state.selected
-            }));
-          }
-        },
-        () => {
-          if (this.mounted) {
-            this.setState({ loading: false });
-          }
+      getSuggestions(this.state.query, recentlyBrowsed, qualifier).then(response => {
+        if (this.mounted) {
+          const group = response.results.find(group => group.q === qualifier);
+          const moreResults = (group ? group.items : []).map(item => ({ ...item, qualifier }));
+          this.setState(state => ({
+            loading: false,
+            loadingMore: null,
+            more: { ...state.more, [qualifier]: 0 },
+            organizations: { ...state.organizations, ...keyBy(response.organizations, 'key') },
+            projects: { ...state.projects, ...keyBy(response.projects, 'key') },
+            results: {
+              ...state.results,
+              [qualifier]: uniqBy([...state.results[qualifier], ...moreResults], 'key')
+            },
+            selected: moreResults.length > 0 ? moreResults[0].key : state.selected
+          }));
         }
-      );
+      }, this.stopLoading);
     }
   };
 
