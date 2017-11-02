@@ -26,6 +26,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGates;
 
+import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_NAME;
 
@@ -40,20 +41,21 @@ public class RenameAction implements QualityGatesWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("rename")
-      .setDescription("Rename a Quality Gate.<br>" +
-        "Requires the 'Administer Quality Gates' permission.")
-      .setSince("4.3")
       .setPost(true)
+      .setDescription("Rename a Quality Gate.<br>" +
+    "Requires the 'Administer Quality Gates' permission.")
+      .setSince("4.3")
       .setHandler(this);
 
     action.createParam(PARAM_ID)
-      .setDescription("ID of the quality gate to rename")
       .setRequired(true)
+      .setDescription("ID of the quality gate to rename")
       .setExampleValue("1");
 
     action.createParam(PARAM_NAME)
-      .setDescription("New name of the quality gate")
       .setRequired(true)
+      .setMaximumLength(NAME_MAXIMUM_LENGTH)
+      .setDescription("New name of the quality gate")
       .setExampleValue("My Quality Gate");
   }
 

@@ -36,6 +36,8 @@ import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_WARNING;
 
 public class QualityGatesWs implements WebService {
+
+  private static final int CONDITION_MAX_LENGTH = 64;
   private final QualityGatesWsAction[] actions;
 
   public QualityGatesWs(QualityGatesWsAction... actions) {
@@ -78,10 +80,12 @@ public class QualityGatesWs implements WebService {
       .setPossibleValues("1");
 
     action.createParam(PARAM_WARNING)
+      .setMaximumLength(CONDITION_MAX_LENGTH)
       .setDescription("Condition warning threshold")
       .setExampleValue("5");
 
     action.createParam(PARAM_ERROR)
+      .setMaximumLength(CONDITION_MAX_LENGTH)
       .setDescription("Condition error threshold")
       .setExampleValue("10");
   }

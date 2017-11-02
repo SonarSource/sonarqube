@@ -37,6 +37,7 @@ import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM
 
 public class CreateAction implements QualityGatesWsAction {
 
+  public static final int NAME_MAXIMUM_LENGTH = 100;
   private final DbClient dbClient;
   private final UserSession userSession;
   private final QualityGateUpdater qualityGateUpdater;
@@ -53,15 +54,16 @@ public class CreateAction implements QualityGatesWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION_CREATE)
+      .setPost(true)
       .setDescription("Create a Quality Gate.<br>" +
         "Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
-      .setPost(true)
       .setHandler(this);
 
     action.createParam(PARAM_NAME)
-      .setDescription("The name of the quality gate to create")
       .setRequired(true)
+      .setMaximumLength(NAME_MAXIMUM_LENGTH)
+      .setDescription("The name of the quality gate to create")
       .setExampleValue("My Quality Gate");
   }
 

@@ -42,10 +42,12 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.util.Validation;
 
 import static java.lang.String.format;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
+import static org.sonar.server.util.Validation.CANT_BE_EMPTY_MESSAGE;
+import static org.sonar.server.util.Validation.IS_ALREADY_USED_MESSAGE;
+import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
@@ -207,18 +209,14 @@ public class QualityGates {
 
   private QualityGateDto getNonNullQgate(String name) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityGateDto qGate = dao.selectByName(dbSession, name);
-      if (qGate == null) {
-        throw new NotFoundException("There is no quality gate with name=" + name);
-      }
-      return qGate;
+      return checkFound(dao.selectByName(dbSession, name), "There is no quality gate with name=%s", name);
     }
   }
 
   private void validateQualityGate(DbSession dbSession, @Nullable Long updatingQgateId, @Nullable String name) {
     List<String> errors = new ArrayList<>();
     if (Strings.isNullOrEmpty(name)) {
-      errors.add(format(Validation.CANT_BE_EMPTY_MESSAGE, "Name"));
+      errors.add(format(CANT_BE_EMPTY_MESSAGE, "Name"));
     } else {
       checkQgateNotAlreadyExists(dbSession, updatingQgateId, name, errors);
     }
@@ -229,7 +227,7 @@ public class QualityGates {
     QualityGateDto existingQgate = dao.selectByName(dbSession, name);
     boolean isModifyingCurrentQgate = updatingQgateId != null && existingQgate != null && existingQgate.getId().equals(updatingQgateId);
     if (!isModifyingCurrentQgate && existingQgate != null) {
-      errors.add(format(Validation.IS_ALREADY_USED_MESSAGE, "Name"));
+      errors.add(format(IS_ALREADY_USED_MESSAGE, "Name"));
     }
   }
 
