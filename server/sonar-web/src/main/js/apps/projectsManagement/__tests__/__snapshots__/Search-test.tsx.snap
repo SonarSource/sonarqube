@@ -123,7 +123,7 @@ exports[`render qualifiers filter 1`] = `
           <SearchBox
             minLength={3}
             onChange={[Function]}
-            placeholder="search.search_for_projects"
+            placeholder="search.search_by_name_or_key"
             value=""
           />
         </td>
@@ -213,7 +213,7 @@ exports[`renders 1`] = `
           <SearchBox
             minLength={3}
             onChange={[Function]}
-            placeholder="search.search_for_projects"
+            placeholder="search.search_by_name_or_key"
             value=""
           />
         </td>

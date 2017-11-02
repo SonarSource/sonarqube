@@ -32,7 +32,8 @@ type Props = {
   onSearch: string => void,
   onSelect: string => void,
   onUnselect: string => void,
-  validateSearchInput: string => string
+  validateSearchInput: string => string,
+  placeholder: string
 };
 */
 
@@ -237,7 +238,7 @@ export default class MultiSelect extends React.PureComponent {
           <SearchBox
             autoFocus={true}
             onChange={this.handleSearchChange}
-            placeholder={translate('search_verb')}
+            placeholder={this.props.placeholder}
             value={query}
           />
         </div>

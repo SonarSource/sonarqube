@@ -7,7 +7,7 @@ exports[`should render correctly 1`] = `
   <div>
     <SearchBox
       onChange={[Function]}
-      placeholder="search_verb"
+      placeholder="api_documentation.search"
     />
   </div>
   <div

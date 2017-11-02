@@ -38,7 +38,7 @@ export default function Search(props: Props) {
   return (
     <div className="web-api-search">
       <div>
-        <SearchBox onChange={props.onSearch} placeholder={translate('search_verb')} />
+        <SearchBox onChange={props.onSearch} placeholder={translate('api_documentation.search')} />
       </div>
 
       <div className="big-spacer-top">

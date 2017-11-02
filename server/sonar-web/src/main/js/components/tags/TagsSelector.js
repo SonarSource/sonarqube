@@ -21,6 +21,7 @@
 import React from 'react';
 import BubblePopup from '../common/BubblePopup';
 import MultiSelect from '../common/MultiSelect';
+import { translate } from '../../helpers/l10n';
 import './TagsList.css';
 
 /*::
@@ -48,6 +49,7 @@ export default function TagsSelector(props /*: Props */) {
         onSelect={props.onSelect}
         onUnselect={props.onUnselect}
         validateSearchInput={validateTag}
+        placeholder={translate('search.search_for_tags')}
       />
     </BubblePopup>
   );

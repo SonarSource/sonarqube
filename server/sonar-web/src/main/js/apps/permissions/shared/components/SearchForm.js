@@ -31,7 +31,7 @@ export default function SearchForm(props) {
   ];
 
   return (
-    <div>
+    <div className="diplay-flex-row">
       <RadioToggle
         name="users-or-groups"
         onCheck={props.onFilter}
@@ -39,11 +39,11 @@ export default function SearchForm(props) {
         value={props.filter}
       />
 
-      <div className="display-inline-block spacer-left">
+      <div className="flex-1 spacer-left">
         <SearchBox
           minLength={3}
           onChange={props.onSearch}
-          placeholder={translate('search_verb')}
+          placeholder={translate('search.search_for_users_or_groups')}
           value={props.query}
         />
       </div>

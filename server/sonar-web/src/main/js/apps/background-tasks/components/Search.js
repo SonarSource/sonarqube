@@ -79,14 +79,10 @@ export default class Search extends React.PureComponent {
     }
 
     return (
-      <li>
-        <h6 className="bt-search-form-label">
-          {translate('background_tasks.search_by_task_or_component')}
-        </h6>
-
+      <li className="bt-search-form-large">
         <SearchBox
           onChange={this.handleQueryChange}
-          placeholder={translate('search_verb')}
+          placeholder={translate('background_tasks.search_by_task_or_component')}
           value={query}
         />
       </li>
@@ -141,7 +137,7 @@ export default class Search extends React.PureComponent {
 
           {this.renderSearchBox()}
 
-          <li className="bt-search-form-right nowrap">
+          <li className="nowrap">
             <button className="js-reload" onClick={this.handleReload.bind(this)} disabled={loading}>
               {translate('reload')}
             </button>{' '}

@@ -200,7 +200,7 @@ export default class Search extends React.PureComponent<Props, State> {
                 <SearchBox
                   minLength={3}
                   onChange={this.props.onSearch}
-                  placeholder={translate('search.search_for_projects')}
+                  placeholder={translate('search.search_by_name_or_key')}
                   value={this.props.query}
                 />
               </td>

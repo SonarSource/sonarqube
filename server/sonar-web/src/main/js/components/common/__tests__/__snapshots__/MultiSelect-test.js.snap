@@ -10,7 +10,7 @@ exports[`should render multiselect with selected elements 1`] = `
     <SearchBox
       autoFocus={true}
       onChange={[Function]}
-      placeholder="search_verb"
+      placeholder=""
       value=""
     />
   </div>
@@ -40,7 +40,7 @@ exports[`should render multiselect with selected elements 2`] = `
     <SearchBox
       autoFocus={true}
       onChange={[Function]}
-      placeholder="search_verb"
+      placeholder=""
       value=""
     />
   </div>
@@ -88,7 +88,7 @@ exports[`should render multiselect with selected elements 3`] = `
     <SearchBox
       autoFocus={true}
       onChange={[Function]}
-      placeholder="search_verb"
+      placeholder=""
       value=""
     />
   </div>
@@ -136,7 +136,7 @@ exports[`should render multiselect with selected elements 4`] = `
     <SearchBox
       autoFocus={true}
       onChange={[Function]}
-      placeholder="search_verb"
+      placeholder=""
       value="test"
     />
   </div>

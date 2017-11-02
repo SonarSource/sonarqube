@@ -59,7 +59,7 @@ export default class Search extends React.PureComponent<Props> {
         </div>
         <SearchBox
           onChange={this.handleSearch}
-          placeholder={translate('search_verb')}
+          placeholder={translate('marketplace.search')}
           value={query.search}
         />
       </div>
