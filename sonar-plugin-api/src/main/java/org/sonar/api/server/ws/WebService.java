@@ -634,6 +634,7 @@ public interface WebService extends Definable<WebService.Context> {
     private boolean internal = false;
     private Set<String> possibleValues = null;
     private Integer maxValuesAllowed = null;
+    private int maxComponentKeyLength;
 
     private NewParam(String key) {
       this.key = key;
@@ -773,6 +774,11 @@ public interface WebService extends Definable<WebService.Context> {
     @Override
     public String toString() {
       return key;
+    }
+
+    public NewParam setMaximumLength(int maxComponentKeyLength) {
+      this.maxComponentKeyLength = maxComponentKeyLength;
+      return this;
     }
   }
 
