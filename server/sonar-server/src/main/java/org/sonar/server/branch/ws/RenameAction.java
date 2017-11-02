@@ -61,9 +61,10 @@ public class RenameAction implements BranchWsAction {
     addProjectParam(action);
     action
       .createParam(PARAM_NAME)
+      .setRequired(true)
+      .setMaximumLength(255)
       .setDescription("New name of the main branch")
-      .setExampleValue("branch1")
-      .setRequired(true);
+      .setExampleValue("branch1");
   }
 
   @Override
