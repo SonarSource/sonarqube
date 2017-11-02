@@ -23,7 +23,6 @@ import com.sonar.orchestrator.Orchestrator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.ws.rs.core.HttpHeaders;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.After;
@@ -79,7 +78,7 @@ public class TelemetryUploadTest {
 
     RecordedRequest request = telemetryServer.takeRequest();
     assertThat(request.getMethod()).isEqualTo("POST");
-    assertThat(request.getHeader(HttpHeaders.USER_AGENT)).contains("SonarQube");
+    assertThat(request.getHeader("User-Agent")).contains("SonarQube");
     Map<String, Object> json = jsonToMap(request.getBody().readUtf8());
     assertThat(json.get("id")).isEqualTo(serverId());
     Map<String, String> database = (Map<String, String>) json.get("database");
@@ -91,10 +90,10 @@ public class TelemetryUploadTest {
     assertThat(plugins).contains("xoo");
     assertThat(getInteger(json.get("ncloc"))).isEqualTo(13 * 2 + 7);
     assertThat(getInteger(json.get("lines"))).isEqualTo(17 * 3);
-    List<Map<String, String>> projectCountByLanguage = (List<Map<String,String>>) json.get("projectCountByLanguage");
+    List<Map<String, String>> projectCountByLanguage = (List<Map<String, String>>) json.get("projectCountByLanguage");
     assertThat(projectCountByLanguage).extracting(p -> p.get("language"), p -> getInteger(p.get("count")))
       .contains(tuple("xoo", 2), tuple("xoo2", 1));
-    List<Map<String, String>> nclocByLanguage = (List<Map<String,String>>) json.get("nclocByLanguage");
+    List<Map<String, String>> nclocByLanguage = (List<Map<String, String>>) json.get("nclocByLanguage");
     assertThat(nclocByLanguage).extracting(p -> p.get("language"), p -> getInteger(p.get("ncloc")))
       .contains(tuple("xoo", 13 * 2), tuple("xoo2", 7));
   }
