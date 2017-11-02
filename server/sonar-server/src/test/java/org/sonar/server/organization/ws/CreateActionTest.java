@@ -251,7 +251,7 @@ public class CreateActionTest {
     logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Name '" + STRING_65_CHARS_LONG + "' must be at most 64 chars long");
+    expectedException.expectMessage("'name' length (65) is longer than the maximum authorized (64)");
 
     executeRequest(STRING_65_CHARS_LONG);
   }
@@ -283,7 +283,7 @@ public class CreateActionTest {
     String key = STRING_65_CHARS_LONG.substring(0, 33);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Key '" + key + "' must be at most 32 chars long");
+    expectedException.expectMessage("'key' length (33) is longer than the maximum authorized (32)");
 
     executeRequest("foo", key);
   }
@@ -411,7 +411,7 @@ public class CreateActionTest {
     logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Description '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
+    expectedException.expectMessage("'description' length (257) is longer than the maximum authorized (256)");
 
     executeRequest("foo", "bar", STRING_257_CHARS_LONG, null, null);
   }
@@ -431,7 +431,7 @@ public class CreateActionTest {
     logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Url '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
+    expectedException.expectMessage("'url' length (257) is longer than the maximum authorized (256)");
 
     executeRequest("foo", "bar", null, STRING_257_CHARS_LONG, null);
   }
@@ -451,7 +451,7 @@ public class CreateActionTest {
     logInAsSystemAdministrator();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Avatar '" + STRING_257_CHARS_LONG + "' must be at most 256 chars long");
+    expectedException.expectMessage("'avatar' length (257) is longer than the maximum authorized (256)");
 
     executeRequest("foo", "bar", null, null, STRING_257_CHARS_LONG);
   }
