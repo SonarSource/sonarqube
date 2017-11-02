@@ -53,6 +53,8 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
+import static org.sonar.server.rule.ws.CreateAction.KEY_MAXIMUM_LENGTH;
+import static org.sonar.server.rule.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class UpdateAction implements RulesWsAction {
@@ -100,6 +102,7 @@ public class UpdateAction implements RulesWsAction {
 
     action.createParam(PARAM_KEY)
       .setRequired(true)
+      .setMaximumLength(KEY_MAXIMUM_LENGTH)
       .setDescription("Key of the rule to update")
       .setExampleValue("javascript:NullCheck");
 
@@ -144,6 +147,7 @@ public class UpdateAction implements RulesWsAction {
 
     action
       .createParam(PARAM_NAME)
+      .setMaximumLength(NAME_MAXIMUM_LENGTH)
       .setDescription("Rule name (mandatory for custom rule)")
       .setExampleValue("My custom rule");
 
@@ -159,13 +163,13 @@ public class UpdateAction implements RulesWsAction {
 
     action
       .createParam(PARAM_STATUS)
-      .setDescription("Rule status (Only when updating a custom rule)")
-      .setPossibleValues(RuleStatus.values());
+      .setPossibleValues(RuleStatus.values())
+      .setDescription("Rule status (Only when updating a custom rule)");
 
     action.createParam(PARAM_ORGANIZATION)
-      .setDescription("Organization key")
       .setRequired(false)
       .setInternal(true)
+      .setDescription("Organization key")
       .setExampleValue("my-org")
       .setSince("6.4");
 

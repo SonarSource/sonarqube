@@ -59,6 +59,8 @@ public class CreateAction implements RulesWsAction {
   public static final String PARAMS = "params";
 
   public static final String PARAM_PREVENT_REACTIVATION = "prevent_reactivation";
+  static final int KEY_MAXIMUM_LENGTH = 200;
+  static final int NAME_MAXIMUM_LENGTH = 200;
 
   private final DbClient dbClient;
   private final RuleCreator ruleCreator;
@@ -76,19 +78,20 @@ public class CreateAction implements RulesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller
       .createAction("create")
+      .setPost(true)
       .setDescription("Create a custom rule.<br>" +
         "Requires the 'Administer Quality Profiles' permission")
       .setSince("4.4")
       .setChangelog(
         new Change("5.5", "Creating manual rule is not more possible"))
-      .setPost(true)
       .setHandler(this);
 
     action
       .createParam(PARAM_CUSTOM_KEY)
+      .setRequired(true)
+      .setMaximumLength(KEY_MAXIMUM_LENGTH)
       .setDescription("Key of the custom rule")
-      .setExampleValue("Todo_should_not_be_used")
-      .setRequired(true);
+      .setExampleValue("Todo_should_not_be_used");
 
     action
       .createParam("manual_key")
@@ -103,40 +106,41 @@ public class CreateAction implements RulesWsAction {
 
     action
       .createParam(PARAM_NAME)
-      .setDescription("Rule name")
       .setRequired(true)
+      .setMaximumLength(NAME_MAXIMUM_LENGTH)
+      .setDescription("Rule name")
       .setExampleValue("My custom rule");
 
     action
       .createParam(PARAM_DESCRIPTION)
-      .setDescription("Rule description")
       .setRequired(true)
+      .setDescription("Rule description")
       .setExampleValue("Description of my custom rule");
 
     action
       .createParam(PARAM_SEVERITY)
-      .setDescription("Rule severity")
-      .setPossibleValues(Severity.ALL);
+      .setPossibleValues(Severity.ALL)
+      .setDescription("Rule severity");
 
     action
       .createParam(PARAM_STATUS)
-      .setDescription("Rule status")
+      .setPossibleValues(RuleStatus.values())
       .setDefaultValue(RuleStatus.READY)
-      .setPossibleValues(RuleStatus.values());
+      .setDescription("Rule status");
 
     action.createParam(PARAMS)
       .setDescription("Parameters as semi-colon list of <key>=<value>, for example 'params=key1=v1;key2=v2' (Only for custom rule)");
 
     action
       .createParam(PARAM_PREVENT_REACTIVATION)
-      .setDescription("If set to true and if the rule has been deactivated (status 'REMOVED'), a status 409 will be returned")
+      .setBooleanPossibleValues()
       .setDefaultValue(false)
-      .setBooleanPossibleValues();
+      .setDescription("If set to true and if the rule has been deactivated (status 'REMOVED'), a status 409 will be returned");
 
     action.createParam(PARAM_TYPE)
+      .setPossibleValues(RuleType.names())
       .setDescription("Rule type")
-      .setSince("6.7")
-      .setPossibleValues(RuleType.names());
+      .setSince("6.7");
   }
 
   @Override
