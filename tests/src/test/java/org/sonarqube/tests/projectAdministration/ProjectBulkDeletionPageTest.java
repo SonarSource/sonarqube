@@ -20,7 +20,6 @@
 package org.sonarqube.tests.projectAdministration;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarScanner;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -31,9 +30,9 @@ import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
 import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.projectDir;
 
 public class ProjectBulkDeletionPageTest {
 
@@ -60,30 +59,18 @@ public class ProjectBulkDeletionPageTest {
     Project project2 = tester.projects().generate(null, t -> t.setName("Bar"));
     Project project3 = tester.projects().generate(null, t -> t.setName("FooQux"));
 
-    // we must have several projects to test the bulk deletion
-    executeBuild(project1);
-    executeBuild(project2);
-    executeBuild(project3);
-
     tester.openBrowser().logIn().submitCredentials(adminUser).open("/admin/projects_management");
-    $("#content").shouldHave(text(project1.getName())).shouldHave(text(project2.getName())).shouldHave(text(project3.getName()));
+    $("#projects-management-page").shouldHave(text(project1.getName())).shouldHave(text(project2.getName())).shouldHave(text(project3.getName()));
 
-    $(".search-box-input").val("foo").pressEnter();
-    $("#content").shouldNotHave(text(project2.getName())).shouldHave(text(project1.getName())).shouldHave(text(project3.getName()));
+    $("#projects-management-page .search-box-input").val("foo").pressEnter();
+    $("#projects-management-page").shouldNotHave(text(project2.getName())).shouldHave(text(project1.getName())).shouldHave(text(project3.getName()));
 
-    $(".js-delete").click();
+    $("#projects-management-page .js-delete").click();
+    $(".modal").shouldBe(visible);
     $(".modal button").click();
-    $("#content").shouldNotHave(text(project1.getName())).shouldNotHave(text(project3.getName()));
+    $("#projects-management-page").shouldNotHave(text(project1.getName())).shouldNotHave(text(project3.getName()));
 
     assertThat(tester.wsClient().components().searchProjects(SearchProjectsRequest.builder().build())
       .getComponentsCount()).isEqualTo(1);
   }
-
-  private void executeBuild(Project project) {
-    orchestrator.executeBuild(
-      SonarScanner.create(projectDir("shared/xoo-sample"))
-        .setProjectKey(project.getKey())
-        .setProjectName(project.getName()));
-  }
-
 }

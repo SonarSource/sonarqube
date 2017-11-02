@@ -21,19 +21,16 @@
 package org.sonarqube.tests.organization;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category6Suite;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.tests.OrganizationTester;
+import org.sonarqube.pageobjects.organization.MembersPage;
+import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
-import org.sonarqube.pageobjects.organization.MembersPage;
-
-import static util.ItUtils.setServerProperty;
 
 public class OrganizationMembershipUiTest {
 
@@ -47,14 +44,14 @@ public class OrganizationMembershipUiTest {
 
   @Before
   public void setUp() {
-    setServerProperty(orchestrator, "sonar.organizations.anyoneCanCreate", "true");
+    tester.settings().setGlobalSetting("sonar.organizations.anyoneCanCreate", "true");
     root = tester.users().generate();
     tester.wsClient().roots().setRoot(root.getLogin());
   }
 
   @After
   public void tearDown() {
-    setServerProperty(orchestrator, "sonar.organizations.anyoneCanCreate", null);
+    tester.settings().resetSettings("sonar.organizations.anyoneCanCreate");
   }
 
   @Test
@@ -64,7 +61,7 @@ public class OrganizationMembershipUiTest {
     addMember(organization, member1);
     User member2 = tester.users().generate(p -> p.setName("bar"));
     addMember(organization, member2);
-    User nonMember = tester.users().generate();
+    tester.users().generate();
 
     MembersPage page = tester.openBrowser().openOrganizationMembers(organization.getKey());
     page
@@ -86,7 +83,7 @@ public class OrganizationMembershipUiTest {
     User member2 = tester.users().generate(p -> p.setName("sameprefixuser1"));
     addMember(organization, member2);
     // Created to verify that only the user part of the org is returned
-    User userWithSameNamePrefix = tester.users().generate(p -> p.setName(member2.getName() + "sameprefixuser2"));
+    tester.users().generate(p -> p.setName(member2.getName() + "sameprefixuser2"));
 
     MembersPage page = tester.openBrowser().openOrganizationMembers(organization.getKey());
     page
@@ -103,7 +100,7 @@ public class OrganizationMembershipUiTest {
   public void admin_can_add_members() {
     Organization organization = tester.organizations().generate();
     User user1 = tester.users().generate(u -> u.setLogin("foo"));
-    User user2 = tester.users().generate();
+    tester.users().generate();
 
     MembersPage page = tester.openBrowser()
       .logIn().submitCredentials(root.getLogin())
@@ -173,7 +170,7 @@ public class OrganizationMembershipUiTest {
       .shouldHaveGroups(2);
   }
 
-  private OrganizationTester addMember(Organization organization, User member1) {
-    return tester.organizations().addMember(organization, member1);
+  private void addMember(Organization organization, User member1) {
+    tester.organizations().addMember(organization, member1);
   }
 }

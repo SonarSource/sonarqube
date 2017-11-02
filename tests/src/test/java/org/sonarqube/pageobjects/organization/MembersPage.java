@@ -49,7 +49,7 @@ public class MembersPage {
   }
 
   public MembersPage searchForMember(String query) {
-    $("input.search-box-input").shouldBe(visible).val("").sendKeys(query);
+    $(".page .search-box-input").shouldBe(visible).val("").sendKeys(query);
     return this;
   }
 

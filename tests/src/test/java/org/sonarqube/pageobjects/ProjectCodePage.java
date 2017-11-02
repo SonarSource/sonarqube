@@ -33,7 +33,7 @@ public class ProjectCodePage {
   }
 
   public ProjectCodePage search(String query) {
-    $(".search-box-input").val(query);
+    $(".code-search .search-box-input").val(query);
     return this;
   }
 
@@ -43,7 +43,7 @@ public class ProjectCodePage {
   }
 
   public ProjectCodePage shouldHaveCode(String code) {
-    $(".source-viewer").shouldHave(text(code));
+    $(".code-components .source-viewer").shouldHave(text(code));
     return this;
   }
 
