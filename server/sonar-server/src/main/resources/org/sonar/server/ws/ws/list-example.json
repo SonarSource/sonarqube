@@ -35,6 +35,7 @@
             },
             {
               "key": "severity",
+              "maximumLength": 20,
               "description": "Severity",
               "required": false,
               "internal": false,

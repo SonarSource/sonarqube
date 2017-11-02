@@ -138,6 +138,10 @@ public class ListAction implements WebServicesWsAction {
     if (possibleValues != null) {
       writer.name("possibleValues").beginArray().values(possibleValues).endArray();
     }
+    Integer maximumLength = param.maximumLength();
+    if (maximumLength != null) {
+      writer.prop("maximumLength", maximumLength);
+    }
     writer.endObject();
   }
 

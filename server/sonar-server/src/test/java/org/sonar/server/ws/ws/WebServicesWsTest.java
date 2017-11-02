@@ -100,10 +100,10 @@ public class WebServicesWsTest {
 
       // action with a lot of overridden values
       NewAction create = newController.createAction("create")
+        .setPost(true)
         .setDescription("Create metric")
         .setSince("4.1")
         .setDeprecatedSince("5.3")
-        .setPost(true)
         .setResponseExample(Resources.getResource(getClass(), "WebServicesWsTest/metrics_example.json"))
         .setChangelog(
           new Change("4.5", "Deprecate database ID in response"),
@@ -114,6 +114,7 @@ public class WebServicesWsTest {
 
       create
         .createParam("severity")
+        .setMaximumLength(20)
         .setDescription("Severity")
         .setSince("4.4")
         .setDeprecatedSince("5.2")

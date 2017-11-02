@@ -34,6 +34,8 @@ import org.sonarqube.ws.WsProjects.CreateWsResponse;
 import org.sonarqube.ws.client.project.CreateRequest;
 
 import static org.sonar.api.resources.Qualifiers.PROJECT;
+import static org.sonar.core.component.ComponentKeys.MAX_COMPONENT_KEY_LENGTH;
+import static org.sonar.db.component.ComponentValidator.MAX_COMPONENT_NAME_LENGTH;
 import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.server.component.NewComponent.newComponentBuilder;
 import static org.sonar.server.project.ws.ProjectsWsSupport.PARAM_ORGANIZATION;
@@ -79,11 +81,13 @@ public class CreateAction implements ProjectsWsAction {
       .setDescription("Key of the project")
       .setDeprecatedKey(DEPRECATED_PARAM_KEY, "6.3")
       .setRequired(true)
+      .setMaximumLength(MAX_COMPONENT_KEY_LENGTH)
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action.createParam(PARAM_NAME)
       .setDescription("Name of the project")
       .setRequired(true)
+      .setMaximumLength(MAX_COMPONENT_NAME_LENGTH)
       .setExampleValue("SonarQube");
 
     action.createParam(PARAM_BRANCH)
