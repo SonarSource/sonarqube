@@ -137,21 +137,6 @@ public class RenameActionTest {
   }
 
   @Test
-  public void allow_100_characters_as_name_and_not_more() throws Exception {
-    logInAsQProfileAdministrator();
-    String qualityProfileKey = createNewValidQualityProfileKey();
-
-    String a100charName = "1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890";
-    call(qualityProfileKey, a100charName);
-
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Name is too long (>100 characters)");
-
-    String a101charName = "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901";
-    call(qualityProfileKey, a101charName);
-  }
-
-  @Test
   public void as_qprofile_editor() {
     QProfileDto qualityProfile = db.qualityProfiles().insert(organization);
     UserDto user = db.users().insertUser();
