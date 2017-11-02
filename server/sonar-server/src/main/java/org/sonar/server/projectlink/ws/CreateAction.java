@@ -33,7 +33,6 @@ import org.sonarqube.ws.WsProjectLinks;
 import org.sonarqube.ws.WsProjectLinks.CreateWsResponse;
 import org.sonarqube.ws.client.projectlinks.CreateWsRequest;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.core.util.Slug.slugify;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -80,11 +79,13 @@ public class CreateAction implements ProjectLinksWsAction {
 
     action.createParam(PARAM_NAME)
       .setRequired(true)
+      .setMaximumLength(LINK_NAME_MAX_LENGTH)
       .setDescription("Link name")
       .setExampleValue("Custom");
 
     action.createParam(PARAM_URL)
       .setRequired(true)
+      .setMaximumLength(LINK_URL_MAX_LENGTH)
       .setDescription("Link url")
       .setExampleValue("http://example.com");
   }
@@ -97,8 +98,6 @@ public class CreateAction implements ProjectLinksWsAction {
   }
 
   private CreateWsResponse doHandle(CreateWsRequest createWsRequest) {
-    validateRequest(createWsRequest);
-
     String name = createWsRequest.getName();
     String url = createWsRequest.getUrl();
 
@@ -142,11 +141,6 @@ public class CreateAction implements ProjectLinksWsAction {
       .setProjectKey(request.param(PARAM_PROJECT_KEY))
       .setName(request.mandatoryParam(PARAM_NAME))
       .setUrl(request.mandatoryParam(PARAM_URL));
-  }
-
-  private static void validateRequest(CreateWsRequest request) {
-    checkArgument(request.getName().length() <= LINK_NAME_MAX_LENGTH, "Link name cannot be longer than %s characters", LINK_NAME_MAX_LENGTH);
-    checkArgument(request.getUrl().length() <= LINK_URL_MAX_LENGTH, "Link url cannot be longer than %s characters", LINK_URL_MAX_LENGTH);
   }
 
   private static String nameToType(String name) {
