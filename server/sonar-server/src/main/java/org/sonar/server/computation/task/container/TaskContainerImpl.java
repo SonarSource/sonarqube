@@ -42,7 +42,6 @@ public class TaskContainerImpl extends ComponentContainer implements TaskContain
     super(createContainer(requireNonNull(parent)), parent.getComponentByType(PropertyDefinitions.class));
 
     populateContainer(requireNonNull(populator));
-    startComponents();
   }
 
   private void populateContainer(ContainerPopulator<TaskContainer> populator) {
@@ -74,16 +73,21 @@ public class TaskContainerImpl extends ComponentContainer implements TaskContain
   }
 
   @Override
-  public void cleanup() {
-    try {
-      stopComponents();
-    } catch (Throwable t) {
-      Loggers.get(TaskContainerImpl.class).error("Cleanup of container failed", t);
-    }
+  public void bootup() {
+    startComponents();
   }
 
   @Override
   public String toString() {
     return "TaskContainerImpl";
+  }
+
+  @Override
+  public void close() {
+    try {
+      stopComponents();
+    } catch (Throwable t) {
+      Loggers.get(TaskContainerImpl.class).error("Cleanup of container failed", t);
+    }
   }
 }

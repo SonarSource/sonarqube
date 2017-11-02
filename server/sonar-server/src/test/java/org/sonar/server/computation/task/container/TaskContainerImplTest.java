@@ -58,21 +58,37 @@ public class TaskContainerImplTest {
   }
 
   @Test
-  public void components_are_started_lazily_unless_they_are_annotated_with_EagerStart() {
+  public void bootup_starts_components_lazily_unless_they_are_annotated_with_EagerStart() {
     final DefaultStartable defaultStartable = new DefaultStartable();
     final EagerStartable eagerStartable = new EagerStartable();
-    TaskContainerImpl ceContainer = new TaskContainerImpl(parent, new ContainerPopulator<TaskContainer>() {
-      @Override
-      public void populateContainer(TaskContainer container) {
-        container.add(defaultStartable);
-        container.add(eagerStartable);
-      }
+    TaskContainerImpl ceContainer = new TaskContainerImpl(parent, container -> {
+      container.add(defaultStartable);
+      container.add(eagerStartable);
     });
+    ceContainer.bootup();
 
     assertThat(defaultStartable.startCalls).isEqualTo(0);
     assertThat(defaultStartable.stopCalls).isEqualTo(0);
     assertThat(eagerStartable.startCalls).isEqualTo(1);
     assertThat(eagerStartable.stopCalls).isEqualTo(0);
+  }
+
+  @Test
+  public void close_stops_started_components() {
+    final DefaultStartable defaultStartable = new DefaultStartable();
+    final EagerStartable eagerStartable = new EagerStartable();
+    TaskContainerImpl ceContainer = new TaskContainerImpl(parent, container -> {
+      container.add(defaultStartable);
+      container.add(eagerStartable);
+    });
+    ceContainer.bootup();
+
+    ceContainer.close();
+
+    assertThat(defaultStartable.startCalls).isEqualTo(0);
+    assertThat(defaultStartable.stopCalls).isEqualTo(0);
+    assertThat(eagerStartable.startCalls).isEqualTo(1);
+    assertThat(eagerStartable.stopCalls).isEqualTo(1);
   }
 
   public static class DefaultStartable implements Startable {
