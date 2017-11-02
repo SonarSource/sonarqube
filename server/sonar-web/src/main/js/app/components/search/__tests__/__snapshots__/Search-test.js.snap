@@ -10,7 +10,7 @@ exports[`shows warning about short input 1`] = `
 
 exports[`shows warning about short input 2`] = `
 <span
-  className="navbar-search-input-hint is-shifted"
+  className="navbar-search-input-hint"
 >
   select2.tooShort.2
 </span>

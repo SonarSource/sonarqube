@@ -3,6 +3,12 @@
   padding-right: 3px;
 }
 
+.navbar-search .search-box,
+.navbar-search .search-box-input {
+  width: 310px;
+  max-width: none;
+}
+
 .navbar-search-input {
   vertical-align: middle;
   width: 310px;
@@ -13,22 +19,20 @@
 
 .navbar-search-input-hint {
   position: absolute;
-  top: 4px;
-  right: 30px;
+  top: 1px;
+  right: 27px;
   line-height: var(--controlHeight);
   font-size: var(--smallFontSize);
   color: var(--secondFontColor);
 }
-.navbar-search-input-hint.is-shifted {
-  z-index: 7501;
-  top: 32px;
-}
 
 .navbar-search-icon {
   position: relative;
+  z-index: var(--aboveNormalZIndex);
   vertical-align: middle;
   width: 16px;
   margin-right: -20px;
+  background-color: #fff;
   color: var(--secondFontColor);
 }
 
@@ -78,9 +82,10 @@
 }
 
 .global-navbar-search-dropdown {
+  top: calc(100% + 3px) !important;
   max-height: 80vh;
   width: 440px;
-  padding: 0;
+  padding: 0 !important;
   overflow-y: auto;
   overflow-x: hidden;
 }

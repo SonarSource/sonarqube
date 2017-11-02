@@ -29,9 +29,12 @@ import './SearchBox.css';
 
 interface Props {
   autoFocus?: boolean;
+  innerRef?: (node: HTMLInputElement | null) => void;
   minLength?: number;
   onChange: (value: string) => void;
-  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  onClick?: React.MouseEventHandler<HTMLInputElement>;
+  onFocus?: React.FocusEventHandler<HTMLInputElement>;
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
   placeholder: string;
   value?: string;
 }
@@ -92,6 +95,13 @@ export default class SearchBox extends React.PureComponent<Props, State> {
     }
   };
 
+  ref = (node: HTMLInputElement | null) => {
+    this.input = node;
+    if (this.props.innerRef) {
+      this.props.innerRef(node);
+    }
+  };
+
   render() {
     const { minLength } = this.props;
     const { value } = this.state;
@@ -109,9 +119,11 @@ export default class SearchBox extends React.PureComponent<Props, State> {
           className={inputClassName}
           maxLength={100}
           onChange={this.handleInputChange}
+          onClick={this.props.onClick}
+          onFocus={this.props.onFocus}
           onKeyDown={this.props.onKeyDown}
           placeholder={this.props.placeholder}
-          ref={node => (this.input = node)}
+          ref={this.ref}
           type="text"
           value={value}
         />
