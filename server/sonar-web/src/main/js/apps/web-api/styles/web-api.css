@@ -9,10 +9,6 @@
   white-space: nowrap;
 }
 
-.web-api-search .icon-search {
-  color: var(--gray80);
-}
-
 .web-api-domain-header,
 .web-api-action-header {
   display: flex;
