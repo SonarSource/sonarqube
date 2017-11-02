@@ -55,20 +55,6 @@
   display: none;
 }
 
-.code-search .search-box {
-  padding-right: 10px;
-}
-
-.code-search .search-box .note {
-  vertical-align: middle;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.code-search .search-box input.touched ~ .note {
-  opacity: 1;
-}
-
 .code-components-header {
   position: sticky;
   top: 95px;

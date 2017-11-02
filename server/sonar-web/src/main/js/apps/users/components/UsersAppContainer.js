@@ -26,6 +26,7 @@ import { getCurrentUser } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 // import styles to have the `.button-icon` styles
 import '../../../components/ui/buttons.css';
+import '../../../components/controls/SearchBox.css';
 
 class UsersAppContainer extends React.PureComponent {
   static propTypes = {

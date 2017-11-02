@@ -19,9 +19,9 @@
  */
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import { debounce } from 'lodash';
 import { getFilterUrl } from './utils';
-import SearchFilter from './SearchFilter';
+import SearchBox from '../../../components/controls/SearchBox';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   className?: string;
@@ -35,11 +35,6 @@ export default class SearchFilterContainer extends React.PureComponent<Props> {
     router: PropTypes.object.isRequired
   };
 
-  constructor(props: Props) {
-    super(props);
-    this.handleSearch = debounce(this.handleSearch, 250);
-  }
-
   handleSearch = (userQuery?: string) => {
     const path = getFilterUrl(this.props, { search: userQuery });
     this.context.router.push(path);
@@ -47,11 +42,13 @@ export default class SearchFilterContainer extends React.PureComponent<Props> {
 
   render() {
     return (
-      <SearchFilter
-        className={this.props.className}
-        query={this.props.query}
-        handleSearch={this.handleSearch}
-      />
+      <div className="projects-topbar-item projects-topbar-item-search">
+        <SearchBox
+          minLength={2}
+          onChange={this.handleSearch}
+          placeholder={translate('projects.search')}
+        />
+      </div>
     );
   }
 }

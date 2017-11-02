@@ -25,6 +25,7 @@ import TypesFilter from './TypesFilter';
 import CurrentsFilter from './CurrentsFilter';
 import DateFilter from './DateFilter';
 import { DEFAULT_FILTERS } from './../constants';
+import SearchBox from '../../../components/controls/SearchBox';
 import { translate } from '../../../helpers/l10n';
 
 export default class Search extends React.PureComponent {
@@ -54,9 +55,9 @@ export default class Search extends React.PureComponent {
     this.props.onFilterUpdate(date);
   }
 
-  handleQueryChange(query /*: string */) {
+  handleQueryChange = (query /*: string */) => {
     this.props.onFilterUpdate({ query });
-  }
+  };
 
   handleReload(e /*: Object */) {
     e.target.blur();
@@ -78,18 +79,11 @@ export default class Search extends React.PureComponent {
     }
 
     return (
-      <li>
-        <h6 className="bt-search-form-label">
-          {translate('background_tasks.search_by_task_or_component')}
-        </h6>
-
-        <input
-          onChange={e => this.handleQueryChange(e.target.value)}
+      <li className="bt-search-form-large">
+        <SearchBox
+          onChange={this.handleQueryChange}
+          placeholder={translate('background_tasks.search_by_task_or_component')}
           value={query}
-          ref="searchInput"
-          className="js-search input-medium"
-          type="search"
-          placeholder={translate('search_verb')}
         />
       </li>
     );
@@ -143,7 +137,7 @@ export default class Search extends React.PureComponent {
 
           {this.renderSearchBox()}
 
-          <li className="bt-search-form-right nowrap">
+          <li className="nowrap">
             <button className="js-reload" onClick={this.handleReload.bind(this)} disabled={loading}>
               {translate('reload')}
             </button>{' '}

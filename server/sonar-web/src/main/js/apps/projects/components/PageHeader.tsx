@@ -79,7 +79,6 @@ export default function PageHeader(props: Props) {
       )}
 
       <SearchFilterContainer
-        className="projects-topbar-item projects-topbar-item-search"
         isFavorite={props.isFavorite}
         organization={props.organization}
         query={props.query}

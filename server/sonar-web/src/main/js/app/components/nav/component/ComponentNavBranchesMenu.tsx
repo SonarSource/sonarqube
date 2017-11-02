@@ -29,6 +29,7 @@ import {
 } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
 import { getProjectBranchUrl } from '../../../../helpers/urls';
+import SearchBox from '../../../../components/controls/SearchBox';
 import Tooltip from '../../../../components/controls/Tooltip';
 
 interface Props {
@@ -75,18 +76,13 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
     }
   };
 
-  handleSearchChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
-    this.setState({ query: event.currentTarget.value, selected: null });
+  handleSearchChange = (query: string) => this.setState({ query, selected: null });
 
   handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     switch (event.keyCode) {
       case 13:
         event.preventDefault();
         this.openSelected();
-        return;
-      case 27:
-        event.preventDefault();
-        this.props.onClose();
         return;
       case 38:
         event.preventDefault();
@@ -151,17 +147,12 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
   isSelected = (branch: Branch) => branch.name === this.getSelected();
 
   renderSearch = () => (
-    <div className="search-box menu-search">
-      <button className="search-box-submit button-clean">
-        <i className="icon-search-new" />
-      </button>
-      <input
+    <div className="menu-search">
+      <SearchBox
         autoFocus={true}
-        className="search-box-input"
         onChange={this.handleSearchChange}
         onKeyDown={this.handleKeyDown}
-        placeholder={translate('search_verb')}
-        type="search"
+        placeholder={translate('branches.search_for_branches')}
         value={this.state.query}
       />
     </div>

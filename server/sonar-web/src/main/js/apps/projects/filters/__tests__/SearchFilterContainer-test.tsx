@@ -21,17 +21,10 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import SearchFilterContainer from '../SearchFilterContainer';
 
-// mocking lodash, because mocking timers is now working for some reason :'(
-jest.mock('lodash', () => {
-  const lodash = require.requireActual('lodash');
-  lodash.debounce = (fn: Function) => (...args: any[]) => fn(args);
-  return lodash;
-});
-
 it('searches', () => {
   const push = jest.fn();
   const wrapper = shallow(<SearchFilterContainer query={{}} />, { context: { router: { push } } });
   expect(wrapper).toMatchSnapshot();
-  wrapper.prop('handleSearch')('foo');
+  wrapper.find('SearchBox').prop<Function>('onChange')('foo');
   expect(push).toBeCalledWith({ pathname: '/projects', query: { search: 'foo' } });
 });

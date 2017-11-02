@@ -4,9 +4,10 @@ exports[`should render with the total 1`] = `
 <div
   className="panel panel-vertical bordered-bottom spacer-bottom"
 >
-  <UsersSearch
-    className="display-inline-block"
-    onSearch={[Function]}
+  <SearchBox
+    minLength={2}
+    onChange={[Function]}
+    placeholder="search.search_for_users"
   />
   <span
     className="pull-right little-spacer-top"
@@ -24,9 +25,10 @@ exports[`should render without the total 1`] = `
 <div
   className="panel panel-vertical bordered-bottom spacer-bottom"
 >
-  <UsersSearch
-    className="display-inline-block"
-    onSearch={[Function]}
+  <SearchBox
+    minLength={2}
+    onChange={[Function]}
+    placeholder="search.search_for_users"
   />
 </div>
 `;

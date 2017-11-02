@@ -31,12 +31,12 @@ import javax.annotation.Nullable;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.html5.WebStorage;
-import org.sonarqube.pageobjects.measures.MeasuresPage;
-import org.sonarqube.tests.Tester;
 import org.sonarqube.pageobjects.issues.IssuesPage;
+import org.sonarqube.pageobjects.measures.MeasuresPage;
 import org.sonarqube.pageobjects.organization.MembersPage;
 import org.sonarqube.pageobjects.projects.ProjectsPage;
 import org.sonarqube.pageobjects.settings.SettingsPage;
+import org.sonarqube.tests.Tester;
 
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
@@ -140,6 +140,18 @@ public class Navigation {
     // TODO encode projectKey
     String url = "/component_measures?id=" + projectKey;
     return open(url, MeasuresPage.class);
+  }
+
+  public ProjectCodePage openCode(String projectKey) {
+    // TODO encode projectKey
+    String url = "/code?id=" + projectKey;
+    return open(url, ProjectCodePage.class);
+  }
+
+  public ProjectCodePage openCode(String projectKey, String selected) {
+    // TODO encode projectKey and selected
+    String url = "/code?id=" + projectKey + "&selected=" + selected;
+    return open(url, ProjectCodePage.class);
   }
 
   public MembersPage openOrganizationMembers(String orgKey) {

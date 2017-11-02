@@ -20,37 +20,34 @@
 package org.sonarqube.tests.projectAdministration;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category1Suite;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import util.user.UserRule;
+import org.sonarqube.tests.Category1Suite;
+import org.sonarqube.tests.Tester;
+import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
+import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
-import static util.ItUtils.projectDir;
-import static util.selenium.Selenese.runSelenese;
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.$;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectBulkDeletionPageTest {
 
-  private static final String ADMIN_USER_LOGIN = "admin-user";
+  private String adminUser;
 
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
   @Rule
-  public UserRule userRule = UserRule.from(orchestrator);
+  public Tester tester = new Tester(orchestrator);
 
   @Before
   public void deleteData() {
     orchestrator.resetData();
-    userRule.createAdminUser(ADMIN_USER_LOGIN, ADMIN_USER_LOGIN);
-  }
-
-  @After
-  public void deleteAdminUser() {
-    userRule.resetUsers();
+    adminUser = tester.users().generateAdministrator().getLogin();
   }
 
   /**
@@ -58,19 +55,22 @@ public class ProjectBulkDeletionPageTest {
    */
   @Test
   public void test_bulk_deletion_on_selected_projects() throws Exception {
-    // we must have several projects to test the bulk deletion
-    executeBuild("cameleon-1", "Sample-Project");
-    executeBuild("cameleon-2", "Foo-Application");
-    executeBuild("cameleon-3", "Bar-Sonar-Plugin");
+    Project project1 = tester.projects().generate(null, t -> t.setName("Foo"));
+    Project project2 = tester.projects().generate(null, t -> t.setName("Bar"));
+    Project project3 = tester.projects().generate(null, t -> t.setName("FooQux"));
 
-    runSelenese(orchestrator, "/projectAdministration/ProjectBulkDeletionPageTest/bulk-delete-filter-projects.html");
+    tester.openBrowser().logIn().submitCredentials(adminUser).open("/admin/projects_management");
+    $("#projects-management-page").shouldHave(text(project1.getName())).shouldHave(text(project2.getName())).shouldHave(text(project3.getName()));
+
+    $("#projects-management-page .search-box-input").val("foo").pressEnter();
+    $("#projects-management-page").shouldNotHave(text(project2.getName())).shouldHave(text(project1.getName())).shouldHave(text(project3.getName()));
+
+    $("#projects-management-page .js-delete").click();
+    $(".modal").shouldBe(visible);
+    $(".modal button").click();
+    $("#projects-management-page").shouldNotHave(text(project1.getName())).shouldNotHave(text(project3.getName()));
+
+    assertThat(tester.wsClient().components().searchProjects(SearchProjectsRequest.builder().build())
+      .getComponentsCount()).isEqualTo(1);
   }
-
-  private void executeBuild(String projectKey, String projectName) {
-    orchestrator.executeBuild(
-      SonarScanner.create(projectDir("shared/xoo-sample"))
-        .setProjectKey(projectKey)
-        .setProjectName(projectName));
-  }
-
 }

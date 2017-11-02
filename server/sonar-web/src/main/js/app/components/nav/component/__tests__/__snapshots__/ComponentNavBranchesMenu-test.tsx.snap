@@ -5,22 +5,13 @@ exports[`renders list 1`] = `
   className="dropdown-menu"
 >
   <div
-    className="search-box menu-search"
+    className="menu-search"
   >
-    <button
-      className="search-box-submit button-clean"
-    >
-      <i
-        className="icon-search-new"
-      />
-    </button>
-    <input
+    <SearchBox
       autoFocus={true}
-      className="search-box-input"
       onChange={[Function]}
       onKeyDown={[Function]}
-      placeholder="search_verb"
-      type="search"
+      placeholder="branches.search_for_branches"
       value=""
     />
   </div>
@@ -181,22 +172,13 @@ exports[`searches 1`] = `
   className="dropdown-menu"
 >
   <div
-    className="search-box menu-search"
+    className="menu-search"
   >
-    <button
-      className="search-box-submit button-clean"
-    >
-      <i
-        className="icon-search-new"
-      />
-    </button>
-    <input
+    <SearchBox
       autoFocus={true}
-      className="search-box-input"
       onChange={[Function]}
       onKeyDown={[Function]}
-      placeholder="search_verb"
-      type="search"
+      placeholder="branches.search_for_branches"
       value="bar"
     />
   </div>

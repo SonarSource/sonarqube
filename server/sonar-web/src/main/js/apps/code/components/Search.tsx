@@ -20,13 +20,13 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import * as classNames from 'classnames';
-import { debounce } from 'lodash';
 import Components from './Components';
 import { getTree } from '../../../api/components';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { parseError } from '../utils';
 import { getProjectUrl } from '../../../helpers/urls';
 import { Component } from '../types';
+import SearchBox from '../../../components/controls/SearchBox';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   branch?: string;
@@ -43,7 +43,6 @@ interface State {
 }
 
 export default class Search extends React.PureComponent<Props, State> {
-  input: HTMLInputElement;
   mounted: boolean;
 
   static contextTypes = {
@@ -54,10 +53,6 @@ export default class Search extends React.PureComponent<Props, State> {
     query: '',
     loading: false
   };
-
-  componentWillMount() {
-    this.handleSearch = debounce(this.handleSearch, 250);
-  }
 
   componentDidMount() {
     this.mounted = true;
@@ -77,10 +72,6 @@ export default class Search extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
-  }
-
-  checkInputValue(query: string) {
-    return this.input.value === query;
   }
 
   handleSelectNext() {
@@ -114,27 +105,26 @@ export default class Search extends React.PureComponent<Props, State> {
     }
   }
 
-  handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    switch (e.keyCode) {
+  handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    switch (event.keyCode) {
       case 13:
-        e.preventDefault();
+        event.preventDefault();
         this.handleSelectCurrent();
         break;
       case 38:
-        e.preventDefault();
+        event.preventDefault();
         this.handleSelectPrevious();
         break;
       case 40:
-        e.preventDefault();
+        event.preventDefault();
         this.handleSelectNext();
         break;
       default: // do nothing
     }
-  }
+  };
 
   handleSearch = (query: string) => {
-    // first time check if value has changed due to debounce
-    if (this.mounted && this.checkInputValue(query)) {
+    if (this.mounted) {
       const { branch, component, onError } = this.props;
       this.setState({ loading: true });
 
@@ -143,8 +133,7 @@ export default class Search extends React.PureComponent<Props, State> {
 
       getTree(component.key, { branch, q: query, s: 'qualifier,name', qualifiers })
         .then(r => {
-          // second time check if value has change due to api request
-          if (this.mounted && this.checkInputValue(query)) {
+          if (this.mounted) {
             this.setState({
               results: r.components,
               selectedIndex: r.components.length > 0 ? 0 : undefined,
@@ -153,8 +142,7 @@ export default class Search extends React.PureComponent<Props, State> {
           }
         })
         .catch(e => {
-          // second time check if value has change due to api request
-          if (this.mounted && this.checkInputValue(query)) {
+          if (this.mounted) {
             this.setState({ loading: false });
             parseError(e).then(onError);
           }
@@ -162,61 +150,36 @@ export default class Search extends React.PureComponent<Props, State> {
     }
   };
 
-  handleQueryChange(query: string) {
+  handleQueryChange = (query: string) => {
     this.setState({ query });
-    if (query.length < 3) {
+    if (query.length === 0) {
       this.setState({ results: undefined });
     } else {
       this.handleSearch(query);
     }
-  }
-
-  handleInputChange(event: React.SyntheticEvent<HTMLInputElement>) {
-    const query = event.currentTarget.value;
-    this.handleQueryChange(query);
-  }
-
-  handleSubmit(event: React.SyntheticEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const query = this.input.value;
-    this.handleQueryChange(query);
-  }
+  };
 
   render() {
     const { component } = this.props;
-    const { query, loading, selectedIndex, results } = this.state;
+    const { loading, selectedIndex, results } = this.state;
     const selected = selectedIndex != null && results != null ? results[selectedIndex] : undefined;
     const containerClassName = classNames('code-search', {
       'code-search-with-results': results != null
     });
-    const inputClassName = classNames('search-box-input', {
-      touched: query.length > 0 && query.length < 3
-    });
+    const isPortfolio = ['VW', 'SVW', 'APP'].includes(component.qualifier);
 
     return (
       <div id="code-search" className={containerClassName}>
-        <form className="search-box" onSubmit={this.handleSubmit.bind(this)}>
-          <button className="search-box-submit button-clean">
-            <i className="icon-search" />
-          </button>
-
-          <input
-            ref={node => (this.input = node as HTMLInputElement)}
-            onKeyDown={this.handleKeyDown.bind(this)}
-            onChange={this.handleInputChange.bind(this)}
-            value={query}
-            className={inputClassName}
-            type="search"
-            name="q"
-            placeholder={translate('search_verb')}
-            maxLength={100}
-            autoComplete="off"
-          />
-
-          {loading && <i className="spinner spacer-left" />}
-
-          <span className="note spacer-left">{translateWithParameters('select2.tooShort', 3)}</span>
-        </form>
+        <SearchBox
+          minLength={3}
+          onChange={this.handleQueryChange}
+          onKeyDown={this.handleKeyDown}
+          placeholder={translate(
+            isPortfolio ? 'code.search_placeholder.portfolio' : 'code.search_placeholder'
+          )}
+          value={this.state.query}
+        />
+        {loading && <i className="spinner spacer-left" />}
 
         {results != null && (
           <Components

@@ -4,7 +4,7 @@
 }
 
 .bt-search-form > li + li {
-  margin-left: 40px;
+  margin-left: 16px;
 }
 
 .bt-search-form-label {
@@ -15,8 +15,8 @@
   padding: 4px 0;
 }
 
-.bt-search-form-right {
-  margin-left: auto !important;
+.bt-search-form-large {
+  flex: 1;
 }
 
 .bt-workers-warning-icon {

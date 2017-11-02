@@ -151,11 +151,7 @@ export default class App extends React.PureComponent {
 
   handleQueryChange = (query /*: string */) => {
     if (this.mounted) {
-      this.setState({ query }, () => {
-        if (query.length === 0 || query.length > 2) {
-          this.loadHolders();
-        }
-      });
+      this.setState({ query }, this.loadHolders);
     }
   };
 

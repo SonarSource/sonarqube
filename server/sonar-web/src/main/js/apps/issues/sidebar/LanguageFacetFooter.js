@@ -56,7 +56,7 @@ class LanguageFacetFooter extends React.PureComponent {
           noResultsText={translate('select2.noMatches')}
           onChange={this.handleChange}
           options={options}
-          placeholder={translate('search_verb')}
+          placeholder={translate('search.search_for_languages')}
           searchable={true}
         />
       </div>
