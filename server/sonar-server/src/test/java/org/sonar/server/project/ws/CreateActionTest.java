@@ -287,6 +287,11 @@ public class CreateActionTest {
   }
 
   @Test
+  public void test() {
+
+  }
+
+  @Test
   public void test_example() {
     userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
 
