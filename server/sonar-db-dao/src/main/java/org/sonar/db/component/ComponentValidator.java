@@ -24,7 +24,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.core.component.ComponentKeys.MAX_COMPONENT_KEY_LENGTH;
 
 public class ComponentValidator {
-  private static final int MAX_COMPONENT_NAME_LENGTH = 2000;
+  public static final int MAX_COMPONENT_NAME_LENGTH = 2000;
   private static final int MAX_COMPONENT_QUALIFIER_LENGTH = 10;
 
   private ComponentValidator() {

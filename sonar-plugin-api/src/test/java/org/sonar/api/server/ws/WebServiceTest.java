@@ -302,6 +302,20 @@ public class WebServiceTest {
   }
 
   @Test
+  public void param_with_maximum_length() {
+    ((WebService) context -> {
+      NewController newController = context.createController("api/custom_measures");
+      NewAction create = newDefaultAction(newController, "create");
+      create.createParam("string_value")
+        .setMaximumLength(24);
+      newController.done();
+    }).define(context);
+
+    WebService.Action action = context.controller("api/custom_measures").action("create");
+    assertThat(action.param("string_value").maximumLength()).isEqualTo(24);
+  }
+
+  @Test
   public void fail_if_required_param_has_default_value() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Default value must not be set on parameter 'api/rule/create?key' as it's marked as required");

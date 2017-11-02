@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
@@ -43,7 +44,9 @@ import org.sonar.api.server.ws.internal.PartImpl;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.DateUtils;
 
+import static com.google.common.base.Strings.repeat;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
@@ -94,6 +97,28 @@ public class RequestTest {
     assertThat(underTest.mandatoryParamAsInt("a_required_number")).isEqualTo(42);
     assertThat(underTest.mandatoryParamAsLong("a_required_number")).isEqualTo(42L);
     assertThat(underTest.mandatoryParamAsEnum("a_required_enum", RuleStatus.class)).isEqualTo(RuleStatus.BETA);
+  }
+
+  @Test
+  public void maximum_length_ok() {
+    String parameter = "maximum_length_param";
+    defineParameterTestAction(newParam -> newParam.setMaximumLength(10), parameter);
+    String value = repeat("X", 10);
+
+    String param = underTest.setParam(parameter, value).param(parameter);
+
+    assertThat(param).isEqualTo(value);
+  }
+
+  @Test
+  public void maximum_length_not_ok() {
+    String parameter = "maximum_length_param";
+    defineParameterTestAction(newParam -> newParam.setMaximumLength(10), parameter);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(format("'%s' length (11) is longer than the maximum authorized (10)", parameter));
+
+    underTest.setParam(parameter, repeat("X", 11)).param(parameter);
   }
 
   @Test
@@ -578,6 +603,20 @@ public class RequestTest {
     expectedException.expectMessage("The 'required_param' parameter is missing");
 
     underTest.mandatoryParamAsPart("required_param");
+  }
+
+  private void defineParameterTestAction(Consumer<WebService.NewParam> newParam, String parameter) {
+    String controllerPath = "my_controller";
+    String actionPath = "my_action";
+    WebService.Context context = new WebService.Context();
+    WebService.NewController controller = context.createController(controllerPath);
+    WebService.NewAction action = controller
+      .createAction(actionPath)
+      .setHandler(mock(RequestHandler.class));
+    WebService.NewParam param = action.createParam(parameter);
+    newParam.accept(param);
+    controller.done();
+    underTest.setAction(context.controller(controllerPath).action(actionPath));
   }
 
   private static class FakeRequest extends ValidatingRequest {

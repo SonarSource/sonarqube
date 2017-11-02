@@ -19,7 +19,6 @@
  */
 package org.sonar.server.project.ws;
 
-import org.assertj.core.api.Assertions;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,7 +47,8 @@ import org.sonarqube.ws.WsProjects.CreateWsResponse;
 import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
 import org.sonarqube.ws.client.project.CreateRequest;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static joptsimple.internal.Strings.repeat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -88,8 +88,7 @@ public class CreateActionTest {
       new ProjectsWsSupport(db.getDbClient(), defaultOrganizationProvider, billingValidations),
       db.getDbClient(), userSession,
       new ComponentUpdater(db.getDbClient(), i18n, system2, mock(PermissionTemplateService.class), new FavoriteUpdater(db.getDbClient()),
-        projectIndexers)
-    ));
+        projectIndexers)));
 
   @Test
   public void create_project() throws Exception {
@@ -265,6 +264,8 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_missing_project_parameter() throws Exception {
+    userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
+
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'project' parameter is missing");
 
@@ -273,6 +274,8 @@ public class CreateActionTest {
 
   @Test
   public void fail_when_missing_name_parameter() throws Exception {
+    userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
+
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'name' parameter is missing");
 
@@ -284,6 +287,32 @@ public class CreateActionTest {
     expectedException.expect(ForbiddenException.class);
 
     call(CreateRequest.builder().setKey(DEFAULT_PROJECT_KEY).setName(DEFAULT_PROJECT_NAME).build());
+  }
+
+  @Test
+  public void fail_when_project_parameter_is_longer_than_400() {
+    userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'project' length (401) is longer than the maximum authorized (400)");
+
+    ws.newRequest().setMethod(POST.name())
+      .setParam("project", repeat('a', 401))
+      .setParam("name", DEFAULT_PROJECT_NAME)
+      .execute();
+  }
+
+  @Test
+  public void fail_when_name_parameter_is_longer_than_2000() {
+    userSession.addPermission(PROVISION_PROJECTS, db.getDefaultOrganization());
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'name' length (2001) is longer than the maximum authorized (2000)");
+
+    ws.newRequest().setMethod(POST.name())
+      .setParam("project", "key")
+      .setParam("name", repeat('a', 2001))
+      .execute();
   }
 
   @Test
@@ -302,12 +331,12 @@ public class CreateActionTest {
   public void definition() {
     WebService.Action definition = ws.getDef();
 
-    Assertions.assertThat(definition.key()).isEqualTo("create");
-    Assertions.assertThat(definition.since()).isEqualTo("4.0");
-    Assertions.assertThat(definition.isInternal()).isFalse();
-    Assertions.assertThat(definition.responseExampleAsString()).isNotEmpty();
+    assertThat(definition.key()).isEqualTo("create");
+    assertThat(definition.since()).isEqualTo("4.0");
+    assertThat(definition.isInternal()).isFalse();
+    assertThat(definition.responseExampleAsString()).isNotEmpty();
 
-    Assertions.assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder(
+    assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder(
       PARAM_VISIBILITY,
       PARAM_ORGANIZATION,
       PARAM_NAME,
@@ -315,17 +344,25 @@ public class CreateActionTest {
       PARAM_BRANCH);
 
     WebService.Param organization = definition.param(PARAM_ORGANIZATION);
-    Assertions.assertThat(organization.description()).isEqualTo("The key of the organization");
-    Assertions.assertThat(organization.isInternal()).isTrue();
-    Assertions.assertThat(organization.isRequired()).isFalse();
-    Assertions.assertThat(organization.since()).isEqualTo("6.3");
+    assertThat(organization.description()).isEqualTo("The key of the organization");
+    assertThat(organization.isInternal()).isTrue();
+    assertThat(organization.isRequired()).isFalse();
+    assertThat(organization.since()).isEqualTo("6.3");
 
     WebService.Param isPrivate = definition.param(PARAM_VISIBILITY);
-    Assertions.assertThat(isPrivate.description()).isNotEmpty();
-    Assertions.assertThat(isPrivate.isInternal()).isTrue();
-    Assertions.assertThat(isPrivate.isRequired()).isFalse();
-    Assertions.assertThat(isPrivate.since()).isEqualTo("6.4");
-    Assertions.assertThat(isPrivate.possibleValues()).containsExactlyInAnyOrder("private", "public");
+    assertThat(isPrivate.description()).isNotEmpty();
+    assertThat(isPrivate.isInternal()).isTrue();
+    assertThat(isPrivate.isRequired()).isFalse();
+    assertThat(isPrivate.since()).isEqualTo("6.4");
+    assertThat(isPrivate.possibleValues()).containsExactlyInAnyOrder("private", "public");
+
+    WebService.Param project = definition.param(PARAM_PROJECT);
+    assertThat(project.isRequired()).isTrue();
+    assertThat(project.maximumLength()).isEqualTo(400);
+
+    WebService.Param name = definition.param(PARAM_NAME);
+    assertThat(name.isRequired()).isTrue();
+    assertThat(name.maximumLength()).isEqualTo(2000);
   }
 
   private CreateWsResponse call(CreateRequest request) {

@@ -633,7 +633,8 @@ public interface WebService extends Definable<WebService.Context> {
     private boolean required = false;
     private boolean internal = false;
     private Set<String> possibleValues = null;
-    private Integer maxValuesAllowed = null;
+    private Integer maxValuesAllowed;
+    private Integer maximumLength;
 
     private NewParam(String key) {
       this.key = key;
@@ -770,6 +771,14 @@ public interface WebService extends Definable<WebService.Context> {
       return this;
     }
 
+    /**
+     * @since 7.0
+     */
+    public NewParam setMaximumLength(@Nullable Integer maximumLength) {
+      this.maximumLength = maximumLength;
+      return this;
+    }
+
     @Override
     public String toString() {
       return key;
@@ -824,6 +833,7 @@ public interface WebService extends Definable<WebService.Context> {
     private final boolean required;
     private final boolean internal;
     private final Set<String> possibleValues;
+    private final Integer maximumLength;
     private final Integer maxValuesAllowed;
 
     protected Param(Action action, NewParam newParam) {
@@ -839,6 +849,7 @@ public interface WebService extends Definable<WebService.Context> {
       this.internal = newParam.internal;
       this.possibleValues = newParam.possibleValues;
       this.maxValuesAllowed = newParam.maxValuesAllowed;
+      this.maximumLength = newParam.maximumLength;
       checkArgument(!required || defaultValue == null, "Default value must not be set on parameter '%s?%s' as it's marked as required", action, key);
     }
 
@@ -933,6 +944,16 @@ public interface WebService extends Definable<WebService.Context> {
      */
     public Integer maxValuesAllowed() {
       return maxValuesAllowed;
+    }
+
+    /**
+     * Specify the maximum length of the value used in this parameter
+     *
+     * @since 7.0
+     */
+    @CheckForNull
+    public Integer maximumLength() {
+      return maximumLength;
     }
 
     @Override
