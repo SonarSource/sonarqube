@@ -20,6 +20,8 @@
 package org.sonar.scanner.cpd;
 
 import java.util.Optional;
+import java.util.OptionalInt;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;

@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
@@ -78,13 +79,13 @@ public class IssueCreationDateCalculator extends IssueVisitor {
     if (!issue.isNew()) {
       return;
     }
-    Optional<Long> lastAnalysisOptional = lastAnalysis();
+    OptionalLong lastAnalysisOptional = lastAnalysis();
     boolean firstAnalysis = !lastAnalysisOptional.isPresent();
     ActiveRule activeRule = toJavaUtilOptional(activeRulesHolder.get(issue.getRuleKey()))
       .orElseThrow(illegalStateException("The rule %s raised an issue, but is not one of the active rules.", issue.getRuleKey()));
     if (firstAnalysis
-      || activeRuleIsNew(activeRule, lastAnalysisOptional.get())
-      || ruleImplementationChanged(activeRule, lastAnalysisOptional.get())) {
+      || activeRuleIsNew(activeRule, lastAnalysisOptional.getAsLong())
+      || ruleImplementationChanged(activeRule, lastAnalysisOptional.getAsLong())) {
       getScmChangeDate(component, issue)
         .ifPresent(changeDate -> updateDate(issue, changeDate));
     }
@@ -115,7 +116,7 @@ public class IssueCreationDateCalculator extends IssueVisitor {
     return lastAnalysisDate < scannerPlugin.getUpdatedAt();
   }
 
-  private static boolean activeRuleIsNew(ActiveRule activeRule, Long lastAnalysisDate) {
+  private static boolean activeRuleIsNew(ActiveRule activeRule, long lastAnalysisDate) {
     long ruleCreationDate = activeRule.getCreatedAt();
     return lastAnalysisDate < ruleCreationDate;
   }
@@ -126,8 +127,8 @@ public class IssueCreationDateCalculator extends IssueVisitor {
       .map(IssueCreationDateCalculator::getChangeDate);
   }
 
-  private Optional<Long> lastAnalysis() {
-    return Optional.ofNullable(analysisMetadataHolder.getBaseAnalysis()).map(Analysis::getCreatedAt);
+  private OptionalLong lastAnalysis() {
+    return Optional.ofNullable(analysisMetadataHolder.getBaseAnalysis()).map(Analysis::getCreatedAt).map(OptionalLong::of).orElseGet(OptionalLong::empty);
   }
 
   private Optional<ScmInfo> getScmInfo(Component component) {

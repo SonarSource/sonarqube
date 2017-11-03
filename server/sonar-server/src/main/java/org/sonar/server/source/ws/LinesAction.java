@@ -22,7 +22,7 @@ package org.sonar.server.source.ws;
 import com.google.common.base.MoreObjects;
 import com.google.common.io.Resources;
 import java.util.Date;
-import java.util.Optional;
+import java.util.OptionalInt;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -164,20 +164,20 @@ public class LinesAction implements SourcesWsAction {
       if (line.hasScmDate()) {
         json.prop("scmDate", DateUtils.formatDateTime(new Date(line.getScmDate())));
       }
-      Optional<Integer> lineHits = getLineHits(line);
+      OptionalInt lineHits = getLineHits(line);
       if (lineHits.isPresent()) {
-        json.prop("utLineHits", lineHits.get());
-        json.prop("lineHits", lineHits.get());
+        json.prop("utLineHits", lineHits.getAsInt());
+        json.prop("lineHits", lineHits.getAsInt());
       }
-      Optional<Integer> conditions = getConditions(line);
+      OptionalInt conditions = getConditions(line);
       if (conditions.isPresent()) {
-        json.prop("utConditions", conditions.get());
-        json.prop("conditions", conditions.get());
+        json.prop("utConditions", conditions.getAsInt());
+        json.prop("conditions", conditions.getAsInt());
       }
-      Optional<Integer> coveredConditions = getCoveredConditions(line);
+      OptionalInt coveredConditions = getCoveredConditions(line);
       if (coveredConditions.isPresent()) {
-        json.prop("utCoveredConditions", coveredConditions.get());
-        json.prop("coveredConditions", coveredConditions.get());
+        json.prop("utCoveredConditions", coveredConditions.getAsInt());
+        json.prop("coveredConditions", coveredConditions.getAsInt());
       }
       json.prop("duplicated", line.getDuplicationCount() > 0);
       json.endObject();
@@ -185,43 +185,43 @@ public class LinesAction implements SourcesWsAction {
     json.endArray();
   }
 
-  private static Optional<Integer> getLineHits(DbFileSources.Line line) {
+  private static OptionalInt getLineHits(DbFileSources.Line line) {
     if (line.hasLineHits()) {
-      return Optional.of(line.getLineHits());
+      return OptionalInt.of(line.getLineHits());
     } else if (line.hasDeprecatedOverallLineHits()) {
-      return Optional.of(line.getDeprecatedOverallLineHits());
+      return OptionalInt.of(line.getDeprecatedOverallLineHits());
     } else if (line.hasDeprecatedUtLineHits()) {
-      return Optional.of(line.getDeprecatedUtLineHits());
+      return OptionalInt.of(line.getDeprecatedUtLineHits());
     } else if (line.hasDeprecatedItLineHits()) {
-      return Optional.of(line.getDeprecatedItLineHits());
+      return OptionalInt.of(line.getDeprecatedItLineHits());
     }
-    return Optional.empty();
+    return OptionalInt.empty();
   }
 
-  private static Optional<Integer> getConditions(DbFileSources.Line line) {
+  private static OptionalInt getConditions(DbFileSources.Line line) {
     if (line.hasConditions()) {
-      return Optional.of(line.getConditions());
+      return OptionalInt.of(line.getConditions());
     } else if (line.hasDeprecatedOverallConditions()) {
-      return Optional.of(line.getDeprecatedOverallConditions());
+      return OptionalInt.of(line.getDeprecatedOverallConditions());
     } else if (line.hasDeprecatedUtConditions()) {
-      return Optional.of(line.getDeprecatedUtConditions());
+      return OptionalInt.of(line.getDeprecatedUtConditions());
     } else if (line.hasDeprecatedItConditions()) {
-      return Optional.of(line.getDeprecatedItConditions());
+      return OptionalInt.of(line.getDeprecatedItConditions());
     }
-    return Optional.empty();
+    return OptionalInt.empty();
   }
 
-  private static Optional<Integer> getCoveredConditions(DbFileSources.Line line) {
+  private static OptionalInt getCoveredConditions(DbFileSources.Line line) {
     if (line.hasCoveredConditions()) {
-      return Optional.of(line.getCoveredConditions());
+      return OptionalInt.of(line.getCoveredConditions());
     } else if (line.hasDeprecatedOverallCoveredConditions()) {
-      return Optional.of(line.getDeprecatedOverallCoveredConditions());
+      return OptionalInt.of(line.getDeprecatedOverallCoveredConditions());
     } else if (line.hasDeprecatedUtCoveredConditions()) {
-      return Optional.of(line.getDeprecatedUtCoveredConditions());
+      return OptionalInt.of(line.getDeprecatedUtCoveredConditions());
     } else if (line.hasDeprecatedItCoveredConditions()) {
-      return Optional.of(line.getDeprecatedItCoveredConditions());
+      return OptionalInt.of(line.getDeprecatedItCoveredConditions());
     }
-    return Optional.empty();
+    return OptionalInt.empty();
   }
 
 }

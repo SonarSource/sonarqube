@@ -20,6 +20,8 @@
 package org.sonar.server.platform;
 
 import java.util.Optional;
+import java.util.OptionalLong;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
@@ -43,7 +45,7 @@ public class DefaultServerUpgradeStatusTest {
   @Test
   public void shouldBeFreshInstallation() {
     when(migrationSteps.getMaxMigrationNumber()).thenReturn(150L);
-    when(dbVersion.getVersion()).thenReturn(Optional.empty());
+    when(dbVersion.getVersion()).thenReturn(OptionalLong.empty());
 
     underTest.start();
 
@@ -54,7 +56,7 @@ public class DefaultServerUpgradeStatusTest {
 
   @Test
   public void shouldBeUpgraded() {
-    when(dbVersion.getVersion()).thenReturn(Optional.of(50L));
+    when(dbVersion.getVersion()).thenReturn(OptionalLong.of(50L));
 
     underTest.start();
 
@@ -65,7 +67,7 @@ public class DefaultServerUpgradeStatusTest {
 
   @Test
   public void shouldNotBeUpgraded() {
-    when(dbVersion.getVersion()).thenReturn(Optional.of(LAST_VERSION));
+    when(dbVersion.getVersion()).thenReturn(OptionalLong.of(LAST_VERSION));
 
     underTest.start();
 

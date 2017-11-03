@@ -20,6 +20,7 @@
 package org.sonar.server.es.metadata;
 
 import java.util.Optional;
+import java.util.OptionalLong;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.index.get.GetField;
@@ -67,8 +68,8 @@ public class MetadataIndex {
     return getMetadata(DB_VENDOR_KEY);
   }
 
-  public Optional<Long> getDbSchemaVersion() {
-    return getMetadata(DB_SCHEMA_VERSION_KEY).map(Long::parseLong);
+  public OptionalLong getDbSchemaVersion() {
+    return getMetadata(DB_SCHEMA_VERSION_KEY).map(Long::parseLong).map(OptionalLong::of).orElseGet(OptionalLong::empty);
   }
 
   public void setDbMetadata(String vendor, long schemaVersion) {

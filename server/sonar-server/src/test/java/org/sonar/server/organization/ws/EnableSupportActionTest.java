@@ -23,6 +23,7 @@ import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -112,13 +113,13 @@ public class EnableSupportActionTest {
 
     call();
 
-    Optional<Integer> defaultGroupId = dbTester.getDbClient().organizationDao().getDefaultGroupId(dbTester.getSession(), defaultOrganization.getUuid());
+    OptionalInt defaultGroupId = dbTester.getDbClient().organizationDao().getDefaultGroupId(dbTester.getSession(), defaultOrganization.getUuid());
     assertThat(defaultGroupId).isPresent();
-    GroupDto membersGroup = dbTester.getDbClient().groupDao().selectById(dbTester.getSession(), defaultGroupId.get());
+    GroupDto membersGroup = dbTester.getDbClient().groupDao().selectById(dbTester.getSession(), defaultGroupId.getAsInt());
     assertThat(membersGroup).isNotNull();
     assertThat(membersGroup.getName()).isEqualTo("Members");
-    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupIdsByUserId(dbTester.getSession(), user1.getId())).containsOnly(defaultGroupId.get());
-    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupIdsByUserId(dbTester.getSession(), user2.getId())).containsOnly(defaultGroupId.get());
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupIdsByUserId(dbTester.getSession(), user1.getId())).containsOnly(defaultGroupId.getAsInt());
+    assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupIdsByUserId(dbTester.getSession(), user2.getId())).containsOnly(defaultGroupId.getAsInt());
     assertThat(dbTester.getDbClient().groupMembershipDao().selectGroupIdsByUserId(dbTester.getSession(), userInAnotherOrganization.getId())).isEmpty();
   }
 
@@ -137,7 +138,7 @@ public class EnableSupportActionTest {
 
     call();
 
-    int defaultGroupId = dbTester.getDbClient().organizationDao().getDefaultGroupId(dbTester.getSession(), defaultOrganization.getUuid()).get();
+    int defaultGroupId = dbTester.getDbClient().organizationDao().getDefaultGroupId(dbTester.getSession(), defaultOrganization.getUuid()).getAsInt();
     assertThat(defaultGroupId).isNotEqualTo(sonarUsersGroup.getId());
     List<GroupPermissionDto> result = new ArrayList<>();
     dbTester.getDbClient().groupPermissionDao().selectAllPermissionsByGroupId(dbTester.getSession(), defaultOrganization.getUuid(), defaultGroupId,
@@ -161,7 +162,7 @@ public class EnableSupportActionTest {
 
     call();
 
-    int defaultGroupId = dbTester.getDbClient().organizationDao().getDefaultGroupId(dbTester.getSession(), defaultOrganization.getUuid()).get();
+    int defaultGroupId = dbTester.getDbClient().organizationDao().getDefaultGroupId(dbTester.getSession(), defaultOrganization.getUuid()).getAsInt();
     assertThat(dbTester.getDbClient().permissionTemplateDao().selectAllGroupPermissionTemplatesByGroupId(dbTester.getSession(), defaultGroupId))
       .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getPermission)
       .containsOnly(tuple(defaultGroupId, "user"), tuple(defaultGroupId, "admin"));

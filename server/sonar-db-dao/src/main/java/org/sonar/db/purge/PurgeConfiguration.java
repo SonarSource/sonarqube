@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Optional;
+import java.util.OptionalInt;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.config.Configuration;
@@ -40,7 +41,7 @@ public class PurgeConfiguration {
   private final Collection<String> disabledComponentUuids;
 
   public PurgeConfiguration(IdUuidPair rootProjectId, String[] scopesWithoutHistoricalData, int maxAgeInDaysOfClosedIssues,
-    Optional<Integer> maxAgeInDaysOfInactiveShortLivingBranches, System2 system2, Collection<String> disabledComponentUuids) {
+		  Optional<Integer> maxAgeInDaysOfInactiveShortLivingBranches, System2 system2, Collection<String> disabledComponentUuids) {
     this.rootProjectIdUuid = rootProjectId;
     this.scopesWithoutHistoricalData = scopesWithoutHistoricalData;
     this.maxAgeInDaysOfClosedIssues = maxAgeInDaysOfClosedIssues;
