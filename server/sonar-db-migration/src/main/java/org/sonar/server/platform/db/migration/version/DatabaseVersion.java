@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.db.migration.version;
 
-import java.util.Optional;
 import java.util.OptionalLong;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;

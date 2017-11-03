@@ -45,7 +45,7 @@ public class ConfigurationTest {
   public void getInt() {
     int value = new Random().nextInt();
 
-    verifySupportHeadAndOrTrailingWhitespaces(value, (c,x) ->  Optional.of(c.getInt(x).getAsInt()));
+    verifySupportHeadAndOrTrailingWhitespaces(value, Configuration::getInt);
   }
 
   @Test

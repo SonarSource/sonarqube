@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.cpd;
 
+import java.util.Optional;
 import java.util.OptionalInt;
 
 import org.junit.Before;
@@ -48,14 +49,14 @@ public class CpdSettingsTest {
 
   @Test
   public void defaultMinimumTokens() {
-    when(configuration.getInt(anyString())).thenReturn(OptionalInt.empty());
+    when(configuration.getInt(anyString())).thenReturn(Optional.empty());
     assertThat(cpdSettings.getMinimumTokens("java")).isEqualTo(100);
   }
 
   @Test
   public void minimumTokensByLanguage() {
-    when(configuration.getInt("sonar.cpd.java.minimumTokens")).thenReturn(OptionalInt.of(42));
-    when(configuration.getInt("sonar.cpd.php.minimumTokens")).thenReturn(OptionalInt.of(33));
+    when(configuration.getInt("sonar.cpd.java.minimumTokens")).thenReturn(Optional.of(42));
+    when(configuration.getInt("sonar.cpd.php.minimumTokens")).thenReturn(Optional.of(33));
 
     assertThat(cpdSettings.getMinimumTokens("java")).isEqualTo(42);
     assertThat(cpdSettings.getMinimumTokens("php")).isEqualTo(33);

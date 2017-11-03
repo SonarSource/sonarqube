@@ -137,9 +137,9 @@ public interface Configuration {
    * @return the value as {@code int}. If the property does not have value nor default value, then {@code empty} is returned.
    * @throws NumberFormatException if value is not empty and is not a parsable integer
    */
-  default OptionalInt getInt(String key) {
+  default Optional<Integer> getInt(String key) {
     try {
-      return get(key).map(String::trim).map(Integer::parseInt).map(OptionalInt::of).orElseGet(OptionalInt::empty);
+      return get(key).map(String::trim).map(Integer::parseInt);
     } catch (NumberFormatException e) {
       throw new IllegalStateException(String.format("The property '%s' is not an int value: %s", key, e.getMessage()));
     }
