@@ -6,19 +6,19 @@ exports[`should display a manual installation notification 1`] = `
 >
   marketplace.status_x.MANUAL_IN_PROGRESS.Foo
   <a
+    className="spacer-left"
+    href="https://redirect.sonarsource.com/doc/how-to-install-an-edition.html"
+    target="_blank"
+  >
+    marketplace.how_to_install
+  </a>
+  <a
     className="button spacer-left"
     download="sonarqube-Foo.zip"
     href="download_url"
     target="_blank"
   >
     marketplace.download_package
-  </a>
-  <a
-    className="spacer-left"
-    href="https://redirect.sonarsource.com/doc/how-to-install-an-edition.html"
-    target="_blank"
-  >
-    marketplace.how_to_install
   </a>
 </NavBarNotif>
 `;
