@@ -75,11 +75,13 @@ public class UpdateAction implements UserGroupsWsAction {
       .setRequired(true);
 
     action.createParam(PARAM_GROUP_NAME)
+      .setMaximumLength(GROUP_NAME_MAX_LENGTH)
       .setDescription(format("New optional name for the group. A group name cannot be larger than %d characters and must be unique. " +
         "Value 'anyone' (whatever the case) is reserved and cannot be used. If value is empty or not defined, then name is not changed.", GROUP_NAME_MAX_LENGTH))
       .setExampleValue("my-group");
 
     action.createParam(PARAM_GROUP_DESCRIPTION)
+      .setMaximumLength(DESCRIPTION_MAX_LENGTH)
       .setDescription(format("New optional description for the group. A group description cannot be larger than %d characters. " +
         "If value is not defined, then description is not changed.", DESCRIPTION_MAX_LENGTH))
       .setExampleValue("Default group for new users");
@@ -108,7 +110,7 @@ public class UpdateAction implements UserGroupsWsAction {
       String description = request.param(PARAM_GROUP_DESCRIPTION);
       if (description != null) {
         changed = true;
-        group.setDescription(support.validateDescription(description));
+        group.setDescription(description);
       }
 
       if (changed) {

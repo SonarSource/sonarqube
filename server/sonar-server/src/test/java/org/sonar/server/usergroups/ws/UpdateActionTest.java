@@ -19,7 +19,6 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import org.apache.commons.lang.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -187,21 +186,6 @@ public class UpdateActionTest {
   }
 
   @Test
-  public void fail_if_name_is_too_long() throws Exception {
-    insertDefaultGroupOnDefaultOrganization();
-    GroupDto group = db.users().insertGroup();
-    loginAsAdminOnDefaultOrganization();
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Group name cannot be longer than 255 characters");
-
-    newRequest()
-      .setParam("id", group.getId().toString())
-      .setParam("name", StringUtils.repeat("a", 255 + 1))
-      .execute();
-  }
-
-  @Test
   public void fail_if_new_name_is_anyone() throws Exception {
     insertDefaultGroupOnDefaultOrganization();
     GroupDto group = db.users().insertGroup();
@@ -231,22 +215,6 @@ public class UpdateActionTest {
     newRequest()
       .setParam("id", groupToBeRenamed.getId().toString())
       .setParam("name", newName)
-      .execute();
-  }
-
-  @Test
-  public void fail_if_description_is_too_long() throws Exception {
-    insertDefaultGroupOnDefaultOrganization();
-    GroupDto group = db.users().insertGroup();
-    loginAsAdminOnDefaultOrganization();
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Description cannot be longer than 200 characters");
-
-    newRequest()
-      .setParam("id", group.getId().toString())
-      .setParam("name", "long-group-description-is-looooooooooooong")
-      .setParam("description", StringUtils.repeat("a", 201))
       .execute();
   }
 
