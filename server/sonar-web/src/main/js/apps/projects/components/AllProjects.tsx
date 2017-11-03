@@ -71,7 +71,9 @@ export default class AllProjects extends React.PureComponent<Props, State> {
     }
     this.handleQueryChange(true);
     const footer = document.getElementById('footer');
-    footer && footer.classList.add('page-footer-with-sidebar');
+    if (footer) {
+      footer.classList.add('page-footer-with-sidebar');
+    }
   }
 
   componentDidUpdate(prevProps: Props) {
@@ -83,7 +85,9 @@ export default class AllProjects extends React.PureComponent<Props, State> {
   componentWillUnmount() {
     this.mounted = false;
     const footer = document.getElementById('footer');
-    footer && footer.classList.remove('page-footer-with-sidebar');
+    if (footer) {
+      footer.classList.remove('page-footer-with-sidebar');
+    }
   }
 
   getView = () => this.state.query.view || 'overall';
@@ -92,7 +96,8 @@ export default class AllProjects extends React.PureComponent<Props, State> {
 
   getSort = () => this.state.query.sort || 'name';
 
-  isFiltered = () => Object.values(this.state.query).some(value => value !== undefined);
+  isFiltered = (query = this.state.query) =>
+    Object.values(query).some(value => value !== undefined);
 
   stopLoading = () => {
     if (this.mounted) {
@@ -197,7 +202,7 @@ export default class AllProjects extends React.PureComponent<Props, State> {
     const savedOptionsSet = savedOptions.sort || savedOptions.view || savedOptions.visualization;
 
     // if there is no filter, but there are saved preferences in the localStorage
-    if (initialMount && !this.isFiltered() && savedOptionsSet) {
+    if (initialMount && !this.isFiltered(query) && savedOptionsSet) {
       this.context.router.replace({ pathname: this.props.location.pathname, query: savedOptions });
     } else {
       this.fetchProjects(query);

@@ -84,6 +84,10 @@ public class Navigation {
     return open("/organizations/" + organization + "/projects", ProjectsPage.class);
   }
 
+  public ProjectsPage openProjectsWithQuery(String query) {
+    return open("/projects?" + query, ProjectsPage.class);
+  }
+
   public IssuesPage openIssues() {
     return open("/issues", IssuesPage.class);
   }
