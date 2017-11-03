@@ -36,7 +36,6 @@ import org.sonarqube.ws.WsUserTokens.GenerateWsResponse;
 import org.sonarqube.ws.client.usertoken.GenerateWsRequest;
 
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
-import static org.sonar.db.user.UserTokenValidator.checkTokenName;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -45,6 +44,7 @@ import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_LOG
 import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_NAME;
 
 public class GenerateAction implements UserTokensWsAction {
+  private static final int MAX_TOKEN_NAME_LENGTH = 100;
   private final DbClient dbClient;
   private final UserSession userSession;
   private final System2 system;
@@ -74,6 +74,7 @@ public class GenerateAction implements UserTokensWsAction {
 
     action.createParam(PARAM_NAME)
       .setRequired(true)
+      .setMaximumLength(MAX_TOKEN_NAME_LENGTH)
       .setDescription("Token name")
       .setExampleValue("Project scan on Travis");
   }
@@ -109,7 +110,6 @@ public class GenerateAction implements UserTokensWsAction {
   }
 
   private void checkWsRequest(DbSession dbSession, GenerateWsRequest request) {
-    checkTokenName(request.getName());
     checkLoginExists(dbSession, request);
 
     Optional<UserTokenDto> userTokenDto = dbClient.userTokenDao().selectByLoginAndName(dbSession, request.getLogin(), request.getName());

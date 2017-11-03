@@ -19,23 +19,17 @@
  */
 package org.sonar.db.user;
 
-import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 
 public class UserTokenValidator {
-  private static final int MAX_TOKEN_NAME_LENGTH = 100;
   private static final int MAX_TOKEN_HASH_LENGTH = 255;
 
   private UserTokenValidator() {
     // utility methods
   }
 
-  public static String checkTokenName(String name) {
-    checkArgument(name.length() <= MAX_TOKEN_NAME_LENGTH, "Token name length (%s) is longer than the maximum authorized (%s)", name.length(), MAX_TOKEN_NAME_LENGTH);
-    return name;
-  }
-
   static String checkTokenHash(String hash) {
-    checkArgument(hash.length() <= MAX_TOKEN_HASH_LENGTH, "Token hash length (%s) is longer than the maximum authorized (%s)", hash.length(), MAX_TOKEN_HASH_LENGTH);
+    checkState(hash.length() <= MAX_TOKEN_HASH_LENGTH, "Token hash length (%s) is longer than the maximum authorized (%s)", hash.length(), MAX_TOKEN_HASH_LENGTH);
     return hash;
   }
 }
