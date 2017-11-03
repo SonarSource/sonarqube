@@ -30,16 +30,8 @@ public class UserTokenDtoTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void fail_if_name_is_longer_than_100_characters() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Token name length (101) is longer than the maximum authorized (100)");
-
-    new UserTokenDto().setName(randomAlphabetic(101));
-  }
-
-  @Test
   public void fail_if_token_hash_is_longer_than_255_characters() {
-    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Token hash length (256) is longer than the maximum authorized (255)");
 
     new UserTokenDto().setTokenHash(randomAlphabetic(256));
