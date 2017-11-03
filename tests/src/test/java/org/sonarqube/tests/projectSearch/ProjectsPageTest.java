@@ -200,4 +200,20 @@ public class ProjectsPageTest {
     page.shouldHaveTotal(1);
     page.searchProject("sample").shouldHaveTotal(0);
   }
+
+  @Test
+  public void should_open_permalink() {
+    String user = tester.users().generate().getLogin();
+    Navigation nav = tester.openBrowser().logIn().submitCredentials(user);
+
+    // make a search, so its parameters saved to local storage
+    nav.openProjects().changePerspective("Leak");
+
+    // change a page
+    nav.openHome();
+
+    // open a permalink to a particular visualization, it must be kept
+    nav.openProjectsWithQuery("view=visualizations&visualization=coverage");
+    assertThat(url()).contains("view=visualizations&visualization=coverage");
+  }
 }
