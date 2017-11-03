@@ -20,11 +20,9 @@
 package org.sonar.server.usergroups.ws;
 
 import java.util.Optional;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.user.UserGroupValidation;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
@@ -130,18 +128,6 @@ public class GroupWsSupport {
     Optional<OrganizationDto> org = dbClient.organizationDao().selectByKey(dbSession, effectiveKey);
     checkFoundWithOptional(org, "No organization with key '%s'", key);
     return org.get();
-  }
-
-  /**
-   * Similar to {@link UserGroupValidation#validateGroupName(String)} but kept internal. No need to publish
-   * this method in public API.
-   * @return the same description
-   */
-  @CheckForNull
-  String validateDescription(@Nullable String description) {
-    checkArgument(description == null || description.length() <= DESCRIPTION_MAX_LENGTH,
-      "Description cannot be longer than %s characters", DESCRIPTION_MAX_LENGTH);
-    return description;
   }
 
   void checkNameDoesNotExist(DbSession dbSession, String organizationUuid, String name) {
