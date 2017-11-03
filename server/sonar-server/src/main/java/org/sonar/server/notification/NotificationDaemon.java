@@ -63,8 +63,8 @@ public class NotificationDaemon implements Startable {
   private boolean stopping = false;
 
   public NotificationDaemon(Configuration config, DefaultNotificationManager manager, NotificationService service) {
-    this.delayInSeconds = config.getLong(PROPERTY_DELAY).get();
-    this.delayBeforeReportingStatusInSeconds = config.getLong(PROPERTY_DELAY_BEFORE_REPORTING_STATUS).get();
+    this.delayInSeconds = config.getLong(PROPERTY_DELAY).getAsLong();
+    this.delayBeforeReportingStatusInSeconds = config.getLong(PROPERTY_DELAY_BEFORE_REPORTING_STATUS).getAsLong();
     this.manager = manager;
     this.service = service;
   }

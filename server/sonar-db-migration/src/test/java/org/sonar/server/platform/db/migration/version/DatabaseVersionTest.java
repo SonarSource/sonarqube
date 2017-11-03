@@ -73,7 +73,8 @@ public class DatabaseVersionTest {
   }
 
   private void mockMaxMigrationNumberInDb(@Nullable Long value1) {
-    when(migrationHistory.getLastMigrationNumber()).thenReturn(Optional.ofNullable(value1));
+    when(migrationHistory.getLastMigrationNumber()).thenReturn(Optional.ofNullable(value1).map(OptionalLong::of)
+    													.orElseGet(OptionalLong::empty));
   }
 
   private void mockMaxMigrationNumberInConfig(long value) {

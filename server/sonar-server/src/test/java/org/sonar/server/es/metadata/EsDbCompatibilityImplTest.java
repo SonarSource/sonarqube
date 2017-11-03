@@ -20,6 +20,8 @@
 package org.sonar.server.es.metadata;
 
 import java.util.Optional;
+import java.util.OptionalLong;
+
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -141,7 +143,8 @@ public class EsDbCompatibilityImplTest {
 
   private void prepareDb(String dbVendor, @Nullable Long dbSchemaVersion) {
     when(dbClient.getDatabase().getDialect().getId()).thenReturn(dbVendor);
-    when(migrationHistory.getLastMigrationNumber()).thenReturn(Optional.ofNullable(dbSchemaVersion));
+    when(migrationHistory.getLastMigrationNumber()).thenReturn(Optional.ofNullable(dbSchemaVersion).map(OptionalLong::of)
+    							.orElseGet(OptionalLong::empty));
   }
 
   private void prepareEs(String dbVendor, long dbSchemaVersion) {

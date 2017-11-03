@@ -63,14 +63,14 @@ public class MigrationHistoryImpl implements MigrationHistory {
   }
 
   @Override
-  public Optional<Long> getLastMigrationNumber() {
+  public OptionalLong getLastMigrationNumber() {
     try (Connection connection = database.getDataSource().getConnection()) {
       List<Long> versions = selectVersions(connection);
 
       if (!versions.isEmpty()) {
-        return Optional.of(versions.get(versions.size() - 1));
+        return OptionalLong.of(versions.get(versions.size() - 1));
       }
-      return Optional.empty();
+      return OptionalLong.empty();
     } catch (SQLException e) {
       throw new IllegalStateException("Failed to read content of table " + SCHEMA_MIGRATIONS_TABLE, e);
     }

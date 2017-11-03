@@ -48,15 +48,15 @@ public class DatabaseVersion {
   /**
    * Convenience method to retrieve the value of {@link MigrationHistory#getLastMigrationNumber()}.
    */
-  public Optional<Long> getVersion() {
+  public OptionalLong getVersion() {
     return migrationHistory.getLastMigrationNumber();
   }
 
-  private static Status getStatus(Optional<Long> currentVersion, long lastVersion) {
+  private static Status getStatus(OptionalLong currentVersion, long lastVersion) {
     if (!currentVersion.isPresent()) {
       return Status.FRESH_INSTALL;
     }
-    long aLong = currentVersion.get();
+    long aLong = currentVersion.getAsLong();
     if (aLong == lastVersion) {
       return Status.UP_TO_DATE;
     }

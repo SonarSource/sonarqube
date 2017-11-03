@@ -20,6 +20,7 @@
 package org.sonar.server.platform;
 
 import java.util.Optional;
+import java.util.OptionalLong;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Loggers;
@@ -43,8 +44,8 @@ public class DatabaseServerCompatibility implements Startable {
       throw MessageException.of("Database was upgraded to a more recent of SonarQube. Backup must probably be restored or db settings are incorrect.");
     }
     if (status == DatabaseVersion.Status.REQUIRES_UPGRADE) {
-      Optional<Long> currentVersion = this.version.getVersion();
-      if (currentVersion.isPresent() && currentVersion.get() < DatabaseVersion.MIN_UPGRADE_VERSION) {
+      OptionalLong currentVersion = this.version.getVersion();
+      if (currentVersion.isPresent() && currentVersion.getAsLong() < DatabaseVersion.MIN_UPGRADE_VERSION) {
         throw MessageException.of("Current version is too old. Please upgrade to Long Term Support version firstly.");
       }
       String msg = "Database must be upgraded. Please backup database and browse /setup";

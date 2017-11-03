@@ -1,4 +1,6 @@
 /*
+
+
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
  * mailto:info AT sonarsource DOT com
@@ -19,7 +21,7 @@
  */
 package org.sonar.server.platform;
 
-import java.util.Optional;
+import java.util.OptionalLong;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.picocontainer.Startable;
@@ -45,7 +47,7 @@ public final class DefaultServerUpgradeStatus implements ServerUpgradeStatus, St
 
   @Override
   public void start() {
-    Optional<Long> v = dbVersion.getVersion();
+    OptionalLong v = dbVersion.getVersion();
     this.initialDbVersion = v.orElse(-1L);
   }
 
