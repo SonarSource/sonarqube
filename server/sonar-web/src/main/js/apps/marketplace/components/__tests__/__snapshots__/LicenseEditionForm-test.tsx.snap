@@ -49,8 +49,8 @@ exports[`should display correctly 1`] = `
         "downloadUrl": "download_url",
         "homeUrl": "more_url",
         "key": "foo",
+        "licenseRequestUrl": "license_url",
         "name": "Foo",
-        "requestUrl": "license_url",
         "textDescription": "Foo desc",
       }
     }
@@ -60,8 +60,8 @@ exports[`should display correctly 1`] = `
           "downloadUrl": "download_url",
           "homeUrl": "more_url",
           "key": "foo",
+          "licenseRequestUrl": "license_url",
           "name": "Foo",
-          "requestUrl": "license_url",
           "textDescription": "Foo desc",
         },
       ]

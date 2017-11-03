@@ -23,52 +23,19 @@ import { Edition, EditionStatus } from '../../../api/marketplace';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  canInstall: boolean;
-  canUninstall: boolean;
+  actionLabel: string;
+  disableAction: boolean;
+  displayAction: boolean;
   edition: Edition;
   editionStatus?: EditionStatus;
-  isDowngrade?: boolean;
-  onInstall: (edition: Edition) => void;
-  onUninstall: () => void;
+  onAction: (edition: Edition) => void;
 }
 
 export default class EditionBox extends React.PureComponent<Props> {
-  handleInstall = () => this.props.onInstall(this.props.edition);
-
-  renderActions(isInstalled?: boolean, installInProgress?: boolean) {
-    const { canInstall, canUninstall, editionStatus } = this.props;
-    const uninstallInProgress =
-      editionStatus && editionStatus.installationStatus === 'UNINSTALL_IN_PROGRESS';
-
-    if (canInstall && !isInstalled) {
-      return (
-        <button disabled={installInProgress || uninstallInProgress} onClick={this.handleInstall}>
-          {this.props.isDowngrade
-            ? translate('marketplace.downgrade')
-            : translate('marketplace.upgrade')}
-        </button>
-      );
-    }
-    if (canUninstall && isInstalled) {
-      return (
-        <button
-          className="button-red"
-          disabled={installInProgress || uninstallInProgress}
-          onClick={this.props.onUninstall}>
-          {translate('marketplace.uninstall')}
-        </button>
-      );
-    }
-
-    return null;
-  }
+  handleAction = () => this.props.onAction(this.props.edition);
 
   render() {
-    const { edition, editionStatus } = this.props;
-    const isInstalled = editionStatus && editionStatus.currentEditionKey === edition.key;
-    const installInProgress =
-      editionStatus &&
-      ['AUTOMATIC_IN_PROGRESS', 'AUTOMATIC_READY'].includes(editionStatus.installationStatus);
+    const { disableAction, displayAction, edition, editionStatus } = this.props;
     return (
       <div className="boxed-group boxed-group-inner marketplace-edition">
         {editionStatus && <EditionBoxBadge editionKey={edition.key} status={editionStatus} />}
@@ -80,7 +47,11 @@ export default class EditionBox extends React.PureComponent<Props> {
           <a href={edition.homeUrl} target="_blank">
             {translate('marketplace.learn_more')}
           </a>
-          {this.renderActions(isInstalled, installInProgress)}
+          {displayAction && (
+            <button disabled={disableAction} onClick={this.handleAction}>
+              {this.props.actionLabel}
+            </button>
+          )}
         </div>
       </div>
     );

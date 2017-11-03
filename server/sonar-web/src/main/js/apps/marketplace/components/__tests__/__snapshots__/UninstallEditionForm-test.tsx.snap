@@ -2,14 +2,14 @@
 
 exports[`should display correctly 1`] = `
 <Modal
-  contentLabel="marketplace.uninstall_x.Foo"
+  contentLabel="marketplace.downgrade_to_community_edition."
   onRequestClose={[Function]}
 >
   <header
     className="modal-head"
   >
     <h2>
-      marketplace.uninstall_x.Foo
+      marketplace.downgrade_to_community_edition.
     </h2>
   </header>
   <div
@@ -23,11 +23,10 @@ exports[`should display correctly 1`] = `
     className="modal-foot"
   >
     <button
-      className="button-red"
       disabled={false}
       onClick={[Function]}
     >
-      marketplace.uninstall
+      marketplace.downgrade
     </button>
     <a
       className="js-modal-close"

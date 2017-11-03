@@ -35,7 +35,7 @@ const DEFAULT_EDITIONS = [
     textDescription: 'foo',
     downloadUrl: 'download_url',
     homeUrl: 'more_url',
-    requestUrl: 'license_url'
+    licenseRequestUrl: 'license_url'
   },
   {
     key: 'comunity',
@@ -43,7 +43,7 @@ const DEFAULT_EDITIONS = [
     textDescription: 'bar',
     downloadUrl: 'download_url',
     homeUrl: 'more_url',
-    requestUrl: 'license_url'
+    licenseRequestUrl: 'license_url'
   }
 ];
 
@@ -57,6 +57,54 @@ it('should display the edition boxes correctly', () => {
 it('should display an error message', () => {
   const wrapper = getWrapper();
   expect(wrapper).toMatchSnapshot();
+});
+
+it('should display community without the downgrade button', () => {
+  const communityBox = getWrapper({
+    editions: DEFAULT_EDITIONS,
+    editionStatus: {
+      currentEditionKey: '',
+      installationStatus: 'NONE'
+    },
+    loading: false
+  })
+    .find('EditionBox')
+    .first();
+  expect(communityBox.prop('displayAction')).toBeFalsy();
+});
+
+it('should not display action buttons', () => {
+  const wrapper = getWrapper({
+    editions: DEFAULT_EDITIONS,
+    editionStatus: {
+      currentEditionKey: '',
+      installationStatus: 'NONE'
+    },
+    loading: false,
+    canInstall: false,
+    canUninstall: false
+  });
+  wrapper.find('EditionBox').forEach(box => expect(box.prop('displayAction')).toBeFalsy());
+});
+
+it('should display disabled action buttons', () => {
+  const wrapper = getWrapper({
+    editions: DEFAULT_EDITIONS,
+    editionStatus: { installationStatus: 'AUTOMATIC_IN_PROGRESS', nextEditionKey: 'developer' },
+    loading: false
+  });
+
+  wrapper.find('EditionBox').forEach(box => expect(box.prop('disableAction')).toBeTruthy());
+  expect(wrapper.find('EditionBox').map(box => box.prop('displayAction'))).toEqual([true, false]);
+
+  wrapper.setProps({
+    editionStatus: { currentEditionKey: 'developer', installationStatus: 'UNINSTALL_IN_PROGRESS' }
+  });
+  wrapper.find('EditionBox').forEach(box => expect(box.prop('disableAction')).toBeTruthy());
+  expect(wrapper.find('EditionBox').map(box => box.prop('displayAction'))).toEqual([false, true]);
+
+  wrapper.setProps({ editionStatus: { installationStatus: 'AUTOMATIC_READY' } });
+  wrapper.find('EditionBox').forEach(box => expect(box.prop('disableAction')).toBeTruthy());
 });
 
 it('should open the license form', () => {

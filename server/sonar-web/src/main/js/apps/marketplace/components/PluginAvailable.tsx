@@ -48,7 +48,7 @@ export default function PluginAvailable({
       <PluginDescription plugin={plugin} updateQuery={updateQuery} />
       <td className="text-top big-spacer-right">
         <ul>
-          <li className="diplay-flex-row little-spacer-bottom">
+          <li className="display-flex-row little-spacer-bottom">
             <div className="pull-left spacer-right">
               <span className="badge badge-success">{plugin.release.version}</span>
             </div>

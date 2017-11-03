@@ -28,25 +28,31 @@ interface Props {
 }
 
 export default function EditionBoxBadge({ editionKey, status }: Props) {
-  const inProgress = ['AUTOMATIC_IN_PROGRESS', 'AUTOMATIC_READY'].includes(
-    status.installationStatus
-  );
-  const isInstalling = inProgress && status.nextEditionKey === editionKey;
+  const isInstalled =
+    status.currentEditionKey === editionKey ||
+    (!status.currentEditionKey && editionKey === 'community');
+  const isProgressing =
+    status.nextEditionKey === editionKey || (!status.nextEditionKey && editionKey === 'community');
+  const inProgressStatus = [
+    'AUTOMATIC_READY',
+    'AUTOMATIC_IN_PROGRESS',
+    'UNINSTALL_IN_PROGRESS'
+  ].includes(status.installationStatus);
 
-  if (isInstalling) {
-    const installReady = status.installationStatus === 'AUTOMATIC_READY';
+  if (inProgressStatus) {
+    if (isProgressing) {
+      return (
+        <span className="marketplace-edition-badge badge badge-normal-size">
+          {status.installationStatus === 'AUTOMATIC_IN_PROGRESS'
+            ? translate('marketplace.installing')
+            : translate('marketplace.pending')}
+        </span>
+      );
+    }
+  } else if (isInstalled) {
     return (
-      <span className="marketplace-edition-badge badge badge-normal-size">
-        {installReady ? translate('marketplace.pending') : translate('marketplace.installing')}
-      </span>
-    );
-  }
-
-  const isInstalled = status.currentEditionKey === editionKey;
-  if (isInstalled) {
-    return (
-      <span className="marketplace-edition-badge badge badge-normal-size">
-        <CheckIcon size={14} className="little-spacer-right text-bottom" />
+      <span className="marketplace-edition-badge badge badge-normal-size display-flex-center">
+        <CheckIcon size={14} className="little-spacer-right" />
         {translate('marketplace.installed')}
       </span>
     );

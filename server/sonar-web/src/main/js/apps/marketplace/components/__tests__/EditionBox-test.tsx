@@ -34,73 +34,30 @@ const DEFAULT_EDITION: Edition = {
   textDescription: 'Foo desc',
   downloadUrl: 'download_url',
   homeUrl: 'more_url',
-  requestUrl: 'license_url'
+  licenseRequestUrl: 'license_url'
 };
 
 it('should display the edition', () => {
   expect(getWrapper()).toMatchSnapshot();
 });
 
-it('should disable upgrade button', () => {
-  expect(
-    getWrapper({
-      editionStatus: {
-        currentEditionKey: '',
-        nextEditionKey: 'foo',
-        installationStatus: 'AUTOMATIC_IN_PROGRESS'
-      }
-    })
-  ).toMatchSnapshot();
-  expect(
-    getWrapper({
-      editionStatus: {
-        currentEditionKey: '',
-        nextEditionKey: 'foo',
-        installationStatus: 'AUTOMATIC_READY'
-      }
-    })
-  ).toMatchSnapshot();
+it('should disable action button', () => {
+  expect(getWrapper({ disableAction: true })).toMatchSnapshot();
 });
 
-it('should disable uninstall button', () => {
-  expect(
-    getWrapper({
-      editionStatus: {
-        currentEditionKey: 'foo',
-        nextEditionKey: 'foo',
-        installationStatus: 'AUTOMATIC_IN_PROGRESS'
-      }
-    })
-  ).toMatchSnapshot();
-});
-
-it('should correctly hide upgrade/uninstall buttons', () => {
-  expect(getWrapper({ canInstall: false })).toMatchSnapshot();
-  expect(
-    getWrapper({
-      canUninstall: false,
-      editionStatus: {
-        currentEditionKey: 'foo',
-        nextEditionKey: '',
-        installationStatus: 'NONE'
-      }
-    })
-  ).toMatchSnapshot();
-});
-
-it('should display a downgrade button', () => {
-  expect(getWrapper({ isDowngrade: true })).toMatchSnapshot();
+it('should correctly hide action buttons', () => {
+  expect(getWrapper({ displayAction: false })).toMatchSnapshot();
 });
 
 function getWrapper(props = {}) {
   return shallow(
     <EditionBox
-      canInstall={true}
-      canUninstall={true}
+      actionLabel="action"
+      disableAction={false}
+      displayAction={true}
       edition={DEFAULT_EDITION}
       editionStatus={DEFAULT_STATUS}
-      onInstall={jest.fn()}
-      onUninstall={jest.fn()}
+      onAction={jest.fn()}
       {...props}
     />
   );

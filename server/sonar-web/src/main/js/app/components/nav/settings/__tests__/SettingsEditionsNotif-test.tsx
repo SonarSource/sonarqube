@@ -66,7 +66,7 @@ it('should display a manual installation notification', () => {
           textDescription: 'Foo desc',
           downloadUrl: 'download_url',
           homeUrl: 'more_url',
-          requestUrl: 'license_url'
+          licenseRequestUrl: 'license_url'
         }
       ]}
       preventRestart={false}
@@ -114,4 +114,17 @@ it('should not display the restart button', () => {
     />
   );
   expect(wrapper.find('button.js-restart').exists()).toBeFalsy();
+});
+
+it('should have a link to cluster documentation for datacenter edition', () => {
+  const editions = [{ key: 'datacenter' }] as any;
+  const wrapper = shallow(
+    <SettingsEditionsNotif
+      editions={editions}
+      editionStatus={{ installationStatus: 'AUTOMATIC_READY', nextEditionKey: 'datacenter' }}
+      preventRestart={false}
+      setEditionStatus={jest.fn()}
+    />
+  );
+  expect(wrapper.find('FormattedMessage').exists()).toBeTruthy();
 });

@@ -36,15 +36,16 @@ exports[`should display the edition boxes correctly 2`] = `
   className="spacer-bottom marketplace-editions"
 >
   <EditionBox
-    canInstall={true}
-    canUninstall={true}
+    actionLabel="marketplace.downgrade"
+    disableAction={false}
+    displayAction={true}
     edition={
       Object {
         "downloadUrl": "download_url",
         "homeUrl": "more_url",
         "key": "comunity",
+        "licenseRequestUrl": "license_url",
         "name": "Comunity Edition",
-        "requestUrl": "license_url",
         "textDescription": "bar",
       }
     }
@@ -55,21 +56,20 @@ exports[`should display the edition boxes correctly 2`] = `
         "nextEditionKey": "",
       }
     }
-    isDowngrade={true}
     key="comunity"
-    onInstall={[Function]}
-    onUninstall={[Function]}
+    onAction={[Function]}
   />
   <EditionBox
-    canInstall={true}
-    canUninstall={true}
+    actionLabel="marketplace.upgrade"
+    disableAction={false}
+    displayAction={false}
     edition={
       Object {
         "downloadUrl": "download_url",
         "homeUrl": "more_url",
         "key": "developer",
+        "licenseRequestUrl": "license_url",
         "name": "Developer Edition",
-        "requestUrl": "license_url",
         "textDescription": "foo",
       }
     }
@@ -80,10 +80,8 @@ exports[`should display the edition boxes correctly 2`] = `
         "nextEditionKey": "",
       }
     }
-    isDowngrade={false}
     key="developer"
-    onInstall={[Function]}
-    onUninstall={[Function]}
+    onAction={[Function]}
   />
 </div>
 `;

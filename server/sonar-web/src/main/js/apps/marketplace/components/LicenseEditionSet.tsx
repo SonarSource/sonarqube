@@ -20,6 +20,7 @@
 import { stringify } from 'querystring';
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { FormattedMessage } from 'react-intl';
 import { debounce } from 'lodash';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { omitNil } from '../../../helpers/request';
@@ -95,7 +96,7 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
   };
 
   getLicenseFormUrl = (edition: Edition) => {
-    let url = edition.requestUrl;
+    let url = edition.licenseRequestUrl;
     if (this.state.formData) {
       const query = stringify(omitNil(this.state.formData));
       if (query) {
@@ -146,6 +147,25 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
           'marketplace.license_preview_status.' + previewStatus,
           licenseEdition ? licenseEdition.name : translate('marketplace.commercial_edition')
         )}
+        {licenseEdition &&
+          licenseEdition.key === 'datacenter' &&
+          previewStatus !== 'NO_INSTALL' && (
+            <span className="little-spacer-left">
+              <FormattedMessage
+                defaultMessage={translate('marketplace.how_to_setup_cluster_url')}
+                id="marketplace.how_to_setup_cluster_url"
+                values={{
+                  url: (
+                    <a
+                      href="https://redirect.sonarsource.com/doc/data-center-edition.html"
+                      target="_blank">
+                      {licenseEdition.name}
+                    </a>
+                  )
+                }}
+              />
+            </span>
+          )}
       </p>
     );
   }

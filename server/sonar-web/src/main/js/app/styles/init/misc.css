@@ -271,9 +271,14 @@ td.big-spacer-top {
   display: inline-block !important;
 }
 
-.diplay-flex-row {
+.display-flex-row {
   display: flex !important;
   flex-direction: row;
+}
+
+.display-flex-center {
+  display: flex !important;
+  align-items: center;
 }
 
 .rounded {
