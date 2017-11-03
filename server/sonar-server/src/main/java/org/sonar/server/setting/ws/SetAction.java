@@ -71,6 +71,7 @@ import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUES;
 public class SetAction implements SettingsWsAction {
   private static final Collector<CharSequence, ?, String> COMMA_JOINER = Collectors.joining(",");
   private static final String MSG_NO_EMPTY_VALUE = "A non empty value must be provided";
+  private static final int VALUE_MAXIMUM_LENGTH = 4000;
 
   private final PropertyDefinitions propertyDefinitions;
   private final DbClient dbClient;
@@ -114,6 +115,7 @@ public class SetAction implements SettingsWsAction {
       .setRequired(true);
 
     action.createParam(PARAM_VALUE)
+      .setMaximumLength(VALUE_MAXIMUM_LENGTH)
       .setDescription("Setting value. To reset a value, please use the reset web service.")
       .setExampleValue("git@github.com:SonarSource/sonarqube.git");
 
