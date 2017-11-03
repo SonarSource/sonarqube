@@ -24,16 +24,20 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.process.cluster.health.NodeDetails;
 import org.sonar.process.cluster.health.NodeHealth;
 
+import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Stream.concat;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.process.cluster.health.NodeHealth.newNodeHealthBuilder;
+import static org.sonar.server.health.Health.newHealthCheckBuilder;
 
 public class ClusterHealthTest {
   @Rule
@@ -78,7 +82,15 @@ public class ClusterHealthTest {
       .isEqualTo(new ClusterHealth(health, nodeHealths))
       .isNotEqualTo(new Object())
       .isNotEqualTo(null)
-      .isNotEqualTo(new ClusterHealth(randomHealth(), randomNodeHealths()));
+      .isNotEqualTo(new ClusterHealth(
+        newHealthCheckBuilder()
+          .setStatus(health.getStatus())
+          .addCause("foo_bar")
+          .build(),
+        randomNodeHealths()))
+      .isNotEqualTo(new ClusterHealth(
+        health,
+        concat(nodeHealths.stream(), Stream.of(randomNodeHealth())).collect(toSet())));
   }
 
   @Test
@@ -112,14 +124,18 @@ public class ClusterHealthTest {
   }
 
   private Health randomHealth() {
-    Health.Builder healthBuilder = Health.newHealthCheckBuilder();
+    Health.Builder healthBuilder = newHealthCheckBuilder();
     healthBuilder.setStatus(Health.Status.values()[random.nextInt(Health.Status.values().length)]);
     IntStream.range(0, random.nextInt(3)).mapToObj(i -> randomAlphanumeric(3)).forEach(healthBuilder::addCause);
     return healthBuilder.build();
   }
 
   private Set<NodeHealth> randomNodeHealths() {
-    return IntStream.range(0, random.nextInt(4)).mapToObj(i -> NodeHealth.newNodeHealthBuilder()
+    return IntStream.range(0, random.nextInt(4)).mapToObj(i -> randomNodeHealth()).collect(toSet());
+  }
+
+  private NodeHealth randomNodeHealth() {
+    return newNodeHealthBuilder()
       .setStatus(NodeHealth.Status.values()[random.nextInt(NodeHealth.Status.values().length)])
       .setDetails(
         NodeDetails.newNodeDetailsBuilder()
@@ -129,19 +145,23 @@ public class ClusterHealthTest {
           .setPort(1 + random.nextInt(344))
           .setStartedAt(1 + random.nextInt(999))
           .build())
-      .build()).collect(Collectors.toSet());
+      .build();
   }
 
   private static NodeHealth newNodeHealth(String nodeName) {
-    return NodeHealth.newNodeHealthBuilder()
+    return newNodeHealthBuilder()
       .setStatus(NodeHealth.Status.YELLOW)
-      .setDetails(NodeDetails.newNodeDetailsBuilder()
-        .setType(NodeDetails.Type.APPLICATION)
-        .setName(nodeName)
-        .setHost(randomAlphanumeric(4))
-        .setPort(3000)
-        .setStartedAt(1_000L)
-        .build())
+      .setDetails(randomNodeDetails(nodeName))
+      .build();
+  }
+
+  private static NodeDetails randomNodeDetails(String nodeName) {
+    return NodeDetails.newNodeDetailsBuilder()
+      .setType(NodeDetails.Type.APPLICATION)
+      .setName(nodeName)
+      .setHost(randomAlphanumeric(4))
+      .setPort(3000)
+      .setStartedAt(1_000L)
       .build();
   }
 }
