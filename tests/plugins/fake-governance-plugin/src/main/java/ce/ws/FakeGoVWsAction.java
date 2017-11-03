@@ -17,34 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.container;
+package ce.ws;
 
-import org.picocontainer.PicoContainer;
-import org.sonar.ce.queue.CeTask;
-import org.sonar.core.platform.ComponentContainer;
-import org.sonar.core.platform.ContainerPopulator;
+import org.sonar.server.ws.WsAction;
 
-/**
- * The Compute Engine task container. Created for a specific parent {@link ComponentContainer} and a specific {@link CeTask}.
- */
-public interface TaskContainer extends ContainerPopulator.Container, AutoCloseable {
-
-  ComponentContainer getParent();
-
-  /**
-   * Starts task container, starting any startable component in it.
-   */
-  void bootup();
-
-  /**
-   * Cleans up resources after process has been called and has returned.
-   */
-  @Override
-  void close();
-
-  /**
-   * Access to the underlying pico container.
-   */
-  PicoContainer getPicoContainer();
-
+public interface FakeGoVWsAction extends WsAction {
 }

@@ -129,12 +129,17 @@ public class ProjectAnalysisTaskContainerPopulatorTest {
     private List<Object> added = new ArrayList<>();
 
     @Override
+    public void bootup() {
+      // no effect
+    }
+
+    @Override
     public ComponentContainer getParent() {
       throw new UnsupportedOperationException("getParent is not implemented");
     }
 
     @Override
-    public void cleanup() {
+    public void close() {
       throw new UnsupportedOperationException("cleanup is not implemented");
     }
 

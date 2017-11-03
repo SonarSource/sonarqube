@@ -17,34 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.task.container;
+package ce;
 
-import org.picocontainer.PicoContainer;
+import java.util.Collections;
+import java.util.Set;
 import org.sonar.ce.queue.CeTask;
-import org.sonar.core.platform.ComponentContainer;
-import org.sonar.core.platform.ContainerPopulator;
+import org.sonar.ce.queue.CeTaskResult;
+import org.sonar.ce.taskprocessor.CeTaskProcessor;
 
-/**
- * The Compute Engine task container. Created for a specific parent {@link ComponentContainer} and a specific {@link CeTask}.
- */
-public interface TaskContainer extends ContainerPopulator.Container, AutoCloseable {
-
-  ComponentContainer getParent();
-
-  /**
-   * Starts task container, starting any startable component in it.
-   */
-  void bootup();
-
-  /**
-   * Cleans up resources after process has been called and has returned.
-   */
+public class IseTaskProcessor implements CeTaskProcessor {
   @Override
-  void close();
+  public Set<String> getHandledCeTaskTypes() {
+    return Collections.singleton("ISE");
+  }
 
-  /**
-   * Access to the underlying pico container.
-   */
-  PicoContainer getPicoContainer();
-
+  @Override
+  public CeTaskResult process(CeTask task) {
+    throw new IllegalStateException("Faking an IllegalStateException thrown processing a task");
+  }
 }

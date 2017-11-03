@@ -19,7 +19,9 @@
  */
 package org.sonar.core.platform;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -48,22 +50,22 @@ public class ComponentContainerTest {
   @Test
   public void should_start_and_stop() {
     ComponentContainer container = spy(new ComponentContainer());
-    container.addSingleton(StartableComponent.class);
+    container.addSingleton(StartableStoppableComponent.class);
     container.startComponents();
 
-    assertThat(container.getComponentByType(StartableComponent.class).started).isTrue();
-    assertThat(container.getComponentByType(StartableComponent.class).stopped).isFalse();
+    assertThat(container.getComponentByType(StartableStoppableComponent.class).started).isTrue();
+    assertThat(container.getComponentByType(StartableStoppableComponent.class).stopped).isFalse();
     verify(container).doBeforeStart();
     verify(container).doAfterStart();
 
     container.stopComponents();
-    assertThat(container.getComponentByType(StartableComponent.class).stopped).isTrue();
+    assertThat(container.getComponentByType(StartableStoppableComponent.class).stopped).isTrue();
   }
 
   @Test
   public void should_start_and_stop_hierarchy_of_containers() {
-    StartableComponent parentComponent = new StartableComponent();
-    final StartableComponent childComponent = new StartableComponent();
+    StartableStoppableComponent parentComponent = new StartableStoppableComponent();
+    final StartableStoppableComponent childComponent = new StartableStoppableComponent();
     ComponentContainer parentContainer = new ComponentContainer() {
       @Override
       public void doAfterStart() {
@@ -82,8 +84,8 @@ public class ComponentContainerTest {
 
   @Test
   public void should_stop_hierarchy_of_containers_on_failure() {
-    StartableComponent parentComponent = new StartableComponent();
-    final StartableComponent childComponent1 = new StartableComponent();
+    StartableStoppableComponent parentComponent = new StartableStoppableComponent();
+    final StartableStoppableComponent childComponent1 = new StartableStoppableComponent();
     final UnstartableComponent childComponent2 = new UnstartableComponent();
     ComponentContainer parentContainer = new ComponentContainer() {
       @Override
@@ -112,15 +114,15 @@ public class ComponentContainerTest {
     parent.startComponents();
 
     ComponentContainer child = parent.createChild();
-    child.addSingleton(StartableComponent.class);
+    child.addSingleton(StartableStoppableComponent.class);
     child.startComponents();
 
     assertThat(child.getParent()).isSameAs(parent);
     assertThat(parent.getChildren()).containsOnly(child);
     assertThat(child.getComponentByType(ComponentContainer.class)).isSameAs(child);
     assertThat(parent.getComponentByType(ComponentContainer.class)).isSameAs(parent);
-    assertThat(child.getComponentByType(StartableComponent.class)).isNotNull();
-    assertThat(parent.getComponentByType(StartableComponent.class)).isNull();
+    assertThat(child.getComponentByType(StartableStoppableComponent.class)).isNotNull();
+    assertThat(parent.getComponentByType(StartableStoppableComponent.class)).isNull();
 
     parent.stopComponents();
   }
@@ -154,17 +156,16 @@ public class ComponentContainerTest {
     assertThat(parent.getChildren()).isEmpty();
   }
 
-
   @Test
   public void shouldForwardStartAndStopToDescendants() {
     ComponentContainer grandParent = new ComponentContainer();
     ComponentContainer parent = grandParent.createChild();
     ComponentContainer child = parent.createChild();
-    child.addSingleton(StartableComponent.class);
+    child.addSingleton(StartableStoppableComponent.class);
 
     grandParent.startComponents();
 
-    StartableComponent component = child.getComponentByType(StartableComponent.class);
+    StartableStoppableComponent component = child.getComponentByType(StartableStoppableComponent.class);
     assertTrue(component.started);
 
     parent.stopComponents();
@@ -254,7 +255,7 @@ public class ComponentContainerTest {
   @Test
   public void test_start_failure() {
     ComponentContainer container = new ComponentContainer();
-    StartableComponent startable = new StartableComponent();
+    StartableStoppableComponent startable = new StartableStoppableComponent();
     container.add(startable, UnstartableComponent.class);
 
     try {
@@ -269,26 +270,38 @@ public class ComponentContainerTest {
   }
 
   @Test
-  public void test_stop_failure() {
+  public void stop_container_does_not_fail_and_all_stoppable_components_are_stopped_even_if_one_or_more_stop_method_call_fail() {
     ComponentContainer container = new ComponentContainer();
-    StartableComponent startable = new StartableComponent();
-    container.add(startable, UnstoppableComponent.class);
+    container.add(FailingStopWithISEComponent.class, FailingStopWithISEComponent2.class, FailingStopWithErrorComponent.class, FailingStopWithErrorComponent2.class);
+    container.startComponents();
+    StartableStoppableComponent[] components = {
+      container.getComponentByType(FailingStopWithISEComponent.class),
+      container.getComponentByType(FailingStopWithISEComponent2.class),
+      container.getComponentByType(FailingStopWithErrorComponent.class),
+      container.getComponentByType(FailingStopWithErrorComponent2.class)
+    };
 
-    try {
-      container.execute();
-      fail();
-    } catch (Exception e) {
-      assertThat(startable.started).isTrue();
+    container.stopComponents();
 
-      // container should stop the components that have already been started
-      // ... but that's not the case
-    }
+    Arrays.stream(components).forEach(startableComponent -> assertThat(startableComponent.stopped).isTrue());
+  }
+
+  @Test
+  public void stop_container_stops_all_stoppable_components_even_in_case_of_OOM_in_any_stop_method() {
+    ComponentContainer container = new ComponentContainer();
+    container.add(FailingStopWithOOMComponent.class, FailingStopWithOOMComponent2.class);
+    container.startComponents();
+    StartableStoppableComponent[] components = {
+      container.getComponentByType(FailingStopWithOOMComponent.class),
+      container.getComponentByType(FailingStopWithOOMComponent2.class)
+    };
+
   }
 
   @Test
   public void stop_exception_should_not_hide_start_exception() {
     ComponentContainer container = new ComponentContainer();
-    container.add(UnstartableComponent.class, UnstoppableComponent.class);
+    container.add(UnstartableComponent.class, FailingStopWithISEComponent.class);
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Fail to start");
@@ -298,7 +311,7 @@ public class ComponentContainerTest {
   @Test
   public void should_execute_components() {
     ComponentContainer container = new ComponentContainer();
-    StartableComponent component = new StartableComponent();
+    StartableStoppableComponent component = new StartableStoppableComponent();
     container.add(component);
 
     container.execute();
@@ -338,7 +351,7 @@ public class ComponentContainerTest {
     assertThat(component.isClosedAfterStop).isTrue();
   }
 
-  public static class StartableComponent {
+  public static class StartableStoppableComponent {
     public boolean started = false;
     public boolean stopped = false;
 
@@ -361,13 +374,42 @@ public class ComponentContainerTest {
     }
   }
 
-  public static class UnstoppableComponent {
-    public void start() {
+  public static class FailingStopWithISEComponent extends StartableStoppableComponent {
+    public void stop() {
+      super.stop();
+      throw new IllegalStateException("Faking IllegalStateException thrown by stop method of " + getClass().getSimpleName());
+    }
+  }
+
+  public static class FailingStopWithISEComponent2 extends FailingStopWithErrorComponent {
+  }
+
+  public static class FailingStopWithErrorComponent extends StartableStoppableComponent {
+    public void stop() {
+      super.stop();
+      throw new Error("Faking Error thrown by stop method of " + getClass().getSimpleName());
+    }
+  }
+
+  public static class FailingStopWithErrorComponent2 extends FailingStopWithErrorComponent {
+  }
+
+  public static class FailingStopWithOOMComponent extends StartableStoppableComponent {
+    public void stop() {
+      super.stop();
+      consumeAvailableMemory();
     }
 
-    public void stop() {
-      throw new IllegalStateException("Fail to stop");
+    private static List<Object> consumeAvailableMemory() {
+      List<Object> holder = new ArrayList<>();
+      while (true) {
+        holder.add(new byte[128 * 1024]);
+      }
     }
+  }
+
+  public static class FailingStopWithOOMComponent2 extends FailingStopWithOOMComponent {
+
   }
 
   @Property(key = "foo", defaultValue = "bar", name = "Foo")
