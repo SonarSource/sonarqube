@@ -115,7 +115,7 @@ it('should not display the restart button', () => {
   expect(wrapper.find('button.js-restart').exists()).toBeFalsy();
 });
 
-it('should a link to cluster documentation for datacenter edition', () => {
+it('should have a link to cluster documentation for datacenter edition', () => {
   const editions = [{ key: 'datacenter' }] as any;
   const wrapper = shallow(
     <SettingsEditionsNotif
@@ -125,5 +125,5 @@ it('should a link to cluster documentation for datacenter edition', () => {
       setEditionStatus={jest.fn()}
     />
   );
-  expect(wrapper.find('a').exists()).toBeTruthy();
+  expect(wrapper.find('FormattedMessage').exists()).toBeTruthy();
 });

@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { FormattedMessage } from 'react-intl';
 import NavBarNotif from '../../../../components/nav/NavBarNotif';
 import RestartForm from '../../../../components/common/RestartForm';
 import { dismissErrorMessage, Edition, EditionStatus } from '../../../../api/marketplace';
@@ -81,12 +82,21 @@ export default class SettingsEditionsNotif extends React.PureComponent<Props, St
         </span>
         {edition &&
         edition.key === 'datacenter' && (
-          <a
-            className="spacer-left"
-            href="https://redirect.sonarsource.com/doc/how-to-install-an-edition.html"
-            target="_blank">
-            {translate('marketplace.how_to_configure_cluster')}
-          </a>
+          <span className="little-spacer-left">
+            <FormattedMessage
+              defaultMessage={translate('marketplace.see_documentation_to_enable_cluster')}
+              id="marketplace.see_documentation_to_enable_cluster"
+              values={{
+                url: (
+                  <a
+                    href="https://redirect.sonarsource.com/doc/data-center-edition.html"
+                    target="_blank">
+                    {edition.name}
+                  </a>
+                )
+              }}
+            />
+          </span>
         )}
         {!preventRestart && (
           <button className="js-restart spacer-left" onClick={this.handleOpenRestart}>
@@ -111,6 +121,18 @@ export default class SettingsEditionsNotif extends React.PureComponent<Props, St
         ) : (
           translate('marketplace.status', editionStatus.installationStatus)
         )}
+        <a
+          className="spacer-left"
+          href={
+            edition && edition.key === 'datacenter' ? (
+              'https://redirect.sonarsource.com/doc/data-center-edition.html'
+            ) : (
+              'https://redirect.sonarsource.com/doc/how-to-install-an-edition.html'
+            )
+          }
+          target="_blank">
+          {translate('marketplace.how_to_install')}
+        </a>
         {edition && (
           <a
             className="button spacer-left"
@@ -120,19 +142,12 @@ export default class SettingsEditionsNotif extends React.PureComponent<Props, St
             {translate('marketplace.download_package')}
           </a>
         )}
-        <a
-          className="spacer-left"
-          href="https://redirect.sonarsource.com/doc/how-to-install-an-edition.html"
-          target="_blank">
-          {translate('marketplace.how_to_install')}
-        </a>
       </NavBarNotif>
     );
   }
 
   renderStatusAlert() {
-    const { editionStatus } = this.props;
-    const { currentEditionKey, installationStatus, nextEditionKey } = editionStatus;
+    const { currentEditionKey, installationStatus, nextEditionKey } = this.props.editionStatus;
     const nextEdition =
       this.props.editions && this.props.editions.find(edition => edition.key === nextEditionKey);
     const currentEdition =

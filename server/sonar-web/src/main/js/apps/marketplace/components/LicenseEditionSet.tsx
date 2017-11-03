@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import { FormattedMessage } from 'react-intl';
 import { stringify } from 'querystring';
 import { debounce } from 'lodash';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
@@ -149,12 +150,21 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
         {licenseEdition &&
         licenseEdition.key === 'datacenter' &&
         previewStatus !== 'NO_INSTALL' && (
-          <a
-            className="spacer-left"
-            href="https://redirect.sonarsource.com/doc/how-to-install-an-edition.html"
-            target="_blank">
-            {translate('marketplace.how_to_configure_cluster')}
-          </a>
+          <span className="little-spacer-left">
+            <FormattedMessage
+              defaultMessage={translate('marketplace.how_to_setup_cluster_url')}
+              id="marketplace.how_to_setup_cluster_url"
+              values={{
+                url: (
+                  <a
+                    href="https://redirect.sonarsource.com/doc/data-center-edition.html"
+                    target="_blank">
+                    {licenseEdition.name}
+                  </a>
+                )
+              }}
+            />
+          </span>
         )}
       </p>
     );
