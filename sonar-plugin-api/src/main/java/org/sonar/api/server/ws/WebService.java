@@ -386,10 +386,11 @@ public interface WebService extends Definable<WebService.Context> {
 
     public NewParam createPageSize(int defaultPageSize, int maxPageSize) {
       return createParam(Param.PAGE_SIZE)
-        .setDescription("Page size. Must be greater than 0 and less than " + maxPageSize)
-        .setExampleValue("20")
         .setDeprecatedKey("pageSize", "5.2")
-        .setDefaultValue(String.valueOf(defaultPageSize));
+        .setDefaultValue(String.valueOf(defaultPageSize))
+        .setMaximumValue(maxPageSize)
+        .setDescription("Page size. Must be greater than 0 and less than " + maxPageSize)
+        .setExampleValue("20");
     }
 
     /**
@@ -635,6 +636,7 @@ public interface WebService extends Definable<WebService.Context> {
     private Set<String> possibleValues = null;
     private Integer maxValuesAllowed;
     private Integer maximumLength;
+    private Integer maximumValue;
 
     private NewParam(String key) {
       this.key = key;
@@ -779,6 +781,14 @@ public interface WebService extends Definable<WebService.Context> {
       return this;
     }
 
+    /**
+     * @since 7.0
+     */
+    public NewParam setMaximumValue(@Nullable Integer maximumValue) {
+      this.maximumValue = maximumValue;
+      return this;
+    }
+
     @Override
     public String toString() {
       return key;
@@ -834,6 +844,7 @@ public interface WebService extends Definable<WebService.Context> {
     private final boolean internal;
     private final Set<String> possibleValues;
     private final Integer maximumLength;
+    private final Integer maximumValue;
     private final Integer maxValuesAllowed;
 
     protected Param(Action action, NewParam newParam) {
@@ -850,6 +861,7 @@ public interface WebService extends Definable<WebService.Context> {
       this.possibleValues = newParam.possibleValues;
       this.maxValuesAllowed = newParam.maxValuesAllowed;
       this.maximumLength = newParam.maximumLength;
+      this.maximumValue = newParam.maximumValue;
       checkArgument(!required || defaultValue == null, "Default value must not be set on parameter '%s?%s' as it's marked as required", action, key);
     }
 
@@ -938,7 +950,7 @@ public interface WebService extends Definable<WebService.Context> {
     }
 
     /**
-     * Specify the maximum number of values allowed when using this a parameter
+     * Specify the maximum number of values allowed when using {@link Request#multiParam(String)}
      *
      * @since 6.4
      */
@@ -954,6 +966,16 @@ public interface WebService extends Definable<WebService.Context> {
     @CheckForNull
     public Integer maximumLength() {
       return maximumLength;
+    }
+
+    /**
+     * Specify the maximum value of the numeric variable used in this parameter
+     *
+     * @since 7.0
+     */
+    @CheckForNull
+    public Integer maximumValue() {
+      return maximumValue;
     }
 
     @Override

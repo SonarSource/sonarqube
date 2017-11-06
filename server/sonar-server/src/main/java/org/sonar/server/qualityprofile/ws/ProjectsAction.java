@@ -41,7 +41,6 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Comparator.comparing;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
@@ -99,7 +98,6 @@ public class ProjectsAction implements QProfileWsAction {
       String query = request.param(Param.TEXT_QUERY);
       int page = request.mandatoryParamAsInt(Param.PAGE);
       int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
-      checkArgument(pageSize <= MAX_PAGE_SIZE, "The '%s' parameter must be less than %s", Param.PAGE_SIZE, MAX_PAGE_SIZE);
 
       List<ProjectQprofileAssociationDto> projects = loadAllProjects(profileKey, session, selected, query).stream()
         .sorted(comparing(ProjectQprofileAssociationDto::getProjectName)

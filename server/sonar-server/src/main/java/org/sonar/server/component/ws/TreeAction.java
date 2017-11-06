@@ -296,7 +296,6 @@ public class TreeAction implements ComponentsWsAction {
       .setAsc(request.mandatoryParamAsBoolean(Param.ASCENDING))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
-    checkRequest(treeWsRequest.getPageSize() <= MAX_SIZE, "The '%s' parameter must be less than %d", Param.PAGE_SIZE, MAX_SIZE);
     String searchQuery = treeWsRequest.getQuery();
     checkRequest(searchQuery == null || searchQuery.length() >= QUERY_MINIMUM_LENGTH,
       "The '%s' parameter must have at least %d characters", Param.TEXT_QUERY, QUERY_MINIMUM_LENGTH);

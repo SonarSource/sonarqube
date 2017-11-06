@@ -395,8 +395,8 @@ public class ActivityActionTest {
 
   @Test
   public void fail_if_page_size_greater_than_1000() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The 'ps' parameter must be less than 1000");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'ps' value (1001) must be less than 1000");
 
     ws.newRequest()
       .setParam(Param.PAGE_SIZE, "1001")

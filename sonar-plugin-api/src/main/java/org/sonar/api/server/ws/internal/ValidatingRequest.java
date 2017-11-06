@@ -32,6 +32,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
@@ -68,21 +69,15 @@ public abstract class ValidatingRequest extends Request {
   @CheckForNull
   public String param(String key) {
     WebService.Param definition = action.param(key);
-    String value = defaultString(readParam(key, definition), definition.defaultValue());
-
-    Integer maximumLength = definition.maximumLength();
-    if (value != null && maximumLength != null) {
-      int valueLength = value.length();
-      checkArgument(valueLength <= maximumLength,
-        "'%s' length (%s) is longer than the maximum authorized (%s)",
-        key, valueLength, maximumLength);
+    String valueOrDefault = defaultString(readParam(key, definition), definition.defaultValue());
+    String value = valueOrDefault == null ? null : CharMatcher.WHITESPACE.trimFrom(valueOrDefault);
+    if (value == null) {
+      return null;
     }
-
-    String trimmedValue = value == null ? null : CharMatcher.WHITESPACE.trimFrom(value);
-    if (trimmedValue != null) {
-      validateValue(trimmedValue, definition);
-    }
-    return trimmedValue;
+    validatePossibleValues(key, value, definition);
+    validateMaximumLength(key, definition, valueOrDefault);
+    validateMaximumValue(key, definition, value);
+    return value;
   }
 
   @Override
@@ -167,12 +162,42 @@ public abstract class ValidatingRequest extends Request {
   private static List<String> validateValues(List<String> values, WebService.Param definition) {
     Integer maximumValues = definition.maxValuesAllowed();
     checkArgument(maximumValues == null || values.size() <= maximumValues, "'%s' can contains only %s values, got %s", definition.key(), maximumValues, values.size());
-    values.forEach(value -> validateValue(value, definition));
+    values.forEach(value -> validatePossibleValues(definition.key(), value, definition));
     return values;
   }
 
-  private static void validateValue(String value, WebService.Param definition) {
+  private static void validatePossibleValues(String key, String value, WebService.Param definition) {
     Set<String> possibleValues = definition.possibleValues();
-    checkArgument(possibleValues == null || possibleValues.contains(value), "Value of parameter '%s' (%s) must be one of: %s", definition.key(), value, possibleValues);
+    if (possibleValues == null) {
+      return;
+    }
+    checkArgument(possibleValues.contains(value), "Value of parameter '%s' (%s) must be one of: %s", key, value, possibleValues);
   }
+
+  private static void validateMaximumLength(String key, WebService.Param definition, String valueOrDefault) {
+    Integer maximumLength = definition.maximumLength();
+    if (maximumLength == null) {
+      return;
+    }
+    int valueLength = valueOrDefault.length();
+    checkArgument(valueLength <= maximumLength, "'%s' length (%s) is longer than the maximum authorized (%s)", key, valueLength, maximumLength);
+  }
+
+  private static void validateMaximumValue(String key, WebService.Param definition, String value) {
+    Integer maximumValue = definition.maximumValue();
+    if (maximumValue == null) {
+      return;
+    }
+    int valueAsInt = validateAsNumeric(key, value);
+    checkArgument(valueAsInt <= maximumValue, "'%s' value (%s) must be less than %s", key, valueAsInt, maximumValue);
+  }
+
+  private static int validateAsNumeric(String key, String value) {
+    try {
+      return Integer.parseInt(value);
+    } catch (NumberFormatException exception) {
+      throw new IllegalStateException(format("'%s' value '%s' cannot be parsed as an integer", key, value), exception);
+    }
+  }
+
 }

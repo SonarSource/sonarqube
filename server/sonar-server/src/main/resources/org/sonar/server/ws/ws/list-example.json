@@ -29,6 +29,12 @@
           ],
           "params": [
             {
+              "key": "maximum_value",
+              "maximumValue": 12,
+              "required": false,
+              "internal": false
+            },
+            {
               "key": "name",
               "required": false,
               "internal": false

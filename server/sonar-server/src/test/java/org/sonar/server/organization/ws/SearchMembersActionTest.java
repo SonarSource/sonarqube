@@ -268,7 +268,7 @@ public class SearchMembersActionTest {
     request.setPageSize(501);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Page size must lower than or equal to 500");
+    expectedException.expectMessage("'ps' value (501) must be less than 500");
 
     call();
   }
