@@ -21,14 +21,16 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import * as theme from '../../app/theme';
 import ClearIcon from '../icons-components/ClearIcon';
-import './buttons.css';
 import EditIcon from '../icons-components/EditIcon';
+import Tooltip from '../controls/Tooltip';
+import './buttons.css';
 
 interface ButtonIconProps {
   children: React.ReactNode;
   className?: string;
   color?: string;
   onClick?: () => void;
+  tooltip?: string;
   [x: string]: any;
 }
 
@@ -43,8 +45,8 @@ export class ButtonIcon extends React.PureComponent<ButtonIconProps> {
   };
 
   render() {
-    const { children, className, color = theme.darkBlue, onClick, ...props } = this.props;
-    return (
+    const { children, className, color = theme.darkBlue, onClick, tooltip, ...props } = this.props;
+    const buttonComponent = (
       <button
         className={classNames(className, 'button-icon')}
         onClick={this.handleClick}
@@ -53,6 +55,14 @@ export class ButtonIcon extends React.PureComponent<ButtonIconProps> {
         {children}
       </button>
     );
+    if (tooltip) {
+      return (
+        <Tooltip overlay={tooltip} mouseEnterDelay={0.4}>
+          {buttonComponent}
+        </Tooltip>
+      );
+    }
+    return buttonComponent;
   }
 }
 

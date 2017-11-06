@@ -17,32 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { shallow } from 'enzyme';
-import UsersSelectSearchOption from '../UsersSelectSearchOption';
+import { memoize } from 'lodash';
+import { cleanQuery, parseAsString, RawQuery, serializeString } from '../../helpers/query';
 
-const user = {
-  login: 'admin',
-  name: 'Administrator',
-  avatar: '7daf6c79d4802916d83f6266e24850af'
-};
+export interface Query {
+  search: string;
+}
 
-const user2 = {
-  login: 'admin',
-  name: 'Administrator',
-  email: 'admin@admin.ch'
-};
+export const parseQuery = memoize((urlQuery: RawQuery): Query => ({
+  search: parseAsString(urlQuery['search'])
+}));
 
-it('should render correctly without all parameters', () => {
-  const wrapper = shallow(
-    <UsersSelectSearchOption option={user}>{user.name}</UsersSelectSearchOption>
-  );
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should render correctly with email instead of hash', () => {
-  const wrapper = shallow(
-    <UsersSelectSearchOption option={user2}>{user.name}</UsersSelectSearchOption>
-  );
-  expect(wrapper).toMatchSnapshot();
-});
+export const serializeQuery = memoize((query: Query): RawQuery =>
+  cleanQuery({
+    search: query.search ? serializeString(query.search) : undefined
+  })
+);

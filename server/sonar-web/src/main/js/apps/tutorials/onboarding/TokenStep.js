@@ -95,7 +95,7 @@ export default class TokenStep extends React.PureComponent {
     const { tokenName } = this.state;
     if (tokenName) {
       this.setState({ loading: true });
-      generateToken(tokenName).then(
+      generateToken({ name: tokenName }).then(
         ({ token }) => {
           if (this.mounted) {
             this.setState({ loading: false, token });
@@ -114,7 +114,7 @@ export default class TokenStep extends React.PureComponent {
     const { tokenName } = this.state;
     if (tokenName) {
       this.setState({ loading: true });
-      revokeToken(tokenName).then(
+      revokeToken({ name: tokenName }).then(
         () => {
           if (this.mounted) {
             this.setState({ loading: false, token: undefined, tokenName: undefined });

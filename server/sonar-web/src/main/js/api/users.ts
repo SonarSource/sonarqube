@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post, RequestData } from '../helpers/request';
+import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
+import { Paging } from '../app/types';
 
 export interface IdentityProvider {
   backgroundColor: string;
@@ -27,19 +28,29 @@ export interface IdentityProvider {
   name: string;
 }
 
+export interface User {
+  login: string;
+  name: string;
+  active: boolean;
+  email?: string;
+  scmAccounts: string[];
+  groups?: string[];
+  tokensCount?: number;
+  local: boolean;
+  externalIdentity?: string;
+  externalProvider?: string;
+  avatar?: string;
+}
+
 export function getCurrentUser(): Promise<any> {
   return getJSON('/api/users/current');
 }
 
-export function changePassword(
-  login: string,
-  password: string,
-  previousPassword?: string
-): Promise<void> {
-  const data: RequestData = { login, password };
-  if (previousPassword != null) {
-    data.previousPassword = previousPassword;
-  }
+export function changePassword(data: {
+  login: string;
+  password: string;
+  previousPassword?: string;
+}): Promise<void> {
   return post('/api/users/change_password', data);
 }
 
@@ -52,15 +63,40 @@ export function getUserGroups(login: string, organization?: string): Promise<any
 }
 
 export function getIdentityProviders(): Promise<{ identityProviders: IdentityProvider[] }> {
-  return getJSON('/api/users/identity_providers');
+  return getJSON('/api/users/identity_providers').catch(throwGlobalError);
 }
 
-export function searchUsers(query: string, pageSize?: number): Promise<any> {
-  const data: RequestData = { q: query };
-  if (pageSize != null) {
-    data.ps = pageSize;
-  }
-  return getJSON('/api/users/search', data);
+export function searchUsers(data: {
+  p?: number;
+  ps?: number;
+  q?: string;
+}): Promise<{ paging: Paging; users: User[] }> {
+  data.q = data.q || undefined;
+  return getJSON('/api/users/search', data).catch(throwGlobalError);
+}
+
+export function createUser(data: {
+  email?: string;
+  local?: boolean;
+  login: string;
+  name: string;
+  password?: string;
+  scmAccount: string[];
+}): Promise<void | Response> {
+  return post('/api/users/create', data);
+}
+
+export function updateUser(data: {
+  email?: string;
+  login: string;
+  name?: string;
+  scmAccount: string[];
+}): Promise<User> {
+  return postJSON('/api/users/update', data);
+}
+
+export function deactivateUser(data: { login: string }): Promise<User> {
+  return postJSON('/api/users/deactivate', data).catch(throwGlobalError);
 }
 
 export function skipOnboarding(): Promise<void | Response> {

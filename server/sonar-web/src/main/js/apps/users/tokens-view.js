@@ -55,7 +55,7 @@ export default Modal.extend({
     this.errors = [];
     this.newToken = null;
     const tokenName = this.$('.js-generate-token-form input').val();
-    generateToken(tokenName, this.model.id).then(
+    generateToken({ name: tokenName, login: this.model.id }).then(
       response => {
         this.newToken = response;
         this.requestTokens();
@@ -70,7 +70,10 @@ export default Modal.extend({
     const token = this.tokens.find(t => t.name === `${tokenName}`);
     if (token) {
       if (token.deleting) {
-        revokeToken(tokenName, this.model.id).then(this.requestTokens.bind(this), () => {});
+        revokeToken({ name: tokenName, login: this.model.id }).then(
+          this.requestTokens.bind(this),
+          () => {}
+        );
       } else {
         token.deleting = true;
         this.render();

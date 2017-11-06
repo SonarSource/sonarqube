@@ -230,7 +230,7 @@ export const searchAssignees = (query /*: string */, organization /*: ?string */
           value: user.login
         }))
       )
-    : searchUsers(query, 50).then(response =>
+    : searchUsers({ q: query }).then(response =>
         response.users.map(user => ({
           // TODO this WS returns no avatar
           avatar: user.avatar,
