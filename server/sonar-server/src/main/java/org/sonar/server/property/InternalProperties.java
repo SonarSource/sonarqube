@@ -34,6 +34,7 @@ public interface InternalProperties {
 
   String ORGANIZATION_ENABLED = "organization.enabled";
 
+  String SERVER_ID_CHECKSUM = "server.idChecksum";
   /**
    * Read the value of the specified property.
    *
