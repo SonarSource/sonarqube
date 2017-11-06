@@ -20,7 +20,7 @@
 import ModalForm from '../../../components/common/modal-form';
 import { deletePermissionTemplate } from '../../../api/permissions';
 import Template from '../templates/permission-templates-delete.hbs';
-import { parseError } from '../../code/utils';
+import { parseError } from '../../../helpers/request';
 
 export default ModalForm.extend({
   template: Template,
