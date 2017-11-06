@@ -200,7 +200,7 @@ public class ProjectsActionTest {
   @Test
   public void fail_if_page_size_greater_than_500() throws Exception {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The 'ps' parameter must be less than 500");
+    expectedException.expectMessage("'ps' value (501) must be less than 500");
 
     newRequest().setParam(PARAM_KEY, xooP1.getKee()).setParam(Param.PAGE_SIZE, "501").execute();
   }

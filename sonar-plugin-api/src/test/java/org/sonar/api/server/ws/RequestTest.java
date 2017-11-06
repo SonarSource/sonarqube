@@ -122,6 +122,28 @@ public class RequestTest {
   }
 
   @Test
+  public void maximum_value_ok() {
+    String param = "maximum_value_param";
+    defineParameterTestAction(newParam -> newParam.setMaximumValue(10), param);
+    String expected = "10";
+
+    String actual = underTest.setParam(param, expected).param(param);
+
+    assertThat(actual).isEqualTo(expected);
+  }
+
+  @Test
+  public void maximum_value_not_ok() {
+    String param = "maximum_value_param";
+    defineParameterTestAction(newParam -> newParam.setMaximumValue(10), param);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(format("'%s' value (11) must be less than 10", param));
+
+    underTest.setParam(param, "11").param(param);
+  }
+
+  @Test
   public void required_param_as_strings() {
     underTest.setParam("a_required_string", "foo,bar");
 
@@ -495,7 +517,7 @@ public class RequestTest {
 
   @DataProvider
   public static Object[][] date_times() {
-    return new Object[][]{
+    return new Object[][] {
       {"2014-05-27", parseDate("2014-05-27")},
       {"2014-05-27T15:50:45+0100", parseDateTime("2014-05-27T15:50:45+0100")},
       {null, null}

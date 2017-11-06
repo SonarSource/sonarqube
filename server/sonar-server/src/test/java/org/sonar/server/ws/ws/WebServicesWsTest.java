@@ -125,6 +125,7 @@ public class WebServicesWsTest {
         .setDefaultValue("BLOCKER");
       create.createParam("name");
       create.createParam("internal").setInternal(true);
+      create.createParam("maximum_value").setMaximumValue(12);
 
       newController.createAction("internal_action")
         .setDescription("Internal Action Description")

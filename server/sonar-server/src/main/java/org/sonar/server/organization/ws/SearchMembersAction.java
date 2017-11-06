@@ -160,8 +160,6 @@ public class SearchMembersAction implements OrganizationsWsAction {
 
   private static SearchOptions buildSearchOptions(Request request) {
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
-    checkArgument(pageSize <= SearchOptions.MAX_LIMIT, "Page size must lower than or equal to %s", SearchOptions.MAX_LIMIT);
-
     return new SearchOptions().setPage(request.mandatoryParamAsInt(Param.PAGE), pageSize);
   }
 

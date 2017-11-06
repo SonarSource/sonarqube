@@ -294,8 +294,6 @@ public class ActivityAction implements CeWsAction {
 
     checkRequest(activityWsRequest.getComponentId() == null || activityWsRequest.getQuery() == null, "%s and %s must not be set at the same time",
       PARAM_COMPONENT_ID, PARAM_COMPONENT_QUERY);
-    checkRequest(activityWsRequest.getPageSize() <= MAX_PAGE_SIZE, "The '%s' parameter must be less than %d", Param.PAGE_SIZE, MAX_PAGE_SIZE);
-
     return activityWsRequest;
   }
 }

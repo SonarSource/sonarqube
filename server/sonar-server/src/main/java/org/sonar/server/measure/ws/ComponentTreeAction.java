@@ -308,7 +308,6 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setQuery(request.param(Param.TEXT_QUERY));
-    checkRequest(componentTreeWsRequest.getPageSize() <= MAX_SIZE, "The '%s' parameter must be less than %d", Param.PAGE_SIZE, MAX_SIZE);
     String searchQuery = componentTreeWsRequest.getQuery();
     checkRequest(searchQuery == null || searchQuery.length() >= QUERY_MINIMUM_LENGTH,
       "The '%s' parameter must have at least %d characters", Param.TEXT_QUERY, QUERY_MINIMUM_LENGTH);

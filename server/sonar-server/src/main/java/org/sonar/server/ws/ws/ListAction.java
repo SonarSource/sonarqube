@@ -22,7 +22,6 @@ package org.sonar.server.ws.ws;
 import com.google.common.collect.Ordering;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -31,6 +30,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.util.stream.MoreCollectors;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Optional.ofNullable;
 
 public class ListAction implements WebServicesWsAction {
   private WebService.Context context;
@@ -134,14 +134,9 @@ public class ListAction implements WebServicesWsAction {
     writer.prop("deprecatedKey", param.deprecatedKey());
     writer.prop("deprecatedKeySince", param.deprecatedKeySince());
     writer.prop("maxValuesAllowed", param.maxValuesAllowed());
-    Set<String> possibleValues = param.possibleValues();
-    if (possibleValues != null) {
-      writer.name("possibleValues").beginArray().values(possibleValues).endArray();
-    }
-    Integer maximumLength = param.maximumLength();
-    if (maximumLength != null) {
-      writer.prop("maximumLength", maximumLength);
-    }
+    ofNullable(param.possibleValues()).ifPresent(possibleValues -> writer.name("possibleValues").beginArray().values(possibleValues).endArray());
+    ofNullable(param.maximumLength()).ifPresent(maximumLength -> writer.prop("maximumLength", maximumLength));
+    ofNullable(param.maximumValue()).ifPresent(maximumValue -> writer.prop("maximumValue", maximumValue));
     writer.endObject();
   }
 

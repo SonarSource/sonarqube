@@ -71,7 +71,6 @@ import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
@@ -765,14 +764,14 @@ public class ComponentTreeActionTest {
     db.components().insertSnapshot(project);
     insertNclocMetric();
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The 'ps' parameter must be less than 500");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'ps' value (2540) must be less than 500");
 
     ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
       .setParam(PARAM_METRIC_KEYS, "ncloc")
       .setParam(Param.PAGE_SIZE, "2540")
-      .executeProtobuf(ComponentTreeWsResponse.class);
+      .execute();
   }
 
   @Test

@@ -386,8 +386,8 @@ public class TreeActionTest {
 
   @Test
   public void fail_when_page_size_above_500() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The 'ps' parameter must be less than 500");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'ps' value (501) must be less than 500");
     componentDb.insertComponent(newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid"));
     db.commit();
 
