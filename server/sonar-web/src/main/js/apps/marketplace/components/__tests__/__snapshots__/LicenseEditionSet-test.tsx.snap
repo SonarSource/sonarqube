@@ -2,7 +2,7 @@
 
 exports[`should correctly display status message after checking license 1`] = `
 <p
-  className="alert spacer-top alert-success"
+  className="alert alert-success"
 >
   marketplace.license_preview_status.NO_INSTALL.Foo
 </p>
@@ -10,7 +10,7 @@ exports[`should correctly display status message after checking license 1`] = `
 
 exports[`should correctly display status message after checking license 2`] = `
 <p
-  className="alert spacer-top alert-warning"
+  className="alert alert-warning"
 >
   marketplace.license_preview_status.AUTOMATIC_INSTALL.Foo
 </p>
@@ -18,7 +18,7 @@ exports[`should correctly display status message after checking license 2`] = `
 
 exports[`should correctly display status message after checking license 3`] = `
 <p
-  className="alert spacer-top alert-danger"
+  className="alert alert-danger"
 >
   marketplace.license_preview_status.MANUAL_INSTALL.Foo
 </p>
@@ -52,7 +52,6 @@ exports[`should display correctly 1`] = `
     value=""
   />
   <DeferredSpinner
-    className="spacer-top"
     customSpinner={
       <p
         className="spacer-top"
@@ -65,13 +64,17 @@ exports[`should display correctly 1`] = `
     }
     loading={false}
     timeout={100}
-  />
-  <a
-    className="display-inline-block spacer-top"
-    href="license_url"
-    target="_blank"
   >
-    marketplace.i_need_a_license
-  </a>
+    <div
+      className="spacer-top"
+    >
+      <a
+        href="license_url"
+        target="_blank"
+      >
+        marketplace.i_need_a_license
+      </a>
+    </div>
+  </DeferredSpinner>
 </div>
 `;

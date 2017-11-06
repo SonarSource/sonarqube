@@ -30,7 +30,7 @@ jest.mock('../../../../api/marketplace', () => ({
 
 jest.mock('lodash', () => {
   const lodash = require.requireActual('lodash');
-  lodash.debounce = (fn: Function) => (...args: any[]) => fn(args);
+  lodash.debounce = (fn: Function) => (...args: any[]) => fn(...args);
   return lodash;
 });
 
@@ -56,9 +56,32 @@ it('should display correctly', () => {
 });
 
 it('should correctly display status message after checking license', async () => {
-  await testLicenseStatus('NO_INSTALL');
-  await testLicenseStatus('AUTOMATIC_INSTALL');
-  await testLicenseStatus('MANUAL_INSTALL');
+  let wrapper = await testLicenseStatus('NO_INSTALL', jest.fn());
+  expect(wrapper.find('p.alert')).toMatchSnapshot();
+  wrapper = await testLicenseStatus('AUTOMATIC_INSTALL', jest.fn());
+  expect(wrapper.find('p.alert')).toMatchSnapshot();
+  wrapper = await testLicenseStatus('MANUAL_INSTALL', jest.fn());
+  expect(wrapper.find('p.alert')).toMatchSnapshot();
+});
+
+it('should display terms of license checkbox', async () => {
+  let updateLicense = jest.fn();
+  let wrapper = await testLicenseStatus('NO_INSTALL', updateLicense);
+  expect(wrapper.find('.js-edition-tos').exists()).toBeFalsy();
+  expect(updateLicense).toHaveBeenCalledWith('mylicense', 'NO_INSTALL');
+
+  updateLicense = jest.fn();
+  wrapper = await testLicenseStatus('AUTOMATIC_INSTALL', updateLicense);
+  let tosCheckbox = wrapper.find('.js-edition-tos');
+  expect(tosCheckbox.find('a').exists()).toBeTruthy();
+  expect(updateLicense).toHaveBeenLastCalledWith(undefined, 'AUTOMATIC_INSTALL');
+  (tosCheckbox.find('Checkbox').prop('onCheck') as Function)(true);
+  expect(updateLicense).toHaveBeenLastCalledWith('mylicense', 'AUTOMATIC_INSTALL');
+
+  updateLicense = jest.fn();
+  wrapper = await testLicenseStatus('MANUAL_INSTALL', updateLicense);
+  expect(wrapper.find('.js-edition-tos').exists()).toBeTruthy();
+  expect(updateLicense).toHaveBeenLastCalledWith(undefined, 'MANUAL_INSTALL');
 });
 
 function getWrapper(props = {}) {
@@ -72,16 +95,15 @@ function getWrapper(props = {}) {
   );
 }
 
-async function testLicenseStatus(status: string) {
+async function testLicenseStatus(status: string, updateLicense: jest.Mock<any>) {
   getLicensePreview.mockImplementation(() =>
     Promise.resolve({ nextEditionKey: 'foo', previewStatus: status })
   );
-  const updateLicense = jest.fn();
   const wrapper = getWrapper({ updateLicense });
   (wrapper.instance() as LicenseEditionSet).mounted = true;
   change(wrapper.find('textarea'), 'mylicense');
   expect(getLicensePreview).toHaveBeenCalled();
   await new Promise(setImmediate);
   expect(updateLicense).toHaveBeenCalled();
-  expect(wrapper.find('p.alert')).toMatchSnapshot();
+  return wrapper;
 }
