@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { getDisplayedHistoryMetrics, DEFAULT_GRAPH } from '../../projectActivity/utils';
 import PreviewGraph from '../../../components/preview-graph/PreviewGraph';
-import { getMetrics } from '../../../api/metrics';
+import { getAllMetrics } from '../../../api/metrics';
 import { getAllTimeMachineData } from '../../../api/time-machine';
 import { Metric } from '../../../app/types';
 import { parseDate } from '../../../helpers/dates';
@@ -71,7 +71,7 @@ export default class Activity extends React.PureComponent<Props> {
     }
 
     this.setState({ loading: true });
-    return Promise.all([getAllTimeMachineData(component, graphMetrics), getMetrics()]).then(
+    return Promise.all([getAllTimeMachineData(component, graphMetrics), getAllMetrics()]).then(
       ([timeMachine, metrics]) => {
         if (this.mounted) {
           const history: History = {};

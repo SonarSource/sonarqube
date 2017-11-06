@@ -21,7 +21,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import Analysis from './Analysis';
-import { getMetrics } from '../../../api/metrics';
+import { getAllMetrics } from '../../../api/metrics';
 import { getProjectActivity } from '../../../api/projectActivity';
 import PreviewGraph from '../../../components/preview-graph/PreviewGraph';
 import { translate } from '../../../helpers/l10n';
@@ -88,12 +88,23 @@ export default class AnalysesList extends React.PureComponent {
         project: this.getTopLevelComponent(),
         ps: PAGE_SIZE
       }),
-      getMetrics()
-    ]).then(response => {
-      if (this.mounted) {
-        this.setState({ analyses: response[0].analyses, metrics: response[1], loading: false });
+      getAllMetrics()
+    ]).then(
+      response => {
+        if (this.mounted) {
+          this.setState({
+            analyses: response[0].analyses,
+            metrics: response[1],
+            loading: false
+          });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
       }
-    });
+    );
   }
 
   renderList(analyses /*: Array<AnalysisType> */) {
