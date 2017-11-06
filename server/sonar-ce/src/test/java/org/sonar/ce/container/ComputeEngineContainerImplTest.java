@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
 import java.util.stream.Collectors;
-import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,6 +41,8 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
+import org.sonar.server.platform.ServerIdChecksum;
+import org.sonar.server.property.InternalProperties;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,7 +60,7 @@ public class ComputeEngineContainerImplTest {
   @Rule
   public TemporaryFolder tempFolder = new TemporaryFolder();
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
   private ComputeEngineContainerImpl underTest;
 
@@ -79,8 +80,9 @@ public class ComputeEngineContainerImplTest {
     Properties properties = getProperties();
 
     // required persisted properties
-    insertProperty(CoreProperties.SERVER_ID, "a_startup_id");
+    insertProperty(CoreProperties.SERVER_ID, "a_server_id");
     insertProperty(CoreProperties.SERVER_STARTTIME, DateUtils.formatDateTime(new Date()));
+    insertInternalProperty(InternalProperties.SERVER_ID_CHECKSUM, ServerIdChecksum.of("a_server_id", db.getUrl()));
 
     underTest
       .start(new Props(properties));
@@ -141,7 +143,7 @@ public class ComputeEngineContainerImplTest {
     properties.setProperty(PATH_TEMP, tmpDir.getAbsolutePath());
     properties.setProperty(PROPERTY_PROCESS_INDEX, valueOf(ProcessId.COMPUTE_ENGINE.getIpcIndex()));
     properties.setProperty(PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
-    properties.setProperty(DatabaseProperties.PROP_URL, ((BasicDataSource) dbTester.database().getDataSource()).getUrl());
+    properties.setProperty(DatabaseProperties.PROP_URL, db.getUrl());
     properties.setProperty(DatabaseProperties.PROP_USER, "sonar");
     properties.setProperty(DatabaseProperties.PROP_PASSWORD, "sonar");
     return properties;
@@ -149,7 +151,12 @@ public class ComputeEngineContainerImplTest {
 
   private void insertProperty(String key, String value) {
     PropertyDto dto = new PropertyDto().setKey(key).setValue(value);
-    dbTester.getDbClient().propertiesDao().saveProperty(dbTester.getSession(), dto);
-    dbTester.commit();
+    db.getDbClient().propertiesDao().saveProperty(db.getSession(), dto);
+    db.commit();
+  }
+
+  private void insertInternalProperty(String key, String value) {
+    db.getDbClient().internalPropertiesDao().save(db.getSession(), key, value);
+    db.commit();
   }
 }
