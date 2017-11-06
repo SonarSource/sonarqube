@@ -1,0 +1,188 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`UsersSelectSearch should render correctly 1`] = `
+<Select
+  className="Select-big"
+  clearable={false}
+  isLoading={false}
+  labelKey="name"
+  noResultsText="no_results"
+  onChange={[Function]}
+  onInputChange={[Function]}
+  optionComponent={[Function]}
+  options={Array []}
+  placeholder=""
+  searchable={true}
+  value={
+    Object {
+      "avatar": "7daf6c79d4802916d83f6266e24850af",
+      "login": "admin",
+      "name": "Administrator",
+    }
+  }
+  valueComponent={[Function]}
+  valueKey="login"
+/>
+`;
+
+exports[`UsersSelectSearch should render correctly 2`] = `
+Array [
+  Object {
+    "email": "tester@testing.ch",
+    "login": "test",
+    "name": "Tester",
+  },
+  Object {
+    "email": "foo@bar.ch",
+    "login": "foo",
+    "name": "Foo Bar",
+  },
+]
+`;
+
+exports[`UsersSelectSearch should render correctly 3`] = `
+<Select
+  className="Select-big"
+  clearable={false}
+  isLoading={false}
+  labelKey="name"
+  noResultsText="no_results"
+  onChange={[Function]}
+  onInputChange={[Function]}
+  optionComponent={[Function]}
+  options={
+    Array [
+      Object {
+        "email": "tester@testing.ch",
+        "login": "test",
+        "name": "Tester",
+      },
+      Object {
+        "email": "foo@bar.ch",
+        "login": "foo",
+        "name": "Foo Bar",
+      },
+    ]
+  }
+  placeholder=""
+  searchable={true}
+  value={
+    Object {
+      "avatar": "7daf6c79d4802916d83f6266e24850af",
+      "login": "admin",
+      "name": "Administrator",
+    }
+  }
+  valueComponent={[Function]}
+  valueKey="login"
+/>
+`;
+
+exports[`UsersSelectSearchOption should render correctly with email instead of hash 1`] = `
+<div
+  onMouseDown={[Function]}
+  onMouseEnter={[Function]}
+  onMouseMove={[Function]}
+  title="Administrator"
+>
+  <Connect(Avatar)
+    name="Administrator"
+    size={16}
+  />
+  <strong
+    className="spacer-left"
+  >
+    Administrator
+  </strong>
+  <span
+    className="note little-spacer-left"
+  >
+    admin
+  </span>
+</div>
+`;
+
+exports[`UsersSelectSearchOption should render correctly without all parameters 1`] = `
+<div
+  onMouseDown={[Function]}
+  onMouseEnter={[Function]}
+  onMouseMove={[Function]}
+  title="Administrator"
+>
+  <Connect(Avatar)
+    hash="7daf6c79d4802916d83f6266e24850af"
+    name="Administrator"
+    size={16}
+  />
+  <strong
+    className="spacer-left"
+  >
+    Administrator
+  </strong>
+  <span
+    className="note little-spacer-left"
+  >
+    admin
+  </span>
+</div>
+`;
+
+exports[`UsersSelectSearchValue should render correctly with a user 1`] = `
+<div
+  className="Select-value"
+  title="Administrator"
+>
+  <div
+    className="Select-value-label"
+  >
+    <Connect(Avatar)
+      hash="7daf6c79d4802916d83f6266e24850af"
+      name="Administrator"
+      size={16}
+    />
+    <strong
+      className="spacer-left"
+    >
+      Administrator
+    </strong>
+    <span
+      className="note little-spacer-left"
+    >
+      admin
+    </span>
+  </div>
+</div>
+`;
+
+exports[`UsersSelectSearchValue should render correctly with email instead of hash 1`] = `
+<div
+  className="Select-value"
+  title="Administrator"
+>
+  <div
+    className="Select-value-label"
+  >
+    <Connect(Avatar)
+      name="Administrator"
+      size={16}
+    />
+    <strong
+      className="spacer-left"
+    >
+      Administrator
+    </strong>
+    <span
+      className="note little-spacer-left"
+    >
+      admin
+    </span>
+  </div>
+</div>
+`;
+
+exports[`UsersSelectSearchValue should render correctly without value 1`] = `
+<div
+  className="Select-value"
+  title=""
+/>
+`;

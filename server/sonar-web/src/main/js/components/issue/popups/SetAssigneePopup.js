@@ -91,9 +91,8 @@ export default class SetAssigneePopup extends React.PureComponent {
     }).then(this.handleSearchResult, this.props.onFail);
   };
 
-  searchUsers = (query /*: string */) => {
-    searchUsers(query, LIST_SIZE).then(this.handleSearchResult, this.props.onFail);
-  };
+  searchUsers = (query /*: string */) =>
+    searchUsers({ q: query, ps: LIST_SIZE }).then(this.handleSearchResult, this.props.onFail);
 
   handleSearchResult = (data /*: Object */) => {
     this.setState({

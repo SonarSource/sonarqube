@@ -17,35 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
-import React from 'react';
-import Avatar from '../../../components/ui/Avatar';
-/*:: import type { Option } from './UsersSelectSearch'; */
+import * as React from 'react';
+import { Query } from './utils';
+import SearchBox from '../../components/controls/SearchBox';
+import { translate } from '../../helpers/l10n';
 
-/*::
-type Props = {
-  value: Option,
-  children?: Element | Text
-};
-*/
+interface Props {
+  query: Query;
+  updateQuery: (newQuery: Partial<Query>) => void;
+}
 
-const AVATAR_SIZE /*: number */ = 16;
-
-export default class UsersSelectSearchValue extends React.PureComponent {
-  /*:: props: Props; */
+export default class Search extends React.PureComponent<Props> {
+  handleSearch = (search: string) => {
+    this.props.updateQuery({ search });
+  };
 
   render() {
-    const user = this.props.value;
+    const { query } = this.props;
+
     return (
-      <div className="Select-value" title={user ? user.name : ''}>
-        {user &&
-          user.login && (
-            <div className="Select-value-label">
-              <Avatar hash={user.avatar} name={user.name} size={AVATAR_SIZE} />
-              <strong className="spacer-left">{this.props.children}</strong>
-              <span className="note little-spacer-left">{user.login}</span>
-            </div>
-          )}
+      <div id="users-search" className="panel panel-vertical bordered-bottom spacer-bottom">
+        <SearchBox
+          minLength={2}
+          onChange={this.handleSearch}
+          placeholder={translate('search.search_by_login_or_name')}
+          value={query.search}
+        />
       </div>
     );
   }

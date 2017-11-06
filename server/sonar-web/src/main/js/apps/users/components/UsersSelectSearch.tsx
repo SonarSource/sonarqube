@@ -17,50 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
-import React from 'react';
+import * as React from 'react';
 import { debounce } from 'lodash';
+import Avatar from '../../../components/ui/Avatar';
 import Select from '../../../components/controls/Select';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import UsersSelectSearchOption from './UsersSelectSearchOption';
-import UsersSelectSearchValue from './UsersSelectSearchValue';
 
-/*::
-export type Option = {
-  login: string,
-  name: string,
-  email?: string,
-  avatar?: string,
-  groupCount?: number
-};
-*/
+interface Option {
+  login: string;
+  name: string;
+  email?: string;
+  avatar?: string;
+}
 
-/*::
-type Props = {
-  autoFocus?: boolean,
-  excludedUsers: Array<string>,
-  handleValueChange: Option => void,
-  searchUsers: (string, number) => Promise<*>,
-  selectedUser?: Option
-};
-*/
+interface Props {
+  autoFocus?: boolean;
+  excludedUsers: string[];
+  handleValueChange: (option: Option) => void;
+  searchUsers: (query: string, ps: number) => Promise<{ users: Option[] }>;
+  selectedUser?: Option;
+}
 
-/*::
-type State = {
-  isLoading: boolean,
-  search: string,
-  searchResult: Array<Option>
-};
-*/
+interface State {
+  isLoading: boolean;
+  search: string;
+  searchResult: Option[];
+}
 
 const LIST_SIZE = 10;
+const AVATAR_SIZE = 16;
 
-export default class UsersSelectSearch extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: props: Props; */
-  /*:: state: State; */
+export default class UsersSelectSearch extends React.PureComponent<Props, State> {
+  mounted: boolean;
 
-  constructor(props /*: Props */) {
+  constructor(props: Props) {
     super(props);
     this.handleSearch = debounce(this.handleSearch, 250);
     this.state = { searchResult: [], isLoading: false, search: '' };
@@ -70,7 +60,7 @@ export default class UsersSelectSearch extends React.PureComponent {
     this.handleSearch(this.state.search);
   }
 
-  componentWillReceiveProps(nextProps /*: Props */) {
+  componentWillReceiveProps(nextProps: Props) {
     if (this.props.excludedUsers !== nextProps.excludedUsers) {
       this.handleSearch(this.state.search);
     }
@@ -80,10 +70,10 @@ export default class UsersSelectSearch extends React.PureComponent {
     this.mounted = false;
   }
 
-  filterSearchResult = ({ users } /*: { users: Array<Option> } */) =>
+  filterSearchResult = ({ users }: { users: Option[] }) =>
     users.filter(user => !this.props.excludedUsers.includes(user.login)).slice(0, LIST_SIZE);
 
-  handleSearch = (search /*: string */) => {
+  handleSearch = (search: string) => {
     this.props
       .searchUsers(search, Math.min(this.props.excludedUsers.length + LIST_SIZE, 500))
       .then(this.filterSearchResult)
@@ -94,7 +84,7 @@ export default class UsersSelectSearch extends React.PureComponent {
       });
   };
 
-  handleInputChange = (search /*: string */) => {
+  handleInputChange = (search: string) => {
     if (search == null || search.length === 1) {
       this.setState({ search });
     } else {
@@ -128,4 +118,68 @@ export default class UsersSelectSearch extends React.PureComponent {
       />
     );
   }
+}
+
+interface OptionProps {
+  children?: React.ReactNode;
+  className?: string;
+  isFocused?: boolean;
+  onFocus: (option: Option, evt: React.MouseEvent<HTMLDivElement>) => void;
+  onSelect: (option: Option, evt: React.MouseEvent<HTMLDivElement>) => void;
+  option: Option;
+}
+
+export class UsersSelectSearchOption extends React.PureComponent<OptionProps> {
+  handleMouseDown = (evt: React.MouseEvent<HTMLDivElement>) => {
+    evt.preventDefault();
+    evt.stopPropagation();
+    this.props.onSelect(this.props.option, evt);
+  };
+
+  handleMouseEnter = (evt: React.MouseEvent<HTMLDivElement>) => {
+    this.props.onFocus(this.props.option, evt);
+  };
+
+  handleMouseMove = (evt: React.MouseEvent<HTMLDivElement>) => {
+    if (this.props.isFocused) {
+      return;
+    }
+    this.props.onFocus(this.props.option, evt);
+  };
+
+  render() {
+    const { option } = this.props;
+    return (
+      <div
+        className={this.props.className}
+        onMouseDown={this.handleMouseDown}
+        onMouseEnter={this.handleMouseEnter}
+        onMouseMove={this.handleMouseMove}
+        title={option.name}>
+        <Avatar hash={option.avatar} name={option.name} size={AVATAR_SIZE} />
+        <strong className="spacer-left">{this.props.children}</strong>
+        <span className="note little-spacer-left">{option.login}</span>
+      </div>
+    );
+  }
+}
+
+interface ValueProps {
+  value?: Option;
+  children?: React.ReactNode;
+}
+
+export function UsersSelectSearchValue({ children, value }: ValueProps) {
+  return (
+    <div className="Select-value" title={value ? value.name : ''}>
+      {value &&
+        value.login && (
+          <div className="Select-value-label">
+            <Avatar hash={value.avatar} name={value.name} size={AVATAR_SIZE} />
+            <strong className="spacer-left">{children}</strong>
+            <span className="note little-spacer-left">{value.login}</span>
+          </div>
+        )}
+    </div>
+  );
 }

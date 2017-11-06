@@ -17,34 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, postJSON, post } from '../helpers/request';
-import throwGlobalError from '../app/utils/throwGlobalError';
+import { connect } from 'react-redux';
+import { Location } from 'history';
+import UsersApp from './UsersApp';
+import { areThereCustomOrganizations, getCurrentUser } from '../../store/rootReducer';
 
-export interface UserToken {
-  name: string;
-  createdAt: string;
+interface OwnProps {
+  location: Location;
 }
 
-/**
- * List tokens for given user login
- */
-export function getTokens(login: string): Promise<UserToken[]> {
-  return getJSON('/api/user_tokens/search', { login }).then(r => r.userTokens, throwGlobalError);
+interface StateToProps {
+  currentUser: { isLoggedIn: boolean; login?: string };
+  organizationsEnabled: boolean;
 }
 
-/**
- * Generate a user token
- */
-export function generateToken(data: {
-  name: string;
-  login?: string;
-}): Promise<{ login: string; name: string; token: string }> {
-  return postJSON('/api/user_tokens/generate', data).catch(throwGlobalError);
-}
+const mapStateToProps = (state: any) => ({
+  currentUser: getCurrentUser(state),
+  organizationsEnabled: areThereCustomOrganizations(state)
+});
 
-/**
- * Revoke a user token
- */
-export function revokeToken(data: { name: string; login?: string }): Promise<void | Response> {
-  return post('/api/user_tokens/revoke', data).catch(throwGlobalError);
-}
+export default connect<StateToProps, {}, OwnProps>(mapStateToProps)(UsersApp);

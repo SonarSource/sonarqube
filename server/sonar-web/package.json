@@ -44,6 +44,7 @@
   },
   "devDependencies": {
     "@types/classnames": "2.2.3",
+    "@types/clipboard": "1.5.35",
     "@types/d3-array": "1.2.1",
     "@types/d3-scale": "1.0.10",
     "@types/enzyme": "3.1.1",

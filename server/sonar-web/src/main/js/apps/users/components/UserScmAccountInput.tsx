@@ -17,34 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, postJSON, post } from '../helpers/request';
-import throwGlobalError from '../app/utils/throwGlobalError';
+import * as React from 'react';
+import { DeleteButton } from '../../../components/ui/buttons';
 
-export interface UserToken {
-  name: string;
-  createdAt: string;
+export interface Props {
+  idx: number;
+  scmAccount: string;
+  onChange: (idx: number, scmAccount: string) => void;
+  onRemove: (idx: number) => void;
 }
 
-/**
- * List tokens for given user login
- */
-export function getTokens(login: string): Promise<UserToken[]> {
-  return getJSON('/api/user_tokens/search', { login }).then(r => r.userTokens, throwGlobalError);
-}
+export default class UserScmAccountInput extends React.PureComponent<Props> {
+  handleChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
+    this.props.onChange(this.props.idx, event.currentTarget.value);
+  handleRemove = () => this.props.onRemove(this.props.idx);
 
-/**
- * Generate a user token
- */
-export function generateToken(data: {
-  name: string;
-  login?: string;
-}): Promise<{ login: string; name: string; token: string }> {
-  return postJSON('/api/user_tokens/generate', data).catch(throwGlobalError);
-}
-
-/**
- * Revoke a user token
- */
-export function revokeToken(data: { name: string; login?: string }): Promise<void | Response> {
-  return post('/api/user_tokens/revoke', data).catch(throwGlobalError);
+  render() {
+    return (
+      <div>
+        <input
+          maxLength={255}
+          onChange={this.handleChange}
+          type="text"
+          value={this.props.scmAccount}
+        />
+        <DeleteButton onClick={this.handleRemove} />
+      </div>
+    );
+  }
 }
