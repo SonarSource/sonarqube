@@ -22,6 +22,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 import { FormattedMessage } from 'react-intl';
 import { debounce } from 'lodash';
+import Checkbox from '../../../components/controls/Checkbox';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import { omitNil } from '../../../helpers/request';
 import { Edition, getFormData, getLicensePreview } from '../../../api/marketplace';
@@ -35,6 +36,7 @@ export interface Props {
 }
 
 interface State {
+  acceptTerms: boolean;
   license: string;
   licenseEdition?: Edition;
   loading: boolean;
@@ -50,7 +52,7 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
 
   constructor(props: Props) {
     super(props);
-    this.state = { license: '', loading: false };
+    this.state = { acceptTerms: false, license: '', loading: false };
     this.fetchLicensePreview = debounce(this.fetchLicensePreview, 100);
   }
 
@@ -116,57 +118,93 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
     }
   };
 
+  handleTermsCheck = (checked: boolean) =>
+    this.setState({ acceptTerms: checked }, () =>
+      this.updateLicense(this.state.license, this.state.licenseEdition, this.state.previewStatus)
+    );
+
   updateLicense = (license: string, licenseEdition?: Edition, previewStatus?: string) => {
     this.setState({ license, licenseEdition, loading: false, previewStatus });
-    this.props.updateLicense(license, previewStatus);
+    this.props.updateLicense(
+      previewStatus !== 'NO_INSTALL' && !this.state.acceptTerms ? undefined : license,
+      previewStatus
+    );
   };
 
   renderAlert() {
     const { licenseEdition, previewStatus } = this.state;
     if (!previewStatus) {
       const { edition } = this.props;
-      if (edition && licenseEdition && edition.key !== licenseEdition.key) {
-        return (
-          <p className="alert alert-danger spacer-top">
-            {translateWithParameters('marketplace.wrong_license_type_x', edition.name)}
-          </p>
-        );
+      if (!edition) {
+        return undefined;
       }
 
-      return undefined;
+      return (
+        <div className="spacer-top">
+          {licenseEdition !== undefined &&
+            edition.key !== licenseEdition.key && (
+              <p className="alert alert-danger">
+                {translateWithParameters('marketplace.wrong_license_type_x', edition.name)}
+              </p>
+            )}
+          <a href={this.getLicenseFormUrl(edition)} target="_blank">
+            {translate('marketplace.i_need_a_license')}
+          </a>
+        </div>
+      );
     }
 
     return (
-      <p
-        className={classNames('alert spacer-top', {
-          'alert-warning': previewStatus === 'AUTOMATIC_INSTALL',
-          'alert-success': previewStatus === 'NO_INSTALL',
-          'alert-danger': previewStatus === 'MANUAL_INSTALL'
-        })}>
-        {translateWithParameters(
-          'marketplace.license_preview_status.' + previewStatus,
-          licenseEdition ? licenseEdition.name : translate('marketplace.commercial_edition')
-        )}
-        {licenseEdition &&
-          licenseEdition.key === 'datacenter' &&
-          previewStatus !== 'NO_INSTALL' && (
-            <span className="little-spacer-left">
-              <FormattedMessage
-                defaultMessage={translate('marketplace.how_to_setup_cluster_url')}
-                id="marketplace.how_to_setup_cluster_url"
-                values={{
-                  url: (
-                    <a
-                      href="https://redirect.sonarsource.com/doc/data-center-edition.html"
-                      target="_blank">
-                      {licenseEdition.name}
-                    </a>
-                  )
-                }}
-              />
-            </span>
+      <div className="spacer-top">
+        <p
+          className={classNames('alert', {
+            'alert-warning': previewStatus === 'AUTOMATIC_INSTALL',
+            'alert-success': previewStatus === 'NO_INSTALL',
+            'alert-danger': previewStatus === 'MANUAL_INSTALL'
+          })}>
+          {translateWithParameters(
+            'marketplace.license_preview_status.' + previewStatus,
+            licenseEdition ? licenseEdition.name : translate('marketplace.commercial_edition')
           )}
-      </p>
+          {licenseEdition &&
+            licenseEdition.key === 'datacenter' &&
+            previewStatus !== 'NO_INSTALL' && (
+              <span className="little-spacer-left">
+                <FormattedMessage
+                  defaultMessage={translate('marketplace.how_to_setup_cluster_url')}
+                  id="marketplace.how_to_setup_cluster_url"
+                  values={{
+                    url: (
+                      <a
+                        href="https://redirect.sonarsource.com/doc/data-center-edition.html"
+                        target="_blank">
+                        {licenseEdition.name}
+                      </a>
+                    )
+                  }}
+                />
+              </span>
+            )}
+        </p>
+        {previewStatus !== 'NO_INSTALL' && (
+          <span className="js-edition-tos">
+            <Checkbox
+              checked={this.state.acceptTerms}
+              id="edition-terms"
+              onCheck={this.handleTermsCheck}>
+              <label className="little-spacer-left" htmlFor="edition-terms">
+                {translate('marketplace.i_accept_the')}
+              </label>
+            </Checkbox>
+            <a
+              className="nowrap little-spacer-left"
+              href="http://dist.sonarsource.com/SonarSource_Terms_And_Conditions.pdf"
+              target="_blank">
+              {translate('marketplace.terms_and_conditions')}
+            </a>
+          </span>
+        )}
+      </div>
     );
   }
 
@@ -194,7 +232,6 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
         />
 
         <DeferredSpinner
-          className="spacer-top"
           loading={loading}
           customSpinner={
             <p className="spacer-top">
@@ -204,15 +241,6 @@ export default class LicenseEditionSet extends React.PureComponent<Props, State>
           }>
           {this.renderAlert()}
         </DeferredSpinner>
-
-        {edition && (
-          <a
-            className="display-inline-block spacer-top"
-            href={this.getLicenseFormUrl(edition)}
-            target="_blank">
-            {translate('marketplace.i_need_a_license')}
-          </a>
-        )}
       </div>
     );
   }

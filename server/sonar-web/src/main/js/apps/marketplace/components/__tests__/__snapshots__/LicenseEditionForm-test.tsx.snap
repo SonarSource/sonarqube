@@ -1,35 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should correctly change the button based on the status 1`] = `
-<button
-  className="js-confirm"
-  disabled={false}
-  onClick={[Function]}
->
-  save
-</button>
-`;
-
-exports[`should correctly change the button based on the status 2`] = `
-<button
-  className="js-confirm"
-  disabled={false}
-  onClick={[Function]}
->
-  marketplace.install
-</button>
-`;
-
-exports[`should correctly change the button based on the status 3`] = `
-<button
-  className="js-confirm"
-  disabled={false}
-  onClick={[Function]}
->
-  save
-</button>
-`;
-
 exports[`should display correctly 1`] = `
 <Modal
   contentLabel="marketplace.upgrade_to_x.Foo"

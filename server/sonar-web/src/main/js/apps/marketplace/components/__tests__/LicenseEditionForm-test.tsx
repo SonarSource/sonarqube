@@ -48,15 +48,28 @@ it('should display correctly', () => {
   expect(getWrapper()).toMatchSnapshot();
 });
 
-it('should correctly change the button based on the status', () => {
+it('should correctly change the button based on the status and license', () => {
   const wrapper = getWrapper();
+  let button;
   (wrapper.instance() as LicenseEditionForm).mounted = true;
-  wrapper.setState({ status: 'NO_INSTALL' });
-  expect(wrapper.find('button')).toMatchSnapshot();
+
+  wrapper.setState({ license: 'mylicense', status: 'NO_INSTALL' });
+  button = wrapper.find('button');
+  expect(button.text()).toBe('save');
+  expect(button.prop('disabled')).toBeFalsy();
+
+  wrapper.setState({ license: undefined, status: 'MANUAL_INSTALL' });
+  button = wrapper.find('button');
+  expect(button.text()).toBe('save');
+  expect(button.prop('disabled')).toBeTruthy();
+
   wrapper.setState({ status: 'AUTOMATIC_INSTALL' });
-  expect(wrapper.find('button')).toMatchSnapshot();
-  wrapper.setState({ status: 'MANUAL_INSTALL' });
-  expect(wrapper.find('button')).toMatchSnapshot();
+  button = wrapper.find('button');
+  expect(button.text()).toContain('install');
+  expect(button.prop('disabled')).toBeTruthy();
+
+  wrapper.setState({ license: 'mylicense' });
+  expect(wrapper.find('button').prop('disabled')).toBeFalsy();
 });
 
 it('should update the edition status after install', async () => {

@@ -81,7 +81,7 @@ export default class LicenseEditionForm extends React.PureComponent<Props, State
 
   render() {
     const { edition, isDowngrade } = this.props;
-    const { submitting, status } = this.state;
+    const { license, submitting, status } = this.state;
 
     const header = isDowngrade
       ? translateWithParameters('marketplace.downgrade_to_x', edition.name)
@@ -102,7 +102,10 @@ export default class LicenseEditionForm extends React.PureComponent<Props, State
         <footer className="modal-foot">
           {submitting && <i className="spinner spacer-right" />}
           {status && (
-            <button className="js-confirm" onClick={this.handleConfirmClick} disabled={submitting}>
+            <button
+              className="js-confirm"
+              onClick={this.handleConfirmClick}
+              disabled={!license || submitting}>
               {status === 'AUTOMATIC_INSTALL'
                 ? translate('marketplace.install')
                 : translate('save')}
