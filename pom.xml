@@ -57,7 +57,7 @@
     <sonarJavaScript.version>3.2.0.5506</sonarJavaScript.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/php/sonar-php-plugin/ -->
     <!-- Do not forget to exclude any new transitive dependencies -->
-    <sonarPhp.version>2.10.0.2087</sonarPhp.version>
+    <sonarPhp.version>2.11.0.2485</sonarPhp.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/python/sonar-python-plugin/ -->
     <!-- Do not forget to exclude any new transitive dependencies -->
     <sonarPython.version>1.8.0.1496</sonarPython.version>
