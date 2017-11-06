@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.utils.System2;
@@ -298,6 +299,10 @@ public class DbTester extends AbstractDbTester<TestDb> {
   @Deprecated
   public Database database() {
     return db.getDatabase();
+  }
+
+  public String getUrl() {
+    return ((BasicDataSource) db.getDatabase().getDataSource()).getUrl();
   }
 
   public DatabaseCommands getCommands() {
