@@ -51,7 +51,7 @@
     <sonarCSharp.version>6.5.0.3766</sonarCSharp.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/java/sonar-java-plugin/ -->
     <!-- Do not forget to exclude any new transitive dependencies -->
-    <sonarJava.version>4.14.0.11784</sonarJava.version>
+    <sonarJava.version>4.15.0.12310</sonarJava.version>
     <!-- see http://repo1.maven.org/maven2/org/sonarsource/javascript/sonar-javascript-plugin/ -->
     <!-- Do not forget to exclude any new transitive dependencies -->
     <sonarJavaScript.version>3.2.0.5506</sonarJavaScript.version>
