@@ -19,13 +19,16 @@
  */
 package org.sonar.api.utils;
 
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAccessor;
 import java.util.Date;
@@ -33,6 +36,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.time.format.DateTimeFormatter.ISO_DATE;
 import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 
 /**
@@ -100,7 +104,23 @@ public final class DateUtils {
    * @throws MessageException when string cannot be parsed
    */
   public static Date parseDate(String s) {
-    return Date.from(parseLocalDate(s).atStartOfDay(ZoneId.systemDefault()).toInstant());
+    try {
+      DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+        .append(ISO_DATE)
+        .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+        .toFormatter();
+
+      TemporalAccessor date = formatter.parseBest(s, OffsetDateTime::from, LocalDate::from);
+      if (date instanceof OffsetDateTime) {
+        return Date.from(((OffsetDateTime) date).toInstant());
+      } else if (date instanceof LocalDate) {
+        return Date.from(((LocalDate) date).atStartOfDay(ZoneId.systemDefault()).toInstant());
+      }
+
+      throw unsupportedIsoDateFormatException(s);
+    } catch (DateTimeException e) {
+      throw unsupportedIsoDateFormatException(s);
+    }
   }
 
   /**
@@ -318,5 +338,9 @@ public final class DateUtils {
 
   private static MessageException unsupportedIsoDateTimeFormatException(String s) {
     return MessageException.of("The date time '" + s + "' does not respect the ISO-8901 format");
+  }
+
+  private static MessageException unsupportedIsoDateFormatException(String s) {
+    return MessageException.of("The date '" + s + "' does not respect the ISO-8901 format");
   }
 }

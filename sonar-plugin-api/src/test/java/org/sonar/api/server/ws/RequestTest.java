@@ -486,7 +486,7 @@ public class RequestTest {
   @Test
   public void fail_when_param_as_date_not_a_date() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The date 'polop' does not respect format 'yyyy-MM-dd'");
+    expectedException.expectMessage("The date 'polop' does not respect the ISO-8901 format");
 
     underTest.setParam("a_date", "polop").paramAsDate("a_date");
   }

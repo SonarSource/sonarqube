@@ -22,6 +22,7 @@ package org.sonar.api.utils;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -44,9 +45,12 @@ public class DateUtilsTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void parseDate_valid_format() {
-    Date date = DateUtils.parseDate("2010-05-18");
-    assertThat(date.getDate()).isEqualTo(18);
+  public void parseDate_valid_formats() {
+    Date expectedDate = DateUtils.parseDateTime("2010-05-18T00:00:00+02:00");
+    assertThat(DateUtils.parseDate("2010-05-18"))
+      .isEqualTo(Date.from(LocalDate.parse("2010-05-18").atStartOfDay(ZoneId.systemDefault()).toOffsetDateTime().toInstant()));
+    assertThat(DateUtils.parseDate("2010-05-18+02:00")).isEqualTo(expectedDate);
+    assertThat(DateUtils.parseDate("2010-05-18+03:00")).isNotEqualTo(expectedDate);
   }
 
   @Test
