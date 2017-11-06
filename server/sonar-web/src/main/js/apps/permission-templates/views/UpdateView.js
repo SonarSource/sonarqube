@@ -19,7 +19,7 @@
  */
 import FormView from './FormView';
 import { updatePermissionTemplate } from '../../../api/permissions';
-import { parseError } from '../../code/utils';
+import { parseError } from '../../../helpers/request';
 
 export default FormView.extend({
   sendRequest() {

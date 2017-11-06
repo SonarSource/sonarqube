@@ -25,7 +25,7 @@ import { getAllMetrics } from '../api/metrics';
 import { receiveLanguages } from './languages/actions';
 import { receiveMetrics } from './metrics/actions';
 import { addGlobalErrorMessage } from './globalMessages/duck';
-import { parseError } from '../apps/code/utils';
+import { parseError } from '../helpers/request';
 import { setAppState } from './appState/duck';
 import { receiveOrganizations } from './organizations/duck';
 

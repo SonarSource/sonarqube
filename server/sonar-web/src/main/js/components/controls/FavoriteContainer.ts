@@ -23,7 +23,7 @@ import { isFavorite } from '../../store/rootReducer';
 import * as actionCreators from '../../store/favorites/duck';
 import * as api from '../../api/favorites';
 import { addGlobalErrorMessage } from '../../store/globalMessages/duck';
-import { parseError } from '../../apps/code/utils';
+import { parseError } from '../../helpers/request';
 
 const addFavorite = (componentKey: string) => (dispatch: Function) => {
   // optimistic update

@@ -26,12 +26,8 @@ import { Component as CodeComponent } from '../types';
 import SourceViewer from './../../../components/SourceViewer/SourceViewer';
 import Search from './Search';
 import ListFooter from '../../../components/controls/ListFooter';
-import {
-  retrieveComponentChildren,
-  retrieveComponent,
-  loadMoreChildren,
-  parseError
-} from '../utils';
+import { retrieveComponentChildren, retrieveComponent, loadMoreChildren } from '../utils';
+import { parseError } from '../../../helpers/request';
 import { addComponent, addComponentBreadcrumbs, clearBucket } from '../bucket';
 import { getBranchName } from '../../../helpers/branches';
 import { translate } from '../../../helpers/l10n';

@@ -20,6 +20,7 @@
 import { stringify } from 'querystring';
 import { omitBy, isNil } from 'lodash';
 import { getCookie } from './cookies';
+import { translate } from './l10n';
 
 export function getCSRFTokenName(): string {
   return 'X-XSRF-TOKEN';
@@ -164,6 +165,22 @@ export function checkStatus(response: Response): Promise<Response> {
  */
 export function parseJSON(response: Response): Promise<any> {
   return response.json();
+}
+
+/** 
+ * Parse response of failed request
+ */
+export function parseError(error: { response: Response }): Promise<string> {
+  const DEFAULT_MESSAGE = translate('default_error_message');
+
+  try {
+    return error.response
+      .json()
+      .then(r => r.errors.map((error: any) => error.msg).join('. '))
+      .catch(() => DEFAULT_MESSAGE);
+  } catch (ex) {
+    return Promise.resolve(DEFAULT_MESSAGE);
+  }
 }
 
 /**

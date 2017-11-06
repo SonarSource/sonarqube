@@ -24,7 +24,7 @@ import BulkUpdateForm from './BulkUpdateForm';
 import BulkUpdateResults from './BulkUpdateResults';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { bulkChangeKey } from '../../../api/components';
-import { parseError } from '../../code/utils';
+import { parseError } from '../../../helpers/request';
 import {
   addGlobalErrorMessage,
   addGlobalSuccessMessage,
