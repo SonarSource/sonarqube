@@ -21,8 +21,31 @@ import { getJSON } from '../helpers/request';
 import { Metric } from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-export function getMetrics(): Promise<Metric[]> {
-  return getJSON('/api/metrics/search', { ps: 9999 }).then(r => r.metrics);
+interface MetricsResponse {
+  metrics: Metric[];
+  p: number;
+  ps: number;
+  total: number;
+}
+
+export function getMetrics(data: { p?: number; ps?: number }): Promise<MetricsResponse> {
+  return getJSON('/api/metrics/search', data).catch(throwGlobalError);
+}
+
+export function getAllMetrics(data?: { p?: number; ps?: number }): Promise<Metric[]> {
+  return inner(data);
+  function inner(
+    data: { p?: number; ps?: number } = { ps: 500 },
+    prev?: MetricsResponse
+  ): Promise<Metric[]> {
+    return getMetrics(data).then(r => {
+      const result = prev ? prev.metrics.concat(r.metrics) : r.metrics;
+      if (r.p * r.ps >= r.total) {
+        return result;
+      }
+      return inner({ ...data, p: r.p + 1 }, { ...r, metrics: result });
+    });
+  }
 }
 
 export function getMetricDomains(): Promise<string[]> {

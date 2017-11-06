@@ -21,7 +21,7 @@ import { getLanguages } from '../api/languages';
 import { getGlobalNavigation } from '../api/nav';
 import * as auth from '../api/auth';
 import { getOrganizations } from '../api/organizations';
-import { getMetrics } from '../api/metrics';
+import { getAllMetrics } from '../api/metrics';
 import { receiveLanguages } from './languages/actions';
 import { receiveMetrics } from './metrics/actions';
 import { addGlobalErrorMessage } from './globalMessages/duck';
@@ -42,7 +42,7 @@ export const fetchLanguages = () => dispatch =>
   getLanguages().then(languages => dispatch(receiveLanguages(languages)), onFail(dispatch));
 
 export const fetchMetrics = () => dispatch =>
-  getMetrics().then(metrics => dispatch(receiveMetrics(metrics)), onFail(dispatch));
+  getAllMetrics().then(metrics => dispatch(receiveMetrics(metrics)), onFail(dispatch));
 
 export const fetchOrganizations = (organizations /*: Array<string> | void */) => dispatch =>
   getOrganizations(organizations).then(

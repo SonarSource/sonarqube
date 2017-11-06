@@ -23,7 +23,7 @@ import PropTypes from 'prop-types';
 import ProjectActivityApp from './ProjectActivityApp';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
 import { getAllTimeMachineData } from '../../../api/time-machine';
-import { getMetrics } from '../../../api/metrics';
+import { getAllMetrics } from '../../../api/metrics';
 import * as api from '../../../api/projectActivity';
 import * as actions from '../actions';
 import { getBranchName } from '../../../helpers/branches';
@@ -206,8 +206,6 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
     );
   };
 
-  fetchMetrics = () => getMetrics().catch(throwGlobalError);
-
   loadAllActivities = (
     project /*: string */,
     prevResult /*: ?{ analyses: Array<Analysis>, paging: Paging } */
@@ -246,7 +244,7 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
     const topLevelComponent = this.getTopLevelComponent(component);
     Promise.all([
       this.fetchActivity(topLevelComponent, 1, 100, serializeQuery(query)),
-      this.fetchMetrics(),
+      getAllMetrics(),
       this.fetchMeasuresHistory(graphMetrics)
     ]).then(
       response => {
