@@ -85,8 +85,9 @@ public class TemplateUsersAction implements PermissionsWsAction {
       .setHandler(this);
 
     action.createParam(Param.TEXT_QUERY)
-      .setDescription("Limit search to user names that contain the supplied string. Must have at least %d characters.<br/>" +
-        "When this parameter is not set, only users having at least one permission are returned.", SEARCH_QUERY_MIN_LENGTH)
+      .setMinimumLength(SEARCH_QUERY_MIN_LENGTH)
+      .setDescription("Limit search to user names that contain the supplied string. <br/>" +
+        "When this parameter is not set, only users having at least one permission are returned.")
       .setExampleValue("eri");
     createProjectPermissionParameter(action).setRequired(false);
     createTemplateParameters(action);

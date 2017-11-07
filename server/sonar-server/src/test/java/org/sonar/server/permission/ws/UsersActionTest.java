@@ -347,8 +347,8 @@ public class UsersActionTest extends BasePermissionWsTest<UsersAction> {
   public void fail_if_search_query_is_too_short() throws Exception {
     loginAsAdmin(db.getDefaultOrganization());
 
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The 'q' parameter must have at least 3 characters");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'q' length (2) is shorter than the minimum authorized (3)");
 
     newRequest().setParam(TEXT_QUERY, "ab").execute();
   }

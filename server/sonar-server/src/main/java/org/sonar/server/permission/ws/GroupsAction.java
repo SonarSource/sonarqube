@@ -81,10 +81,12 @@ public class GroupsAction implements PermissionsWsAction {
         "<li>'Administer' rights on the specified project</li>" +
         "</ul>")
       .addPagingParams(DEFAULT_PAGE_SIZE, RESULTS_MAX_SIZE)
-      .addSearchQuery("sonar", "names").setDescription("Limit search to group names that contain the supplied string. Must have at least %d characters.<br/>" +
-        "When this parameter is not set, only groups having at least one permission are returned.", SEARCH_QUERY_MIN_LENGTH)
       .setResponseExample(Resources.getResource(getClass(), "groups-example.json"))
       .setHandler(this);
+
+    action.createSearchQuery("sonar", "names")
+      .setDescription("Limit search to group names that contain the supplied string. When this parameter is not set, only groups having at least one permission are returned.")
+      .setMinimumLength(SEARCH_QUERY_MIN_LENGTH);
 
     createOrganizationParameter(action).setSince("6.2");
     createPermissionParameter(action).setRequired(false);
