@@ -203,6 +203,7 @@ public class SearchAction implements RulesWsAction {
   public static void defineRuleSearchParameters(WebService.NewAction action) {
     action
       .createParam(TEXT_QUERY)
+      .setMinimumLength(2)
       .setDescription("UTF-8 search query")
       .setExampleValue("xpath");
 
