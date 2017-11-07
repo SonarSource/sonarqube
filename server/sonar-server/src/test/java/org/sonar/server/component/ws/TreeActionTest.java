@@ -47,7 +47,6 @@ import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -399,8 +398,8 @@ public class TreeActionTest {
 
   @Test
   public void fail_when_search_query_has_less_than_3_characters() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The 'q' parameter must have at least 3 characters");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'q' length (2) is shorter than the minimum authorized (3)");
     componentDb.insertComponent(newPrivateProjectDto(db.organizations().insert(), "project-uuid"));
     db.commit();
 

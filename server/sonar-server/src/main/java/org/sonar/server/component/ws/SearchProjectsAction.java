@@ -79,6 +79,7 @@ import static org.sonar.server.measure.index.ProjectMeasuresQuery.SORT_BY_NAME;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SEARCH_PROJECTS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.component.SearchProjectsRequest.DEFAULT_PAGE_SIZE;
@@ -104,7 +105,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction("search_projects")
+    WebService.NewAction action = context.createAction(ACTION_SEARCH_PROJECTS)
       .setSince("6.2")
       .setDescription("Search for projects")
       .addPagingParams(DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE)
@@ -131,6 +132,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
       .setPossibleValues(SUPPORTED_FACETS.stream().sorted().collect(MoreCollectors.toList(SUPPORTED_FACETS.size())));
     action
       .createParam(PARAM_FILTER)
+      .setMinimumLength(2)
       .setDescription("Filter of projects on name, key, measure value, quality gate, language, tag or whether a project is a favorite or not.<br>" +
         "The filter must be encoded to form a valid URL (for example '=' must be replaced by '%3D').<br>" +
         "Examples of use:" +

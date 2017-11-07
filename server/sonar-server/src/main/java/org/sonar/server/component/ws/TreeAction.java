@@ -55,12 +55,12 @@ import org.sonarqube.ws.WsComponents.TreeWsResponse;
 import org.sonarqube.ws.client.component.TreeWsRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.CHILDREN;
 import static org.sonar.db.component.ComponentTreeQuery.Strategy.LEAVES;
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
@@ -69,7 +69,6 @@ import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
-import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_TREE;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
@@ -148,8 +147,8 @@ public class TreeAction implements ComponentsWsAction {
       .setDescription(format("Limit search to: <ul>" +
         "<li>component names that contain the supplied string</li>" +
         "<li>component keys that are exactly the same as the supplied string</li>" +
-        "</ul>" +
-        "Must have at least %d characters", QUERY_MINIMUM_LENGTH))
+        "</ul>"))
+      .setMinimumLength(QUERY_MINIMUM_LENGTH)
       .setExampleValue("FILE_NAM");
 
     createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes));
@@ -204,7 +203,7 @@ public class TreeAction implements ComponentsWsAction {
     List<String> referenceComponentIds = components.stream()
       .map(ComponentDto::getCopyResourceUuid)
       .filter(Objects::nonNull)
-      .collect(MoreCollectors.toList());
+      .collect(toList());
     if (referenceComponentIds.isEmpty()) {
       return emptyMap();
     }
@@ -285,7 +284,7 @@ public class TreeAction implements ComponentsWsAction {
   }
 
   private static TreeWsRequest toTreeWsRequest(Request request) {
-    TreeWsRequest treeWsRequest = new TreeWsRequest()
+    return new TreeWsRequest()
       .setBaseComponentId(request.param(PARAM_COMPONENT_ID))
       .setBaseComponentKey(request.param(PARAM_COMPONENT))
       .setBranch(request.param(PARAM_BRANCH))
@@ -296,18 +295,11 @@ public class TreeAction implements ComponentsWsAction {
       .setAsc(request.mandatoryParamAsBoolean(Param.ASCENDING))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
-    String searchQuery = treeWsRequest.getQuery();
-    checkRequest(searchQuery == null || searchQuery.length() >= QUERY_MINIMUM_LENGTH,
-      "The '%s' parameter must have at least %d characters", Param.TEXT_QUERY, QUERY_MINIMUM_LENGTH);
-
-    return treeWsRequest;
   }
 
   private static List<ComponentDto> paginateComponents(List<ComponentDto> components, TreeWsRequest wsRequest) {
-    return from(components)
-      .skip(offset(wsRequest.getPage(), wsRequest.getPageSize()))
-      .limit(wsRequest.getPageSize())
-      .toList();
+    return components.stream().skip(offset(wsRequest.getPage(), wsRequest.getPageSize()))
+      .limit(wsRequest.getPageSize()).collect(toList());
   }
 
   public static List<ComponentDto> sortComponents(List<ComponentDto> components, TreeWsRequest wsRequest) {

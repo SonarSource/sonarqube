@@ -51,8 +51,8 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.index.ComponentHit;
 import org.sonar.server.component.index.ComponentHitsPerQualifier;
 import org.sonar.server.component.index.ComponentIndex;
-import org.sonar.server.component.index.SuggestionQuery;
 import org.sonar.server.component.index.ComponentIndexResults;
+import org.sonar.server.component.index.SuggestionQuery;
 import org.sonar.server.es.DefaultIndexSettings;
 import org.sonar.server.favorite.FavoriteFinder;
 import org.sonar.server.user.UserSession;
@@ -122,8 +122,8 @@ public class SuggestionsAction implements ComponentsWsAction {
 
     action.createParam(PARAM_QUERY)
       .setRequired(false)
-      .setDescription("Search query with a minimum of two characters. Can contain several search tokens, separated by spaces. " +
-        "Search tokens with only one character will be ignored.")
+      .setMinimumLength(2)
+      .setDescription("Search query: can contain several search tokens separated by spaces.")
       .setExampleValue("sonar");
 
     action.createParam(PARAM_MORE)
