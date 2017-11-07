@@ -105,6 +105,7 @@ public class SearchAction implements UsersWsAction {
     action.addPagingParams(50, MAX_LIMIT);
 
     action.createParam(TEXT_QUERY)
+      .setMinimumLength(2)
       .setDescription("Filter on login or name.");
   }
 
