@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.sonarsource.sonarqube</groupId>
     <artifactId>sonarqube</artifactId>
-    <version>6.7-SNAPSHOT</version>
+    <version>6.7</version>
   </parent>
 
   <artifactId>sonar-application</artifactId>
