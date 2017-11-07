@@ -378,7 +378,7 @@ public class ComponentActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     logAsUser(project);
     SnapshotDto analysis = db.components().insertSnapshot(project,
-      s -> s.setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
+      s -> s.setPeriodDate(parseDateTime("2016-01-11T10:49:50+01:00").getTime())
         .setPeriodMode("previous_version")
         .setPeriodParam("1.0-SNAPSHOT"));
     ComponentDto file = db.components().insertComponent(newFileDto(project)

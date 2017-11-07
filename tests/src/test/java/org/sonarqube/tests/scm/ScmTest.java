@@ -66,10 +66,10 @@ public class ScmTest {
 
     assertThat(getScmData("sample-scm:src/main/xoo/sample/Sample.xoo"))
       .containsExactly(
-        MapEntry.entry(1, new LineData("1", "2013-01-04T00:00:00+0000", "jhenry")),
-        MapEntry.entry(3, new LineData("2", "2013-01-04T00:00:00+0000", "jhenry")),
-        MapEntry.entry(4, new LineData("1", "2013-01-04T00:00:00+0000", "jhenry")),
-        MapEntry.entry(8, new LineData("3", "2014-01-04T00:00:00+0000", "toto")));
+        MapEntry.entry(1, new LineData("1", "2013-01-04T00:00:00+00:00", "jhenry")),
+        MapEntry.entry(3, new LineData("2", "2013-01-04T00:00:00+00:00", "jhenry")),
+        MapEntry.entry(4, new LineData("1", "2013-01-04T00:00:00+00:00", "jhenry")),
+        MapEntry.entry(8, new LineData("3", "2014-01-04T00:00:00+00:00", "toto")));
 
     assertThat(buildResult.getLogs()).containsSequence("1 files to be analyzed", "1/1 files analyzed");
 
@@ -78,10 +78,10 @@ public class ScmTest {
 
     assertThat(getScmData("sample-scm:src/main/xoo/sample/Sample.xoo"))
       .containsExactly(
-        MapEntry.entry(1, new LineData("1", "2013-01-04T00:00:00+0000", "jhenry")),
-        MapEntry.entry(3, new LineData("2", "2013-01-04T00:00:00+0000", "jhenry")),
-        MapEntry.entry(4, new LineData("1", "2013-01-04T00:00:00+0000", "jhenry")),
-        MapEntry.entry(8, new LineData("3", "2014-01-04T00:00:00+0000", "toto")));
+        MapEntry.entry(1, new LineData("1", "2013-01-04T00:00:00+00:00", "jhenry")),
+        MapEntry.entry(3, new LineData("2", "2013-01-04T00:00:00+00:00", "jhenry")),
+        MapEntry.entry(4, new LineData("1", "2013-01-04T00:00:00+00:00", "jhenry")),
+        MapEntry.entry(8, new LineData("3", "2014-01-04T00:00:00+00:00", "toto")));
 
     assertThat(buildResult.getLogs()).doesNotContain("1 files to be analyzed");
     assertThat(buildResult.getLogs()).doesNotContain("1/1 files analyzed");

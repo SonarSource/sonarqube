@@ -417,8 +417,8 @@ public class ShowActionTest {
       .setTagsString("language, plugin"));
     db.components().insertSnapshot(project, snapshot -> snapshot
       .setVersion("1.1")
-      .setCreatedAt(parseDateTime("2017-03-01T11:39:03+0100").getTime())
-      .setPeriodDate(parseDateTime("2017-01-01T11:39:03+0100").getTime()));
+      .setCreatedAt(parseDateTime("2017-03-01T11:39:03+01:00").getTime())
+      .setPeriodDate(parseDateTime("2017-01-01T11:39:03+01:00").getTime()));
     ComponentDto directory = newDirectory(project, "AVIF-FfgA3Ax6PH2efPF", "src/main/java/com/sonarsource/markdown/impl")
       .setDbKey("com.sonarsource:java-markdown:src/main/java/com/sonarsource/markdown/impl")
       .setName("src/main/java/com/sonarsource/markdown/impl")

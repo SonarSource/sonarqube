@@ -133,7 +133,7 @@ public class IssueCreationDatePluginChangedTest {
     List<Issue> issues = getIssues(issueQuery().components("creation-date-sample:src/main/xoo/sample/Sample.xoo"));
     assertThat(issues)
       .extracting(Issue::line, Issue::creationDate)
-      .containsExactly(tuple(1, dateTimeParse("2005-01-01T00:00:00+0000")));
+      .containsExactly(tuple(1, dateTimeParse("2005-01-01T00:00:00+00:00")));
 
     // ensure no notification is sent as all issues are off the leak period
     waitUntilAllNotificationsAreDelivered();
@@ -153,9 +153,9 @@ public class IssueCreationDatePluginChangedTest {
     issues = getIssues(issueQuery().components("creation-date-sample:src/main/xoo/sample/Sample.xoo"));
     assertThat(issues)
       .extracting(Issue::line, Issue::creationDate)
-      .containsExactly(tuple(1, dateTimeParse("2005-01-01T00:00:00+0000")),
-        tuple(2, dateTimeParse("2005-01-01T00:00:00+0000")),
-        tuple(3, dateTimeParse("2005-01-01T00:00:00+0000")));
+      .containsExactly(tuple(1, dateTimeParse("2005-01-01T00:00:00+00:00")),
+        tuple(2, dateTimeParse("2005-01-01T00:00:00+00:00")),
+        tuple(3, dateTimeParse("2005-01-01T00:00:00+00:00")));
 
     // ensure no notification is sent as all issues are off the leak period
     waitUntilAllNotificationsAreDelivered();

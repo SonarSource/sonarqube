@@ -116,12 +116,12 @@ public class SearchHistoryAction implements MeasuresWsAction {
     action.createParam(PARAM_FROM)
       .setDescription("Filter measures created after the given date (inclusive). <br>" +
         "Either a date (server timezone) or datetime can be provided")
-      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
+      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+02:00");
 
     action.createParam(PARAM_TO)
       .setDescription("Filter measures created before the given date (inclusive). <br>" +
         "Either a date (server timezone) or datetime can be provided")
-      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
+      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+02:00");
 
     action.addPagingParams(DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
   }

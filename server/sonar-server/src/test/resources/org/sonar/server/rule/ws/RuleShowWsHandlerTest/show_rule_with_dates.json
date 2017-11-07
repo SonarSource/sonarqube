@@ -4,9 +4,9 @@
     "name": "Avoid cycle",
     "description": "Avoid cycle between packages",
     "language": "xoo",
-    "createdAt": "2014-01-22T19:10:03+0100",
+    "createdAt": "2014-01-22T19:10:03+01:00",
     "fCreatedAt": "Jan 22, 2014 10:03 AM",
-    "updatedAt": "2014-01-23T19:10:03+0100",
+    "updatedAt": "2014-01-23T19:10:03+01:00",
     "fUpdatedAt": "Jan 23, 2014 10:03 AM",
     "tags": [],
     "sysTags": []

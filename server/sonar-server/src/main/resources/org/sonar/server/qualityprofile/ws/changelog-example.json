@@ -4,7 +4,7 @@
   "p": 1,
   "events": [
     {
-      "date" : "2015-02-23T17:58:39+0100",
+      "date" : "2015-02-23T17:58:39+01:00",
       "action" : "ACTIVATED",
       "authorLogin" : "anakin.skywalker",
       "authorName" : "Anakin Skywalker",
@@ -15,7 +15,7 @@
       }
     },
     {
-      "date" : "2015-02-23T17:58:18+0100",
+      "date" : "2015-02-23T17:58:18+01:00",
       "action" : "DEACTIVATED",
       "authorLogin" : "padme.amidala",
       "authorName" : "Padme Amidala",
@@ -28,7 +28,7 @@
       "authorName" : "Obiwan Kenobi",
       "ruleKey" : "squid:S00101",
       "ruleName" : "Class names should comply with a naming convention",
-      "date" : "2014-09-12T15:20:46+0200",
+      "date" : "2014-09-12T15:20:46+02:00",
       "params" : {
         "severity" : "MAJOR",
         "format" : "^[A-Z][a-zA-Z0-9]*$"

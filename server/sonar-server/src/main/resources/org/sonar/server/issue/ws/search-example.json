@@ -18,8 +18,8 @@
       "hash": "a227e508d6646b55a086ee11d63b21e9",
       "author": "Developer 1",
       "effort": "2h1min",
-      "creationDate": "2013-05-13T17:55:39+0200",
-      "updateDate": "2013-05-13T17:55:39+0200",
+      "creationDate": "2013-05-13T17:55:39+02:00",
+      "updateDate": "2013-05-13T17:55:39+02:00",
       "tags": [
         "bug"
       ],
@@ -31,7 +31,7 @@
           "htmlText": "Must be &quot;final&quot;!",
           "markdown": "Must be \"final\"!",
           "updatable": false,
-          "createdAt": "2013-05-13T18:08:34+0200"
+          "createdAt": "2013-05-13T18:08:34+02:00"
         }
       ],
       "attr": {

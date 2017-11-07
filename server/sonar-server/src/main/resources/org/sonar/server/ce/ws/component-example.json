@@ -9,7 +9,7 @@
       "componentName": "HttpRequest",
       "componentQualifier": "TRK",
       "status": "PENDING",
-      "submittedAt": "2015-09-21T19:28:54+0200",
+      "submittedAt": "2015-09-21T19:28:54+02:00",
       "logs": false
     }
   ],
@@ -23,9 +23,9 @@
     "componentQualifier": "TRK",
     "analysisId": "123456",
     "status": "FAILED",
-    "submittedAt": "2015-09-21T19:25:49+0200",
-    "startedAt": "2015-09-21T19:25:57+0200",
-    "finishedAt": "2015-09-21T19:25:58+0200",
+    "submittedAt": "2015-09-21T19:25:49+02:00",
+    "startedAt": "2015-09-21T19:25:57+02:00",
+    "finishedAt": "2015-09-21T19:25:58+02:00",
     "executionTimeMs": 1371,
     "logs": false,
     "errorMessage": "the error message",

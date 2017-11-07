@@ -498,15 +498,15 @@ public class SearchActionTest {
     projectKeys.addAll(asList(project1.getDbKey(), project2.getDbKey(), project3.getDbKey()));
     db.components().insertComponents(project1, project2, project3);
     SnapshotDto projectSnapshot1 = dbClient.snapshotDao().insert(dbSession, newAnalysis(project1)
-      .setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
+      .setPeriodDate(parseDateTime("2016-01-11T10:49:50+01:00").getTime())
       .setPeriodMode("previous_version")
       .setPeriodParam("1.0-SNAPSHOT"));
     SnapshotDto projectSnapshot2 = dbClient.snapshotDao().insert(dbSession, newAnalysis(project2)
-      .setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
+      .setPeriodDate(parseDateTime("2016-01-11T10:49:50+01:00").getTime())
       .setPeriodMode("previous_version")
       .setPeriodParam("1.0-SNAPSHOT"));
     SnapshotDto projectSnapshot3 = dbClient.snapshotDao().insert(dbSession, newAnalysis(project3)
-      .setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
+      .setPeriodDate(parseDateTime("2016-01-11T10:49:50+01:00").getTime())
       .setPeriodMode("previous_version")
       .setPeriodParam("1.0-SNAPSHOT"));
 

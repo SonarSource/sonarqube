@@ -147,6 +147,7 @@ public class IssueIndex {
   private static final Duration TWENTY_DAYS = Duration.standardDays(20L);
   private static final Duration TWENTY_WEEKS = Duration.standardDays(20L * 7L);
   private static final Duration TWENTY_MONTHS = Duration.standardDays(20L * 30L);
+  private static final String JODA_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZZ";
   private final Sorting sorting;
   private final EsClient client;
   private final System2 system;
@@ -539,8 +540,7 @@ public class IssueIndex {
       .field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
       .dateHistogramInterval(bucketSize)
       .minDocCount(0L)
-      // JodaTime is used to format date times. Timezone with colon is handled with ZZ in JodaTime
-      .format("yyyy-MM-dd'T'HH:mm:ssZZ")
+      .format(JODA_DATE_TIME_FORMAT)
       .timeZone(DateTimeZone.forOffsetMillis(system.getDefaultTimeZone().getRawOffset()))
       // ES dateHistogram bounds are inclusive while createdBefore parameter is exclusive
       .extendedBounds(new ExtendedBounds(startTime, endTime - 1L));

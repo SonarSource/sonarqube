@@ -4,14 +4,14 @@
       "name": "feature/bar",
       "isMain": false,
       "type": "LONG",
-      "analysisDate": "2017-04-01T01:15:42+0100"
+      "analysisDate": "2017-04-01T01:15:42+01:00"
     },
     {
       "name": "feature/foo",
       "isMain": false,
       "type": "SHORT",
       "mergeBranch": "feature/bar",
-      "analysisDate": "2017-04-03T13:37:00+0100"
+      "analysisDate": "2017-04-03T13:37:00+01:00"
     }
   ]
 }

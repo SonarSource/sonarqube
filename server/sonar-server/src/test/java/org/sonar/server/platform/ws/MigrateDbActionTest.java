@@ -106,7 +106,7 @@ public class MigrateDbActionTest {
   public void verify_example() throws Exception {
     when(dialect.supportsMigration()).thenReturn(true);
     when(migrationState.getStatus()).thenReturn(RUNNING);
-    when(migrationState.getStartedAt()).thenReturn(DateUtils.parseDateTime("2015-02-23T18:54:23+0100"));
+    when(migrationState.getStartedAt()).thenReturn(DateUtils.parseDateTime("2015-02-23T18:54:23+01:00"));
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).isSimilarTo(getClass().getResource("example-migrate_db.json"));

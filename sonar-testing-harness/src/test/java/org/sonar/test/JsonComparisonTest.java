@@ -126,13 +126,13 @@ public class JsonComparisonTest {
     assertThat(new JsonComparison().isStrictTimezone()).isFalse();
 
     // same instant, same timezone
-    assertThat(areSimilar("{\"foo\": \"2010-05-18T15:50:45+0100\"}", "{\"foo\": \"2010-05-18T15:50:45+0100\"}")).isTrue();
+    assertThat(areSimilar("{\"foo\": \"2010-05-18T15:50:45+01:00\"}", "{\"foo\": \"2010-05-18T15:50:45+01:00\"}")).isTrue();
 
     // same instant, but different timezone
-    assertThat(areSimilar("{\"foo\": \"2010-05-18T15:50:45+0100\"}", "{\"foo\": \"2010-05-18T18:50:45+0400\"}")).isTrue();
+    assertThat(areSimilar("{\"foo\": \"2010-05-18T15:50:45+01:00\"}", "{\"foo\": \"2010-05-18T18:50:45+04:00\"}")).isTrue();
 
     // different time
-    assertThat(areSimilar("{\"foo\": \"2010-05-18T15:50:45+0100\"}", "{\"foo\": \"2010-05-18T15:51:45+0100\"}")).isFalse();
+    assertThat(areSimilar("{\"foo\": \"2010-05-18T15:50:45+01:00\"}", "{\"foo\": \"2010-05-18T15:51:45+01:00\"}")).isFalse();
   }
 
   @Test
@@ -140,14 +140,14 @@ public class JsonComparisonTest {
     assertThat(new JsonComparison().withTimezone().isStrictTimezone()).isTrue();
 
     // same instant, same timezone
-    assertThat(isSimilar_strict_timezone("{\"foo\": \"2010-05-18T15:50:45+0100\"}", "{\"foo\": \"2010-05-18T15:50:45+0100\"}")).isTrue();
-    assertThat(isSimilar_strict_timezone("[\"2010-05-18T15:50:45+0100\"]", "[\"2010-05-18T15:50:45+0100\"]")).isTrue();
+    assertThat(isSimilar_strict_timezone("{\"foo\": \"2010-05-18T15:50:45+01:00\"}", "{\"foo\": \"2010-05-18T15:50:45+01:00\"}")).isTrue();
+    assertThat(isSimilar_strict_timezone("[\"2010-05-18T15:50:45+01:00\"]", "[\"2010-05-18T15:50:45+01:00\"]")).isTrue();
 
     // same instant, but different timezone
-    assertThat(isSimilar_strict_timezone("{\"foo\": \"2010-05-18T15:50:45+0100\"}", "{\"foo\": \"2010-05-18T18:50:45+0400\"}")).isFalse();
+    assertThat(isSimilar_strict_timezone("{\"foo\": \"2010-05-18T15:50:45+01:00\"}", "{\"foo\": \"2010-05-18T18:50:45+04:00\"}")).isFalse();
 
     // different time
-    assertThat(isSimilar_strict_timezone("{\"foo\": \"2010-05-18T15:50:45+0100\"}", "{\"foo\": \"2010-05-18T15:51:45+0100\"}")).isFalse();
+    assertThat(isSimilar_strict_timezone("{\"foo\": \"2010-05-18T15:50:45+01:00\"}", "{\"foo\": \"2010-05-18T15:51:45+01:00\"}")).isFalse();
   }
 
   @Test

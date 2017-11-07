@@ -77,7 +77,7 @@ public class ChangelogActionTest {
 
   @Before
   public void before() {
-    system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:42+0100").getTime());
+    system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:42+01:00").getTime());
     defaultOrganizationProvider = TestDefaultOrganizationProvider.from(dbTester);
     wsSupport = new QProfileWsSupport(dbTester.getDbClient(), userSession, defaultOrganizationProvider);
     ws = new WsActionTester(
@@ -103,7 +103,7 @@ public class ChangelogActionTest {
     QProfileDto profile = dbTester.qualityProfiles().insert(organization);
     String profileUuid = profile.getRulesProfileUuid();
 
-    system2.setNow(DateUtils.parseDateTime("2015-02-23T17:58:39+0100").getTime());
+    system2.setNow(DateUtils.parseDateTime("2015-02-23T17:58:39+01:00").getTime());
     RuleDefinitionDto rule1 = dbTester.rules().insert(RuleKey.of("squid", "S2438"), r -> r.setName("\"Threads\" should not be used where \"Runnables\" are expected"));
     UserDto user1 = dbTester.users().insertUser(u -> u.setLogin("anakin.skywalker").setName("Anakin Skywalker"));
     insertChange(profile, c -> c.setRulesProfileUuid(profileUuid)
@@ -111,7 +111,7 @@ public class ChangelogActionTest {
       .setChangeType(ActiveRuleChange.Type.ACTIVATED.name())
       .setData(ImmutableMap.of("severity", "CRITICAL", "ruleKey", rule1.getKey().toString())));
 
-    system2.setNow(DateUtils.parseDateTime("2015-02-23T17:58:18+0100").getTime());
+    system2.setNow(DateUtils.parseDateTime("2015-02-23T17:58:18+01:00").getTime());
     RuleDefinitionDto rule2 = dbTester.rules().insert(RuleKey.of("squid", "S2162"), r -> r.setName("\"equals\" methods should be symmetric and work for subclasses"));
     UserDto user2 = dbTester.users().insertUser(u -> u.setLogin("padme.amidala").setName("Padme Amidala"));
     QProfileChangeDto change2 = insertChange(profile, c -> c.setRulesProfileUuid(profileUuid)
@@ -119,7 +119,7 @@ public class ChangelogActionTest {
       .setChangeType(ActiveRuleChange.Type.DEACTIVATED.name())
       .setData(ImmutableMap.of("ruleKey", rule2.getKey().toString())));
 
-    system2.setNow(DateUtils.parseDateTime("2014-09-12T15:20:46+0200").getTime());
+    system2.setNow(DateUtils.parseDateTime("2014-09-12T15:20:46+02:00").getTime());
     RuleDefinitionDto rule3 = dbTester.rules().insert(RuleKey.of("squid", "S00101"), r -> r.setName("Class names should comply with a naming convention"));
     UserDto user3 = dbTester.users().insertUser(u -> u.setLogin("obiwan.kenobi").setName("Obiwan Kenobi"));
     QProfileChangeDto change3 = insertChange(profile, c -> c.setRulesProfileUuid(profileUuid)
@@ -236,7 +236,7 @@ public class ChangelogActionTest {
   @Test
   public void changelog_filter_by_since() throws Exception {
     QProfileDto qualityProfile = dbTester.qualityProfiles().insert(organization);
-    system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:42+0100").getTime());
+    system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:42+01:00").getTime());
     QProfileChangeDto change = QualityProfileTesting.newQProfileChangeDto()
       .setUuid(null)
       .setCreatedAt(0)
@@ -248,7 +248,7 @@ public class ChangelogActionTest {
     String response = ws.newRequest()
       .setMethod("GET")
       .setParam(PARAM_KEY, qualityProfile.getKee())
-      .setParam(PARAM_SINCE, "2011-04-25T01:15:42+0100")
+      .setParam(PARAM_SINCE, "2011-04-25T01:15:42+01:00")
       .execute()
       .getInput();
 
@@ -257,7 +257,7 @@ public class ChangelogActionTest {
     String response2 = ws.newRequest()
       .setMethod("GET")
       .setParam(PARAM_KEY, qualityProfile.getKee())
-      .setParam(PARAM_SINCE, "2011-04-25T01:15:43+0100")
+      .setParam(PARAM_SINCE, "2011-04-25T01:15:43+01:00")
       .execute()
       .getInput();
 
@@ -267,9 +267,9 @@ public class ChangelogActionTest {
   @Test
   public void sort_changelog_events_in_reverse_chronological_order() {
     QProfileDto profile = dbTester.qualityProfiles().insert(organization);
-    system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:42+0100").getTime());
+    system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:42+01:00").getTime());
     QProfileChangeDto change1 = insertChange(profile, ActiveRuleChange.Type.ACTIVATED, null, null);
-    system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:43+0100").getTime());
+    system2.setNow(DateUtils.parseDateTime("2011-04-25T01:15:43+01:00").getTime());
     QProfileChangeDto change2 = insertChange(profile, ActiveRuleChange.Type.DEACTIVATED, "mazout", null);
     dbTester.commit();
 
@@ -306,7 +306,7 @@ public class ChangelogActionTest {
       "  \"ps\": 50,\n" +
       "  \"events\": [\n" +
       "    {\n" +
-      "      \"date\": \"2011-04-25T02:15:42+0200\",\n" +
+      "      \"date\": \"2011-04-25T02:15:42+02:00\",\n" +
       "      \"authorLogin\": \"theLogin\",\n" +
       "      \"action\": \"ACTIVATED\",\n" +
       "      \"ruleKey\": \"java:S001\",\n" +

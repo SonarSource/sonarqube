@@ -177,7 +177,7 @@ public class ItUtils {
   }
 
   public static String sanitizeTimezones(String s) {
-    return s.replaceAll("[\\+\\-]\\d\\d\\d\\d", "+0000");
+    return s.replaceAll("[\\+\\-]\\d\\d\\d\\d", "+00:00");
   }
 
   public static JSONObject getJSONReport(BuildResult result) {

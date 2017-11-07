@@ -250,7 +250,7 @@ public class PluginWSCommons {
   /**
    * Write properties of the specified UpdateCenter to the specified JsonWriter.
    * <pre>
-   * "updateCenterRefresh": "2015-04-24T16:08:36+0200"
+   * "updateCenterRefresh": "2015-04-24T16:08:36+02:00"
    * </pre>
    */
   public void writeUpdateCenterProperties(JsonWriter json, Optional<UpdateCenter> updateCenter) {

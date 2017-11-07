@@ -230,7 +230,7 @@ public class NewIssuesEmailTemplateTest {
     return new Notification(NewIssuesNotification.TYPE)
       .setFieldValue("projectName", "Struts")
       .setFieldValue("projectKey", "org.apache:struts")
-      .setFieldValue("projectDate", "2010-05-18T14:50:45+0000")
+      .setFieldValue("projectDate", "2010-05-18T14:50:45+00:00")
       .setFieldValue(EFFORT + ".count", "1d3h")
       .setFieldValue(RULE_TYPE + ".count", String.valueOf(count))
       .setFieldValue(RULE_TYPE + ".BUG.count", "1")

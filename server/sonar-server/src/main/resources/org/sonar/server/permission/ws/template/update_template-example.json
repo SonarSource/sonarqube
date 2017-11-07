@@ -4,7 +4,7 @@
     "name": "Finance",
     "description": "Permissions for financially related projects",
     "projectKeyPattern": ".*\\.finance\\..*",
-    "createdAt": "2001-09-09T03:46:40+0200",
-    "updatedAt": "2015-08-25T16:18:48+0200"
+    "createdAt": "2001-09-09T03:46:40+02:00",
+    "updatedAt": "2015-08-25T16:18:48+02:00"
   }
 }

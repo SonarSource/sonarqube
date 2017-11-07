@@ -220,7 +220,7 @@ public class GhostsActionTest {
     ComponentDto hBaseProject = ComponentTesting.newPrivateProjectDto(organization, "ce4c03d6-430f-40a9-b777-ad877c00aa4d")
       .setDbKey("org.apache.hbas:hbase")
       .setName("HBase")
-      .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+0100"))
+      .setCreatedAt(DateUtils.parseDateTime("2015-03-04T23:03:44+01:00"))
       .setPrivate(false);
     dbClient.componentDao().insert(db.getSession(), hBaseProject);
     dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(hBaseProject)
@@ -228,7 +228,7 @@ public class GhostsActionTest {
     ComponentDto roslynProject = ComponentTesting.newPrivateProjectDto(organization, "c526ef20-131b-4486-9357-063fa64b5079")
       .setDbKey("com.microsoft.roslyn:roslyn")
       .setName("Roslyn")
-      .setCreatedAt(DateUtils.parseDateTime("2013-03-04T23:03:44+0100"));
+      .setCreatedAt(DateUtils.parseDateTime("2013-03-04T23:03:44+01:00"));
     dbClient.componentDao().insert(db.getSession(), roslynProject);
     dbClient.snapshotDao().insert(db.getSession(), SnapshotTesting.newAnalysis(roslynProject)
       .setStatus(STATUS_UNPROCESSED));

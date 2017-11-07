@@ -154,7 +154,7 @@ public class QualityProfilesWsTest {
       .setOrganization(org.getKey())
       .setLanguage(profile.getLanguage())
       .setQualityProfile(profile.getName())
-      .setSince("2999-12-31T23:59:59+0000")
+      .setSince("2999-12-31T23:59:59+00:00")
       .build());
     JSONAssert.assertEquals(EXPECTED_CHANGELOG_EMPTY, changelog3, JSONCompareMode.STRICT);
   }

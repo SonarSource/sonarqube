@@ -310,11 +310,11 @@ public class IssueCreationDateQPChangedTest extends AbstractIssueTest {
   }
 
   private enum IssueCreationDate {
-    OnlyInInitial_R1(dateTimeParse("2001-01-01T00:00:00+0000")),
-    ForeverAndUnmodified_R1(dateTimeParse("2002-01-01T00:00:00+0000")),
-    ForeverAndModified_R1(dateTimeParse("2003-01-01T00:00:00+0000")),
-    ForeverAndModified_R2(dateTimeParse("2004-01-01T00:00:00+0000")),
-    OnlyInChanged_R1(dateTimeParse("2005-01-01T00:00:00+0000")),
+    OnlyInInitial_R1(dateTimeParse("2001-01-01T00:00:00+00:00")),
+    ForeverAndUnmodified_R1(dateTimeParse("2002-01-01T00:00:00+00:00")),
+    ForeverAndModified_R1(dateTimeParse("2003-01-01T00:00:00+00:00")),
+    ForeverAndModified_R2(dateTimeParse("2004-01-01T00:00:00+00:00")),
+    OnlyInChanged_R1(dateTimeParse("2005-01-01T00:00:00+00:00")),
     EXPLICIT_DATE_1(dateTimeParse(SAMPLE_EXPLICIT_DATE_1)),
     EXPLICIT_DATE_2(dateTimeParse(SAMPLE_EXPLICIT_DATE_2)),
     FIRST_ANALYSIS {

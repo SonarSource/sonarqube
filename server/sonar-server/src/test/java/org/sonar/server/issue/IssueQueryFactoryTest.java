@@ -85,8 +85,8 @@ public class IssueQueryFactoryTest {
       .setTags(asList("tag1", "tag2"))
       .setOrganization(organization.getKey())
       .setAssigned(true)
-      .setCreatedAfter("2013-04-16T09:08:24+0200")
-      .setCreatedBefore("2013-04-17T09:08:24+0200")
+      .setCreatedAfter("2013-04-16T09:08:24+02:00")
+      .setCreatedBefore("2013-04-17T09:08:24+02:00")
       .setRules(asList("squid:AvoidCycle", "findbugs:NullReference"))
       .setSort("CREATION_DATE")
       .setAsc(true);
@@ -109,8 +109,8 @@ public class IssueQueryFactoryTest {
     assertThat(query.assigned()).isTrue();
     assertThat(query.rules()).hasSize(2);
     assertThat(query.directories()).containsOnly("aDirPath");
-    assertThat(query.createdAfter()).isEqualTo(DateUtils.parseDateTime("2013-04-16T09:08:24+0200"));
-    assertThat(query.createdBefore()).isEqualTo(DateUtils.parseDateTime("2013-04-17T09:08:24+0200"));
+    assertThat(query.createdAfter()).isEqualTo(DateUtils.parseDateTime("2013-04-16T09:08:24+02:00"));
+    assertThat(query.createdBefore()).isEqualTo(DateUtils.parseDateTime("2013-04-17T09:08:24+02:00"));
     assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_CREATION_DATE);
     assertThat(query.asc()).isTrue();
   }
@@ -140,11 +140,11 @@ public class IssueQueryFactoryTest {
   @Test
   public void creation_date_support_zoneddatetime() {
     SearchWsRequest request = new SearchWsRequest()
-      .setCreatedAt("2013-04-16T09:08:24+0200");
+      .setCreatedAt("2013-04-16T09:08:24+02:00");
 
     IssueQuery query = underTest.create(request);
 
-    assertThat(query.createdAt()).isEqualTo(DateUtils.parseDateTime("2013-04-16T09:08:24+0200"));
+    assertThat(query.createdAt()).isEqualTo(DateUtils.parseDateTime("2013-04-16T09:08:24+02:00"));
   }
 
   @Test
@@ -448,7 +448,7 @@ public class IssueQueryFactoryTest {
   @Test
   public void fail_if_created_after_and_created_since_are_both_set() {
     SearchWsRequest request = new SearchWsRequest()
-      .setCreatedAfter("2013-07-25T07:35:00+0100")
+      .setCreatedAfter("2013-07-25T07:35:00+01:00")
       .setCreatedInLast("palap");
 
     try {
@@ -461,12 +461,12 @@ public class IssueQueryFactoryTest {
 
   @Test
   public void set_created_after_from_created_since() {
-    Date now = DateUtils.parseDateTime("2013-07-25T07:35:00+0100");
+    Date now = DateUtils.parseDateTime("2013-07-25T07:35:00+01:00");
     when(clock.instant()).thenReturn(now.toInstant());
     when(clock.getZone()).thenReturn(ZoneOffset.UTC);
     SearchWsRequest request = new SearchWsRequest()
       .setCreatedInLast("1y2m3w4d");
-    assertThat(underTest.create(request).createdAfter()).isEqualTo(DateUtils.parseDateTime("2012-04-30T07:35:00+0100"));
+    assertThat(underTest.create(request).createdAfter()).isEqualTo(DateUtils.parseDateTime("2012-04-30T07:35:00+01:00"));
   }
 
   @Test
@@ -476,7 +476,7 @@ public class IssueQueryFactoryTest {
 
     underTest.create(new SearchWsRequest()
       .setSinceLeakPeriod(true)
-      .setCreatedAfter("2013-07-25T07:35:00+0100"));
+      .setCreatedAfter("2013-07-25T07:35:00+01:00"));
   }
 
   @Test

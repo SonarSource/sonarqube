@@ -121,7 +121,7 @@ public class SearchProjectsTest {
         tuple(projectKey3, false));
     Component project1 = response.getComponentsList().stream().filter(component -> component.getKey().equals(projectKey1)).findFirst()
       .orElseThrow(() -> new IllegalStateException("Project1 is not found"));
-    assertThat(sanitizeTimezones(project1.getLeakPeriodDate())).isEqualTo("2016-12-31T00:00:00+0000");
+    assertThat(sanitizeTimezones(project1.getLeakPeriodDate())).isEqualTo("2016-12-31T00:00:00+00:00");
   }
 
   @Test

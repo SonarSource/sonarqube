@@ -12,7 +12,7 @@
       "name": "Project Name 1",
       "qualifier": "TRK",
       "visibility": "public",
-      "lastAnalysisDate": "2017-03-01T11:39:03+0300"
+      "lastAnalysisDate": "2017-03-01T11:39:03+03:00"
     },
     {
       "organization": "my-org-1",
@@ -21,7 +21,7 @@
       "name": "Project Name 1",
       "qualifier": "TRK",
       "visibility": "private",
-      "lastAnalysisDate": "2017-03-02T15:21:47+0300"
+      "lastAnalysisDate": "2017-03-02T15:21:47+03:00"
     }
   ]
 }

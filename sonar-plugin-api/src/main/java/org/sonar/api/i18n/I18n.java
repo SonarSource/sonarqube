@@ -89,7 +89,7 @@ public interface I18n {
   /**
    * Return the formatted datetime.
    * <p>
-   * Example: {@code formatDateTime(Locale.ENGLISH, DateUtils.parseDateTime("2014-01-22T19:10:03+0100"))}
+   * Example: {@code formatDateTime(Locale.ENGLISH, DateUtils.parseDateTime("2014-01-22T19:10:03+01:00"))}
    * returns {@code "Jan 22, 2014 7:10 PM"}.
    * </p>
    *

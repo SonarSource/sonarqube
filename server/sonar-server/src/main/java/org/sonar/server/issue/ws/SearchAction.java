@@ -209,16 +209,16 @@ public class SearchAction implements IssuesWsAction {
       .setExampleValue("java,js");
     action.createParam(PARAM_CREATED_AT)
       .setDescription("Datetime to retrieve issues created during a specific analysis")
-      .setExampleValue("2017-10-19T13:00:00+0200");
+      .setExampleValue("2017-10-19T13:00:00+02:00");
     action.createParam(PARAM_CREATED_AFTER)
       .setDescription("To retrieve issues created after the given date (inclusive). <br>" +
         "Either a date (server timezone) or datetime can be provided. <br>" +
         "If this parameter is set, createdSince must not be set")
-      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
+      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+02:00");
     action.createParam(PARAM_CREATED_BEFORE)
       .setDescription("To retrieve issues created before the given date (inclusive). <br>" +
         "Either a date (server timezone) or datetime can be provided.")
-      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
+      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+02:00");
     action.createParam(PARAM_CREATED_IN_LAST)
       .setDescription("To retrieve issues created during a time span before the current time (exclusive). " +
         "Accepted units are 'y' for year, 'm' for month, 'w' for week and 'd' for day. " +

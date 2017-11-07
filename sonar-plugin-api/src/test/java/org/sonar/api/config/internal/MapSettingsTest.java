@@ -56,7 +56,7 @@ public class MapSettingsTest {
   @Properties({
     @Property(key = "hello", name = "Hello", defaultValue = "world"),
     @Property(key = "date", name = "Date", defaultValue = "2010-05-18"),
-    @Property(key = "datetime", name = "DateTime", defaultValue = "2010-05-18T15:50:45+0100"),
+    @Property(key = "datetime", name = "DateTime", defaultValue = "2010-05-18T15:50:45+01:00"),
     @Property(key = "boolean", name = "Boolean", defaultValue = "true"),
     @Property(key = "falseboolean", name = "False Boolean", defaultValue = "false"),
     @Property(key = "integer", name = "Integer", defaultValue = "12345"),
@@ -254,7 +254,7 @@ public class MapSettingsTest {
   @Test
   public void setProperty_date() {
     Settings settings = new MapSettings();
-    Date date = DateUtils.parseDateTime("2010-05-18T15:50:45+0100");
+    Date date = DateUtils.parseDateTime("2010-05-18T15:50:45+01:00");
     settings.setProperty("aDate", date);
     settings.setProperty("aDateTime", date, true);
 

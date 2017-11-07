@@ -4,7 +4,7 @@
       "user": "john.smith",
       "userName": "John Smith",
       "avatar": "b0d8c6e5ea589e6fc3d3e08afb1873bb",
-      "creationDate": "2014-03-04T23:03:44+0100",
+      "creationDate": "2014-03-04T23:03:44+01:00",
       "diffs": [
         {
           "key": "severity",

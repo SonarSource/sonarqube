@@ -47,8 +47,8 @@ public class CeServiceTest {
   private static final String VALUE_TASK_TYPE = "task-type";
   private static final int VALUE_PAGE = 1;
   private static final int VALUE_PAGE_SIZE = 10;
-  private static final String VALUE_MAX_EXECUTED_AT = "2015-09-17T23:34:59+0200";
-  private static final String VALUE_MIN_SUBMITTED_AT = "2015-09-17T23:34:59+0200";
+  private static final String VALUE_MAX_EXECUTED_AT = "2015-09-17T23:34:59+02:00";
+  private static final String VALUE_MIN_SUBMITTED_AT = "2015-09-17T23:34:59+02:00";
   private static final boolean VALUE_ONLY_CURRENTS = true;
 
   @Rule

@@ -233,7 +233,7 @@ public class IssueIndexDebtTest {
   public void facet_on_created_at() {
     SearchOptions searchOptions = fixtureForCreatedAtFacet();
 
-    Builder query = newQueryBuilder().createdBefore(DateUtils.parseDateTime("2016-01-01T00:00:00+0100"));
+    Builder query = newQueryBuilder().createdBefore(DateUtils.parseDateTime("2016-01-01T00:00:00+01:00"));
     Map<String, Long> createdAt = new Facets(underTest.search(query.build(), searchOptions), system2.getDefaultTimeZone()).get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2011-01-01", 10L),
@@ -265,13 +265,13 @@ public class IssueIndexDebtTest {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = ComponentTesting.newFileDto(project, null);
 
-    IssueDoc issue0 = IssueDocTesting.newDoc("ISSUE0", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2011-04-25T01:05:13+0100"));
-    IssueDoc issue1 = IssueDocTesting.newDoc("I1", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2014-09-01T12:34:56+0100"));
-    IssueDoc issue2 = IssueDocTesting.newDoc("I2", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2014-09-01T23:46:00+0100"));
-    IssueDoc issue3 = IssueDocTesting.newDoc("I3", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2014-09-02T12:34:56+0100"));
-    IssueDoc issue4 = IssueDocTesting.newDoc("I4", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2014-09-05T12:34:56+0100"));
-    IssueDoc issue5 = IssueDocTesting.newDoc("I5", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2014-09-20T12:34:56+0100"));
-    IssueDoc issue6 = IssueDocTesting.newDoc("I6", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2015-01-18T12:34:56+0100"));
+    IssueDoc issue0 = IssueDocTesting.newDoc("ISSUE0", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2011-04-25T01:05:13+01:00"));
+    IssueDoc issue1 = IssueDocTesting.newDoc("I1", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2014-09-01T12:34:56+01:00"));
+    IssueDoc issue2 = IssueDocTesting.newDoc("I2", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2014-09-01T23:46:00+01:00"));
+    IssueDoc issue3 = IssueDocTesting.newDoc("I3", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2014-09-02T12:34:56+01:00"));
+    IssueDoc issue4 = IssueDocTesting.newDoc("I4", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2014-09-05T12:34:56+01:00"));
+    IssueDoc issue5 = IssueDocTesting.newDoc("I5", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2014-09-20T12:34:56+01:00"));
+    IssueDoc issue6 = IssueDocTesting.newDoc("I6", file).setEffort(10L).setFuncCreationDate(DateUtils.parseDateTime("2015-01-18T12:34:56+01:00"));
 
     indexIssues(issue0, issue1, issue2, issue3, issue4, issue5, issue6);
 

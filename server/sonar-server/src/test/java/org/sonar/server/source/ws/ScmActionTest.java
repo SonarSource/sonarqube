@@ -82,7 +82,7 @@ public class ScmActionTest {
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
       .setSourceData(DbFileSources.Data.newBuilder().addLines(
-        newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1)).build()));
+        newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+00:00"), 1)).build()));
     dbSession.commit();
 
     WsTester.TestRequest request = tester.newGetRequest("api/sources", "scm").setParam("key", FILE_KEY);
@@ -97,10 +97,10 @@ public class ScmActionTest {
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
       .setSourceData(DbFileSources.Data.newBuilder()
-        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1))
-        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 2))
-        .addLines(newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+0000"), 3))
-        .addLines(newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+0000"), 4))
+        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+00:00"), 1))
+        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+00:00"), 2))
+        .addLines(newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+00:00"), 3))
+        .addLines(newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+00:00"), 4))
         .build()));
     dbSession.commit();
 
@@ -117,10 +117,10 @@ public class ScmActionTest {
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
       .setSourceData(DbFileSources.Data.newBuilder()
-        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1))
-        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 2))
-        .addLines(newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+0000"), 3))
-        .addLines(newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+0000"), 4))
+        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+00:00"), 1))
+        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+00:00"), 2))
+        .addLines(newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+00:00"), 3))
+        .addLines(newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+00:00"), 4))
         .build()));
     dbSession.commit();
 
@@ -138,10 +138,10 @@ public class ScmActionTest {
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
       .setSourceData(DbFileSources.Data.newBuilder()
-        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1))
-        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 2))
-        .addLines(newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+0000"), 3))
-        .addLines(newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+0000"), 4))
+        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+00:00"), 1))
+        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+00:00"), 2))
+        .addLines(newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+00:00"), 3))
+        .addLines(newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+00:00"), 4))
         .build()));
     dbSession.commit();
 
@@ -158,10 +158,10 @@ public class ScmActionTest {
       .setProjectUuid(PROJECT_UUID)
       .setFileUuid(FILE_UUID)
       .setSourceData(DbFileSources.Data.newBuilder()
-        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+0000"), 1))
-        .addLines(newSourceLine("julien", "123-456-710", DateUtils.parseDateTime("2015-03-29T12:34:56+0000"), 2))
-        .addLines(newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+0000"), 3))
-        .addLines(newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+0000"), 4))
+        .addLines(newSourceLine("julien", "123-456-789", DateUtils.parseDateTime("2015-03-30T12:34:56+00:00"), 1))
+        .addLines(newSourceLine("julien", "123-456-710", DateUtils.parseDateTime("2015-03-29T12:34:56+00:00"), 2))
+        .addLines(newSourceLine("julien", "456-789-101", DateUtils.parseDateTime("2015-03-27T12:34:56+00:00"), 3))
+        .addLines(newSourceLine("simon", "789-101-112", DateUtils.parseDateTime("2015-03-31T12:34:56+00:00"), 4))
         .build()));
     dbSession.commit();
 

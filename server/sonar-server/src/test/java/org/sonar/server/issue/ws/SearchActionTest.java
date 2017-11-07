@@ -70,6 +70,7 @@ import org.sonar.server.ws.WsResponseCommonFormat;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BRANCH;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.DEPRECATED_FACET_MODE_DEBT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.FACET_MODE_EFFORT;
@@ -180,8 +181,8 @@ public class SearchActionTest {
       .setAuthorLogin("John")
       .setAssignee("simon")
       .setTags(asList("bug", "owasp"))
-      .setIssueCreationDate(DateUtils.parseDateTime("2014-09-04T00:00:00+0100"))
-      .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+0100"));
+      .setIssueCreationDate(DateUtils.parseDateTime("2014-09-04T00:00:00+01:00"))
+      .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+01:00"));
     dbClient.issueDao().insert(session, issue);
     session.commit();
     issueIndexer.indexOnStartup(issueIndexer.getIndexTypes());
@@ -207,22 +208,26 @@ public class SearchActionTest {
         .setChangeData("*My comment*")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
         .setUserLogin("john")
-        .setIssueChangeCreationDate(DateUtils.parseDateTime("2014-09-09T12:00:00+0000").getTime()));
+        .setIssueChangeCreationDate(DateUtils.parseDateTime("2014-09-09T12:00:00+00:00").getTime()));
     dbClient.issueChangeDao().insert(session,
       new IssueChangeDto().setIssueKey(issue.getKey())
         .setKey("COMMENT-ABCE")
         .setChangeData("Another comment")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
         .setUserLogin("fabrice")
-        .setIssueChangeCreationDate(DateUtils.parseDateTime("2014-09-10T12:00:00+0000").getTime()));
+        .setIssueChangeCreationDate(DateUtils.parseDateTime("2014-09-10T12:00:00+00:00").getTime()));
     session.commit();
     indexIssues();
 
     userSessionRule.logIn("john");
-    ws.newRequest()
+
+    String result = ws.newRequest()
       .setParam("additionalFields", "comments,users")
-      .execute()
-      .assertJson(this.getClass(), "issue_with_comments.json");
+      .execute().getInput();
+
+    assertJson(result)
+      .ignoreFields("createdAt")
+      .isSimilarTo(getClass().getResource("SearchActionTest/issue_with_comments.json"));
   }
 
   @Test
@@ -243,14 +248,14 @@ public class SearchActionTest {
         .setChangeData("*My comment*")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
         .setUserLogin("john")
-        .setCreatedAt(DateUtils.parseDateTime("2014-09-09T12:00:00+0000").getTime()));
+        .setCreatedAt(DateUtils.parseDateTime("2014-09-09T12:00:00+00:00").getTime()));
     dbClient.issueChangeDao().insert(session,
       new IssueChangeDto().setIssueKey(issue.getKey())
         .setKey("COMMENT-ABCE")
         .setChangeData("Another comment")
         .setChangeType(IssueChangeDto.TYPE_COMMENT)
         .setUserLogin("fabrice")
-        .setCreatedAt(DateUtils.parseDateTime("2014-09-10T19:10:03+0000").getTime()));
+        .setCreatedAt(DateUtils.parseDateTime("2014-09-10T19:10:03+00:00").getTime()));
     session.commit();
     indexIssues();
 
@@ -320,8 +325,8 @@ public class SearchActionTest {
       .setComponent(removedFile)
       .setStatus("OPEN").setResolution("OPEN")
       .setSeverity("MAJOR")
-      .setIssueCreationDate(DateUtils.parseDateTime("2014-09-04T00:00:00+0100"))
-      .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+0100"));
+      .setIssueCreationDate(DateUtils.parseDateTime("2014-09-04T00:00:00+01:00"))
+      .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+01:00"));
     dbClient.issueDao().insert(session, issue);
     session.commit();
     indexIssues();
@@ -580,13 +585,13 @@ public class SearchActionTest {
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, null, "FILE_ID").setDbKey("FILE_KEY"));
     dbClient.issueDao().insert(session, IssueTesting.newDto(rule, file, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac1")
-      .setIssueUpdateDate(DateUtils.parseDateTime("2014-11-02T00:00:00+0100")));
+      .setIssueUpdateDate(DateUtils.parseDateTime("2014-11-02T00:00:00+01:00")));
     dbClient.issueDao().insert(session, IssueTesting.newDto(rule, file, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
-      .setIssueUpdateDate(DateUtils.parseDateTime("2014-11-01T00:00:00+0100")));
+      .setIssueUpdateDate(DateUtils.parseDateTime("2014-11-01T00:00:00+01:00")));
     dbClient.issueDao().insert(session, IssueTesting.newDto(rule, file, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac3")
-      .setIssueUpdateDate(DateUtils.parseDateTime("2014-11-03T00:00:00+0100")));
+      .setIssueUpdateDate(DateUtils.parseDateTime("2014-11-03T00:00:00+01:00")));
     session.commit();
     indexIssues();
 

@@ -124,8 +124,8 @@ public class RubyUtilsTest {
     assertThat(RubyUtils.toDate("")).isNull();
     assertThat(RubyUtils.toDate("   ")).isNull();
     assertThat(RubyUtils.toDate("2013-01-18").getDate()).isEqualTo(18);
-    assertThat(RubyUtils.toDate("2013-01-18T15:38:19+0200").getDate()).isEqualTo(18);
-    assertThat(RubyUtils.toDate("2013-01-18T15:38:19+0200").getMinutes()).isEqualTo(38);
+    assertThat(RubyUtils.toDate("2013-01-18T15:38:19+02:00").getDate()).isEqualTo(18);
+    assertThat(RubyUtils.toDate("2013-01-18T15:38:19+02:00").getMinutes()).isEqualTo(38);
     assertThat(RubyUtils.toDate(DateUtils.parseDate("2013-01-18")).getDate()).isEqualTo(18);
   }
 

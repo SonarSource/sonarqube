@@ -18,7 +18,7 @@
     "issues": [
         {
             "component": "sample:src/main/xoo/sample/Sample.xoo",
-            "creationDate": "2013-05-02T00:00:00+0200",
+            "creationDate": "2013-05-02T00:00:00+02:00",
             "endLine": 2,
             "endOffset": 0,
             "isNew": true,
@@ -32,7 +32,7 @@
         },
         {
             "component": "sample:src/main/xoo/sample/Sample.xoo",
-            "creationDate": "2013-05-02T00:00:00+0200",
+            "creationDate": "2013-05-02T00:00:00+02:00",
             "endLine": 6,
             "endOffset": 14,
             "isNew": true,
@@ -46,7 +46,7 @@
         },
         {
             "component": "sample:src/main/xoo/sample/Sample.xoo",
-            "creationDate": "2013-05-02T00:00:00+0200",
+            "creationDate": "2013-05-02T00:00:00+02:00",
             "endLine": 1,
             "endOffset": 15,
             "isNew": true,
@@ -60,7 +60,7 @@
         },
         {
             "component": "sample:src/main/xoo/sample/Sample.xoo",
-            "creationDate": "2013-05-02T00:00:00+0200",
+            "creationDate": "2013-05-02T00:00:00+02:00",
             "endLine": 5,
             "endOffset": 23,
             "isNew": true,
@@ -74,7 +74,7 @@
         },
         {
             "component": "sample:src/main/xoo/sample/Sample.xoo",
-            "creationDate": "2013-05-02T00:00:00+0200",
+            "creationDate": "2013-05-02T00:00:00+02:00",
             "endLine": 8,
             "endOffset": 1,
             "isNew": true,
@@ -88,7 +88,7 @@
         },
         {
             "component": "sample:src/main/xoo/sample/Sample.xoo",
-            "creationDate": "2013-05-02T00:00:00+0200",
+            "creationDate": "2013-05-02T00:00:00+02:00",
             "endLine": 9,
             "endOffset": 28,
             "isNew": true,
@@ -102,7 +102,7 @@
         },
         {
             "component": "sample:src/main/xoo/sample/Sample.xoo",
-            "creationDate": "2013-05-02T00:00:00+0200",
+            "creationDate": "2013-05-02T00:00:00+02:00",
             "endLine": 7,
             "endOffset": 2,
             "isNew": true,
@@ -116,7 +116,7 @@
         },
         {
             "component": "sample:src/main/xoo/sample/Sample.xoo",
-            "creationDate": "2013-05-02T00:00:00+0200",
+            "creationDate": "2013-05-02T00:00:00+02:00",
             "endLine": 4,
             "endOffset": 1,
             "isNew": true,
@@ -130,7 +130,7 @@
         },
         {
             "component": "sample:src/main/xoo/sample/Sample.xoo",
-            "creationDate": "2013-05-02T00:00:00+0200",
+            "creationDate": "2013-05-02T00:00:00+02:00",
             "endLine": 11,
             "endOffset": 2,
             "isNew": true,
@@ -144,7 +144,7 @@
         },
         {
             "component": "sample:src/main/xoo/sample/Sample.xoo",
-            "creationDate": "2013-05-02T00:00:00+0200",
+            "creationDate": "2013-05-02T00:00:00+02:00",
             "endLine": 3,
             "endOffset": 21,
             "isNew": true,
@@ -158,7 +158,7 @@
         },
         {
             "component": "sample:src/main/xoo/sample/Sample.xoo",
-            "creationDate": "2013-05-02T00:00:00+0200",
+            "creationDate": "2013-05-02T00:00:00+02:00",
             "endLine": 13,
             "endOffset": 0,
             "isNew": true,
@@ -172,7 +172,7 @@
         },
         {
             "component": "sample:src/main/xoo/sample/Sample.xoo",
-            "creationDate": "2013-05-02T00:00:00+0200",
+            "creationDate": "2013-05-02T00:00:00+02:00",
             "endLine": 12,
             "endOffset": 1,
             "isNew": true,
@@ -186,7 +186,7 @@
         },
         {
             "component": "sample:src/main/xoo/sample/Sample.xoo",
-            "creationDate": "2013-05-02T00:00:00+0200",
+            "creationDate": "2013-05-02T00:00:00+02:00",
             "endLine": 10,
             "endOffset": 17,
             "isNew": true,

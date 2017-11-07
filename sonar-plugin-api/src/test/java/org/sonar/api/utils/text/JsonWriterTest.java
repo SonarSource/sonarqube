@@ -88,7 +88,7 @@ public class JsonWriterTest {
 
   @Test
   public void type_of_values() {
-    Date date = DateUtils.parseDateTime("2010-05-18T15:50:45+0100");
+    Date date = DateUtils.parseDateTime("2010-05-18T15:50:45+01:00");
     writer.beginObject()
       .prop("aBoolean", true)
       .prop("aInt", 123)

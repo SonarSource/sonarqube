@@ -6,7 +6,7 @@
       "component": "FILE_KEY",
       "project": "PROJECT_KEY",
       "rule": "xoo:x1",
-      "updateDate": "2014-11-01T00:00:00+0100"
+      "updateDate": "2014-11-01T00:00:00+01:00"
     },
     {
       "organization": "my-org-2",
@@ -14,7 +14,7 @@
       "component": "FILE_KEY",
       "project": "PROJECT_KEY",
       "rule": "xoo:x1",
-      "updateDate": "2014-11-02T00:00:00+0100"
+      "updateDate": "2014-11-02T00:00:00+01:00"
     },
     {
       "organization": "my-org-2",
@@ -22,7 +22,7 @@
       "component": "FILE_KEY",
       "project": "PROJECT_KEY",
       "rule": "xoo:x1",
-      "updateDate": "2014-11-03T00:00:00+0100"
+      "updateDate": "2014-11-03T00:00:00+01:00"
     }
   ]
 }

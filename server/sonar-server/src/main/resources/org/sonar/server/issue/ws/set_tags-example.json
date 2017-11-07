@@ -42,11 +42,11 @@
         "htmlText": "Please fix this",
         "markdown": "Please fix this",
         "updatable": true,
-        "createdAt": "2017-01-09T13:49:53+0100"
+        "createdAt": "2017-01-09T13:49:53+01:00"
       }
     ],
-    "creationDate": "2016-11-25T13:50:24+0100",
-    "updateDate": "2017-01-09T13:51:12+0100",
+    "creationDate": "2016-11-25T13:50:24+01:00",
+    "updateDate": "2017-01-09T13:51:12+01:00",
     "type": "CODE_SMELL"
   },
   "components": [

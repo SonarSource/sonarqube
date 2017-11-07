@@ -120,7 +120,7 @@ public class ComponentTreeActionTest {
   public void json_example() {
     ComponentDto project = db.components().insertPrivateProject(p -> p.setDbKey("MY_PROJECT")
       .setName("My Project"));
-    SnapshotDto analysis = db.components().insertSnapshot(project, s -> s.setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
+    SnapshotDto analysis = db.components().insertSnapshot(project, s -> s.setPeriodDate(parseDateTime("2016-01-11T10:49:50+01:00").getTime())
       .setPeriodMode("previous_version")
       .setPeriodParam("1.0-SNAPSHOT"));
     ComponentDto file1 = componentDb.insertComponent(newFileDto(project, null)
@@ -282,7 +282,7 @@ public class ComponentTreeActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.anonymous().addProjectPermission(UserRole.USER, project);
     SnapshotDto projectSnapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
-      .setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
+      .setPeriodDate(parseDateTime("2016-01-11T10:49:50+01:00").getTime())
       .setPeriodMode("previous_version")
       .setPeriodParam("1.0-SNAPSHOT"));
     ComponentDto directoryDto = newDirectory(project, "directory-uuid", "path/to/directory").setName("directory-1");

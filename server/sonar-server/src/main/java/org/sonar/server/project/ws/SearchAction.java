@@ -118,7 +118,7 @@ public class SearchAction implements ProjectsWsAction {
       .setDescription("Filter the projects for which last analysis is older than the given date (exclusive).<br> " +
         "Either a date (server timezone) or datetime can be provided.")
       .setSince("6.6")
-      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
+      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+02:00");
 
     action.createParam(PARAM_ON_PROVISIONED_ONLY)
       .setDescription("Filter the projects that are provisioned")

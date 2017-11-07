@@ -19,8 +19,8 @@
  */
 package org.sonar.test;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -35,6 +35,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 import static java.util.Collections.synchronizedSet;
 
 @ThreadSafe
@@ -202,8 +203,8 @@ class JsonComparison {
   @CheckForNull
   private static Date tryParseDate(String s) {
     try {
-      return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(s);
-    } catch (ParseException ignored) {
+      return Date.from(OffsetDateTime.parse(s, ISO_DATE_TIME).toInstant());
+    } catch (DateTimeParseException ignored) {
       // not a datetime
       return null;
     }

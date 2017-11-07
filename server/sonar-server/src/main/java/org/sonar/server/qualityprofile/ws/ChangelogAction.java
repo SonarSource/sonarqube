@@ -83,12 +83,12 @@ public class ChangelogAction implements QProfileWsAction {
     wsAction.createParam(PARAM_SINCE)
       .setDescription("Start date for the changelog. <br>" +
         "Either a date (server timezone) or datetime can be provided.")
-      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
+      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+02:00");
 
     wsAction.createParam(PARAM_TO)
       .setDescription("End date for the changelog. <br>" +
         "Either a date (server timezone) or datetime can be provided.")
-      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
+      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+02:00");
   }
 
   @Override

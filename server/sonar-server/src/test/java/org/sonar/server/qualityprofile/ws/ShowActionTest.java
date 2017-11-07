@@ -135,16 +135,16 @@ public class ShowActionTest {
 
   @Test
   public void map_dates() {
-    long time = DateUtils.parseDateTime("2016-12-22T19:10:03+0100").getTime();
+    long time = DateUtils.parseDateTime("2016-12-22T19:10:03+01:00").getTime();
     QProfileDto profile = db.qualityProfiles().insert(db.getDefaultOrganization(), p -> p
       .setLanguage(XOO1.getKey())
-      .setRulesUpdatedAt("2016-12-21T19:10:03+0100")
+      .setRulesUpdatedAt("2016-12-21T19:10:03+01:00")
       .setLastUsed(time)
       .setUserUpdatedAt(time));
 
     QualityProfiles.ShowResponse result = call(ws.newRequest().setParam(PARAM_KEY, profile.getKee()));
 
-    assertThat(result.getProfile().getRulesUpdatedAt()).isEqualTo("2016-12-21T19:10:03+0100");
+    assertThat(result.getProfile().getRulesUpdatedAt()).isEqualTo("2016-12-21T19:10:03+01:00");
     assertThat(parseDateTime(result.getProfile().getLastUsed()).getTime()).isEqualTo(time);
     assertThat(parseDateTime(result.getProfile().getUserUpdatedAt()).getTime()).isEqualTo(time);
   }
@@ -332,7 +332,7 @@ public class ShowActionTest {
       .setName("My Company Profile")
       .setLanguage(cs.getKey())
       .setIsBuiltIn(false)
-      .setRulesUpdatedAt("2016-12-22T19:10:03+0100")
+      .setRulesUpdatedAt("2016-12-22T19:10:03+01:00")
       .setParentKee(parentProfile.getKee()));
     // Active rules
     range(0, 10)
