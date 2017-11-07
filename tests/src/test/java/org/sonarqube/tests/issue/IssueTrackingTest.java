@@ -48,26 +48,26 @@ public class IssueTrackingTest extends AbstractIssueTest {
 
   @Before
   public void prepareData() {
-    ORCHESTRATOR.resetData();
-    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/issue-on-tag-foobar.xml"));
-    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/IssueTrackingTest/one-issue-per-module-profile.xml"));
-    ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
-    adminClient = newAdminWsClient(ORCHESTRATOR);
+    orchestrator.resetData();
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/issue/issue-on-tag-foobar.xml"));
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/issue/IssueTrackingTest/one-issue-per-module-profile.xml"));
+    orchestrator.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
+    adminClient = newAdminWsClient(orchestrator);
   }
 
   @Test
   public void close_issues_on_removed_components() throws Exception {
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "issue-on-tag-foobar");
+    orchestrator.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "issue-on-tag-foobar");
 
     // version 1
-    runProjectAnalysis(ORCHESTRATOR, "issue/xoo-tracking-v1",
+    runProjectAnalysis(orchestrator, "issue/xoo-tracking-v1",
       "sonar.projectDate", OLD_DATE);
 
     List<Issue> issues = searchUnresolvedIssuesByComponent("sample:src/main/xoo/sample/Sample.xoo");
     assertThat(issues).hasSize(1);
 
     // version 2
-    runProjectAnalysis(ORCHESTRATOR, "issue/xoo-tracking-v1",
+    runProjectAnalysis(orchestrator, "issue/xoo-tracking-v1",
       "sonar.projectDate", NEW_DATE_STR,
       "sonar.exclusions", "**/*.xoo");
 
@@ -82,11 +82,11 @@ public class IssueTrackingTest extends AbstractIssueTest {
    */
   @Test
   public void track_issues_based_on_blocks_recognition() throws Exception {
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "issue-on-tag-foobar");
+    orchestrator.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "issue-on-tag-foobar");
 
     // version 1
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "issue-on-tag-foobar");
-    runProjectAnalysis(ORCHESTRATOR, "issue/xoo-tracking-v1",
+    orchestrator.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "issue-on-tag-foobar");
+    runProjectAnalysis(orchestrator, "issue/xoo-tracking-v1",
       "sonar.projectDate", OLD_DATE);
 
     List<Issue> issues = searchUnresolvedIssuesByComponent("sample:src/main/xoo/sample/Sample.xoo");
@@ -94,7 +94,7 @@ public class IssueTrackingTest extends AbstractIssueTest {
     Date issueDate = toDate(issues.iterator().next().getCreationDate());
 
     // version 2
-    runProjectAnalysis(ORCHESTRATOR, "issue/xoo-tracking-v2",
+    runProjectAnalysis(orchestrator, "issue/xoo-tracking-v2",
       "sonar.projectDate", NEW_DATE_STR);
 
     issues = searchUnresolvedIssuesByComponent("sample:src/main/xoo/sample/Sample.xoo");
@@ -115,15 +115,15 @@ public class IssueTrackingTest extends AbstractIssueTest {
   public void track_existing_unchanged_issues_on_module() throws Exception {
     // The custom rule on module is enabled
 
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "one-issue-per-module");
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
+    orchestrator.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "one-issue-per-module");
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
     // Only one issue is created
     assertThat(searchIssues(new SearchWsRequest()).getIssuesList()).hasSize(1);
     Issue issue = getRandomIssue();
 
     // Re analysis of the same project
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
     // No new issue should be created
     assertThat(searchIssues(new SearchWsRequest()).getIssuesList()).hasSize(1);
@@ -141,16 +141,16 @@ public class IssueTrackingTest extends AbstractIssueTest {
   @Test
   public void track_existing_unchanged_issues_on_multi_modules() throws Exception {
     // The custom rule on module is enabled
-    ORCHESTRATOR.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "com.sonarsource.it.samples:multi-modules-sample");
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "one-issue-per-module");
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-multi-modules-sample");
+    orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "com.sonarsource.it.samples:multi-modules-sample");
+    orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "one-issue-per-module");
+    runProjectAnalysis(orchestrator, "shared/xoo-multi-modules-sample");
 
     // One issue by module are created
     List<Issue> issues = searchIssues(new SearchWsRequest()).getIssuesList();
     assertThat(issues).hasSize(4);
 
     // Re analysis of the same project
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-multi-modules-sample");
+    runProjectAnalysis(orchestrator, "shared/xoo-multi-modules-sample");
 
     // No new issue should be created
     assertThat(searchIssues(new SearchWsRequest()).getIssuesList()).hasSize(issues.size());
@@ -167,10 +167,10 @@ public class IssueTrackingTest extends AbstractIssueTest {
 
   @Test
   public void track_file_moves_based_on_identical_content() {
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "issue-on-tag-foobar");
+    orchestrator.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "issue-on-tag-foobar");
 
     // version 1
-    runProjectAnalysis(ORCHESTRATOR, "issue/xoo-tracking-v1",
+    runProjectAnalysis(orchestrator, "issue/xoo-tracking-v1",
       "sonar.projectDate", OLD_DATE);
 
     List<Issue> issues = searchUnresolvedIssuesByComponent("sample:src/main/xoo/sample/Sample.xoo");
@@ -178,7 +178,7 @@ public class IssueTrackingTest extends AbstractIssueTest {
     Issue issueOnSample = issues.iterator().next();
 
     // version 2
-    runProjectAnalysis(ORCHESTRATOR, "issue/xoo-tracking-v3",
+    runProjectAnalysis(orchestrator, "issue/xoo-tracking-v3",
       "sonar.projectDate", NEW_DATE_STR);
 
     assertThat(searchUnresolvedIssuesByComponent("sample:src/main/xoo/sample/Sample.xoo")).isEmpty();

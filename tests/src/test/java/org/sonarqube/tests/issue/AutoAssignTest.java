@@ -19,36 +19,38 @@
  */
 package org.sonarqube.tests.issue;
 
+import com.sonar.orchestrator.Orchestrator;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.IssueQuery;
-import org.sonarqube.ws.WsUsers;
-import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.user.CreateRequest;
-import org.sonarqube.ws.client.user.SearchRequest;
+import org.sonarqube.tests.Category2Suite;
+import org.sonarqube.tests.Tester;
+import org.sonarqube.ws.Issues;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
 
+import static com.google.common.base.Strings.nullToEmpty;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
-import static util.ItUtils.newAdminWsClient;
-import static util.ItUtils.setServerProperty;
 
-public class AutoAssignTest extends AbstractIssueTest {
+public class AutoAssignTest {
 
+  @ClassRule
+  public static final Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
   @Rule
-  public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(ORCHESTRATOR);
+  public Tester tester = new Tester(orchestrator);
+  @Rule
+  public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(orchestrator);
 
-  ProjectAnalysis projectAnalysis;
+  private ProjectAnalysis projectAnalysis;
 
   @Before
   public void setup() {
@@ -57,15 +59,6 @@ public class AutoAssignTest extends AbstractIssueTest {
     projectAnalysis = projectAnalysisRule.newProjectAnalysis(projectKey)
       .withQualityProfile(qualityProfileKey)
       .withProperties("sonar.scm.disabled", "false", "sonar.scm.provider", "xoo");
-  }
-
-  @After
-  public void resetData() throws Exception {
-    newAdminWsClient(ORCHESTRATOR).wsConnector().call(new PostRequest("api/projects/delete").setParam("project", "AutoAssignTest"));
-    deleteAllUsers();
-
-    // Reset default assignee
-    setServerProperty(ORCHESTRATOR, "sonar.issues.defaultAssigneeLogin", null);
   }
 
   @Test
@@ -87,7 +80,8 @@ public class AutoAssignTest extends AbstractIssueTest {
 
     projectAnalysis.run();
 
-    List<Issue> issues = search(IssueQuery.create().components("AutoAssignTest:src/sample.xoo").sort("FILE_LINE")).list();
+    List<Issues.Issue> issues = tester.wsClient().issues().search(
+      new SearchWsRequest().setComponentKeys(singletonList("AutoAssignTest:src/sample.xoo")).setSort("FILE_LINE")).getIssuesList();
     // login match, case-sensitive
     verifyIssueAssignee(issues, 1, "user1");
     verifyIssueAssignee(issues, 2, null);
@@ -104,22 +98,21 @@ public class AutoAssignTest extends AbstractIssueTest {
     verifyIssueAssignee(issues, 10, "user9");
   }
 
-  private static void verifyIssueAssignee(List<Issue> issues, int line, @Nullable String expectedAssignee) {
-    assertThat(issues.get(line - 1).assignee()).isEqualTo(expectedAssignee);
+  private static void verifyIssueAssignee(List<Issues.Issue> issues, int line, @Nullable String expectedAssignee) {
+    assertThat(issues.get(line - 1).getAssignee()).isEqualTo(nullToEmpty(expectedAssignee));
   }
 
   @Test
   public void auto_assign_issues_to_default_assignee() throws Exception {
     createUser("user1", "User 1", "user1@email.com");
     createUser("user2", "User 2", "user2@email.com");
-    setServerProperty(ORCHESTRATOR, "sonar.issues.defaultAssigneeLogin", "user2");
+    tester.settings().setGlobalSetting("sonar.issues.defaultAssigneeLogin", "user2");
     projectAnalysis.run();
 
     // user1 is assigned to his issues. All other issues are assigned to the default assignee.
-    assertThat(search(IssueQuery.create().assignees("user1")).list()).hasSize(1);
-    assertThat(search(IssueQuery.create().assignees("user2")).list()).hasSize(9);
-    // No unassigned issues
-    assertThat(search(IssueQuery.create().assigned(false)).list()).isEmpty();
+    assertThat(search(new SearchWsRequest().setAssignees(singletonList("user1")))).hasSize(1);
+    assertThat(search(new SearchWsRequest().setAssignees(singletonList("user2")))).hasSize(9);
+    assertThat(search(new SearchWsRequest().setAssigned(false))).isEmpty();
   }
 
   /**
@@ -136,12 +129,12 @@ public class AutoAssignTest extends AbstractIssueTest {
 
     // Run a first analysis without SCM
     projectAnalysis.withProperties("sonar.scm.disabled", "true").run();
-    List<Issue> issues = searchIssues();
+    List<Issues.Issue> issues = search(new SearchWsRequest());
     assertThat(issues).isNotEmpty();
 
     // No author and assignee are set
     assertThat(issues)
-      .extracting(Issue::line, Issue::author)
+      .extracting(Issues.Issue::getLine, Issues.Issue::getAuthor)
       .containsExactlyInAnyOrder(
         tuple(1, ""),
         tuple(2, ""),
@@ -153,16 +146,16 @@ public class AutoAssignTest extends AbstractIssueTest {
         tuple(8, ""),
         tuple(9, ""),
         tuple(10, ""));
-    assertThat(search(IssueQuery.create().assigned(true)).list()).isEmpty();
+    assertThat(search(new SearchWsRequest().setAssigned(true))).isEmpty();
 
     // Run a second analysis with SCM
     projectAnalysis.run();
-    issues = searchIssues();
+    issues = search(new SearchWsRequest());
     assertThat(issues).isNotEmpty();
 
     // Authors and assignees are set
     assertThat(issues)
-      .extracting(Issue::line, Issue::author)
+      .extracting(Issues.Issue::getLine, Issues.Issue::getAuthor)
       .containsExactlyInAnyOrder(
         tuple(1, "user1"),
         tuple(2, "user2"),
@@ -175,25 +168,15 @@ public class AutoAssignTest extends AbstractIssueTest {
         tuple(9, "user8scmaccount"),
         // SONAR-8727
         tuple(10, ""));
-    assertThat(search(IssueQuery.create().assignees("user1")).list()).hasSize(1);
+    assertThat(search(new SearchWsRequest().setAssignees(singletonList("user1")))).hasSize(1);
   }
 
-  private static void createUser(String login, String name, String email, String... scmAccounts) {
-    newAdminWsClient(ORCHESTRATOR).users().create(
-      CreateRequest.builder()
-        .setLogin(login)
-        .setName(name)
-        .setEmail(email)
-        .setPassword("xxxxxxx")
-        .setScmAccounts(Arrays.asList(scmAccounts))
-        .build());
+  private List<Issues.Issue> search(SearchWsRequest request) {
+    return tester.wsClient().issues().search(request).getIssuesList();
   }
 
-  private static void deleteAllUsers() {
-    WsClient wsClient = newAdminWsClient(ORCHESTRATOR);
-    WsUsers.SearchWsResponse searchResponse = wsClient.users().search(SearchRequest.builder().build());
-    searchResponse.getUsersList().forEach(user -> {
-      wsClient.wsConnector().call(new PostRequest("api/users/deactivate").setParam("login", user.getLogin()));
-    });
+  private void createUser(String login, String name, String email, String... scmAccounts) {
+    tester.users().generate(u -> u.setLogin(login).setName(name).setEmail(email).setScmAccounts(Arrays.asList(scmAccounts)));
   }
+
 }

@@ -42,6 +42,7 @@ import org.sonar.wsclient.jsonsimple.JSONValue;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
+import static util.ItUtils.toDatetime;
 
 public class ScmTest {
 
@@ -103,7 +104,7 @@ public class ScmTest {
 
     public LineData(String revision, String datetime, String author) throws ParseException {
       this.revision = revision;
-      this.date = DATETIME_FORMAT.parse(datetime);
+      this.date = toDatetime(datetime);
       this.author = author;
     }
 

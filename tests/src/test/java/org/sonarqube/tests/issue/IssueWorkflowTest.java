@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.issue.DoTransitionRequest;
@@ -40,11 +41,13 @@ import static util.ItUtils.toDatetime;
 
 public class IssueWorkflowTest extends AbstractIssueTest {
 
-  @Rule
-  public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(ORCHESTRATOR);
-
   @ClassRule
-  public static final IssueRule issueRule = IssueRule.from(ORCHESTRATOR);
+  public static final IssueRule issueRule = IssueRule.from(orchestrator);
+  @Rule
+  public Tester tester = new Tester(orchestrator);
+  @Rule
+  public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(orchestrator);
+
 
   private ProjectAnalysis analysisWithIssues;
   private ProjectAnalysis analysisWithoutIssues;
@@ -54,7 +57,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
 
   @Before
   public void before() {
-    issuesService = newAdminWsClient(ORCHESTRATOR).issues();
+    issuesService = newAdminWsClient(orchestrator).issues();
     String oneIssuePerFileProfileKey = projectAnalysisRule.registerProfile("/issue/IssueWorkflowTest/xoo-one-issue-per-line-profile.xml");
     String analyzedProjectKey = projectAnalysisRule.registerProject("issue/workflow");
     analysisWithIssues = projectAnalysisRule.newProjectAnalysis(analyzedProjectKey).withQualityProfile(oneIssuePerFileProfileKey);
@@ -308,7 +311,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   }
 
   private Issues.SearchWsResponse searchIssues(SearchWsRequest request) {
-    return newAdminWsClient(ORCHESTRATOR).issues().search(request);
+    return newAdminWsClient(orchestrator).issues().search(request);
   }
 
 }

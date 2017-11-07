@@ -19,22 +19,35 @@
  */
 package org.sonarqube.tests.issue;
 
+import com.sonar.orchestrator.Orchestrator;
 import java.util.List;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
-import org.sonar.wsclient.issue.Issues;
+import org.sonarqube.tests.Category2Suite;
+import org.sonarqube.tests.Tester;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonarqube.tests.issue.AbstractIssueTest.searchIssues;
+import static util.ItUtils.toDate;
+import static util.ItUtils.toDatetime;
 
-public class IssuePurgeTest extends AbstractIssueTest {
+public class IssuePurgeTest {
 
+  @ClassRule
+  public static final Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
+  private static final String ISSUE_STATUS_OPEN = "OPEN";
   @Rule
-  public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(ORCHESTRATOR);
+  public Tester tester = new Tester(orchestrator);
+  @Rule
+  public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(orchestrator);
 
   private ProjectAnalysis xooSampleAnalysis;
   private ProjectAnalysis xooMultiModuleAnalysis;
@@ -64,10 +77,8 @@ public class IssuePurgeTest extends AbstractIssueTest {
       .run();
 
     // All the issues are open
-    List<Issue> issuesList = searchIssues();
-    for (Issue issue : issuesList) {
-      assertThat(issue.resolution()).isNull();
-    }
+    List<org.sonarqube.ws.Issues.Issue> issuesList = search(new SearchWsRequest().setStatuses(singletonList(ISSUE_STATUS_OPEN)));
+    issuesList.forEach(i -> assertThat(i.getResolution()).isNullOrEmpty());
 
     // Second scan with empty profile -> all issues are resolved and closed
     // -> Not deleted because less than 5000 days long
@@ -77,11 +88,11 @@ public class IssuePurgeTest extends AbstractIssueTest {
         "sonar.dynamicAnalysis", "false",
         "sonar.projectDate", "2014-10-15")
       .run();
-    issuesList = searchIssues();
+    issuesList = search(new SearchWsRequest().setStatuses(singletonList(ISSUE_STATUS_OPEN)));
     assertThat(issuesList).isNotEmpty();
-    for (Issue issue : issuesList) {
-      assertThat(issue.resolution()).isNotNull();
-      assertThat(issue.status()).isEqualTo("CLOSED");
+    for (org.sonarqube.ws.Issues.Issue issue : issuesList) {
+      assertThat(issue.getResolution()).isNotEmpty();
+      assertThat(issue.getStatus()).isEqualTo("CLOSED");
     }
 
     // Third scan -> closed issues are deleted
@@ -92,9 +103,8 @@ public class IssuePurgeTest extends AbstractIssueTest {
         "sonar.dynamicAnalysis", "false",
         "sonar.projectDate", "2014-10-20")
       .run();
-    Issues issues = issueClient().find(IssueQuery.create());
-    assertThat(issues.list()).isEmpty();
-    assertThat(issues.paging().total()).isZero();
+    List<org.sonarqube.ws.Issues.Issue> issues = search(new SearchWsRequest());
+    assertThat(issues).isEmpty();
   }
 
   /**
@@ -140,9 +150,8 @@ public class IssuePurgeTest extends AbstractIssueTest {
         "sonar.projectDate", "2014-10-20")
       .run();
 
-    Issues issues = issueClient().find(IssueQuery.create());
-    assertThat(issues.list()).isEmpty();
-    assertThat(issues.paging().total()).isZero();
+    List<org.sonarqube.ws.Issues.Issue> issues = search(new SearchWsRequest());
+    assertThat(issues).isEmpty();
   }
 
   /**
@@ -156,11 +165,9 @@ public class IssuePurgeTest extends AbstractIssueTest {
       .run();
 
     // All the issues are open
-    List<Issue> issues = searchIssues();
-    for (Issue issue : issues) {
-      assertThat(issue.resolution()).isNull();
-    }
-    Issue issue = issues.get(0);
+    List<org.sonarqube.ws.Issues.Issue> issues = search(new SearchWsRequest().setStatuses(singletonList(ISSUE_STATUS_OPEN)));
+    issues.forEach(i -> assertThat(i.getResolution()).isNullOrEmpty());
+    org.sonarqube.ws.Issues.Issue issue = issues.get(0);
 
     int issuesOnModuleB = searchIssues(IssueQuery.create().componentRoots("com.sonarsource.it.samples:multi-modules-sample:module_b")).size();
     assertThat(issuesOnModuleB).isEqualTo(28);
@@ -173,15 +180,19 @@ public class IssuePurgeTest extends AbstractIssueTest {
       .run();
 
     // Resolved should should all be mark as REMOVED and affect to module b
-    List<Issue> reloadedIssues = searchIssues(IssueQuery.create().resolved(true));
+    List<org.sonarqube.ws.Issues.Issue> reloadedIssues = search(new SearchWsRequest().setResolved(true));
     assertThat(reloadedIssues).hasSize(issuesOnModuleB);
-    for (Issue reloadedIssue : reloadedIssues) {
-      assertThat(reloadedIssue.resolution()).isEqualTo("FIXED");
-      assertThat(reloadedIssue.status()).isEqualTo("CLOSED");
-      assertThat(reloadedIssue.componentKey()).contains("com.sonarsource.it.samples:multi-modules-sample:module_b");
-      assertThat(reloadedIssue.updateDate().before(issue.updateDate())).isFalse();
-      assertThat(reloadedIssue.closeDate()).isNotNull();
-      assertThat(reloadedIssue.closeDate().before(reloadedIssue.creationDate())).isFalse();
+    for (org.sonarqube.ws.Issues.Issue reloadedIssue : reloadedIssues) {
+      assertThat(reloadedIssue.getResolution()).isEqualTo("FIXED");
+      assertThat(reloadedIssue.getStatus()).isEqualTo("CLOSED");
+      assertThat(reloadedIssue.getComponent()).contains("com.sonarsource.it.samples:multi-modules-sample:module_b");
+      assertThat(toDatetime(reloadedIssue.getUpdateDate()).before(toDate(issue.getUpdateDate()))).isFalse();
+      assertThat(reloadedIssue.getCloseDate()).isNotNull();
+      assertThat(toDatetime(reloadedIssue.getCloseDate()).before(toDatetime(reloadedIssue.getCreationDate()))).isFalse();
     }
+  }
+
+  private List<org.sonarqube.ws.Issues.Issue> search(SearchWsRequest request) {
+    return tester.wsClient().issues().search(request).getIssuesList();
   }
 }

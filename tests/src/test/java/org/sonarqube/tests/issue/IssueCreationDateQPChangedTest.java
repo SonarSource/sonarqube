@@ -19,40 +19,48 @@
  */
 package org.sonarqube.tests.issue;
 
+import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.container.Server;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.IssueQuery;
+import org.sonarqube.tests.Category2Suite;
+import org.sonarqube.tests.Tester;
+import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.ProjectAnalyses;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
+import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.projectanalysis.SearchRequest;
+import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
 import util.ItUtils;
 
+import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
+import static util.ItUtils.toDatetime;
 
 /**
  * @see <a href="https://jira.sonarsource.com/browse/MMF-567">MMF-567</a>
  */
-public class IssueCreationDateQPChangedTest extends AbstractIssueTest {
+public class IssueCreationDateQPChangedTest {
+  @ClassRule
+  public static final Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
+  @Rule
+  public Tester tester = new Tester(orchestrator);
 
   private static final String ISSUE_STATUS_OPEN = "OPEN";
-
   private static final String LANGUAGE_XOO = "xoo";
-
-  private static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
 
   private static final String SAMPLE_PROJECT_KEY = "creation-date-sample";
   private static final String SAMPLE_PROJECT_NAME = "Creation date sample";
@@ -60,12 +68,9 @@ public class IssueCreationDateQPChangedTest extends AbstractIssueTest {
   private static final String SAMPLE_EXPLICIT_DATE_1 = todayMinusDays(2);
   private static final String SAMPLE_EXPLICIT_DATE_2 = todayMinusDays(1);
 
-  private Server server = ORCHESTRATOR.getServer();
-
   @Before
   public void resetData() {
-    ORCHESTRATOR.resetData();
-    server.provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_NAME);
+    tester.wsClient().projects().create(CreateRequest.builder().setKey(SAMPLE_PROJECT_KEY).setName(SAMPLE_PROJECT_NAME).build());
   }
 
   @Test
@@ -186,54 +191,43 @@ public class IssueCreationDateQPChangedTest extends AbstractIssueTest {
   }
 
   private void analysis(QProfile qProfile, SourceCode sourceCode, ScannerFeature... scm) {
-    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource(qProfile.path));
-    server.associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, LANGUAGE_XOO, SAMPLE_QUALITY_PROFILE_NAME);
+    ItUtils.restoreProfile(orchestrator, getClass().getResource(qProfile.path));
+    tester.wsClient().qualityProfiles().addProject(
+      AddProjectRequest.builder().setProjectKey(SAMPLE_PROJECT_KEY).setQualityProfile(SAMPLE_QUALITY_PROFILE_NAME).setLanguage(LANGUAGE_XOO).build());
 
     SonarScanner scanner = SonarScanner.create(projectDir(sourceCode.path));
     Arrays.stream(scm).forEach(s -> s.configure(scanner));
-    ORCHESTRATOR.executeBuild(scanner);
+    orchestrator.executeBuild(scanner);
   }
 
-  private static void assertNoIssue() {
+  private void assertNoIssue() {
     assertNumberOfIssues(0);
   }
 
-  private static void assertNumberOfIssues(int number) {
-    assertThat(getIssues(issueQuery())).hasSize(number);
+  private void assertNumberOfIssues(int number) {
+    assertThat(getIssues(new SearchWsRequest().setStatuses(singletonList(ISSUE_STATUS_OPEN)))).hasSize(number);
   }
 
-  private static void assertIssueCreationDate(Component component, IssueCreationDate expectedDate) {
+  private void assertIssueCreationDate(Component component, IssueCreationDate expectedDate) {
     assertIssueCreationDates(new Component[] {component}, expectedDate);
   }
 
-  private static void assertIssueCreationDates(Component[] components, IssueCreationDate expectedDate) {
-    String[] keys = Arrays.stream(components).map(Component::getKey).toArray(String[]::new);
-    List<Issue> issues = getIssues(issueQuery().components(keys));
+  private void assertIssueCreationDates(Component[] components, IssueCreationDate expectedDate) {
+    List<String> keys = Arrays.stream(components).map(Component::getKey).collect(Collectors.toList());
+    List<Issue> issues = getIssues(new SearchWsRequest().setComponentKeys(keys));
     Date[] dates = Arrays.stream(components).map(x -> expectedDate.getDate()).toArray(Date[]::new);
 
     assertThat(issues)
-      .extracting(Issue::creationDate)
+      .extracting(i -> toDatetime(i.getCreationDate()))
       .containsExactly(dates);
   }
 
-  private static List<Issue> getIssues(IssueQuery query) {
-    return issueClient().find(query).list();
-  }
-
-  private static IssueQuery issueQuery() {
-    return IssueQuery.create().statuses(ISSUE_STATUS_OPEN);
-  }
-
-  private static Date dateTimeParse(String expectedDate) {
-    try {
-      return new SimpleDateFormat(DATETIME_FORMAT).parse(expectedDate);
-    } catch (ParseException e) {
-      throw new RuntimeException(e);
-    }
+  private List<Issue> getIssues(SearchWsRequest request) {
+    return tester.wsClient().issues().search(request).getIssuesList();
   }
 
   private static String todayMinusDays(int numberOfDays) {
-    return DateTimeFormatter.ofPattern(DATETIME_FORMAT).format(LocalDate.now().atStartOfDay().minusDays(numberOfDays).atZone(ZoneId.systemDefault()));
+    return ISO_DATE_TIME.format(LocalDate.now().atStartOfDay().minusDays(numberOfDays).atZone(ZoneId.systemDefault()));
   }
 
   private enum SourceCode {
@@ -243,7 +237,7 @@ public class IssueCreationDateQPChangedTest extends AbstractIssueTest {
 
     private final String path;
 
-    private SourceCode(String path) {
+    SourceCode(String path) {
       this.path = path;
     }
   }
@@ -256,7 +250,7 @@ public class IssueCreationDateQPChangedTest extends AbstractIssueTest {
     ;
     private final String key;
 
-    private Component(String key) {
+    Component(String key) {
       this.key = key;
     }
 
@@ -275,7 +269,7 @@ public class IssueCreationDateQPChangedTest extends AbstractIssueTest {
 
     private final String path;
 
-    private QProfile(String path) {
+    QProfile(String path) {
       this.path = path;
     }
   }
@@ -310,13 +304,13 @@ public class IssueCreationDateQPChangedTest extends AbstractIssueTest {
   }
 
   private enum IssueCreationDate {
-    OnlyInInitial_R1(dateTimeParse("2001-01-01T00:00:00+00:00")),
-    ForeverAndUnmodified_R1(dateTimeParse("2002-01-01T00:00:00+00:00")),
-    ForeverAndModified_R1(dateTimeParse("2003-01-01T00:00:00+00:00")),
-    ForeverAndModified_R2(dateTimeParse("2004-01-01T00:00:00+00:00")),
-    OnlyInChanged_R1(dateTimeParse("2005-01-01T00:00:00+00:00")),
-    EXPLICIT_DATE_1(dateTimeParse(SAMPLE_EXPLICIT_DATE_1)),
-    EXPLICIT_DATE_2(dateTimeParse(SAMPLE_EXPLICIT_DATE_2)),
+    OnlyInInitial_R1(toDatetime("2001-01-01T00:00:00+00:00")),
+    ForeverAndUnmodified_R1(toDatetime("2002-01-01T00:00:00+00:00")),
+    ForeverAndModified_R1(toDatetime("2003-01-01T00:00:00+00:00")),
+    ForeverAndModified_R2(toDatetime("2004-01-01T00:00:00+00:00")),
+    OnlyInChanged_R1(toDatetime("2005-01-01T00:00:00+00:00")),
+    EXPLICIT_DATE_1(toDatetime(SAMPLE_EXPLICIT_DATE_1)),
+    EXPLICIT_DATE_2(toDatetime(SAMPLE_EXPLICIT_DATE_2)),
     FIRST_ANALYSIS {
       @Override
       Date getDate() {
@@ -343,11 +337,11 @@ public class IssueCreationDateQPChangedTest extends AbstractIssueTest {
 
     private final Date date;
 
-    private IssueCreationDate() {
+    IssueCreationDate() {
       this.date = null;
     }
 
-    private IssueCreationDate(Date date) {
+    IssueCreationDate(Date date) {
       this.date = date;
     }
 
@@ -357,13 +351,13 @@ public class IssueCreationDateQPChangedTest extends AbstractIssueTest {
 
     private static Date getAnalysisDate(Function<List<ProjectAnalyses.Analysis>, Optional<ProjectAnalyses.Analysis>> chooseItem) {
       return Optional.of(
-        ItUtils.newWsClient(ORCHESTRATOR)
+        ItUtils.newWsClient(orchestrator)
           .projectAnalysis()
           .search(SearchRequest.builder().setProject(SAMPLE_PROJECT_KEY).build())
           .getAnalysesList())
         .flatMap(chooseItem)
         .map(ProjectAnalyses.Analysis::getDate)
-        .map(IssueCreationDateQPChangedTest::dateTimeParse)
+        .map(expectedDate -> toDatetime(expectedDate))
         .orElseThrow(() -> new IllegalStateException("There is no analysis"));
     }
   }

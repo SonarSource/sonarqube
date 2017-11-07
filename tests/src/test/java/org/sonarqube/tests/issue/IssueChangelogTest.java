@@ -39,16 +39,16 @@ public class IssueChangelogTest extends AbstractIssueTest {
 
   @Before
   public void prepareData() {
-    ORCHESTRATOR.resetData();
-    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/IssueChangelogTest/one-issue-per-line-profile.xml"));
-    ORCHESTRATOR.getServer().provisionProject("sample", "sample");
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
-    adminClient = newAdminWsClient(ORCHESTRATOR);
+    orchestrator.resetData();
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/issue/IssueChangelogTest/one-issue-per-line-profile.xml"));
+    orchestrator.getServer().provisionProject("sample", "sample");
+    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
+    adminClient = newAdminWsClient(orchestrator);
   }
 
   @Test
   public void update_changelog_when_assigning_issue_by_user() throws Exception {
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
     Issue issue = searchRandomIssue();
     assertIssueHasNoChange(issue.key());
 
@@ -66,13 +66,13 @@ public class IssueChangelogTest extends AbstractIssueTest {
 
   @Test
   public void update_changelog_when_reopening_unresolved_issue_by_scan() throws Exception {
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
     Issue issue = searchRandomIssue();
     assertIssueHasNoChange(issue.key());
 
     // re analyse the project after resolving an issue in order to reopen it
     adminIssueClient().doTransition(issue.key(), "resolve");
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
     List<Changelog> changes = changelog(issue.key()).getChangelogList();
     assertThat(changes).hasSize(2);
@@ -97,10 +97,10 @@ public class IssueChangelogTest extends AbstractIssueTest {
   @Test
   public void display_file_name_in_changelog_during_file_move() {
     // version 1
-    runProjectAnalysis(ORCHESTRATOR, "issue/xoo-tracking-v1");
+    runProjectAnalysis(orchestrator, "issue/xoo-tracking-v1");
 
     // version 2
-    runProjectAnalysis(ORCHESTRATOR, "issue/xoo-tracking-v3");
+    runProjectAnalysis(orchestrator, "issue/xoo-tracking-v3");
 
     Issue issue = searchRandomIssue();
     List<Changelog> changes = changelog(issue.key()).getChangelogList();

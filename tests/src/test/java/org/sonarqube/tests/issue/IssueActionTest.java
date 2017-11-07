@@ -46,10 +46,10 @@ import static util.ItUtils.toDatetime;
 public class IssueActionTest extends AbstractIssueTest {
 
   @Rule
-  public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(ORCHESTRATOR);
+  public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(orchestrator);
 
   @ClassRule
-  public static final IssueRule issueRule = IssueRule.from(ORCHESTRATOR);
+  public static final IssueRule issueRule = IssueRule.from(orchestrator);
 
   private ProjectAnalysis projectAnalysis;
   private IssuesService issuesService;
@@ -63,7 +63,7 @@ public class IssueActionTest extends AbstractIssueTest {
 
     this.projectAnalysis = projectAnalysisRule.newProjectAnalysis(projectKey).withQualityProfile(qualityProfileKey);
     this.projectAnalysis.run();
-    this.issuesService = newAdminWsClient(ORCHESTRATOR).issues();
+    this.issuesService = newAdminWsClient(orchestrator).issues();
     this.randomIssue = issueRule.getRandomIssue();
   }
 
