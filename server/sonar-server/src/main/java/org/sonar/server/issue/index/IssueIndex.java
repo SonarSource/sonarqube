@@ -62,7 +62,6 @@ import org.elasticsearch.search.aggregations.metrics.valuecount.InternalValueCou
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.organization.OrganizationDto;
@@ -540,11 +539,13 @@ public class IssueIndex {
       .field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
       .dateHistogramInterval(bucketSize)
       .minDocCount(0L)
-      .format(DateUtils.DATETIME_FORMAT)
+      // JodaTime is used to format date times. Timezone with colon is handled with ZZ in JodaTime
+      .format("yyyy-MM-dd'T'HH:mm:ssZZ")
       .timeZone(DateTimeZone.forOffsetMillis(system.getDefaultTimeZone().getRawOffset()))
       // ES dateHistogram bounds are inclusive while createdBefore parameter is exclusive
       .extendedBounds(new ExtendedBounds(startTime, endTime - 1L));
     addEffortAggregationIfNeeded(query, dateHistogram);
+
     return Optional.of(dateHistogram);
   }
 
