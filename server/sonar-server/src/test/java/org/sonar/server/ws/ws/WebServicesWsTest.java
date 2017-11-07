@@ -114,7 +114,6 @@ public class WebServicesWsTest {
 
       create
         .createParam("severity")
-        .setMaximumLength(20)
         .setDescription("Severity")
         .setSince("4.4")
         .setDeprecatedSince("5.2")
@@ -125,7 +124,15 @@ public class WebServicesWsTest {
         .setDefaultValue("BLOCKER");
       create.createParam("name");
       create.createParam("internal").setInternal(true);
-      create.createParam("maximum_value").setMaximumValue(12);
+
+      create
+        .createParam("constrained_string_param")
+        .setMaximumLength(64)
+        .setMinimumLength(3);
+
+      create
+        .createParam("constrained_numeric_param")
+        .setMaximumValue(12);
 
       newController.createAction("internal_action")
         .setDescription("Internal Action Description")

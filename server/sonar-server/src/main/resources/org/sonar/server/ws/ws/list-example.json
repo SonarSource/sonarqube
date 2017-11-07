@@ -29,10 +29,17 @@
           ],
           "params": [
             {
-              "key": "maximum_value",
-              "maximumValue": 12,
+              "key": "constrained_numeric_param",
               "required": false,
-              "internal": false
+              "internal": false,
+              "maximumValue": 12
+            },
+            {
+              "key": "constrained_string_param",
+              "required": false,
+              "internal": false,
+              "maximumLength": 64,
+              "minimumLength": 3
             },
             {
               "key": "name",
@@ -41,7 +48,6 @@
             },
             {
               "key": "severity",
-              "maximumLength": 20,
               "description": "Severity",
               "required": false,
               "internal": false,
