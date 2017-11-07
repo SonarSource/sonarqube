@@ -155,8 +155,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setDescription(format("Limit search to: <ul>" +
         "<li>component names that contain the supplied string</li>" +
         "<li>component keys that are exactly the same as the supplied string</li>" +
-        "</ul>" +
-        "Must have at least %d characters.", QUERY_MINIMUM_LENGTH))
+        "</ul>"))
+      .setMinimumLength(QUERY_MINIMUM_LENGTH)
       .setExampleValue("FILE_NAM");
 
     action.createParam(DEPRECATED_PARAM_BASE_COMPONENT_ID)
@@ -270,11 +270,13 @@ public class ComponentTreeAction implements MeasuresWsAction {
   }
 
   private static boolean areMetricsInResponse(ComponentTreeWsRequest request) {
-    return request.getAdditionalFields() != null && request.getAdditionalFields().contains(ADDITIONAL_METRICS);
+    List<String> additionalFields = request.getAdditionalFields();
+    return additionalFields != null && additionalFields.contains(ADDITIONAL_METRICS);
   }
 
   private static boolean arePeriodsInResponse(ComponentTreeWsRequest request) {
-    return request.getAdditionalFields() != null && request.getAdditionalFields().contains(ADDITIONAL_PERIODS);
+    List<String> additionalFields = request.getAdditionalFields();
+    return additionalFields != null && additionalFields.contains(ADDITIONAL_PERIODS);
   }
 
   private static ComponentTreeWsResponse emptyResponse(ComponentDto baseComponent, ComponentTreeWsRequest request) {
@@ -308,9 +310,6 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setQuery(request.param(Param.TEXT_QUERY));
-    String searchQuery = componentTreeWsRequest.getQuery();
-    checkRequest(searchQuery == null || searchQuery.length() >= QUERY_MINIMUM_LENGTH,
-      "The '%s' parameter must have at least %d characters", Param.TEXT_QUERY, QUERY_MINIMUM_LENGTH);
     String metricSortValue = componentTreeWsRequest.getMetricSort();
     checkRequest(!componentTreeWsRequest.getMetricKeys().isEmpty(), "The '%s' parameter must contain at least one metric key", PARAM_METRIC_KEYS);
     List<String> sorts = Optional.ofNullable(componentTreeWsRequest.getSort()).orElse(emptyList());

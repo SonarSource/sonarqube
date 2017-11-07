@@ -685,8 +685,8 @@ public class ComponentTreeActionTest {
     db.components().insertSnapshot(project);
     insertNclocMetric();
     insertNewViolationsMetric();
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The 'q' parameter must have at least 3 characters");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'q' length (2) is shorter than the minimum authorized (3)");
 
     ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
