@@ -92,7 +92,7 @@ export default class BulkChangeModal extends React.PureComponent {
 
     Promise.all([
       this.loadIssues(),
-      searchIssueTags({ organization: this.state.organization, ps: 500 })
+      searchIssueTags({ organization: this.state.organization })
     ]).then(([issues, tags]) => {
       if (this.mounted) {
         this.setState({
