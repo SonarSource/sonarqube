@@ -54,7 +54,6 @@ import static org.sonar.server.permission.ws.PermissionRequestValidator.validate
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
-import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PERMISSION;
@@ -91,8 +90,9 @@ public class UsersAction implements PermissionsWsAction {
       .setHandler(this);
 
     action.createParam(Param.TEXT_QUERY)
-      .setDescription("Limit search to user names that contain the supplied string. Must have at least %d characters.<br/>" +
-        "When this parameter is not set, only users having at least one permission are returned.", SEARCH_QUERY_MIN_LENGTH)
+      .setMinimumLength(SEARCH_QUERY_MIN_LENGTH)
+      .setDescription("Limit search to user names that contain the supplied string. <br/>" +
+        "When this parameter is not set, only users having at least one permission are returned.")
       .setExampleValue("eri");
 
     createOrganizationParameter(action).setSince("6.2");
@@ -136,9 +136,6 @@ public class UsersAction implements PermissionsWsAction {
     }
     if (textQuery == null) {
       permissionQuery.withAtLeastOnePermission();
-    } else {
-      checkRequest(textQuery.length() >= SEARCH_QUERY_MIN_LENGTH,
-        "The '%s' parameter must have at least %d characters", Param.TEXT_QUERY, SEARCH_QUERY_MIN_LENGTH);
     }
     return permissionQuery.build();
   }
