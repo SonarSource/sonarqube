@@ -76,6 +76,7 @@ public abstract class ValidatingRequest extends Request {
     }
     validatePossibleValues(key, value, definition);
     validateMaximumLength(key, definition, valueOrDefault);
+    validateMinimumLength(key, definition, valueOrDefault);
     validateMaximumValue(key, definition, value);
     return value;
   }
@@ -181,6 +182,15 @@ public abstract class ValidatingRequest extends Request {
     }
     int valueLength = valueOrDefault.length();
     checkArgument(valueLength <= maximumLength, "'%s' length (%s) is longer than the maximum authorized (%s)", key, valueLength, maximumLength);
+  }
+
+  private static void validateMinimumLength(String key, WebService.Param definition, String valueOrDefault) {
+    Integer minimumLength = definition.minimumLength();
+    if (minimumLength == null) {
+      return;
+    }
+    int valueLength = valueOrDefault.length();
+    checkArgument(valueLength >= minimumLength, "'%s' length (%s) is shorter than the minimum authorized (%s)", key, valueLength, minimumLength);
   }
 
   private static void validateMaximumValue(String key, WebService.Param definition, String value) {

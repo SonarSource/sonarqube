@@ -136,6 +136,7 @@ public class ListAction implements WebServicesWsAction {
     writer.prop("maxValuesAllowed", param.maxValuesAllowed());
     ofNullable(param.possibleValues()).ifPresent(possibleValues -> writer.name("possibleValues").beginArray().values(possibleValues).endArray());
     ofNullable(param.maximumLength()).ifPresent(maximumLength -> writer.prop("maximumLength", maximumLength));
+    ofNullable(param.minimumLength()).ifPresent(minimumLength -> writer.prop("minimumLength", minimumLength));
     ofNullable(param.maximumValue()).ifPresent(maximumValue -> writer.prop("maximumValue", maximumValue));
     writer.endObject();
   }
