@@ -63,6 +63,7 @@ public class SearchAction implements OrganizationsWsAction {
     action.createParam(PARAM_ORGANIZATIONS)
       .setDescription("Comma-separated list of organization keys")
       .setExampleValue(String.join(",", "my-org-1", "foocorp"))
+      .setMinimumLength(2)
       .setRequired(false)
       .setSince("6.3");
 
