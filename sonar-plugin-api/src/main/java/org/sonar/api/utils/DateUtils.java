@@ -46,7 +46,15 @@ import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
  * @since 2.7
  */
 public final class DateUtils {
+  /**
+   * @deprecated since 7.0
+   */
+  @Deprecated
   public static final String DATE_FORMAT = "yyyy-MM-dd";
+  /**
+   * @deprecated since 7.0
+   */
+  @Deprecated
   public static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
   private static final String ISO_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssxxx";
 
