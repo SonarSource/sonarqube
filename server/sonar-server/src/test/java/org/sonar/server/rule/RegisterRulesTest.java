@@ -71,9 +71,9 @@ import static org.sonar.api.rule.Severity.INFO;
 public class RegisterRulesTest {
 
   private static final String FAKE_PLUGIN_KEY = "unittest";
-  private static final Date DATE1 = DateUtils.parseDateTime("2014-01-01T19:10:03+0100");
-  private static final Date DATE2 = DateUtils.parseDateTime("2014-02-01T12:10:03+0100");
-  private static final Date DATE3 = DateUtils.parseDateTime("2014-03-01T12:10:03+0100");
+  private static final Date DATE1 = DateUtils.parseDateTime("2014-01-01T19:10:03+01:00");
+  private static final Date DATE2 = DateUtils.parseDateTime("2014-02-01T12:10:03+01:00");
+  private static final Date DATE3 = DateUtils.parseDateTime("2014-03-01T12:10:03+01:00");
 
   private static final RuleKey RULE_KEY1 = RuleKey.of("fake", "rule1");
   private static final RuleKey RULE_KEY2 = RuleKey.of("fake", "rule2");

@@ -9,7 +9,7 @@
       "id": "AU-Tpxb--iU5OvuD2FLy",
       "key": "clang",
       "name": "Clang",
-      "lastAnalysisDate": "2016-06-11T14:25:53+0000",
+      "lastAnalysisDate": "2016-06-11T14:25:53+00:00",
       "qualityGate": "OK",
       "links": []
     },
@@ -18,7 +18,7 @@
       "key": "net.java.openjdk:jdk7",
       "name": "JDK 7",
       "description": "JDK",
-      "lastAnalysisDate": "2016-06-10T13:17:53+0000",
+      "lastAnalysisDate": "2016-06-10T13:17:53+00:00",
       "qualityGate": "ERROR",
       "links": [
         {

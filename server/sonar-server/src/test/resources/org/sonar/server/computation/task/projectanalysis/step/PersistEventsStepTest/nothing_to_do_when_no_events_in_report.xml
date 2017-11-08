@@ -27,7 +27,7 @@
           name="Changes in 'Default' (Java)"
           category="Profile"
           description="Version 1.0"
-          event_data="from=2014-10-12T08:36:25+0000;key=java-default;to=2014-10-12T10:36:25+0000"
+          event_data="from=2014-10-12T08:36:25+0000;key=java-default;to=2014-10-12T10:36:25+00:00"
           event_date="1413407091086"
           created_at="1225630680000"/>
 

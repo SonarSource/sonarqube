@@ -192,7 +192,7 @@ public class DefaultI18nTest {
   public void format_date_time() {
     TimeZone initialTz = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("GMT+1"));
-    assertThat(underTest.formatDateTime(Locale.ENGLISH, DateUtils.parseDateTime("2014-01-22T19:10:03+0100"))).startsWith("Jan 22, 2014");
+    assertThat(underTest.formatDateTime(Locale.ENGLISH, DateUtils.parseDateTime("2014-01-22T19:10:03+01:00"))).startsWith("Jan 22, 2014");
     TimeZone.setDefault(initialTz);
   }
 
@@ -200,7 +200,7 @@ public class DefaultI18nTest {
   public void format_date() {
     TimeZone initialTz = TimeZone.getDefault();
     TimeZone.setDefault(TimeZone.getTimeZone("GMT+1"));
-    assertThat(underTest.formatDate(Locale.ENGLISH, DateUtils.parseDateTime("2014-01-22T19:10:03+0100"))).isEqualTo("Jan 22, 2014");
+    assertThat(underTest.formatDate(Locale.ENGLISH, DateUtils.parseDateTime("2014-01-22T19:10:03+01:00"))).isEqualTo("Jan 22, 2014");
     TimeZone.setDefault(initialTz);
   }
 

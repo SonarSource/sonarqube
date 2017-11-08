@@ -37,7 +37,7 @@ public class IssueCreationTest extends AbstractIssueTest {
 
   @Before
   public void resetData() {
-    ORCHESTRATOR.resetData();
+    orchestrator.resetData();
   }
 
   /**
@@ -45,31 +45,31 @@ public class IssueCreationTest extends AbstractIssueTest {
    */
   @Test
   public void use_rule_name_if_issue_has_no_message() {
-    ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
-    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/IssueCreationTest/with-custom-message.xml"));
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "with-custom-message");
+    orchestrator.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/issue/IssueCreationTest/with-custom-message.xml"));
+    orchestrator.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "with-custom-message");
 
     // First analysis, the issue is generated with a message
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample", "sonar.customMessage.message", "a message");
+    runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.customMessage.message", "a message");
     Issue issue = issueClient().find(IssueQuery.create()).list().get(0);
     assertThat(issue.message()).isEqualTo("a message");
 
     // Second analysis, the issue is generated without any message, the name of the rule is used
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
     issue = issueClient().find(IssueQuery.create()).list().get(0);
     assertThat(issue.message()).isEqualTo("Issue With Custom Message");
   }
 
   @Test
   public void plugin_can_override_profile_severity() throws Exception {
-    ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
+    orchestrator.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
 
     // The rule "OneBlockerIssuePerFile" is enabled with severity "INFO"
-    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/IssueCreationTest/override-profile-severity.xml"));
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "override-profile-severity");
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/issue/IssueCreationTest/override-profile-severity.xml"));
+    orchestrator.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "override-profile-severity");
 
     // But it's hardcoded "blocker" when plugin generates the issue
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
     Issues issues = search(IssueQuery.create().rules("xoo:OneBlockerIssuePerFile"));
     assertThat(issues.size()).isGreaterThan(0);
@@ -104,11 +104,11 @@ public class IssueCreationTest extends AbstractIssueTest {
   }
 
   private String generateIssueWithMessage(String longMessage) {
-    ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
-    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/IssueCreationTest/with-custom-message.xml"));
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "with-custom-message");
+    orchestrator.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/issue/IssueCreationTest/with-custom-message.xml"));
+    orchestrator.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "with-custom-message");
 
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample", "sonar.customMessage.message", longMessage);
+    runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.customMessage.message", longMessage);
 
     Issue issue = issueClient().find(IssueQuery.create()).list().get(0);
     return issue.message();

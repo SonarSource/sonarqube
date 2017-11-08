@@ -64,8 +64,8 @@ public class WebhookPayloadFactoryImplTest {
         "  \"serverUrl\": \"http://foo\"," +
         "  \"taskId\": \"#1\"," +
         "  \"status\": \"SUCCESS\"," +
-        "  \"analysedAt\": \"2017-07-14T04:40:00+0200\"," +
-        "  \"changedAt\": \"2017-07-14T04:40:00+0200\"," +
+        "  \"analysedAt\": \"2017-07-14T04:40:00+02:00\"," +
+        "  \"changedAt\": \"2017-07-14T04:40:00+02:00\"," +
         "  \"project\": {" +
         "    \"key\": \"P1\"," +
         "    \"name\": \"Project One\"," +
@@ -105,8 +105,8 @@ public class WebhookPayloadFactoryImplTest {
         "  \"serverUrl\": \"http://foo\"," +
         "  \"taskId\": \"#1\"," +
         "  \"status\": \"SUCCESS\"," +
-        "  \"analysedAt\": \"2017-07-14T04:40:00+0200\"," +
-        "  \"changedAt\": \"2017-07-14T04:40:00+0200\"," +
+        "  \"analysedAt\": \"2017-07-14T04:40:00+02:00\"," +
+        "  \"changedAt\": \"2017-07-14T04:40:00+02:00\"," +
         "  \"project\": {" +
         "    \"key\": \"P1\"," +
         "    \"name\": \"Project One\"," +
@@ -146,8 +146,8 @@ public class WebhookPayloadFactoryImplTest {
         "  \"serverUrl\": \"http://foo\"," +
         "  \"taskId\": \"#1\"," +
         "  \"status\": \"SUCCESS\"," +
-        "  \"analysedAt\": \"2017-07-14T04:40:00+0200\"," +
-        "  \"changedAt\": \"2017-07-14T04:40:00+0200\"," +
+        "  \"analysedAt\": \"2017-07-14T04:40:00+02:00\"," +
+        "  \"changedAt\": \"2017-07-14T04:40:00+02:00\"," +
         "  \"project\": {" +
         "    \"key\": \"P1\"," +
         "    \"name\": \"Project One\"," +
@@ -182,7 +182,7 @@ public class WebhookPayloadFactoryImplTest {
         "  \"serverUrl\": \"http://foo\"," +
         "  \"taskId\": \"#1\"," +
         "  \"status\": \"FAILED\"," +
-        "  \"changedAt\": \"2017-07-14T04:40:00+0200\"," +
+        "  \"changedAt\": \"2017-07-14T04:40:00+02:00\"," +
         "  \"project\": {" +
         "    \"key\": \"P1\"," +
         "    \"name\": \"Project One\"," +
@@ -206,7 +206,7 @@ public class WebhookPayloadFactoryImplTest {
         "  \"serverUrl\": \"http://foo\"," +
         "  \"taskId\": \"#1\"," +
         "  \"status\": \"FAILED\"," +
-        "  \"changedAt\": \"1970-01-01T01:25:00+0100\"," +
+        "  \"changedAt\": \"1970-01-01T01:25:00+01:00\"," +
         "  \"project\": {" +
         "    \"key\": \"P1\"," +
         "    \"name\": \"Project One\"" +
@@ -244,7 +244,7 @@ public class WebhookPayloadFactoryImplTest {
       .isSimilarTo("{" +
         "  \"serverUrl\": \"http://foo\"," +
         "  \"status\": \"SUCCESS\"," +
-        "  \"changedAt\": \"1970-01-01T01:25:00+0100\"," +
+        "  \"changedAt\": \"1970-01-01T01:25:00+01:00\"," +
         "  \"project\": {" +
         "    \"key\": \"P1\"," +
         "    \"name\": \"Project One\"" +

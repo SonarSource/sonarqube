@@ -12,7 +12,7 @@
           "htmlText": "\u003cstrong\u003eMy comment\u003c/strong\u003e",
           "markdown": "*My comment*",
           "updatable": true,
-          "createdAt": "2014-09-09T12:00:00+0000"
+          "createdAt": "2014-09-09T12:00:00+00:00"
         },
         {
           "key": "COMMENT-ABCE",
@@ -20,7 +20,7 @@
           "htmlText": "Another comment",
           "markdown": "Another comment",
           "updatable": false,
-          "createdAt": "2014-09-10T12:00:00+0000"
+          "createdAt": "2014-09-10T12:00:00+00:00"
         }
       ]
     }

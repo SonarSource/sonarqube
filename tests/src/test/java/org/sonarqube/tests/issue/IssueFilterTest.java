@@ -36,11 +36,11 @@ public class IssueFilterTest extends AbstractIssueTest {
 
   @Before
   public void resetData() {
-    ORCHESTRATOR.resetData();
+    orchestrator.resetData();
 
-    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/IssueFilterTest/with-many-rules.xml"));
-    ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY, "project");
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "with-many-rules");
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/issue/IssueFilterTest/with-many-rules.xml"));
+    orchestrator.getServer().provisionProject(PROJECT_KEY, "project");
+    orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "with-many-rules");
   }
 
   @Test
@@ -100,12 +100,12 @@ public class IssueFilterTest extends AbstractIssueTest {
   }
 
   private void executeAnalysis(String... serverProperties) {
-    setServerProperties(ORCHESTRATOR, PROJECT_KEY, serverProperties);
-    runProjectAnalysis(ORCHESTRATOR, PROJECT_DIR);
+    setServerProperties(orchestrator, PROJECT_KEY, serverProperties);
+    runProjectAnalysis(orchestrator, PROJECT_DIR);
   }
 
   private void checkIssueCountBySeverity(int total, int perFile, int perCommonRule, int perModule) {
-    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(ORCHESTRATOR, PROJECT_KEY, "violations", "major_violations", "blocker_violations", "critical_violations");
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(orchestrator, PROJECT_KEY, "violations", "major_violations", "blocker_violations", "critical_violations");
     assertThat(measures.get("violations").intValue()).isEqualTo(total);
     assertThat(measures.get("major_violations").intValue()).isEqualTo(perFile); // One per file
     assertThat(measures.get("blocker_violations").intValue()).isEqualTo(perCommonRule); // On per common rule

@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import org.apache.commons.lang.time.DateUtils;
 import org.assertj.core.api.Fail;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,16 +35,19 @@ import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
-import util.ItUtils;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static org.apache.commons.lang.time.DateUtils.addSeconds;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonarqube.ws.Issues.SearchWsResponse;
+import static util.ItUtils.formatDateTime;
 import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.restoreProfile;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
 import static util.ItUtils.toDate;
+import static util.ItUtils.toDatetime;
 
 public class IssueSearchTest extends AbstractIssueTest {
 
@@ -57,18 +59,18 @@ public class IssueSearchTest extends AbstractIssueTest {
 
   @BeforeClass
   public static void prepareData() {
-    ORCHESTRATOR.resetData();
+    orchestrator.resetData();
 
-    ItUtils.restoreProfile(ORCHESTRATOR, IssueSearchTest.class.getResource("/issue/with-many-rules.xml"));
+    restoreProfile(orchestrator, IssueSearchTest.class.getResource("/issue/with-many-rules.xml"));
 
     // Launch 2 analysis to have more than 100 issues in total
-    ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "with-many-rules");
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-multi-modules-sample");
+    orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
+    orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "with-many-rules");
+    runProjectAnalysis(orchestrator, "shared/xoo-multi-modules-sample");
 
-    ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY2, PROJECT_KEY2);
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY2, "xoo", "with-many-rules");
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-multi-modules-sample", "sonar.projectKey", PROJECT_KEY2);
+    orchestrator.getServer().provisionProject(PROJECT_KEY2, PROJECT_KEY2);
+    orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY2, "xoo", "with-many-rules");
+    runProjectAnalysis(orchestrator, "shared/xoo-multi-modules-sample", "sonar.projectKey", PROJECT_KEY2);
 
     // Assign a issue to test search by assignee
     adminIssueClient().assign(searchRandomIssue().key(), "admin");
@@ -79,7 +81,7 @@ public class IssueSearchTest extends AbstractIssueTest {
 
   @Before
   public void resetProperties() throws Exception {
-    setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", "false");
+    setServerProperty(orchestrator, "sonar.forceAuthentication", "false");
   }
 
   @Test
@@ -226,18 +228,20 @@ public class IssueSearchTest extends AbstractIssueTest {
    */
   @Test
   public void search_by_exact_creation_date() {
-    final Issue issue = search(IssueQuery.create()).list().get(0);
-    assertThat(issue.creationDate()).isNotNull();
+    final org.sonarqube.ws.Issues.Issue issue = searchIssues(new SearchWsRequest()).getIssuesList().get(0);
+    String formattedCreationDate = issue.getCreationDate();
+    Date creationDate = toDatetime(formattedCreationDate);
+    assertThat(formattedCreationDate).isNotEmpty();
 
     // search the issue key with the same date
-    assertThat(search(IssueQuery.create().issues().issues(issue.key()).createdAt(issue.creationDate())).list()).hasSize(1);
+    assertThat(searchIssues(new SearchWsRequest().setIssues(singletonList(issue.getKey())).setCreatedAt(formattedCreationDate)).getIssuesList()).hasSize(1);
 
     // search issue key with 1 second more and less should return nothing
-    assertThat(search(IssueQuery.create().issues().issues(issue.key()).createdAt(DateUtils.addSeconds(issue.creationDate(), 1))).size()).isEqualTo(0);
-    assertThat(search(IssueQuery.create().issues().issues(issue.key()).createdAt(DateUtils.addSeconds(issue.creationDate(), -1))).size()).isEqualTo(0);
+    assertThat(searchIssues(new SearchWsRequest().setIssues(singletonList(issue.getKey())).setCreatedAt(formatDateTime(addSeconds(creationDate, 1)))).getIssuesList()).hasSize(0);
+    assertThat(searchIssues(new SearchWsRequest().setIssues(singletonList(issue.getKey())).setCreatedAt(formatDateTime(addSeconds(creationDate, -1)))).getIssuesList()).hasSize(0);
 
     // search with future and past dates that do not match any issues
-    assertThat(search(IssueQuery.create().createdAt(toDate("2020-01-01"))).size()).isEqualTo(0);
+    assertThat(search(IssueQuery.create().createdAt(toDate("2030-01-01"))).size()).isEqualTo(0);
     assertThat(search(IssueQuery.create().createdAt(toDate("2010-01-01"))).size()).isEqualTo(0);
   }
 
@@ -270,8 +274,8 @@ public class IssueSearchTest extends AbstractIssueTest {
     return searchIssues(new SearchWsRequest().setRules(asList(ruleKey))).getIssuesList();
   }
 
-  private SearchWsResponse searchIssues(SearchWsRequest request) throws IOException {
-    return newAdminWsClient(ORCHESTRATOR).issues().search(request);
+  private SearchWsResponse searchIssues(SearchWsRequest request) {
+    return newAdminWsClient(orchestrator).issues().search(request);
   }
 
 }

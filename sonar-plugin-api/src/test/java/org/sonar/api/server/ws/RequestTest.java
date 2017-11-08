@@ -472,7 +472,7 @@ public class RequestTest {
   public static Object[][] date_times() {
     return new Object[][]{
       {"2014-05-27", parseDate("2014-05-27")},
-      {"2014-05-27T15:50:45+0100", parseDateTime("2014-05-27T15:50:45+0100")},
+      {"2014-05-27T15:50:45+01:00", parseDateTime("2014-05-27T15:50:45+01:00")},
       {null, null}
     };
   }
@@ -486,7 +486,7 @@ public class RequestTest {
   @Test
   public void fail_when_param_as_date_not_a_date() {
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("The date 'polop' does not respect format 'yyyy-MM-dd'");
+    expectedException.expectMessage("The date 'polop' does not respect the ISO-8901 format");
 
     underTest.setParam("a_date", "polop").paramAsDate("a_date");
   }

@@ -85,7 +85,7 @@ public class JsonAssertTest {
   public void enable_strict_timezone() {
     expectedException.expect(AssertionError.class);
 
-    assertJson("[\"2010-05-18T15:50:45+0100\"]").withStrictTimezone().isSimilarTo("[\"2010-05-18T16:50:45+0200\"]");
+    assertJson("[\"2010-05-18T15:50:45+01:00\"]").withStrictTimezone().isSimilarTo("[\"2010-05-18T16:50:45+02:00\"]");
   }
 
   @Test

@@ -67,7 +67,7 @@ public class ComponentTagsAction implements IssuesWsAction {
     action.createParam(PARAM_CREATED_AFTER)
       .setDescription("To retrieve tags on issues created after the given date (inclusive). <br>" +
         "Either a date (server timezone) or datetime can be provided.")
-      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200");
+      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+02:00");
 
     action.createParam(PAGE_SIZE)
       .setDescription("The maximum size of the list to return")

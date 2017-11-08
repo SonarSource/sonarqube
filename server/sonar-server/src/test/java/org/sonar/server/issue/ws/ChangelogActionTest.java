@@ -265,7 +265,7 @@ public class ChangelogActionTest {
     db.issues().insertFieldDiffs(issueDto, new FieldDiffs()
       .setUserLogin(user.getLogin())
       .setDiff("severity", "MAJOR", "BLOCKER").setCreationDate(new Date())
-      .setCreationDate(DateUtils.parseDateTime("2014-03-04T23:03:44+0100")));
+      .setCreationDate(DateUtils.parseDateTime("2014-03-04T23:03:44+01:00")));
 
     String result = tester.newRequest().setParam("issue", issueDto.getKey()).execute().getInput();
 

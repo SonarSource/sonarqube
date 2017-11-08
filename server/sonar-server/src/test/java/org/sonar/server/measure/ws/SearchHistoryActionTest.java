@@ -397,7 +397,7 @@ public class SearchHistoryActionTest {
   public void json_example() {
     project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
-    long now = parseDateTime("2017-01-23T17:00:53+0100").getTime();
+    long now = parseDateTime("2017-01-23T17:00:53+01:00").getTime();
     LongStream.rangeClosed(0, 2)
       .mapToObj(i -> dbClient.snapshotDao().insert(dbSession, newAnalysis(project).setCreatedAt(now + i * 24 * 1_000 * 60 * 60)))
       .forEach(analysis -> dbClient.measureDao().insert(dbSession,

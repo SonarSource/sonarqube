@@ -30,8 +30,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.UtcDateUtils;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -66,7 +66,7 @@ public class QualityProfileDaoTest {
 
   @Before
   public void before() {
-    when(system.now()).thenReturn(UtcDateUtils.parseDateTime("2014-01-20T12:00:00+0000").getTime());
+    when(system.now()).thenReturn(DateUtils.parseDateTime("2014-01-20T12:00:00+00:00").getTime());
     organization = db.organizations().insertForUuid("QualityProfileDaoTest-ORG");
   }
 

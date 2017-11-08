@@ -91,8 +91,8 @@ public class SearchMyProjectsActionTest {
       new ComponentLinkDto().setComponentUuid(jdk7.uuid()).setHref("http://www.oracle.com").setType(ComponentLinkDto.TYPE_HOME_PAGE).setName("Home"));
     dbClient.componentLinkDao().insert(dbSession,
       new ComponentLinkDto().setComponentUuid(jdk7.uuid()).setHref("http://download.java.net/openjdk/jdk8/").setType(ComponentLinkDto.TYPE_SOURCES).setName("Sources"));
-    long oneTime = DateUtils.parseDateTime("2016-06-10T13:17:53+0000").getTime();
-    long anotherTime = DateUtils.parseDateTime("2016-06-11T14:25:53+0000").getTime();
+    long oneTime = DateUtils.parseDateTime("2016-06-10T13:17:53+00:00").getTime();
+    long anotherTime = DateUtils.parseDateTime("2016-06-11T14:25:53+00:00").getTime();
     SnapshotDto jdk7Snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(jdk7).setCreatedAt(oneTime));
     SnapshotDto cLangSnapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(cLang).setCreatedAt(anotherTime));
     dbClient.measureDao().insert(dbSession, newMeasureDto(alertStatusMetric, jdk7, jdk7Snapshot).setData(Level.ERROR.name()));

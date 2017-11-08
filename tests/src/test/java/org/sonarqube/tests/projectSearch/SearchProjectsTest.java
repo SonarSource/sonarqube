@@ -21,7 +21,6 @@ package org.sonarqube.tests.projectSearch;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category6Suite;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +29,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Organizations.Organization;
@@ -46,8 +46,9 @@ import static util.ItUtils.concat;
 import static util.ItUtils.newProjectKey;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.restoreProfile;
-import static util.ItUtils.sanitizeTimezones;
 import static util.ItUtils.setServerProperty;
+import static util.ItUtils.toDate;
+import static util.ItUtils.toDatetime;
 
 /**
  * Tests WS api/components/search_projects
@@ -121,7 +122,7 @@ public class SearchProjectsTest {
         tuple(projectKey3, false));
     Component project1 = response.getComponentsList().stream().filter(component -> component.getKey().equals(projectKey1)).findFirst()
       .orElseThrow(() -> new IllegalStateException("Project1 is not found"));
-    assertThat(sanitizeTimezones(project1.getLeakPeriodDate())).isEqualTo("2016-12-31T00:00:00+0000");
+    assertThat(toDatetime(project1.getLeakPeriodDate())).isEqualTo(toDate("2016-12-31"));
   }
 
   @Test

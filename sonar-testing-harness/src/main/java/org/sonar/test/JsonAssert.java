@@ -37,7 +37,7 @@ import org.junit.ComparisonFailure;
  *   matches <code>{"one":1}</code></li>
  *   <li>order of elements in arrays <code>[]</code> is not verified by default, for example <code>[1, 2]</code>
  *   matches <code>[2, 1]</code>. This mode can be disabled with {@link #withStrictArrayOrder()}</li>
- *   <li>timezones in datetime values are not strictly verified, for example <code>{"foo": "2015-01-01T13:00:00+2000"}</code>
+ *   <li>timezones in datetime values are not strictly verified, for example <code>{"foo": "2015-01-01T13:00:00+20:00"}</code>
  *   matches <code>{"foo": "2015-01-01T10:00:00-1000"}</code>. This feature can be disabled with
  *   {@link #withStrictTimezone()}
  *   </li>

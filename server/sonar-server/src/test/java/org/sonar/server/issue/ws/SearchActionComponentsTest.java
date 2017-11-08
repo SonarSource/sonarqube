@@ -205,14 +205,14 @@ public class SearchActionComponentsTest {
   public void search_since_leak_period_on_project() throws Exception {
     ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey("PK1"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, null, "F1").setDbKey("FK1"));
-    db.components().insertSnapshot(project, a -> a.setPeriodDate(parseDateTime("2015-09-03T00:00:00+0100").getTime()));
+    db.components().insertSnapshot(project, a -> a.setPeriodDate(parseDateTime("2015-09-03T00:00:00+01:00").getTime()));
     RuleDefinitionDto rule = db.rules().insert(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     IssueDto issueAfterLeak = db.issues().insert(rule, project, file, i -> i.setKee(UUID_EXAMPLE_01)
-      .setIssueCreationDate(parseDateTime("2015-09-04T00:00:00+0100"))
-      .setIssueUpdateDate(parseDateTime("2015-10-04T00:00:00+0100")));
+      .setIssueCreationDate(parseDateTime("2015-09-04T00:00:00+01:00"))
+      .setIssueUpdateDate(parseDateTime("2015-10-04T00:00:00+01:00")));
     IssueDto issueBeforeLeak = db.issues().insert(rule, project, file, i -> i.setKee(UUID_EXAMPLE_02)
-      .setIssueCreationDate(parseDateTime("2014-09-04T00:00:00+0100"))
-      .setIssueUpdateDate(parseDateTime("2015-10-04T00:00:00+0100")));
+      .setIssueCreationDate(parseDateTime("2014-09-04T00:00:00+01:00"))
+      .setIssueUpdateDate(parseDateTime("2015-10-04T00:00:00+01:00")));
     allowAnyoneOnProjects(project);
     indexIssues();
 
@@ -228,14 +228,14 @@ public class SearchActionComponentsTest {
     ComponentDto project = db.components().insertPublicProject(p -> p.setDbKey("PK1"));
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
     ComponentDto file = db.components().insertComponent(newFileDto(module, null, "F1").setDbKey("FK1"));
-    db.components().insertSnapshot(project, a -> a.setPeriodDate(parseDateTime("2015-09-03T00:00:00+0100").getTime()));
+    db.components().insertSnapshot(project, a -> a.setPeriodDate(parseDateTime("2015-09-03T00:00:00+01:00").getTime()));
     RuleDefinitionDto rule = db.rules().insert(r -> r.setRuleKey(RuleKey.of("xoo", "x1")));
     IssueDto issueAfterLeak = db.issues().insert(rule, project, file, i -> i.setKee(UUID_EXAMPLE_01)
-      .setIssueCreationDate(parseDateTime("2015-09-04T00:00:00+0100"))
-      .setIssueUpdateDate(parseDateTime("2015-10-04T00:00:00+0100")));
+      .setIssueCreationDate(parseDateTime("2015-09-04T00:00:00+01:00"))
+      .setIssueUpdateDate(parseDateTime("2015-10-04T00:00:00+01:00")));
     IssueDto issueBeforeLeak = db.issues().insert(rule, project, file, i -> i.setKee(UUID_EXAMPLE_02)
-      .setIssueCreationDate(parseDateTime("2014-09-04T00:00:00+0100"))
-      .setIssueUpdateDate(parseDateTime("2015-10-04T00:00:00+0100")));
+      .setIssueCreationDate(parseDateTime("2014-09-04T00:00:00+01:00"))
+      .setIssueUpdateDate(parseDateTime("2015-10-04T00:00:00+01:00")));
     allowAnyoneOnProjects(project);
     indexIssues();
 

@@ -450,18 +450,18 @@ public class SearchActionTest {
 
   @Test
   public void map_dates() {
-    long time = DateUtils.parseDateTime("2016-12-22T19:10:03+0100").getTime();
+    long time = DateUtils.parseDateTime("2016-12-22T19:10:03+01:00").getTime();
     qualityProfileDb.insert(newQualityProfileDto()
       .setOrganizationUuid(defaultOrganizationProvider.get().getUuid())
       .setLanguage(XOO1.getKey())
-      .setRulesUpdatedAt("2016-12-21T19:10:03+0100")
+      .setRulesUpdatedAt("2016-12-21T19:10:03+01:00")
       .setLastUsed(time)
       .setUserUpdatedAt(time));
 
     SearchWsResponse result = call(ws.newRequest());
 
     assertThat(result.getProfilesCount()).isEqualTo(1);
-    assertThat(result.getProfiles(0).getRulesUpdatedAt()).isEqualTo("2016-12-21T19:10:03+0100");
+    assertThat(result.getProfiles(0).getRulesUpdatedAt()).isEqualTo("2016-12-21T19:10:03+01:00");
     assertThat(parseDateTime(result.getProfiles(0).getLastUsed()).getTime()).isEqualTo(time);
     assertThat(parseDateTime(result.getProfiles(0).getUserUpdatedAt()).getTime()).isEqualTo(time);
   }

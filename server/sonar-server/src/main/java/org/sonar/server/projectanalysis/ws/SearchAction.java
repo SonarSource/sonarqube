@@ -108,7 +108,7 @@ public class SearchAction implements ProjectAnalysesWsAction {
     action.createParam(PARAM_TO)
       .setDescription("Filter analyses created before the given date (inclusive). <br>" +
         "Either a date (server timezone) or datetime can be provided")
-      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+0200")
+      .setExampleValue("2017-10-19 or 2017-10-19T13:00:00+02:00")
       .setSince("6.5");
 
   }

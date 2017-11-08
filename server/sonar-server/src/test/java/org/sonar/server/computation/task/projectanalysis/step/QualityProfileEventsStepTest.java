@@ -185,8 +185,8 @@ public class QualityProfileEventsStepTest {
 
   @Test
   public void changed_event_if_same_qp_but_no_same_date() {
-    QualityProfile qp1 = qp(QP_NAME_1, LANGUAGE_KEY_1, parseDateTime("2011-04-25T01:05:13+0100"));
-    QualityProfile qp2 = qp(QP_NAME_1, LANGUAGE_KEY_1, parseDateTime("2011-04-25T01:05:17+0100"));
+    QualityProfile qp1 = qp(QP_NAME_1, LANGUAGE_KEY_1, parseDateTime("2011-04-25T01:05:13+01:00"));
+    QualityProfile qp2 = qp(QP_NAME_1, LANGUAGE_KEY_1, parseDateTime("2011-04-25T01:05:17+01:00"));
 
     mockMeasures(treeRootHolder.getRoot(), arrayOf(qp1), arrayOf(qp2));
     Language language = mockLanguageInRepository(LANGUAGE_KEY_1);
@@ -197,8 +197,8 @@ public class QualityProfileEventsStepTest {
     verifyNoMoreInteractions(eventRepository);
     verifyEvent(eventArgumentCaptor.getValue(),
       "Changes in '" + qp2.getQpName() + "' (" + language.getName() + ")",
-      "from=" + UtcDateUtils.formatDateTime(parseDateTime("2011-04-25T01:05:14+0100")) + ";key=" + qp1.getQpKey() + ";to="
-        + UtcDateUtils.formatDateTime(parseDateTime("2011-04-25T01:05:18+0100")));
+      "from=" + UtcDateUtils.formatDateTime(parseDateTime("2011-04-25T01:05:14+01:00")) + ";key=" + qp1.getQpKey() + ";to="
+        + UtcDateUtils.formatDateTime(parseDateTime("2011-04-25T01:05:18+01:00")));
   }
 
   @Test
@@ -216,10 +216,10 @@ public class QualityProfileEventsStepTest {
       treeRootHolder.getRoot(), arrayOf(
         qp(QP_NAME_2, LANGUAGE_KEY_1),
         qp(QP_NAME_2, LANGUAGE_KEY_2),
-        qp(QP_NAME_1, LANGUAGE_KEY_1, parseDateTime("2011-04-25T01:05:13+0100"))
+        qp(QP_NAME_1, LANGUAGE_KEY_1, parseDateTime("2011-04-25T01:05:13+01:00"))
       ),
       arrayOf(
-        qp(QP_NAME_1, LANGUAGE_KEY_1, parseDateTime("2011-04-25T01:05:17+0100")),
+        qp(QP_NAME_1, LANGUAGE_KEY_1, parseDateTime("2011-04-25T01:05:17+01:00")),
         qp(QP_NAME_2, LANGUAGE_KEY_2),
         qp(QP_NAME_2, LANGUAGE_KEY_3)
       ));

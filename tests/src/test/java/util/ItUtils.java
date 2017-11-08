@@ -35,8 +35,11 @@ import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -79,6 +82,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.sonar.orchestrator.container.Server.ADMIN_LOGIN;
 import static com.sonar.orchestrator.container.Server.ADMIN_PASSWORD;
 import static java.lang.Double.parseDouble;
+import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Locale.ENGLISH;
@@ -177,7 +181,7 @@ public class ItUtils {
   }
 
   public static String sanitizeTimezones(String s) {
-    return s.replaceAll("[\\+\\-]\\d\\d\\d\\d", "+0000");
+    return s.replaceAll("[+\\-]\\d\\d\\d\\d", "+00:00");
   }
 
   public static JSONObject getJSONReport(BuildResult result) {
@@ -455,31 +459,19 @@ public class ItUtils {
   }
 
   public static Date toDate(String sDate) {
-    try {
-      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-      return sdf.parse(sDate);
-    } catch (ParseException e) {
-      throw new RuntimeException(e);
-    }
+    return Date.from(LocalDate.parse(sDate).atStartOfDay(ZoneId.systemDefault()).toInstant());
   }
 
   public static Date toDatetime(String sDate) {
-    try {
-      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-      return sdf.parse(sDate);
-    } catch (ParseException e) {
-      throw new RuntimeException(e);
-    }
+    return Date.from(OffsetDateTime.parse(sDate, ISO_DATE_TIME).toInstant());
   }
 
   public static String formatDate(Date d) {
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    return sdf.format(d);
+    return new SimpleDateFormat("yyyy-MM-dd").format(d);
   }
 
   public static String formatDateTime(Date d) {
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-    return sdf.format(d);
+    return DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssxxx").format(d.toInstant().atZone(ZoneId.systemDefault()));
   }
 
   public static String extractCeTaskId(BuildResult buildResult) {

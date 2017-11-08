@@ -41,15 +41,15 @@ public class CommonRulesTest extends AbstractIssueTest {
 
   @BeforeClass
   public static void setUp() {
-    ORCHESTRATOR.resetData();
-    ItUtils.restoreProfile(ORCHESTRATOR, CommonRulesTest.class.getResource("/issue/CommonRulesTest/xoo-common-rules-profile.xml"));
-    ORCHESTRATOR.getServer().provisionProject("common-rules-project", "Sample");
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile("common-rules-project", "xoo", "xoo-common-rules");
-    runProjectAnalysis(ORCHESTRATOR, "issue/common-rules",
+    orchestrator.resetData();
+    ItUtils.restoreProfile(orchestrator, CommonRulesTest.class.getResource("/issue/CommonRulesTest/xoo-common-rules-profile.xml"));
+    orchestrator.getServer().provisionProject("common-rules-project", "Sample");
+    orchestrator.getServer().associateProjectToQualityProfile("common-rules-project", "xoo", "xoo-common-rules");
+    runProjectAnalysis(orchestrator, "issue/common-rules",
       "sonar.cpd.xoo.minimumTokens", "2",
       "sonar.cpd.xoo.minimumLines", "2");
 
-    adminWsClient = newAdminWsClient(ORCHESTRATOR);
+    adminWsClient = newAdminWsClient(orchestrator);
   }
 
   @Test

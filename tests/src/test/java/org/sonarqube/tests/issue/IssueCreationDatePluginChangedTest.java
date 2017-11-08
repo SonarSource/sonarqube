@@ -24,10 +24,8 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Callable;
 import javax.mail.MessagingException;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -35,19 +33,22 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.IssueQuery;
 import org.sonarqube.tests.Tester;
+import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
 import org.subethamail.wiser.Wiser;
 import util.ItUtils;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.projectDir;
+import static util.ItUtils.toDatetime;
 import static util.ItUtils.xooPlugin;
 
 /**
@@ -117,7 +118,7 @@ public class IssueCreationDatePluginChangedTest {
   }
 
   @Test
-  public void should_use_scm_date_for_new_issues_if_plugin_updated() throws InterruptedException, MessagingException, IOException {
+  public void should_use_scm_date_for_new_issues_if_plugin_updated() throws Exception {
     ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/IssueCreationDatePluginChangedTest/profile.xml"));
 
     ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_NAME);
@@ -129,11 +130,13 @@ public class IssueCreationDatePluginChangedTest {
       .setProperty("sonar.scm.disabled", "false");
     ORCHESTRATOR.executeBuild(scanner);
 
+    Callable<List<Issues.Issue>> getSampleIssues = () -> newAdminWsClient(ORCHESTRATOR).issues().search(
+      new SearchWsRequest().setComponentKeys(singletonList("creation-date-sample:src/main/xoo/sample/Sample.xoo"))).getIssuesList();
     // Check that issue is backdated to SCM (because it is the first analysis)
-    List<Issue> issues = getIssues(issueQuery().components("creation-date-sample:src/main/xoo/sample/Sample.xoo"));
+    List<Issues.Issue> issues = getSampleIssues.call();
     assertThat(issues)
-      .extracting(Issue::line, Issue::creationDate)
-      .containsExactly(tuple(1, dateTimeParse("2005-01-01T00:00:00+0000")));
+      .extracting(Issues.Issue::getLine, i -> toDatetime(i.getCreationDate()))
+      .containsExactly(tuple(1, toDatetime("2005-01-01T00:00:00+00:00")));
 
     // ensure no notification is sent as all issues are off the leak period
     waitUntilAllNotificationsAreDelivered();
@@ -150,32 +153,16 @@ public class IssueCreationDatePluginChangedTest {
 
     // New analysis that should raise 2 new issues that will be backdated
     ORCHESTRATOR.executeBuild(scanner);
-    issues = getIssues(issueQuery().components("creation-date-sample:src/main/xoo/sample/Sample.xoo"));
+    issues = getSampleIssues.call();
     assertThat(issues)
-      .extracting(Issue::line, Issue::creationDate)
-      .containsExactly(tuple(1, dateTimeParse("2005-01-01T00:00:00+0000")),
-        tuple(2, dateTimeParse("2005-01-01T00:00:00+0000")),
-        tuple(3, dateTimeParse("2005-01-01T00:00:00+0000")));
+      .extracting(Issues.Issue::getLine, i -> toDatetime(i.getCreationDate()))
+      .containsExactly(tuple(1, toDatetime("2005-01-01T00:00:00+00:00")),
+        tuple(2, toDatetime("2005-01-01T00:00:00+00:00")),
+        tuple(3, toDatetime("2005-01-01T00:00:00+00:00")));
 
     // ensure no notification is sent as all issues are off the leak period
     waitUntilAllNotificationsAreDelivered();
     assertThat(smtpServer.getMessages()).isEmpty();
-  }
-
-  private static List<Issue> getIssues(IssueQuery query) {
-    return ORCHESTRATOR.getServer().wsClient().issueClient().find(query).list();
-  }
-
-  private static IssueQuery issueQuery() {
-    return IssueQuery.create().statuses(ISSUE_STATUS_OPEN);
-  }
-
-  private static Date dateTimeParse(String expectedDate) {
-    try {
-      return new SimpleDateFormat(DATETIME_FORMAT).parse(expectedDate);
-    } catch (ParseException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   private static void waitUntilAllNotificationsAreDelivered() throws InterruptedException {

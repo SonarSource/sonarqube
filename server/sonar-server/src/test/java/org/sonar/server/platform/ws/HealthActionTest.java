@@ -167,7 +167,7 @@ public class HealthActionTest {
   public void verify_response_example() {
     authenticateWithRandomMethod();
     when(webServer.isStandalone()).thenReturn(false);
-    long time = parseDateTime("2015-08-13T23:34:59+0200").getTime();
+    long time = parseDateTime("2015-08-13T23:34:59+02:00").getTime();
     when(healthChecker.checkCluster())
       .thenReturn(
         new ClusterHealth(newHealthCheckBuilder()

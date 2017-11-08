@@ -73,6 +73,6 @@ public abstract class AbstractUpdateCenterBasedPluginsWsActionTest {
   @Before
   public void wireMocksTogether() {
     when(updateCenterFactory.getUpdateCenter(anyBoolean())).thenReturn(Optional.of(updateCenter));
-    when(updateCenter.getDate()).thenReturn(DateUtils.parseDateTime("2015-04-24T16:08:36+0200"));
+    when(updateCenter.getDate()).thenReturn(DateUtils.parseDateTime("2015-04-24T16:08:36+02:00"));
   }
 }

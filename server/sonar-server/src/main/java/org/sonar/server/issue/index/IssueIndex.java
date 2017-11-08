@@ -62,7 +62,6 @@ import org.elasticsearch.search.aggregations.metrics.valuecount.InternalValueCou
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.organization.OrganizationDto;
@@ -148,6 +147,7 @@ public class IssueIndex {
   private static final Duration TWENTY_DAYS = Duration.standardDays(20L);
   private static final Duration TWENTY_WEEKS = Duration.standardDays(20L * 7L);
   private static final Duration TWENTY_MONTHS = Duration.standardDays(20L * 30L);
+  private static final String JODA_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZZ";
   private final Sorting sorting;
   private final EsClient client;
   private final System2 system;
@@ -540,11 +540,12 @@ public class IssueIndex {
       .field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
       .dateHistogramInterval(bucketSize)
       .minDocCount(0L)
-      .format(DateUtils.DATETIME_FORMAT)
+      .format(JODA_DATE_TIME_FORMAT)
       .timeZone(DateTimeZone.forOffsetMillis(system.getDefaultTimeZone().getRawOffset()))
       // ES dateHistogram bounds are inclusive while createdBefore parameter is exclusive
       .extendedBounds(new ExtendedBounds(startTime, endTime - 1L));
     addEffortAggregationIfNeeded(query, dateHistogram);
+
     return Optional.of(dateHistogram);
   }
 

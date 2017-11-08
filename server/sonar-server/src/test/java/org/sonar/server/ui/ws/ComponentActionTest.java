@@ -30,7 +30,6 @@ import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.api.web.page.Page;
@@ -70,6 +69,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
+import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.api.web.page.Page.Scope.COMPONENT;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
@@ -210,7 +210,7 @@ public class ComponentActionTest {
     init();
     componentDbTester.insertComponent(project);
     componentDbTester.insertSnapshot(newAnalysis(project)
-      .setCreatedAt(DateUtils.parseDateTime("2015-04-22T11:44:00+0200").getTime())
+      .setCreatedAt(parseDateTime("2015-04-22T11:44:00+02:00").getTime())
       .setVersion("3.14")
       .setLast(true));
     userSession.addProjectPermission(UserRole.USER, project);
@@ -464,7 +464,7 @@ public class ComponentActionTest {
       .setDescription("Open source platform for continuous inspection of code quality");
     componentDbTester.insertComponent(project);
     SnapshotDto analysis = newAnalysis(project)
-      .setCreatedAt(DateUtils.parseDateTime("2016-12-06T11:44:00+0200").getTime())
+      .setCreatedAt(parseDateTime("2016-12-06T11:44:00+02:00").getTime())
       .setVersion("6.3")
       .setLast(true);
     componentDbTester.insertSnapshot(analysis);
@@ -481,6 +481,7 @@ public class ComponentActionTest {
       .addProjectPermission(UserRole.ADMIN, project);
 
     String result = execute(project.getDbKey());
+
     assertJson(result).ignoreFields("snapshotDate", "key", "qualityGate.key").isSimilarTo(ws.getDef().responseExampleAsString());
   }
 

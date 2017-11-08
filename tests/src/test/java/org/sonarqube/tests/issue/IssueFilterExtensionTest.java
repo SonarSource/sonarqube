@@ -38,10 +38,10 @@ import static util.ItUtils.getMeasureAsDouble;
 public class IssueFilterExtensionTest extends AbstractIssueTest {
 
   @Rule
-  public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(ORCHESTRATOR);
+  public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(orchestrator);
 
   @ClassRule
-  public static final IssueRule issueRule = IssueRule.from(ORCHESTRATOR);
+  public static final IssueRule issueRule = IssueRule.from(orchestrator);
 
   private final String manyRuleProfileKey = projectAnalysisRule.registerProfile("/issue/IssueFilterExtensionTest/xoo-with-many-rules.xml");
   private final String xooMultiModuleProjectKey = projectAnalysisRule.registerProject("shared/xoo-multi-modules-sample");
@@ -59,7 +59,7 @@ public class IssueFilterExtensionTest extends AbstractIssueTest {
       assertThat(issue.componentKey()).doesNotContain("HelloA1");
     }
 
-    assertThat(getMeasureAsDouble(ORCHESTRATOR, xooMultiModuleProjectKey, "violations").intValue()).isEqualTo(issues.size());
+    assertThat(getMeasureAsDouble(orchestrator, xooMultiModuleProjectKey, "violations").intValue()).isEqualTo(issues.size());
   }
 
   @Test

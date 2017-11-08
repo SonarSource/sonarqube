@@ -18,7 +18,7 @@
     "issues": [
         {
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
-            "creationDate": "2013-05-01T00:00:00+0200",
+            "creationDate": "2013-05-01T00:00:00+02:00",
             "endLine": 1,
             "isNew": false,
             "key": "<ISSUE_KEY>",
@@ -31,7 +31,7 @@
         },
         {
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
-            "creationDate": "2013-05-01T00:00:00+0200",
+            "creationDate": "2013-05-01T00:00:00+02:00",
             "endLine": 2,
             "isNew": false,
             "key": "<ISSUE_KEY>",
@@ -44,7 +44,7 @@
         },
         {
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
-            "creationDate": "2013-05-01T00:00:00+0200",
+            "creationDate": "2013-05-01T00:00:00+02:00",
             "endLine": 3,
             "isNew": false,
             "key": "<ISSUE_KEY>",
@@ -57,7 +57,7 @@
         },
         {
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
-            "creationDate": "2013-05-01T00:00:00+0200",
+            "creationDate": "2013-05-01T00:00:00+02:00",
             "endLine": 4,
             "isNew": false,
             "key": "<ISSUE_KEY>",
@@ -70,7 +70,7 @@
         },
         {
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
-            "creationDate": "2013-05-01T00:00:00+0200",
+            "creationDate": "2013-05-01T00:00:00+02:00",
             "endLine": 5,
             "isNew": false,
             "key": "<ISSUE_KEY>",
@@ -83,7 +83,7 @@
         },
         {
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
-            "creationDate": "2013-05-01T00:00:00+0200",
+            "creationDate": "2013-05-01T00:00:00+02:00",
             "endLine": 6,
             "isNew": false,
             "key": "<ISSUE_KEY>",
@@ -96,7 +96,7 @@
         },
         {
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
-            "creationDate": "2013-05-01T00:00:00+0200",
+            "creationDate": "2013-05-01T00:00:00+02:00",
             "endLine": 7,
             "isNew": false,
             "key": "<ISSUE_KEY>",
@@ -109,7 +109,7 @@
         },
         {
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
-            "creationDate": "2013-05-01T00:00:00+0200",
+            "creationDate": "2013-05-01T00:00:00+02:00",
             "endLine": 8,
             "isNew": false,
             "key": "<ISSUE_KEY>",
@@ -122,7 +122,7 @@
         },
         {
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
-            "creationDate": "2013-05-01T00:00:00+0200",
+            "creationDate": "2013-05-01T00:00:00+02:00",
             "endLine": 9,
             "isNew": false,
             "key": "<ISSUE_KEY>",
@@ -135,7 +135,7 @@
         },
         {
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
-            "creationDate": "2013-05-01T00:00:00+0200",
+            "creationDate": "2013-05-01T00:00:00+02:00",
             "endLine": 10,
             "isNew": false,
             "key": "<ISSUE_KEY>",
@@ -148,7 +148,7 @@
         },
         {
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
-            "creationDate": "2013-05-01T00:00:00+0200",
+            "creationDate": "2013-05-01T00:00:00+02:00",
             "endLine": 11,
             "isNew": false,
             "key": "<ISSUE_KEY>",
@@ -161,7 +161,7 @@
         },
         {
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
-            "creationDate": "2013-05-01T00:00:00+0200",
+            "creationDate": "2013-05-01T00:00:00+02:00",
             "endLine": 12,
             "isNew": false,
             "key": "<ISSUE_KEY>",
@@ -174,7 +174,7 @@
         },
         {
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
-            "creationDate": "2013-05-01T00:00:00+0200",
+            "creationDate": "2013-05-01T00:00:00+02:00",
             "endLine": 13,
             "isNew": false,
             "key": "<ISSUE_KEY>",
@@ -187,7 +187,7 @@
         },
         {
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
-            "creationDate": "2013-05-01T00:00:00+0200",
+            "creationDate": "2013-05-01T00:00:00+02:00",
             "endLine": 14,
             "isNew": false,
             "key": "<ISSUE_KEY>",
@@ -200,7 +200,7 @@
         },
         {
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
-            "creationDate": "2013-05-01T00:00:00+0200",
+            "creationDate": "2013-05-01T00:00:00+02:00",
             "endLine": 15,
             "isNew": false,
             "key": "<ISSUE_KEY>",
@@ -213,7 +213,7 @@
         },
         {
             "component": "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo",
-            "creationDate": "2013-05-01T00:00:00+0200",
+            "creationDate": "2013-05-01T00:00:00+02:00",
             "endLine": 16,
             "isNew": false,
             "key": "<ISSUE_KEY>",

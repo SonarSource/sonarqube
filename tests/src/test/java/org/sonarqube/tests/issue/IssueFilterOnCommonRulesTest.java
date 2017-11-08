@@ -45,12 +45,12 @@ public class IssueFilterOnCommonRulesTest extends AbstractIssueTest {
 
   @Before
   public void resetData() {
-    ORCHESTRATOR.resetData();
-    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/IssueFilterOnCommonRulesTest/xoo-common-rules-profile.xml"));
-    ORCHESTRATOR.getServer().provisionProject(PROJECT_KEY, "Sample");
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "xoo-common-rules");
+    orchestrator.resetData();
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/issue/IssueFilterOnCommonRulesTest/xoo-common-rules-profile.xml"));
+    orchestrator.getServer().provisionProject(PROJECT_KEY, "Sample");
+    orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "xoo-common-rules");
 
-    adminWsClient = newAdminWsClient(ORCHESTRATOR);
+    adminWsClient = newAdminWsClient(orchestrator);
   }
 
   @Test
@@ -107,8 +107,8 @@ public class IssueFilterOnCommonRulesTest extends AbstractIssueTest {
       "sonar.cpd.xoo.minimumTokens", "2",
       "sonar.cpd.xoo.minimumLines", "2"
     };
-    setServerProperties(ORCHESTRATOR, PROJECT_KEY, (String[]) ArrayUtils.addAll(serverProperties, cpdProperties));
-    runProjectAnalysis(ORCHESTRATOR, PROJECT_DIR);
+    setServerProperties(orchestrator, PROJECT_KEY, (String[]) ArrayUtils.addAll(serverProperties, cpdProperties));
+    runProjectAnalysis(orchestrator, PROJECT_DIR);
   }
 
   private List<Issues.Issue> findIssuesByRuleKey(String ruleKey) {

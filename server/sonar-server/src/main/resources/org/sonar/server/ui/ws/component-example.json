@@ -6,7 +6,7 @@
   "description": "Open source platform for continuous inspection of code quality",
   "isFavorite": true,
   "version": "6.3",
-  "analysisDate": "2016-12-06T11:44:00+0200",
+  "analysisDate": "2016-12-06T11:44:00+02:00",
   "extensions": [
     {
       "key": "my_plugin/first_page",

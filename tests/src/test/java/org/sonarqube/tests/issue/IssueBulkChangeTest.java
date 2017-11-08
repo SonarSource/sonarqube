@@ -55,10 +55,10 @@ public class IssueBulkChangeTest extends AbstractIssueTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @ClassRule
-  public static IssueRule issueRule = IssueRule.from(ORCHESTRATOR);
+  public static IssueRule issueRule = IssueRule.from(orchestrator);
 
   @Rule
-  public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(ORCHESTRATOR);
+  public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(orchestrator);
 
   private IssuesService issuesService;
   private ProjectAnalysis xooSampleLittleIssuesAnalysis;
@@ -69,7 +69,7 @@ public class IssueBulkChangeTest extends AbstractIssueTest {
     String projectKey = projectAnalysisRule.registerProject("shared/xoo-sample");
     this.xooSampleLittleIssuesAnalysis = projectAnalysisRule.newProjectAnalysis(projectKey)
       .withQualityProfile(qualityProfileKey);
-    this.issuesService = newAdminWsClient(ORCHESTRATOR).issues();
+    this.issuesService = newAdminWsClient(orchestrator).issues();
   }
 
   @Test

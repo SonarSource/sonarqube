@@ -34,7 +34,6 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsUserTokens.SearchWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,15 +67,15 @@ public class SearchActionTest {
     logInAsSystemAdministrator();
 
     dbClient.userTokenDao().insert(dbSession, newUserToken()
-      .setCreatedAt(1448523067221L)
+      .setCreatedAt(1448523067000L)
       .setName("Project scan on Travis")
       .setLogin(GRACE_HOPPER));
     dbClient.userTokenDao().insert(dbSession, newUserToken()
-      .setCreatedAt(1438523067221L)
+      .setCreatedAt(1438523067000L)
       .setName("Project scan on AppVeyor")
       .setLogin(GRACE_HOPPER));
     dbClient.userTokenDao().insert(dbSession, newUserToken()
-      .setCreatedAt(1428523067221L)
+      .setCreatedAt(1428523067000L)
       .setName("Project scan on Jenkins")
       .setLogin(GRACE_HOPPER));
     dbClient.userTokenDao().insert(dbSession, newUserToken()

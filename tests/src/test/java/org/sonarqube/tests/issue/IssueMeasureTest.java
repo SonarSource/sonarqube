@@ -38,19 +38,19 @@ public class IssueMeasureTest extends AbstractIssueTest {
 
   @Before
   public void resetData() {
-    ORCHESTRATOR.resetData();
+    orchestrator.resetData();
   }
 
   @Test
   public void issues_by_severity_measures() {
-    ORCHESTRATOR.getServer().provisionProject(MULTI_MODULE_SAMPLE_PROJECT_KEY, MULTI_MODULE_SAMPLE_PROJECT_KEY);
-    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/with-many-rules.xml"));
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(MULTI_MODULE_SAMPLE_PROJECT_KEY, "xoo", "with-many-rules");
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-multi-modules-sample");
+    orchestrator.getServer().provisionProject(MULTI_MODULE_SAMPLE_PROJECT_KEY, MULTI_MODULE_SAMPLE_PROJECT_KEY);
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/issue/with-many-rules.xml"));
+    orchestrator.getServer().associateProjectToQualityProfile(MULTI_MODULE_SAMPLE_PROJECT_KEY, "xoo", "with-many-rules");
+    runProjectAnalysis(orchestrator, "shared/xoo-multi-modules-sample");
 
     assertThat(search(IssueQuery.create().componentRoots(MULTI_MODULE_SAMPLE_PROJECT_KEY)).paging().total()).isEqualTo(136);
 
-    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(ORCHESTRATOR, MULTI_MODULE_SAMPLE_PROJECT_KEY, "violations", "info_violations", "minor_violations",
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(orchestrator, MULTI_MODULE_SAMPLE_PROJECT_KEY, "violations", "info_violations", "minor_violations",
       "major_violations",
       "blocker_violations", "critical_violations");
     assertThat(measures.get("violations")).isEqualTo(136);
@@ -67,10 +67,10 @@ public class IssueMeasureTest extends AbstractIssueTest {
    */
   @Test
   public void issues_by_resolution_and_status_measures() {
-    ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
-    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/one-issue-per-line-profile.xml"));
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "one-issue-per-line-profile");
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
+    orchestrator.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/issue/one-issue-per-line-profile.xml"));
+    orchestrator.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "one-issue-per-line-profile");
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
     List<Issue> issues = searchIssuesByProject(SAMPLE_PROJECT_KEY);
     assertThat(issues).hasSize(17);
@@ -83,9 +83,9 @@ public class IssueMeasureTest extends AbstractIssueTest {
     adminIssueClient().doTransition(issues.get(3).key(), "reopen");
 
     // Re analyze the project to compute measures
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
-    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(ORCHESTRATOR, SAMPLE_PROJECT_KEY, "false_positive_issues", "wont_fix_issues", "open_issues", "reopened_issues",
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(orchestrator, SAMPLE_PROJECT_KEY, "false_positive_issues", "wont_fix_issues", "open_issues", "reopened_issues",
       "confirmed_issues");
     assertThat(measures.get("false_positive_issues")).isEqualTo(1);
     assertThat(measures.get("wont_fix_issues")).isEqualTo(1);
@@ -96,15 +96,15 @@ public class IssueMeasureTest extends AbstractIssueTest {
 
   @Test
   public void no_issue_are_computed_on_empty_profile() {
-    ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
+    orchestrator.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
 
     // no active rules
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "empty");
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
+    orchestrator.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "empty");
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
     assertThat(searchIssuesByProject(SAMPLE_PROJECT_KEY)).isEmpty();
 
-    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(ORCHESTRATOR, SAMPLE_PROJECT_KEY, "violations", "blocker_violations");
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(orchestrator, SAMPLE_PROJECT_KEY, "violations", "blocker_violations");
     assertThat(measures.get("violations")).isEqualTo(0);
     assertThat(measures.get("blocker_violations")).isEqualTo(0);
   }
@@ -117,13 +117,13 @@ public class IssueMeasureTest extends AbstractIssueTest {
     String projectKey = "sample-with-tests";
     String testKey = "sample-with-tests:src/test/xoo/sample/SampleTest.xoo";
 
-    ORCHESTRATOR.getServer().provisionProject(projectKey, projectKey);
-    ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/one-issue-per-file-profile.xml"));
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "xoo", "one-issue-per-file-profile");
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample-with-tests");
+    orchestrator.getServer().provisionProject(projectKey, projectKey);
+    ItUtils.restoreProfile(orchestrator, getClass().getResource("/issue/one-issue-per-file-profile.xml"));
+    orchestrator.getServer().associateProjectToQualityProfile(projectKey, "xoo", "one-issue-per-file-profile");
+    runProjectAnalysis(orchestrator, "shared/xoo-sample-with-tests");
 
     // Store current number of issues
-    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(ORCHESTRATOR, testKey, "violations");
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(orchestrator, testKey, "violations");
     assertThat(measures.get("violations")).isEqualTo(1);
   }
 

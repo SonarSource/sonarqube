@@ -84,7 +84,7 @@ public class ServerIssueStorageTest {
     // override generated key
     comment.setKey("FGHIJ");
 
-    Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
+    Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+00:00");
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setType(RuleType.BUG)
@@ -120,7 +120,7 @@ public class ServerIssueStorageTest {
     // override generated key
     comment.setKey("FGHIJ");
 
-    Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
+    Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+00:00");
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setType(RuleType.BUG)

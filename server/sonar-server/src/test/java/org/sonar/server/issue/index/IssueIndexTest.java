@@ -718,13 +718,13 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setFuncCreationDate(parseDateTime("2014-09-20T00:00:00+0100")),
-      newDoc("I2", file).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")));
+      newDoc("I1", file).setFuncCreationDate(parseDateTime("2014-09-20T00:00:00+01:00")),
+      newDoc("I2", file).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+01:00")));
 
-    assertThatSearchReturnsOnly(IssueQuery.builder().createdAfter(parseDateTime("2014-09-19T23:00:00+0000")).createdBefore(parseDateTime("2014-09-22T23:00:01+0000")),
+    assertThatSearchReturnsOnly(IssueQuery.builder().createdAfter(parseDateTime("2014-09-19T23:00:00+00:00")).createdBefore(parseDateTime("2014-09-22T23:00:01+00:00")),
       "I1", "I2");
 
-    assertThatSearchReturnsEmpty(IssueQuery.builder().createdAfter(parseDateTime("2014-09-19T23:00:01+0000")).createdBefore(parseDateTime("2014-09-22T23:00:00+0000")));
+    assertThatSearchReturnsEmpty(IssueQuery.builder().createdAfter(parseDateTime("2014-09-19T23:00:01+00:00")).createdBefore(parseDateTime("2014-09-22T23:00:00+00:00")));
   }
 
   @Test
@@ -772,8 +772,8 @@ public class IssueIndexTest {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     IssueQuery query = IssueQuery.builder()
-      .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
-      .createdBefore(parseDateTime("2014-09-08T00:00:00+0100"))
+      .createdAfter(parseDateTime("2014-09-01T00:00:00+01:00"))
+      .createdBefore(parseDateTime("2014-09-08T00:00:00+01:00"))
       .checkAuthorization(false)
       .build();
     SearchResponse result = underTest.search(query, options);
@@ -794,8 +794,8 @@ public class IssueIndexTest {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-      .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
-      .createdBefore(parseDateTime("2014-09-21T00:00:00+0100")).build(),
+      .createdAfter(parseDateTime("2014-09-01T00:00:00+01:00"))
+      .createdBefore(parseDateTime("2014-09-21T00:00:00+01:00")).build(),
       options);
     Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -810,8 +810,8 @@ public class IssueIndexTest {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-      .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
-      .createdBefore(parseDateTime("2015-01-19T00:00:00+0100")).build(),
+      .createdAfter(parseDateTime("2014-09-01T00:00:00+01:00"))
+      .createdBefore(parseDateTime("2015-01-19T00:00:00+01:00")).build(),
       options);
     Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -828,8 +828,8 @@ public class IssueIndexTest {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-      .createdAfter(parseDateTime("2011-01-01T00:00:00+0100"))
-      .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
+      .createdAfter(parseDateTime("2011-01-01T00:00:00+01:00"))
+      .createdBefore(parseDateTime("2016-01-01T00:00:00+01:00")).build(),
       options);
     Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -846,8 +846,8 @@ public class IssueIndexTest {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-      .createdAfter(parseDateTime("2014-09-01T00:00:00-0100"))
-      .createdBefore(parseDateTime("2014-09-02T00:00:00-0100")).build(),
+      .createdAfter(parseDateTime("2014-09-01T00:00:00-01:00"))
+      .createdBefore(parseDateTime("2014-09-02T00:00:00-01:00")).build(),
       options);
     Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -859,8 +859,8 @@ public class IssueIndexTest {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-      .createdAfter(parseDateTime("2009-01-01T00:00:00+0100"))
-      .createdBefore(parseDateTime("2016-01-01T00:00:00+0100"))
+      .createdAfter(parseDateTime("2009-01-01T00:00:00+01:00"))
+      .createdBefore(parseDateTime("2016-01-01T00:00:00+01:00"))
       .build(), options);
     Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -879,7 +879,7 @@ public class IssueIndexTest {
     SearchOptions searchOptions = fixtureForCreatedAtFacet();
 
     SearchResponse result = underTest.search(IssueQuery.builder()
-      .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
+      .createdBefore(parseDateTime("2016-01-01T00:00:00+01:00")).build(),
       searchOptions);
     Map<String, Long> createdAt = new Facets(result, system2.getDefaultTimeZone()).get("createdAt");
     assertThat(createdAt).containsOnly(
@@ -903,13 +903,13 @@ public class IssueIndexTest {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
 
-    IssueDoc issue0 = newDoc("ISSUE0", file).setFuncCreationDate(parseDateTime("2011-04-25T00:05:13+0000"));
-    IssueDoc issue1 = newDoc("I1", file).setFuncCreationDate(parseDateTime("2014-09-01T12:34:56+0100"));
-    IssueDoc issue2 = newDoc("I2", file).setFuncCreationDate(parseDateTime("2014-09-01T10:46:00-1200"));
-    IssueDoc issue3 = newDoc("I3", file).setFuncCreationDate(parseDateTime("2014-09-02T23:34:56+1200"));
-    IssueDoc issue4 = newDoc("I4", file).setFuncCreationDate(parseDateTime("2014-09-05T12:34:56+0100"));
-    IssueDoc issue5 = newDoc("I5", file).setFuncCreationDate(parseDateTime("2014-09-20T12:34:56+0100"));
-    IssueDoc issue6 = newDoc("I6", file).setFuncCreationDate(parseDateTime("2015-01-18T12:34:56+0100"));
+    IssueDoc issue0 = newDoc("ISSUE0", file).setFuncCreationDate(parseDateTime("2011-04-25T00:05:13+00:00"));
+    IssueDoc issue1 = newDoc("I1", file).setFuncCreationDate(parseDateTime("2014-09-01T12:34:56+01:00"));
+    IssueDoc issue2 = newDoc("I2", file).setFuncCreationDate(parseDateTime("2014-09-01T10:46:00-12:00"));
+    IssueDoc issue3 = newDoc("I3", file).setFuncCreationDate(parseDateTime("2014-09-02T23:34:56+12:00"));
+    IssueDoc issue4 = newDoc("I4", file).setFuncCreationDate(parseDateTime("2014-09-05T12:34:56+01:00"));
+    IssueDoc issue5 = newDoc("I5", file).setFuncCreationDate(parseDateTime("2014-09-20T12:34:56+01:00"));
+    IssueDoc issue6 = newDoc("I6", file).setFuncCreationDate(parseDateTime("2015-01-18T12:34:56+01:00"));
 
     indexIssues(issue0, issue1, issue2, issue3, issue4, issue5, issue6);
 
@@ -1013,8 +1013,8 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
-      newDoc("I2", file).setFuncCreationDate(parseDateTime("2014-09-24T00:00:00+0100")));
+      newDoc("I1", file).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+01:00")),
+      newDoc("I2", file).setFuncCreationDate(parseDateTime("2014-09-24T00:00:00+01:00")));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CREATION_DATE).asc(true);
     SearchResponse result = underTest.search(query.build(), new SearchOptions());
@@ -1030,8 +1030,8 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setFuncUpdateDate(parseDateTime("2014-09-23T00:00:00+0100")),
-      newDoc("I2", file).setFuncUpdateDate(parseDateTime("2014-09-24T00:00:00+0100")));
+      newDoc("I1", file).setFuncUpdateDate(parseDateTime("2014-09-23T00:00:00+01:00")),
+      newDoc("I2", file).setFuncUpdateDate(parseDateTime("2014-09-24T00:00:00+01:00")));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_UPDATE_DATE).asc(true);
     SearchResponse result = underTest.search(query.build(), new SearchOptions());
@@ -1047,8 +1047,8 @@ public class IssueIndexTest {
     ComponentDto file = newFileDto(project, null);
 
     indexIssues(
-      newDoc("I1", file).setFuncCloseDate(parseDateTime("2014-09-23T00:00:00+0100")),
-      newDoc("I2", file).setFuncCloseDate(parseDateTime("2014-09-24T00:00:00+0100")),
+      newDoc("I1", file).setFuncCloseDate(parseDateTime("2014-09-23T00:00:00+01:00")),
+      newDoc("I2", file).setFuncCloseDate(parseDateTime("2014-09-24T00:00:00+01:00")),
       newDoc("I3", file).setFuncCloseDate(null));
 
     IssueQuery.Builder query = IssueQuery.builder().sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(true);
@@ -1098,19 +1098,19 @@ public class IssueIndexTest {
 
     indexIssues(
       // file F1 from project P1
-      newDoc("F1_1", file1).setLine(20).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
-      newDoc("F1_2", file1).setLine(null).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
-      newDoc("F1_3", file1).setLine(25).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      newDoc("F1_1", file1).setLine(20).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+01:00")),
+      newDoc("F1_2", file1).setLine(null).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+01:00")),
+      newDoc("F1_3", file1).setLine(25).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+01:00")),
 
       // file F2 from project P1
-      newDoc("F2_1", file2).setLine(9).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
-      newDoc("F2_2", file2).setLine(109).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      newDoc("F2_1", file2).setLine(9).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+01:00")),
+      newDoc("F2_2", file2).setLine(109).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+01:00")),
       // two issues on the same line -> sort by key
-      newDoc("F2_3", file2).setLine(109).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      newDoc("F2_3", file2).setLine(109).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+01:00")),
 
       // file F3 from project P2
-      newDoc("F3_1", file3).setLine(20).setFuncCreationDate(parseDateTime("2014-09-24T00:00:00+0100")),
-      newDoc("F3_2", file3).setLine(20).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")));
+      newDoc("F3_1", file3).setLine(20).setFuncCreationDate(parseDateTime("2014-09-24T00:00:00+01:00")),
+      newDoc("F3_2", file3).setLine(20).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+01:00")));
 
     assertThatSearchReturnsOnly(IssueQuery.builder(), "F3_1", "F1_2", "F1_1", "F1_3", "F2_1", "F2_2", "F2_3", "F3_2");
   }

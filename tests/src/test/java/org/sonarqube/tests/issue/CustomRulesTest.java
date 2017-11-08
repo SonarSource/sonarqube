@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CustomRulesTest extends AbstractIssueTest {
 
   @Rule
-  public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(ORCHESTRATOR);
+  public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(orchestrator);
 
   private ProjectAnalysis xooSampleAnalysis;
 
@@ -46,7 +46,7 @@ public class CustomRulesTest extends AbstractIssueTest {
 
   @Test
   public void analyzeProjectWithCustomRules() throws Exception {
-    ORCHESTRATOR.getServer().adminWsClient().post("api/rules/create",
+    orchestrator.getServer().adminWsClient().post("api/rules/create",
       "template_key", "xoo:TemplateRule",
       "custom_key", "MyCustomRule",
       "markdown_description", "My description",

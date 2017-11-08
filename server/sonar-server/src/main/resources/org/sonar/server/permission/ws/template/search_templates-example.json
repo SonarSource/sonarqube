@@ -4,8 +4,8 @@
       "id": "AU-Tpxb--iU5OvuD2FLy",
       "name": "Default template for Projects",
       "description": "Template for new projects",
-      "createdAt": "2001-09-09T03:46:40+0200",
-      "updatedAt": "2001-09-09T03:46:40+0200",
+      "createdAt": "2001-09-09T03:46:40+02:00",
+      "updatedAt": "2001-09-09T03:46:40+02:00",
       "permissions": [
         {
           "key": "admin",
@@ -44,8 +44,8 @@
       "name": "Default template for Views",
       "description": "Template for new views",
       "projectKeyPattern": ".*sonar.views.*",
-      "createdAt": "2001-09-09T03:46:40+0200",
-      "updatedAt": "2004-11-09T12:33:20+0100",
+      "createdAt": "2001-09-09T03:46:40+02:00",
+      "updatedAt": "2004-11-09T12:33:20+01:00",
       "permissions": [
         {
           "key": "admin",

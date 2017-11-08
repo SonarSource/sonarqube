@@ -33,14 +33,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public abstract class AbstractIssueTest {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = Category2Suite.ORCHESTRATOR;
+  public static final Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
 
   static IssueClient adminIssueClient() {
-    return ORCHESTRATOR.getServer().adminWsClient().issueClient();
+    return orchestrator.getServer().adminWsClient().issueClient();
   }
 
   static IssueClient issueClient() {
-    return ORCHESTRATOR.getServer().wsClient().issueClient();
+    return orchestrator.getServer().wsClient().issueClient();
   }
 
   static Issue searchRandomIssue() {

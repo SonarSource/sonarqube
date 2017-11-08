@@ -30,7 +30,7 @@ public class QualityProfileTest {
   private static final String SOME_QP_KEY = "qpKey";
   private static final String SOME_QP_NAME = "qpName";
   private static final String SOME_LANGUAGE_KEY = "languageKey";
-  private static final Date SOME_DATE = DateUtils.parseDateTimeQuietly("2010-05-18T15:50:45+0100");
+  private static final Date SOME_DATE = DateUtils.parseDateTimeQuietly("2010-05-18T15:50:45+01:00");
   private static final QualityProfile QUALITY_PROFILE = new QualityProfile(SOME_QP_KEY, SOME_QP_NAME, SOME_LANGUAGE_KEY, SOME_DATE);
 
   @Test(expected = NullPointerException.class)

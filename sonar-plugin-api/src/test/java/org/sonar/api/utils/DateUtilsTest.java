@@ -22,6 +22,9 @@ package org.sonar.api.utils;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,9 +45,12 @@ public class DateUtilsTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void parseDate_valid_format() {
-    Date date = DateUtils.parseDate("2010-05-18");
-    assertThat(date.getDate()).isEqualTo(18);
+  public void parseDate_valid_formats() {
+    Date expectedDate = DateUtils.parseDateTime("2010-05-18T00:00:00+02:00");
+    assertThat(DateUtils.parseDate("2010-05-18"))
+      .isEqualTo(Date.from(LocalDate.parse("2010-05-18").atStartOfDay(ZoneId.systemDefault()).toOffsetDateTime().toInstant()));
+    assertThat(DateUtils.parseDate("2010-05-18+02:00")).isEqualTo(expectedDate);
+    assertThat(DateUtils.parseDate("2010-05-18+03:00")).isNotEqualTo(expectedDate);
   }
 
   @Test
@@ -74,8 +80,14 @@ public class DateUtilsTest {
 
   @Test
   public void parseDateTime_valid_format() {
-    Date date = DateUtils.parseDateTime("2010-05-18T15:50:45+0100");
-    assertThat(date.getMinutes()).isEqualTo(50);
+    Date expectedDateTime = DateUtils.parseDateTime("2010-05-18T15:50:00+02:00");
+    assertThat(parseDateTime("2010-05-18T15:50:00+02:00")).isEqualTo(expectedDateTime);
+    // UTC timezone
+    assertThat(parseDateTime("2010-05-18T13:50:00+00:00")).isEqualTo(expectedDateTime);
+    // without seconds
+    assertThat(parseDateTime("2010-05-18T15:50+02:00")).isEqualTo(expectedDateTime);
+    // without timezone takes the system default
+    assertThat(parseDateTime("2010-05-18T15:50:00")).isEqualTo(Date.from(LocalDateTime.parse("2010-05-18T15:50:00").atZone(ZoneId.systemDefault()).toInstant()));
   }
 
   @Test
@@ -93,24 +105,24 @@ public class DateUtilsTest {
   @Test
   public void parseDateTimeQuietly() {
     assertThat(DateUtils.parseDateTimeQuietly("2010/05/18 10:55")).isNull();
-    Date date = DateUtils.parseDateTimeQuietly("2010-05-18T15:50:45+0100");
+    Date date = DateUtils.parseDateTimeQuietly("2010-05-18T15:50:45+01:00");
     assertThat(date.getMinutes()).isEqualTo(50);
   }
 
   @Test
-  public void shouldFormatDate() {
+  public void formatDate() {
     assertThat(DateUtils.formatDate(new Date())).startsWith("20");
     assertThat(DateUtils.formatDate(new Date())).hasSize(10);
   }
 
   @Test
-  public void shouldFormatDateTime() {
+  public void formatDateTime() {
     assertThat(DateUtils.formatDateTime(new Date())).startsWith("20");
     assertThat(DateUtils.formatDateTime(new Date()).length()).isGreaterThan(20);
   }
 
   @Test
-  public void shouldFormatDateTime_with_long() {
+  public void formatDateTime_with_long() {
     assertThat(DateUtils.formatDateTime(System.currentTimeMillis())).startsWith("20");
     assertThat(DateUtils.formatDateTime(System.currentTimeMillis()).length()).isGreaterThan(20);
   }
@@ -140,14 +152,16 @@ public class DateUtilsTest {
   public static Object[][] date_times() {
     return new Object[][] {
       {"2014-05-27", parseDate("2014-05-27")},
-      {"2014-05-27T15:50:45+0100", parseDateTime("2014-05-27T15:50:45+0100")},
+      {"2014-05-27T15:00+01:00", parseDateTime("2014-05-27T15:00:00+01:00")},
+      {"2014-05-27T15:00", parseDateTime("2014-05-27T15:00:00")},
+      {"2014-05-27T15:50:45+01:00", parseDateTime("2014-05-27T15:50:45+01:00")},
       {null, null}
     };
   }
 
   @Test
   @UseDataProvider("date_times")
-  public void param_as__date_time(String stringDate, Date expectedDate) {
+  public void param_as_date_time(String stringDate, Date expectedDate) {
     assertThat(parseDateOrDateTime(stringDate)).isEqualTo(expectedDate);
     assertThat(parseStartingDateOrDateTime(stringDate)).isEqualTo(expectedDate);
   }
@@ -156,7 +170,9 @@ public class DateUtilsTest {
   public static Object[][] ending_date_times() {
     return new Object[][] {
       {"2014-05-27", parseDate("2014-05-28")},
-      {"2014-05-27T15:50:45+0100", parseDateTime("2014-05-27T15:50:45+0100")},
+      {"2014-05-27T15:50:45+01:00", parseDateTime("2014-05-27T15:50:45+01:00")},
+      {"2014-05-27T15:50+01:00", parseDateTime("2014-05-27T15:50:00+01:00")},
+      {"2014-05-27", parseDate("2014-05-28")},
       {null, null}
     };
   }

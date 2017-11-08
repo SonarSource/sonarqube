@@ -19,30 +19,44 @@
  */
 package org.sonar.api.utils;
 
+import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAccessor;
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.time.format.DateTimeFormatter.ISO_DATE;
+import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 
 /**
- * Parses and formats <a href="https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html#rfc822timezone">RFC 822</a> dates.
+ * Parses and formats <a href="https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html#ISO_DATE_TIME">ISO-8601</a> dates and date times.
  * This class is thread-safe.
  *
  * @since 2.7
  */
 public final class DateUtils {
+  /**
+   * @deprecated since 7.0
+   */
+  @Deprecated
   public static final String DATE_FORMAT = "yyyy-MM-dd";
+  /**
+   * @deprecated since 7.0
+   */
+  @Deprecated
   public static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZ";
-
-  private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern(DATETIME_FORMAT);
+  private static final String ISO_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ssxxx";
 
   private DateUtils() {
   }
@@ -72,7 +86,7 @@ public final class DateUtils {
    * @since 6.6
    */
   public static String formatDateTime(OffsetDateTime dt) {
-    return DATETIME_FORMATTER.format(dt);
+    return DateTimeFormatter.ofPattern(ISO_DATE_TIME_FORMAT).format(dt);
   }
 
   /**
@@ -95,10 +109,26 @@ public final class DateUtils {
   /**
    * Return a date at the start of day.
    * @param s string in format {@link #DATE_FORMAT}
-   * @throws SonarException when string cannot be parsed
+   * @throws MessageException when string cannot be parsed
    */
   public static Date parseDate(String s) {
-    return Date.from(parseLocalDate(s).atStartOfDay(ZoneId.systemDefault()).toInstant());
+    try {
+      DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+        .append(ISO_DATE)
+        .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
+        .toFormatter();
+
+      TemporalAccessor date = formatter.parseBest(s, OffsetDateTime::from, LocalDate::from);
+      if (date instanceof OffsetDateTime) {
+        return Date.from(((OffsetDateTime) date).toInstant());
+      } else if (date instanceof LocalDate) {
+        return Date.from(((LocalDate) date).atStartOfDay(ZoneId.systemDefault()).toInstant());
+      }
+
+      throw unsupportedIsoDateFormatException(s);
+    } catch (DateTimeException e) {
+      throw unsupportedIsoDateFormatException(s);
+    }
   }
 
   /**
@@ -155,23 +185,34 @@ public final class DateUtils {
   }
 
   /**
-   * @param s string in format {@link #DATETIME_FORMAT}
-   * @throws SonarException when string cannot be parsed
+   * @param s date time in ISO-8601 format. For historical reason, the format {@link #DATETIME_FORMAT} is supported
+   * @throws RuntimeException when string cannot be parsed
    */
   public static Date parseDateTime(String s) {
     return Date.from(parseOffsetDateTime(s).toInstant());
   }
 
   /**
-   * @param s string in format {@link #DATETIME_FORMAT}
-   * @throws SonarException when string cannot be parsed
+   * @param s date time in ISO-8601 format. For historical reason, the format {@link #DATETIME_FORMAT} is supported
+   * @throws RuntimeException when string cannot be parsed
    * @since 6.6
    */
   public static OffsetDateTime parseOffsetDateTime(String s) {
     try {
-      return OffsetDateTime.parse(s, DATETIME_FORMATTER);
+      TemporalAccessor dateTime = ISO_DATE_TIME.parseBest(s, OffsetDateTime::from, LocalDateTime::from);
+      if (dateTime instanceof OffsetDateTime) {
+        return (OffsetDateTime) dateTime;
+      } else if (dateTime instanceof LocalDateTime) {
+        return ((LocalDateTime) dateTime).atZone(ZoneId.systemDefault()).toOffsetDateTime();
+      }
+
+      throw unsupportedIsoDateTimeFormatException(s);
     } catch (DateTimeParseException e) {
-      throw MessageException.of("The date '" + s + "' does not respect format '" + DATETIME_FORMAT + "'", e);
+      try {
+        return OffsetDateTime.parse(s, DateTimeFormatter.ofPattern(DATETIME_FORMAT));
+      } catch (DateTimeParseException e1) {
+        throw unsupportedIsoDateTimeFormatException(s);
+      }
     }
   }
 
@@ -241,7 +282,7 @@ public final class DateUtils {
 
   /**
    * Warning: may rely on default timezone!
-   * @see #parseDateOrDateTime(String) 
+   * @see #parseDateOrDateTime(String)
    */
   @CheckForNull
   public static Date parseStartingDateOrDateTime(@Nullable String stringDate) {
@@ -303,4 +344,11 @@ public final class DateUtils {
     return Date.from(instant);
   }
 
+  private static MessageException unsupportedIsoDateTimeFormatException(String s) {
+    return MessageException.of("The date time '" + s + "' does not respect the ISO-8901 format");
+  }
+
+  private static MessageException unsupportedIsoDateFormatException(String s) {
+    return MessageException.of("The date '" + s + "' does not respect the ISO-8901 format");
+  }
 }

@@ -59,7 +59,7 @@ public class IndexAction implements WsAction {
       .setDefaultValue(ENGLISH.toLanguageTag());
     indexAction.createParam(TS_PARAM)
       .setDescription("Date of the last cache update.")
-      .setExampleValue("2014-06-04T09:31:42+0000");
+      .setExampleValue("2014-06-04T09:31:42+00:00");
   }
 
   @Override
