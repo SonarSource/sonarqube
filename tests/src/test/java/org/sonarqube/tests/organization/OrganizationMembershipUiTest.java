@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.pageobjects.organization.MembersPage;
+import org.sonarqube.qa.util.pageobjects.organization.MembersPage;
 import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.Organizations.Organization;

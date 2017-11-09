@@ -28,9 +28,9 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.pageobjects.BackgroundTaskItem;
-import org.sonarqube.pageobjects.BackgroundTasksPage;
-import org.sonarqube.pageobjects.Navigation;
+import org.sonarqube.qa.util.pageobjects.BackgroundTaskItem;
+import org.sonarqube.qa.util.pageobjects.BackgroundTasksPage;
+import org.sonarqube.qa.util.pageobjects.Navigation;
 import util.user.UserRule;
 
 import static com.codeborne.selenide.CollectionCondition.sizeGreaterThan;

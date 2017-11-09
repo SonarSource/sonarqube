@@ -34,7 +34,7 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.pageobjects.Navigation;
+import org.sonarqube.qa.util.pageobjects.Navigation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonarqube.ws.client.WsRequest.Method.GET;

@@ -29,7 +29,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.pageobjects.Navigation;
+import org.sonarqube.qa.util.pageobjects.Navigation;
 import util.ItUtils;
 
 import static com.codeborne.selenide.Condition.exist;

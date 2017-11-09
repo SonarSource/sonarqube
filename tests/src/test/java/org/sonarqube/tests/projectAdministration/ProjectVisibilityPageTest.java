@@ -31,8 +31,8 @@ import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
 import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
-import org.sonarqube.pageobjects.Navigation;
-import org.sonarqube.pageobjects.ProjectsManagementPage;
+import org.sonarqube.qa.util.pageobjects.Navigation;
+import org.sonarqube.qa.util.pageobjects.ProjectsManagementPage;
 import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;

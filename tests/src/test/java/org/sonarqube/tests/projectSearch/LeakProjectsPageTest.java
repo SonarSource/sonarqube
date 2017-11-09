@@ -33,7 +33,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.Organizations.Organization;
-import org.sonarqube.pageobjects.projects.ProjectsPage;
+import org.sonarqube.qa.util.pageobjects.projects.ProjectsPage;
 
 import static com.codeborne.selenide.WebDriverRunner.url;
 import static java.util.Arrays.asList;

@@ -24,8 +24,8 @@ import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.pageobjects.MarketplacePage;
-import org.sonarqube.pageobjects.Navigation;
+import org.sonarqube.qa.util.pageobjects.MarketplacePage;
+import org.sonarqube.qa.util.pageobjects.Navigation;
 import util.user.UserRule;
 
 import static util.ItUtils.pluginArtifact;

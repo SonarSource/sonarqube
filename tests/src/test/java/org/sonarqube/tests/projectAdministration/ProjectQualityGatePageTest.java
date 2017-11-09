@@ -33,8 +33,8 @@ import org.sonar.wsclient.qualitygate.QualityGateClient;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.qualitygate.SelectWsRequest;
-import org.sonarqube.pageobjects.Navigation;
-import org.sonarqube.pageobjects.ProjectQualityGatePage;
+import org.sonarqube.qa.util.pageobjects.Navigation;
+import org.sonarqube.qa.util.pageobjects.ProjectQualityGatePage;
 
 import static util.ItUtils.newAdminWsClient;
 

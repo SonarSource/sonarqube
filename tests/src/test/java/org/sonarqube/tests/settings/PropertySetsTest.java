@@ -34,8 +34,8 @@ import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.client.setting.SetRequest;
 import org.sonarqube.ws.client.setting.SettingsService;
 import org.sonarqube.ws.client.setting.ValuesRequest;
-import org.sonarqube.pageobjects.Navigation;
-import org.sonarqube.pageobjects.settings.SettingsPage;
+import org.sonarqube.qa.util.pageobjects.Navigation;
+import org.sonarqube.qa.util.pageobjects.settings.SettingsPage;
 import util.user.UserRule;
 
 import static com.google.common.collect.Lists.newArrayList;

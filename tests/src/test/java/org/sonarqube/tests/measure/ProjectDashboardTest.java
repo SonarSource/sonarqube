@@ -30,14 +30,13 @@ import org.junit.Test;
 import org.openqa.selenium.Keys;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.pageobjects.Navigation;
-import org.sonarqube.pageobjects.ProjectDashboardPage;
+import org.sonarqube.qa.util.pageobjects.Navigation;
+import org.sonarqube.qa.util.pageobjects.ProjectDashboardPage;
 import util.user.UserRule;
 
 import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.hasText;
 import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Condition.visible;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 import static util.selenium.Selenese.runSelenese;

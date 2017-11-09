@@ -27,9 +27,9 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.pageobjects.Navigation;
-import org.sonarqube.pageobjects.ProjectActivityPage;
-import org.sonarqube.pageobjects.ProjectAnalysisItem;
+import org.sonarqube.qa.util.pageobjects.Navigation;
+import org.sonarqube.qa.util.pageobjects.ProjectActivityPage;
+import org.sonarqube.qa.util.pageobjects.ProjectAnalysisItem;
 import util.user.UserRule;
 
 import static util.ItUtils.projectDir;

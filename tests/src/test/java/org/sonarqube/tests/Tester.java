@@ -23,7 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.junit.rules.ExternalResource;
-import org.sonarqube.pageobjects.Navigation;
+import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.ws.client.WsClient;
 import util.selenium.Selenese;
 

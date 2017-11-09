@@ -27,8 +27,8 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonarqube.pageobjects.EncryptionPage;
-import org.sonarqube.pageobjects.Navigation;
+import org.sonarqube.qa.util.pageobjects.EncryptionPage;
+import org.sonarqube.qa.util.pageobjects.Navigation;
 import util.user.UserRule;
 
 import static com.codeborne.selenide.Condition.visible;
