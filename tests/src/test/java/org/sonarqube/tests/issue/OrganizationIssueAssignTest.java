@@ -38,7 +38,7 @@ import org.sonarqube.ws.client.issue.BulkChangeRequest;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
-import org.sonarqube.pageobjects.issues.IssuesPage;
+import org.sonarqube.qa.util.pageobjects.issues.IssuesPage;
 import util.issue.IssueRule;
 
 import static java.lang.String.format;

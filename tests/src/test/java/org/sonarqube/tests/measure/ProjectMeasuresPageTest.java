@@ -25,9 +25,9 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.pageobjects.Navigation;
-import org.sonarqube.pageobjects.measures.MeasureContent;
-import org.sonarqube.pageobjects.measures.MeasuresPage;
+import org.sonarqube.qa.util.pageobjects.Navigation;
+import org.sonarqube.qa.util.pageobjects.measures.MeasureContent;
+import org.sonarqube.qa.util.pageobjects.measures.MeasuresPage;
 import org.sonarqube.tests.Category1Suite;
 import org.sonarqube.tests.Tester;
 

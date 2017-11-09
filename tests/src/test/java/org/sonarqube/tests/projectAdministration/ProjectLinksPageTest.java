@@ -34,9 +34,9 @@ import org.sonarqube.ws.WsProjectLinks.CreateWsResponse;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.projectlinks.CreateWsRequest;
 import org.sonarqube.ws.client.projectlinks.DeleteWsRequest;
-import org.sonarqube.pageobjects.Navigation;
-import org.sonarqube.pageobjects.ProjectLinkItem;
-import org.sonarqube.pageobjects.ProjectLinksPage;
+import org.sonarqube.qa.util.pageobjects.Navigation;
+import org.sonarqube.qa.util.pageobjects.ProjectLinkItem;
+import org.sonarqube.qa.util.pageobjects.ProjectLinksPage;
 import util.user.UserRule;
 
 import static com.codeborne.selenide.Condition.hasText;

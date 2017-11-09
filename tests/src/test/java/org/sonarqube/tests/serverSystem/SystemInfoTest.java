@@ -27,7 +27,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.pageobjects.SystemInfoPage;
+import org.sonarqube.qa.util.pageobjects.SystemInfoPage;
 import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.client.GetRequest;

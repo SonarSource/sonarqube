@@ -23,6 +23,7 @@
     <module>sonar-ce</module>
     <module>sonar-plugin-bridge</module>
     <module>sonar-web</module>
+    <module>sonar-qa-util</module>
   </modules>
 
   <profiles>

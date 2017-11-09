@@ -23,7 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.pageobjects.RulesPage;
+import org.sonarqube.qa.util.pageobjects.RulesPage;
 import org.sonarqube.tests.Category2Suite;
 import org.sonarqube.tests.Tester;
 

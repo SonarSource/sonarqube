@@ -36,7 +36,7 @@ import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.organization.UpdateProjectVisibilityWsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
-import org.sonarqube.pageobjects.Navigation;
+import org.sonarqube.qa.util.pageobjects.Navigation;
 import util.ItUtils;
 
 import static java.lang.String.format;
