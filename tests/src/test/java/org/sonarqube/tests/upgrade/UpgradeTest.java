@@ -37,6 +37,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.sonar.wsclient.services.ResourceQuery;
+import org.sonarqube.qa.util.SelenideConfig;
 import org.sonarqube.ws.WsMeasures.Measure;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpConnector;
@@ -268,10 +269,7 @@ public class UpgradeTest {
   }
 
   private static void initSelenide(Orchestrator orchestrator) {
-    String browser = orchestrator.getConfiguration().getString("orchestrator.browser", "firefox");
-    SelenideConfig.INSTANCE
-      .setBrowser(browser)
-      .setBaseUrl(orchestrator.getServer().getUrl());
+    SelenideConfig.configure(orchestrator);
     WebDriverRunner.getWebDriver().manage().deleteAllCookies();
   }
 
