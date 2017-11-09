@@ -17,18 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, IndexRouteProps, RouteComponent } from 'react-router';
+import { RouterState, IndexRouteProps } from 'react-router';
 
 const routes = [
   {
     getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
       import('./UsersAppContainer').then(i => callback(null, { component: i.default }));
-    }
-  },
-  {
-    path: 'old',
-    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./components/UsersAppContainerOld').then(i => callback(null, i.default));
     }
   }
 ];
