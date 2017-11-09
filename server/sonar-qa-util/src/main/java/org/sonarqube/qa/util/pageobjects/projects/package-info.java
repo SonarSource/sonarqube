@@ -17,26 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests;
+@ParametersAreNonnullByDefault
+package org.sonarqube.qa.util.pageobjects.projects;
 
-import org.sonarqube.ws.client.WsClient;
-
-public interface Session {
-
-  WsClient wsClient();
-
-  GroupTester groups();
-
-  OrganizationTester organizations();
-
-  ProjectTester projects();
-
-  QProfileTester qProfiles();
-
-  UserTester users();
-
-  SettingTester settings();
-
-  QGateTester qGates();
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

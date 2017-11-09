@@ -36,7 +36,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.sonarqube.tests.Category3Suite;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.Tester;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;

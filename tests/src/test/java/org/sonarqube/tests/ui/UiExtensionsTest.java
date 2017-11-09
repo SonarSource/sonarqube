@@ -25,11 +25,12 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.openqa.selenium.By;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.WsProjects;
 import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
 import org.sonarqube.ws.client.project.CreateRequest;
 import util.ItUtils;
+import util.selenium.Selenese;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
@@ -46,7 +47,7 @@ public class UiExtensionsTest {
 
   @Test
   public void test_static_files() {
-    tester.runHtmlTests("/ui/UiExtensionsTest/static-files.html");
+    Selenese.runSelenese(orchestrator, "/ui/UiExtensionsTest/static-files.html");
   }
 
   @Test

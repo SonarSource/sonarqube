@@ -35,7 +35,7 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.sonarqube.tests.Elasticsearch;
+import org.sonarqube.qa.util.Elasticsearch;
 import org.sonarqube.ws.WsSystem;
 import org.sonarqube.ws.client.WsClient;
 

@@ -49,11 +49,10 @@ public class ProjectDashboardPage {
 
   public SelenideElement getOverviewMeasure(String measure) {
     ElementsCollection measures = Selenide.$$(".overview-domain-measure");
-    SelenideElement element = measures.find(Condition.text(measure)).shouldBe(Condition.visible);
-    return element;
+    return measures.find(Condition.text(measure)).shouldBe(Condition.visible);
   }
 
-  private SelenideElement getTagsMeta() {
+  private static SelenideElement getTagsMeta() {
     SelenideElement element = Selenide.$(".overview-meta-tags");
     element.shouldBe(Condition.visible);
     return element;
@@ -61,38 +60,38 @@ public class ProjectDashboardPage {
 
   public ProjectDashboardPage shouldHaveTags(String... tags) {
     String tagsList = String.join(", ", Arrays.asList(tags));
-    this.getTagsMeta().$(".tags-list > span").should(Condition.hasText(tagsList));
+    getTagsMeta().$(".tags-list > span").should(Condition.text(tagsList));
     return this;
   }
 
   public ProjectDashboardPage shouldNotBeEditable() {
-    SelenideElement tagsElem = this.getTagsMeta();
+    SelenideElement tagsElem = getTagsMeta();
     tagsElem.$("button").shouldNot(Condition.exist);
     tagsElem.$("div.multi-select").shouldNot(Condition.exist);
     return this;
   }
 
   public ProjectDashboardPage shouldBeEditable() {
-    SelenideElement tagsElem = this.getTagsMeta();
+    SelenideElement tagsElem = getTagsMeta();
     tagsElem.$("button").shouldBe(Condition.visible);
     return this;
   }
 
   public ProjectDashboardPage openTagEditor() {
-    SelenideElement tagsElem = this.getTagsMeta();
+    SelenideElement tagsElem = getTagsMeta();
     tagsElem.$("button").shouldBe(Condition.visible).click();
     tagsElem.$("div.multi-select").shouldBe(Condition.visible);
     return this;
   }
 
   public SelenideElement getTagAtIdx(Integer idx) {
-    SelenideElement tagsElem = this.getTagsMeta();
+    SelenideElement tagsElem = getTagsMeta();
     tagsElem.$("div.multi-select").shouldBe(Condition.visible);
     return tagsElem.$$("ul.menu a").get(idx);
   }
 
   public ProjectDashboardPage sendKeysToTagsInput(CharSequence... charSequences) {
-    SelenideElement tagsInput = this.getTagsMeta().find("input");
+    SelenideElement tagsInput = getTagsMeta().find("input");
     tagsInput.sendKeys(charSequences);
     return this;
   }

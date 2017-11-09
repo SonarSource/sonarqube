@@ -28,9 +28,9 @@ import java.util.function.Predicate;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.tests.QProfileTester;
-import org.sonarqube.tests.Session;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.QProfileTester;
+import org.sonarqube.qa.util.TesterSession;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.QualityProfiles.CreateWsResponse.QualityProfile;
@@ -188,7 +188,7 @@ public class CustomQualityProfilesTest {
     Organization org = tester.organizations().generate();
     QualityProfile profile = tester.qProfiles().createXooProfile(org);
 
-    Session anonymousSession = tester.asAnonymous();
+    TesterSession anonymousSession = tester.asAnonymous();
 
     expectUnauthorizedError(() -> anonymousSession.qProfiles().createXooProfile(org));
     expectUnauthorizedError(() -> anonymousSession.qProfiles().service().delete(profile.getKey()));
@@ -201,7 +201,7 @@ public class CustomQualityProfilesTest {
     Organization org = tester.organizations().generate();
 
     User orgAdmin = tester.users().generateAdministrator(org);
-    Session adminSession = tester.as(orgAdmin.getLogin());
+    TesterSession adminSession = tester.as(orgAdmin.getLogin());
     QualityProfile profile = adminSession.qProfiles().createXooProfile(org);
 
     // root can activate rule and delete the profile
@@ -217,7 +217,7 @@ public class CustomQualityProfilesTest {
     Organization org = tester.organizations().generate();
     User user = tester.users().generateAdministrator(org);
 
-    Session adminSession = tester.as(user.getLogin());
+    TesterSession adminSession = tester.as(user.getLogin());
     QualityProfile parentProfile = adminSession.qProfiles().createXooProfile(org);
     QualityProfile inheritedProfile = adminSession.qProfiles().service().create(
       CreateRequest.builder()
@@ -250,7 +250,7 @@ public class CustomQualityProfilesTest {
     Organization org = tester.organizations().generate();
     User admin = tester.users().generateAdministrator(org);
 
-    Session adminSession = tester.as(admin.getLogin());
+    TesterSession adminSession = tester.as(admin.getLogin());
 
     String projectKey = randomAlphanumeric(10);
     String projectName = randomAlphanumeric(10);
@@ -286,7 +286,7 @@ public class CustomQualityProfilesTest {
     User admin = tester.users().generateAdministrator(org);
     String projectKey = randomAlphanumeric(10);
     String projectName = randomAlphanumeric(10);
-    Session adminSession = tester.as(admin.getLogin());
+    TesterSession adminSession = tester.as(admin.getLogin());
     QualityProfile newXooProfile = adminSession.qProfiles().createXooProfile(org);
 
     adminSession.wsClient().wsConnector().call(new PostRequest("api/projects/create")

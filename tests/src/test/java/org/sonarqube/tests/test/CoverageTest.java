@@ -32,7 +32,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.Tester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.getMeasuresAsDoubleByMetricKey;

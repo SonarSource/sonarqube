@@ -29,7 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.pageobjects.SystemInfoPage;
 import org.sonarqube.tests.Category4Suite;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import util.ItUtils;

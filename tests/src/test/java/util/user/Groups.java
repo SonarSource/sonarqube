@@ -21,9 +21,10 @@ package util.user;
 
 import com.google.gson.Gson;
 import java.util.List;
+import org.sonarqube.qa.util.Tester;
 
 /**
- * @deprecated replaced by {@link org.sonarqube.tests.Tester}
+ * @deprecated replaced by {@link Tester}
  */
 @Deprecated
 

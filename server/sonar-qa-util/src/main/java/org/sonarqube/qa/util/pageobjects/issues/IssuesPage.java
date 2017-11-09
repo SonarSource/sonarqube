@@ -32,14 +32,6 @@ public class IssuesPage {
     Selenide.$(".issues").should(Condition.exist);
   }
 
-  private ElementsCollection getIssuesElements() {
-    return Selenide.$$(".issues .issue");
-  }
-
-  private ElementsCollection getIssuesPathComponents() {
-    return Selenide.$$(".issues-workspace-list-component");
-  }
-
   public List<Issue> getIssues() {
     return getIssuesElements()
       .stream()
@@ -48,7 +40,7 @@ public class IssuesPage {
   }
 
   public IssuesPage issuesCount(Integer count) {
-    this.getIssuesElements().shouldHaveSize(count);
+    getIssuesElements().shouldHaveSize(count);
     return this;
   }
 
@@ -58,12 +50,12 @@ public class IssuesPage {
   }
 
   public IssuesPage componentsShouldContain(String path) {
-    this.getIssuesPathComponents().forEach(element -> element.shouldHave(Condition.text(path)));
+    getIssuesPathComponents().forEach(element -> element.shouldHave(Condition.text(path)));
     return this;
   }
 
   public IssuesPage componentsShouldNotContain(String path) {
-    this.getIssuesPathComponents().forEach(element -> element.shouldNotHave(Condition.text(path)));
+    getIssuesPathComponents().forEach(element -> element.shouldNotHave(Condition.text(path)));
     return this;
   }
 
@@ -78,5 +70,13 @@ public class IssuesPage {
     Selenide.$$("#issues-bulk-change-assignee .Select-option").shouldHaveSize(count);
     Selenide.$("#issues-bulk-change-assignee .Select-input input").pressEscape();
     return this;
+  }
+
+  private static ElementsCollection getIssuesElements() {
+    return Selenide.$$(".issues .issue");
+  }
+
+  private static ElementsCollection getIssuesPathComponents() {
+    return Selenide.$$(".issues-workspace-list-component");
   }
 }

@@ -54,7 +54,7 @@ public class MarketplacePage {
     return this;
   }
 
-  private SelenideElement getPlugin(String name) {
+  private static SelenideElement getPlugin(String name) {
     return Selenide.$$(".js-plugin-name").findBy(Condition.text(name)).should(Condition.exist).parent().parent().parent();
   }
 }

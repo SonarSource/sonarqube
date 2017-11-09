@@ -110,7 +110,7 @@ public class ProjectsPage {
     return this;
   }
 
-  private SelenideElement getOpenTopBar() {
+  private static SelenideElement getOpenTopBar() {
     return Selenide.$(".projects-topbar-items").should(Condition.exist);
   }
 }

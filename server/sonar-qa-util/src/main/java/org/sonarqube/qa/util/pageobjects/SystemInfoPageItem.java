@@ -26,8 +26,8 @@ public class SystemInfoPageItem {
   private final SelenideElement elt;
 
   public SystemInfoPageItem(SelenideElement elt) {
-      this.elt = elt;
-    }
+    this.elt = elt;
+  }
 
   public SystemInfoPageItem shouldHaveHealth() {
     elt.$(".system-info-health-info .status-indicator").should(Condition.exist);
@@ -72,7 +72,7 @@ public class SystemInfoPageItem {
   }
 
   public SystemInfoPageItem ensureOpen() {
-    if(!isOpen()) {
+    if (!isOpen()) {
       elt.click();
       elt.$(".boxed-group-inner").should(Condition.exist);
     }

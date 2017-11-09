@@ -77,8 +77,8 @@ public class ProjectKeyPage {
 
   public ProjectKeyPage assertBulkChangeSimulationResult(String oldKey, String newKey) {
     SelenideElement row = Selenide.$("#bulk-update-results").$("[data-key=\"" + oldKey + "\"]");
-    row.$(".js-old-key").should(Condition.hasText(oldKey));
-    row.$(".js-new-key").should(Condition.hasText(newKey));
+    row.$(".js-old-key").should(Condition.text(oldKey));
+    row.$(".js-new-key").should(Condition.text(newKey));
     return this;
   }
 

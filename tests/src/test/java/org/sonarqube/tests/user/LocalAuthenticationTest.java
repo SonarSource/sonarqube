@@ -26,10 +26,10 @@ import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.LoginPage;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.tests.Category4Suite;
-import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.WsUserTokens;
 import org.sonarqube.ws.WsUsers;
 import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
@@ -44,6 +44,7 @@ import org.sonarqube.ws.client.usertoken.GenerateWsRequest;
 import org.sonarqube.ws.client.usertoken.RevokeWsRequest;
 import org.sonarqube.ws.client.usertoken.SearchWsRequest;
 import org.sonarqube.ws.client.usertoken.UserTokensService;
+import util.selenium.Selenese;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -162,7 +163,7 @@ public class LocalAuthenticationTest {
   public void test_authentication_in_ui() {
     tester.users().generate(u -> u.setLogin("simple-user").setPassword("password"));
     tester.users().generateAdministrator(u -> u.setLogin("admin-user").setPassword("admin-user"));
-    tester.runHtmlTests(
+    Selenese.runSelenese(orchestrator,
       "/user/LocalAuthenticationTest/login_successful.html",
       "/user/LocalAuthenticationTest/login_wrong_password.html",
       "/user/LocalAuthenticationTest/should_not_be_unlogged_when_going_to_login_page.html");
@@ -172,8 +173,8 @@ public class LocalAuthenticationTest {
   public void test_authentication_redirects_in_ui() {
     tester.users().generate(u -> u.setLogin("simple-user").setPassword("password"));
     tester.users().generateAdministrator(u -> u.setLogin("admin-user").setPassword("admin-user"));
-    tester.runHtmlTests(
-    "/user/LocalAuthenticationTest/redirect_to_login_when_not_enough_privilege.html",
+    Selenese.runSelenese(orchestrator,
+      "/user/LocalAuthenticationTest/redirect_to_login_when_not_enough_privilege.html",
       // SONAR-2132
       "/user/LocalAuthenticationTest/redirect_to_original_url_after_direct_login.html",
       "/user/LocalAuthenticationTest/redirect_to_original_url_with_parameters_after_direct_login.html",
@@ -187,7 +188,7 @@ public class LocalAuthenticationTest {
     tester.users().generateAdministrator(u -> u.setLogin("admin-user").setPassword("admin-user"));
     setServerProperty(orchestrator, "sonar.forceAuthentication", "true");
 
-    tester.runHtmlTests(
+    Selenese.runSelenese(orchestrator,
       // SONAR-3473
       "/user/LocalAuthenticationTest/force-authentication.html");
   }

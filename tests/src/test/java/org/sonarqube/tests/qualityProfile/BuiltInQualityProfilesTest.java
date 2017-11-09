@@ -25,8 +25,8 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.tests.Category6Suite;
-import org.sonarqube.tests.Session;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.TesterSession;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.QualityProfiles.CreateWsResponse;
@@ -110,7 +110,7 @@ public class BuiltInQualityProfilesTest {
     Organization org = tester.organizations().generate();
     User administrator = tester.users().generateAdministrator(org);
     QualityProfile builtInProfile = getProfile(org, p -> p.getIsBuiltIn() && "Basic".equals(p.getName()) && "xoo".equals(p.getLanguage()));
-    Session adminSession = tester.as(administrator.getLogin());
+    TesterSession adminSession = tester.as(administrator.getLogin());
 
     QualityProfiles.CopyWsResponse copyResponse = adminSession.qProfiles().service().copy(new CopyRequest(builtInProfile.getKey(), "My copy"));
 
@@ -132,7 +132,7 @@ public class BuiltInQualityProfilesTest {
     Organization org = tester.organizations().generate();
     User administrator = tester.users().generateAdministrator(org);
     QualityProfile builtInProfile = getProfile(org, p -> p.getIsBuiltIn() && "Basic".equals(p.getName()) && "xoo".equals(p.getLanguage()));
-    Session adminSession = tester.as(administrator.getLogin());
+    TesterSession adminSession = tester.as(administrator.getLogin());
 
     QualityProfiles.CopyWsResponse copyResponse = adminSession.qProfiles().service().copy(new CopyRequest(builtInProfile.getKey(), "My copy"));
     adminSession.qProfiles().service().changeParent(

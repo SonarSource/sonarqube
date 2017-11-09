@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests;
+package org.sonarqube.qa.util;
 
 import java.util.List;
 import java.util.Set;
@@ -40,9 +40,9 @@ public class GroupTester {
 
   private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
 
-  private final Session session;
+  private final TesterSession session;
 
-  GroupTester(Session session) {
+  GroupTester(TesterSession session) {
     this.session = session;
   }
 

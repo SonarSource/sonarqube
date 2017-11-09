@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests;
+package org.sonarqube.qa.util;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -134,9 +134,9 @@ public class LogsTailer implements AutoCloseable {
 
     private Watch(String expectedText) {
       this.expectedText = requireNonNull(expectedText);
-      this.consumer = log -> {
-        if (log.contains(this.expectedText)) {
-          this.log = log;
+      this.consumer = l -> {
+        if (l.contains(this.expectedText)) {
+          this.log = l;
           foundSignal.countDown();
         }
       };

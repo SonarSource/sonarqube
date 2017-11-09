@@ -17,30 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.sourceCode;
+package org.sonarqube.qa.util;
 
-import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category1Suite;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.sonarqube.qa.util.Tester;
-import util.selenium.Selenese;
+import org.sonarqube.ws.client.WsClient;
 
-import static util.ItUtils.runProjectAnalysis;
+public interface TesterSession {
 
-public class EncodingTest {
+  WsClient wsClient();
 
-  @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  GroupTester groups();
 
-  @Rule
-  public Tester tester = new Tester(orchestrator).disableOrganizations();
+  OrganizationTester organizations();
 
-  @Test
-  public void support_japanese_charset() {
-    runProjectAnalysis(orchestrator, "sourceCode/japanese-charset", "sonar.sourceEncoding", "Shift_JIS");
+  ProjectTester projects();
 
-    Selenese.runSelenese(orchestrator, "/sourceCode/EncodingTest/japanese_sources.html");
-  }
+  QProfileTester qProfiles();
+
+  UserTester users();
+
+  SettingTester settings();
+
+  QGateTester qGates();
+
 }

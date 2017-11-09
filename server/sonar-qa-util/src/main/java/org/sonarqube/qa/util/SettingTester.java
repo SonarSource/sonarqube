@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests;
+package org.sonarqube.qa.util;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.List;
@@ -31,16 +31,14 @@ import org.sonarqube.ws.client.setting.ResetRequest;
 import org.sonarqube.ws.client.setting.SetRequest;
 import org.sonarqube.ws.client.setting.SettingsService;
 
-import static org.sonarqube.ws.Settings.Type.LICENSE;
-
 public class SettingTester {
 
   private static final Set<String> EMAIL_SETTINGS = ImmutableSet.of("email.smtp_host.secured", "email.smtp_port.secured", "email.smtp_secure_connection.secured",
     "email.smtp_username.secured", "email.smtp_password.secured", "email.from", "email.prefix");
 
-  private final Session session;
+  private final TesterSession session;
 
-  SettingTester(Session session) {
+  SettingTester(TesterSession session) {
     this.session = session;
   }
 
@@ -52,7 +50,7 @@ public class SettingTester {
     List<String> settingKeys = Stream.concat(
       session.wsClient().settings().listDefinitions(ListDefinitionsRequest.builder().build()).getDefinitionsList()
         .stream()
-        .filter(def -> def.getType() != LICENSE)
+        .filter(def -> def.getType() != Settings.Type.LICENSE)
         .map(Settings.Definition::getKey),
       EMAIL_SETTINGS.stream())
       .collect(Collectors.toList());

@@ -20,11 +20,12 @@
 package org.sonarqube.tests.sourceCode;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category1Suite;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.Tester;
+import org.sonarqube.tests.Category1Suite;
+import util.selenium.Selenese;
 
 import static util.ItUtils.runProjectAnalysis;
 
@@ -41,10 +42,10 @@ public class HighlightingTest {
     runProjectAnalysis(orchestrator, "highlighting/xoo-sample-with-highlighting-v2");
 
     // SONAR-3893 & SONAR-4247
-    tester.runHtmlTests("/sourceCode/HighlightingTest/syntax-highlighting.html");
+    Selenese.runSelenese(orchestrator, "/sourceCode/HighlightingTest/syntax-highlighting.html");
 
     // SONAR-4249 & SONAR-4250
-    tester.runHtmlTests("/sourceCode/HighlightingTest/symbol-usages-highlighting.html");
+    Selenese.runSelenese(orchestrator, "/sourceCode/HighlightingTest/symbol-usages-highlighting.html");
   }
 
   // Check that E/S index is updated when file content is unchanged but plugin generates different syntax/symbol highlighting
@@ -52,11 +53,11 @@ public class HighlightingTest {
   public void update_highlighting_even_when_code_unchanged() {
     runProjectAnalysis(orchestrator, "highlighting/xoo-sample-with-highlighting-v1");
 
-    tester.runHtmlTests("/sourceCode/HighlightingTest/syntax-highlighting-v1.html");
+    Selenese.runSelenese(orchestrator, "/sourceCode/HighlightingTest/syntax-highlighting-v1.html");
 
     runProjectAnalysis(orchestrator, "highlighting/xoo-sample-with-highlighting-v2");
 
-    tester.runHtmlTests("/sourceCode/HighlightingTest/syntax-highlighting-v2.html");
-    tester.runHtmlTests("/sourceCode/HighlightingTest/symbol-usages-highlighting.html");
+    Selenese.runSelenese(orchestrator, "/sourceCode/HighlightingTest/syntax-highlighting-v2.html");
+    Selenese.runSelenese(orchestrator, "/sourceCode/HighlightingTest/symbol-usages-highlighting.html");
   }
 }

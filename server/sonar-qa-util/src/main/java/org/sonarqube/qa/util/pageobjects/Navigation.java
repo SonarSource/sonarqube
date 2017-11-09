@@ -164,7 +164,7 @@ public class Navigation {
   }
 
   public SettingsPage openSettings(@Nullable String projectKey) throws UnsupportedEncodingException {
-    String url = projectKey != null ? "/project/settings?id=" + URLEncoder.encode(projectKey, "UTF-8") : "/settings";
+    String url = projectKey != null ? ("/project/settings?id=" + URLEncoder.encode(projectKey, "UTF-8")) : "/settings";
     return open(url, SettingsPage.class);
   }
 
@@ -249,11 +249,11 @@ public class Navigation {
     return Selenide.$("#error");
   }
 
-  private SelenideElement logInLink() {
+  private static SelenideElement logInLink() {
     return Selenide.$(By.linkText("Log in"));
   }
 
-  private SelenideElement loggedInDropdown() {
+  private static SelenideElement loggedInDropdown() {
     return Selenide.$(".js-user-authenticated");
   }
 

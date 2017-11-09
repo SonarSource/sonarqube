@@ -17,11 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests;
+package org.sonarqube.qa.util;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import org.assertj.core.api.Assertions;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.QualityProfiles.CreateWsResponse.QualityProfile;
@@ -42,9 +43,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class QProfileTester {
   private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
 
-  private final Session session;
+  private final TesterSession session;
 
-  QProfileTester(Session session) {
+  QProfileTester(TesterSession session) {
     this.session = session;
   }
 
@@ -104,12 +105,12 @@ public class QProfileTester {
       Rules.SearchResponse response = session.wsClient().rules().search(request);
 
       // assume that expectedActiveRules fits in first page of results
-      assertThat(response.getRulesCount()).isEqualTo(expectedActiveRules);
-      assertThat(response.getTotal()).isEqualTo(expectedActiveRules);
-      assertThat(response.getActives().getActives()).as(response.toString()).hasSize(expectedActiveRules);
+      Assertions.assertThat(response.getRulesCount()).isEqualTo(expectedActiveRules);
+      Assertions.assertThat(response.getTotal()).isEqualTo(expectedActiveRules);
+      Assertions.assertThat(response.getActives().getActives()).as(response.toString()).hasSize(expectedActiveRules);
 
       // verify facets
-      assertThat(response.getFacets().getFacetsCount()).isEqualTo(facetIds.size());
+      Assertions.assertThat(response.getFacets().getFacetsCount()).isEqualTo(facetIds.size());
       response.getFacets().getFacetsList().forEach(facet -> {
         long total = facet.getValuesList().stream()
           .mapToLong(Common.FacetValue::getCount)

@@ -30,7 +30,7 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.tests.Category6Suite;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.WsPermissions.CreateTemplateWsResponse;

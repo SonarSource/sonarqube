@@ -35,7 +35,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.sonarqube.tests.Category4Suite;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.ProjectAnalyses;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.SearchHistoryResponse.HistoryValue;

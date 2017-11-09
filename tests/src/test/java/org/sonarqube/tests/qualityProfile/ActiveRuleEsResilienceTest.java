@@ -30,7 +30,7 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.tests.Byteman;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.QualityProfiles;
 import org.sonarqube.ws.client.rule.SearchWsRequest;

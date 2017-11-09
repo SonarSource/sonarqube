@@ -43,8 +43,8 @@ import org.sonar.wsclient.qualitygate.NewCondition;
 import org.sonar.wsclient.qualitygate.QualityGate;
 import org.sonar.wsclient.qualitygate.QualityGateClient;
 import org.sonarqube.tests.Category1Suite;
-import org.sonarqube.tests.Session;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.TesterSession;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.WsCe;
@@ -293,7 +293,7 @@ public class QualityGateTest {
     Organization organization = tester.organizations().getDefaultOrganization();
     WsUsers.CreateWsResponse.User user = tester.users().generateMember(organization);
     tester.wsClient().permissions().addUser(new AddUserWsRequest().setLogin(user.getLogin()).setPermission("gateadmin").setOrganization(organization.getKey()));
-    Session qGateAdminTester = tester.as(user.getLogin());
+    TesterSession qGateAdminTester = tester.as(user.getLogin());
     QualityGatesService qGateService = qGateAdminTester.qGates().service();
     // perform administration operations
     WsQualityGates.CreateWsResponse qualityGate = qGateAdminTester.qGates().generate();

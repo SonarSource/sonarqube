@@ -25,8 +25,8 @@ import java.sql.SQLException;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.tests.Session;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.TesterSession;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.WsRoot;
 import org.sonarqube.ws.WsUsers;
 import util.user.UserRule;
@@ -69,8 +69,8 @@ public class RootUserOnOrganizationTest {
   public void root_can_be_set_and_unset_via_web_services() {
     WsUsers.CreateWsResponse.User user1 = tester.users().generate();
     WsUsers.CreateWsResponse.User user2 = tester.users().generate();
-    Session user1Session = tester.as(user1.getLogin());
-    Session user2Session = tester.as(user2.getLogin());
+    TesterSession user1Session = tester.as(user1.getLogin());
+    TesterSession user2Session = tester.as(user2.getLogin());
 
     // non root can not set or unset root another user not itself
     expectForbiddenError(() -> user1Session.wsClient().roots().setRoot(user2.getLogin()));

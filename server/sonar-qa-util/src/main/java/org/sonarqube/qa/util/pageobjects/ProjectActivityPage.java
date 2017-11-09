@@ -54,7 +54,7 @@ public class ProjectActivityPage {
     Selenide.$("#project-activity")
       .find(".project-activity-day[data-day=\"" + day + "\"]")
       .find(".project-activity-analysis")
-      .should(Condition.hasText(text));
+      .should(Condition.text(text));
     return this;
   }
 }

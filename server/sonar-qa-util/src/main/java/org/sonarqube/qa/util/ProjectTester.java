@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests;
+package org.sonarqube.qa.util;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -36,17 +36,16 @@ public class ProjectTester {
 
   private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
 
-  private final Session session;
+  private final TesterSession session;
 
-  ProjectTester(Session session) {
+  ProjectTester(TesterSession session) {
     this.session = session;
   }
 
   void deleteAll() {
     ProjectsService service = session.wsClient().projects();
-    service.search(SearchWsRequest.builder().setQualifiers(singletonList("TRK")).build()).getComponentsList().forEach(p -> {
-      service.delete(DeleteRequest.builder().setKey(p.getKey()).build());
-    });
+    service.search(SearchWsRequest.builder().setQualifiers(singletonList("TRK")).build()).getComponentsList().forEach(p ->
+      service.delete(DeleteRequest.builder().setKey(p.getKey()).build()));
   }
 
   @SafeVarargs

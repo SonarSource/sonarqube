@@ -28,13 +28,14 @@ import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.tests.Category4Suite;
-import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
 import org.sonarqube.ws.client.qualityprofile.ChangeParentRequest;
 import org.sonarqube.ws.client.qualityprofile.CreateRequest;
+import util.selenium.Selenese;
 import util.user.UserRule;
 
 import static com.codeborne.selenide.Selenide.$;
@@ -80,7 +81,7 @@ public class QualityProfilesUiTest {
 
   @Test
   public void testHomePage() {
-    tester.runHtmlTests(
+    Selenese.runSelenese(orchestrator,
       "/qualityProfile/QualityProfilesUiTest/should_display_list.html",
       "/qualityProfile/QualityProfilesUiTest/should_open_from_list.html",
       "/qualityProfile/QualityProfilesUiTest/should_filter_by_language.html");
@@ -88,7 +89,7 @@ public class QualityProfilesUiTest {
 
   @Test
   public void testProfilePage() {
-    tester.runHtmlTests(
+    Selenese.runSelenese(orchestrator,
       "/qualityProfile/QualityProfilesUiTest/should_display_profile_rules.html",
       "/qualityProfile/QualityProfilesUiTest/should_display_profile_inheritance.html",
       "/qualityProfile/QualityProfilesUiTest/should_display_profile_projects.html",
@@ -108,46 +109,46 @@ public class QualityProfilesUiTest {
 
   @Test
   public void testProfileChangelog() {
-    tester.runHtmlTests(
+    Selenese.runSelenese(orchestrator,
       "/qualityProfile/QualityProfilesUiTest/should_display_changelog.html");
   }
 
   @Ignore("find a way to know profile key inside selenium tests")
   @Test
   public void testComparison() {
-    tester.runHtmlTests("/qualityProfile/QualityProfilesUiTest/should_compare.html");
+    Selenese.runSelenese(orchestrator, "/qualityProfile/QualityProfilesUiTest/should_compare.html");
   }
 
   @Test
   public void testCreation() {
-    tester.runHtmlTests("/qualityProfile/QualityProfilesUiTest/should_create.html");
+    Selenese.runSelenese(orchestrator, "/qualityProfile/QualityProfilesUiTest/should_create.html");
   }
 
   @Test
   public void testDeletion() {
-    tester.runHtmlTests("/qualityProfile/QualityProfilesUiTest/should_delete.html");
+    Selenese.runSelenese(orchestrator, "/qualityProfile/QualityProfilesUiTest/should_delete.html");
   }
 
   @Test
   public void testCopying() {
-    tester.runHtmlTests("/qualityProfile/QualityProfilesUiTest/should_copy.html");
+    Selenese.runSelenese(orchestrator, "/qualityProfile/QualityProfilesUiTest/should_copy.html");
   }
 
   @Test
   public void testRenaming() {
-    tester.runHtmlTests("/qualityProfile/QualityProfilesUiTest/should_rename.html");
+    Selenese.runSelenese(orchestrator, "/qualityProfile/QualityProfilesUiTest/should_rename.html");
   }
 
   @Test
   public void testSettingDefault() {
-    tester.runHtmlTests("/qualityProfile/QualityProfilesUiTest/should_set_default.html");
+    Selenese.runSelenese(orchestrator, "/qualityProfile/QualityProfilesUiTest/should_set_default.html");
   }
 
   @Test
   public void testRestore() {
     deleteProfile("xoo", "empty");
 
-    tester.runHtmlTests("/qualityProfile/QualityProfilesUiTest/should_restore.html");
+    Selenese.runSelenese(orchestrator, "/qualityProfile/QualityProfilesUiTest/should_restore.html");
   }
 
   private void createProfile(String language, String name) {

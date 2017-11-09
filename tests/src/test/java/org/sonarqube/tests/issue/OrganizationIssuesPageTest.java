@@ -27,7 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.tests.Category6Suite;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.WsUsers;
 import util.issue.IssueRule;

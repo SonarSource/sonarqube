@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests;
+package org.sonarqube.qa.util;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,9 +38,9 @@ public class UserTester {
 
   private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
 
-  private final Session session;
+  private final TesterSession session;
 
-  UserTester(Session session) {
+  UserTester(TesterSession session) {
     this.session = session;
   }
 
@@ -71,7 +71,7 @@ public class UserTester {
   public final User generateAdministrator(Consumer<CreateRequest.Builder>... populators) {
     User user = generate(populators);
     session.wsClient().permissions().addUser(new org.sonarqube.ws.client.permission.AddUserWsRequest().setLogin(user.getLogin()).setPermission("admin"));
-    session.wsClient().userGroups().addUser(org.sonarqube.ws.client.usergroup.AddUserWsRequest.builder().setLogin(user.getLogin()).setName("sonar-administrators").build());
+    session.wsClient().userGroups().addUser(AddUserWsRequest.builder().setLogin(user.getLogin()).setName("sonar-administrators").build());
     return user;
   }
 

@@ -24,9 +24,10 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.tests.Category1Suite;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.qualityprofile.CreateRequest;
+import util.selenium.Selenese;
 
 import static util.ItUtils.runProjectAnalysis;
 
@@ -50,7 +51,7 @@ public class QualityProfileAdminPermissionTest {
     tester.wsClient().permissions().addUser(new AddUserWsRequest().setLogin("profileadm").setPermission("profileadmin"));
     createProfile("xoo", "foo");
 
-    tester.runHtmlTests(
+    Selenese.runSelenese(orchestrator,
       // Verify normal user is not allowed to do any modification
       "/authorisation/QualityProfileAdminPermissionTest/normal-user.html",
       // Verify profile admin is allowed to do modifications
