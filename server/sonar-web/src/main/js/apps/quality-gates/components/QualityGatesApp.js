@@ -40,6 +40,17 @@ export default class QualityGatesApp extends Component {
 
   componentDidMount() {
     this.fetchQualityGates();
+    const footer = document.getElementById('footer');
+    if (footer) {
+      footer.classList.add('page-footer-with-sidebar');
+    }
+  }
+
+  componentWillUnmount() {
+    const footer = document.getElementById('footer');
+    if (footer) {
+      footer.classList.remove('page-footer-with-sidebar');
+    }
   }
 
   fetchQualityGates() {
