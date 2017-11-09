@@ -54,35 +54,36 @@ export default Marionette.CompositeView.extend({
   },
 
   activate() {
-    const that = this;
     const activationView = new ProfileActivationView({
       rule: this.model,
       collection: this.collection,
       app: this.options.app
     });
     activationView.on('profileActivated', (severity, params, profile) => {
-      if (that.options.app.state.get('query').qprofile === profile) {
+      if (this.options.app.state.get('query').qprofile === profile) {
         const activation = {
           severity,
           params,
           inherit: 'NONE',
           qProfile: profile
         };
-        that.model.set({ activation });
+        this.model.set({ activation });
       }
-      that.refreshActives();
+      this.refreshActives();
     });
     activationView.render();
   },
 
   refreshActives() {
-    const that = this;
-    this.options.app.controller.getRuleDetails(this.model).done(data => {
-      that.collection.reset(
-        that.model.getInactiveProfiles(data.actives, that.options.app.qualityProfiles)
-      );
-      this.options.app.controller.updateActivation(this.model, data.actives);
-    });
+    this.options.app.controller.getRuleDetails(this.model).then(
+      data => {
+        this.collection.reset(
+          this.model.getInactiveProfiles(data.actives, this.options.app.qualityProfiles)
+        );
+        this.options.app.controller.updateActivation(this.model, data.actives);
+      },
+      () => {}
+    );
   },
 
   serializeData() {
