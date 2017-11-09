@@ -31,12 +31,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.Collections;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Test;
-import org.sonar.wsclient.services.ResourceQuery;
 import org.sonarqube.qa.util.SelenideConfig;
 import org.sonarqube.ws.WsMeasures.Measure;
 import org.sonarqube.ws.client.GetRequest;
@@ -55,9 +53,7 @@ public class UpgradeTest {
 
   private static final String PROJECT_KEY = "org.apache.struts:struts-parent";
   private static final String LATEST_JAVA_RELEASE = "LATEST_RELEASE";
-  private static final Version VERSION_5_2 = Version.create("5.2");
-  private static final Version VERSION_5_6_1 = Version.create("5.6.1");
-  private static final Version VERSION_CURRENT = Version.create("DEV");
+  private static final Version DEV_VERSION = Version.create("DEV");
 
   private Orchestrator orchestrator;
 
@@ -71,30 +67,22 @@ public class UpgradeTest {
 
   @Test
   public void test_upgrade_from_5_6_1() {
-    testDatabaseUpgrade(VERSION_5_6_1);
+    testDatabaseUpgrade(Version.create("5.6.1"));
   }
 
   @Test
-  public void test_upgrade_from_5_2_via_5_6_1() {
-    testDatabaseUpgrade(VERSION_5_2, VERSION_5_6_1);
+  public void test_upgrade_from_6_7() {
+    testDatabaseUpgrade(Version.create("6.7"));
   }
 
-  private void testDatabaseUpgrade(Version fromVersion, Version... intermediaryVersions) {
+  private void testDatabaseUpgrade(Version fromVersion) {
     startOldVersionServer(fromVersion, false);
     scanProject();
     int files = countFiles(PROJECT_KEY);
     assertThat(files).isGreaterThan(0);
     stopServer();
 
-    Arrays.stream(intermediaryVersions).forEach((sqVersion) -> {
-      startOldVersionServer(sqVersion, true);
-      upgrade(sqVersion);
-      verifyAnalysis(files);
-      stopServer();
-    });
-
-    startDevServer();
-    upgrade(VERSION_CURRENT);
+    startAndUpgradeDevServer();
     verifyAnalysis(files);
     stopServer();
   }
@@ -104,19 +92,6 @@ public class UpgradeTest {
     scanProject();
     assertThat(countFiles(PROJECT_KEY)).isEqualTo(expectedNumberOfFiles);
     browseWebapp();
-  }
-
-  private void upgrade(Version sqVersion) {
-    checkSystemStatus(sqVersion, ServerStatusResponse.Status.DB_MIGRATION_NEEDED);
-    if (sqVersion.equals(VERSION_CURRENT)) {
-      checkUrlsBeforeUpgrade();
-    }
-    ServerMigrationResponse serverMigrationResponse = new ServerMigrationCall(orchestrator).callAndWait();
-    assertThat(serverMigrationResponse.getStatus())
-      .describedAs("Migration status of version " + sqVersion + " should be MIGRATION_SUCCEEDED")
-      .isEqualTo(ServerMigrationResponse.Status.MIGRATION_SUCCEEDED);
-    checkSystemStatus(sqVersion, ServerStatusResponse.Status.UP);
-    checkUrlsAfterUpgrade();
   }
 
   private void checkSystemStatus(Version sqVersion, ServerStatusResponse.Status serverStatus) {
@@ -186,7 +161,7 @@ public class UpgradeTest {
     initSelenide(orchestrator);
   }
 
-  private void startDevServer() {
+  private void startAndUpgradeDevServer() {
     OrchestratorBuilder builder = Orchestrator.builderEnv()
       .setZipFile(FileLocation.byWildcardMavenFilename(new File("../sonar-application/target"), "sonar*.zip").getFile())
       .setOrchestratorProperty("orchestrator.keepDatabase", "true")
@@ -196,6 +171,15 @@ public class UpgradeTest {
     orchestrator = builder.build();
     orchestrator.start();
     initSelenide(orchestrator);
+
+    checkSystemStatus(DEV_VERSION, ServerStatusResponse.Status.DB_MIGRATION_NEEDED);
+    checkUrlsBeforeUpgrade();
+    ServerMigrationResponse serverMigrationResponse = new ServerMigrationCall(orchestrator).callAndWait();
+    assertThat(serverMigrationResponse.getStatus())
+      .describedAs("Migration status should be MIGRATION_SUCCEEDED")
+      .isEqualTo(ServerMigrationResponse.Status.MIGRATION_SUCCEEDED);
+    checkSystemStatus(DEV_VERSION, ServerStatusResponse.Status.UP);
+    checkUrlsAfterUpgrade();
   }
 
   private void stopServer() {
@@ -217,12 +201,9 @@ public class UpgradeTest {
   }
 
   private int countFiles(String key) {
-    if (orchestrator.getConfiguration().getSonarVersion().isGreaterThanOrEquals("5.4")) {
-      Measure measure = newWsClient(orchestrator).measures().component(new ComponentWsRequest().setComponentKey(key).setMetricKeys(Collections.singletonList("files")))
-        .getComponent().getMeasures(0);
-      return parseInt(measure.getValue());
-    }
-    return orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(key, "files")).getMeasureIntValue("files");
+    Measure measure = newWsClient(orchestrator).measures().component(new ComponentWsRequest().setComponentKey(key).setMetricKeys(Collections.singletonList("files")))
+      .getComponent().getMeasures(0);
+    return parseInt(measure.getValue());
   }
 
   private void testUrl(String path) {
