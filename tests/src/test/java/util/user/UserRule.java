@@ -30,6 +30,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.WsUsers;
 import org.sonarqube.ws.client.GetRequest;
@@ -51,7 +52,7 @@ import static org.assertj.guava.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 
 /**
- * @deprecated replaced by {@link org.sonarqube.tests.Tester}
+ * @deprecated replaced by {@link Tester}
  */
 @Deprecated
 public class UserRule extends ExternalResource implements GroupManagement {

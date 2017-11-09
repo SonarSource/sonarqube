@@ -37,14 +37,14 @@ public class MeasuresPage {
   }
 
   public MeasuresPage measureHasValue(String measure, Integer value) {
-    SelenideElement sidebar = this.getSideBar();
+    SelenideElement sidebar = getSideBar();
     sidebar.$("#measure-" + measure + "-name").should(Condition.exist);
     sidebar.$("#measure-" + measure + "-value").should(Condition.exist).shouldHave(Condition.text(value.toString()));
     return this;
   }
 
   public MeasuresPage measureHasLeak(String measure, Integer value) {
-    SelenideElement sidebar = this.getSideBar();
+    SelenideElement sidebar = getSideBar();
     sidebar.$("#measure-" + measure + "-name").should(Condition.exist);
     sidebar.$("#measure-" + measure + "-leak").should(Condition.exist).shouldHave(Condition.text(value.toString()));
     return this;
@@ -83,7 +83,7 @@ public class MeasuresPage {
   }
 
   public MeasureContent openMeasureContent(String measure) {
-    SelenideElement sidebar = this.getSideBar();
+    SelenideElement sidebar = getSideBar();
     SelenideElement facetItem = sidebar.$("#measure-" + measure + "-name");
     facetItem.click();
     MeasureContent content = new MeasureContent(Selenide.$("#component-measures .measure-details-content").should(Condition.exist));
@@ -91,7 +91,7 @@ public class MeasuresPage {
     return content;
   }
 
-  private SelenideElement getSideBar() {
+  private static SelenideElement getSideBar() {
     return Selenide.$("#component-measures .layout-page-side").should(Condition.exist);
   }
 }

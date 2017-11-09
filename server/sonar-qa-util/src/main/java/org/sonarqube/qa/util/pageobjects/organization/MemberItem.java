@@ -85,7 +85,7 @@ public class MemberItem {
     return this;
   }
 
-  private SelenideElement getModal(String title) {
+  private static SelenideElement getModal(String title) {
     Selenide.$(".modal-head").should(Condition.exist).shouldHave(Condition.text(title));
     SelenideElement form = Selenide.$(".ReactModalPortal form");
     form.should(Condition.exist);

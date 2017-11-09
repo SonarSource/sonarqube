@@ -22,9 +22,10 @@ package util.user;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonarqube.qa.util.Tester;
 
 /**
- * @deprecated replaced by {@link org.sonarqube.tests.Tester}
+ * @deprecated replaced by {@link Tester}
  */
 @Deprecated
 public interface GroupManagement {

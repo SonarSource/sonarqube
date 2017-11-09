@@ -29,7 +29,7 @@ import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.qa.util.pageobjects.measures.MeasureContent;
 import org.sonarqube.qa.util.pageobjects.measures.MeasuresPage;
 import org.sonarqube.tests.Category1Suite;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.Tester;
 
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;

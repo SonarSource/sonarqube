@@ -34,7 +34,7 @@ import org.openqa.selenium.By;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.qa.util.pageobjects.ProjectActivityPage;
 import org.sonarqube.tests.Category1Suite;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
 import org.sonarqube.ws.WsQualityGates;
 import org.sonarqube.ws.client.qualitygate.CreateConditionRequest;

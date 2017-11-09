@@ -48,7 +48,7 @@ public class BackgroundTaskItem {
   }
 
   public BackgroundTaskItem assertScannerContextContains(String text) {
-    Selenide.$(".js-task-scanner-context").should(Condition.hasText(text));
+    Selenide.$(".js-task-scanner-context").should(Condition.text(text));
     return this;
   }
 
@@ -59,7 +59,7 @@ public class BackgroundTaskItem {
   }
 
   public BackgroundTaskItem assertErrorStacktraceContains(String text) {
-    Selenide.$(".js-task-stacktrace").should(Condition.hasText(text));
+    Selenide.$(".js-task-stacktrace").should(Condition.text(text));
     return this;
   }
 }

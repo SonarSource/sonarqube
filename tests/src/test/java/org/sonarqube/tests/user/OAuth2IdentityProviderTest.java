@@ -32,14 +32,15 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.tests.Category4Suite;
-import org.sonarqube.tests.Tester;
 import org.sonarqube.ws.WsUsers.SearchWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.user.CreateRequest;
+import util.selenium.Selenese;
 
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
@@ -146,7 +147,7 @@ public class OAuth2IdentityProviderTest {
     // As this property is null, the plugin will throw an exception
     tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.user", null);
 
-    tester.runHtmlTests("/user/OAuth2IdentityProviderTest/display_unauthorized_page_when_authentication_failed.html");
+    Selenese.runSelenese(orchestrator, "/user/OAuth2IdentityProviderTest/display_unauthorized_page_when_authentication_failed.html");
 
     assertThatUserDoesNotExist(USER_LOGIN);
   }
@@ -157,7 +158,7 @@ public class OAuth2IdentityProviderTest {
     enablePlugin();
     tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.allowsUsersToSignUp", "false");
 
-    tester.runHtmlTests("/user/OAuth2IdentityProviderTest/fail_to_authenticate_when_not_allowed_to_sign_up.html");
+    Selenese.runSelenese(orchestrator, "/user/OAuth2IdentityProviderTest/fail_to_authenticate_when_not_allowed_to_sign_up.html");
 
     assertThatUserDoesNotExist(USER_LOGIN);
   }
@@ -168,7 +169,7 @@ public class OAuth2IdentityProviderTest {
     enablePlugin();
     tester.settings().setGlobalSettings("sonar.auth.fake-oauth2-id-provider.throwUnauthorizedMessage", "true");
 
-    tester.runHtmlTests("/user/OAuth2IdentityProviderTest/display_message_in_ui_but_not_in_log_when_unauthorized_exception.html");
+    Selenese.runSelenese(orchestrator, "/user/OAuth2IdentityProviderTest/display_message_in_ui_but_not_in_log_when_unauthorized_exception.html");
 
     File logFile = orchestrator.getServer().getWebLogs();
     assertThat(FileUtils.readFileToString(logFile)).doesNotContain("A functional error has happened");
@@ -183,7 +184,7 @@ public class OAuth2IdentityProviderTest {
     enablePlugin();
     tester.users().generate(u -> u.setLogin("another").setName("Another").setEmail(USER_EMAIL).setPassword("another"));
 
-    tester.runHtmlTests("/user/OAuth2IdentityProviderTest/fail_when_email_already_exists.html");
+    Selenese.runSelenese(orchestrator, "/user/OAuth2IdentityProviderTest/fail_when_email_already_exists.html");
 
     File logFile = orchestrator.getServer().getWebLogs();
     assertThat(FileUtils.readFileToString(logFile))

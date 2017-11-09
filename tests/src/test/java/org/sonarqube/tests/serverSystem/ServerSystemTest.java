@@ -31,9 +31,10 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.tests.Category4Suite;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.WsSystem;
 import util.ItUtils;
+import util.selenium.Selenese;
 
 import static org.apache.commons.lang.StringUtils.startsWithAny;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,7 +73,7 @@ public class ServerSystemTest {
   public void display_warnings_when_using_h2() {
     String dialect = orchestrator.getConfiguration().getString("sonar.jdbc.dialect");
     if (dialect == null || dialect.equals("h2") || dialect.equals("embedded")) {
-      tester.runHtmlTests("/serverSystem/ServerSystemTest/derby-warning.html");
+      Selenese.runSelenese(orchestrator, "/serverSystem/ServerSystemTest/derby-warning.html");
     }
   }
 
@@ -81,7 +82,7 @@ public class ServerSystemTest {
    */
   @Test
   public void hide_jdbc_settings_to_non_admin() {
-    tester.runHtmlTests("/serverSystem/ServerSystemTest/hide-jdbc-settings.html");
+    Selenese.runSelenese(orchestrator, "/serverSystem/ServerSystemTest/hide-jdbc-settings.html");
   }
 
   @Test
@@ -104,7 +105,7 @@ public class ServerSystemTest {
     orchestrator.executeBuild(SonarScanner.create(ItUtils.projectDir("shared/xoo-sample"))
       .setProperty("sonar.projectKey", "myproject.jsp"));
     // Access dashboard
-    tester.runHtmlTests("/serverSystem/ServerSystemTest/url_ending_by_jsp.html");
+    Selenese.runSelenese(orchestrator, "/serverSystem/ServerSystemTest/url_ending_by_jsp.html");
   }
 
   /**

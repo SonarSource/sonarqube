@@ -30,7 +30,7 @@ import org.openqa.selenium.By;
 import org.sonarqube.qa.util.pageobjects.ProjectDashboardPage;
 import org.sonarqube.qa.util.pageobjects.QualityGatePage;
 import org.sonarqube.tests.Category6Suite;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.WsUsers;
 import util.issue.IssueRule;

@@ -33,8 +33,8 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.sonarqube.tests.LogsTailer;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.LogsTailer;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.WsUsers;
 import org.sonarqube.ws.client.user.SearchRequest;
 

@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests;
+package org.sonarqube.qa.util;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import org.assertj.core.api.Assertions;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.WsUsers;
 import org.sonarqube.ws.client.HttpException;
@@ -40,9 +41,9 @@ public class OrganizationTester {
 
   private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
 
-  private final Session session;
+  private final TesterSession session;
 
-  OrganizationTester(Session session) {
+  OrganizationTester(TesterSession session) {
     this.session = session;
   }
 
@@ -84,7 +85,7 @@ public class OrganizationTester {
   public OrganizationTester assertThatOrganizationDoesNotExist(String organizationKey) {
     SearchWsRequest request = new SearchWsRequest.Builder().setOrganizations(organizationKey).build();
     Organizations.SearchWsResponse searchWsResponse = service().search(request);
-    assertThat(searchWsResponse.getOrganizationsList()).isEmpty();
+    Assertions.assertThat(searchWsResponse.getOrganizationsList()).isEmpty();
     return this;
   }
 
@@ -121,7 +122,7 @@ public class OrganizationTester {
       .setSelected("selected")
       .setOrganization(organization != null ? organization.getKey() : null))
       .getUsersList();
-    assertThat(users).hasSize(isMember ? 1 : 0);
+    Assertions.assertThat(users).hasSize(isMember ? 1 : 0);
   }
 
   private void verifyMembersGroupMembership(String userLogin, @Nullable Organizations.Organization organization, boolean isMember) {
@@ -132,7 +133,7 @@ public class OrganizationTester {
       .setSelected("selected")
       .build())
       .getGroupsList();
-    assertThat(groups).hasSize(isMember ? 1 : 0);
+    Assertions.assertThat(groups).hasSize(isMember ? 1 : 0);
   }
 
   public OrganizationService service() {

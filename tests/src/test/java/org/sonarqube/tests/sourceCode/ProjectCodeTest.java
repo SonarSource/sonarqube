@@ -25,7 +25,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.tests.Category1Suite;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
 
 import static util.ItUtils.projectDir;

@@ -17,18 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests;
+package org.sonarqube.qa.util;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.container.Server;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.junit.rules.ExternalResource;
 import org.sonarqube.qa.util.pageobjects.Navigation;
+import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
-import util.selenium.Selenese;
+import org.sonarqube.ws.client.WsClientFactories;
 
 import static java.util.Objects.requireNonNull;
-import static util.ItUtils.newUserWsClient;
 
 /**
  * This JUnit rule wraps an {@link Orchestrator} instance and provides :
@@ -45,7 +46,7 @@ import static util.ItUtils.newUserWsClient;
  * {@code @ClassRule} must be used through a {@link org.junit.rules.RuleChain}
  * around {@link Orchestrator}.
  */
-public class Tester extends ExternalResource implements Session {
+public class Tester extends ExternalResource implements TesterSession {
 
   private final Orchestrator orchestrator;
 
@@ -55,7 +56,7 @@ public class Tester extends ExternalResource implements Session {
 
   // initialized in #before()
   private boolean beforeCalled = false;
-  private Session rootSession;
+  private TesterSession rootSession;
 
   public Tester(Orchestrator orchestrator) {
     this.orchestrator = orchestrator;
@@ -73,7 +74,7 @@ public class Tester extends ExternalResource implements Session {
 
   /**
    * Enables Elasticsearch debugging, see {@link #elasticsearch()}.
-   *
+   * <p>
    * The property "sonar.search.httpPort" must be defined before
    * starting SonarQube server.
    */
@@ -86,7 +87,7 @@ public class Tester extends ExternalResource implements Session {
   @Override
   public void before() {
     verifyNotStarted();
-    rootSession = new SessionImpl(orchestrator, "admin", "admin");
+    rootSession = new TesterSessionImpl(orchestrator, "admin", "admin");
 
     if (!disableOrganizations) {
       organizations().enableSupport();
@@ -106,17 +107,17 @@ public class Tester extends ExternalResource implements Session {
     qGates().deleteAll();
   }
 
-  public Session asAnonymous() {
+  public TesterSession asAnonymous() {
     return as(null, null);
   }
 
-  public Session as(String login) {
+  public TesterSession as(String login) {
     return as(login, login);
   }
 
-  public Session as(String login, String password) {
+  public TesterSession as(String login, String password) {
     verifyStarted();
-    return new SessionImpl(orchestrator, login, password);
+    return new TesterSessionImpl(orchestrator, login, password);
   }
 
   public Elasticsearch elasticsearch() {
@@ -129,15 +130,6 @@ public class Tester extends ExternalResource implements Session {
   public Navigation openBrowser() {
     verifyStarted();
     return Navigation.create(orchestrator);
-  }
-
-  /**
-   * @deprecated use Selenide tests with {@link #openBrowser()}
-   */
-  @Deprecated
-  public Tester runHtmlTests(String... htmlTests) {
-    Selenese.runSelenese(orchestrator, htmlTests);
-    return this;
   }
 
   private void verifyNotStarted() {
@@ -196,11 +188,15 @@ public class Tester extends ExternalResource implements Session {
     return rootSession.qGates();
   }
 
-  private static class SessionImpl implements Session {
+  private static class TesterSessionImpl implements TesterSession {
     private final WsClient client;
 
-    private SessionImpl(Orchestrator orchestrator, @Nullable String login, @Nullable String password) {
-      this.client = newUserWsClient(orchestrator, login, password);
+    private TesterSessionImpl(Orchestrator orchestrator, @Nullable String login, @Nullable String password) {
+      Server server = orchestrator.getServer();
+      this.client = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
+        .url(server.getUrl())
+        .credentials(login, password)
+        .build());
     }
 
     @Override

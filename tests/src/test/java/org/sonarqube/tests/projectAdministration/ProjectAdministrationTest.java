@@ -42,7 +42,7 @@ import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.qa.util.pageobjects.ProjectsManagementPage;
 import org.sonarqube.qa.util.pageobjects.settings.SettingsPage;
 import org.sonarqube.tests.Category1Suite;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.client.permission.AddUserToTemplateWsRequest;
 import org.sonarqube.ws.client.permission.CreateTemplateWsRequest;

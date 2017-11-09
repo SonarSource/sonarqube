@@ -61,7 +61,8 @@ import org.junit.Assert;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.IssueQuery;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.SettingTester;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.WsComponents.Component;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.Measure;
@@ -253,7 +254,7 @@ public class ItUtils {
   }
 
   /**
-   * @deprecated replaced by {@link org.sonarqube.tests.SettingTester#setGlobalSetting(String, String)}
+   * @deprecated replaced by {@link SettingTester#setGlobalSetting(String, String)}
    */
   @Deprecated
   public static void setServerProperty(Orchestrator orchestrator, String key, @Nullable String value) {
@@ -261,7 +262,7 @@ public class ItUtils {
   }
 
   /**
-   * @deprecated replaced by {@link org.sonarqube.tests.SettingTester#setProjectSetting(String, String, String)}
+   * @deprecated replaced by {@link SettingTester#setProjectSetting(String, String, String)}
    */
   @Deprecated
   public static void setServerProperty(Orchestrator orchestrator, @Nullable String componentKey, String key, @Nullable String value) {
@@ -273,7 +274,7 @@ public class ItUtils {
   }
 
   /**
-   * @deprecated replaced by {@link org.sonarqube.tests.SettingTester#setGlobalSetting(String, String)} or {@link org.sonarqube.tests.SettingTester#setProjectSettings(String, String...)}
+   * @deprecated replaced by {@link SettingTester#setGlobalSetting(String, String)} or {@link SettingTester#setProjectSettings(String, String...)}
    */
   @Deprecated
   public static void setServerProperties(Orchestrator orchestrator, @Nullable String componentKey, String... properties) {
@@ -283,7 +284,7 @@ public class ItUtils {
   }
 
   /**
-   * @deprecated replaced by {@link org.sonarqube.tests.SettingTester#resetSettings(String...)} 
+   * @deprecated replaced by {@link SettingTester#resetSettings(String...)}
    */
   @Deprecated
   public static void resetSettings(Orchestrator orchestrator, @Nullable String componentKey, String... keys) {

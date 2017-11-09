@@ -54,7 +54,7 @@ public class LoginPage {
     return Selenide.$(".process-spinner-failed");
   }
 
-  private <T> T submitCredentials(String login, String password, Class<T> expectedResultPage) {
+  private static <T> T submitCredentials(String login, String password, Class<T> expectedResultPage) {
     Selenide.$("#login").val(login);
     Selenide.$("#password").val(password);
     Selenide.$(By.name("commit")).click();

@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.WsUsers;
 import org.sonarqube.ws.client.organization.SearchWsRequest;

@@ -63,7 +63,7 @@ public class MembersPage {
     this.canAddMember();
     Selenide.$(".page-actions button").click();
 
-    SelenideElement modal = this.getModal("Add user");
+    SelenideElement modal = getModal("Add user");
     SelenideElement input = modal.$(".Select-input input");
     input.val(login);
     modal.$("div.Select-option.is-focused").should(Condition.exist);
@@ -72,7 +72,7 @@ public class MembersPage {
     return this;
   }
 
-  private SelenideElement getModal(String title) {
+  private static SelenideElement getModal(String title) {
     Selenide.$(".modal-head").should(Condition.exist).shouldHave(Condition.text(title));
     SelenideElement form = Selenide.$(".ReactModalPortal form");
     form.should(Condition.exist);

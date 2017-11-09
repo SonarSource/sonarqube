@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests;
+package org.sonarqube.qa.util;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -43,7 +44,7 @@ public class Elasticsearch {
   /**
    * Forbid indexing requests on the specified index. Index becomes read-only.
    */
-  public void lockWrites(String index) throws Exception {
+  public void lockWrites(String index) throws IOException {
     putIndexSetting(httpPort, index, "blocks.write", "true");
   }
 
@@ -51,19 +52,19 @@ public class Elasticsearch {
    * Enable indexing requests on the specified index.
    * @see #lockWrites(String)
    */
-  public void unlockWrites(String index) throws Exception {
+  public void unlockWrites(String index) throws IOException {
     putIndexSetting(httpPort, index, "blocks.write", "false");
   }
 
-  public void makeYellow() throws Exception {
+  public void makeYellow() throws IOException {
     putIndexSetting(httpPort, "issues", "number_of_replicas", "5");
   }
 
-  public void makeGreen() throws Exception {
+  public void makeGreen() throws IOException {
     putIndexSetting(httpPort, "issues", "number_of_replicas", "0");
   }
 
-  private void putIndexSetting(int searchHttpPort, String index, String key, String value) throws Exception {
+  private static void putIndexSetting(int searchHttpPort, String index, String key, String value) throws IOException {
     Request.Builder request = new Request.Builder()
       .url(baseUrl(searchHttpPort) + index + "/_settings")
       .put(RequestBody.create(MediaType.parse("application/json"), "{" +
@@ -76,7 +77,7 @@ public class Elasticsearch {
     assertThat(response.isSuccessful()).isTrue();
   }
 
-  private String baseUrl(int searchHttpPort) {
+  private static String baseUrl(int searchHttpPort) {
     return "http://" + InetAddress.getLoopbackAddress().getHostAddress() + ":" + searchHttpPort + "/";
   }
 }

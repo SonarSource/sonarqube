@@ -17,30 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.sourceCode;
+@ParametersAreNonnullByDefault
+package org.sonarqube.qa.util.pageobjects.measures;
 
-import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category1Suite;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.sonarqube.qa.util.Tester;
-import util.selenium.Selenese;
-
-import static util.ItUtils.runProjectAnalysis;
-
-public class EncodingTest {
-
-  @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
-
-  @Rule
-  public Tester tester = new Tester(orchestrator).disableOrganizations();
-
-  @Test
-  public void support_japanese_charset() {
-    runProjectAnalysis(orchestrator, "sourceCode/japanese-charset", "sonar.sourceEncoding", "Shift_JIS");
-
-    Selenese.runSelenese(orchestrator, "/sourceCode/EncodingTest/japanese_sources.html");
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

@@ -69,8 +69,8 @@ public class ProjectQualityGatePageTest {
     try {
       ProjectQualityGatePage page = openPage();
       SelenideElement selectedQualityGate = page.getSelectedQualityGate();
-      selectedQualityGate.should(Condition.hasText("Default"));
-      selectedQualityGate.should(Condition.hasText(customQualityGate.name()));
+      selectedQualityGate.should(Condition.text("Default"));
+      selectedQualityGate.should(Condition.text(customQualityGate.name()));
     } finally {
       qualityGateClient().unsetDefault();
       qualityGateClient().destroy(customQualityGate.id());
@@ -84,8 +84,8 @@ public class ProjectQualityGatePageTest {
 
     ProjectQualityGatePage page = openPage();
     SelenideElement selectedQualityGate = page.getSelectedQualityGate();
-    selectedQualityGate.shouldNot(Condition.hasText("Default"));
-    selectedQualityGate.should(Condition.hasText(customQualityGate.name()));
+    selectedQualityGate.shouldNot(Condition.text("Default"));
+    selectedQualityGate.should(Condition.text(customQualityGate.name()));
   }
 
   @Test
@@ -104,7 +104,7 @@ public class ProjectQualityGatePageTest {
     page.setQualityGate(customQualityGate.name());
 
     SelenideElement selectedQualityGate = page.getSelectedQualityGate();
-    selectedQualityGate.should(Condition.hasText(customQualityGate.name()));
+    selectedQualityGate.should(Condition.text(customQualityGate.name()));
   }
 
   @Test
@@ -117,8 +117,8 @@ public class ProjectQualityGatePageTest {
       page.setQualityGate(customQualityGate.name());
 
       SelenideElement selectedQualityGate = page.getSelectedQualityGate();
-      selectedQualityGate.should(Condition.hasText("Default"));
-      selectedQualityGate.should(Condition.hasText(customQualityGate.name()));
+      selectedQualityGate.should(Condition.text("Default"));
+      selectedQualityGate.should(Condition.text(customQualityGate.name()));
     } finally {
       qualityGateClient().unsetDefault();
       qualityGateClient().destroy(customQualityGate.id());

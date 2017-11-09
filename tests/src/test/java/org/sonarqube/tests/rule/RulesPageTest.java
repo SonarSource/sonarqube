@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.pageobjects.RulesPage;
 import org.sonarqube.tests.Category2Suite;
-import org.sonarqube.tests.Tester;
+import org.sonarqube.qa.util.Tester;
 
 public class RulesPageTest {
   @ClassRule

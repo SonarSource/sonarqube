@@ -24,9 +24,6 @@ import com.codeborne.selenide.Selenide;
 
 public class ProjectCodePage {
 
-  public ProjectCodePage() {
-  }
-
   public ProjectCodePage openFirstComponent() {
     Selenide.$$(".code-name-cell a").first().click();
     return this;

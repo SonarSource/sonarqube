@@ -24,7 +24,7 @@ import com.codeborne.selenide.Selenide;
 
 public class NotificationsPage extends Navigation {
 
-  private final String EMAIL = "EmailNotificationChannel";
+  private static final String EMAIL = "EmailNotificationChannel";
 
   public NotificationsPage() {
     Selenide.$("#account-page").shouldHave(Condition.text("Overall notifications"));
@@ -90,11 +90,11 @@ public class NotificationsPage extends Navigation {
     return this;
   }
 
-  private String globalCheckboxSelector(String type, String channel) {
+  private static String globalCheckboxSelector(String type, String channel) {
     return "#global-notification-" + type + "-" + channel;
   }
 
-  private String projectCheckboxSelector(String project, String type, String channel) {
+  private static String projectCheckboxSelector(String project, String type, String channel) {
     return "#project-notification-" + project + "-" + type + "-" + channel;
   }
 
@@ -112,7 +112,7 @@ public class NotificationsPage extends Navigation {
     return this;
   }
 
-  private void toggleCheckbox(String selector) {
+  private static void toggleCheckbox(String selector) {
     Selenide.$(selector).click();
   }
 }
