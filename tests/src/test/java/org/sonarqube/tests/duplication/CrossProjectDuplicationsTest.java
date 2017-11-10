@@ -21,13 +21,13 @@ package org.sonarqube.tests.duplication;
 
 import com.google.common.collect.ObjectArrays;
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category4Suite;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 import util.ItUtils;
@@ -40,31 +40,32 @@ import static util.ItUtils.getMeasureAsDouble;
 import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
-import static util.ItUtils.setServerProperty;
 import static util.selenium.Selenese.runSelenese;
 
 public class CrossProjectDuplicationsTest {
 
-  static final String ORIGIN_PROJECT = "origin-project";
-  static final String DUPLICATE_PROJECT = "duplicate-project";
-  static final String PROJECT_WITH_EXCLUSION = "project-with-exclusion";
-  static final String PROJECT_WITHOUT_ENOUGH_TOKENS = "project_without_enough_tokens";
-
-  static final String DUPLICATE_FILE = DUPLICATE_PROJECT + ":src/main/xoo/sample/File1.xoo";
-  static final String BRANCH = "with-branch";
-
-  static final String ORIGIN_PATH = "duplications/cross-project/origin";
-  static final String DUPLICATE_PATH = "duplications/cross-project/duplicate";
+  private static final String ORIGIN_PROJECT = "origin-project";
+  private static final String DUPLICATE_PROJECT = "duplicate-project";
+  private static final String PROJECT_WITH_EXCLUSION = "project-with-exclusion";
+  private static final String PROJECT_WITHOUT_ENOUGH_TOKENS = "project_without_enough_tokens";
+  private static final String DUPLICATE_FILE = DUPLICATE_PROJECT + ":src/main/xoo/sample/File1.xoo";
+  private static final String BRANCH = "with-branch";
+  private static final String ORIGIN_PATH = "duplications/cross-project/origin";
+  private static final String DUPLICATE_PATH = "duplications/cross-project/duplicate";
 
   @ClassRule
-  public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = DuplicationSuite.ORCHESTRATOR;
 
   @ClassRule
   public static final IssueRule issueRule = IssueRule.from(orchestrator);
 
+  private static Tester tester = new Tester(orchestrator);
+
+  @ClassRule
+  public static RuleChain ruleChain = RuleChain.outerRule(orchestrator).around(tester);
+
   @BeforeClass
   public static void analyzeProjects() {
-    orchestrator.resetData();
     ItUtils.restoreProfile(orchestrator, CrossProjectDuplicationsTest.class.getResource("/duplication/xoo-duplication-profile.xml"));
 
     analyzeProject(ORIGIN_PROJECT, ORIGIN_PATH);
@@ -73,13 +74,8 @@ public class CrossProjectDuplicationsTest {
     analyzeProject(PROJECT_WITH_EXCLUSION, DUPLICATE_PATH, "sonar.cpd.exclusions", "**/File*");
 
     // Set minimum tokens to a big value in order to not get duplications
-    setServerProperty(orchestrator, "sonar.cpd.xoo.minimumTokens", "1000");
+    tester.settings().setGlobalSettings("sonar.cpd.xoo.minimumTokens", "1000");
     analyzeProject(PROJECT_WITHOUT_ENOUGH_TOKENS, DUPLICATE_PATH);
-  }
-
-  @AfterClass
-  public static void resetServerProperties() throws Exception {
-    setServerProperty(orchestrator, "sonar.cpd.xoo.minimumTokens", null);
   }
 
   @Test

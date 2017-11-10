@@ -21,15 +21,14 @@ package org.sonarqube.tests.duplication;
 
 import com.google.common.collect.ObjectArrays;
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category4Suite;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 import util.ItUtils;
@@ -40,42 +39,34 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
-import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
-import static util.ItUtils.setServerProperty;
 
 public class DuplicationsTest {
 
-  static final String DUPLICATIONS = "file-duplications";
-  static final String DUPLICATIONS_WITH_EXCLUSIONS = "file-duplications-with-exclusions";
-  static final String WITHOUT_ENOUGH_TOKENS = "project_without_enough_tokens";
+  private static final String DUPLICATIONS = "file-duplications";
+  private static final String DUPLICATIONS_WITH_EXCLUSIONS = "file-duplications-with-exclusions";
+  private static final String WITHOUT_ENOUGH_TOKENS = "project_without_enough_tokens";
 
   @ClassRule
-  public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = DuplicationSuite.ORCHESTRATOR;
 
   @ClassRule
   public static final IssueRule issueRule = IssueRule.from(orchestrator);
 
-  private static WsClient adminWsClient;
+  private static Tester tester = new Tester(orchestrator);
+
+  @ClassRule
+  public static RuleChain ruleChain = RuleChain.outerRule(orchestrator).around(tester);
 
   @BeforeClass
   public static void analyzeProjects() {
-    orchestrator.resetData();
-
     ItUtils.restoreProfile(orchestrator, DuplicationsTest.class.getResource("/duplication/xoo-duplication-profile.xml"));
     analyzeProject(DUPLICATIONS);
     analyzeProject(DUPLICATIONS_WITH_EXCLUSIONS, "sonar.cpd.exclusions", "**/File*");
 
     // Set minimum tokens to a big value in order to not get duplications
-    setServerProperty(orchestrator, "sonar.cpd.xoo.minimumTokens", "1000");
+    tester.settings().setGlobalSettings("sonar.cpd.xoo.minimumTokens", "1000");
     analyzeProject(WITHOUT_ENOUGH_TOKENS);
-
-    adminWsClient = newAdminWsClient(orchestrator);
-  }
-
-  @AfterClass
-  public static void resetProperties() throws Exception {
-    setServerProperty(orchestrator, "sonar.cpd.xoo.minimumTokens", null);
   }
 
   private static Map<String, Double> getMeasures(String key) {
@@ -180,7 +171,7 @@ public class DuplicationsTest {
   // SONAR-9441
   @Test
   public void fail_properly_when_no_parameter() {
-    WsResponse result = adminWsClient.wsConnector().call(new GetRequest("api/duplications/show"));
+    WsResponse result = tester.wsClient().wsConnector().call(new GetRequest("api/duplications/show"));
 
     assertThat(result.code()).isEqualTo(HTTP_BAD_REQUEST);
     assertThat(result.content()).contains("Either 'uuid' or 'key' must be provided");

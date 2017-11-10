@@ -3,6 +3,16 @@
 
 set -euo pipefail
 
+function runCategory {
+  mvn verify \
+    -f tests/pom.xml \
+    -Dcategory=$CATEGORY \
+    -Dorchestrator.configUrl=http://infra.internal.sonarsource.com/jenkins/orch-$DB_ENGINE.properties \
+    -Dorchestrator.workspace=target/$CATEGORY
+    -Dwith-db-drivers \
+    -B -e -V
+}
+
 case "$RUN_ACTIVITY" in
 
   run-db-unit-tests-*)
@@ -12,11 +22,46 @@ case "$RUN_ACTIVITY" in
 
   run-db-integration-tests-*)
     DB_ENGINE=$(sed "s/run-db-integration-tests-//g" <<< $RUN_ACTIVITY | cut -d \- -f 1)
-    CATEGORY=$(sed "s/run-db-integration-tests-//g" <<< $RUN_ACTIVITY | cut -d \- -f 2)
+    CATEGORY_GROUP=$(sed "s/run-db-integration-tests-//g" <<< $RUN_ACTIVITY | cut -d \- -f 2)
+
     if [[ "$GITHUB_BRANCH" == "PULLREQUEST-"* ]] && [[ "$DB_ENGINE" != "postgresql93" ]]; then
-     exit 0
+      # execute PR QA only on postgres
+      exit 0
     else
-     ./run-integration-tests.sh "${CATEGORY}" "http://infra.internal.sonarsource.com/jenkins/orch-${DB_ENGINE}.properties"
+      mvn clean package -B -e -V -f tests/plugins/pom.xml
+
+      case "$CATEGORY_GROUP" in
+        Category1)
+          CATEGORY=Category1 && runCategory
+          ;;
+
+        Category2)
+          CATEGORY=Category2 && runCategory
+          ;;
+
+        Category3)
+          CATEGORY=Category3 && runCategory
+          ;;
+
+        Category4)
+          CATEGORY=Category4 && runCategory
+          CATEGORY=duplication && runCategory
+          ;;
+
+        Category5)
+          CATEGORY=Category5 && runCategory
+          ;;
+
+        Category6)
+          CATEGORY=Category6 && runCategory
+          ;;
+
+        *)
+          echo "unknown CATEGORY_GROUP: $CATEGORY_GROUP"
+          exit 1
+          ;;
+      esac
+
     fi
     ;;
 

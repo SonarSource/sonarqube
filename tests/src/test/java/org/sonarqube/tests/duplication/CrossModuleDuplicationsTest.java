@@ -22,17 +22,16 @@ package org.sonarqube.tests.duplication;
 import com.google.common.collect.ImmutableMap;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category4Suite;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonarqube.qa.util.Tester;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,19 +43,16 @@ public class CrossModuleDuplicationsTest {
   private File projectDir;
 
   @ClassRule
-  public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = DuplicationSuite.ORCHESTRATOR;
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  @BeforeClass
-  public static void analyzeProjects() {
-
-  }
+  @Rule
+  public Tester tester = new Tester(orchestrator);
 
   @Before
-  public void setUpProject() throws IOException {
-    orchestrator.resetData();
+  public void setUp() throws IOException {
     ItUtils.restoreProfile(orchestrator, getClass().getResource("/duplication/xoo-duplication-profile.xml"));
 
     FileUtils.copyDirectory(ItUtils.projectDir(PROJECT_DIR), temp.getRoot());
@@ -116,7 +112,7 @@ public class CrossModuleDuplicationsTest {
     verifyDuplicationMeasures(PROJECT_KEY + ":module2", 0, 0, 0, 0);
   }
 
-  private static SonarScanner analyzeProject(File projectDir, String projectKey, boolean create, String... additionalProperties) {
+  private static void analyzeProject(File projectDir, String projectKey, boolean create, String... additionalProperties) {
     if (create) {
       orchestrator.getServer().provisionProject(projectKey, projectKey);
       orchestrator.getServer().associateProjectToQualityProfile(projectKey, "xoo", "xoo-duplication-profile");
@@ -129,9 +125,7 @@ public class CrossModuleDuplicationsTest {
       builder.put(additionalProperties[i], additionalProperties[i + 1]);
     }
     SonarScanner scan = sonarRunner.setDebugLogs(true).setProperties(builder.build());
-    orchestrator.executeBuild(scan);
-    return scan;
-  }
+    orchestrator.executeBuild(scan); }
 
   private static void verifyDuplicationMeasures(String componentKey, int duplicatedBlocks, int duplicatedLines, int duplicatedFiles, double duplicatedLinesDensity) {
     Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(orchestrator, componentKey, "duplicated_lines", "duplicated_blocks", "duplicated_files", "duplicated_lines_density");

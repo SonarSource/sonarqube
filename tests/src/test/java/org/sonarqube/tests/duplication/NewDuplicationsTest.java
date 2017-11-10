@@ -20,12 +20,13 @@
 package org.sonarqube.tests.duplication;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category4Suite;
 import java.util.Map;
 import org.assertj.core.data.Offset;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.WsMeasures;
 
 import static java.lang.Double.parseDouble;
@@ -35,15 +36,18 @@ import static util.ItUtils.runProjectAnalysis;
 
 public class NewDuplicationsTest {
 
-  static final Offset<Double> DEFAULT_OFFSET = Offset.offset(0.1d);
+  private static final Offset<Double> DEFAULT_OFFSET = Offset.offset(0.1d);
 
   @ClassRule
-  public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = DuplicationSuite.ORCHESTRATOR;
+
+  private static Tester tester = new Tester(orchestrator);
+
+  @ClassRule
+  public static RuleChain ruleChain = RuleChain.outerRule(orchestrator).around(tester);
 
   @BeforeClass
   public static void analyzeProjects() {
-    orchestrator.resetData();
-
     runProjectAnalysis(orchestrator, "duplications/new-duplications-v1",
       "sonar.projectDate", "2015-02-01",
       "sonar.scm.disabled", "false");
