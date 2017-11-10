@@ -21,13 +21,15 @@ package org.sonarqube.tests.test;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category2Suite;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
+import org.sonarqube.qa.util.Tester;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
@@ -36,12 +38,10 @@ import static util.ItUtils.projectDir;
 public class TestExecutionTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = TestSuite.ORCHESTRATOR;
 
-  @Before
-  public void delete_data() {
-    orchestrator.resetData();
-  }
+  @Rule
+  public Tester tester = new Tester(orchestrator);
 
   @Test
   public void test_execution_details() throws Exception {
@@ -56,7 +56,8 @@ public class TestExecutionTest {
     assertThat(measures.get("skipped_tests")).isEqualTo(1);
     assertThat(measures.get("test_execution_time")).isEqualTo(8);
 
-    String json = orchestrator.getServer().adminWsClient().get("api/tests/list", "testFileKey", "sample-with-tests:src/test/xoo/sample/SampleTest.xoo");
+    WsRequest getRequest = new GetRequest("api/tests/list").setParam("testFileKey", "sample-with-tests:src/test/xoo/sample/SampleTest.xoo");
+    String json = tester.wsClient().wsConnector().call(getRequest).content();
     JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/test/TestExecutionTest/expected.json"), "UTF-8"), json, false);
   }
 
