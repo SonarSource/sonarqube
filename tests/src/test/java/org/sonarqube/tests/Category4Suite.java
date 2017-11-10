@@ -29,7 +29,6 @@ import org.sonarqube.tests.ce.CeTempDirTest;
 import org.sonarqube.tests.ce.CeWsTest;
 import org.sonarqube.tests.component.ComponentsWsTest;
 import org.sonarqube.tests.component.ProjectsWsTest;
-import org.sonarqube.tests.user.RootUserInStandaloneModeTest;
 import org.sonarqube.tests.projectEvent.ProjectActivityPageTest;
 import org.sonarqube.tests.qualityProfile.QualityProfilesUiTest;
 import org.sonarqube.tests.serverSystem.HttpHeadersTest;
@@ -37,7 +36,6 @@ import org.sonarqube.tests.serverSystem.LogsTest;
 import org.sonarqube.tests.serverSystem.PingTest;
 import org.sonarqube.tests.serverSystem.ServerSystemTest;
 import org.sonarqube.tests.serverSystem.SystemInfoTest;
-import org.sonarqube.tests.ui.SourceViewerTest;
 import org.sonarqube.tests.ui.UiExtensionsTest;
 import org.sonarqube.tests.ui.UiTest;
 import org.sonarqube.tests.user.BaseIdentityProviderTest;
@@ -46,6 +44,7 @@ import org.sonarqube.tests.user.ForceAuthenticationTest;
 import org.sonarqube.tests.user.LocalAuthenticationTest;
 import org.sonarqube.tests.user.MyAccountPageTest;
 import org.sonarqube.tests.user.OAuth2IdentityProviderTest;
+import org.sonarqube.tests.user.RootUserInStandaloneModeTest;
 import org.sonarqube.tests.ws.WsLocalCallTest;
 import org.sonarqube.tests.ws.WsTest;
 
@@ -80,7 +79,6 @@ import static util.ItUtils.xooPlugin;
   HttpHeadersTest.class,
   // ui
   UiTest.class,
-  SourceViewerTest.class,
   // ui extensions
   UiExtensionsTest.class,
   WsLocalCallTest.class,
