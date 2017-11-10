@@ -19,19 +19,19 @@
  */
 package org.sonarqube.tests.measure;
 
+import com.codeborne.selenide.Selenide;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category1Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.openqa.selenium.Keys;
-import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.qa.util.pageobjects.ProjectDashboardPage;
+import org.sonarqube.tests.Category1Suite;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsClient;
 import util.user.UserRule;
 
 import static com.codeborne.selenide.Condition.exist;
@@ -137,11 +137,9 @@ public class ProjectDashboardTest {
   }
 
   @Test
-  @Ignore("there is no more place to show the error")
   public void display_a_nice_error_when_requesting_unknown_project() {
-    Navigation nav = Navigation.create(orchestrator);
     nav.open("/dashboard/index?id=unknown");
-    nav.getErrorMessage().should(text("The requested project does not exist. Either it has never been analyzed successfully or it has been deleted."));
+    Selenide.$("#nonav").should(text("The requested project does not exist. Either it has never been analyzed successfully or it has been deleted."));
     // TODO verify that on global homepage
   }
 

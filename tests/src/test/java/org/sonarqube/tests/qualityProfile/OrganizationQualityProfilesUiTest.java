@@ -24,7 +24,6 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
@@ -109,10 +108,13 @@ public class OrganizationQualityProfilesUiTest {
       "/organization/OrganizationQualityProfilesUiTest/should_display_changelog.html");
   }
 
-  @Ignore("to be replaced by selenide test in order to inject profile key")
   @Test
   public void testComparison() {
-    Selenese.runSelenese(orchestrator, "/organization/OrganizationQualityProfilesUiTest/should_compare.html");
+    Navigation nav = tester.openBrowser();
+    nav.openQualityProfile("xoo", "sample", "test-org");
+    $(".quality-profile-header .dropdown-toggle").click();
+    $("#quality-profile-compare").click();
+    $(".js-profile-comparison .Select-control").click();
   }
 
   @Test

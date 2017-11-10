@@ -23,14 +23,11 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -38,11 +35,11 @@ import org.openqa.selenium.By;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.user.UserParameters;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.qa.util.pageobjects.ProjectsManagementPage;
 import org.sonarqube.qa.util.pageobjects.settings.SettingsPage;
 import org.sonarqube.tests.Category1Suite;
-import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.client.permission.AddUserToTemplateWsRequest;
 import org.sonarqube.ws.client.permission.CreateTemplateWsRequest;
@@ -145,33 +142,6 @@ public class ProjectAdministrationTest {
     } finally {
       wsClient.userClient().deactivate(projectAdminUser);
     }
-  }
-
-  // SONAR-4203
-  @Test
-  @Ignore("refactor with wsClient")
-  public void delete_version_of_multimodule_project() {
-    GregorianCalendar today = new GregorianCalendar();
-    SonarScanner build = SonarScanner.create(projectDir("shared/xoo-multi-modules-sample"))
-      .setProperty("sonar.dynamicAnalysis", "false")
-      .setProperty("sonar.projectDate", (today.get(Calendar.YEAR) - 1) + "-01-01");
-    orchestrator.executeBuild(build);
-
-    // The analysis must be run once again to have an history so that it is possible
-    // to set/delete version on old snapshot
-    build.setProperty("sonar.projectDate", today.get(Calendar.YEAR) + "-01-01");
-    orchestrator.executeBuild(build);
-
-    // There are 7 modules
-    assertThat(count("events where category='Version'")).as("Different number of events").isEqualTo(1);
-
-    runSelenese(orchestrator, "/projectAdministration/ProjectAdministrationTest/project-administration/multimodule-project-modify-version.html");
-
-    assertThat(count("events where category='Version'")).as("Different number of events").isEqualTo(2);
-
-    runSelenese(orchestrator, "/projectAdministration/ProjectAdministrationTest/project-administration/multimodule-project-delete-version.html");
-
-    assertThat(count("events where category='Version'")).as("Different number of events").isEqualTo(1);
   }
 
   @Test

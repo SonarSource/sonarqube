@@ -25,7 +25,6 @@ import com.sonar.orchestrator.build.SonarScanner;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
@@ -113,10 +112,13 @@ public class QualityProfilesUiTest {
       "/qualityProfile/QualityProfilesUiTest/should_display_changelog.html");
   }
 
-  @Ignore("find a way to know profile key inside selenium tests")
   @Test
   public void testComparison() {
-    Selenese.runSelenese(orchestrator, "/qualityProfile/QualityProfilesUiTest/should_compare.html");
+    Navigation nav = tester.openBrowser();
+    nav.open("/profiles/show?language=xoo&name=sample");
+    $(".quality-profile-header .dropdown-toggle").click();
+    $("#quality-profile-compare").click();
+    $(".js-profile-comparison .Select-control").click();
   }
 
   @Test

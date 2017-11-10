@@ -20,21 +20,22 @@
 package org.sonarqube.tests.projectAdministration;
 
 import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category1Suite;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.openqa.selenium.Keys;
 import org.sonar.wsclient.qualitygate.QualityGate;
 import org.sonar.wsclient.qualitygate.QualityGateClient;
+import org.sonarqube.qa.util.pageobjects.Navigation;
+import org.sonarqube.qa.util.pageobjects.ProjectQualityGatePage;
+import org.sonarqube.tests.Category1Suite;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.qualitygate.SelectWsRequest;
-import org.sonarqube.qa.util.pageobjects.Navigation;
-import org.sonarqube.qa.util.pageobjects.ProjectQualityGatePage;
 
 import static util.ItUtils.newAdminWsClient;
 
@@ -126,20 +127,20 @@ public class ProjectQualityGatePageTest {
   }
 
   @Test
-  @Ignore("find a way to select None")
   public void should_set_none() {
     qualityGateClient().unsetDefault();
     QualityGate customQualityGate = createCustomQualityGate("should_set_none");
     associateWithQualityGate(customQualityGate);
 
     ProjectQualityGatePage page = openPage();
-    page.setQualityGate("");
+    Selenide.$(".Select-input input").sendKeys(Keys.UP, Keys.UP, Keys.UP, Keys.ENTER);
 
     page.assertNotSelected();
   }
 
   private ProjectQualityGatePage openPage() {
     nav.logIn().submitCredentials("admin", "admin");
+    Selenide.$(".js-skip.text-muted").pressEscape();
     return nav.openProjectQualityGate("sample");
   }
 
