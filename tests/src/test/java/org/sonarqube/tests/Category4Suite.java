@@ -29,9 +29,7 @@ import org.sonarqube.tests.ce.CeTempDirTest;
 import org.sonarqube.tests.ce.CeWsTest;
 import org.sonarqube.tests.component.ComponentsWsTest;
 import org.sonarqube.tests.component.ProjectsWsTest;
-import org.sonarqube.tests.dbCleaner.PurgeTest;
 import org.sonarqube.tests.user.RootUserInStandaloneModeTest;
-import org.sonarqube.tests.projectEvent.EventTest;
 import org.sonarqube.tests.projectEvent.ProjectActivityPageTest;
 import org.sonarqube.tests.qualityProfile.QualityProfilesUiTest;
 import org.sonarqube.tests.serverSystem.HttpHeadersTest;
@@ -77,9 +75,6 @@ import static util.ItUtils.xooPlugin;
   FileExclusionsTest.class,
   IssueExclusionsTest.class,
   // db cleaner
-  PurgeTest.class,
-  // project event
-  EventTest.class,
   ProjectActivityPageTest.class,
   // http
   HttpHeadersTest.class,
