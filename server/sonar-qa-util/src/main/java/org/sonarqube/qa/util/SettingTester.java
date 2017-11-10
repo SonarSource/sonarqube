@@ -65,9 +65,9 @@ public class SettingTester {
     setSetting(null, key, value);
   }
 
-  public void setGlobalSettings(String... properties) {
-    for (int i = 0; i < properties.length; i += 2) {
-      setSetting(null, properties[i], properties[i + 1]);
+  public void setGlobalSettings(String... keyValues) {
+    for (int i = 0; i < keyValues.length; i += 2) {
+      setSetting(null, keyValues[i], keyValues[i + 1]);
     }
   }
 

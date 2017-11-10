@@ -26,16 +26,15 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.qa.util.pageobjects.organization.MembersPage;
-import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.pageobjects.organization.MembersPage;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
 
 public class OrganizationMembershipUiTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = OrganizationSuite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator);

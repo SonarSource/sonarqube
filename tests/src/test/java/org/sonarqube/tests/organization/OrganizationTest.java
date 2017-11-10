@@ -21,7 +21,6 @@ package org.sonarqube.tests.organization;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildFailureException;
-import org.sonarqube.tests.Category6Suite;
 import java.util.List;
 import java.util.Locale;
 import org.junit.After;
@@ -67,7 +66,7 @@ public class OrganizationTest {
   private static final String AVATAR_URL = "https://www.foo.fr/corporate_logo.png";
 
   @ClassRule
-  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = OrganizationSuite.ORCHESTRATOR;
   @Rule
   public Tester tester = new Tester(orchestrator);
   @Rule

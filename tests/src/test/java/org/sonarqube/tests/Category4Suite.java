@@ -30,7 +30,7 @@ import org.sonarqube.tests.ce.CeWsTest;
 import org.sonarqube.tests.component.ComponentsWsTest;
 import org.sonarqube.tests.component.ProjectsWsTest;
 import org.sonarqube.tests.dbCleaner.PurgeTest;
-import org.sonarqube.tests.organization.RootUserTest;
+import org.sonarqube.tests.user.RootUserInStandaloneModeTest;
 import org.sonarqube.tests.projectEvent.EventTest;
 import org.sonarqube.tests.projectEvent.ProjectActivityPageTest;
 import org.sonarqube.tests.qualityProfile.QualityProfilesUiTest;
@@ -57,7 +57,7 @@ import static util.ItUtils.xooPlugin;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   // organization
-  RootUserTest.class,
+  RootUserInStandaloneModeTest.class,
   // server system
   ServerSystemTest.class,
   SystemInfoTest.class,

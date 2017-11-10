@@ -21,9 +21,8 @@
 package org.sonarqube.tests.organization;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category6Suite;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,12 +33,10 @@ import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 
-import static util.ItUtils.setServerProperty;
-
 public class OrganizationMembershipTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = OrganizationSuite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator);
@@ -47,14 +44,14 @@ public class OrganizationMembershipTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  @BeforeClass
-  public static void setUp() {
-    setServerProperty(orchestrator, "sonar.organizations.anyoneCanCreate", "true");
+  @Before
+  public void setUp() {
+    tester.settings().setGlobalSettings("sonar.organizations.anyoneCanCreate", "true");
   }
 
-  @AfterClass
-  public static void tearDown() {
-    setServerProperty(orchestrator, "sonar.organizations.anyoneCanCreate", null);
+  @After
+  public void tearDown() {
+    tester.settings().resetSettings("sonar.organizations.anyoneCanCreate");
   }
 
   @Test
