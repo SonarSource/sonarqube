@@ -25,7 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -49,7 +48,7 @@ public class CeShutdownTest {
 
   @Test
   public void stopping_CE_waits_for_in_progress_task_to_be_finished() throws Exception {
-    try (ComputeEngine ce = new ComputeEngine()) {
+    try (ComputeEngine ce = new ComputeEngine(40_000)) {
 
       try (LogsTailer.Watch watch = ce.logs().watch("CE analysis is paused")) {
         ce.triggerTask();
@@ -77,9 +76,8 @@ public class CeShutdownTest {
   }
 
   @Test
-  @Ignore("TODO make the graceful stop timeout configurable. 40 seconds is too long for a test.")
   public void stopping_CE_kills_in_progress_tasks_if_too_long_to_gracefully_stop() throws Exception {
-    try (ComputeEngine ce = new ComputeEngine()) {
+    try (ComputeEngine ce = new ComputeEngine(10)) {
 
       try (LogsTailer.Watch watch = ce.logs().watch("CE analysis is paused")) {
         ce.triggerTask();
@@ -95,11 +93,10 @@ public class CeShutdownTest {
         assertThat(ce.countInProgressTasks()).isEqualTo(1);
       }
 
-      // resume the in-progress task, so that it can
-      // finish successfully
+      // wait for task to be hard killed
       try (LogsTailer.Watch watch = ce.logs().watch("Process [ce] is stopped")) {
         watch.waitForLog();
-        assertThat(ce.hasTaskFinishedSuccessfully()).isTrue();
+        assertThat(ce.hasTaskFinishedSuccessfully()).isFalse();
         assertThat(ce.hasErrorLogs()).isTrue();
       }
     }
@@ -113,12 +110,13 @@ public class CeShutdownTest {
     private final LogsTailer logsTailer;
     private final LogsTailer.Content content = new LogsTailer.Content();
 
-    ComputeEngine() throws Exception {
+    ComputeEngine(int timeOutInMs) throws Exception {
       pauseFile = temp.newFile();
       FileUtils.touch(pauseFile);
 
       orchestrator = Orchestrator.builderEnv()
         .setServerProperty("sonar.ce.pauseTask.path", pauseFile.getAbsolutePath())
+        .setServerProperty("sonar.ce.gracefulStopTimeOutInMs", "" + timeOutInMs)
         .addPlugin(ItUtils.xooPlugin())
         .addPlugin(ItUtils.pluginArtifact("server-plugin"))
         .build();

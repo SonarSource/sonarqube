@@ -160,6 +160,11 @@ public class CeTasksMBeanImplTest {
       throw new UnsupportedOperationException("getCleanCeTasksDelay is not implemented");
     }
 
+    @Override
+    public int getGracefulStopTimeoutInMs() {
+      return 40_000;
+    }
+
   }
 
   @CheckForNull

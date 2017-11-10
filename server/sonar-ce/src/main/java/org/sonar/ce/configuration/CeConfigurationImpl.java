@@ -21,6 +21,7 @@ package org.sonar.ce.configuration;
 
 import javax.annotation.CheckForNull;
 import org.picocontainer.Startable;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 
 import static java.lang.String.format;
@@ -41,22 +42,28 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
   private static final long CANCEL_WORN_OUTS_INITIAL_DELAY = 1;
   // 10 minutes
   private static final long CANCEL_WORN_OUTS_DELAY = 10;
+  // 40 seconds
+  private static final int GRACEFUL_STOP_TIMEOUT = 40;
+  public static final String SONAR_CE_GRACEFUL_STOP_TIME_OUT_IN_MS = "sonar.ce.gracefulStopTimeOutInMs";
 
   @CheckForNull
   private final WorkerCountProvider workerCountProvider;
   private final int workerThreadCount;
+  private final int gracefultStopTimeoutInMs;
   private int workerCount;
 
-  public CeConfigurationImpl() {
+  public CeConfigurationImpl(Configuration configuration) {
     this.workerCountProvider = null;
     this.workerThreadCount = DEFAULT_WORKER_THREAD_COUNT;
     this.workerCount = DEFAULT_WORKER_COUNT;
+    this.gracefultStopTimeoutInMs = configuration.getInt(SONAR_CE_GRACEFUL_STOP_TIME_OUT_IN_MS).orElse(GRACEFUL_STOP_TIMEOUT);
   }
 
-  public CeConfigurationImpl(WorkerCountProvider workerCountProvider) {
+  public CeConfigurationImpl(Configuration configuration, WorkerCountProvider workerCountProvider) {
     this.workerCountProvider = workerCountProvider;
     this.workerThreadCount = MAX_WORKER_THREAD_COUNT;
     this.workerCount = readWorkerCount(workerCountProvider);
+    this.gracefultStopTimeoutInMs = configuration.getInt(SONAR_CE_GRACEFUL_STOP_TIME_OUT_IN_MS).orElse(GRACEFUL_STOP_TIMEOUT);
   }
 
   private static int readWorkerCount(WorkerCountProvider workerCountProvider) {
@@ -113,6 +120,11 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
   @Override
   public long getCleanCeTasksDelay() {
     return CANCEL_WORN_OUTS_DELAY;
+  }
+
+  @Override
+  public int getGracefulStopTimeoutInMs() {
+    return gracefultStopTimeoutInMs;
   }
 
 }

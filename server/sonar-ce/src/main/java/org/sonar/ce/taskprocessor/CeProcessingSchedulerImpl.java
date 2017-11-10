@@ -42,6 +42,7 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
   private final TimeUnit timeUnit;
   private final ChainingCallback[] chainingCallbacks;
   private final EnabledCeWorkerController ceWorkerController;
+  private final int gracefulStopTimeoutInMs;
 
   public CeProcessingSchedulerImpl(CeConfiguration ceConfiguration,
     CeProcessingSchedulerExecutorService processingExecutorService, CeWorkerFactory ceCeWorkerFactory,
@@ -49,6 +50,7 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
     this.executorService = processingExecutorService;
 
     this.delayBetweenEnabledTasks = ceConfiguration.getQueuePollingDelay();
+    this.gracefulStopTimeoutInMs = ceConfiguration.getGracefulStopTimeoutInMs();
     this.ceWorkerController = ceWorkerController;
     this.timeUnit = MILLISECONDS;
 
@@ -80,7 +82,7 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler {
     }
 
     // Workers have 40s to gracefully stop processing tasks
-    long until = System.currentTimeMillis() + 40_000L;
+    long until = System.currentTimeMillis() + gracefulStopTimeoutInMs;
     LOG.info("Waiting for workers to finish in-progress tasks");
     while (System.currentTimeMillis() < until && ceWorkerController.hasAtLeastOneProcessingWorker()) {
       try {

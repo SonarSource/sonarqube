@@ -92,6 +92,11 @@ public class CeConfigurationRule extends ExternalResource implements CeConfigura
     return cancelWornOutsDelay;
   }
 
+  @Override
+  public int getGracefulStopTimeoutInMs() {
+    return 40_000;
+  }
+
   public void setCleanCeTasksDelay(long cancelWornOutsDelay) {
     checkArgument(cancelWornOutsDelay > 0, "cancel worn-outs polling delay must be >= 1");
     this.cancelWornOutsDelay = cancelWornOutsDelay;
