@@ -153,8 +153,8 @@ public class LogsTailer implements AutoCloseable {
     /**
      * Blocks until the expected log appears in watched files with timeout
      */
-    public void waitForLog(long timeout, TimeUnit timeUnit) throws InterruptedException {
-      foundSignal.await(timeout, timeUnit);
+    public boolean waitForLog(long timeout, TimeUnit timeUnit) throws InterruptedException {
+      return foundSignal.await(timeout, timeUnit);
     }
 
     public Optional<String> getLog() {
