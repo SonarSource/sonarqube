@@ -29,7 +29,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
@@ -53,8 +52,6 @@ import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
 import static org.sonar.process.ProcessId.COMPUTE_ENGINE;
 import static org.sonar.process.ProcessId.ELASTICSEARCH;
 import static org.sonar.process.ProcessId.WEB_SERVER;
@@ -194,37 +191,6 @@ public class SchedulerImplTest {
     // the thread is being stopped
     awaitingTermination.join();
     assertThat(awaitingTermination.isAlive()).isFalse();
-  }
-
-  @Test
-  @Ignore("false-positives on Travis CI")
-  public void restart_reloads_java_commands_and_restarts_all_processes() throws Exception {
-    Scheduler underTest = startAll();
-
-    processLauncher.waitForProcess(WEB_SERVER).askedForRestart = true;
-
-    // waiting for all processes to be stopped
-    boolean stopped = false;
-    while (!stopped) {
-      stopped = orderedStops.size() == 3;
-      Thread.sleep(1L);
-    }
-
-    // restarting
-    verify(appReloader, timeout(60_000)).reload(settings);
-    processLauncher.waitForProcessAlive(ELASTICSEARCH);
-    processLauncher.waitForProcessAlive(COMPUTE_ENGINE);
-    processLauncher.waitForProcessAlive(WEB_SERVER);
-
-    underTest.terminate();
-    // 3+3 processes have been stopped
-    assertThat(orderedStops).hasSize(6);
-    assertThat(processLauncher.waitForProcess(ELASTICSEARCH).isAlive()).isFalse();
-    assertThat(processLauncher.waitForProcess(COMPUTE_ENGINE).isAlive()).isFalse();
-    assertThat(processLauncher.waitForProcess(WEB_SERVER).isAlive()).isFalse();
-
-    // verify that awaitTermination() does not block
-    underTest.awaitTermination();
   }
 
   @Test
