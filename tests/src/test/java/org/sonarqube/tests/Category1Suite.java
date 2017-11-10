@@ -30,10 +30,8 @@ import org.sonarqube.tests.authorisation.ProvisioningPermissionTest;
 import org.sonarqube.tests.authorisation.QualityProfileAdminPermissionTest;
 import org.sonarqube.tests.complexity.ComplexityMeasuresTest;
 import org.sonarqube.tests.customMeasure.CustomMeasuresTest;
-import org.sonarqube.tests.i18n.I18nTest;
 import org.sonarqube.tests.measure.DifferentialPeriodsTest;
 import org.sonarqube.tests.measure.MeasuresWsTest;
-import org.sonarqube.tests.measure.ProjectDashboardTest;
 import org.sonarqube.tests.measure.ProjectMeasuresPageTest;
 import org.sonarqube.tests.measure.SincePreviousVersionHistoryTest;
 import org.sonarqube.tests.measure.SinceXDaysHistoryTest;
@@ -75,8 +73,6 @@ import static util.ItUtils.xooPlugin;
   EmailsTest.class,
   PropertySetsTest.class,
   SettingsTest.class,
-  // i18n
-  I18nTest.class,
   // quality gate
   QualityGateTest.class,
   QualityGateUiTest.class,
@@ -92,7 +88,6 @@ import static util.ItUtils.xooPlugin;
   CustomMeasuresTest.class,
   // measure
   ProjectMeasuresPageTest.class,
-  ProjectDashboardTest.class,
   ProjectsPageTest.class,
   MeasuresWsTest.class,
   // measure history
