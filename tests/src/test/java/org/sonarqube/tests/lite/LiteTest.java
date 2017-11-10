@@ -53,8 +53,7 @@ public class LiteTest {
   private static Tester tester = new Tester(orchestrator);
 
   @ClassRule
-  public static RuleChain ruleChain = RuleChain.outerRule(orchestrator)
-    .around(tester);
+  public static RuleChain ruleChain = RuleChain.outerRule(orchestrator).around(tester);
 
   @BeforeClass
   public static void setUp() {

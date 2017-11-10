@@ -20,11 +20,13 @@
 package org.sonarqube.tests.duplication;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category4Suite;
 import org.apache.commons.io.IOUtils;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.qa.util.Tester;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,45 +37,37 @@ import static util.selenium.Selenese.runSelenese;
 
 public class CrossProjectDuplicationsOnRemoveFileTest {
 
-  static final String ORIGIN_PROJECT = "origin-project";
-  static final String DUPLICATE_PROJECT = "duplicate-project";
-  static final String DUPLICATE_FILE = DUPLICATE_PROJECT + ":src/main/xoo/sample/File1.xoo";
+  private static final String ORIGIN_PROJECT = "origin-project";
+  private static final String DUPLICATE_PROJECT = "duplicate-project";
+  private static final String DUPLICATE_FILE = DUPLICATE_PROJECT + ":src/main/xoo/sample/File1.xoo";
 
   @ClassRule
-  public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = DuplicationSuite.ORCHESTRATOR;
 
-  @BeforeClass
-  public static void analyzeProjects() {
-    orchestrator.resetData();
+  @Rule
+  public Tester tester = new Tester(orchestrator);
+
+  @Test
+  public void duplications_show_ws_does_not_contain_key_of_deleted_file() throws Exception {
+    // analyze projects
     ItUtils.restoreProfile(orchestrator, CrossProjectDuplicationsOnRemoveFileTest.class.getResource("/duplication/xoo-duplication-profile.xml"));
-
     analyzeProject(ORIGIN_PROJECT, "duplications/cross-project/origin");
     analyzeProject(DUPLICATE_PROJECT, "duplications/cross-project/duplicate");
 
     // Remove origin project
-    orchestrator.getServer().adminWsClient().post("api/projects/bulk_delete", "keys", ORIGIN_PROJECT);
+    tester.wsClient().wsConnector().call(new PostRequest("api/projects/bulk_delete").setParam("keys", ORIGIN_PROJECT));
     assertThat(getComponent(orchestrator, ORIGIN_PROJECT)).isNull();
-  }
 
-  @Test
-  public void duplications_show_ws_does_not_contain_key_of_deleted_file() throws Exception {
-    String duplication = orchestrator.getServer().adminWsClient().get("api/duplications/show", "key", DUPLICATE_FILE);
-
+    // api/duplications/show does not return the deleted file
+    String json = tester.wsClient().wsConnector().call(new GetRequest("api/duplications/show").setParam("key", DUPLICATE_FILE)).content();
     assertEquals(IOUtils.toString(CrossProjectDuplicationsTest.class.getResourceAsStream(
       "/duplication/CrossProjectDuplicationsOnRemoveFileTest/duplications_on_removed_file-expected.json"), "UTF-8"),
-      duplication, false);
-
+      json, false);
     // Only one file should be reference, so the reference 2 on origin-project must not exist
-    assertThat(duplication).doesNotContain("\"2\"");
-    assertThat(duplication).doesNotContain("origin-project");
-  }
+    assertThat(json).doesNotContain("\"2\"");
+    assertThat(json).doesNotContain("origin-project");
 
-  /**
-   * SONAR-3277
-   */
-  @Test
-  public void display_message_in_viewer_when_duplications_with_deleted_files_are_found() throws Exception {
-    // TODO stas, please replace this IT by a medium test
+    // SONAR-3277 display message in source viewer when duplications on deleted files are found
     runSelenese(orchestrator,
       "/duplication/CrossProjectDuplicationsOnRemoveFileTest/duplications-with-deleted-project.html");
   }

@@ -38,26 +38,26 @@
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-application</artifactId>
-      <version>${project.parent.version}</version>
+      <version>${project.version}</version>
       <type>zip</type>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-qa-util</artifactId>
-      <version>${project.parent.version}</version>
+      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-process</artifactId>
-      <version>${project.parent.version}</version>
+      <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-ws</artifactId>
-      <version>${project.parent.version}</version>
+      <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -171,6 +171,9 @@
           </argLine>
           <skipTests>${skipIts}</skipTests>
           <includes>
+            <include>*/${category}/*Suite.java</include>
+
+            <!-- deprecated categories -->
             <include>*/*${category}Suite.java</include>
           </includes>
         </configuration>

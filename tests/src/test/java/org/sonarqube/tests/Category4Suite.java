@@ -30,10 +30,6 @@ import org.sonarqube.tests.ce.CeWsTest;
 import org.sonarqube.tests.component.ComponentsWsTest;
 import org.sonarqube.tests.component.ProjectsWsTest;
 import org.sonarqube.tests.dbCleaner.PurgeTest;
-import org.sonarqube.tests.duplication.CrossProjectDuplicationsOnRemoveFileTest;
-import org.sonarqube.tests.duplication.CrossProjectDuplicationsTest;
-import org.sonarqube.tests.duplication.DuplicationsTest;
-import org.sonarqube.tests.duplication.NewDuplicationsTest;
 import org.sonarqube.tests.organization.RootUserTest;
 import org.sonarqube.tests.projectEvent.EventTest;
 import org.sonarqube.tests.projectEvent.ProjectActivityPageTest;
@@ -80,11 +76,6 @@ import static util.ItUtils.xooPlugin;
   // analysis exclusion
   FileExclusionsTest.class,
   IssueExclusionsTest.class,
-  // duplication
-  CrossProjectDuplicationsTest.class,
-  CrossProjectDuplicationsOnRemoveFileTest.class,
-  DuplicationsTest.class,
-  NewDuplicationsTest.class,
   // db cleaner
   PurgeTest.class,
   // project event
