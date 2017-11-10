@@ -8,7 +8,7 @@ function runCategory {
     -f tests/pom.xml \
     -Dcategory=$CATEGORY \
     -Dorchestrator.configUrl=http://infra.internal.sonarsource.com/jenkins/orch-$DB_ENGINE.properties \
-    -Dorchestrator.workspace=target/$CATEGORY
+    -Dorchestrator.workspace=target/$CATEGORY \
     -Dwith-db-drivers \
     -B -e -V
 }
