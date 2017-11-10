@@ -24,12 +24,15 @@ import java.util.stream.IntStream;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.config.internal.ConfigurationBridge;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
 
 import static java.lang.Math.abs;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CeConfigurationImplTest {
+  public static final ConfigurationBridge EMPTY_CONFIGURATION = new ConfigurationBridge(new MapSettings());
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -37,12 +40,12 @@ public class CeConfigurationImplTest {
 
   @Test
   public void getWorkerCount_returns_1_when_there_is_no_WorkerCountProvider() {
-    assertThat(new CeConfigurationImpl().getWorkerCount()).isEqualTo(1);
+    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION).getWorkerCount()).isEqualTo(1);
   }
 
   @Test
   public void getWorkerMaxCount_returns_1_when_there_is_no_WorkerCountProvider() {
-    assertThat(new CeConfigurationImpl().getWorkerMaxCount()).isEqualTo(1);
+    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION).getWorkerMaxCount()).isEqualTo(1);
   }
 
   @Test
@@ -50,7 +53,7 @@ public class CeConfigurationImplTest {
     int value = randomValidWorkerCount();
     workerCountProvider.set(value);
 
-    assertThat(new CeConfigurationImpl(workerCountProvider).getWorkerCount()).isEqualTo(value);
+    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider).getWorkerCount()).isEqualTo(value);
   }
 
   @Test
@@ -58,7 +61,7 @@ public class CeConfigurationImplTest {
     int value = randomValidWorkerCount();
     workerCountProvider.set(value);
 
-    assertThat(new CeConfigurationImpl(workerCountProvider).getWorkerMaxCount()).isEqualTo(10);
+    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider).getWorkerMaxCount()).isEqualTo(10);
   }
 
   @Test
@@ -67,7 +70,7 @@ public class CeConfigurationImplTest {
 
     expectMessageException(0);
 
-    new CeConfigurationImpl(workerCountProvider);
+    new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider);
   }
 
   @Test
@@ -77,7 +80,7 @@ public class CeConfigurationImplTest {
 
     expectMessageException(value);
 
-    new CeConfigurationImpl(workerCountProvider);
+    new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider);
   }
 
   @Test
@@ -87,7 +90,7 @@ public class CeConfigurationImplTest {
 
     expectMessageException(value);
 
-    new CeConfigurationImpl(workerCountProvider);
+    new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider);
   }
 
   private void expectMessageException(int value) {
@@ -98,25 +101,25 @@ public class CeConfigurationImplTest {
 
   @Test
   public void getCleanCeTasksInitialDelay_returns_1() {
-    assertThat(new CeConfigurationImpl().getCleanCeTasksInitialDelay())
+    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION).getCleanCeTasksInitialDelay())
       .isEqualTo(1L);
     workerCountProvider.set(1);
-    assertThat(new CeConfigurationImpl(workerCountProvider).getCleanCeTasksInitialDelay())
+    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider).getCleanCeTasksInitialDelay())
       .isEqualTo(1L);
   }
 
   @Test
   public void getCleanCeTasksDelay_returns_10() {
-    assertThat(new CeConfigurationImpl().getCleanCeTasksDelay())
+    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION).getCleanCeTasksDelay())
       .isEqualTo(10L);
     workerCountProvider.set(1);
-    assertThat(new CeConfigurationImpl(workerCountProvider).getCleanCeTasksDelay())
+    assertThat(new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider).getCleanCeTasksDelay())
       .isEqualTo(10L);
   }
 
   @Test
   public void refresh_does_not_change_any_value_when_there_is_no_WorkerCountProvider() {
-    CeConfigurationImpl underTest = new CeConfigurationImpl();
+    CeConfigurationImpl underTest = new CeConfigurationImpl(EMPTY_CONFIGURATION);
     long cleanCeTasksInitialDelay = underTest.getCleanCeTasksInitialDelay();
     long cleanCeTasksDelay = underTest.getCleanCeTasksDelay();
     long queuePollingDelay = underTest.getQueuePollingDelay();
@@ -137,7 +140,7 @@ public class CeConfigurationImplTest {
   @Test
   public void refresh_updates_only_workerCount_from_WorkerCountProvider_when_there_WorkerCountProvider_is_present() {
     workerCountProvider.set(randomValidWorkerCount());
-    CeConfigurationImpl underTest = new CeConfigurationImpl(workerCountProvider);
+    CeConfigurationImpl underTest = new CeConfigurationImpl(EMPTY_CONFIGURATION, workerCountProvider);
     long cleanCeTasksInitialDelay = underTest.getCleanCeTasksInitialDelay();
     long cleanCeTasksDelay = underTest.getCleanCeTasksDelay();
     long queuePollingDelay = underTest.getQueuePollingDelay();

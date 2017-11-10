@@ -52,4 +52,9 @@ public interface CeConfiguration {
    */
   long getCleanCeTasksDelay();
 
+  /**
+   * Delay before stopping workers during a graceful timeout using milliseconds unit.
+   */
+  int getGracefulStopTimeoutInMs();
+
 }
