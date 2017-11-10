@@ -38,6 +38,7 @@ case "$RUN_ACTIVITY" in
 
         Category2)
           CATEGORY=Category2 && runCategory
+          CATEGORY=test && runCategory
           ;;
 
         Category3)

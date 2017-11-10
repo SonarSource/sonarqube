@@ -51,21 +51,12 @@ import org.sonarqube.tests.qualityModel.TechnicalDebtAndIssueNewMeasuresTest;
 import org.sonarqube.tests.qualityModel.TechnicalDebtInIssueChangelogTest;
 import org.sonarqube.tests.qualityModel.TechnicalDebtTest;
 import org.sonarqube.tests.rule.RulesPageTest;
-import org.sonarqube.tests.test.CoverageTest;
-import org.sonarqube.tests.test.CoverageTrackingTest;
-import org.sonarqube.tests.test.NewCoverageTest;
-import org.sonarqube.tests.test.TestExecutionTest;
 
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  // test
-  CoverageTrackingTest.class,
-  CoverageTest.class,
-  NewCoverageTest.class,
-  TestExecutionTest.class,
   // issue
   AutoAssignTest.class,
   CommonRulesTest.class,

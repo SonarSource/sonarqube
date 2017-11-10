@@ -21,7 +21,6 @@ package org.sonarqube.tests.test;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category2Suite;
 import java.io.File;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
@@ -33,6 +32,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
@@ -40,18 +41,17 @@ import static util.ItUtils.projectDir;
 
 public class CoverageTest {
 
-  @ClassRule
-  public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
-
-  private static final String[] ALL_COVERAGE_METRICS = new String[] {
+  private static final String[] ALL_COVERAGE_METRICS = new String[]{
     "line_coverage", "lines_to_cover", "uncovered_lines", "branch_coverage", "conditions_to_cover", "uncovered_conditions", "coverage",
     "it_line_coverage", "it_lines_to_cover", "it_uncovered_lines", "it_branch_coverage", "it_conditions_to_cover", "it_uncovered_conditions", "it_coverage",
     "overall_line_coverage", "overall_lines_to_cover", "overall_uncovered_lines", "overall_branch_coverage", "overall_conditions_to_cover", "overall_uncovered_conditions",
-    "overall_coverage"
-  };
+    "overall_coverage"};
+
+  @ClassRule
+  public static Orchestrator orchestrator = TestSuite.ORCHESTRATOR;
 
   @Rule
-  public Tester tester = new Tester(orchestrator).disableOrganizations();
+  public Tester tester = new Tester(orchestrator);
 
   @Test
   public void coverage() throws Exception {
@@ -70,7 +70,8 @@ public class CoverageTest {
 
     assertThat(measures.get("overall_coverage")).isNull();
 
-    String coverage = cleanupScmAndDuplication(orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-ut-coverage:src/main/xoo/sample/Sample.xoo"));
+    GetRequest getRequest = new GetRequest("api/sources/lines").setParam("key", "sample-ut-coverage:src/main/xoo/sample/Sample.xoo");
+    String coverage = cleanupScmAndDuplication(tester.wsClient().wsConnector().call(getRequest).content());
     // Use strict checking to be sure IT coverage is not present
     JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/test/CoverageTest/unit_test_coverage-expected.json"), "UTF-8"), coverage, true);
 
@@ -101,7 +102,8 @@ public class CoverageTest {
 
     assertThat(measures.get("overall_coverage")).isNull();
 
-    String coverage = cleanupScmAndDuplication(orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-ut-coverage:src/main/xoo/sample/Sample.xoo"));
+    WsRequest getRequest = new GetRequest("api/sources/lines").setParam("key", "sample-ut-coverage:src/main/xoo/sample/Sample.xoo");
+    String coverage = cleanupScmAndDuplication(tester.wsClient().wsConnector().call(getRequest).content());
     // Use strict checking to be sure IT coverage is not present
     JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/test/CoverageTest/unit_test_coverage_no_condition-expected.json"), "UTF-8"), coverage,
       true);
@@ -129,7 +131,8 @@ public class CoverageTest {
 
     assertThat(measures.get("overall_coverage")).isNull();
 
-    String coverage = cleanupScmAndDuplication(orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-it-coverage:src/main/xoo/sample/Sample.xoo"));
+    WsRequest getRequest = new GetRequest("api/sources/lines").setParam("key", "sample-it-coverage:src/main/xoo/sample/Sample.xoo");
+    String coverage = cleanupScmAndDuplication(tester.wsClient().wsConnector().call(getRequest).content());
     // Use strict checking to be sure UT coverage is not present
     JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/test/CoverageTest/it_coverage-expected.json"), "UTF-8"), coverage, true);
 
@@ -155,7 +158,8 @@ public class CoverageTest {
 
     assertThat(measures.get("overall_coverage")).isNull();
 
-    String coverage = cleanupScmAndDuplication(orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-overall-coverage:src/main/xoo/sample/Sample.xoo"));
+    WsRequest getRequest = new GetRequest("api/sources/lines").setParam("key", "sample-overall-coverage:src/main/xoo/sample/Sample.xoo");
+    String coverage = cleanupScmAndDuplication(tester.wsClient().wsConnector().call(getRequest).content());
     // Use strict checking to be sure no extra coverage is present
     JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/test/CoverageTest/ut_and_it_coverage-expected.json"), "UTF-8"), coverage, true);
 
