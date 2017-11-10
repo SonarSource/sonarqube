@@ -17,25 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.sourceCode;
+package org.sonarqube.tests.source;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.SonarScanner;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.tests.Category1Suite;
+import org.sonarqube.qa.util.pageobjects.Navigation;
 import util.selenium.Selenese;
 
+import static com.codeborne.selenide.Condition.exist;
+import static com.codeborne.selenide.Selenide.$;
+import static util.ItUtils.projectDir;
 import static util.ItUtils.runProjectAnalysis;
 
-public class HighlightingTest {
+public class SourceViewerTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = SourceSuite.ORCHESTRATOR;
 
   @Rule
-  public Tester tester = new Tester(orchestrator).disableOrganizations();
+  public Tester tester = new Tester(orchestrator);
+
+  @Test
+  public void line_permalink() {
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
+    Navigation navigation = tester.openBrowser();
+    navigation.open("/component?id=sample%3Asrc%2Fmain%2Fxoo%2Fsample%2FSample.xoo&line=6");
+    $(".source-line").should(exist);
+    $(".source-line-highlighted[data-line-number=\"6\"]").should(exist);
+  }
 
   @Test
   public void highlight_source_code_and_symbols_usage() {

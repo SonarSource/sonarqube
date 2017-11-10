@@ -51,7 +51,6 @@ import org.sonarqube.tests.qualityModel.TechnicalDebtAndIssueNewMeasuresTest;
 import org.sonarqube.tests.qualityModel.TechnicalDebtInIssueChangelogTest;
 import org.sonarqube.tests.qualityModel.TechnicalDebtTest;
 import org.sonarqube.tests.rule.RulesPageTest;
-import org.sonarqube.tests.scm.ScmTest;
 import org.sonarqube.tests.test.CoverageTest;
 import org.sonarqube.tests.test.CoverageTrackingTest;
 import org.sonarqube.tests.test.NewCoverageTest;
@@ -67,8 +66,6 @@ import static util.ItUtils.xooPlugin;
   CoverageTest.class,
   NewCoverageTest.class,
   TestExecutionTest.class,
-  // scm
-  ScmTest.class,
   // issue
   AutoAssignTest.class,
   CommonRulesTest.class,

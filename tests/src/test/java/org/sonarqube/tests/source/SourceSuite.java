@@ -17,30 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.sourceCode;
+package org.sonarqube.tests.source;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category1Suite;
 import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.sonarqube.qa.util.Tester;
-import util.selenium.Selenese;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-import static util.ItUtils.runProjectAnalysis;
+import static util.ItUtils.xooPlugin;
 
-public class EncodingTest {
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+  EncodingTest.class,
+  ProjectCodeTest.class,
+  ScmTest.class,
+  SourceViewerTest.class
+})
+public class SourceSuite {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+    .addPlugin(xooPlugin())
+    // reduce memory for Elasticsearch
+    .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
+    .build();
 
-  @Rule
-  public Tester tester = new Tester(orchestrator).disableOrganizations();
-
-  @Test
-  public void support_japanese_charset() {
-    runProjectAnalysis(orchestrator, "sourceCode/japanese-charset", "sonar.sourceEncoding", "Shift_JIS");
-
-    Selenese.runSelenese(orchestrator, "/sourceCode/EncodingTest/japanese_sources.html");
-  }
 }

@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.sourceCode;
+package org.sonarqube.tests.source;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.tests.Category1Suite;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
 
@@ -33,10 +32,10 @@ import static util.ItUtils.projectDir;
 public class ProjectCodeTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = SourceSuite.ORCHESTRATOR;
 
   @Rule
-  public Tester tester = new Tester(orchestrator).disableOrganizations();
+  public Tester tester = new Tester(orchestrator);
 
   @Test
   public void browse() {

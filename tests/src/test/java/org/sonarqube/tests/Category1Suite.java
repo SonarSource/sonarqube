@@ -50,9 +50,6 @@ import org.sonarqube.tests.settings.DeprecatedPropertiesWsTest;
 import org.sonarqube.tests.settings.EmailsTest;
 import org.sonarqube.tests.settings.PropertySetsTest;
 import org.sonarqube.tests.settings.SettingsTest;
-import org.sonarqube.tests.sourceCode.EncodingTest;
-import org.sonarqube.tests.sourceCode.HighlightingTest;
-import org.sonarqube.tests.sourceCode.ProjectCodeTest;
 import org.sonarqube.tests.user.UsersPageTest;
 
 import static util.ItUtils.pluginArtifact;
@@ -95,10 +92,6 @@ import static util.ItUtils.xooPlugin;
   SincePreviousVersionHistoryTest.class,
   SinceXDaysHistoryTest.class,
   TimeMachineTest.class,
-  // source code
-  EncodingTest.class,
-  HighlightingTest.class,
-  ProjectCodeTest.class,
   // complexity
   ComplexityMeasuresTest.class
 })

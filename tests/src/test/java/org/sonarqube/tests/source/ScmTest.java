@@ -17,12 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.scm;
+package org.sonarqube.tests.source;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category2Suite;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,12 +32,13 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.assertj.core.data.MapEntry;
-import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.jsonsimple.JSONArray;
 import org.sonar.wsclient.jsonsimple.JSONObject;
 import org.sonar.wsclient.jsonsimple.JSONValue;
+import org.sonarqube.qa.util.Tester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
@@ -46,17 +46,18 @@ import static util.ItUtils.projectDir;
 public class ScmTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = SourceSuite.ORCHESTRATOR;
 
   private static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
-  @Before
-  public void delete_data() {
-    orchestrator.resetData();
-  }
+  @Rule
+  public Tester tester = new Tester(orchestrator);
 
+  /**
+   * SONAR-6897
+   */
   @Test
-  public void scm_optimization() throws Exception {
+  public void load_scm_from_previous_analysis_if_scm_missing_in_analysis() throws Exception {
     SonarScanner build = SonarScanner.create(projectDir("scm/xoo-sample-with-scm"))
       .setProperty("sonar.scm.provider", "xoo")
       .setProperty("sonar.scm.disabled", "false");
