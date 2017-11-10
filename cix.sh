@@ -54,6 +54,7 @@ case "$RUN_ACTIVITY" in
 
         Category6)
           CATEGORY=Category6 && runCategory
+          CATEGORY=organization && runCategory
           ;;
 
         *)

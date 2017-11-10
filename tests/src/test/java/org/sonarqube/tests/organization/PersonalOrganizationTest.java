@@ -21,7 +21,6 @@
 package org.sonarqube.tests.organization;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category6Suite;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -41,7 +40,7 @@ public class PersonalOrganizationTest {
   private static final String SETTING_CREATE_PERSONAL_ORG = "sonar.organizations.createPersonalOrg";
 
   @ClassRule
-  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = OrganizationSuite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator);

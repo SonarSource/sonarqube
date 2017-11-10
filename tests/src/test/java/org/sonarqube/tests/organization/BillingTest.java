@@ -22,13 +22,13 @@ package org.sonarqube.tests.organization;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category6Suite;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
@@ -36,7 +36,6 @@ import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.organization.UpdateProjectVisibilityWsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
-import org.sonarqube.qa.util.pageobjects.Navigation;
 import util.ItUtils;
 
 import static java.lang.String.format;
@@ -45,15 +44,13 @@ import static org.sonarqube.ws.WsCe.TaskResponse;
 import static util.ItUtils.expectHttpError;
 import static util.ItUtils.newProjectKey;
 import static util.ItUtils.projectDir;
-import static util.ItUtils.resetSettings;
-import static util.ItUtils.setServerProperty;
 
 public class BillingTest {
 
   private static final String PROPERTY_PREVENT_ANALYSIS = "sonar.billing.preventProjectAnalysis";
 
   @ClassRule
-  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = OrganizationSuite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator);
@@ -64,7 +61,7 @@ public class BillingTest {
   @Before
   @After
   public void reset() {
-    resetSettings(orchestrator, null, PROPERTY_PREVENT_ANALYSIS, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate");
+    tester.settings().resetSettings(PROPERTY_PREVENT_ANALYSIS, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate");
   }
 
   @Before
@@ -75,7 +72,7 @@ public class BillingTest {
 
   @Test
   public void execute_successfully_ce_analysis_on_organization() {
-    setServerProperty(orchestrator, PROPERTY_PREVENT_ANALYSIS, "false");
+    tester.settings().setGlobalSettings(PROPERTY_PREVENT_ANALYSIS, "false");
 
     String taskUuid = executeAnalysis(newProjectKey());
 
@@ -85,7 +82,7 @@ public class BillingTest {
 
   @Test
   public void fail_to_execute_ce_analysis_on_organization() {
-    setServerProperty(orchestrator, PROPERTY_PREVENT_ANALYSIS, "true");
+    tester.settings().setGlobalSettings(PROPERTY_PREVENT_ANALYSIS, "true");
 
     String taskUuid = executeAnalysis(newProjectKey());
 
@@ -99,15 +96,15 @@ public class BillingTest {
     User user = tester.users().generate();
     tester.organizations().addMember(organization, user);
 
-    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
+    tester.settings().setGlobalSettings("sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
     assertWsResponseAsAdmin(new GetRequest("api/navigation/organization").setParam("organization", organization.getKey()),
       "\"canUpdateProjectsVisibilityToPrivate\":true");
 
-    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
+    tester.settings().setGlobalSettings("sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
     assertWsResponseAsAdmin(new GetRequest("api/navigation/organization").setParam("organization", organization.getKey()),
       "\"canUpdateProjectsVisibilityToPrivate\":false");
 
-    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
+    tester.settings().setGlobalSettings("sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
     assertWsResponseAsUser(new GetRequest("api/navigation/organization").setParam("organization", organization.getKey()),
       "\"canUpdateProjectsVisibilityToPrivate\":false", user);
   }
@@ -116,18 +113,18 @@ public class BillingTest {
   public void api_navigation_component_returns_canUpdateProjectVisibilityToPrivate() {
     String projectKey = createPublicProject();
 
-    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
+    tester.settings().setGlobalSettings("sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
     assertWsResponseAsAdmin(new GetRequest("api/navigation/component").setParam("componentKey", projectKey),
       "\"canUpdateProjectVisibilityToPrivate\":true");
 
-    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
+    tester.settings().setGlobalSettings("sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
     assertWsResponseAsAdmin(new GetRequest("api/navigation/component").setParam("componentKey", projectKey),
       "\"canUpdateProjectVisibilityToPrivate\":false");
   }
 
   @Test
   public void does_not_fail_to_update_default_projects_visibility_to_private() {
-    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
+    tester.settings().setGlobalSettings("sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
 
     tester.wsClient().organizations().updateProjectVisibility(UpdateProjectVisibilityWsRequest.builder()
       .setOrganization(organization.getKey())
@@ -140,7 +137,7 @@ public class BillingTest {
 
   @Test
   public void fail_to_update_organization_default_visibility_to_private() {
-    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
+    tester.settings().setGlobalSettings("sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
 
     expectHttpError(400,
       format("Organization %s cannot use private project", organization.getKey()),
@@ -151,7 +148,7 @@ public class BillingTest {
   @Test
   public void does_not_fail_to_update_project_visibility_to_private() {
     String projectKey = createPublicProject();
-    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
+    tester.settings().setGlobalSettings("sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
 
     tester.wsClient().projects().updateVisibility(UpdateVisibilityRequest.builder().setProject(projectKey).setVisibility("private").build());
 
@@ -161,7 +158,7 @@ public class BillingTest {
   @Test
   public void fail_to_update_project_visibility_to_private() {
     String projectKey = createPublicProject();
-    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
+    tester.settings().setGlobalSettings("sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
 
     expectHttpError(400,
       format("Organization %s cannot use private project", organization.getKey()),
@@ -171,7 +168,7 @@ public class BillingTest {
   @Test
   public void does_not_fail_to_create_private_project() {
     String projectKey = newProjectKey();
-    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
+    tester.settings().setGlobalSettings("sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
 
     tester.wsClient().projects().create(CreateRequest.builder().setKey(projectKey).setName(projectKey).setOrganization(organization.getKey()).setVisibility("public").build());
 
@@ -181,7 +178,7 @@ public class BillingTest {
   @Test
   public void fail_to_create_private_project() {
     String projectKey = newProjectKey();
-    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
+    tester.settings().setGlobalSettings("sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
 
     expectHttpError(400,
       format("Organization %s cannot use private project", organization.getKey()),
@@ -192,7 +189,7 @@ public class BillingTest {
   @Test
   public void ui_does_not_allow_to_turn_project_to_private() {
     String projectKey = createPublicProject();
-    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
+    tester.settings().setGlobalSettings("sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "true");
 
     Navigation.create(orchestrator)
       .logIn().submitCredentials(orgAdministrator.getLogin())
@@ -204,7 +201,7 @@ public class BillingTest {
   @Test
   public void ui_allows_to_turn_project_to_private() {
     String projectKey = createPublicProject();
-    setServerProperty(orchestrator, "sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
+    tester.settings().setGlobalSettings("sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
 
     tester.openBrowser()
       .logIn().submitCredentials(orgAdministrator.getLogin())
