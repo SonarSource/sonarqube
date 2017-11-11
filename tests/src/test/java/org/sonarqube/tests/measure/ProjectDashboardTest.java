@@ -27,38 +27,28 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.openqa.selenium.Keys;
-import org.sonarqube.qa.util.pageobjects.Navigation;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.ProjectDashboardPage;
-import org.sonarqube.tests.Category1Suite;
 import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsClient;
-import util.user.UserRule;
 
 import static com.codeborne.selenide.Condition.exist;
-import static com.codeborne.selenide.Condition.hasText;
 import static com.codeborne.selenide.Condition.text;
-import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 import static util.selenium.Selenese.runSelenese;
 
 public class ProjectDashboardTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = MeasureSuite.ORCHESTRATOR;
 
   @Rule
-  public UserRule userRule = UserRule.from(orchestrator);
+  public Tester tester = new Tester(orchestrator);
 
-  private Navigation nav = Navigation.create(orchestrator);
-
-  private static WsClient wsClient;
   private String adminUser;
 
   @Before
   public void setUp() throws Exception {
-    wsClient = newAdminWsClient(orchestrator);
-    orchestrator.resetData();
-    adminUser = userRule.createAdminUser();
+    adminUser = tester.users().generateAdministratorOnDefaultOrganization().getLogin();
   }
 
   @Test
@@ -72,10 +62,10 @@ public class ProjectDashboardTest {
   public void display_size() {
     executeBuild("shared/xoo-sample", "sample", "Sample");
 
-    ProjectDashboardPage page = Navigation.create(orchestrator).openProjectDashboard("sample");
+    ProjectDashboardPage page = tester.openBrowser().openProjectDashboard("sample");
 
-    page.getLinesOfCode().should(hasText("13"));
-    page.getLanguageDistribution().should(hasText("Xoo"), hasText("13"));
+    page.getLinesOfCode().should(text("13"));
+    page.getLanguageDistribution().should(text("Xoo"), text("13"));
   }
 
   @Test
@@ -83,12 +73,12 @@ public class ProjectDashboardTest {
     executeBuild("shared/xoo-sample", "sample", "Sample");
 
     // Add some tags to the project
-    wsClient.wsConnector().call(
+    tester.wsClient().wsConnector().call(
       new PostRequest("api/project_tags/set")
         .setParam("project", "sample")
         .setParam("tags", "foo,bar,baz"));
 
-    ProjectDashboardPage page = Navigation.create(orchestrator).openProjectDashboard("sample");
+    ProjectDashboardPage page = tester.openBrowser().openProjectDashboard("sample");
     page
       .shouldHaveTags("foo", "bar", "baz")
       .shouldNotBeEditable();
@@ -98,13 +88,13 @@ public class ProjectDashboardTest {
   public void display_tags_with_edit() {
     executeBuild("shared/xoo-sample", "sample-with-tags", "Sample with tags");
     // Add some tags to another project to have them in the list
-    wsClient.wsConnector().call(
+    tester.wsClient().wsConnector().call(
       new PostRequest("api/project_tags/set")
         .setParam("project", "sample-with-tags")
         .setParam("tags", "foo,bar,baz"));
 
     executeBuild("shared/xoo-sample", "sample", "Sample");
-    ProjectDashboardPage page = nav.logIn().submitCredentials(adminUser).openProjectDashboard("sample");
+    ProjectDashboardPage page = tester.openBrowser().logIn().submitCredentials(adminUser).openProjectDashboard("sample");
     page
       .shouldHaveTags("No tags")
       .shouldBeEditable()
@@ -113,10 +103,10 @@ public class ProjectDashboardTest {
     page
       .shouldHaveTags("foo")
       .sendKeysToTagsInput("test")
-      .getTagAtIdx(0).should(hasText("+ test")).click();
+      .getTagAtIdx(0).should(text("+ test")).click();
     page
       .shouldHaveTags("foo", "test")
-      .getTagAtIdx(1).should(hasText("test"));
+      .getTagAtIdx(1).should(text("test"));
     page
       .sendKeysToTagsInput(Keys.ENTER)
       .shouldHaveTags("test");
@@ -126,19 +116,22 @@ public class ProjectDashboardTest {
   public void display_project_activity_shortcut() {
     executeBuild("shared/xoo-sample", "sample-with-tags", "Sample with tags");
     // Add some tags to another project to have them in the list
-    wsClient.wsConnector().call(
+    tester.wsClient().wsConnector().call(
       new PostRequest("api/project_tags/set")
         .setParam("project", "sample-with-tags")
         .setParam("tags", "foo,bar,baz"));
 
     executeBuild("shared/xoo-sample", "sample", "Sample");
-    ProjectDashboardPage page = nav.logIn().submitCredentials(adminUser).openProjectDashboard("sample");
+    ProjectDashboardPage page = tester.openBrowser()
+      .logIn()
+      .submitCredentials(adminUser)
+      .openProjectDashboard("sample");
     page.getOverviewMeasure("Debt").$(".overview-domain-measure-history-link").should(exist);
   }
 
   @Test
   public void display_a_nice_error_when_requesting_unknown_project() {
-    nav.open("/dashboard/index?id=unknown");
+    tester.openBrowser().open("/dashboard/index?id=unknown");
     Selenide.$("#nonav").should(text("The requested project does not exist. Either it has never been analyzed successfully or it has been deleted."));
     // TODO verify that on global homepage
   }

@@ -21,37 +21,37 @@ package org.sonarqube.tests.measure;
 
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.sonarqube.qa.util.Tester;
-import util.ItUtils;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.getMeasureAsDouble;
+import static util.ItUtils.pluginArtifact;
+import static util.ItUtils.xooPlugin;
 
-/**
- * SONAR-6939
- */
-public class DecimalScaleMetricTest {
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+  ComplexityMeasuresTest.class,
+  CustomMeasuresTest.class,
+  DecimalScaleMetricTest.class,
+  DifferentialPeriodsTest.class,
+  MeasuresWsTest.class,
+  ProjectDashboardTest.class,
+  ProjectMeasuresPageTest.class,
+  SincePreviousVersionHistoryTest.class,
+  SinceXDaysHistoryTest.class,
+  TimeMachineTest.class
+})
+public class MeasureSuite {
 
-  /**
-   * Requires the plugin "batch-plugin" 
-   */
   @ClassRule
-  public static Orchestrator orchestrator = MeasureSuite.ORCHESTRATOR;
+  public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+    // reduce memory for Elasticsearch
+    .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
 
-  @Rule
-  public Tester tester = new Tester(orchestrator);
+    .addPlugin(xooPlugin())
 
-  @Test
-  public void override_decimal_scale_of_numeric_metric() {
-    String projectKey = "DecimalScaleMetricTest.override_decimal_scale_of_numeric_metric";
-    // see DecimalScaleMetric
-    String metricKey = "decimal_scale";
-    ItUtils.runProjectAnalysis(orchestrator, "shared/xoo-sample",
-      "sonar.projectKey", projectKey,
-      "sonar.scanner.feedDecimalScaleMetric", String.valueOf(true));
+    // used by DecimalScaleMetricTest
+    .addPlugin(pluginArtifact("batch-plugin"))
 
-    assertThat(getMeasureAsDouble(orchestrator, projectKey, metricKey)).isEqualTo(0.0001);
-  }
+    .build();
+
 }

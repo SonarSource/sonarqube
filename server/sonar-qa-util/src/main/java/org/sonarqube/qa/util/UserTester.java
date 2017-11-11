@@ -67,6 +67,9 @@ public class UserTester {
     return service().create(request.build()).getUser();
   }
 
+  /**
+   * For standalone mode only
+   */
   @SafeVarargs
   public final User generateAdministrator(Consumer<CreateRequest.Builder>... populators) {
     User user = generate(populators);
@@ -77,12 +80,25 @@ public class UserTester {
 
   @SafeVarargs
   public final User generateAdministrator(Organizations.Organization organization, Consumer<CreateRequest.Builder>... populators) {
+    String organizationKey = organization.getKey();
     User user = generate(populators);
-    session.wsClient().organizations().addMember(organization.getKey(), user.getLogin());
+    session.wsClient().organizations().addMember(organizationKey, user.getLogin());
     session.wsClient().userGroups().addUser(AddUserWsRequest.builder()
-      .setOrganization(organization.getKey())
+      .setOrganization(organizationKey)
       .setLogin(user.getLogin())
       .setName("Owners")
+      .build());
+    return user;
+  }
+
+  @SafeVarargs
+  public final User generateAdministratorOnDefaultOrganization(Consumer<CreateRequest.Builder>... populators) {
+    User user = generate(populators);
+    session.wsClient().organizations().addMember("default-organization", user.getLogin());
+    session.wsClient().userGroups().addUser(AddUserWsRequest.builder()
+      .setOrganization("default-organization")
+      .setLogin(user.getLogin())
+      .setName("sonar-administrators")
       .build());
     return user;
   }

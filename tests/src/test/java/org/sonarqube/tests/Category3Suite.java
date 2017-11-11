@@ -37,7 +37,6 @@ import org.sonarqube.tests.analysis.SSLTest;
 import org.sonarqube.tests.analysis.ScannerTest;
 import org.sonarqube.tests.analysis.SettingsEncryptionTest;
 import org.sonarqube.tests.analysis.TempFolderTest;
-import org.sonarqube.tests.measure.DecimalScaleMetricTest;
 import org.sonarqube.tests.plugins.VersionPluginTest;
 import org.sonarqube.tests.webhook.WebhooksTest;
 
@@ -62,8 +61,6 @@ import static util.ItUtils.xooPlugin;
   SSLTest.class,
   FavoriteTest.class,
   RedirectTest.class,
-  // measures
-  DecimalScaleMetricTest.class,
   WebhooksTest.class
 })
 public class Category3Suite {

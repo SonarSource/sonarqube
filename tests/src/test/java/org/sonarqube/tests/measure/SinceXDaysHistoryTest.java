@@ -21,15 +21,15 @@ package org.sonarqube.tests.measure;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category1Suite;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.time.DateUtils;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.WsMeasures;
 import util.ItUtils;
 
@@ -37,20 +37,23 @@ import static java.lang.Integer.parseInt;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.getMeasureWithVariation;
 import static util.ItUtils.projectDir;
-import static util.ItUtils.setServerProperty;
 
 public class SinceXDaysHistoryTest {
 
-  @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
-
   private static final String PROJECT = "multi-files-sample";
+
+  @ClassRule
+  public static Orchestrator orchestrator = MeasureSuite.ORCHESTRATOR;
+
+  private static Tester tester = new Tester(orchestrator);
+
+  @ClassRule
+  public static RuleChain ruleChain = RuleChain.outerRule(orchestrator).around(tester);
 
   @BeforeClass
   public static void analyseProjectWithHistory() {
-    initPeriod();
+    tester.settings().setGlobalSettings("sonar.leak.period", "30");
 
-    orchestrator.resetData();
     ItUtils.restoreProfile(orchestrator, SinceXDaysHistoryTest.class.getResource("/measure/one-issue-per-line-profile.xml"));
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "one-issue-per-line");
@@ -66,15 +69,6 @@ public class SinceXDaysHistoryTest {
 
     // Execute a analysis in the present with all modules -> 52 issues, 4 files
     analyzeProject();
-  }
-
-  private static void initPeriod() {
-    setServerProperty(orchestrator, "sonar.leak.period", "30");
-  }
-
-  @AfterClass
-  public static void resetPeriods() throws Exception {
-    ItUtils.resetPeriod(orchestrator);
   }
 
   @Test

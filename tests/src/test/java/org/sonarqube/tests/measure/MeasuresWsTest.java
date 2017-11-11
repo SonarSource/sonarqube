@@ -21,60 +21,48 @@ package org.sonarqube.tests.measure;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category1Suite;
 import java.util.List;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
 import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
-import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 import org.sonarqube.ws.client.measure.ComponentWsRequest;
-import util.ItUtils;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
-import static util.ItUtils.setServerProperty;
 
 public class MeasuresWsTest {
-  @ClassRule
-  public static final Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
   private static final String FILE_KEY = "sample:src/main/xoo/sample/Sample.xoo";
   private static final String DIR_KEY = "sample:src/main/xoo/sample";
-  WsClient wsClient;
 
-  @BeforeClass
-  public static void initPeriod() throws Exception {
-    setServerProperty(orchestrator, "sonar.leak.period", "previous_version");
-  }
+  @ClassRule
+  public static final Orchestrator orchestrator = MeasureSuite.ORCHESTRATOR;
 
-  @AfterClass
-  public static void resetPeriod() throws Exception {
-    ItUtils.resetPeriod(orchestrator);
-  }
+  @Rule
+  public Tester tester = new Tester(orchestrator);
 
   @Before
-  public void inspectProject() {
-    orchestrator.resetData();
-
-    wsClient = ItUtils.newAdminWsClient(orchestrator);
+  public void setUp() {
+    tester.settings().setGlobalSettings("sonar.leak.period", "previous_version");
   }
 
   @Test
   public void component_tree() {
     scanXooSample();
 
-    ComponentTreeWsResponse response = wsClient.measures().componentTree(new ComponentTreeWsRequest()
-      .setBaseComponentKey("sample")
+    ComponentTreeWsResponse response = tester.wsClient().measures().componentTree(new ComponentTreeWsRequest()
+      .setComponent("sample")
       .setMetricKeys(singletonList("ncloc"))
-      .setAdditionalFields(newArrayList("metrics", "periods")));
+      .setAdditionalFields(asList("metrics", "periods")));
 
     assertThat(response).isNotNull();
     assertThat(response.getBaseComponent().getKey()).isEqualTo("sample");
@@ -85,7 +73,7 @@ public class MeasuresWsTest {
   }
 
   /**
-   * @see SONAR-7958
+   * SONAR-7958
    */
   @Test
   public void component_tree_supports_module_move_down() {
@@ -110,7 +98,7 @@ public class MeasuresWsTest {
   }
 
   /**
-   * @see SONAR-7958
+   * SONAR-7958
    */
   @Test
   public void component_tree_supports_module_move_up() {
@@ -135,8 +123,8 @@ public class MeasuresWsTest {
   }
 
   private void verifyComponentTreeWithChildren(String baseComponentKey, String... childKeys) {
-    ComponentTreeWsResponse response = wsClient.measures().componentTree(new ComponentTreeWsRequest()
-      .setBaseComponentKey(baseComponentKey)
+    ComponentTreeWsResponse response = tester.wsClient().measures().componentTree(new ComponentTreeWsRequest()
+      .setComponent(baseComponentKey)
       .setMetricKeys(singletonList("ncloc"))
       .setStrategy("children"));
 
@@ -149,8 +137,8 @@ public class MeasuresWsTest {
   public void component() {
     scanXooSample();
 
-    ComponentWsResponse response = wsClient.measures().component(new ComponentWsRequest()
-      .setComponentKey("sample")
+    ComponentWsResponse response = tester.wsClient().measures().component(new ComponentWsRequest()
+      .setComponent("sample")
       .setMetricKeys(singletonList("ncloc"))
       .setAdditionalFields(newArrayList("metrics", "periods")));
 

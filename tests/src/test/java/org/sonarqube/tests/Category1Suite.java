@@ -28,14 +28,6 @@ import org.sonarqube.tests.authorisation.IssuePermissionTest;
 import org.sonarqube.tests.authorisation.PermissionSearchTest;
 import org.sonarqube.tests.authorisation.ProvisioningPermissionTest;
 import org.sonarqube.tests.authorisation.QualityProfileAdminPermissionTest;
-import org.sonarqube.tests.complexity.ComplexityMeasuresTest;
-import org.sonarqube.tests.customMeasure.CustomMeasuresTest;
-import org.sonarqube.tests.measure.DifferentialPeriodsTest;
-import org.sonarqube.tests.measure.MeasuresWsTest;
-import org.sonarqube.tests.measure.ProjectMeasuresPageTest;
-import org.sonarqube.tests.measure.SincePreviousVersionHistoryTest;
-import org.sonarqube.tests.measure.SinceXDaysHistoryTest;
-import org.sonarqube.tests.measure.TimeMachineTest;
 import org.sonarqube.tests.projectAdministration.BackgroundTasksTest;
 import org.sonarqube.tests.projectAdministration.ProjectAdministrationTest;
 import org.sonarqube.tests.projectAdministration.ProjectBulkDeletionPageTest;
@@ -81,19 +73,8 @@ import static util.ItUtils.xooPlugin;
   PermissionSearchTest.class,
   ProvisioningPermissionTest.class,
   QualityProfileAdminPermissionTest.class,
-  // custom measure
-  CustomMeasuresTest.class,
   // measure
-  ProjectMeasuresPageTest.class,
-  ProjectsPageTest.class,
-  MeasuresWsTest.class,
-  // measure history
-  DifferentialPeriodsTest.class,
-  SincePreviousVersionHistoryTest.class,
-  SinceXDaysHistoryTest.class,
-  TimeMachineTest.class,
-  // complexity
-  ComplexityMeasuresTest.class
+  ProjectsPageTest.class
 })
 public class Category1Suite {
 

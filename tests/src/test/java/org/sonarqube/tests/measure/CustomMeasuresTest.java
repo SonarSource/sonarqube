@@ -17,16 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.customMeasure;
+package org.sonarqube.tests.measure;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category1Suite;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.qa.util.Tester;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,12 +39,10 @@ public class CustomMeasuresTest {
   private static final String PROJECT_KEY = "sample";
 
   @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = MeasureSuite.ORCHESTRATOR;
 
-  @Before
-  public void deleteProjects() {
-    orchestrator.resetData();
-  }
+  @Rule
+  public Tester tester = new Tester(orchestrator);
 
   @Test
   public void custom_measures_should_be_integrated_during_project_analysis() {
@@ -77,7 +77,7 @@ public class CustomMeasuresTest {
     analyzeProject();
     deleteCustomMeasure("team_size");
     assertThat(getMeasureAsDouble("team_size")).isEqualTo(4d);// the value is still available. It will be removed during next
-                                                                           // analyzed
+    // analyzed
 
     analyzeProject();
     assertThat(getMeasureAsDouble("team_size")).isNull();
@@ -88,27 +88,47 @@ public class CustomMeasuresTest {
   }
 
   private void setTeamSize(int i) {
-    orchestrator.getServer().adminWsClient().post("api/custom_measures/create", "projectKey", PROJECT_KEY, "metricKey", "team_size", "value", String.valueOf(i));
+    PostRequest postRequest = new PostRequest("api/custom_measures/create")
+      .setParam("projectKey", PROJECT_KEY)
+      .setParam("metricKey", "team_size")
+      .setParam("value", String.valueOf(i));
+    tester.wsClient().wsConnector().call(postRequest);
   }
 
   private void updateTeamSize(int i) {
-    String response = orchestrator.getServer().adminWsClient().get("api/custom_measures/search", "projectKey", PROJECT_KEY, "metricKey", "team_size");
+    GetRequest getRequest = new GetRequest("api/custom_measures/search")
+      .setParam("projectKey", PROJECT_KEY)
+      .setParam("metricKey", "team_size");
+    String response = tester.wsClient().wsConnector().call(getRequest).content();
     Matcher jsonObjectMatcher = Pattern.compile(".*?\"id\"\\s*:\\s*\"(.*?)\".*", Pattern.MULTILINE).matcher(response);
     jsonObjectMatcher.find();
     String customMeasureId = jsonObjectMatcher.group(1);
-    orchestrator.getServer().adminWsClient().post("api/custom_measures/update", "id", customMeasureId, "value", String.valueOf(i));
+    PostRequest postRequest = new PostRequest("api/custom_measures/update")
+      .setParam("id", customMeasureId)
+      .setParam("value", String.valueOf(i));
+    tester.wsClient().wsConnector().call(postRequest);
   }
 
   private void setBurnedBudget(double d) {
-    orchestrator.getServer().adminWsClient().post("api/custom_measures/create", "projectKey", PROJECT_KEY, "metricKey", "burned_budget", "value", String.valueOf(d));
+    PostRequest postRequest = new PostRequest("api/custom_measures/create")
+      .setParam("projectKey", PROJECT_KEY)
+      .setParam("metricKey", "burned_budget")
+      .setParam("value", String.valueOf(d));
+    tester.wsClient().wsConnector().call(postRequest);
   }
 
   private void deleteCustomMeasure(String metricKey) {
-    String response = orchestrator.getServer().adminWsClient().get("api/custom_measures/search", "projectKey", PROJECT_KEY, "metricKey", metricKey);
+    GetRequest getRequest = new GetRequest("api/custom_measures/search")
+      .setParam("projectKey", PROJECT_KEY)
+      .setParam("metricKey", metricKey);
+    String response = tester.wsClient().wsConnector().call(getRequest).content();
     Matcher jsonObjectMatcher = Pattern.compile(".*?\"id\"\\s*:\\s*\"(.*?)\".*", Pattern.MULTILINE).matcher(response);
     jsonObjectMatcher.find();
     String customMeasureId = jsonObjectMatcher.group(1);
-    orchestrator.getServer().adminWsClient().post("api/custom_measures/delete", "id", customMeasureId);
+
+    PostRequest postRequest = new PostRequest("api/custom_measures/delete")
+      .setParam("id", customMeasureId);
+    tester.wsClient().wsConnector().call(postRequest);
   }
 
   private Double getMeasureAsDouble(String metricKey) {
