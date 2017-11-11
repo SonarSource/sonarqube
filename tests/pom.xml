@@ -28,6 +28,13 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <!-- required for selenide -->
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>23.0</version>
+      <scope>test</scope>
+    </dependency>
     <!-- must be declared first -->
     <dependency>
       <groupId>org.sonarsource.orchestrator</groupId>
@@ -59,17 +66,6 @@
       <artifactId>sonar-ws</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.codeborne</groupId>
-      <artifactId>selenide</artifactId>
-      <version>4.4.3</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <!-- required for selenide -->
-      <version>21.0</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>

@@ -23,7 +23,13 @@
     <dependency>
       <groupId>com.codeborne</groupId>
       <artifactId>selenide</artifactId>
-      <version>4.4.3</version>
+      <version>4.8</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <!-- required for selenide -->
+      <version>23.0</version>
     </dependency>
     <dependency>
       <groupId>org.assertj</groupId>
@@ -33,12 +39,6 @@
       <groupId>org.sonarsource.orchestrator</groupId>
       <artifactId>sonar-orchestrator</artifactId>
       <version>${orchestrator.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <!-- required for selenide -->
-      <version>21.0</version>
     </dependency>
 
     <dependency>
