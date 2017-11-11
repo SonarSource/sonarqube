@@ -17,21 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.authorisation;
+package org.sonarqube.tests.authorization;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category1Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.user.UserParameters;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Issues;
-import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.issue.BulkChangeRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
@@ -40,24 +40,25 @@ import util.ItUtils;
 import static java.util.Arrays.asList;
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.projectDir;
 
 public class IssuePermissionTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
-  public WsClient adminWsClient = newAdminWsClient(orchestrator);
+  public static Orchestrator orchestrator = AuthorizationSuite.ORCHESTRATOR;
+
+  @Rule
+  public Tester tester = new Tester(orchestrator)
+    // all the tests of AuthorizationSuite must disable organizations
+    .disableOrganizations();
 
   @Before
   public void init() {
-    orchestrator.resetData();
-
     ItUtils.restoreProfile(orchestrator, getClass().getResource("/authorisation/one-issue-per-line-profile.xml"));
 
     orchestrator.getServer().provisionProject("privateProject", "PrivateProject");
-    newAdminWsClient(orchestrator).projects().updateVisibility(UpdateVisibilityRequest.builder().setProject("privateProject").setVisibility("private").build());
+    tester.wsClient().projects().updateVisibility(UpdateVisibilityRequest.builder().setProject("privateProject").setVisibility("private").build());
     orchestrator.getServer().associateProjectToQualityProfile("privateProject", "xoo", "one-issue-per-line");
     SonarScanner privateProject = SonarScanner.create(projectDir("shared/xoo-sample"))
       .setProperty("sonar.projectKey", "privateProject")
@@ -263,7 +264,7 @@ public class IssuePermissionTest {
   }
 
   private void addUserPermission(String login, String projectKey, String permission) {
-    adminWsClient.permissions().addUser(
+    tester.wsClient().permissions().addUser(
       new AddUserWsRequest()
         .setLogin(login)
         .setProjectKey(projectKey)

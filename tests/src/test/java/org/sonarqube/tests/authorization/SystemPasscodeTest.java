@@ -17,12 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.authorisation;
+package org.sonarqube.tests.authorization;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.OrchestratorBuilder;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
@@ -31,36 +29,20 @@ import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.pluginArtifact;
 
 public class SystemPasscodeTest {
 
-  private static final String VALID_PASSCODE = "123456";
+  static final String VALID_PASSCODE = "123456";
   private static final String INVALID_PASSCODE = "not" + VALID_PASSCODE;
   private static final String PASSCODE_HEADER = "X-Sonar-Passcode";
 
-  private static Orchestrator orchestrator;
-
-  @BeforeClass
-  public static void setUp() throws Exception {
-    OrchestratorBuilder builder = Orchestrator.builderEnv()
-      // this privileged plugin provides the WS api/system_passcode/check
-      // that is used by the tests
-      .addPlugin(pluginArtifact("fake-governance-plugin"))
-      .setServerProperty("sonar.web.systemPasscode", VALID_PASSCODE);
-    orchestrator = builder.build();
-    orchestrator.start();
-  }
-
-  @AfterClass
-  public static void stop() {
-    if (orchestrator != null) {
-      orchestrator.stop();
-    }
-  }
+  @ClassRule
+  public static Orchestrator orchestrator = AuthorizationSuite.ORCHESTRATOR;
 
   @Rule
-  public Tester tester = new Tester(orchestrator);
+  public Tester tester = new Tester(orchestrator)
+    // all the tests of AuthorizationSuite must disable organizations
+    .disableOrganizations();
 
   @Test
   public void system_access_is_granted_if_valid_passcode_is_sent_through_http_header() {

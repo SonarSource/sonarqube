@@ -27,7 +27,6 @@ import org.sonarqube.qa.util.Tester;
  * @deprecated replaced by {@link Tester}
  */
 @Deprecated
-
 public class Groups {
 
   private List<Group> groups;

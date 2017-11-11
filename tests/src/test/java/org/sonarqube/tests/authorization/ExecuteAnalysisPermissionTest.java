@@ -17,18 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.authorisation;
+package org.sonarqube.tests.authorization;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildFailureException;
-import org.sonarqube.tests.Category1Suite;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.wsclient.SonarClient;
-import org.sonar.wsclient.user.UserParameters;
-import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.client.permission.AddGroupWsRequest;
 import org.sonarqube.ws.client.permission.AddProjectCreatorToTemplateWsRequest;
 import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
@@ -36,7 +34,6 @@ import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
 
 /**
@@ -44,29 +41,27 @@ import static util.ItUtils.runProjectAnalysis;
  */
 public class ExecuteAnalysisPermissionTest {
 
-  @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
-
   private final static String USER_LOGIN = "scanperm";
   private final static String USER_PASSWORD = "thewhite";
   private final static String PROJECT_KEY = "sample";
 
-  private static WsClient adminWsClient;
-  private static SonarClient oldAdminWsClient;
+  @ClassRule
+  public static Orchestrator orchestrator = AuthorizationSuite.ORCHESTRATOR;
+
+  @Rule
+  public Tester tester = new Tester(orchestrator)
+    // all the tests of AuthorizationSuite must disable organizations
+    .disableOrganizations();
 
   @Before
   public void setUp() {
-    orchestrator.resetData();
-    oldAdminWsClient = orchestrator.getServer().adminWsClient();
-    oldAdminWsClient.userClient().create(UserParameters.create().login(USER_LOGIN).name(USER_LOGIN).password(USER_PASSWORD).passwordConfirmation(USER_PASSWORD));
+    tester.users().generate(u -> u.setLogin(USER_LOGIN).setPassword(USER_PASSWORD));
     orchestrator.getServer().provisionProject(PROJECT_KEY, "Sample");
-    adminWsClient = newAdminWsClient(orchestrator);
   }
 
   @After
   public void tearDown() {
     addGlobalPermission("anyone", "scan");
-    oldAdminWsClient.userClient().deactivate(USER_LOGIN);
   }
 
   @Test
@@ -83,7 +78,7 @@ public class ExecuteAnalysisPermissionTest {
         "You're only authorized to execute a local (preview) SonarQube analysis without pushing the results to the SonarQube server. Please contact your SonarQube administrator.");
     }
 
-    newAdminWsClient(orchestrator).projects().updateVisibility(UpdateVisibilityRequest.builder().setProject(PROJECT_KEY).setVisibility("private").build());
+    tester.wsClient().projects().updateVisibility(UpdateVisibilityRequest.builder().setProject(PROJECT_KEY).setVisibility("private").build());
     try {
       // Execute anonymous analysis
       executeAnonymousAnalysis();
@@ -100,7 +95,7 @@ public class ExecuteAnalysisPermissionTest {
     executeAnonymousAnalysis();
 
     // make project private
-    newAdminWsClient(orchestrator).projects().updateVisibility(UpdateVisibilityRequest.builder().setProject("sample").setVisibility("private").build());
+    tester.wsClient().projects().updateVisibility(UpdateVisibilityRequest.builder().setProject("sample").setVisibility("private").build());
 
     // still no error
     executeAnonymousAnalysis();
@@ -117,7 +112,7 @@ public class ExecuteAnalysisPermissionTest {
   @Test
   public void execute_analysis_with_scan_on_default_template() {
     removeGlobalPermission("anyone", "scan");
-    adminWsClient.permissions().addProjectCreatorToTemplate(AddProjectCreatorToTemplateWsRequest.builder()
+    tester.wsClient().permissions().addProjectCreatorToTemplate(AddProjectCreatorToTemplateWsRequest.builder()
       .setPermission("scan")
       .setTemplateId("default_template")
       .build());
@@ -125,20 +120,16 @@ public class ExecuteAnalysisPermissionTest {
     runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.login", USER_LOGIN, "sonar.password", USER_PASSWORD, "sonar.projectKey", "ANOTHER_PROJECT_KEY");
   }
 
-  private static void addProjectPermission(String groupName, String projectKey, String permission) {
-    adminWsClient.permissions().addGroup(new AddGroupWsRequest().setGroupName(groupName).setProjectKey(projectKey).setPermission(permission));
+  private void addProjectPermission(String groupName, String projectKey, String permission) {
+    tester.wsClient().permissions().addGroup(new AddGroupWsRequest().setGroupName(groupName).setProjectKey(projectKey).setPermission(permission));
   }
 
-  private static void addGlobalPermission(String groupName, String permission) {
-    adminWsClient.permissions().addGroup(new AddGroupWsRequest().setGroupName(groupName).setPermission(permission));
+  private void addGlobalPermission(String groupName, String permission) {
+    tester.wsClient().permissions().addGroup(new AddGroupWsRequest().setGroupName(groupName).setPermission(permission));
   }
 
-  private static void removeProjectPermission(String groupName, String projectKey, String permission) {
-    adminWsClient.permissions().removeGroup(new RemoveGroupWsRequest().setGroupName(groupName).setProjectKey(projectKey).setPermission(permission));
-  }
-
-  private static void removeGlobalPermission(String groupName, String permission) {
-    adminWsClient.permissions().removeGroup(new RemoveGroupWsRequest().setGroupName(groupName).setPermission(permission));
+  private void removeGlobalPermission(String groupName, String permission) {
+    tester.wsClient().permissions().removeGroup(new RemoveGroupWsRequest().setGroupName(groupName).setPermission(permission));
   }
 
   private static void executeLoggedAnalysis() {

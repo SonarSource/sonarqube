@@ -33,6 +33,7 @@ case "$RUN_ACTIVITY" in
       case "$CATEGORY_GROUP" in
         Category1)
           CATEGORY=Category1 && runCategory
+          CATEGORY=authorization && runCategory
           CATEGORY=measure && runCategory
           CATEGORY=source && runCategory
           ;;

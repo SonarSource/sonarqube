@@ -23,11 +23,6 @@ import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.sonarqube.tests.authorisation.ExecuteAnalysisPermissionTest;
-import org.sonarqube.tests.authorisation.IssuePermissionTest;
-import org.sonarqube.tests.authorisation.PermissionSearchTest;
-import org.sonarqube.tests.authorisation.ProvisioningPermissionTest;
-import org.sonarqube.tests.authorisation.QualityProfileAdminPermissionTest;
 import org.sonarqube.tests.projectAdministration.BackgroundTasksTest;
 import org.sonarqube.tests.projectAdministration.ProjectAdministrationTest;
 import org.sonarqube.tests.projectAdministration.ProjectBulkDeletionPageTest;
@@ -67,12 +62,6 @@ import static util.ItUtils.xooPlugin;
   QualityGateUiTest.class,
   QualityGateNotificationTest.class,
   QualityGateOnRatingMeasuresTest.class,
-  // authorisation
-  ExecuteAnalysisPermissionTest.class,
-  IssuePermissionTest.class,
-  PermissionSearchTest.class,
-  ProvisioningPermissionTest.class,
-  QualityProfileAdminPermissionTest.class,
   // measure
   ProjectsPageTest.class
 })

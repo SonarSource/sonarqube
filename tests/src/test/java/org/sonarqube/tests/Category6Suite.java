@@ -25,7 +25,7 @@ import java.net.InetAddress;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.sonarqube.tests.authorisation.PermissionTemplateTest;
+import org.sonarqube.tests.authorization.PermissionTemplateTest;
 import org.sonarqube.tests.ce.ReportFailureNotificationTest;
 import org.sonarqube.tests.issue.IssueNotificationsTest;
 import org.sonarqube.tests.issue.IssueTagsTest;
