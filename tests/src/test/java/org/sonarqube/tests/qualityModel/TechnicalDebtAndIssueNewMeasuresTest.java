@@ -22,16 +22,14 @@ package org.sonarqube.tests.qualityModel;
 import com.sonar.orchestrator.Orchestrator;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.tests.Category2Suite;
+import org.sonarqube.qa.util.Tester;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.getLeakPeriodValue;
-import static util.ItUtils.setServerProperty;
 
 /**
  * SONAR-4776, SONAR-9534
@@ -41,22 +39,15 @@ public class TechnicalDebtAndIssueNewMeasuresTest {
   private static final String DATE_31_DAYS_AGO = DateTimeFormatter.ofPattern("yyyy-MM-dd").format(LocalDate.now().minusDays(31));
 
   @ClassRule
-  public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = QualityModelSuite.ORCHESTRATOR;
 
-  @AfterClass
-  public static void resetPeriod() throws Exception {
-    ItUtils.resetPeriod(orchestrator);
-  }
-
-  @Before
-  public void cleanUpAnalysisData() {
-    orchestrator.resetData();
-  }
+  @Rule
+  public Tester tester = new Tester(orchestrator);
 
   @Test
   public void since_30_days_with_constant_effort() throws Exception {
-    setServerProperty(orchestrator, "sonar.leak.period", "30");
-    defineQualityProfile("one-issue-per-line");
+    tester.settings().setGlobalSettings("sonar.leak.period", "30");
+    restoreQualityProfile("one-issue-per-line");
     provisionSampleProject();
 
     // Execute an analysis in the past to have a past snapshot without any issues
@@ -93,8 +84,8 @@ public class TechnicalDebtAndIssueNewMeasuresTest {
 
   @Test
   public void since_30_days_with_effort_change() throws Exception {
-    setServerProperty(orchestrator, "sonar.leak.period", "30");
-    defineQualityProfile("one-issue-per-line");
+    tester.settings().setGlobalSettings("sonar.leak.period", "30");
+    restoreQualityProfile("one-issue-per-line");
     provisionSampleProject();
 
     // Execute an analysis in the past to have a past snapshot without any issues
@@ -131,8 +122,8 @@ public class TechnicalDebtAndIssueNewMeasuresTest {
 
   @Test
   public void since_previous_version_with_constant_effort() throws Exception {
-    setServerProperty(orchestrator, "sonar.leak.period", "previous_version");
-    defineQualityProfile("one-issue-per-line");
+    tester.settings().setGlobalSettings("sonar.leak.period", "previous_version");
+    restoreQualityProfile("one-issue-per-line");
     provisionSampleProject();
 
     // Execute an analysis in the past to have a past snapshot without any issues
@@ -169,8 +160,8 @@ public class TechnicalDebtAndIssueNewMeasuresTest {
 
   @Test
   public void since_previous_version_with_effort_change() throws Exception {
-    setServerProperty(orchestrator, "sonar.leak.period", "previous_version");
-    defineQualityProfile("one-issue-per-line");
+    tester.settings().setGlobalSettings( "sonar.leak.period", "previous_version");
+    restoreQualityProfile("one-issue-per-line");
     provisionSampleProject();
 
     // Execute an analysis in the past to have a past snapshot without any issues
@@ -226,7 +217,7 @@ public class TechnicalDebtAndIssueNewMeasuresTest {
     orchestrator.getServer().provisionProject("sample", "sample");
   }
 
-  private void defineQualityProfile(String qualityProfileKey) {
+  private void restoreQualityProfile(String qualityProfileKey) {
     ItUtils.restoreProfile(orchestrator, getClass().getResource("/measure/" + qualityProfileKey + ".xml"));
   }
 

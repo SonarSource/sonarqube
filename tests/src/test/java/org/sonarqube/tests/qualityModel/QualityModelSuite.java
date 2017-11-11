@@ -17,28 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.qa.util;
+package org.sonarqube.tests.qualityModel;
 
-import org.sonarqube.ws.client.WsClient;
+import com.sonar.orchestrator.Orchestrator;
+import org.junit.ClassRule;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-public interface TesterSession {
+import static util.ItUtils.xooPlugin;
 
-  WsClient wsClient();
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+  MaintainabilityMeasureTest.class,
+  MaintainabilityRatingMeasureTest.class,
+  NewDebtRatioMeasureTest.class,
+  ReliabilityMeasureTest.class,
+  SecurityMeasureTest.class,
+  TechnicalDebtAndIssueNewMeasuresTest.class,
+  TechnicalDebtInIssueChangelogTest.class,
+  TechnicalDebtTest.class,
+})
+public class QualityModelSuite {
 
-  GroupTester groups();
+  @ClassRule
+  public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
+    .addPlugin(xooPlugin())
 
-  OrganizationTester organizations();
+    // reduce memory for Elasticsearch
+    .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
 
-  ProjectTester projects();
-
-  QModelTester qModel();
-
-  QProfileTester qProfiles();
-
-  UserTester users();
-
-  SettingTester settings();
-
-  QGateTester qGates();
+    .build();
 
 }
