@@ -37,10 +37,8 @@ import org.sonarqube.tests.projectAdministration.ProjectProvisioningTest;
 import org.sonarqube.tests.projectAdministration.ProjectSearchTest;
 import org.sonarqube.tests.projectSearch.LeakProjectsPageTest;
 import org.sonarqube.tests.projectSearch.SearchProjectsTest;
-import org.sonarqube.tests.qualityGate.OrganizationQualityGateUiTest;
 import org.sonarqube.tests.qualityProfile.BuiltInQualityProfilesTest;
 import org.sonarqube.tests.qualityProfile.CustomQualityProfilesTest;
-import org.sonarqube.tests.qualityProfile.OrganizationQualityProfilesUiTest;
 import org.sonarqube.tests.qualityProfile.QualityProfilesEditTest;
 import org.sonarqube.tests.qualityProfile.QualityProfilesWsTest;
 import org.sonarqube.tests.rule.RulesWsTest;
@@ -57,8 +55,6 @@ import static util.ItUtils.xooPlugin;
   OrganizationIdentityProviderTest.class,
   OrganizationIssueAssignTest.class,
   OrganizationIssuesPageTest.class,
-  OrganizationQualityGateUiTest.class,
-  OrganizationQualityProfilesUiTest.class,
   BuiltInQualityProfilesTest.class,
   QualityProfilesEditTest.class,
   QualityProfilesWsTest.class,

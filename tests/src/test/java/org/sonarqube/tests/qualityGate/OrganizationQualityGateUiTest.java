@@ -27,22 +27,21 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.ProjectDashboardPage;
 import org.sonarqube.qa.util.pageobjects.QualityGatePage;
-import org.sonarqube.tests.Category6Suite;
-import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.WsUsers;
 import util.issue.IssueRule;
 
 import static com.codeborne.selenide.Selenide.$;
+import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.restoreProfile;
 import static util.ItUtils.runProjectAnalysis;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class OrganizationQualityGateUiTest {
   @ClassRule
-  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = OrganizationQualityGateSuite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator);

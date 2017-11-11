@@ -31,10 +31,9 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.openqa.selenium.By;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.qa.util.pageobjects.ProjectActivityPage;
-import org.sonarqube.tests.Category1Suite;
-import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
 import org.sonarqube.ws.WsQualityGates;
 import org.sonarqube.ws.client.qualitygate.CreateConditionRequest;
@@ -49,10 +48,12 @@ import static util.selenium.Selenese.runSelenese;
 public class QualityGateUiTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = QualityGateSuite.ORCHESTRATOR;
 
   @Rule
-  public Tester tester = new Tester(orchestrator).disableOrganizations();
+  public Tester tester = new Tester(orchestrator)
+    // all the tests of QualityGateSuite must disable organizations
+    .disableOrganizations();
 
   @Before
   public void initPeriod() throws Exception {

@@ -25,7 +25,6 @@ import java.util.Map;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
@@ -39,10 +38,10 @@ import util.ItUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
-public class QualityGateWithOrganizationsTest {
+public class OrganizationQualityGateTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = OrganizationQualityGateSuite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator);

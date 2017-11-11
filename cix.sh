@@ -35,6 +35,7 @@ case "$RUN_ACTIVITY" in
           CATEGORY=Category1 && runCategory
           CATEGORY=authorization && runCategory
           CATEGORY=measure && runCategory
+          CATEGORY=qualityGate && runCategory
           CATEGORY=source && runCategory
           ;;
 

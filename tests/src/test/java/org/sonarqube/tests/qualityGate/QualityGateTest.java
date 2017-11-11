@@ -42,9 +42,8 @@ import org.junit.Test;
 import org.sonar.wsclient.qualitygate.NewCondition;
 import org.sonar.wsclient.qualitygate.QualityGate;
 import org.sonar.wsclient.qualitygate.QualityGateClient;
-import org.sonarqube.tests.Category1Suite;
-import org.sonarqube.qa.util.TesterSession;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.TesterSession;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.WsCe;
@@ -81,10 +80,12 @@ public class QualityGateTest {
   private static final String QG_STATUS_WARN = "WARN";
 
   @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = QualityGateSuite.ORCHESTRATOR;
 
   @Rule
-  public Tester tester = new Tester(orchestrator).disableOrganizations();
+  public Tester tester = new Tester(orchestrator)
+    // all the tests of QualityGateSuite must disable organizations
+    .disableOrganizations();
 
   private QualityGate defaultGate;
 
@@ -348,7 +349,7 @@ public class QualityGateTest {
     return getMeasure(orchestrator, projectKey, "alert_status");
   }
 
-  private static QualityGateClient qgClient() {
+  private QualityGateClient qgClient() {
     return orchestrator.getServer().adminWsClient().qualityGateClient();
   }
 

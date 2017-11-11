@@ -29,10 +29,6 @@ import org.sonarqube.tests.projectAdministration.ProjectBulkDeletionPageTest;
 import org.sonarqube.tests.projectAdministration.ProjectLinksPageTest;
 import org.sonarqube.tests.projectAdministration.ProjectVisibilityPageTest;
 import org.sonarqube.tests.projectSearch.ProjectsPageTest;
-import org.sonarqube.tests.qualityGate.QualityGateNotificationTest;
-import org.sonarqube.tests.qualityGate.QualityGateOnRatingMeasuresTest;
-import org.sonarqube.tests.qualityGate.QualityGateTest;
-import org.sonarqube.tests.qualityGate.QualityGateUiTest;
 import org.sonarqube.tests.settings.DeprecatedPropertiesWsTest;
 import org.sonarqube.tests.settings.EmailsTest;
 import org.sonarqube.tests.settings.PropertySetsTest;
@@ -57,11 +53,6 @@ import static util.ItUtils.xooPlugin;
   EmailsTest.class,
   PropertySetsTest.class,
   SettingsTest.class,
-  // quality gate
-  QualityGateTest.class,
-  QualityGateUiTest.class,
-  QualityGateNotificationTest.class,
-  QualityGateOnRatingMeasuresTest.class,
   // measure
   ProjectsPageTest.class
 })
