@@ -61,6 +61,10 @@ public class SettingTester {
     session.wsClient().settings().reset(ResetRequest.builder().setKeys(keys).build());
   }
 
+  public void resetProjectSettings(String projectKey, String... keys){
+    session.wsClient().settings().reset(ResetRequest.builder().setComponent(projectKey).setKeys(keys).build());
+  }
+
   public void setGlobalSetting(String key, @Nullable String value) {
     setSetting(null, key, value);
   }
