@@ -70,11 +70,6 @@ public class UpgradeTest {
     testDatabaseUpgrade(Version.create("5.6.1"));
   }
 
-  @Test
-  public void test_upgrade_from_6_7() {
-    testDatabaseUpgrade(Version.create("6.7"));
-  }
-
   private void testDatabaseUpgrade(Version fromVersion) {
     startOldVersionServer(fromVersion, false);
     scanProject();
