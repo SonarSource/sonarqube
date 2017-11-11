@@ -21,11 +21,11 @@ package org.sonarqube.tests.qualityModel;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category2Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.qa.util.Tester;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,17 +49,15 @@ public class MaintainabilityMeasureTest {
   private static final String EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_METRIC = "effort_to_reach_maintainability_rating_a";
 
   @ClassRule
-  public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = QualityModelSuite.ORCHESTRATOR;
 
   @Rule
-  public DebtConfigurationRule debtConfiguration = DebtConfigurationRule.create(orchestrator);
+  public Tester tester = new Tester(orchestrator);
 
   @Before
   public void init() {
-    orchestrator.resetData();
-
     // Set rating grid values to not depend from default value
-    debtConfiguration.updateRatingGrid(0.1d, 0.2d, 0.5d, 1d);
+    tester.qModel().updateRatingGrid(0.1d, 0.2d, 0.5d, 1d);
 
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
   }

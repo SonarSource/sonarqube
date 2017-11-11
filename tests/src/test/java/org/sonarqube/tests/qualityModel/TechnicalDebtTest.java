@@ -21,14 +21,13 @@ package org.sonarqube.tests.qualityModel;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category2Suite;
 import java.util.List;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.IssueQuery;
+import org.sonarqube.qa.util.Tester;
+import org.sonarqube.ws.Issues;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,15 +36,10 @@ import static util.ItUtils.projectDir;
 public class TechnicalDebtTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = QualityModelSuite.ORCHESTRATOR;
 
   @Rule
-  public DebtConfigurationRule debtConfiguration = DebtConfigurationRule.create(orchestrator);
-
-  @Before
-  public void deleteAnalysisData() {
-    orchestrator.resetData();
-  }
+  public Tester tester = new Tester(orchestrator);
 
   /**
    * SONAR-4716
@@ -60,10 +54,10 @@ public class TechnicalDebtTest {
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     // All the issues should have a technical debt
-    List<Issue> issues = orchestrator.getServer().wsClient().issueClient().find(IssueQuery.create()).list();
+    List<Issues.Issue> issues = tester.wsClient().issues().search(new SearchWsRequest()).getIssuesList();
     assertThat(issues).isNotEmpty();
-    for (Issue issue : issues) {
-      assertThat(issue.debt()).isEqualTo("1min");
+    for (Issues.Issue issue : issues) {
+      assertThat(issue.getDebt()).isEqualTo("1min");
     }
   }
 

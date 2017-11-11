@@ -21,11 +21,12 @@ package org.sonarqube.tests.qualityModel;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category2Suite;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.WsMeasures;
 import util.ItUtils;
 
@@ -49,12 +50,13 @@ public class ReliabilityMeasureTest {
   private static final String[] METRICS = new String[] {BUGS_METRIC, RELIABILITY_RATING_METRIC, RELIABILITY_REMEDIATION_EFFORT_METRIC};
 
   @ClassRule
-  public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = QualityModelSuite.ORCHESTRATOR;
+
+  @Rule
+  public Tester tester = new Tester(orchestrator);
 
   @Before
-  public void init() {
-    orchestrator.resetData();
-
+  public void setUp() {
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
   }
 

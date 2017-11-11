@@ -21,11 +21,11 @@ package org.sonarqube.tests.qualityModel;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category2Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.qa.util.Tester;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,17 +44,15 @@ public class MaintainabilityRatingMeasureTest {
   private static final String FILE = "com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo";
 
   @ClassRule
-  public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = QualityModelSuite.ORCHESTRATOR;
 
   @Rule
-  public DebtConfigurationRule debtConfiguration = DebtConfigurationRule.create(orchestrator);
+  public Tester tester = new Tester(orchestrator);
 
   @Before
   public void init() {
-    orchestrator.resetData();
-
     // Set rating grid values to not depend from default value
-    debtConfiguration.updateRatingGrid(0.1d, 0.2d, 0.5d, 1d);
+    tester.qModel().updateRatingGrid(0.1d, 0.2d, 0.5d, 1d);
   }
 
   @Test
@@ -97,7 +95,7 @@ public class MaintainabilityRatingMeasureTest {
 
     assertThat(getMeasureAsDouble(orchestrator, "sample", "sqale_rating")).isEqualTo(1);
 
-    debtConfiguration.updateDevelopmentCost(2);
+    tester.qModel().updateDevelopmentCost(2);
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     assertThat(getMeasureAsDouble(orchestrator, "sample", "sqale_rating")).isEqualTo(4);
@@ -113,7 +111,7 @@ public class MaintainabilityRatingMeasureTest {
 
     assertThat(getMeasureAsDouble(orchestrator, PROJECT, "sqale_rating")).isEqualTo(1);
 
-    debtConfiguration.updateLanguageDevelopmentCost("xoo", 1);
+    tester.qModel().updateLanguageDevelopmentCost("xoo", 1);
     orchestrator.executeBuild(
       SonarScanner.create(projectDir("shared/xoo-multi-modules-sample"))
         .setProfile("one-issue-per-line"));
@@ -131,7 +129,7 @@ public class MaintainabilityRatingMeasureTest {
 
     assertThat(getMeasureAsDouble(orchestrator, "sample", "sqale_rating")).isEqualTo(1);
 
-    debtConfiguration.updateRatingGrid(0.001d, 0.005d, 0.01d, 0.015d);
+    tester.qModel().updateRatingGrid(0.001d, 0.005d, 0.01d, 0.015d);
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     assertThat(getMeasureAsDouble(orchestrator, "sample", "sqale_rating")).isEqualTo(5);

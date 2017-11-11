@@ -42,14 +42,6 @@ import org.sonarqube.tests.issue.IssueTrackingTest;
 import org.sonarqube.tests.issue.IssueWorkflowTest;
 import org.sonarqube.tests.issue.IssuesPageTest;
 import org.sonarqube.tests.issue.NewIssuesMeasureTest;
-import org.sonarqube.tests.qualityModel.MaintainabilityMeasureTest;
-import org.sonarqube.tests.qualityModel.MaintainabilityRatingMeasureTest;
-import org.sonarqube.tests.qualityModel.NewDebtRatioMeasureTest;
-import org.sonarqube.tests.qualityModel.ReliabilityMeasureTest;
-import org.sonarqube.tests.qualityModel.SecurityMeasureTest;
-import org.sonarqube.tests.qualityModel.TechnicalDebtAndIssueNewMeasuresTest;
-import org.sonarqube.tests.qualityModel.TechnicalDebtInIssueChangelogTest;
-import org.sonarqube.tests.qualityModel.TechnicalDebtTest;
 import org.sonarqube.tests.rule.RulesPageTest;
 
 import static util.ItUtils.pluginArtifact;
@@ -75,16 +67,6 @@ import static util.ItUtils.xooPlugin;
   IssueWorkflowTest.class,
   NewIssuesMeasureTest.class,
   IssueCreationDateQPChangedTest.class,
-  // debt
-  MaintainabilityMeasureTest.class,
-  MaintainabilityRatingMeasureTest.class,
-  NewDebtRatioMeasureTest.class,
-  ReliabilityMeasureTest.class,
-  SecurityMeasureTest.class,
-  TechnicalDebtInIssueChangelogTest.class,
-  TechnicalDebtAndIssueNewMeasuresTest.class,
-  TechnicalDebtTest.class,
-  // ui
   IssuesPageTest.class,
   // rule
   RulesPageTest.class,

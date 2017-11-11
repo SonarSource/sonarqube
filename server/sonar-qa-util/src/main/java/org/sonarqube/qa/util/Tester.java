@@ -178,6 +178,11 @@ public class Tester extends ExternalResource implements TesterSession {
   }
 
   @Override
+  public QModelTester qModel() {
+    return rootSession.qModel();
+  }
+
+  @Override
   public QProfileTester qProfiles() {
     return rootSession.qProfiles();
   }
@@ -226,6 +231,11 @@ public class Tester extends ExternalResource implements TesterSession {
     @Override
     public ProjectTester projects() {
       return new ProjectTester(this);
+    }
+
+    @Override
+    public QModelTester qModel() {
+      return new QModelTester(this);
     }
 
     @Override
