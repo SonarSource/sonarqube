@@ -37,6 +37,7 @@ import static java.util.Arrays.stream;
 public class UserTester {
 
   private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
+  private static final String DEFAULT_ORGANIZATION_KEY = "default-organization";
 
   private final TesterSession session;
 
@@ -94,9 +95,9 @@ public class UserTester {
   @SafeVarargs
   public final User generateAdministratorOnDefaultOrganization(Consumer<CreateRequest.Builder>... populators) {
     User user = generate(populators);
-    session.wsClient().organizations().addMember("default-organization", user.getLogin());
+    session.wsClient().organizations().addMember(DEFAULT_ORGANIZATION_KEY, user.getLogin());
     session.wsClient().userGroups().addUser(AddUserWsRequest.builder()
-      .setOrganization("default-organization")
+      .setOrganization(DEFAULT_ORGANIZATION_KEY)
       .setLogin(user.getLogin())
       .setName("sonar-administrators")
       .build());
@@ -107,6 +108,13 @@ public class UserTester {
   public final User generateMember(Organizations.Organization organization, Consumer<CreateRequest.Builder>... populators) {
     User user = generate(populators);
     session.wsClient().organizations().addMember(organization.getKey(), user.getLogin());
+    return user;
+  }
+
+  @SafeVarargs
+  public final User generateMemberOfDefaultOrganization(Consumer<CreateRequest.Builder>... populators) {
+    User user = generate(populators);
+    session.wsClient().organizations().addMember(DEFAULT_ORGANIZATION_KEY, user.getLogin());
     return user;
   }
 

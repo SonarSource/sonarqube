@@ -30,6 +30,9 @@ public class LoginPage {
     Selenide.$("#login_form").should(Condition.exist);
   }
 
+  /**
+   * The password is the same as the login.
+   */
   public Navigation submitCredentials(String login) {
     return submitCredentials(login, login, Navigation.class);
   }
