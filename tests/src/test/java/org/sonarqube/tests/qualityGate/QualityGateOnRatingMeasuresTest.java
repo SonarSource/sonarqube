@@ -23,7 +23,6 @@ import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.tests.Category1Suite;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
@@ -38,10 +37,12 @@ import static util.ItUtils.runProjectAnalysis;
 public class QualityGateOnRatingMeasuresTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = QualityGateSuite.ORCHESTRATOR;
 
   @Rule
-  public Tester tester = new Tester(orchestrator).disableOrganizations();
+  public Tester tester = new Tester(orchestrator)
+    // all the tests of QualityGateSuite must disable organizations
+    .disableOrganizations();
 
   @Test
   public void generate_warning_qgate_on_rating_metric() throws Exception {
