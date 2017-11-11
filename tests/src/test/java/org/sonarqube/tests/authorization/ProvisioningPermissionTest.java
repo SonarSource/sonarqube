@@ -17,77 +17,67 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.authorisation;
+package org.sonarqube.tests.authorization;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category1Suite;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.rules.RuleChain;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
-import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.permission.AddGroupWsRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
-import org.sonarqube.ws.client.permission.PermissionsService;
 import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
 import org.sonarqube.ws.client.permission.RemoveUserWsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
-import util.user.UserRule;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.newAdminWsClient;
-import static util.ItUtils.newUserWsClient;
 import static util.selenium.Selenese.runSelenese;
 
 public class ProvisioningPermissionTest {
 
-  @Rule
-  public ExpectedException thrown = ExpectedException.none();
-
-  @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
-
-  @ClassRule
-  public static UserRule userRule = UserRule.from(orchestrator);
-
   private static final String PASSWORD = "password";
-
   private static final String ADMIN_WITH_PROVISIONING = "admin-with-provisioning";
   private static final String ADMIN_WITHOUT_PROVISIONING = "admin-without-provisioning";
   private static final String USER_WITH_PROVISIONING = "user-with-provisioning";
   private static final String USER_WITHOUT_PROVISIONING = "user-without-provisioning";
 
-  private static PermissionsService permissionsWsClient;
+  @ClassRule
+  public static Orchestrator orchestrator = AuthorizationSuite.ORCHESTRATOR;
+
+  private static Tester tester = new Tester(orchestrator)
+    // all the tests of AuthorizationSuite must disable organizations
+    .disableOrganizations();
+
+  @ClassRule
+  public static RuleChain ruleChain = RuleChain.outerRule(orchestrator).around(tester);
 
   @BeforeClass
   public static void init() {
-    permissionsWsClient = newAdminWsClient(orchestrator).permissions();
-
     // remove default permission "provisioning" from anyone();
-    permissionsWsClient.removeGroup(new RemoveGroupWsRequest().setGroupName("anyone").setPermission("provisioning"));
+    tester.wsClient().permissions().removeGroup(new RemoveGroupWsRequest().setGroupName("anyone").setPermission("provisioning"));
 
-    userRule.createUser(ADMIN_WITH_PROVISIONING, PASSWORD);
+    tester.users().generate(u -> u.setLogin(ADMIN_WITH_PROVISIONING).setPassword(PASSWORD));
     addUserPermission(ADMIN_WITH_PROVISIONING, "admin");
     addUserPermission(ADMIN_WITH_PROVISIONING, "provisioning");
 
-    userRule.createUser(ADMIN_WITHOUT_PROVISIONING, PASSWORD);
+    tester.users().generate(u -> u.setLogin(ADMIN_WITHOUT_PROVISIONING).setPassword(PASSWORD));
     addUserPermission(ADMIN_WITHOUT_PROVISIONING, "admin");
     removeUserPermission(ADMIN_WITHOUT_PROVISIONING, "provisioning");
 
-    userRule.createUser(USER_WITH_PROVISIONING, PASSWORD);
+    tester.users().generate(u -> u.setLogin(USER_WITH_PROVISIONING).setPassword(PASSWORD));
     addUserPermission(USER_WITH_PROVISIONING, "provisioning");
 
-    userRule.createUser(USER_WITHOUT_PROVISIONING, PASSWORD);
+    tester.users().generate(u -> u.setLogin(USER_WITHOUT_PROVISIONING).setPassword(PASSWORD));
     removeUserPermission(USER_WITHOUT_PROVISIONING, "provisioning");
   }
 
   @AfterClass
   public static void restoreData() throws Exception {
-    userRule.resetUsers();
-    permissionsWsClient.addGroup(new AddGroupWsRequest().setGroupName("anyone").setPermission("provisioning"));
+    tester.wsClient().permissions().addGroup(new AddGroupWsRequest().setGroupName("anyone").setPermission("provisioning"));
   }
 
   /**
@@ -117,7 +107,7 @@ public class ProvisioningPermissionTest {
     final String newKey = "new-project";
     final String newName = "New Project";
 
-    Project created = newUserWsClient(orchestrator, USER_WITH_PROVISIONING, PASSWORD).projects()
+    Project created = tester.as(USER_WITH_PROVISIONING, PASSWORD).wsClient().projects()
       .create(CreateRequest.builder().setKey(newKey).setName(newName).build())
       .getProject();
 
@@ -132,19 +122,18 @@ public class ProvisioningPermissionTest {
    */
   @Test
   public void user_cannot_provision_project_through_ws_if_he_does_not_have_provisioning_permission() {
-    thrown.expect(HttpException.class);
-    thrown.expectMessage("403");
-
-    newUserWsClient(orchestrator, USER_WITHOUT_PROVISIONING, PASSWORD).projects()
-      .create(CreateRequest.builder().setKey("new-project").setName("New Project").build())
-      .getProject();
+    ItUtils.expectForbiddenError(() -> {
+      tester.as(USER_WITHOUT_PROVISIONING, PASSWORD).wsClient().projects()
+        .create(CreateRequest.builder().setKey("new-project").setName("New Project").build())
+        .getProject();
+    });
   }
 
   private static void addUserPermission(String login, String permission) {
-    permissionsWsClient.addUser(new AddUserWsRequest().setLogin(login).setPermission(permission));
+    tester.wsClient().permissions().addUser(new AddUserWsRequest().setLogin(login).setPermission(permission));
   }
 
   private static void removeUserPermission(String login, String permission) {
-    permissionsWsClient.removeUser(new RemoveUserWsRequest().setLogin(login).setPermission(permission));
+    tester.wsClient().permissions().removeUser(new RemoveUserWsRequest().setLogin(login).setPermission(permission));
   }
 }

@@ -31,7 +31,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.WsUsers;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
@@ -139,13 +138,6 @@ public class UserRule extends ExternalResource implements GroupManagement {
     createUser(login, login, null, password);
   }
 
-  public WsUsers.CreateWsResponse.User createAdministrator(Organizations.Organization organization, String password) {
-    WsUsers.CreateWsResponse.User user = generate(p -> p.setPassword(password));
-    adminWsClient.organizations().addMember(organization.getKey(), user.getLogin());
-    forOrganization(organization.getKey()).associateGroupsToUser(user.getLogin(), "Owners");
-    return user;
-  }
-
   /**
    * Create a new admin user with random login, having password same as login
    */
@@ -161,26 +153,8 @@ public class UserRule extends ExternalResource implements GroupManagement {
     return login;
   }
 
-  /**
-   * Create a new root user with random login, having password same as login
-   */
-  public String createRootUser() {
-    String login = randomAlphabetic(10).toLowerCase();
-    return createRootUser(login, login);
-  }
-
-  public String createRootUser(String login, String password) {
-    createUser(login, password);
-    setRoot(login);
-    return login;
-  }
-
   public void setRoot(String login) {
     adminWsClient().roots().setRoot(login);
-  }
-
-  public void unsetRoot(String login) {
-    adminWsClient().roots().unsetRoot(login);
   }
 
   public Optional<Users.User> getUserByLogin(String login) {

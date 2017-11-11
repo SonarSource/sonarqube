@@ -22,10 +22,10 @@ package org.sonarqube.tests;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.sonarqube.tests.analysis.AnalysisEsResilienceTest;
-import org.sonarqube.tests.authorisation.SystemPasscodeTest;
 import org.sonarqube.tests.ce.CeShutdownTest;
 import org.sonarqube.tests.ce.CeWorkersTest;
 import org.sonarqube.tests.issue.IssueCreationDatePluginChangedTest;
+import org.sonarqube.tests.marketplace.UpdateCenterTest;
 import org.sonarqube.tests.qualityProfile.ActiveRuleEsResilienceTest;
 import org.sonarqube.tests.qualityProfile.BuiltInQualityProfilesNotificationTest;
 import org.sonarqube.tests.rule.RuleEsResilienceTest;
@@ -36,7 +36,6 @@ import org.sonarqube.tests.settings.SettingsTestRestartingOrchestrator;
 import org.sonarqube.tests.startup.StartupIndexationTest;
 import org.sonarqube.tests.telemetry.TelemetryOptOutTest;
 import org.sonarqube.tests.telemetry.TelemetryUploadTest;
-import org.sonarqube.tests.marketplace.UpdateCenterTest;
 import org.sonarqube.tests.user.OnboardingTest;
 import org.sonarqube.tests.user.RealmAuthenticationTest;
 import org.sonarqube.tests.user.SsoAuthenticationTest;
@@ -72,8 +71,7 @@ import org.sonarqube.tests.user.UserEsResilienceTest;
   IssueCreationDatePluginChangedTest.class,
 
   // elasticsearch
-  StartupIndexationTest.class,
-  SystemPasscodeTest.class
+  StartupIndexationTest.class
 })
 public class Category5Suite {
 
