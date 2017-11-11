@@ -39,12 +39,21 @@ import static java.util.Objects.requireNonNull;
  * <li>clean-up of users between tests</li>
  * <li>clean-up of session when opening a browser (cookies, local storage)</li>
  * <li>quick access to {@link WsClient} instances</li>
+ * <li>clean-up of defined settings. Properties that are not defined by a plugin are not reset.</li>
  * <li>helpers to generate organizations and users</li>
  * </ul>
- * <p>
+ *
  * Recommendation is to define a {@code @Rule} instance. If not possible, then
  * {@code @ClassRule} must be used through a {@link org.junit.rules.RuleChain}
  * around {@link Orchestrator}.
+ *
+ * Not supported:
+ * <ul>
+ *   <li>clean-up global settings</li>
+ *   <li>clean-up system administrators/roots</li>
+ *   <li>clean-up default organization</li>
+ *   <li>clean-up the properties that are not defined (no PropertyDefinition)</li>
+ * </ul>
  */
 public class Tester extends ExternalResource implements TesterSession {
 

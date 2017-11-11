@@ -21,15 +21,14 @@ package org.sonarqube.tests.measure;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.qa.util.pageobjects.measures.MeasureContent;
 import org.sonarqube.qa.util.pageobjects.measures.MeasuresPage;
-import org.sonarqube.tests.Category1Suite;
-import org.sonarqube.qa.util.Tester;
 
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
@@ -39,33 +38,35 @@ import static util.ItUtils.projectDir;
 
 public class ProjectMeasuresPageTest {
 
+  private static final String PROJECT_KEY = "project-measures-page-test-project";
+
   @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = MeasureSuite.ORCHESTRATOR;
 
-  @Rule
-  public Tester tester = new Tester(orchestrator).disableOrganizations();
+  private static Tester tester = new Tester(orchestrator);
 
-  private static String projectKey = "project-measures-page-test-project";
+  @ClassRule
+  public static RuleChain ruleChain = RuleChain.outerRule(orchestrator).around(tester);
 
-  @Before
-  public void inspectProject() {
+  @BeforeClass
+  public static void setUp() {
     orchestrator.executeBuild(
       SonarScanner
         .create(projectDir("shared/xoo-sample"))
-        .setProperty("sonar.projectKey", projectKey)
+        .setProperty("sonar.projectKey", PROJECT_KEY)
         .setProperty("sonar.projectName", "ProjectMeasuresPageTest Project"));
 
     // one more time
     orchestrator.executeBuild(
       SonarScanner
         .create(projectDir("shared/xoo-sample"))
-        .setProperty("sonar.projectKey", projectKey)
+        .setProperty("sonar.projectKey", PROJECT_KEY)
         .setProperty("sonar.projectName", "ProjectMeasuresPageTest Project"));
   }
 
   @Test
   public void should_display_measures_page() {
-    MeasuresPage page = tester.openBrowser().openProjectMeasures(projectKey);
+    MeasuresPage page = tester.openBrowser().openProjectMeasures(PROJECT_KEY);
     page
       .displayBubbleChart("Risk")
       .openFacet("Maintainability")
@@ -79,7 +80,7 @@ public class ProjectMeasuresPageTest {
 
   @Test
   public void should_drilldown_on_list_view() {
-    MeasuresPage page = tester.openBrowser().openProjectMeasures(projectKey);
+    MeasuresPage page = tester.openBrowser().openProjectMeasures(PROJECT_KEY);
     MeasureContent content = page
       .openFacet("Size").openMeasureContent("ncloc");
     content
@@ -95,7 +96,7 @@ public class ProjectMeasuresPageTest {
 
   @Test
   public void should_drilldown_on_tree_view() {
-    MeasuresPage page = tester.openBrowser().openProjectMeasures(projectKey);
+    MeasuresPage page = tester.openBrowser().openProjectMeasures(PROJECT_KEY);
     MeasureContent content = page
       .openFacet("Size").openMeasureContent("ncloc");
     page.switchView("tree");

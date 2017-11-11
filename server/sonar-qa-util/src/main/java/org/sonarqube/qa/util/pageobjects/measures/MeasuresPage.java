@@ -23,7 +23,9 @@ import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.WebDriverRunner;
 import org.openqa.selenium.Keys;
+import org.openqa.selenium.interactions.Actions;
 
 public class MeasuresPage {
   public MeasuresPage() {
@@ -61,7 +63,16 @@ public class MeasuresPage {
   }
 
   public MeasuresPage backShortcut() {
-    Selenide.$(".layout-page-header-panel").sendKeys(Keys.LEFT);
+    SelenideElement panel = Selenide.$(".layout-page-header-panel");
+
+    // panel.sendKeys(Keys.LEFT) does not work correctly on Chrome
+    // The workaround is to use Actions
+    // https://bugs.chromium.org/p/chromedriver/issues/detail?id=35
+    Actions actions = new Actions(WebDriverRunner.getWebDriver());
+    actions.moveToElement(panel);
+    actions.click();
+    actions.sendKeys(Keys.LEFT);
+    actions.build().perform();
     return this;
   }
 
