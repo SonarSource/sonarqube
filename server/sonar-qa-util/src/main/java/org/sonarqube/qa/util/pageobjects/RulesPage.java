@@ -60,7 +60,7 @@ public class RulesPage extends Navigation {
   public RuleDetails openFirstRule() {
     Selenide.$$(".js-rule").first().click();
     Selenide.$(".coding-rules-details").shouldBe(Condition.visible);
-    return new RuleDetails(Selenide.$(".coding-rules-details"));
+    return new RuleDetails();
   }
 
 }

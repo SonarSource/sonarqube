@@ -19,20 +19,14 @@
  */
 package org.sonarqube.qa.util.pageobjects;
 
-import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selenide;
-import com.codeborne.selenide.SelenideElement;
+
+import static com.codeborne.selenide.Condition.text;
 
 public class RuleDetails {
 
-  private final SelenideElement elt;
-
-  public RuleDetails(SelenideElement elt) {
-    this.elt = elt;
-  }
-
   public RuleDetails shouldBeActivatedOn(String profileName) {
-    Selenide.$("#coding-rules-detail-quality-profiles").shouldHave(Condition.text(profileName));
+    Selenide.$("#coding-rules-detail-quality-profiles").shouldHave(text(profileName));
     return this;
   }
 
