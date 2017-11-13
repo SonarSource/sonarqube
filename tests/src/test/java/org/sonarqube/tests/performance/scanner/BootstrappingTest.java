@@ -35,7 +35,6 @@ import org.sonarqube.tests.performance.AbstractPerfTest;
 import org.sonarqube.tests.performance.MavenLogs;
 import org.sonarqube.tests.performance.PerfRule;
 
-@Ignore("Timeout on computation side")
 public class BootstrappingTest extends AbstractPerfTest {
 
   @Rule
