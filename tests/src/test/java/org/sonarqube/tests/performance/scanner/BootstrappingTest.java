@@ -27,7 +27,6 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -79,11 +78,11 @@ public class BootstrappingTest extends AbstractPerfTest {
 
     BuildResult result = orchestrator.executeBuild(scanner);
     // First analysis
-    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 22800L);
+    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 7900L);
 
     result = orchestrator.executeBuild(scanner);
     // Second analysis is longer since we load project referential
-    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 27200L);
+    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 8400L);
   }
 
   private static File prepareProjectWithManyFlatModules(int SIZE) throws IOException {
@@ -121,11 +120,11 @@ public class BootstrappingTest extends AbstractPerfTest {
 
     BuildResult result = orchestrator.executeBuild(scanner);
     // First analysis
-    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 8900L);
+    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 6300L);
 
     result = orchestrator.executeBuild(scanner);
     // Second analysis
-    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 9300L);
+    perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 6300L);
   }
 
   private static File prepareProjectWithManyNestedModules(int SIZE) throws IOException {
