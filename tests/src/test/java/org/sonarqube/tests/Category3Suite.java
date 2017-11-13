@@ -43,6 +43,11 @@ import org.sonarqube.tests.webhook.WebhooksTest;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
+/**
+ * @deprecated use dedicated suites in each package (see {@link org.sonarqube.tests.measure.MeasureSuite}
+ * for instance)
+ */
+@Deprecated
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   // analysis

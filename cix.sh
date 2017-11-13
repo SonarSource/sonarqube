@@ -3,16 +3,6 @@
 
 set -euo pipefail
 
-function runCategory {
-  mvn verify \
-    -f tests/pom.xml \
-    -Dcategory=$CATEGORY \
-    -Dorchestrator.configUrl=http://infra.internal.sonarsource.com/jenkins/orch-$DB_ENGINE.properties \
-    -Dorchestrator.workspace=target/$CATEGORY \
-    -Dwith-db-drivers \
-    -B -e -V
-}
-
 case "$RUN_ACTIVITY" in
 
   run-db-unit-tests-*)
@@ -32,35 +22,27 @@ case "$RUN_ACTIVITY" in
 
       case "$CATEGORY_GROUP" in
         Category1)
-          CATEGORY=Category1 && runCategory
-          CATEGORY=authorization && runCategory
-          CATEGORY=measure && runCategory
-          CATEGORY=qualityGate && runCategory
-          CATEGORY=source && runCategory
+          CATEGORY="Category1|authorization|measure|qualityGate|source"
           ;;
 
         Category2)
-          CATEGORY=Category2 && runCategory
-          CATEGORY=test && runCategory
-          CATEGORY=qualityModel && runCategory
+          CATEGORY="Category2|test|qualityModel"
           ;;
 
         Category3)
-          CATEGORY=Category3 && runCategory
+          CATEGORY="Category3"
           ;;
 
         Category4)
-          CATEGORY=Category4 && runCategory
-          CATEGORY=duplication && runCategory
+          CATEGORY="Category4|duplication"
           ;;
 
         Category5)
-          CATEGORY=Category5 && runCategory
+          CATEGORY="Category5"
           ;;
 
         Category6)
-          CATEGORY=Category6 && runCategory
-          CATEGORY=organization && runCategory
+          CATEGORY="Category6|organization"
           ;;
 
         *)
@@ -69,6 +51,12 @@ case "$RUN_ACTIVITY" in
           ;;
       esac
 
+      mvn verify \
+          -f tests/pom.xml \
+          -Dcategory="$CATEGORY" \
+          -Dorchestrator.configUrl="http://infra.internal.sonarsource.com/jenkins/orch-$DB_ENGINE.properties" \
+          -Pwith-db-drivers \
+          -B -e -V
     fi
     ;;
 

@@ -38,6 +38,11 @@ import org.sonarqube.tests.user.UsersPageTest;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
+/**
+ * @deprecated use dedicated suites in each package (see {@link org.sonarqube.tests.measure.MeasureSuite}
+ * for instance)
+ */
+@Deprecated
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   // administration

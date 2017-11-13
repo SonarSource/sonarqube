@@ -167,10 +167,10 @@
           </argLine>
           <skipTests>${skipIts}</skipTests>
           <includes>
-            <include>*/${category}/*Suite.java</include>
+            <include>%regex[.*/(${category})/.*Suite.class]</include>
 
             <!-- deprecated categories -->
-            <include>*/*${category}Suite.java</include>
+            <include>%regex[.*/(${category})Suite.class]</include>
           </includes>
         </configuration>
       </plugin>
