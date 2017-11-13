@@ -23,18 +23,13 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
-import java.util.Date;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.time.DateFormatUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.openqa.selenium.By;
-import org.sonar.wsclient.SonarClient;
-import org.sonar.wsclient.base.HttpException;
-import org.sonar.wsclient.user.UserParameters;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.qa.util.pageobjects.ProjectsManagementPage;
@@ -44,21 +39,12 @@ import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.client.permission.AddUserToTemplateWsRequest;
 import org.sonarqube.ws.client.permission.CreateTemplateWsRequest;
 import org.sonarqube.ws.client.permission.UsersWsRequest;
-import org.sonarqube.ws.client.project.SearchWsRequest;
 
 import static com.codeborne.selenide.Selenide.$;
-import static java.util.Collections.singletonList;
-import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.getComponent;
 import static util.ItUtils.projectDir;
-import static util.selenium.Selenese.runSelenese;
 
 public class ProjectAdministrationTest {
-  private static final String DELETE_WS_ENDPOINT = "api/projects/bulk_delete";
-
-  // take some day in the past
-  private static final String ANALYSIS_DATE = DateFormatUtils.ISO_DATE_FORMAT.format(addDays(new Date(), -1));
 
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
@@ -71,77 +57,12 @@ public class ProjectAdministrationTest {
 
   private Navigation nav = Navigation.create(orchestrator);
 
-  private static final String PROJECT_KEY = "sample";
-  private static final String FILE_KEY = "sample:src/main/xoo/sample/Sample.xoo";
   private String adminUser;
 
   @Before
   public void deleteAnalysisData() throws SQLException {
     orchestrator.resetData();
     adminUser = tester.users().generateAdministrator().getLogin();
-  }
-
-  @Test
-  public void delete_project_by_web_service() {
-    scanSampleWithDate(ANALYSIS_DATE);
-
-    assertThat(getComponent(orchestrator, PROJECT_KEY)).isNotNull();
-    assertThat(getComponent(orchestrator, FILE_KEY)).isNotNull();
-
-    orchestrator.getServer().adminWsClient().post(DELETE_WS_ENDPOINT, "keys", PROJECT_KEY);
-
-    assertThat(getComponent(orchestrator, PROJECT_KEY)).isNull();
-    assertThat(getComponent(orchestrator, FILE_KEY)).isNull();
-  }
-
-  @Test
-  public void fail_when_trying_to_delete_a_file() {
-    scanSampleWithDate(ANALYSIS_DATE);
-    assertThat(getComponent(orchestrator, PROJECT_KEY)).isNotNull();
-    assertThat(getComponent(orchestrator, FILE_KEY)).isNotNull();
-
-    expectedException.expect(org.sonarqube.ws.client.HttpException.class);
-
-    tester.wsClient().projects().bulkDelete(SearchWsRequest.builder()
-      .setQualifiers(singletonList("FIL"))
-      .setProjects(singletonList(FILE_KEY)).build());
-  }
-
-  @Test
-  public void fail_when_insufficient_privilege() {
-    expectedException.expect(HttpException.class);
-    scanSampleWithDate(ANALYSIS_DATE);
-
-    assertThat(getComponent(orchestrator, PROJECT_KEY)).isNotNull();
-
-    // use wsClient() instead of adminWsClient()
-    orchestrator.getServer().wsClient().post(DELETE_WS_ENDPOINT, "keys", PROJECT_KEY);
-  }
-
-  /**
-   * Test updated for SONAR-3570 and SONAR-5923
-   */
-  @Test
-  public void project_deletion() {
-    String projectAdminUser = "project-deletion-with-admin-permission-on-project";
-    SonarClient wsClient = orchestrator.getServer().adminWsClient();
-    try {
-      SonarScanner scan = SonarScanner.create(projectDir("shared/xoo-sample"));
-      orchestrator.executeBuild(scan);
-
-      // Create user having admin permission on previously analysed project
-      wsClient.userClient().create(
-        UserParameters.create().login(projectAdminUser).name(projectAdminUser).password("password").passwordConfirmation("password"));
-
-      wsClient.post("api/permissions/add_user",
-        "login", projectAdminUser,
-        "projectKey", "sample",
-        "permission", "admin");
-
-      runSelenese(orchestrator, "/projectAdministration/ProjectAdministrationTest/project-deletion/project-deletion.html");
-    } finally {
-      wsClient.userClient().deactivate(projectAdminUser);
-    }
   }
 
   @Test
@@ -214,10 +135,6 @@ public class ProjectAdministrationTest {
     assertThat(usersResponse.getUsers(0).getLogin()).isEqualTo(user);
   }
 
-  private void scanSampleWithDate(String date) {
-    scanSample(date, null);
-  }
-
   private void scanSample(@Nullable String date, @Nullable String profile) {
     SonarScanner scan = SonarScanner.create(projectDir("shared/xoo-sample"))
       .setProperty("sonar.cpd.exclusions", "**/*");
@@ -228,9 +145,5 @@ public class ProjectAdministrationTest {
       scan.setProfile(profile);
     }
     orchestrator.executeBuild(scan);
-  }
-
-  private int count(String condition) {
-    return orchestrator.getDatabase().countSql("select count(1) from " + condition);
   }
 }

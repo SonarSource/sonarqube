@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonarqube.tests.projectAdministration;
+package org.sonarqube.tests.project;
 
 import com.sonar.orchestrator.Orchestrator;
 import java.util.Date;
@@ -26,7 +26,6 @@ import org.apache.commons.lang.time.DateUtils;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.WsProjects.CreateWsResponse;
@@ -43,7 +42,8 @@ import static util.ItUtils.runProjectAnalysis;
 public class ProjectSearchTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
+
   @Rule
   public Tester tester = new Tester(orchestrator);
 

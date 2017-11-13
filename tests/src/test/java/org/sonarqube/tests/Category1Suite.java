@@ -23,12 +23,8 @@ import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.sonarqube.tests.projectAdministration.BackgroundTasksTest;
+import org.sonarqube.tests.ce.BackgroundTasksTest;
 import org.sonarqube.tests.projectAdministration.ProjectAdministrationTest;
-import org.sonarqube.tests.projectAdministration.ProjectBulkDeletionPageTest;
-import org.sonarqube.tests.projectAdministration.ProjectLinksPageTest;
-import org.sonarqube.tests.projectAdministration.ProjectVisibilityPageTest;
-import org.sonarqube.tests.projectSearch.ProjectsPageTest;
 import org.sonarqube.tests.settings.DeprecatedPropertiesWsTest;
 import org.sonarqube.tests.settings.EmailsTest;
 import org.sonarqube.tests.settings.PropertySetsTest;
@@ -45,21 +41,13 @@ import static util.ItUtils.xooPlugin;
 @Deprecated
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  // administration
   UsersPageTest.class,
-  ProjectVisibilityPageTest.class,
-  // project administration
-  ProjectBulkDeletionPageTest.class,
   ProjectAdministrationTest.class,
-  ProjectLinksPageTest.class,
   BackgroundTasksTest.class,
-  // settings
   DeprecatedPropertiesWsTest.class,
   EmailsTest.class,
   PropertySetsTest.class,
-  SettingsTest.class,
-  // measure
-  ProjectsPageTest.class
+  SettingsTest.class
 })
 public class Category1Suite {
 

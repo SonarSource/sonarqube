@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.projectAdministration;
+package org.sonarqube.tests.project;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
@@ -33,7 +33,6 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.WsComponents;
@@ -41,6 +40,8 @@ import org.sonarqube.ws.WsProjects;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
+import org.sonarqube.ws.client.component.ShowWsRequest;
+import org.sonarqube.ws.client.project.BulkUpdateKeyWsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.project.UpdateKeyWsRequest;
 import util.ItUtils;
@@ -50,18 +51,55 @@ import static util.ItUtils.projectDir;
 
 public class ProjectKeyUpdateTest {
 
+  private static final String PROJECT_KEY = "sample";
+
   @ClassRule
-  public static final Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+  public static final Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
 
   @Rule
   public TestRule safeguard = new DisableOnDebug(Timeout.seconds(300));
+
   @Rule
-  public Tester tester = new Tester(orchestrator)
-    .setElasticsearchHttpPort(Category6Suite.SEARCH_HTTP_PORT);
+  public Tester tester = new Tester(orchestrator).setElasticsearchHttpPort(ProjectSuite.SEARCH_HTTP_PORT);
 
   @After
   public void tearDown() throws Exception {
     unlockWritesOnProjectIndices();
+  }
+
+  @Test
+  public void update_key() {
+    analyzeXooSample();
+    String newProjectKey = "another_project_key";
+    WsComponents.Component project = tester.wsClient().components().show(new ShowWsRequest().setKey(PROJECT_KEY)).getComponent();
+    assertThat(project.getKey()).isEqualTo(PROJECT_KEY);
+
+    tester.wsClient().projects().updateKey(UpdateKeyWsRequest.builder()
+      .setKey(PROJECT_KEY)
+      .setNewKey(newProjectKey)
+      .build());
+
+    assertThat(tester.wsClient().components().show(new ShowWsRequest().setId(project.getId())).getComponent().getKey()).isEqualTo(newProjectKey);
+  }
+
+  @Test
+  public void bulk_update_key() {
+    analyzeXooSample();
+    String newProjectKey = "another_project_key";
+    WsComponents.Component project = tester.wsClient().components().show(new ShowWsRequest().setKey(PROJECT_KEY)).getComponent();
+    assertThat(project.getKey()).isEqualTo(PROJECT_KEY);
+
+    WsProjects.BulkUpdateKeyWsResponse result = tester.wsClient().projects().bulkUpdateKey(BulkUpdateKeyWsRequest.builder()
+      .setKey(PROJECT_KEY)
+      .setFrom(PROJECT_KEY)
+      .setTo(newProjectKey)
+      .build());
+
+    assertThat(tester.wsClient().components().show(new ShowWsRequest().setId(project.getId())).getComponent().getKey()).isEqualTo(newProjectKey);
+    assertThat(result.getKeysCount()).isEqualTo(1);
+    assertThat(result.getKeys(0))
+      .extracting(WsProjects.BulkUpdateKeyWsResponse.Key::getKey, WsProjects.BulkUpdateKeyWsResponse.Key::getNewKey, WsProjects.BulkUpdateKeyWsResponse.Key::getDuplicate)
+      .containsOnlyOnce(PROJECT_KEY, newProjectKey, false);
   }
 
   @Test
@@ -237,5 +275,10 @@ public class ProjectKeyUpdateTest {
       .flatMap(map -> ((Collection<Map<String, Object>>) map.get("items")).stream())
       .map(map -> (String) map.get("key"))
       .collect(Collectors.toList());
+  }
+
+  private void analyzeXooSample() {
+    SonarScanner build = SonarScanner.create(projectDir("shared/xoo-sample"));
+    orchestrator.executeBuild(build);
   }
 }

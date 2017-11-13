@@ -23,7 +23,7 @@ import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.sonarqube.tests.branch.BranchTest;
+import org.sonarqube.tests.component.BranchTest;
 import org.sonarqube.tests.issue.AutoAssignTest;
 import org.sonarqube.tests.issue.CommonRulesTest;
 import org.sonarqube.tests.issue.CustomRulesTest;

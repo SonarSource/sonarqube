@@ -29,7 +29,6 @@ import static util.ItUtils.xooPlugin;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   EncodingTest.class,
-  ProjectCodeTest.class,
   ScmTest.class,
   SourceViewerTest.class
 })

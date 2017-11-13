@@ -27,9 +27,6 @@ import org.sonarqube.tests.analysis.FileExclusionsTest;
 import org.sonarqube.tests.analysis.IssueExclusionsTest;
 import org.sonarqube.tests.ce.CeTempDirTest;
 import org.sonarqube.tests.ce.CeWsTest;
-import org.sonarqube.tests.component.ComponentsWsTest;
-import org.sonarqube.tests.component.ProjectsWsTest;
-import org.sonarqube.tests.projectEvent.ProjectActivityPageTest;
 import org.sonarqube.tests.qualityProfile.QualityProfilesUiTest;
 import org.sonarqube.tests.serverSystem.HttpHeadersTest;
 import org.sonarqube.tests.serverSystem.LogsTest;
@@ -72,14 +69,9 @@ import static util.ItUtils.xooPlugin;
   LocalAuthenticationTest.class,
   BaseIdentityProviderTest.class,
   OAuth2IdentityProviderTest.class,
-  // component search
-  ProjectsWsTest.class,
-  ComponentsWsTest.class,
   // analysis exclusion
   FileExclusionsTest.class,
   IssueExclusionsTest.class,
-  // db cleaner
-  ProjectActivityPageTest.class,
   // http
   HttpHeadersTest.class,
   // ui

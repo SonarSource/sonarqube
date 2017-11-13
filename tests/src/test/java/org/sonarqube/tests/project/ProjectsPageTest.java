@@ -17,24 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.projectSearch;
+package org.sonarqube.tests.project;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.qa.util.pageobjects.projects.ProjectsPage;
-import org.sonarqube.tests.Category1Suite;
-import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.WsUsers;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.project.DeleteRequest;
 
 import static com.codeborne.selenide.Selenide.clearBrowserLocalStorage;
 import static com.codeborne.selenide.WebDriverRunner.url;
@@ -43,27 +40,20 @@ import static util.ItUtils.projectDir;
 
 public class ProjectsPageTest {
 
-  @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
-
   private static final String PROJECT_KEY = "key-foo";
-  private static Tester tester = new Tester(orchestrator).disableOrganizations();
 
   @ClassRule
-  public static RuleChain ruleChain = RuleChain.outerRule(orchestrator)
-    .around(tester);
+  public static Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
+
+  private static Tester tester = new Tester(orchestrator);
+
+  @ClassRule
+  public static RuleChain ruleChain = RuleChain.outerRule(orchestrator).around(tester);
 
   @BeforeClass
   public static void setUp() {
-    orchestrator.resetData();
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")).setProjectKey(PROJECT_KEY));
     orchestrator.executeBuild(SonarScanner.create(projectDir("duplications/file-duplications")).setProjectKey("key-bar"));
-  }
-
-  @AfterClass
-  public static void tearDown() {
-    tester.wsClient().projects().delete(DeleteRequest.builder().setKey(PROJECT_KEY).build());
-    tester.wsClient().projects().delete(DeleteRequest.builder().setKey("key-bar").build());
   }
 
   @Before
@@ -114,7 +104,7 @@ public class ProjectsPageTest {
     page.shouldHaveTotal(2).shouldDisplayAllProjectsWidthSort("-analysis_date");
 
     // all projects by default for logged in user
-    WsUsers.CreateWsResponse.User administrator = tester.users().generateAdministrator();
+    WsUsers.CreateWsResponse.User administrator = tester.users().generateAdministratorOnDefaultOrganization();
     page = nav.logIn().submitCredentials(administrator.getLogin()).openProjects();
     page.shouldHaveTotal(2).shouldDisplayAllProjects();
 
@@ -166,7 +156,7 @@ public class ProjectsPageTest {
 
   @Test
   public void should_switch_between_perspectives() {
-    WsUsers.CreateWsResponse.User administrator = tester.users().generateAdministrator();
+    WsUsers.CreateWsResponse.User administrator = tester.users().generateAdministratorOnDefaultOrganization();
     ProjectsPage page = tester.openBrowser()
       .logIn().submitCredentials(administrator.getLogin())
       .openProjects();

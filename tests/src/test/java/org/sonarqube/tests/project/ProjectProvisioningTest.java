@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.projectAdministration;
+package org.sonarqube.tests.project;
 
 import com.sonar.orchestrator.Orchestrator;
 import java.util.Collection;
@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.WsComponents;
@@ -47,13 +46,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ProjectProvisioningTest {
 
   @ClassRule
-  public static final Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+  public static final Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
 
   @Rule
   public TestRule safeguard = new DisableOnDebug(Timeout.seconds(300));
+
   @Rule
-  public Tester tester = new Tester(orchestrator)
-    .setElasticsearchHttpPort(Category6Suite.SEARCH_HTTP_PORT);
+  public Tester tester = new Tester(orchestrator).setElasticsearchHttpPort(ProjectSuite.SEARCH_HTTP_PORT);
 
   @Test
   public void provisioned_project_is_available_in_search_engines() {

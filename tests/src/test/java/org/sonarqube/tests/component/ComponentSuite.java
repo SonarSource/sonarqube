@@ -17,31 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.measure;
+package org.sonarqube.tests.component;
 
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  ComplexityMeasuresTest.class,
-  CustomMeasuresTest.class,
-  DecimalScaleMetricTest.class,
-  DifferentialPeriodsTest.class,
-  MeasuresWsTest.class,
-  ProjectActivityPageTest.class,
-  ProjectDashboardTest.class,
-  ProjectMeasuresPageTest.class,
-  SincePreviousVersionHistoryTest.class,
-  SinceXDaysHistoryTest.class,
-  TimeMachineTest.class
+  BranchTest.class,
+  CodePageTest.class,
+  ComponentsWsTest.class
 })
-public class MeasureSuite {
+public class ComponentSuite {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
@@ -49,9 +40,6 @@ public class MeasureSuite {
     .setServerProperty("sonar.search.javaOpts", "-Xms128m -Xmx128m")
 
     .addPlugin(xooPlugin())
-
-    // used by DecimalScaleMetricTest
-    .addPlugin(pluginArtifact("batch-plugin"))
 
     .build();
 

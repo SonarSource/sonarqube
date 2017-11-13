@@ -17,57 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.projectSearch;
+package org.sonarqube.tests.project;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category6Suite;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.qa.util.pageobjects.projects.ProjectsPage;
+import org.sonarqube.ws.Organizations.Organization;
 
 import static com.codeborne.selenide.WebDriverRunner.url;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newProjectKey;
 import static util.ItUtils.projectDir;
-import static util.ItUtils.resetSettings;
 import static util.ItUtils.restoreProfile;
-import static util.ItUtils.setServerProperty;
 
-public class LeakProjectsPageTest {
+public class ProjectLeakPageTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator);
 
   private Organization organization;
 
-  @BeforeClass
-  public static void beforeClass() {
-    setServerProperty(orchestrator, "sonar.leak.period", "previous_version");
-  }
-
-  @AfterClass
-  public static void tearDown() {
-    resetSettings(orchestrator, null, "sonar.leak.period");
-  }
-
   @Before
   public void setUp() {
+    tester.settings().setGlobalSettings("sonar.leak.period", "previous_version");
     organization = tester.organizations().generate();
-    restoreProfile(orchestrator, SearchProjectsTest.class.getResource("/projectSearch/SearchProjectsTest/with-many-rules.xml"), organization.getKey());
+    restoreProfile(orchestrator, ProjectLeakPageTest.class.getResource("/projectSearch/SearchProjectsTest/with-many-rules.xml"), organization.getKey());
   }
 
   @Test

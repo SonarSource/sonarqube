@@ -31,12 +31,6 @@ import org.sonarqube.tests.issue.IssueNotificationsTest;
 import org.sonarqube.tests.issue.IssueTagsTest;
 import org.sonarqube.tests.issue.OrganizationIssueAssignTest;
 import org.sonarqube.tests.issue.OrganizationIssuesPageTest;
-import org.sonarqube.tests.projectAdministration.ProjectDeleteTest;
-import org.sonarqube.tests.projectAdministration.ProjectKeyUpdateTest;
-import org.sonarqube.tests.projectAdministration.ProjectProvisioningTest;
-import org.sonarqube.tests.projectAdministration.ProjectSearchTest;
-import org.sonarqube.tests.projectSearch.LeakProjectsPageTest;
-import org.sonarqube.tests.projectSearch.SearchProjectsTest;
 import org.sonarqube.tests.qualityProfile.BuiltInQualityProfilesTest;
 import org.sonarqube.tests.qualityProfile.CustomQualityProfilesTest;
 import org.sonarqube.tests.qualityProfile.QualityProfilesEditTest;
@@ -64,13 +58,7 @@ import static util.ItUtils.xooPlugin;
   QualityProfilesWsTest.class,
   CustomQualityProfilesTest.class,
   IssueTagsTest.class,
-  LeakProjectsPageTest.class,
-  SearchProjectsTest.class,
   RulesWsTest.class,
-  ProjectDeleteTest.class,
-  ProjectProvisioningTest.class,
-  ProjectKeyUpdateTest.class,
-  ProjectSearchTest.class,
   PermissionTemplateTest.class,
   ReportFailureNotificationTest.class,
   IssueNotificationsTest.class

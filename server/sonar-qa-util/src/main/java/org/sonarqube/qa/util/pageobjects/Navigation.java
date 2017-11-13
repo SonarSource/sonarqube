@@ -187,6 +187,13 @@ public class Navigation {
     return open("/projects_admin", ProjectsManagementPage.class);
   }
 
+  /**
+   * Should be replaced by an intermediary OrganizationPage
+   */
+  public ProjectsManagementPage openProjectsManagement(String orgKey) {
+    return open("/organizations/" + orgKey + "/projects_management", ProjectsManagementPage.class);
+  }
+
   public LoginPage openLogin() {
     return open("/sessions/login", LoginPage.class);
   }

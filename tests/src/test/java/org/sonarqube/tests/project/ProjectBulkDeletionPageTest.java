@@ -17,14 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.projectAdministration;
+package org.sonarqube.tests.project;
 
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.tests.Category1Suite;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
@@ -36,30 +35,29 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectBulkDeletionPageTest {
 
-  private String adminUser;
-
   @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator);
 
+  private String sysAdminLogin;
+
   @Before
-  public void deleteData() {
-    orchestrator.resetData();
-    adminUser = tester.users().generateAdministrator().getLogin();
+  public void setUp() {
+    sysAdminLogin = tester.users().generateAdministratorOnDefaultOrganization().getLogin();
   }
 
   /**
    * SONAR-2614, SONAR-3805
    */
   @Test
-  public void test_bulk_deletion_on_selected_projects() throws Exception {
+  public void bulk_deletion_on_selected_projects() throws Exception {
     Project project1 = tester.projects().generate(null, t -> t.setName("Foo"));
     Project project2 = tester.projects().generate(null, t -> t.setName("Bar"));
     Project project3 = tester.projects().generate(null, t -> t.setName("FooQux"));
 
-    tester.openBrowser().logIn().submitCredentials(adminUser).open("/admin/projects_management");
+    tester.openBrowser().logIn().submitCredentials(sysAdminLogin).open("/organizations/default-organization/projects_management");
     $("#projects-management-page").shouldHave(text(project1.getName())).shouldHave(text(project2.getName())).shouldHave(text(project3.getName()));
 
     $("#projects-management-page .search-box-input").val("foo").pressEnter();

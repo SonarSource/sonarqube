@@ -17,42 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.projectEvent;
+package org.sonarqube.tests.measure;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category4Suite;
 import java.util.List;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.qa.util.pageobjects.Navigation;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.ProjectActivityPage;
 import org.sonarqube.qa.util.pageobjects.ProjectAnalysisItem;
-import util.user.UserRule;
 
 import static util.ItUtils.projectDir;
 
 public class ProjectActivityPageTest {
 
   @ClassRule
-  public static Orchestrator ORCHESTRATOR = Category4Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = MeasureSuite.ORCHESTRATOR;
 
   @Rule
-  public UserRule userRule = UserRule.from(ORCHESTRATOR);
-
-  private Navigation nav = Navigation.create(ORCHESTRATOR);
-
-  @Before
-  public void setUp() throws Exception {
-    ORCHESTRATOR.resetData();
-  }
+  public Tester tester = new Tester(orchestrator);
 
   @Test
   public void should_list_snapshots() {
-    analyzeProject("shared/xoo-history-v1", "2014-10-19");
-    analyzeProject("shared/xoo-history-v2", "2014-11-13");
+    analyzeXooSample("shared/xoo-history-v1", "2014-10-19");
+    analyzeXooSample("shared/xoo-history-v2", "2014-11-13");
 
     ProjectActivityPage page = openPage();
     page.getAnalyses().shouldHaveSize(2);
@@ -69,7 +59,7 @@ public class ProjectActivityPageTest {
 
   @Test
   public void add_change_delete_custom_event() {
-    analyzeProject();
+    analyzeXooSample();
     openPage().getLastAnalysis()
       .addCustomEvent("foo")
       .changeFirstEvent("bar")
@@ -78,24 +68,26 @@ public class ProjectActivityPageTest {
 
   @Test
   public void delete_analysis() {
-    analyzeProject();
-    analyzeProject();
+    analyzeXooSample();
+    analyzeXooSample();
     ProjectActivityPage page = openPage();
     page.getAnalyses().shouldHaveSize(2);
     page.getFirstAnalysis().delete();
   }
 
   private ProjectActivityPage openPage() {
-    String userAdmin = userRule.createAdminUser();
-    nav.logIn().submitCredentials(userAdmin, userAdmin);
-    return nav.openProjectActivity("sample");
+    String userAdmin = tester.users().generateAdministratorOnDefaultOrganization().getLogin();
+    return tester.openBrowser()
+      .logIn()
+      .submitCredentials(userAdmin, userAdmin)
+      .openProjectActivity("sample");
   }
 
-  private static void analyzeProject() {
-    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
+  private void analyzeXooSample() {
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
   }
 
-  private static void analyzeProject(String path, String date) {
-    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir(path)).setProperties("sonar.projectDate", date));
+  private  void analyzeXooSample(String path, String date) {
+    orchestrator.executeBuild(SonarScanner.create(projectDir(path)).setProperties("sonar.projectDate", date));
   }
 }

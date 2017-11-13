@@ -21,19 +21,18 @@ package org.sonarqube.tests.ui;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category4Suite;
 import java.util.Map;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.pageobjects.Navigation;
+import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.qa.util.pageobjects.Navigation;
 import util.ItUtils;
 
 import static com.codeborne.selenide.Condition.exist;
-import static com.codeborne.selenide.Condition.hasText;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
@@ -41,60 +40,56 @@ import static com.codeborne.selenide.Selenide.$$;
 import static com.codeborne.selenide.WebDriverRunner.url;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
-import static util.ItUtils.resetSettings;
-import static util.ItUtils.setServerProperty;
 
 public class UiTest {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = Category4Suite.ORCHESTRATOR;
+  public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
-  private Navigation nav = Navigation.create(ORCHESTRATOR);
-
-  @Before
-  @After
-  public void resetData() throws Exception {
-    resetSettings(ORCHESTRATOR, null, "sonar.forceAuthentication");
-  }
+  @Rule
+  public Tester tester = new Tester(orchestrator).disableOrganizations();
 
   @Test
   public void footer_contains_information() {
-    nav.getFooter()
-      .should(hasText("Documentation"))
-      .should(hasText("SonarSource SA"));
+    tester.openBrowser().getFooter()
+      .should(text("Documentation"))
+      .should(text("SonarSource SA"));
   }
 
   @Test
   public void footer_contains_version() {
-    WsResponse status = ItUtils.newAdminWsClient(ORCHESTRATOR).wsConnector().call(new GetRequest("api/navigation/global"));
+    WsResponse status = tester.wsClient().wsConnector().call(new GetRequest("api/navigation/global"));
     Map<String, Object> statusMap = ItUtils.jsonToMap(status.content());
 
-    nav.getFooter().should(hasText((String) statusMap.get("version")));
+    tester.openBrowser().getFooter()
+      .should(text((String) statusMap.get("version")));
   }
 
   @Test
   public void footer_doesnt_contains_version_on_login_page() {
-    WsResponse status = ItUtils.newAdminWsClient(ORCHESTRATOR).wsConnector().call(new GetRequest("api/navigation/global"));
+    WsResponse status = tester.wsClient().wsConnector().call(new GetRequest("api/navigation/global"));
     Map<String, Object> statusMap = ItUtils.jsonToMap(status.content());
 
-    nav.openLogin();
-    nav.getFooter().shouldNot(hasText((String) statusMap.get("version")));
+    Navigation navigation = tester.openBrowser();
+    navigation.openLogin();
+    navigation.getFooter().shouldNot(text((String) statusMap.get("version")));
   }
 
   @Test
   public void footer_doesnt_contains_about_when_not_logged_in() {
-    setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", "true");
-    nav.openLogin();
-    nav.getFooter()
-      .shouldNot(hasText("About"))
-      .shouldNot(hasText("Web API"));
+    tester.settings().setGlobalSettings("sonar.forceAuthentication", "true");
+    Navigation navigation = tester.openBrowser();
+    navigation.openLogin();
+    navigation.getFooter()
+      .shouldNot(text("About"))
+      .shouldNot(text("Web API"));
   }
 
   @Test
   public void many_page_transitions() {
-    analyzeSampleProject();
+    analyzeXooSample();
 
-    nav.open("/about");
+    tester.openBrowser().open("/about");
 
     // on about page
     $(".about-page-projects-link")
@@ -145,13 +140,13 @@ public class UiTest {
   public void markdown_help() {
     String tags[] = {"strong", "a", "ul", "ol", "h1", "code", "pre", "blockquote"};
 
-    nav.open("/markdown/help");
+    tester.openBrowser().open("/markdown/help");
     for (String tag : tags) {
       $(tag).shouldBe(visible);
     }
   }
 
-  private static void analyzeSampleProject() {
-    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
+  private static void analyzeXooSample() {
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
   }
 }
