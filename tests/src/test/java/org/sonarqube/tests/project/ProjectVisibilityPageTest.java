@@ -17,23 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.projectAdministration;
+package org.sonarqube.tests.project;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category1Suite;
-import java.sql.SQLException;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.pageobjects.ProjectsManagementPage;
 import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
 import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
-import org.sonarqube.qa.util.pageobjects.Navigation;
-import org.sonarqube.qa.util.pageobjects.ProjectsManagementPage;
-import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
@@ -42,30 +39,28 @@ import static util.ItUtils.projectDir;
 public class ProjectVisibilityPageTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
 
   @Rule
-  public UserRule userRule = UserRule.from(orchestrator);
-
-  private Navigation nav = Navigation.create(orchestrator);
+  public Tester tester = new Tester(orchestrator);
 
   private String adminUser;
 
   @Before
-  public void initData() throws SQLException {
-    orchestrator.resetData();
-    adminUser = userRule.createAdminUser();
+  public void setUp() {
+    adminUser = tester.users().generateAdministratorOnDefaultOrganization().getLogin();
   }
 
   @Test
   public void return_all_projects_even_when_no_permission() throws Exception {
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")).setProperties("sonar.projectKey", "sample1"));
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")).setProperties("sonar.projectKey", "sample2"));
-    newAdminWsClient(orchestrator).projects().updateVisibility(UpdateVisibilityRequest.builder().setProject("sample2").setVisibility("private").build());
+    tester.wsClient().projects().updateVisibility(UpdateVisibilityRequest.builder().setProject("sample2").setVisibility("private").build());
     // Remove 'Admin' permission for admin group on project 2 -> No one can access or admin this project, expect System Admin
-    newAdminWsClient(orchestrator).permissions().removeGroup(new RemoveGroupWsRequest().setProjectKey("sample2").setGroupName("sonar-administrators").setPermission("admin"));
+    tester.wsClient().permissions().removeGroup(new RemoveGroupWsRequest().setProjectKey("sample2").setGroupName("sonar-administrators").setPermission("admin"));
 
-    nav.logIn().submitCredentials(adminUser).openProjectsManagement()
+    tester.openBrowser().logIn().submitCredentials(adminUser)
+      .openProjectsManagement("default-organization")
       .shouldHaveProject("sample1")
       .shouldHaveProject("sample2");
   }
@@ -81,7 +76,9 @@ public class ProjectVisibilityPageTest {
   }
 
   private void createProjectAndVerify(String visibility) {
-    ProjectsManagementPage page = nav.logIn().submitCredentials(adminUser, adminUser).openProjectsManagement();
+    ProjectsManagementPage page = tester.openBrowser().logIn()
+      .submitCredentials(adminUser, adminUser)
+      .openProjectsManagement("default-organization");
     page
       .shouldHaveProjectsCount(0)
       .createProject("foo", "foo", visibility)

@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-
-package org.sonarqube.tests.branch;
+package org.sonarqube.tests.component;
 
 import com.sonar.orchestrator.Orchestrator;
 import java.util.Map;
@@ -26,7 +25,6 @@ import org.assertj.core.groups.Tuple;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.tests.Category2Suite;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsBranches;
@@ -40,10 +38,10 @@ import static util.ItUtils.runProjectAnalysis;
 public class BranchTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = ComponentSuite.ORCHESTRATOR;
 
   @Rule
-  public Tester tester = new Tester(orchestrator).disableOrganizations();
+  public Tester tester = new Tester(orchestrator);
 
   @Test
   public void list_branches_contains_main_branch() {

@@ -17,53 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.projectAdministration;
+package org.sonarqube.tests.project;
 
 import com.codeborne.selenide.Condition;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category1Suite;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.ws.WsProjectLinks.CreateWsResponse;
-import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.projectlinks.CreateWsRequest;
-import org.sonarqube.ws.client.projectlinks.DeleteWsRequest;
-import org.sonarqube.qa.util.pageobjects.Navigation;
+import org.junit.rules.RuleChain;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.ProjectLinkItem;
 import org.sonarqube.qa.util.pageobjects.ProjectLinksPage;
-import util.user.UserRule;
+import org.sonarqube.ws.WsProjectLinks.CreateWsResponse;
+import org.sonarqube.ws.client.projectlinks.CreateWsRequest;
+import org.sonarqube.ws.client.projectlinks.DeleteWsRequest;
 
-import static com.codeborne.selenide.Condition.hasText;
+import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
-import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
-public class ProjectLinksPageTest {
+public class ProjectLinksTest {
 
   @ClassRule
-  public static Orchestrator ORCHESTRATOR = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
 
-  private Navigation nav = Navigation.create(ORCHESTRATOR);
+  private static Tester tester = new Tester(orchestrator);
 
-  @Rule
-  public UserRule userRule = UserRule.from(ORCHESTRATOR);
+  @ClassRule
+  public static RuleChain ruleChain = RuleChain.outerRule(orchestrator).around(tester);
 
-  private static WsClient wsClient;
   private long customLinkId;
   private String adminUser;
 
   @BeforeClass
   public static void setUp() {
-    wsClient = newAdminWsClient(ORCHESTRATOR);
-
-    ORCHESTRATOR.resetData();
-    ORCHESTRATOR.executeBuild(
+    orchestrator.executeBuild(
       SonarScanner.create(projectDir("shared/xoo-sample"))
         .setProperty("sonar.links.homepage", "http://example.com"));
   }
@@ -71,7 +63,7 @@ public class ProjectLinksPageTest {
   @Before
   public void prepare() {
     customLinkId = Long.parseLong(createCustomLink().getLink().getId());
-    adminUser = userRule.createAdminUser();
+    adminUser = tester.users().generateAdministratorOnDefaultOrganization().getLogin();
   }
 
   @After
@@ -81,7 +73,7 @@ public class ProjectLinksPageTest {
 
   @Test
   public void should_list_links() {
-    ProjectLinksPage page = openPage();
+    ProjectLinksPage page = openLinksPage();
 
     page.getLinks().shouldHaveSize(2);
 
@@ -89,20 +81,20 @@ public class ProjectLinksPageTest {
     ProjectLinkItem homepageLink = links.get(0);
     ProjectLinkItem customLink = links.get(1);
 
-    homepageLink.getName().should(hasText("Home"));
-    homepageLink.getType().should(hasText("sonar.links.homepage"));
-    homepageLink.getUrl().should(hasText("http://example.com"));
-    homepageLink.getDeleteButton().shouldNot(Condition.present);
+    homepageLink.getName().should(text("Home"));
+    homepageLink.getType().should(text("sonar.links.homepage"));
+    homepageLink.getUrl().should(text("http://example.com"));
+    homepageLink.getDeleteButton().shouldNot(Condition.exist);
 
-    customLink.getName().should(hasText("Custom"));
-    customLink.getType().shouldNot(Condition.present);
-    customLink.getUrl().should(hasText("http://example.org/custom"));
+    customLink.getName().should(text("Custom"));
+    customLink.getType().shouldNot(Condition.exist);
+    customLink.getUrl().should(text("http://example.org/custom"));
     customLink.getDeleteButton().shouldBe(Condition.visible);
   }
 
   @Test
   public void should_create_link() {
-    ProjectLinksPage page = openPage();
+    ProjectLinksPage page = openLinksPage();
 
     page.getLinks().shouldHaveSize(2);
 
@@ -115,15 +107,15 @@ public class ProjectLinksPageTest {
 
     ProjectLinkItem testLink = page.getLinksAsItems().get(2);
 
-    testLink.getName().should(hasText("Test"));
-    testLink.getType().shouldNot(Condition.present);
-    testLink.getUrl().should(hasText("http://example.com/test"));
+    testLink.getName().should(text("Test"));
+    testLink.getType().shouldNot(Condition.exist);
+    testLink.getUrl().should(text("http://example.com/test"));
     testLink.getDeleteButton().shouldBe(Condition.visible);
   }
 
   @Test
   public void should_delete_link() {
-    ProjectLinksPage page = openPage();
+    ProjectLinksPage page = openLinksPage();
 
     page.getLinks().shouldHaveSize(2);
 
@@ -131,13 +123,15 @@ public class ProjectLinksPageTest {
     ProjectLinkItem customLink = links.get(1);
 
     customLink.getDeleteButton().click();
-    $("#delete-link-confirm").click();
+    $("#delete-link-confirm")
+      .shouldBe(Condition.visible)
+      .click();
 
     page.getLinks().shouldHaveSize(1);
   }
 
   private CreateWsResponse createCustomLink() {
-    return wsClient.projectLinks().create(new CreateWsRequest()
+    return tester.wsClient().projectLinks().create(new CreateWsRequest()
       .setProjectKey("sample")
       .setName("Custom")
       .setUrl("http://example.org/custom"));
@@ -145,14 +139,17 @@ public class ProjectLinksPageTest {
 
   private void deleteLink(long id) {
     try {
-      wsClient.projectLinks().delete(new DeleteWsRequest().setId(id));
+      tester.wsClient().projectLinks().delete(new DeleteWsRequest().setId(id));
     } catch (Exception e) {
       // fail silently
     }
   }
 
-  private ProjectLinksPage openPage() {
-    nav.logIn().submitCredentials(adminUser, adminUser);
-    return nav.openProjectLinks("sample");
+  private ProjectLinksPage openLinksPage() {
+    return tester
+      .openBrowser()
+      .logIn()
+      .submitCredentials(adminUser, adminUser)
+      .openProjectLinks("sample");
   }
 }

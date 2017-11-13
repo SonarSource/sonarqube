@@ -30,7 +30,7 @@ case "$RUN_ACTIVITY" in
           ;;
 
         Category3)
-          CATEGORY="Category3"
+          CATEGORY="Category3|component|project"
           ;;
 
         Category4)

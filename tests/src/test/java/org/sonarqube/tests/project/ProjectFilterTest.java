@@ -17,11 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.projectSearch;
+package org.sonarqube.tests.project;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category6Suite;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,15 +46,14 @@ import static util.ItUtils.newProjectKey;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.restoreProfile;
 import static util.ItUtils.sanitizeTimezones;
-import static util.ItUtils.setServerProperty;
 
 /**
  * Tests WS api/components/search_projects
  */
-public class SearchProjectsTest {
+public class ProjectFilterTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator);
@@ -65,7 +63,7 @@ public class SearchProjectsTest {
   @Before
   public void setUp() {
     organization = tester.organizations().generate();
-    restoreProfile(orchestrator, SearchProjectsTest.class.getResource("/projectSearch/SearchProjectsTest/with-many-rules.xml"), organization.getKey());
+    restoreProfile(orchestrator, ProjectFilterTest.class.getResource("/projectSearch/SearchProjectsTest/with-many-rules.xml"), organization.getKey());
   }
 
   @Test
@@ -99,7 +97,7 @@ public class SearchProjectsTest {
 
   @Test
   public void return_leak_period_date() throws Exception {
-    setServerProperty(orchestrator, "sonar.leak.period", "previous_version");
+    tester.settings().setGlobalSettings("sonar.leak.period", "previous_version");
     // This project has a leak period
     String projectKey1 = newProjectKey();
     analyzeProject(projectKey1, "shared/xoo-sample", "sonar.projectDate", "2016-12-31");
@@ -220,7 +218,7 @@ public class SearchProjectsTest {
 
   @Test
   public void should_return_facets_on_leak() throws Exception {
-    setServerProperty(orchestrator, "sonar.leak.period", "previous_version");
+    tester.settings().setGlobalSettings("sonar.leak.period", "previous_version");
     // This project has no duplication on new code
     String projectKey1 = newProjectKey();
     analyzeProject(projectKey1, "shared/xoo-sample", "sonar.projectDate", "2016-12-31");

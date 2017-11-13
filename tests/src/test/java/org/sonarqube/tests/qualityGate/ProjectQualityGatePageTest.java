@@ -17,49 +17,52 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.projectAdministration;
+package org.sonarqube.tests.qualityGate;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import com.sonar.orchestrator.Orchestrator;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.openqa.selenium.Keys;
 import org.sonar.wsclient.qualitygate.QualityGate;
 import org.sonar.wsclient.qualitygate.QualityGateClient;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.qa.util.pageobjects.ProjectQualityGatePage;
-import org.sonarqube.tests.Category1Suite;
 import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.qualitygate.SelectWsRequest;
-
-import static util.ItUtils.newAdminWsClient;
 
 public class ProjectQualityGatePageTest {
 
   @ClassRule
-  public static Orchestrator ORCHESTRATOR = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = QualityGateSuite.ORCHESTRATOR;
 
-  private Navigation nav = Navigation.create(ORCHESTRATOR);
-
-  private static WsClient wsClient;
-
-  @BeforeClass
-  public static void prepare() {
-    wsClient = newAdminWsClient(ORCHESTRATOR);
-  }
+  @Rule
+  public Tester tester = new Tester(orchestrator)
+    // all the tests of QualityGateSuite must disable organizations
+    .disableOrganizations();
 
   @Before
   public void setUp() {
-    ORCHESTRATOR.resetData();
-
-    wsClient.wsConnector().call(new PostRequest("api/projects/create")
+    tester.wsClient().wsConnector().call(new PostRequest("api/projects/create")
       .setParam("name", "Sample")
       .setParam("key", "sample"));
+    defaultGate = qualityGateClient().list().defaultGate();
+  }
+
+  private QualityGate defaultGate;
+
+  @After
+  public void tearDown() {
+    if (defaultGate != null) {
+      qualityGateClient().setDefault(defaultGate.id());
+    }
   }
 
   @Test
@@ -127,6 +130,7 @@ public class ProjectQualityGatePageTest {
   }
 
   @Test
+  @Ignore
   public void should_set_none() {
     qualityGateClient().unsetDefault();
     QualityGate customQualityGate = createCustomQualityGate("should_set_none");
@@ -139,20 +143,20 @@ public class ProjectQualityGatePageTest {
   }
 
   private ProjectQualityGatePage openPage() {
-    nav.logIn().submitCredentials("admin", "admin");
-    Selenide.$(".js-skip.text-muted").pressEscape();
-    return nav.openProjectQualityGate("sample");
+    tester.wsClient().users().skipOnboardingTutorial();
+    Navigation navigation = tester.openBrowser().logIn().submitCredentials("admin");
+    return navigation.openProjectQualityGate("sample");
   }
 
-  private static QualityGate createCustomQualityGate(String name) {
+  private QualityGate createCustomQualityGate(String name) {
     return qualityGateClient().create(name);
   }
 
   private void associateWithQualityGate(QualityGate qualityGate) {
-    wsClient.qualityGates().associateProject(new SelectWsRequest().setProjectKey("sample").setGateId(qualityGate.id()));
+    tester.wsClient().qualityGates().associateProject(new SelectWsRequest().setProjectKey("sample").setGateId(qualityGate.id()));
   }
 
-  private static QualityGateClient qualityGateClient() {
-    return ORCHESTRATOR.getServer().adminWsClient().qualityGateClient();
+  private QualityGateClient qualityGateClient() {
+    return orchestrator.getServer().adminWsClient().qualityGateClient();
   }
 }

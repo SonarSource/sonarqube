@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.projectAdministration;
+package org.sonarqube.tests.project;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.SonarScanner;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
@@ -30,13 +31,14 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsProjects;
 import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
+import org.sonarqube.ws.WsUsers;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
@@ -46,17 +48,44 @@ import util.ItUtils;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.getComponent;
+import static util.ItUtils.projectDir;
 
-public class ProjectDeleteTest {
+public class ProjectDeletionTest {
 
   @ClassRule
-  public static final Orchestrator orchestrator = Category6Suite.ORCHESTRATOR;
+  public static final Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
 
   @Rule
   public TestRule safeguard = new DisableOnDebug(Timeout.seconds(300));
+
   @Rule
-  public Tester tester = new Tester(orchestrator)
-    .setElasticsearchHttpPort(Category6Suite.SEARCH_HTTP_PORT);
+  public Tester tester = new Tester(orchestrator).setElasticsearchHttpPort(ProjectSuite.SEARCH_HTTP_PORT);
+
+  @Test
+  public void delete_project_by_web_service() {
+    String projectKey = "sample";
+    String fileKey = "sample:src/main/xoo/sample/Sample.xoo";
+
+    analyzeXooSample();
+    assertThat(getComponent(orchestrator, projectKey)).isNotNull();
+    assertThat(getComponent(orchestrator, fileKey)).isNotNull();
+
+    // fail to delete a file
+    ItUtils.expectBadRequestError(() -> executeDeleteRequest(tester.wsClient(), fileKey));
+
+    // fail if anonymous
+    ItUtils.expectUnauthorizedError(() -> executeDeleteRequest(tester.asAnonymous().wsClient(), projectKey));
+
+    // fail if insufficient privilege
+    WsUsers.CreateWsResponse.User user = tester.users().generate();
+    ItUtils.expectForbiddenError(() -> executeDeleteRequest(tester.as(user.getLogin()).wsClient(), projectKey));
+
+    // succeed to delete if administrator
+    executeDeleteRequest(tester.wsClient(), projectKey);
+    assertThat(getComponent(orchestrator, "sample")).isNull();
+    assertThat(getComponent(orchestrator, "sample:src/main/xoo/sample/Sample.xoo")).isNull();
+  }
 
   @Test
   public void deletion_removes_project_from_search_engines() {
@@ -192,5 +221,14 @@ public class ProjectDeleteTest {
       .findFirst()
       .orElseThrow(() -> new IllegalStateException("missing field results/[q=TRK]"));
     return !items.isEmpty();
+  }
+
+  private void analyzeXooSample() {
+    SonarScanner build = SonarScanner.create(projectDir("shared/xoo-sample"));
+    orchestrator.executeBuild(build);
+  }
+
+  private static void executeDeleteRequest(WsClient wsClient, String key) {
+    wsClient.projects().delete(DeleteRequest.builder().setKey(key).build());
   }
 }

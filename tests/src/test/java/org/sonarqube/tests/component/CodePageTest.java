@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.source;
+package org.sonarqube.tests.component;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
@@ -29,16 +29,16 @@ import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
 
 import static util.ItUtils.projectDir;
 
-public class ProjectCodeTest {
+public class CodePageTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = SourceSuite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = ComponentSuite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(orchestrator);
 
   @Test
-  public void browse() {
+  public void code_page() {
     Project project = tester.projects().generate(null);
     executeAnalysis(project);
 
@@ -49,25 +49,15 @@ public class ProjectCodeTest {
       .openFirstComponent()
       .shouldHaveCode("public class Sample")
       .shouldHaveBreadcrumbs(project.getName(), "src/main/xoo/sample", "Sample.xoo");
-  }
 
-  @Test
-  public void search() {
-    Project project = tester.projects().generate(null);
-    executeAnalysis(project);
-
+    // search
     tester.openBrowser().openCode(project.getKey())
       .shouldHaveComponent(project.getName())
       .search("xoo")
       .shouldSearchResult("Sample.xoo");
-  }
 
-  @Test
-  public void permalink() {
-    Project project = tester.projects().generate(null);
-    executeAnalysis(project);
-
-    tester.openBrowser().openCode(project.getKey(), project.getKey() + "%3Asrc%2Fmain%2Fxoo%2Fsample%2FSample.xoo")
+    // permalink
+    tester.openBrowser().openCode(project.getKey(), project.getKey() + ":src/main/xoo/sample/Sample.xoo")
       .shouldHaveCode("public class Sample")
       .shouldHaveBreadcrumbs(project.getName(), "src/main/xoo/sample", "Sample.xoo");
   }

@@ -29,6 +29,7 @@ import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+  ProjectQualityGatePageTest.class,
   QualityGateTest.class,
   QualityGateUiTest.class,
   QualityGateNotificationTest.class,
