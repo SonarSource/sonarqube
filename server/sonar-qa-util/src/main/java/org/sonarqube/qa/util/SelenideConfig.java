@@ -22,6 +22,7 @@ package org.sonarqube.qa.util;
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.WebDriverRunner;
 import com.sonar.orchestrator.Orchestrator;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import org.openqa.selenium.WebDriver;
 
@@ -30,9 +31,9 @@ import static java.util.Arrays.stream;
 public class SelenideConfig {
 
   private enum Browser {
-    firefox("(v46 and lower)"),
-    marionette("(recent Firefox, require Geckodriver)"),
-    chrome("(require Chromedriver)");
+    FIREFOX("(v46 and lower)"),
+    MARIONETTE("(recent Firefox, require Geckodriver)"),
+    CHROME("(require Chromedriver)");
 
     private final String label;
 
@@ -42,7 +43,7 @@ public class SelenideConfig {
 
     static Browser of(String s) {
       try {
-        return Browser.valueOf(s);
+        return Browser.valueOf(s.toUpperCase(Locale.US));
       } catch (Exception e) {
         throw new IllegalArgumentException("Invalid browser: " + s + ". Supported values are " +
           stream(values()).map(b -> b.name() + " " + b.label).collect(Collectors.joining(", ")));
@@ -51,7 +52,7 @@ public class SelenideConfig {
   }
 
   public static WebDriver configure(Orchestrator orchestrator) {
-    String browserKey = orchestrator.getConfiguration().getString("orchestrator.browser", Browser.firefox.name());
+    String browserKey = orchestrator.getConfiguration().getString("orchestrator.browser", Browser.FIREFOX.name());
     Browser browser = Browser.of(browserKey);
     Configuration.browser = browser.name();
     Configuration.baseUrl = orchestrator.getServer().getUrl();

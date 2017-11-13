@@ -38,6 +38,8 @@ import org.sonarqube.qa.util.pageobjects.organization.MembersPage;
 import org.sonarqube.qa.util.pageobjects.projects.ProjectsPage;
 import org.sonarqube.qa.util.pageobjects.settings.SettingsPage;
 
+import static java.lang.String.format;
+
 public class Navigation {
 
   public Navigation() {
@@ -92,14 +94,12 @@ public class Navigation {
   }
 
   public ProjectDashboardPage openProjectDashboard(String projectKey) {
-    // TODO encode projectKey
-    String url = "/dashboard?id=" + projectKey;
+    String url = "/dashboard?id=" + escape(projectKey);
     return open(url, ProjectDashboardPage.class);
   }
 
   public ProjectLinksPage openProjectLinks(String projectKey) {
-    // TODO encode projectKey
-    String url = "/project/links?id=" + projectKey;
+    String url = "/project/links?id=" + escape(projectKey);
     return open(url, ProjectLinksPage.class);
   }
 
@@ -109,43 +109,37 @@ public class Navigation {
   }
 
   public QualityGatePage openQualityGates(String organization) {
-    String url = "/organizations/" + organization + "/quality_gates";
+    String url = "/organizations/" + escape(organization) + "/quality_gates";
     return open(url, QualityGatePage.class);
   }
 
   public ProjectQualityGatePage openProjectQualityGate(String projectKey) {
-    // TODO encode projectKey
-    String url = "/project/quality_gate?id=" + projectKey;
+    String url = "/project/quality_gate?id=" + escape(projectKey);
     return open(url, ProjectQualityGatePage.class);
   }
 
   public ProjectKeyPage openProjectKey(String projectKey) {
-    // TODO encode projectKey
-    String url = "/project/key?id=" + projectKey;
+    String url = "/project/key?id=" + escape(projectKey);
     return open(url, ProjectKeyPage.class);
   }
 
   public ProjectActivityPage openProjectActivity(String projectKey) {
-    // TODO encode projectKey
-    String url = "/project/activity?id=" + projectKey;
+    String url = "/project/activity?id=" + escape(projectKey);
     return open(url, ProjectActivityPage.class);
   }
 
   public MeasuresPage openProjectMeasures(String projectKey) {
-    // TODO encode projectKey
-    String url = "/component_measures?id=" + projectKey;
+    String url = "/component_measures?id=" + escape(projectKey);
     return open(url, MeasuresPage.class);
   }
 
   public ProjectCodePage openCode(String projectKey) {
-    // TODO encode projectKey
-    String url = "/code?id=" + projectKey;
+    String url = "/code?id=" + escape(projectKey);
     return open(url, ProjectCodePage.class);
   }
 
   public ProjectCodePage openCode(String projectKey, String selected) {
-    // TODO encode projectKey and selected
-    String url = "/code?id=" + projectKey + "&selected=" + selected;
+    String url = "/code?id=" + escape(projectKey) + "&selected=" + escape(selected);
     return open(url, ProjectCodePage.class);
   }
 
@@ -155,7 +149,7 @@ public class Navigation {
   }
 
   public QualityProfilePage openQualityProfile(String language, String name, String organization) {
-    String profileUrl = "/quality_profiles/show?language=" + language + "&name=" + name;
+    String profileUrl = "/quality_profiles/show?language=" + escape(language) + "&name=" + escape(name);
     return open("/organizations/" + organization + profileUrl, QualityProfilePage.class);
   }
 
@@ -163,8 +157,8 @@ public class Navigation {
     return open("/background_tasks", BackgroundTasksPage.class);
   }
 
-  public SettingsPage openSettings(@Nullable String projectKey) throws UnsupportedEncodingException {
-    String url = projectKey != null ? ("/project/settings?id=" + URLEncoder.encode(projectKey, "UTF-8")) : "/settings";
+  public SettingsPage openSettings(@Nullable String projectKey) {
+    String url = projectKey != null ? ("/project/settings?id=" + escape(projectKey)) : "/settings";
     return open(url, SettingsPage.class);
   }
 
@@ -185,7 +179,7 @@ public class Navigation {
   }
 
   public ProjectPermissionsPage openProjectPermissions(String projectKey) {
-    String url = "/project_roles?id=" + projectKey;
+    String url = "/project_roles?id=" + escape(projectKey);
     return open(url, ProjectPermissionsPage.class);
   }
 
@@ -255,6 +249,19 @@ public class Navigation {
 
   private static SelenideElement loggedInDropdown() {
     return Selenide.$(".js-user-authenticated");
+  }
+
+  /**
+   * Safe encoding for  URL parameters
+   * @param parameter the parameter to escape value
+   * @return the escaped value of parameter
+   */
+  private static String escape(String parameter) {
+    try {
+      return URLEncoder.encode(parameter, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      throw new IllegalArgumentException(format("Unable to escape [%s]", parameter));
+    }
   }
 
   public Navigation shouldBeRedirectedToLogin() {
