@@ -45,7 +45,11 @@ import org.sonarqube.tests.user.UserEsResilienceTest;
  * This suite is reserved to the tests that start their own instance of Orchestrator.
  * Indeed multiple instances of Orchestrator can't be started in parallel, so this
  * suite does not declare a shared Orchestrator.
+ *
+ * @deprecated use dedicated suites in each package (see {@link org.sonarqube.tests.measure.MeasureSuite}
+ * for instance)
  */
+@Deprecated
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   ServerSystemRestartingOrchestrator.class,

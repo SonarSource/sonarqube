@@ -49,7 +49,11 @@ import static util.ItUtils.xooPlugin;
 
 /**
  * This category is used only when organizations feature is activated
+ *
+ * @deprecated use dedicated suites in each package (see {@link org.sonarqube.tests.measure.MeasureSuite}
+ * for instance)
  */
+@Deprecated
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   OrganizationIdentityProviderTest.class,
