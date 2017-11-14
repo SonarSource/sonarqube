@@ -28,8 +28,9 @@ import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
 import org.sonarqube.ws.WsQualityGates.CreateWsResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.qualitygate.QualityGatesService;
-import org.sonarqube.ws.client.qualitygate.SelectWsRequest;
+import org.sonarqube.ws.client.qualitygates.CreateRequest;
+import org.sonarqube.ws.client.qualitygates.QualitygatesService;
+import org.sonarqube.ws.client.qualitygates.SelectRequest;
 
 public class QGateTester {
   private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
@@ -40,7 +41,7 @@ public class QGateTester {
     this.session = session;
   }
 
-  public QualityGatesService service() {
+  public QualitygatesService service() {
     return session.wsClient().qualityGates();
   }
 
@@ -54,11 +55,11 @@ public class QGateTester {
 
   public CreateWsResponse generate() {
     int id = ID_GENERATOR.getAndIncrement();
-    return session.wsClient().qualityGates().create("QualityGate" + id);
+    return session.wsClient().qualityGates().create(new CreateRequest().setName("QualityGate" + id));
   }
 
   public void associateProject(CreateWsResponse qualityGate, Project project){
-    service().associateProject(new SelectWsRequest().setGateId(qualityGate.getId()).setProjectKey(project.getKey()));
+    service().select(new SelectRequest().setGateId(String.valueOf(qualityGate.getId())).setProjectKey(project.getKey()));
   }
 
   public static class ListResponse {

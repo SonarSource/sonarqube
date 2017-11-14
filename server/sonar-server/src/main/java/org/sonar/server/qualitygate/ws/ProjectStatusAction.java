@@ -43,7 +43,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
-import org.sonarqube.ws.client.qualitygate.ProjectStatusWsRequest;
+import org.sonarqube.ws.client.qualitygates.ProjectStatusRequest;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Collections.singletonList;
@@ -113,7 +113,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
     writeProtobuf(projectStatusWsResponse, request, response);
   }
 
-  private ProjectStatusWsResponse doHandle(ProjectStatusWsRequest request) {
+  private ProjectStatusWsResponse doHandle(ProjectStatusRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectAndSnapshot projectAndSnapshot = getProjectAndSnapshot(dbSession, request);
       checkPermission(projectAndSnapshot.project);
@@ -125,7 +125,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
     }
   }
 
-  private ProjectAndSnapshot getProjectAndSnapshot(DbSession dbSession, ProjectStatusWsRequest request) {
+  private ProjectAndSnapshot getProjectAndSnapshot(DbSession dbSession, ProjectStatusRequest request) {
     String analysisUuid = request.getAnalysisId();
     if (!isNullOrEmpty(request.getAnalysisId())) {
       return getSnapshotThenProject(dbSession, analysisUuid);
@@ -136,7 +136,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
     throw BadRequestException.create(MSG_ONE_PARAMETER_ONLY);
   }
 
-  private ProjectAndSnapshot getProjectThenSnapshot(DbSession dbSession, ProjectStatusWsRequest request) {
+  private ProjectAndSnapshot getProjectThenSnapshot(DbSession dbSession, ProjectStatusRequest request) {
     ComponentDto projectDto = componentFinder.getByUuidOrKey(dbSession, request.getProjectId(), request.getProjectKey(), ParamNames.PROJECT_ID_AND_KEY);
     java.util.Optional<SnapshotDto> snapshot = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, projectDto.projectUuid());
     return new ProjectAndSnapshot(projectDto, snapshot.orElse(null));
@@ -165,17 +165,17 @@ public class ProjectStatusAction implements QualityGatesWsAction {
       : Optional.fromNullable(measures.get(0).getData());
   }
 
-  private static ProjectStatusWsRequest toProjectStatusWsRequest(Request request) {
-    ProjectStatusWsRequest projectStatusWsRequest = new ProjectStatusWsRequest()
+  private static ProjectStatusRequest toProjectStatusWsRequest(Request request) {
+    ProjectStatusRequest projectStatusRequest = new ProjectStatusRequest()
       .setAnalysisId(request.param(PARAM_ANALYSIS_ID))
       .setProjectId(request.param(PARAM_PROJECT_ID))
       .setProjectKey(request.param(PARAM_PROJECT_KEY));
     checkRequest(
-      !isNullOrEmpty(projectStatusWsRequest.getAnalysisId())
-        ^ !isNullOrEmpty(projectStatusWsRequest.getProjectId())
-        ^ !isNullOrEmpty(projectStatusWsRequest.getProjectKey()),
+      !isNullOrEmpty(projectStatusRequest.getAnalysisId())
+        ^ !isNullOrEmpty(projectStatusRequest.getProjectId())
+        ^ !isNullOrEmpty(projectStatusRequest.getProjectKey()),
       MSG_ONE_PARAMETER_ONLY);
-    return projectStatusWsRequest;
+    return projectStatusRequest;
   }
 
   private void checkPermission(ComponentDto project) {

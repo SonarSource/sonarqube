@@ -30,8 +30,9 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsQualityGates.CreateConditionWsResponse;
-import org.sonarqube.ws.client.qualitygate.CreateConditionRequest;
+import org.sonarqube.ws.client.qualitygates.CreateConditionRequest;
 
+import static java.lang.Integer.parseInt;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.qualitygate.ws.QualityGatesWs.addConditionParams;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -88,12 +89,12 @@ public class CreateConditionAction implements QualityGatesWsAction {
 
   private CreateConditionWsResponse doHandle(CreateConditionRequest request, DbSession dbSession) {
     QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession,
-      request.getQualityGateId(),
-      request.getMetricKey(),
-      request.getOperator(),
+      parseInt(request.getGateId()),
+      request.getMetric(),
+      request.getOp(),
       request.getWarning(),
       request.getError(),
-      request.getPeriod());
+      parseInt(request.getPeriod()));
 
     CreateConditionWsResponse.Builder response = CreateConditionWsResponse.newBuilder()
       .setId(condition.getId())
@@ -106,14 +107,13 @@ public class CreateConditionAction implements QualityGatesWsAction {
   }
 
   private static CreateConditionRequest toWsRequest(Request request) {
-    return CreateConditionRequest.builder()
-      .setQualityGateId(request.mandatoryParamAsInt(PARAM_GATE_ID))
-      .setMetricKey(request.mandatoryParam(PARAM_METRIC))
-      .setOperator(request.mandatoryParam(PARAM_OPERATOR))
-      .setWarning(request.param(PARAM_WARNING))
-      .setError(request.param(PARAM_ERROR))
-      .setPeriod(request.paramAsInt(PARAM_PERIOD))
-      .build();
+    return new CreateConditionRequest()
+    .setGateId(String.valueOf(request.mandatoryParamAsInt(PARAM_GATE_ID)))
+    .setMetric(request.mandatoryParam(PARAM_METRIC))
+    .setOp(request.mandatoryParam(PARAM_OPERATOR))
+    .setWarning(request.param(PARAM_WARNING))
+    .setError(request.param(PARAM_ERROR))
+    .setPeriod(String.valueOf(request.paramAsInt(PARAM_PERIOD)));
   }
 
 }

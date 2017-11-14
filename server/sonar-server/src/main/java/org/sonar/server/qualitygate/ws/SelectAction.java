@@ -34,7 +34,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.qualitygate.SelectWsRequest;
+import org.sonarqube.ws.client.qualitygates.SelectRequest;
 
 import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
@@ -90,9 +90,9 @@ public class SelectAction implements QualityGatesWsAction {
     response.noContent();
   }
 
-  private void doHandle(SelectWsRequest request) {
+  private void doHandle(SelectRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      checkQualityGate(dbSession, request.getGateId());
+      checkQualityGate(dbSession, Long.parseLong(request.getGateId()));
       ComponentDto project = getProject(dbSession, request.getProjectId(), request.getProjectKey());
 
       dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
@@ -104,9 +104,8 @@ public class SelectAction implements QualityGatesWsAction {
     }
   }
 
-  private static SelectWsRequest toSelectWsRequest(Request request) {
-    return new SelectWsRequest()
-      .setGateId(request.mandatoryParamAsLong(PARAM_GATE_ID))
+  private static SelectRequest toSelectWsRequest(Request request) {
+    return new SelectRequest().setGateId(String.valueOf((Long) request.mandatoryParamAsLong(PARAM_GATE_ID)))
       .setProjectId(request.param(PARAM_PROJECT_ID))
       .setProjectKey(request.param(PARAM_PROJECT_KEY));
   }
