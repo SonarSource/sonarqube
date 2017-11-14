@@ -33,16 +33,16 @@ import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Organizations;
-import org.sonarqube.ws.WsCe;
-import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
-import org.sonarqube.ws.WsQualityGates;
-import org.sonarqube.ws.WsQualityGates.CreateWsResponse;
-import org.sonarqube.ws.WsUsers;
+import org.sonarqube.ws.Ce;
+import org.sonarqube.ws.Projects.CreateWsResponse.Project;
+import org.sonarqube.ws.Qualitygates;
+import org.sonarqube.ws.Qualitygates.CreateWsResponse;
+import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.qualitygate.CreateConditionRequest;
-import org.sonarqube.ws.client.qualitygate.ProjectStatusWsRequest;
-import org.sonarqube.ws.client.qualitygate.UpdateConditionRequest;
+import org.sonarqube.ws.client.qualitygates.CreateConditionRequest;
+import org.sonarqube.ws.client.qualitygates.ProjectStatusRequest;
+import org.sonarqube.ws.client.qualitygates.UpdateConditionRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.getMeasure;
@@ -59,21 +59,20 @@ public class OrganizationQualityGateForSmallChangesetsTest {
   @Test
   public void do_not_fail_quality_gate_with_poor_LEAK_coverage_and_a_max_of_19_lines_of_NEW_code() throws Exception {
     Organizations.Organization organization = tester.organizations().generate();
-    Project project = tester.projects().generate(organization);
+    Project project = tester.projects().provision(organization);
     CreateWsResponse qualityGate = tester.qGates().generate();
     tester.qGates().associateProject(qualityGate, project);
-    WsQualityGates.CreateConditionWsResponse condition = tester.wsClient().qualityGates().createCondition(CreateConditionRequest.builder()
-      .setQualityGateId(qualityGate.getId())
-      .setMetricKey("new_coverage")
-      .setOperator("LT")
+    Qualitygates.CreateConditionWsResponse condition = tester.wsClient().qualityGates().createCondition(new CreateConditionRequest()
+      .setGateId(String.valueOf(qualityGate.getId()))
+      .setMetric("new_coverage")
+      .setOp("LT")
       .setWarning("90")
       .setError("80")
-      .setPeriod(1)
-      .build());
+      .setPeriod("1"));
 
     tester.settings().setProjectSetting(project.getKey(), "sonar.leak.period", "previous_version");
     String password = "password1";
-    WsUsers.CreateWsResponse.User user = tester.users().generateAdministrator(organization, u -> u.setPassword(password));
+    Users.CreateWsResponse.User user = tester.users().generateAdministrator(organization, u -> u.setPassword(password));
 
     // no leak => use usual behaviour
     SonarScanner analysis = SonarScanner
@@ -106,14 +105,13 @@ public class OrganizationQualityGateForSmallChangesetsTest {
     assertIgnoredConditions("qualitygate/small-changesets/v2-1019-lines", true);
 
     // small leak => if coverage is OK anyways, we do not have to ignore anything
-    tester.wsClient().qualityGates().updateCondition(UpdateConditionRequest.builder()
-      .setConditionId(condition.getId())
-      .setMetricKey("new_coverage")
-      .setOperator("LT")
+    tester.wsClient().qualityGates().updateCondition(new UpdateConditionRequest()
+      .setId(String.valueOf(condition.getId()))
+      .setMetric("new_coverage")
+      .setOp("LT")
       .setWarning("10")
       .setError("20")
-      .setPeriod(1)
-      .build());
+      .setPeriod("1"));
     SonarScanner analysis3 = SonarScanner
       .create(projectDir("qualitygate/small-changesets/v2-1019-lines"))
       .setProperty("sonar.projectKey", project.getKey())
@@ -129,14 +127,13 @@ public class OrganizationQualityGateForSmallChangesetsTest {
     assertIgnoredConditions("qualitygate/small-changesets/v2-1019-lines", false);
 
     // big leak => use usual behaviour
-    tester.wsClient().qualityGates().updateCondition(UpdateConditionRequest.builder()
-      .setConditionId(condition.getId())
-      .setMetricKey("new_coverage")
-      .setOperator("LT")
+    tester.wsClient().qualityGates().updateCondition(new UpdateConditionRequest()
+      .setId(String.valueOf(condition.getId()))
+      .setMetric("new_coverage")
+      .setOp("LT")
       .setWarning(null)
       .setError("70")
-      .setPeriod(1)
-      .build());
+      .setPeriod("1"));
     SonarScanner analysis4 = SonarScanner
       .create(projectDir("qualitygate/small-changesets/v2-1020-lines"))
       .setProperty("sonar.projectKey", project.getKey())
@@ -155,7 +152,7 @@ public class OrganizationQualityGateForSmallChangesetsTest {
   private void assertIgnoredConditions(String projectDir, boolean expected) throws IOException {
     String analysisId = getAnalysisId(getTaskIdInLocalReport(projectDir(projectDir)));
     boolean ignoredConditions = tester.wsClient().qualityGates()
-      .projectStatus(new ProjectStatusWsRequest().setAnalysisId(analysisId))
+      .projectStatus(new ProjectStatusRequest().setAnalysisId(analysisId))
       .getProjectStatus()
       .getIgnoredConditions();
     assertThat(ignoredConditions).isEqualTo(expected);
@@ -167,7 +164,7 @@ public class OrganizationQualityGateForSmallChangesetsTest {
       .call(new GetRequest("api/ce/task")
         .setParam("id", taskId)
         .setMediaType(MediaTypes.PROTOBUF));
-    WsCe.TaskResponse activityWsResponse = WsCe.TaskResponse.parseFrom(activity.contentStream());
+    Ce.TaskResponse activityWsResponse = Ce.TaskResponse.parseFrom(activity.contentStream());
     return activityWsResponse.getTask().getAnalysisId();
   }
 

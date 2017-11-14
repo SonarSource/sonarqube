@@ -30,7 +30,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.WsMeasures;
+import org.sonarqube.ws.Measures;
 import util.ItUtils;
 
 import static java.lang.Integer.parseInt;
@@ -87,7 +87,7 @@ public class SinceXDaysHistoryTest {
   }
 
   private void checkMeasure(String metric, int variation) {
-    WsMeasures.Measure measure = getMeasureWithVariation(orchestrator, PROJECT, metric);
+    Measures.Measure measure = getMeasureWithVariation(orchestrator, PROJECT, metric);
     assertThat(measure.getPeriods().getPeriodsValueList()).extracting(periodValue -> parseInt(periodValue.getValue())).containsOnly(variation);
   }
 

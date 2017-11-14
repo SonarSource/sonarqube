@@ -34,11 +34,11 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsPermissions;
-import org.sonarqube.ws.WsPermissions.Permission;
-import org.sonarqube.ws.WsPermissions.PermissionTemplate;
-import org.sonarqube.ws.WsPermissions.SearchTemplatesWsResponse;
-import org.sonarqube.ws.WsPermissions.SearchTemplatesWsResponse.TemplateIdQualifier;
+import org.sonarqube.ws.Permissions;
+import org.sonarqube.ws.Permissions.Permission;
+import org.sonarqube.ws.Permissions.PermissionTemplate;
+import org.sonarqube.ws.Permissions.SearchTemplatesWsResponse;
+import org.sonarqube.ws.Permissions.SearchTemplatesWsResponse.TemplateIdQualifier;
 import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -109,7 +109,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
           .setTemplateId(viewDefaultTemplate)));
   }
 
-  private static void buildTemplatesResponse(WsPermissions.SearchTemplatesWsResponse.Builder response, SearchTemplatesData data) {
+  private static void buildTemplatesResponse(Permissions.SearchTemplatesWsResponse.Builder response, SearchTemplatesData data) {
     Permission.Builder permissionResponse = Permission.newBuilder();
     PermissionTemplate.Builder templateBuilder = PermissionTemplate.newBuilder();
 
@@ -135,7 +135,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
     }
   }
 
-  private WsPermissions.SearchTemplatesWsResponse buildResponse(SearchTemplatesData data) {
+  private Permissions.SearchTemplatesWsResponse buildResponse(SearchTemplatesData data) {
     SearchTemplatesWsResponse.Builder response = SearchTemplatesWsResponse.newBuilder();
 
     buildTemplatesResponse(response, data);

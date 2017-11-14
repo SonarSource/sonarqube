@@ -35,16 +35,16 @@ import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.tests.Byteman;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.tests.Byteman;
+import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Organizations.Organization;
-import org.sonarqube.ws.QualityProfiles.CreateWsResponse.QualityProfile;
-import org.sonarqube.ws.WsCe;
-import org.sonarqube.ws.WsProjects;
-import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
-import org.sonarqube.ws.client.ce.TaskWsRequest;
+import org.sonarqube.ws.Qualityprofiles.CreateWsResponse.QualityProfile;
+import org.sonarqube.ws.Projects;
+import org.sonarqube.ws.Users.CreateWsResponse.User;
+import org.sonarqube.ws.client.ce.TaskRequest;
 import org.sonarqube.ws.client.component.SuggestionsWsRequest;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 import util.ItUtils;
@@ -52,7 +52,7 @@ import util.ItUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonarqube.tests.Byteman.Process.CE;
-import static org.sonarqube.ws.WsCe.TaskStatus.FAILED;
+import static org.sonarqube.ws.Ce.TaskStatus.FAILED;
 import static util.ItUtils.projectDir;
 
 public class AnalysisEsResilienceTest {
@@ -86,7 +86,7 @@ public class AnalysisEsResilienceTest {
   public void activation_and_deactivation_of_rule_is_resilient_to_indexing_errors() throws Exception {
     Organization organization = tester.organizations().generate();
     User orgAdministrator = tester.users().generateAdministrator(organization);
-    WsProjects.CreateWsResponse.Project project = tester.projects().generate(organization);
+    Projects.CreateWsResponse.Project project = tester.projects().provision(organization);
     String projectKey = project.getKey();
     String fileKey = projectKey + ":src/main/xoo/sample/Sample.xoo";
     String file2Key = projectKey + ":src/main/xoo/sample/Sample2.xoo";
@@ -134,7 +134,7 @@ public class AnalysisEsResilienceTest {
   public void purge_mechanism_must_be_resilient_at_next_analysis() throws Exception {
     Organization organization = tester.organizations().generate();
     User orgAdministrator = tester.users().generateAdministrator(organization);
-    WsProjects.CreateWsResponse.Project project = tester.projects().generate(organization);
+    Projects.CreateWsResponse.Project project = tester.projects().provision(organization);
     String projectKey = project.getKey();
     String fileKey = projectKey + ":src/main/xoo/sample/Sample.xoo";
 
@@ -158,9 +158,9 @@ public class AnalysisEsResilienceTest {
     String taskUuid = executeAnalysis(projectKey, organization, orgAdministrator, "analysis/resilience/resilience-purge", "2000-01-02");
 
     // The task has failed
-    TaskWsRequest request = TaskWsRequest.newBuilder(taskUuid).withErrorStacktrace().build();
-    WsCe.Task task = tester.wsClient().ce().task(request).getTask();
-    assertThat(task.getStatus()).isEqualTo(WsCe.TaskStatus.FAILED);
+    TaskRequest request = new TaskRequest().setId(taskUuid).setAdditionalFields(Collections.singletonList("stacktrace"));
+    Ce.Task task = tester.wsClient().ce().task(request).getTask();
+    assertThat(task.getStatus()).isEqualTo(Ce.TaskStatus.FAILED);
     assertThat(task.getErrorMessage()).contains("Unrecoverable indexation failures");
     assertThat(task.getErrorStacktrace())
       .contains("Caused by: java.lang.IllegalStateException: Unrecoverable indexation failures");
@@ -208,7 +208,7 @@ public class AnalysisEsResilienceTest {
   public void compute_engine_task_must_be_red_when_es_is_not_available() throws Exception {
     Organization organization = tester.organizations().generate();
     User orgAdministrator = tester.users().generateAdministrator(organization);
-    WsProjects.CreateWsResponse.Project project = tester.projects().generate(organization);
+    Projects.CreateWsResponse.Project project = tester.projects().provision(organization);
     String projectKey = project.getKey();
     String fileKey = projectKey + ":src/main/xoo/sample/Sample.xoo";
 
@@ -220,7 +220,7 @@ public class AnalysisEsResilienceTest {
     tester.elasticsearch().lockWrites("issues");
 
     String analysisKey = executeAnalysis(projectKey, organization, orgAdministrator, "analysis/resilience/resilience-sample-v1", null);
-    WsCe.TaskResponse task = tester.wsClient().ce().task(analysisKey);
+    Ce.TaskResponse task = tester.wsClient().ce().task(new TaskRequest().setId(analysisKey));
 
     assertThat(task.getTask().getStatus()).isEqualTo(FAILED);
   }

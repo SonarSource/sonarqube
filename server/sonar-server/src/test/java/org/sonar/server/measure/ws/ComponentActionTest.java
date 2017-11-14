@@ -40,9 +40,9 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.WsMeasures;
-import org.sonarqube.ws.WsMeasures.Component;
-import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
+import org.sonarqube.ws.Measures;
+import org.sonarqube.ws.Measures.Component;
+import org.sonarqube.ws.Measures.ComponentWsResponse;
 
 import static java.lang.Double.parseDouble;
 import static java.lang.String.format;
@@ -138,7 +138,7 @@ public class ComponentActionTest {
     assertThat(response.getComponent()).extracting(Component::getKey, Component::getBranch)
       .containsExactlyInAnyOrder(file.getKey(), file.getBranch());
     assertThat(response.getComponent().getMeasuresList())
-      .extracting(WsMeasures.Measure::getMetric, m -> parseDouble(m.getValue()))
+      .extracting(Measures.Measure::getMetric, m -> parseDouble(m.getValue()))
       .containsExactlyInAnyOrder(tuple(complexity.getKey(), measure.getValue()));
   }
 

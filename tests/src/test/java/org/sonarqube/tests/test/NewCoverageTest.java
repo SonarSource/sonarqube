@@ -27,7 +27,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.WsMeasures;
+import org.sonarqube.ws.Measures;
 
 import static java.lang.Double.parseDouble;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +54,7 @@ public class NewCoverageTest {
     orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-new-coverage-v2"))
       .setProperty("sonar.scm.disabled", "false"));
 
-    Map<String, WsMeasures.Measure> measures = getMeasuresWithVariationsByMetricKey(orchestrator, PROJECT_KEY, ALL_NEW_COVERAGE_METRICS);
+    Map<String, Measures.Measure> measures = getMeasuresWithVariationsByMetricKey(orchestrator, PROJECT_KEY, ALL_NEW_COVERAGE_METRICS);
     assertThat(parseDouble(measures.get("new_coverage").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(66.6d, DEFAULT_OFFSET);
     assertThat(parseDouble(measures.get("new_line_coverage").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(100d, DEFAULT_OFFSET);
     assertThat(parseDouble(measures.get("new_branch_coverage").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(42.8, DEFAULT_OFFSET);

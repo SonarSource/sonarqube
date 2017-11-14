@@ -26,9 +26,9 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.sonarqube.ws.Organizations;
-import org.sonarqube.ws.WsUserGroups;
-import org.sonarqube.ws.WsUsers;
-import org.sonarqube.ws.WsUsers.GroupsWsResponse.Group;
+import org.sonarqube.ws.UserGroups;
+import org.sonarqube.ws.Users;
+import org.sonarqube.ws.Users.GroupsWsResponse.Group;
 import org.sonarqube.ws.client.user.GroupsRequest;
 import org.sonarqube.ws.client.usergroup.AddUserWsRequest;
 import org.sonarqube.ws.client.usergroup.CreateWsRequest;
@@ -47,7 +47,7 @@ public class GroupTester {
   }
 
   @SafeVarargs
-  public final WsUserGroups.Group generate(@Nullable Organizations.Organization organization, Consumer<CreateWsRequest.Builder>... populators) {
+  public final UserGroups.Group generate(@Nullable Organizations.Organization organization, Consumer<CreateWsRequest.Builder>... populators) {
     int id = ID_GENERATOR.getAndIncrement();
     CreateWsRequest.Builder request = CreateWsRequest.builder()
       .setName("Group" + id)
@@ -62,7 +62,7 @@ public class GroupTester {
       .setOrganization(organization != null ? organization.getKey() : null)
       .setLogin(userLogin)
       .build();
-    WsUsers.GroupsWsResponse response = session.users().service().groups(request);
+    Users.GroupsWsResponse response = session.users().service().groups(request);
     return response.getGroupsList();
   }
 

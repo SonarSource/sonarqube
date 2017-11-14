@@ -30,7 +30,7 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.usergroups.DefaultGroupFinder;
-import org.sonarqube.ws.WsUserGroups;
+import org.sonarqube.ws.UserGroups;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -142,8 +142,8 @@ public class GroupWsSupport {
     checkArgument(!defaultGroup.getId().equals(groupDto.getId()), "Default group '%s' cannot be used to perform this action", groupDto.getName());
   }
 
-  static WsUserGroups.Group.Builder toProtobuf(OrganizationDto organization, GroupDto group, int membersCount, boolean isDefault) {
-    WsUserGroups.Group.Builder wsGroup = WsUserGroups.Group.newBuilder()
+  static UserGroups.Group.Builder toProtobuf(OrganizationDto organization, GroupDto group, int membersCount, boolean isDefault) {
+    UserGroups.Group.Builder wsGroup = UserGroups.Group.newBuilder()
       .setId(group.getId())
       .setOrganization(organization.getKey())
       .setName(group.getName())

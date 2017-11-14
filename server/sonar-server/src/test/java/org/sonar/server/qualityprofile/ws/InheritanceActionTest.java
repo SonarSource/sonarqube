@@ -56,7 +56,7 @@ import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.util.TypeValidations;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.QualityProfiles.InheritanceWsResponse;
+import org.sonarqube.ws.Qualityprofiles.InheritanceWsResponse;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;

@@ -29,7 +29,7 @@ import org.junit.rules.RuleChain;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.qa.util.pageobjects.projects.ProjectsPage;
-import org.sonarqube.ws.WsUsers;
+import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 
@@ -104,7 +104,7 @@ public class ProjectsPageTest {
     page.shouldHaveTotal(2).shouldDisplayAllProjectsWidthSort("-analysis_date");
 
     // all projects by default for logged in user
-    WsUsers.CreateWsResponse.User administrator = tester.users().generateAdministratorOnDefaultOrganization();
+    Users.CreateWsResponse.User administrator = tester.users().generateAdministratorOnDefaultOrganization();
     page = nav.logIn().submitCredentials(administrator.getLogin()).openProjects();
     page.shouldHaveTotal(2).shouldDisplayAllProjects();
 
@@ -156,7 +156,7 @@ public class ProjectsPageTest {
 
   @Test
   public void should_switch_between_perspectives() {
-    WsUsers.CreateWsResponse.User administrator = tester.users().generateAdministratorOnDefaultOrganization();
+    Users.CreateWsResponse.User administrator = tester.users().generateAdministratorOnDefaultOrganization();
     ProjectsPage page = tester.openBrowser()
       .logIn().submitCredentials(administrator.getLogin())
       .openProjects();

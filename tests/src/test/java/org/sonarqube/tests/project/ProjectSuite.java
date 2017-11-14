@@ -26,6 +26,7 @@ import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
@@ -42,10 +43,11 @@ import static util.ItUtils.xooPlugin;
   ProjectsPageTest.class,
   ProjectProvisioningTest.class,
   ProjectSearchTest.class,
+  ProjectSettingsTest.class,
   ProjectVisibilityPageTest.class
 })
 public class ProjectSuite {
-  public static final int SEARCH_HTTP_PORT = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
+  static final int SEARCH_HTTP_PORT = NetworkUtils.getNextAvailablePort(InetAddress.getLoopbackAddress());
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()
@@ -58,6 +60,9 @@ public class ProjectSuite {
     .setServerProperty("sonar.notifications.delay", "1")
 
     .addPlugin(xooPlugin())
+
+    // for ProjectSettingsTest
+    .addPlugin(pluginArtifact("sonar-subcategories-plugin"))
 
     .build();
 

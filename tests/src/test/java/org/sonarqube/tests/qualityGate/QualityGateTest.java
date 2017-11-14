@@ -44,23 +44,24 @@ import org.sonar.wsclient.qualitygate.QualityGate;
 import org.sonar.wsclient.qualitygate.QualityGateClient;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.TesterSession;
+import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Organizations.Organization;
-import org.sonarqube.ws.WsCe;
-import org.sonarqube.ws.WsMeasures.Measure;
-import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
-import org.sonarqube.ws.WsQualityGates;
-import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
-import org.sonarqube.ws.WsUsers;
+import org.sonarqube.ws.Measures.Measure;
+import org.sonarqube.ws.Projects.CreateWsResponse.Project;
+import org.sonarqube.ws.Qualitygates;
+import org.sonarqube.ws.Qualitygates.ProjectStatusWsResponse;
+import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
-import org.sonarqube.ws.client.qualitygate.CreateConditionRequest;
-import org.sonarqube.ws.client.qualitygate.ProjectStatusWsRequest;
-import org.sonarqube.ws.client.qualitygate.QualityGatesService;
-import org.sonarqube.ws.client.qualitygate.SelectWsRequest;
-import org.sonarqube.ws.client.qualitygate.UpdateConditionRequest;
+import org.sonarqube.ws.client.qualitygates.CreateConditionRequest;
+import org.sonarqube.ws.client.qualitygates.CreateRequest;
+import org.sonarqube.ws.client.qualitygates.ProjectStatusRequest;
+import org.sonarqube.ws.client.qualitygates.QualitygatesService;
+import org.sonarqube.ws.client.qualitygates.SelectRequest;
+import org.sonarqube.ws.client.qualitygates.UpdateConditionRequest;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -246,7 +247,7 @@ public class QualityGateTest {
       String taskId = getTaskIdInLocalReport(projectDir("qualitygate/xoo-sample"));
       String analysisId = getAnalysisId(taskId);
 
-      ProjectStatusWsResponse projectStatusWsResponse = tester.wsClient().qualityGates().projectStatus(new ProjectStatusWsRequest().setAnalysisId(analysisId));
+      ProjectStatusWsResponse projectStatusWsResponse = tester.wsClient().qualityGates().projectStatus(new ProjectStatusRequest().setAnalysisId(analysisId));
       ProjectStatusWsResponse.ProjectStatus projectStatus = projectStatusWsResponse.getProjectStatus();
       assertThat(projectStatus.getStatus()).isEqualTo(ProjectStatusWsResponse.Status.ERROR);
       assertThat(projectStatus.getConditionsCount()).isEqualTo(1);
@@ -261,7 +262,7 @@ public class QualityGateTest {
   @Test
   public void does_not_fail_when_condition_is_on_removed_metric() throws Exception {
     // create project
-    Project project = tester.projects().generate(null);
+    Project project = tester.projects().provision();
     String projectKey = project.getKey();
 
     // create custom metric
@@ -269,7 +270,7 @@ public class QualityGateTest {
     createCustomIntMetric(customMetricKey);
     try {
       // create quality gate
-      WsQualityGates.CreateWsResponse simple = tester.wsClient().qualityGates().create("OnCustomMetric");
+      Qualitygates.CreateWsResponse simple = tester.wsClient().qualityGates().create(new CreateRequest().setName("OnCustomMetric"));
       Long qualityGateId = simple.getId();
       qgClient().createCondition(NewCondition.create(qualityGateId).metricKey(customMetricKey).operator("GT").warningThreshold("40"));
 
@@ -277,7 +278,7 @@ public class QualityGateTest {
       deleteCustomMetric(customMetricKey);
 
       // run analysis
-      tester.wsClient().qualityGates().associateProject(new SelectWsRequest().setProjectKey(projectKey).setGateId(qualityGateId));
+      tester.wsClient().qualityGates().select(new SelectRequest().setProjectKey(projectKey).setGateId(String.valueOf(qualityGateId)));
       BuildResult buildResult = executeAnalysis(projectKey);
 
       // verify quality gate
@@ -292,16 +293,16 @@ public class QualityGateTest {
   public void administrate_quality_gate_with_gateadmin_permission() {
     // user is quality gate admin of default organization
     Organization organization = tester.organizations().getDefaultOrganization();
-    WsUsers.CreateWsResponse.User user = tester.users().generateMember(organization);
+    Users.CreateWsResponse.User user = tester.users().generateMember(organization);
     tester.wsClient().permissions().addUser(new AddUserWsRequest().setLogin(user.getLogin()).setPermission("gateadmin").setOrganization(organization.getKey()));
     TesterSession qGateAdminTester = tester.as(user.getLogin());
-    QualityGatesService qGateService = qGateAdminTester.qGates().service();
+    QualitygatesService qGateService = qGateAdminTester.qGates().service();
     // perform administration operations
-    WsQualityGates.CreateWsResponse qualityGate = qGateAdminTester.qGates().generate();
-    WsQualityGates.CreateConditionWsResponse condition = qGateService.createCondition(CreateConditionRequest.builder()
-      .setQualityGateId(qualityGate.getId()).setMetricKey("coverage").setOperator("LT").setError("90").build());
-    qGateService.updateCondition(UpdateConditionRequest.builder()
-      .setConditionId(condition.getId()).setMetricKey("coverage").setOperator("LT").setError("90").setWarning("80").build());
+    Qualitygates.CreateWsResponse qualityGate = qGateAdminTester.qGates().generate();
+    Qualitygates.CreateConditionWsResponse condition = qGateService.createCondition(new CreateConditionRequest()
+      .setGateId(String.valueOf(qualityGate.getId())).setMetric("coverage").setOp("LT").setError("90"));
+    qGateService.updateCondition(new UpdateConditionRequest()
+      .setId(String.valueOf(condition.getId())).setMetric("coverage").setOp("LT").setError("90").setWarning("80"));
     qGateAdminTester.wsClient().wsConnector().call(new PostRequest("api/qualitygates/set_as_default").setParam("id", qualityGate.getId()));
     qGateAdminTester.wsClient().wsConnector().call(new PostRequest("api/qualitygates/delete_condition").setParam("id", condition.getId()));
     qGateAdminTester.wsClient().wsConnector().call(new PostRequest("api/qualitygates/unset_default").setParam("id", qualityGate.getId()));
@@ -330,7 +331,7 @@ public class QualityGateTest {
       .call(new GetRequest("api/ce/task")
         .setParam("id", taskId)
         .setMediaType(MediaTypes.PROTOBUF));
-    WsCe.TaskResponse activityWsResponse = WsCe.TaskResponse.parseFrom(activity.contentStream());
+    Ce.TaskResponse activityWsResponse = Ce.TaskResponse.parseFrom(activity.contentStream());
     return activityWsResponse.getTask().getAnalysisId();
   }
 

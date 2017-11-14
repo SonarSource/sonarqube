@@ -22,7 +22,7 @@ package org.sonarqube.ws.client.project;
 import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.ws.WsProjects;
+import org.sonarqube.ws.Projects;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
@@ -47,7 +47,7 @@ public class ProjectsServiceTest {
       .setName("Project Name")
       .build());
 
-    assertThat(serviceTester.getPostParser()).isSameAs(WsProjects.CreateWsResponse.parser());
+    assertThat(serviceTester.getPostParser()).isSameAs(Projects.CreateWsResponse.parser());
     assertThat(serviceTester.getPostRequest().getPath()).isEqualTo("api/projects/create");
     assertThat(serviceTester.getPostRequest().getParams()).containsOnly(
       entry("project", "project_key"),
@@ -62,7 +62,7 @@ public class ProjectsServiceTest {
       .setName("Project Name")
       .build());
 
-    assertThat(serviceTester.getPostParser()).isSameAs(WsProjects.CreateWsResponse.parser());
+    assertThat(serviceTester.getPostParser()).isSameAs(Projects.CreateWsResponse.parser());
     assertThat(serviceTester.getPostRequest().getPath()).isEqualTo("api/projects/create");
     assertThat(serviceTester.getPostRequest().getParams()).containsOnly(
       entry("organization", "org_key"),

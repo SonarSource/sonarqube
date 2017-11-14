@@ -28,8 +28,8 @@ import org.junit.Test;
 import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations.Organization;
-import org.sonarqube.ws.QualityProfiles.CreateWsResponse;
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
+import org.sonarqube.ws.Qualityprofiles.CreateWsResponse;
+import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.client.rule.SearchWsRequest;
 

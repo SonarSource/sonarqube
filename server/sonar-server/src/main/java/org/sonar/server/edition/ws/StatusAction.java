@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.server.edition.EditionManagementState;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
-import org.sonarqube.ws.WsEditions;
+import org.sonarqube.ws.Editions;
 
 public class StatusAction implements EditionsWsAction {
   private final UserSession userSession;
@@ -52,10 +52,10 @@ public class StatusAction implements EditionsWsAction {
       .checkLoggedIn()
       .checkIsSystemAdministrator();
 
-    WsEditions.StatusResponse.Builder responseBuilder = WsEditions.StatusResponse.newBuilder()
+    Editions.StatusResponse.Builder responseBuilder = Editions.StatusResponse.newBuilder()
       .setCurrentEditionKey(editionManagementState.getCurrentEditionKey().orElse(""))
       .setNextEditionKey(editionManagementState.getPendingEditionKey().orElse(""))
-      .setInstallationStatus(WsEditions.InstallationStatus.valueOf(editionManagementState.getPendingInstallationStatus().name()));
+      .setInstallationStatus(Editions.InstallationStatus.valueOf(editionManagementState.getPendingInstallationStatus().name()));
     editionManagementState.getInstallErrorMessage().ifPresent(responseBuilder::setInstallError);
 
     WsUtils.writeProtobuf(responseBuilder.build(), request, response);

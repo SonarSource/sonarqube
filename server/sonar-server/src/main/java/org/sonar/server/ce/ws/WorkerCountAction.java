@@ -25,7 +25,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.ce.configuration.WorkerCountProvider;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsCe.WorkerCountResponse;
+import org.sonarqube.ws.Ce.WorkerCountResponse;
 
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.ce.CeWsParameters.ACTION_WORKER_COUNT;

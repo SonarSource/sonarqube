@@ -43,6 +43,13 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <!-- required for overriding ws-client 4.5 to have complete error stacktraces
+      in Issue tests -->
+      <groupId>org.codehaus.sonar</groupId>
+      <artifactId>sonar-ws-client</artifactId>
+      <version>5.0</version>
+    </dependency>
+    <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-application</artifactId>
       <version>${project.version}</version>
@@ -68,21 +75,12 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
-      <artifactId>sonar-ws-client</artifactId>
-      <version>5.0</version>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
     </dependency>
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-guava</artifactId>
     </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>
@@ -98,17 +96,8 @@
       <version>1.2.0</version>
     </dependency>
     <dependency>
-      <groupId>org.jsoup</groupId>
-      <artifactId>jsoup</artifactId>
-      <version>1.8.3</version>
-    </dependency>
-    <dependency>
       <groupId>com.squareup.okhttp3</groupId>
       <artifactId>mockwebserver</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-email</artifactId>
     </dependency>
     <dependency>
       <groupId>org.subethamail</groupId>

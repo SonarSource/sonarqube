@@ -34,8 +34,8 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualityprofile.ActiveRuleCountQuery;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.QProfileDto;
-import org.sonarqube.ws.QualityProfiles.InheritanceWsResponse;
-import org.sonarqube.ws.QualityProfiles.InheritanceWsResponse.QualityProfile;
+import org.sonarqube.ws.Qualityprofiles.InheritanceWsResponse;
+import org.sonarqube.ws.Qualityprofiles.InheritanceWsResponse.QualityProfile;
 
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.OVERRIDES;

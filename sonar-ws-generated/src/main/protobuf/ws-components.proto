@@ -1,0 +1,130 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2016 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+syntax = "proto2";
+
+package sonarqube.ws.component;
+
+import "ws-commons.proto";
+
+option java_package = "org.sonarqube.ws";
+option java_outer_classname = "Components";
+option optimize_for = SPEED;
+
+// WS api/components/search
+message SearchWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated Component components = 2;
+}
+
+// WS api/components/tree
+message TreeWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  optional Component baseComponent = 3;
+  repeated Component components = 4;
+}
+
+// WS api/components/show
+message ShowWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  optional Component component = 2;
+  repeated Component ancestors = 3;
+}
+
+// WS api/components/suggestions
+message SuggestionsWsResponse {
+  repeated Category results = 1;
+  optional string warning = 2;
+  repeated Organization organizations = 3;
+  repeated Project projects = 4;
+
+  message Category {
+  	optional string q = 1;
+  	repeated Suggestion items = 2;
+    optional int64 more = 3;
+  }
+
+  message Suggestion {
+    optional string key = 1;
+    optional string name = 2;
+    optional string match = 3;
+    optional string organization = 4;
+    optional string project = 5;
+    optional bool isRecentlyBrowsed = 6;
+    optional bool isFavorite = 7;
+  }
+
+  message Organization {
+    optional string key = 1;
+    optional string name = 2;
+  }
+
+  message Project {
+    optional string key = 1;
+    optional string name = 2;
+  }
+}
+
+// WS api/components/search_projects
+message SearchProjectsWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated Component components = 2;
+  optional sonarqube.ws.commons.Facets facets = 3;
+}
+
+// WS api/components/provisioned
+message ProvisionedWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated Component projects = 2;
+
+  message Component {
+    optional string uuid = 1;
+    optional string key = 2;
+    optional string name = 3;
+    optional string creationDate = 4;
+    optional string visibility = 5;
+  }
+}
+
+message Component {
+  optional string organization = 12;
+  optional string id = 1;
+  optional string key = 2;
+  optional string refId = 3;
+  optional string refKey = 4;
+  optional string projectId = 5;
+  optional string name = 6;
+  optional string description = 7;
+  optional string qualifier = 8;
+  optional string path = 9;
+  optional string language = 10;
+  optional bool isFavorite = 11;
+  optional string analysisDate = 13;
+  optional Tags tags = 14;
+  optional string visibility = 15;
+  optional string leakPeriodDate = 16;
+  // Root project key
+  optional string project = 17;
+  optional string branch = 18;
+  optional string version = 19;
+
+  message Tags {
+    repeated string tags = 1;
+  }
+}
+

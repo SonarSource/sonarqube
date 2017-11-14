@@ -30,9 +30,9 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations;
-import org.sonarqube.ws.WsComponents;
-import org.sonarqube.ws.WsProjects;
-import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
+import org.sonarqube.ws.Components;
+import org.sonarqube.ws.Projects;
+import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
@@ -100,7 +100,7 @@ public class ProjectProvisioningTest {
    * Projects administration page - uses database
    */
   private boolean isInProjectsSearch(Organizations.Organization organization, String name) {
-    WsProjects.SearchWsResponse response = tester.wsClient().projects().search(
+    Projects.SearchWsResponse response = tester.wsClient().projects().search(
       SearchWsRequest.builder().setOrganization(organization.getKey()).setQuery(name).setQualifiers(singletonList("TRK")).build());
     return response.getComponentsCount() > 0;
   }
@@ -109,7 +109,7 @@ public class ProjectProvisioningTest {
    * Projects page - api/components/search_projects - uses ES + DB
    */
   private boolean isInComponentSearchProjects(String name) {
-    WsComponents.SearchProjectsWsResponse response = tester.wsClient().components().searchProjects(
+    Components.SearchProjectsWsResponse response = tester.wsClient().components().searchProjects(
       SearchProjectsRequest.builder().setFilter("query=\"" + name + "\"").build());
     return response.getComponentsCount() > 0;
   }

@@ -63,9 +63,9 @@ import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonarqube.qa.util.SettingTester;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.WsComponents.Component;
-import org.sonarqube.ws.WsMeasures;
-import org.sonarqube.ws.WsMeasures.Measure;
+import org.sonarqube.ws.Components.Component;
+import org.sonarqube.ws.Measures;
+import org.sonarqube.ws.Measures.Measure;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
@@ -343,7 +343,7 @@ public class ItUtils {
 
   @CheckForNull
   public static Measure getMeasureWithVariation(Orchestrator orchestrator, String componentKey, String metricKey) {
-    WsMeasures.ComponentWsResponse response = newWsClient(orchestrator).measures().component(new ComponentWsRequest()
+    Measures.ComponentWsResponse response = newWsClient(orchestrator).measures().component(new ComponentWsRequest()
       .setComponentKey(componentKey)
       .setMetricKeys(singletonList(metricKey))
       .setAdditionalFields(singletonList("periods")));
@@ -366,7 +366,7 @@ public class ItUtils {
    */
   @CheckForNull
   public static Double getLeakPeriodValue(Orchestrator orchestrator, String componentKey, String metricKey) {
-    List<WsMeasures.PeriodValue> periodsValueList = getMeasureWithVariation(orchestrator, componentKey, metricKey).getPeriods().getPeriodsValueList();
+    List<Measures.PeriodValue> periodsValueList = getMeasureWithVariation(orchestrator, componentKey, metricKey).getPeriods().getPeriodsValueList();
     return periodsValueList.size() > 0 ? Double.parseDouble(periodsValueList.get(0).getValue()) : null;
   }
 

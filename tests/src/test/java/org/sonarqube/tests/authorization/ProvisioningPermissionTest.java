@@ -26,7 +26,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
+import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.client.permission.AddGroupWsRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;

@@ -50,8 +50,8 @@ import org.sonar.db.component.ComponentTreeQuery.Strategy;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsComponents;
-import org.sonarqube.ws.WsComponents.TreeWsResponse;
+import org.sonarqube.ws.Components;
+import org.sonarqube.ws.Components.TreeWsResponse;
 import org.sonarqube.ws.client.component.TreeWsRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -233,9 +233,9 @@ public class TreeAction implements ComponentsWsAction {
     return response.build();
   }
 
-  private static WsComponents.Component.Builder toWsComponent(ComponentDto component, OrganizationDto organizationDto,
-    Map<String, ComponentDto> referenceComponentsByUuid) {
-    WsComponents.Component.Builder wsComponent = componentDtoToWsComponent(component, organizationDto, Optional.empty());
+  private static Components.Component.Builder toWsComponent(ComponentDto component, OrganizationDto organizationDto,
+                                                            Map<String, ComponentDto> referenceComponentsByUuid) {
+    Components.Component.Builder wsComponent = componentDtoToWsComponent(component, organizationDto, Optional.empty());
 
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyResourceUuid());
     if (referenceComponent != null) {

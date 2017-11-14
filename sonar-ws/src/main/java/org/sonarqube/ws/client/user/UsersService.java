@@ -20,10 +20,10 @@
 package org.sonarqube.ws.client.user;
 
 import java.util.List;
-import org.sonarqube.ws.WsUsers.CreateWsResponse;
-import org.sonarqube.ws.WsUsers.CurrentWsResponse;
-import org.sonarqube.ws.WsUsers.GroupsWsResponse;
-import org.sonarqube.ws.WsUsers.SearchWsResponse;
+import org.sonarqube.ws.Users.CreateWsResponse;
+import org.sonarqube.ws.Users.CurrentWsResponse;
+import org.sonarqube.ws.Users.GroupsWsResponse;
+import org.sonarqube.ws.Users.SearchWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;

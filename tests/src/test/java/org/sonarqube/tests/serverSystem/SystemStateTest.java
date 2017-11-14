@@ -36,7 +36,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.qa.util.Elasticsearch;
-import org.sonarqube.ws.WsSystem;
+import org.sonarqube.ws.System;
 import org.sonarqube.ws.client.WsClient;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -64,17 +64,17 @@ public class SystemStateTest {
       commander.start(lock);
       commander.waitFor(() -> commander.webLogsContain("ServerStartupLock - Waiting for file to be deleted"));
 
-      commander.verifyStatus(WsSystem.Status.STARTING);
-      commander.verifyHealth(WsSystem.Health.RED, "SonarQube webserver is not up");
+      commander.verifyStatus(System.Status.STARTING);
+      commander.verifyHealth(System.Health.RED, "SonarQube webserver is not up");
 
       lock.unlockWeb();
       // status is UP as soon as web server is up, whatever the status of Compute Engine
-      commander.waitFor(() -> WsSystem.Status.UP == commander.status().orElse(null));
-      commander.verifyHealth(WsSystem.Health.RED, "Compute Engine is not operational");
+      commander.waitFor(() -> System.Status.UP == commander.status().orElse(null));
+      commander.verifyHealth(System.Health.RED, "Compute Engine is not operational");
 
       lock.unlockCe();
-      commander.waitForHealth(WsSystem.Health.GREEN);
-      commander.verifyStatus(WsSystem.Status.UP);
+      commander.waitForHealth(System.Health.GREEN);
+      commander.verifyStatus(System.Status.UP);
     }
   }
 
@@ -82,16 +82,16 @@ public class SystemStateTest {
   public void test_status_and_health_when_ES_becomes_yellow() throws Exception {
     try (Commander commander = new Commander()) {
       commander.start();
-      commander.waitForHealth(WsSystem.Health.GREEN);
+      commander.waitForHealth(System.Health.GREEN);
 
       commander.makeElasticsearchYellow();
-      commander.waitForHealth(WsSystem.Health.YELLOW, "Elasticsearch status is YELLOW");
-      commander.verifyStatus(WsSystem.Status.UP);
+      commander.waitForHealth(System.Health.YELLOW, "Elasticsearch status is YELLOW");
+      commander.verifyStatus(System.Status.UP);
 
       commander.makeElasticsearchGreen();
-      commander.waitForHealth(WsSystem.Health.GREEN);
+      commander.waitForHealth(System.Health.GREEN);
       // status does not change after being UP
-      commander.verifyStatus(WsSystem.Status.UP);
+      commander.verifyStatus(System.Status.UP);
     }
   }
 
@@ -166,7 +166,7 @@ public class SystemStateTest {
       }
     }
 
-    Optional<WsSystem.Status> status() {
+    Optional<System.Status> status() {
       if (orchestrator.getServer() != null) {
         WsClient wsClient = newWsClient(orchestrator);
         try {
@@ -178,16 +178,16 @@ public class SystemStateTest {
       return Optional.empty();
     }
 
-    void verifyStatus(WsSystem.Status expectedStatus) {
+    void verifyStatus(System.Status expectedStatus) {
       assertThat(status()).hasValue(expectedStatus);
     }
 
-    Optional<WsSystem.Health> health() {
-      Optional<WsSystem.HealthResponse> response = healthResponse();
-      return response.map(WsSystem.HealthResponse::getHealth);
+    Optional<System.Health> health() {
+      Optional<System.HealthResponse> response = healthResponse();
+      return response.map(System.HealthResponse::getHealth);
     }
 
-    Optional<WsSystem.HealthResponse> healthResponse() {
+    Optional<System.HealthResponse> healthResponse() {
       if (orchestrator.getServer() != null) {
         WsClient wsClient = newSystemUserWsClient(orchestrator, systemPassCode);
         try {
@@ -199,18 +199,18 @@ public class SystemStateTest {
       return Optional.empty();
     }
 
-    void waitForHealth(WsSystem.Health expectedHealth, String... expectedMessages) {
+    void waitForHealth(System.Health expectedHealth, String... expectedMessages) {
       waitFor(() -> expectedHealth == health().orElse(null));
       verifyHealth(expectedHealth, expectedMessages);
     }
 
-    void verifyHealth(WsSystem.Health expectedHealth, String... expectedMessages) {
-      WsSystem.HealthResponse response = healthResponse().get();
+    void verifyHealth(System.Health expectedHealth, String... expectedMessages) {
+      System.HealthResponse response = healthResponse().get();
       assertThat(response.getHealth())
         .describedAs("Expected status %s in response %s", expectedHealth, response)
         .isEqualTo(expectedHealth);
       assertThat(response.getCausesList())
-        .extracting(WsSystem.Cause::getMessage)
+        .extracting(System.Cause::getMessage)
         .describedAs("Expected causes %s in response %s", Arrays.asList(expectedMessages), response)
         .containsExactlyInAnyOrder(expectedMessages);
     }

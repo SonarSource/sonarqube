@@ -25,8 +25,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.wsclient.issue.IssueQuery;
-import org.sonarqube.ws.WsMeasures;
-import org.sonarqube.ws.WsMeasures.Measure;
+import org.sonarqube.ws.Measures;
+import org.sonarqube.ws.Measures.Measure;
 import util.ItUtils;
 
 import static java.lang.Integer.parseInt;
@@ -111,7 +111,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
     assertThat(ORCHESTRATOR.getServer().wsClient().issueClient().find(IssueQuery.create()).list()).isNotEmpty();
 
     Map<String, Measure> measures = getMeasuresWithVariationsByMetricKey(ORCHESTRATOR, "sample", "new_violations", "violations", "ncloc");
-    assertThat(measures.get("new_violations").getPeriods().getPeriodsValueList()).extracting(WsMeasures.PeriodValue::getValue).containsOnly("17");
+    assertThat(measures.get("new_violations").getPeriods().getPeriodsValueList()).extracting(Measures.PeriodValue::getValue).containsOnly("17");
 
     Measure violations = measures.get("violations");
     assertThat(parseInt(violations.getValue())).isEqualTo(43);

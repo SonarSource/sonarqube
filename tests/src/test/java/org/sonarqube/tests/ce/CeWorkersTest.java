@@ -45,10 +45,11 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonarqube.ws.WsCe;
+import org.sonarqube.ws.Ce;
+import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.ce.ActivityWsRequest;
+import org.sonarqube.ws.client.ce.ActivityRequest;
 import util.ItUtils;
 
 import static com.google.common.collect.ImmutableSet.copyOf;
@@ -129,7 +130,7 @@ public class CeWorkersTest {
 
     waitForEmptyQueue();
 
-    assertThat(adminWsClient.ce().activity(new ActivityWsRequest()
+    assertThat(adminWsClient.ce().activity(new ActivityRequest()
       .setType("OOM")
       .setStatus(ImmutableList.of("FAILED")))
       .getTasksCount())
@@ -139,7 +140,7 @@ public class CeWorkersTest {
 
     waitForEmptyQueue();
 
-    assertThat(adminWsClient.ce().activity(new ActivityWsRequest()
+    assertThat(adminWsClient.ce().activity(new ActivityRequest()
       .setType("OK")
       .setStatus(ImmutableList.of("SUCCESS")))
       .getTasksCount())
@@ -149,7 +150,7 @@ public class CeWorkersTest {
 
     waitForEmptyQueue();
 
-    assertThat(adminWsClient.ce().activity(new ActivityWsRequest()
+    assertThat(adminWsClient.ce().activity(new ActivityRequest()
       .setType("ISE")
       .setStatus(ImmutableList.of("FAILED")))
       .getTasksCount())
@@ -159,7 +160,7 @@ public class CeWorkersTest {
 
     waitForEmptyQueue();
 
-    assertThat(adminWsClient.ce().activity(new ActivityWsRequest()
+    assertThat(adminWsClient.ce().activity(new ActivityRequest()
       .setType("OK")
       .setStatus(ImmutableList.of("SUCCESS")))
       .getTasksCount())
@@ -174,11 +175,11 @@ public class CeWorkersTest {
 
   @Test
   public void ce_worker_is_resilient_to_OOM_and_RuntimeException_when_starting_or_stopping_analysis_report_container() throws IOException {
-    int initSuccessReportTaskCount = adminWsClient.ce().activity(new ActivityWsRequest()
+    int initSuccessReportTaskCount = adminWsClient.ce().activity(new ActivityRequest()
       .setType("REPORT")
       .setStatus(ImmutableList.of("SUCCESS")))
       .getTasksCount();
-    int initFailedReportTaskCount = adminWsClient.ce().activity(new ActivityWsRequest()
+    int initFailedReportTaskCount = adminWsClient.ce().activity(new ActivityRequest()
       .setType("REPORT")
       .setStatus(ImmutableList.of("FAILED")))
       .getTasksCount();
@@ -219,14 +220,14 @@ public class CeWorkersTest {
     orchestrator.executeBuild(sonarRunner, true);
 
     // failure while starting components does fail the tasks
-    assertThat(adminWsClient.ce().activity(new ActivityWsRequest()
+    assertThat(adminWsClient.ce().activity(new ActivityRequest()
       .setType("REPORT")
       .setStatus(ImmutableList.of("FAILED")))
       .getTasksCount())
         .isEqualTo(initFailedReportTaskCount + 2);
 
     // failure while stopping components does not fail the tasks
-    assertThat(adminWsClient.ce().activity(new ActivityWsRequest()
+    assertThat(adminWsClient.ce().activity(new ActivityRequest()
       .setType("REPORT")
       .setStatus(ImmutableList.of("SUCCESS")))
       .getTasksCount())
@@ -283,7 +284,7 @@ public class CeWorkersTest {
 
   private void verifyAnalysesRunInParallel(MappedByteBuffer mappedByteBuffer, int workerCount) {
     assertThat(adminWsClient.ce().workerCount())
-      .extracting(WsCe.WorkerCountResponse::getValue, WsCe.WorkerCountResponse::getCanSetWorkerCount)
+      .extracting(Ce.WorkerCountResponse::getValue, Ce.WorkerCountResponse::getCanSetWorkerCount)
       .containsOnly(workerCount, true);
 
     blockAnyAnalysisWithFakeGovernancePlugin(mappedByteBuffer);
@@ -296,18 +297,18 @@ public class CeWorkersTest {
       orchestrator.executeBuild(sonarRunner, false);
     }
 
-    List<WsCe.Task> tasksList = waitForWsCallStatus(
+    List<Ce.Task> tasksList = waitForWsCallStatus(
       this::getTasksAllTasks,
       (tasks) -> verifyInProgressTaskCount(tasks, workerCount));
 
     assertThat(tasksList.stream()
       .filter(CeWorkersTest::pending)
-      .map(WsCe.Task::getComponentKey)
+      .map(Ce.Task::getComponentKey)
       .collect(toSet()))
         .isEqualTo(copyOf(projectKeys.subList(workerCount, projectKeys.size())));
     assertThat(tasksList.stream()
       .filter(CeWorkersTest::inProgress)
-      .map(WsCe.Task::getComponentKey)
+      .map(Ce.Task::getComponentKey)
       .collect(toSet()))
         .isEqualTo(copyOf(projectKeys.subList(0, workerCount)));
 
@@ -336,20 +337,20 @@ public class CeWorkersTest {
     }
   }
 
-  private static boolean verifyInProgressTaskCount(List<WsCe.Task> tasksList, int workerCount) {
+  private static boolean verifyInProgressTaskCount(List<Ce.Task> tasksList, int workerCount) {
     return tasksList.stream().filter(CeWorkersTest::inProgress).count() >= workerCount;
   }
 
-  private static boolean pending(WsCe.Task task) {
-    return WsCe.TaskStatus.PENDING == task.getStatus();
+  private static boolean pending(Ce.Task task) {
+    return Ce.TaskStatus.PENDING == task.getStatus();
   }
 
-  private static boolean inProgress(WsCe.Task task) {
-    return WsCe.TaskStatus.IN_PROGRESS == task.getStatus();
+  private static boolean inProgress(Ce.Task task) {
+    return Ce.TaskStatus.IN_PROGRESS == task.getStatus();
   }
 
-  private List<WsCe.Task> getTasksAllTasks(WsClient wsClient) {
-    return wsClient.ce().activity(new ActivityWsRequest()
+  private List<Ce.Task> getTasksAllTasks(WsClient wsClient) {
+    return wsClient.ce().activity(new ActivityRequest()
       .setStatus(ImmutableList.of(STATUS_PENDING, STATUS_IN_PROGRESS)))
       .getTasksList();
   }
@@ -386,7 +387,7 @@ public class CeWorkersTest {
     int tasksCount;
     do {
       Thread.sleep(delay);
-      tasksCount = adminWsClient.ce().activity(new ActivityWsRequest()
+      tasksCount = adminWsClient.ce().activity(new ActivityRequest()
         .setStatus(ImmutableList.of("PENDING", "IN_PROGRESS")))
         .getTasksCount();
       i++;

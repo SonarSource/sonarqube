@@ -32,7 +32,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.WsSystem;
+import org.sonarqube.ws.System;
 import util.ItUtils;
 import util.selenium.Selenese;
 
@@ -58,7 +58,7 @@ public class ServerSystemTest {
 
   @Test
   public void get_sonarqube_version() {
-    WsSystem.StatusResponse response = tester.wsClient().system().status();
+    System.StatusResponse response = tester.wsClient().system().status();
 
     String version = response.getVersion();
     if (!startsWithAny(version, new String[]{"6.", "7.", "8."})) {

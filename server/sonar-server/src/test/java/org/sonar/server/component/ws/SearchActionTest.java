@@ -51,8 +51,8 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.WsComponents.Component;
-import org.sonarqube.ws.WsComponents.SearchWsResponse;
+import org.sonarqube.ws.Components.Component;
+import org.sonarqube.ws.Components.SearchWsResponse;
 import org.sonarqube.ws.client.component.SearchWsRequest;
 
 import static java.util.Arrays.asList;

@@ -47,9 +47,9 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.WsMeasures;
-import org.sonarqube.ws.WsMeasures.Measure;
-import org.sonarqube.ws.WsMeasures.SearchWsResponse;
+import org.sonarqube.ws.Measures;
+import org.sonarqube.ws.Measures.Measure;
+import org.sonarqube.ws.Measures.SearchWsResponse;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
@@ -144,7 +144,7 @@ public class SearchActionTest {
     assertThat(measure.getMetric()).isEqualTo("coverage");
     assertThat(measure.getValue()).isEqualTo("15.5");
     assertThat(measure.getPeriods().getPeriodsValueList())
-      .extracting(WsMeasures.PeriodValue::getIndex, WsMeasures.PeriodValue::getValue)
+      .extracting(Measures.PeriodValue::getIndex, Measures.PeriodValue::getValue)
       .containsOnly(tuple(1, "10.0"));
   }
 

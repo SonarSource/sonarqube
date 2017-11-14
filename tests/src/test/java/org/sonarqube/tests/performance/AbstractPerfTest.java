@@ -27,9 +27,7 @@ import java.io.IOException;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.hamcrest.CustomMatcher;
 import org.junit.Rule;
-import org.junit.rules.ErrorCollector;
 import org.junit.rules.TestName;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,32 +44,9 @@ public abstract class AbstractPerfTest {
     assertThat(Math.abs(variation)).as(String.format("Expected %d ms, got %d ms", expectedDuration, duration)).isLessThan(ACCEPTED_DURATION_VARIATION_IN_PERCENTS);
   }
 
-  protected void assertDurationAround(ErrorCollector collector, long duration, long expectedDuration) {
-    double variation = 100.0 * (0.0 + duration - expectedDuration) / expectedDuration;
-    System.out.printf("Test %s : executed in %d ms (%.2f %% from target)\n", testName.getMethodName(), duration, variation);
-    collector.checkThat(String.format("Expected %d ms, got %d ms", expectedDuration, duration), Math.abs(variation), new CustomMatcher<Double>("a value less than "
-      + ACCEPTED_DURATION_VARIATION_IN_PERCENTS) {
-      @Override
-      public boolean matches(Object item) {
-        return ((item instanceof Double) && ((Double) item).compareTo(ACCEPTED_DURATION_VARIATION_IN_PERCENTS) < 0);
-      }
-    });
-  }
-
   protected void assertDurationLessThan(long duration, long maxDuration) {
     System.out.printf("Test %s : %d ms (max allowed is %d)\n", testName.getMethodName(), duration, maxDuration);
     assertThat(duration).as(String.format("Expected less than %d ms, got %d ms", maxDuration, duration)).isLessThanOrEqualTo(maxDuration);
-  }
-
-  protected void assertDurationLessThan(ErrorCollector collector, long duration, final long maxDuration) {
-    System.out.printf("Test %s : %d ms (max allowed is %d)\n", testName.getMethodName(), duration, maxDuration);
-    collector.checkThat(String.format("Expected less than %d ms, got %d ms", maxDuration, duration), duration, new CustomMatcher<Long>("a value less than "
-      + maxDuration) {
-      @Override
-      public boolean matches(Object item) {
-        return ((item instanceof Long) && ((Long) item).compareTo(maxDuration) < 0);
-      }
-    });
   }
 
   protected Properties readProfiling(File baseDir, String moduleKey) throws IOException {

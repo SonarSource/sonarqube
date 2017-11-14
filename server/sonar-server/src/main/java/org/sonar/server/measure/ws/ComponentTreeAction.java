@@ -38,8 +38,8 @@ import org.sonar.api.utils.Paging;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTreeQuery.Strategy;
 import org.sonar.db.metric.MetricDto;
-import org.sonarqube.ws.WsMeasures;
-import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
+import org.sonarqube.ws.Measures;
+import org.sonarqube.ws.Measures.ComponentTreeWsResponse;
 import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -256,7 +256,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     }
 
     if (areMetricsInResponse(request)) {
-      WsMeasures.Metrics.Builder metricsBuilder = response.getMetricsBuilder();
+      Measures.Metrics.Builder metricsBuilder = response.getMetricsBuilder();
       for (MetricDto metricDto : data.getMetrics()) {
         metricsBuilder.addMetrics(metricDtoToWsMetric(metricDto));
       }
@@ -326,15 +326,15 @@ public class ComponentTreeAction implements MeasuresWsAction {
     return componentTreeWsRequest;
   }
 
-  private static WsMeasures.Component.Builder toWsComponent(ComponentDto component, Map<MetricDto, ComponentTreeData.Measure> measures,
-    Map<String, ComponentDto> referenceComponentsByUuid) {
-    WsMeasures.Component.Builder wsComponent = componentDtoToWsComponent(component);
+  private static Measures.Component.Builder toWsComponent(ComponentDto component, Map<MetricDto, ComponentTreeData.Measure> measures,
+                                                          Map<String, ComponentDto> referenceComponentsByUuid) {
+    Measures.Component.Builder wsComponent = componentDtoToWsComponent(component);
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyResourceUuid());
     if (referenceComponent != null) {
       wsComponent.setRefId(referenceComponent.uuid());
       wsComponent.setRefKey(referenceComponent.getDbKey());
     }
-    WsMeasures.Measure.Builder measureBuilder = WsMeasures.Measure.newBuilder();
+    Measures.Measure.Builder measureBuilder = Measures.Measure.newBuilder();
     for (Map.Entry<MetricDto, ComponentTreeData.Measure> entry : measures.entrySet()) {
       ComponentTreeData.Measure measure = entry.getValue();
       updateMeasureBuilder(measureBuilder, entry.getKey(), measure.getValue(), measure.getData(), measure.getVariation());

@@ -28,7 +28,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.project.Visibility;
-import org.sonarqube.ws.WsComponents;
+import org.sonarqube.ws.Components;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
@@ -46,7 +46,7 @@ class ComponentDtoToWsComponent {
     // prevent instantiation
   }
 
-  static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto dto, OrganizationDto organizationDto, Optional<SnapshotDto> lastAnalysis) {
+  static Components.Component.Builder componentDtoToWsComponent(ComponentDto dto, OrganizationDto organizationDto, Optional<SnapshotDto> lastAnalysis) {
     checkArgument(
       Objects.equals(dto.getOrganizationUuid(), organizationDto.getUuid()),
       "OrganizationUuid (%s) of ComponentDto to convert to Ws Component is not the same as the one (%s) of the specified OrganizationDto",
@@ -54,8 +54,8 @@ class ComponentDtoToWsComponent {
     return componentDtoToWsComponent(dto, organizationDto.getKey(), lastAnalysis);
   }
 
-  private static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto dto, String organizationDtoKey, Optional<SnapshotDto> lastAnalysis) {
-    WsComponents.Component.Builder wsComponent = WsComponents.Component.newBuilder()
+  private static Components.Component.Builder componentDtoToWsComponent(ComponentDto dto, String organizationDtoKey, Optional<SnapshotDto> lastAnalysis) {
+    Components.Component.Builder wsComponent = Components.Component.newBuilder()
       .setOrganization(organizationDtoKey)
       .setId(dto.uuid())
       .setKey(dto.getKey())
@@ -78,7 +78,7 @@ class ComponentDtoToWsComponent {
     return wsComponent;
   }
 
-  private static void setTags(ComponentDto dto, WsComponents.Component.Builder wsComponent) {
+  private static void setTags(ComponentDto dto, Components.Component.Builder wsComponent) {
     if (Qualifiers.PROJECT.equals(dto.qualifier())) {
       wsComponent.getTagsBuilder().addAllTags(dto.getTags());
     }

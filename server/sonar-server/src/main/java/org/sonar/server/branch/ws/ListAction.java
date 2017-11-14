@@ -45,7 +45,7 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.WsBranches;
+import org.sonarqube.ws.ProjectBranches;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Collections.singletonList;
@@ -112,7 +112,7 @@ public class ListAction implements BranchWsAction {
         .selectLastAnalysesByRootComponentUuids(dbSession, branches.stream().map(BranchDto::getUuid).collect(Collectors.toList()))
         .stream().collect(uniqueIndex(SnapshotDto::getComponentUuid, s -> formatDateTime(s.getCreatedAt())));
 
-      WsBranches.ListWsResponse.Builder protobufResponse = WsBranches.ListWsResponse.newBuilder();
+      ProjectBranches.ListWsResponse.Builder protobufResponse = ProjectBranches.ListWsResponse.newBuilder();
       branches.stream()
         .forEach(b -> addBranch(protobufResponse, b, mergeBranchesByUuid, qualityGateMeasuresByComponentUuids.get(b.getUuid()), branchStatisticsByBranchUuid.get(b.getUuid()),
           analysisDateByBranchUuid.get(b.getUuid())));
@@ -120,9 +120,9 @@ public class ListAction implements BranchWsAction {
     }
   }
 
-  private static void addBranch(WsBranches.ListWsResponse.Builder response, BranchDto branch, Map<String, BranchDto> mergeBranchesByUuid, @Nullable MeasureDto qualityGateMeasure,
-    BranchStatistics branchStatistics, @Nullable String analysisDate) {
-    WsBranches.Branch.Builder builder = toBranchBuilder(branch, Optional.ofNullable(mergeBranchesByUuid.get(branch.getMergeBranchUuid())));
+  private static void addBranch(ProjectBranches.ListWsResponse.Builder response, BranchDto branch, Map<String, BranchDto> mergeBranchesByUuid,
+                                @Nullable MeasureDto qualityGateMeasure, BranchStatistics branchStatistics, @Nullable String analysisDate) {
+    ProjectBranches.Branch.Builder builder = toBranchBuilder(branch, Optional.ofNullable(mergeBranchesByUuid.get(branch.getMergeBranchUuid())));
     setBranchStatus(builder, branch, qualityGateMeasure, branchStatistics);
     if (analysisDate != null) {
       builder.setAnalysisDate(analysisDate);
@@ -130,8 +130,8 @@ public class ListAction implements BranchWsAction {
     response.addBranches(builder);
   }
 
-  private static WsBranches.Branch.Builder toBranchBuilder(BranchDto branch, Optional<BranchDto> mergeBranch) {
-    WsBranches.Branch.Builder builder = WsBranches.Branch.newBuilder();
+  private static ProjectBranches.Branch.Builder toBranchBuilder(BranchDto branch, Optional<BranchDto> mergeBranch) {
+    ProjectBranches.Branch.Builder builder = ProjectBranches.Branch.newBuilder();
     String branchKey = branch.getKey();
     setNullable(branchKey, builder::setName);
     builder.setIsMain(branch.isMain());
@@ -147,8 +147,9 @@ public class ListAction implements BranchWsAction {
     return builder;
   }
 
-  private static void setBranchStatus(WsBranches.Branch.Builder builder, BranchDto branch, @Nullable MeasureDto qualityGateMeasure, @Nullable BranchStatistics branchStatistics) {
-    WsBranches.Branch.Status.Builder statusBuilder = WsBranches.Branch.Status.newBuilder();
+  private static void setBranchStatus(ProjectBranches.Branch.Builder builder, BranchDto branch, @Nullable MeasureDto qualityGateMeasure,
+                                      @Nullable BranchStatistics branchStatistics) {
+    ProjectBranches.Branch.Status.Builder statusBuilder = ProjectBranches.Branch.Status.newBuilder();
     if (branch.getBranchType() == LONG && qualityGateMeasure != null) {
       statusBuilder.setQualityGateStatus(qualityGateMeasure.getData());
     }

@@ -33,7 +33,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualitygate.QualityGateFinder.QualityGateData;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsQualityGates.GetByProjectWsResponse;
+import org.sonarqube.ws.Qualitygates.GetByProjectWsResponse;
 
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;

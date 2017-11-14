@@ -30,9 +30,10 @@ import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.ws.Organizations;
-import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
+import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
+import org.sonarqube.ws.client.ce.TaskRequest;
 import org.sonarqube.ws.client.organization.UpdateProjectVisibilityWsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
@@ -40,7 +41,7 @@ import util.ItUtils;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonarqube.ws.WsCe.TaskResponse;
+import static org.sonarqube.ws.Ce.TaskResponse;
 import static util.ItUtils.expectHttpError;
 import static util.ItUtils.newProjectKey;
 import static util.ItUtils.projectDir;
@@ -76,7 +77,7 @@ public class BillingTest {
 
     String taskUuid = executeAnalysis(newProjectKey());
 
-    TaskResponse taskResponse = tester.wsClient().ce().task(taskUuid);
+    TaskResponse taskResponse = tester.wsClient().ce().task(new TaskRequest().setId(taskUuid));
     assertThat(taskResponse.getTask().hasErrorMessage()).isFalse();
   }
 
@@ -86,7 +87,7 @@ public class BillingTest {
 
     String taskUuid = executeAnalysis(newProjectKey());
 
-    TaskResponse taskResponse = tester.wsClient().ce().task(taskUuid);
+    TaskResponse taskResponse = tester.wsClient().ce().task(new TaskRequest().setId(taskUuid));
     assertThat(taskResponse.getTask().hasErrorMessage()).isTrue();
     assertThat(taskResponse.getTask().getErrorMessage()).contains(format("Organization %s cannot perform analysis", organization.getKey()));
   }
@@ -211,7 +212,7 @@ public class BillingTest {
   }
 
   private String createPublicProject() {
-    return tester.projects().generate(organization).getKey();
+    return tester.projects().provision(organization).getKey();
   }
 
   private String executeAnalysis(String projectKey) {

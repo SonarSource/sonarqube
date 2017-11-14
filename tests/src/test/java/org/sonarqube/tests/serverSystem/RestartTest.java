@@ -29,7 +29,7 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.sonarqube.ws.WsSystem;
+import org.sonarqube.ws.System;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
@@ -75,7 +75,7 @@ public class RestartTest {
 
       createSystemAdministrator("big", "boss");
       ItUtils.newUserWsClient(orchestrator, "big", "boss").system().restart();
-      assertThat(newAdminWsClient(orchestrator).system().status().getStatus()).isEqualTo(WsSystem.Status.RESTARTING);
+      assertThat(newAdminWsClient(orchestrator).system().status().getStatus()).isEqualTo(System.Status.RESTARTING);
 
       // we just wait five seconds, for a lack of a better approach to waiting for the restart process to start in SQ
       Thread.sleep(5000);

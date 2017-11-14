@@ -21,9 +21,9 @@ package org.sonarqube.ws.client.user;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.ws.WsUsers;
-import org.sonarqube.ws.WsUsers.CreateWsResponse;
-import org.sonarqube.ws.WsUsers.GroupsWsResponse;
+import org.sonarqube.ws.Users;
+import org.sonarqube.ws.Users.CreateWsResponse;
+import org.sonarqube.ws.Users.GroupsWsResponse;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
@@ -59,7 +59,7 @@ public class UsersServiceTest {
       .setPossibleFields(asList("email", "name"))
       .build());
 
-    assertThat(serviceTester.getGetParser()).isSameAs(WsUsers.SearchWsResponse.parser());
+    assertThat(serviceTester.getGetParser()).isSameAs(Users.SearchWsResponse.parser());
     serviceTester.assertThat(serviceTester.getGetRequest())
       .hasParam(TEXT_QUERY, "john")
       .hasParam(PAGE, 10)
@@ -133,6 +133,6 @@ public class UsersServiceTest {
   public void current() {
     underTest.current();
 
-    assertThat(serviceTester.getGetParser()).isSameAs(WsUsers.CurrentWsResponse.parser());
+    assertThat(serviceTester.getGetParser()).isSameAs(Users.CurrentWsResponse.parser());
   }
 }

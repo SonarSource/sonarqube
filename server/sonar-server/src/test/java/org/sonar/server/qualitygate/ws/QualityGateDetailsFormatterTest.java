@@ -28,8 +28,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.component.SnapshotDto;
-import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
-import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse.ProjectStatus;
+import org.sonarqube.ws.Qualitygates.ProjectStatusWsResponse;
+import org.sonarqube.ws.Qualitygates.ProjectStatusWsResponse.ProjectStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.formatDateTime;

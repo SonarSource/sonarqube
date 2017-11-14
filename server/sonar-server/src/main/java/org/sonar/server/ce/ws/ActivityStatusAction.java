@@ -34,8 +34,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
-import org.sonarqube.ws.WsCe.ActivityStatusWsResponse;
-import org.sonarqube.ws.client.ce.ActivityStatusWsRequest;
+import org.sonarqube.ws.Ce.ActivityStatusWsResponse;
+import org.sonarqube.ws.client.ce.ActivityStatusRequest;
 
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -80,7 +80,7 @@ public class ActivityStatusAction implements CeWsAction {
     writeProtobuf(activityStatusResponse, request, response);
   }
 
-  private ActivityStatusWsResponse doHandle(ActivityStatusWsRequest request) {
+  private ActivityStatusWsResponse doHandle(ActivityStatusRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<ComponentDto> component = searchComponent(dbSession, request);
       String componentUuid = component.isPresent() ? component.get().uuid() : null;
@@ -97,7 +97,7 @@ public class ActivityStatusAction implements CeWsAction {
     }
   }
 
-  private Optional<ComponentDto> searchComponent(DbSession dbSession, ActivityStatusWsRequest request) {
+  private Optional<ComponentDto> searchComponent(DbSession dbSession, ActivityStatusRequest request) {
     ComponentDto component = null;
     if (hasComponentInRequest(request)) {
       component = componentFinder.getByUuidOrKey(dbSession, request.getComponentId(), request.getComponentKey(), COMPONENT_ID_AND_KEY);
@@ -113,14 +113,13 @@ public class ActivityStatusAction implements CeWsAction {
     }
   }
 
-  private static boolean hasComponentInRequest(ActivityStatusWsRequest request) {
+  private static boolean hasComponentInRequest(ActivityStatusRequest request) {
     return request.getComponentId() != null || request.getComponentKey() != null;
   }
 
-  private static ActivityStatusWsRequest toWsRequest(Request request) {
-    return ActivityStatusWsRequest.newBuilder()
+  private static ActivityStatusRequest toWsRequest(Request request) {
+    return new ActivityStatusRequest()
       .setComponentId(request.param(PARAM_COMPONENT_ID))
-      .setComponentKey(request.param(DEPRECATED_PARAM_COMPONENT_KEY))
-      .build();
+      .setComponentKey(request.param(DEPRECATED_PARAM_COMPONENT_KEY));
   }
 }

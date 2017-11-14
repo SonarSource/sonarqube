@@ -21,8 +21,8 @@ package org.sonarqube.ws.client.projectlinks;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.ws.WsProjectLinks.CreateWsResponse;
-import org.sonarqube.ws.WsProjectLinks.SearchWsResponse;
+import org.sonarqube.ws.ProjectLinks.CreateWsResponse;
+import org.sonarqube.ws.ProjectLinks.SearchWsResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.ServiceTester;

@@ -22,13 +22,15 @@ package org.sonarqube.tests.ce;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category4Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonarqube.ws.WsCe;
+import org.sonarqube.tests.Category4Suite;
+import org.sonarqube.ws.Ce;
+import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.ce.ActivityWsRequest;
+import org.sonarqube.ws.client.ce.ActivityRequest;
+import org.sonarqube.ws.client.ce.TaskRequest;
 import util.ItUtils;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -52,25 +54,25 @@ public class CeWsTest {
 
   @Test
   public void activity() {
-    WsCe.ActivityResponse response = wsClient.ce().activity(new ActivityWsRequest()
+    Ce.ActivityResponse response = wsClient.ce().activity(new ActivityRequest()
       .setStatus(newArrayList("SUCCESS"))
       .setType("REPORT")
-      .setOnlyCurrents(true)
-      .setPage(1)
-      .setPageSize(100));
+      .setOnlyCurrents(String.valueOf(true))
+      .setP(String.valueOf(1))
+      .setPs(String.valueOf(100)));
 
     assertThat(response).isNotNull();
     assertThat(response.getTasksCount()).isGreaterThan(0);
-    WsCe.Task firstTask = response.getTasks(0);
+    Ce.Task firstTask = response.getTasks(0);
     assertThat(firstTask.getId()).isNotEmpty();
   }
 
   @Test
   public void task() {
-    WsCe.TaskResponse taskResponse = wsClient.ce().task(taskUuid);
+    Ce.TaskResponse taskResponse = wsClient.ce().task(new TaskRequest().setId(taskUuid));
 
     assertThat(taskResponse.hasTask()).isTrue();
-    WsCe.Task task = taskResponse.getTask();
+    Ce.Task task = taskResponse.getTask();
     assertThat(task.getId()).isEqualTo(taskUuid);
     assertThat(task.hasErrorMessage()).isFalse();
     assertThat(task.hasHasScannerContext()).isTrue();
@@ -79,7 +81,7 @@ public class CeWsTest {
 
   @Test
   public void task_types() {
-    WsCe.TaskTypesWsResponse response = wsClient.ce().taskTypes();
+    Ce.TaskTypesWsResponse response = wsClient.ce().taskTypes();
 
     assertThat(response).isNotNull();
     assertThat(response.getTaskTypesCount()).isGreaterThan(0);

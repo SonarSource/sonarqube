@@ -28,14 +28,14 @@ import org.sonarqube.ws.client.organization.OrganizationService;
 import org.sonarqube.ws.client.permission.PermissionsService;
 import org.sonarqube.ws.client.project.ProjectsService;
 import org.sonarqube.ws.client.projectanalysis.ProjectAnalysisService;
-import org.sonarqube.ws.client.projectbranches.ProjectBranchesService;
+import org.sonarqube.ws.client.projectbranches.ProjectBranchesServiceOld;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
-import org.sonarqube.ws.client.qualitygate.QualityGatesService;
+import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
 import org.sonarqube.ws.client.root.RootsService;
 import org.sonarqube.ws.client.rule.RulesService;
 import org.sonarqube.ws.client.setting.SettingsService;
-import org.sonarqube.ws.client.system.SystemService;
+import org.sonarqube.ws.client.system.SystemServiceOld;
 import org.sonarqube.ws.client.user.UsersService;
 import org.sonarqube.ws.client.usergroup.UserGroupsService;
 import org.sonarqube.ws.client.usertoken.UserTokensService;
@@ -59,9 +59,9 @@ class DefaultWsClient implements WsClient {
   private final UsersService usersService;
   private final UserGroupsService userGroupsService;
   private final UserTokensService userTokensService;
-  private final QualityGatesService qualityGatesService;
+  private final QualitygatesService qualityGatesService;
   private final MeasuresService measuresService;
-  private final SystemService systemService;
+  private final SystemServiceOld systemService;
   private final CeService ceService;
   private final RulesService rulesService;
   private final ProjectsService projectsService;
@@ -70,7 +70,7 @@ class DefaultWsClient implements WsClient {
   private final RootsService rootsService;
   private final WebhooksService webhooksService;
   private final ProjectAnalysisService projectAnalysisService;
-  private final ProjectBranchesService projectBranchesService;
+  private final ProjectBranchesServiceOld projectBranchesService;
 
   DefaultWsClient(WsConnector wsConnector) {
     this.wsConnector = wsConnector;
@@ -83,9 +83,9 @@ class DefaultWsClient implements WsClient {
     this.usersService = new UsersService(wsConnector);
     this.userGroupsService = new UserGroupsService(wsConnector);
     this.userTokensService = new UserTokensService(wsConnector);
-    this.qualityGatesService = new QualityGatesService(wsConnector);
+    this.qualityGatesService = new QualitygatesService(wsConnector);
     this.measuresService = new MeasuresService(wsConnector);
-    this.systemService = new SystemService(wsConnector);
+    this.systemService = new SystemServiceOld(wsConnector);
     this.ceService = new CeService(wsConnector);
     this.rulesService = new RulesService(wsConnector);
     this.projectsService = new ProjectsService(wsConnector);
@@ -94,7 +94,7 @@ class DefaultWsClient implements WsClient {
     this.rootsService = new RootsService(wsConnector);
     this.webhooksService = new WebhooksService(wsConnector);
     this.projectAnalysisService = new ProjectAnalysisService(wsConnector);
-    this.projectBranchesService = new ProjectBranchesService(wsConnector);
+    this.projectBranchesService = new ProjectBranchesServiceOld(wsConnector);
   }
 
   @Override
@@ -148,7 +148,7 @@ class DefaultWsClient implements WsClient {
   }
 
   @Override
-  public QualityGatesService qualityGates() {
+  public QualitygatesService qualityGates() {
     return qualityGatesService;
   }
 
@@ -158,7 +158,7 @@ class DefaultWsClient implements WsClient {
   }
 
   @Override
-  public SystemService system() {
+  public SystemServiceOld system() {
     return systemService;
   }
 
@@ -203,7 +203,7 @@ class DefaultWsClient implements WsClient {
   }
 
   @Override
-  public ProjectBranchesService projectBranches() {
+  public ProjectBranchesServiceOld projectBranches() {
     return projectBranchesService;
   }
 }

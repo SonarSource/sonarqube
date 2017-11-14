@@ -21,7 +21,7 @@ package org.sonar.scanner.rule;
 
 import org.sonar.api.utils.DateUtils;
 
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
+import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 import org.sonar.api.batch.ScannerSide;
 
 import javax.annotation.CheckForNull;

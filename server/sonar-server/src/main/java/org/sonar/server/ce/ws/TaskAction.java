@@ -42,7 +42,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
-import org.sonarqube.ws.WsCe;
+import org.sonarqube.ws.Ce;
 
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
@@ -92,7 +92,7 @@ public class TaskAction implements CeWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     String taskUuid = wsRequest.mandatoryParam(PARAM_TASK_UUID);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      WsCe.TaskResponse.Builder wsTaskResponse = WsCe.TaskResponse.newBuilder();
+      Ce.TaskResponse.Builder wsTaskResponse = Ce.TaskResponse.newBuilder();
       Optional<CeQueueDto> queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, taskUuid);
       if (queueDto.isPresent()) {
         com.google.common.base.Optional<ComponentDto> component = loadComponent(dbSession, queueDto.get().getComponentUuid());

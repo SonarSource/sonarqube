@@ -48,8 +48,8 @@ import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.WsProjects.BulkUpdateKeyWsResponse;
-import org.sonarqube.ws.WsProjects.BulkUpdateKeyWsResponse.Key;
+import org.sonarqube.ws.Projects.BulkUpdateKeyWsResponse;
+import org.sonarqube.ws.Projects.BulkUpdateKeyWsResponse.Key;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;

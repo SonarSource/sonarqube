@@ -19,13 +19,13 @@
  */
 package org.sonarqube.ws.client.permission;
 
-import org.sonarqube.ws.WsPermissions;
-import org.sonarqube.ws.WsPermissions.CreateTemplateWsResponse;
-import org.sonarqube.ws.WsPermissions.SearchProjectPermissionsWsResponse;
-import org.sonarqube.ws.WsPermissions.SearchTemplatesWsResponse;
-import org.sonarqube.ws.WsPermissions.UpdateTemplateWsResponse;
-import org.sonarqube.ws.WsPermissions.UsersWsResponse;
-import org.sonarqube.ws.WsPermissions.WsSearchGlobalPermissionsResponse;
+import org.sonarqube.ws.Permissions;
+import org.sonarqube.ws.Permissions.CreateTemplateWsResponse;
+import org.sonarqube.ws.Permissions.SearchProjectPermissionsWsResponse;
+import org.sonarqube.ws.Permissions.SearchTemplatesWsResponse;
+import org.sonarqube.ws.Permissions.UpdateTemplateWsResponse;
+import org.sonarqube.ws.Permissions.UsersWsResponse;
+import org.sonarqube.ws.Permissions.WsSearchGlobalPermissionsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
@@ -53,7 +53,7 @@ public class PermissionsService extends BaseService {
     super(wsConnector, PermissionsWsParameters.CONTROLLER);
   }
 
-  public WsPermissions.WsGroupsResponse groups(GroupsWsRequest request) {
+  public Permissions.WsGroupsResponse groups(GroupsWsRequest request) {
     GetRequest get = new GetRequest(path("groups"))
       .setParam(PARAM_PERMISSION, request.getPermission())
       .setParam(PARAM_PROJECT_ID, request.getProjectId())
@@ -61,7 +61,7 @@ public class PermissionsService extends BaseService {
       .setParam("p", request.getPage())
       .setParam("ps", request.getPageSize())
       .setParam("q", request.getQuery());
-    return call(get, WsPermissions.WsGroupsResponse.parser());
+    return call(get, Permissions.WsGroupsResponse.parser());
   }
 
   public void addGroup(AddGroupWsRequest request) {

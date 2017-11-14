@@ -43,7 +43,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.WsProjectLinks;
+import org.sonarqube.ws.ProjectLinks;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -290,12 +290,12 @@ public class CreateActionTest {
   }
 
   private void createAndTest(ComponentDto project, String name, String url, String type) throws IOException {
-    WsProjectLinks.CreateWsResponse response = ws.newRequest()
+    ProjectLinks.CreateWsResponse response = ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_PROJECT_KEY, project.getDbKey())
       .setParam(PARAM_NAME, name)
       .setParam(PARAM_URL, url)
-      .executeProtobuf(WsProjectLinks.CreateWsResponse.class);
+      .executeProtobuf(ProjectLinks.CreateWsResponse.class);
 
     long newId = Long.valueOf(response.getLink().getId());
 

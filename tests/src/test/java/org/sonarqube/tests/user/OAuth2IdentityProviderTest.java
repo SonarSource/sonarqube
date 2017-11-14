@@ -35,7 +35,7 @@ import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.tests.Category4Suite;
-import org.sonarqube.ws.WsUsers.SearchWsResponse.User;
+import org.sonarqube.ws.Users.SearchWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;

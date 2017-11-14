@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.db.component.SnapshotDto;
-import org.sonarqube.ws.WsMeasures;
+import org.sonarqube.ws.Measures;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -33,12 +33,12 @@ class SnapshotDtoToWsPeriods {
     // prevent instantiation
   }
 
-  static List<WsMeasures.Period> snapshotToWsPeriods(@Nullable SnapshotDto snapshot) {
+  static List<Measures.Period> snapshotToWsPeriods(@Nullable SnapshotDto snapshot) {
     if (snapshot == null) {
       return emptyList();
     }
 
-    List<WsMeasures.Period> periods = new ArrayList<>();
+    List<Measures.Period> periods = new ArrayList<>();
     if (snapshot.getPeriodDate() != null) {
       periods.add(snapshotDtoToWsPeriod(snapshot));
     }
@@ -46,8 +46,8 @@ class SnapshotDtoToWsPeriods {
     return periods;
   }
 
-  private static WsMeasures.Period snapshotDtoToWsPeriod(SnapshotDto snapshot) {
-    WsMeasures.Period.Builder period = WsMeasures.Period.newBuilder();
+  private static Measures.Period snapshotDtoToWsPeriod(SnapshotDto snapshot) {
+    Measures.Period.Builder period = Measures.Period.newBuilder();
     period.setIndex(1);
     String periodMode = snapshot.getPeriodMode();
     if (periodMode != null) {

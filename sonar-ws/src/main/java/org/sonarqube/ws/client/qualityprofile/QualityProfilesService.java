@@ -20,13 +20,13 @@
 package org.sonarqube.ws.client.qualityprofile;
 
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.QualityProfiles;
-import org.sonarqube.ws.QualityProfiles.CopyWsResponse;
-import org.sonarqube.ws.QualityProfiles.CreateWsResponse;
-import org.sonarqube.ws.QualityProfiles.SearchGroupsResponse;
-import org.sonarqube.ws.QualityProfiles.SearchUsersResponse;
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
-import org.sonarqube.ws.QualityProfiles.ShowResponse;
+import org.sonarqube.ws.Qualityprofiles;
+import org.sonarqube.ws.Qualityprofiles.CopyWsResponse;
+import org.sonarqube.ws.Qualityprofiles.CreateWsResponse;
+import org.sonarqube.ws.Qualityprofiles.SearchGroupsResponse;
+import org.sonarqube.ws.Qualityprofiles.SearchUsersResponse;
+import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
+import org.sonarqube.ws.Qualityprofiles.ShowResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
@@ -118,7 +118,7 @@ public class QualityProfilesService extends BaseService {
       SearchWsResponse.parser());
   }
 
-  public QualityProfiles.ShowResponse show(ShowRequest request) {
+  public Qualityprofiles.ShowResponse show(ShowRequest request) {
     return call(
       new GetRequest(path(ACTION_SHOW))
         .setParam(PARAM_KEY, request.getKey())

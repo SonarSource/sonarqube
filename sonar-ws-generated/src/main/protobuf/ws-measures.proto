@@ -1,0 +1,110 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2016 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+syntax = "proto2";
+
+package sonarqube.ws.measures;
+
+import "ws-commons.proto";
+
+option java_package = "org.sonarqube.ws";
+option java_outer_classname = "Measures";
+option optimize_for = SPEED;
+
+// WS api/measures/component_tree
+message ComponentTreeWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  optional Component baseComponent = 2;
+  repeated Component components = 3;
+  optional Metrics metrics = 4;
+  optional Periods periods = 5;
+}
+
+// WS api/measures/component
+message ComponentWsResponse {
+  optional Component component = 1;
+  optional Metrics metrics = 2;
+  optional Periods periods = 3;
+}
+
+// WS api/measures/search
+message SearchWsResponse {
+  repeated Measure measures = 1;
+}
+
+// WS api/measures/search_history
+message SearchHistoryResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated HistoryMeasure measures = 2;
+
+  message HistoryMeasure {
+    optional string metric = 1;
+    repeated HistoryValue history = 2;
+  }
+
+  message HistoryValue {
+    optional string date = 1;
+    optional string value = 2;
+  }
+}
+
+message Component {
+  optional string id = 1;
+  optional string key = 2;
+  optional string refId = 3;
+  optional string refKey = 4;
+  optional string projectId = 5;
+  optional string name = 6;
+  optional string description = 7;
+  optional string qualifier = 8;
+  optional string path = 9;
+  optional string language = 10;
+  repeated Measure measures = 11;
+  optional string branch = 12;
+}
+
+message Period {
+  optional int32 index = 1;
+  optional string mode = 2;
+  optional string date = 3;
+  optional string parameter = 4;
+}
+
+message Periods {
+  repeated Period periods = 1;
+}
+
+message Metrics {
+  repeated sonarqube.ws.commons.Metric metrics = 1;
+}
+
+message Measure {
+  optional string metric = 1;
+  optional string value = 2;
+  optional PeriodsValue periods = 3;
+  optional string component = 4;
+}
+
+message PeriodsValue {
+  repeated PeriodValue periodsValue = 1;
+}
+
+message PeriodValue {
+  optional int32 index = 1;
+  optional string value = 2;
+}

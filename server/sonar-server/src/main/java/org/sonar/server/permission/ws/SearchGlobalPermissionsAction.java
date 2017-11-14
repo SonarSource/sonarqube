@@ -30,13 +30,13 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.permission.PermissionQuery;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsPermissions.Permission;
-import org.sonarqube.ws.WsPermissions.WsSearchGlobalPermissionsResponse;
+import org.sonarqube.ws.Permissions.Permission;
+import org.sonarqube.ws.Permissions.WsSearchGlobalPermissionsResponse;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.WsPermissions.Permission.newBuilder;
+import static org.sonarqube.ws.Permissions.Permission.newBuilder;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 
 public class SearchGlobalPermissionsAction implements PermissionsWsAction {

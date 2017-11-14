@@ -1,0 +1,118 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonarqube.ws.client.projects;
+
+import java.util.List;
+import javax.annotation.Generated;
+
+/**
+ * Create a project.<br/>Requires 'Create Projects' permission
+ *
+ * This is part of the internal API.
+ * This is a POST request.
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects/create">Further information about this action online (including a response example)</a>
+ * @since 4.0
+ */
+@Generated("https://github.com/SonarSource/sonar-ws-generator")
+public class CreateRequest {
+
+  private String branch;
+  private String name;
+  private String organization;
+  private String project;
+  private String visibility;
+
+  /**
+   * SCM Branch of the project. The key of the project will become key:branch, for instance 'SonarQube:branch-5.0'
+   *
+   * Example value: "branch-5.0"
+   */
+  public CreateRequest setBranch(String branch) {
+    this.branch = branch;
+    return this;
+  }
+
+  public String getBranch() {
+    return branch;
+  }
+
+  /**
+   * Name of the project
+   *
+   * This is a mandatory parameter.
+   * Example value: "SonarQube"
+   */
+  public CreateRequest setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * The key of the organization
+   *
+   * This is part of the internal API.
+   */
+  public CreateRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public String getOrganization() {
+    return organization;
+  }
+
+  /**
+   * Key of the project
+   *
+   * This is a mandatory parameter.
+   * Example value: "my_project"
+   */
+  public CreateRequest setProject(String project) {
+    this.project = project;
+    return this;
+  }
+
+  public String getProject() {
+    return project;
+  }
+
+  /**
+   * Whether the created project should be visible to everyone, or only specific user/groups.<br/>If no visibility is specified, the default project visibility of the organization will be used.
+   *
+   * This is part of the internal API.
+   * Possible values:
+   * <ul>
+   *   <li>"private"</li>
+   *   <li>"public"</li>
+   * </ul>
+   */
+  public CreateRequest setVisibility(String visibility) {
+    this.visibility = visibility;
+    return this;
+  }
+
+  public String getVisibility() {
+    return visibility;
+  }
+}

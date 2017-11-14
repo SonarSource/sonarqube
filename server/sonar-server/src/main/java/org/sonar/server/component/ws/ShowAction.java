@@ -34,7 +34,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsComponents.ShowWsResponse;
+import org.sonarqube.ws.Components.ShowWsResponse;
 import org.sonarqube.ws.client.component.ShowWsRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;

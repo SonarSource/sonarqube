@@ -40,7 +40,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.WsEditions.FormDataResponse;
+import org.sonarqube.ws.Editions.FormDataResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

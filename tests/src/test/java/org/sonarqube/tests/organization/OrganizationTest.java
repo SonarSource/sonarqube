@@ -27,16 +27,15 @@ import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.sonarqube.qa.util.OrganizationTester;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Organizations.Organization;
-import org.sonarqube.ws.QualityProfiles;
+import org.sonarqube.ws.Qualityprofiles;
 import org.sonarqube.ws.Rules;
-import org.sonarqube.ws.WsComponents;
-import org.sonarqube.ws.WsUserGroups.Group;
-import org.sonarqube.ws.WsUsers;
-import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
+import org.sonarqube.ws.UserGroups.Group;
+import org.sonarqube.ws.Users;
+import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.component.ComponentsService;
 import org.sonarqube.ws.client.organization.CreateWsRequest;
 import org.sonarqube.ws.client.organization.OrganizationService;
@@ -53,28 +52,25 @@ import static util.ItUtils.expectForbiddenError;
 import static util.ItUtils.expectNotFoundError;
 import static util.ItUtils.expectUnauthorizedError;
 import static util.ItUtils.runProjectAnalysis;
-import static util.ItUtils.setServerProperty;
 
 public class OrganizationTest {
 
   private static final String SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS = "sonar.organizations.anyoneCanCreate";
   private static final String DEFAULT_ORGANIZATION_KEY = "default-organization";
   private static final String NAME = "Foo Company";
-  // private static final String KEY = "foo-company";
   private static final String DESCRIPTION = "the description of Foo company";
   private static final String URL = "https://www.foo.fr";
   private static final String AVATAR_URL = "https://www.foo.fr/corporate_logo.png";
 
   @ClassRule
   public static Orchestrator orchestrator = OrganizationSuite.ORCHESTRATOR;
+
   @Rule
   public Tester tester = new Tester(orchestrator);
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
 
   @After
   public void tearDown() {
-    setServerProperty(orchestrator, SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS, null);
+    tester.settings().resetSettings(SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS);
   }
 
   @Test
@@ -272,22 +268,22 @@ public class OrganizationTest {
     Group group = tester.groups().generate(organization);
     tester.groups().addMemberToGroups(organization, user.getLogin(), group.getName());
 
-    List<WsUsers.GroupsWsResponse.Group> memberOfGroups = tester.groups().getGroupsOfUser(organization, user.getLogin());
+    List<Users.GroupsWsResponse.Group> memberOfGroups = tester.groups().getGroupsOfUser(organization, user.getLogin());
 
-    assertThat(memberOfGroups).extracting(WsUsers.GroupsWsResponse.Group::getName)
+    assertThat(memberOfGroups).extracting(Users.GroupsWsResponse.Group::getName)
       .containsExactlyInAnyOrder(group.getName(), "Members");
   }
 
   @Test
   public void anonymous_cannot_create_organizations_even_if_anyone_is_allowed_to() {
-    setServerProperty(orchestrator, SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS, "true");
+    tester.settings().setGlobalSettings(SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS, "true");
 
     expectUnauthorizedError(() -> tester.asAnonymous().organizations().generate());
   }
 
   @Test
   public void logged_in_user_can_create_organizations_if_anyone_is_allowed_to() {
-    setServerProperty(orchestrator, SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS, "true");
+    tester.settings().setGlobalSettings(SETTING_ANYONE_CAN_CREATE_ORGANIZATIONS, "true");
     User user = tester.users().generate();
 
     Organization organization = tester.as(user.getLogin()).organizations().generate();
@@ -302,7 +298,7 @@ public class OrganizationTest {
       .hasSize(1);
   }
 
-  private WsComponents.SearchWsResponse searchSampleProject(String organizationKey, ComponentsService componentsService) {
+  private Components.SearchWsResponse searchSampleProject(String organizationKey, ComponentsService componentsService) {
     return componentsService
       .search(new org.sonarqube.ws.client.component.SearchWsRequest()
         .setOrganization(organizationKey)
@@ -316,7 +312,7 @@ public class OrganizationTest {
   }
 
   private void verifyOrganization(Organization createdOrganization, String name, String description, String url,
-    String avatarUrl) {
+                                  String avatarUrl) {
     SearchWsRequest request = new SearchWsRequest.Builder().setOrganizations(createdOrganization.getKey()).build();
     List<Organization> result = tester.organizations().service().search(request).getOrganizationsList();
     assertThat(result).hasSize(1);
@@ -343,7 +339,7 @@ public class OrganizationTest {
   private void assertThatBuiltInQualityProfilesExist(Organization org) {
     org.sonarqube.ws.client.qualityprofile.SearchWsRequest profilesRequest = new org.sonarqube.ws.client.qualityprofile.SearchWsRequest()
       .setOrganizationKey(org.getKey());
-    QualityProfiles.SearchWsResponse response = tester.wsClient().qualityProfiles().search(profilesRequest);
+    Qualityprofiles.SearchWsResponse response = tester.wsClient().qualityProfiles().search(profilesRequest);
     assertThat(response.getProfilesCount()).isGreaterThan(0);
 
     response.getProfilesList().forEach(p -> {

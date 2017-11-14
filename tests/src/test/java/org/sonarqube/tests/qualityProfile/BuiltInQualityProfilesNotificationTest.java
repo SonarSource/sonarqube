@@ -28,7 +28,7 @@ import javax.mail.internet.MimeMessage;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonarqube.ws.WsUsers;
+import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.permission.AddGroupWsRequest;
@@ -75,7 +75,7 @@ public class BuiltInQualityProfilesNotificationTest {
       .build();
     orchestrator.start();
     userRule = UserRule.from(orchestrator);
-    WsUsers.CreateWsResponse.User profileAdmin1 = userRule.generate();
+    Users.CreateWsResponse.User profileAdmin1 = userRule.generate();
     WsClient wsClient = ItUtils.newAdminWsClient(orchestrator);
     wsClient.permissions().addUser(new AddUserWsRequest().setLogin(profileAdmin1.getLogin()).setPermission("profileadmin"));
 
@@ -98,17 +98,17 @@ public class BuiltInQualityProfilesNotificationTest {
     userRule = UserRule.from(orchestrator);
 
     // Create a quality profile administrator (user having direct permission)
-    WsUsers.CreateWsResponse.User profileAdmin1 = userRule.generate();
+    Users.CreateWsResponse.User profileAdmin1 = userRule.generate();
     WsClient wsClient = ItUtils.newAdminWsClient(orchestrator);
     wsClient.permissions().addUser(new AddUserWsRequest().setLogin(profileAdmin1.getLogin()).setPermission("profileadmin"));
     // Create a quality profile administrator (user having permission from a group)
-    WsUsers.CreateWsResponse.User profileAdmin2 = userRule.generate();
+    Users.CreateWsResponse.User profileAdmin2 = userRule.generate();
     String groupName = randomAlphanumeric(20);
     wsClient.wsConnector().call(new PostRequest("api/user_groups/create").setParam("name", groupName)).failIfNotSuccessful();
     wsClient.permissions().addGroup(new AddGroupWsRequest().setPermission("profileadmin").setGroupName(groupName));
     wsClient.wsConnector().call(new PostRequest("api/user_groups/add_user").setParam("name", groupName).setParam("login", profileAdmin2.getLogin())).failIfNotSuccessful();
     // Create a user not being quality profile administrator
-    WsUsers.CreateWsResponse.User noProfileAdmin = userRule.generate();
+    Users.CreateWsResponse.User noProfileAdmin = userRule.generate();
 
     // Create a child profile on the built-in profile => The notification should not take into account updates of this profile
     wsClient.qualityProfiles().create(CreateRequest.builder().setLanguage("foo").setName("child").build());
@@ -154,7 +154,7 @@ public class BuiltInQualityProfilesNotificationTest {
       .build();
     orchestrator.start();
     userRule = UserRule.from(orchestrator);
-    WsUsers.CreateWsResponse.User profileAdmin1 = userRule.generate();
+    Users.CreateWsResponse.User profileAdmin1 = userRule.generate();
     WsClient wsClient = ItUtils.newAdminWsClient(orchestrator);
     wsClient.permissions().addUser(new AddUserWsRequest().setLogin(profileAdmin1.getLogin()).setPermission("profileadmin"));
 

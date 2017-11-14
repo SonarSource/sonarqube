@@ -36,7 +36,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.sonarqube.qa.util.SelenideConfig;
-import org.sonarqube.ws.WsMeasures.Measure;
+import org.sonarqube.ws.Measures.Measure;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;

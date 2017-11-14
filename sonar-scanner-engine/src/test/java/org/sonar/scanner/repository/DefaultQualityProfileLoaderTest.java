@@ -30,8 +30,8 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.WsTestUtil;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
-import org.sonarqube.ws.QualityProfiles;
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
+import org.sonarqube.ws.Qualityprofiles;
+import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -128,7 +128,7 @@ public class DefaultQualityProfileLoaderTest {
 
   private static InputStream createStreamOfProfiles(String... names) throws IOException {
     ByteArrayOutputStream os = new ByteArrayOutputStream();
-    QualityProfiles.SearchWsResponse.Builder responseBuilder = QualityProfiles.SearchWsResponse.newBuilder();
+    Qualityprofiles.SearchWsResponse.Builder responseBuilder = Qualityprofiles.SearchWsResponse.newBuilder();
 
     for (String n : names) {
       QualityProfile qp = QualityProfile.newBuilder().setKey(n).setName(n).setLanguage("lang").build();

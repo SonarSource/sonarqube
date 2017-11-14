@@ -44,8 +44,8 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.WsProjects.SearchMyProjectsWsResponse;
-import org.sonarqube.ws.WsProjects.SearchMyProjectsWsResponse.Project;
+import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse;
+import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse.Project;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;

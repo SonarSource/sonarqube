@@ -29,7 +29,7 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsQualityGates.CreateWsResponse;
+import org.sonarqube.ws.Qualitygates.CreateWsResponse;
 
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.ACTION_CREATE;

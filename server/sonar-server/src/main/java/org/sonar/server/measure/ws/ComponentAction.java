@@ -51,8 +51,8 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.ws.MetricDtoWithBestValue.MetricDtoToMetricDtoWithBestValueFunction;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsMeasures;
-import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
+import org.sonarqube.ws.Measures;
+import org.sonarqube.ws.Measures.ComponentWsResponse;
 import org.sonarqube.ws.client.measure.ComponentWsRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -146,7 +146,7 @@ public class ComponentAction implements MeasuresWsAction {
       checkPermissions(component);
       SnapshotDto analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, component.projectUuid()).orElse(null);
       List<MetricDto> metrics = searchMetrics(dbSession, request);
-      List<WsMeasures.Period> periods = snapshotToWsPeriods(analysis);
+      List<Measures.Period> periods = snapshotToWsPeriods(analysis);
       List<MeasureDto> measures = searchMeasures(dbSession, component, analysis, metrics, developerId);
 
       return buildResponse(request, component, refComponent, measures, metrics, periods);
@@ -181,7 +181,7 @@ public class ComponentAction implements MeasuresWsAction {
   }
 
   private static ComponentWsResponse buildResponse(ComponentWsRequest request, ComponentDto component, Optional<ComponentDto> refComponent, List<MeasureDto> measures,
-    List<MetricDto> metrics, List<WsMeasures.Period> periods) {
+    List<MetricDto> metrics, List<Measures.Period> periods) {
     ComponentWsResponse.Builder response = ComponentWsResponse.newBuilder();
     Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDto::getId);
     Map<MetricDto, MeasureDto> measuresByMetric = new HashMap<>();

@@ -31,8 +31,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsProjectLinks.Link;
-import org.sonarqube.ws.WsProjectLinks.SearchWsResponse;
+import org.sonarqube.ws.ProjectLinks.Link;
+import org.sonarqube.ws.ProjectLinks.SearchWsResponse;
 import org.sonarqube.ws.client.projectlinks.SearchWsRequest;
 
 import static org.sonar.core.util.Protobuf.setNullable;

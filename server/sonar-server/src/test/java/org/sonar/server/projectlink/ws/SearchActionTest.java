@@ -43,8 +43,8 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.WsProjectLinks.Link;
-import org.sonarqube.ws.WsProjectLinks.SearchWsResponse;
+import org.sonarqube.ws.ProjectLinks.Link;
+import org.sonarqube.ws.ProjectLinks.SearchWsResponse;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;

@@ -56,8 +56,8 @@ import org.sonar.server.measure.index.ProjectMeasuresQuery;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.WsComponents.Component;
-import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
+import org.sonarqube.ws.Components.Component;
+import org.sonarqube.ws.Components.SearchProjectsWsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;

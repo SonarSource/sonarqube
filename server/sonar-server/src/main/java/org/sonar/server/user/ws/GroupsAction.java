@@ -41,8 +41,8 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.usergroups.DefaultGroupFinder;
-import org.sonarqube.ws.WsUsers.GroupsWsResponse;
-import org.sonarqube.ws.WsUsers.GroupsWsResponse.Group;
+import org.sonarqube.ws.Users.GroupsWsResponse;
+import org.sonarqube.ws.Users.GroupsWsResponse.Group;
 import org.sonarqube.ws.client.user.GroupsRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;

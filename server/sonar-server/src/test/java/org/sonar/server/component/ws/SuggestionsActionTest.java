@@ -50,11 +50,11 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.WsComponents.SuggestionsWsResponse;
-import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Category;
-import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Organization;
-import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Project;
-import org.sonarqube.ws.WsComponents.SuggestionsWsResponse.Suggestion;
+import org.sonarqube.ws.Components.SuggestionsWsResponse;
+import org.sonarqube.ws.Components.SuggestionsWsResponse.Category;
+import org.sonarqube.ws.Components.SuggestionsWsResponse.Organization;
+import org.sonarqube.ws.Components.SuggestionsWsResponse.Project;
+import org.sonarqube.ws.Components.SuggestionsWsResponse.Suggestion;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;

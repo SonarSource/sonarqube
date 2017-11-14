@@ -22,6 +22,7 @@ package util.user;
 import com.google.gson.Gson;
 import java.util.List;
 
+@Deprecated
 public class Users {
 
   private List<User> users;

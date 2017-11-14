@@ -42,8 +42,8 @@ import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.WsTests;
-import org.sonarqube.ws.WsTests.ListResponse;
+import org.sonarqube.ws.Tests;
+import org.sonarqube.ws.Tests.ListResponse;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -121,10 +121,10 @@ public class ListActionTest {
     ListResponse request = call(ws.newRequest().setParam(TEST_ID, test.getUuid()));
 
     assertThat(request.getTestsList()).hasSize(1);
-    WsTests.Test result = request.getTests(0);
+    Tests.Test result = request.getTests(0);
     assertThat(result.getId()).isEqualTo(test.getUuid());
     assertThat(result.getName()).isEqualTo(test.getName());
-    assertThat(result.getStatus()).isEqualTo(WsTests.TestStatus.OK);
+    assertThat(result.getStatus()).isEqualTo(Tests.TestStatus.OK);
     assertThat(result.getFileId()).isEqualTo(testFile.uuid());
     assertThat(result.getFileKey()).isEqualTo(testFile.getDbKey());
     assertThat(result.getFileName()).isEqualTo(testFile.path());
@@ -145,7 +145,7 @@ public class ListActionTest {
       .setParam(TEST_ID, test1.getUuid()));
 
     assertThat(request.getTestsList())
-      .extracting(WsTests.Test::getId)
+      .extracting(Tests.Test::getId)
       .containsOnly(test1.getUuid());
   }
 
@@ -163,7 +163,7 @@ public class ListActionTest {
       .setParam(TEST_FILE_ID, testFile.uuid()));
 
     assertThat(request.getTestsList())
-      .extracting(WsTests.Test::getId)
+      .extracting(Tests.Test::getId)
       .containsOnly(test1.getUuid(), test2.getUuid());
   }
 
@@ -181,7 +181,7 @@ public class ListActionTest {
       .setParam(TEST_FILE_KEY, testFile.getDbKey()));
 
     assertThat(request.getTestsList())
-      .extracting(WsTests.Test::getId)
+      .extracting(Tests.Test::getId)
       .containsOnly(test1.getUuid(), test2.getUuid());
   }
 
@@ -202,7 +202,7 @@ public class ListActionTest {
       .setParam("branch", testFile.getBranch()));
 
     assertThat(request.getTestsList())
-      .extracting(WsTests.Test::getId, WsTests.Test::getFileKey, WsTests.Test::getFileBranch)
+      .extracting(Tests.Test::getId, Tests.Test::getFileKey, Tests.Test::getFileBranch)
       .containsOnly(
         tuple(test1.getUuid(), testFile.getKey(), testFile.getBranch()),
         tuple(test2.getUuid(), testFile.getKey(), testFile.getBranch()));
@@ -222,7 +222,7 @@ public class ListActionTest {
       .setParam(SOURCE_FILE_ID, mainFile.uuid())
       .setParam(SOURCE_FILE_LINE_NUMBER, "11"));
 
-    assertThat(request.getTestsList()).extracting(WsTests.Test::getId).containsOnly(test1.getUuid(), test2.getUuid());
+    assertThat(request.getTestsList()).extracting(Tests.Test::getId).containsOnly(test1.getUuid(), test2.getUuid());
   }
 
   @Test
@@ -240,7 +240,7 @@ public class ListActionTest {
       .setParam(SOURCE_FILE_LINE_NUMBER, "10"));
 
     assertThat(request.getTestsList())
-      .extracting(WsTests.Test::getId)
+      .extracting(Tests.Test::getId)
       .containsOnly(test1.getUuid(), test3.getUuid());
   }
 
@@ -262,7 +262,7 @@ public class ListActionTest {
       .setParam("branch", testFile.getBranch()));
 
     assertThat(request.getTestsList())
-      .extracting(WsTests.Test::getId, WsTests.Test::getFileKey, WsTests.Test::getFileBranch)
+      .extracting(Tests.Test::getId, Tests.Test::getFileKey, Tests.Test::getFileBranch)
       .containsOnly(
         tuple(test1.getUuid(), testFile.getKey(), testFile.getBranch()),
         tuple(test3.getUuid(), testFile.getKey(), testFile.getBranch()));

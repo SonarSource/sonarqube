@@ -22,8 +22,8 @@ package org.sonarqube.ws.client.projectbranches;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.ws.WsBranches.ListWsResponse;
-import org.sonarqube.ws.WsBranches.ShowWsResponse;
+import org.sonarqube.ws.ProjectBranches.ListWsResponse;
+import org.sonarqube.ws.ProjectBranches.ShowWsResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.ServiceTester;
@@ -38,9 +38,9 @@ import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.
 public class ProjectBranchesServiceTest {
 
   @Rule
-  public ServiceTester<ProjectBranchesService> serviceTester = new ServiceTester<>(new ProjectBranchesService(mock(WsConnector.class)));
+  public ServiceTester<ProjectBranchesServiceOld> serviceTester = new ServiceTester<>(new ProjectBranchesServiceOld(mock(WsConnector.class)));
 
-  private ProjectBranchesService underTest = serviceTester.getInstanceUnderTest();
+  private ProjectBranchesServiceOld underTest = serviceTester.getInstanceUnderTest();
 
   @Test
   public void list() {

@@ -32,9 +32,9 @@ import org.sonarqube.qa.util.QProfileTester;
 import org.sonarqube.qa.util.TesterSession;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations.Organization;
-import org.sonarqube.ws.QualityProfiles;
-import org.sonarqube.ws.QualityProfiles.CreateWsResponse.QualityProfile;
-import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
+import org.sonarqube.ws.Qualityprofiles;
+import org.sonarqube.ws.Qualityprofiles.CreateWsResponse.QualityProfile;
+import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
@@ -125,8 +125,8 @@ public class CustomQualityProfilesTest {
     QualityProfile parentProfile = adminSession.createXooProfile(org);
 
     // Copied profile
-    QualityProfiles.SearchWsResponse.QualityProfile builtInProfile = getProfile(org, p -> p.getIsBuiltIn() && "Basic".equals(p.getName()) && "xoo".equals(p.getLanguage()));
-    QualityProfiles.CopyWsResponse copyResponse = adminSession.service().copy(new CopyRequest(builtInProfile.getKey(), "My copy"));
+    Qualityprofiles.SearchWsResponse.QualityProfile builtInProfile = getProfile(org, p -> p.getIsBuiltIn() && "Basic".equals(p.getName()) && "xoo".equals(p.getLanguage()));
+    Qualityprofiles.CopyWsResponse copyResponse = adminSession.service().copy(new CopyRequest(builtInProfile.getKey(), "My copy"));
 
     // Inherited profile from custom
     QualityProfile inheritedProfile1 = adminSession.service().create(
@@ -230,7 +230,7 @@ public class CustomQualityProfilesTest {
     adminSession.qProfiles().service().changeParent(
       ChangeParentRequest.builder().setParentKey(parentProfile.getKey()).setProfileKey(inheritedProfile.getKey()).build());
 
-    QualityProfiles.SearchWsResponse.QualityProfile inheritedQualityPropfile = getProfile(org, p -> p.getKey().equals(inheritedProfile.getKey()));
+    Qualityprofiles.SearchWsResponse.QualityProfile inheritedQualityPropfile = getProfile(org, p -> p.getKey().equals(inheritedProfile.getKey()));
 
     assertThat(inheritedQualityPropfile.getParentKey()).isEqualTo(parentProfile.getKey());
     assertThat(inheritedQualityPropfile.getParentName()).isEqualTo(parentProfile.getName());
@@ -262,7 +262,7 @@ public class CustomQualityProfilesTest {
         .setProjectKey(projectKey)
         .setProjectName(projectName));
 
-    QualityProfiles.SearchWsResponse.QualityProfile defaultProfile = getProfile(org, p -> "xoo".equals(p.getLanguage()) &&
+    Qualityprofiles.SearchWsResponse.QualityProfile defaultProfile = getProfile(org, p -> "xoo".equals(p.getLanguage()) &&
       p.getIsDefault());
     assertThatQualityProfileIsUsedFor(projectKey, defaultProfile.getKey());
 
@@ -318,7 +318,7 @@ public class CustomQualityProfilesTest {
     assertThat(((Map) ((List) components.get("qualityProfiles")).get(0)).get("key")).isEqualTo(qualityProfileKey);
   }
 
-  private QualityProfiles.SearchWsResponse.QualityProfile getProfile(Organization organization, Predicate<QualityProfiles.SearchWsResponse.QualityProfile> filter) {
+  private Qualityprofiles.SearchWsResponse.QualityProfile getProfile(Organization organization, Predicate<Qualityprofiles.SearchWsResponse.QualityProfile> filter) {
     return tester.qProfiles().service().search(new SearchWsRequest()
       .setOrganizationKey(organization.getKey())).getProfilesList()
       .stream()

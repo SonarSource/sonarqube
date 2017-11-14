@@ -34,8 +34,7 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.WsUserTokens.SearchWsResponse;
+import org.sonarqube.ws.UserTokens.SearchWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.user.UserTesting.newUserDto;

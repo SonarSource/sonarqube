@@ -63,8 +63,8 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.QualityProfiles.CreateWsResponse;
-import org.sonarqube.ws.QualityProfiles.CreateWsResponse.QualityProfile;
+import org.sonarqube.ws.Qualityprofiles.CreateWsResponse;
+import org.sonarqube.ws.Qualityprofiles.CreateWsResponse.QualityProfile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

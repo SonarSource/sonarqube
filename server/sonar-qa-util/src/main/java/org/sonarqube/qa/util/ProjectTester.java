@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonarqube.ws.Organizations;
-import org.sonarqube.ws.WsProjects;
+import org.sonarqube.ws.Projects;
 import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.project.DeleteRequest;
 import org.sonarqube.ws.client.project.ProjectsService;
@@ -49,7 +49,12 @@ public class ProjectTester {
   }
 
   @SafeVarargs
-  public final WsProjects.CreateWsResponse.Project generate(@Nullable Organizations.Organization organization, Consumer<CreateRequest.Builder>... populators) {
+  public final Projects.CreateWsResponse.Project provision(Consumer<CreateRequest.Builder>... populators) {
+    return provision(null, populators);
+  }
+
+  @SafeVarargs
+  public final Projects.CreateWsResponse.Project provision(@Nullable Organizations.Organization organization, Consumer<CreateRequest.Builder>... populators) {
     int id = ID_GENERATOR.getAndIncrement();
     CreateRequest.Builder request = CreateRequest.builder()
       .setKey("key" + id)

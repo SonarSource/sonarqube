@@ -57,8 +57,8 @@ import org.sonar.server.ws.KeyExamples;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.WsComponents.Component;
-import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
+import org.sonarqube.ws.Components.Component;
+import org.sonarqube.ws.Components.SearchProjectsWsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
 import static java.util.Arrays.asList;

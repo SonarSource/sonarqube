@@ -28,14 +28,14 @@ import org.sonarqube.ws.client.organization.OrganizationService;
 import org.sonarqube.ws.client.permission.PermissionsService;
 import org.sonarqube.ws.client.project.ProjectsService;
 import org.sonarqube.ws.client.projectanalysis.ProjectAnalysisService;
-import org.sonarqube.ws.client.projectbranches.ProjectBranchesService;
+import org.sonarqube.ws.client.projectbranches.ProjectBranchesServiceOld;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
-import org.sonarqube.ws.client.qualitygate.QualityGatesService;
+import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
 import org.sonarqube.ws.client.root.RootsService;
 import org.sonarqube.ws.client.rule.RulesService;
 import org.sonarqube.ws.client.setting.SettingsService;
-import org.sonarqube.ws.client.system.SystemService;
+import org.sonarqube.ws.client.system.SystemServiceOld;
 import org.sonarqube.ws.client.user.UsersService;
 import org.sonarqube.ws.client.usergroup.UserGroupsService;
 import org.sonarqube.ws.client.usertoken.UserTokensService;
@@ -78,11 +78,11 @@ public interface WsClient {
 
   UserTokensService userTokens();
 
-  QualityGatesService qualityGates();
+  QualitygatesService qualityGates();
 
   MeasuresService measures();
 
-  SystemService system();
+  SystemServiceOld system();
 
   CeService ce();
 
@@ -123,5 +123,5 @@ public interface WsClient {
   /**
    * @since 6.6>
    */
-  ProjectBranchesService projectBranches();
+  ProjectBranchesServiceOld projectBranches();
 }

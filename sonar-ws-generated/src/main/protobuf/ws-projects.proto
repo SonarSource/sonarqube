@@ -1,0 +1,86 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2016 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+syntax = "proto2";
+
+package sonarqube.ws.projects;
+
+import "ws-commons.proto";
+
+option java_package = "org.sonarqube.ws";
+option java_outer_classname = "Projects";
+option optimize_for = SPEED;
+
+message SearchMyProjectsWsResponse {
+  message Project {
+    optional string id = 1;
+    optional string key = 2;
+    optional string name = 4;
+    optional string description = 5;
+    optional string lastAnalysisDate = 6;
+    optional string qualityGate = 7;
+    repeated Link links = 8;
+  }
+
+  message Link {
+    optional string name = 1;
+    optional string type = 2;
+    optional string href = 3;
+  }
+
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated Project projects = 2;
+}
+
+message CreateWsResponse {
+  optional Project project = 1;
+
+  message Project {
+    optional string key = 1;
+    optional string name = 2;
+    optional string qualifier = 3;
+    optional string visibility = 4;
+  }
+}
+
+// WS api/projects/search
+message SearchWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated Component components = 2;
+
+  message Component {
+    optional string organization = 1;
+    optional string id = 2;
+    optional string key = 3;
+    optional string name = 4;
+    optional string qualifier = 5;
+    optional string visibility = 6;
+    optional string lastAnalysisDate = 7;
+  }
+}
+
+// WS api/projects/prepare_bulk_update_key
+message BulkUpdateKeyWsResponse {
+  repeated Key keys = 1;
+
+  message Key {
+    optional string key = 1;
+    optional string newKey = 2;
+    optional bool duplicate = 3;
+  }
+}

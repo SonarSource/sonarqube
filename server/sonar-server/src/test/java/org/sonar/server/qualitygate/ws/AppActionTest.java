@@ -32,7 +32,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.WsQualityGates.AppWsResponse;
+import org.sonarqube.ws.Qualitygates.AppWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.Metric.ValueType.BOOL;

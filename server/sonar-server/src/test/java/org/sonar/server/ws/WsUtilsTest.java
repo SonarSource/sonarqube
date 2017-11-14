@@ -27,7 +27,7 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.WsPermissions;
+import org.sonarqube.ws.Permissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.test.ExceptionCauseMatcher.hasType;
@@ -73,7 +73,7 @@ public class WsUtilsTest {
     TestRequest request = new TestRequest();
     request.setMediaType(MediaTypes.PROTOBUF);
 
-    WsPermissions.Permission message = WsPermissions.Permission.newBuilder().setName("permission-name").build();
+    Permissions.Permission message = Permissions.Permission.newBuilder().setName("permission-name").build();
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectCause(hasType(NullPointerException.class));

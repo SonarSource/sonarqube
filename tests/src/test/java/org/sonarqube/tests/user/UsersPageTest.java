@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.ws.WsUsers;
+import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.user.GroupsRequest;
 import util.selenium.Selenese;
@@ -77,8 +77,8 @@ public class UsersPageTest {
     userRule.createGroup(group);
     userRule.associateGroupsToUser(login, group);
 
-    List<WsUsers.GroupsWsResponse.Group> result = adminClient.users().groups(GroupsRequest.builder().setLogin(login).build()).getGroupsList();
+    List<Users.GroupsWsResponse.Group> result = adminClient.users().groups(GroupsRequest.builder().setLogin(login).build()).getGroupsList();
 
-    assertThat(result).extracting(WsUsers.GroupsWsResponse.Group::getName).contains(group);
+    assertThat(result).extracting(Users.GroupsWsResponse.Group::getName).contains(group);
   }
 }

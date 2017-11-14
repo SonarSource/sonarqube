@@ -27,7 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.ProjectsManagementPage;
-import org.sonarqube.ws.WsComponents;
+import org.sonarqube.ws.Components;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
 import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
@@ -84,7 +84,7 @@ public class ProjectVisibilityPageTest {
       .createProject("foo", "foo", visibility)
       .shouldHaveProjectsCount(1);
 
-    WsComponents.SearchProjectsWsResponse response = newAdminWsClient(orchestrator).components().searchProjects(
+    Components.SearchProjectsWsResponse response = newAdminWsClient(orchestrator).components().searchProjects(
       SearchProjectsRequest.builder().build());
     assertThat(response.getComponentsCount()).isEqualTo(1);
     assertThat(response.getComponents(0).getKey()).isEqualTo("foo");

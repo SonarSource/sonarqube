@@ -26,8 +26,8 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Issues;
-import org.sonarqube.ws.WsComponents;
-import org.sonarqube.ws.WsMeasures;
+import org.sonarqube.ws.Components;
+import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.client.component.TreeWsRequest;
 import org.sonarqube.ws.client.issue.IssuesService;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
@@ -75,7 +75,7 @@ public class LiteTest {
   @Test
   public void call_components_ws() {
     // files in project
-    WsComponents.TreeWsResponse tree = tester.wsClient().components().tree(new TreeWsRequest()
+    Components.TreeWsResponse tree = tester.wsClient().components().tree(new TreeWsRequest()
       .setBaseComponentKey(PROJECT_KEY)
       .setQualifiers(singletonList("FIL")));
     assertThat(tree.getComponentsCount()).isEqualTo(4);
@@ -89,13 +89,13 @@ public class LiteTest {
   public void call_measures_ws() {
     // project measures
     MeasuresService measuresService = tester.wsClient().measures();
-    WsMeasures.ComponentWsResponse component = measuresService.component(new ComponentWsRequest()
+    Measures.ComponentWsResponse component = measuresService.component(new ComponentWsRequest()
       .setComponentKey(PROJECT_KEY)
       .setMetricKeys(asList("lines", "ncloc", "files")));
     assertThat(component.getComponent().getMeasuresCount()).isEqualTo(3);
 
     // file measures
-    WsMeasures.ComponentTreeWsResponse tree = measuresService.componentTree(new ComponentTreeWsRequest()
+    Measures.ComponentTreeWsResponse tree = measuresService.componentTree(new ComponentTreeWsRequest()
       .setBaseComponentKey(PROJECT_KEY)
       .setQualifiers(singletonList("FIL"))
       .setMetricKeys(asList("lines", "ncloc")));

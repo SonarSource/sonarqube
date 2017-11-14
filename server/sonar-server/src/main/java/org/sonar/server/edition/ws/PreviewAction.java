@@ -31,12 +31,12 @@ import org.sonar.server.platform.WebServer;
 import org.sonar.server.plugins.edition.EditionInstaller;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
-import org.sonarqube.ws.WsEditions;
+import org.sonarqube.ws.Editions;
 
 import static java.util.Optional.ofNullable;
-import static org.sonarqube.ws.WsEditions.PreviewStatus.AUTOMATIC_INSTALL;
-import static org.sonarqube.ws.WsEditions.PreviewStatus.MANUAL_INSTALL;
-import static org.sonarqube.ws.WsEditions.PreviewStatus.NO_INSTALL;
+import static org.sonarqube.ws.Editions.PreviewStatus.AUTOMATIC_INSTALL;
+import static org.sonarqube.ws.Editions.PreviewStatus.MANUAL_INSTALL;
+import static org.sonarqube.ws.Editions.PreviewStatus.NO_INSTALL;
 
 public class PreviewAction implements EditionsWsAction {
   private static final String PARAM_LICENSE = "license";
@@ -87,8 +87,8 @@ public class PreviewAction implements EditionsWsAction {
     WsUtils.writeProtobuf(buildResponse(nextState), request, response);
   }
 
-  private static WsEditions.PreviewResponse buildResponse(NextState nextState) {
-    return WsEditions.PreviewResponse.newBuilder()
+  private static Editions.PreviewResponse buildResponse(NextState nextState) {
+    return Editions.PreviewResponse.newBuilder()
       .setNextEditionKey(nextState.getPendingEditionKey().orElse(""))
       .setPreviewStatus(nextState.getPreviewStatus())
       .build();
@@ -108,9 +108,9 @@ public class PreviewAction implements EditionsWsAction {
 
   private static final class NextState {
     private final String pendingEditionKey;
-    private final WsEditions.PreviewStatus previewStatus;
+    private final Editions.PreviewStatus previewStatus;
 
-    private NextState(@Nullable String pendingEditionKey, WsEditions.PreviewStatus previewStatus) {
+    private NextState(@Nullable String pendingEditionKey, Editions.PreviewStatus previewStatus) {
       this.pendingEditionKey = pendingEditionKey;
       this.previewStatus = previewStatus;
     }
@@ -119,7 +119,7 @@ public class PreviewAction implements EditionsWsAction {
       return ofNullable(pendingEditionKey);
     }
 
-    WsEditions.PreviewStatus getPreviewStatus() {
+    Editions.PreviewStatus getPreviewStatus() {
       return previewStatus;
     }
   }

@@ -29,15 +29,15 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
-import org.sonarqube.ws.WsQualityGates;
+import org.sonarqube.ws.Projects.CreateWsResponse.Project;
+import org.sonarqube.ws.Qualitygates;
 import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.qualitygate.CreateConditionRequest;
+import org.sonarqube.ws.client.qualitygates.CreateConditionRequest;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonarqube.ws.WsMeasures.Measure;
+import static org.sonarqube.ws.Measures.Measure;
 import static util.ItUtils.getMeasure;
 import static util.ItUtils.projectDir;
 
@@ -86,10 +86,10 @@ public class QualityGateNotificationTest {
       .failIfNotSuccessful();
 
     // Create quality gate with conditions on variations
-    WsQualityGates.CreateWsResponse simple = tester.qGates().generate();
+    Qualitygates.CreateWsResponse simple = tester.qGates().generate();
     tester.qGates().service()
-      .createCondition(CreateConditionRequest.builder().setQualityGateId(simple.getId()).setMetricKey("ncloc").setPeriod(1).setOperator("EQ").setWarning("0").build());
-    Project project = tester.projects().generate(null);
+      .createCondition(new CreateConditionRequest().setGateId(String.valueOf(simple.getId())).setMetric("ncloc").setPeriod("1").setOp("EQ").setWarning("0"));
+    Project project = tester.projects().provision();
     tester.qGates().associateProject(simple, project);
 
     SonarScanner analysis = SonarScanner.create(projectDir("qualitygate/xoo-sample")).setProperty("sonar.projectKey", project.getKey());

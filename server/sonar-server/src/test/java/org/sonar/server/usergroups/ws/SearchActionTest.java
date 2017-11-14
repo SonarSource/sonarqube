@@ -48,8 +48,8 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.WsUserGroups.Group;
-import static org.sonarqube.ws.WsUserGroups.SearchWsResponse;
+import static org.sonarqube.ws.UserGroups.Group;
+import static org.sonarqube.ws.UserGroups.SearchWsResponse;
 
 public class SearchActionTest {
 

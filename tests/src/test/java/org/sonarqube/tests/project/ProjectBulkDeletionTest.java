@@ -28,8 +28,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations;
-import org.sonarqube.ws.WsProjects.CreateWsResponse;
-import org.sonarqube.ws.WsProjects.SearchWsResponse.Component;
+import org.sonarqube.ws.Projects.CreateWsResponse;
+import org.sonarqube.ws.Projects.SearchWsResponse.Component;
 import org.sonarqube.ws.client.project.SearchWsRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,9 +46,9 @@ public class ProjectBulkDeletionTest {
   @Test
   public void delete_projects() {
     Organizations.Organization organization = tester.organizations().generate();
-    CreateWsResponse.Project firstProvisionedProject = tester.projects().generate(organization, p -> p.setKey("first-provisioned-project"));
-    CreateWsResponse.Project secondProvisionedProject = tester.projects().generate(organization, p -> p.setKey("second-provisioned-project"));
-    CreateWsResponse.Project analyzedProject = tester.projects().generate(organization);
+    CreateWsResponse.Project firstProvisionedProject = tester.projects().provision(organization, p -> p.setKey("first-provisioned-project"));
+    CreateWsResponse.Project secondProvisionedProject = tester.projects().provision(organization, p -> p.setKey("second-provisioned-project"));
+    CreateWsResponse.Project analyzedProject = tester.projects().provision(organization);
 
     analyzeProject(analyzedProject.getKey(), organization.getKey());
 
@@ -66,7 +66,7 @@ public class ProjectBulkDeletionTest {
   @Test
   public void delete_more_than_50_projects_at_the_same_time() {
     Organizations.Organization organization = tester.organizations().generate();
-    IntStream.range(0, 60).forEach(i -> tester.projects().generate(organization));
+    IntStream.range(0, 60).forEach(i -> tester.projects().provision(organization));
     SearchWsRequest request = SearchWsRequest.builder().setOrganization(organization.getKey()).build();
     assertThat(tester.wsClient().projects().search(request).getPaging().getTotal()).isEqualTo(60);
 

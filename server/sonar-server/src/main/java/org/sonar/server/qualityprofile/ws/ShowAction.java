@@ -38,10 +38,10 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonarqube.ws.QualityProfiles;
-import org.sonarqube.ws.QualityProfiles.ShowResponse;
-import org.sonarqube.ws.QualityProfiles.ShowResponse.CompareToSonarWay;
-import org.sonarqube.ws.QualityProfiles.ShowResponse.QualityProfile;
+import org.sonarqube.ws.Qualityprofiles;
+import org.sonarqube.ws.Qualityprofiles.ShowResponse;
+import org.sonarqube.ws.Qualityprofiles.ShowResponse.CompareToSonarWay;
+import org.sonarqube.ws.Qualityprofiles.ShowResponse.QualityProfile;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.api.rule.RuleStatus.DEPRECATED;
@@ -154,7 +154,7 @@ public class ShowAction implements QProfileWsAction {
 
   private static ShowResponse buildResponse(QProfileDto profile, boolean isDefault, Language language, long activeRules, long deprecatedActiveRules, long projects,
                                             @Nullable CompareToSonarWay compareToSonarWay) {
-    ShowResponse.Builder showResponseBuilder = QualityProfiles.ShowResponse.newBuilder();
+    ShowResponse.Builder showResponseBuilder = Qualityprofiles.ShowResponse.newBuilder();
     QualityProfile.Builder profileBuilder = QualityProfile.newBuilder()
       .setKey(profile.getKee())
       .setName(profile.getName())

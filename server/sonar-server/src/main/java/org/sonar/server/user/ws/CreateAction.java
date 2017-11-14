@@ -32,7 +32,7 @@ import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
-import org.sonarqube.ws.WsUsers.CreateWsResponse;
+import org.sonarqube.ws.Users.CreateWsResponse;
 import org.sonarqube.ws.client.user.CreateRequest;
 
 import static com.google.common.base.Strings.emptyToNull;

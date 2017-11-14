@@ -24,8 +24,8 @@ import org.sonar.core.util.Protobuf;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonarqube.ws.WsMeasures;
-import org.sonarqube.ws.WsMeasures.Component;
+import org.sonarqube.ws.Measures;
+import org.sonarqube.ws.Measures.Component;
 
 class ComponentDtoToWsComponent {
   private ComponentDtoToWsComponent() {
@@ -42,7 +42,7 @@ class ComponentDtoToWsComponent {
       wsComponent.setRefKey(referenceComponent.getDbKey());
     }
 
-    WsMeasures.Measure.Builder measureBuilder = WsMeasures.Measure.newBuilder();
+    Measures.Measure.Builder measureBuilder = Measures.Measure.newBuilder();
     for (Map.Entry<MetricDto, MeasureDto> entry : measuresByMetric.entrySet()) {
       MeasureDtoToWsMeasure.updateMeasureBuilder(measureBuilder, entry.getKey(), entry.getValue());
       wsComponent.addMeasures(measureBuilder);

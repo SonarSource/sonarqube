@@ -33,15 +33,15 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.ws.AvatarResolver;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsUsers.CurrentWsResponse;
+import org.sonarqube.ws.Users.CurrentWsResponse;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Collections.singletonList;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.WsUsers.CurrentWsResponse.Permissions;
-import static org.sonarqube.ws.WsUsers.CurrentWsResponse.newBuilder;
+import static org.sonarqube.ws.Users.CurrentWsResponse.Permissions;
+import static org.sonarqube.ws.Users.CurrentWsResponse.newBuilder;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CURRENT;
 
 public class CurrentAction implements UsersWsAction {

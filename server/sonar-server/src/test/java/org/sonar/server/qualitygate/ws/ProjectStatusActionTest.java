@@ -44,8 +44,8 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
-import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse.Status;
+import org.sonarqube.ws.Qualitygates.ProjectStatusWsResponse;
+import org.sonarqube.ws.Qualitygates.ProjectStatusWsResponse.Status;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;

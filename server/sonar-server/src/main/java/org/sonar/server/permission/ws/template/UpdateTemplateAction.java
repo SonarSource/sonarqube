@@ -31,8 +31,8 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsPermissions.PermissionTemplate;
-import org.sonarqube.ws.WsPermissions.UpdateTemplateWsResponse;
+import org.sonarqube.ws.Permissions.PermissionTemplate;
+import org.sonarqube.ws.Permissions.UpdateTemplateWsResponse;
 import org.sonarqube.ws.client.permission.UpdateTemplateWsRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;

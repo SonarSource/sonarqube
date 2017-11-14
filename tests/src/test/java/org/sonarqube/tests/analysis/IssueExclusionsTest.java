@@ -22,11 +22,13 @@ package org.sonarqube.tests.analysis;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category4Suite;
 import java.util.Map;
-import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.qa.util.Tester;
+import org.sonarqube.tests.Category4Suite;
+import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,10 +42,10 @@ public class IssueExclusionsTest {
   @ClassRule
   public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
-  @Before
-  public void resetData() {
-    orchestrator.resetData();
-  }
+  @Rule
+  public Tester tester = new Tester(orchestrator)
+    // all the tests of Category4Suite must disable organizations
+    .disableOrganizations();
 
   @Test
   public void should_not_exclude_anything() {
@@ -233,9 +235,12 @@ public class IssueExclusionsTest {
 
   protected BuildResult scan(String... properties) {
     ItUtils.restoreProfile(orchestrator, getClass().getResource("/exclusions/IssueExclusionsTest/with-many-rules.xml"));
-    orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-exclusions",
-      "Sonar :: Integration Tests :: Multi-modules With Exclusions");
-    orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-exclusions", "xoo", "with-many-rules");
+
+    tester.projects().provision(p -> p
+      .setKey("com.sonarsource.it.samples:multi-modules-exclusions")
+      .setName("Sonar :: Integration Tests :: Multi-modules With Exclusions"));
+    tester.wsClient().qualityProfiles().addProject(AddProjectRequest.builder().setProjectKey("com.sonarsource.it.samples:multi-modules-exclusions")
+      .setLanguage("xoo").setQualityProfile("with-many-rules").build());
 
     SonarScanner scan = SonarScanner.create(ItUtils.projectDir(PROJECT_DIR))
       .setProperty("sonar.cpd.exclusions", "**/*")

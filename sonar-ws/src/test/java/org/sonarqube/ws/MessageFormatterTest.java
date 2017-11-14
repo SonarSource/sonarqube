@@ -27,7 +27,7 @@ public class MessageFormatterTest {
 
   @Test
   public void print() {
-    WsPermissions.Permission.Builder message = WsPermissions.Permission.newBuilder()
+    Permissions.Permission.Builder message = Permissions.Permission.newBuilder()
       .setName("permission-name")
       .setKey("permission-key")
       .setDescription("permission-description")
@@ -36,7 +36,7 @@ public class MessageFormatterTest {
 
     String result = MessageFormatter.print(message);
 
-    assertThat(result).isEqualTo("org.sonarqube.ws.WsPermissions.Permission.Builder" +
+    assertThat(result).isEqualTo("org.sonarqube.ws.Permissions.Permission.Builder" +
       "[key: \"permission-key\" name: \"permission-name\" description: \"permission-description\" usersCount: 1984 groupsCount: 42]");
   }
 }

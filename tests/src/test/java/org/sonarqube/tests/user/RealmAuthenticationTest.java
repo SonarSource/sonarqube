@@ -36,8 +36,8 @@ import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.connectors.HttpClient4Connector;
 import org.sonar.wsclient.services.AuthenticationQuery;
 import org.sonar.wsclient.user.UserParameters;
-import org.sonarqube.qa.util.pageobjects.SystemInfoPage;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.pageobjects.SystemInfoPage;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.user.CreateRequest;
@@ -48,11 +48,9 @@ import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.newUserWsClient;
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.resetSettings;
-import static util.ItUtils.setServerProperty;
 import static util.selenium.Selenese.runSelenese;
 
 /**
@@ -293,7 +291,7 @@ public class RealmAuthenticationTest {
     verifyAuthenticationIsNotOk(login, null);
     verifyAuthenticationIsOk(null, null);
 
-    setServerProperty(orchestrator, "sonar.forceAuthentication", "true");
+    tester.settings().setGlobalSettings("sonar.forceAuthentication", "true");
 
     verifyAuthenticationIsOk(login, password);
     verifyAuthenticationIsNotOk("wrong", password);
@@ -313,7 +311,7 @@ public class RealmAuthenticationTest {
 
   @Test
   public void provision_user_before_authentication() {
-    newAdminWsClient(orchestrator).users().create(CreateRequest.builder()
+    tester.wsClient().users().create(CreateRequest.builder()
       .setLogin(USER_LOGIN)
       .setName("Tester Testerovich")
       .setEmail("tester@example.org")
@@ -346,8 +344,8 @@ public class RealmAuthenticationTest {
   /**
    * Updates information about users in security-plugin.
    */
-  private static void updateUsersInExtAuth(Map<String, String> users) {
-    setServerProperty(orchestrator, USERS_PROPERTY, format(users));
+  private void updateUsersInExtAuth(Map<String, String> users) {
+    tester.settings().setGlobalSettings(USERS_PROPERTY, format(users));
   }
 
   private void createUserInDb(String login, String password) {

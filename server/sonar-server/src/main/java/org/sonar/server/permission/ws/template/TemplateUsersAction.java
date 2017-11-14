@@ -39,8 +39,8 @@ import org.sonar.server.issue.ws.AvatarResolver;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsPermissions;
-import org.sonarqube.ws.WsPermissions.UsersWsResponse;
+import org.sonarqube.ws.Permissions;
+import org.sonarqube.ws.Permissions.UsersWsResponse;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
@@ -106,7 +106,7 @@ public class TemplateUsersAction implements PermissionsWsAction {
       List<UserDto> users = findUsers(dbSession, query, template);
       List<PermissionTemplateUserDto> permissionTemplateUsers = dbClient.permissionTemplateDao().selectUserPermissionsByTemplateIdAndUserLogins(dbSession, template.getId(),
         users.stream().map(UserDto::getLogin).collect(Collectors.toList()));
-      WsPermissions.UsersWsResponse templateUsersResponse = buildResponse(users, permissionTemplateUsers, paging);
+      Permissions.UsersWsResponse templateUsersResponse = buildResponse(users, permissionTemplateUsers, paging);
       writeProtobuf(templateUsersResponse, wsRequest, wsResponse);
     }
   }
@@ -127,13 +127,13 @@ public class TemplateUsersAction implements PermissionsWsAction {
     return query.build();
   }
 
-  private WsPermissions.UsersWsResponse buildResponse(List<UserDto> users, List<PermissionTemplateUserDto> permissionTemplateUsers, Paging paging) {
+  private Permissions.UsersWsResponse buildResponse(List<UserDto> users, List<PermissionTemplateUserDto> permissionTemplateUsers, Paging paging) {
     Multimap<Integer, String> permissionsByUserId = TreeMultimap.create();
     permissionTemplateUsers.forEach(userPermission -> permissionsByUserId.put(userPermission.getUserId(), userPermission.getPermission()));
 
     UsersWsResponse.Builder responseBuilder = UsersWsResponse.newBuilder();
     users.forEach(user -> {
-      WsPermissions.User.Builder userResponse = responseBuilder.addUsersBuilder()
+      Permissions.User.Builder userResponse = responseBuilder.addUsersBuilder()
         .setLogin(user.getLogin())
         .addAllPermissions(permissionsByUserId.get(user.getId()));
       setNullable(user.getEmail(), userResponse::setEmail);

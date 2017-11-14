@@ -51,8 +51,8 @@ import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.WsEditions;
-import org.sonarqube.ws.WsEditions.StatusResponse;
+import org.sonarqube.ws.Editions;
+import org.sonarqube.ws.Editions.StatusResponse;
 
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -310,16 +310,16 @@ public class ApplyLicenseActionTest {
 
     TestResponse response = request.execute();
 
-    StatusResponse parsedResponse = WsEditions.StatusResponse.parseFrom(response.getInputStream());
+    StatusResponse parsedResponse = Editions.StatusResponse.parseFrom(response.getInputStream());
     assertThat(parsedResponse.getInstallError()).isEqualTo(errorMessage);
   }
 
   private void assertResponse(TestResponse response, String expectedNextEditionKey, String expectedEditionKey,
     PendingStatus expectedPendingStatus) throws IOException {
-    StatusResponse parsedResponse = WsEditions.StatusResponse.parseFrom(response.getInputStream());
+    StatusResponse parsedResponse = Editions.StatusResponse.parseFrom(response.getInputStream());
     assertThat(parsedResponse.getCurrentEditionKey()).isEqualTo(expectedEditionKey);
     assertThat(parsedResponse.getNextEditionKey()).isEqualTo(expectedNextEditionKey);
-    assertThat(parsedResponse.getInstallationStatus()).isEqualTo(WsEditions.InstallationStatus.valueOf(expectedPendingStatus.toString()));
+    assertThat(parsedResponse.getInstallationStatus()).isEqualTo(Editions.InstallationStatus.valueOf(expectedPendingStatus.toString()));
   }
 
   private void setPendingLicense(PendingStatus pendingStatus) {

@@ -37,7 +37,7 @@ import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.SearchGroupsQuery;
 import org.sonar.db.user.GroupDto;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.QualityProfiles;
+import org.sonarqube.ws.Qualityprofiles;
 import org.sonarqube.ws.client.qualityprofile.SearchUsersRequest;
 
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
@@ -130,7 +130,7 @@ public class SearchGroupsAction implements QProfileWsAction {
         .stream()
         .collect(MoreCollectors.uniqueIndex(GroupDto::getId));
       writeProtobuf(
-        QualityProfiles.SearchGroupsResponse.newBuilder()
+        Qualityprofiles.SearchGroupsResponse.newBuilder()
           .addAllGroups(groupMemberships.stream()
             .map(groupsMembership -> toGroup(groupsById.get(groupsMembership.getGroupId()), groupsMembership.isSelected()))
             .collect(toList()))
@@ -151,8 +151,8 @@ public class SearchGroupsAction implements QProfileWsAction {
       .build();
   }
 
-  private static QualityProfiles.SearchGroupsResponse.Group toGroup(GroupDto group, boolean isSelected) {
-    QualityProfiles.SearchGroupsResponse.Group.Builder builder = QualityProfiles.SearchGroupsResponse.Group.newBuilder()
+  private static Qualityprofiles.SearchGroupsResponse.Group toGroup(GroupDto group, boolean isSelected) {
+    Qualityprofiles.SearchGroupsResponse.Group.Builder builder = Qualityprofiles.SearchGroupsResponse.Group.newBuilder()
       .setName(group.getName())
       .setSelected(isSelected);
     setNullable(group.getDescription(), builder::setDescription);

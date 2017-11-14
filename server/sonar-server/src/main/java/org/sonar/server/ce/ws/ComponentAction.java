@@ -35,7 +35,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
-import org.sonarqube.ws.WsCe.ProjectResponse;
+import org.sonarqube.ws.Ce.ProjectResponse;
 
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;

@@ -38,7 +38,7 @@ import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.permission.ws.BasePermissionWsTest;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.WsPermissions;
+import org.sonarqube.ws.Permissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
@@ -179,13 +179,13 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
     db.commit();
     userSession.addPermission(ADMINISTER, org);
 
-    WsPermissions.SearchTemplatesWsResponse result = newRequest(underTestWithoutViews)
+    Permissions.SearchTemplatesWsResponse result = newRequest(underTestWithoutViews)
       .setParam("organization", org.getKey())
-      .executeProtobuf(WsPermissions.SearchTemplatesWsResponse.class);
+      .executeProtobuf(Permissions.SearchTemplatesWsResponse.class);
 
     assertThat(result.getPermissionTemplatesCount()).isEqualTo(2);
     assertThat(result.getPermissionTemplatesList())
-      .extracting(WsPermissions.PermissionTemplate::getId)
+      .extracting(Permissions.PermissionTemplate::getId)
       .containsOnly(projectDefaultTemplate.getUuid(), templateInOrg.getUuid());
   }
 

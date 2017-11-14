@@ -33,7 +33,7 @@ import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.junit.rules.TemporaryFolder;
 import org.sonarqube.tests.performance.AbstractPerfTest;
-import org.sonarqube.ws.WsMeasures;
+import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
@@ -85,7 +85,7 @@ public class DuplicationTest extends AbstractPerfTest {
       .setMetricKeys(asList("duplicated_lines", "duplicated_blocks", "duplicated_files", "duplicated_lines_density")))
       .getComponent().getMeasuresList()
       .stream()
-      .collect(Collectors.toMap(WsMeasures.Measure::getMetric, measure -> parseDouble(measure.getValue())));
+      .collect(Collectors.toMap(Measures.Measure::getMetric, measure -> parseDouble(measure.getValue())));
   }
 
   private WsClient newWsClient() {

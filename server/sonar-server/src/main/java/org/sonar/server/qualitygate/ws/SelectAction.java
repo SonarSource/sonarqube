@@ -29,12 +29,11 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.qualitygate.SelectWsRequest;
 
 import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
@@ -86,29 +85,22 @@ public class SelectAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    doHandle(toSelectWsRequest(request));
-    response.noContent();
-  }
+    long gateId = request.mandatoryParamAsLong(PARAM_GATE_ID);
+    String projectId = request.param(PARAM_PROJECT_ID);
+    String projectKey = request.param(PARAM_PROJECT_KEY);
 
-  private void doHandle(SelectWsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      checkQualityGate(dbSession, request.getGateId());
-      ComponentDto project = getProject(dbSession, request.getProjectId(), request.getProjectKey());
+      checkQualityGate(dbSession, gateId);
+      ComponentDto project = getProject(dbSession, projectId, projectKey);
 
       dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
         .setKey(SONAR_QUALITYGATE_PROPERTY)
         .setResourceId(project.getId())
-        .setValue(String.valueOf(request.getGateId())));
+        .setValue(String.valueOf(gateId)));
 
       dbSession.commit();
     }
-  }
-
-  private static SelectWsRequest toSelectWsRequest(Request request) {
-    return new SelectWsRequest()
-      .setGateId(request.mandatoryParamAsLong(PARAM_GATE_ID))
-      .setProjectId(request.param(PARAM_PROJECT_ID))
-      .setProjectKey(request.param(PARAM_PROJECT_KEY));
+    response.noContent();
   }
 
   private ComponentDto getProject(DbSession dbSession, @Nullable String projectId, @Nullable String projectKey) {

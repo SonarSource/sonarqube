@@ -24,10 +24,10 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.WsMeasures;
-import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
-import org.sonarqube.ws.WsQualityGates;
-import org.sonarqube.ws.client.qualitygate.CreateConditionRequest;
+import org.sonarqube.ws.Measures;
+import org.sonarqube.ws.Projects.CreateWsResponse.Project;
+import org.sonarqube.ws.Qualitygates;
+import org.sonarqube.ws.client.qualitygates.CreateConditionRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,15 +46,14 @@ public class QualityGateOnRatingMeasuresTest {
 
   @Test
   public void generate_warning_qgate_on_rating_metric() throws Exception {
-    Project project = tester.projects().generate(null);
-    WsQualityGates.CreateWsResponse qualityGate = tester.qGates().generate();
+    Project project = tester.projects().provision();
+    Qualitygates.CreateWsResponse qualityGate = tester.qGates().generate();
     tester.qGates().associateProject(qualityGate, project);
-    tester.qGates().service().createCondition(CreateConditionRequest.builder()
-      .setQualityGateId(qualityGate.getId())
-      .setMetricKey("security_rating")
-      .setOperator("GT")
-      .setWarning("3")
-      .build());
+    tester.qGates().service().createCondition(new CreateConditionRequest()
+      .setGateId(String.valueOf(qualityGate.getId()))
+      .setMetric("security_rating")
+      .setOp("GT")
+      .setWarning("3"));
     ItUtils.restoreProfile(orchestrator, getClass().getResource("/qualityGate/QualityGateOnRatingMeasuresTest/with-many-rules.xml"));
     orchestrator.getServer().associateProjectToQualityProfile(project.getKey(), "xoo", "with-many-rules");
 
@@ -65,17 +64,16 @@ public class QualityGateOnRatingMeasuresTest {
 
   @Test
   public void generate_error_qgate_on_rating_metric_on_leak_period() throws Exception {
-    Project project = tester.projects().generate(null);
-    WsQualityGates.CreateWsResponse qualityGate = tester.qGates().generate();
+    Project project = tester.projects().provision();
+    Qualitygates.CreateWsResponse qualityGate = tester.qGates().generate();
     tester.qGates().associateProject(qualityGate, project);
     tester.settings().setGlobalSetting("sonar.leak.period", "previous_version");
-    tester.wsClient().qualityGates().createCondition(CreateConditionRequest.builder()
-      .setQualityGateId(qualityGate.getId())
-      .setMetricKey("new_security_rating")
-      .setOperator("GT")
+    tester.wsClient().qualityGates().createCondition(new CreateConditionRequest()
+      .setGateId(String.valueOf(qualityGate.getId()))
+      .setMetric("new_security_rating")
+      .setOp("GT")
       .setError("3")
-      .setPeriod(1)
-      .build());
+      .setPeriod("1"));
 
     // Run first analysis with empty quality gate -> quality gate is green
     orchestrator.getServer().associateProjectToQualityProfile(project.getKey(), "xoo", "empty");
@@ -89,7 +87,7 @@ public class QualityGateOnRatingMeasuresTest {
     assertThat(getGateStatusMeasure(project).getValue()).isEqualTo("ERROR");
   }
 
-  private WsMeasures.Measure getGateStatusMeasure(Project project) {
+  private Measures.Measure getGateStatusMeasure(Project project) {
     return getMeasure(orchestrator, project.getKey(), "alert_status");
   }
 

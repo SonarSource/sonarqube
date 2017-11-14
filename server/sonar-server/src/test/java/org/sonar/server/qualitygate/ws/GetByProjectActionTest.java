@@ -43,8 +43,8 @@ import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.WsQualityGates;
-import org.sonarqube.ws.WsQualityGates.GetByProjectWsResponse;
+import org.sonarqube.ws.Qualitygates;
+import org.sonarqube.ws.Qualitygates.GetByProjectWsResponse;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -120,7 +120,7 @@ public class GetByProjectActionTest {
 
     GetByProjectWsResponse result = callByKey(project.getKey());
 
-    WsQualityGates.QualityGate qualityGate = result.getQualityGate();
+    Qualitygates.QualityGate qualityGate = result.getQualityGate();
     assertThat(Long.valueOf(qualityGate.getId())).isEqualTo(dbQualityGate.getId());
     assertThat(qualityGate.getName()).isEqualTo(dbQualityGate.getName());
     assertThat(qualityGate.getDefault()).isTrue();
@@ -137,7 +137,7 @@ public class GetByProjectActionTest {
 
     GetByProjectWsResponse result = callByKey(project.getKey());
 
-    WsQualityGates.QualityGate qualityGate = result.getQualityGate();
+    Qualitygates.QualityGate qualityGate = result.getQualityGate();
     assertThat(qualityGate.getName()).isEqualTo(dbQualityGate.getName());
     assertThat(qualityGate.getDefault()).isFalse();
   }

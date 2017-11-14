@@ -19,8 +19,8 @@
  */
 package org.sonarqube.ws.client.usertoken;
 
-import org.sonarqube.ws.WsUserTokens.GenerateWsResponse;
-import org.sonarqube.ws.WsUserTokens.SearchWsResponse;
+import org.sonarqube.ws.UserTokens.GenerateWsResponse;
+import org.sonarqube.ws.UserTokens.SearchWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;

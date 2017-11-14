@@ -32,8 +32,8 @@ import org.sonarqube.qa.util.pageobjects.QualityProfilePage;
 import org.sonarqube.qa.util.pageobjects.RulesPage;
 import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.ws.Organizations.Organization;
-import org.sonarqube.ws.QualityProfiles;
-import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
+import org.sonarqube.ws.Qualityprofiles;
+import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
 import org.sonarqube.ws.client.qualityprofile.ChangeParentRequest;
@@ -151,7 +151,7 @@ public class OrganizationQualityProfilesUiTest {
 
   @Test
   public void testSonarWayComparison() {
-    QualityProfiles.CreateWsResponse.QualityProfile xooProfile = tester.qProfiles().createXooProfile(organization);
+    Qualityprofiles.CreateWsResponse.QualityProfile xooProfile = tester.qProfiles().createXooProfile(organization);
     tester.qProfiles().activateRule(xooProfile, "xoo:OneBugIssuePerLine");
     tester.qProfiles().activateRule(xooProfile, "xoo:OneIssuePerLine");
     Navigation nav = tester.openBrowser();

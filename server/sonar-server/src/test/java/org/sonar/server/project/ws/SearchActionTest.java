@@ -45,8 +45,8 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.WsProjects.SearchWsResponse;
-import org.sonarqube.ws.WsProjects.SearchWsResponse.Component;
+import org.sonarqube.ws.Projects.SearchWsResponse;
+import org.sonarqube.ws.Projects.SearchWsResponse.Component;
 import org.sonarqube.ws.client.component.ComponentsWsParameters;
 import org.sonarqube.ws.client.project.SearchWsRequest;
 
