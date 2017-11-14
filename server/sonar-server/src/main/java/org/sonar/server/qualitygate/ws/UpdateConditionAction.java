@@ -29,8 +29,9 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsQualityGates.UpdateConditionWsResponse;
-import org.sonarqube.ws.client.qualitygate.UpdateConditionRequest;
+import org.sonarqube.ws.client.qualitygates.UpdateConditionRequest;
 
+import static java.lang.Integer.parseInt;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWs.addConditionParams;
@@ -87,8 +88,8 @@ public class UpdateConditionAction implements QualityGatesWsAction {
   }
 
   private UpdateConditionWsResponse doHandle(UpdateConditionRequest request, DbSession dbSession) {
-    QualityGateConditionDto condition = qualityGateConditionsUpdater.updateCondition(dbSession, request.getConditionId(), request.getMetricKey(), request.getOperator(),
-      request.getWarning(), request.getError(), request.getPeriod());
+    QualityGateConditionDto condition = qualityGateConditionsUpdater.updateCondition(dbSession, parseInt(request.getId()), request.getMetric(), request.getOp(),
+      request.getWarning(), request.getError(), parseInt(request.getPeriod()));
     UpdateConditionWsResponse.Builder response = UpdateConditionWsResponse.newBuilder()
       .setId(condition.getId())
       .setMetric(condition.getMetricKey())
@@ -100,14 +101,13 @@ public class UpdateConditionAction implements QualityGatesWsAction {
   }
 
   private static UpdateConditionRequest toWsRequest(Request request) {
-    return UpdateConditionRequest.builder()
-      .setConditionId(request.mandatoryParamAsInt(PARAM_ID))
-      .setMetricKey(request.mandatoryParam(PARAM_METRIC))
-      .setOperator(request.mandatoryParam(PARAM_OPERATOR))
-      .setWarning(request.param(PARAM_WARNING))
-      .setError(request.param(PARAM_ERROR))
-      .setPeriod(request.paramAsInt(PARAM_PERIOD))
-      .build();
+    return new UpdateConditionRequest()
+    .setId(String.valueOf(request.mandatoryParamAsInt(PARAM_ID)))
+    .setMetric(request.mandatoryParam(PARAM_METRIC))
+    .setOp(request.mandatoryParam(PARAM_OPERATOR))
+    .setWarning(request.param(PARAM_WARNING))
+    .setError(request.param(PARAM_ERROR))
+    .setPeriod(String.valueOf(request.paramAsInt(PARAM_PERIOD)));
   }
 
 }

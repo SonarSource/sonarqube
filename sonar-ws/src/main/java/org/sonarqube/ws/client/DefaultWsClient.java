@@ -30,7 +30,7 @@ import org.sonarqube.ws.client.project.ProjectsService;
 import org.sonarqube.ws.client.projectanalysis.ProjectAnalysisService;
 import org.sonarqube.ws.client.projectbranches.ProjectBranchesService;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
-import org.sonarqube.ws.client.qualitygate.QualityGatesService;
+import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
 import org.sonarqube.ws.client.root.RootsService;
 import org.sonarqube.ws.client.rule.RulesService;
@@ -59,7 +59,7 @@ class DefaultWsClient implements WsClient {
   private final UsersService usersService;
   private final UserGroupsService userGroupsService;
   private final UserTokensService userTokensService;
-  private final QualityGatesService qualityGatesService;
+  private final QualitygatesService qualityGatesService;
   private final MeasuresService measuresService;
   private final SystemService systemService;
   private final CeService ceService;
@@ -83,7 +83,7 @@ class DefaultWsClient implements WsClient {
     this.usersService = new UsersService(wsConnector);
     this.userGroupsService = new UserGroupsService(wsConnector);
     this.userTokensService = new UserTokensService(wsConnector);
-    this.qualityGatesService = new QualityGatesService(wsConnector);
+    this.qualityGatesService = new QualitygatesService(wsConnector);
     this.measuresService = new MeasuresService(wsConnector);
     this.systemService = new SystemService(wsConnector);
     this.ceService = new CeService(wsConnector);
@@ -148,7 +148,7 @@ class DefaultWsClient implements WsClient {
   }
 
   @Override
-  public QualityGatesService qualityGates() {
+  public QualitygatesService qualityGates() {
     return qualityGatesService;
   }
 

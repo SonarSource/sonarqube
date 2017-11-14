@@ -30,7 +30,7 @@ import org.sonarqube.ws.client.project.ProjectsService;
 import org.sonarqube.ws.client.projectanalysis.ProjectAnalysisService;
 import org.sonarqube.ws.client.projectbranches.ProjectBranchesService;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
-import org.sonarqube.ws.client.qualitygate.QualityGatesService;
+import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
 import org.sonarqube.ws.client.root.RootsService;
 import org.sonarqube.ws.client.rule.RulesService;
@@ -78,7 +78,7 @@ public interface WsClient {
 
   UserTokensService userTokens();
 
-  QualityGatesService qualityGates();
+  QualitygatesService qualityGates();
 
   MeasuresService measures();
 

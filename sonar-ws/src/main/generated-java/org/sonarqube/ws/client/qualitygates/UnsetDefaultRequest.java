@@ -17,43 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.qualitygate;
+package org.sonarqube.ws.client.qualitygates;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+/*
+ * THIS FILE HAS BEEN AUTOMATICALLY GENERATED
+ */
 
-public class ProjectStatusWsRequest {
-  private String analysisId;
-  private String projectId;
-  private String projectKey;
+import java.util.List;
 
-  @CheckForNull
-  public String getAnalysisId() {
-    return analysisId;
-  }
+/**
+ * Unset a quality gate as the default quality gate.<br>Requires the 'Administer Quality Gates' permission.
+ *
+ * This is part of the internal API.
+ * This is a POST request.
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/unset_default">Further information about this action online (including a response example)</a>
+ * @since 4.3
+ */
+public class UnsetDefaultRequest {
 
-  public ProjectStatusWsRequest setAnalysisId(@Nullable String analysisId) {
-    this.analysisId = analysisId;
+  private String id;
+
+  /**
+   * ID of the quality gate to unset as default
+   *
+   * This is a mandatory parameter.
+   * Example value: "1"
+   */
+  public UnsetDefaultRequest setId(String id) {
+    this.id = id;
     return this;
   }
 
-  @CheckForNull
-  public String getProjectId() {
-    return projectId;
-  }
-
-  public ProjectStatusWsRequest setProjectId(@Nullable String projectId) {
-    this.projectId = projectId;
-    return this;
-  }
-
-  @CheckForNull
-  public String getProjectKey() {
-    return projectKey;
-  }
-
-  public ProjectStatusWsRequest setProjectKey(@Nullable String projectKey) {
-    this.projectKey = projectKey;
-    return this;
+  public String getId() {
+    return id;
   }
 }

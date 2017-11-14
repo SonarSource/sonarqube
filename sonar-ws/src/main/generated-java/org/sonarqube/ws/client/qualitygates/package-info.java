@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 @ParametersAreNonnullByDefault
-package org.sonarqube.ws.client.qualitygate;
+package org.sonarqube.ws.client.qualitygates;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 

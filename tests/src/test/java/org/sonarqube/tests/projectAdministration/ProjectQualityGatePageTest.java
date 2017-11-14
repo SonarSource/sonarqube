@@ -32,7 +32,7 @@ import org.sonar.wsclient.qualitygate.QualityGate;
 import org.sonar.wsclient.qualitygate.QualityGateClient;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.qualitygate.SelectWsRequest;
+import org.sonarqube.ws.client.qualitygates.SelectRequest;
 import org.sonarqube.pageobjects.Navigation;
 import org.sonarqube.pageobjects.ProjectQualityGatePage;
 
@@ -148,7 +148,7 @@ public class ProjectQualityGatePageTest {
   }
 
   private void associateWithQualityGate(QualityGate qualityGate) {
-    wsClient.qualityGates().associateProject(new SelectWsRequest().setProjectKey("sample").setGateId(qualityGate.id()));
+    wsClient.qualityGates().select(new SelectRequest().setProjectKey("sample").setGateId(String.valueOf(qualityGate.id())));
   }
 
   private static QualityGateClient qualityGateClient() {
