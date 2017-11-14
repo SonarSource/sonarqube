@@ -26,7 +26,7 @@ case "$RUN_ACTIVITY" in
           ;;
 
         Category2)
-          CATEGORY="Category2|test|qualityModel"
+          CATEGORY="issue|test|qualityModel"
           ;;
 
         Category3)

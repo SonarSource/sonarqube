@@ -26,14 +26,13 @@ import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
-import org.sonarqube.tests.Category2Suite;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class AbstractIssueTest {
 
   @ClassRule
-  public static final Orchestrator ORCHESTRATOR = Category2Suite.ORCHESTRATOR;
+  public static final Orchestrator ORCHESTRATOR = IssueSuite.ORCHESTRATOR;
 
   static IssueClient adminIssueClient() {
     return ORCHESTRATOR.getServer().adminWsClient().issueClient();

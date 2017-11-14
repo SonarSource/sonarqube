@@ -17,44 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests;
+package org.sonarqube.tests.issue;
 
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.sonarqube.tests.component.BranchTest;
-import org.sonarqube.tests.issue.AutoAssignTest;
-import org.sonarqube.tests.issue.CommonRulesTest;
-import org.sonarqube.tests.issue.CustomRulesTest;
-import org.sonarqube.tests.issue.IssueActionTest;
-import org.sonarqube.tests.issue.IssueBulkChangeTest;
-import org.sonarqube.tests.issue.IssueChangelogTest;
-import org.sonarqube.tests.issue.IssueCreationDateQPChangedTest;
-import org.sonarqube.tests.issue.IssueCreationTest;
-import org.sonarqube.tests.issue.IssueFilterExtensionTest;
-import org.sonarqube.tests.issue.IssueFilterOnCommonRulesTest;
-import org.sonarqube.tests.issue.IssueFilterTest;
-import org.sonarqube.tests.issue.IssueMeasureTest;
-import org.sonarqube.tests.issue.IssuePurgeTest;
-import org.sonarqube.tests.issue.IssueSearchTest;
-import org.sonarqube.tests.issue.IssueTrackingTest;
-import org.sonarqube.tests.issue.IssueWorkflowTest;
-import org.sonarqube.tests.issue.IssuesPageTest;
-import org.sonarqube.tests.issue.NewIssuesMeasureTest;
-import org.sonarqube.tests.rule.RulesPageTest;
 
 import static util.ItUtils.pluginArtifact;
 import static util.ItUtils.xooPlugin;
 
-/**
- * @deprecated use dedicated suites in each package (see {@link org.sonarqube.tests.measure.MeasureSuite}
- * for instance)
- */
-@Deprecated
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  // issue
   AutoAssignTest.class,
   CommonRulesTest.class,
   CustomRulesTest.class,
@@ -72,13 +46,9 @@ import static util.ItUtils.xooPlugin;
   IssueWorkflowTest.class,
   NewIssuesMeasureTest.class,
   IssueCreationDateQPChangedTest.class,
-  IssuesPageTest.class,
-  // rule
-  RulesPageTest.class,
-  // branch
-  BranchTest.class
+  IssuesPageTest.class
 })
-public class Category2Suite {
+public class IssueSuite {
 
   @ClassRule
   public static final Orchestrator ORCHESTRATOR = Orchestrator.builderEnv()

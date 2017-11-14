@@ -23,13 +23,13 @@ import com.sonar.orchestrator.Orchestrator;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.qa.util.pageobjects.RulesPage;
-import org.sonarqube.tests.Category2Suite;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.pageobjects.RulesPage;
+import org.sonarqube.tests.Category4Suite;
 
 public class RulesPageTest {
   @ClassRule
-  public static Orchestrator ORCHESTRATOR = Category2Suite.ORCHESTRATOR;
+  public static Orchestrator ORCHESTRATOR = Category4Suite.ORCHESTRATOR;
 
   @Rule
   public Tester tester = new Tester(ORCHESTRATOR).disableOrganizations();
