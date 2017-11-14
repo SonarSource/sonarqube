@@ -1,0 +1,87 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonarqube.ws.client.tests;
+
+import com.google.common.base.Joiner;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsConnector;
+import org.sonarqube.ws.WsTests.CoveredFilesResponse;
+import org.sonarqube.ws.WsTests.ListResponse;
+
+/*
+ * THIS FILE HAS BEEN AUTOMATICALLY GENERATED
+ */
+/**
+ * Get details on test files. See also api/sources. Deprecated since 5.6.
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/tests">Further information about this web service online</a>
+ */
+public class TestsService extends BaseService {
+
+  public TestsService(WsConnector wsConnector) {
+    super(wsConnector, "api/tests");
+  }
+
+  /**
+   * Get the list of source files covered by a test. Require Browse permission on test file's project
+   *
+   * This is part of the internal API.
+   * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/tests/covered_files">Further information about this action online (including a response example)</a>
+   * @since 4.4
+   * @deprecated since 5.6
+   */
+  @Deprecated
+  public CoveredFilesResponse coveredFiles(CoveredFilesRequest request) {
+    return call(
+      new GetRequest(path("covered_files"))
+        .setParam("p", request.getP())
+        .setParam("ps", request.getPs())
+        .setParam("testId", request.getTestId()),
+      CoveredFilesResponse.parser());
+  }
+
+  /**
+   * Get the list of tests either in a test file or that test a given line of source code.<br /> Requires 'Browse' permission on the file's project.<br /> One (and only one) of the following combination of parameters must be provided: <ul><li>testId - get a specific test</li><li>testFileId - get the tests in a test file</li><li>testFileKey - get the tests in a test file</li><li>sourceFileId and sourceFileLineNumber - get the tests that cover a specific line of code</li><li>sourceFileKey and sourceFileLineNumber - get the tests that cover a specific line of code</li></ul>
+   *
+   * This is part of the internal API.
+   * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/tests/list">Further information about this action online (including a response example)</a>
+   * @since 5.2
+   * @deprecated since 5.6
+   */
+  @Deprecated
+  public ListResponse list(ListRequest request) {
+    return call(
+      new GetRequest(path("list"))
+        .setParam("branch", request.getBranch())
+        .setParam("p", request.getP())
+        .setParam("ps", request.getPs())
+        .setParam("sourceFileId", request.getSourceFileId())
+        .setParam("sourceFileKey", request.getSourceFileKey())
+        .setParam("sourceFileLineNumber", request.getSourceFileLineNumber())
+        .setParam("testFileId", request.getTestFileId())
+        .setParam("testFileKey", request.getTestFileKey())
+        .setParam("testId", request.getTestId()),
+      ListResponse.parser());
+  }
+}
