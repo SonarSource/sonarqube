@@ -17,45 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.tests.projectAdministration;
+package org.sonarqube.tests.project;
 
+import com.codeborne.selenide.Selenide;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category1Suite;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.qa.util.pageobjects.Navigation;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.ProjectKeyPage;
+import org.sonarqube.ws.client.PostRequest;
 
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.WebDriverRunner.url;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
 public class ProjectKeyUpdatePageTest {
 
   @ClassRule
-  public static Orchestrator ORCHESTRATOR = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = ProjectSuite.ORCHESTRATOR;
 
-  private static WsClient wsClient;
-
-  @BeforeClass
-  public static void setUp() {
-    wsClient = newAdminWsClient(ORCHESTRATOR);
-  }
+  @Rule
+  public Tester tester = new Tester(orchestrator);
 
   @Before
-  public void cleanUp() {
-    ORCHESTRATOR.resetData();
+  public void setUp() throws Exception {
+    tester.wsClient().users().skipOnboardingTutorial();
   }
-
-  private Navigation nav = Navigation.create(ORCHESTRATOR);
 
   @Test
   public void change_key_when_no_modules() {
@@ -64,7 +56,7 @@ public class ProjectKeyUpdatePageTest {
     ProjectKeyPage page = openPage("sample");
     page.assertSimpleUpdate().trySimpleUpdate("another");
 
-    assertThat(url()).endsWith("/project/key?id=another");
+    Selenide.Wait().until(driver -> driver.getCurrentUrl().endsWith("/project/key?id=another"));
   }
 
   @Test
@@ -75,8 +67,8 @@ public class ProjectKeyUpdatePageTest {
     ProjectKeyPage page = openPage("sample");
     page.assertSimpleUpdate().trySimpleUpdate("another");
 
-    $(".alert.alert-danger").shouldBe(visible);
-    assertThat(url()).endsWith("/project/key?id=sample");
+    $(".process-spinner").shouldBe(visible);
+    Selenide.Wait().until(driver -> driver.getCurrentUrl().endsWith("/project/key?id=sample"));
   }
 
   @Test
@@ -86,7 +78,7 @@ public class ProjectKeyUpdatePageTest {
     ProjectKeyPage page = openPage("sample");
     page.openFineGrainedUpdate().tryFineGrainedUpdate("sample", "another");
 
-    assertThat(url()).endsWith("/project/key?id=another");
+    Selenide.Wait().until(driver -> driver.getCurrentUrl().endsWith("/project/key?id=another"));
   }
 
   @Test
@@ -97,7 +89,7 @@ public class ProjectKeyUpdatePageTest {
     ProjectKeyPage page = openPage("sample");
     page.openFineGrainedUpdate().tryFineGrainedUpdate("sample", "another");
 
-    $(".alert.alert-danger").shouldBe(visible);
+    $(".process-spinner").shouldBe(visible);
     assertThat(url()).endsWith("/project/key?id=sample");
   }
 
@@ -110,7 +102,7 @@ public class ProjectKeyUpdatePageTest {
 
     $("#update-key-confirmation-form").shouldNotBe(visible);
 
-    nav.openProjectKey("another");
+    tester.openBrowser().openProjectKey("another");
     assertThat(url()).endsWith("/project/key?id=another");
   }
 
@@ -122,7 +114,7 @@ public class ProjectKeyUpdatePageTest {
     ProjectKeyPage page = openPage("sample");
     page.openFineGrainedUpdate().tryFineGrainedUpdate("sample:module_a:module_a1", "another");
 
-    $(".alert.alert-danger").shouldBe(visible);
+    $(".process-spinner").shouldBe(visible);
   }
 
   @Test
@@ -136,7 +128,9 @@ public class ProjectKeyUpdatePageTest {
     page.assertBulkChangeSimulationResult("sample", "another")
       .assertBulkChangeSimulationResult("sample:module_a:module_a1", "another:module_a:module_a1");
 
-    page.confirmBulkUpdate().assertSuccessfulBulkUpdate();
+    page
+      .confirmBulkUpdate()
+      .assertSuccessfulBulkUpdate();
   }
 
   @Test
@@ -165,18 +159,20 @@ public class ProjectKeyUpdatePageTest {
   }
 
   private ProjectKeyPage openPage(String projectKey) {
-    nav.logIn().submitCredentials("admin", "admin");
-    return nav.openProjectKey(projectKey);
+    return tester.openBrowser()
+      .logIn()
+      .submitCredentials("admin", "admin")
+      .openProjectKey(projectKey);
   }
 
-  private static void createProject(String projectKey) {
-    wsClient.wsConnector().call(new PostRequest("api/projects/create")
+  private void createProject(String projectKey) {
+    tester.wsClient().wsConnector().call(new PostRequest("api/projects/create")
       .setParam("key", projectKey)
       .setParam("name", projectKey));
   }
 
-  private static void analyzeProject(String path, String projectKey) {
-    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir(path))
+  private void analyzeProject(String path, String projectKey) {
+    orchestrator.executeBuild(SonarScanner.create(projectDir(path))
       .setProjectKey(projectKey));
   }
 }

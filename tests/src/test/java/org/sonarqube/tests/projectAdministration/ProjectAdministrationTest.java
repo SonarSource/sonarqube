@@ -44,6 +44,9 @@ import static com.codeborne.selenide.Selenide.$;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
+/**
+ * TODO to be split and moved to project package
+ */
 public class ProjectAdministrationTest {
 
   @ClassRule

@@ -35,6 +35,7 @@ import static util.ItUtils.xooPlugin;
   ProjectDeletionTest.class,
   ProjectFilterTest.class,
   ProjectKeyUpdateTest.class,
+  ProjectKeyUpdatePageTest.class,
   ProjectLeakPageTest.class,
   ProjectLinksTest.class,
   ProjectListTest.class,
