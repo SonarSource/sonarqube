@@ -19,6 +19,7 @@
  */
 package org.sonar.db.component;
 
+import java.util.Objects;
 import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -131,6 +132,27 @@ public class BranchDto {
   public BranchDto setMergeBranchUuid(@Nullable String s) {
     this.mergeBranchUuid = s;
     return this;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    BranchDto branchDto = (BranchDto) o;
+    return Objects.equals(uuid, branchDto.uuid) &&
+        Objects.equals(projectUuid, branchDto.projectUuid) &&
+        Objects.equals(kee, branchDto.kee) &&
+        branchType == branchDto.branchType &&
+        Objects.equals(mergeBranchUuid, branchDto.mergeBranchUuid);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(uuid, projectUuid, kee, branchType, mergeBranchUuid);
   }
 
   @Override
