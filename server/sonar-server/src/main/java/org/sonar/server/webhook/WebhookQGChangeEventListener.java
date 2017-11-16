@@ -17,28 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.webhook;
+package org.sonar.server.webhook;
 
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.elasticsearch.action.search.SearchResponse;
-import org.sonar.api.config.Configuration;
-import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.AnalysisPropertyDto;
 import org.sonar.db.component.BranchDto;
-import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
@@ -51,6 +46,9 @@ import org.sonar.server.qualitygate.EvaluatedCondition;
 import org.sonar.server.qualitygate.EvaluatedCondition.EvaluationStatus;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
+import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
+import org.sonar.server.qualitygate.changeevent.QGChangeEventListener;
+import org.sonar.server.qualitygate.changeevent.Trigger;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.settings.ProjectConfigurationLoader;
 import org.sonar.server.webhook.Analysis;
@@ -65,97 +63,45 @@ import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static java.util.Collections.singletonList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
-import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
-public class IssueChangeWebhookImpl implements IssueChangeWebhook {
-  private static final Set<String> MEANINGFUL_TRANSITIONS = ImmutableSet.of(
-    DefaultTransitions.RESOLVE, DefaultTransitions.FALSE_POSITIVE, DefaultTransitions.WONT_FIX, DefaultTransitions.REOPEN);
-  private final DbClient dbClient;
+public class WebhookQGChangeEventListener implements QGChangeEventListener {
   private final WebHooks webhooks;
-  private final ProjectConfigurationLoader projectConfigurationLoader;
   private final WebhookPayloadFactory webhookPayloadFactory;
   private final IssueIndex issueIndex;
+  private final DbClient dbClient;
   private final System2 system2;
 
-  public IssueChangeWebhookImpl(DbClient dbClient, WebHooks webhooks, ProjectConfigurationLoader projectConfigurationLoader,
-    WebhookPayloadFactory webhookPayloadFactory, IssueIndex issueIndex, System2 system2) {
-    this.dbClient = dbClient;
+  public WebhookQGChangeEventListener(WebHooks webhooks, WebhookPayloadFactory webhookPayloadFactory, IssueIndex issueIndex, DbClient dbClient, System2 system2) {
     this.webhooks = webhooks;
-    this.projectConfigurationLoader = projectConfigurationLoader;
     this.webhookPayloadFactory = webhookPayloadFactory;
     this.issueIndex = issueIndex;
+    this.dbClient = dbClient;
     this.system2 = system2;
   }
 
   @Override
-  public void onChange(IssueChangeData issueChangeData, IssueChange issueChange, IssueChangeContext context) {
-    if (isEmpty(issueChangeData) || !isUserChangeContext(context) || !isRelevant(issueChange)) {
+  public void onChanges(Trigger trigger, Collection<QGChangeEvent> changeEvents) {
+    if (changeEvents.isEmpty()) {
       return;
     }
 
-    callWebHook(issueChangeData);
-  }
-
-  private static boolean isRelevant(IssueChange issueChange) {
-    return issueChange.getTransitionKey().map(IssueChangeWebhookImpl::isMeaningfulTransition).orElse(true);
-  }
-
-  private static boolean isEmpty(IssueChangeData issueChangeData) {
-    return issueChangeData.getIssues().isEmpty();
-  }
-
-  private static boolean isUserChangeContext(IssueChangeContext context) {
-    return context.login() != null;
-  }
-
-  private static boolean isMeaningfulTransition(String transitionKey) {
-    return MEANINGFUL_TRANSITIONS.contains(transitionKey);
-  }
-
-  private void callWebHook(IssueChangeData issueChangeData) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      Map<String, ComponentDto> branchesByUuid = getBranchComponents(dbSession, issueChangeData);
-      if (branchesByUuid.isEmpty()) {
-        return;
-      }
-
-      Set<String> branchProjectUuids = branchesByUuid.values().stream()
-        .map(ComponentDto::uuid)
-        .collect(toSet(branchesByUuid.size()));
-      Set<BranchDto> shortBranches = dbClient.branchDao().selectByUuids(dbSession, branchProjectUuids)
-        .stream()
-        .filter(branchDto -> branchDto.getBranchType() == BranchType.SHORT)
-        .collect(toSet(branchesByUuid.size()));
-      if (shortBranches.isEmpty()) {
-        return;
-      }
-
-      Map<String, Configuration> configurationByUuid = projectConfigurationLoader.loadProjectConfigurations(dbSession,
-        shortBranches.stream().map(shortBranch -> branchesByUuid.get(shortBranch.getUuid())).collect(Collectors.toSet()));
-      Set<BranchDto> branchesWithWebhooks = shortBranches.stream()
-        .filter(shortBranch -> webhooks.isEnabled(configurationByUuid.get(shortBranch.getUuid())))
-        .collect(toSet());
-      if (branchesWithWebhooks.isEmpty()) {
-        return;
-      }
-
-      Map<String, SnapshotDto> analysisByProjectUuid = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(
-        dbSession,
-        branchesWithWebhooks.stream().map(BranchDto::getUuid).collect(toSet(shortBranches.size())))
-        .stream()
-        .collect(uniqueIndex(SnapshotDto::getComponentUuid));
-      branchesWithWebhooks
-        .forEach(shortBranch -> {
-          ComponentDto branch = branchesByUuid.get(shortBranch.getUuid());
-          SnapshotDto analysis = analysisByProjectUuid.get(shortBranch.getUuid());
-          if (branch != null && analysis != null) {
-            webhooks.sendProjectAnalysisUpdate(
-              configurationByUuid.get(shortBranch.getUuid()),
-              new WebHooks.Analysis(shortBranch.getUuid(), analysis.getUuid(), null),
-              () -> buildWebHookPayload(dbSession, branch, shortBranch, analysis));
-          }
-        });
+    List<QGChangeEvent> branchesWithWebhooks = changeEvents.stream()
+      .filter(changeEvent -> webhooks.isEnabled(changeEvent.getProjectConfiguration()))
+      .collect(MoreCollectors.toList());
+    if (branchesWithWebhooks.isEmpty()) {
+      return;
     }
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      branchesWithWebhooks.forEach(event -> callWebhook(dbSession, event));
+    }
+  }
+
+  private void callWebhook(DbSession dbSession, QGChangeEvent event) {
+    webhooks.sendProjectAnalysisUpdate(
+      event.getProjectConfiguration(),
+      new WebHooks.Analysis(event.getBranch().getUuid(), event.getAnalysis().getUuid(), null),
+      () -> buildWebHookPayload(dbSession, event.getProject(), event.getBranch(), event.getAnalysis()));
   }
 
   private WebhookPayload buildWebHookPayload(DbSession dbSession, ComponentDto branch, BranchDto shortBranch, SnapshotDto analysis) {
@@ -249,29 +195,5 @@ public class IssueChangeWebhookImpl implements IssueChangeWebhook {
       return 0L;
     }
     return res;
-  }
-
-  private Map<String, ComponentDto> getBranchComponents(DbSession dbSession, IssueChangeData issueChangeData) {
-    Set<String> projectUuids = issueChangeData.getIssues().stream()
-      .map(DefaultIssue::projectUuid)
-      .collect(toSet());
-    Set<String> missingProjectUuids = ImmutableSet.copyOf(Sets.difference(
-      projectUuids,
-      issueChangeData.getComponents()
-        .stream()
-        .map(ComponentDto::uuid)
-        .collect(Collectors.toSet())));
-    if (missingProjectUuids.isEmpty()) {
-      return issueChangeData.getComponents()
-        .stream()
-        .filter(c -> projectUuids.contains(c.uuid()))
-        .filter(componentDto -> componentDto.getMainBranchProjectUuid() != null)
-        .collect(uniqueIndex(ComponentDto::uuid));
-    }
-    return Stream.concat(
-      issueChangeData.getComponents().stream().filter(c -> projectUuids.contains(c.uuid())),
-      dbClient.componentDao().selectByUuids(dbSession, missingProjectUuids).stream())
-      .filter(componentDto -> componentDto.getMainBranchProjectUuid() != null)
-      .collect(uniqueIndex(ComponentDto::uuid));
   }
 }

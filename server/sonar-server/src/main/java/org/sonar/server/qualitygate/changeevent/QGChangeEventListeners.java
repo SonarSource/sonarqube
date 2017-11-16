@@ -17,7 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.issue.webhook;
+package org.sonar.server.qualitygate.changeevent;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Collection;
+
+public interface QGChangeEventListeners {
+  boolean isEmpty();
+
+  void broadcast(Trigger trigger, Collection<QGChangeEvent> changeEvents);
+}

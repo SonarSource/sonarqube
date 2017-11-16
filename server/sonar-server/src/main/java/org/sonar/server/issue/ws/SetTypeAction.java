@@ -37,7 +37,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
-import org.sonar.server.issue.webhook.IssueChangeWebhook;
+import org.sonar.server.qualitygate.changeevent.IssueChangeTrigger;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.ImmutableList.copyOf;
@@ -55,10 +55,10 @@ public class SetTypeAction implements IssuesWsAction {
   private final IssueUpdater issueUpdater;
   private final OperationResponseWriter responseWriter;
   private final System2 system2;
-  private final IssueChangeWebhook issueChangeWebhook;
+  private final IssueChangeTrigger issueChangeTrigger;
 
   public SetTypeAction(UserSession userSession, DbClient dbClient, IssueFinder issueFinder, IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater,
-    OperationResponseWriter responseWriter, System2 system2, IssueChangeWebhook issueChangeWebhook) {
+    OperationResponseWriter responseWriter, System2 system2, IssueChangeTrigger issueChangeTrigger) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.issueFinder = issueFinder;
@@ -66,7 +66,7 @@ public class SetTypeAction implements IssuesWsAction {
     this.issueUpdater = issueUpdater;
     this.responseWriter = responseWriter;
     this.system2 = system2;
-    this.issueChangeWebhook = issueChangeWebhook;
+    this.issueChangeTrigger = issueChangeTrigger;
   }
 
   @Override
@@ -116,11 +116,11 @@ public class SetTypeAction implements IssuesWsAction {
     IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
     if (issueFieldsSetter.setType(issue, ruleType, context)) {
       SearchResponseData searchResponseData = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, null);
-      issueChangeWebhook.onChange(
-        new IssueChangeWebhook.IssueChangeData(
+      issueChangeTrigger.onChange(
+        new IssueChangeTrigger.IssueChangeData(
           searchResponseData.getIssues().stream().map(IssueDto::toDefaultIssue).collect(MoreCollectors.toList(searchResponseData.getIssues().size())),
           copyOf(searchResponseData.getComponents())),
-        new IssueChangeWebhook.IssueChange(ruleType),
+        new IssueChangeTrigger.IssueChange(ruleType),
         context);
       return searchResponseData;
     }
