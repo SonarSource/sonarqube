@@ -29,7 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsUserGroups;
+import org.sonarqube.ws.UserGroups;
 
 import static java.lang.String.format;
 import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;
@@ -105,7 +105,7 @@ public class CreateAction implements UserGroupsWsAction {
   }
 
   private void writeResponse(Request request, Response response, OrganizationDto organization, GroupDto group) {
-    WsUserGroups.CreateWsResponse.Builder respBuilder = WsUserGroups.CreateWsResponse.newBuilder();
+    UserGroups.CreateWsResponse.Builder respBuilder = UserGroups.CreateWsResponse.newBuilder();
     // 'default' is always false as it's not possible to create a default group
     respBuilder.setGroup(toProtobuf(organization, group, 0, false));
     writeProtobuf(respBuilder.build(), request, response);

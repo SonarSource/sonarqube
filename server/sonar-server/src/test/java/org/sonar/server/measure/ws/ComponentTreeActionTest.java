@@ -49,8 +49,8 @@ import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.WsMeasures;
-import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
+import org.sonarqube.ws.Measures;
+import org.sonarqube.ws.Measures.ComponentTreeWsResponse;
 
 import static java.lang.Double.parseDouble;
 import static java.lang.String.format;
@@ -226,7 +226,7 @@ public class ComponentTreeActionTest {
 
     assertThat(response.getComponentsList().get(0).getMeasuresList()).extracting("metric").containsOnly("coverage");
     // file measures
-    List<WsMeasures.Measure> fileMeasures = response.getComponentsList().get(1).getMeasuresList();
+    List<Measures.Measure> fileMeasures = response.getComponentsList().get(1).getMeasuresList();
     assertThat(fileMeasures).extracting("metric").containsOnly("ncloc", "coverage");
     assertThat(fileMeasures).extracting("value").containsOnly("5", "15.5");
     assertThat(response.getPeriods().getPeriodsList()).extracting("mode").containsOnly("last_version");
@@ -267,7 +267,7 @@ public class ComponentTreeActionTest {
     // directory measures
     assertThat(response.getComponentsList().get(0).getMeasuresList()).extracting("metric").containsOnly("coverage");
     // file measures
-    List<WsMeasures.Measure> fileMeasures = response.getComponentsList().get(1).getMeasuresList();
+    List<Measures.Measure> fileMeasures = response.getComponentsList().get(1).getMeasuresList();
     assertThat(fileMeasures).extracting("metric").containsOnly("ncloc", "coverage", "new_violations");
     assertThat(fileMeasures).extracting("value").containsOnly("100", "15.5", "");
 
@@ -503,12 +503,12 @@ public class ComponentTreeActionTest {
       .setParam(PARAM_COMPONENT, file.getKey())
       .setParam(PARAM_BRANCH, file.getBranch())
       .setParam(PARAM_METRIC_KEYS, complexity.getKey())
-      .executeProtobuf(WsMeasures.ComponentTreeWsResponse.class);
+      .executeProtobuf(Measures.ComponentTreeWsResponse.class);
 
-    assertThat(response.getBaseComponent()).extracting(WsMeasures.Component::getKey, WsMeasures.Component::getBranch)
+    assertThat(response.getBaseComponent()).extracting(Measures.Component::getKey, Measures.Component::getBranch)
       .containsExactlyInAnyOrder(file.getKey(), file.getBranch());
     assertThat(response.getBaseComponent().getMeasuresList())
-      .extracting(WsMeasures.Measure::getMetric, m -> parseDouble(m.getValue()))
+      .extracting(Measures.Measure::getMetric, m -> parseDouble(m.getValue()))
       .containsExactlyInAnyOrder(tuple(complexity.getKey(), measure.getValue()));
   }
 
@@ -526,7 +526,7 @@ public class ComponentTreeActionTest {
       .executeProtobuf(ComponentTreeWsResponse.class);
 
     assertThat(response.getBaseComponent().getId()).isEqualTo(project.uuid());
-    assertThat(response.getComponentsList()).extracting(WsMeasures.Component::getId)
+    assertThat(response.getComponentsList()).extracting(Measures.Component::getId)
       .containsExactlyInAnyOrder(file.uuid());
   }
 
@@ -594,7 +594,7 @@ public class ComponentTreeActionTest {
       .executeProtobuf(ComponentTreeWsResponse.class);
 
     assertThat(result.getComponentsList())
-      .extracting(WsMeasures.Component::getKey, WsMeasures.Component::getRefId, WsMeasures.Component::getRefKey)
+      .extracting(Measures.Component::getKey, Measures.Component::getRefId, Measures.Component::getRefKey)
       .containsExactlyInAnyOrder(tuple(projectCopy.getKey(), project.uuid(), project.getKey()));
   }
 

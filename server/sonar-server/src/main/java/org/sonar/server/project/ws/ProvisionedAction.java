@@ -39,8 +39,8 @@ import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common.Paging;
-import org.sonarqube.ws.WsComponents.ProvisionedWsResponse;
-import org.sonarqube.ws.WsComponents.ProvisionedWsResponse.Component;
+import org.sonarqube.ws.Components.ProvisionedWsResponse;
+import org.sonarqube.ws.Components.ProvisionedWsResponse.Component;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Optional.ofNullable;

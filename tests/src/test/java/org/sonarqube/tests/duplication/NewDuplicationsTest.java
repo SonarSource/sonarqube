@@ -27,7 +27,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.WsMeasures;
+import org.sonarqube.ws.Measures;
 
 import static java.lang.Double.parseDouble;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,7 +57,7 @@ public class NewDuplicationsTest {
 
   @Test
   public void new_duplications_on_project() throws Exception {
-    Map<String, WsMeasures.Measure> measures = getMeasures("new-duplications");
+    Map<String, Measures.Measure> measures = getMeasures("new-duplications");
     assertThat(parseDouble(measures.get("new_lines").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(83d, DEFAULT_OFFSET);
     assertThat(parseDouble(measures.get("new_duplicated_lines").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(71d, DEFAULT_OFFSET);
     assertThat(parseDouble(measures.get("new_duplicated_lines_density").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(85.5d, DEFAULT_OFFSET);
@@ -66,7 +66,7 @@ public class NewDuplicationsTest {
 
   @Test
   public void new_duplications_on_directory() throws Exception {
-    Map<String, WsMeasures.Measure> measures = getMeasures("new-duplications:src/main/xoo/duplicated_lines_with_other_dir1");
+    Map<String, Measures.Measure> measures = getMeasures("new-duplications:src/main/xoo/duplicated_lines_with_other_dir1");
     assertThat(parseDouble(measures.get("new_lines").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(24d, DEFAULT_OFFSET);
     assertThat(parseDouble(measures.get("new_duplicated_lines").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(24d, DEFAULT_OFFSET);
     assertThat(parseDouble(measures.get("new_duplicated_lines_density").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(100d, DEFAULT_OFFSET);
@@ -75,14 +75,14 @@ public class NewDuplicationsTest {
 
   @Test
   public void new_duplications_on_file() throws Exception {
-    Map<String, WsMeasures.Measure> measures = getMeasures("new-duplications:src/main/xoo/duplicated_lines_within_same_file/DuplicatedLinesInSameFile.xoo");
+    Map<String, Measures.Measure> measures = getMeasures("new-duplications:src/main/xoo/duplicated_lines_within_same_file/DuplicatedLinesInSameFile.xoo");
     assertThat(parseDouble(measures.get("new_lines").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(41d, DEFAULT_OFFSET);
     assertThat(parseDouble(measures.get("new_duplicated_lines").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(29d, DEFAULT_OFFSET);
     assertThat(parseDouble(measures.get("new_duplicated_lines_density").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(70.7d, DEFAULT_OFFSET);
     assertThat(parseDouble(measures.get("new_duplicated_blocks").getPeriods().getPeriodsValue(0).getValue())).isEqualTo(2d, DEFAULT_OFFSET);
   }
 
-  private static Map<String, WsMeasures.Measure> getMeasures(String key) {
+  private static Map<String, Measures.Measure> getMeasures(String key) {
     return getMeasuresWithVariationsByMetricKey(orchestrator, key, "new_lines", "new_duplicated_lines", "new_duplicated_lines_density", "new_duplicated_blocks");
   }
 }

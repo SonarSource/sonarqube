@@ -32,8 +32,8 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsPermissions.CreateTemplateWsResponse;
-import org.sonarqube.ws.WsPermissions.PermissionTemplate;
+import org.sonarqube.ws.Permissions.CreateTemplateWsResponse;
+import org.sonarqube.ws.Permissions.PermissionTemplate;
 import org.sonarqube.ws.client.permission.CreateTemplateWsRequest;
 
 import static java.lang.String.format;

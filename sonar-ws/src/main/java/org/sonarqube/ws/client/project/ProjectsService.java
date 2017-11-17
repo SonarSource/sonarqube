@@ -20,9 +20,9 @@
 package org.sonarqube.ws.client.project;
 
 import com.google.common.base.Joiner;
-import org.sonarqube.ws.WsProjects.BulkUpdateKeyWsResponse;
-import org.sonarqube.ws.WsProjects.CreateWsResponse;
-import org.sonarqube.ws.WsProjects.SearchWsResponse;
+import org.sonarqube.ws.Projects.BulkUpdateKeyWsResponse;
+import org.sonarqube.ws.Projects.CreateWsResponse;
+import org.sonarqube.ws.Projects.SearchWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;

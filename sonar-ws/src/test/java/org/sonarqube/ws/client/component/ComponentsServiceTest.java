@@ -21,7 +21,7 @@ package org.sonarqube.ws.client.component;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.ws.WsComponents;
+import org.sonarqube.ws.Components;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
@@ -57,7 +57,7 @@ public class ComponentsServiceTest {
       .setAdditionalFields(singletonList("analysisDate"))
       .build());
 
-    assertThat(serviceTester.getGetParser()).isSameAs(WsComponents.SearchProjectsWsResponse.parser());
+    assertThat(serviceTester.getGetParser()).isSameAs(Components.SearchProjectsWsResponse.parser());
     serviceTester.assertThat(serviceTester.getGetRequest())
       .hasPath("search_projects")
       .hasParam(PARAM_FILTER, "ncloc > 10")
@@ -79,7 +79,7 @@ public class ComponentsServiceTest {
       .setPageSize(10)
       .build());
 
-    assertThat(serviceTester.getGetParser()).isSameAs(WsComponents.SearchProjectsWsResponse.parser());
+    assertThat(serviceTester.getGetParser()).isSameAs(Components.SearchProjectsWsResponse.parser());
     serviceTester.assertThat(serviceTester.getGetRequest())
       .hasPath("search_projects")
       .hasParam(PARAM_FILTER, "ncloc > 10")
@@ -98,7 +98,7 @@ public class ComponentsServiceTest {
       .setId(id)
       .setBranch("my_branch"));
 
-    assertThat(serviceTester.getGetParser()).isSameAs(WsComponents.ShowWsResponse.parser());
+    assertThat(serviceTester.getGetParser()).isSameAs(Components.ShowWsResponse.parser());
     serviceTester.assertThat(serviceTester.getGetRequest())
       .hasPath("show")
       .hasParam("component", key)
@@ -141,7 +141,7 @@ public class ComponentsServiceTest {
       .setPageSize(pageSize)
       .setQuery(textQuery));
 
-    assertThat(serviceTester.getGetParser()).isSameAs(WsComponents.SearchWsResponse.parser());
+    assertThat(serviceTester.getGetParser()).isSameAs(Components.SearchWsResponse.parser());
     serviceTester.assertThat(serviceTester.getGetRequest())
       .hasPath("search")
       .hasParam("organization", organization)
@@ -172,7 +172,7 @@ public class ComponentsServiceTest {
       .setQuery(query)
       .setSort(asList("sort1", "sort2")));
 
-    assertThat(serviceTester.getGetParser()).isSameAs(WsComponents.TreeWsResponse.parser());
+    assertThat(serviceTester.getGetParser()).isSameAs(Components.TreeWsResponse.parser());
     serviceTester.assertThat(serviceTester.getGetRequest())
       .hasPath("tree")
       .hasParam("componentId", componentId)

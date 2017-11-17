@@ -47,7 +47,7 @@ import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
-import org.sonarqube.ws.WsCe;
+import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
@@ -213,7 +213,7 @@ public class ReportPublisherTest {
 
     PipedOutputStream out = new PipedOutputStream();
     PipedInputStream in = new PipedInputStream(out);
-    WsCe.SubmitResponse.newBuilder().build().writeTo(out);
+    Ce.SubmitResponse.newBuilder().build().writeTo(out);
     out.close();
 
     when(response.failIfNotSuccessful()).thenReturn(response);
@@ -247,7 +247,7 @@ public class ReportPublisherTest {
 
     PipedOutputStream out = new PipedOutputStream();
     PipedInputStream in = new PipedInputStream(out);
-    WsCe.SubmitResponse.newBuilder().build().writeTo(out);
+    Ce.SubmitResponse.newBuilder().build().writeTo(out);
     out.close();
 
     when(response.failIfNotSuccessful()).thenReturn(response);

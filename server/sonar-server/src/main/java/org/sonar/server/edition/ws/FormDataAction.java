@@ -26,7 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
-import org.sonarqube.ws.WsEditions.FormDataResponse;
+import org.sonarqube.ws.Editions.FormDataResponse;
 
 public class FormDataAction implements EditionsWsAction {
   private final UserSession userSession;

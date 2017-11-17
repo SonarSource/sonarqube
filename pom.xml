@@ -29,6 +29,7 @@
     <module>sonar-markdown</module>
     <module>sonar-plugin-api</module>
     <module>server</module>
+    <module>sonar-ws-generated</module>
     <module>sonar-ws</module>
     <module>sonar-testing-harness</module>
     <module>plugins/sonar-xoo-plugin</module>
@@ -431,6 +432,11 @@
         <artifactId>sonar-scanner-protocol</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sonar-ws-generated</artifactId>
+        <version>${project.version}</version>
+      </dependency>      
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>sonar-ws</artifactId>

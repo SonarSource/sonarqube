@@ -44,7 +44,7 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
-import org.sonarqube.ws.WsMeasures.SearchHistoryResponse;
+import org.sonarqube.ws.Measures.SearchHistoryResponse;
 import org.sonarqube.ws.client.measure.SearchHistoryRequest;
 
 import static java.lang.String.format;

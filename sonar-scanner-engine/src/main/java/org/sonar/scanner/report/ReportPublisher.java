@@ -48,8 +48,8 @@ import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
@@ -192,7 +192,7 @@ public class ReportPublisher implements Startable {
     }
 
     try (InputStream protobuf = response.contentStream()) {
-      return WsCe.SubmitResponse.parser().parseFrom(protobuf).getTaskId();
+      return Ce.SubmitResponse.parser().parseFrom(protobuf).getTaskId();
     } catch (Exception e) {
       throw Throwables.propagate(e);
     } finally {

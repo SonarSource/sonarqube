@@ -38,7 +38,7 @@ import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.QualityProfiles.SearchUsersResponse;
+import org.sonarqube.ws.Qualityprofiles.SearchUsersResponse;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;

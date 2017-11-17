@@ -21,6 +21,7 @@ package org.sonarqube.tests.settings;
 
 import com.google.common.collect.ImmutableMap;
 import com.sonar.orchestrator.Orchestrator;
+import org.junit.rules.RuleChain;
 import org.sonarqube.tests.Category1Suite;
 import java.io.IOException;
 import java.util.List;
@@ -62,8 +63,10 @@ public class SettingsTest {
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
+  private static UserRule userRule = UserRule.from(orchestrator);
+
   @ClassRule
-  public static UserRule userRule = UserRule.from(orchestrator);
+  public static RuleChain ruleChain = RuleChain.outerRule(orchestrator).around(userRule);
 
   private static WsClient adminWsClient;
   private static SettingsService anonymousSettingsService;

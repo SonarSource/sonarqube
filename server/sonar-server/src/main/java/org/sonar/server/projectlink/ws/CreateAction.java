@@ -29,8 +29,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsProjectLinks;
-import org.sonarqube.ws.WsProjectLinks.CreateWsResponse;
+import org.sonarqube.ws.ProjectLinks;
+import org.sonarqube.ws.ProjectLinks.CreateWsResponse;
 import org.sonarqube.ws.client.projectlinks.CreateWsRequest;
 
 import static org.sonar.core.util.Slug.slugify;
@@ -119,7 +119,7 @@ public class CreateAction implements ProjectLinksWsAction {
   }
 
   private static CreateWsResponse buildResponse(ComponentLinkDto link) {
-    return CreateWsResponse.newBuilder().setLink(WsProjectLinks.Link.newBuilder()
+    return CreateWsResponse.newBuilder().setLink(ProjectLinks.Link.newBuilder()
       .setId(String.valueOf(link.getId()))
       .setName(link.getName())
       .setType(link.getType())

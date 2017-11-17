@@ -28,6 +28,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import util.user.UserRule;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -63,61 +64,63 @@ public class SsoAuthenticationTest {
     .setServerProperty("sonar.web.sso.groupsHeader", GROUPS_HEADER)
     .build();
 
+  private static UserRule userRule = UserRule.from(orchestrator);
+
   @ClassRule
-  public static UserRule USER_RULE = UserRule.from(orchestrator);
+  public static RuleChain ruleChain = RuleChain.outerRule(orchestrator).around(userRule);
 
   @Before
   public void resetData() throws Exception {
-    USER_RULE.resetUsers();
+    userRule.resetUsers();
   }
 
   @Test
   public void authenticate() {
     doCall(USER_LOGIN, USER_NAME, USER_EMAIL, null);
 
-    USER_RULE.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL);
+    userRule.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL);
   }
 
   @Test
   public void authenticate_with_only_login() throws Exception {
     doCall(USER_LOGIN, null, null, null);
 
-    USER_RULE.verifyUserExists(USER_LOGIN, USER_LOGIN, null);
+    userRule.verifyUserExists(USER_LOGIN, USER_LOGIN, null);
   }
 
   @Test
   public void update_user_when_headers_are_updated() {
     doCall(USER_LOGIN, USER_NAME, USER_EMAIL, null);
-    USER_RULE.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL);
+    userRule.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL);
 
     // As we don't keep the JWT token is the test, the user is updated
     doCall(USER_LOGIN, "new name", "new email", null);
-    USER_RULE.verifyUserExists(USER_LOGIN, "new name", "new email");
+    userRule.verifyUserExists(USER_LOGIN, "new name", "new email");
   }
 
   @Test
   public void authenticate_with_groups() {
     doCall(USER_LOGIN, null, null, GROUP_1);
 
-    USER_RULE.verifyUserGroupMembership(USER_LOGIN, GROUP_1, "sonar-users");
+    userRule.verifyUserGroupMembership(USER_LOGIN, GROUP_1, "sonar-users");
   }
 
   @Test
   public void synchronize_groups_when_authenticating_existing_user() throws Exception {
-    USER_RULE.createGroup(GROUP_1);
-    USER_RULE.createGroup(GROUP_2);
-    USER_RULE.createGroup(GROUP_3);
-    USER_RULE.createUser(USER_LOGIN, "password");
-    USER_RULE.associateGroupsToUser(USER_LOGIN, GROUP_1, GROUP_2);
+    userRule.createGroup(GROUP_1);
+    userRule.createGroup(GROUP_2);
+    userRule.createGroup(GROUP_3);
+    userRule.createUser(USER_LOGIN, "password");
+    userRule.associateGroupsToUser(USER_LOGIN, GROUP_1, GROUP_2);
 
     doCall(USER_LOGIN, null, null, GROUP_2 + "," + GROUP_3);
 
-    USER_RULE.verifyUserGroupMembership(USER_LOGIN, GROUP_2, GROUP_3, "sonar-users");
+    userRule.verifyUserGroupMembership(USER_LOGIN, GROUP_2, GROUP_3, "sonar-users");
   }
 
   @Test
   public void authentication_with_local_user_is_possible_when_no_header() throws Exception {
-    USER_RULE.createUser(USER_LOGIN, "password");
+    userRule.createUser(USER_LOGIN, "password");
 
     checkLocalAuthentication(USER_LOGIN, "password");
   }
@@ -131,12 +134,12 @@ public class SsoAuthenticationTest {
 
     List<String> logsLines = FileUtils.readLines(orchestrator.getServer().getWebLogs(), UTF_8);
     assertThat(logsLines).doesNotContain("org.sonar.server.exceptions.BadRequestException: Use only letters, numbers, and .-_@ please.");
-    USER_RULE.verifyUserDoesNotExist(USER_LOGIN);
+    userRule.verifyUserDoesNotExist(USER_LOGIN);
   }
 
   @Test
   public void fail_when_email_already_exists() throws Exception {
-    USER_RULE.createUser("another", "Another", USER_EMAIL, "another");
+    userRule.createUser("another", "Another", USER_EMAIL, "another");
 
     Response response = doCall(USER_LOGIN, USER_NAME, USER_EMAIL, null);
 

@@ -94,7 +94,9 @@ public class ProjectKeyPage {
   }
 
   public ProjectKeyPage assertSuccessfulBulkUpdate() {
-    Selenide.$("#project-key-bulk-update").$(".alert.alert-success").shouldBe(Condition.visible);
+    Selenide.$(".process-spinner")
+      .shouldBe(Condition.visible)
+      .shouldHave(Condition.text("The key has successfully been updated for all required resources"));
     return this;
   }
 }

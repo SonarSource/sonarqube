@@ -36,9 +36,9 @@ import org.sonar.server.permission.PermissionPrivilegeChecker;
 import org.sonar.server.permission.ProjectId;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.WsPermissions.Permission;
-import org.sonarqube.ws.WsPermissions.SearchProjectPermissionsWsResponse;
-import org.sonarqube.ws.WsPermissions.SearchProjectPermissionsWsResponse.Project;
+import org.sonarqube.ws.Permissions.Permission;
+import org.sonarqube.ws.Permissions.SearchProjectPermissionsWsResponse;
+import org.sonarqube.ws.Permissions.SearchProjectPermissionsWsResponse.Project;
 import org.sonarqube.ws.client.permission.SearchProjectPermissionsWsRequest;
 
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;

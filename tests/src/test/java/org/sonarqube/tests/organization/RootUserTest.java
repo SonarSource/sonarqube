@@ -26,8 +26,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.TesterSession;
-import org.sonarqube.ws.WsRoot;
-import org.sonarqube.ws.WsUsers;
+import org.sonarqube.ws.Root;
+import org.sonarqube.ws.Users;
 import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,17 +45,17 @@ public class RootUserTest {
   @Test
   public void system_administrator_is_flagged_as_root_when_he_enables_organization_support() {
     assertThat(tester.wsClient().roots().search().getRootsList())
-      .extracting(WsRoot.Root::getLogin)
+      .extracting(Root.RootContent::getLogin)
       .containsExactly(UserRule.ADMIN_LOGIN);
   }
 
   @Test
   public void a_root_can_flag_other_user_as_root() {
-    WsUsers.CreateWsResponse.User user = tester.users().generate();
+    Users.CreateWsResponse.User user = tester.users().generate();
     tester.wsClient().roots().setRoot(user.getLogin());
 
     assertThat(tester.wsClient().roots().search().getRootsList())
-      .extracting(WsRoot.Root::getLogin)
+      .extracting(Root.RootContent::getLogin)
       .containsExactlyInAnyOrder(UserRule.ADMIN_LOGIN, user.getLogin());
   }
 
@@ -66,8 +66,8 @@ public class RootUserTest {
 
   @Test
   public void root_can_be_set_and_unset_via_web_services() {
-    WsUsers.CreateWsResponse.User user1 = tester.users().generate();
-    WsUsers.CreateWsResponse.User user2 = tester.users().generate();
+    Users.CreateWsResponse.User user1 = tester.users().generate();
+    Users.CreateWsResponse.User user2 = tester.users().generate();
     TesterSession user1Session = tester.as(user1.getLogin());
     TesterSession user2Session = tester.as(user2.getLogin());
 

@@ -32,7 +32,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserMembershipQuery;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsUserGroups;
+import org.sonarqube.ws.UserGroups;
 
 import static java.lang.String.format;
 import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;
@@ -130,7 +130,7 @@ public class UpdateAction implements UserGroupsWsAction {
       .build();
     int membersCount = dbClient.groupMembershipDao().countMembers(dbSession, query);
 
-    WsUserGroups.UpdateWsResponse.Builder respBuilder = WsUserGroups.UpdateWsResponse.newBuilder();
+    UserGroups.UpdateWsResponse.Builder respBuilder = UserGroups.UpdateWsResponse.newBuilder();
     // 'default' is always false as it's not possible to update a default group
     respBuilder.setGroup(toProtobuf(organization, group, membersCount, false));
     writeProtobuf(respBuilder.build(), request, response);

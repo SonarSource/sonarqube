@@ -1,0 +1,68 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2016 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+syntax = "proto2";
+
+package sonarqube.ws.tests;
+
+import "ws-commons.proto";
+
+option java_package = "org.sonarqube.ws";
+option java_outer_classname = "Tests";
+option optimize_for = SPEED;
+
+// WS api/tests/list
+message ListResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated Test tests = 2;
+}
+
+// WS api/tests/covered_files
+message CoveredFilesResponse {
+  repeated CoveredFile files = 1;
+
+  message CoveredFile {
+    optional string id = 1;
+    optional string key = 2;
+    optional string longName = 3;
+    optional int32 coveredLines = 4;
+    optional string branch = 5;
+  }
+}
+
+
+message Test {
+  optional string id = 1;
+  optional string name = 2;
+  optional string fileId = 3;
+  optional string fileKey = 4;
+  optional string fileName = 5;
+  optional TestStatus status = 6;
+  optional int64 durationInMs = 7;
+  optional int32 coveredLines = 8;
+  optional string message = 9;
+  optional string stacktrace = 10;
+  optional string fileBranch = 11;
+}
+
+enum TestStatus {
+  OK = 1;
+  FAILURE = 2;
+  ERROR = 3;
+  SKIPPED = 4;
+}

@@ -41,8 +41,8 @@ import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.ws.WsUtils;
-import org.sonarqube.ws.WsComponents;
-import org.sonarqube.ws.WsComponents.SearchWsResponse;
+import org.sonarqube.ws.Components;
+import org.sonarqube.ws.Components.SearchWsResponse;
 import org.sonarqube.ws.client.component.SearchWsRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -180,13 +180,13 @@ public class SearchAction implements ComponentsWsAction {
     return responseBuilder.build();
   }
 
-  private static WsComponents.Component dtoToComponent(OrganizationDto organization, ComponentDto dto, String projectKey) {
+  private static Components.Component dtoToComponent(OrganizationDto organization, ComponentDto dto, String projectKey) {
     checkArgument(
       organization.getUuid().equals(dto.getOrganizationUuid()),
       "No Organization found for uuid '%s'",
       dto.getOrganizationUuid());
 
-    WsComponents.Component.Builder builder = WsComponents.Component.newBuilder()
+    Components.Component.Builder builder = Components.Component.newBuilder()
       .setOrganization(organization.getKey())
       .setId(dto.uuid())
       .setKey(dto.getDbKey())

@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.organization.MembersPage;
 import org.sonarqube.ws.Organizations.Organization;
-import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
+import org.sonarqube.ws.Users.CreateWsResponse.User;
 
 public class OrganizationMembershipUiTest {
 

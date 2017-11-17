@@ -22,7 +22,7 @@ package org.sonarqube.ws.client.permission;
 import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.ws.WsPermissions;
+import org.sonarqube.ws.Permissions;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.ServiceTester;
@@ -92,7 +92,7 @@ public class PermissionsServiceTest {
       .setPageSize(PAGE_SIZE_VALUE)
       .setQuery(QUERY_VALUE));
 
-    assertThat(serviceTester.getGetParser()).isSameAs(WsPermissions.WsGroupsResponse.parser());
+    assertThat(serviceTester.getGetParser()).isSameAs(Permissions.WsGroupsResponse.parser());
     GetRequest getRequest = serviceTester.getGetRequest();
     serviceTester.assertThat(getRequest)
       .hasPath("groups")
@@ -255,7 +255,7 @@ public class PermissionsServiceTest {
       .setProjectKeyPattern(PROJECT_KEY_PATTERN_VALUE)
     );
 
-    assertThat(serviceTester.getPostParser()).isSameAs(WsPermissions.CreateTemplateWsResponse.parser());
+    assertThat(serviceTester.getPostParser()).isSameAs(Permissions.CreateTemplateWsResponse.parser());
     PostRequest postRequest = serviceTester.getPostRequest();
     serviceTester.assertThat(postRequest)
       .hasPath("create_template")
@@ -378,7 +378,7 @@ public class PermissionsServiceTest {
   public void searchGlobalPermissions_does_GET_on_Ws_search_global_permissions() {
     underTest.searchGlobalPermissions();
 
-    assertThat(serviceTester.getGetParser()).isSameAs(WsPermissions.WsSearchGlobalPermissionsResponse.parser());
+    assertThat(serviceTester.getGetParser()).isSameAs(Permissions.WsSearchGlobalPermissionsResponse.parser());
     GetRequest getRequest = serviceTester.getGetRequest();
     serviceTester.assertThat(getRequest)
       .hasPath("search_global_permissions")
@@ -396,7 +396,7 @@ public class PermissionsServiceTest {
       .setQuery(QUERY_VALUE)
     );
 
-    assertThat(serviceTester.getGetParser()).isSameAs(WsPermissions.SearchProjectPermissionsWsResponse.parser());
+    assertThat(serviceTester.getGetParser()).isSameAs(Permissions.SearchProjectPermissionsWsResponse.parser());
     GetRequest getRequest = serviceTester.getGetRequest();
     serviceTester.assertThat(getRequest)
       .hasPath("search_project_permissions")
@@ -415,7 +415,7 @@ public class PermissionsServiceTest {
       .setQuery(QUERY_VALUE)
     );
 
-    assertThat(serviceTester.getGetParser()).isSameAs(WsPermissions.SearchTemplatesWsResponse.parser());
+    assertThat(serviceTester.getGetParser()).isSameAs(Permissions.SearchTemplatesWsResponse.parser());
     GetRequest getRequest = serviceTester.getGetRequest();
     serviceTester.assertThat(getRequest)
       .hasPath("search_templates")
@@ -450,7 +450,7 @@ public class PermissionsServiceTest {
       .setProjectKeyPattern(PROJECT_KEY_PATTERN_VALUE)
     );
 
-    assertThat(serviceTester.getPostParser()).isSameAs(WsPermissions.UpdateTemplateWsResponse.parser());
+    assertThat(serviceTester.getPostParser()).isSameAs(Permissions.UpdateTemplateWsResponse.parser());
     PostRequest postRequest = serviceTester.getPostRequest();
     serviceTester.assertThat(postRequest)
       .hasPath("update_template")
@@ -513,7 +513,7 @@ public class PermissionsServiceTest {
       .setPageSize(50)
     );
 
-    assertThat(serviceTester.getGetParser()).isSameAs(WsPermissions.UsersWsResponse.parser());
+    assertThat(serviceTester.getGetParser()).isSameAs(Permissions.UsersWsResponse.parser());
     GetRequest getRequest = serviceTester.getGetRequest();
 
     serviceTester.assertThat(getRequest)

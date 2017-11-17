@@ -28,9 +28,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations;
-import org.sonarqube.ws.WsProjects.CreateWsResponse;
-import org.sonarqube.ws.WsProjects.SearchWsResponse;
-import org.sonarqube.ws.WsProjects.SearchWsResponse.Component;
+import org.sonarqube.ws.Projects.CreateWsResponse;
+import org.sonarqube.ws.Projects.SearchWsResponse;
+import org.sonarqube.ws.Projects.SearchWsResponse.Component;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.project.SearchWsRequest;
 
@@ -50,8 +50,8 @@ public class ProjectSearchTest {
   @Test
   public void search_old_projects() {
     Organizations.Organization organization = tester.organizations().generate();
-    CreateWsResponse.Project oldProject = tester.projects().generate(organization);
-    CreateWsResponse.Project recentProject = tester.projects().generate(organization);
+    CreateWsResponse.Project oldProject = tester.projects().provision(organization);
+    CreateWsResponse.Project recentProject = tester.projects().provision(organization);
     Date now = new Date();
     Date oneYearAgo = DateUtils.addDays(now, -365);
     Date moreThanOneYearAgo = DateUtils.addDays(now, -366);
@@ -70,9 +70,9 @@ public class ProjectSearchTest {
   @Test
   public void search_on_key_query_partial_match_case_insensitive() {
     Organizations.Organization organization = tester.organizations().generate();
-    CreateWsResponse.Project lowerCaseProject = tester.projects().generate(organization, p -> p.setKey("project-key"));
-    CreateWsResponse.Project upperCaseProject = tester.projects().generate(organization, p -> p.setKey("PROJECT-KEY"));
-    CreateWsResponse.Project anotherProject = tester.projects().generate(organization, p -> p.setKey("another-project"));
+    CreateWsResponse.Project lowerCaseProject = tester.projects().provision(organization, p -> p.setKey("project-key"));
+    CreateWsResponse.Project upperCaseProject = tester.projects().provision(organization, p -> p.setKey("PROJECT-KEY"));
+    CreateWsResponse.Project anotherProject = tester.projects().provision(organization, p -> p.setKey("another-project"));
 
     analyzeProject(lowerCaseProject.getKey(), organization.getKey());
     analyzeProject(upperCaseProject.getKey(), organization.getKey());
@@ -92,9 +92,9 @@ public class ProjectSearchTest {
   @Test
   public void search_provisioned_projects() {
     Organizations.Organization organization = tester.organizations().generate();
-    CreateWsResponse.Project firstProvisionedProject = tester.projects().generate(organization);
-    CreateWsResponse.Project secondProvisionedProject = tester.projects().generate(organization);
-    CreateWsResponse.Project analyzedProject = tester.projects().generate(organization);
+    CreateWsResponse.Project firstProvisionedProject = tester.projects().provision(organization);
+    CreateWsResponse.Project secondProvisionedProject = tester.projects().provision(organization);
+    CreateWsResponse.Project analyzedProject = tester.projects().provision(organization);
 
     analyzeProject(analyzedProject.getKey(), organization.getKey());
 

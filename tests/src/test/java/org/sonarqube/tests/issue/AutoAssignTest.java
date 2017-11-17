@@ -30,7 +30,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
-import org.sonarqube.ws.WsUsers;
+import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.user.CreateRequest;
@@ -191,7 +191,7 @@ public class AutoAssignTest extends AbstractIssueTest {
 
   private static void deleteAllUsers() {
     WsClient wsClient = newAdminWsClient(ORCHESTRATOR);
-    WsUsers.SearchWsResponse searchResponse = wsClient.users().search(SearchRequest.builder().build());
+    Users.SearchWsResponse searchResponse = wsClient.users().search(SearchRequest.builder().build());
     searchResponse.getUsersList().forEach(user -> {
       wsClient.wsConnector().call(new PostRequest("api/users/deactivate").setParam("login", user.getLogin()));
     });

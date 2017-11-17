@@ -27,7 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.WsBranches;
+import org.sonarqube.ws.ProjectBranches;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import util.ItUtils;
@@ -47,10 +47,10 @@ public class BranchTest {
   public void list_branches_contains_main_branch() {
     runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
-    WsBranches.ListWsResponse result = tester.wsClient().projectBranches().list("sample");
+    ProjectBranches.ListWsResponse result = tester.wsClient().projectBranches().list("sample");
 
     assertThat(result.getBranchesList())
-      .extracting(WsBranches.Branch::getName, WsBranches.Branch::getType, WsBranches.Branch::getIsMain)
+      .extracting(ProjectBranches.Branch::getName, ProjectBranches.Branch::getType, ProjectBranches.Branch::getIsMain)
       .containsExactlyInAnyOrder(Tuple.tuple("master", Common.BranchType.LONG, true));
   }
 

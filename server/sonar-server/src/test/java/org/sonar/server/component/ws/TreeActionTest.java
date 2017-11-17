@@ -52,8 +52,8 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
-import org.sonarqube.ws.WsComponents;
-import org.sonarqube.ws.WsComponents.TreeWsResponse;
+import org.sonarqube.ws.Components;
+import org.sonarqube.ws.Components.TreeWsResponse;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -333,9 +333,9 @@ public class TreeActionTest {
       .setParam(PARAM_BRANCH, branchKey)
       .executeProtobuf(TreeWsResponse.class);
 
-    assertThat(response.getBaseComponent()).extracting(WsComponents.Component::getKey, WsComponents.Component::getBranch)
+    assertThat(response.getBaseComponent()).extracting(Components.Component::getKey, Components.Component::getBranch)
       .containsExactlyInAnyOrder(module.getKey(), branchKey);
-    assertThat(response.getComponentsList()).extracting(WsComponents.Component::getKey, WsComponents.Component::getBranch)
+    assertThat(response.getComponentsList()).extracting(Components.Component::getKey, Components.Component::getBranch)
       .containsExactlyInAnyOrder(
         tuple(directory.getKey(), branchKey),
         tuple(file.getKey(), branchKey));
@@ -352,7 +352,7 @@ public class TreeActionTest {
 
     ws.newRequest()
       .setParam(PARAM_COMPONENT, branch.getDbKey())
-      .executeProtobuf(WsComponents.ShowWsResponse.class);
+      .executeProtobuf(Components.ShowWsResponse.class);
   }
 
   @Test
@@ -366,7 +366,7 @@ public class TreeActionTest {
 
     ws.newRequest()
       .setParam(PARAM_COMPONENT_ID, branch.uuid())
-      .executeProtobuf(WsComponents.ShowWsResponse.class);
+      .executeProtobuf(Components.ShowWsResponse.class);
   }
 
   @Test

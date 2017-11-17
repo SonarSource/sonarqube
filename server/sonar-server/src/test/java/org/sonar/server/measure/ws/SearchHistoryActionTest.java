@@ -47,9 +47,9 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common.Paging;
-import org.sonarqube.ws.WsMeasures.SearchHistoryResponse;
-import org.sonarqube.ws.WsMeasures.SearchHistoryResponse.HistoryMeasure;
-import org.sonarqube.ws.WsMeasures.SearchHistoryResponse.HistoryValue;
+import org.sonarqube.ws.Measures.SearchHistoryResponse;
+import org.sonarqube.ws.Measures.SearchHistoryResponse.HistoryMeasure;
+import org.sonarqube.ws.Measures.SearchHistoryResponse.HistoryValue;
 import org.sonarqube.ws.client.measure.SearchHistoryRequest;
 
 import static com.google.common.collect.Lists.newArrayList;

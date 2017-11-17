@@ -24,7 +24,6 @@ import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.sonarqube.tests.ce.BackgroundTasksTest;
-import org.sonarqube.tests.projectAdministration.ProjectAdministrationTest;
 import org.sonarqube.tests.settings.DeprecatedPropertiesWsTest;
 import org.sonarqube.tests.settings.EmailsTest;
 import org.sonarqube.tests.settings.PropertySetsTest;
@@ -42,7 +41,6 @@ import static util.ItUtils.xooPlugin;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   UsersPageTest.class,
-  ProjectAdministrationTest.class,
   BackgroundTasksTest.class,
   DeprecatedPropertiesWsTest.class,
   EmailsTest.class,
@@ -57,17 +55,18 @@ public class Category1Suite {
     .addPlugin(pluginArtifact("property-sets-plugin"))
     .addPlugin(pluginArtifact("sonar-subcategories-plugin"))
 
-    // Used in I18nTest
-    .addPlugin(pluginArtifact("l10n-fr-pack"))
-
-    // 1 second. Required for notification test.
-    .setServerProperty("sonar.notifications.delay", "1")
-
     // Used in SettingsTest.global_property_change_extension_point
     .addPlugin(pluginArtifact("global-property-change-plugin"))
 
     // Used in SettingsTest.should_get_settings_default_value
     .addPlugin(pluginArtifact("server-plugin"))
+
+
+    // Used in I18nTest
+    .addPlugin(pluginArtifact("l10n-fr-pack"))
+
+    // 1 second. Required for notification test.
+    .setServerProperty("sonar.notifications.delay", "1")
 
     .addPlugin(pluginArtifact("posttask-plugin"))
 

@@ -28,7 +28,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.analysis.AnalysisProperties;
 import org.sonar.scanner.rule.ModuleQProfiles;
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
+import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 
 public class QualityProfileProvider extends ProviderAdapter {
   private static final Logger LOG = Loggers.get(QualityProfileProvider.class);

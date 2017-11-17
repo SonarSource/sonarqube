@@ -25,7 +25,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
+import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 
 import static util.ItUtils.projectDir;
 
@@ -39,7 +39,7 @@ public class CodePageTest {
 
   @Test
   public void code_page() {
-    Project project = tester.projects().generate(null);
+    Project project = tester.projects().provision();
     executeAnalysis(project);
 
     tester.openBrowser().openCode(project.getKey())
@@ -64,7 +64,7 @@ public class CodePageTest {
 
   @Test
   public void expand_root_dir() {
-    Project project = tester.projects().generate(null);
+    Project project = tester.projects().provision();
     executeAnalysis(project, "shared/xoo-sample-with-root-dir");
 
     tester.openBrowser().openCode(project.getKey())

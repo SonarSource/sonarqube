@@ -29,8 +29,7 @@ import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsQualityGates.CreateConditionWsResponse;
-import org.sonarqube.ws.client.qualitygate.CreateConditionRequest;
+import org.sonarqube.ws.Qualitygates.CreateConditionWsResponse;
 
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.qualitygate.ws.QualityGatesWs.addConditionParams;
@@ -80,40 +79,26 @@ public class CreateConditionAction implements QualityGatesWsAction {
   public void handle(Request request, Response response) {
     userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
 
+    int gateId = request.mandatoryParamAsInt(PARAM_GATE_ID);
+    String metric = request.mandatoryParam(PARAM_METRIC);
+    String operator = request.mandatoryParam(PARAM_OPERATOR);
+    String warning = request.param(PARAM_WARNING);
+    String error = request.param(PARAM_ERROR);
+    Integer period = request.paramAsInt(PARAM_PERIOD);
+
     try (DbSession dbSession = dbClient.openSession(false)) {
-      writeProtobuf(doHandle(toWsRequest(request), dbSession), request, response);
+      QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession, gateId, metric, operator, warning, error, period);
+
+      CreateConditionWsResponse.Builder createConditionWsResponse = CreateConditionWsResponse.newBuilder()
+        .setId(condition.getId())
+        .setMetric(condition.getMetricKey())
+        .setOp(condition.getOperator());
+      setNullable(condition.getWarningThreshold(), createConditionWsResponse::setWarning);
+      setNullable(condition.getErrorThreshold(), createConditionWsResponse::setError);
+      setNullable(condition.getPeriod(), createConditionWsResponse::setPeriod);
+      writeProtobuf(createConditionWsResponse.build(), request, response);
       dbSession.commit();
     }
-  }
-
-  private CreateConditionWsResponse doHandle(CreateConditionRequest request, DbSession dbSession) {
-    QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession,
-      request.getQualityGateId(),
-      request.getMetricKey(),
-      request.getOperator(),
-      request.getWarning(),
-      request.getError(),
-      request.getPeriod());
-
-    CreateConditionWsResponse.Builder response = CreateConditionWsResponse.newBuilder()
-      .setId(condition.getId())
-      .setMetric(condition.getMetricKey())
-      .setOp(condition.getOperator());
-    setNullable(condition.getWarningThreshold(), response::setWarning);
-    setNullable(condition.getErrorThreshold(), response::setError);
-    setNullable(condition.getPeriod(), response::setPeriod);
-    return response.build();
-  }
-
-  private static CreateConditionRequest toWsRequest(Request request) {
-    return CreateConditionRequest.builder()
-      .setQualityGateId(request.mandatoryParamAsInt(PARAM_GATE_ID))
-      .setMetricKey(request.mandatoryParam(PARAM_METRIC))
-      .setOperator(request.mandatoryParam(PARAM_OPERATOR))
-      .setWarning(request.param(PARAM_WARNING))
-      .setError(request.param(PARAM_ERROR))
-      .setPeriod(request.paramAsInt(PARAM_PERIOD))
-      .build();
   }
 
 }

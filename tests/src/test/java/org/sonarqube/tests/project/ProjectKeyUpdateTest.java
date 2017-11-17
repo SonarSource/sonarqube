@@ -34,9 +34,9 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Organizations;
-import org.sonarqube.ws.WsComponents;
-import org.sonarqube.ws.WsProjects;
+import org.sonarqube.ws.Projects;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
@@ -71,7 +71,7 @@ public class ProjectKeyUpdateTest {
   public void update_key() {
     analyzeXooSample();
     String newProjectKey = "another_project_key";
-    WsComponents.Component project = tester.wsClient().components().show(new ShowWsRequest().setKey(PROJECT_KEY)).getComponent();
+    Components.Component project = tester.wsClient().components().show(new ShowWsRequest().setKey(PROJECT_KEY)).getComponent();
     assertThat(project.getKey()).isEqualTo(PROJECT_KEY);
 
     tester.wsClient().projects().updateKey(UpdateKeyWsRequest.builder()
@@ -86,10 +86,10 @@ public class ProjectKeyUpdateTest {
   public void bulk_update_key() {
     analyzeXooSample();
     String newProjectKey = "another_project_key";
-    WsComponents.Component project = tester.wsClient().components().show(new ShowWsRequest().setKey(PROJECT_KEY)).getComponent();
+    Components.Component project = tester.wsClient().components().show(new ShowWsRequest().setKey(PROJECT_KEY)).getComponent();
     assertThat(project.getKey()).isEqualTo(PROJECT_KEY);
 
-    WsProjects.BulkUpdateKeyWsResponse result = tester.wsClient().projects().bulkUpdateKey(BulkUpdateKeyWsRequest.builder()
+    Projects.BulkUpdateKeyWsResponse result = tester.wsClient().projects().bulkUpdateKey(BulkUpdateKeyWsRequest.builder()
       .setKey(PROJECT_KEY)
       .setFrom(PROJECT_KEY)
       .setTo(newProjectKey)
@@ -98,14 +98,14 @@ public class ProjectKeyUpdateTest {
     assertThat(tester.wsClient().components().show(new ShowWsRequest().setId(project.getId())).getComponent().getKey()).isEqualTo(newProjectKey);
     assertThat(result.getKeysCount()).isEqualTo(1);
     assertThat(result.getKeys(0))
-      .extracting(WsProjects.BulkUpdateKeyWsResponse.Key::getKey, WsProjects.BulkUpdateKeyWsResponse.Key::getNewKey, WsProjects.BulkUpdateKeyWsResponse.Key::getDuplicate)
+      .extracting(Projects.BulkUpdateKeyWsResponse.Key::getKey, Projects.BulkUpdateKeyWsResponse.Key::getNewKey, Projects.BulkUpdateKeyWsResponse.Key::getDuplicate)
       .containsOnlyOnce(PROJECT_KEY, newProjectKey, false);
   }
 
   @Test
   public void update_key_of_provisioned_project() {
     Organizations.Organization organization = tester.organizations().generate();
-    WsProjects.CreateWsResponse.Project project = createProject(organization, "one", "Foo");
+    Projects.CreateWsResponse.Project project = createProject(organization, "one", "Foo");
 
     updateKey(project, "two");
 
@@ -120,7 +120,7 @@ public class ProjectKeyUpdateTest {
   @Test
   public void recover_indexing_errors_when_updating_key_of_provisioned_project() throws Exception {
     Organizations.Organization organization = tester.organizations().generate();
-    WsProjects.CreateWsResponse.Project project = createProject(organization, "one", "Foo");
+    Projects.CreateWsResponse.Project project = createProject(organization, "one", "Foo");
 
     lockWritesOnProjectIndices();
 
@@ -228,7 +228,7 @@ public class ProjectKeyUpdateTest {
     tester.elasticsearch().unlockWrites("projectmeasures");
   }
 
-  private void updateKey(WsProjects.CreateWsResponse.Project project, String newKey) {
+  private void updateKey(Projects.CreateWsResponse.Project project, String newKey) {
     tester.wsClient().projects().updateKey(UpdateKeyWsRequest.builder().setKey(project.getKey()).setNewKey(newKey).build());
   }
 
@@ -236,7 +236,7 @@ public class ProjectKeyUpdateTest {
     tester.wsClient().projects().updateKey(UpdateKeyWsRequest.builder().setKey(initialKey).setNewKey(newKey).build());
   }
 
-  private WsProjects.CreateWsResponse.Project createProject(Organizations.Organization organization, String key, String name) {
+  private Projects.CreateWsResponse.Project createProject(Organizations.Organization organization, String key, String name) {
     CreateRequest createRequest = CreateRequest.builder().setKey(key).setName(name).setOrganization(organization.getKey()).build();
     return tester.wsClient().projects().create(createRequest).getProject();
   }
@@ -254,7 +254,7 @@ public class ProjectKeyUpdateTest {
    */
   @CheckForNull
   private String keyInComponentSearchProjects(String name) {
-    WsComponents.SearchProjectsWsResponse response = tester.wsClient().components().searchProjects(
+    Components.SearchProjectsWsResponse response = tester.wsClient().components().searchProjects(
       SearchProjectsRequest.builder().setFilter("query=\"" + name + "\"").build());
     if (response.getComponentsCount() > 0) {
       return response.getComponents(0).getKey();

@@ -22,8 +22,8 @@ package org.sonar.server.measure.ws;
 import javax.annotation.Nullable;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonarqube.ws.WsMeasures;
-import org.sonarqube.ws.WsMeasures.Measure;
+import org.sonarqube.ws.Measures;
+import org.sonarqube.ws.Measures.Measure;
 
 import static org.sonar.server.measure.ws.MeasureValueFormatter.formatMeasureValue;
 import static org.sonar.server.measure.ws.MeasureValueFormatter.formatNumericalValue;
@@ -47,7 +47,7 @@ class MeasureDtoToWsMeasure {
       measureBuilder.setValue(formatMeasureValue(doubleValue, stringValue, metric));
     }
 
-    WsMeasures.PeriodValue.Builder periodBuilder = WsMeasures.PeriodValue.newBuilder();
+    Measures.PeriodValue.Builder periodBuilder = Measures.PeriodValue.newBuilder();
     if (Double.isNaN(variation)) {
       return;
     }

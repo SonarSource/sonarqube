@@ -39,8 +39,8 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.ws.AvatarResolver;
 import org.sonar.server.permission.ProjectId;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsPermissions;
-import org.sonarqube.ws.WsPermissions.UsersWsResponse;
+import org.sonarqube.ws.Permissions;
+import org.sonarqube.ws.Permissions.UsersWsResponse;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Collections.emptyList;
@@ -146,7 +146,7 @@ public class UsersAction implements PermissionsWsAction {
 
     UsersWsResponse.Builder response = UsersWsResponse.newBuilder();
     users.forEach(user -> {
-      WsPermissions.User.Builder userResponse = response.addUsersBuilder()
+      Permissions.User.Builder userResponse = response.addUsersBuilder()
         .setLogin(user.getLogin())
         .addAllPermissions(permissionsByUserId.get(user.getId()));
       setNullable(user.getEmail(), userResponse::setEmail);

@@ -44,10 +44,10 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.Organizations.Organization;
-import org.sonarqube.ws.QualityProfiles;
-import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
-import org.sonarqube.ws.WsUsers;
-import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
+import org.sonarqube.ws.Qualityprofiles;
+import org.sonarqube.ws.Projects.CreateWsResponse.Project;
+import org.sonarqube.ws.Users;
+import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.issue.AssignRequest;
@@ -289,8 +289,8 @@ public class IssueNotificationsTest {
 
   private void createSampleProject(String visibility) {
     // Create project
-    QualityProfiles.CreateWsResponse.QualityProfile profile = tester.qProfiles().createXooProfile(organization);
-    Project project = tester.projects().generate(organization, p -> p.setKey(PROJECT_KEY)
+    Qualityprofiles.CreateWsResponse.QualityProfile profile = tester.qProfiles().createXooProfile(organization);
+    Project project = tester.projects().provision(organization, p -> p.setKey(PROJECT_KEY)
       .setName("Sample")
       .setVisibility(visibility));
     tester.qProfiles()
@@ -387,7 +387,7 @@ public class IssueNotificationsTest {
       }).collect(Collectors.toList());
   }
 
-  private void addNotificationsTo(WsUsers.CreateWsResponse.User user) {
+  private void addNotificationsTo(Users.CreateWsResponse.User user) {
     // Add notifications to the test user
     WsClient wsClient = tester.as(user.getLogin()).wsClient();
     wsClient.wsConnector().call(new PostRequest("api/notifications/add")

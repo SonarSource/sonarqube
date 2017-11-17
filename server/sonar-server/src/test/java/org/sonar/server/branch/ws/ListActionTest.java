@@ -52,9 +52,9 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.WsBranches;
-import org.sonarqube.ws.WsBranches.Branch;
-import org.sonarqube.ws.WsBranches.ListWsResponse;
+import org.sonarqube.ws.ProjectBranches;
+import org.sonarqube.ws.ProjectBranches.Branch;
+import org.sonarqube.ws.ProjectBranches.ListWsResponse;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptySet;
@@ -70,7 +70,7 @@ import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.api.utils.DateUtils.dateToLong;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.WsBranches.Branch.Status;
+import static org.sonarqube.ws.ProjectBranches.Branch.Status;
 
 public class ListActionTest {
 
@@ -218,9 +218,9 @@ public class ListActionTest {
     ComponentDto shortLivingBranch = db.components().insertProjectBranch(project,
       b -> b.setKey("short").setBranchType(BranchType.SHORT).setMergeBranchUuid(project.uuid()));
 
-    WsBranches.ShowWsResponse response = ws.newRequest()
+    ProjectBranches.ShowWsResponse response = ws.newRequest()
       .setParam("project", shortLivingBranch.getKey())
-      .executeProtobuf(WsBranches.ShowWsResponse.class);
+      .executeProtobuf(ProjectBranches.ShowWsResponse.class);
 
     assertThat(response.getBranch())
       .extracting(Branch::getName, Branch::getType, Branch::getMergeBranch)
@@ -285,7 +285,7 @@ public class ListActionTest {
       .setParam("project", project.getKey())
       .executeProtobuf(ListWsResponse.class);
 
-    assertThat(response.getBranchesList().stream().map(WsBranches.Branch::getStatus))
+    assertThat(response.getBranchesList().stream().map(ProjectBranches.Branch::getStatus))
       .extracting(Status::hasBugs, Status::getBugs, Status::hasVulnerabilities, Status::getVulnerabilities, Status::hasCodeSmells, Status::getCodeSmells)
       .containsExactlyInAnyOrder(
         tuple(false, 0L, false, 0L, false, 0L),
@@ -306,7 +306,7 @@ public class ListActionTest {
       .setParam("project", project.getKey())
       .executeProtobuf(ListWsResponse.class);
 
-    assertThat(response.getBranchesList().stream().filter(b -> b.getType().equals(Common.BranchType.SHORT)).map(WsBranches.Branch::getStatus))
+    assertThat(response.getBranchesList().stream().filter(b -> b.getType().equals(Common.BranchType.SHORT)).map(ProjectBranches.Branch::getStatus))
       .extracting(Status::getBugs, Status::getVulnerabilities, Status::getCodeSmells)
       .containsExactlyInAnyOrder(tuple(0L, 0L, 0L));
   }
@@ -337,7 +337,7 @@ public class ListActionTest {
       .executeProtobuf(ListWsResponse.class);
 
     assertThat(response.getBranchesList())
-      .extracting(WsBranches.Branch::getType, WsBranches.Branch::hasAnalysisDate, b -> "".equals(b.getAnalysisDate()) ? null : dateToLong(parseDateTime(b.getAnalysisDate())))
+      .extracting(ProjectBranches.Branch::getType, ProjectBranches.Branch::hasAnalysisDate, b -> "".equals(b.getAnalysisDate()) ? null : dateToLong(parseDateTime(b.getAnalysisDate())))
       .containsExactlyInAnyOrder(
         tuple(Common.BranchType.LONG, false, null),
         tuple(Common.BranchType.SHORT, false, null),

@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.ws.WsMeasures;
-import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
-import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
+import org.sonarqube.ws.Measures;
+import org.sonarqube.ws.Measures.ComponentTreeWsResponse;
+import org.sonarqube.ws.Measures.ComponentWsResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
@@ -169,7 +169,7 @@ public class MeasuresServiceTest {
     underTest.searchHistory(request);
     GetRequest getRequest = serviceTester.getGetRequest();
 
-    assertThat(serviceTester.getGetParser()).isSameAs(WsMeasures.SearchHistoryResponse.parser());
+    assertThat(serviceTester.getGetParser()).isSameAs(Measures.SearchHistoryResponse.parser());
     serviceTester.assertThat(getRequest)
       .hasParam(PARAM_COMPONENT, VALUE_COMPONENT)
       .hasParam(PARAM_BRANCH, "my_branch")
@@ -191,7 +191,7 @@ public class MeasuresServiceTest {
     underTest.search(request);
     GetRequest getRequest = serviceTester.getGetRequest();
 
-    assertThat(serviceTester.getGetParser()).isSameAs(WsMeasures.SearchWsResponse.parser());
+    assertThat(serviceTester.getGetParser()).isSameAs(Measures.SearchWsResponse.parser());
     serviceTester.assertThat(getRequest)
       .hasParam(PARAM_PROJECT_KEYS, "P1,P2")
       .hasParam(PARAM_METRIC_KEYS, "ncloc,complexity")

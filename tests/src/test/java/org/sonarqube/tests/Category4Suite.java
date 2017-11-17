@@ -28,6 +28,7 @@ import org.sonarqube.tests.analysis.IssueExclusionsTest;
 import org.sonarqube.tests.ce.CeTempDirTest;
 import org.sonarqube.tests.ce.CeWsTest;
 import org.sonarqube.tests.qualityProfile.QualityProfilesUiTest;
+import org.sonarqube.tests.rule.RulesPageTest;
 import org.sonarqube.tests.serverSystem.HttpHeadersTest;
 import org.sonarqube.tests.serverSystem.LogsTest;
 import org.sonarqube.tests.serverSystem.PingTest;
@@ -82,6 +83,7 @@ import static util.ItUtils.xooPlugin;
   WsTest.class,
   // quality profiles
   QualityProfilesUiTest.class,
+  RulesPageTest.class,
   LogsTest.class,
   // ce
   CeWsTest.class,

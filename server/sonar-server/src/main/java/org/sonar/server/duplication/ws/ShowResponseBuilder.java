@@ -28,9 +28,9 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
-import org.sonarqube.ws.WsDuplications;
-import org.sonarqube.ws.WsDuplications.Block;
-import org.sonarqube.ws.WsDuplications.ShowResponse;
+import org.sonarqube.ws.Duplications;
+import org.sonarqube.ws.Duplications.Block;
+import org.sonarqube.ws.Duplications.ShowResponse;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -61,8 +61,8 @@ public class ShowResponseBuilder {
     return response.build();
   }
 
-  private static WsDuplications.Duplication.Builder toWsDuplication(DuplicationsParser.Block block, Map<String, String> refByComponentKey) {
-    WsDuplications.Duplication.Builder wsDuplication = WsDuplications.Duplication.newBuilder();
+  private static Duplications.Duplication.Builder toWsDuplication(DuplicationsParser.Block block, Map<String, String> refByComponentKey) {
+    Duplications.Duplication.Builder wsDuplication = Duplications.Duplication.newBuilder();
     block.getDuplications().stream()
       .map(d -> toWsBlock(refByComponentKey, d))
       .forEach(wsDuplication::addBlocks);
@@ -86,8 +86,8 @@ public class ShowResponseBuilder {
     return block;
   }
 
-  private static WsDuplications.File toWsFile(ComponentDto file, @Nullable ComponentDto project, @Nullable ComponentDto subProject, @Nullable String branch) {
-    WsDuplications.File.Builder wsFile = WsDuplications.File.newBuilder();
+  private static Duplications.File toWsFile(ComponentDto file, @Nullable ComponentDto project, @Nullable ComponentDto subProject, @Nullable String branch) {
+    Duplications.File.Builder wsFile = Duplications.File.newBuilder();
     wsFile.setKey(file.getKey());
     wsFile.setUuid(file.uuid());
     wsFile.setName(file.longName());
@@ -113,7 +113,7 @@ public class ShowResponseBuilder {
   private void writeFiles(DbSession session, ShowResponse.Builder response, Map<String, String> refByComponentKey, @Nullable String branch) {
     Map<String, ComponentDto> projectsByUuid = newHashMap();
     Map<String, ComponentDto> parentModulesByUuid = newHashMap();
-    Map<String, WsDuplications.File> filesByRef = response.getMutableFiles();
+    Map<String, Duplications.File> filesByRef = response.getMutableFiles();
 
     for (Map.Entry<String, String> entry : refByComponentKey.entrySet()) {
       String componentKey = entry.getKey();

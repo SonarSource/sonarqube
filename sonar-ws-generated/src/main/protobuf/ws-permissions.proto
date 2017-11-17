@@ -1,0 +1,138 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2016 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+syntax = "proto2";
+
+package sonarqube.ws.permissions;
+
+import "ws-commons.proto";
+
+option java_package = "org.sonarqube.ws";
+option java_outer_classname = "Permissions";
+option optimize_for = SPEED;
+
+// WS api/permissions/template_users for internal use only
+message OldUsersWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated OldUser users = 2;
+}
+
+// WS api/permissions/users for internal use only
+message UsersWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated User users = 2;
+}
+
+// WS api/permissions/groups for internal use only
+message WsGroupsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated Group groups = 2;
+}
+
+// WS api/permissions/template_groups for internal use only
+message WsTemplateGroupsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated OldGroup groups = 2;
+}
+
+message WsSearchGlobalPermissionsResponse {
+  repeated Permission permissions = 1;
+}
+
+message SearchProjectPermissionsWsResponse {
+  message Project {
+    optional string id = 1;
+    optional string key = 2;
+    optional string qualifier = 3;
+    optional string name = 4;
+    repeated Permission permissions = 5;
+  }
+
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated Project projects = 2;
+  repeated Permission permissions = 3;
+}
+
+message CreateTemplateWsResponse {
+  optional PermissionTemplate permissionTemplate = 1;
+}
+
+message UpdateTemplateWsResponse {
+  optional PermissionTemplate permissionTemplate = 1;
+}
+
+message SearchTemplatesWsResponse {
+  message TemplateIdQualifier {
+    optional string templateId = 1;
+    optional string qualifier = 2;
+  }
+
+  repeated PermissionTemplate permissionTemplates = 1;
+  repeated TemplateIdQualifier defaultTemplates = 2;
+  repeated Permission permissions = 3;
+}
+
+message Permission {
+  optional string key = 1;
+  optional string name = 2;
+  optional string description = 3;
+  optional int32 usersCount = 4;
+  optional int32 groupsCount = 5;
+  optional bool withProjectCreator = 6;
+}
+
+message PermissionTemplate {
+  optional string id = 1;
+  optional string name = 2;
+  optional string description = 3;
+  optional string projectKeyPattern = 4;
+  // ex: 2015-08-25T16:18:48+0200
+  optional string createdAt = 5;
+  // ex: 2015-08-25T16:18:48+0200
+  optional string updatedAt = 6;
+  repeated Permission permissions = 7;
+}
+
+message OldUser {
+  optional string login = 1;
+  optional string name = 2;
+  optional string email = 3;
+  optional bool selected = 4;
+}
+
+message User {
+  optional string login = 1;
+  optional string name = 2;
+  optional string email = 3;
+  repeated string permissions = 4;
+  optional string avatar = 5;
+}
+
+message OldGroup {
+  optional string id = 1;
+  optional string name = 2;
+  optional string description = 3;
+  optional bool selected = 4;
+}
+
+message Group {
+  optional string id = 1;
+  optional string name = 2;
+  optional string description = 3;
+  repeated string permissions = 4;
+}

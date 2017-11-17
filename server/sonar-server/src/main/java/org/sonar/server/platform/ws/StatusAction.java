@@ -29,7 +29,7 @@ import org.sonar.server.app.RestartFlagHolder;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.db.migration.DatabaseMigrationState;
 import org.sonar.server.ws.WsUtils;
-import org.sonarqube.ws.WsSystem;
+import org.sonarqube.ws.System;
 
 /**
  * Implementation of the {@code status} action for the System WebService.
@@ -73,22 +73,22 @@ public class StatusAction implements SystemWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    WsSystem.StatusResponse.Builder protobuf = WsSystem.StatusResponse.newBuilder();
+    System.StatusResponse.Builder protobuf = System.StatusResponse.newBuilder();
     Protobuf.setNullable(server.getId(), protobuf::setId);
     Protobuf.setNullable(server.getVersion(), protobuf::setVersion);
     protobuf.setStatus(computeStatus());
     WsUtils.writeProtobuf(protobuf.build(), request, response);
   }
 
-  private WsSystem.Status computeStatus() {
+  private System.Status computeStatus() {
     Platform.Status platformStatus = platform.status();
     switch (platformStatus) {
       case BOOTING:
         // can not happen since there can not even exist an instance of the current class
         // unless the Platform's status is UP/SAFEMODE/STARTING
-        return WsSystem.Status.DOWN;
+        return System.Status.DOWN;
       case UP:
-        return restartFlagHolder.isRestarting() ? WsSystem.Status.RESTARTING : WsSystem.Status.UP;
+        return restartFlagHolder.isRestarting() ? System.Status.RESTARTING : System.Status.UP;
       case STARTING:
         return computeStatusInStarting();
       case SAFEMODE:
@@ -98,34 +98,34 @@ public class StatusAction implements SystemWsAction {
     }
   }
 
-  private WsSystem.Status computeStatusInStarting() {
+  private System.Status computeStatusInStarting() {
     DatabaseMigrationState.Status databaseMigrationStatus = migrationState.getStatus();
     switch (databaseMigrationStatus) {
       case NONE:
-        return WsSystem.Status.STARTING;
+        return System.Status.STARTING;
       case RUNNING:
-        return WsSystem.Status.DB_MIGRATION_RUNNING;
+        return System.Status.DB_MIGRATION_RUNNING;
       case FAILED:
-        return WsSystem.Status.DOWN;
+        return System.Status.DOWN;
       case SUCCEEDED:
         // DB migration can be finished while we haven't yet finished SQ's initialization
-        return WsSystem.Status.STARTING;
+        return System.Status.STARTING;
       default:
         throw new IllegalArgumentException("Unsupported DatabaseMigration.Status " + databaseMigrationStatus);
     }
   }
 
-  private WsSystem.Status computeStatusInSafemode() {
+  private System.Status computeStatusInSafemode() {
     DatabaseMigrationState.Status databaseMigrationStatus = migrationState.getStatus();
     switch (databaseMigrationStatus) {
       case NONE:
-        return WsSystem.Status.DB_MIGRATION_NEEDED;
+        return System.Status.DB_MIGRATION_NEEDED;
       case RUNNING:
-        return WsSystem.Status.DB_MIGRATION_RUNNING;
+        return System.Status.DB_MIGRATION_RUNNING;
       case FAILED:
-        return WsSystem.Status.DOWN;
+        return System.Status.DOWN;
       case SUCCEEDED:
-        return WsSystem.Status.STARTING;
+        return System.Status.STARTING;
       default:
         throw new IllegalArgumentException("Unsupported DatabaseMigration.Status " + databaseMigrationStatus);
     }

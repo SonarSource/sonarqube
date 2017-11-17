@@ -33,7 +33,7 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.qa.util.LogsTailer;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.ce.ActivityStatusWsRequest;
+import org.sonarqube.ws.client.ce.ActivityStatusRequest;
 import util.ItUtils;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -142,7 +142,7 @@ public class CeShutdownTest {
     }
 
     int countInProgressTasks() {
-      return adminWsClient.ce().activityStatus(ActivityStatusWsRequest.newBuilder().build()).getInProgress();
+      return adminWsClient.ce().activityStatus(new ActivityStatusRequest()).getInProgress();
     }
 
     boolean hasTaskFinishedSuccessfully() throws Exception {

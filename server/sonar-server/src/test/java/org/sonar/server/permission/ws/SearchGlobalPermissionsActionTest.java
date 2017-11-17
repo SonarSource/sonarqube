@@ -31,7 +31,7 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
-import org.sonarqube.ws.WsPermissions;
+import org.sonarqube.ws.Permissions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
@@ -101,11 +101,11 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
     db.users().insertPermissionOnUser(org, user, ADMINISTER_QUALITY_GATES);
     db.organizations().addMember(org, user);
 
-    WsPermissions.WsSearchGlobalPermissionsResponse result = newRequest()
-      .executeProtobuf(WsPermissions.WsSearchGlobalPermissionsResponse.class);
+    Permissions.WsSearchGlobalPermissionsResponse result = newRequest()
+      .executeProtobuf(Permissions.WsSearchGlobalPermissionsResponse.class);
 
     assertThat(result.getPermissionsCount()).isEqualTo(GlobalPermissions.ALL.size());
-    for (WsPermissions.Permission permission : result.getPermissionsList()) {
+    for (Permissions.Permission permission : result.getPermissionsList()) {
       if (permission.getKey().equals(SCAN_EXECUTION)) {
         assertThat(permission.getUsersCount()).isEqualTo(1);
       } else {
@@ -118,8 +118,8 @@ public class SearchGlobalPermissionsActionTest extends BasePermissionWsTest<Sear
   public void supports_protobuf_response() throws Exception {
     loginAsAdmin(db.getDefaultOrganization());
 
-    WsPermissions.WsSearchGlobalPermissionsResponse result = newRequest()
-      .executeProtobuf(WsPermissions.WsSearchGlobalPermissionsResponse.class);
+    Permissions.WsSearchGlobalPermissionsResponse result = newRequest()
+      .executeProtobuf(Permissions.WsSearchGlobalPermissionsResponse.class);
 
     assertThat(result).isNotNull();
   }

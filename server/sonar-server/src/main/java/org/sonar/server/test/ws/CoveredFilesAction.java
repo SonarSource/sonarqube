@@ -39,7 +39,7 @@ import org.sonar.server.test.index.CoveredFileDoc;
 import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsTests;
+import org.sonarqube.ws.Tests;
 
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
@@ -86,10 +86,10 @@ public class CoveredFilesAction implements TestsWsAction {
     List<CoveredFileDoc> coveredFiles = index.coveredFiles(testId);
     Map<String, ComponentDto> componentsByUuid = buildComponentsByUuid(coveredFiles);
 
-    WsTests.CoveredFilesResponse.Builder responseBuilder = WsTests.CoveredFilesResponse.newBuilder();
+    Tests.CoveredFilesResponse.Builder responseBuilder = Tests.CoveredFilesResponse.newBuilder();
     if (!coveredFiles.isEmpty()) {
       for (CoveredFileDoc doc : coveredFiles) {
-        WsTests.CoveredFilesResponse.CoveredFile.Builder fileBuilder = WsTests.CoveredFilesResponse.CoveredFile.newBuilder();
+        Tests.CoveredFilesResponse.CoveredFile.Builder fileBuilder = Tests.CoveredFilesResponse.CoveredFile.newBuilder();
         fileBuilder.setId(doc.fileUuid());
         fileBuilder.setCoveredLines(doc.coveredLines().size());
         ComponentDto component = componentsByUuid.get(doc.fileUuid());

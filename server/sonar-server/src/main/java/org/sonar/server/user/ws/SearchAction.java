@@ -40,8 +40,8 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserQuery;
-import org.sonarqube.ws.WsUsers;
-import org.sonarqube.ws.WsUsers.SearchWsResponse;
+import org.sonarqube.ws.Users;
+import org.sonarqube.ws.Users.SearchWsResponse;
 import org.sonarqube.ws.client.user.SearchRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
@@ -65,10 +65,10 @@ import static org.sonar.server.user.ws.UserJsonWriter.FIELD_NAME;
 import static org.sonar.server.user.ws.UserJsonWriter.FIELD_SCM_ACCOUNTS;
 import static org.sonar.server.user.ws.UserJsonWriter.FIELD_TOKENS_COUNT;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.WsUsers.SearchWsResponse.Groups;
-import static org.sonarqube.ws.WsUsers.SearchWsResponse.ScmAccounts;
-import static org.sonarqube.ws.WsUsers.SearchWsResponse.User;
-import static org.sonarqube.ws.WsUsers.SearchWsResponse.newBuilder;
+import static org.sonarqube.ws.Users.SearchWsResponse.Groups;
+import static org.sonarqube.ws.Users.SearchWsResponse.ScmAccounts;
+import static org.sonarqube.ws.Users.SearchWsResponse.User;
+import static org.sonarqube.ws.Users.SearchWsResponse.newBuilder;
 
 public class SearchAction implements UsersWsAction {
 
@@ -111,11 +111,11 @@ public class SearchAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    WsUsers.SearchWsResponse wsResponse = doHandle(toSearchRequest(request));
+    Users.SearchWsResponse wsResponse = doHandle(toSearchRequest(request));
     writeProtobuf(wsResponse, request, response);
   }
 
-  private WsUsers.SearchWsResponse doHandle(SearchRequest request) {
+  private Users.SearchWsResponse doHandle(SearchRequest request) {
     SearchOptions options = new SearchOptions().setPage(request.getPage(), request.getPageSize());
     List<String> fields = request.getPossibleFields();
     SearchResult<UserDoc> result = userIndex.search(UserQuery.builder().setTextQuery(request.getQuery()).build(), options);

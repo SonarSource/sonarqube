@@ -28,9 +28,9 @@ import org.sonarqube.ws.client.WsConnector;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonarqube.ws.WsUserGroups.CreateWsResponse;
-import static org.sonarqube.ws.WsUserGroups.SearchWsResponse;
-import static org.sonarqube.ws.WsUserGroups.UpdateWsResponse;
+import static org.sonarqube.ws.UserGroups.CreateWsResponse;
+import static org.sonarqube.ws.UserGroups.SearchWsResponse;
+import static org.sonarqube.ws.UserGroups.UpdateWsResponse;
 
 public class UserGroupsServiceTest {
 

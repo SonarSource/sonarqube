@@ -23,7 +23,7 @@ import com.google.common.base.Function;
 import javax.annotation.Nonnull;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.permission.template.PermissionTemplateDto;
-import org.sonarqube.ws.WsPermissions.PermissionTemplate;
+import org.sonarqube.ws.Permissions.PermissionTemplate;
 
 import static org.sonar.core.util.Protobuf.setNullable;
 

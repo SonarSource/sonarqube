@@ -31,9 +31,9 @@ import static org.mockito.Mockito.mock;
 public class SystemServiceTest {
 
   @Rule
-  public ServiceTester<SystemService> serviceTester = new ServiceTester<>(new SystemService(mock(WsConnector.class)));
+  public ServiceTester<SystemServiceOld> serviceTester = new ServiceTester<>(new SystemServiceOld(mock(WsConnector.class)));
 
-  private SystemService underTest = serviceTester.getInstanceUnderTest();
+  private SystemServiceOld underTest = serviceTester.getInstanceUnderTest();
 
   @Test
   public void test_health() throws Exception {

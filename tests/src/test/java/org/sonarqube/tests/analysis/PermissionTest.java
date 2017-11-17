@@ -29,7 +29,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.ws.WsUserTokens;
+import org.sonarqube.ws.UserTokens;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.usertoken.GenerateWsRequest;
@@ -79,7 +79,7 @@ public class PermissionTest {
     createUserWithProvisioningAndScanPermissions();
 
     String tokenName = "For test";
-    WsUserTokens.GenerateWsResponse generateWsResponse = userTokensWsClient.generate(new GenerateWsRequest()
+    UserTokens.GenerateWsResponse generateWsResponse = userTokensWsClient.generate(new GenerateWsRequest()
       .setLogin(A_LOGIN)
       .setName(tokenName));
     SonarScanner sampleProject = SonarScanner.create(projectDir("shared/xoo-sample"));

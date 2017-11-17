@@ -37,7 +37,7 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.WsUsers.GroupsWsResponse;
+import org.sonarqube.ws.Users.GroupsWsResponse;
 
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;

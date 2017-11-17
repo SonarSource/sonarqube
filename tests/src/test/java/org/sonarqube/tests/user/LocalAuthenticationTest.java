@@ -30,9 +30,9 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.LoginPage;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.tests.Category4Suite;
-import org.sonarqube.ws.WsUserTokens;
-import org.sonarqube.ws.WsUsers;
-import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
+import org.sonarqube.ws.UserTokens;
+import org.sonarqube.ws.Users;
+import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.PostRequest;
@@ -106,7 +106,7 @@ public class LocalAuthenticationTest {
     User user = tester.users().generate();
     String tokenName = "Validate token based authentication";
     UserTokensService tokensService = tester.wsClient().userTokens();
-    WsUserTokens.GenerateWsResponse generateWsResponse = tokensService.generate(new GenerateWsRequest()
+    UserTokens.GenerateWsResponse generateWsResponse = tokensService.generate(new GenerateWsRequest()
       .setLogin(user.getLogin())
       .setName(tokenName));
     WsClient wsClient = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
@@ -117,7 +117,7 @@ public class LocalAuthenticationTest {
 
     assertThat(response.content()).isEqualTo("{\"valid\":true}");
 
-    WsUserTokens.SearchWsResponse searchResponse = tokensService.search(new SearchWsRequest().setLogin(user.getLogin()));
+    UserTokens.SearchWsResponse searchResponse = tokensService.search(new SearchWsRequest().setLogin(user.getLogin()));
     assertThat(searchResponse.getUserTokensCount()).isEqualTo(1);
     tokensService.revoke(new RevokeWsRequest().setLogin(user.getLogin()).setName(tokenName));
     searchResponse = tokensService.search(new SearchWsRequest().setLogin(user.getLogin()));
@@ -247,8 +247,8 @@ public class LocalAuthenticationTest {
 
     assertThat(checkAuthenticationWithAuthenticateWebService("test", "password")).isTrue();
     assertThat(tester.users().getByLogin("test").get())
-      .extracting(WsUsers.SearchWsResponse.User::getLogin, WsUsers.SearchWsResponse.User::getName, WsUsers.SearchWsResponse.User::getEmail, u -> u.getScmAccounts().getScmAccountsList(),
-        WsUsers.SearchWsResponse.User::getExternalIdentity, WsUsers.SearchWsResponse.User::getExternalProvider)
+      .extracting(Users.SearchWsResponse.User::getLogin, Users.SearchWsResponse.User::getName, Users.SearchWsResponse.User::getEmail, u -> u.getScmAccounts().getScmAccountsList(),
+        Users.SearchWsResponse.User::getExternalIdentity, Users.SearchWsResponse.User::getExternalProvider)
       .containsOnly("test", "Test", "test@email.com", asList("test1", "test2"), "test", "sonarqube");
   }
 

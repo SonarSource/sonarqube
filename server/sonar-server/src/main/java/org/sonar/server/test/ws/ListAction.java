@@ -46,7 +46,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.WsTests;
+import org.sonarqube.ws.Tests;
 
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
@@ -158,7 +158,7 @@ public class ListAction implements TestsWsAction {
       componentsByTestFileUuid = buildComponentsByTestFileUuid(dbSession, tests.getDocs());
     }
 
-    WsTests.ListResponse.Builder responseBuilder = WsTests.ListResponse.newBuilder();
+    Tests.ListResponse.Builder responseBuilder = Tests.ListResponse.newBuilder();
     responseBuilder.setPaging(Common.Paging.newBuilder()
       .setPageIndex(searchOptions.getPage())
       .setPageSize(searchOptions.getLimit())
@@ -166,7 +166,7 @@ public class ListAction implements TestsWsAction {
       .build());
 
     for (TestDoc testDoc : tests.getDocs()) {
-      WsTests.Test.Builder testBuilder = WsTests.Test.newBuilder();
+      Tests.Test.Builder testBuilder = Tests.Test.newBuilder();
       testBuilder.setId(testDoc.testUuid());
       testBuilder.setName(StringUtils.defaultString(testDoc.name()));
       testBuilder.setFileId(testDoc.fileUuid());
@@ -176,7 +176,7 @@ public class ListAction implements TestsWsAction {
         testBuilder.setFileName(component.longName());
         setNullable(component.getBranch(), testBuilder::setFileBranch);
       }
-      testBuilder.setStatus(WsTests.TestStatus.valueOf(testDoc.status()));
+      testBuilder.setStatus(Tests.TestStatus.valueOf(testDoc.status()));
       if (testDoc.durationInMs() != null) {
         testBuilder.setDurationInMs(testDoc.durationInMs());
       }

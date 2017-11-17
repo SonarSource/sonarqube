@@ -25,7 +25,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
+import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
 import static com.codeborne.selenide.Condition.text;
@@ -53,9 +53,9 @@ public class ProjectBulkDeletionPageTest {
    */
   @Test
   public void bulk_deletion_on_selected_projects() throws Exception {
-    Project project1 = tester.projects().generate(null, t -> t.setName("Foo"));
-    Project project2 = tester.projects().generate(null, t -> t.setName("Bar"));
-    Project project3 = tester.projects().generate(null, t -> t.setName("FooQux"));
+    Project project1 = tester.projects().provision(p -> p.setName("Foo"));
+    Project project2 = tester.projects().provision(p -> p.setName("Bar"));
+    Project project3 = tester.projects().provision(p -> p.setName("FooQux"));
 
     tester.openBrowser().logIn().submitCredentials(sysAdminLogin).open("/organizations/default-organization/projects_management");
     $("#projects-management-page").shouldHave(text(project1.getName())).shouldHave(text(project2.getName())).shouldHave(text(project3.getName()));

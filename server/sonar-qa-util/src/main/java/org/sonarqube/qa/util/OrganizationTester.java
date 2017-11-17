@@ -25,7 +25,7 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.assertj.core.api.Assertions;
 import org.sonarqube.ws.Organizations;
-import org.sonarqube.ws.WsUsers;
+import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.organization.CreateWsRequest;
@@ -35,7 +35,6 @@ import org.sonarqube.ws.client.organization.SearchWsRequest;
 import org.sonarqube.ws.client.user.GroupsRequest;
 
 import static java.util.Arrays.stream;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class OrganizationTester {
 
@@ -70,7 +69,7 @@ public class OrganizationTester {
     return service().create(request.build()).getOrganization();
   }
 
-  public OrganizationTester addMember(Organizations.Organization organization, WsUsers.CreateWsResponse.User user) {
+  public OrganizationTester addMember(Organizations.Organization organization, Users.CreateWsResponse.User user) {
     service().addMember(organization.getKey(), user.getLogin());
     return this;
   }
@@ -89,7 +88,7 @@ public class OrganizationTester {
     return this;
   }
 
-  public OrganizationTester assertThatMemberOf(Organizations.Organization organization, WsUsers.CreateWsResponse.User user) {
+  public OrganizationTester assertThatMemberOf(Organizations.Organization organization, Users.CreateWsResponse.User user) {
     return assertThatMemberOf(organization, user.getLogin());
   }
 
@@ -99,7 +98,7 @@ public class OrganizationTester {
     return this;
   }
 
-  public OrganizationTester assertThatNotMemberOf(Organizations.Organization organization, WsUsers.CreateWsResponse.User user) {
+  public OrganizationTester assertThatNotMemberOf(Organizations.Organization organization, Users.CreateWsResponse.User user) {
     return assertThatNotMemberOf(organization, user.getLogin());
   }
 
@@ -126,7 +125,7 @@ public class OrganizationTester {
   }
 
   private void verifyMembersGroupMembership(String userLogin, @Nullable Organizations.Organization organization, boolean isMember) {
-    List<WsUsers.GroupsWsResponse.Group> groups = session.wsClient().users().groups(GroupsRequest.builder()
+    List<Users.GroupsWsResponse.Group> groups = session.wsClient().users().groups(GroupsRequest.builder()
       .setLogin(userLogin)
       .setOrganization(organization != null ? organization.getKey() : null)
       .setQuery("Members")

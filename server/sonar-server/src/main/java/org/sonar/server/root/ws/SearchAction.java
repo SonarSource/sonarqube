@@ -28,7 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsRoot;
+import org.sonarqube.ws.Root;
 
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -69,13 +69,13 @@ public class SearchAction implements RootsWsAction {
   }
 
   private static void writeResponse(Request request, Response response, List<UserDto> dtos) {
-    WsRoot.SearchWsResponse.Builder responseBuilder = WsRoot.SearchWsResponse.newBuilder();
-    WsRoot.Root.Builder rootBuilder = WsRoot.Root.newBuilder();
+    Root.SearchWsResponse.Builder responseBuilder = Root.SearchWsResponse.newBuilder();
+    Root.RootContent.Builder rootBuilder = Root.RootContent.newBuilder();
     dtos.forEach(dto -> responseBuilder.addRoots(toRoot(rootBuilder, dto)));
     writeProtobuf(responseBuilder.build(), request, response);
   }
 
-  private static WsRoot.Root toRoot(WsRoot.Root.Builder builder, UserDto dto) {
+  private static Root.RootContent toRoot(Root.RootContent.Builder builder, UserDto dto) {
     builder.clear();
     builder.setLogin(dto.getLogin());
     if (dto.getName() != null) {

@@ -40,8 +40,8 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskCharacteristicDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.WsCe;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -63,17 +63,17 @@ public class TaskFormatter {
     this.system2 = system2;
   }
 
-  public List<WsCe.Task> formatQueue(DbSession dbSession, List<CeQueueDto> dtos) {
+  public List<Ce.Task> formatQueue(DbSession dbSession, List<CeQueueDto> dtos) {
     DtoCache cache = DtoCache.forQueueDtos(dbClient, dbSession, dtos);
     return dtos.stream().map(input -> formatQueue(input, cache)).collect(MoreCollectors.toList(dtos.size()));
   }
 
-  public WsCe.Task formatQueue(DbSession dbSession, CeQueueDto queue) {
+  public Ce.Task formatQueue(DbSession dbSession, CeQueueDto queue) {
     return formatQueue(queue, DtoCache.forQueueDtos(dbClient, dbSession, singletonList(queue)));
   }
 
-  private WsCe.Task formatQueue(CeQueueDto dto, DtoCache componentDtoCache) {
-    WsCe.Task.Builder builder = WsCe.Task.newBuilder();
+  private Ce.Task formatQueue(CeQueueDto dto, DtoCache componentDtoCache) {
+    Ce.Task.Builder builder = Ce.Task.newBuilder();
     String organizationKey = componentDtoCache.getOrganizationKey(dto.getComponentUuid());
     // FIXME organization field should be set from the CeQueueDto rather than from the ComponentDto
     setNullable(organizationKey, builder::setOrganization);
@@ -82,7 +82,7 @@ public class TaskFormatter {
       setComponent(builder, dto.getComponentUuid(), componentDtoCache);
     }
     builder.setId(dto.getUuid());
-    builder.setStatus(WsCe.TaskStatus.valueOf(dto.getStatus().name()));
+    builder.setStatus(Ce.TaskStatus.valueOf(dto.getStatus().name()));
     builder.setType(dto.getTaskType());
     builder.setLogs(false);
     setNullable(dto.getSubmitterLogin(), builder::setSubmitterLogin);
@@ -93,24 +93,24 @@ public class TaskFormatter {
     return builder.build();
   }
 
-  public WsCe.Task formatActivity(DbSession dbSession, CeActivityDto dto, @Nullable String scannerContext) {
+  public Ce.Task formatActivity(DbSession dbSession, CeActivityDto dto, @Nullable String scannerContext) {
     return formatActivity(dto, DtoCache.forActivityDtos(dbClient, dbSession, singletonList(dto)), scannerContext);
   }
 
-  public List<WsCe.Task> formatActivity(DbSession dbSession, List<CeActivityDto> dtos) {
+  public List<Ce.Task> formatActivity(DbSession dbSession, List<CeActivityDto> dtos) {
     DtoCache cache = DtoCache.forActivityDtos(dbClient, dbSession, dtos);
     return dtos.stream()
       .map(input -> formatActivity(input, cache, null))
       .collect(MoreCollectors.toList(dtos.size()));
   }
 
-  private static WsCe.Task formatActivity(CeActivityDto dto, DtoCache componentDtoCache, @Nullable String scannerContext) {
-    WsCe.Task.Builder builder = WsCe.Task.newBuilder();
+  private static Ce.Task formatActivity(CeActivityDto dto, DtoCache componentDtoCache, @Nullable String scannerContext) {
+    Ce.Task.Builder builder = Ce.Task.newBuilder();
     String organizationKey = componentDtoCache.getOrganizationKey(dto.getComponentUuid());
     // FIXME organization field should be set from the CeActivityDto rather than from the ComponentDto
     setNullable(organizationKey, builder::setOrganization);
     builder.setId(dto.getUuid());
-    builder.setStatus(WsCe.TaskStatus.valueOf(dto.getStatus().name()));
+    builder.setStatus(Ce.TaskStatus.valueOf(dto.getStatus().name()));
     builder.setType(dto.getTaskType());
     builder.setLogs(false);
     setNullable(dto.getComponentUuid(), uuid -> setComponent(builder, uuid, componentDtoCache).setComponentId(uuid));
@@ -133,7 +133,7 @@ public class TaskFormatter {
     return builder.build();
   }
 
-  private static WsCe.Task.Builder setComponent(WsCe.Task.Builder builder, @Nullable String componentUuid, DtoCache componentDtoCache) {
+  private static Ce.Task.Builder setComponent(Ce.Task.Builder builder, @Nullable String componentUuid, DtoCache componentDtoCache) {
     ComponentDto componentDto = componentDtoCache.getComponent(componentUuid);
     if (componentDto == null) {
       return builder;
@@ -144,7 +144,7 @@ public class TaskFormatter {
     return builder;
   }
 
-  private static WsCe.Task.Builder setBranch(WsCe.Task.Builder builder, String taskUuid, DtoCache componentDtoCache) {
+  private static Ce.Task.Builder setBranch(Ce.Task.Builder builder, String taskUuid, DtoCache componentDtoCache) {
     componentDtoCache.getBranchName(taskUuid).ifPresent(
       b -> {
         builder.setBranch(b);

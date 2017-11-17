@@ -34,10 +34,10 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.bootstrap.ScannerWsClient;
 import org.sonar.scanner.util.ScannerUtils;
-import org.sonarqube.ws.WsBatch;
-import org.sonarqube.ws.WsBatch.WsProjectResponse;
-import org.sonarqube.ws.WsBatch.WsProjectResponse.FileDataByPath;
-import org.sonarqube.ws.WsBatch.WsProjectResponse.Settings;
+import org.sonarqube.ws.Batch;
+import org.sonarqube.ws.Batch.WsProjectResponse;
+import org.sonarqube.ws.Batch.WsProjectResponse.FileDataByPath;
+import org.sonarqube.ws.Batch.WsProjectResponse.Settings;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsResponse;
@@ -111,7 +111,7 @@ public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoad
 
       Map<String, FileDataByPath> fileDataByModuleAndPath = response.getFileDataByModuleAndPath();
       for (Map.Entry<String, FileDataByPath> e1 : fileDataByModuleAndPath.entrySet()) {
-        for (Map.Entry<String, WsBatch.WsProjectResponse.FileData> e2 : e1.getValue().getFileDataByPath().entrySet()) {
+        for (Map.Entry<String, Batch.WsProjectResponse.FileData> e2 : e1.getValue().getFileDataByPath().entrySet()) {
           FileData fd = new FileData(e2.getValue().getHash(), e2.getValue().getRevision());
           fileDataTable.put(e1.getKey(), e2.getKey(), fd);
         }

@@ -28,7 +28,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsUserTokens.SearchWsResponse;
+import org.sonarqube.ws.UserTokens.SearchWsResponse;
 import org.sonarqube.ws.client.usertoken.SearchWsRequest;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;

@@ -48,10 +48,12 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsCe;
-import org.sonarqube.ws.WsCe.ActivityResponse;
-import org.sonarqube.ws.client.ce.ActivityWsRequest;
+import org.sonarqube.ws.Ce;
+import org.sonarqube.ws.Ce.ActivityResponse;
+import org.sonarqube.ws.client.ce.ActivityRequest;
 
+import static java.lang.Boolean.parseBoolean;
+import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.StringUtils.defaultString;
@@ -161,32 +163,32 @@ public class ActivityAction implements CeWsAction {
     writeProtobuf(activityResponse, wsRequest, wsResponse);
   }
 
-  private ActivityResponse doHandle(ActivityWsRequest request) {
+  private ActivityResponse doHandle(ActivityRequest request) {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = loadComponent(dbSession, request);
       checkPermission(component);
       // if a task searched by uuid is found all other parameters are ignored
-      Optional<WsCe.Task> taskSearchedById = searchTaskByUuid(dbSession, request);
+      Optional<Ce.Task> taskSearchedById = searchTaskByUuid(dbSession, request);
       if (taskSearchedById.isPresent()) {
         return buildResponse(
           singletonList(taskSearchedById.get()),
           Collections.emptyList(),
-          request.getPageSize());
+          parseInt(request.getPs()));
       }
 
       CeTaskQuery query = buildQuery(dbSession, request, component);
-      List<WsCe.Task> queuedTasks = loadQueuedTasks(dbSession, request, query);
-      List<WsCe.Task> pastTasks = loadPastTasks(dbSession, request, query);
+      List<Ce.Task> queuedTasks = loadQueuedTasks(dbSession, request, query);
+      List<Ce.Task> pastTasks = loadPastTasks(dbSession, request, query);
       return buildResponse(
         queuedTasks,
         pastTasks,
-        request.getPageSize());
+        parseInt(request.getPs()));
     }
   }
 
   @CheckForNull
-  private ComponentDto loadComponent(DbSession dbSession, ActivityWsRequest request) {
+  private ComponentDto loadComponent(DbSession dbSession, ActivityRequest request) {
     String componentId = request.getComponentId();
     if (componentId == null) {
       return null;
@@ -205,8 +207,8 @@ public class ActivityAction implements CeWsAction {
     }
   }
 
-  private Optional<WsCe.Task> searchTaskByUuid(DbSession dbSession, ActivityWsRequest request) {
-    String textQuery = request.getQuery();
+  private Optional<Ce.Task> searchTaskByUuid(DbSession dbSession, ActivityRequest request) {
+    String textQuery = request.getQ();
     if (textQuery == null) {
       return Optional.absent();
     }
@@ -220,10 +222,10 @@ public class ActivityAction implements CeWsAction {
     return activity.map(ceActivityDto -> Optional.of(formatter.formatActivity(dbSession, ceActivityDto, null))).orElseGet(Optional::absent);
   }
 
-  private CeTaskQuery buildQuery(DbSession dbSession, ActivityWsRequest request, @Nullable ComponentDto component) {
+  private CeTaskQuery buildQuery(DbSession dbSession, ActivityRequest request, @Nullable ComponentDto component) {
     CeTaskQuery query = new CeTaskQuery();
     query.setType(request.getType());
-    query.setOnlyCurrents(request.getOnlyCurrents());
+    query.setOnlyCurrents(parseBoolean(request.getOnlyCurrents()));
     Date minSubmittedAt = parseStartingDateOrDateTime(request.getMinSubmittedAt());
     query.setMinSubmittedAt(minSubmittedAt == null ? null : minSubmittedAt.getTime());
     Date maxExecutedAt = parseEndingDateOrDateTime(request.getMaxExecutedAt());
@@ -234,7 +236,7 @@ public class ActivityAction implements CeWsAction {
       query.setStatuses(request.getStatus());
     }
 
-    String componentQuery = request.getQuery();
+    String componentQuery = request.getQ();
     if (component != null) {
       query.setComponentUuid(component.uuid());
     } else if (componentQuery != null) {
@@ -251,28 +253,28 @@ public class ActivityAction implements CeWsAction {
     return dbClient.componentDao().selectByQuery(dbSession, componentDtoQuery, 0, CeTaskQuery.MAX_COMPONENT_UUIDS);
   }
 
-  private List<WsCe.Task> loadQueuedTasks(DbSession dbSession, ActivityWsRequest request, CeTaskQuery query) {
-    List<CeQueueDto> dtos = dbClient.ceQueueDao().selectByQueryInDescOrder(dbSession, query, request.getPageSize());
+  private List<Ce.Task> loadQueuedTasks(DbSession dbSession, ActivityRequest request, CeTaskQuery query) {
+    List<CeQueueDto> dtos = dbClient.ceQueueDao().selectByQueryInDescOrder(dbSession, query, parseInt(request.getPs()));
     return formatter.formatQueue(dbSession, dtos);
   }
 
-  private List<WsCe.Task> loadPastTasks(DbSession dbSession, ActivityWsRequest request, CeTaskQuery query) {
-    List<CeActivityDto> dtos = dbClient.ceActivityDao().selectByQuery(dbSession, query, forPage(1).andSize(request.getPageSize()));
+  private List<Ce.Task> loadPastTasks(DbSession dbSession, ActivityRequest request, CeTaskQuery query) {
+    List<CeActivityDto> dtos = dbClient.ceActivityDao().selectByQuery(dbSession, query, forPage(1).andSize(parseInt(request.getPs())));
     return formatter.formatActivity(dbSession, dtos);
   }
 
-  private static ActivityResponse buildResponse(Iterable<WsCe.Task> queuedTasks, Iterable<WsCe.Task> pastTasks, int pageSize) {
-    WsCe.ActivityResponse.Builder wsResponseBuilder = WsCe.ActivityResponse.newBuilder();
+  private static ActivityResponse buildResponse(Iterable<Ce.Task> queuedTasks, Iterable<Ce.Task> pastTasks, int pageSize) {
+    Ce.ActivityResponse.Builder wsResponseBuilder = Ce.ActivityResponse.newBuilder();
 
     int nbInsertedTasks = 0;
-    for (WsCe.Task queuedTask : queuedTasks) {
+    for (Ce.Task queuedTask : queuedTasks) {
       if (nbInsertedTasks < pageSize) {
         wsResponseBuilder.addTasks(queuedTask);
         nbInsertedTasks++;
       }
     }
 
-    for (WsCe.Task pastTask : pastTasks) {
+    for (Ce.Task pastTask : pastTasks) {
       if (nbInsertedTasks < pageSize) {
         wsResponseBuilder.addTasks(pastTask);
         nbInsertedTasks++;
@@ -281,18 +283,18 @@ public class ActivityAction implements CeWsAction {
     return wsResponseBuilder.build();
   }
 
-  private static ActivityWsRequest toSearchWsRequest(Request request) {
-    ActivityWsRequest activityWsRequest = new ActivityWsRequest()
+  private static ActivityRequest toSearchWsRequest(Request request) {
+    ActivityRequest activityWsRequest = new ActivityRequest()
       .setComponentId(request.param(PARAM_COMPONENT_ID))
-      .setQuery(defaultString(request.param(Param.TEXT_QUERY), request.param(PARAM_COMPONENT_QUERY)))
+      .setQ(defaultString(request.param(Param.TEXT_QUERY), request.param(PARAM_COMPONENT_QUERY)))
       .setStatus(request.paramAsStrings(PARAM_STATUS))
       .setType(request.param(PARAM_TYPE))
       .setMinSubmittedAt(request.param(PARAM_MIN_SUBMITTED_AT))
       .setMaxExecutedAt(request.param(PARAM_MAX_EXECUTED_AT))
-      .setOnlyCurrents(request.paramAsBoolean(PARAM_ONLY_CURRENTS))
-      .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
+      .setOnlyCurrents(String.valueOf(request.paramAsBoolean(PARAM_ONLY_CURRENTS)))
+      .setPs(String.valueOf(request.mandatoryParamAsInt(Param.PAGE_SIZE)));
 
-    checkRequest(activityWsRequest.getComponentId() == null || activityWsRequest.getQuery() == null, "%s and %s must not be set at the same time",
+    checkRequest(activityWsRequest.getComponentId() == null || activityWsRequest.getQ() == null, "%s and %s must not be set at the same time",
       PARAM_COMPONENT_ID, PARAM_COMPONENT_QUERY);
     return activityWsRequest;
   }

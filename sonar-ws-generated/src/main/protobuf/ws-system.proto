@@ -1,0 +1,77 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2016 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+syntax = "proto2";
+
+package sonarqube.ws.system;
+
+option java_package = "org.sonarqube.ws";
+option java_outer_classname = "System";
+option optimize_for = SPEED;
+
+// GET api/system/health
+message HealthResponse {
+  optional Health health = 1;
+  repeated Cause causes = 2;
+  optional Nodes nodes = 3;
+}
+
+message Nodes {
+  repeated Node nodes = 1;
+}
+
+// GET api/system/status
+message StatusResponse {
+  optional string id = 1;
+  optional string version = 2;
+  optional Status status = 3;
+}
+
+message Cause {
+  optional string message = 1;
+}
+
+enum Health {
+  GREEN = 0;
+  YELLOW = 1;
+  RED = 2;
+}
+
+enum Status {
+  STARTING = 0;
+  UP = 1;
+  DOWN = 2;
+  RESTARTING = 3;
+  DB_MIGRATION_NEEDED = 4;
+  DB_MIGRATION_RUNNING = 5;
+}
+
+message Node {
+  optional string name = 1;
+  optional NodeType type = 2;
+  optional string host = 3;
+  optional int32 port = 4;
+  optional string startedAt = 5;
+  optional Health health = 6;
+  repeated Cause causes = 7;
+}
+
+enum NodeType {
+  APPLICATION = 0;
+  SEARCH = 1;
+}

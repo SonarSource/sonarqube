@@ -34,7 +34,7 @@ import org.sonar.server.platform.WebServer;
 import org.sonar.server.plugins.edition.EditionInstaller;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
-import org.sonarqube.ws.WsEditions;
+import org.sonarqube.ws.Editions;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -115,11 +115,11 @@ public class ApplyLicenseAction implements EditionsWsAction {
     }
   }
 
-  private WsEditions.StatusResponse buildResponse() {
-    WsEditions.StatusResponse.Builder builder = WsEditions.StatusResponse.newBuilder()
+  private Editions.StatusResponse buildResponse() {
+    Editions.StatusResponse.Builder builder = Editions.StatusResponse.newBuilder()
       .setNextEditionKey(editionManagementState.getPendingEditionKey().orElse(""))
       .setCurrentEditionKey(editionManagementState.getCurrentEditionKey().orElse(""))
-      .setInstallationStatus(WsEditions.InstallationStatus.valueOf(editionManagementState.getPendingInstallationStatus().name()));
+      .setInstallationStatus(Editions.InstallationStatus.valueOf(editionManagementState.getPendingInstallationStatus().name()));
     editionManagementState.getInstallErrorMessage().ifPresent(builder::setInstallError);
     return builder.build();
   }

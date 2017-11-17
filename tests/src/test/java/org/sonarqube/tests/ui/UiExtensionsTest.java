@@ -26,8 +26,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.WsProjects;
-import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
+import org.sonarqube.ws.Projects;
+import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.project.CreateRequest;
 import util.ItUtils;
 import util.selenium.Selenese;
@@ -78,7 +78,7 @@ public class UiExtensionsTest {
 
   @Test
   public void test_project_page() {
-    WsProjects.CreateWsResponse.Project project = createSampleProject();
+    Projects.CreateWsResponse.Project project = createSampleProject();
 
     tester.openBrowser().open("/dashboard?id=" + project.getKey());
 
@@ -91,7 +91,7 @@ public class UiExtensionsTest {
 
   @Test
   public void test_project_administration_page() {
-    WsProjects.CreateWsResponse.Project project = createSampleProject();
+    Projects.CreateWsResponse.Project project = createSampleProject();
     User administrator = tester.users().generateAdministrator();
 
     tester.openBrowser()
@@ -105,7 +105,7 @@ public class UiExtensionsTest {
     $("body").shouldHave(text("uiextensionsplugin/project_admin_page"));
   }
 
-  private WsProjects.CreateWsResponse.Project createSampleProject() {
+  private Projects.CreateWsResponse.Project createSampleProject() {
     String projectKey = ItUtils.newProjectKey();
     return tester.wsClient().projects().create(CreateRequest.builder()
       .setKey(projectKey)

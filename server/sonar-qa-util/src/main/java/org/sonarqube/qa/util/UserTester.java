@@ -24,8 +24,8 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import org.sonarqube.ws.Organizations;
-import org.sonarqube.ws.WsUsers;
-import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
+import org.sonarqube.ws.Users;
+import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.user.CreateRequest;
 import org.sonarqube.ws.client.user.SearchRequest;
@@ -122,8 +122,8 @@ public class UserTester {
     return session.wsClient().users();
   }
 
-  public Optional<WsUsers.SearchWsResponse.User> getByLogin(String login) {
-    List<WsUsers.SearchWsResponse.User> users = session.wsClient().users().search(SearchRequest.builder().setQuery(login).build()).getUsersList();
+  public Optional<Users.SearchWsResponse.User> getByLogin(String login) {
+    List<Users.SearchWsResponse.User> users = session.wsClient().users().search(SearchRequest.builder().setQuery(login).build()).getUsersList();
     if (users.size() == 1) {
       return Optional.of(users.get(0));
     }

@@ -27,12 +27,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations.Organization;
-import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
-import org.sonarqube.ws.WsQualityGates.CreateWsResponse;
-import org.sonarqube.ws.WsUsers;
+import org.sonarqube.ws.Projects.CreateWsResponse.Project;
+import org.sonarqube.ws.Qualitygates.CreateWsResponse;
+import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.qualitygate.CreateConditionRequest;
+import org.sonarqube.ws.client.qualitygates.CreateConditionRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,20 +49,19 @@ public class OrganizationQualityGateTest {
   @Test
   public void always_display_current_quality_gate_in_effect() throws Exception {
     Organization organization = tester.organizations().generate();
-    Project project = tester.projects().generate(organization);
+    Project project = tester.projects().provision(organization);
     CreateWsResponse qualityGate = tester.qGates().generate();
     tester.qGates().associateProject(qualityGate, project);
-    tester.wsClient().qualityGates().createCondition(CreateConditionRequest.builder()
-      .setQualityGateId(qualityGate.getId())
-      .setMetricKey("new_coverage")
-      .setOperator("LT")
+    tester.wsClient().qualityGates().createCondition(new CreateConditionRequest()
+      .setGateId(String.valueOf(qualityGate.getId()))
+      .setMetric("new_coverage")
+      .setOp("LT")
       .setWarning("90")
       .setError("80")
-      .setPeriod(1)
-      .build());
+      .setPeriod("1"));
     tester.settings().setProjectSetting(project.getKey(), "sonar.leak.period", "previous_version");
     String password = "password1";
-    WsUsers.CreateWsResponse.User user = tester.users().generateAdministrator(organization, u -> u.setPassword(password));
+    Users.CreateWsResponse.User user = tester.users().generateAdministrator(organization, u -> u.setPassword(password));
 
     WsResponse response = tester.wsClient().wsConnector().call(new GetRequest("api/navigation/component").setParam("componentKey", project.getKey()));
     Map currentQualityGate = (Map) ItUtils.jsonToMap(response.content()).get("qualityGate");
@@ -83,14 +82,13 @@ public class OrganizationQualityGateTest {
 
     CreateWsResponse qualityGate2 = tester.qGates().generate();
     tester.qGates().associateProject(qualityGate2, project);
-    tester.wsClient().qualityGates().createCondition(CreateConditionRequest.builder()
-      .setQualityGateId(qualityGate2.getId())
-      .setMetricKey("new_coverage")
-      .setOperator("LT")
+    tester.wsClient().qualityGates().createCondition(new CreateConditionRequest()
+      .setGateId(String.valueOf(qualityGate2.getId()))
+      .setMetric("new_coverage")
+      .setOp("LT")
       .setWarning("90")
       .setError("80")
-      .setPeriod(1)
-      .build());
+      .setPeriod("1"));
 
     WsResponse response3 = tester.wsClient().wsConnector().call(new GetRequest("api/navigation/component").setParam("componentKey", project.getKey()));
     Map currentQualityGate3 = (Map) ItUtils.jsonToMap(response3.content()).get("qualityGate");

@@ -28,7 +28,7 @@ import org.sonar.ce.configuration.WorkerCountProvider;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.WsCe.WorkerCountResponse;
+import org.sonarqube.ws.Ce.WorkerCountResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

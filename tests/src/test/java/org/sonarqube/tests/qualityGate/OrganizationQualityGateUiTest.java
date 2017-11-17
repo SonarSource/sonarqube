@@ -31,7 +31,7 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.ProjectDashboardPage;
 import org.sonarqube.qa.util.pageobjects.QualityGatePage;
 import org.sonarqube.ws.Organizations;
-import org.sonarqube.ws.WsUsers;
+import org.sonarqube.ws.Users;
 import util.issue.IssueRule;
 
 import static com.codeborne.selenide.Selenide.$;
@@ -50,8 +50,8 @@ public class OrganizationQualityGateUiTest {
   public IssueRule issueRule = IssueRule.from(orchestrator);
 
   private Organizations.Organization organization;
-  private WsUsers.CreateWsResponse.User user;
-  private WsUsers.CreateWsResponse.User gateAdmin;
+  private Users.CreateWsResponse.User user;
+  private Users.CreateWsResponse.User gateAdmin;
 
   @Before
   public void setUp() throws Exception {
@@ -98,7 +98,7 @@ public class OrganizationQualityGateUiTest {
 
   @Test
   public void quality_gate_link_on_project_dashboard_should_have_organization_context() {
-    String project = tester.projects().generate(organization).getKey();
+    String project = tester.projects().provision(organization).getKey();
     runProjectAnalysis(orchestrator, "shared/xoo-multi-modules-sample",
       "sonar.projectKey", project,
       "sonar.organization", organization.getKey(),

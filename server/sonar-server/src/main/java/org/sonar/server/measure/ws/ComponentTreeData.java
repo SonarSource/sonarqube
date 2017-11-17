@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonarqube.ws.WsMeasures;
+import org.sonarqube.ws.Measures;
 
 import static java.lang.Double.NaN;
 import static java.lang.Double.isNaN;
@@ -39,7 +39,7 @@ class ComponentTreeData {
   private final int componentCount;
   private final Map<String, ComponentDto> referenceComponentsByUuid;
   private final List<MetricDto> metrics;
-  private final List<WsMeasures.Period> periods;
+  private final List<Measures.Period> periods;
   private final Table<String, MetricDto, Measure> measuresByComponentUuidAndMetric;
 
   private ComponentTreeData(Builder builder) {
@@ -77,7 +77,7 @@ class ComponentTreeData {
   }
 
   @CheckForNull
-  List<WsMeasures.Period> getPeriods() {
+  List<Measures.Period> getPeriods() {
     return periods;
   }
 
@@ -96,7 +96,7 @@ class ComponentTreeData {
     private Map<String, ComponentDto> referenceComponentsByUuid;
     private int componentCount;
     private List<MetricDto> metrics;
-    private List<WsMeasures.Period> periods;
+    private List<Measures.Period> periods;
     private Table<String, MetricDto, Measure> measuresByComponentUuidAndMetric;
 
     private Builder() {
@@ -123,7 +123,7 @@ class ComponentTreeData {
       return this;
     }
 
-    public Builder setPeriods(List<WsMeasures.Period> periods) {
+    public Builder setPeriods(List<Measures.Period> periods) {
       this.periods = periods;
       return this;
     }

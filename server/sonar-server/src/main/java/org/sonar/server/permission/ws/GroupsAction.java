@@ -40,8 +40,8 @@ import org.sonar.db.permission.PermissionQuery;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.permission.ProjectId;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsPermissions.Group;
-import org.sonarqube.ws.WsPermissions.WsGroupsResponse;
+import org.sonarqube.ws.Permissions.Group;
+import org.sonarqube.ws.Permissions.WsGroupsResponse;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.core.util.Protobuf.setNullable;

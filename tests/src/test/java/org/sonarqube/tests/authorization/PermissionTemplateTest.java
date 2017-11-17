@@ -32,10 +32,10 @@ import org.junit.rules.Timeout;
 import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations.Organization;
-import org.sonarqube.ws.WsPermissions;
-import org.sonarqube.ws.WsPermissions.CreateTemplateWsResponse;
-import org.sonarqube.ws.WsProjects.CreateWsResponse.Project;
-import org.sonarqube.ws.WsUsers.CreateWsResponse;
+import org.sonarqube.ws.Permissions;
+import org.sonarqube.ws.Permissions.CreateTemplateWsResponse;
+import org.sonarqube.ws.Projects.CreateWsResponse.Project;
+import org.sonarqube.ws.Users.CreateWsResponse;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 import org.sonarqube.ws.client.permission.AddUserToTemplateWsRequest;
@@ -89,7 +89,7 @@ public class PermissionTemplateTest {
     Organization organization = tester.organizations().generate();
     CreateWsResponse.User user = tester.users().generateMember(organization);
     CreateWsResponse.User anotherUser = tester.users().generateMember(organization);
-    WsPermissions.PermissionTemplate template = createTemplate(organization).getPermissionTemplate();
+    Permissions.PermissionTemplate template = createTemplate(organization).getPermissionTemplate();
     tester.wsClient().permissions().addUserToTemplate(new AddUserToTemplateWsRequest()
       .setOrganization(organization.getKey())
       .setTemplateId(template.getId())
@@ -179,7 +179,7 @@ public class PermissionTemplateTest {
   }
 
   private Project createPrivateProject(Organization organization) {
-    return tester.projects().generate(organization, p -> p.setVisibility("private"));
+    return tester.projects().provision(organization, p -> p.setVisibility("private"));
   }
 
   private void assertThatUserHasPermission(CreateWsResponse.User user, Organization organization, Project project) {
@@ -203,8 +203,8 @@ public class PermissionTemplateTest {
       .setOrganization(organization.getKey())
       .setProjectKey(project.getKey())
       .setPermission("user");
-    WsPermissions.UsersWsResponse response = tester.wsClient().permissions().users(request);
-    Optional<WsPermissions.User> found = response.getUsersList().stream()
+    Permissions.UsersWsResponse response = tester.wsClient().permissions().users(request);
+    Optional<Permissions.User> found = response.getUsersList().stream()
       .filter(u -> user.getLogin().equals(u.getLogin()))
       .findFirst();
     return found.isPresent();

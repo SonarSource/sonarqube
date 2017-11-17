@@ -30,9 +30,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsProjects.SearchMyProjectsWsResponse;
-import org.sonarqube.ws.WsProjects.SearchMyProjectsWsResponse.Link;
-import org.sonarqube.ws.WsProjects.SearchMyProjectsWsResponse.Project;
+import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse;
+import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse.Link;
+import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse.Project;
 import org.sonarqube.ws.client.project.SearchMyProjectsRequest;
 
 import static com.google.common.base.Strings.emptyToNull;

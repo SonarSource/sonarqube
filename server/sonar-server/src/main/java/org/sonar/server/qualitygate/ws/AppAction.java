@@ -30,13 +30,13 @@ import org.sonar.db.metric.MetricDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsQualityGates.AppWsResponse.Metric;
+import org.sonarqube.ws.Qualitygates.AppWsResponse.Metric;
 
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.server.qualitygate.ValidRatingMetrics.isCoreRatingMetric;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.WsQualityGates.AppWsResponse;
+import static org.sonarqube.ws.Qualitygates.AppWsResponse;
 
 public class AppAction implements QualityGatesWsAction {
 

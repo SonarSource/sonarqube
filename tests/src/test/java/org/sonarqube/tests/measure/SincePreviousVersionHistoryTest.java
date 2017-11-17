@@ -33,8 +33,8 @@ import org.sonarqube.qa.util.Tester;
 
 import static java.lang.Integer.parseInt;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonarqube.ws.WsMeasures.Measure;
-import static org.sonarqube.ws.WsMeasures.PeriodValue;
+import static org.sonarqube.ws.Measures.Measure;
+import static org.sonarqube.ws.Measures.PeriodValue;
 import static util.ItUtils.getLeakPeriodValue;
 import static util.ItUtils.getMeasureWithVariation;
 import static util.ItUtils.projectDir;

@@ -20,10 +20,10 @@
 package org.sonarqube.ws.client.measure;
 
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
-import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
-import org.sonarqube.ws.WsMeasures.SearchHistoryResponse;
-import org.sonarqube.ws.WsMeasures.SearchWsResponse;
+import org.sonarqube.ws.Measures.ComponentTreeWsResponse;
+import org.sonarqube.ws.Measures.ComponentWsResponse;
+import org.sonarqube.ws.Measures.SearchHistoryResponse;
+import org.sonarqube.ws.Measures.SearchWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsConnector;

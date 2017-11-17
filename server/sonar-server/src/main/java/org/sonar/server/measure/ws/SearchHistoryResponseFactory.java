@@ -29,9 +29,9 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonarqube.ws.WsMeasures.SearchHistoryResponse;
-import org.sonarqube.ws.WsMeasures.SearchHistoryResponse.HistoryMeasure;
-import org.sonarqube.ws.WsMeasures.SearchHistoryResponse.HistoryValue;
+import org.sonarqube.ws.Measures.SearchHistoryResponse;
+import org.sonarqube.ws.Measures.SearchHistoryResponse.HistoryMeasure;
+import org.sonarqube.ws.Measures.SearchHistoryResponse.HistoryValue;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.measure.ws.MeasureValueFormatter.formatMeasureValue;

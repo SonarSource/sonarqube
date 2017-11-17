@@ -22,9 +22,9 @@ package org.sonarqube.ws.client.qualityprofile;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.Common.Severity;
-import org.sonarqube.ws.QualityProfiles;
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
-import org.sonarqube.ws.QualityProfiles.ShowResponse;
+import org.sonarqube.ws.Qualityprofiles;
+import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
+import org.sonarqube.ws.Qualityprofiles.ShowResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.ServiceTester;
@@ -48,7 +48,6 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_PROJECT_KEY;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_QUALITY_PROFILE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_RULE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SEVERITY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TO_NAME;
@@ -256,7 +255,7 @@ public class QualityProfilesServiceTest {
     );
     GetRequest getRequest = serviceTester.getGetRequest();
 
-    assertThat(serviceTester.getGetParser()).isSameAs(QualityProfiles.SearchUsersResponse.parser());
+    assertThat(serviceTester.getGetParser()).isSameAs(Qualityprofiles.SearchUsersResponse.parser());
     serviceTester.assertThat(getRequest)
       .hasPath("search_users")
       .hasParam(PARAM_ORGANIZATION, "O1")
@@ -321,7 +320,7 @@ public class QualityProfilesServiceTest {
     );
     GetRequest getRequest = serviceTester.getGetRequest();
 
-    assertThat(serviceTester.getGetParser()).isSameAs(QualityProfiles.SearchGroupsResponse.parser());
+    assertThat(serviceTester.getGetParser()).isSameAs(Qualityprofiles.SearchGroupsResponse.parser());
     serviceTester.assertThat(getRequest)
       .hasPath("search_groups")
       .hasParam(PARAM_ORGANIZATION, "O1")

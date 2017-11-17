@@ -27,7 +27,7 @@ import org.sonar.process.cluster.health.NodeHealth;
 import org.sonar.server.health.ClusterHealth;
 import org.sonar.server.health.Health;
 import org.sonar.server.health.HealthChecker;
-import org.sonarqube.ws.WsSystem;
+import org.sonarqube.ws.System;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 
@@ -58,31 +58,31 @@ public class HealthActionSupport {
       .setHandler(handler);
   }
 
-  WsSystem.HealthResponse checkNodeHealth() {
+  System.HealthResponse checkNodeHealth() {
     Health check = healthChecker.checkNode();
-    WsSystem.HealthResponse.Builder responseBuilder = WsSystem.HealthResponse.newBuilder()
-      .setHealth(WsSystem.Health.valueOf(check.getStatus().name()));
-    WsSystem.Cause.Builder causeBuilder = WsSystem.Cause.newBuilder();
+    System.HealthResponse.Builder responseBuilder = System.HealthResponse.newBuilder()
+      .setHealth(System.Health.valueOf(check.getStatus().name()));
+    System.Cause.Builder causeBuilder = System.Cause.newBuilder();
     check.getCauses().forEach(str -> responseBuilder.addCauses(causeBuilder.clear().setMessage(str).build()));
 
     return responseBuilder.build();
   }
 
-  WsSystem.HealthResponse checkClusterHealth() {
+  System.HealthResponse checkClusterHealth() {
     ClusterHealth check = healthChecker.checkCluster();
     return toResponse(check);
   }
 
-  private static WsSystem.HealthResponse toResponse(ClusterHealth check) {
-    WsSystem.HealthResponse.Builder responseBuilder = WsSystem.HealthResponse.newBuilder();
-    WsSystem.Node.Builder nodeBuilder = WsSystem.Node.newBuilder();
-    WsSystem.Cause.Builder causeBuilder = WsSystem.Cause.newBuilder();
+  private static System.HealthResponse toResponse(ClusterHealth check) {
+    System.HealthResponse.Builder responseBuilder = System.HealthResponse.newBuilder();
+    System.Node.Builder nodeBuilder = System.Node.newBuilder();
+    System.Cause.Builder causeBuilder = System.Cause.newBuilder();
 
     Health health = check.getHealth();
-    responseBuilder.setHealth(WsSystem.Health.valueOf(health.getStatus().name()));
+    responseBuilder.setHealth(System.Health.valueOf(health.getStatus().name()));
     health.getCauses().forEach(str -> responseBuilder.addCauses(toCause(str, causeBuilder)));
 
-    WsSystem.Nodes.Builder nodesBuilder = WsSystem.Nodes.newBuilder();
+    System.Nodes.Builder nodesBuilder = System.Nodes.newBuilder();
     check.getNodes().stream()
       .sorted(NODE_HEALTH_COMPARATOR)
       .map(node -> toNode(node, nodeBuilder, causeBuilder))
@@ -92,13 +92,13 @@ public class HealthActionSupport {
     return responseBuilder.build();
   }
 
-  private static WsSystem.Node toNode(NodeHealth nodeHealth, WsSystem.Node.Builder nodeBuilder, WsSystem.Cause.Builder causeBuilder) {
+  private static System.Node toNode(NodeHealth nodeHealth, System.Node.Builder nodeBuilder, System.Cause.Builder causeBuilder) {
     nodeBuilder.clear();
-    nodeBuilder.setHealth(WsSystem.Health.valueOf(nodeHealth.getStatus().name()));
+    nodeBuilder.setHealth(System.Health.valueOf(nodeHealth.getStatus().name()));
     nodeHealth.getCauses().forEach(str -> nodeBuilder.addCauses(toCause(str, causeBuilder)));
     NodeDetails details = nodeHealth.getDetails();
     nodeBuilder
-      .setType(WsSystem.NodeType.valueOf(details.getType().name()))
+      .setType(System.NodeType.valueOf(details.getType().name()))
       .setName(details.getName())
       .setHost(details.getHost())
       .setPort(details.getPort())
@@ -106,7 +106,7 @@ public class HealthActionSupport {
     return nodeBuilder.build();
   }
 
-  private static WsSystem.Cause toCause(String str, WsSystem.Cause.Builder causeBuilder) {
+  private static System.Cause toCause(String str, System.Cause.Builder causeBuilder) {
     return causeBuilder.clear().setMessage(str).build();
   }
 }

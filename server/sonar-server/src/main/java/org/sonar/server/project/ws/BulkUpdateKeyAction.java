@@ -35,7 +35,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsProjects.BulkUpdateKeyWsResponse;
+import org.sonarqube.ws.Projects.BulkUpdateKeyWsResponse;
 import org.sonarqube.ws.client.project.BulkUpdateKeyWsRequest;
 
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;

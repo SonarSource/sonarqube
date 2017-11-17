@@ -30,7 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.server.qualityprofile.QProfileCopier;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.QualityProfiles.CopyWsResponse;
+import org.sonarqube.ws.Qualityprofiles.CopyWsResponse;
 
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;

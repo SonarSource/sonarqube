@@ -22,7 +22,7 @@ import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.WsCe;
+import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.LocalWsClientFactory;
 import org.sonarqube.ws.client.WsClient;
@@ -50,7 +50,7 @@ public final class LocalCallWebService implements WebService {
     public void handle(Request request, Response response) throws Exception {
       WsClient client = wsClientFactory.newClient(request.localConnector());
 
-      WsCe.TaskTypesWsResponse ceTaskTypes = client.ce().taskTypes();
+      Ce.TaskTypesWsResponse ceTaskTypes = client.ce().taskTypes();
       response.stream().setStatus(ceTaskTypes.getTaskTypesCount() > 0 ? 200 : 500);
     }
   }

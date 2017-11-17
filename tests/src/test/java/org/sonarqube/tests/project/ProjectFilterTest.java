@@ -32,8 +32,8 @@ import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Organizations.Organization;
-import org.sonarqube.ws.WsComponents.Component;
-import org.sonarqube.ws.WsComponents.SearchProjectsWsResponse;
+import org.sonarqube.ws.Components.Component;
+import org.sonarqube.ws.Components.SearchProjectsWsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 

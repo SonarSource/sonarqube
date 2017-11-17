@@ -29,7 +29,7 @@ import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations;
-import org.sonarqube.ws.WsUsers;
+import org.sonarqube.ws.Users;
 import util.issue.IssueRule;
 
 import static util.ItUtils.restoreProfile;
@@ -48,8 +48,8 @@ public class OrganizationIssuesPageTest {
 
   private Organizations.Organization org1;
   private Organizations.Organization org2;
-  private WsUsers.CreateWsResponse.User user1;
-  private WsUsers.CreateWsResponse.User user2;
+  private Users.CreateWsResponse.User user1;
+  private Users.CreateWsResponse.User user2;
 
   @Before
   public void setUp() throws Exception {
@@ -81,7 +81,7 @@ public class OrganizationIssuesPageTest {
   }
 
   private String provisionProject(Organizations.Organization organization) {
-    return tester.projects().generate(organization).getKey();
+    return tester.projects().provision(organization).getKey();
   }
 
   private void analyseProject(String projectKey, String organization) {

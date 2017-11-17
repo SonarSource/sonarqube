@@ -28,12 +28,12 @@ import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Organizations.Organization;
-import org.sonarqube.ws.QualityProfiles.CreateWsResponse;
-import org.sonarqube.ws.QualityProfiles.SearchGroupsResponse;
-import org.sonarqube.ws.QualityProfiles.SearchUsersResponse;
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
-import org.sonarqube.ws.WsUserGroups;
-import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
+import org.sonarqube.ws.Qualityprofiles.CreateWsResponse;
+import org.sonarqube.ws.Qualityprofiles.SearchGroupsResponse;
+import org.sonarqube.ws.Qualityprofiles.SearchUsersResponse;
+import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
+import org.sonarqube.ws.UserGroups;
+import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.qualityprofile.AddGroupRequest;
@@ -47,7 +47,7 @@ import org.sonarqube.ws.client.qualityprofile.ShowRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonarqube.ws.QualityProfiles.SearchGroupsResponse.Group;
+import static org.sonarqube.ws.Qualityprofiles.SearchGroupsResponse.Group;
 
 public class QualityProfilesEditTest {
   private static final String RULE_ONE_BUG_PER_LINE = "xoo:OneBugIssuePerLine";
@@ -132,9 +132,9 @@ public class QualityProfilesEditTest {
   @Test
   public void search_groups_allowed_to_edit_a_profile() {
     Organization organization = tester.organizations().generate();
-    WsUserGroups.Group group1 = tester.groups().generate(organization);
-    WsUserGroups.Group group2 = tester.groups().generate(organization);
-    WsUserGroups.Group group3 = tester.groups().generate(organization);
+    UserGroups.Group group1 = tester.groups().generate(organization);
+    UserGroups.Group group2 = tester.groups().generate(organization);
+    UserGroups.Group group3 = tester.groups().generate(organization);
     CreateWsResponse.QualityProfile xooProfile = tester.qProfiles().createXooProfile(organization);
     addGroupPermission(organization, group1, xooProfile);
     addGroupPermission(organization, group2, xooProfile);
@@ -156,8 +156,8 @@ public class QualityProfilesEditTest {
   @Test
   public void add_and_remove_group() {
     Organization organization = tester.organizations().generate();
-    WsUserGroups.Group group1 = tester.groups().generate(organization);
-    WsUserGroups.Group group2 = tester.groups().generate(organization);
+    UserGroups.Group group1 = tester.groups().generate(organization);
+    UserGroups.Group group2 = tester.groups().generate(organization);
     CreateWsResponse.QualityProfile xooProfile = tester.qProfiles().createXooProfile(organization);
 
     // No group added
@@ -205,7 +205,7 @@ public class QualityProfilesEditTest {
     CreateWsResponse.QualityProfile xooProfile1 = tester.qProfiles().createXooProfile(organization);
     addUserPermission(organization, user, xooProfile1);
     CreateWsResponse.QualityProfile xooProfile2 = tester.qProfiles().createXooProfile(organization);
-    WsUserGroups.Group group = tester.groups().generate(organization);
+    UserGroups.Group group = tester.groups().generate(organization);
     tester.groups().addMemberToGroups(organization, user.getLogin(), group.getName());
     addGroupPermission(organization, group, xooProfile2);
     CreateWsResponse.QualityProfile xooProfile3 = tester.qProfiles().createXooProfile(organization);
@@ -243,7 +243,7 @@ public class QualityProfilesEditTest {
     CreateWsResponse.QualityProfile xooProfile = tester.qProfiles().createXooProfile(org);
     User individualEditor = tester.users().generateMember(org);
     addUserPermission(org, individualEditor, xooProfile);
-    WsUserGroups.Group group = tester.groups().generate(org);
+    UserGroups.Group group = tester.groups().generate(org);
     addGroupPermission(org, group, xooProfile);
     User groupEditor = tester.users().generateMember(org);
     tester.groups().addMemberToGroups(org, groupEditor.getLogin(), group.getName());
@@ -275,7 +275,7 @@ public class QualityProfilesEditTest {
       .build());
   }
 
-  private void addGroupPermission(Organization organization, WsUserGroups.Group group, CreateWsResponse.QualityProfile qProfile) {
+  private void addGroupPermission(Organization organization, UserGroups.Group group, CreateWsResponse.QualityProfile qProfile) {
     tester.qProfiles().service().addGroup(AddGroupRequest.builder()
       .setOrganization(organization.getKey())
       .setQualityProfile(qProfile.getName())

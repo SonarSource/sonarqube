@@ -20,15 +20,16 @@
 package org.sonarqube.tests.user;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.sonar.orchestrator.Orchestrator;
 import java.io.File;
+import java.util.Optional;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.ws.client.GetRequest;
@@ -38,7 +39,6 @@ import util.user.UserRule;
 import util.user.Users;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.resetSettings;
 import static util.ItUtils.setServerProperty;
@@ -53,8 +53,10 @@ public class BaseIdentityProviderTest {
   @ClassRule
   public static Orchestrator ORCHESTRATOR = Category4Suite.ORCHESTRATOR;
 
+  private static UserRule userRule = UserRule.from(ORCHESTRATOR);
+
   @ClassRule
-  public static UserRule userRule = UserRule.from(ORCHESTRATOR);
+  public static RuleChain ruleChain = RuleChain.outerRule(ORCHESTRATOR).around(userRule);
 
   static String FAKE_PROVIDER_KEY = "fake-base-id-provider";
 

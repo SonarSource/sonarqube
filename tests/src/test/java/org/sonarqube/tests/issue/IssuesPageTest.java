@@ -20,7 +20,6 @@
 package org.sonarqube.tests.issue;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category2Suite;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -38,7 +37,7 @@ public class IssuesPageTest {
   private static final String PROJECT_KEY = "sample";
 
   @ClassRule
-  public static Orchestrator ORCHESTRATOR = Category2Suite.ORCHESTRATOR;
+  public static Orchestrator ORCHESTRATOR = IssueSuite.ORCHESTRATOR;
 
   @Rule
   public UserRule userRule = UserRule.from(ORCHESTRATOR);

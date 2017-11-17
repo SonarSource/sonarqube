@@ -19,19 +19,18 @@
  */
 package util.user;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import com.sonar.orchestrator.Orchestrator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.WsUsers;
+import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
@@ -47,7 +46,6 @@ import static java.util.Arrays.stream;
 import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 
 /**
@@ -83,7 +81,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
   // *****************
 
   public void resetUsers() {
-    for (Users.User user : getUsers().getUsers()) {
+    for (util.user.Users.User user : getUsers().getUsers()) {
       String userLogin = user.getLogin();
       if (!userLogin.equals(ADMIN_LOGIN)) {
         deactivateUsers(userLogin);
@@ -91,8 +89,8 @@ public class UserRule extends ExternalResource implements GroupManagement {
     }
   }
 
-  public Users.User verifyUserExists(String login, String name, @Nullable String email) {
-    Optional<Users.User> user = getUserByLogin(login);
+  public util.user.Users.User verifyUserExists(String login, String name, @Nullable String email) {
+    Optional<util.user.Users.User> user = getUserByLogin(login);
     assertThat(user).as("User with login '%s' hasn't been found", login).isPresent();
     assertThat(user.get().getLogin()).isEqualTo(login);
     assertThat(user.get().getName()).isEqualTo(name);
@@ -101,15 +99,15 @@ public class UserRule extends ExternalResource implements GroupManagement {
   }
 
   public void verifyUserExists(String login, String name, @Nullable String email, boolean local) {
-    Users.User user = verifyUserExists(login, name, email);
+    util.user.Users.User user = verifyUserExists(login, name, email);
     assertThat(user.isLocal()).isEqualTo(local);
   }
 
   public void verifyUserDoesNotExist(String login) {
-    assertThat(getUserByLogin(login)).as("Unexpected user with login '%s' has been found", login).isAbsent();
+    assertThat(getUserByLogin(login)).as("Unexpected user with login '%s' has been found", login).isEmpty();
   }
 
-  public WsUsers.CreateWsResponse.User createUser(String login, String name, @Nullable String email, String password) {
+  public Users.CreateWsResponse.User createUser(String login, String name, @Nullable String email, String password) {
     CreateRequest.Builder request = CreateRequest.builder()
       .setLogin(login)
       .setName(name)
@@ -122,7 +120,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
    * Create user with randomly generated values. By default password is the login.
    */
   @SafeVarargs
-  public final WsUsers.CreateWsResponse.User generate(Consumer<CreateRequest.Builder>... populators) {
+  public final org.sonarqube.ws.Users.CreateWsResponse.User generate(Consumer<CreateRequest.Builder>... populators) {
     int id = ID_GENERATOR.getAndIncrement();
     String login = "login" + id;
     CreateRequest.Builder request = CreateRequest.builder()
@@ -157,15 +155,15 @@ public class UserRule extends ExternalResource implements GroupManagement {
     adminWsClient().roots().setRoot(login);
   }
 
-  public Optional<Users.User> getUserByLogin(String login) {
-    return FluentIterable.from(getUsers().getUsers()).firstMatch(new MatchUserLogin(login));
+  public Optional<util.user.Users.User> getUserByLogin(String login) {
+    return getUsers().getUsers().stream().filter(new MatchUserLogin(login)).findFirst();
   }
 
-  public Users getUsers() {
+  public util.user.Users getUsers() {
     WsResponse response = adminWsClient().wsConnector().call(
       new GetRequest("api/users/search"))
       .failIfNotSuccessful();
-    return Users.parse(response.content());
+    return util.user.Users.parse(response.content());
   }
 
   public void deactivateUsers(List<String> userLogins) {
@@ -193,10 +191,6 @@ public class UserRule extends ExternalResource implements GroupManagement {
   // *****************
   // User groups
   // *****************
-
-  public GroupManagement forOrganization(String organizationKey) {
-    return new GroupManagementImpl(organizationKey);
-  }
 
   private final class GroupManagementImpl implements GroupManagement {
     @CheckForNull
@@ -247,7 +241,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
 
     @Override
     public java.util.Optional<Groups.Group> getGroupByName(String name) {
-      return getGroups().getGroups().stream().filter(new MatchGroupName(name)::apply).findFirst();
+      return getGroups().getGroups().stream().filter(new MatchGroupName(name)).findFirst();
     }
 
     @Override
@@ -339,7 +333,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
     return adminWsClient;
   }
 
-  private class MatchUserLogin implements Predicate<Users.User> {
+  private class MatchUserLogin implements Predicate<util.user.Users.User> {
     private final String login;
 
     private MatchUserLogin(String login) {
@@ -347,7 +341,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
     }
 
     @Override
-    public boolean apply(@Nonnull Users.User user) {
+    public boolean test(@Nonnull util.user.Users.User user) {
       String login = user.getLogin();
       return login != null && login.equals(this.login) && user.isActive();
     }
@@ -361,7 +355,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
     }
 
     @Override
-    public boolean apply(@Nonnull Groups.Group group) {
+    public boolean test(@Nonnull Groups.Group group) {
       String groupName = group.getName();
       return groupName != null && groupName.equals(this.groupName);
     }

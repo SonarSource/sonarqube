@@ -35,7 +35,7 @@ import org.sonar.server.usertoken.TokenGenerator;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.WsUserTokens.GenerateWsResponse;
+import org.sonarqube.ws.UserTokens.GenerateWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;

@@ -35,7 +35,7 @@ import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.WsSystem;
+import org.sonarqube.ws.System;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -128,7 +128,7 @@ public class SafeModeHealthActionTest {
     when(healthChecker.checkNode()).thenReturn(health);
     TestRequest request = underTest.newRequest();
 
-    WsSystem.HealthResponse healthResponse = request.executeProtobuf(WsSystem.HealthResponse.class);
+    System.HealthResponse healthResponse = request.executeProtobuf(System.HealthResponse.class);
     assertThat(healthResponse.getHealth().name()).isEqualTo(randomStatus.name());
     assertThat(health.getCauses()).isEqualTo(health.getCauses());
   }
@@ -143,10 +143,10 @@ public class SafeModeHealthActionTest {
     Arrays.stream(causes).forEach(healthBuilder::addCause);
     when(healthChecker.checkNode()).thenReturn(healthBuilder.build());
 
-    WsSystem.HealthResponse clusterHealthResponse = underTest.newRequest().executeProtobuf(WsSystem.HealthResponse.class);
+    System.HealthResponse clusterHealthResponse = underTest.newRequest().executeProtobuf(System.HealthResponse.class);
     assertThat(clusterHealthResponse.getHealth().name()).isEqualTo(randomStatus.name());
     assertThat(clusterHealthResponse.getCausesList())
-      .extracting(WsSystem.Cause::getMessage)
+      .extracting(System.Cause::getMessage)
       .containsOnly(causes);
   }
 

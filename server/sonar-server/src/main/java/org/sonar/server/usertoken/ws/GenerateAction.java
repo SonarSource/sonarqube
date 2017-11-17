@@ -31,8 +31,8 @@ import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.usertoken.TokenGenerator;
-import org.sonarqube.ws.WsUserTokens;
-import org.sonarqube.ws.WsUserTokens.GenerateWsResponse;
+import org.sonarqube.ws.UserTokens;
+import org.sonarqube.ws.UserTokens.GenerateWsResponse;
 import org.sonarqube.ws.client.usertoken.GenerateWsRequest;
 
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
@@ -81,11 +81,11 @@ public class GenerateAction implements UserTokensWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    WsUserTokens.GenerateWsResponse generateWsResponse = doHandle(toCreateWsRequest(request));
+    UserTokens.GenerateWsResponse generateWsResponse = doHandle(toCreateWsRequest(request));
     writeProtobuf(generateWsResponse, request, response);
   }
 
-  private WsUserTokens.GenerateWsResponse doHandle(GenerateWsRequest request) {
+  private UserTokens.GenerateWsResponse doHandle(GenerateWsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       checkWsRequest(dbSession, request);
       TokenPermissionsValidator.validate(userSession, request.getLogin());
@@ -149,7 +149,7 @@ public class GenerateAction implements UserTokensWsAction {
   }
 
   private static GenerateWsResponse buildResponse(UserTokenDto userTokenDto, String token) {
-    return WsUserTokens.GenerateWsResponse.newBuilder()
+    return UserTokens.GenerateWsResponse.newBuilder()
       .setLogin(userTokenDto.getLogin())
       .setName(userTokenDto.getName())
       .setToken(token)

@@ -28,11 +28,11 @@ import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.qa.util.TesterSession;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations.Organization;
-import org.sonarqube.ws.QualityProfiles;
-import org.sonarqube.ws.QualityProfiles.CreateWsResponse;
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
-import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
+import org.sonarqube.ws.Qualityprofiles;
+import org.sonarqube.ws.Qualityprofiles.CreateWsResponse;
+import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
+import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
+import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.qualityprofile.ChangeParentRequest;
 import org.sonarqube.ws.client.qualityprofile.CopyRequest;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
@@ -112,7 +112,7 @@ public class BuiltInQualityProfilesTest {
     QualityProfile builtInProfile = getProfile(org, p -> p.getIsBuiltIn() && "Basic".equals(p.getName()) && "xoo".equals(p.getLanguage()));
     TesterSession adminSession = tester.as(administrator.getLogin());
 
-    QualityProfiles.CopyWsResponse copyResponse = adminSession.qProfiles().service().copy(new CopyRequest(builtInProfile.getKey(), "My copy"));
+    Qualityprofiles.CopyWsResponse copyResponse = adminSession.qProfiles().service().copy(new CopyRequest(builtInProfile.getKey(), "My copy"));
 
     assertThat(copyResponse.getIsDefault()).isFalse();
     assertThat(copyResponse.getKey()).isNotEmpty().isNotEqualTo(builtInProfile.getKey());
@@ -134,7 +134,7 @@ public class BuiltInQualityProfilesTest {
     QualityProfile builtInProfile = getProfile(org, p -> p.getIsBuiltIn() && "Basic".equals(p.getName()) && "xoo".equals(p.getLanguage()));
     TesterSession adminSession = tester.as(administrator.getLogin());
 
-    QualityProfiles.CopyWsResponse copyResponse = adminSession.qProfiles().service().copy(new CopyRequest(builtInProfile.getKey(), "My copy"));
+    Qualityprofiles.CopyWsResponse copyResponse = adminSession.qProfiles().service().copy(new CopyRequest(builtInProfile.getKey(), "My copy"));
     adminSession.qProfiles().service().changeParent(
       ChangeParentRequest.builder().setParentKey(builtInProfile.getKey()).setProfileKey(copyResponse.getKey()).build());
 

@@ -27,7 +27,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.WsMeasures;
+import org.sonarqube.ws.Measures;
 import util.ItUtils;
 
 import static java.lang.Double.parseDouble;
@@ -83,7 +83,7 @@ public class SecurityMeasureTest {
   }
 
   private void assertMeasures(String componentKey, int expectedVulnerabilities, int expectedReliabilityRemediationEffort, int expectedReliabilityRating) {
-    Map<String, WsMeasures.Measure> measures = getMeasuresByMetricKey(orchestrator, componentKey, METRICS);
+    Map<String, Measures.Measure> measures = getMeasuresByMetricKey(orchestrator, componentKey, METRICS);
     assertThat(parseDouble(measures.get(VULNERABILITIES_METRIC).getValue())).isEqualTo(expectedVulnerabilities);
     assertThat(parseDouble(measures.get(SECURITY_REMEDIATION_EFFORT_METRIC).getValue())).isEqualTo(expectedReliabilityRemediationEffort);
     assertThat(parseDouble(measures.get(SECURITY_RATING_METRIC).getValue())).isEqualTo(expectedReliabilityRating);

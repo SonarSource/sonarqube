@@ -28,9 +28,9 @@ import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
-import static org.sonarqube.ws.WsUserGroups.CreateWsResponse;
-import static org.sonarqube.ws.WsUserGroups.SearchWsResponse;
-import static org.sonarqube.ws.WsUserGroups.UpdateWsResponse;
+import static org.sonarqube.ws.UserGroups.CreateWsResponse;
+import static org.sonarqube.ws.UserGroups.SearchWsResponse;
+import static org.sonarqube.ws.UserGroups.UpdateWsResponse;
 
 public class UserGroupsService extends BaseService {
 

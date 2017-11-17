@@ -26,9 +26,9 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.WsPermissions;
-import org.sonarqube.ws.WsPermissions.Permission;
-import org.sonarqube.ws.WsPermissions.SearchTemplatesWsResponse;
+import org.sonarqube.ws.Permissions;
+import org.sonarqube.ws.Permissions.Permission;
+import org.sonarqube.ws.Permissions.SearchTemplatesWsResponse;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.permission.AddGroupToTemplateWsRequest;
 import org.sonarqube.ws.client.permission.AddGroupWsRequest;
@@ -87,17 +87,17 @@ public class PermissionSearchTest {
         .setPermission("admin")
         .setGroupName(GROUP_NAME));
 
-    WsPermissions.WsSearchGlobalPermissionsResponse searchGlobalPermissionsWsResponse = tester.wsClient().permissions().searchGlobalPermissions();
+    Permissions.WsSearchGlobalPermissionsResponse searchGlobalPermissionsWsResponse = tester.wsClient().permissions().searchGlobalPermissions();
     assertThat(searchGlobalPermissionsWsResponse.getPermissionsList().get(0).getKey()).isEqualTo("admin");
     assertThat(searchGlobalPermissionsWsResponse.getPermissionsList().get(0).getUsersCount()).isEqualTo(1);
     // by default, a group has the global admin permission
     assertThat(searchGlobalPermissionsWsResponse.getPermissionsList().get(0).getGroupsCount()).isEqualTo(2);
 
-    WsPermissions.UsersWsResponse users = tester.wsClient().permissions()
+    Permissions.UsersWsResponse users = tester.wsClient().permissions()
       .users(new UsersWsRequest().setPermission("admin"));
     assertThat(users.getUsersList()).extracting("login").contains(LOGIN);
 
-    WsPermissions.WsGroupsResponse groupsResponse = tester.wsClient().permissions()
+    Permissions.WsGroupsResponse groupsResponse = tester.wsClient().permissions()
       .groups(new GroupsWsRequest()
         .setPermission("admin"));
     assertThat(groupsResponse.getGroupsList()).extracting("name").contains(GROUP_NAME);
@@ -105,7 +105,7 @@ public class PermissionSearchTest {
 
   @Test
   public void template_permission_web_services() {
-    WsPermissions.CreateTemplateWsResponse createTemplateWsResponse = tester.wsClient().permissions().createTemplate(
+    Permissions.CreateTemplateWsResponse createTemplateWsResponse = tester.wsClient().permissions().createTemplate(
       new CreateTemplateWsRequest()
         .setName("my-new-template")
         .setDescription("template-used-in-tests"));

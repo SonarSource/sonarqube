@@ -40,7 +40,8 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.WsCe;
+import org.sonarqube.ws.Ce;
+import org.sonarqube.ws.Ce;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.ce.CeQueueTesting.newCeQueueDto;
@@ -101,7 +102,7 @@ public class ActivityStatusActionTest {
     insertActivity(CeActivityDto.Status.FAILED, projectUuid);
     insertActivity(CeActivityDto.Status.FAILED, anotherProjectUuid);
 
-    WsCe.ActivityStatusWsResponse result = call(projectUuid);
+    Ce.ActivityStatusWsResponse result = call(projectUuid);
 
     assertThat(result.getPending()).isEqualTo(2);
     assertThat(result.getFailing()).isEqualTo(1);
@@ -109,7 +110,7 @@ public class ActivityStatusActionTest {
 
   @Test
   public void empty_status() {
-    WsCe.ActivityStatusWsResponse result = call();
+    Ce.ActivityStatusWsResponse result = call();
 
     assertThat(result.getPending()).isEqualTo(0);
     assertThat(result.getFailing()).isEqualTo(0);
@@ -174,19 +175,19 @@ public class ActivityStatusActionTest {
     db.commit();
   }
 
-  private WsCe.ActivityStatusWsResponse call() {
+  private Ce.ActivityStatusWsResponse call() {
     return callByComponentUuidOrComponentKey(null, null);
   }
 
-  private WsCe.ActivityStatusWsResponse call(String componentUuid) {
+  private Ce.ActivityStatusWsResponse call(String componentUuid) {
     return callByComponentUuidOrComponentKey(componentUuid, null);
   }
 
-  private WsCe.ActivityStatusWsResponse callByComponentKey(String componentKey) {
+  private Ce.ActivityStatusWsResponse callByComponentKey(String componentKey) {
     return callByComponentUuidOrComponentKey(null, componentKey);
   }
 
-  private WsCe.ActivityStatusWsResponse callByComponentUuidOrComponentKey(@Nullable String componentUuid, @Nullable String componentKey) {
+  private Ce.ActivityStatusWsResponse callByComponentUuidOrComponentKey(@Nullable String componentUuid, @Nullable String componentKey) {
     TestRequest request = ws.newRequest();
     if (componentUuid != null) {
       request.setParam(PARAM_COMPONENT_ID, componentUuid);
@@ -194,6 +195,6 @@ public class ActivityStatusActionTest {
     if (componentKey != null) {
       request.setParam(DEPRECATED_PARAM_COMPONENT_KEY, componentKey);
     }
-    return request.executeProtobuf(WsCe.ActivityStatusWsResponse.class);
+    return request.executeProtobuf(Ce.ActivityStatusWsResponse.class);
   }
 }

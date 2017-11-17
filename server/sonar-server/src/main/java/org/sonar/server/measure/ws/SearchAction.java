@@ -37,8 +37,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsMeasures.Measure;
-import org.sonarqube.ws.WsMeasures.SearchWsResponse;
+import org.sonarqube.ws.Measures.Measure;
+import org.sonarqube.ws.Measures.SearchWsResponse;
 import org.sonarqube.ws.client.measure.SearchRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;

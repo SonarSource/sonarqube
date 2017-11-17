@@ -30,7 +30,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentUpdater;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsProjects.CreateWsResponse;
+import org.sonarqube.ws.Projects.CreateWsResponse;
 import org.sonarqube.ws.client.project.CreateRequest;
 
 import static org.sonar.api.resources.Qualifiers.PROJECT;

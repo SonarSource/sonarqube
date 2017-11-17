@@ -27,9 +27,9 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.WsMeasures;
-import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
-import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
+import org.sonarqube.ws.Measures;
+import org.sonarqube.ws.Measures.ComponentTreeWsResponse;
+import org.sonarqube.ws.Measures.ComponentWsResponse;
 import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 import org.sonarqube.ws.client.measure.ComponentWsRequest;
 
@@ -67,7 +67,7 @@ public class MeasuresWsTest {
     assertThat(response).isNotNull();
     assertThat(response.getBaseComponent().getKey()).isEqualTo("sample");
     assertThat(response.getMetrics().getMetricsList()).extracting("key").containsOnly("ncloc");
-    List<WsMeasures.Component> components = response.getComponentsList();
+    List<Measures.Component> components = response.getComponentsList();
     assertThat(components).hasSize(2).extracting("key").containsOnly(DIR_KEY, FILE_KEY);
     assertThat(components.get(0).getMeasuresList().get(0).getValue()).isEqualTo("13");
   }
@@ -142,7 +142,7 @@ public class MeasuresWsTest {
       .setMetricKeys(singletonList("ncloc"))
       .setAdditionalFields(newArrayList("metrics", "periods")));
 
-    WsMeasures.Component component = response.getComponent();
+    Measures.Component component = response.getComponent();
     assertThat(component.getKey()).isEqualTo("sample");
     assertThat(component.getMeasuresList()).isNotEmpty();
     assertThat(response.getMetrics().getMetricsList()).extracting("key").containsOnly("ncloc");

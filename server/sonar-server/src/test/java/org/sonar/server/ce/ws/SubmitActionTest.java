@@ -37,8 +37,9 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
+import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.WsCe;
+import org.sonarqube.ws.Ce;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -77,12 +78,12 @@ public class SubmitActionTest {
     when(reportSubmitter.submit(eq(organizationKey), eq("my_project"), Matchers.isNull(String.class), eq("My Project"),
       anyMapOf(String.class, String.class), any(InputStream.class))).thenReturn(A_CE_TASK);
 
-    WsCe.SubmitResponse submitResponse = tester.newRequest()
+    Ce.SubmitResponse submitResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
       .setParam("projectName", "My Project")
       .setPart("report", new ByteArrayInputStream("{binary}".getBytes()), "foo.bar")
       .setMethod("POST")
-      .executeProtobuf(WsCe.SubmitResponse.class);
+      .executeProtobuf(Ce.SubmitResponse.class);
 
     verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), Matchers.isNull(String.class), eq("My Project"),
       anyMapOf(String.class, String.class), any(InputStream.class));
@@ -97,13 +98,13 @@ public class SubmitActionTest {
       anyMapOf(String.class, String.class), any(InputStream.class))).thenReturn(A_CE_TASK);
 
     String[] characteristics = {"branch=branch1", "key=value1=value2"};
-    WsCe.SubmitResponse submitResponse = tester.newRequest()
+    Ce.SubmitResponse submitResponse = tester.newRequest()
       .setParam("projectKey", "my_project")
       .setParam("projectName", "My Project")
       .setMultiParam("characteristic", Arrays.asList(characteristics))
       .setPart("report", new ByteArrayInputStream("{binary}".getBytes()), "foo.bar")
       .setMethod("POST")
-      .executeProtobuf(WsCe.SubmitResponse.class);
+      .executeProtobuf(Ce.SubmitResponse.class);
 
     assertThat(submitResponse.getTaskId()).isEqualTo("TASK_1");
     verify(reportSubmitter).submit(eq(organizationKey), eq("my_project"), Matchers.isNull(String.class), eq("My Project"),

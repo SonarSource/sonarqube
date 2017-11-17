@@ -32,6 +32,7 @@ import static util.ItUtils.xooPlugin;
   ExecuteAnalysisPermissionTest.class,
   IssuePermissionTest.class,
   PermissionSearchTest.class,
+  PermissionTemplatePageTest.class,
   ProvisioningPermissionTest.class,
   QualityProfileAdminPermissionTest.class,
   SystemPasscodeTest.class

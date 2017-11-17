@@ -36,7 +36,7 @@ import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileResult;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.QualityProfiles.CreateWsResponse;
+import org.sonarqube.ws.Qualityprofiles.CreateWsResponse;
 import org.sonarqube.ws.client.qualityprofile.CreateRequest;
 
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;

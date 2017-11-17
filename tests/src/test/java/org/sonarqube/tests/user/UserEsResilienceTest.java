@@ -31,7 +31,7 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.tests.Byteman;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.WsUsers.CreateWsResponse.User;
+import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.user.SearchRequest;
 import org.sonarqube.ws.client.user.UpdateRequest;
 import util.ItUtils;

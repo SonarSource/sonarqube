@@ -32,7 +32,7 @@ import org.junit.rules.RuleChain;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.ProjectLinkItem;
 import org.sonarqube.qa.util.pageobjects.ProjectLinksPage;
-import org.sonarqube.ws.WsProjectLinks.CreateWsResponse;
+import org.sonarqube.ws.ProjectLinks.CreateWsResponse;
 import org.sonarqube.ws.client.projectlinks.CreateWsRequest;
 import org.sonarqube.ws.client.projectlinks.DeleteWsRequest;
 

@@ -27,7 +27,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonarqube.ws.WsComponents.Component;
+import org.sonarqube.ws.Components.Component;
 import org.sonarqube.ws.client.component.TreeWsRequest;
 import util.ItUtils;
 

@@ -46,7 +46,7 @@ import org.sonar.server.user.SystemPasscode;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.WsSystem;
+import org.sonarqube.ws.System;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
@@ -251,7 +251,7 @@ public class HealthActionTest {
     when(webServer.isStandalone()).thenReturn(true);
     TestRequest request = underTest.newRequest();
 
-    WsSystem.HealthResponse healthResponse = request.executeProtobuf(WsSystem.HealthResponse.class);
+    System.HealthResponse healthResponse = request.executeProtobuf(System.HealthResponse.class);
     assertThat(healthResponse.getHealth().name()).isEqualTo(randomStatus.name());
     assertThat(health.getCauses()).isEqualTo(health.getCauses());
   }
@@ -267,10 +267,10 @@ public class HealthActionTest {
     when(webServer.isStandalone()).thenReturn(false);
     when(healthChecker.checkCluster()).thenReturn(new ClusterHealth(healthBuilder.build(), emptySet()));
 
-    WsSystem.HealthResponse clusterHealthResponse = underTest.newRequest().executeProtobuf(WsSystem.HealthResponse.class);
+    System.HealthResponse clusterHealthResponse = underTest.newRequest().executeProtobuf(System.HealthResponse.class);
     assertThat(clusterHealthResponse.getHealth().name()).isEqualTo(randomStatus.name());
     assertThat(clusterHealthResponse.getCausesList())
-      .extracting(WsSystem.Cause::getMessage)
+      .extracting(System.Cause::getMessage)
       .containsOnly(causes);
   }
 
@@ -281,14 +281,14 @@ public class HealthActionTest {
     when(webServer.isStandalone()).thenReturn(false);
     when(healthChecker.checkCluster()).thenReturn(new ClusterHealth(GREEN, singleton(nodeHealth)));
 
-    WsSystem.HealthResponse response = underTest.newRequest().executeProtobuf(WsSystem.HealthResponse.class);
+    System.HealthResponse response = underTest.newRequest().executeProtobuf(System.HealthResponse.class);
 
     assertThat(response.getNodes().getNodesList())
       .hasSize(1);
-    WsSystem.Node node = response.getNodes().getNodesList().iterator().next();
+    System.Node node = response.getNodes().getNodesList().iterator().next();
     assertThat(node.getHealth().name()).isEqualTo(nodeHealth.getStatus().name());
     assertThat(node.getCausesList())
-      .extracting(WsSystem.Cause::getMessage)
+      .extracting(System.Cause::getMessage)
       .containsOnly(nodeHealth.getCauses().stream().toArray(String[]::new));
     assertThat(node.getName()).isEqualTo(nodeHealth.getDetails().getName());
     assertThat(node.getHost()).isEqualTo(nodeHealth.getDetails().getHost());
@@ -323,10 +323,10 @@ public class HealthActionTest {
     when(webServer.isStandalone()).thenReturn(false);
     when(healthChecker.checkCluster()).thenReturn(new ClusterHealth(GREEN, new HashSet<>(nodeHealths)));
 
-    WsSystem.HealthResponse response = underTest.newRequest().executeProtobuf(WsSystem.HealthResponse.class);
+    System.HealthResponse response = underTest.newRequest().executeProtobuf(System.HealthResponse.class);
 
     assertThat(response.getNodes().getNodesList())
-      .extracting(WsSystem.Node::getStartedAt)
+      .extracting(System.Node::getStartedAt)
       .containsExactly(expected);
   }
 

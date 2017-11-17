@@ -27,7 +27,7 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonarqube.ws.WsSystem;
+import org.sonarqube.ws.System;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,7 +77,7 @@ public class ServerSystemRestartingOrchestrator {
       .build();
     orchestrator.start();
 
-    assertThat(newAdminWsClient(orchestrator).system().status().getStatus()).isEqualTo(WsSystem.Status.UP);
+    assertThat(newAdminWsClient(orchestrator).system().status().getStatus()).isEqualTo(System.Status.UP);
   }
 
   // SONAR-4748
