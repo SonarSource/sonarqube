@@ -36,6 +36,9 @@ import org.sonar.api.ce.posttask.Project;
 import org.sonar.api.ce.posttask.QualityGate;
 import org.sonar.api.config.Configuration;
 import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
+import org.sonar.server.qualitygate.Condition;
+import org.sonar.server.qualitygate.EvaluatedCondition;
+import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.webhook.Analysis;
 import org.sonar.server.webhook.ProjectAnalysis;
 import org.sonar.server.webhook.WebHooks;
@@ -139,19 +142,20 @@ public class WebhookPostTaskTest {
 
     assertThat(supplierCaptor.getValue().get()).isSameAs(webhookPayload);
 
-    org.sonar.server.webhook.QualityGate webQualityGate = null;
+    EvaluatedQualityGate webQualityGate = null;
     if (qualityGate != null) {
       QualityGate.Condition condition = qualityGate.getConditions().iterator().next();
-      webQualityGate = new org.sonar.server.webhook.QualityGate(qualityGate.getId(), qualityGate.getName(),
-        org.sonar.server.webhook.QualityGate.Status.valueOf(qualityGate.getStatus().name()),
-        Collections.singleton(new org.sonar.server.webhook.QualityGate.Condition(
-          org.sonar.server.webhook.QualityGate.EvaluationStatus.valueOf(condition.getStatus().name()),
-          condition.getMetricKey(),
-          org.sonar.server.webhook.QualityGate.Operator.valueOf(condition.getOperator().name()),
-          condition.getErrorThreshold(),
-          condition.getWarningThreshold(),
-          condition.isOnLeakPeriod(),
-          condition.getValue())));
+      Condition qgCondition = new Condition(
+        condition.getMetricKey(),
+        Condition.Operator.valueOf(condition.getOperator().name()),
+        condition.getErrorThreshold(),
+        condition.getWarningThreshold(),
+        condition.isOnLeakPeriod());
+      webQualityGate = EvaluatedQualityGate.newBuilder()
+        .setQualityGate(new org.sonar.server.qualitygate.QualityGate(qualityGate.getId(), qualityGate.getName(), Collections.singleton(qgCondition)))
+        .setStatus(EvaluatedQualityGate.Status.valueOf(qualityGate.getStatus().name()))
+        .addCondition(qgCondition, EvaluatedCondition.EvaluationStatus.valueOf(condition.getStatus().name()), condition.getValue())
+        .build();
     }
 
     verify(payloadFactory).create(new ProjectAnalysis(

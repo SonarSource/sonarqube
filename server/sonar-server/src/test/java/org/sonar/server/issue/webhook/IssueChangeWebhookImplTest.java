@@ -49,7 +49,6 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.issue.IssueChangeContext;
@@ -77,6 +76,11 @@ import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.webhook.IssueChangeWebhook.IssueChange;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
+import org.sonar.server.qualitygate.Condition;
+import org.sonar.server.qualitygate.EvaluatedCondition;
+import org.sonar.server.qualitygate.EvaluatedCondition.EvaluationStatus;
+import org.sonar.server.qualitygate.EvaluatedQualityGate;
+import org.sonar.server.qualitygate.QualityGate;
 import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
 import org.sonar.server.settings.ProjectConfigurationLoader;
 import org.sonar.server.tester.UserSessionRule;
@@ -84,8 +88,6 @@ import org.sonar.server.webhook.Analysis;
 import org.sonar.server.webhook.Branch;
 import org.sonar.server.webhook.Project;
 import org.sonar.server.webhook.ProjectAnalysis;
-import org.sonar.server.webhook.QualityGate;
-import org.sonar.server.webhook.QualityGate.EvaluationStatus;
 import org.sonar.server.webhook.WebHooks;
 import org.sonar.server.webhook.WebhookPayload;
 import org.sonar.server.webhook.WebhookPayloadFactory;
@@ -115,7 +117,7 @@ import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
 import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
-import static org.sonar.server.webhook.QualityGate.Operator.GREATER_THAN;
+import static org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN;
 
 @RunWith(DataProviderRunner.class)
 public class IssueChangeWebhookImplTest {
@@ -148,7 +150,8 @@ public class IssueChangeWebhookImplTest {
   private IssueChangeWebhookImpl underTest = new IssueChangeWebhookImpl(spiedOnDbClient, webHooks, projectConfigurationLoader, webhookPayloadFactory, issueIndex, System2.INSTANCE);
   private DbClient mockedDbClient = mock(DbClient.class);
   private IssueIndex spiedOnIssueIndex = spy(issueIndex);
-  private IssueChangeWebhookImpl mockedUnderTest = new IssueChangeWebhookImpl(mockedDbClient, webHooks, projectConfigurationLoader, webhookPayloadFactory, spiedOnIssueIndex, System2.INSTANCE);
+  private IssueChangeWebhookImpl mockedUnderTest = new IssueChangeWebhookImpl(mockedDbClient, webHooks, projectConfigurationLoader, webhookPayloadFactory, spiedOnIssueIndex,
+    System2.INSTANCE);
 
   @Test
   public void on_type_change_has_no_effect_if_SearchResponseData_has_no_issue() {
@@ -267,20 +270,25 @@ public class IssueChangeWebhookImplTest {
     underTest.onChange(issueChangeData(newIssueDto(branch)), issueChange, userChangeContext);
 
     ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, configuration, analysis);
+    Condition condition1 = new Condition(BUGS_KEY, GREATER_THAN, "0", null, false);
+    Condition condition2 = new Condition(VULNERABILITIES_KEY, GREATER_THAN, "0", null, false);
+    Condition condition3 = new Condition(CODE_SMELLS_KEY, GREATER_THAN, "0", null, false);
     assertThat(projectAnalysis).isEqualTo(
       new ProjectAnalysis(
         new Project(project.uuid(), project.getKey(), project.name()),
         null,
         new Analysis(analysis.getUuid(), analysis.getCreatedAt()),
         new Branch(false, "foo", Branch.Type.SHORT),
-        new QualityGate(
-          valueOf(ShortLivingBranchQualityGate.ID),
-          ShortLivingBranchQualityGate.NAME,
-          QualityGate.Status.OK,
-          ImmutableSet.of(
-            new QualityGate.Condition(EvaluationStatus.OK, BUGS_KEY, GREATER_THAN, "0", null, false, "0"),
-            new QualityGate.Condition(EvaluationStatus.OK, CoreMetrics.VULNERABILITIES_KEY, GREATER_THAN, "0", null, false, "0"),
-            new QualityGate.Condition(EvaluationStatus.OK, CODE_SMELLS_KEY, GREATER_THAN, "0", null, false, "0"))),
+        EvaluatedQualityGate.newBuilder()
+          .setQualityGate(new QualityGate(
+            valueOf(ShortLivingBranchQualityGate.ID),
+            ShortLivingBranchQualityGate.NAME,
+            ImmutableSet.of(condition1, condition2, condition3)))
+          .setStatus(EvaluatedQualityGate.Status.OK)
+          .addCondition(condition1, EvaluationStatus.OK, "0")
+          .addCondition(condition2, EvaluationStatus.OK, "0")
+          .addCondition(condition3, EvaluationStatus.OK, "0")
+          .build(),
         null,
         properties));
   }
@@ -378,10 +386,10 @@ public class IssueChangeWebhookImplTest {
     underTest.onChange(issueChangeData(newIssueDto(branch)), new IssueChange(randomRuleType), userChangeContext);
 
     ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, configuration, analysis);
-    QualityGate qualityGate = projectAnalysis.getQualityGate().get();
-    assertThat(qualityGate.getStatus()).isEqualTo(QualityGate.Status.OK);
-    assertThat(qualityGate.getConditions())
-      .extracting(QualityGate.Condition::getStatus, QualityGate.Condition::getValue)
+    EvaluatedQualityGate qualityGate = projectAnalysis.getQualityGate().get();
+    assertThat(qualityGate.getStatus()).isEqualTo(EvaluatedQualityGate.Status.OK);
+    assertThat(qualityGate.getEvaluatedConditions())
+      .extracting(EvaluatedCondition::getStatus, EvaluatedCondition::getValue)
       .containsOnly(Tuple.tuple(EvaluationStatus.OK, Optional.of("0")));
   }
 
@@ -436,10 +444,10 @@ public class IssueChangeWebhookImplTest {
     underTest.onChange(issueChangeData(newIssueDto(branch)), new IssueChange(randomRuleType), userChangeContext);
 
     ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, configuration, analysis);
-    QualityGate qualityGate = projectAnalysis.getQualityGate().get();
-    assertThat(qualityGate.getStatus()).isEqualTo(QualityGate.Status.ERROR);
-    assertThat(qualityGate.getConditions())
-      .extracting(QualityGate.Condition::getMetricKey, QualityGate.Condition::getStatus, QualityGate.Condition::getValue)
+    EvaluatedQualityGate qualityGate = projectAnalysis.getQualityGate().get();
+    assertThat(qualityGate.getStatus()).isEqualTo(EvaluatedQualityGate.Status.ERROR);
+    assertThat(qualityGate.getEvaluatedConditions())
+      .extracting(s -> s.getCondition().getMetricKey(), EvaluatedCondition::getStatus, EvaluatedCondition::getValue)
       .containsOnly(expectedQGConditions);
   }
 
@@ -462,10 +470,10 @@ public class IssueChangeWebhookImplTest {
     underTest.onChange(issueChangeData(newIssueDto(branch)), new IssueChange(randomRuleType), userChangeContext);
 
     ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, configuration, analysis);
-    QualityGate qualityGate = projectAnalysis.getQualityGate().get();
-    assertThat(qualityGate.getStatus()).isEqualTo(QualityGate.Status.ERROR);
-    assertThat(qualityGate.getConditions())
-      .extracting(QualityGate.Condition::getMetricKey, QualityGate.Condition::getStatus, QualityGate.Condition::getValue)
+    EvaluatedQualityGate qualityGate = projectAnalysis.getQualityGate().get();
+    assertThat(qualityGate.getStatus()).isEqualTo(EvaluatedQualityGate.Status.ERROR);
+    assertThat(qualityGate.getEvaluatedConditions())
+      .extracting(s -> s.getCondition().getMetricKey(), EvaluatedCondition::getStatus, EvaluatedCondition::getValue)
       .containsOnly(
         Tuple.tuple(BUGS_KEY, EvaluationStatus.ERROR, Optional.of(valueOf(unresolvedBugs))),
         Tuple.tuple(VULNERABILITIES_KEY, EvaluationStatus.ERROR, Optional.of(valueOf(unresolvedVulnerabilities))),
@@ -564,18 +572,18 @@ public class IssueChangeWebhookImplTest {
     Configuration configuration2 = mock(Configuration.class);
     Configuration configuration3 = mock(Configuration.class);
     mockLoadProjectConfigurations(
-        branch1, configuration1,
-        branch2, configuration2,
-        branch3, configuration3);
+      branch1, configuration1,
+      branch2, configuration2,
+      branch3, configuration3);
     mockWebhookEnabled(configuration1, configuration2, configuration3);
     mockPayloadSupplierConsumedByWebhooks();
 
     ComponentDao componentDaoSpy = spy(dbClient.componentDao());
     when(spiedOnDbClient.componentDao()).thenReturn(componentDaoSpy);
     underTest.onChange(
-        issueChangeData(issueDtos, branch1, branch2, branch3),
-        new IssueChange(randomRuleType),
-        userChangeContext);
+      issueChangeData(issueDtos, branch1, branch2, branch3),
+      new IssueChange(randomRuleType),
+      userChangeContext);
 
     verifyWebhookCalled(branch1, configuration1, analysis1);
     verifyWebhookCalled(branch2, configuration2, analysis2);

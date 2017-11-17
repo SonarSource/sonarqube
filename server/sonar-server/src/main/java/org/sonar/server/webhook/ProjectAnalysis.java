@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.server.qualitygate.EvaluatedQualityGate;
 
 import static com.google.common.collect.ImmutableMap.copyOf;
 import static java.util.Objects.requireNonNull;
@@ -31,13 +32,13 @@ public class ProjectAnalysis {
   private final Project project;
   private final CeTask ceTask;
   private final Branch branch;
-  private final QualityGate qualityGate;
+  private final EvaluatedQualityGate qualityGate;
   private final Long updatedAt;
   private final Map<String, String> properties;
   private final Analysis analysis;
 
   public ProjectAnalysis(Project project, @Nullable CeTask ceTask, @Nullable Analysis analysis,
-    @Nullable Branch branch, @Nullable QualityGate qualityGate, @Nullable Long updatedAt,
+    @Nullable Branch branch, @Nullable EvaluatedQualityGate qualityGate, @Nullable Long updatedAt,
     Map<String, String> properties) {
     this.project = requireNonNull(project, "project can't be null");
     this.ceTask = ceTask;
@@ -60,7 +61,7 @@ public class ProjectAnalysis {
     return Optional.ofNullable(branch);
   }
 
-  public Optional<QualityGate> getQualityGate() {
+  public Optional<EvaluatedQualityGate> getQualityGate() {
     return Optional.ofNullable(qualityGate);
   }
 

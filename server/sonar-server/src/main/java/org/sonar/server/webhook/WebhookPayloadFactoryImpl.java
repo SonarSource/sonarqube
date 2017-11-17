@@ -30,6 +30,9 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.server.qualitygate.Condition;
+import org.sonar.server.qualitygate.EvaluatedCondition;
+import org.sonar.server.qualitygate.EvaluatedQualityGate;
 
 import static java.lang.String.format;
 import static org.sonar.core.config.WebhookProperties.ANALYSIS_PROPERTY_PREFIX;
@@ -126,22 +129,23 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
     }
   }
 
-  private static void writeQualityGate(JsonWriter writer, QualityGate gate) {
+  private static void writeQualityGate(JsonWriter writer, EvaluatedQualityGate gate) {
     writer
       .name("qualityGate")
       .beginObject()
-      .prop("name", gate.getName())
+      .prop("name", gate.getQualityGate().getName())
       .prop(PROPERTY_STATUS, gate.getStatus().toString())
       .name("conditions")
       .beginArray();
-    for (QualityGate.Condition condition : gate.getConditions()) {
+    for (EvaluatedCondition evaluatedCondition : gate.getEvaluatedConditions()) {
+      Condition condition = evaluatedCondition.getCondition();
       writer
         .beginObject()
         .prop("metric", condition.getMetricKey())
         .prop("operator", condition.getOperator().name());
-      condition.getValue().ifPresent(t -> writer.prop("value", t));
+      evaluatedCondition.getValue().ifPresent(t -> writer.prop("value", t));
       writer
-        .prop(PROPERTY_STATUS, condition.getStatus().name())
+        .prop(PROPERTY_STATUS, evaluatedCondition.getStatus().name())
         .prop("onLeakPeriod", condition.isOnLeakPeriod())
         .prop("errorThreshold", condition.getErrorThreshold().orElse(null))
         .prop("warningThreshold", condition.getWarningThreshold().orElse(null))
