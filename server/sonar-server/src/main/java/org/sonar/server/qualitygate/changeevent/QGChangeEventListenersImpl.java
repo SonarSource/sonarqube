@@ -19,8 +19,10 @@
  */
 package org.sonar.server.qualitygate.changeevent;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -56,16 +58,21 @@ public class QGChangeEventListenersImpl implements QGChangeEventListeners {
 
   @Override
   public void broadcast(Trigger trigger, Collection<QGChangeEvent> changeEvents) {
+    if (changeEvents.isEmpty()) {
+      return;
+    }
+
     try {
-      Arrays.stream(listeners).forEach(listener -> broadcastTo(trigger, changeEvents, listener));
+      List<QGChangeEvent> immutableChangeEvents = ImmutableList.copyOf(changeEvents);
+      Arrays.stream(listeners).forEach(listener -> broadcastTo(trigger, immutableChangeEvents, listener));
     } catch (Error e) {
       LOG.warn(format("Broadcasting to listeners failed for %s events", changeEvents.size()), e);
     }
   }
 
-  private void broadcastTo(Trigger trigger, Collection<QGChangeEvent> changeEvents, QGChangeEventListener listener) {
+  private static void broadcastTo(Trigger trigger, Collection<QGChangeEvent> changeEvents, QGChangeEventListener listener) {
     try {
-      LOG.debug("calling onChange() on listener {} for events {}...", listener.getClass().getName(), changeEvents);
+      LOG.trace("calling onChange() on listener {} for events {}...", listener.getClass().getName(), changeEvents);
       listener.onChanges(trigger, changeEvents);
     } catch (Exception e) {
       LOG.warn(format("onChange() call failed on listener %s for events %s", listener.getClass().getName(), changeEvents), e);

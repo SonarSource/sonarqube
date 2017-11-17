@@ -20,29 +20,21 @@
 package org.sonar.server.webhook;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Random;
 import java.util.function.Supplier;
-import java.util.stream.IntStream;
 import javax.annotation.Nullable;
-import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.AnalysisPropertyDto;
@@ -51,76 +43,52 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.es.EsTester;
-import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.issue.index.IssueIndexDefinition;
-import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.issue.index.IssueIteratorFactory;
-import org.sonar.server.permission.index.AuthorizationTypeSupport;
-import org.sonar.server.qualitygate.Condition;
-import org.sonar.server.qualitygate.EvaluatedCondition;
-import org.sonar.server.qualitygate.EvaluatedCondition.EvaluationStatus;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.qualitygate.QualityGate;
 import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
 import org.sonar.server.qualitygate.changeevent.Trigger;
-import org.sonar.server.tester.UserSessionRule;
 
 import static java.lang.String.valueOf;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.sonar.api.measures.CoreMetrics.BUGS_KEY;
-import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS_KEY;
-import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES_KEY;
+import static org.mockito.Mockito.when;
 import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
-import static org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN;
 
 public class WebhookQGChangeEventListenerTest {
-  private static final List<String> OPEN_STATUSES = ImmutableList.of(Issue.STATUS_OPEN, Issue.STATUS_CONFIRMED);
-  private static final List<String> NON_OPEN_STATUSES = Issue.STATUSES.stream().filter(OPEN_STATUSES::contains).collect(MoreCollectors.toList());
+
+  private static final EvaluatedQualityGate EVALUATED_QUALITY_GATE_1 = EvaluatedQualityGate.newBuilder()
+    .setQualityGate(new QualityGate(valueOf(ShortLivingBranchQualityGate.ID), ShortLivingBranchQualityGate.NAME, emptySet()))
+    .setStatus(EvaluatedQualityGate.Status.OK)
+    .build();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-  @Rule
-  public EsTester esTester = new EsTester(new IssueIndexDefinition(new MapSettings().asConfig()));
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   private DbClient dbClient = dbTester.getDbClient();
 
-  private Random random = new Random();
-  private String randomResolution = Issue.RESOLUTIONS.get(random.nextInt(Issue.RESOLUTIONS.size()));
-  private String randomOpenStatus = OPEN_STATUSES.get(random.nextInt(OPEN_STATUSES.size()));
-  private String randomNonOpenStatus = NON_OPEN_STATUSES.get(random.nextInt(NON_OPEN_STATUSES.size()));
-
-  private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), dbTester.getDbClient(), new IssueIteratorFactory(dbTester.getDbClient()));
   private WebHooks webHooks = mock(WebHooks.class);
   private WebhookPayloadFactory webhookPayloadFactory = mock(WebhookPayloadFactory.class);
-  private IssueIndex issueIndex = new IssueIndex(esTester.client(), System2.INSTANCE, userSessionRule, new AuthorizationTypeSupport(userSessionRule));
   private DbClient spiedOnDbClient = Mockito.spy(dbClient);
-  private WebhookQGChangeEventListener underTest = new WebhookQGChangeEventListener(webHooks, webhookPayloadFactory, issueIndex, spiedOnDbClient, System2.INSTANCE);
+  private WebhookQGChangeEventListener underTest = new WebhookQGChangeEventListener(webHooks, webhookPayloadFactory, spiedOnDbClient);
   private DbClient mockedDbClient = mock(DbClient.class);
-  private IssueIndex spiedOnIssueIndex = Mockito.spy(issueIndex);
-  private WebhookQGChangeEventListener mockedUnderTest = new WebhookQGChangeEventListener(webHooks, webhookPayloadFactory, spiedOnIssueIndex, mockedDbClient, System2.INSTANCE);
+  private WebhookQGChangeEventListener mockedUnderTest = new WebhookQGChangeEventListener(webHooks, webhookPayloadFactory, mockedDbClient);
 
   @Test
   public void onChanges_has_no_effect_if_changeEvents_is_empty() {
     mockedUnderTest.onChanges(Trigger.ISSUE_CHANGE, Collections.emptyList());
 
-    verifyZeroInteractions(webHooks, webhookPayloadFactory, spiedOnIssueIndex, mockedDbClient);
+    verifyZeroInteractions(webHooks, webhookPayloadFactory, mockedDbClient);
   }
 
   @Test
@@ -130,12 +98,12 @@ public class WebhookQGChangeEventListenerTest {
     mockWebhookDisabled(configuration1, configuration2);
 
     mockedUnderTest.onChanges(Trigger.ISSUE_CHANGE, ImmutableList.of(
-      new QGChangeEvent(new ComponentDto(), new BranchDto(), new SnapshotDto(), configuration1),
-      new QGChangeEvent(new ComponentDto(), new BranchDto(), new SnapshotDto(), configuration2)));
+      new QGChangeEvent(new ComponentDto(), new BranchDto(), new SnapshotDto(), configuration1, Optional::empty),
+      new QGChangeEvent(new ComponentDto(), new BranchDto(), new SnapshotDto(), configuration2, Optional::empty)));
 
     verify(webHooks).isEnabled(configuration1);
     verify(webHooks).isEnabled(configuration2);
-    verifyZeroInteractions(webhookPayloadFactory, spiedOnIssueIndex, mockedDbClient);
+    verifyZeroInteractions(webhookPayloadFactory, mockedDbClient);
   }
 
   @Test
@@ -152,29 +120,16 @@ public class WebhookQGChangeEventListenerTest {
     properties.put("sonar.analysis.test2", randomAlphanumeric(5000));
     insertPropertiesFor(analysis.getUuid(), properties);
 
-    underTest.onChanges(Trigger.ISSUE_CHANGE, singletonList(newQGChangeEvent(branch, analysis, configuration)));
+    underTest.onChanges(Trigger.ISSUE_CHANGE, singletonList(newQGChangeEvent(branch, analysis, configuration, EVALUATED_QUALITY_GATE_1)));
 
     ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, configuration, analysis);
-    Condition condition1 = new Condition(BUGS_KEY, GREATER_THAN, "0", null, false);
-    Condition condition2 = new Condition(VULNERABILITIES_KEY, GREATER_THAN, "0", null, false);
-    Condition condition3 = new Condition(CODE_SMELLS_KEY, GREATER_THAN, "0", null, false);
     assertThat(projectAnalysis).isEqualTo(
       new ProjectAnalysis(
         new Project(project.uuid(), project.getKey(), project.name()),
         null,
         new Analysis(analysis.getUuid(), analysis.getCreatedAt()),
         new Branch(false, "foo", Branch.Type.SHORT),
-        EvaluatedQualityGate.newBuilder()
-          .setQualityGate(
-            new QualityGate(
-              valueOf(ShortLivingBranchQualityGate.ID),
-              ShortLivingBranchQualityGate.NAME,
-              ImmutableSet.of(condition1, condition2, condition3)))
-          .setStatus(EvaluatedQualityGate.Status.OK)
-          .addCondition(condition1, EvaluationStatus.OK, "0")
-          .addCondition(condition2, EvaluationStatus.OK, "0")
-          .addCondition(condition3, EvaluationStatus.OK, "0")
-          .build(),
+        EVALUATED_QUALITY_GATE_1,
         null,
         properties));
   }
@@ -196,8 +151,8 @@ public class WebhookQGChangeEventListenerTest {
     underTest.onChanges(
       Trigger.ISSUE_CHANGE,
       ImmutableList.of(
-        newQGChangeEvent(branch1, analysis1, configuration1),
-        newQGChangeEvent(branch2, analysis2, configuration2)));
+        newQGChangeEvent(branch1, analysis1, configuration1, null),
+        newQGChangeEvent(branch2, analysis2, configuration2, EVALUATED_QUALITY_GATE_1)));
 
     verifyWebhookNotCalled(branch1, analysis1, configuration1);
     verifyWebhookCalled(branch2, analysis2, configuration2);
@@ -215,8 +170,8 @@ public class WebhookQGChangeEventListenerTest {
     mockWebhookEnabled(configuration1, configuration2);
 
     underTest.onChanges(Trigger.ISSUE_CHANGE, ImmutableList.of(
-      newQGChangeEvent(mainBranch, analysis1, configuration1),
-      newQGChangeEvent(longBranch, analysis2, configuration2)));
+      newQGChangeEvent(mainBranch, analysis1, configuration1, EVALUATED_QUALITY_GATE_1),
+      newQGChangeEvent(longBranch, analysis2, configuration2, null)));
 
     verifyWebhookCalled(mainBranch, analysis1, configuration1);
     verifyWebhookCalled(longBranch, analysis2, configuration2);
@@ -232,9 +187,9 @@ public class WebhookQGChangeEventListenerTest {
     mockPayloadSupplierConsumedByWebhooks();
 
     underTest.onChanges(Trigger.ISSUE_CHANGE, ImmutableList.of(
-      newQGChangeEvent(branch1, analysis1, configuration1),
-      newQGChangeEvent(branch1, analysis1, configuration1),
-      newQGChangeEvent(branch1, analysis1, configuration1)));
+      newQGChangeEvent(branch1, analysis1, configuration1, null),
+      newQGChangeEvent(branch1, analysis1, configuration1, EVALUATED_QUALITY_GATE_1),
+      newQGChangeEvent(branch1, analysis1, configuration1, null)));
 
     verify(webHooks, times(3)).isEnabled(configuration1);
     verify(webHooks, times(3)).sendProjectAnalysisUpdate(
@@ -244,121 +199,15 @@ public class WebhookQGChangeEventListenerTest {
     extractPayloadFactoryArguments(3);
   }
 
-  @Test
-  public void compute_QG_ok_if_there_is_no_issue_in_index_ignoring_permissions() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentAndBranch branch = insertPrivateBranch(organization, BranchType.SHORT);
-    SnapshotDto analysis = insertAnalysisTask(branch);
-    Configuration configuration = mock(Configuration.class);
-    mockWebhookEnabled(configuration);
-    mockPayloadSupplierConsumedByWebhooks();
-
-    underTest.onChanges(Trigger.ISSUE_CHANGE, singletonList(newQGChangeEvent(branch, analysis, configuration)));
-
-    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, configuration, analysis);
-    EvaluatedQualityGate qualityGate = projectAnalysis.getQualityGate().get();
-    assertThat(qualityGate.getStatus()).isEqualTo(EvaluatedQualityGate.Status.OK);
-    assertThat(qualityGate.getEvaluatedConditions())
-      .extracting(EvaluatedCondition::getStatus, EvaluatedCondition::getValue)
-      .containsOnly(tuple(EvaluationStatus.OK, Optional.of("0")));
-  }
-
-  @Test
-  public void computes_QG_error_if_there_is_one_unresolved_bug_issue_in_index_ignoring_permissions() {
-    int unresolvedIssues = 1 + random.nextInt(10);
-
-    computesQGErrorIfThereIsAtLeastOneUnresolvedIssueInIndexOfTypeIgnoringPermissions(
-      unresolvedIssues,
-      RuleType.BUG,
-      tuple(BUGS_KEY, EvaluationStatus.ERROR, Optional.of(valueOf(unresolvedIssues))),
-      tuple(VULNERABILITIES_KEY, EvaluationStatus.OK, Optional.of("0")),
-      tuple(CODE_SMELLS_KEY, EvaluationStatus.OK, Optional.of("0")));
-  }
-
-  @Test
-  public void computes_QG_error_if_there_is_one_unresolved_vulnerability_issue_in_index_ignoring_permissions() {
-    int unresolvedIssues = 1 + random.nextInt(10);
-
-    computesQGErrorIfThereIsAtLeastOneUnresolvedIssueInIndexOfTypeIgnoringPermissions(
-      unresolvedIssues,
-      RuleType.VULNERABILITY,
-      tuple(BUGS_KEY, EvaluationStatus.OK, Optional.of("0")),
-      tuple(VULNERABILITIES_KEY, EvaluationStatus.ERROR, Optional.of(valueOf(unresolvedIssues))),
-      tuple(CODE_SMELLS_KEY, EvaluationStatus.OK, Optional.of("0")));
-  }
-
-  @Test
-  public void computes_QG_error_if_there_is_one_unresolved_codeSmell_issue_in_index_ignoring_permissions() {
-    int unresolvedIssues = 1 + random.nextInt(10);
-
-    computesQGErrorIfThereIsAtLeastOneUnresolvedIssueInIndexOfTypeIgnoringPermissions(
-      unresolvedIssues,
-      RuleType.CODE_SMELL,
-      tuple(BUGS_KEY, EvaluationStatus.OK, Optional.of("0")),
-      tuple(VULNERABILITIES_KEY, EvaluationStatus.OK, Optional.of("0")),
-      tuple(CODE_SMELLS_KEY, EvaluationStatus.ERROR, Optional.of(valueOf(unresolvedIssues))));
-  }
-
-  private void computesQGErrorIfThereIsAtLeastOneUnresolvedIssueInIndexOfTypeIgnoringPermissions(
-    int unresolvedIssues, RuleType ruleType, Tuple... expectedQGConditions) {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentAndBranch branch = insertPrivateBranch(organization, BranchType.SHORT);
-    SnapshotDto analysis = insertAnalysisTask(branch);
-    IntStream.range(0, unresolvedIssues).forEach(i -> insertIssue(branch, ruleType, randomOpenStatus, null));
-    IntStream.range(0, random.nextInt(10)).forEach(i -> insertIssue(branch, ruleType, randomNonOpenStatus, randomResolution));
-    indexIssues(branch);
-    Configuration configuration = mock(Configuration.class);
-    mockWebhookEnabled(configuration);
-    mockPayloadSupplierConsumedByWebhooks();
-
-    underTest.onChanges(Trigger.ISSUE_CHANGE, singletonList(newQGChangeEvent(branch, analysis, configuration)));
-
-    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, configuration, analysis);
-    EvaluatedQualityGate qualityGate = projectAnalysis.getQualityGate().get();
-    assertThat(qualityGate.getStatus()).isEqualTo(EvaluatedQualityGate.Status.ERROR);
-    assertThat(qualityGate.getEvaluatedConditions())
-      .extracting(s -> s.getCondition().getMetricKey(), EvaluatedCondition::getStatus, EvaluatedCondition::getValue)
-      .containsOnly(expectedQGConditions);
-  }
-
-  @Test
-  public void computes_QG_error_with_all_failing_conditions() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentAndBranch branch = insertPrivateBranch(organization, BranchType.SHORT);
-    SnapshotDto analysis = insertAnalysisTask(branch);
-    int unresolvedBugs = 1 + random.nextInt(10);
-    int unresolvedVulnerabilities = 1 + random.nextInt(10);
-    int unresolvedCodeSmells = 1 + random.nextInt(10);
-    IntStream.range(0, unresolvedBugs).forEach(i -> insertIssue(branch, RuleType.BUG, randomOpenStatus, null));
-    IntStream.range(0, unresolvedVulnerabilities).forEach(i -> insertIssue(branch, RuleType.VULNERABILITY, randomOpenStatus, null));
-    IntStream.range(0, unresolvedCodeSmells).forEach(i -> insertIssue(branch, RuleType.CODE_SMELL, randomOpenStatus, null));
-    indexIssues(branch);
-    Configuration configuration = mock(Configuration.class);
-    mockWebhookEnabled(configuration);
-    mockPayloadSupplierConsumedByWebhooks();
-
-    underTest.onChanges(Trigger.ISSUE_CHANGE, singletonList(newQGChangeEvent(branch, analysis, configuration)));
-
-    ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, configuration, analysis);
-    EvaluatedQualityGate qualityGate = projectAnalysis.getQualityGate().get();
-    assertThat(qualityGate.getStatus()).isEqualTo(EvaluatedQualityGate.Status.ERROR);
-    assertThat(qualityGate.getEvaluatedConditions())
-      .extracting(s -> s.getCondition().getMetricKey(), EvaluatedCondition::getStatus, EvaluatedCondition::getValue)
-      .containsOnly(
-        Tuple.tuple(BUGS_KEY, EvaluationStatus.ERROR, Optional.of(valueOf(unresolvedBugs))),
-        Tuple.tuple(VULNERABILITIES_KEY, EvaluationStatus.ERROR, Optional.of(valueOf(unresolvedVulnerabilities))),
-        Tuple.tuple(CODE_SMELLS_KEY, EvaluationStatus.ERROR, Optional.of(valueOf(unresolvedCodeSmells))));
-  }
-
   private void mockWebhookEnabled(Configuration... configurations) {
     for (Configuration configuration : configurations) {
-      Mockito.when(webHooks.isEnabled(configuration)).thenReturn(true);
+      when(webHooks.isEnabled(configuration)).thenReturn(true);
     }
   }
 
   private void mockWebhookDisabled(Configuration... configurations) {
     for (Configuration configuration : configurations) {
-      Mockito.when(webHooks.isEnabled(configuration)).thenReturn(false);
+      when(webHooks.isEnabled(configuration)).thenReturn(false);
     }
   }
 
@@ -369,15 +218,6 @@ public class WebhookQGChangeEventListenerTest {
       return null;
     }).when(webHooks)
       .sendProjectAnalysisUpdate(Matchers.any(Configuration.class), Matchers.any(), Matchers.any());
-  }
-
-  private void insertIssue(ComponentAndBranch componentAndBranch, RuleType ruleType, String status, @Nullable String resolution) {
-    ComponentDto component = componentAndBranch.component;
-    RuleDefinitionDto rule = RuleTesting.newRule();
-    dbTester.rules().insert(rule);
-    dbTester.commit();
-    dbTester.issues().insert(rule, component, component, i -> i.setType(ruleType).setStatus(status).setResolution(resolution));
-    dbTester.commit();
   }
 
   private void insertPropertiesFor(String snapshotUuid, Map<String, String> properties) {
@@ -422,10 +262,6 @@ public class WebhookQGChangeEventListenerTest {
     ArgumentCaptor<ProjectAnalysis> projectAnalysisCaptor = ArgumentCaptor.forClass(ProjectAnalysis.class);
     verify(webhookPayloadFactory, Mockito.times(time)).create(projectAnalysisCaptor.capture());
     return projectAnalysisCaptor.getAllValues();
-  }
-
-  private void indexIssues(ComponentAndBranch componentAndBranch) {
-    issueIndexer.indexOnAnalysis(componentAndBranch.uuid());
   }
 
   private ComponentAndBranch insertPrivateBranch(OrganizationDto organization, BranchType branchType) {
@@ -475,8 +311,8 @@ public class WebhookQGChangeEventListenerTest {
 
   }
 
-  private static QGChangeEvent newQGChangeEvent(ComponentAndBranch branch, SnapshotDto analysis, Configuration configuration) {
-    return new QGChangeEvent(branch.component, branch.branch, analysis, configuration);
+  private static QGChangeEvent newQGChangeEvent(ComponentAndBranch branch, SnapshotDto analysis, Configuration configuration, @Nullable EvaluatedQualityGate evaluatedQualityGate) {
+    return new QGChangeEvent(branch.component, branch.branch, analysis, configuration, () -> Optional.ofNullable(evaluatedQualityGate));
   }
 
 }

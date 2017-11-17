@@ -24,6 +24,7 @@ import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,6 +39,7 @@ import org.sonar.db.component.BranchDto;
 import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.server.qualitygate.LiveQualityGateFactory;
 import org.sonar.server.settings.ProjectConfigurationLoader;
 
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
@@ -49,11 +51,14 @@ public class IssueChangeTriggerImpl implements IssueChangeTrigger {
   private final DbClient dbClient;
   private final ProjectConfigurationLoader projectConfigurationLoader;
   private final QGChangeEventListeners qgEventListeners;
+  private final LiveQualityGateFactory liveQualityGateFactory;
 
-  public IssueChangeTriggerImpl(DbClient dbClient, ProjectConfigurationLoader projectConfigurationLoader, QGChangeEventListeners qgEventListeners) {
+  public IssueChangeTriggerImpl(DbClient dbClient, ProjectConfigurationLoader projectConfigurationLoader,
+    QGChangeEventListeners qgEventListeners, LiveQualityGateFactory liveQualityGateFactory) {
     this.dbClient = dbClient;
     this.projectConfigurationLoader = projectConfigurationLoader;
     this.qgEventListeners = qgEventListeners;
+    this.liveQualityGateFactory = liveQualityGateFactory;
   }
 
   @Override
@@ -62,7 +67,7 @@ public class IssueChangeTriggerImpl implements IssueChangeTrigger {
       return;
     }
 
-    callWebHook(issueChangeData);
+    broadcastToListeners(issueChangeData);
   }
 
   private static boolean isRelevant(IssueChange issueChange) {
@@ -81,7 +86,7 @@ public class IssueChangeTriggerImpl implements IssueChangeTrigger {
     return MEANINGFUL_TRANSITIONS.contains(transitionKey);
   }
 
-  private void callWebHook(IssueChangeData issueChangeData) {
+  private void broadcastToListeners(IssueChangeData issueChangeData) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Map<String, ComponentDto> branchesByUuid = getBranchComponents(dbSession, issueChangeData);
       if (branchesByUuid.isEmpty()) {
@@ -116,7 +121,8 @@ public class IssueChangeTriggerImpl implements IssueChangeTrigger {
           if (branch != null && analysis != null) {
             Configuration configuration = configurationByUuid.get(shortBranch.getUuid());
 
-            return new QGChangeEvent(branch, shortBranch, analysis, configuration);
+            return new QGChangeEvent(branch, shortBranch, analysis, configuration,
+              () -> Optional.of(liveQualityGateFactory.buildForShortLivedBranch(branch)));
           }
           return null;
         })

@@ -66,6 +66,7 @@ import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.server.qualitygate.LiveQualityGateFactory;
 import org.sonar.server.qualitygate.changeevent.IssueChangeTrigger.IssueChange;
 import org.sonar.server.settings.ProjectConfigurationLoader;
 import org.sonar.server.tester.UserSessionRule;
@@ -101,9 +102,10 @@ public class IssueChangeTriggerImplTest {
   private DbClient spiedOnDbClient = Mockito.spy(dbClient);
   private ProjectConfigurationLoader projectConfigurationLoader = mock(ProjectConfigurationLoader.class);
   private QGChangeEventListeners qgChangeEventListeners = mock(QGChangeEventListeners.class);
-  private IssueChangeTriggerImpl underTest = new IssueChangeTriggerImpl(spiedOnDbClient, projectConfigurationLoader, qgChangeEventListeners);
+  private LiveQualityGateFactory liveQualityGateFactory = mock(LiveQualityGateFactory.class);
+  private IssueChangeTriggerImpl underTest = new IssueChangeTriggerImpl(spiedOnDbClient, projectConfigurationLoader, qgChangeEventListeners, liveQualityGateFactory);
   private DbClient mockedDbClient = mock(DbClient.class);
-  private IssueChangeTriggerImpl mockedUnderTest = new IssueChangeTriggerImpl(mockedDbClient, projectConfigurationLoader, qgChangeEventListeners);
+  private IssueChangeTriggerImpl mockedUnderTest = new IssueChangeTriggerImpl(mockedDbClient, projectConfigurationLoader, qgChangeEventListeners, liveQualityGateFactory);
 
   @Test
   public void on_type_change_has_no_effect_if_SearchResponseData_has_no_issue() {

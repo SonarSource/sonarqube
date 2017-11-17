@@ -28,6 +28,7 @@ import org.sonar.server.issue.ServerIssueStorage;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
+import org.sonar.server.qualitygate.LiveQualityGateFactoryImpl;
 import org.sonar.server.qualitygate.changeevent.IssueChangeTriggerImpl;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListenersImpl;
 import org.sonar.server.settings.ProjectConfigurationLoaderImpl;
@@ -67,6 +68,7 @@ public class IssueWsModule extends Module {
       ChangelogAction.class,
       BulkChangeAction.class,
       ProjectConfigurationLoaderImpl.class,
+      LiveQualityGateFactoryImpl.class,
       IssueChangeTriggerImpl.class,
       WebhookQGChangeEventListener.class,
       QGChangeEventListenersImpl.class);
