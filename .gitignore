@@ -51,3 +51,7 @@ Desktop.ini
 # scripts patches, they are local to each developer
 scripts/patches/*.*
 scripts/patches/*license*.txt
+!scripts/patches/debug_ce.sh
+!scripts/patches/debug_web.sh
+!scripts/patches/mysql.sh
+!scripts/patches/postgres.sh
