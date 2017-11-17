@@ -46,6 +46,10 @@ import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.qualitygate.Condition;
+import org.sonar.server.qualitygate.EvaluatedCondition;
+import org.sonar.server.qualitygate.EvaluatedCondition.EvaluationStatus;
+import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.settings.ProjectConfigurationLoader;
@@ -53,7 +57,6 @@ import org.sonar.server.webhook.Analysis;
 import org.sonar.server.webhook.Branch;
 import org.sonar.server.webhook.Project;
 import org.sonar.server.webhook.ProjectAnalysis;
-import org.sonar.server.webhook.QualityGate;
 import org.sonar.server.webhook.WebHooks;
 import org.sonar.server.webhook.WebhookPayload;
 import org.sonar.server.webhook.WebhookPayloadFactory;
@@ -170,7 +173,7 @@ public class IssueChangeWebhookImpl implements IssueChangeWebhook {
     return webhookPayloadFactory.create(projectAnalysis);
   }
 
-  private QualityGate createQualityGate(ComponentDto branch, IssueIndex issueIndex) {
+  private EvaluatedQualityGate createQualityGate(ComponentDto branch, IssueIndex issueIndex) {
     SearchResponse searchResponse = issueIndex.search(IssueQuery.builder()
       .projectUuids(singletonList(branch.getMainBranchProjectUuid()))
       .branchUuid(branch.uuid())
@@ -182,43 +185,48 @@ public class IssueChangeWebhookImpl implements IssueChangeWebhook {
     LinkedHashMap<String, Long> typeFacet = new Facets(searchResponse, system2.getDefaultTimeZone())
       .get(RuleIndex.FACET_TYPES);
 
-    Set<QualityGate.Condition> conditions = ShortLivingBranchQualityGate.CONDITIONS.stream()
-      .map(c -> toCondition(typeFacet, c))
+    EvaluatedQualityGate.Builder builder = EvaluatedQualityGate.newBuilder();
+    Set<Condition> conditions = ShortLivingBranchQualityGate.CONDITIONS.stream()
+      .map(c -> {
+        long measure = getMeasure(typeFacet, c);
+        EvaluationStatus status = measure > 0 ? EvaluationStatus.ERROR : EvaluationStatus.OK;
+        Condition condition = new Condition(c.getMetricKey(), toOperator(c), c.getErrorThreshold(), c.getWarnThreshold(), c.isOnLeak());
+        builder.addCondition(condition, status, valueOf(measure));
+        return condition;
+      })
       .collect(toSet(ShortLivingBranchQualityGate.CONDITIONS.size()));
+    builder
+      .setQualityGate(
+        new org.sonar.server.qualitygate.QualityGate(
+          valueOf(ShortLivingBranchQualityGate.ID),
+          ShortLivingBranchQualityGate.NAME,
+          conditions))
+      .setStatus(qgStatusFrom(builder.getEvaluatedConditions()));
 
-    return new QualityGate(valueOf(ShortLivingBranchQualityGate.ID), ShortLivingBranchQualityGate.NAME, qgStatusFrom(conditions), conditions);
+    return builder.build();
   }
 
-  private static QualityGate.Condition toCondition(LinkedHashMap<String, Long> typeFacet, ShortLivingBranchQualityGate.Condition c) {
-    long measure = getMeasure(typeFacet, c);
-    QualityGate.EvaluationStatus status = measure > 0 ? QualityGate.EvaluationStatus.ERROR : QualityGate.EvaluationStatus.OK;
-    return new QualityGate.Condition(status, c.getMetricKey(),
-      toOperator(c),
-      c.getErrorThreshold(), c.getWarnThreshold(), c.isOnLeak(),
-      valueOf(measure));
-  }
-
-  private static QualityGate.Operator toOperator(ShortLivingBranchQualityGate.Condition c) {
+  private static Condition.Operator toOperator(ShortLivingBranchQualityGate.Condition c) {
     String operator = c.getOperator();
     switch (operator) {
       case QualityGateConditionDto.OPERATOR_GREATER_THAN:
-        return QualityGate.Operator.GREATER_THAN;
+        return Condition.Operator.GREATER_THAN;
       case QualityGateConditionDto.OPERATOR_LESS_THAN:
-        return QualityGate.Operator.LESS_THAN;
+        return Condition.Operator.LESS_THAN;
       case QualityGateConditionDto.OPERATOR_EQUALS:
-        return QualityGate.Operator.EQUALS;
+        return Condition.Operator.EQUALS;
       case QualityGateConditionDto.OPERATOR_NOT_EQUALS:
-        return QualityGate.Operator.NOT_EQUALS;
+        return Condition.Operator.NOT_EQUALS;
       default:
         throw new IllegalArgumentException(format("Unsupported Condition operator '%s'", operator));
     }
   }
 
-  private static QualityGate.Status qgStatusFrom(Set<QualityGate.Condition> conditions) {
-    if (conditions.stream().anyMatch(c -> c.getStatus() == QualityGate.EvaluationStatus.ERROR)) {
-      return QualityGate.Status.ERROR;
+  private static EvaluatedQualityGate.Status qgStatusFrom(Set<EvaluatedCondition> conditions) {
+    if (conditions.stream().anyMatch(c -> c.getStatus() == EvaluationStatus.ERROR)) {
+      return EvaluatedQualityGate.Status.ERROR;
     }
-    return QualityGate.Status.OK;
+    return EvaluatedQualityGate.Status.OK;
   }
 
   private static long getMeasure(LinkedHashMap<String, Long> typeFacet, ShortLivingBranchQualityGate.Condition c) {

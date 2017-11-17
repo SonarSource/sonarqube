@@ -26,6 +26,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
+import org.sonar.server.qualitygate.Condition;
+import org.sonar.server.qualitygate.EvaluatedCondition;
+import org.sonar.server.qualitygate.EvaluatedQualityGate;
+import org.sonar.server.qualitygate.QualityGate;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
@@ -52,9 +56,12 @@ public class WebhookPayloadFactoryImplTest {
   @Test
   public void create_payload_for_successful_analysis() {
     CeTask task = new CeTask("#1", CeTask.Status.SUCCESS);
-    QualityGate gate = new QualityGate("G1", "Gate One", QualityGate.Status.WARN, singleton(new QualityGate.Condition(
-      QualityGate.EvaluationStatus.WARN,
-      "coverage", QualityGate.Operator.GREATER_THAN, "70.0", "75.0", true, "74.0")));
+    Condition condition = new Condition("coverage", Condition.Operator.GREATER_THAN, "70.0", "75.0", true);
+    EvaluatedQualityGate gate = EvaluatedQualityGate.newBuilder()
+      .setQualityGate(new QualityGate("G1", "Gate One", singleton(condition)))
+      .setStatus(EvaluatedQualityGate.Status.WARN)
+      .addCondition(condition, EvaluatedCondition.EvaluationStatus.WARN, "74.0")
+      .build();
     ProjectAnalysis analysis = newAnalysis(task, gate, null, 1_500_000_000_000L, emptyMap());
 
     WebhookPayload payload = underTest.create(analysis);
@@ -94,8 +101,13 @@ public class WebhookPayloadFactoryImplTest {
   @Test
   public void create_payload_with_gate_conditions_without_value() {
     CeTask task = new CeTask("#1", CeTask.Status.SUCCESS);
-    QualityGate gate = new QualityGate("G1", "Gate One", QualityGate.Status.WARN, singleton(
-      new QualityGate.Condition(QualityGate.EvaluationStatus.NO_VALUE, "coverage", QualityGate.Operator.GREATER_THAN, "70.0", "75.0", false, null)));
+
+    Condition condition = new Condition("coverage", Condition.Operator.GREATER_THAN, "70.0", "75.0", false);
+    EvaluatedQualityGate gate = EvaluatedQualityGate.newBuilder()
+      .setQualityGate(new QualityGate("G1", "Gate One", singleton(condition)))
+      .setStatus(EvaluatedQualityGate.Status.WARN)
+      .addCondition(condition, EvaluatedCondition.EvaluationStatus.NO_VALUE, null)
+      .build();
     ProjectAnalysis analysis = newAnalysis(task, gate, null, 1_500_000_000_000L, emptyMap());
 
     WebhookPayload payload = underTest.create(analysis);
@@ -132,7 +144,10 @@ public class WebhookPayloadFactoryImplTest {
   @Test
   public void create_payload_with_analysis_properties() {
     CeTask task = new CeTask("#1", CeTask.Status.SUCCESS);
-    QualityGate gate = new QualityGate("G1", "Gate One", QualityGate.Status.WARN, emptySet());
+    EvaluatedQualityGate gate = EvaluatedQualityGate.newBuilder()
+      .setQualityGate(new QualityGate("G1", "Gate One", emptySet()))
+      .setStatus(EvaluatedQualityGate.Status.WARN)
+      .build();
     Map<String, String> scannerProperties = ImmutableMap.of(
       "sonar.analysis.revision", "ab45d24",
       "sonar.analysis.buildNumber", "B123",
@@ -287,7 +302,7 @@ public class WebhookPayloadFactoryImplTest {
         "}");
   }
 
-  private static ProjectAnalysis newAnalysis(@Nullable CeTask task, @Nullable QualityGate gate,
+  private static ProjectAnalysis newAnalysis(@Nullable CeTask task, @Nullable EvaluatedQualityGate gate,
     @Nullable Branch branch, @Nullable Long analysisDate, Map<String, String> scannerProperties) {
     return new ProjectAnalysis(new Project("P1_UUID", PROJECT_KEY, "Project One"), task, analysisDate == null ? null : new Analysis("A_UUID1", analysisDate), branch,
       gate, analysisDate, scannerProperties);
