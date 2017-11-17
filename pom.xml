@@ -314,6 +314,7 @@
                   <message>commons-beanutils:commons-beanutils should be used instead</message>
                   <excludes>
                     <exclude>commons-beanutils:commons-beanutils-core</exclude>
+                    <exclude>com.thoughtworks.xstream:xstream:[0.0,1.4.9)</exclude>
                   </excludes>
                   <searchTransitive>true</searchTransitive>
                 </bannedDependencies>
