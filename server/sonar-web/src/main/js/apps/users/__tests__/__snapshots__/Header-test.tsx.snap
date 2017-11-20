@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<header
+  className="page-header"
+  id="users-header"
+>
+  <h1
+    className="page-title"
+  >
+    users.page
+  </h1>
+  <DeferredSpinner
+    loading={true}
+    timeout={100}
+  />
+  <div
+    className="page-actions"
+  >
+    <button
+      id="users-create"
+      onClick={[Function]}
+    >
+      users.create_user
+    </button>
+  </div>
+  <p
+    className="page-description"
+  >
+    users.page.description
+  </p>
+</header>
+`;
