@@ -26,11 +26,12 @@ import SettingsIcon from '../icons-components/SettingsIcon';
 interface Props {
   className?: string;
   children: React.ReactNode;
+  menuPosition?: 'left' | 'right';
   small?: boolean;
   toggleClassName?: string;
 }
 
-export default function ActionsDropdown(props: Props) {
+export default function ActionsDropdown({ menuPosition = 'right', ...props }: Props) {
   return (
     <div className={classNames('dropdown', props.className)}>
       <button
@@ -41,7 +42,12 @@ export default function ActionsDropdown(props: Props) {
         <SettingsIcon className="text-text-bottom" />
         <i className="icon-dropdown little-spacer-left" />
       </button>
-      <ul className="dropdown-menu">{props.children}</ul>
+      <ul
+        className={classNames('dropdown-menu', {
+          'dropdown-menu-right': menuPosition === 'right'
+        })}>
+        {props.children}
+      </ul>
     </div>
   );
 }
