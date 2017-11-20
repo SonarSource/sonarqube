@@ -19,6 +19,7 @@
  */
 package org.sonarqube.tests.user;
 
+import com.codeborne.selenide.Condition;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.sonar.orchestrator.Orchestrator;
@@ -37,7 +38,9 @@ import org.sonar.wsclient.connectors.HttpClient4Connector;
 import org.sonar.wsclient.services.AuthenticationQuery;
 import org.sonar.wsclient.user.UserParameters;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.qa.util.pageobjects.SystemInfoPage;
+import org.sonarqube.qa.util.pageobjects.UsersManagementPage;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.user.CreateRequest;
@@ -233,7 +236,17 @@ public class RealmAuthenticationTest {
     // Given clean Sonar installation and no users in external system
 
     // Let's create and delete the user "tester" in Sonar DB
-    runSelenese(orchestrator, "/user/ExternalAuthenticationTest/create-and-delete-user.html");
+    Navigation nav = tester.openBrowser();
+    UsersManagementPage page = nav.logIn().submitCredentials(ADMIN_USER_LOGIN).openUsersManagement();
+    page
+      .createUser(USER_LOGIN)
+      .hasUsersCount(3)
+      .getUser(USER_LOGIN)
+      .deactivateUser();
+    page.hasUsersCount(2);
+    nav.logOut()
+      .logIn().submitWrongCredentials(USER_LOGIN, USER_LOGIN)
+      .getErrorMessage().shouldHave(Condition.text("Authentication failed"));
 
     // And now update the security with the user that was deleted
     String login = USER_LOGIN;
