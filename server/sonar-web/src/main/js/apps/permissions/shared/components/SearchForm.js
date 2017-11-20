@@ -31,7 +31,7 @@ export default function SearchForm(props) {
   ];
 
   return (
-    <div className="diplay-flex-row">
+    <div className="display-flex-row">
       <RadioToggle
         name="users-or-groups"
         onCheck={props.onFilter}
