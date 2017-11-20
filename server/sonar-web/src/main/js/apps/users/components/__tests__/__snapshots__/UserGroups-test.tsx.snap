@@ -1,0 +1,36 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<ul>
+  <li
+    className="little-spacer-bottom"
+    key="foo"
+  >
+    foo
+  </li>
+  <li
+    className="little-spacer-bottom"
+    key="bar"
+  >
+    bar
+  </li>
+  <li
+    className="little-spacer-bottom"
+  >
+    <a
+      className="js-user-more-groups spacer-right"
+      href="#"
+      onClick={[Function]}
+    >
+      more_x.2
+    </a>
+    <ButtonIcon
+      className="js-user-groups button-small"
+      onClick={[Function]}
+      tooltip="users.update_groups"
+    >
+      <BulletListIcon />
+    </ButtonIcon>
+  </li>
+</ul>
+`;
