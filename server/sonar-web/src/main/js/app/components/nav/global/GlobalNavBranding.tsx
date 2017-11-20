@@ -17,41 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
 import { getGlobalSettingValue } from '../../../../store/rootReducer';
 import { translate } from '../../../../helpers/l10n';
+import { getBaseUrl } from '../../../../helpers/urls';
 
-class GlobalNavBranding extends React.PureComponent {
-  static propTypes = {
-    customLogoUrl: PropTypes.string,
-    customLogoWidth: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
-  };
-
-  renderLogo() {
-    const url = this.props.customLogoUrl || `${window.baseUrl}/images/logo.svg?v=6.6`;
-    const width = this.props.customLogoUrl ? this.props.customLogoWidth || 100 : 83;
-    const height = 30;
-    const title = translate('layout.sonar.slogan');
-    return <img src={url} width={width} height={height} alt={title} title={title} />;
-  }
-
-  render() {
-    return (
-      <div className="pull-left">
-        <Link to="/" className="navbar-brand">
-          {this.renderLogo()}
-        </Link>
-      </div>
-    );
-  }
+interface Props {
+  customLogoUrl?: string;
+  customLogoWidth?: string | number;
 }
 
-const mapStateToProps = state => ({
+function GlobalNavBranding({ customLogoUrl, customLogoWidth }: Props) {
+  const url = customLogoUrl || `${getBaseUrl()}/images/logo.svg?v=6.6`;
+  const width = customLogoUrl ? customLogoWidth || 100 : 83;
+  const height = 30;
+  const title = translate('layout.sonar.slogan');
+
+  return (
+    <div className="pull-left">
+      <Link to="/" className="navbar-brand">
+        <img src={url} width={width} height={height} alt={title} title={title} />
+      </Link>
+    </div>
+  );
+}
+
+const mapStateToProps = (state: any) => ({
   customLogoUrl: (getGlobalSettingValue(state, 'sonar.lf.logoUrl') || {}).value,
   customLogoWidth: (getGlobalSettingValue(state, 'sonar.lf.logoWidthPx') || {}).value
 });
 
-export default connect(mapStateToProps)(GlobalNavBranding);
+export default connect<Props, {}, Props>(mapStateToProps)(GlobalNavBranding);

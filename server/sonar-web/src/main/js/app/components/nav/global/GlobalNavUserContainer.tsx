@@ -17,27 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import * as classNames from 'classnames';
-import './NavBar.css';
+import { connect } from 'react-redux';
+import GlobalNavUser from './GlobalNavUser';
+import { fetchMyOrganizations } from '../../../../apps/account/organizations/actions';
+import { getMyOrganizations } from '../../../../store/rootReducer';
 
-interface Props {
-  children?: any;
-  className?: string;
-  height: number;
-  notif?: React.ReactNode;
-  [prop: string]: any;
+interface StateProps {
+  organizations: Array<{ key: string; name: string }>;
 }
 
-export default function NavBar({ children, className, height, notif, ...other }: Props) {
-  return (
-    <nav {...other} className={classNames('navbar', className)} style={{ height }}>
-      <div
-        className={classNames('navbar-inner', { 'navbar-inner-with-notif': notif != null })}
-        style={{ height }}>
-        <div className="navbar-limited clearfix">{children}</div>
-        {notif}
-      </div>
-    </nav>
-  );
+const mapStateToProps = (state: any): StateProps => ({
+  organizations: getMyOrganizations(state)
+});
+
+interface DispatchProps {
+  fetchMyOrganizations: () => Promise<void>;
 }
+
+// `as any`, because we don't have proper typings for redux-thunk async actions
+const mapDispatchToProps = { fetchMyOrganizations } as any;
+
+export default connect<StateProps, DispatchProps, {}>(mapStateToProps, mapDispatchToProps)(
+  GlobalNavUser
+);

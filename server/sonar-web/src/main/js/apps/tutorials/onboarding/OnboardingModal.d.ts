@@ -1,7 +1,7 @@
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,26 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
-import './NavBar.css';
 
-interface Props {
-  children?: any;
-  className?: string;
-  height: number;
-  notif?: React.ReactNode;
-  [prop: string]: any;
+export interface Props {
+  onFinish: () => void;
 }
 
-export default function NavBar({ children, className, height, notif, ...other }: Props) {
-  return (
-    <nav {...other} className={classNames('navbar', className)} style={{ height }}>
-      <div
-        className={classNames('navbar-inner', { 'navbar-inner-with-notif': notif != null })}
-        style={{ height }}>
-        <div className="navbar-limited clearfix">{children}</div>
-        {notif}
-      </div>
-    </nav>
-  );
-}
+export default class OnboardingModal extends React.PureComponent<Props> {}

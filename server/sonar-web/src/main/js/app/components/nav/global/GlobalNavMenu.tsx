@@ -17,29 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { Link } from 'react-router';
 import { translate } from '../../../../helpers/l10n';
-import { getQualityGatesUrl } from '../../../../helpers/urls';
+import { getQualityGatesUrl, getBaseUrl } from '../../../../helpers/urls';
 import { isMySet } from '../../../../apps/issues/utils';
+import { AppState } from '../../../../store/appState/duck';
 
-export default class GlobalNavMenu extends React.PureComponent {
-  static propTypes = {
-    appState: PropTypes.object.isRequired,
-    currentUser: PropTypes.object.isRequired,
-    location: PropTypes.shape({
-      pathname: PropTypes.string.isRequired
-    }).isRequired
-  };
+interface GlobalPage {
+  key: string;
+  name: string;
+}
 
+interface Props {
+  appState: AppState;
+  currentUser: { isLoggedIn: boolean };
+  location: { pathname: string };
+}
+
+export default class GlobalNavMenu extends React.PureComponent<Props> {
   static defaultProps = {
     globalDashboards: [],
     globalPages: []
   };
 
-  activeLink(url) {
-    return window.location.pathname.indexOf(window.baseUrl + url) === 0 ? 'active' : null;
+  activeLink(url: string) {
+    return window.location.pathname.indexOf(getBaseUrl() + url) === 0 ? 'active' : undefined;
   }
 
   renderProjects() {
@@ -121,7 +124,7 @@ export default class GlobalNavMenu extends React.PureComponent {
     );
   }
 
-  renderGlobalPageLink = ({ key, name }) => {
+  renderGlobalPageLink = ({ key, name }: GlobalPage) => {
     return (
       <li key={key}>
         <Link to={`/extension/${key}`}>{name}</Link>

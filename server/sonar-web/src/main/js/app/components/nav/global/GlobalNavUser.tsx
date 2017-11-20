@@ -17,79 +17,73 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import * as PropTypes from 'prop-types';
 import { sortBy } from 'lodash';
 import { Link } from 'react-router';
 import Avatar from '../../../../components/ui/Avatar';
 import OrganizationIcon from '../../../../components/icons-components/OrganizationIcon';
 import OrganizationLink from '../../../../components/ui/OrganizationLink';
 import { translate } from '../../../../helpers/l10n';
+import { getBaseUrl } from '../../../../helpers/urls';
+import { AppState } from '../../../../store/appState/duck';
+import { CurrentUser, LoggedInUser, isLoggedInUser } from '../../../types';
 
-/*::
-type CurrentUser = {
-  avatar?: string,
-  email?: string,
-  isLoggedIn: boolean,
-  name: string
-};
-*/
+interface Props {
+  appState: AppState;
+  currentUser: CurrentUser;
+  fetchMyOrganizations: () => Promise<void>;
+  location: { pathname: string };
+  organizations: Array<{ key: string; name: string }>;
+}
 
-/*::
-type Props = {
-  appState: {
-    organizationsEnabled: boolean
-  },
-  currentUser: CurrentUser,
-  fetchMyOrganizations: () => Promise<*>,
-  location: Object,
-  organizations: Array<{ key: string, name: string }>,
-  router: { push: string => void }
-};
-*/
+interface State {
+  open: boolean;
+}
 
-/*::
-type State = {
-  open: boolean
-};
-*/
+export default class GlobalNavUser extends React.PureComponent<Props, State> {
+  node?: HTMLElement | null;
 
-export default class GlobalNavUser extends React.PureComponent {
-  /*:: node: HTMLElement; */
-  /*:: props: Props; */
-  state /*: State */ = { open: false };
+  static contextTypes = {
+    router: PropTypes.object
+  };
+
+  constructor(props: Props) {
+    super(props);
+    this.state = { open: false };
+  }
 
   componentWillUnmount() {
     window.removeEventListener('click', this.handleClickOutside);
   }
 
-  handleClickOutside = (event /*: { target: HTMLElement } */) => {
-    if (!this.node || !this.node.contains(event.target)) {
+  handleClickOutside = (event: MouseEvent) => {
+    if (!this.node || !this.node.contains(event.currentTarget as HTMLElement)) {
       this.closeDropdown();
     }
   };
 
-  handleLogin = (e /*: Event */) => {
-    e.preventDefault();
-    const shouldReturnToCurrentPage = window.location.pathname !== `${window.baseUrl}/about`;
+  handleLogin = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    const shouldReturnToCurrentPage = window.location.pathname !== `${getBaseUrl()}/about`;
     if (shouldReturnToCurrentPage) {
       const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
-      window.location =
-        window.baseUrl + `/sessions/new?return_to=${returnTo}${window.location.hash}`;
+      window.location.href =
+        getBaseUrl() + `/sessions/new?return_to=${returnTo}${window.location.hash}`;
     } else {
-      window.location = `${window.baseUrl}/sessions/new`;
+      window.location.href = `${getBaseUrl()}/sessions/new`;
     }
   };
 
-  handleLogout = (e /*: Event */) => {
+  handleLogout = (e: React.SyntheticEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     this.closeDropdown();
-    this.props.router.push('/sessions/logout');
+    this.context.router.push('/sessions/logout');
   };
 
-  toggleDropdown = (evt /*: Event */) => {
-    evt.preventDefault();
+  toggleDropdown = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
     if (this.state.open) {
       this.closeDropdown();
     } else {
@@ -98,10 +92,13 @@ export default class GlobalNavUser extends React.PureComponent {
   };
 
   openDropdown = () => {
-    this.fetchMyOrganizations().then(() => {
-      window.addEventListener('click', this.handleClickOutside, true);
-      this.setState({ open: true });
-    });
+    this.fetchMyOrganizations().then(
+      () => {
+        window.addEventListener('click', this.handleClickOutside, true);
+        this.setState({ open: true });
+      },
+      () => {}
+    );
   };
 
   closeDropdown = () => {
@@ -116,27 +113,25 @@ export default class GlobalNavUser extends React.PureComponent {
     return Promise.resolve();
   };
 
-  renderAuthenticated() {
-    const { currentUser, organizations } = this.props;
+  renderAuthenticated(user: LoggedInUser) {
+    const { organizations } = this.props;
     const hasOrganizations = this.props.appState.organizationsEnabled && organizations.length > 0;
     return (
       <li
         className={classNames('dropdown js-user-authenticated', { open: this.state.open })}
         ref={node => (this.node = node)}>
         <a className="dropdown-toggle navbar-avatar" href="#" onClick={this.toggleDropdown}>
-          <Avatar hash={currentUser.avatar} name={currentUser.name} size={24} />
+          <Avatar hash={user.avatar} name={user.name!} size={24} />
         </a>
         {this.state.open && (
           <ul className="dropdown-menu dropdown-menu-right">
             <li className="dropdown-item">
-              <div className="text-ellipsis text-muted" title={currentUser.name}>
-                <strong>{currentUser.name}</strong>
+              <div className="text-ellipsis text-muted" title={user.name}>
+                <strong>{user.name}</strong>
               </div>
-              {currentUser.email != null && (
-                <div
-                  className="little-spacer-top text-ellipsis text-muted"
-                  title={currentUser.email}>
-                  {currentUser.email}
+              {user.email != null && (
+                <div className="little-spacer-top text-ellipsis text-muted" title={user.email}>
+                  {user.email}
                 </div>
               )}
             </li>
@@ -186,6 +181,8 @@ export default class GlobalNavUser extends React.PureComponent {
   }
 
   render() {
-    return this.props.currentUser.isLoggedIn ? this.renderAuthenticated() : this.renderAnonymous();
+    return isLoggedInUser(this.props.currentUser)
+      ? this.renderAuthenticated(this.props.currentUser)
+      : this.renderAnonymous();
   }
 }
