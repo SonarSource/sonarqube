@@ -20,13 +20,11 @@
 package org.sonar.scanner.mediumtest.tasks;
 
 import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
-import java.util.List;
 import org.assertj.core.api.Condition;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.MessageException;
@@ -83,11 +81,11 @@ public class TasksMediumTest {
       .execute();
   }
 
-  private static class FakeTaskPlugin extends SonarPlugin {
+  private static class FakeTaskPlugin implements Plugin {
 
     @Override
-    public List getExtensions() {
-      return Arrays.asList(FakeTask.DEF, FakeTask.class, BrokenTask.DEF, BrokenTask.class);
+    public void define(Context context) {
+      context.addExtensions(FakeTask.DEF, FakeTask.class, BrokenTask.DEF, BrokenTask.class);
     }
 
   }

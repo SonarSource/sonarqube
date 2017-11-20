@@ -102,8 +102,7 @@ public class ReportSizeMeasuresStepTest {
     .add(CoreMetrics.GENERATED_NCLOC)
     .add(CoreMetrics.FUNCTIONS)
     .add(CoreMetrics.STATEMENTS)
-    .add(CoreMetrics.CLASSES)
-    .add(CoreMetrics.ACCESSORS);
+    .add(CoreMetrics.CLASSES);
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
@@ -200,17 +199,16 @@ public class ReportSizeMeasuresStepTest {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef)))
       .containsOnly(
         entryOf(LINES_KEY, newMeasureBuilder().create(linesCount)),
-        entryOf(FILES_KEY, newMeasureBuilder().create(fileCount))
-      );
+        entryOf(FILES_KEY, newMeasureBuilder().create(fileCount)));
   }
 
-  private void verifyMeasuresOnOtherComponent(int componentRef, @Nullable Integer linesCount, @Nullable Integer fileCount, @Nullable Integer directoryCount, MeasureRepoEntry... otherMeasures) {
+  private void verifyMeasuresOnOtherComponent(int componentRef, @Nullable Integer linesCount, @Nullable Integer fileCount, @Nullable Integer directoryCount,
+    MeasureRepoEntry... otherMeasures) {
     MeasureRepoEntry[] measureRepoEntries = concatIntoArray(
       otherMeasures,
       linesCount == null ? null : entryOf(LINES_KEY, newMeasureBuilder().create(linesCount)),
       fileCount == null ? null : entryOf(FILES_KEY, newMeasureBuilder().create(fileCount)),
-      directoryCount == null ? null : entryOf(DIRECTORIES_KEY, newMeasureBuilder().create(directoryCount))
-    );
+      directoryCount == null ? null : entryOf(DIRECTORIES_KEY, newMeasureBuilder().create(directoryCount)));
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef)))
       .containsOnly(measureRepoEntries);
   }

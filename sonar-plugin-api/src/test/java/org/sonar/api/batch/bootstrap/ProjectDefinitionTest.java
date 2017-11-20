@@ -19,9 +19,7 @@
  */
 package org.sonar.api.batch.bootstrap;
 
-import java.util.Properties;
 import org.junit.Test;
-import org.sonar.api.CoreProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -63,15 +61,6 @@ public class ProjectDefinitionTest {
     ProjectDefinition def = ProjectDefinition.create();
     def.setKey("myKey");
     assertThat(def.getName()).isEqualTo("myKey");
-  }
-
-  @Test
-  public void shouldGetKeyFromProperties() {
-    Properties props = new Properties();
-    props.setProperty(CoreProperties.PROJECT_KEY_PROPERTY, "foo");
-    ProjectDefinition def = ProjectDefinition.create();
-    def.setProperties(props);
-    assertThat(def.getKey()).isEqualTo("foo");
   }
 
   @Test

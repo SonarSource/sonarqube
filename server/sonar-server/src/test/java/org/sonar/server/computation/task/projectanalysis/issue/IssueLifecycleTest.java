@@ -80,7 +80,7 @@ public class IssueLifecycleTest {
     assertThat(issue.creationDate()).isNotNull();
     assertThat(issue.updateDate()).isNotNull();
     assertThat(issue.status()).isEqualTo(STATUS_OPEN);
-    assertThat(issue.debt()).isEqualTo(DEFAULT_DURATION);
+    assertThat(issue.effort()).isEqualTo(DEFAULT_DURATION);
     assertThat(issue.isNew()).isTrue();
     assertThat(issue.isCopied()).isFalse();
   }
@@ -192,7 +192,7 @@ public class IssueLifecycleTest {
     assertThat(raw.assignee()).isEqualTo("base assignee");
     assertThat(raw.authorLogin()).isEqualTo("base author");
     assertThat(raw.tags()).containsOnly("base tag");
-    assertThat(raw.debt()).isEqualTo(DEFAULT_DURATION);
+    assertThat(raw.effort()).isEqualTo(DEFAULT_DURATION);
     assertThat(raw.isOnDisabledRule()).isTrue();
     assertThat(raw.selectedAt()).isEqualTo(1000L);
     assertThat(raw.changes().get(0).get(IssueFieldsSetter.FROM_LONG_BRANCH).oldValue()).isEqualTo("master");
@@ -259,7 +259,7 @@ public class IssueLifecycleTest {
     assertThat(raw.assignee()).isEqualTo("base assignee");
     assertThat(raw.authorLogin()).isEqualTo("base author");
     assertThat(raw.tags()).containsOnly("base tag");
-    assertThat(raw.debt()).isEqualTo(DEFAULT_DURATION);
+    assertThat(raw.effort()).isEqualTo(DEFAULT_DURATION);
     assertThat(raw.isOnDisabledRule()).isTrue();
     assertThat(raw.selectedAt()).isEqualTo(1000L);
 

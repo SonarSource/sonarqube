@@ -35,13 +35,10 @@ import org.sonar.xoo.lang.LineMeasureSensor;
 import org.sonar.xoo.lang.MeasureSensor;
 import org.sonar.xoo.lang.SymbolReferencesSensor;
 import org.sonar.xoo.lang.SyntaxHighlightingSensor;
-import org.sonar.xoo.lang.XooCpdMapping;
-import org.sonar.xoo.lang.XooTokenizer;
 import org.sonar.xoo.rule.AnalysisErrorSensor;
 import org.sonar.xoo.rule.ChecksSensor;
 import org.sonar.xoo.rule.CreateIssueByInternalKeySensor;
 import org.sonar.xoo.rule.CustomMessageSensor;
-import org.sonar.xoo.rule.DeprecatedResourceApiSensor;
 import org.sonar.xoo.rule.HasTagSensor;
 import org.sonar.xoo.rule.MultilineIssuesSensor;
 import org.sonar.xoo.rule.NoSonarSensor;
@@ -110,8 +107,7 @@ public class XooPlugin implements Plugin {
       XooBlameCommand.class,
 
       // CPD
-      XooCpdMapping.class,
-      XooTokenizer.class,
+      CpdTokenizerSensor.class,
 
       // sensors
       HasTagSensor.class,
@@ -155,14 +151,10 @@ public class XooPlugin implements Plugin {
       XooPostJob.class);
 
     if (context.getRuntime().getProduct() != SonarProduct.SONARLINT) {
-      context.addExtensions(MeasureSensor.class,
-        DeprecatedResourceApiSensor.class);
+      context.addExtension(MeasureSensor.class);
     }
 
-    if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(5, 5))) {
-      context.addExtension(CpdTokenizerSensor.class);
-    }
-    if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(6,6))) {
+    if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(6, 6))) {
       context.addExtension(XooBuiltInQualityProfilesDefinition.class);
     }
   }

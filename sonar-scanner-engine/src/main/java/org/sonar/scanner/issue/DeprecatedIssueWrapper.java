@@ -81,18 +81,9 @@ public class DeprecatedIssueWrapper implements Issue {
     return textRange != null ? textRange.start().line() : null;
   }
 
-  /**
-   * @deprecated since 5.5, replaced by {@link #gap()}
-   */
-  @Override
-  @Deprecated
-  public Double effortToFix() {
-    return gap();
-  }
-
   @Override
   public Double gap() {
-    return newIssue.effortToFix();
+    return newIssue.gap();
   }
 
   @Override
@@ -102,11 +93,6 @@ public class DeprecatedIssueWrapper implements Issue {
 
   @Override
   public String resolution() {
-    return null;
-  }
-
-  @Override
-  public String reporter() {
     return null;
   }
 
@@ -146,11 +132,6 @@ public class DeprecatedIssueWrapper implements Issue {
   }
 
   @Override
-  public String actionPlanKey() {
-    return null;
-  }
-
-  @Override
   public List<IssueComment> comments() {
     return Collections.emptyList();
   }
@@ -163,11 +144,6 @@ public class DeprecatedIssueWrapper implements Issue {
   @Override
   public boolean isCopied() {
     return false;
-  }
-
-  @Override
-  public Duration debt() {
-    return null;
   }
 
   @Override

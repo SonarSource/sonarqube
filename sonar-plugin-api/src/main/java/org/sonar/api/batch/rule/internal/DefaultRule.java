@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.batch.debt.DebtRemediationFunction;
 import org.sonar.api.batch.rule.Rule;
 import org.sonar.api.batch.rule.RuleParam;
 import org.sonar.api.rule.RuleKey;
@@ -99,16 +98,6 @@ public class DefaultRule implements Rule {
   @Override
   public RuleStatus status() {
     return status;
-  }
-
-  @Override
-  public String debtSubCharacteristic() {
-    throw new UnsupportedOperationException("Debt characteristic is not available by analyzer since version 5.2 (data computation moved to server)");
-  }
-
-  @Override
-  public DebtRemediationFunction debtRemediationFunction() {
-    throw new UnsupportedOperationException("Debt remediation function is not available by analyzer since version 5.2 (data computation moved to server)");
   }
 
   @Override

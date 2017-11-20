@@ -23,7 +23,6 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.resources.Resource;
 
 /**
  * @since 3.5
@@ -31,9 +30,6 @@ import org.sonar.api.resources.Resource;
  */
 @Deprecated
 public interface ResourcePerspectives {
-
-  @CheckForNull
-  <P extends Perspective> P as(Class<P> perspectiveClass, Resource resource);
 
   /**
    * Allow to create perspective from {@link InputPath}. In particular from {@link InputFile}.

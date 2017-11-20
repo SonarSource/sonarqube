@@ -90,13 +90,8 @@ public class DeprecatedRulesDefinitionLoader {
     for (RuleRepository repository : repositories) {
       context.setCurrentPluginKey(serverPluginRepository.getPluginKey(repository));
       // RuleRepository API does not handle difference between new and extended repositories,
-      RulesDefinition.NewRepository newRepository;
-      if (context.repository(repository.getKey()) == null) {
-        newRepository = context.createRepository(repository.getKey(), repository.getLanguage());
-        newRepository.setName(repository.getName());
-      } else {
-        newRepository = context.extendRepository(repository.getKey(), repository.getLanguage());
-      }
+      RulesDefinition.NewRepository newRepository = context.createRepository(repository.getKey(), repository.getLanguage());
+      newRepository.setName(repository.getName());
       for (org.sonar.api.rules.Rule rule : repository.createRules()) {
         RulesDefinition.NewRule newRule = newRepository.createRule(rule.getKey());
         newRule.setName(ruleName(repository.getKey(), rule));

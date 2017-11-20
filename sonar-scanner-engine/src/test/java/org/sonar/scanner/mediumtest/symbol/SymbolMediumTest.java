@@ -55,7 +55,7 @@ public class SymbolMediumTest {
     File xooSymbolFile = new File(srcDir, "sample.xoo.symbol");
     FileUtils.write(xooFile, "Sample xoo\ncontent\nanother xoo");
     // Highlight xoo symbol
-    FileUtils.write(xooSymbolFile, "7:10,27");
+    FileUtils.write(xooSymbolFile, "1:7:1:10,3:8:3:11");
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -84,7 +84,7 @@ public class SymbolMediumTest {
     File xooSymbolFile = new File(srcDir, "sample.xoo.symbol");
     FileUtils.write(xooFile, "Sample xoo\ncontent\nanother xoo\nyet another");
     // Highlight xoo symbol
-    FileUtils.write(xooSymbolFile, "7:10,27:32");
+    FileUtils.write(xooSymbolFile, "1:7:1:10,3:8:4:1");
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()

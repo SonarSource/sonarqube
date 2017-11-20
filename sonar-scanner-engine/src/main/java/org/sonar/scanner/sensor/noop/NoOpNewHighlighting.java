@@ -37,12 +37,6 @@ public class NoOpNewHighlighting implements NewHighlighting {
   }
 
   @Override
-  public NoOpNewHighlighting highlight(int startOffset, int endOffset, TypeOfText typeOfText) {
-    // Do nothing
-    return this;
-  }
-
-  @Override
   public NoOpNewHighlighting highlight(int startLine, int startLineOffset, int endLine, int endLineOffset, TypeOfText typeOfText) {
     // Do nothing
     return this;

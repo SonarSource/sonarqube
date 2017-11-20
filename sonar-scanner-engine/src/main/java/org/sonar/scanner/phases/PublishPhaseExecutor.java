@@ -19,8 +19,9 @@
  */
 package org.sonar.scanner.phases;
 
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.postjob.PostJobContext;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.scanner.cpd.CpdExecutor;
 import org.sonar.scanner.events.BatchStepEvent;
 import org.sonar.scanner.events.EventBus;
@@ -38,11 +39,13 @@ public final class PublishPhaseExecutor extends AbstractPhaseExecutor {
   private final CpdExecutor cpdExecutor;
   private final ScmPublisher scm;
 
-  public PublishPhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor, SensorContext sensorContext,
+  public PublishPhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, PostJobContext postJobContext, SensorsExecutor sensorsExecutor,
+    SensorContext sensorContext,
     EventBus eventBus, ReportPublisher reportPublisher, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
     IssueExclusionsLoader issueExclusionsLoader, CpdExecutor cpdExecutor, ScmPublisher scm, InputModuleHierarchy hierarchy, FileIndexer fileIndexer,
     CoverageExclusions coverageExclusions) {
-    super(initializersExecutor, postJobsExecutor, sensorsExecutor, sensorContext, hierarchy, eventBus, fs, profileVerifier, issueExclusionsLoader, fileIndexer, coverageExclusions);
+    super(initializersExecutor, postJobsExecutor, postJobContext, sensorsExecutor, sensorContext, hierarchy, eventBus, fs, profileVerifier, issueExclusionsLoader, fileIndexer,
+      coverageExclusions);
     this.eventBus = eventBus;
     this.reportPublisher = reportPublisher;
     this.cpdExecutor = cpdExecutor;

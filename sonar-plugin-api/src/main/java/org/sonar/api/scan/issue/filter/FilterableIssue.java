@@ -42,12 +42,6 @@ public interface FilterableIssue {
   Integer line();
 
   /**
-   * @deprecated since 5.5 use {@link #gap()}
-   */
-  @Deprecated
-  Double effortToFix();
-
-  /**
    * @since 5.5
    */
   @CheckForNull

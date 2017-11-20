@@ -216,25 +216,6 @@ public class RulesDefinitionXmlLoaderTest {
   }
 
   @Test
-  public void ignore_deprecated_sqale_characteristic() {
-    String xml = "" +
-      "<rules>" +
-      "  <rule>" +
-      "    <key>1</key>" +
-      "    <name>One</name>" +
-      "    <description>Desc</description>" +
-      "    <effortToFixDescription>lines</effortToFixDescription>" +
-      "    <debtSubCharacteristic>BUG</debtSubCharacteristic>" +
-      "    <remediationFunction>LINEAR_OFFSET</remediationFunction>" +
-      "    <remediationFunctionGapMultiplier>2d 3h</remediationFunctionGapMultiplier>" +
-      "    <remediationFunctionBaseEffort>5min</remediationFunctionBaseEffort>" +
-      "  </rule>" +
-      "</rules>";
-    RulesDefinition.Rule rule = load(xml).rule("1");
-    assertThat(rule.debtSubCharacteristic()).isNull();
-  }
-
-  @Test
   public void markdown_description() {
     String xml = "" +
       "<rules>" +

@@ -21,7 +21,6 @@ package org.sonar.api.utils;
 
 import java.net.URL;
 import java.time.Clock;
-import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
@@ -139,14 +138,6 @@ public class System2 {
 
   public void println(String obj) {
     System.out.print(obj);
-  }
-
-  /**
-   * @deprecated in 5.2. Please use {@link #now()}
-   */
-  @Deprecated
-  public Date newDate() {
-    return new Date();
   }
 
   /**

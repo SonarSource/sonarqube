@@ -49,7 +49,6 @@ import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import org.sonar.scanner.deprecated.test.TestPlanBuilder;
 import org.sonar.scanner.deprecated.test.TestableBuilder;
 import org.sonar.scanner.events.EventBus;
-import org.sonar.scanner.index.DefaultIndex;
 import org.sonar.scanner.issue.DefaultProjectIssues;
 import org.sonar.scanner.issue.IssueCache;
 import org.sonar.scanner.issue.tracking.DefaultServerLineHashesLoader;
@@ -95,7 +94,6 @@ import org.sonar.scanner.scan.filesystem.BatchIdGenerator;
 import org.sonar.scanner.scan.filesystem.InputComponentStoreProvider;
 import org.sonar.scanner.scan.filesystem.StatusDetection;
 import org.sonar.scanner.scan.measure.DefaultMetricFinder;
-import org.sonar.scanner.scan.measure.DeprecatedMetricFinder;
 import org.sonar.scanner.scan.measure.MeasureCache;
 import org.sonar.scanner.scm.ScmChangedFilesProvider;
 import org.sonar.scanner.storage.Storages;
@@ -141,7 +139,6 @@ public class ProjectScanContainer extends ComponentContainer {
       ProjectReactorValidator.class,
       MetricProvider.class,
       ProjectAnalysisInfo.class,
-      DefaultIndex.class,
       Storages.class,
       new RulesProvider(),
       new BranchConfigurationProvider(),
@@ -173,7 +170,6 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // metrics
       DefaultMetricFinder.class,
-      DeprecatedMetricFinder.class,
 
       // tests
       TestPlanBuilder.class,

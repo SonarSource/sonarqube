@@ -94,7 +94,7 @@ public class CommentDensityRuleTest {
     assertThat(issue.severity()).isEqualTo(Severity.CRITICAL);
     // min_comments = (min_percent * ncloc) / (1 - min_percent)
     // -> threshold of 25% for 360 ncloc is 120 comment lines. 40 are already written.
-    assertThat(issue.effortToFix()).isEqualTo(120.0 - 40.0);
+    assertThat(issue.gap()).isEqualTo(120.0 - 40.0);
     assertThat(issue.message()).isEqualTo("80 more comment lines need to be written to reach the minimum threshold of 25.0% comment density.");
   }
 
@@ -110,7 +110,7 @@ public class CommentDensityRuleTest {
     assertThat(issue.ruleKey()).isEqualTo(RULE_KEY);
     assertThat(issue.severity()).isEqualTo(Severity.CRITICAL);
     // 1 ncloc requires 1 comment line to reach 25% of comment density
-    assertThat(issue.effortToFix()).isEqualTo(1.0);
+    assertThat(issue.gap()).isEqualTo(1.0);
     assertThat(issue.message()).isEqualTo("1 more comment lines need to be written to reach the minimum threshold of 25.0% comment density.");
   }
 

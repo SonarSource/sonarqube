@@ -73,18 +73,6 @@ public class DefaultSymbolTable extends DefaultStorable implements NewSymbolTabl
   }
 
   @Override
-  public NewSymbol newSymbol(int startOffset, int endOffset) {
-    checkInputFileNotNull();
-    TextRange declarationRange;
-    try {
-      declarationRange = inputFile.newRange(startOffset, endOffset);
-    } catch (Exception e) {
-      throw new IllegalArgumentException("Unable to create symbol on file " + inputFile, e);
-    }
-    return newSymbol(declarationRange);
-  }
-
-  @Override
   public NewSymbol newSymbol(TextRange range) {
     checkInputFileNotNull();
     TreeSet<TextRange> references = new TreeSet<>((o1, o2) -> o1.start().compareTo(o2.start()));

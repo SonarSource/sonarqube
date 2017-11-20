@@ -21,9 +21,6 @@ package org.sonar.scanner.cpd;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import org.sonar.scanner.cpd.deprecated.CpdMappings;
-import org.sonar.scanner.cpd.deprecated.DefaultCpdBlockIndexer;
-import org.sonar.scanner.cpd.deprecated.DeprecatedCpdBlockIndexerSensor;
 import org.sonar.scanner.cpd.deprecated.JavaCpdBlockIndexer;
 
 public final class CpdComponents {
@@ -33,10 +30,7 @@ public final class CpdComponents {
 
   public static List<Class<? extends Object>> all() {
     return ImmutableList.of(
-      DeprecatedCpdBlockIndexerSensor.class,
-      CpdMappings.class,
-      JavaCpdBlockIndexer.class,
-      DefaultCpdBlockIndexer.class);
+      JavaCpdBlockIndexer.class);
   }
 
 }

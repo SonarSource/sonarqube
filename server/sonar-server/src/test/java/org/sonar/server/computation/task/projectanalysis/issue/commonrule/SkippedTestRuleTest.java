@@ -75,7 +75,7 @@ public class SkippedTestRuleTest {
 
     assertThat(issue.ruleKey()).isEqualTo(RULE_KEY);
     assertThat(issue.severity()).isEqualTo(Severity.CRITICAL);
-    assertThat(issue.effortToFix()).isEqualTo(2.0);
+    assertThat(issue.gap()).isEqualTo(2.0);
     assertThat(issue.message()).isEqualTo("Fix or remove skipped unit tests in file \"FooTest.java\".");
   }
 

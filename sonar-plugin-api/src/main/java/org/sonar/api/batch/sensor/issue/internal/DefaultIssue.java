@@ -62,11 +62,6 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
   }
 
   @Override
-  public DefaultIssue effortToFix(@Nullable Double effortToFix) {
-    return gap(effortToFix);
-  }
-
-  @Override
   public DefaultIssue gap(@Nullable Double gap) {
     Preconditions.checkArgument(gap == null || gap >= 0, format("Gap must be greater than or equal 0 (got %s)", gap));
     this.gap = gap;
@@ -121,11 +116,6 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
 
   @Override
   public Double gap() {
-    return this.gap;
-  }
-
-  @Override
-  public Double effortToFix() {
     return this.gap;
   }
 

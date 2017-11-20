@@ -29,7 +29,6 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.Version;
 import org.sonar.xoo.Xoo;
 import org.sonar.xoo.Xoo2;
 
@@ -73,11 +72,7 @@ public class OneIssuePerLineSensor implements Sensor {
           .at(file.selectLine(line))
           .message("This issue is generated on each line"))
         .overrideSeverity(severity != null ? Severity.valueOf(severity) : null);
-      if (context.getSonarQubeVersion().isGreaterThanOrEqual(Version.create(5, 5))) {
-        newIssue.gap(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY));
-      } else {
-        newIssue.effortToFix(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY));
-      }
+      newIssue.gap(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY));
       newIssue.save();
     }
   }

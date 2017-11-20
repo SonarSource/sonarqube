@@ -352,7 +352,7 @@ public class IssueFieldsSetterTest {
     boolean updated = updater.setGap(issue, 3.14, context);
     assertThat(updated).isTrue();
     assertThat(issue.isChanged()).isTrue();
-    assertThat(issue.effortToFix()).isEqualTo(3.14);
+    assertThat(issue.gap()).isEqualTo(3.14);
     assertThat(issue.mustSendNotifications()).isFalse();
   }
 
@@ -362,7 +362,7 @@ public class IssueFieldsSetterTest {
     boolean updated = updater.setGap(issue, 3.14, context);
     assertThat(updated).isFalse();
     assertThat(issue.isChanged()).isFalse();
-    assertThat(issue.effortToFix()).isEqualTo(3.14);
+    assertThat(issue.gap()).isEqualTo(3.14);
     assertThat(issue.mustSendNotifications()).isFalse();
   }
 
@@ -371,7 +371,7 @@ public class IssueFieldsSetterTest {
     issue.setGap(3.14);
     boolean updated = updater.setPastGap(issue, 1.0, context);
     assertThat(updated).isTrue();
-    assertThat(issue.effortToFix()).isEqualTo(3.14);
+    assertThat(issue.gap()).isEqualTo(3.14);
 
     // do not save change
     assertThat(issue.currentChange()).isNull();
@@ -385,7 +385,7 @@ public class IssueFieldsSetterTest {
     issue.setEffort(newDebt);
     boolean updated = updater.setPastEffort(issue, previousDebt, context);
     assertThat(updated).isTrue();
-    assertThat(issue.debt()).isEqualTo(newDebt);
+    assertThat(issue.effort()).isEqualTo(newDebt);
     assertThat(issue.mustSendNotifications()).isFalse();
 
     FieldDiffs.Diff diff = issue.currentChange().get(TECHNICAL_DEBT);
@@ -399,7 +399,7 @@ public class IssueFieldsSetterTest {
     issue.setEffort(newDebt);
     boolean updated = updater.setPastEffort(issue, null, context);
     assertThat(updated).isTrue();
-    assertThat(issue.debt()).isEqualTo(newDebt);
+    assertThat(issue.effort()).isEqualTo(newDebt);
     assertThat(issue.mustSendNotifications()).isFalse();
 
     FieldDiffs.Diff diff = issue.currentChange().get(TECHNICAL_DEBT);
@@ -413,7 +413,7 @@ public class IssueFieldsSetterTest {
     Duration previousDebt = Duration.create(10 * 8 * 60);
     boolean updated = updater.setPastEffort(issue, previousDebt, context);
     assertThat(updated).isTrue();
-    assertThat(issue.debt()).isNull();
+    assertThat(issue.effort()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
 
     FieldDiffs.Diff diff = issue.currentChange().get(TECHNICAL_DEBT);

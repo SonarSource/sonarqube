@@ -19,47 +19,40 @@
  */
 package org.sonar.scanner.phases;
 
+import com.google.common.collect.Lists;
 import java.util.Collection;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.Initializer;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.resources.Project;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.events.EventBus;
 
-import com.google.common.collect.Lists;
-
 public class InitializersExecutor {
 
   private static final Logger LOG = Loggers.get(SensorsExecutor.class);
 
-  private final DefaultInputModule module;
   private final ScannerExtensionDictionnary selector;
   private final EventBus eventBus;
 
-  public InitializersExecutor(ScannerExtensionDictionnary selector, DefaultInputModule module, EventBus eventBus) {
+  public InitializersExecutor(ScannerExtensionDictionnary selector, EventBus eventBus) {
     this.selector = selector;
-    this.module = module;
     this.eventBus = eventBus;
   }
 
   public void execute() {
-    Collection<Initializer> initializers = selector.select(Initializer.class, module, true, null);
+    Collection<Initializer> initializers = selector.select(Initializer.class, true, null);
     eventBus.fireEvent(new InitializersPhaseEvent(Lists.newArrayList(initializers), true));
     if (LOG.isDebugEnabled()) {
       LOG.debug("Initializers : {}", StringUtils.join(initializers, " -> "));
     }
 
-    Project project = new Project(module);
     for (Initializer initializer : initializers) {
       eventBus.fireEvent(new InitializerExecutionEvent(initializer, true));
 
       Profiler profiler = Profiler.create(LOG).startInfo("Initializer " + initializer);
-      initializer.execute(project);
+      initializer.execute();
       profiler.stopInfo();
       eventBus.fireEvent(new InitializerExecutionEvent(initializer, false));
     }

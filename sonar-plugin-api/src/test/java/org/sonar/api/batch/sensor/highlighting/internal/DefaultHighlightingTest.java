@@ -55,12 +55,12 @@ public class DefaultHighlightingTest {
 
     DefaultHighlighting highlightingDataBuilder = new DefaultHighlighting(mock(SensorStorage.class))
       .onFile(INPUT_FILE)
-      .highlight(0, 10, COMMENT)
+      .highlight(1, 0, 1, 10, COMMENT)
       .highlight(1, 10, 1, 12, KEYWORD)
-      .highlight(24, 38, KEYWORD)
-      .highlight(42, 50, KEYWORD)
-      .highlight(24, 65, CPP_DOC)
-      .highlight(12, 20, COMMENT);
+      .highlight(1, 24, 1, 38, KEYWORD)
+      .highlight(1, 42, 2, 0, KEYWORD)
+      .highlight(1, 24, 2, 15, CPP_DOC)
+      .highlight(1, 12, 1, 20, COMMENT);
 
     highlightingDataBuilder.save();
 
@@ -92,8 +92,8 @@ public class DefaultHighlightingTest {
   public void should_support_overlapping() {
     new DefaultHighlighting(mock(SensorStorage.class))
       .onFile(INPUT_FILE)
-      .highlight(0, 15, KEYWORD)
-      .highlight(8, 12, CPP_DOC)
+      .highlight(1, 0, 1, 15, KEYWORD)
+      .highlight(1, 8, 1, 12, CPP_DOC)
       .save();
   }
 
@@ -105,7 +105,7 @@ public class DefaultHighlightingTest {
 
     new DefaultHighlighting(mock(SensorStorage.class))
       .onFile(INPUT_FILE)
-      .highlight(10, 10, KEYWORD)
+      .highlight(1, 10, 1, 10, KEYWORD)
       .save();
   }
 
@@ -117,8 +117,8 @@ public class DefaultHighlightingTest {
 
     new DefaultHighlighting(mock(SensorStorage.class))
       .onFile(INPUT_FILE)
-      .highlight(0, 10, KEYWORD)
-      .highlight(8, 15, KEYWORD)
+      .highlight(1, 0, 1, 10, KEYWORD)
+      .highlight(1, 8, 1, 15, KEYWORD)
       .save();
   }
 

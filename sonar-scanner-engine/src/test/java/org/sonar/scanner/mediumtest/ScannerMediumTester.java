@@ -43,7 +43,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.Plugin;
-import org.sonar.api.batch.debt.internal.DefaultDebtModel;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.rule.RuleKey;
@@ -300,7 +299,6 @@ public class ScannerMediumTester extends ExternalResource {
           tester.projectRefProvider,
           tester.activeRules,
           tester.serverIssues,
-          new DefaultDebtModel(),
           new FakeSettingsLoader(),
           result)
         .setLogOutput(tester.logOutput)

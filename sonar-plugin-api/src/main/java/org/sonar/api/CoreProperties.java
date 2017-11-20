@@ -231,20 +231,6 @@ public interface CoreProperties {
 
   String CORE_AUTHENTICATOR_IGNORE_STARTUP_FAILURE = "sonar.authenticator.ignoreStartupFailure";
 
-  /**
-   * @deprecated since 6.3. This feature is not supported anymore
-   * @see <a href="https://jira.sonarsource.com/browse/SONAR-8208">SONAR-8208/a>
-   */
-  @Deprecated
-  String CORE_AUTHENTICATOR_CREATE_USERS = "sonar.authenticator.createUsers";
-
-  /**
-   * @since 3.6
-   * @deprecated since 5.4. This feature is not supported anymore. See http://jira.sonarsource.com/browse/SONAR-7219
-   */
-  @Deprecated
-  String CORE_AUTHENTICATOR_UPDATE_USER_ATTRIBUTES = "sonar.security.updateUserAttributes";
-
   String SERVER_ID = "sonar.core.id";
 
   // format is yyyy-MM-dd'T'HH:mm:ssZ

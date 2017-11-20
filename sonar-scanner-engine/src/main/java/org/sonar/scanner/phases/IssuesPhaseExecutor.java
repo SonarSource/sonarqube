@@ -21,8 +21,9 @@ package org.sonar.scanner.phases;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.postjob.PostJobContext;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.scanner.events.BatchStepEvent;
 import org.sonar.scanner.events.EventBus;
 import org.sonar.scanner.issue.ignore.scanner.IssueExclusionsLoader;
@@ -40,11 +41,13 @@ public final class IssuesPhaseExecutor extends AbstractPhaseExecutor {
   private final IssuesReports issuesReport;
   private final IssueTransition localIssueTracking;
 
-  public IssuesPhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor, SensorContext sensorContext,
+  public IssuesPhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, PostJobContext postJobContext, SensorsExecutor sensorsExecutor,
+    SensorContext sensorContext,
     EventBus eventBus, IssuesReports jsonReport, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
     IssueExclusionsLoader issueExclusionsLoader, IssueTransition localIssueTracking, InputModuleHierarchy moduleHierarchy, FileIndexer fileIndexer,
     CoverageExclusions coverageExclusions) {
-    super(initializersExecutor, postJobsExecutor, sensorsExecutor, sensorContext, moduleHierarchy, eventBus, fs, profileVerifier, issueExclusionsLoader, fileIndexer,
+    super(initializersExecutor, postJobsExecutor, postJobContext, sensorsExecutor, sensorContext, moduleHierarchy, eventBus, fs, profileVerifier, issueExclusionsLoader,
+      fileIndexer,
       coverageExclusions);
     this.eventBus = eventBus;
     this.issuesReport = jsonReport;

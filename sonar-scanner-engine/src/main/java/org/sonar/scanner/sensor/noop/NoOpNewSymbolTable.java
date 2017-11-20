@@ -37,12 +37,6 @@ public class NoOpNewSymbolTable implements NewSymbolTable, NewSymbol {
   }
 
   @Override
-  public NewSymbol newSymbol(int startOffset, int endOffset) {
-    // Do nothing
-    return this;
-  }
-
-  @Override
   public NewSymbol newSymbol(int startLine, int startLineOffset, int endLine, int endLineOffset) {
     // Do nothing
     return this;

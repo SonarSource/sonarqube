@@ -19,42 +19,36 @@
  */
 package org.sonar.scanner;
 
-import static java.util.stream.Collectors.toMap;
-
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.KeyValueFormat.Converter;
-import org.sonar.scanner.scan.measure.MeasureCache;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
+import static java.util.stream.Collectors.toMap;
 
 public class DefaultFileLinesContext implements FileLinesContext {
   private final SensorContext context;
   private final InputFile inputFile;
   private final MetricFinder metricFinder;
-  private final MeasureCache measureCache;
 
   /**
    * metric key -> line -> value
    */
   private final Map<String, Map<Integer, Object>> map = new HashMap<>();
 
-  public DefaultFileLinesContext(SensorContext context, InputFile inputFile, MetricFinder metricFinder, MeasureCache measureCache) {
+  public DefaultFileLinesContext(SensorContext context, InputFile inputFile, MetricFinder metricFinder) {
     this.context = context;
     this.inputFile = inputFile;
     this.metricFinder = metricFinder;
-    this.measureCache = measureCache;
   }
 
   @Override
@@ -71,28 +65,12 @@ public class DefaultFileLinesContext implements FileLinesContext {
   }
 
   @Override
-  public Integer getIntValue(String metricKey, int line) {
-    Preconditions.checkNotNull(metricKey);
-    checkLineRange(line);
-    Map<Integer, Object> lines = map.computeIfAbsent(metricKey, k -> loadData(k, KeyValueFormat.newIntegerConverter()));
-    return (Integer) lines.get(line);
-  }
-
-  @Override
   public void setStringValue(String metricKey, int line, String value) {
     Preconditions.checkNotNull(metricKey);
     checkLineRange(line);
     Preconditions.checkNotNull(value);
 
     setValue(metricKey, line, value);
-  }
-
-  @Override
-  public String getStringValue(String metricKey, int line) {
-    Preconditions.checkNotNull(metricKey);
-    checkLineRange(line);
-    Map<Integer, Object> lines = map.computeIfAbsent(metricKey, k -> loadData(k, KeyValueFormat.newStringConverter()));
-    return (String) lines.get(line);
   }
 
   private void setValue(String metricKey, int line, Object value) {
@@ -125,16 +103,6 @@ public class DefaultFileLinesContext implements FileLinesContext {
         .collect(toMap(Entry<Integer, Object>::getKey, Entry<Integer, Object>::getValue));
     }
     return lines;
-  }
-
-  private Map<Integer, Object> loadData(String metricKey, Converter<? extends Object> converter) {
-    DefaultMeasure<?> measure = measureCache.byMetric(inputFile.key(), metricKey);
-    String data = measure != null ? (String) measure.value() : null;
-    if (data != null) {
-      return ImmutableMap.copyOf(KeyValueFormat.parse(data, KeyValueFormat.newIntegerConverter(), converter));
-    }
-    // no such measure
-    return ImmutableMap.of();
   }
 
   /**

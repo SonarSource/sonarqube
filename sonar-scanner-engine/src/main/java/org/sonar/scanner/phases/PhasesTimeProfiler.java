@@ -20,14 +20,10 @@
 package org.sonar.scanner.phases;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.events.SensorExecutionHandler;
-import org.sonar.api.batch.events.SensorsPhaseHandler;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
-import org.sonar.scanner.sensor.SensorWrapper;
 import org.sonar.scanner.util.ScannerUtils;
 
 public class PhasesTimeProfiler implements SensorExecutionHandler, SensorsPhaseHandler {
@@ -50,7 +46,7 @@ public class PhasesTimeProfiler implements SensorExecutionHandler, SensorsPhaseH
   @Override
   public void onSensorExecution(SensorExecutionEvent event) {
     if (event.isStart()) {
-      ClassLoader cl = getSensorClassLoader(event.getSensor());
+      ClassLoader cl = event.getSensor().getClass().getClassLoader();
       String pluginKey = pluginRepo.getPluginKey(cl);
       String suffix = "";
       if (pluginKey != null) {
@@ -59,15 +55,6 @@ public class PhasesTimeProfiler implements SensorExecutionHandler, SensorsPhaseH
       profiler.startInfo("Sensor " + ScannerUtils.describe(event.getSensor()) + suffix);
     } else {
       profiler.stopInfo();
-    }
-  }
-
-  private static ClassLoader getSensorClassLoader(Sensor sensor) {
-    if (sensor instanceof SensorWrapper) {
-      SensorWrapper wrapper = (SensorWrapper) sensor;
-      return wrapper.wrappedSensor().getClass().getClassLoader();
-    } else {
-      return sensor.getClass().getClassLoader();
     }
   }
 

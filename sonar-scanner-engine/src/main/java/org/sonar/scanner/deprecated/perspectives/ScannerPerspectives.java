@@ -21,48 +21,18 @@ package org.sonar.scanner.deprecated.perspectives;
 
 import com.google.common.collect.Maps;
 import java.util.Map;
-import javax.annotation.CheckForNull;
-import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputPath;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.component.Perspective;
 import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
-import org.sonar.core.component.ComponentKeys;
-import org.sonar.scanner.scan.filesystem.InputComponentStore;
 
 public class ScannerPerspectives implements ResourcePerspectives {
 
   private final Map<Class<?>, PerspectiveBuilder<?>> builders = Maps.newHashMap();
-  private final InputComponentStore componentStore;
-  private final DefaultInputModule module;
 
-  public ScannerPerspectives(PerspectiveBuilder[] builders, DefaultInputModule module, InputComponentStore componentStore) {
-    this.componentStore = componentStore;
-    this.module = module;
+  public ScannerPerspectives(PerspectiveBuilder[] builders) {
 
     for (PerspectiveBuilder builder : builders) {
       this.builders.put(builder.getPerspectiveClass(), builder);
-    }
-  }
-
-  @Override
-  @CheckForNull
-  public <P extends Perspective> P as(Class<P> perspectiveClass, Resource resource) {
-    InputComponent component = componentStore.getByKey(getComponentKey(resource));
-    if (component != null) {
-      PerspectiveBuilder<P> builder = builderFor(perspectiveClass);
-      return builder.loadPerspective(perspectiveClass, component);
-    }
-    return null;
-  }
-
-  private String getComponentKey(Resource r) {
-    if (ResourceUtils.isProject(r) || /* For technical projects */ResourceUtils.isRootProject(r)) {
-      return r.getKey();
-    } else {
-      return ComponentKeys.createEffectiveKey(module.key(), r);
     }
   }
 

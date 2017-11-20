@@ -19,11 +19,12 @@
  */
 package org.sonar.scanner.phases;
 
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.postjob.PostJobContext;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.events.BatchStepEvent;
@@ -39,6 +40,7 @@ public abstract class AbstractPhaseExecutor {
 
   private final EventBus eventBus;
   private final PostJobsExecutor postJobsExecutor;
+  private final PostJobContext postJobContext;
   private final InitializersExecutor initializersExecutor;
   private final SensorsExecutor sensorsExecutor;
   private final SensorContext sensorContext;
@@ -49,11 +51,12 @@ public abstract class AbstractPhaseExecutor {
   private final FileIndexer fileIndexer;
   private final CoverageExclusions coverageExclusions;
 
-  public AbstractPhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, SensorsExecutor sensorsExecutor,
+  public AbstractPhaseExecutor(InitializersExecutor initializersExecutor, PostJobsExecutor postJobsExecutor, PostJobContext postJobContext, SensorsExecutor sensorsExecutor,
     SensorContext sensorContext, InputModuleHierarchy hierarchy, EventBus eventBus, DefaultModuleFileSystem fs, QProfileVerifier profileVerifier,
     IssueExclusionsLoader issueExclusionsLoader, FileIndexer fileIndexer, CoverageExclusions coverageExclusions) {
     this.postJobsExecutor = postJobsExecutor;
     this.initializersExecutor = initializersExecutor;
+    this.postJobContext = postJobContext;
     this.sensorsExecutor = sensorsExecutor;
     this.sensorContext = sensorContext;
     this.eventBus = eventBus;
@@ -69,7 +72,7 @@ public abstract class AbstractPhaseExecutor {
    * Executed on each module
    */
   public final void execute(DefaultInputModule module) {
-    eventBus.fireEvent(new ProjectAnalysisEvent(module, true));
+    eventBus.fireEvent(new DefaultProjectAnalysisEvent(module, true));
 
     executeInitializersPhase();
 
@@ -91,9 +94,9 @@ public abstract class AbstractPhaseExecutor {
 
     if (hierarchy.isRoot(module)) {
       executeOnRoot();
-      postJobsExecutor.execute(sensorContext);
+      postJobsExecutor.execute(postJobContext);
     }
-    eventBus.fireEvent(new ProjectAnalysisEvent(module, false));
+    eventBus.fireEvent(new DefaultProjectAnalysisEvent(module, false));
   }
 
   private void initCoverageExclusions() {

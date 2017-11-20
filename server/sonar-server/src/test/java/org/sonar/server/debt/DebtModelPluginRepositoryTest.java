@@ -32,7 +32,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 
@@ -127,9 +127,10 @@ public class DebtModelPluginRepositoryTest {
     return loader;
   }
 
-  class FakePlugin extends SonarPlugin {
-    public List getExtensions() {
-      return null;
+  class FakePlugin implements Plugin {
+
+    @Override
+    public void define(Context context) {
     }
   }
 

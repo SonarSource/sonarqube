@@ -102,7 +102,7 @@ public class RegisterRules implements Startable {
 
       RulesDefinition.Context context = defLoader.load();
       boolean orgsEnabled = organizationFlags.isEnabled(dbSession);
-      for (RulesDefinition.ExtendedRepository repoDef : getRepositories(context)) {
+      for (RulesDefinition.Repository repoDef : context.repositories()) {
         if (languages.get(repoDef.language()) != null) {
           for (RulesDefinition.Rule ruleDef : repoDef.rules()) {
             RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
@@ -194,21 +194,6 @@ public class RegisterRules implements Startable {
       rules.put(rule.getKey(), rule);
     }
     return rules;
-  }
-
-  private List<RulesDefinition.ExtendedRepository> getRepositories(RulesDefinition.Context context) {
-    List<RulesDefinition.ExtendedRepository> repositories = new ArrayList<>();
-    for (RulesDefinition.Repository repoDef : context.repositories()) {
-      repositories.add(repoDef);
-    }
-    for (RulesDefinition.ExtendedRepository extendedRepoDef : context.extendedRepositories()) {
-      if (context.repository(extendedRepoDef.key()) == null) {
-        LOG.warn(format("Extension is ignored, repository %s does not exist", extendedRepoDef.key()));
-      } else {
-        repositories.add(extendedRepoDef);
-      }
-    }
-    return repositories;
   }
 
   private RuleDefinitionDto createRuleDto(RulesDefinition.Rule ruleDef, DbSession session) {

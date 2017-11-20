@@ -25,20 +25,18 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
-import org.sonar.api.resources.Project;
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.events.EventBus;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -66,12 +64,11 @@ public class SensorsExecutorTest {
     }
 
     @Override
-    public boolean shouldExecuteOnProject(Project project) {
-      return true;
+    public void describe(SensorDescriptor descriptor) {
     }
 
     @Override
-    public void analyse(Project module, SensorContext context) {
+    public void execute(SensorContext context) {
       called = true;
       global = strategy.isGlobal();
     }
@@ -82,8 +79,8 @@ public class SensorsExecutorTest {
     context = mock(SensorContext.class);
 
     ScannerExtensionDictionnary selector = mock(ScannerExtensionDictionnary.class);
-    when(selector.selectSensors(any(DefaultInputModule.class), eq(false))).thenReturn(Collections.singleton(perModuleSensor));
-    when(selector.selectSensors(any(DefaultInputModule.class), eq(true))).thenReturn(Collections.singleton(globalSensor));
+    when(selector.selectSensors(false)).thenReturn(Collections.singleton(perModuleSensor));
+    when(selector.selectSensors(true)).thenReturn(Collections.singleton(globalSensor));
 
     ProjectDefinition childDef = ProjectDefinition.create().setKey("sub").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder());
     ProjectDefinition rootDef = ProjectDefinition.create().setKey("root").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder());

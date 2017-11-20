@@ -19,8 +19,6 @@
  */
 package org.sonar.api.resources;
 
-import java.util.Objects;
-
 /**
  * The qualifier determines the exact type of a resource.
  * Plugins can define their own qualifiers.
@@ -45,14 +43,6 @@ public final class Qualifiers {
   public static final String APP = "APP";
 
   /**
-   * Library, for example a JAR dependency of Java projects.
-   * Scope of libraries is Scopes.PROJECT
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final String LIBRARY = "LIB";
-
-  /**
    * Single project or root of multi-modules projects
    * Scope is Scopes.PROJECT
    */
@@ -72,56 +62,5 @@ public final class Qualifiers {
 
   private Qualifiers() {
     // only static methods
-  }
-
-  /**
-   * @param resource not nullable
-   */
-  public static boolean isView(final Resource resource, final boolean acceptSubViews) {
-    boolean isView = Objects.equals(VIEW, resource.getQualifier());
-    if (!isView && acceptSubViews) {
-      isView = Objects.equals(SUBVIEW, resource.getQualifier());
-    }
-
-    return isView;
-  }
-
-  /**
-   * @param resource not nullable
-   */
-  public static boolean isSubview(final Resource resource) {
-    return Objects.equals(SUBVIEW, resource.getScope());
-  }
-
-  /**
-   * @param resource not nullable
-   */
-  public static boolean isProject(final Resource resource, final boolean acceptModules) {
-    boolean isProject = Objects.equals(PROJECT, resource.getQualifier());
-    if (!isProject && acceptModules) {
-      isProject = Objects.equals(MODULE, resource.getQualifier());
-    }
-    return isProject;
-  }
-
-  /**
-   * @param resource not nullable
-   */
-  public static boolean isModule(final Resource resource) {
-    return Objects.equals(MODULE, resource.getQualifier());
-  }
-
-  /**
-   * @param resource not nullable
-   */
-  public static boolean isDirectory(final Resource resource) {
-    return Objects.equals(DIRECTORY, resource.getQualifier());
-  }
-
-  /**
-   * @param resource not nullable
-   */
-  public static boolean isFile(final Resource resource) {
-    return Objects.equals(FILE, resource.getQualifier());
   }
 }

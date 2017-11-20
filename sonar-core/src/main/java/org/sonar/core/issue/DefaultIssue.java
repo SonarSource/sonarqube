@@ -262,16 +262,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return this;
   }
 
-  /**
-   * @deprecated since5.5, replaced by {@link #gap()}
-   */
-  @Deprecated
-  @Override
-  @CheckForNull
-  public Double effortToFix() {
-    return gap();
-  }
-
   @Override
   @CheckForNull
   public Double gap() {
@@ -282,16 +272,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     Preconditions.checkArgument(d == null || d >= 0, "Gap must be greater than or equal 0 (got %s)", d);
     this.gap = d;
     return this;
-  }
-
-  /**
-   * @deprecated since5.5, replaced by {@link #effort()}
-   */
-  @Deprecated
-  @Override
-  @CheckForNull
-  public Duration debt() {
-    return effort();
   }
 
   /**
@@ -333,16 +313,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   public DefaultIssue setResolution(@Nullable String s) {
     this.resolution = s;
     return this;
-  }
-
-  /**
-   * @deprecated since 5.5, manual issue feature has been dropped.
-   */
-  @Deprecated
-  @Override
-  @CheckForNull
-  public String reporter() {
-    return null;
   }
 
   @Override
@@ -504,13 +474,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   public DefaultIssue setAuthorLogin(@Nullable String s) {
     this.authorLogin = s;
     return this;
-  }
-
-  @Override
-  @CheckForNull
-  public String actionPlanKey() {
-    // In 5.5, action plan is dropped.
-    return null;
   }
 
   public DefaultIssue setFieldChange(IssueChangeContext context, String field, @Nullable Serializable oldValue, @Nullable Serializable newValue) {

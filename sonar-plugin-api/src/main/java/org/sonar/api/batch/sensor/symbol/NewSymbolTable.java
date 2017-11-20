@@ -50,15 +50,6 @@ public interface NewSymbolTable {
 
   /**
    * Register a new symbol declaration.
-   * @param startOffset Starting position in file for the declaration of this symbol. Beginning of a file starts with offset '0'.
-   * @param endOffset End position in file for this symbol declaration.
-   * @deprecated since 5.6 Only supported to ease migration from old API. Please prefer {@link #newSymbol(int, int, int, int)}.
-   */
-  @Deprecated
-  NewSymbol newSymbol(int startOffset, int endOffset);
-
-  /**
-   * Register a new symbol declaration.
    * @param range Range of text for the symbol declaration. See for example {@link InputFile#newRange(int, int, int, int)}.
    */
   NewSymbol newSymbol(TextRange range);

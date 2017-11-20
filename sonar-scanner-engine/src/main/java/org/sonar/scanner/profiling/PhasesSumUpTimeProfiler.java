@@ -32,16 +32,16 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.events.InitializerExecutionHandler;
 import org.sonar.api.batch.events.InitializersPhaseHandler;
-import org.sonar.api.batch.events.PostJobExecutionHandler;
-import org.sonar.api.batch.events.PostJobsPhaseHandler;
-import org.sonar.api.batch.events.ProjectAnalysisHandler;
-import org.sonar.api.batch.events.SensorExecutionHandler;
-import org.sonar.api.batch.events.SensorsPhaseHandler;
-import org.sonar.api.resources.Project;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.scanner.bootstrap.GlobalProperties;
 import org.sonar.scanner.events.BatchStepHandler;
+import org.sonar.scanner.phases.PostJobExecutionHandler;
+import org.sonar.scanner.phases.PostJobsPhaseHandler;
+import org.sonar.scanner.phases.ProjectAnalysisHandler;
+import org.sonar.scanner.phases.SensorExecutionHandler;
+import org.sonar.scanner.phases.SensorsPhaseHandler;
 import org.sonar.scanner.util.ScannerUtils;
 
 import static org.sonar.scanner.profiling.AbstractTimeProfiling.sortByDescendingTotalTime;
@@ -60,7 +60,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
   @VisibleForTesting
   ModuleProfiling totalProfiling;
 
-  private Map<Project, ModuleProfiling> modulesProfilings = new HashMap<>();
+  private Map<DefaultInputModule, ModuleProfiling> modulesProfilings = new HashMap<>();
 
   private final System2 system;
   private final File out;
@@ -89,7 +89,7 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
 
   @Override
   public void onProjectAnalysis(ProjectAnalysisEvent event) {
-    Project module = event.getProject();
+    DefaultInputModule module = event.getProject();
     if (event.isStart()) {
       currentModuleProfiling = new ModuleProfiling(module, system);
     } else {
@@ -104,10 +104,10 @@ public class PhasesSumUpTimeProfiler implements ProjectAnalysisHandler, SensorEx
       println("");
       println(" -------- End of profiling of module " + module.getName() + " --------");
       println("");
-      String fileName = module.getKey() + "-profiler.properties";
+      String fileName = module.key() + "-profiler.properties";
       dumpToFile(props, ScannerUtils.cleanKeyForFilename(fileName));
       totalProfiling.merge(currentModuleProfiling);
-      if (module.getParent() == null && !module.getModules().isEmpty()) {
+      if (module.definition().getParent() == null && !module.definition().getSubProjects().isEmpty()) {
         dumpTotalExecutionSummary();
       }
     }

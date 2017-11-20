@@ -35,8 +35,6 @@ import org.sonar.xoo.Xoo;
  */
 public class CpdTokenizerSensor implements Sensor {
 
-  public static final String ENABLE_PROP = "sonar.xoo.useNewCpdTokenizerApi";
-
   private void tokenize(InputFile inputFile, SensorContext context) {
     int lineIdx = 1;
     NewCpdTokens newCpdTokens = context.newCpdTokens().onFile(inputFile);
@@ -74,7 +72,6 @@ public class CpdTokenizerSensor implements Sensor {
   public void describe(SensorDescriptor descriptor) {
     descriptor
       .name("Xoo Cpd Tokenizer Sensor")
-      .onlyWhenConfiguration(conf -> conf.hasKey(ENABLE_PROP) || conf.hasKey(ENABLE_PROP + ".old"))
       .onlyOnLanguages(Xoo.KEY);
   }
 

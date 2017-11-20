@@ -21,7 +21,6 @@ package org.sonar.scanner.issue;
 
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
 import org.sonar.api.scan.issue.filter.IssueFilter;
 import org.sonar.api.scan.issue.filter.IssueFilterChain;
@@ -31,40 +30,22 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 @ScannerSide
 public class IssueFilters {
   private final IssueFilterChain filterChain;
-  private final org.sonar.api.issue.batch.IssueFilter[] deprecatedFilters;
   private final DefaultInputModule module;
   private final ProjectAnalysisInfo projectAnalysisInfo;
 
-  public IssueFilters(DefaultInputModule module, ProjectAnalysisInfo projectAnalysisInfo, IssueFilter[] exclusionFilters, org.sonar.api.issue.batch.IssueFilter[] filters) {
+  public IssueFilters(DefaultInputModule module, ProjectAnalysisInfo projectAnalysisInfo, IssueFilter[] exclusionFilters) {
     this.module = module;
     this.filterChain = new DefaultIssueFilterChain(exclusionFilters);
-    this.deprecatedFilters = filters;
     this.projectAnalysisInfo = projectAnalysisInfo;
   }
 
-  public IssueFilters(DefaultInputModule module, ProjectAnalysisInfo projectAnalysisInfo, IssueFilter[] filters) {
-    this(module, projectAnalysisInfo, filters, new org.sonar.api.issue.batch.IssueFilter[0]);
-  }
-
-  public IssueFilters(DefaultInputModule module, ProjectAnalysisInfo projectAnalysisInfo, org.sonar.api.issue.batch.IssueFilter[] deprecatedFilters) {
-    this(module, projectAnalysisInfo, new IssueFilter[0], deprecatedFilters);
-  }
-
   public IssueFilters(DefaultInputModule module, ProjectAnalysisInfo projectAnalysisInfo) {
-    this(module, projectAnalysisInfo, new IssueFilter[0], new org.sonar.api.issue.batch.IssueFilter[0]);
+    this(module, projectAnalysisInfo, new IssueFilter[0]);
   }
 
   public boolean accept(String componentKey, ScannerReport.Issue rawIssue) {
     FilterableIssue fIssue = new DefaultFilterableIssue(module, projectAnalysisInfo, rawIssue, componentKey);
-    if (filterChain.accept(fIssue)) {
-      return acceptDeprecated(componentKey, rawIssue);
-    }
-
-    return false;
+    return filterChain.accept(fIssue);
   }
 
-  public boolean acceptDeprecated(String componentKey, ScannerReport.Issue rawIssue) {
-    Issue issue = new DeprecatedIssueAdapterForFilter(module, projectAnalysisInfo, rawIssue, componentKey);
-    return new DeprecatedIssueFilterChain(deprecatedFilters).accept(issue);
-  }
 }

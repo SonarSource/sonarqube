@@ -29,25 +29,27 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.Initializer;
-import org.sonar.api.batch.PostJob;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.events.InitializerExecutionHandler;
 import org.sonar.api.batch.events.InitializersPhaseHandler;
-import org.sonar.api.batch.events.PostJobExecutionHandler;
-import org.sonar.api.batch.events.PostJobsPhaseHandler;
-import org.sonar.api.batch.events.ProjectAnalysisHandler;
-import org.sonar.api.batch.events.ProjectAnalysisHandler.ProjectAnalysisEvent;
-import org.sonar.api.batch.events.SensorExecutionHandler;
-import org.sonar.api.batch.events.SensorExecutionHandler.SensorExecutionEvent;
-import org.sonar.api.batch.events.SensorsPhaseHandler;
-import org.sonar.api.batch.events.SensorsPhaseHandler.SensorsPhaseEvent;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.resources.Project;
+import org.sonar.api.batch.postjob.PostJob;
+import org.sonar.api.batch.postjob.PostJobContext;
+import org.sonar.api.batch.postjob.PostJobDescriptor;
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.utils.System2;
 import org.sonar.scanner.bootstrap.GlobalProperties;
 import org.sonar.scanner.events.BatchStepEvent;
+import org.sonar.scanner.phases.PostJobExecutionHandler;
+import org.sonar.scanner.phases.PostJobsPhaseHandler;
+import org.sonar.scanner.phases.ProjectAnalysisHandler;
+import org.sonar.scanner.phases.ProjectAnalysisHandler.ProjectAnalysisEvent;
+import org.sonar.scanner.phases.SensorExecutionHandler;
+import org.sonar.scanner.phases.SensorExecutionHandler.SensorExecutionEvent;
+import org.sonar.scanner.phases.SensorsPhaseHandler;
+import org.sonar.scanner.phases.SensorsPhaseHandler.SensorsPhaseEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -70,7 +72,7 @@ public class PhasesSumUpTimeProfilerTest {
   @Test
   public void testSimpleProject() throws Exception {
 
-    final Project project = mockProject("my:project", true);
+    final DefaultInputModule project = mockProject("my:project", true);
 
     fakeAnalysis(profiler, project);
 
@@ -82,9 +84,9 @@ public class PhasesSumUpTimeProfilerTest {
 
   @Test
   public void testMultimoduleProject() throws Exception {
-    final Project project = mockProject("project root", true);
-    final Project moduleA = mockProject("moduleA", false);
-    final Project moduleB = mockProject("moduleB", false);
+    final DefaultInputModule project = mockProject("project root", true);
+    final DefaultInputModule moduleA = mockProject("moduleA", false);
+    final DefaultInputModule moduleB = mockProject("moduleB", false);
 
     project.definition().addSubProject(moduleA.definition());
     project.definition().addSubProject(moduleA.definition());
@@ -133,11 +135,11 @@ public class PhasesSumUpTimeProfilerTest {
     }
   }
 
-  private Project mockProject(String name, boolean isRoot) throws IOException {
-    return new Project(new DefaultInputModule(ProjectDefinition.create().setName(name).setKey(name).setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder())));
+  private DefaultInputModule mockProject(String name, boolean isRoot) throws IOException {
+    return new DefaultInputModule(ProjectDefinition.create().setName(name).setKey(name).setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
   }
 
-  private void fakeAnalysis(PhasesSumUpTimeProfiler profiler, final Project module) {
+  private void fakeAnalysis(PhasesSumUpTimeProfiler profiler, final DefaultInputModule module) {
     // Start of moduleA
     profiler.onProjectAnalysis(projectEvent(module, true));
     initializerPhase(profiler);
@@ -315,7 +317,7 @@ public class PhasesSumUpTimeProfilerTest {
     };
   }
 
-  private ProjectAnalysisEvent projectEvent(final Project project, final boolean start) {
+  private ProjectAnalysisEvent projectEvent(final DefaultInputModule project, final boolean start) {
     return new ProjectAnalysisHandler.ProjectAnalysisEvent() {
       @Override
       public boolean isStart() {
@@ -328,7 +330,7 @@ public class PhasesSumUpTimeProfilerTest {
       }
 
       @Override
-      public Project getProject() {
+      public DefaultInputModule getProject() {
         return project;
       }
     };
@@ -336,29 +338,27 @@ public class PhasesSumUpTimeProfilerTest {
 
   public class FakeSensor implements Sensor {
     @Override
-    public void analyse(Project project, SensorContext context) {
+    public void describe(SensorDescriptor descriptor) {
     }
 
     @Override
-    public boolean shouldExecuteOnProject(Project project) {
-      return true;
+    public void execute(SensorContext context) {
     }
   }
 
   public class FakeInitializer extends Initializer {
     @Override
-    public void execute(Project project) {
-    }
-
-    @Override
-    public boolean shouldExecuteOnProject(Project project) {
-      return true;
+    public void execute() {
     }
   }
 
   public class FakePostJob implements PostJob {
     @Override
-    public void executeOn(Project project, SensorContext context) {
+    public void describe(PostJobDescriptor descriptor) {
+    }
+
+    @Override
+    public void execute(PostJobContext context) {
     }
   }
 }

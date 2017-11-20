@@ -30,9 +30,8 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
-import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.api.source.Highlightable;
-import org.sonar.api.source.Highlightable.HighlightingBuilder;
+import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
+import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.xoo.Xoo;
@@ -46,12 +45,6 @@ public class SyntaxHighlightingSensor implements Sensor {
 
   private static final String HIGHLIGHTING_EXTENSION = ".highlighting";
 
-  private final ResourcePerspectives perspectives;
-
-  public SyntaxHighlightingSensor(ResourcePerspectives perspectives) {
-    this.perspectives = perspectives;
-  }
-
   private void processFileHighlighting(InputFile inputFile, SensorContext context) {
     File ioFile = inputFile.file();
     File highlightingFile = new File(ioFile.getParentFile(), ioFile.getName() + HIGHLIGHTING_EXTENSION);
@@ -60,30 +53,29 @@ public class SyntaxHighlightingSensor implements Sensor {
       try {
         List<String> lines = FileUtils.readLines(highlightingFile, context.fileSystem().encoding().name());
         int lineNumber = 0;
-        Highlightable highlightable = perspectives.as(Highlightable.class, inputFile);
-        if (highlightable != null) {
-          HighlightingBuilder highlightingBuilder = highlightable.newHighlighting();
-          for (String line : lines) {
-            lineNumber++;
-            if (StringUtils.isBlank(line) || line.startsWith("#")) {
-              continue;
-            }
-            processLine(highlightingFile, lineNumber, highlightingBuilder, line);
+        NewHighlighting highlighting = context.newHighlighting().onFile(inputFile);
+        for (String line : lines) {
+          lineNumber++;
+          if (StringUtils.isBlank(line) || line.startsWith("#")) {
+            continue;
           }
-          highlightingBuilder.done();
+          processLine(highlightingFile, lineNumber, highlighting, line);
         }
+        highlighting.save();
       } catch (IOException e) {
         throw new IllegalStateException(e);
       }
     }
   }
 
-  private static void processLine(File highlightingFile, int lineNumber, HighlightingBuilder highlightingBuilder, String line) {
+  private static void processLine(File highlightingFile, int lineNumber, NewHighlighting highlighting, String line) {
     try {
       Iterator<String> split = Splitter.on(":").split(line).iterator();
-      int startOffset = Integer.parseInt(split.next());
-      int endOffset = Integer.parseInt(split.next());
-      highlightingBuilder.highlight(startOffset, endOffset, split.next());
+      int startLine = Integer.parseInt(split.next());
+      int startLineOffset = Integer.parseInt(split.next());
+      int endLine = Integer.parseInt(split.next());
+      int endLineOffset = Integer.parseInt(split.next());
+      highlighting.highlight(startLine, startLineOffset, endLine, endLineOffset, TypeOfText.forCssClass(split.next()));
     } catch (Exception e) {
       throw new IllegalStateException("Error processing line " + lineNumber + " of file " + highlightingFile.getAbsolutePath(), e);
     }

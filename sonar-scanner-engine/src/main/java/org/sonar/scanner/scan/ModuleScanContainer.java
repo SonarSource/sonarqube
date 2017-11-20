@@ -27,7 +27,6 @@ import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.issue.NoSonarFilter;
-import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.scanner.DefaultFileLinesContextFactory;
@@ -35,11 +34,8 @@ import org.sonar.scanner.bootstrap.ExtensionInstaller;
 import org.sonar.scanner.bootstrap.ExtensionUtils;
 import org.sonar.scanner.bootstrap.GlobalAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
-import org.sonar.scanner.deprecated.DeprecatedSensorContext;
 import org.sonar.scanner.deprecated.perspectives.ScannerPerspectives;
 import org.sonar.scanner.events.EventBus;
-import org.sonar.scanner.index.DefaultIndex;
-import org.sonar.scanner.issue.IssuableFactory;
 import org.sonar.scanner.issue.IssueFilters;
 import org.sonar.scanner.issue.ModuleIssues;
 import org.sonar.scanner.issue.ignore.EnforceIssuesFilter;
@@ -69,10 +65,9 @@ import org.sonar.scanner.scan.filesystem.MetadataGenerator;
 import org.sonar.scanner.scan.filesystem.ModuleFileSystemInitializer;
 import org.sonar.scanner.scan.filesystem.ModuleInputComponentStore;
 import org.sonar.scanner.scan.report.IssuesReports;
+import org.sonar.scanner.sensor.DefaultSensorContext;
 import org.sonar.scanner.sensor.DefaultSensorStorage;
 import org.sonar.scanner.sensor.SensorOptimizer;
-import org.sonar.scanner.source.HighlightableBuilder;
-import org.sonar.scanner.source.SymbolizableBuilder;
 
 public class ModuleScanContainer extends ComponentContainer {
   private static final Logger LOG = LoggerFactory.getLogger(ModuleScanContainer.class);
@@ -95,8 +90,6 @@ public class ModuleScanContainer extends ComponentContainer {
   private void addCoreComponents() {
     add(
       module.definition(),
-      // still injected by some plugins
-      new Project(module),
       module,
       MutableModuleSettings.class,
       new ModuleSettingsProvider());
@@ -135,7 +128,7 @@ public class ModuleScanContainer extends ComponentContainer {
 
       DefaultPostJobContext.class,
       DefaultSensorStorage.class,
-      DeprecatedSensorContext.class,
+      DefaultSensorContext.class,
       ScannerExtensionDictionnary.class,
       IssueFilters.class,
       CoverageExclusions.class,
@@ -147,7 +140,6 @@ public class ModuleScanContainer extends ComponentContainer {
       CheckFactory.class,
 
       // issues
-      IssuableFactory.class,
       ModuleIssues.class,
       NoSonarFilter.class,
 
@@ -161,8 +153,6 @@ public class ModuleScanContainer extends ComponentContainer {
 
       // Perspectives
       ScannerPerspectives.class,
-      HighlightableBuilder.class,
-      SymbolizableBuilder.class,
 
       DefaultFileLinesContextFactory.class);
   }
@@ -174,9 +164,6 @@ public class ModuleScanContainer extends ComponentContainer {
 
   @Override
   protected void doAfterStart() {
-    DefaultIndex index = getComponentByType(DefaultIndex.class);
-    index.setCurrentStorage(getComponentByType(DefaultSensorStorage.class));
-
     getComponentByType(AbstractPhaseExecutor.class).execute(module);
   }
 

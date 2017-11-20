@@ -52,7 +52,7 @@ public class DefaultSymbolTableTest {
     DefaultSymbolTable symbolTableBuilder = new DefaultSymbolTable(mock(SensorStorage.class))
       .onFile(INPUT_FILE);
     symbolTableBuilder
-      .newSymbol(0, 10)
+      .newSymbol(1, 0, 1, 10)
       .newReference(12, 15)
       .newReference(2, 10, 2, 15);
 

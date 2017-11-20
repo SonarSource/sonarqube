@@ -26,16 +26,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import javax.annotation.Nullable;
-import org.sonar.api.resources.Project;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.utils.System2;
 
 public class ModuleProfiling extends AbstractTimeProfiling {
 
   private Map<Phase, PhaseProfiling> profilingPerPhase = new EnumMap<>(Phase.class);
   private Map<String, ItemProfiling> profilingPerBatchStep = new LinkedHashMap<>();
-  private final Project module;
+  private final DefaultInputModule module;
 
-  public ModuleProfiling(@Nullable Project module, System2 system) {
+  public ModuleProfiling(@Nullable DefaultInputModule module, System2 system) {
     super(system);
     this.module = module;
   }

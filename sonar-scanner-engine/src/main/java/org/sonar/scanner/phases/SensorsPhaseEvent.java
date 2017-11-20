@@ -20,11 +20,9 @@
 package org.sonar.scanner.phases;
 
 import java.util.List;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.events.SensorsPhaseHandler;
+import org.sonar.api.batch.sensor.Sensor;
 
-class SensorsPhaseEvent extends AbstractPhaseEvent<SensorsPhaseHandler>
-    implements org.sonar.api.batch.events.SensorsPhaseHandler.SensorsPhaseEvent {
+class SensorsPhaseEvent extends AbstractPhaseEvent<SensorsPhaseHandler> implements SensorsPhaseHandler.SensorsPhaseEvent {
 
   private final List<Sensor> sensors;
 

@@ -62,38 +62,16 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
     return type;
   }
 
-  /**
-   * @deprecated since 5.5, replaced by {@link #gapMultiplier}
-   */
-  @Override
-  @CheckForNull
-  @Deprecated
-  public String coefficient() {
-    return gapMultiplier();
-  }
-
-
   @Override
   @CheckForNull
   public String gapMultiplier() {
     return gapMultiplier;
   }
 
-  /**
-   * @deprecated since 5.5, replaced by {@link #baseEffort}
-   */
-  @Override
-  @CheckForNull
-  @Deprecated
-  public String offset() {
-    return baseEffort();
-  }
-
   @Override
   public String baseEffort() {
     return baseEffort;
   }
-
 
   private void validate() {
     checkArgument(type != null, "Remediation function type cannot be null");
@@ -136,7 +114,6 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
     return result;
   }
 
-  
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(DebtRemediationFunction.class)

@@ -25,15 +25,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
-
 import javax.annotation.concurrent.Immutable;
-
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 
-import static org.sonar.api.measures.CoreMetrics.ACCESSORS;
 import static org.sonar.api.measures.CoreMetrics.CLASSES;
 import static org.sonar.api.measures.CoreMetrics.COGNITIVE_COMPLEXITY;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES;
@@ -96,7 +93,6 @@ public class ScannerMetrics {
     CLASSES,
     FUNCTIONS,
     STATEMENTS,
-    ACCESSORS,
 
     COMPLEXITY,
     COMPLEXITY_IN_CLASSES,

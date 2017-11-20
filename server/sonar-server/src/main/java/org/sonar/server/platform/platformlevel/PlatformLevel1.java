@@ -37,8 +37,8 @@ import org.sonar.db.DaoModule;
 import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
+import org.sonar.db.MyBatis;
 import org.sonar.db.purge.PurgeProfiler;
-import org.sonar.db.semaphore.SemaphoresImpl;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.logging.LogbackHelper;
 import org.sonar.server.app.ProcessCommandWrapperImpl;
@@ -93,12 +93,9 @@ public class PlatformLevel1 extends PlatformLevel {
       WebServerProcessLogging.class,
       DefaultDatabase.class,
       DatabaseChecker.class,
-      // must instantiate deprecated class in 5.2 and only this one (and not its replacement)
-      // to avoid having two SqlSessionFactory instances
-      org.sonar.core.persistence.MyBatis.class,
+      MyBatis.class,
       PurgeProfiler.class,
       ServerFileSystemImpl.class,
-      SemaphoresImpl.class,
       TempFolderCleaner.class,
       new TempFolderProvider(),
       System2.INSTANCE,

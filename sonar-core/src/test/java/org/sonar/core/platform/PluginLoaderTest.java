@@ -24,14 +24,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import org.assertj.core.data.MapEntry;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.Plugin;
-import org.sonar.api.SonarPlugin;
 import org.sonar.updatecenter.common.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -185,23 +183,21 @@ public class PluginLoaderTest {
     }
   }
 
-  public static class FakePlugin extends SonarPlugin {
+  public static class FakePlugin implements Plugin {
     @Override
-    public List getExtensions() {
-      return Collections.emptyList();
+    public void define(Context context) {
     }
   }
 
   /**
    * No public empty-param constructor
    */
-  public static class IncorrectPlugin extends SonarPlugin {
+  public static class IncorrectPlugin implements Plugin {
     public IncorrectPlugin(String s) {
     }
 
     @Override
-    public List getExtensions() {
-      return Collections.emptyList();
+    public void define(Context context) {
     }
   }
 }

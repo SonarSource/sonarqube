@@ -74,6 +74,7 @@ import org.sonar.db.DaoModule;
 import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
+import org.sonar.db.MyBatis;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessProperties;
@@ -148,7 +149,6 @@ import org.sonar.server.setting.DatabaseSettingsEnabler;
 import org.sonar.server.setting.ThreadLocalSettings;
 import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.user.DefaultUserFinder;
-import org.sonar.server.user.DeprecatedUserFinder;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.OkHttpClientProvider;
@@ -245,9 +245,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       LogbackHelper.class,
       DefaultDatabase.class,
       DatabaseChecker.class,
-      // must instantiate deprecated class in 5.2 and only this one (and not its replacement)
-      // to avoid having two SqlSessionFactory instances
-      org.sonar.core.persistence.MyBatis.class,
+      MyBatis.class,
       PurgeProfiler.class,
       ServerFileSystemImpl.class,
       new TempFolderProvider(),
@@ -348,7 +346,6 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       ProjectMeasuresIndex.class,
 
       // users
-      DeprecatedUserFinder.class,
       DefaultUserFinder.class,
       UserIndexer.class,
       UserIndex.class,

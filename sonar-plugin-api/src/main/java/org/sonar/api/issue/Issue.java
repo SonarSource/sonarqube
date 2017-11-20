@@ -113,13 +113,6 @@ public interface Issue extends Serializable {
   Integer line();
 
   /**
-   * @deprecated since 5.5, replaced by {@link #gap()}
-   */
-  @Deprecated
-  @CheckForNull
-  Double effortToFix();
-
-  /**
    * Arbitrary distance to threshold for resolving the issue.
    * <br>
    * For examples:
@@ -144,13 +137,6 @@ public interface Issue extends Serializable {
    */
   @CheckForNull
   String resolution();
-
-  /**
-   * @deprecated since 5.5, manual issue feature has been dropped.
-   */
-  @Deprecated
-  @CheckForNull
-  String reporter();
 
   /**
    * Login of the user who is assigned to this issue. Null if the issue is not assigned.
@@ -185,13 +171,6 @@ public interface Issue extends Serializable {
   String authorLogin();
 
   /**
-   * @deprecated since 5.5 Action plans are dropped in 5.5. This field has no effect
-   */
-  @Deprecated
-  @CheckForNull
-  String actionPlanKey();
-
-  /**
    * Non-null list of comments, ordered by chronological order.
    * <br>
    * IMPORTANT: existing comments are not loaded when this method is called when analyzing project
@@ -211,12 +190,6 @@ public interface Issue extends Serializable {
    * @since 6.6
    */
   boolean isCopied();
-
-  /**
-   * @deprecated since 5.5, replaced by {@link #effort()}
-   */
-  @Deprecated
-  Duration debt();
 
   /**
    * @since 5.5

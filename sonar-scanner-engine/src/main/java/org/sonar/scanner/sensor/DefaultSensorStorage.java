@@ -53,7 +53,6 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.internal.pmd.PmdBlockChunker;
-import org.sonar.scanner.cpd.deprecated.DefaultCpdBlockIndexer;
 import org.sonar.scanner.cpd.index.SonarCpdBlockIndex;
 import org.sonar.scanner.issue.ModuleIssues;
 import org.sonar.scanner.protocol.output.FileStructure;
@@ -73,17 +72,6 @@ import static org.sonar.api.measures.CoreMetrics.CONDITIONS_TO_COVER;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_LINE_HITS_DATA;
 import static org.sonar.api.measures.CoreMetrics.COVERED_CONDITIONS_BY_LINE;
-import static org.sonar.api.measures.CoreMetrics.DEPENDENCY_MATRIX_KEY;
-import static org.sonar.api.measures.CoreMetrics.DIRECTORY_CYCLES_KEY;
-import static org.sonar.api.measures.CoreMetrics.DIRECTORY_EDGES_WEIGHT_KEY;
-import static org.sonar.api.measures.CoreMetrics.DIRECTORY_FEEDBACK_EDGES_KEY;
-import static org.sonar.api.measures.CoreMetrics.DIRECTORY_TANGLES_KEY;
-import static org.sonar.api.measures.CoreMetrics.DIRECTORY_TANGLE_INDEX_KEY;
-import static org.sonar.api.measures.CoreMetrics.FILE_CYCLES_KEY;
-import static org.sonar.api.measures.CoreMetrics.FILE_EDGES_WEIGHT_KEY;
-import static org.sonar.api.measures.CoreMetrics.FILE_FEEDBACK_EDGES_KEY;
-import static org.sonar.api.measures.CoreMetrics.FILE_TANGLES_KEY;
-import static org.sonar.api.measures.CoreMetrics.FILE_TANGLE_INDEX_KEY;
 import static org.sonar.api.measures.CoreMetrics.IT_BRANCH_COVERAGE;
 import static org.sonar.api.measures.CoreMetrics.IT_CONDITIONS_BY_LINE;
 import static org.sonar.api.measures.CoreMetrics.IT_CONDITIONS_TO_COVER;
@@ -117,17 +105,6 @@ public class DefaultSensorStorage implements SensorStorage {
   private static final Logger LOG = Loggers.get(DefaultSensorStorage.class);
 
   private static final List<String> DEPRECATED_METRICS_KEYS = Arrays.asList(
-    DEPENDENCY_MATRIX_KEY,
-    DIRECTORY_CYCLES_KEY,
-    DIRECTORY_EDGES_WEIGHT_KEY,
-    DIRECTORY_FEEDBACK_EDGES_KEY,
-    DIRECTORY_TANGLE_INDEX_KEY,
-    DIRECTORY_TANGLES_KEY,
-    FILE_CYCLES_KEY,
-    FILE_EDGES_WEIGHT_KEY,
-    FILE_FEEDBACK_EDGES_KEY,
-    FILE_TANGLE_INDEX_KEY,
-    FILE_TANGLES_KEY,
     // SONARPHP-621
     COMMENTED_OUT_CODE_LINES_KEY);
 
@@ -145,7 +122,7 @@ public class DefaultSensorStorage implements SensorStorage {
   private final MeasureCache measureCache;
   private final SonarCpdBlockIndex index;
   private final ContextPropertiesCache contextPropertiesCache;
-  private final Configuration settings;
+  private final Configuration config;
   private final ScannerMetrics scannerMetrics;
   private final BranchConfiguration branchConfiguration;
   private final Map<Metric<?>, Metric<?>> deprecatedCoverageMetricMapping = new HashMap<>();
@@ -158,7 +135,7 @@ public class DefaultSensorStorage implements SensorStorage {
     ContextPropertiesCache contextPropertiesCache, ScannerMetrics scannerMetrics, BranchConfiguration branchConfiguration) {
     this.metricFinder = metricFinder;
     this.moduleIssues = moduleIssues;
-    this.settings = settings;
+    this.config = settings;
     this.reportPublisher = reportPublisher;
     this.measureCache = measureCache;
     this.index = index;
@@ -477,7 +454,18 @@ public class DefaultSensorStorage implements SensorStorage {
 
   @VisibleForTesting
   int getBlockSize(String languageKey) {
-    return settings.getInt("sonar.cpd." + languageKey + ".minimumLines").orElse(DefaultCpdBlockIndexer.getDefaultBlockSize(languageKey));
+    return config.getInt("sonar.cpd." + languageKey + ".minimumLines").orElse(getDefaultBlockSize(languageKey));
+  }
+
+  @VisibleForTesting
+  public static int getDefaultBlockSize(String languageKey) {
+    if ("cobol".equals(languageKey)) {
+      return 30;
+    } else if ("abap".equals(languageKey)) {
+      return 20;
+    } else {
+      return 10;
+    }
   }
 
   @Override

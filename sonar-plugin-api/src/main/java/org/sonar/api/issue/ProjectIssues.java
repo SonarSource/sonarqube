@@ -19,8 +19,8 @@
  */
 package org.sonar.api.issue;
 
-import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.batch.ScannerSide;
 
 import static org.sonar.api.batch.InstantiationStrategy.PER_BATCH;
 
@@ -28,9 +28,11 @@ import static org.sonar.api.batch.InstantiationStrategy.PER_BATCH;
  * Used by batch components to get all project issues.
  *
  * @since 4.0
+ * @deprecated since 7.0 preview mode is deprecated for a while
  */
 @InstantiationStrategy(PER_BATCH)
 @ScannerSide
+@Deprecated
 public interface ProjectIssues {
 
   /**

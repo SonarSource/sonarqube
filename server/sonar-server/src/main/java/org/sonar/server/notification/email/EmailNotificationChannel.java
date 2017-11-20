@@ -28,12 +28,12 @@ import org.sonar.api.config.EmailSettings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
 import org.sonar.api.user.User;
-import org.sonar.api.user.UserFinder;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.plugins.emailnotifications.api.EmailMessage;
 import org.sonar.plugins.emailnotifications.api.EmailTemplate;
+import org.sonar.server.user.DefaultUserFinder;
 
 /**
  * References:
@@ -83,9 +83,9 @@ public class EmailNotificationChannel extends NotificationChannel {
 
   private EmailSettings configuration;
   private EmailTemplate[] templates;
-  private UserFinder userFinder;
+  private DefaultUserFinder userFinder;
 
-  public EmailNotificationChannel(EmailSettings configuration, EmailTemplate[] templates, UserFinder userFinder) {
+  public EmailNotificationChannel(EmailSettings configuration, EmailTemplate[] templates, DefaultUserFinder userFinder) {
     this.configuration = configuration;
     this.templates = templates;
     this.userFinder = userFinder;

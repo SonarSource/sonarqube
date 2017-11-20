@@ -128,7 +128,6 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
   }
 
   private Integer id;
-  private transient Formula formula;
   private String key;
   private String description;
   private ValueType type;
@@ -158,7 +157,6 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     this.optimizedBestValue = builder.optimizedBestValue;
     this.bestValue = builder.bestValue;
     this.hidden = builder.hidden;
-    this.formula = builder.formula;
     this.userManaged = builder.userManaged;
     this.deleteHistoricalData = builder.deleteHistoricalData;
     this.decimalScale = builder.decimalScale;
@@ -218,7 +216,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
    * @param userManaged whether the metric is user managed
    */
   private Metric(String key, String name, String description, ValueType type, Integer direction, Boolean qualitative, @Nullable String domain,
-                 boolean userManaged) {
+    boolean userManaged) {
     this.key = key;
     this.description = description;
     this.type = type;
@@ -248,28 +246,6 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
    */
   public Metric<G> setId(@Nullable Integer id) {
     this.id = id;
-    return this;
-  }
-
-  /**
-   * @return the metric formula
-   * @deprecated since 5.2 there's no more decorator on batch side, please use {@link org.sonar.api.ce.measure.MeasureComputer} instead
-   */
-  @Deprecated
-  public Formula getFormula() {
-    return formula;
-  }
-
-  /**
-   * Sets the metric formula
-   *
-   * @param formula the formula
-   * @return this
-   * @deprecated since 5.2 there's no more decorator on batch side, please use {@link org.sonar.api.ce.measure.MeasureComputer} instead
-   */
-  @Deprecated
-  public Metric<G> setFormula(Formula formula) {
-    this.formula = formula;
     return this;
   }
 
@@ -582,7 +558,6 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     private Integer direction = DIRECTION_NONE;
     private Boolean qualitative = Boolean.FALSE;
     private String domain = null;
-    private Formula formula;
     private Double worstValue;
     private Double bestValue;
     private boolean optimizedBestValue = false;
@@ -661,25 +636,6 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
      */
     public Builder setDomain(String d) {
       this.domain = d;
-      return this;
-    }
-
-    /**
-     * Specifies the formula used by Sonar to automatically aggregate measures stored on files up to the project level.
-     * <br>
-     * <br>
-     * By default, no formula is defined, which means that it's up to a sensor/decorator to compute measures on appropriate levels.
-     * <br>
-     * When a formula is set, sensors/decorators just need to store measures at a specific level and let Sonar run the formula to store
-     * measures on the remaining levels.
-     *
-     * @param f the formula
-     * @return the builder
-     * @deprecated since 5.2, it's no more possible to define a formula on a metric, please use {@link org.sonar.api.ce.measure.MeasureComputer} instead
-     */
-    @Deprecated
-    public Builder setFormula(Formula f) {
-      this.formula = f;
       return this;
     }
 

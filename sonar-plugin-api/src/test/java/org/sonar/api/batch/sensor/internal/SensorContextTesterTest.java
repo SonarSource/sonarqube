@@ -173,8 +173,8 @@ public class SensorContextTesterTest {
     tester.newHighlighting()
       .onFile(new TestInputFileBuilder("foo", "src/Foo.java").initMetadata("annot dsf fds foo bar").build())
       .highlight(1, 0, 1, 5, TypeOfText.ANNOTATION)
-      .highlight(8, 10, TypeOfText.CONSTANT)
-      .highlight(9, 10, TypeOfText.COMMENT)
+      .highlight(1, 8, 1, 10, TypeOfText.CONSTANT)
+      .highlight(1, 9, 1, 10, TypeOfText.COMMENT)
       .save();
     assertThat(tester.highlightingTypeAt("foo:src/Foo.java", 1, 3)).containsExactly(TypeOfText.ANNOTATION);
     assertThat(tester.highlightingTypeAt("foo:src/Foo.java", 1, 9)).containsExactly(TypeOfText.CONSTANT, TypeOfText.COMMENT);

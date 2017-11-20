@@ -19,21 +19,20 @@
  */
 package org.sonar.api.issue;
 
-import org.sonar.api.scan.issue.filter.FilterableIssue;
-
 import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.scan.issue.filter.IssueFilterChain;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.scan.issue.filter.FilterableIssue;
+import org.sonar.api.scan.issue.filter.IssueFilterChain;
 
-import java.util.Set;
-
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class NoSonarFilterTest {
@@ -53,7 +52,9 @@ public class NoSonarFilterTest {
     when(issue.ruleKey()).thenReturn(RuleKey.of("squid", "AvoidCycles"));
 
     Set<Integer> noSonarLines = ImmutableSet.of(31, 55);
-    filter.addComponent("struts:org.apache.Action", noSonarLines);
+    DefaultInputFile file = mock(DefaultInputFile.class);
+    when(file.key()).thenReturn("struts:org.apache.Action");
+    filter.noSonarInFile(file, noSonarLines);
 
     // issue on file
     when(issue.line()).thenReturn(null);
@@ -77,7 +78,9 @@ public class NoSonarFilterTest {
     when(issue.ruleKey()).thenReturn(RuleKey.of("squid", "NoSonarCheck"));
 
     Set<Integer> noSonarLines = ImmutableSet.of(31, 55);
-    filter.addComponent("struts:org.apache.Action", noSonarLines);
+    DefaultInputFile file = mock(DefaultInputFile.class);
+    when(file.key()).thenReturn("struts:org.apache.Action");
+    filter.noSonarInFile(file, noSonarLines);
 
     when(issue.line()).thenReturn(31);
     assertThat(filter.accept(issue, chain)).isTrue();

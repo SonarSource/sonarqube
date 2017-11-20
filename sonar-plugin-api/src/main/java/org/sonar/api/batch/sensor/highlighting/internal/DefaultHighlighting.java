@@ -76,18 +76,6 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
   }
 
   @Override
-  public DefaultHighlighting highlight(int startOffset, int endOffset, TypeOfText typeOfText) {
-    checkInputFileNotNull();
-    TextRange newRange;
-    try {
-      newRange = inputFile.newRange(startOffset, endOffset);
-    } catch (Exception e) {
-      throw new IllegalArgumentException("Unable to highlight file " + inputFile, e);
-    }
-    return highlight(newRange, typeOfText);
-  }
-
-  @Override
   public DefaultHighlighting highlight(int startLine, int startLineOffset, int endLine, int endLineOffset, TypeOfText typeOfText) {
     checkInputFileNotNull();
     TextRange newRange;

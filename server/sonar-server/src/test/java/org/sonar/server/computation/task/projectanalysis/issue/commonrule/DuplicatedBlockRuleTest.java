@@ -84,7 +84,7 @@ public class DuplicatedBlockRuleTest {
 
     assertThat(issue.ruleKey()).isEqualTo(RULE_KEY);
     assertThat(issue.severity()).isEqualTo(Severity.CRITICAL);
-    assertThat(issue.effortToFix()).isEqualTo(3.0);
+    assertThat(issue.gap()).isEqualTo(3.0);
     assertThat(issue.message()).isEqualTo("3 duplicated blocks of code must be removed.");
   }
 }

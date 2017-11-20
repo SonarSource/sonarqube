@@ -22,48 +22,38 @@ package org.sonar.scanner.phases;
 import java.io.IOException;
 import java.util.Arrays;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.PostJob;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.batch.fs.internal.DefaultInputModule;
-import org.sonar.api.resources.Project;
+import org.sonar.api.batch.postjob.PostJob;
+import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.events.EventBus;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class PostJobsExecutorTest {
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
 
   private PostJobsExecutor executor;
 
-  private DefaultInputModule module;
   private ScannerExtensionDictionnary selector = mock(ScannerExtensionDictionnary.class);
   private PostJob job1 = mock(PostJob.class);
   private PostJob job2 = mock(PostJob.class);
-  private SensorContext context = mock(SensorContext.class);
+  private PostJobContext context = mock(PostJobContext.class);
 
   @Before
   public void setUp() throws IOException {
-    module = new DefaultInputModule(ProjectDefinition.create().setKey("project").setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()));
-    executor = new PostJobsExecutor(selector, module, mock(EventBus.class));
+    executor = new PostJobsExecutor(selector, mock(EventBus.class));
   }
 
   @Test
   public void should_execute_post_jobs() {
-    when(selector.select(PostJob.class, module, true, null)).thenReturn(Arrays.asList(job1, job2));
+    when(selector.selectPostJobs()).thenReturn(Arrays.asList(job1, job2));
 
     executor.execute(context);
 
-    verify(job1).executeOn(any(Project.class), eq(context));
-    verify(job2).executeOn(any(Project.class), eq(context));
+    verify(job1).execute(eq(context));
+    verify(job2).execute(eq(context));
   }
 }

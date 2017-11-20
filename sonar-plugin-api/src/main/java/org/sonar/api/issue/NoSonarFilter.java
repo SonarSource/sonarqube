@@ -44,15 +44,6 @@ public class NoSonarFilter implements IssueFilter {
   private final Map<String, Set<Integer>> noSonarLinesByResource = new HashMap<>();
 
   /**
-   * @deprecated since 5.0 use {@link #noSonarInFile(InputFile, Set)}
-   */
-  @Deprecated
-  public NoSonarFilter addComponent(String componentKey, Set<Integer> noSonarLines) {
-    noSonarLinesByResource.put(componentKey, noSonarLines);
-    return this;
-  }
-
-  /**
    * Register lines in a file that contains the NOSONAR flag.
    * @param inputFile
    * @param noSonarLines Line number starts at 1 in a file

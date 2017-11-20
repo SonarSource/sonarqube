@@ -107,7 +107,7 @@ public abstract class CoverageRuleTest {
     assertThat(issue.ruleKey()).isEqualTo(getRuleKey());
     assertThat(issue.severity()).isEqualTo(Severity.CRITICAL);
     // FIXME explain
-    assertThat(issue.effortToFix()).isEqualTo(23.0);
+    assertThat(issue.gap()).isEqualTo(23.0);
     assertThat(issue.message()).isEqualTo(getExpectedIssueMessage());
   }
 

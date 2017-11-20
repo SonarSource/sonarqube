@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.api.user.User;
-import org.sonar.api.user.UserFinder;
 import org.sonar.api.user.UserQuery;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -33,7 +32,7 @@ import org.sonar.db.user.UserDto;
 /**
  * @since 3.6
  */
-public class DefaultUserFinder implements UserFinder {
+public class DefaultUserFinder {
 
   private final DbClient dbClient;
 
@@ -41,7 +40,6 @@ public class DefaultUserFinder implements UserFinder {
     this.dbClient = dbClient;
   }
 
-  @Override
   @CheckForNull
   public User findByLogin(String login) {
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -50,7 +48,6 @@ public class DefaultUserFinder implements UserFinder {
     }
   }
 
-  @Override
   public List<User> findByLogins(List<String> logins) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<UserDto> dtos = dbClient.userDao().selectByLogins(dbSession, logins);
@@ -58,7 +55,6 @@ public class DefaultUserFinder implements UserFinder {
     }
   }
 
-  @Override
   public List<User> find(UserQuery query) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<UserDto> dtos = dbClient.userDao().selectUsers(dbSession, query);

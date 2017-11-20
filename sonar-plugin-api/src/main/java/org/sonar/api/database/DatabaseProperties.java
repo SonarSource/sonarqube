@@ -19,6 +19,10 @@
  */
 package org.sonar.api.database;
 
+/**
+ * @deprecated since 7.0 Should be moved out of the API
+ */
+@Deprecated
 public interface DatabaseProperties {
 
   String PROP_URL = "sonar.jdbc.url";

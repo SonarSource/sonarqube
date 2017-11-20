@@ -33,17 +33,14 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbIssues;
 import org.sonar.db.rule.RuleDefinitionDto;
-import org.sonar.db.rule.RuleDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.api.utils.DateUtils.dateToLong;
@@ -180,13 +177,6 @@ public final class IssueDto implements Serializable {
 
       // technical date
       .setUpdatedAt(now);
-  }
-
-  public static IssueDto createFor(Project project, RuleDto rule) {
-    return new IssueDto()
-      .setProjectUuid(project.getUuid())
-      .setRuleId(rule.getId())
-      .setKee(Uuids.create());
   }
 
   public String getKey() {

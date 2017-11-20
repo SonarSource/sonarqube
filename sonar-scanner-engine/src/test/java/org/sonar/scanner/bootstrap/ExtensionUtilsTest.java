@@ -20,7 +20,6 @@
 package org.sonar.scanner.bootstrap;
 
 import org.junit.Test;
-import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.ScannerSide;
@@ -62,7 +61,6 @@ public class ExtensionUtilsTest {
     assertThat(ExtensionUtils.isScannerSide(BatchService.class)).isTrue();
     assertThat(ExtensionUtils.isScannerSide(ScannerService.class)).isTrue();
     assertThat(ExtensionUtils.isScannerSide(new BatchService())).isTrue();
-    assertThat(ExtensionUtils.isScannerSide(DeprecatedBatchService.class)).isTrue();
 
     assertThat(ExtensionUtils.isScannerSide(ServerService.class)).isFalse();
     assertThat(ExtensionUtils.isScannerSide(new ServerService())).isFalse();
@@ -82,10 +80,6 @@ public class ExtensionUtilsTest {
 
   }
 
-  public static class DeprecatedBatchService implements BatchComponent {
-
-  }
-
   @BatchSide
   @InstantiationStrategy(InstantiationStrategy.PER_PROJECT)
   public static class ProjectService {
@@ -96,7 +90,7 @@ public class ExtensionUtilsTest {
   public static class DefaultService {
 
   }
-  
+
   @ScannerSide
   public static class DefaultScannerService {
 

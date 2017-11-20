@@ -45,23 +45,9 @@ public interface FileLinesContext {
   void setIntValue(String metricKey, int line, int value);
 
   /**
-   * @return value, or null if no such metric for given line
-   * @deprecated since 5.0 sensors should not read data
-   */
-  @Deprecated
-  Integer getIntValue(String metricKey, int line);
-
-  /**
    * @throws UnsupportedOperationException on attempt to update already saved data
    */
   void setStringValue(String metricKey, int line, String value);
-
-  /**
-   * @return value, or null if no such metric for given line
-   * @deprecated since 5.0 sensors should not read data
-   */
-  @Deprecated
-  String getStringValue(String metricKey, int line);
 
   /**
    * Saves unsaved values.

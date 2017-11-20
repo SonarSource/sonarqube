@@ -113,7 +113,7 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("java", "S001"));
     assertThat(issue.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(issue.line()).isEqualTo(2);
-    assertThat(issue.effortToFix()).isEqualTo(3.14);
+    assertThat(issue.gap()).isEqualTo(3.14);
     assertThat(issue.gap()).isEqualTo(3.14);
     assertThat(issue.message()).isEqualTo("the message");
 
@@ -197,6 +197,6 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.status()).isEqualTo(Issue.STATUS_OPEN);
     assertThat(issue.key()).isNull();
     assertThat(issue.authorLogin()).isNull();
-    assertThat(issue.debt()).isNull();
+    assertThat(issue.effort()).isNull();
   }
 }

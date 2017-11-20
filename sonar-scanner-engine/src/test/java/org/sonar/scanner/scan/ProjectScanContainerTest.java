@@ -20,17 +20,16 @@
 package org.sonar.scanner.scan;
 
 import org.junit.Test;
-import org.sonar.api.BatchExtension;
-import org.sonar.api.ServerExtension;
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.task.TaskExtension;
+import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.server.ServerSide;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectScanContainerTest {
 
   @Test
-  public void should_add_only_batch_extensions() {
+  public void should_add_only_scanner_extensions() {
     ProjectScanContainer.BatchExtensionFilter filter = new ProjectScanContainer.BatchExtensionFilter();
 
     assertThat(filter.accept(new MyBatchExtension())).isTrue();
@@ -44,20 +43,25 @@ public class ProjectScanContainerTest {
     assertThat(filter.accept(MyTaskExtension.class)).isFalse();
   }
 
+  @ScannerSide
   @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-  static class MyBatchExtension implements BatchExtension {
+  static class MyBatchExtension {
 
   }
 
-  static class MyProjectExtension implements BatchExtension {
+  @ScannerSide
+  static class MyProjectExtension {
 
   }
 
-  static class MyServerExtension implements ServerExtension {
+  @ServerSide
+  static class MyServerExtension {
 
   }
 
-  static class MyTaskExtension implements TaskExtension {
+  @ScannerSide
+  @InstantiationStrategy(InstantiationStrategy.PER_TASK)
+  static class MyTaskExtension {
 
   }
 }

@@ -268,7 +268,7 @@ public class MeasureComputerContextImplTest {
     assertThat(result.severity()).isEqualTo("MAJOR");
     assertThat(result.status()).isEqualTo("CLOSED");
     assertThat(result.resolution()).isEqualTo("FIXED");
-    assertThat(result.debt()).isEqualTo(Duration.create(10l));
+    assertThat(result.effort()).isEqualTo(Duration.create(10l));
   }
 
   private MeasureComputerContextImpl newContext(int componentRef) {

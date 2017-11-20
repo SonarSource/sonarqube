@@ -30,13 +30,9 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.api.source.Symbol;
-import org.sonar.api.source.Symbolizable;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class SymbolReferencesSensorTest {
 
@@ -46,13 +42,11 @@ public class SymbolReferencesSensorTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
   private File baseDir;
-  private ResourcePerspectives perspectives;
 
   @Before
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
-    perspectives = mock(ResourcePerspectives.class);
-    sensor = new SymbolReferencesSensor(perspectives);
+    sensor = new SymbolReferencesSensor();
     context = SensorContextTester.create(baseDir);
   }
 
@@ -71,25 +65,18 @@ public class SymbolReferencesSensorTest {
   @Test
   public void testExecution() throws IOException {
     File symbol = new File(baseDir, "src/foo.xoo.symbol");
-    FileUtils.write(symbol, "1:4,7\n12:15,23:33\n\n#comment");
-    InputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo").setLanguage("xoo").setModuleBaseDir(baseDir.toPath()).build();
+    FileUtils.write(symbol, "1:0:1:3,2:2:2:5,3:0:3:3\n\n#comment");
+    InputFile inputFile = new TestInputFileBuilder("foo", "src/foo.xoo")
+      .setLanguage("xoo")
+      .setModuleBaseDir(baseDir.toPath())
+      .initMetadata("xoo\n  xoo\nxoo")
+      .build();
     context.fileSystem().add(inputFile);
-    Symbolizable symbolizable = mock(Symbolizable.class);
-    when(perspectives.as(Symbolizable.class, inputFile)).thenReturn(symbolizable);
-    Symbolizable.SymbolTableBuilder symbolTableBuilder = mock(Symbolizable.SymbolTableBuilder.class);
-    when(symbolizable.newSymbolTableBuilder()).thenReturn(symbolTableBuilder);
-
-    Symbol symbol1 = mock(Symbol.class);
-    when(symbolTableBuilder.newSymbol(1, 4)).thenReturn(symbol1);
-    Symbol symbol2 = mock(Symbol.class);
-    when(symbolTableBuilder.newSymbol(12, 15)).thenReturn(symbol2);
 
     sensor.execute(context);
 
-    verify(symbolTableBuilder).newSymbol(1, 4);
-    verify(symbolTableBuilder).newReference(symbol1, 7);
-    verify(symbolTableBuilder).newSymbol(12, 15);
-    verify(symbolTableBuilder).newReference(symbol2, 23, 33);
+    assertThat(context.referencesForSymbolAt("foo:src/foo.xoo", 1, 2)).extracting("start.line", "start.lineOffset", "end.line", "end.lineOffset")
+      .containsExactly(tuple(2, 2, 2, 5), tuple(3, 0, 3, 3));
   }
 
 }

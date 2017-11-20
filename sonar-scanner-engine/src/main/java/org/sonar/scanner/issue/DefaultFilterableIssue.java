@@ -20,9 +20,7 @@
 package org.sonar.scanner.issue;
 
 import java.util.Date;
-
 import javax.annotation.concurrent.ThreadSafe;
-
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.fs.InputModule;
@@ -74,11 +72,6 @@ public class DefaultFilterableIssue implements FilterableIssue {
   @Override
   public Double gap() {
     return rawIssue.getGap() != 0 ? rawIssue.getGap() : null;
-  }
-
-  @Override
-  public Double effortToFix() {
-    return gap();
   }
 
   @Override

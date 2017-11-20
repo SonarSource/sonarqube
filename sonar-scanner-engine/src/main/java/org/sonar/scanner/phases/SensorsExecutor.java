@@ -24,38 +24,35 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.SensorStrategy;
-import org.sonar.api.resources.Project;
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.scanner.bootstrap.ScannerExtensionDictionnary;
 import org.sonar.scanner.events.EventBus;
 
 @ScannerSide
 public class SensorsExecutor {
   private final ScannerExtensionDictionnary selector;
-  private final DefaultInputModule module;
   private final EventBus eventBus;
   private final SensorStrategy strategy;
   private final boolean isRoot;
 
   public SensorsExecutor(ScannerExtensionDictionnary selector, DefaultInputModule module, InputModuleHierarchy hierarchy, EventBus eventBus, SensorStrategy strategy) {
     this.selector = selector;
-    this.module = module;
     this.eventBus = eventBus;
     this.strategy = strategy;
     this.isRoot = hierarchy.isRoot(module);
   }
 
   public void execute(SensorContext context) {
-    Collection<Sensor> perModuleSensors = selector.selectSensors(module, false);
+    Collection<Sensor> perModuleSensors = selector.selectSensors(false);
     Collection<Sensor> globalSensors;
     if (isRoot) {
       boolean orig = strategy.isGlobal();
       strategy.setGlobal(true);
-      globalSensors = selector.selectSensors(module, true);
+      globalSensors = selector.selectSensors(true);
       strategy.setGlobal(orig);
     } else {
       globalSensors = Collections.emptyList();
@@ -84,8 +81,8 @@ public class SensorsExecutor {
   }
 
   private void executeSensor(SensorContext context, Sensor sensor) {
-    eventBus.fireEvent(new SensorExecutionEvent(sensor, true));
-    sensor.analyse(new Project(module), context);
-    eventBus.fireEvent(new SensorExecutionEvent(sensor, false));
+    eventBus.fireEvent(new DefaultSensorExecutionEvent(sensor, true));
+    sensor.execute(context);
+    eventBus.fireEvent(new DefaultSensorExecutionEvent(sensor, false));
   }
 }

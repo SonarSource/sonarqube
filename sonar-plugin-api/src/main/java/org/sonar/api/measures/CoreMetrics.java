@@ -24,7 +24,6 @@ import java.lang.reflect.Modifier;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import org.sonar.api.test.MutableTestPlan;
 import org.sonar.api.utils.SonarException;
 
 /**
@@ -36,23 +35,6 @@ public final class CoreMetrics {
   public static String DOMAIN_SIZE = "Size";
   public static String DOMAIN_COVERAGE = "Coverage";
 
-  /**
-   * @deprecated in 5.5. Merged into {@link #DOMAIN_COVERAGE}
-   */
-  @Deprecated
-  public static String DOMAIN_TESTS = "Tests";
-
-  /**
-   * @deprecated in 5.5. Merged into {@link #DOMAIN_COVERAGE}
-   */
-  @Deprecated
-  public static String DOMAIN_INTEGRATION_TESTS = "Tests (Integration)";
-
-  /**
-   * @deprecated in 5.5. Merged into {@link #DOMAIN_COVERAGE}
-   */
-  @Deprecated
-  public static String DOMAIN_OVERALL_TESTS = "Tests (Overall)";
   public static String DOMAIN_COMPLEXITY = "Complexity";
   /**
    * @deprecated since 6.2. Merged into {@link #DOMAIN_SIZE}
@@ -64,11 +46,6 @@ public final class CoreMetrics {
   public static String DOMAIN_GENERAL = "General";
   public static String DOMAIN_DUPLICATIONS = "Duplications";
 
-  /**
-   * @deprecated in 5.5. Renamed to {@link #DOMAIN_DUPLICATIONS}
-   */
-  @Deprecated
-  public static String DOMAIN_DUPLICATION = "Duplication";
   public static String DOMAIN_DESIGN = "Design";
 
   /**
@@ -88,14 +65,6 @@ public final class CoreMetrics {
    * @since 5.5
    */
   public static String DOMAIN_SECURITY = "Security";
-
-  /**
-   * @since 4.0
-   *
-   * @deprecated in 5.5. Replaced by {@link #DOMAIN_MAINTAINABILITY}
-   */
-  @Deprecated
-  public static String DOMAIN_TECHNICAL_DEBT = "Technical Debt";
 
   /**
    * @since 5.5
@@ -207,26 +176,6 @@ public final class CoreMetrics {
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
     .setDomain(DOMAIN_SIZE)
-    .create();
-
-  /**
-   * @deprecated since 5.0.
-   * @see <a href="https://jira.sonarsource.com/browse/SONAR-5224">SONAR-5224</a>
-   */
-  @Deprecated
-  public static final String ACCESSORS_KEY = "accessors";
-
-  /**
-   * @deprecated since 5.0.
-   * @see <a href="https://jira.sonarsource.com/browse/SONAR-5224">SONAR-5224</a>
-   */
-  @Deprecated
-  public static final Metric<Integer> ACCESSORS = new Metric.Builder(ACCESSORS_KEY, "Accessors", Metric.ValueType.INT)
-    .setDescription("Accessors")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(false)
-    .setDomain(DOMAIN_SIZE)
-    .setHidden(true)
     .create();
 
   public static final String STATEMENTS_KEY = "statements";
@@ -593,21 +542,6 @@ public final class CoreMetrics {
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .setOptimizedBestValue(true)
-    .create();
-
-  /**
-   * @deprecated since 5.2 use {@link MutableTestPlan}
-   */
-  @Deprecated
-  public static final String TEST_DATA_KEY = "test_data";
-  /**
-   * @deprecated since 5.2 use {@link MutableTestPlan}
-   */
-  @Deprecated
-  public static final Metric<String> TEST_DATA = new Metric.Builder(TEST_DATA_KEY, "Unit Test Details", Metric.ValueType.DATA)
-    .setDescription("Unit tests details")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_COVERAGE)
     .create();
 
   public static final String COVERAGE_KEY = "coverage";
@@ -1998,329 +1932,6 @@ public final class CoreMetrics {
     .setOptimizedBestValue(true)
     .setDeleteHistoricalData(true)
     .create();
-
-  // --------------------------------------------------------------------------------------------------------------------
-  //
-  // DESIGN
-  //
-  // --------------------------------------------------------------------------------------------------------------------
-
-  /**
-   * @deprecated since 5.0 this is an internal metric that should not be accessed by plugins
-   */
-  @Deprecated
-  public static final String DEPENDENCY_MATRIX_KEY = "dsm";
-  /**
-   * @deprecated since 5.0 this is an internal metric that should not be accessed by plugins
-   */
-  @Deprecated
-  public static final transient Metric<String> DEPENDENCY_MATRIX = new Metric.Builder(DEPENDENCY_MATRIX_KEY, "Dependency Matrix", Metric.ValueType.DATA)
-    .setDescription("Dependency Matrix")
-    .setDirection(Metric.DIRECTION_NONE)
-    .setQualitative(false)
-    .setDomain(DOMAIN_DESIGN)
-    .setDeleteHistoricalData(true)
-    .create();
-
-  /**
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final String DIRECTORY_CYCLES_KEY = "package_cycles";
-  /**
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final transient Metric<Integer> DIRECTORY_CYCLES = new Metric.Builder(DIRECTORY_CYCLES_KEY, "Directory Cycles", Metric.ValueType.INT)
-    .setDescription("Directory cycles")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(true)
-    .setDomain(DOMAIN_DESIGN)
-    .setBestValue(0.0)
-    .create();
-
-  /**
-   * @deprecated since 5.0 use {@link #DIRECTORY_CYCLES_KEY}
-   */
-  @Deprecated
-  public static final String PACKAGE_CYCLES_KEY = DIRECTORY_CYCLES_KEY;
-  /**
-   * @deprecated since 5.0 use {@link #DIRECTORY_CYCLES}
-   */
-  @Deprecated
-  public static final transient Metric<Integer> PACKAGE_CYCLES = DIRECTORY_CYCLES;
-
-  /**
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final String DIRECTORY_TANGLE_INDEX_KEY = "package_tangle_index";
-  /**
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final transient Metric<Double> DIRECTORY_TANGLE_INDEX = new Metric.Builder(DIRECTORY_TANGLE_INDEX_KEY, "Directory Tangle Index", Metric.ValueType.PERCENT)
-    .setDescription("Directory tangle index")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(true)
-    .setBestValue(0.0)
-    .setDomain(DOMAIN_DESIGN)
-    .create();
-
-  /**
-   * @deprecated since 5.0 use {@link #DIRECTORY_TANGLE_INDEX_KEY}
-   */
-  @Deprecated
-  public static final String PACKAGE_TANGLE_INDEX_KEY = DIRECTORY_TANGLE_INDEX_KEY;
-  /**
-   * @deprecated since 5.0 use {@link #DIRECTORY_TANGLE_INDEX}
-   */
-  @Deprecated
-  public static final transient Metric<Double> PACKAGE_TANGLE_INDEX = DIRECTORY_TANGLE_INDEX;
-
-  /**
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final String DIRECTORY_TANGLES_KEY = "package_tangles";
-  /**
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final transient Metric<Integer> DIRECTORY_TANGLES = new Metric.Builder(DIRECTORY_TANGLES_KEY, "File Dependencies to Cut", Metric.ValueType.INT)
-    .setDescription("File dependencies to cut")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(false)
-    .setDomain(DOMAIN_DESIGN)
-    .create();
-
-  /**
-   * @deprecated since 5.0 use {@link #DIRECTORY_TANGLES_KEY}
-   */
-  @Deprecated
-  public static final String PACKAGE_TANGLES_KEY = DIRECTORY_TANGLES_KEY;
-  /**
-   * @deprecated since 5.0 use {@link #DIRECTORY_TANGLES}
-   */
-  @Deprecated
-  public static final transient Metric<Integer> PACKAGE_TANGLES = DIRECTORY_TANGLES;
-
-  /**
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final String DIRECTORY_FEEDBACK_EDGES_KEY = "package_feedback_edges";
-  /**
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final transient Metric<Integer> DIRECTORY_FEEDBACK_EDGES = new Metric.Builder(DIRECTORY_FEEDBACK_EDGES_KEY, "Package Dependencies to Cut", Metric.ValueType.INT)
-    .setDescription("Package dependencies to cut")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(false)
-    .setDomain(DOMAIN_DESIGN)
-    .setBestValue(0.0)
-    .create();
-
-  /**
-   * @deprecated since 5.0 use {@link #DIRECTORY_FEEDBACK_EDGES_KEY}
-   */
-  @Deprecated
-  public static final String PACKAGE_FEEDBACK_EDGES_KEY = DIRECTORY_FEEDBACK_EDGES_KEY;
-  /**
-   * @deprecated since 5.0 use {@link #DIRECTORY_FEEDBACK_EDGES}
-   */
-  @Deprecated
-  public static final transient Metric<Integer> PACKAGE_FEEDBACK_EDGES = DIRECTORY_FEEDBACK_EDGES;
-
-  /**
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final String DIRECTORY_EDGES_WEIGHT_KEY = "package_edges_weight";
-  /**
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final transient Metric<Integer> DIRECTORY_EDGES_WEIGHT = new Metric.Builder(DIRECTORY_EDGES_WEIGHT_KEY, "Directory Edges Weight", Metric.ValueType.INT)
-    .setDescription("Directory edges weight")
-    .setDirection(Metric.DIRECTION_BETTER)
-    .setQualitative(false)
-    .setDomain(DOMAIN_DESIGN)
-    .setHidden(true)
-    .setDeleteHistoricalData(true)
-    .create();
-
-  /**
-   * @deprecated since 5.0 use {@link #DIRECTORY_EDGES_WEIGHT_KEY}
-   */
-  @Deprecated
-  public static final String PACKAGE_EDGES_WEIGHT_KEY = DIRECTORY_EDGES_WEIGHT_KEY;
-  /**
-   * @deprecated since 5.0 use {@link #DIRECTORY_EDGES_WEIGHT}
-   */
-  @Deprecated
-  public static final transient Metric<Integer> PACKAGE_EDGES_WEIGHT = DIRECTORY_EDGES_WEIGHT;
-
-  /**
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final String FILE_CYCLES_KEY = "file_cycles";
-  /**
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final transient Metric<Integer> FILE_CYCLES = new Metric.Builder(FILE_CYCLES_KEY, "File Cycles", Metric.ValueType.INT)
-    .setDescription("File cycles")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(true)
-    .setDomain(DOMAIN_DESIGN)
-    .setHidden(true)
-    .setDeleteHistoricalData(true)
-    .setBestValue(0.0)
-    .create();
-
-  /**
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final String FILE_TANGLE_INDEX_KEY = "file_tangle_index";
-  /**
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final transient Metric<Double> FILE_TANGLE_INDEX = new Metric.Builder(FILE_TANGLE_INDEX_KEY, "File Tangle Index", Metric.ValueType.PERCENT)
-    .setDescription("File tangle index")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(true)
-    .setDomain(DOMAIN_DESIGN)
-    .setHidden(true)
-    .setDeleteHistoricalData(true)
-    .setBestValue(0.0)
-    .create();
-
-  /**
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final String FILE_TANGLES_KEY = "file_tangles";
-  /**
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final transient Metric<Integer> FILE_TANGLES = new Metric.Builder(FILE_TANGLES_KEY, "File Tangles", Metric.ValueType.INT)
-    .setDescription("Files tangles")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(false)
-    .setDomain(DOMAIN_DESIGN)
-    .setHidden(true)
-    .setDeleteHistoricalData(true)
-    .create();
-
-  /**
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final String FILE_FEEDBACK_EDGES_KEY = "file_feedback_edges";
-  /**
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final transient Metric<Integer> FILE_FEEDBACK_EDGES = new Metric.Builder(FILE_FEEDBACK_EDGES_KEY, "Suspect File Dependencies", Metric.ValueType.INT)
-    .setDescription("Suspect file dependencies")
-    .setDirection(Metric.DIRECTION_WORST)
-    .setQualitative(false)
-    .setDomain(DOMAIN_DESIGN)
-    .setHidden(true)
-    .setDeleteHistoricalData(true)
-    .setBestValue(0.0)
-    .create();
-
-  /**
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final String FILE_EDGES_WEIGHT_KEY = "file_edges_weight";
-  /**
-   * @deprecated since 5.2 No more design features
-   */
-  @Deprecated
-  public static final transient Metric<Integer> FILE_EDGES_WEIGHT = new Metric.Builder(FILE_EDGES_WEIGHT_KEY, "File Edges Weight", Metric.ValueType.INT)
-    .setDescription("File edges weight")
-    .setDirection(Metric.DIRECTION_BETTER)
-    .setQualitative(false)
-    .setDomain(DOMAIN_DESIGN)
-    .setHidden(true)
-    .setDeleteHistoricalData(true)
-    .create();
-
-  // --------------------------------------------------------------------------------------------------------------------
-  //
-  // SCM
-  //
-  // --------------------------------------------------------------------------------------------------------------------
-
-  /**
-   * @since 2.7
-   * @deprecated since 5.0 SCM data will no more be stored as measures
-   */
-  @Deprecated
-  public static final String SCM_AUTHORS_BY_LINE_KEY = "authors_by_line";
-
-  /**
-   * Key-value pairs, where key - is a number of line, and value - is an author for this line.
-   *
-   * @see org.sonar.api.utils.KeyValueFormat#formatIntString(java.util.Map)
-   * @see org.sonar.api.utils.KeyValueFormat#parseIntString(String)
-   * @since 2.7
-   * @deprecated since 5.0 SCM data will no more be stored as measures
-   */
-  @Deprecated
-  public static final transient Metric<String> SCM_AUTHORS_BY_LINE = new Metric.Builder(SCM_AUTHORS_BY_LINE_KEY, "Authors by Line", Metric.ValueType.DATA)
-    .setDomain(DOMAIN_SCM)
-    .create();
-
-  /**
-   * @since 2.7
-   * @deprecated since 5.0 SCM data will no more be stored as measures
-   */
-  @Deprecated
-  public static final String SCM_REVISIONS_BY_LINE_KEY = "revisions_by_line";
-
-  /**
-   * Key-value pairs, where key - is a number of line, and value - is a revision for this line.
-   *
-   * @see org.sonar.api.utils.KeyValueFormat#formatIntString(java.util.Map)
-   * @see org.sonar.api.utils.KeyValueFormat#parseIntString(String)
-   * @since 2.7
-   * @deprecated since 5.0 SCM data will no more be stored as measures
-   */
-  @Deprecated
-  public static final transient Metric<String> SCM_REVISIONS_BY_LINE = new Metric.Builder(SCM_REVISIONS_BY_LINE_KEY, "Revisions by Line", Metric.ValueType.DATA)
-    .setDomain(DOMAIN_SCM)
-    .create();
-
-  /**
-   * @since 2.7
-   * @deprecated since 5.0 SCM data will no more be stored as measures
-   */
-  @Deprecated
-  public static final String SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY = "last_commit_datetimes_by_line";
-
-  /**
-   * Key-value pairs, where key - is a number of line, and value - is a date of last commit for this line.
-   *
-   * @see org.sonar.api.utils.KeyValueFormat#formatIntDateTime(java.util.Map)
-   * @see org.sonar.api.utils.KeyValueFormat#parseIntDateTime(String)
-   * @since 2.7
-   * @deprecated since 5.0 SCM data will no more be stored as measures
-   */
-  @Deprecated
-  public static final transient Metric<String> SCM_LAST_COMMIT_DATETIMES_BY_LINE = new Metric.Builder(SCM_LAST_COMMIT_DATETIMES_BY_LINE_KEY, "Last Commit Dates by Line",
-    Metric.ValueType.DATA)
-      .setDomain(DOMAIN_SCM)
-      .create();
 
   // --------------------------------------------------------------------------------------------------------------------
   //

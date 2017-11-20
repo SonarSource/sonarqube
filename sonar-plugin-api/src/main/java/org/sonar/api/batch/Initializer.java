@@ -21,7 +21,6 @@ package org.sonar.api.batch;
 
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.resources.Project;
 
 /**
  * <p>
@@ -33,24 +32,7 @@ import org.sonar.api.resources.Project;
 @ScannerSide
 @ExtensionPoint
 @Deprecated
-public abstract class Initializer implements CheckProject {
-
-  /**
-   * @deprecated since 5.6 should no more be implemented by plugins
-   */
-  @Deprecated
-  @Override
-  public boolean shouldExecuteOnProject(Project project) {
-    return true;
-  }
-
-  /**
-   * @deprecated since 5.6 override {@link #execute()} instead
-   */
-  @Deprecated
-  public void execute(Project project) {
-    execute();
-  }
+public abstract class Initializer {
 
   public void execute() {
     // To be implemented by client

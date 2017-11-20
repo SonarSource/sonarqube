@@ -140,7 +140,7 @@ public class DefaultSensorStorageTest {
     DefaultInputFile file = new TestInputFileBuilder("foo", "src/Foo.php")
       .setContents("// comment").build();
 
-    DefaultHighlighting highlighting = new DefaultHighlighting(underTest).onFile(file).highlight(0, 1, TypeOfText.KEYWORD);
+    DefaultHighlighting highlighting = new DefaultHighlighting(underTest).onFile(file).highlight(1, 0, 1, 1, TypeOfText.KEYWORD);
     underTest.store(highlighting);
 
     assertThat(reportWriter.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, file.batchId())).isTrue();
@@ -153,7 +153,7 @@ public class DefaultSensorStorageTest {
       .setStatus(InputFile.Status.SAME).build();
     when(branchConfiguration.isShortLivingBranch()).thenReturn(true);
 
-    DefaultHighlighting highlighting = new DefaultHighlighting(underTest).onFile(file).highlight(0, 1, TypeOfText.KEYWORD);
+    DefaultHighlighting highlighting = new DefaultHighlighting(underTest).onFile(file).highlight(1, 0, 1, 1, TypeOfText.KEYWORD);
     underTest.store(highlighting);
 
     assertThat(reportWriter.hasComponentData(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, file.batchId())).isFalse();

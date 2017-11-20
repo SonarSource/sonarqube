@@ -60,7 +60,7 @@ public class HighlightingMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     File xoohighlightingFile = new File(srcDir, "sample.xoo.highlighting");
     FileUtils.write(xooFile, "Sample xoo\ncontent plop");
-    FileUtils.write(xoohighlightingFile, "0:10:s\n11:18:k");
+    FileUtils.write(xoohighlightingFile, "1:0:1:10:s\n2:0:2:7:k");
 
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
@@ -115,7 +115,7 @@ public class HighlightingMediumTest {
     File xooFile = new File(srcDir, "sample.xoo");
     File xoohighlightingFile = new File(srcDir, "sample.xoo.highlighting");
     FileUtils.write(xooFile, "Sample xoo\ncontent plop");
-    FileUtils.write(xoohighlightingFile, "0:10:s\n18:18:k");
+    FileUtils.write(xoohighlightingFile, "1:0:1:10:s\n2:0:2:0:k");
 
     exception.expect(IllegalStateException.class);
     exception.expectMessage("Error processing line 2");

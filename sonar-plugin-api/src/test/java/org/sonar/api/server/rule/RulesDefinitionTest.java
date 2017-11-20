@@ -404,17 +404,6 @@ public class RulesDefinitionTest {
   }
 
   @Test
-  public void sqale_characteristic_is_deprecated_and_is_ignored() {
-    RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
-    newRepository.createRule("NPE").setName("NPE").setHtmlDescription("desc")
-      .setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.API_ABUSE);
-    newRepository.done();
-
-    RulesDefinition.Rule rule = context.repository("findbugs").rule("NPE");
-    assertThat(rule.debtSubCharacteristic()).isNull();
-  }
-
-  @Test
   public void type_is_defined() {
     RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
     newRepository.createRule("NPE").setName("NPE").setHtmlDescription("desc")

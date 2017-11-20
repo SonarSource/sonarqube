@@ -211,7 +211,6 @@ import org.sonar.server.ui.PageRepository;
 import org.sonar.server.ui.ws.NavigationWsModule;
 import org.sonar.server.updatecenter.UpdateCenterModule;
 import org.sonar.server.user.DefaultUserFinder;
-import org.sonar.server.user.DeprecatedUserFinder;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.SecurityRealmFactory;
 import org.sonar.server.user.UserSessionFactoryImpl;
@@ -372,7 +371,6 @@ public class PlatformLevel4 extends PlatformLevel {
       // users
       UserSessionFactoryImpl.class,
       SecurityRealmFactory.class,
-      DeprecatedUserFinder.class,
       NewUserNotifier.class,
       DefaultUserFinder.class,
       UserIndexDefinition.class,
@@ -569,7 +567,7 @@ public class PlatformLevel4 extends PlatformLevel {
 
     // edition
     addIfStartupLeader(FinalizeEditionChange.class);
-    
+
     // system info
     addIfCluster(WebSystemInfoModule.forClusterMode()).otherwiseAdd(WebSystemInfoModule.forStandaloneMode());
 
