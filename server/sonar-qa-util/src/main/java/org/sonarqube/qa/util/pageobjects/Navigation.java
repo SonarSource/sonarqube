@@ -178,6 +178,10 @@ public class Navigation {
     return open("/account/notifications", NotificationsPage.class);
   }
 
+  public UsersManagementPage openUsersManagement() {
+    return open("/admin/users", UsersManagementPage.class);
+  }
+
   public ProjectPermissionsPage openProjectPermissions(String projectKey) {
     String url = "/project_roles?id=" + escape(projectKey);
     return open(url, ProjectPermissionsPage.class);
