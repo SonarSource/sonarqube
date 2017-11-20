@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import GlobalNavBranding from './GlobalNavBranding';
-import GlobalNavMenu from './GlobalNavMenu';
 import GlobalNavUserContainer from './GlobalNavUserContainer';
 import Search from '../../search/Search';
 import GlobalHelp from '../../help/GlobalHelp';
@@ -110,8 +109,6 @@ class GlobalNav extends React.PureComponent<Props, State> {
     return (
       <NavBar className="navbar-global" id="global-navigation" height={30}>
         <GlobalNavBranding />
-
-        <GlobalNavMenu {...this.props} />
 
         <ul className="global-navbar-menu pull-right">
           <Search appState={this.props.appState} currentUser={this.props.currentUser} />
