@@ -79,7 +79,7 @@ public class WebhooksTest {
   }
 
   @Test
-  public void call_multiple_global_and_project_webhooks_when_analysis_is_done() {
+  public void call_multiple_global_and_project_webhooks_when_analysis_is_done() throws InterruptedException {
     orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_NAME);
     enableGlobalWebhooks(
       new Webhook("Jenkins", externalServer.urlFor("/jenkins")),
@@ -90,6 +90,7 @@ public class WebhooksTest {
     analyseProject();
 
     // the same payload has been sent to three servers
+    waitUntilAllWebHooksCalled(3);
     assertThat(externalServer.getPayloadRequests()).hasSize(3);
     PayloadRequest request = externalServer.getPayloadRequests().get(0);
     for (int i = 1; i < 3; i++) {
@@ -159,7 +160,7 @@ public class WebhooksTest {
    * Restrict calls to ten webhooks per type (global or project)
    */
   @Test
-  public void do_not_become_a_denial_of_service_attacker() {
+  public void do_not_become_a_denial_of_service_attacker() throws InterruptedException {
     orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_NAME);
 
     List<Webhook> globalWebhooks = range(0, 15).mapToObj(i -> new Webhook("G" + i, externalServer.urlFor("/global"))).collect(Collectors.toList());
@@ -170,6 +171,7 @@ public class WebhooksTest {
     analyseProject();
 
     // only the first ten global webhooks and ten project webhooks are called
+    waitUntilAllWebHooksCalled(10 + 10);
     assertThat(externalServer.getPayloadRequests()).hasSize(10 + 10);
     assertThat(externalServer.getPayloadRequestsOnPath("/global")).hasSize(10);
     assertThat(externalServer.getPayloadRequestsOnPath("/project")).hasSize(10);
@@ -284,6 +286,18 @@ public class WebhooksTest {
     Webhook(@Nullable String name, @Nullable String url) {
       this.name = name;
       this.url = url;
+    }
+  }
+
+  /**
+   * Wait up to 30 seconds
+   */
+  private static void waitUntilAllWebHooksCalled(int expectedNumberOfRequests) throws InterruptedException {
+    for (int i = 0; i < 60; i++) {
+      if (externalServer.getPayloadRequests().size() == expectedNumberOfRequests) {
+        break;
+      }
+      Thread.sleep(500);
     }
   }
 
