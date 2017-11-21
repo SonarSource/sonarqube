@@ -46,7 +46,7 @@ public class QualityGateDbTester {
   }
 
   public QualityGateDto insertQualityGate(String name) {
-    QualityGateDto updatedUser = dbClient.qualityGateDao().insert(dbSession, new QualityGateDto().setName(name));
+    QualityGateDto updatedUser = dbClient.qualityGateDao().insert(dbSession, new QualityGateDto().setName(name).setBuiltIn(false));
     db.commit();
     return updatedUser;
   }
