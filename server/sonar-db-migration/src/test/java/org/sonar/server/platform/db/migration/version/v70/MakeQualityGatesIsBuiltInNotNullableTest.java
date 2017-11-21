@@ -20,37 +20,38 @@
 package org.sonar.server.platform.db.migration.version.v70;
 
 import java.sql.SQLException;
+import java.sql.Types;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.CoreDbTester;
 
-import static java.sql.Types.BOOLEAN;
-
-public class AddIsBuiltInToQualityGatesTest {
+public class MakeQualityGatesIsBuiltInNotNullableTest {
 
   @Rule
-  public final CoreDbTester dbTester = CoreDbTester.createForSchema(AddIsBuiltInToQualityGatesTest.class, "quality_gates.sql");
-
+  public CoreDbTester db = CoreDbTester.createForSchema(MakeQualityGatesIsBuiltInNotNullableTest.class, "quality_gates.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private AddIsBuiltInToQualityGates underTest = new AddIsBuiltInToQualityGates(dbTester.database());
+  private MakeQualityGatesIsBuiltInNotNullable underTest = new MakeQualityGatesIsBuiltInNotNullable(db.database());
 
   @Test
-  public void column_is_added_to_table() throws SQLException {
+  public void execute_makes_column_not_null() throws SQLException {
+    db.assertColumnDefinition("quality_gates", "is_built_in", Types.BOOLEAN, null, true);
+    insertRow(1);
+    insertRow(2);
+
     underTest.execute();
 
-    dbTester.assertColumnDefinition("quality_gates", "is_built_in", BOOLEAN, null, true);
+    db.assertColumnDefinition("quality_gates", "is_built_in", Types.BOOLEAN, null, false);
   }
 
-  @Test
-  public void migration_is_not_reentrant() throws SQLException {
-    underTest.execute();
-
-    expectedException.expect(IllegalStateException.class);
-
-    underTest.execute();
+  private void insertRow(int id) {
+    db.executeInsert(
+      "QUALITY_GATES",
+      "NAME", "name_" + id,
+      "IS_BUILT_IN", false
+      );
   }
 
 }

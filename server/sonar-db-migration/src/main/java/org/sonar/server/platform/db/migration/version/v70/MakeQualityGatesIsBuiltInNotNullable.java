@@ -19,23 +19,30 @@
  */
 package org.sonar.server.platform.db.migration.version.v70;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.def.BooleanColumnDef;
+import org.sonar.server.platform.db.migration.sql.AlterColumnsBuilder;
+import org.sonar.server.platform.db.migration.step.DdlChange;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static org.sonar.server.platform.db.migration.def.BooleanColumnDef.newBooleanColumnDefBuilder;
 
-public class DbVersion70Test {
+public class MakeQualityGatesIsBuiltInNotNullable extends DdlChange {
 
-  private DbVersion70 underTest = new DbVersion70();
-
-  @Test
-  public void migrationNumber_starts_at_1830() {
-    verifyMinimumMigrationNumber(underTest, 1900);
+  public MakeQualityGatesIsBuiltInNotNullable(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 3);
+  @Override
+  public void execute(Context context) throws SQLException {
+    BooleanColumnDef column = newBooleanColumnDefBuilder()
+      .setColumnName("is_built_in")
+      .setIsNullable(false)
+      .build();
+
+    context.execute(new AlterColumnsBuilder(getDialect(), "quality_gates")
+      .updateColumn(column)
+      .build());
   }
 
 }
