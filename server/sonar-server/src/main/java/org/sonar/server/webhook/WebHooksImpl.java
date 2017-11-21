@@ -30,6 +30,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.config.WebhookProperties;
 import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.server.async.AsyncExecution;
 
 import static java.lang.String.format;
 import static org.sonar.core.config.WebhookProperties.MAX_WEBHOOKS_PER_TYPE;
@@ -41,10 +42,12 @@ public class WebHooksImpl implements WebHooks {
 
   private final WebhookCaller caller;
   private final WebhookDeliveryStorage deliveryStorage;
+  private final AsyncExecution asyncExecution;
 
-  public WebHooksImpl(WebhookCaller caller, WebhookDeliveryStorage deliveryStorage) {
+  public WebHooksImpl(WebhookCaller caller, WebhookDeliveryStorage deliveryStorage, AsyncExecution asyncExecution) {
     this.caller = caller;
     this.deliveryStorage = deliveryStorage;
+    this.asyncExecution = asyncExecution;
   }
 
   @Override
@@ -88,12 +91,12 @@ public class WebHooksImpl implements WebHooks {
     }
 
     WebhookPayload payload = payloadSupplier.get();
-    webhooks.forEach(webhook -> {
+    webhooks.forEach(webhook -> asyncExecution.addToQueue(() -> {
       WebhookDelivery delivery = caller.call(webhook, payload);
       log(delivery);
       deliveryStorage.persist(delivery);
-    });
-    deliveryStorage.purge(analysis.getProjectUuid());
+    }));
+    asyncExecution.addToQueue(() -> deliveryStorage.purge(analysis.getProjectUuid()));
   }
 
   private static void log(WebhookDelivery delivery) {

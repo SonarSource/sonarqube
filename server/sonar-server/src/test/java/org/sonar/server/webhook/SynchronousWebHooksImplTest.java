@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.server.async.AsyncExecution;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -35,7 +36,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-public class WebHooksImplTest {
+public class SynchronousWebHooksImplTest {
 
   private static final long NOW = 1_500_000_000_000L;
   private static final String PROJECT_UUID = "P1_UUID";
@@ -47,7 +48,8 @@ public class WebHooksImplTest {
   private final TestWebhookCaller caller = new TestWebhookCaller();
   private final WebhookDeliveryStorage deliveryStorage = mock(WebhookDeliveryStorage.class);
   private final WebhookPayload mock = mock(WebhookPayload.class);
-  private final WebHooksImpl underTest = new WebHooksImpl(caller, deliveryStorage);
+  private final AsyncExecution synchronousAsyncExecution = Runnable::run;
+  private final WebHooksImpl underTest = new WebHooksImpl(caller, deliveryStorage, synchronousAsyncExecution);
 
   @Test
   public void isEnabled_returns_false_if_no_webHoolds() {

@@ -122,7 +122,6 @@ import org.sonar.server.computation.task.step.ComputationStepExecutor;
 import org.sonar.server.computation.task.step.ComputationSteps;
 import org.sonar.server.computation.taskprocessor.MutableTaskResultHolderImpl;
 import org.sonar.server.view.index.ViewIndex;
-import org.sonar.server.webhook.WebhookModule;
 
 public final class ProjectAnalysisTaskContainerPopulator implements ContainerPopulator<TaskContainer> {
   private static final ReportAnalysisComponentProvider[] NO_REPORT_ANALYSIS_COMPONENT_PROVIDERS = new ReportAnalysisComponentProvider[0];
@@ -272,7 +271,6 @@ public final class ProjectAnalysisTaskContainerPopulator implements ContainerPop
       SmallChangesetQualityGateSpecialCase.class,
 
       // webhooks
-      WebhookModule.class,
       WebhookPostTask.class);
   }
 
