@@ -32,26 +32,35 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class QualityGateDaoTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbSession dbSession = dbTester.getSession();
-  private QualityGateDao underTest = dbTester.getDbClient().qualityGateDao();
+  private DbSession dbSession = db.getSession();
+  private QualityGateDao underTest = db.getDbClient().qualityGateDao();
 
   @Test
   public void testInsert() throws Exception {
-    dbTester.prepareDbUnit(getClass(), "insert.xml");
+    db.prepareDbUnit(getClass(), "insert.xml");
     QualityGateDto newQgate = new QualityGateDto().setName("My Quality Gate");
 
     underTest.insert(dbSession, newQgate);
     dbSession.commit();
 
-    dbTester.assertDbUnitTable(getClass(), "insert-result.xml", "quality_gates", "name");
+    db.assertDbUnitTable(getClass(), "insert-result.xml", "quality_gates", "name");
     assertThat(newQgate.getId()).isNotNull();
   }
 
   @Test
+  public void insert_built_in() {
+    underTest.insert(db.getSession(), new QualityGateDto().setName("test").setBuiltIn(true));
+
+    QualityGateDto reloaded = underTest.selectByName(db.getSession(), "test");
+
+    assertThat(reloaded.isBuiltIn()).isTrue();
+  }
+
+  @Test
   public void testSelectAll() throws Exception {
-    dbTester.prepareDbUnit(getClass(), "selectAll.xml");
+    db.prepareDbUnit(getClass(), "selectAll.xml");
 
     Collection<QualityGateDto> allQualityGates = underTest.selectAll(dbSession);
 
@@ -64,35 +73,35 @@ public class QualityGateDaoTest {
 
   @Test
   public void testSelectByName() throws Exception {
-    dbTester.prepareDbUnit(getClass(), "selectAll.xml");
+    db.prepareDbUnit(getClass(), "selectAll.xml");
     assertThat(underTest.selectByName(dbSession, "Balanced").getName()).isEqualTo("Balanced");
     assertThat(underTest.selectByName(dbSession, "Unknown")).isNull();
   }
 
   @Test
   public void testSelectById() throws Exception {
-    dbTester.prepareDbUnit(getClass(), "selectAll.xml");
+    db.prepareDbUnit(getClass(), "selectAll.xml");
     assertThat(underTest.selectById(dbSession, 1L).getName()).isEqualTo("Very strict");
     assertThat(underTest.selectById(dbSession, 42L)).isNull();
   }
 
   @Test
   public void testDelete() throws Exception {
-    dbTester.prepareDbUnit(getClass(), "selectAll.xml");
+    db.prepareDbUnit(getClass(), "selectAll.xml");
 
     underTest.delete(new QualityGateDto().setId(1L), dbSession);
     dbSession.commit();
 
-    dbTester.assertDbUnitTable(getClass(), "delete-result.xml", "quality_gates", "id", "name");
+    db.assertDbUnitTable(getClass(), "delete-result.xml", "quality_gates", "id", "name");
   }
 
   @Test
   public void testUpdate() throws Exception {
-    dbTester.prepareDbUnit(getClass(), "selectAll.xml");
+    db.prepareDbUnit(getClass(), "selectAll.xml");
 
     underTest.update(new QualityGateDto().setId(1L).setName("Not so strict"), dbSession);
     dbSession.commit();
 
-    dbTester.assertDbUnitTable(getClass(), "update-result.xml", "quality_gates", "id", "name");
+    db.assertDbUnitTable(getClass(), "update-result.xml", "quality_gates", "id", "name");
   }
 }
