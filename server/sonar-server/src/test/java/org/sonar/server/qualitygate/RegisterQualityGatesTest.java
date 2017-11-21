@@ -58,7 +58,6 @@ public class RegisterQualityGatesTest {
 
   QualityGates qualityGates = mock(QualityGates.class);
   RegisterQualityGates task = new RegisterQualityGates(dbClient,
-    new QualityGateUpdater(dbClient),
     new QualityGateConditionsUpdater(dbClient),
     dbClient.loadedTemplateDao(),
     qualityGates);
@@ -77,6 +76,7 @@ public class RegisterQualityGatesTest {
     assertThat(dbClient.loadedTemplateDao().countByTypeAndKey("QUALITY_GATE", "SonarQube way", dbSession)).isEqualTo(1);
     QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectByName(dbSession, "SonarQube way");
     assertThat(qualityGateDto).isNotNull();
+    assertThat(qualityGateDto.isBuiltIn()).isTrue();
     assertThat(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateDto.getId()))
       .extracting(QualityGateConditionDto::getMetricId, QualityGateConditionDto::getOperator, QualityGateConditionDto::getWarningThreshold,
         QualityGateConditionDto::getErrorThreshold, QualityGateConditionDto::getPeriod)

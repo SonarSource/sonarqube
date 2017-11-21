@@ -41,15 +41,13 @@ public class RegisterQualityGates implements Startable {
   private static final int LEAK_PERIOD = 1;
 
   private final DbClient dbClient;
-  private final QualityGateUpdater qualityGateUpdater;
   private final QualityGateConditionsUpdater qualityGateConditionsUpdater;
   private final LoadedTemplateDao loadedTemplateDao;
   private final QualityGates qualityGates;
 
-  public RegisterQualityGates(DbClient dbClient, QualityGateUpdater qualityGateUpdater, QualityGateConditionsUpdater qualityGateConditionsUpdater,
+  public RegisterQualityGates(DbClient dbClient, QualityGateConditionsUpdater qualityGateConditionsUpdater,
     LoadedTemplateDao loadedTemplateDao, QualityGates qualityGates) {
     this.dbClient = dbClient;
-    this.qualityGateUpdater = qualityGateUpdater;
     this.qualityGateConditionsUpdater = qualityGateConditionsUpdater;
     this.loadedTemplateDao = loadedTemplateDao;
     this.qualityGates = qualityGates;
@@ -77,7 +75,7 @@ public class RegisterQualityGates implements Startable {
 
   private void createBuiltinQualityGate(DbSession dbSession) {
     String ratingAValue = Integer.toString(RatingGrid.Rating.A.getIndex());
-    QualityGateDto builtin = qualityGateUpdater.create(dbSession, BUILTIN_QUALITY_GATE);
+    QualityGateDto builtin = createQualityGate(dbSession, BUILTIN_QUALITY_GATE);
     qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(),
       NEW_SECURITY_RATING_KEY, OPERATOR_GREATER_THAN, null, ratingAValue, LEAK_PERIOD);
     qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(),
@@ -89,6 +87,14 @@ public class RegisterQualityGates implements Startable {
     qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(),
       NEW_DUPLICATED_LINES_DENSITY_KEY, OPERATOR_GREATER_THAN, null, "3", LEAK_PERIOD);
     qualityGates.setDefault(dbSession, builtin.getId());
+  }
+
+  private QualityGateDto createQualityGate(DbSession dbSession, String name){
+    QualityGateDto qualityGate = new QualityGateDto()
+      .setName(name)
+      .setBuiltIn(true);
+    dbClient.qualityGateDao().insert(dbSession, qualityGate);
+    return qualityGate;
   }
 
   private void registerBuiltinQualityGate(DbSession dbSession) {
