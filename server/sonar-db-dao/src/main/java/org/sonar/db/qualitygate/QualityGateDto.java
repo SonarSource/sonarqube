@@ -27,11 +27,9 @@ import java.util.Date;
 public class QualityGateDto {
 
   private Long id;
-
   private String name;
-
+  private boolean isBuiltIn;
   private Date createdAt;
-
   private Date updatedAt;
 
   public Long getId() {
@@ -49,6 +47,15 @@ public class QualityGateDto {
 
   public QualityGateDto setName(String name) {
     this.name = name;
+    return this;
+  }
+
+  public boolean isBuiltIn() {
+    return isBuiltIn;
+  }
+
+  public QualityGateDto setBuiltIn(boolean builtIn) {
+    isBuiltIn = builtIn;
     return this;
   }
 

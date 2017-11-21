@@ -1,9 +1,9 @@
 <dataset>
 
   <quality_gates id="42"
-                 name="Golden"/>
+                 name="Golden" is_built_in="[true]"/>
   <quality_gates id="43"
-                 name="Ninth"/>
+                 name="Ninth" is_built_in="[false]"/>
 
   <projects organization_uuid="org1"
             uuid="A"
