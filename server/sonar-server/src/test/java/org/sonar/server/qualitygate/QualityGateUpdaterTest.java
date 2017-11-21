@@ -52,6 +52,7 @@ public class QualityGateUpdaterTest {
     assertThat(result).isNotNull();
     assertThat(result.getName()).isEqualTo(QGATE_NAME);
     assertThat(result.getCreatedAt()).isNotNull();
+    assertThat(result.isBuiltIn()).isFalse();
     QualityGateDto reloaded = dbClient.qualityGateDao().selectByName(dbSession, QGATE_NAME);
     assertThat(reloaded).isNotNull();
   }
