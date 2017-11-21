@@ -101,7 +101,7 @@ public class QualityGates {
     getNonNullQgate(sourceId);
     try (DbSession dbSession = dbClient.openSession(false)) {
       validateQualityGate(dbSession, null, destinationName);
-      QualityGateDto destinationGate = new QualityGateDto().setName(destinationName);
+      QualityGateDto destinationGate = new QualityGateDto().setName(destinationName).setBuiltIn(false);
       dao.insert(dbSession, destinationGate);
       for (QualityGateConditionDto sourceCondition : conditionDao.selectForQualityGate(dbSession, sourceId)) {
         conditionDao.insert(new QualityGateConditionDto().setQualityGateId(destinationGate.getId())
