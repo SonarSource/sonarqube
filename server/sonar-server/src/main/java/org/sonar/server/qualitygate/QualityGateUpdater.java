@@ -41,7 +41,7 @@ public class QualityGateUpdater {
 
   public QualityGateDto create(DbSession dbSession, String name) {
     validateQualityGate(dbSession, null, name);
-    QualityGateDto newQualityGate = new QualityGateDto().setName(name);
+    QualityGateDto newQualityGate = new QualityGateDto().setName(name).setBuiltIn(false);
     dbClient.qualityGateDao().insert(dbSession, newQualityGate);
     return newQualityGate;
   }
