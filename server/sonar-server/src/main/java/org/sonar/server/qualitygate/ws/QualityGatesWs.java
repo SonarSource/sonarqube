@@ -105,22 +105,4 @@ public class QualityGatesWs implements WebService {
       .endObject();
   }
 
-  static JsonWriter writeQualityGateCondition(QualityGateConditionDto condition, JsonWriter writer) {
-    writer.beginObject()
-      .prop(PARAM_ID, condition.getId())
-      .prop(PARAM_METRIC, condition.getMetricKey())
-      .prop(PARAM_OPERATOR, condition.getOperator());
-    if (condition.getWarningThreshold() != null) {
-      writer.prop(PARAM_WARNING, condition.getWarningThreshold());
-    }
-    if (condition.getErrorThreshold() != null) {
-      writer.prop(PARAM_ERROR, condition.getErrorThreshold());
-    }
-    if (condition.getPeriod() != null) {
-      writer.prop(PARAM_PERIOD, condition.getPeriod());
-    }
-    writer.endObject();
-    return writer;
-  }
-
 }
