@@ -20,23 +20,28 @@
 package org.sonar.server.qualitygate.ws;
 
 import com.google.common.io.Resources;
+import javax.annotation.CheckForNull;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.qualitygate.QualityGates;
 
+import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_NAME;
 
 public class ListAction implements QualityGatesWsAction {
 
-  private final QualityGates qualityGates;
+  private final DbClient dbClient;
 
-  public ListAction(QualityGates qualityGates) {
-    this.qualityGates = qualityGates;
+  public ListAction(DbClient dbClient) {
+    this.dbClient = dbClient;
   }
 
   @Override
@@ -44,7 +49,7 @@ public class ListAction implements QualityGatesWsAction {
     controller.createAction("list")
       .setDescription("Get a list of quality gates")
       .setSince("4.3")
-      .setResponseExample(Resources.getResource(this.getClass(), "example-list.json"))
+      .setResponseExample(Resources.getResource(this.getClass(), "list-example.json"))
       .setChangelog(
         new Change("7.0", "'isDefault' field is added on quality gate level"),
         new Change("7.0", "'default' field on root level is deprecated"))
@@ -53,11 +58,12 @@ public class ListAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    try (JsonWriter writer = response.newJsonWriter()) {
-      QualityGateDto defaultQgate = qualityGates.getDefault();
+    try (DbSession dbSession = dbClient.openSession(false);
+      JsonWriter writer = response.newJsonWriter()) {
+      QualityGateDto defaultQgate = getDefault(dbSession);
       Long defaultQgateId = defaultQgate == null ? null : defaultQgate.getId();
       writer.beginObject().name("qualitygates").beginArray();
-      for (QualityGateDto qualityGate : qualityGates.list()) {
+      for (QualityGateDto qualityGate : dbClient.qualityGateDao().selectAll(dbSession)) {
         writer.beginObject()
           .prop(PARAM_ID, qualityGate.getId())
           .prop(PARAM_NAME, qualityGate.getName())
@@ -70,6 +76,25 @@ public class ListAction implements QualityGatesWsAction {
       }
       writer.endObject().close();
     }
+
+  }
+
+  @CheckForNull
+  private QualityGateDto getDefault(DbSession dbSession) {
+    Long defaultId = getDefaultId(dbSession);
+    if (defaultId == null) {
+      return null;
+    }
+    return dbClient.qualityGateDao().selectById(dbSession, defaultId);
+  }
+
+  @CheckForNull
+  private Long getDefaultId(DbSession dbSession) {
+    PropertyDto defaultQgate = dbClient.propertiesDao().selectGlobalProperty(dbSession, SONAR_QUALITYGATE_PROPERTY);
+    if (defaultQgate == null || StringUtils.isBlank(defaultQgate.getValue())) {
+      return null;
+    }
+    return Long.valueOf(defaultQgate.getValue());
   }
 
 }
