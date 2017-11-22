@@ -3,12 +3,14 @@
     {
       "id": 2,
       "name": "Sonar way",
-      "isDefault": true
+      "isDefault": true,
+      "isBuiltIn": true
     },
     {
       "id": 4,
       "name": "Sonar way - Without Coverage",
-      "isDefault": false
+      "isDefault": false,
+      "isBuiltIn": false
     }
   ],
   "default": 2
