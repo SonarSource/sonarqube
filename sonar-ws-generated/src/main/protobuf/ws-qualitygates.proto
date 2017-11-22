@@ -135,5 +135,18 @@ message ShowWsResponse {
   }
 }
 
+// GET api/qualitygates/list
+message ListWsResponse {
+  repeated QualityGate qualitygates = 1;
+  // Deprecated since 7.0
+  optional int64 default = 2;
+
+  message QualityGate {
+    optional int64 id = 1;
+    optional string name = 2;
+    optional bool isDefault = 3;
+  }
+}
+
 
 
