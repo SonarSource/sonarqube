@@ -19,6 +19,8 @@
  */
 package org.sonar.db.qualitygate;
 
+import java.util.Arrays;
+import java.util.function.Consumer;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -72,12 +74,14 @@ public class QualityGateDbTester {
     db.commit();
   }
 
-  public QualityGateConditionDto addCondition(QualityGateDto qualityGate, MetricDto metric) {
+  @SafeVarargs
+  public final QualityGateConditionDto addCondition(QualityGateDto qualityGate, MetricDto metric, Consumer<QualityGateConditionDto>... dtoPopulators) {
     QualityGateConditionDto condition = new QualityGateConditionDto().setQualityGateId(qualityGate.getId())
       .setMetricId(metric.getId())
       .setOperator("GT")
       .setWarningThreshold(randomNumeric(10))
       .setErrorThreshold(randomNumeric(10));
+    Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(condition));
     dbClient.gateConditionDao().insert(condition, dbSession);
     db.commit();
     return condition;
