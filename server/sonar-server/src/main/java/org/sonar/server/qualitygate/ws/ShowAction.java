@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -62,6 +63,7 @@ public class ShowAction implements QualityGatesWsAction {
       .setDescription("Display the details of a quality gate")
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "show-example.json"))
+      .setChangelog(new Change("7.0", "'isBuiltIn' field is added to the response"))
       .setHandler(this);
 
     action.createParam(PARAM_ID)
@@ -102,6 +104,7 @@ public class ShowAction implements QualityGatesWsAction {
     return ShowWsResponse.newBuilder()
       .setId(qualityGate.getId())
       .setName(qualityGate.getName())
+      .setIsBuiltIn(qualityGate.isBuiltIn())
       .addAllConditions(conditions.stream()
         .map(toWsCondition(metricsById))
         .collect(toList()))
