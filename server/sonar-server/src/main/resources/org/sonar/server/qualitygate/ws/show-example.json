@@ -1,6 +1,7 @@
 {
   "id": 2,
   "name": "My Quality Gate",
+  "isBuiltIn": false,
   "conditions": [
     {
       "id": 9,

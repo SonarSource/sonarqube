@@ -43,12 +43,17 @@ public class QualityGateDbTester {
     this.dbSession = db.getSession();
   }
 
-  public QualityGateDto insertQualityGate() {
-    return insertQualityGate(randomAlphanumeric(30));
+  public QualityGateDto insertQualityGate(String name) {
+    return insertQualityGate(qualityGate -> qualityGate.setName(name));
   }
 
-  public QualityGateDto insertQualityGate(String name) {
-    QualityGateDto updatedUser = dbClient.qualityGateDao().insert(dbSession, new QualityGateDto().setName(name).setBuiltIn(false));
+  @SafeVarargs
+  public final QualityGateDto insertQualityGate(Consumer<QualityGateDto>... dtoPopulators) {
+    QualityGateDto qualityGate = new QualityGateDto()
+      .setName(randomAlphanumeric(30))
+      .setBuiltIn(false);
+    Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(qualityGate));
+    QualityGateDto updatedUser = dbClient.qualityGateDao().insert(dbSession, qualityGate);
     db.commit();
     return updatedUser;
   }
