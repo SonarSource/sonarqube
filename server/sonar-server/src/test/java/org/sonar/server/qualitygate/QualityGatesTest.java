@@ -20,9 +20,7 @@
 package org.sonar.server.qualitygate;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import java.util.Collection;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -91,13 +89,6 @@ public class QualityGatesTest {
     underTest = new QualityGates(dbClient, userSession, organizationProvider);
 
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, organizationProvider.get().getUuid());
-  }
-
-  @Test
-  public void should_list_qgates() {
-    List<QualityGateDto> allQgates = Lists.newArrayList(new QualityGateDto().setName("Gate One"), new QualityGateDto().setName("Gate Two"));
-    when(dao.selectAll(dbSession)).thenReturn(allQgates);
-    assertThat(underTest.list()).isEqualTo(allQgates);
   }
 
   @Test
@@ -197,22 +188,6 @@ public class QualityGatesTest {
     verify(propertiesDao).deleteGlobalProperty("sonar.qualitygate", dbSession);
     verify(propertiesDao).deleteProjectProperties("sonar.qualitygate", "42", dbSession);
     verify(dao).delete(toDelete, dbSession);
-  }
-
-  @Test
-  public void should_return_default_qgate_if_set() {
-    String defaultName = "Sonar way";
-    long defaultId = QUALITY_GATE_ID;
-    when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue(Long.toString(defaultId)));
-    QualityGateDto defaultQgate = new QualityGateDto().setId(defaultId).setName(defaultName);
-    when(dao.selectById(dbSession, defaultId)).thenReturn(defaultQgate);
-    assertThat(underTest.getDefault()).isEqualTo(defaultQgate);
-  }
-
-  @Test
-  public void should_return_null_default_qgate_if_unset() {
-    when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue(""));
-    assertThat(underTest.getDefault()).isNull();
   }
 
   @Test
