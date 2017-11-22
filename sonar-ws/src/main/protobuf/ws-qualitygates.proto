@@ -145,6 +145,7 @@ message ListWsResponse {
     optional int64 id = 1;
     optional string name = 2;
     optional bool isDefault = 3;
+    optional bool isBuiltIn = 4;
   }
 }
 
