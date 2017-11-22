@@ -1,0 +1,15 @@
+{
+  "qualitygates": [
+    {
+      "id": 2,
+      "name": "Sonar way",
+      "isDefault": true
+    },
+    {
+      "id": 4,
+      "name": "Sonar way - Without Coverage",
+      "isDefault": false
+    }
+  ],
+  "default": 2
+}

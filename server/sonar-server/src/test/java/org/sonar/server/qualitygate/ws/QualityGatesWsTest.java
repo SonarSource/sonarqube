@@ -20,7 +20,6 @@
 package org.sonar.server.qualitygate.ws;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -68,7 +67,6 @@ public class QualityGatesWsTest {
     SelectAction selectAction = new SelectAction(mock(DbClient.class), mock(UserSessionRule.class), mock(ComponentFinder.class));
 
     tester = new WsTester(new QualityGatesWs(
-      new ListAction(qGates),
       new SearchAction(projectFinder),
       new CreateAction(null, null, null, null),
       new CopyAction(qGates),
@@ -88,14 +86,7 @@ public class QualityGatesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualitygates");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(14);
-
-    Action list = controller.action("list");
-    assertThat(list).isNotNull();
-    assertThat(list.handler()).isNotNull();
-    assertThat(list.since()).isEqualTo("4.3");
-    assertThat(list.isPost()).isFalse();
-    assertThat(list.isInternal()).isFalse();
+    assertThat(controller.actions()).hasSize(13);
 
     Action create = controller.action("create");
     assertThat(create).isNotNull();
@@ -224,28 +215,6 @@ public class QualityGatesWsTest {
   @Test(expected = BadRequestException.class)
   public void destroy_with_invalid_id() throws Exception {
     tester.newPostRequest("api/qualitygates", "destroy").setParam("id", "polop").execute();
-  }
-
-  @Test
-  public void list_nominal() throws Exception {
-    when(qGates.list()).thenReturn(Lists.newArrayList(
-      new QualityGateDto().setId(42L).setName("Golden"),
-      new QualityGateDto().setId(43L).setName("Star"),
-      new QualityGateDto().setId(666L).setName("Ninth")));
-    tester.newGetRequest("api/qualitygates", "list").execute().assertJson(
-      "{\"qualitygates\":[{\"id\":42,\"name\":\"Golden\"},{\"id\":43,\"name\":\"Star\"},{\"id\":666,\"name\":\"Ninth\"}]}");
-  }
-
-  @Test
-  public void list_with_default() throws Exception {
-    QualityGateDto defaultQgate = new QualityGateDto().setId(42L).setName("Golden");
-    when(qGates.list()).thenReturn(Lists.newArrayList(
-      defaultQgate,
-      new QualityGateDto().setId(43L).setName("Star"),
-      new QualityGateDto().setId(666L).setName("Ninth")));
-    when(qGates.getDefault()).thenReturn(defaultQgate);
-    tester.newGetRequest("api/qualitygates", "list").execute().assertJson(
-      "{\"qualitygates\":[{\"id\":42,\"name\":\"Golden\",\"isDefault\":true},{\"id\":43,\"name\":\"Star\",\"isDefault\":false},{\"id\":666,\"name\":\"Ninth\",\"isDefault\":false}],\"default\":42}");
   }
 
   @Test
