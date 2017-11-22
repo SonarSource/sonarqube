@@ -46,6 +46,7 @@ import org.sonar.ce.CeHttpModule;
 import org.sonar.ce.CeQueueModule;
 import org.sonar.ce.CeTaskCommonsModule;
 import org.sonar.ce.StandaloneCeDistributedInformation;
+import org.sonar.ce.async.SynchronousAsyncExecution;
 import org.sonar.ce.cleaning.CeCleaningModule;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.log.CeProcessLogging;
@@ -78,7 +79,6 @@ import org.sonar.process.NetworkUtilsImpl;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.process.logging.LogbackHelper;
-import org.sonar.server.async.AsyncExecutionModule;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.index.ComponentIndexer;
 import org.sonar.server.computation.task.projectanalysis.ProjectAnalysisTaskModule;
@@ -312,7 +312,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       UriReader.class,
       ServerImpl.class,
       DefaultOrganizationProviderImpl.class,
-      AsyncExecutionModule.class);
+      SynchronousAsyncExecution.class);
   }
 
   private static void populateLevel4(ComponentContainer container, Props props) {

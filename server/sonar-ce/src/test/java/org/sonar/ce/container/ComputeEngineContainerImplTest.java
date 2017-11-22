@@ -106,7 +106,6 @@ public class ComputeEngineContainerImplTest {
     assertThat(picoContainer.getParent().getComponentAdapters()).hasSize(
       CONTAINER_ITSELF
         + 6 // level 3
-        + 2 // AsyncExecutionModule
     );
     assertThat(picoContainer.getParent().getParent().getComponentAdapters()).hasSize(
       CONTAINER_ITSELF
