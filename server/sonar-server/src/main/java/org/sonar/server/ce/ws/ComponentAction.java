@@ -41,8 +41,8 @@ import org.sonarqube.ws.Ce.ComponentResponse;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
 
 public class ComponentAction implements CeWsAction {
 

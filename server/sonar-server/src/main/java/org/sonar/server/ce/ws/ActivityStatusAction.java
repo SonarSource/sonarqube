@@ -39,8 +39,8 @@ import org.sonarqube.ws.client.ce.ActivityStatusRequest;
 
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.ce.CeWsParameters.DEPRECATED_PARAM_COMPONENT_KEY;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
+import static org.sonar.server.ce.ws.CeWsParameters.DEPRECATED_PARAM_COMPONENT_KEY;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
 
 public class ActivityStatusAction implements CeWsAction {
   private final UserSession userSession;

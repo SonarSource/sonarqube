@@ -33,16 +33,16 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.ProjectLinks.Link;
 import org.sonarqube.ws.ProjectLinks.SearchWsResponse;
-import org.sonarqube.ws.client.projectlinks.SearchWsRequest;
+import org.sonarqube.ws.client.projectlinks.SearchRequest;
 
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.ACTION_SEARCH;
-import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_PROJECT_ID;
-import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.ACTION_SEARCH;
+import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_PROJECT_ID;
+import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_PROJECT_KEY;
 
 public class SearchAction implements ProjectLinksWsAction {
   private final DbClient dbClient;
@@ -82,13 +82,13 @@ public class SearchAction implements ProjectLinksWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    SearchWsRequest searchWsRequest = toSearchWsRequest(request);
+    SearchRequest searchWsRequest = toSearchWsRequest(request);
     SearchWsResponse searchWsResponse = doHandle(searchWsRequest);
 
     writeProtobuf(searchWsResponse, request, response);
   }
 
-  private SearchWsResponse doHandle(SearchWsRequest searchWsRequest) {
+  private SearchWsResponse doHandle(SearchRequest searchWsRequest) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = getComponentByUuidOrKey(dbSession, searchWsRequest);
       List<ComponentLinkDto> links = dbClient.componentLinkDao()
@@ -114,7 +114,7 @@ public class SearchAction implements ProjectLinksWsAction {
     return builder.build();
   }
 
-  private ComponentDto getComponentByUuidOrKey(DbSession dbSession, SearchWsRequest request) {
+  private ComponentDto getComponentByUuidOrKey(DbSession dbSession, SearchRequest request) {
     ComponentDto component = componentFinder.getRootComponentByUuidOrKey(
       dbSession,
       request.getProjectId(),
@@ -129,8 +129,8 @@ public class SearchAction implements ProjectLinksWsAction {
     return component;
   }
 
-  private static SearchWsRequest toSearchWsRequest(Request request) {
-    return new SearchWsRequest()
+  private static SearchRequest toSearchWsRequest(Request request) {
+    return new SearchRequest()
       .setProjectId(request.param(PARAM_PROJECT_ID))
       .setProjectKey(request.param(PARAM_PROJECT_KEY));
   }

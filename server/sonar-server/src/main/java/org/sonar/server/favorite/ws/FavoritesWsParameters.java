@@ -17,8 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonarqube.ws.client.usertoken;
+package org.sonar.server.favorite.ws;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+public class FavoritesWsParameters {
+  public static final String CONTROLLER_FAVORITES = "api/favorites";
 
+  public static final String ACTION_ADD = "add";
+  public static final String ACTION_REMOVE = "remove";
+  public static final String ACTION_SEARCH = "search";
+
+  public static final String PARAM_COMPONENT = "component";
+
+  private FavoritesWsParameters() {
+    // prevent instantiation
+  }
+}

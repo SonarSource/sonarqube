@@ -36,9 +36,9 @@ import org.sonar.server.user.UserSession;
 import static org.sonar.server.branch.ws.BranchesWs.addBranchParam;
 import static org.sonar.server.branch.ws.BranchesWs.addProjectParam;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
-import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_DELETE;
-import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_BRANCH;
-import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
+import static org.sonar.server.branch.ws.ProjectBranchesParameters.ACTION_DELETE;
+import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_BRANCH;
+import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_PROJECT;
 
 public class DeleteAction implements BranchWsAction {
   private final DbClient dbClient;

@@ -41,7 +41,7 @@ import org.sonar.server.ws.WsActionTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_ID;
+import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_ID;
 
 public class DeleteActionTest {
 

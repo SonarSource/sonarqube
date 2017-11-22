@@ -48,12 +48,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.PERCENT;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ERROR;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ID;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_METRIC;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_OPERATOR;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PERIOD;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_WARNING;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERROR;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PERIOD;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_WARNING;
 
 public class UpdateConditionActionTest {
 

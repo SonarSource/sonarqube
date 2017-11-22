@@ -31,7 +31,7 @@ import org.sonarqube.ws.Favorites;
 import org.sonarqube.ws.Favorites.Favorite;
 import org.sonarqube.ws.Permissions;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.favorite.SearchRequest;
+import org.sonarqube.ws.client.favorites.SearchRequest;
 import org.sonarqube.ws.client.permission.AddProjectCreatorToTemplateWsRequest;
 import org.sonarqube.ws.client.permission.RemoveProjectCreatorFromTemplateWsRequest;
 import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;

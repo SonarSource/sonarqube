@@ -28,7 +28,6 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.qualitygate.ProjectQgateAssociation;
 import org.sonar.db.qualitygate.ProjectQgateAssociationQuery;
 import org.sonar.server.qualitygate.QgateProjectFinder;
-import org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters;
 
 public class SearchAction implements QualityGatesWsAction {
 

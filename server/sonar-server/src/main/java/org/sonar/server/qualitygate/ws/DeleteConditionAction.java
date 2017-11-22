@@ -28,7 +28,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ID;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 
 public class DeleteConditionAction implements QualityGatesWsAction {
 

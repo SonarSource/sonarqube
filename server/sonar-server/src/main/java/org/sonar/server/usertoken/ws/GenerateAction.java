@@ -33,15 +33,15 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.usertoken.TokenGenerator;
 import org.sonarqube.ws.UserTokens;
 import org.sonarqube.ws.UserTokens.GenerateWsResponse;
-import org.sonarqube.ws.client.usertoken.GenerateWsRequest;
+import org.sonarqube.ws.client.usertokens.GenerateRequest;
 
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.ACTION_GENERATE;
-import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_LOGIN;
-import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_NAME;
+import static org.sonar.server.usertoken.ws.UserTokensWsParameters.ACTION_GENERATE;
+import static org.sonar.server.usertoken.ws.UserTokensWsParameters.PARAM_LOGIN;
+import static org.sonar.server.usertoken.ws.UserTokensWsParameters.PARAM_NAME;
 
 public class GenerateAction implements UserTokensWsAction {
   private static final int MAX_TOKEN_NAME_LENGTH = 100;
@@ -85,7 +85,7 @@ public class GenerateAction implements UserTokensWsAction {
     writeProtobuf(generateWsResponse, request, response);
   }
 
-  private UserTokens.GenerateWsResponse doHandle(GenerateWsRequest request) {
+  private UserTokens.GenerateWsResponse doHandle(GenerateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       checkWsRequest(dbSession, request);
       TokenPermissionsValidator.validate(userSession, request.getLogin());
@@ -109,21 +109,21 @@ public class GenerateAction implements UserTokensWsAction {
     return tokenHash;
   }
 
-  private void checkWsRequest(DbSession dbSession, GenerateWsRequest request) {
+  private void checkWsRequest(DbSession dbSession, GenerateRequest request) {
     checkLoginExists(dbSession, request);
 
     Optional<UserTokenDto> userTokenDto = dbClient.userTokenDao().selectByLoginAndName(dbSession, request.getLogin(), request.getName());
     checkRequest(!userTokenDto.isPresent(), "A user token with login '%s' and name '%s' already exists", request.getLogin(), request.getName());
   }
 
-  private void checkLoginExists(DbSession dbSession, GenerateWsRequest request) {
+  private void checkLoginExists(DbSession dbSession, GenerateRequest request) {
     UserDto user = dbClient.userDao().selectByLogin(dbSession, request.getLogin());
     if (user == null) {
       throw insufficientPrivilegesException();
     }
   }
 
-  private UserTokenDto insertTokenInDb(DbSession dbSession, GenerateWsRequest request, String tokenHash) {
+  private UserTokenDto insertTokenInDb(DbSession dbSession, GenerateRequest request, String tokenHash) {
     UserTokenDto userTokenDto = new UserTokenDto()
       .setLogin(request.getLogin())
       .setName(request.getName())
@@ -135,8 +135,8 @@ public class GenerateAction implements UserTokensWsAction {
     return userTokenDto;
   }
 
-  private GenerateWsRequest toCreateWsRequest(Request request) {
-    GenerateWsRequest generateWsRequest = new GenerateWsRequest()
+  private GenerateRequest toCreateWsRequest(Request request) {
+    GenerateRequest generateWsRequest = new GenerateRequest()
       .setLogin(request.param(PARAM_LOGIN))
       .setName(request.mandatoryParam(PARAM_NAME).trim());
     if (generateWsRequest.getLogin() == null) {

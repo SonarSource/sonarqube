@@ -39,7 +39,7 @@ import org.sonar.server.notification.NotificationUpdater;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
-import org.sonarqube.ws.client.notification.RemoveRequest;
+import org.sonarqube.ws.client.notifications.RemoveRequest;
 
 import static java.util.Optional.empty;
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -47,11 +47,11 @@ import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBA
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkRequest;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.ACTION_REMOVE;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_CHANNEL;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_LOGIN;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_PROJECT;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_TYPE;
+import static org.sonar.server.notification.ws.NotificationsWsParameters.ACTION_REMOVE;
+import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_CHANNEL;
+import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_LOGIN;
+import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_PROJECT;
+import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_TYPE;
 
 public class RemoveAction implements NotificationsWsAction {
   private final NotificationCenter notificationCenter;
@@ -150,25 +150,24 @@ public class RemoveAction implements NotificationsWsAction {
   }
 
   private RemoveRequest toWsRequest(Request request) {
-    RemoveRequest.Builder requestBuilder = RemoveRequest.builder()
+    RemoveRequest remove = new RemoveRequest()
       .setType(request.mandatoryParam(PARAM_TYPE))
       .setChannel(request.mandatoryParam(PARAM_CHANNEL));
-    setNullable(request.param(PARAM_PROJECT), requestBuilder::setProject);
-    setNullable(request.param(PARAM_LOGIN), requestBuilder::setLogin);
-    RemoveRequest wsRequest = requestBuilder.build();
+    setNullable(request.param(PARAM_PROJECT), remove::setProject);
+    setNullable(request.param(PARAM_LOGIN), remove::setLogin);
 
-    if (wsRequest.getProject() == null) {
-      checkRequest(globalDispatchers.contains(wsRequest.getType()), "Value of parameter '%s' (%s) must be one of: %s",
+    if (remove.getProject() == null) {
+      checkRequest(globalDispatchers.contains(remove.getType()), "Value of parameter '%s' (%s) must be one of: %s",
         PARAM_TYPE,
-        wsRequest.getType(),
+        remove.getType(),
         globalDispatchers);
     } else {
-      checkRequest(projectDispatchers.contains(wsRequest.getType()), "Value of parameter '%s' (%s) must be one of: %s",
+      checkRequest(projectDispatchers.contains(remove.getType()), "Value of parameter '%s' (%s) must be one of: %s",
         PARAM_TYPE,
-        wsRequest.getType(),
+        remove.getType(),
         projectDispatchers);
     }
 
-    return wsRequest;
+    return remove;
   }
 }

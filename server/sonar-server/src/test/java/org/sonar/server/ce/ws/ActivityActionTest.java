@@ -53,7 +53,6 @@ import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Ce.ActivityResponse;
 import org.sonarqube.ws.Ce.Task;
 
@@ -70,12 +69,12 @@ import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.component.BranchType.LONG;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_QUERY;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MAX_EXECUTED_AT;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_STATUS;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_TYPE;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_QUERY;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MAX_EXECUTED_AT;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_STATUS;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_TYPE;
 
 public class ActivityActionTest {
 

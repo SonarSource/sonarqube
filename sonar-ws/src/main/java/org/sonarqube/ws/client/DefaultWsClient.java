@@ -21,25 +21,26 @@ package org.sonarqube.ws.client;
 
 import org.sonarqube.ws.client.ce.CeService;
 import org.sonarqube.ws.client.component.ComponentsService;
-import org.sonarqube.ws.client.favorite.FavoritesService;
+import org.sonarqube.ws.client.favorites.FavoritesService;
 import org.sonarqube.ws.client.issue.IssuesService;
 import org.sonarqube.ws.client.measure.MeasuresService;
+import org.sonarqube.ws.client.notifications.NotificationsService;
 import org.sonarqube.ws.client.organization.OrganizationService;
 import org.sonarqube.ws.client.permission.PermissionsService;
 import org.sonarqube.ws.client.project.ProjectsService;
 import org.sonarqube.ws.client.projectanalysis.ProjectAnalysisService;
-import org.sonarqube.ws.client.projectbranches.ProjectBranchesServiceOld;
+import org.sonarqube.ws.client.projectbranches.ProjectBranchesService;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
 import org.sonarqube.ws.client.root.RootsService;
 import org.sonarqube.ws.client.rule.RulesService;
 import org.sonarqube.ws.client.setting.SettingsService;
-import org.sonarqube.ws.client.system.SystemServiceOld;
+import org.sonarqube.ws.client.system.SystemService;
 import org.sonarqube.ws.client.user.UsersService;
 import org.sonarqube.ws.client.usergroup.UserGroupsService;
-import org.sonarqube.ws.client.usertoken.UserTokensService;
-import org.sonarqube.ws.client.webhook.WebhooksService;
+import org.sonarqube.ws.client.usertokens.UserTokensService;
+import org.sonarqube.ws.client.webhooks.WebhooksService;
 
 /**
  * This class is not public anymore since version 5.5. It is
@@ -61,7 +62,7 @@ class DefaultWsClient implements WsClient {
   private final UserTokensService userTokensService;
   private final QualitygatesService qualityGatesService;
   private final MeasuresService measuresService;
-  private final SystemServiceOld systemService;
+  private final SystemService systemService;
   private final CeService ceService;
   private final RulesService rulesService;
   private final ProjectsService projectsService;
@@ -70,7 +71,8 @@ class DefaultWsClient implements WsClient {
   private final RootsService rootsService;
   private final WebhooksService webhooksService;
   private final ProjectAnalysisService projectAnalysisService;
-  private final ProjectBranchesServiceOld projectBranchesService;
+  private final NotificationsService notificationsService;
+  private final ProjectBranchesService projectBranchesService;
 
   DefaultWsClient(WsConnector wsConnector) {
     this.wsConnector = wsConnector;
@@ -85,7 +87,7 @@ class DefaultWsClient implements WsClient {
     this.userTokensService = new UserTokensService(wsConnector);
     this.qualityGatesService = new QualitygatesService(wsConnector);
     this.measuresService = new MeasuresService(wsConnector);
-    this.systemService = new SystemServiceOld(wsConnector);
+    this.systemService = new SystemService(wsConnector);
     this.ceService = new CeService(wsConnector);
     this.rulesService = new RulesService(wsConnector);
     this.projectsService = new ProjectsService(wsConnector);
@@ -94,7 +96,8 @@ class DefaultWsClient implements WsClient {
     this.rootsService = new RootsService(wsConnector);
     this.webhooksService = new WebhooksService(wsConnector);
     this.projectAnalysisService = new ProjectAnalysisService(wsConnector);
-    this.projectBranchesService = new ProjectBranchesServiceOld(wsConnector);
+    this.projectBranchesService = new ProjectBranchesService(wsConnector);
+    this.notificationsService = new NotificationsService(wsConnector);
   }
 
   @Override
@@ -158,7 +161,7 @@ class DefaultWsClient implements WsClient {
   }
 
   @Override
-  public SystemServiceOld system() {
+  public SystemService system() {
     return systemService;
   }
 
@@ -203,7 +206,12 @@ class DefaultWsClient implements WsClient {
   }
 
   @Override
-  public ProjectBranchesServiceOld projectBranches() {
+  public ProjectBranchesService projectBranches() {
     return projectBranchesService;
+  }
+
+  @Override
+  public NotificationsService notifications() {
+    return notificationsService;
   }
 }

@@ -37,8 +37,8 @@ import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
-import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_LOGIN;
-import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_NAME;
+import static org.sonar.server.usertoken.ws.UserTokensWsParameters.PARAM_LOGIN;
+import static org.sonar.server.usertoken.ws.UserTokensWsParameters.PARAM_NAME;
 
 
 public class RevokeActionTest {

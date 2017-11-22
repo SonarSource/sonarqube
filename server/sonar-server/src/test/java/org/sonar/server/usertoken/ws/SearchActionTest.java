@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_LOGIN;
+import static org.sonar.server.usertoken.ws.UserTokensWsParameters.PARAM_LOGIN;
 
 public class SearchActionTest {
   private static final String GRACE_HOPPER = "grace.hopper";

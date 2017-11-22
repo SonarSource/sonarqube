@@ -17,8 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonarqube.ws.client.projectbranches;
+package org.sonar.server.notification.ws;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+public class NotificationsWsParameters {
+  public static final String CONTROLLER = "api/notifications";
+  public static final String ACTION_ADD = "add";
+  public static final String ACTION_REMOVE = "remove";
+  public static final String ACTION_LIST = "list";
 
+  public static final String PARAM_PROJECT = "project";
+  public static final String PARAM_CHANNEL = "channel";
+  public static final String PARAM_TYPE = "type";
+  public static final String PARAM_LOGIN = "login";
+
+  private NotificationsWsParameters() {
+    // prevent instantiation
+  }
+}

@@ -28,11 +28,11 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
-import org.sonarqube.ws.client.projectlinks.DeleteWsRequest;
+import org.sonarqube.ws.client.projectlinks.DeleteRequest;
 
 import static org.sonar.db.component.ComponentLinkDto.PROVIDED_TYPES;
-import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.ACTION_DELETE;
-import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_ID;
+import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.ACTION_DELETE;
+import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_ID;
 
 public class DeleteAction implements ProjectLinksWsAction {
   private final DbClient dbClient;
@@ -61,19 +61,19 @@ public class DeleteAction implements ProjectLinksWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    DeleteWsRequest deleteWsRequest = toDeleteWsRequest(request);
+    DeleteRequest deleteWsRequest = toDeleteWsRequest(request);
     doHandle(deleteWsRequest);
     response.noContent();
   }
 
-  private static DeleteWsRequest toDeleteWsRequest(Request request) {
-    return new DeleteWsRequest()
-      .setId(request.mandatoryParamAsLong(PARAM_ID));
+  private static DeleteRequest toDeleteWsRequest(Request request) {
+    return new DeleteRequest()
+      .setId(request.mandatoryParam(PARAM_ID));
   }
 
-  private void doHandle(DeleteWsRequest request) {
+  private void doHandle(DeleteRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      long id = request.getId();
+      long id = Long.parseLong(request.getId());
       ComponentLinkDto link = dbClient.componentLinkDao().selectById(dbSession, id);
 
       link = WsUtils.checkFound(link, "Link with id '%s' not found", id);

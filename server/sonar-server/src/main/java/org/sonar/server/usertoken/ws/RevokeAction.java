@@ -25,11 +25,11 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.usertoken.RevokeWsRequest;
+import org.sonarqube.ws.client.usertokens.RevokeRequest;
 
-import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.ACTION_REVOKE;
-import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_LOGIN;
-import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_NAME;
+import static org.sonar.server.usertoken.ws.UserTokensWsParameters.ACTION_REVOKE;
+import static org.sonar.server.usertoken.ws.UserTokensWsParameters.PARAM_LOGIN;
+import static org.sonar.server.usertoken.ws.UserTokensWsParameters.PARAM_NAME;
 
 public class RevokeAction implements UserTokensWsAction {
   private final DbClient dbClient;
@@ -61,11 +61,11 @@ public class RevokeAction implements UserTokensWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    doHandle(toRevokeWsRequest(request));
+    doHandle(toRevokeRequest(request));
     response.noContent();
   }
 
-  private void doHandle(RevokeWsRequest request) {
+  private void doHandle(RevokeRequest request) {
     TokenPermissionsValidator.validate(userSession, request.getLogin());
 
     try (DbSession dbSession = dbClient.openSession(false)) {
@@ -74,13 +74,13 @@ public class RevokeAction implements UserTokensWsAction {
     }
   }
 
-  private RevokeWsRequest toRevokeWsRequest(Request request) {
-    RevokeWsRequest revokeWsRequest = new RevokeWsRequest()
+  private RevokeRequest toRevokeRequest(Request request) {
+    RevokeRequest RevokeRequest = new RevokeRequest()
       .setLogin(request.param(PARAM_LOGIN))
       .setName(request.mandatoryParam(PARAM_NAME));
-    if (revokeWsRequest.getLogin() == null) {
-      revokeWsRequest.setLogin(userSession.getLogin());
+    if (RevokeRequest.getLogin() == null) {
+      RevokeRequest.setLogin(userSession.getLogin());
     }
-    return revokeWsRequest;
+    return RevokeRequest;
   }
 }

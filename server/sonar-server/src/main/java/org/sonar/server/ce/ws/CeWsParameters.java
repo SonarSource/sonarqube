@@ -17,8 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonarqube.ws.client.notification;
+package org.sonar.server.ce.ws;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+public class CeWsParameters {
 
+  public static final String ACTION_WORKER_COUNT = "worker_count";
+
+  public static final String PARAM_COMPONENT_ID = "componentId";
+  public static final String DEPRECATED_PARAM_COMPONENT_KEY = "componentKey";
+  public static final String PARAM_COMPONENT = "component";
+  public static final String PARAM_COMPONENT_QUERY = "componentQuery";
+  public static final String PARAM_TYPE = "type";
+  public static final String PARAM_STATUS = "status";
+  public static final String PARAM_ONLY_CURRENTS = "onlyCurrents";
+  public static final String PARAM_MIN_SUBMITTED_AT = "minSubmittedAt";
+  public static final String PARAM_MAX_EXECUTED_AT = "maxExecutedAt";
+
+  private CeWsParameters() {
+    // prevent instantiation
+  }
+}

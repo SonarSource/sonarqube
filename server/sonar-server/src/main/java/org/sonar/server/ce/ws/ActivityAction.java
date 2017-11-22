@@ -64,13 +64,13 @@ import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_QUERY;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MAX_EXECUTED_AT;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_ONLY_CURRENTS;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_STATUS;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_TYPE;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_QUERY;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MAX_EXECUTED_AT;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_ONLY_CURRENTS;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_STATUS;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_TYPE;
 
 public class ActivityAction implements CeWsAction {
   private static final int MAX_PAGE_SIZE = 1000;

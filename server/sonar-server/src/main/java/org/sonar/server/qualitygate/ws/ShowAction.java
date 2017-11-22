@@ -31,8 +31,8 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGates;
 
 import static org.sonar.server.ws.WsUtils.checkRequest;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ID;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_NAME;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
 
 public class ShowAction implements QualityGatesWsAction {
 

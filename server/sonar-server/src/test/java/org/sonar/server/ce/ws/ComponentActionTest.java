@@ -53,8 +53,8 @@ import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_KEY;
 import static org.sonar.db.ce.CeTaskCharacteristicDto.BRANCH_TYPE_KEY;
 import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.BranchType.SHORT;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
 
 public class ComponentActionTest {
 

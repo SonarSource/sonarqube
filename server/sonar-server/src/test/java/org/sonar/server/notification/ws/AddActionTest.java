@@ -42,7 +42,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.client.notification.AddRequest;
+import org.sonarqube.ws.client.notifications.AddRequest;
 
 import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
@@ -51,10 +51,10 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_CHANNEL;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_LOGIN;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_PROJECT;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_TYPE;
+import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_CHANNEL;
+import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_LOGIN;
+import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_PROJECT;
+import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_TYPE;
 
 public class AddActionTest {
   private static final String NOTIF_MY_NEW_ISSUES = "Dispatcher1";
@@ -82,8 +82,7 @@ public class AddActionTest {
   private AddAction underTest;
   private WsActionTester ws;
 
-  private AddRequest.Builder request = AddRequest.builder()
-    .setType(NOTIF_MY_NEW_ISSUES);
+  private AddRequest request = new AddRequest().setType(NOTIF_MY_NEW_ISSUES);
 
   @Before
   public void setUp() {
@@ -313,13 +312,12 @@ public class AddActionTest {
       .setLogin(userSession.getLogin()));
   }
 
-  private TestResponse call(AddRequest.Builder wsRequestBuilder) {
-    AddRequest wsRequest = wsRequestBuilder.build();
+  private TestResponse call(AddRequest add) {
     TestRequest request = ws.newRequest();
-    request.setParam(PARAM_TYPE, wsRequest.getType());
-    setNullable(wsRequest.getChannel(), channel -> request.setParam(PARAM_CHANNEL, channel));
-    setNullable(wsRequest.getProject(), project -> request.setParam(PARAM_PROJECT, project));
-    setNullable(wsRequest.getLogin(), login -> request.setParam(PARAM_LOGIN, login));
+    request.setParam(PARAM_TYPE, add.getType());
+    setNullable(add.getChannel(), channel -> request.setParam(PARAM_CHANNEL, channel));
+    setNullable(add.getProject(), project -> request.setParam(PARAM_PROJECT, project));
+    setNullable(add.getLogin(), login -> request.setParam(PARAM_LOGIN, login));
     return request.execute();
   }
 

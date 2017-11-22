@@ -33,8 +33,8 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.ProjectLinkItem;
 import org.sonarqube.qa.util.pageobjects.ProjectLinksPage;
 import org.sonarqube.ws.ProjectLinks.CreateWsResponse;
-import org.sonarqube.ws.client.projectlinks.CreateWsRequest;
-import org.sonarqube.ws.client.projectlinks.DeleteWsRequest;
+import org.sonarqube.ws.client.projectlinks.CreateRequest;
+import org.sonarqube.ws.client.projectlinks.DeleteRequest;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
@@ -131,7 +131,7 @@ public class ProjectLinksTest {
   }
 
   private CreateWsResponse createCustomLink() {
-    return tester.wsClient().projectLinks().create(new CreateWsRequest()
+    return tester.wsClient().projectLinks().create(new CreateRequest()
       .setProjectKey("sample")
       .setName("Custom")
       .setUrl("http://example.org/custom"));
@@ -139,7 +139,7 @@ public class ProjectLinksTest {
 
   private void deleteLink(long id) {
     try {
-      tester.wsClient().projectLinks().delete(new DeleteWsRequest().setId(id));
+      tester.wsClient().projectLinks().delete(new DeleteRequest().setId("" + id));
     } catch (Exception e) {
       // fail silently
     }

@@ -21,25 +21,26 @@ package org.sonarqube.ws.client;
 
 import org.sonarqube.ws.client.ce.CeService;
 import org.sonarqube.ws.client.component.ComponentsService;
-import org.sonarqube.ws.client.favorite.FavoritesService;
+import org.sonarqube.ws.client.favorites.FavoritesService;
 import org.sonarqube.ws.client.issue.IssuesService;
 import org.sonarqube.ws.client.measure.MeasuresService;
+import org.sonarqube.ws.client.notifications.NotificationsService;
 import org.sonarqube.ws.client.organization.OrganizationService;
 import org.sonarqube.ws.client.permission.PermissionsService;
 import org.sonarqube.ws.client.project.ProjectsService;
 import org.sonarqube.ws.client.projectanalysis.ProjectAnalysisService;
-import org.sonarqube.ws.client.projectbranches.ProjectBranchesServiceOld;
+import org.sonarqube.ws.client.projectbranches.ProjectBranchesService;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
 import org.sonarqube.ws.client.root.RootsService;
 import org.sonarqube.ws.client.rule.RulesService;
 import org.sonarqube.ws.client.setting.SettingsService;
-import org.sonarqube.ws.client.system.SystemServiceOld;
+import org.sonarqube.ws.client.system.SystemService;
 import org.sonarqube.ws.client.user.UsersService;
 import org.sonarqube.ws.client.usergroup.UserGroupsService;
-import org.sonarqube.ws.client.usertoken.UserTokensService;
-import org.sonarqube.ws.client.webhook.WebhooksService;
+import org.sonarqube.ws.client.usertokens.UserTokensService;
+import org.sonarqube.ws.client.webhooks.WebhooksService;
 
 /**
  * Allows to request the web services of SonarQube server. Instance is provided by
@@ -68,6 +69,8 @@ public interface WsClient {
 
   IssuesService issues();
 
+  NotificationsService notifications();
+
   PermissionsService permissions();
 
   QualityProfilesService qualityProfiles();
@@ -82,7 +85,7 @@ public interface WsClient {
 
   MeasuresService measures();
 
-  SystemServiceOld system();
+  SystemService system();
 
   CeService ce();
 
@@ -123,5 +126,5 @@ public interface WsClient {
   /**
    * @since 6.6>
    */
-  ProjectBranchesServiceOld projectBranches();
+  ProjectBranchesService projectBranches();
 }
