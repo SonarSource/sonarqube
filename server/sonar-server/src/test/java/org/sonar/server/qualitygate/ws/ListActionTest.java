@@ -29,10 +29,12 @@ import org.sonar.db.DbTester;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Qualitygates.ListWsResponse.QualityGate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.Qualitygates.ListWsResponse;
 
 public class ListActionTest {
 
@@ -76,57 +78,43 @@ public class ListActionTest {
   @Test
   public void list_quality_gates() {
     QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate("Sonar way");
-    db.qualityGates().insertQualityGate("Sonar way - Without Coverage");
+    QualityGateDto otherQualityGate = db.qualityGates().insertQualityGate("Sonar way - Without Coverage");
     db.qualityGates().setDefaultQualityGate(defaultQualityGate);
 
-    String response = ws.newRequest()
-      .execute()
-      .getInput();
+    ListWsResponse response = ws.newRequest().executeProtobuf(ListWsResponse.class);
 
-    assertJson(response).ignoreFields("id", "default")
-      .isSimilarTo("{\n" +
-        "  \"qualitygates\": [\n" +
-        "    {\n" +
-        "      \"name\": \"Sonar way\",\n" +
-        "      \"isDefault\": true\n" +
-        "    },\n" +
-        "    {\n" +
-        "      \"id\": 4,\n" +
-        "      \"name\": \"Sonar way - Without Coverage\",\n" +
-        "      \"isDefault\": false\n" +
-        "    }\n" +
-        "  ]\n" +
-        "}\n");
+    assertThat(response.getQualitygatesList())
+      .extracting(QualityGate::getId, QualityGate::getName, QualityGate::getIsDefault)
+    .containsExactlyInAnyOrder(
+      tuple(defaultQualityGate.getId(), defaultQualityGate.getName(), true),
+      tuple(otherQualityGate.getId(), otherQualityGate.getName(), false));
+  }
+
+  @Test
+  public void test_deprecated_default_field() {
+    QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate("Sonar way");
+    db.qualityGates().setDefaultQualityGate(defaultQualityGate);
+
+    ListWsResponse response = ws.newRequest().executeProtobuf(ListWsResponse.class);
+
+    assertThat(response.getDefault()).isEqualTo(defaultQualityGate.getId());
   }
 
   @Test
   public void no_default_quality_gate() {
-    db.qualityGates().insertQualityGate("Sonar way");
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate("Sonar way");
 
-    String response = ws.newRequest()
-      .execute()
-      .getInput();
+    ListWsResponse response = ws.newRequest().executeProtobuf(ListWsResponse.class);
 
-    assertJson(response).ignoreFields("id", "default")
-      .isSimilarTo("{\n" +
-        "  \"qualitygates\": [\n" +
-        "    {\n" +
-        "      \"name\": \"Sonar way\",\n" +
-        "      \"isDefault\": false\n" +
-        "    }\n" +
-        "  ]\n" +
-        "}\n");
+    assertThat(response.getQualitygatesList())
+      .extracting(QualityGate::getId, QualityGate::getName, QualityGate::getIsDefault)
+      .containsExactlyInAnyOrder(tuple(qualityGate.getId(), qualityGate.getName(), false));
   }
 
   @Test
   public void empty() {
-    String response = ws.newRequest()
-      .execute()
-      .getInput();
+    ListWsResponse response = ws.newRequest().executeProtobuf(ListWsResponse.class);
 
-    assertJson(response).ignoreFields("id", "default")
-      .isSimilarTo("{\n" +
-        "  \"qualitygates\": []\n" +
-        "}\n");
+    assertThat(response.getQualitygatesList()).isEmpty();
   }
 }

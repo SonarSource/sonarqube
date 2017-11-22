@@ -20,21 +20,24 @@
 package org.sonar.server.qualitygate.ws;
 
 import com.google.common.io.Resources;
+import java.util.Collection;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonarqube.ws.Qualitygates.ListWsResponse;
 
+import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ID;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_NAME;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ListAction implements QualityGatesWsAction {
 
@@ -58,25 +61,25 @@ public class ListAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    try (DbSession dbSession = dbClient.openSession(false);
-      JsonWriter writer = response.newJsonWriter()) {
-      QualityGateDto defaultQgate = getDefault(dbSession);
-      Long defaultQgateId = defaultQgate == null ? null : defaultQgate.getId();
-      writer.beginObject().name("qualitygates").beginArray();
-      for (QualityGateDto qualityGate : dbClient.qualityGateDao().selectAll(dbSession)) {
-        writer.beginObject()
-          .prop(PARAM_ID, qualityGate.getId())
-          .prop(PARAM_NAME, qualityGate.getName())
-          .prop("isDefault", qualityGate.getId().equals(defaultQgateId))
-          .endObject();
-      }
-      writer.endArray();
-      if (defaultQgateId != null) {
-        writer.prop("default", defaultQgateId);
-      }
-      writer.endObject().close();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      QualityGateDto defaultQualityGate = getDefault(dbSession);
+      Collection<QualityGateDto> qualityGates = dbClient.qualityGateDao().selectAll(dbSession);
+      writeProtobuf(buildResponse(qualityGates, defaultQualityGate), request, response);
     }
+  }
 
+  private static ListWsResponse buildResponse(Collection<QualityGateDto> qualityGates, @Nullable QualityGateDto defaultQualityGate) {
+    Long defaultId = defaultQualityGate == null ? null : defaultQualityGate.getId();
+    ListWsResponse.Builder builder = ListWsResponse.newBuilder()
+      .addAllQualitygates(qualityGates.stream()
+        .map(qualityGate -> ListWsResponse.QualityGate.newBuilder()
+          .setId(qualityGate.getId())
+          .setName(qualityGate.getName())
+          .setIsDefault(qualityGate.getId().equals(defaultId))
+          .build())
+        .collect(toList()));
+    setNullable(defaultId, builder::setDefault);
+    return builder.build();
   }
 
   @CheckForNull
