@@ -21,9 +21,7 @@ package org.sonar.server.qualitygate;
 
 import com.google.common.base.Strings;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.web.UserRole;
@@ -101,12 +99,6 @@ public class QualityGates {
     }
   }
 
-  public Collection<QualityGateDto> list() {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      return dao.selectAll(dbSession);
-    }
-  }
-
   public void delete(long idToDelete) {
     checkIsQualityGateAdministrator();
     QualityGateDto qGate = getNonNullQgate(idToDelete);
@@ -134,17 +126,6 @@ public class QualityGates {
     try (DbSession dbSession = dbClient.openSession(false)) {
       setDefault(dbSession, idToUseAsDefault);
       dbSession.commit();
-    }
-  }
-
-  @CheckForNull
-  public QualityGateDto getDefault() {
-    Long defaultId = getDefaultId();
-    if (defaultId == null) {
-      return null;
-    }
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      return dao.selectById(dbSession, defaultId);
     }
   }
 
