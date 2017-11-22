@@ -22,6 +22,7 @@ package org.sonar.server.qualitygate.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -55,7 +56,8 @@ public class ShowActionTest {
   public void verify_definition() {
     WebService.Action action = ws.getDef();
     assertThat(action.since()).isEqualTo("4.3");
-    assertThat(action.changelog()).isEmpty();
+    assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription)
+      .containsExactlyInAnyOrder(tuple("7.0", "'isBuiltIn' field is added to the response"));
     assertThat(action.params())
       .extracting(Param::key, Param::isRequired)
       .containsExactlyInAnyOrder(tuple("id", false), tuple("name", false));
@@ -90,12 +92,23 @@ public class ShowActionTest {
 
     assertThat(response.getId()).isEqualTo(qualityGate.getId());
     assertThat(response.getName()).isEqualTo(qualityGate.getName());
+    assertThat(response.getIsBuiltIn()).isFalse();
     assertThat(response.getConditionsList()).hasSize(2);
     assertThat(response.getConditionsList())
       .extracting(Condition::getId, Condition::getMetric, Condition::hasPeriod, Condition::getPeriod, Condition::getOp, Condition::getError, Condition::getWarning)
       .containsExactlyInAnyOrder(
         tuple(condition1.getId(), metric.getKey(), false, 0, "GT", condition1.getErrorThreshold(), condition1.getWarningThreshold()),
         tuple(condition2.getId(), metric.getKey(), true, 1, "LT", condition2.getErrorThreshold(), condition2.getWarningThreshold()));
+  }
+
+  @Test
+  public void show_built_in() {
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setBuiltIn(true));
+
+    ShowWsResponse response = ws.newRequest().setParam("name", qualityGate.getName())
+      .executeProtobuf(ShowWsResponse.class);
+
+    assertThat(response.getIsBuiltIn()).isTrue();
   }
 
   @Test

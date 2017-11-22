@@ -123,6 +123,7 @@ message ShowWsResponse {
   optional int64 id = 1;
   optional string name = 2;
   repeated Condition conditions = 3;
+  optional bool isBuiltIn = 4;
 
   message Condition {
     optional int64 id = 1;
