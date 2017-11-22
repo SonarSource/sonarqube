@@ -23,7 +23,6 @@ import java.util.Objects;
 
 public final class LoadedTemplateDto {
 
-  public static final String QUALITY_GATE_TYPE = "QUALITY_GATE";
   public static final String ONE_SHOT_TASK_TYPE = "ONE_SHOT_TASK";
 
   private Long id;
