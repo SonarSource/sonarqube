@@ -56,15 +56,16 @@ public class ListActionTest {
     assertThat(action.isInternal()).isFalse();
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription)
       .containsExactlyInAnyOrder(
-        tuple("7.0", "'isDefault' field is added on quality gate level"),
-        tuple("7.0", "'default' field on root level is deprecated"));
+        tuple("7.0", "'isDefault' field is added on quality gate"),
+        tuple("7.0", "'default' field on root level is deprecated"),
+        tuple("7.0", "'isBuiltIn' field is added in the response"));
     assertThat(action.params()).isEmpty();
   }
 
   @Test
   public void json_example() {
-    QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate("Sonar way");
-    db.qualityGates().insertQualityGate("Sonar way - Without Coverage");
+    QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(qualityGate -> qualityGate.setName("Sonar way").setBuiltIn(true));
+    db.qualityGates().insertQualityGate(qualityGate -> qualityGate.setName("Sonar way - Without Coverage").setBuiltIn(false));
     db.qualityGates().setDefaultQualityGate(defaultQualityGate);
 
     String response = ws.newRequest()
@@ -85,9 +86,23 @@ public class ListActionTest {
 
     assertThat(response.getQualitygatesList())
       .extracting(QualityGate::getId, QualityGate::getName, QualityGate::getIsDefault)
-    .containsExactlyInAnyOrder(
-      tuple(defaultQualityGate.getId(), defaultQualityGate.getName(), true),
-      tuple(otherQualityGate.getId(), otherQualityGate.getName(), false));
+      .containsExactlyInAnyOrder(
+        tuple(defaultQualityGate.getId(), defaultQualityGate.getName(), true),
+        tuple(otherQualityGate.getId(), otherQualityGate.getName(), false));
+  }
+
+  @Test
+  public void test_built_in_flag() {
+    QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate(qualityGate -> qualityGate.setBuiltIn(true));
+    QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate(qualityGate -> qualityGate.setBuiltIn(false));
+
+    ListWsResponse response = ws.newRequest().executeProtobuf(ListWsResponse.class);
+
+    assertThat(response.getQualitygatesList())
+      .extracting(QualityGate::getId, QualityGate::getIsBuiltIn)
+      .containsExactlyInAnyOrder(
+        tuple(qualityGate1.getId(), true),
+        tuple(qualityGate2.getId(), false));
   }
 
   @Test
