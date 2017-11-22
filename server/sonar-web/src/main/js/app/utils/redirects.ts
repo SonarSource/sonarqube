@@ -63,5 +63,5 @@ function redirect(from: string, to: (nextState: RouterState) => LocationDescript
 }
 
 function plainRedirect(from: string, to: string): RouteProps {
-  return redirect(from, () => to);
+  return redirect(from, ({ location }) => ({ pathname: to, query: location.query }));
 }
