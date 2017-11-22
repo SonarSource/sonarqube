@@ -19,23 +19,29 @@
  */
 package org.sonar.server.platform.db.migration.version.v70;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.server.platform.db.migration.step.DataChange;
+import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class RemoveQualityGateLoadedTemplates extends DataChange {
 
-public class DbVersion70Test {
-
-  private DbVersion70 underTest = new DbVersion70();
-
-  @Test
-  public void migrationNumber_starts_at_1900() {
-    verifyMinimumMigrationNumber(underTest, 1900);
+  public RemoveQualityGateLoadedTemplates(Database db) {
+    super(db);
   }
 
-  @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 4);
+  @Override
+  protected void execute(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("SELECT id " +
+      "FROM loaded_templates " +
+      "WHERE template_type = ?")
+      .setString(1, "QUALITY_GATE");
+    massUpdate.update("DELETE from loaded_templates WHERE id=?");
+    massUpdate.rowPluralName("delete loaded templates for quality gate");
+    massUpdate.execute((row, update) -> {
+      update.setLong(1, row.getLong(1));
+      return true;
+    });
   }
-
 }
