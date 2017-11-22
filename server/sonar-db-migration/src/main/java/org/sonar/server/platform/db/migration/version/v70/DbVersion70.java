@@ -30,6 +30,7 @@ public class DbVersion70 implements DbVersion {
       .add(1900, "Add QUALITY_GATES.IS_BUILT_IN", AddIsBuiltInToQualityGates.class)
       .add(1901, "Populate QUALITY_GATES.IS_BUILT_IN", PopulateQualityGatesIsBuiltIn.class)
       .add(1902, "Make QUALITY_GATES.IS_BUILT_IN not null", MakeQualityGatesIsBuiltInNotNullable.class)
+      .add(1903, "Remove quality gates loaded templates", RemoveQualityGateLoadedTemplates.class)
     ;
   }
 
