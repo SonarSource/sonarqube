@@ -54,8 +54,9 @@ public class ListAction implements QualityGatesWsAction {
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "list-example.json"))
       .setChangelog(
-        new Change("7.0", "'isDefault' field is added on quality gate level"),
-        new Change("7.0", "'default' field on root level is deprecated"))
+        new Change("7.0", "'isDefault' field is added on quality gate"),
+        new Change("7.0", "'default' field on root level is deprecated"),
+        new Change("7.0", "'isBuiltIn' field is added in the response"))
       .setHandler(this);
   }
 
@@ -76,6 +77,7 @@ public class ListAction implements QualityGatesWsAction {
           .setId(qualityGate.getId())
           .setName(qualityGate.getName())
           .setIsDefault(qualityGate.getId().equals(defaultId))
+          .setIsBuiltIn(qualityGate.isBuiltIn())
           .build())
         .collect(toList()));
     setNullable(defaultId, builder::setDefault);
