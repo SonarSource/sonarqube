@@ -34,4 +34,6 @@ public interface QualityGateMapper {
   void delete(long id);
 
   void update(QualityGateDto qGate);
+
+  void ensureOneBuiltInQualityGate(String builtInQualityName);
 }

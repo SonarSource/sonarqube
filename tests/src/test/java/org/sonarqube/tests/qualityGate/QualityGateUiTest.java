@@ -113,7 +113,7 @@ public class QualityGateUiTest {
       .logIn().submitCredentials(login)
       .openQualityGates()
       .canNotCreateQG()
-      .displayQualityGateDetail("SonarQube way");
+      .displayQualityGateDetail("Sonar way");
     tester.openBrowser()
       .logIn().submitCredentials(admin)
       .openQualityGates()
