@@ -37,6 +37,6 @@ interface DispatchProps {
 // `as any`, because we don't have proper typings for redux-thunk async actions
 const mapDispatchToProps = { fetchMyOrganizations } as any;
 
-export default connect<StateProps, DispatchProps, {}>(mapStateToProps, mapDispatchToProps)(
+export default connect<StateProps, DispatchProps>(mapStateToProps, mapDispatchToProps)(
   GlobalNavUser
 );

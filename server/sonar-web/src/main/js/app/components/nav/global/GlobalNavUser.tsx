@@ -121,7 +121,7 @@ export default class GlobalNavUser extends React.PureComponent<Props, State> {
         className={classNames('dropdown js-user-authenticated', { open: this.state.open })}
         ref={node => (this.node = node)}>
         <a className="dropdown-toggle navbar-avatar" href="#" onClick={this.toggleDropdown}>
-          <Avatar hash={user.avatar} name={user.name!} size={24} />
+          <Avatar hash={user.avatar} name={user.name} size={24} />
         </a>
         {this.state.open && (
           <ul className="dropdown-menu dropdown-menu-right">

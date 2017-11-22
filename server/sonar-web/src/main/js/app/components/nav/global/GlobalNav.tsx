@@ -158,6 +158,4 @@ const mapStateToProps = (state: any): StateProps => {
 
 const mapDispatchToProps = { skipOnboarding };
 
-export default connect<StateProps, DispatchProps, {}>(mapStateToProps, mapDispatchToProps)(
-  GlobalNav
-);
+export default connect<StateProps, DispatchProps>(mapStateToProps, mapDispatchToProps)(GlobalNav);
