@@ -61,9 +61,7 @@ export default class QualityGatesApp extends Component {
       const { organization, updateStore } = this.props;
       updateStore({ ...details, qualityGates });
       if (qualityGates && qualityGates.length === 1 && !details.edit) {
-        this.context.router.replace(
-          getQualityGateUrl(qualityGates[0].id, organization && organization.key)
-        );
+        this.context.router.replace(getQualityGateUrl(qualityGates[0].id, organization));
       }
     });
   }
@@ -73,15 +71,14 @@ export default class QualityGatesApp extends Component {
     const { router } = this.context;
 
     addQualityGate(qualityGate);
-    router.push(getQualityGateUrl(qualityGate.id, organization && organization.key));
+    router.push(getQualityGateUrl(qualityGate.id, organization));
   }
 
   render() {
     const { children, qualityGates, edit, organization } = this.props;
-    const defaultTitle = translate('quality_gates.page');
     return (
       <div id="quality-gates-page" className="layout-page">
-        <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />
+        <Helmet title={translate('quality_gates.page')} />
 
         <ScreenPositionHelper className="layout-page-side-outer">
           {({ top }) => (

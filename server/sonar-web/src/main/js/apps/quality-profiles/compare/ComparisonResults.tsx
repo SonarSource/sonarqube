@@ -37,7 +37,7 @@ interface Props {
     left: { params: Params; severity: string };
     right: { params: Params; severity: string };
   }>;
-  organization: string | null;
+  organization?: string;
 }
 
 export default class ComparisonResults extends React.PureComponent<Props> {

@@ -125,7 +125,7 @@ export function getComponentPermissionsUrl(componentKey: string): Location {
 export function getQualityProfileUrl(
   name: string,
   language: string,
-  organization?: string | null
+  organization?: string
 ): Location {
   return getProfilePath(name, language, organization);
 }

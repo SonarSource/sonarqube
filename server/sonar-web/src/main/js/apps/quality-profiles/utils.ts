@@ -76,22 +76,15 @@ export function isStagnant(profile: Profile): boolean {
   return false;
 }
 
-export const getProfilesPath = (organization: string | null | undefined) =>
+export const getProfilesPath = (organization?: string) =>
   organization ? `/organizations/${organization}/quality_profiles` : '/profiles';
 
-export const getProfilesForLanguagePath = (
-  language: string,
-  organization: string | null | undefined
-) => ({
+export const getProfilesForLanguagePath = (language: string, organization?: string) => ({
   pathname: getProfilesPath(organization),
   query: { language }
 });
 
-export const getProfilePath = (
-  name: string,
-  language: string,
-  organization: string | null | undefined
-) => ({
+export const getProfilePath = (name: string, language: string, organization?: string) => ({
   pathname: getProfilesPath(organization) + '/show',
   query: { name, language }
 });
@@ -99,7 +92,7 @@ export const getProfilePath = (
 export const getProfileComparePath = (
   name: string,
   language: string,
-  organization: string | null | undefined,
+  organization?: string,
   withKey?: string
 ) => {
   const query = { language, name };
@@ -115,7 +108,7 @@ export const getProfileComparePath = (
 export const getProfileChangelogPath = (
   name: string,
   language: string,
-  organization: string | null | undefined,
+  organization?: string,
   filter?: { since?: string; to?: string }
 ) => {
   const query = { language, name };

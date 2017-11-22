@@ -47,7 +47,7 @@ it('works for favorites', () => {
 });
 
 it('works with organization', () => {
-  expect(getFilterUrl({ organization: { key: 'org' }, query: {} }, { foo: 'bar' })).toEqual({
+  expect(getFilterUrl({ organization: 'org', query: {} }, { foo: 'bar' })).toEqual({
     pathname: '/organizations/org/projects',
     query: { foo: 'bar' }
   });

@@ -24,6 +24,7 @@ export interface AppState {
   adminPages?: Extension[];
   authenticationError?: boolean;
   authorizationError?: boolean;
+  defaultOrganization?: string;
   globalPages: Extension[];
   canAdmin?: boolean;
   organizationsEnabled?: boolean;

@@ -25,7 +25,7 @@ import { saveAll, saveFavorite } from '../../../helpers/storage';
 import { RawQuery } from '../../../helpers/query';
 
 interface Props {
-  organization?: { key: string };
+  organization?: string;
   query?: RawQuery;
 }
 
@@ -51,13 +51,13 @@ export default class FavoriteFilter extends React.PureComponent<Props> {
       return null;
     }
 
-    const pathnameForFavorite = this.props.organization
-      ? `/organizations/${this.props.organization.key}/projects/favorite`
+    const { organization } = this.props;
+
+    const pathnameForFavorite = organization
+      ? `/organizations/${organization}/projects/favorite`
       : '/projects/favorite';
 
-    const pathnameForAll = this.props.organization
-      ? `/organizations/${this.props.organization.key}/projects`
-      : '/projects';
+    const pathnameForAll = organization ? `/organizations/${organization}/projects` : '/projects';
 
     return (
       <header className="page-header text-center">

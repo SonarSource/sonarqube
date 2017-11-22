@@ -26,7 +26,7 @@ interface Props {
   children?: React.ReactElement<any> | string;
   language: string;
   name: string;
-  organization: string | null;
+  organization?: string;
 }
 
 export default function ProfileLink({ name, language, organization, children, ...other }: Props) {

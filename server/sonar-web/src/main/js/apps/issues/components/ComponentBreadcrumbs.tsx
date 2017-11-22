@@ -36,7 +36,7 @@ interface Props {
     subProject?: string;
     subProjectName?: string;
   };
-  organization?: { key: string };
+  organization?: string;
 }
 
 export default function ComponentBreadcrumbs({ branch, component, issue, organization }: Props) {

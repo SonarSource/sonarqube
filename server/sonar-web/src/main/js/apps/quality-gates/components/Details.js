@@ -67,7 +67,7 @@ export default class Details extends React.PureComponent {
       qualityGate,
       onCopy: newQualityGate => {
         onCopy(newQualityGate);
-        router.push(getQualityGateUrl(newQualityGate.id, organization && organization.key));
+        router.push(getQualityGateUrl(newQualityGate.id, organization));
       }
     }).render();
   }
@@ -89,7 +89,7 @@ export default class Details extends React.PureComponent {
       qualityGate,
       onDelete: qualityGate => {
         onDelete(qualityGate);
-        router.replace(getQualityGatesUrl(organization && organization.key));
+        router.replace(getQualityGatesUrl(organization));
       }
     }).render();
   }
@@ -112,7 +112,6 @@ export default class Details extends React.PureComponent {
           onCopy={this.handleCopyClick.bind(this)}
           onSetAsDefault={this.handleSetAsDefaultClick.bind(this)}
           onDelete={this.handleDeleteClick.bind(this)}
-          organization={this.props.organization}
         />
 
         <DetailsContent

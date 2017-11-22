@@ -27,7 +27,7 @@ import { Profile } from '../types';
 
 interface Props {
   onRequestFail: (reason: any) => void;
-  organization: string | null;
+  organization?: string;
   profile: Profile;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;

@@ -34,7 +34,7 @@ interface Props {
       to?: string;
     };
   };
-  organization: string | null;
+  organization?: string;
   profile: Profile;
 }
 

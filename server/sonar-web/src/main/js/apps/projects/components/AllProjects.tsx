@@ -37,7 +37,7 @@ import { parseUrlQuery, Query } from '../query';
 interface Props {
   isFavorite: boolean;
   location: { pathname: string; query: { [x: string]: string } };
-  organization?: { key: string };
+  organization?: string;
 }
 
 interface State {
@@ -107,11 +107,7 @@ export default class AllProjects extends React.PureComponent<Props, State> {
 
   fetchProjects = (query: any) => {
     this.setState({ loading: true, query });
-    fetchProjects(
-      query,
-      this.props.isFavorite,
-      this.props.organization && this.props.organization.key
-    ).then(response => {
+    fetchProjects(query, this.props.isFavorite, this.props.organization).then(response => {
       if (this.mounted) {
         this.setState({
           facets: response.facets,
@@ -131,7 +127,7 @@ export default class AllProjects extends React.PureComponent<Props, State> {
       fetchProjects(
         query,
         this.props.isFavorite,
-        this.props.organization && this.props.organization.key,
+        this.props.organization,
         pageIndex + 1
       ).then(response => {
         if (this.mounted) {

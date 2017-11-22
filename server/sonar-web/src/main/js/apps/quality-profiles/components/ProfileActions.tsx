@@ -36,7 +36,7 @@ interface Props {
   className?: string;
   fromList?: boolean;
   onRequestFail: (reasong: any) => void;
-  organization: string | null;
+  organization?: string;
   profile: Profile;
   updateProfiles: () => Promise<void>;
 }

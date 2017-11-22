@@ -36,7 +36,7 @@ type Props = {|
   onFilterChange: (changes: {}) => void,
   onPopupToggle: (issue: string, popupName: string, open: ?boolean ) => void,
   openPopup: ?string,
-  organization?: { key: string },
+  organization?: string,
   previousIssue: ?Object,
   selected: boolean
 |};

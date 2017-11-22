@@ -35,7 +35,7 @@ import { Profile } from '../types';
 interface Props {
   onRequestFail: (reasong: any) => void;
   profile: Profile;
-  organization: string | null;
+  organization?: string;
   updateProfiles: () => Promise<void>;
 }
 

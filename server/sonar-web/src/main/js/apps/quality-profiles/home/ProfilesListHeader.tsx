@@ -25,7 +25,7 @@ import { getProfilesPath, getProfilesForLanguagePath } from '../utils';
 interface Props {
   currentFilter?: string;
   languages: Array<{ key: string; name: string }>;
-  organization: string | null;
+  organization?: string;
 }
 
 export default class ProfilesListHeader extends React.PureComponent<Props> {

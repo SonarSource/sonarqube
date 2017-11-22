@@ -72,7 +72,7 @@ export type Props = {
   fetchIssues: (query: RawQuery, requestOrganizations?: boolean) => Promise<*>,
   location: { pathname: string, query: RawQuery },
   onBranchesChange: () => void,
-  organization?: { key: string },
+  organization?: string,
   router: {
     push: ({ pathname: string, query?: RawQuery }) => void,
     replace: ({ pathname: string, query?: RawQuery }) => void
@@ -389,7 +389,7 @@ export default class App extends React.PureComponent {
       s: 'FILE_LINE',
       ...serializeQuery(query),
       ps: '100',
-      organization: organization && organization.key,
+      organization,
       facets,
       ...additional
     };

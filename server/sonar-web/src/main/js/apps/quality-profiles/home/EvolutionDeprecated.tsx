@@ -26,7 +26,7 @@ import { translateWithParameters, translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
 
 interface Props {
-  organization: string | null;
+  organization?: string;
   profiles: Profile[];
 }
 

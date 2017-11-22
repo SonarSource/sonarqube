@@ -26,7 +26,7 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   count: number | null;
-  organization: string | null;
+  organization?: string;
   qprofile: string;
   total: number | null;
   type: string;

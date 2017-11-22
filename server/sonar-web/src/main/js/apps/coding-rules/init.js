@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import $ from 'jquery';
 import { sortBy } from 'lodash';
 import Backbone from 'backbone';
@@ -38,13 +37,7 @@ import { areThereCustomOrganizations } from '../../store/organizations/utils';
 
 const App = new Marionette.Application();
 
-App.on('start', function(
-  options /*: {
-  el: HTMLElement,
-  organization: ?string,
-  isDefaultOrganization: boolean
-} */
-) {
+App.on('start', function(options) {
   App.organization = options.organization;
   const data = options.organization ? { organization: options.organization } : {};
   Promise.all([getRulesApp(data), searchQualityProfiles(data)])
@@ -113,15 +106,10 @@ App.on('start', function(
     });
 });
 
-export default function(
-  el /*: HTMLElement */,
-  organization /*: ?string */,
-  isDefaultOrganization /*: boolean */
-) {
-  App.start({ el, organization, isDefaultOrganization });
+export default function(el, organization) {
+  App.start({ el, organization });
 
   return () => {
-    // $FlowFixMe
     Backbone.history.stop();
     App.layout.destroy();
     $('#footer').removeClass('page-footer-with-sidebar');

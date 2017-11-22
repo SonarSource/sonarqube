@@ -31,7 +31,7 @@ interface Props {
     query: { key?: string; language: string; name: string };
   };
   onRequestFail: (reasong: any) => void;
-  organization: string | null;
+  organization?: string;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;
 }

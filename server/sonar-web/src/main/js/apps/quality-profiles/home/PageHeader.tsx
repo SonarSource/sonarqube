@@ -30,7 +30,7 @@ interface Props {
   actions: Actions;
   languages: Array<{ key: string; name: string }>;
   onRequestFail: (reason: any) => void;
-  organization: string | null;
+  organization?: string;
   updateProfiles: () => Promise<void>;
 }
 

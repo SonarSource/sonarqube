@@ -19,15 +19,12 @@
  */
 import { connect } from 'react-redux';
 import App from './App';
-import { getLanguages, getCurrentUser, getOrganizationByKey } from '../../../store/rootReducer';
+import { getLanguages, getCurrentUser } from '../../../store/rootReducer';
 import { onFail } from '../../../store/rootActions';
 
-const mapStateToProps = (state: any, ownProps: any) => ({
+const mapStateToProps = (state: any) => ({
   currentUser: getCurrentUser(state),
-  languages: getLanguages(state),
-  organization: ownProps.params.organizationKey
-    ? getOrganizationByKey(state, ownProps.params.organizationKey)
-    : null
+  languages: getLanguages(state)
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

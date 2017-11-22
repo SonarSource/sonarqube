@@ -29,7 +29,7 @@ interface Props {
   displayLink?: boolean;
   extendsBuiltIn?: boolean;
   language: string;
-  organization: string | null;
+  organization?: string;
   profile: {
     activeRuleCount: number;
     isBuiltIn: boolean;

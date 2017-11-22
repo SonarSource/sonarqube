@@ -23,7 +23,7 @@ import { translate } from '../../../helpers/l10n';
 import { getProfilesPath } from '../utils';
 
 interface Props {
-  organization: string | null;
+  organization?: string;
 }
 
 export default function ProfileNotFound(props: Props) {

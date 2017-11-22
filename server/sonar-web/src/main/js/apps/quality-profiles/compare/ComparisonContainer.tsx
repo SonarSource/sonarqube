@@ -27,7 +27,7 @@ import { Profile } from '../types';
 
 interface Props {
   location: { query: { withKey?: string } };
-  organization: string | null;
+  organization?: string;
   profile: Profile;
   profiles: Profile[];
 }

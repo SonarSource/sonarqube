@@ -17,20 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
+import { Component } from '../types';
 import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 
-export default class ProjectAdminContainer extends React.PureComponent {
-  /*::
-  props: {
-    component: {
-      configuration?: {
-        showSettings: boolean
-      }
-    }
-  };
-  */
+interface Props {
+  children: JSX.Element;
+  component: Component;
+}
 
+export default class ProjectAdminContainer extends React.PureComponent<Props> {
   componentDidMount() {
     this.checkPermissions();
   }

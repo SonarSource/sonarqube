@@ -43,7 +43,7 @@ type Props = {|
   fetchIssues: ({}) => Promise<*>,
   onClose: () => void,
   onDone: () => void,
-  organization?: { key: string }
+  organization?: string
 |};
 */
 
@@ -82,7 +82,7 @@ export default class BulkChangeModal extends React.PureComponent {
     super(props);
     let organization = props.component && props.component.organization;
     if (props.organization && !organization) {
-      organization = props.organization.key;
+      organization = props.organization;
     }
     this.state = { issues: [], loading: true, submitting: false, organization };
   }

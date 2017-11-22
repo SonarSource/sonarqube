@@ -36,7 +36,6 @@ it('should render ProfileHeader', () => {
     <ProfileContainer
       location={{ pathname: '', query: { language: 'js', name: 'fake' } }}
       onRequestFail={jest.fn()}
-      organization={null}
       profiles={profiles}
       updateProfiles={updateProfiles}
       {...routerProps}>
@@ -58,7 +57,6 @@ it('should render ProfileNotFound', () => {
     <ProfileContainer
       location={{ pathname: '', query: { language: 'js', name: 'random' } }}
       onRequestFail={jest.fn()}
-      organization={null}
       profiles={profiles}
       updateProfiles={jest.fn()}
       {...routerProps}>
@@ -75,7 +73,6 @@ it('should render Helmet', () => {
     <ProfileContainer
       location={{ pathname: '', query: { language: 'js', name: 'First Profile' } }}
       onRequestFail={jest.fn()}
-      organization={null}
       profiles={profiles}
       updateProfiles={updateProfiles}
       {...routerProps}>

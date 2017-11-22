@@ -29,7 +29,7 @@ interface Props {
   onClose: () => void;
   onCreate: Function;
   onRequestFail: (reasong: any) => void;
-  organization: string | null;
+  organization?: string;
 }
 
 interface State {

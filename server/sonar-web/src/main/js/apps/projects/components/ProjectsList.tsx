@@ -30,7 +30,7 @@ interface Props {
   cardType?: string;
   isFavorite: boolean;
   isFiltered: boolean;
-  organization?: { key: string };
+  organization?: string;
   projects: Project[];
   query: Query;
 }

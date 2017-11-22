@@ -37,7 +37,7 @@ type Props = {|
   onChange: (changes: { [string]: Array<string> }) => void,
   onToggle: (property: string) => void,
   open: boolean,
-  organization?: { key: string },
+  organization?: string,
   stats?: { [string]: number },
   tags: Array<string>
 |};
@@ -71,7 +71,7 @@ export default class TagFacet extends React.PureComponent {
   handleSearch = (query /*: string */) => {
     let organization = this.props.component && this.props.component.organization;
     if (this.props.organization && !organization) {
-      organization = this.props.organization.key;
+      organization = this.props.organization;
     }
     return searchIssueTags({ organization, ps: 50, q: query }).then(tags =>
       tags.map(tag => ({ label: tag, value: tag }))
