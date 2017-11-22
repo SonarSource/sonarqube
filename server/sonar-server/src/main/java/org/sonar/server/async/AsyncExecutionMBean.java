@@ -19,14 +19,13 @@
  */
 package org.sonar.server.async;
 
-import org.sonar.core.platform.Module;
+public interface AsyncExecutionMBean {
 
-public class AsyncExecutionModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      AsyncExecutionMBeanImpl.class,
-      AsyncExecutionExecutorServiceImpl.class,
-      AsyncExecutionImpl.class);
-  }
+  String OBJECT_NAME = "SonarQube:name=AsyncExecution";
+
+  long getQueueSize();
+
+  long getWorkerCount();
+
+  long getLargestWorkerCount();
 }

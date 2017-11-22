@@ -19,14 +19,10 @@
  */
 package org.sonar.server.async;
 
-import org.sonar.core.platform.Module;
+public interface AsyncExecutionMonitoring {
+  int getQueueSize();
 
-public class AsyncExecutionModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      AsyncExecutionMBeanImpl.class,
-      AsyncExecutionExecutorServiceImpl.class,
-      AsyncExecutionImpl.class);
-  }
+  int getWorkerCount();
+
+  int getLargestWorkerCount();
 }

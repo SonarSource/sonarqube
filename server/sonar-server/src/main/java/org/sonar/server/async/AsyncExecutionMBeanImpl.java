@@ -19,14 +19,39 @@
  */
 package org.sonar.server.async;
 
-import org.sonar.core.platform.Module;
+import org.picocontainer.Startable;
+import org.sonar.process.Jmx;
 
-public class AsyncExecutionModule extends Module {
+public class AsyncExecutionMBeanImpl implements AsyncExecutionMBean, Startable {
+
+  private final AsyncExecutionMonitoring asyncExecutionMonitoring;
+
+  public AsyncExecutionMBeanImpl(AsyncExecutionMonitoring asyncExecutionMonitoring) {
+    this.asyncExecutionMonitoring = asyncExecutionMonitoring;
+  }
+
   @Override
-  protected void configureModule() {
-    add(
-      AsyncExecutionMBeanImpl.class,
-      AsyncExecutionExecutorServiceImpl.class,
-      AsyncExecutionImpl.class);
+  public void start() {
+    Jmx.register(OBJECT_NAME, this);
+  }
+
+  @Override
+  public void stop() {
+    Jmx.unregister(OBJECT_NAME);
+  }
+
+  @Override
+  public long getQueueSize() {
+    return asyncExecutionMonitoring.getQueueSize();
+  }
+
+  @Override
+  public long getWorkerCount() {
+    return asyncExecutionMonitoring.getWorkerCount();
+  }
+
+  @Override
+  public long getLargestWorkerCount() {
+    return asyncExecutionMonitoring.getLargestWorkerCount();
   }
 }

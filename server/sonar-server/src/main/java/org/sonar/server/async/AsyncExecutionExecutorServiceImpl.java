@@ -20,7 +20,6 @@
 package org.sonar.server.async;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import org.sonar.api.utils.log.Logger;
@@ -30,8 +29,8 @@ import org.sonar.server.util.AbstractStoppableExecutorService;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class AsyncExecutionExecutorServiceImpl
-  extends AbstractStoppableExecutorService<ExecutorService>
-  implements AsyncExecutionExecutorService {
+  extends AbstractStoppableExecutorService<ThreadPoolExecutor>
+  implements AsyncExecutionExecutorService, AsyncExecutionMonitoring {
   private static final Logger LOG = Loggers.get(AsyncExecutionExecutorServiceImpl.class);
 
   private static final int MIN_THREAD_COUNT = 1;
@@ -55,5 +54,20 @@ public class AsyncExecutionExecutorServiceImpl
   @Override
   public void addToQueue(Runnable r) {
     this.submit(r);
+  }
+
+  @Override
+  public int getQueueSize() {
+    return delegate.getQueue().size();
+  }
+
+  @Override
+  public int getWorkerCount() {
+    return delegate.getPoolSize();
+  }
+
+  @Override
+  public int getLargestWorkerCount() {
+    return delegate.getLargestPoolSize();
   }
 }
