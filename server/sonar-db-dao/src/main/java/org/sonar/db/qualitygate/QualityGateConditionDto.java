@@ -135,7 +135,7 @@ public class QualityGateConditionDto {
     return metricKey;
   }
 
-  public QualityGateConditionDto setMetricKey(String metricKey) {
+  public QualityGateConditionDto setMetricKey(@Nullable String metricKey) {
     this.metricKey = metricKey;
     return this;
   }

@@ -109,7 +109,7 @@ public class WebhooksTest {
     assertThat(project.get("name")).isEqualTo(PROJECT_NAME);
     assertThat(project.get("url")).isEqualTo(orchestrator.getServer().getUrl() + "/dashboard?id=" + PROJECT_KEY);
     Map<String, Object> gate = (Map<String, Object>) payload.get("qualityGate");
-    assertThat(gate.get("name")).isEqualTo("SonarQube way");
+    assertThat(gate.get("name")).isEqualTo("Sonar way");
     assertThat(gate.get("status")).isEqualTo("OK");
     assertThat(gate.get("conditions")).isNotNull();
 

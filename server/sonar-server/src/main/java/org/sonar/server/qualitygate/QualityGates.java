@@ -112,6 +112,11 @@ public class QualityGates {
     }
   }
 
+  /**
+   * Use {@link QualityGateUpdater#setDefault(DbSession, QualityGateDto)}
+   * @deprecated
+   */
+  @Deprecated
   public void setDefault(DbSession dbSession, @Nullable Long idToUseAsDefault) {
     checkIsQualityGateAdministrator();
     if (idToUseAsDefault == null) {
@@ -122,6 +127,11 @@ public class QualityGates {
     }
   }
 
+  /**
+   * Use {@link QualityGateUpdater#setDefault(DbSession, QualityGateDto)}
+   * @deprecated
+   */
+  @Deprecated
   public void setDefault(@Nullable Long idToUseAsDefault) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       setDefault(dbSession, idToUseAsDefault);

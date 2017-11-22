@@ -24,7 +24,9 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.util.Validation;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -32,6 +34,8 @@ import static java.lang.String.format;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class QualityGateUpdater {
+
+  public static final String SONAR_QUALITYGATE_PROPERTY = "sonar.qualitygate";
 
   private final DbClient dbClient;
 
@@ -44,6 +48,23 @@ public class QualityGateUpdater {
     QualityGateDto newQualityGate = new QualityGateDto().setName(name).setBuiltIn(false);
     dbClient.qualityGateDao().insert(dbSession, newQualityGate);
     return newQualityGate;
+  }
+
+  public void setDefault(DbSession dbSession, @Nullable QualityGateDto qualityGateDto) {
+    if (qualityGateDto == null) {
+      dbClient.propertiesDao().deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY, dbSession);
+    } else {
+      checkQualityGateExistence(dbSession, qualityGateDto.getId());
+      dbClient.propertiesDao().saveProperty(dbSession,
+        new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setValue(qualityGateDto.getId().toString()));
+    }
+  }
+
+  private void checkQualityGateExistence(DbSession dbSession, @Nullable Long qualityGateId) {
+    if (qualityGateId == null ||
+      dbClient.qualityGateDao().selectById(dbSession, qualityGateId) == null) {
+      throw new NotFoundException("There is no quality gate with id=" + qualityGateId);
+    }
   }
 
   private void validateQualityGate(DbSession dbSession, @Nullable Long qGateId, @Nullable String name) {

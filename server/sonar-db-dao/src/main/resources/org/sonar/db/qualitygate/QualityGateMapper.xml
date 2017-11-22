@@ -40,8 +40,17 @@
   <update id="update" parameterType="QualityGate">
     update quality_gates set
     name=#{name},
+    is_built_in=#{isBuiltIn},
     updated_at=#{updatedAt}
     where id=#{id}
+  </update>
+
+  <update id="ensureOneBuiltInQualityGate" parameterType="string">
+    UPDATE quality_gates
+    SET
+      is_built_in=${_false}
+    WHERE
+      is_built_in=${_true} AND name &lt;&gt; #{builtInQualityName}
   </update>
 
 </mapper>
