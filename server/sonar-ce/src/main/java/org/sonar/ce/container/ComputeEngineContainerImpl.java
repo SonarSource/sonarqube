@@ -128,6 +128,7 @@ import org.sonar.server.platform.WebServerImpl;
 import org.sonar.server.platform.db.migration.MigrationConfigurationModule;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.platform.monitoring.DbSection;
+import org.sonar.server.platform.monitoring.OfficialDistribution;
 import org.sonar.server.platform.monitoring.cluster.ProcessInfoProvider;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerExtensionInstaller;
@@ -416,6 +417,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       CeTaskCommonsModule.class,
       ProjectAnalysisTaskModule.class,
       CeTaskProcessorModule.class,
+      OfficialDistribution.class,
 
       InternalPropertiesImpl.class,
       ProjectConfigurationFactory.class,
