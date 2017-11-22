@@ -26,8 +26,6 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -47,11 +45,10 @@ import static java.lang.String.format;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.util.Validation.CANT_BE_EMPTY_MESSAGE;
 import static org.sonar.server.util.Validation.IS_ALREADY_USED_MESSAGE;
-import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 /**
- * Methods from this class should be moved to {@link QualityGateUpdater} and to new classes QualityGateFinder / QualityGateConditionsUpdater / etc.
+ * Methods from this class should be moved to {@link QualityGateUpdater} and to classes QualityGateFinder / QualityGateConditionsUpdater / etc.
  * in order to have classes with clearer responsibilities and more easily testable (without having to use too much mocks)
  */
 public class QualityGates {
@@ -61,27 +58,17 @@ public class QualityGates {
   private final DbClient dbClient;
   private final QualityGateDao dao;
   private final QualityGateConditionDao conditionDao;
-  private final MetricFinder metricFinder;
   private final PropertiesDao propertiesDao;
   private final UserSession userSession;
   private final DefaultOrganizationProvider organizationProvider;
 
-  public QualityGates(DbClient dbClient, MetricFinder metricFinder, UserSession userSession, DefaultOrganizationProvider organizationProvider) {
+  public QualityGates(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider organizationProvider) {
     this.dbClient = dbClient;
     this.dao = dbClient.qualityGateDao();
     this.conditionDao = dbClient.gateConditionDao();
-    this.metricFinder = metricFinder;
     this.propertiesDao = dbClient.propertiesDao();
     this.userSession = userSession;
     this.organizationProvider = organizationProvider;
-  }
-
-  public QualityGateDto get(Long qGateId) {
-    return getNonNullQgate(qGateId);
-  }
-
-  public QualityGateDto get(String qGateName) {
-    return getNonNullQgate(qGateName);
   }
 
   public QualityGateDto rename(long idToRename, String name) {
@@ -161,20 +148,6 @@ public class QualityGates {
     }
   }
 
-  public Collection<QualityGateConditionDto> listConditions(long qGateId) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      Collection<QualityGateConditionDto> conditionsForGate = conditionDao.selectForQualityGate(dbSession, qGateId);
-      for (QualityGateConditionDto condition : conditionsForGate) {
-        Metric metric = metricFinder.findById((int) condition.getMetricId());
-        if (metric == null) {
-          throw new IllegalStateException("Could not find metric with id " + condition.getMetricId());
-        }
-        condition.setMetricKey(metric.getKey());
-      }
-      return conditionsForGate;
-    }
-  }
-
   public void dissociateProject(DbSession dbSession, ComponentDto project) {
     checkProjectAdmin(project);
     propertiesDao.deleteProjectProperty(SONAR_QUALITYGATE_PROPERTY, project.getId(), dbSession);
@@ -205,12 +178,6 @@ public class QualityGates {
       throw new NotFoundException("There is no quality gate with id=" + id);
     }
     return qGate;
-  }
-
-  private QualityGateDto getNonNullQgate(String name) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      return checkFound(dao.selectByName(dbSession, name), "There is no quality gate with name=%s", name);
-    }
   }
 
   private void validateQualityGate(DbSession dbSession, @Nullable Long updatingQgateId, @Nullable String name) {

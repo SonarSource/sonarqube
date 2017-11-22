@@ -21,14 +21,15 @@ package org.sonar.server.qualitygate;
 
 import java.util.Optional;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.exceptions.NotFoundException;
 
 import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
+import static org.sonar.server.ws.WsUtils.checkFound;
 
 public class QualityGateFinder {
 
@@ -47,7 +48,7 @@ public class QualityGateFinder {
   public Optional<QualityGateData> getQualityGate(DbSession dbSession, long componentId) {
     Optional<Long> qualityGateId = dbClient.projectQgateAssociationDao().selectQGateIdByComponentId(dbSession, componentId);
     if (qualityGateId.isPresent()) {
-      return Optional.of(new QualityGateData(selectOrFailById(dbSession, qualityGateId.get()), false));
+      return Optional.of(new QualityGateData(getById(dbSession, qualityGateId.get()), false));
     } else {
       QualityGateDto defaultQualityGate = getDefault(dbSession);
       if (defaultQualityGate == null) {
@@ -57,21 +58,27 @@ public class QualityGateFinder {
     }
   }
 
+  public QualityGateDto getById(DbSession dbSession, long qualityGateId) {
+    return checkFound(dbClient.qualityGateDao().selectById(dbSession, qualityGateId), "No quality gate has been found for id %s", qualityGateId);
+  }
+
+  public QualityGateDto getByNameOrId(DbSession dbSession, @Nullable String name, @Nullable Long id) {
+    if (name != null) {
+      return checkFound(dbClient.qualityGateDao().selectByName(dbSession, name), "No quality gate has been found for name %s", name);
+    }
+    if (id != null) {
+      return getById(dbSession, id);
+    }
+    throw new IllegalArgumentException("No parameter has been set to identify a quality gate");
+  }
+
   @CheckForNull
   private QualityGateDto getDefault(DbSession dbSession) {
     Long defaultId = getDefaultId(dbSession);
     if (defaultId == null) {
       return null;
     }
-    return selectOrFailById(dbSession, defaultId);
-  }
-
-  private QualityGateDto selectOrFailById(DbSession dbSession, long qualityGateId) {
-    QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectById(dbSession, qualityGateId);
-    if (qualityGateDto == null) {
-      throw new NotFoundException(String.format("No quality gate has been found for id %s", qualityGateId));
-    }
-    return qualityGateDto;
+    return getById(dbSession, defaultId);
   }
 
   @CheckForNull
@@ -101,4 +108,5 @@ public class QualityGateFinder {
       return isDefault;
     }
   }
+
 }
