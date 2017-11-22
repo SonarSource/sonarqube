@@ -34,6 +34,7 @@ import PortfoliosPage from '../components/extensions/PortfoliosPage';
 import AdminContainer from '../components/AdminContainer';
 import GlobalPageExtension from '../components/extensions/GlobalPageExtension';
 import GlobalAdminPageExtension from '../components/extensions/GlobalAdminPageExtension';
+import DefaultOrganizationContainer from '../components/DefaultOrganizationContainer';
 import MarkdownHelp from '../components/MarkdownHelp';
 import NotFound from '../components/NotFound';
 import aboutRoutes from '../../apps/about/routes';
@@ -140,18 +141,20 @@ export default [
                 childRoute('about', aboutRoutes),
                 childRoute('account', accountRoutes),
                 childRoute('component', componentRoutes),
-                componentRoute('extension/:pluginKey/:extensionKey', GlobalPageExtension),
                 childRoute('organizations', organizationsRoutes),
                 childRoute('web_api', webAPIRoutes),
                 projectRoutes,
                 adminRoutes,
 
-                childRoute('coding_rules', codingRulesRoutes),
-                childRoute('issues', issuesRoutes),
-                childRoute('projects', projectsRoutes),
-                childRoute('quality_gates', qualityGatesRoutes),
-                componentRoute('portfolios', PortfoliosPage),
-                childRoute('profiles', qualityProfilesRoutes)
+                nest(DefaultOrganizationContainer, [
+                  childRoute('coding_rules', codingRulesRoutes),
+                  componentRoute('extension/:pluginKey/:extensionKey', GlobalPageExtension),
+                  childRoute('issues', issuesRoutes),
+                  childRoute('projects', projectsRoutes),
+                  childRoute('quality_gates', qualityGatesRoutes),
+                  componentRoute('portfolios', PortfoliosPage),
+                  childRoute('profiles', qualityProfilesRoutes)
+                ])
               ]),
               componentRoute('not_found', NotFound),
               componentRoute('*', NotFound)

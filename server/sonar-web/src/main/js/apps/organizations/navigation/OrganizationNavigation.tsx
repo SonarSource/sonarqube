@@ -20,12 +20,12 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import * as classNames from 'classnames';
-import { translate } from '../../../helpers/l10n';
+import { Organization } from '../../../app/types';
 import ContextNavBar from '../../../components/nav/ContextNavBar';
 import NavBarTabs from '../../../components/nav/NavBarTabs';
 import OrganizationIcon from '../../../components/icons-components/OrganizationIcon';
-import { getQualityGatesUrl } from '../../../helpers/urls';
-import { Organization } from '../../../app/types';
+import CommonNavigation from '../../../components/common/CommonNavigation';
+import { translate } from '../../../helpers/l10n';
 
 const ADMIN_PATHS = [
   'edit',
@@ -137,10 +137,6 @@ export default class OrganizationNavigation extends React.PureComponent<Props> {
   render() {
     const { organization, location } = this.props;
 
-    const isHomeActive =
-      location.pathname === `organizations/${organization.key}/projects` ||
-      location.pathname === `organizations/${organization.key}/projects/favorite`;
-
     const adminPathsWithExtensions = (organization.adminPages || [])
       .map(e => `extension/${e.key}`)
       .concat(ADMIN_PATHS);
@@ -190,40 +186,7 @@ export default class OrganizationNavigation extends React.PureComponent<Props> {
         </div>
 
         <NavBarTabs>
-          <li>
-            <Link
-              to={`/organizations/${organization.key}/projects`}
-              className={isHomeActive ? 'active' : ''}>
-              {translate('projects.page')}
-            </Link>
-          </li>
-          <li>
-            <Link
-              to={{
-                pathname: `/organizations/${organization.key}/issues`,
-                query: { resolved: 'false' }
-              }}
-              activeClassName="active">
-              {translate('issues.page')}
-            </Link>
-          </li>
-          <li>
-            <Link
-              to={`/organizations/${organization.key}/quality_profiles`}
-              activeClassName="active">
-              {translate('quality_profiles.page')}
-            </Link>
-          </li>
-          <li>
-            <Link to={`/organizations/${organization.key}/rules`} activeClassName="active">
-              {translate('coding_rules.page')}
-            </Link>
-          </li>
-          <li>
-            <Link to={getQualityGatesUrl(organization.key)} activeClassName="active">
-              {translate('quality_gates.page')}
-            </Link>
-          </li>
+          <CommonNavigation organization={organization.key} />
           <li>
             <Link to={`/organizations/${organization.key}/members`} activeClassName="active">
               {translate('organization.members.page')}
