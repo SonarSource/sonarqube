@@ -22,8 +22,8 @@ import * as PropTypes from 'prop-types';
 import ComparisonForm from './ComparisonForm';
 import ComparisonResults from './ComparisonResults';
 import { compareProfiles } from '../../../api/quality-profiles';
-import { getProfileComparePath } from '../utils';
 import { Profile } from '../types';
+import { getProfileCompareUrl } from '../../../helpers/urls';
 
 interface Props {
   location: { query: { withKey?: string } };
@@ -98,7 +98,7 @@ export default class ComparisonContainer extends React.PureComponent<Props, Stat
   }
 
   handleCompare = (withKey: string) => {
-    const path = getProfileComparePath(
+    const path = getProfileCompareUrl(
       this.props.profile.name,
       this.props.profile.language,
       this.props.organization,

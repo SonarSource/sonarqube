@@ -20,7 +20,7 @@
 import * as React from 'react';
 import { IndexLink } from 'react-router';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { getProfilesPath, getProfilesForLanguagePath } from '../utils';
+import { getProfilesUrl, getProfilesForLanguageUrl } from '../../../helpers/urls';
 
 interface Props {
   currentFilter?: string;
@@ -51,14 +51,14 @@ export default class ProfilesListHeader extends React.PureComponent<Props> {
     return (
       <ul className="dropdown-menu">
         <li>
-          <IndexLink to={getProfilesPath(this.props.organization)}>
+          <IndexLink to={getProfilesUrl(this.props.organization)}>
             {translate('quality_profiles.all_profiles')}
           </IndexLink>
         </li>
         {this.props.languages.map(language => (
           <li key={language.key}>
             <IndexLink
-              to={getProfilesForLanguagePath(language.key, this.props.organization)}
+              to={getProfilesForLanguageUrl(language.key, this.props.organization)}
               className="js-language-filter-option"
               data-language={language.key}>
               {language.name}

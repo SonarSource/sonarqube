@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
-import { getProfilePath } from '../utils';
+import { getProfileUrl } from '../../../helpers/urls';
 
 interface Props {
   className?: string;
@@ -32,7 +32,7 @@ interface Props {
 export default function ProfileLink({ name, language, organization, children, ...other }: Props) {
   return (
     <Link
-      to={getProfilePath(name, language, organization)}
+      to={getProfileUrl(name, language, organization)}
       activeClassName="link-no-underline"
       {...other}>
       {children}
