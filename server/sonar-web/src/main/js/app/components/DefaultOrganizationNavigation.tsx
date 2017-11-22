@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router';
+import { Link, IndexLink } from 'react-router';
 import * as classNames from 'classnames';
 import { Organization, Extension } from '../../app/types';
 import ContextNavBar from '../../components/nav/ContextNavBar';
@@ -31,6 +31,7 @@ import { getAppState } from '../../store/rootReducer';
 import { translate } from '../../helpers/l10n';
 
 const PORTFOLIOS = 'governance/portfolios';
+const SUPPORT = 'license/support';
 
 interface Props {
   appState: AppState;
@@ -55,6 +56,7 @@ function DefaultOrganizationNavigation({ appState, location, organization }: Pro
       <NavBarTabs>
         <CommonNavigation afterProjects={portfoliosLink} />
         {renderExtensions(appState.globalPages, location.pathname)}
+        {organization.canAdmin && renderAdministration(appState.adminPages, location.pathname)}
       </NavBarTabs>
     </ContextNavBar>
   );
@@ -134,6 +136,63 @@ function renderExtensions(extensions: Extension[], pathname: string) {
           </li>
         ))}
       </ul>
+    </li>
+  );
+}
+
+function renderAdministration(extensions: Extension[] = [], pathname: string) {
+  const supportExtension = extensions.find(({ key }) => key === SUPPORT);
+  const withoutSupport = extensions.filter(({ key }) => key !== SUPPORT);
+  const adminActive = pathname.startsWith('admin');
+
+  return (
+    <li className="dropdown">
+      <a
+        className={classNames('dropdown-toggle', { active: adminActive })}
+        data-toggle="dropdown"
+        href="#">
+        {translate('layout.settings')}
+        <i className="icon-dropdown little-spacer-left" />
+      </a>
+      <ul className="dropdown-menu">
+        <li className="dropdown-header">{translate('sidebar.project_settings')}</li>
+        {adminLink('/admin/settings', 'settings.page')}
+        {adminLink('/admin/settings/encryption', 'property.category.security.encryption')}
+        {adminLink('/admin/custom_metrics', 'custom_metrics.page')}
+        {withoutSupport.map(({ key, name }) => (
+          <li key={key}>
+            <Link to={`/admin/extension/${key}`} activeClassName="active">
+              {name}
+            </Link>
+          </li>
+        ))}
+
+        <li className="divider" />
+        <li className="dropdown-header">{translate('sidebar.security')}</li>
+        {adminLink('/admin/users', 'users.page')}
+        {adminLink('/admin/groups', 'user_groups.page')}
+        {adminLink('/admin/permissions', 'global_permissions.page')}
+        {adminLink('/admin/permission_templates', 'permission_templates')}
+
+        <li className="divider" />
+        {adminLink('/admin/projects_management', 'projects_management')}
+        {adminLink('/admin/background_tasks', 'background_tasks.page')}
+
+        <li className="divider" />
+        {adminLink('/admin/system', 'sidebar.system')}
+        {adminLink('/admin/marketplace', 'marketplace.page')}
+        {supportExtension && adminLink('/admin/extension/license/support', 'support')}
+      </ul>
+    </li>
+  );
+}
+
+function adminLink(path: string, label: string) {
+  return (
+    <li>
+      <IndexLink to={path} activeClassName="active">
+        {translate(label)}
+      </IndexLink>
     </li>
   );
 }

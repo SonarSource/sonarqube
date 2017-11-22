@@ -144,7 +144,6 @@ export default [
                 childRoute('organizations', organizationsRoutes),
                 childRoute('web_api', webAPIRoutes),
                 projectRoutes,
-                adminRoutes,
 
                 nest(DefaultOrganizationContainer, [
                   childRoute('coding_rules', codingRulesRoutes),
@@ -153,7 +152,8 @@ export default [
                   childRoute('projects', projectsRoutes),
                   childRoute('quality_gates', qualityGatesRoutes),
                   componentRoute('portfolios', PortfoliosPage),
-                  childRoute('profiles', qualityProfilesRoutes)
+                  childRoute('profiles', qualityProfilesRoutes),
+                  adminRoutes
                 ])
               ]),
               componentRoute('not_found', NotFound),

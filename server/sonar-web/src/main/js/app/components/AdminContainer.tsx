@@ -21,15 +21,12 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import SettingsNav from './nav/settings/SettingsNav';
 import {
   getAppState,
   getGlobalSettingValue,
   getMarketplaceEditionStatus
 } from '../../store/rootReducer';
-import { getSettingsNavigation } from '../../api/nav';
 import { EditionStatus, getEditionStatus } from '../../api/marketplace';
-import { setAdminPages } from '../../store/appState/duck';
 import { fetchEditions, setEditionStatus } from '../../store/marketplace/actions';
 import { translate } from '../../helpers/l10n';
 import { Extension } from '../types';
@@ -44,7 +41,6 @@ interface Props {
   editionStatus?: EditionStatus;
   fetchEditions: (url: string, version: string) => void;
   location: {};
-  setAdminPages: (adminPages: Extension[]) => void;
   setEditionStatus: (editionStatus: EditionStatus) => void;
 }
 
@@ -60,20 +56,16 @@ class AdminContainer extends React.PureComponent<Props> {
         handleRequredAuthorization.default()
       );
     } else {
-      this.fetchNavigationSettings();
       this.props.fetchEditions(this.props.editionsUrl, this.props.appState.version);
       this.fetchEditionStatus();
     }
   }
 
-  fetchNavigationSettings = () =>
-    getSettingsNavigation().then(r => this.props.setAdminPages(r.extensions), () => {});
-
   fetchEditionStatus = () =>
     getEditionStatus().then(editionStatus => this.props.setEditionStatus(editionStatus), () => {});
 
   render() {
-    const { adminPages, organizationsEnabled } = this.props.appState;
+    const { adminPages } = this.props.appState;
 
     // Check that the adminPages are loaded
     if (!adminPages) {
@@ -85,12 +77,6 @@ class AdminContainer extends React.PureComponent<Props> {
     return (
       <div>
         <Helmet defaultTitle={defaultTitle} titleTemplate={'%s - ' + defaultTitle} />
-        <SettingsNav
-          customOrganizations={organizationsEnabled}
-          editionStatus={this.props.editionStatus}
-          extensions={adminPages}
-          location={this.props.location}
-        />
         {this.props.children}
       </div>
     );
@@ -103,6 +89,6 @@ const mapStateToProps = (state: any) => ({
   editionsUrl: (getGlobalSettingValue(state, 'sonar.editions.jsonUrl') || {}).value
 });
 
-const mapDispatchToProps = { setAdminPages, setEditionStatus, fetchEditions };
+const mapDispatchToProps = { setEditionStatus, fetchEditions };
 
 export default connect(mapStateToProps, mapDispatchToProps)(AdminContainer as any);
