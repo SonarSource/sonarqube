@@ -80,17 +80,16 @@ public class QualityGateFinderTest {
   }
 
   @Test
-  public void fail_when_default_qgate_defined_in_properties_does_not_exists() throws Exception {
+  public void fail_when_default_qgate_defined_in_properties_does_not_exists() {
     ComponentDto project = db.components().insertPrivateProject();
     QualityGateDto dbQualityGate = db.qualityGates().createDefaultQualityGate("Sonar way");
     db.getDbClient().qualityGateDao().delete(dbQualityGate, dbSession);
 
-    expectedException.expect(NotFoundException.class);
-    underTest.getQualityGate(dbSession, project.getId());
+    assertThat(underTest.getQualityGate(dbSession, project.getId())).isEmpty();
   }
 
   @Test
-  public void fail_when_project_qgate_defined_in_properties_does_not_exists() throws Exception {
+  public void fail_when_project_qgate_defined_in_properties_does_not_exists() {
     ComponentDto project = db.components().insertPrivateProject();
     QualityGateDto dbQualityGate = db.qualityGates().insertQualityGate("My team QG");
     db.qualityGates().associateProjectToQualityGate(project, dbQualityGate);
