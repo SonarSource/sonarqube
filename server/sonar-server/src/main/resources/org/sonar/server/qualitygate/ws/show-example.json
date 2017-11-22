@@ -11,7 +11,8 @@
     {
       "id": 10,
       "metric": "critical_violations",
-      "op": "GT",
+      "period": 1,
+      "op": "LT",
       "warning": "0"
     }
   ]
