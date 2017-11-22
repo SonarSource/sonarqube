@@ -33,7 +33,6 @@ import org.sonar.api.server.ws.WebService.Controller;
 import org.sonar.db.DbClient;
 import org.sonar.db.qualitygate.ProjectQgateAssociation;
 import org.sonar.db.qualitygate.ProjectQgateAssociationQuery;
-import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
@@ -70,7 +69,6 @@ public class QualityGatesWsTest {
 
     tester = new WsTester(new QualityGatesWs(
       new ListAction(qGates),
-      new ShowAction(qGates),
       new SearchAction(projectFinder),
       new CreateAction(null, null, null, null),
       new CopyAction(qGates),
@@ -90,7 +88,7 @@ public class QualityGatesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualitygates");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(15);
+    assertThat(controller.actions()).hasSize(14);
 
     Action list = controller.action("list");
     assertThat(list).isNotNull();
@@ -98,14 +96,6 @@ public class QualityGatesWsTest {
     assertThat(list.since()).isEqualTo("4.3");
     assertThat(list.isPost()).isFalse();
     assertThat(list.isInternal()).isFalse();
-
-    Action show = controller.action("show");
-    assertThat(show).isNotNull();
-    assertThat(show.handler()).isNotNull();
-    assertThat(show.since()).isEqualTo("4.3");
-    assertThat(show.isPost()).isFalse();
-    assertThat(show.param("id")).isNotNull();
-    assertThat(show.isInternal()).isFalse();
 
     Action create = controller.action("create");
     assertThat(create).isNotNull();
@@ -256,53 +246,6 @@ public class QualityGatesWsTest {
     when(qGates.getDefault()).thenReturn(defaultQgate);
     tester.newGetRequest("api/qualitygates", "list").execute().assertJson(
       "{\"qualitygates\":[{\"id\":42,\"name\":\"Golden\"},{\"id\":43,\"name\":\"Star\"},{\"id\":666,\"name\":\"Ninth\"}],\"default\":42}");
-  }
-
-  @Test
-  public void show_empty() throws Exception {
-    long gateId = 12345L;
-    when(qGates.get(gateId)).thenReturn(new QualityGateDto().setId(gateId).setName("Golden"));
-    tester.newGetRequest("api/qualitygates", "show").setParam("id", Long.toString(gateId)).execute().assertJson(
-      "{\"id\":12345,\"name\":\"Golden\"}");
-  }
-
-  @Test
-  public void show_by_id_nominal() throws Exception {
-    long gateId = 12345L;
-    when(qGates.get(gateId)).thenReturn(new QualityGateDto().setId(gateId).setName("Golden"));
-    when(qGates.listConditions(gateId)).thenReturn(ImmutableList.of(
-      new QualityGateConditionDto().setId(1L).setMetricKey("ncloc").setOperator("GT").setErrorThreshold("10000"),
-      new QualityGateConditionDto().setId(2L).setMetricKey("new_coverage").setOperator("LT").setWarningThreshold("90").setPeriod(3)));
-    tester.newGetRequest("api/qualitygates", "show").setParam("id", Long.toString(gateId)).execute().assertJson(
-      "{\"id\":12345,\"name\":\"Golden\",\"conditions\":["
-        + "{\"id\":1,\"metric\":\"ncloc\",\"op\":\"GT\",\"error\":\"10000\"},"
-        + "{\"id\":2,\"metric\":\"new_coverage\",\"op\":\"LT\",\"warning\":\"90\",\"period\":3}"
-        + "]}");
-  }
-
-  @Test
-  public void show_by_name_nominal() throws Exception {
-    long qGateId = 12345L;
-    String gateName = "Golden";
-    when(qGates.get(gateName)).thenReturn(new QualityGateDto().setId(qGateId).setName(gateName));
-    when(qGates.listConditions(qGateId)).thenReturn(ImmutableList.of(
-      new QualityGateConditionDto().setId(1L).setMetricKey("ncloc").setOperator("GT").setErrorThreshold("10000"),
-      new QualityGateConditionDto().setId(2L).setMetricKey("new_coverage").setOperator("LT").setWarningThreshold("90").setPeriod(3)));
-    tester.newGetRequest("api/qualitygates", "show").setParam("name", gateName).execute().assertJson(
-      "{\"id\":12345,\"name\":\"Golden\",\"conditions\":["
-        + "{\"id\":1,\"metric\":\"ncloc\",\"op\":\"GT\",\"error\":\"10000\"},"
-        + "{\"id\":2,\"metric\":\"new_coverage\",\"op\":\"LT\",\"warning\":\"90\",\"period\":3}"
-        + "]}");
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void show_without_parameters() throws Exception {
-    tester.newGetRequest("api/qualitygates", "show").execute();
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void show_with_both_parameters() throws Exception {
-    tester.newGetRequest("api/qualitygates", "show").setParam("id", "12345").setParam("name", "Polop").execute();
   }
 
   @Test
