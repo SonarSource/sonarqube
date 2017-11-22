@@ -112,7 +112,7 @@ public class OrganizationQualityGateUiTest {
     ProjectDashboardPage page = tester.openBrowser()
       .logIn().submitCredentials(user.getLogin())
       .openProjectDashboard(project);
-    page.hasQualityGateLink("SonarQube way", link);
+    page.hasQualityGateLink("Sonar way", link);
   }
 
   @Test
@@ -120,6 +120,6 @@ public class OrganizationQualityGateUiTest {
     QualityGatePage page = tester.openBrowser()
       .logIn().submitCredentials(user.getLogin())
       .openQualityGates(organization.getKey());
-    page.countQualityGates(1).displayQualityGateDetail("SonarQube way");
+    page.countQualityGates(1).displayQualityGateDetail("Sonar way");
   }
 }
