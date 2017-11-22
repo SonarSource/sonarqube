@@ -37,7 +37,8 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.project.DeleteRequest;
 import org.sonarqube.ws.client.setting.ResetRequest;
 import org.sonarqube.ws.client.setting.SetRequest;
-import org.sonarqube.ws.client.webhook.DeliveriesRequest;
+import org.sonarqube.ws.client.webhooks.DeliveriesRequest;
+import org.sonarqube.ws.client.webhooks.DeliveryRequest;
 import util.ItUtils;
 
 import static java.util.Objects.requireNonNull;
@@ -220,7 +221,7 @@ public class WebhooksTest {
   }
 
   private List<Webhooks.Delivery> getPersistedDeliveries() {
-    DeliveriesRequest deliveriesReq = DeliveriesRequest.builder().setComponentKey(PROJECT_KEY).build();
+    DeliveriesRequest deliveriesReq = new DeliveriesRequest().setComponentKey(PROJECT_KEY);
     return adminWs.webhooks().deliveries(deliveriesReq).getDeliveriesList();
   }
 
@@ -230,7 +231,7 @@ public class WebhooksTest {
   }
 
   private Webhooks.Delivery getDetailOfPersistedDelivery(Webhooks.Delivery delivery) {
-    Webhooks.Delivery detail = adminWs.webhooks().delivery(delivery.getId()).getDelivery();
+    Webhooks.Delivery detail = adminWs.webhooks().delivery(new DeliveryRequest().setDeliveryId(delivery.getId())).getDelivery();
     return requireNonNull(detail);
   }
 

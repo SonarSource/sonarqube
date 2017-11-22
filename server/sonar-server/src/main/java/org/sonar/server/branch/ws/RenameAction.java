@@ -34,9 +34,9 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.branch.ws.BranchesWs.addProjectParam;
-import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_RENAME;
-import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_NAME;
-import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
+import static org.sonar.server.branch.ws.ProjectBranchesParameters.ACTION_RENAME;
+import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_NAME;
+import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_PROJECT;
 
 public class RenameAction implements BranchWsAction {
   private final ComponentFinder componentFinder;

@@ -38,7 +38,7 @@ import org.sonarqube.ws.Qualitygates.GetByProjectWsResponse;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.ACTION_GET_BY_PROJECT;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_GET_BY_PROJECT;
 
 public class GetByProjectAction implements QualityGatesWsAction {
   private static final String PARAM_PROJECT = "project";

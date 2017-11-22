@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.projectbranches;
+package org.sonar.server.branch.ws;
 
 public class ProjectBranchesParameters {
 
@@ -25,7 +25,6 @@ public class ProjectBranchesParameters {
 
   // actions
   public static final String ACTION_LIST = "list";
-  public static final String ACTION_SHOW = "show";
   public static final String ACTION_DELETE = "delete";
   public static final String ACTION_RENAME = "rename";
 

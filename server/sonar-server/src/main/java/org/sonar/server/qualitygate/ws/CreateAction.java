@@ -32,8 +32,8 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates.CreateWsResponse;
 
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.ACTION_CREATE;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_NAME;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_CREATE;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
 
 public class CreateAction implements QualityGatesWsAction {
 

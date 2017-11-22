@@ -17,20 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.notification;
+package org.sonar.server.usertoken.ws;
 
-public class NotificationsWsParameters {
-  public static final String CONTROLLER = "api/notifications";
-  public static final String ACTION_ADD = "add";
-  public static final String ACTION_REMOVE = "remove";
-  public static final String ACTION_LIST = "list";
+public class UserTokensWsParameters {
+  public static final String CONTROLLER = "api/user_tokens";
+  public static final String ACTION_GENERATE = "generate";
+  public static final String ACTION_REVOKE = "revoke";
+  public static final String ACTION_SEARCH = "search";
 
-  public static final String PARAM_PROJECT = "project";
-  public static final String PARAM_CHANNEL = "channel";
-  public static final String PARAM_TYPE = "type";
   public static final String PARAM_LOGIN = "login";
+  public static final String PARAM_NAME = "name";
 
-  private NotificationsWsParameters() {
-    // prevent instantiation
+  private UserTokensWsParameters() {
+    // constants only
   }
 }

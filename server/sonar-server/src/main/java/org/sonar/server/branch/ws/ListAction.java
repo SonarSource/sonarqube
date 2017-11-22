@@ -58,8 +58,8 @@ import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.db.component.BranchType.LONG;
 import static org.sonar.db.component.BranchType.SHORT;
 import static org.sonar.server.branch.ws.BranchesWs.addProjectParam;
-import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.ACTION_LIST;
-import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
+import static org.sonar.server.branch.ws.ProjectBranchesParameters.ACTION_LIST;
+import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_PROJECT;
 
 public class ListAction implements BranchWsAction {
 

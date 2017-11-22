@@ -31,17 +31,17 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.ProjectLinks;
 import org.sonarqube.ws.ProjectLinks.CreateWsResponse;
-import org.sonarqube.ws.client.projectlinks.CreateWsRequest;
+import org.sonarqube.ws.client.projectlinks.CreateRequest;
 
 import static org.sonar.core.util.Slug.slugify;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.ACTION_CREATE;
-import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_NAME;
-import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_PROJECT_ID;
-import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_PROJECT_KEY;
-import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_URL;
+import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.ACTION_CREATE;
+import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_NAME;
+import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_PROJECT_ID;
+import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.PARAM_URL;
 
 public class CreateAction implements ProjectLinksWsAction {
   private final DbClient dbClient;
@@ -92,12 +92,12 @@ public class CreateAction implements ProjectLinksWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    CreateWsRequest searchWsRequest = toCreateWsRequest(request);
+    CreateRequest searchWsRequest = toCreateWsRequest(request);
     CreateWsResponse createWsResponse = doHandle(searchWsRequest);
     writeProtobuf(createWsResponse, request, response);
   }
 
-  private CreateWsResponse doHandle(CreateWsRequest createWsRequest) {
+  private CreateWsResponse doHandle(CreateRequest createWsRequest) {
     String name = createWsRequest.getName();
     String url = createWsRequest.getUrl();
 
@@ -127,7 +127,7 @@ public class CreateAction implements ProjectLinksWsAction {
       .build();
   }
 
-  private ComponentDto getComponentByUuidOrKey(DbSession dbSession, CreateWsRequest request) {
+  private ComponentDto getComponentByUuidOrKey(DbSession dbSession, CreateRequest request) {
     return componentFinder.getRootComponentByUuidOrKey(
       dbSession,
       request.getProjectId(),
@@ -135,8 +135,8 @@ public class CreateAction implements ProjectLinksWsAction {
       ComponentFinder.ParamNames.PROJECT_ID_AND_KEY);
   }
 
-  private static CreateWsRequest toCreateWsRequest(Request request) {
-    return new CreateWsRequest()
+  private static CreateRequest toCreateWsRequest(Request request) {
+    return new CreateRequest()
       .setProjectId(request.param(PARAM_PROJECT_ID))
       .setProjectKey(request.param(PARAM_PROJECT_KEY))
       .setName(request.mandatoryParam(PARAM_NAME))

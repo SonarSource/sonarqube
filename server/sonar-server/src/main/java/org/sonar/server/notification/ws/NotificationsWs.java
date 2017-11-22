@@ -21,7 +21,7 @@ package org.sonar.server.notification.ws;
 
 import org.sonar.api.server.ws.WebService;
 
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.CONTROLLER;
+import static org.sonar.server.notification.ws.NotificationsWsParameters.CONTROLLER;
 
 public class NotificationsWs implements WebService {
   private final NotificationsWsAction[] actions;
