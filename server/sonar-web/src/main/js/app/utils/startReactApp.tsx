@@ -18,10 +18,31 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { IndexRoute } from 'react-router';
-import MaintenanceAppContainer from './components/MaintenanceAppContainer';
-import SetupAppContainer from './components/SetupAppContainer';
+import { render } from 'react-dom';
+import { Router, RouterState } from 'react-router';
+import { Provider } from 'react-redux';
+import routes from './routes';
+import getStore from './getStore';
+import getHistory from './getHistory';
 
-export const maintenanceRoutes = <IndexRoute component={MaintenanceAppContainer} />;
+export default function startReactApp() {
+  const el = document.getElementById('content');
 
-export const setupRoutes = <IndexRoute component={SetupAppContainer} />;
+  const history = getHistory();
+  const store = getStore();
+
+  render(
+    <Provider store={store}>
+      <Router history={history} onUpdate={handleUpdate} routes={routes} />
+    </Provider>,
+    el
+  );
+}
+
+function handleUpdate(this: { state: RouterState }) {
+  const { action } = this.state.location;
+
+  if (action === 'PUSH') {
+    window.scrollTo(0, 0);
+  }
+}
