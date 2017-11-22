@@ -245,7 +245,7 @@ public class QualityGatesWsTest {
       new QualityGateDto().setId(666L).setName("Ninth")));
     when(qGates.getDefault()).thenReturn(defaultQgate);
     tester.newGetRequest("api/qualitygates", "list").execute().assertJson(
-      "{\"qualitygates\":[{\"id\":42,\"name\":\"Golden\"},{\"id\":43,\"name\":\"Star\"},{\"id\":666,\"name\":\"Ninth\"}],\"default\":42}");
+      "{\"qualitygates\":[{\"id\":42,\"name\":\"Golden\",\"isDefault\":true},{\"id\":43,\"name\":\"Star\",\"isDefault\":false},{\"id\":666,\"name\":\"Ninth\",\"isDefault\":false}],\"default\":42}");
   }
 
   @Test
