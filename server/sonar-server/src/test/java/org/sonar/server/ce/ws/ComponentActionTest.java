@@ -43,7 +43,6 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.Ce;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Java6Assertions.tuple;
@@ -75,9 +74,9 @@ public class ComponentActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);
 
-    Ce.ProjectResponse response = ws.newRequest()
+    Ce.ComponentResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
-      .executeProtobuf(Ce.ProjectResponse.class);
+      .executeProtobuf(Ce.ComponentResponse.class);
 
     assertThat(response.getQueueCount()).isEqualTo(0);
     assertThat(response.hasCurrent()).isFalse();
@@ -96,9 +95,9 @@ public class ComponentActionTest {
     insertQueue("T4", project1, IN_PROGRESS);
     insertQueue("T5", project1, PENDING);
 
-    Ce.ProjectResponse response = ws.newRequest()
+    Ce.ComponentResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project1.getKey())
-      .executeProtobuf(Ce.ProjectResponse.class);
+      .executeProtobuf(Ce.ComponentResponse.class);
     assertThat(response.getQueueCount()).isEqualTo(2);
     assertThat(response.getQueue(0).getId()).isEqualTo("T4");
     assertThat(response.getQueue(1).getId()).isEqualTo("T5");
@@ -119,9 +118,9 @@ public class ComponentActionTest {
     SnapshotDto analysis = db.components().insertSnapshot(project);
     insertActivity("T1", project, CeActivityDto.Status.SUCCESS, analysis);
 
-    Ce.ProjectResponse response = ws.newRequest()
+    Ce.ComponentResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getDbKey())
-      .executeProtobuf(Ce.ProjectResponse.class);
+      .executeProtobuf(Ce.ComponentResponse.class);
     assertThat(response.hasCurrent()).isTrue();
     assertThat(response.getCurrent().getId()).isEqualTo("T1");
     assertThat(response.getCurrent().getAnalysisId()).isEqualTo(analysis.getUuid());
@@ -134,9 +133,9 @@ public class ComponentActionTest {
     SnapshotDto analysis = db.components().insertSnapshot(project);
     insertActivity("T1", project, CeActivityDto.Status.SUCCESS, analysis);
 
-    Ce.ProjectResponse response = ws.newRequest()
+    Ce.ComponentResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT_ID, project.uuid())
-      .executeProtobuf(Ce.ProjectResponse.class);
+      .executeProtobuf(Ce.ComponentResponse.class);
     assertThat(response.hasCurrent()).isTrue();
     assertThat(response.getCurrent().getId()).isEqualTo("T1");
     assertThat(response.getCurrent().getAnalysisId()).isEqualTo(analysis.getUuid());
@@ -152,9 +151,9 @@ public class ComponentActionTest {
     insertActivity("T4", project, CeActivityDto.Status.CANCELED);
     insertActivity("T5", project, CeActivityDto.Status.CANCELED);
 
-    Ce.ProjectResponse response = ws.newRequest()
+    Ce.ComponentResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
-      .executeProtobuf(Ce.ProjectResponse.class);
+      .executeProtobuf(Ce.ComponentResponse.class);
     assertThat(response.getQueueCount()).isEqualTo(0);
     // T3 is the latest task executed on PROJECT_1 ignoring Canceled ones
     assertThat(response.hasCurrent()).isTrue();
@@ -171,9 +170,9 @@ public class ComponentActionTest {
     insertCharacteristic(activity, BRANCH_KEY, longLivingBranch.getBranch());
     insertCharacteristic(activity, BRANCH_TYPE_KEY, LONG.name());
 
-    Ce.ProjectResponse response = ws.newRequest()
+    Ce.ComponentResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, project.getKey())
-      .executeProtobuf(Ce.ProjectResponse.class);
+      .executeProtobuf(Ce.ComponentResponse.class);
 
     assertThat(response.getCurrent())
       .extracting(Ce.Task::getId, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getStatus, Ce.Task::getComponentKey)
@@ -193,9 +192,9 @@ public class ComponentActionTest {
     insertCharacteristic(queue2, BRANCH_KEY, longLivingBranch.getBranch());
     insertCharacteristic(queue2, BRANCH_TYPE_KEY, LONG.name());
 
-    Ce.ProjectResponse response = ws.newRequest()
+    Ce.ComponentResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, longLivingBranch.getKey())
-      .executeProtobuf(Ce.ProjectResponse.class);
+      .executeProtobuf(Ce.ComponentResponse.class);
 
     assertThat(response.getQueueList())
       .extracting(Ce.Task::getId, Ce.Task::getBranch, Ce.Task::getBranchType, Ce.Task::getStatus, Ce.Task::getComponentKey)
@@ -218,9 +217,9 @@ public class ComponentActionTest {
     insertCharacteristic(shortLivingBranchQueue, BRANCH_KEY, shortLivingBranch.getBranch());
     insertCharacteristic(shortLivingBranchQueue, BRANCH_TYPE_KEY, SHORT.name());
 
-    Ce.ProjectResponse response = ws.newRequest()
+    Ce.ComponentResponse response = ws.newRequest()
       .setParam(PARAM_COMPONENT, longLivingBranch.getKey())
-      .executeProtobuf(Ce.ProjectResponse.class);
+      .executeProtobuf(Ce.ComponentResponse.class);
 
     assertThat(response.getQueueList())
       .extracting(Ce.Task::getId, Ce.Task::getComponentKey, Ce.Task::getBranch, Ce.Task::getBranchType)
@@ -237,9 +236,9 @@ public class ComponentActionTest {
     SnapshotDto analysis = db.components().insertSnapshot(project);
     insertActivity("T1", project, CeActivityDto.Status.SUCCESS, analysis);
 
-    Ce.ProjectResponse response = ws.newRequest()
+    Ce.ComponentResponse response = ws.newRequest()
       .setParam("componentKey", project.getKey())
-      .executeProtobuf(Ce.ProjectResponse.class);
+      .executeProtobuf(Ce.ComponentResponse.class);
     assertThat(response.hasCurrent()).isTrue();
     assertThat(response.getCurrent().getId()).isEqualTo("T1");
     assertThat(response.getCurrent().getAnalysisId()).isEqualTo(analysis.getUuid());

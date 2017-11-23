@@ -52,7 +52,7 @@ message ActivityStatusWsResponse {
 }
 
 // GET api/ce/component
-message ProjectResponse {
+message ComponentResponse {
   repeated Task queue = 1;
   optional Task current = 2;
 }
