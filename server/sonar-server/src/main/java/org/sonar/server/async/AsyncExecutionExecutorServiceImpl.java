@@ -26,29 +26,33 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.util.AbstractStoppableExecutorService;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 public class AsyncExecutionExecutorServiceImpl
   extends AbstractStoppableExecutorService<ThreadPoolExecutor>
   implements AsyncExecutionExecutorService, AsyncExecutionMonitoring {
   private static final Logger LOG = Loggers.get(AsyncExecutionExecutorServiceImpl.class);
 
-  private static final int MIN_THREAD_COUNT = 1;
   private static final int MAX_THREAD_COUNT = 10;
-  private static final int MAX_QUEUE_SIZE = Integer.MAX_VALUE;
-  private static final long KEEP_ALIVE_TIME_IN_MILLISECONDS = 0L;
+  private static final int UNLIMITED_QUEUE = Integer.MAX_VALUE;
+  private static final long KEEP_ALIVE_TIME_IN_MINUTES = 5L;
 
   public AsyncExecutionExecutorServiceImpl() {
-    super(
-      new ThreadPoolExecutor(
-        MIN_THREAD_COUNT, MAX_THREAD_COUNT,
-        KEEP_ALIVE_TIME_IN_MILLISECONDS, MILLISECONDS,
-        new LinkedBlockingQueue<>(MAX_QUEUE_SIZE),
-        new ThreadFactoryBuilder()
-          .setDaemon(false)
-          .setNameFormat("SQ_async-%d")
-          .setUncaughtExceptionHandler(((t, e) -> LOG.error("Thread " + t + " failed unexpectedly", e)))
-          .build()));
+    super(createDelegate());
+  }
+
+  private static ThreadPoolExecutor createDelegate() {
+    ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
+      MAX_THREAD_COUNT, MAX_THREAD_COUNT,
+      KEEP_ALIVE_TIME_IN_MINUTES, MINUTES,
+      new LinkedBlockingQueue<>(UNLIMITED_QUEUE),
+      new ThreadFactoryBuilder()
+        .setDaemon(false)
+        .setNameFormat("SQ_async-%d")
+        .setUncaughtExceptionHandler(((t, e) -> LOG.error("Thread " + t + " failed unexpectedly", e)))
+        .build());
+    threadPoolExecutor.allowCoreThreadTimeOut(true);
+    return threadPoolExecutor;
   }
 
   @Override
