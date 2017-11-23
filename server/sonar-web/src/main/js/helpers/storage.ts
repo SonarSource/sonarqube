@@ -17,10 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-const PROJECTS_DEFAULT_FILTER = 'sonarqube.projects.default';
-const PROJECTS_FAVORITE = 'favorite';
-const PROJECTS_ALL = 'all';
-
 const PROJECTS_VIEW = 'sonarqube.projects.view';
 const PROJECTS_VISUALIZATION = 'sonarqube.projects.visualization';
 const PROJECTS_SORT = 'sonarqube.projects.sort';
@@ -39,24 +35,6 @@ function save(key: string, value?: string): void {
     // usually that means the storage is full
     // just do nothing in this case
   }
-}
-
-export function saveFavorite(): void {
-  save(PROJECTS_DEFAULT_FILTER, PROJECTS_FAVORITE);
-}
-
-export function isFavoriteSet(): boolean {
-  const setting = window.localStorage.getItem(PROJECTS_DEFAULT_FILTER);
-  return setting === PROJECTS_FAVORITE;
-}
-
-export function saveAll(): void {
-  save(PROJECTS_DEFAULT_FILTER, PROJECTS_ALL);
-}
-
-export function isAllSet(): boolean {
-  const setting = window.localStorage.getItem(PROJECTS_DEFAULT_FILTER);
-  return setting === PROJECTS_ALL;
 }
 
 export function saveView(view?: string): void {

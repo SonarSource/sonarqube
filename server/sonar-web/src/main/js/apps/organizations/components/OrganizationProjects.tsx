@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import App from '../../projects/components/App';
-import AllProjects from '../../projects/components/AllProjects';
+import AppContainer from '../../projects/components/AppContainer';
 
 interface Props {
   location: { pathname: string; query: { [x: string]: string } };
@@ -28,14 +27,6 @@ interface Props {
 
 export default function OrganizationProjects(props: Props) {
   return (
-    <div id="projects-page">
-      <App>
-        <AllProjects
-          isFavorite={false}
-          location={props.location}
-          organization={props.organization}
-        />
-      </App>
-    </div>
+    <AppContainer isFavorite={false} location={props.location} organization={props.organization} />
   );
 }

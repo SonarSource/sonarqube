@@ -1,7 +1,7 @@
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,9 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import AllProjects from './AllProjects';
+import { connect } from 'react-redux';
+import App from './App';
+import { CurrentUser } from '../../../app/types';
+import { getCurrentUser } from '../../../store/rootReducer';
 
-export default function FavoriteProjectsContainer(props: any) {
-  return <AllProjects isFavorite={true} {...props} />;
+interface StateProps {
+  currentUser: CurrentUser;
 }
+
+const mapStateToProps = (state: any) => ({
+  currentUser: getCurrentUser(state)
+});
+
+export default connect<StateProps>(mapStateToProps)(App);

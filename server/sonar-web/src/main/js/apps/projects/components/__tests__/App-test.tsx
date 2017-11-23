@@ -20,7 +20,7 @@
 /* eslint-disable import/order */
 import * as React from 'react';
 import { mount, shallow } from 'enzyme';
-import AllProjects from '../AllProjects';
+import App from '../App';
 import { getView, saveSort, saveView, saveVisualization } from '../../../../helpers/storage';
 
 jest.mock('../ProjectsList', () => ({
@@ -167,20 +167,26 @@ it('changes perspective to risk visualization', () => {
 
 function mountRender(props: any = {}, push: Function = jest.fn(), replace: Function = jest.fn()) {
   return mount(
-    <AllProjects
+    <App
+      currentUser={{ isLoggedIn: true }}
       fetchProjects={jest.fn()}
       isFavorite={false}
       location={{ pathname: '/projects', query: {} }}
       {...props}
     />,
-    { context: { currentUser: { isLoggedIn: true }, router: { push, replace } } }
+    { context: { router: { push, replace } } }
   );
 }
 
 function shallowRender(props: any = {}, push: Function = jest.fn(), replace: Function = jest.fn()) {
   const wrapper = shallow(
-    <AllProjects isFavorite={false} location={{ pathname: '/projects', query: {} }} {...props} />,
-    { context: { currentUser: { isLoggedIn: true }, router: { push, replace } } }
+    <App
+      currentUser={{ isLoggedIn: true }}
+      isFavorite={false}
+      location={{ pathname: '/projects', query: {} }}
+      {...props}
+    />,
+    { context: { router: { push, replace } } }
   );
   wrapper.setState({
     loading: false,
