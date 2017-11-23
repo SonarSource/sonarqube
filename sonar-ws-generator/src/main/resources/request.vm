@@ -1,0 +1,91 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package $helper.packageName($webService.path.asString);
+
+import java.util.List;
+import javax.annotation.Generated;
+
+/**
+ * $action.description.asString
+ *
+#if ($action.internal)
+ * This is part of the internal API.
+#end
+#if ($action.post)
+ * This is a POST request.
+#else
+ * This is a GET request.
+#end
+#if ($action.hasResponseExample)
+ * @see <a href="$helper.apiDocUrl($webService.path.asString, $action.key.asString)">Further information about this action online (including a response example)</a>
+#else
+ * @see <a href="$helper.apiDocUrl($webService.path.asString, $action.key.asString)">Further information about this action online</a>
+#end
+#if ($action.since.asString)
+ * @since $action.since.asString
+#end
+ */
+@Generated("sonar-ws-generator")
+public class $helper.requestType($webService.path.asString, $action.key.asString) {
+
+#foreach($param in $action.params)
+  private $helper.setterParameterType($param.key.asString, $param.description) ${helper.setterParameter($param.key.asString)};
+#end
+#foreach($param in $action.params)
+
+  /**
+#if ($param.description.asString)
+   * $param.description.asString
+   *
+#end
+#if ($param.required.asBoolean)
+   * This is a mandatory parameter.
+#end
+#if ($param.internal.asBoolean)
+   * This is part of the internal API.
+#end
+#if ($param.exampleValue)
+   * Example value: $param.exampleValue
+#end
+#if ($param.possibleValues)
+   * Possible values:
+   * <ul>
+#foreach($possibleValue in $param.possibleValues)
+   *   <li>$possibleValue</li>
+#end
+   * </ul>
+#end
+#if ($param.deprecatedSince.asString)
+   * @deprecated since $param.deprecatedSince.asString
+#end
+   */
+#if ($param.deprecatedSince.asString)
+  @Deprecated
+#end
+  public $helper.requestType($webService.path.asString, $action.key.asString) ${helper.parameterSetter($param.key.asString)}($helper.setterParameterType($param.key.asString, $param.description) ${helper.setterParameter($param.key.asString)}) {
+    this.${helper.setterParameter($param.key.asString)} = ${helper.setterParameter($param.key.asString)};
+    return this;
+  }
+
+  public $helper.setterParameterType($param.key.asString, $param.description) ${helper.parameterGetter($param.key.asString)}() {
+    return ${helper.setterParameter($param.key.asString)};
+  }
+#end
+}

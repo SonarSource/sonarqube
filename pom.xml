@@ -29,8 +29,9 @@
     <module>sonar-markdown</module>
     <module>sonar-plugin-api</module>
     <module>server</module>
-    <module>sonar-ws-generated</module>
     <module>sonar-ws</module>
+    <module>sonar-ws-generated</module>
+    <module>sonar-ws-generator</module>
     <module>sonar-testing-harness</module>
     <module>plugins/sonar-xoo-plugin</module>
   </modules>
@@ -466,6 +467,11 @@
         <groupId>org.sonarsource.update-center</groupId>
         <artifactId>sonar-update-center-common</artifactId>
         <version>${sonarUpdateCenter.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.orchestrator</groupId>
+        <artifactId>sonar-orchestrator</artifactId>
+        <version>${orchestrator.version}</version>
       </dependency>
       <dependency>
         <groupId>org.codehaus.sonar</groupId>
