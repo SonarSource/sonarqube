@@ -108,6 +108,20 @@ public class RenameActionTest {
   }
 
   @Test
+  public void fail_on_built_in_quality_gate() {
+    logAsQualityGateAdminister();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setBuiltIn(true));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
+
+    ws.newRequest()
+      .setParam("id", qualityGate.getId().toString())
+      .setParam("name", "name")
+      .execute();
+  }
+
+  @Test
   public void fail_on_empty_name() {
     logAsQualityGateAdminister();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
