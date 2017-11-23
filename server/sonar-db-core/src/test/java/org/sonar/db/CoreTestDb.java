@@ -94,7 +94,7 @@ class CoreTestDb {
         }
       }
       isDefault = (schemaPath == null);
-      LOG.info("Test Database: " + db);
+      LOG.debug("Test Database: " + db);
 
       commands = DatabaseCommands.forDialect(db.getDialect());
       tester = new DataSourceDatabaseTester(db.getDataSource(), commands.useLoginAsSchema() ? login : null);

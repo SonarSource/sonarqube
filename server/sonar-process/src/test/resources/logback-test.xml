@@ -11,16 +11,11 @@
   </appender>
 
   <root>
-    <!-- Don't set to DEBUG or it will show the dev licenses into the console!!!! -->
     <level value="INFO"/>
     <appender-ref ref="CONSOLE"/>
   </root>
 
   <logger name="ch.qos.logback">
-    <level value="WARN"/>
-  </logger>
-
-  <logger name="okhttp3.mockwebserver">
     <level value="WARN"/>
   </logger>
 

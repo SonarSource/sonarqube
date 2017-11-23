@@ -21,6 +21,7 @@ package org.sonar.process;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.core.joran.spi.JoranException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.rules.ExternalResource;
@@ -47,6 +48,11 @@ public class LoggingRule extends ExternalResource {
   protected void after() {
     TestLogbackAppender.events.clear();
     setLevel(Level.INFO);
+    try {
+      new LogbackHelper().resetFromXml("/logback-test.xml");
+    } catch (JoranException e) {
+      e.printStackTrace();
+    }
   }
 
   public LoggingRule setLevel(Level level) {

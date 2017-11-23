@@ -227,6 +227,11 @@
             <goals>
               <goal>test-jar</goal>
             </goals>
+            <configuration>
+              <excludes>
+                <exclude>logback-test.xml</exclude>
+              </excludes>
+            </configuration>
           </execution>
         </executions>
       </plugin>
