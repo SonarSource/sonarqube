@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ProjectCardLanguages from './ProjectCardLanguages';
+import ProjectCardLanguagesContainer from './ProjectCardLanguagesContainer';
 import Measure from '../../../components/measure/Measure';
 import Rating from '../../../components/ui/Rating';
 import CoverageRating from '../../../components/ui/CoverageRating';
@@ -152,7 +152,9 @@ export default function ProjectCardOverallMeasures({ measures }: Props) {
               </span>
             </div>
             <div className="project-card-measure-label">
-              <ProjectCardLanguages distribution={measures['ncloc_language_distribution']} />
+              <ProjectCardLanguagesContainer
+                distribution={measures['ncloc_language_distribution']}
+              />
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2016 SonarSource SA
+ * Copyright (C) 2009-2017 SonarSource SA
  * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -17,23 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import OrganizationLink from '../../../components/ui/OrganizationLink';
+import { connect } from 'react-redux';
+import { CurrentUser } from '../../../app/types';
+import { lazyLoad } from '../../../components/lazyLoad';
+import {
+  getCurrentUser,
+  areThereCustomOrganizations,
+  getGlobalSettingValue
+} from '../../../store/rootReducer';
 
-interface Props {
-  organization?: { key: string; name: string };
+interface StateProps {
+  currentUser: CurrentUser;
+  onSonarCloud: boolean;
   organizationsEnabled: boolean;
 }
 
-export default function ProjectCardOrganization({ organization, organizationsEnabled }: Props) {
-  if (!organization || !organizationsEnabled) {
-    return null;
-  }
+const stateToProps = (state: any) => {
+  const onSonarCloudSetting = getGlobalSettingValue(state, 'sonar.sonarcloud.enabled');
+  return {
+    currentUser: getCurrentUser(state),
+    onSonarCloud: Boolean(onSonarCloudSetting && onSonarCloudSetting.value === 'true'),
+    organizationsEnabled: areThereCustomOrganizations(state)
+  };
+};
 
-  return (
-    <span className="text-normal">
-      <OrganizationLink organization={organization}>{organization.name}</OrganizationLink>
-      <span className="slash-separator" />
-    </span>
-  );
-}
+export default connect<StateProps, any, any>(stateToProps)(lazyLoad(() => import('./AllProjects')));

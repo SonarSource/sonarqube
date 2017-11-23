@@ -33,21 +33,21 @@ const languages = {
 const languagesFacet = { java: 39, cs: 4, js: 1 };
 
 it('should render the languages without the ones in the facet', () => {
-  const wrapper = shallow(<LanguagesFilter query={{ languages: null }} facet={languagesFacet} />, {
-    context: { languages }
-  });
+  const wrapper = shallow(
+    <LanguagesFilter facet={languagesFacet} languages={languages} query={{ languages: null }} />
+  );
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should render the languages facet with the selected languages', () => {
   const wrapper = shallow(
     <LanguagesFilter
-      query={{ languages: ['java', 'cs'] }}
-      value={['java', 'cs']}
       facet={languagesFacet}
       isFavorite={true}
-    />,
-    { context: { languages } }
+      languages={languages}
+      query={{ languages: ['java', 'cs'] }}
+      value={['java', 'cs']}
+    />
   );
   expect(wrapper).toMatchSnapshot();
   expect(wrapper.find('Filter').shallow()).toMatchSnapshot();
@@ -68,12 +68,12 @@ it('should render maximum 10 languages in the searchbox results', () => {
   };
   const wrapper = shallow(
     <LanguagesFilter
-      query={{ languages: ['java', 'g'] }}
-      value={['java', 'g']}
       facet={{ ...languagesFacet, g: 1 }}
       isFavorite={true}
-    />,
-    { context: { languages: manyLanguages } }
+      languages={manyLanguages}
+      query={{ languages: ['java', 'g'] }}
+      value={['java', 'g']}
+    />
   );
   expect(wrapper).toMatchSnapshot();
 });

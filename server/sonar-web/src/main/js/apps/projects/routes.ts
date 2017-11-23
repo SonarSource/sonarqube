@@ -17,37 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { RouterState, IndexRouteProps, RouteComponent, RedirectFunction } from 'react-router';
+import { RouterState, RedirectFunction } from 'react-router';
+import DefaultPageSelectorContainer from './components/DefaultPageSelectorContainer';
+import FavoriteProjectsContainer from './components/FavoriteProjectsContainer';
 import { saveAll } from '../../helpers/storage';
 
 const routes = [
+  { indexRoute: { component: DefaultPageSelectorContainer } },
   {
-    getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-      import('./components/App').then(i => callback(null, i.default));
-    },
-    childRoutes: [
-      {
-        getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
-          import('./components/DefaultPageSelector').then(i =>
-            callback(null, { component: i.default })
-          );
-        }
-      },
-      {
-        path: 'all',
-        onEnter(_: RouterState, replace: RedirectFunction) {
-          saveAll();
-          replace('/projects');
-        }
-      },
-      {
-        path: 'favorite',
-        getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-          import('./components/FavoriteProjectsContainer').then(i => callback(null, i.default));
-        }
-      }
-    ]
-  }
+    path: 'all',
+    onEnter(_: RouterState, replace: RedirectFunction) {
+      saveAll();
+      replace('/projects');
+    }
+  },
+  { path: 'favorite', component: FavoriteProjectsContainer }
 ];
 
 export default routes;

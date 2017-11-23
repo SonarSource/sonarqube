@@ -1,7 +1,7 @@
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,20 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import AllProjectsContainer from '../../projects/components/AllProjectsContainer';
+import { connect } from 'react-redux';
+import DefaultPageSelector from './DefaultPageSelector';
+import { CurrentUser } from '../../../app/types';
+import { getCurrentUser, getGlobalSettingValue } from '../../../store/rootReducer';
 
-interface Props {
-  location: { pathname: string; query: { [x: string]: string } };
-  organization: { key: string };
+interface StateProps {
+  currentUser: CurrentUser;
+  onSonarCloud: boolean;
 }
 
-export default function OrganizationProjects(props: Props) {
-  return (
-    <AllProjectsContainer
-      isFavorite={false}
-      location={props.location}
-      organization={props.organization}
-    />
-  );
-}
+const stateToProps = (state: any) => {
+  const onSonarCloudSetting = getGlobalSettingValue(state, 'sonar.sonarcloud.enabled');
+  return {
+    currentUser: getCurrentUser(state),
+    onSonarCloud: Boolean(onSonarCloudSetting && onSonarCloudSetting.value === 'true')
+  };
+};
+
+export default connect<StateProps>(stateToProps)(DefaultPageSelector);

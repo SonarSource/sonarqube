@@ -23,14 +23,26 @@ import PageSidebar from '../PageSidebar';
 
 it('should render correctly', () => {
   const sidebar = shallow(
-    <PageSidebar query={{ size: '3' }} view="overall" visualization="risk" isFavorite={true} />
+    <PageSidebar
+      isFavorite={true}
+      query={{ size: '3' }}
+      showFavoriteFilter={true}
+      view="overall"
+      visualization="risk"
+    />
   );
   expect(sidebar).toMatchSnapshot();
 });
 
 it('should render `leak` view correctly', () => {
   const sidebar = shallow(
-    <PageSidebar query={{ view: 'leak' }} view="leak" visualization="risk" isFavorite={false} />
+    <PageSidebar
+      isFavorite={false}
+      query={{ view: 'leak' }}
+      showFavoriteFilter={true}
+      view="leak"
+      visualization="risk"
+    />
   );
   expect(sidebar).toMatchSnapshot();
 });
@@ -38,10 +50,11 @@ it('should render `leak` view correctly', () => {
 it('reset function should work correctly with view and visualizations', () => {
   const sidebar = shallow(
     <PageSidebar
+      isFavorite={false}
       query={{ view: 'visualizations', visualization: 'bugs' }}
+      showFavoriteFilter={true}
       view="visualizations"
       visualization="bugs"
-      isFavorite={false}
     />
   );
   expect(sidebar.find('.projects-facets-reset').exists()).toBeFalsy();

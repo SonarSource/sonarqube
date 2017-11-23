@@ -1,7 +1,7 @@
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,19 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { keyBy } from 'lodash';
-import { RECEIVE_LANGUAGES } from './actions';
+import { connect } from 'react-redux';
+import * as React from 'react';
+import { getCurrentUser } from './rootReducer';
+import { CurrentUser } from '../app/types';
 
-const reducer = (state = {}, action = {}) => {
-  if (action.type === RECEIVE_LANGUAGES) {
-    return keyBy(action.languages, 'key');
+interface StateProps {
+  currentUser: CurrentUser;
+}
+
+export function withCurrentUser<P extends StateProps>(Component: React.ComponentClass<P>) {
+  function mapStateToProps(state: any): StateProps {
+    return { currentUser: getCurrentUser(state) };
   }
 
-  return state;
-};
-
-export default reducer;
-
-export const getLanguages = state => state;
-
-export const getLanguageByKey = (state, key) => state[key];
+  return connect<StateProps>(mapStateToProps)(Component);
+}
