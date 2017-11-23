@@ -142,7 +142,7 @@ export interface CurrentUser {
 export interface LoggedInUser extends CurrentUser {
   avatar?: string;
   email?: string;
-  isLoggedIn: boolean;
+  isLoggedIn: true;
   name: string;
 }
 

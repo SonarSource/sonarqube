@@ -54,4 +54,4 @@ const mapStateToProps = (state: any) => ({
   onSonarCloud: getGlobalSettingValue(state, 'sonar.sonarcloud.enabled')
 });
 
-export default connect<Props, {}, Props>(mapStateToProps)(Landing);
+export default connect<Props>(mapStateToProps)(Landing);

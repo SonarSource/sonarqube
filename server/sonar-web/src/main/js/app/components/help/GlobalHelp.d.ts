@@ -25,7 +25,7 @@ interface Props {
   currentUser: CurrentUser;
   onClose: () => void;
   onTutorialSelect: () => void;
-  sonarCloud: boolean;
+  onSonarCloud: boolean;
 }
 
 export default class GlobalHelp extends React.PureComponent<Props> {}

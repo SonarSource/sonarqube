@@ -37,7 +37,7 @@ import './GlobalNav.css';
 interface StateProps {
   appState: AppState;
   currentUser: CurrentUser;
-  sonarCloud: boolean;
+  onSonarCloud: boolean;
 }
 
 interface DispatchProps {
@@ -134,7 +134,7 @@ class GlobalNav extends React.PureComponent<Props, State> {
             currentUser={this.props.currentUser}
             onClose={this.closeHelp}
             onTutorialSelect={this.openOnboardingTutorial}
-            sonarCloud={this.props.sonarCloud}
+            onSonarCloud={this.props.onSonarCloud}
           />
         )}
 
@@ -150,9 +150,9 @@ const mapStateToProps = (state: any): StateProps => {
   const sonarCloudSetting = getGlobalSettingValue(state, 'sonar.sonarcloud.enabled');
 
   return {
-    currentUser: getCurrentUser(state),
     appState: getAppState(state),
-    sonarCloud: sonarCloudSetting != null && sonarCloudSetting.value === 'true'
+    currentUser: getCurrentUser(state),
+    onSonarCloud: sonarCloudSetting != null && sonarCloudSetting.value === 'true'
   };
 };
 

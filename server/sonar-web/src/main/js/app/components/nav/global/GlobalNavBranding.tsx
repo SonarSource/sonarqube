@@ -49,4 +49,4 @@ const mapStateToProps = (state: any) => ({
   customLogoWidth: (getGlobalSettingValue(state, 'sonar.lf.logoWidthPx') || {}).value
 });
 
-export default connect<Props, {}, Props>(mapStateToProps)(GlobalNavBranding);
+export default connect<Props>(mapStateToProps)(GlobalNavBranding);

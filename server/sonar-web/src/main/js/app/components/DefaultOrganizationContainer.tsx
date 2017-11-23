@@ -101,4 +101,4 @@ const mapStateToProps = (state: any) => ({
   appState: getAppState(state)
 });
 
-export default connect<StateProps, {}, Props>(mapStateToProps)(DefaultOrganizationContainer);
+export default connect<StateProps>(mapStateToProps)(DefaultOrganizationContainer);
