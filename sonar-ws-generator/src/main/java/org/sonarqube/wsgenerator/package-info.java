@@ -17,26 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.setting;
+@ParametersAreNonnullByDefault
+package org.sonarqube.wsgenerator;
 
-public class SettingsWsParameters {
-  public static final String CONTROLLER_SETTINGS = "api/settings";
+import javax.annotation.ParametersAreNonnullByDefault;
 
-  public static final String ACTION_LIST_DEFINITIONS = "list_definitions";
-  public static final String ACTION_VALUES = "values";
-  public static final String ACTION_SET = "set";
-  public static final String ACTION_RESET = "reset";
-
-  public static final String PARAM_COMPONENT = "component";
-  public static final String PARAM_BRANCH = "branch";
-  public static final String PARAM_KEYS = "keys";
-  public static final String PARAM_KEY = "key";
-  public static final String PARAM_VALUE = "value";
-  public static final String PARAM_VALUES = "values";
-  public static final String PARAM_FIELD_VALUES = "fieldValues";
-
-  private SettingsWsParameters() {
-    // Only static stuff
-  }
-
-}

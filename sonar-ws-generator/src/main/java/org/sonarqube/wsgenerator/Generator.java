@@ -17,35 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.settings;
+package org.sonarqube.wsgenerator;
 
-import javax.annotation.Generated;
+public class Generator {
 
-/**
- * Encrypt a setting value.<br>Requires 'Administer System' permission.
- *
- * This is part of the internal API.
- * This is a POST request.
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings/encrypt">Further information about this action online (including a response example)</a>
- * @since 6.1
- */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
-public class EncryptRequest {
-
-  private String value;
-
-  /**
-   * Setting value to encrypt
-   *
-   * This is a mandatory parameter.
-   * Example value: "my value"
-   */
-  public EncryptRequest setValue(String value) {
-    this.value = value;
-    return this;
-  }
-
-  public String getValue() {
-    return value;
+  public static void main(String[] args) {
+    String json = ApiDefinitionDownloader.downloadApiDefinition();
+    CodeFormatter.format(json);
   }
 }

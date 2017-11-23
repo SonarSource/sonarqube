@@ -35,7 +35,7 @@ public class ResetRequest {
 
   private String branch;
   private String component;
-  private String keys;
+  private List<String> keys;
 
   /**
    * Branch key
@@ -67,17 +67,17 @@ public class ResetRequest {
   }
 
   /**
-   * Setting keys
+   * Comma-separated list of keys
    *
    * This is a mandatory parameter.
    * Example value: "sonar.links.scm,sonar.debt.hoursInDay"
    */
-  public ResetRequest setKeys(String keys) {
+  public ResetRequest setKeys(List<String> keys) {
     this.keys = keys;
     return this;
   }
 
-  public String getKeys() {
+  public List<String> getKeys() {
     return keys;
   }
 }

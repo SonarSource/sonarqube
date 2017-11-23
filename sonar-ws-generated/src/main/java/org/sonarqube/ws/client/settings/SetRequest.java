@@ -35,10 +35,10 @@ public class SetRequest {
 
   private String branch;
   private String component;
-  private String fieldValues;
+  private List<String> fieldValues;
   private String key;
   private String value;
-  private String values;
+  private List<String> values;
 
   /**
    * Branch key. Only available on following settings : sonar.leak.period
@@ -74,12 +74,12 @@ public class SetRequest {
    *
    * Example value: "fieldValues={\"firstField\":\"first value\", \"secondField\":\"second value\", \"thirdField\":\"third value\"}"
    */
-  public SetRequest setFieldValues(String fieldValues) {
+  public SetRequest setFieldValues(List<String> fieldValues) {
     this.fieldValues = fieldValues;
     return this;
   }
 
-  public String getFieldValues() {
+  public List<String> getFieldValues() {
     return fieldValues;
   }
 
@@ -117,12 +117,12 @@ public class SetRequest {
    *
    * Example value: "values=firstValue&values=secondValue&values=thirdValue"
    */
-  public SetRequest setValues(String values) {
+  public SetRequest setValues(List<String> values) {
     this.values = values;
     return this;
   }
 
-  public String getValues() {
+  public List<String> getValues() {
     return values;
   }
 }

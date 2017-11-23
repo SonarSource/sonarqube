@@ -35,7 +35,7 @@ public class ValuesRequest {
 
   private String branch;
   private String component;
-  private String keys;
+  private List<String> keys;
 
   /**
    * Branch key
@@ -71,12 +71,12 @@ public class ValuesRequest {
    *
    * Example value: "sonar.test.inclusions,sonar.dbcleaner.cleanDirectory"
    */
-  public ValuesRequest setKeys(String keys) {
+  public ValuesRequest setKeys(List<String> keys) {
     this.keys = keys;
     return this;
   }
 
-  public String getKeys() {
+  public List<String> getKeys() {
     return keys;
   }
 }

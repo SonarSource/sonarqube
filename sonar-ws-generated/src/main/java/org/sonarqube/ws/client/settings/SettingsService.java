@@ -22,15 +22,15 @@ package org.sonarqube.ws.client.settings;
 import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.client.BaseService;
-import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.Settings.CheckSecretKeyWsResponse;
 import org.sonarqube.ws.Settings.EncryptWsResponse;
 import org.sonarqube.ws.Settings.GenerateSecretKeyWsResponse;
 import org.sonarqube.ws.Settings.ListDefinitionsWsResponse;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
+import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsConnector;
 
 /**
  * Manage settings.
@@ -115,7 +115,7 @@ public class SettingsService extends BaseService {
       new PostRequest(path("reset"))
         .setParam("branch", request.getBranch())
         .setParam("component", request.getComponent())
-        .setParam("keys", request.getKeys())
+        .setParam("keys", request.getKeys() == null ? null : request.getKeys().stream().collect(Collectors.joining(",")))
         .setMediaType(MediaTypes.JSON)
       ).content();
   }
@@ -133,10 +133,10 @@ public class SettingsService extends BaseService {
       new PostRequest(path("set"))
         .setParam("branch", request.getBranch())
         .setParam("component", request.getComponent())
-        .setParam("fieldValues", request.getFieldValues())
+        .setParam("fieldValues", request.getFieldValues() == null ? null : request.getFieldValues().stream().collect(Collectors.joining(",")))
         .setParam("key", request.getKey())
         .setParam("value", request.getValue())
-        .setParam("values", request.getValues())
+        .setParam("values", request.getValues() == null ? null : request.getValues().stream().collect(Collectors.joining(",")))
         .setMediaType(MediaTypes.JSON)
       ).content();
   }
@@ -154,7 +154,7 @@ public class SettingsService extends BaseService {
       new GetRequest(path("values"))
         .setParam("branch", request.getBranch())
         .setParam("component", request.getComponent())
-        .setParam("keys", request.getKeys()),
+        .setParam("keys", request.getKeys() == null ? null : request.getKeys().stream().collect(Collectors.joining(","))),
       ValuesWsResponse.parser());
   }
 }
