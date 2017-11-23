@@ -314,7 +314,7 @@ public class OrganizationTest {
   }
 
   private void verifyOrganization(Organization createdOrganization, String name, String description, String url,
-                                  String avatarUrl) {
+    String avatarUrl) {
     SearchWsRequest request = new SearchWsRequest.Builder().setOrganizations(createdOrganization.getKey()).build();
     List<Organization> result = tester.organizations().service().search(request).getOrganizationsList();
     assertThat(result).hasSize(1);
@@ -353,7 +353,8 @@ public class OrganizationTest {
       } else {
         assertThat(p.getActiveRuleCount()).isGreaterThan(0);
         // that allows to check the Elasticsearch index of active rules
-        Rules.SearchResponse activeRulesResponse = tester.wsClient().rules().search(new org.sonarqube.ws.client.rule.SearchWsRequest().setActivation(true).setQProfile(p.getKey()));
+        Rules.SearchResponse activeRulesResponse = tester.wsClient().rules()
+          .search(new org.sonarqube.ws.client.rules.SearchRequest().setActivation("true").setQprofile(p.getKey()));
         assertThat(activeRulesResponse.getTotal()).as("profile " + p.getName()).isEqualTo(p.getActiveRuleCount());
         assertThat(activeRulesResponse.getRulesCount()).isEqualTo((int) p.getActiveRuleCount());
       }
