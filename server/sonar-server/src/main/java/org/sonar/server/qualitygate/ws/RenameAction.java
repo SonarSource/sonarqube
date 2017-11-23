@@ -22,16 +22,17 @@ package org.sonar.server.qualitygate.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateFinder;
+import org.sonarqube.ws.Qualitygates.QualityGate;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
 import static org.sonar.server.util.Validation.CANT_BE_EMPTY_MESSAGE;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_NAME;
 
@@ -72,9 +73,11 @@ public class RenameAction implements QualityGatesWsAction {
   public void handle(Request request, Response response) {
     wsSupport.checkCanEdit();
     long id = QualityGatesWs.parseId(request, PARAM_ID);
-    QualityGateDto renamedQualityGate = rename(id, request.mandatoryParam(PARAM_NAME));
-    JsonWriter writer = response.newJsonWriter();
-    QualityGatesWs.writeQualityGate(renamedQualityGate, writer).close();
+    QualityGateDto qualityGate = rename(id, request.mandatoryParam(PARAM_NAME));
+    writeProtobuf(QualityGate.newBuilder()
+      .setId(qualityGate.getId())
+      .setName(qualityGate.getName())
+      .build(), request, response);
   }
 
   private QualityGateDto rename(long id, String name) {
