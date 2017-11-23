@@ -71,7 +71,6 @@ public class RenameAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    wsSupport.checkCanEdit();
     long id = QualityGatesWs.parseId(request, PARAM_ID);
     QualityGateDto qualityGate = rename(id, request.mandatoryParam(PARAM_NAME));
     writeProtobuf(QualityGate.newBuilder()
@@ -83,6 +82,7 @@ public class RenameAction implements QualityGatesWsAction {
   private QualityGateDto rename(long id, String name) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       QualityGateDto qualityGate = qualityGateFinder.getById(dbSession, id);
+      wsSupport.checkCanEdit(qualityGate);
       checkArgument(!isNullOrEmpty(name), CANT_BE_EMPTY_MESSAGE, "Name");
       checkNotAlreadyExists(dbSession, qualityGate, name);
       qualityGate.setName(name);

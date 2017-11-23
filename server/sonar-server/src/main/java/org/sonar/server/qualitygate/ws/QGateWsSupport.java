@@ -31,6 +31,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
 
@@ -82,8 +83,13 @@ public class QGateWsSupport {
     return Long.valueOf(defaultQgate.getValue());
   }
 
-  void checkCanEdit() {
+  void checkCanEdit(QualityGateDto qualityGate) {
+    checkNotBuiltInt(qualityGate);
     userSession.checkPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
+  }
+
+  private static void checkNotBuiltInt(QualityGateDto qualityGate) {
+    checkArgument(!qualityGate.isBuiltIn(), "Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName());
   }
 
 }
