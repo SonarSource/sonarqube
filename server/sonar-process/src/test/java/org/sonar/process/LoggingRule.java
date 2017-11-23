@@ -58,6 +58,7 @@ public class LoggingRule extends ExternalResource {
 
   public List<String> getLogs() {
     return TestLogbackAppender.events.stream()
+      .filter(e -> e.getLoggerName().equals(loggerClass.getName()))
       .map(LoggingEvent::getFormattedMessage)
       .collect(Collectors.toList());
   }
@@ -72,12 +73,14 @@ public class LoggingRule extends ExternalResource {
 
   public boolean hasLog(Level level, String message) {
     return TestLogbackAppender.events.stream()
+      .filter(e -> e.getLoggerName().equals(loggerClass.getName()))
       .filter(e -> e.getLevel().levelStr.equals(level.name()))
       .anyMatch(e -> e.getFormattedMessage().equals(message));
   }
 
   public boolean hasLog(String message) {
     return TestLogbackAppender.events.stream()
+      .filter(e -> e.getLoggerName().equals(loggerClass.getName()))
       .anyMatch(e -> e.getFormattedMessage().equals(message));
   }
 }
