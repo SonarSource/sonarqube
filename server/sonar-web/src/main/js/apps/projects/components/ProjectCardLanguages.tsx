@@ -18,56 +18,47 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { sortBy } from 'lodash';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate } from '../../../helpers/l10n';
-
-interface Languages {
-  [key: string]: { key: string; name: string };
-}
+import { Languages } from '../../../store/languages/reducer';
 
 interface Props {
   distribution?: string;
+  languages: Languages;
 }
 
-export default class ProjectCardLanguages extends React.PureComponent<Props> {
-  static contextTypes = {
-    languages: PropTypes.object.isRequired
-  };
-
-  render() {
-    if (this.props.distribution === undefined) {
-      return null;
-    }
-
-    const parsedLanguages = this.props.distribution.split(';').map(item => item.split('='));
-    const finalLanguages = sortBy(parsedLanguages, l => -1 * Number(l[1])).map(l =>
-      getLanguageName(this.context.languages, l[0])
-    );
-
-    const tooltip = (
-      <span>
-        {finalLanguages.map(language => (
-          <span key={language}>
-            {language}
-            <br />
-          </span>
-        ))}
-      </span>
-    );
-
-    const languagesText =
-      finalLanguages.slice(0, 2).join(', ') + (finalLanguages.length > 2 ? ', ...' : '');
-
-    return (
-      <div className="project-card-languages">
-        <Tooltip placement="bottom" overlay={tooltip}>
-          <span>{languagesText}</span>
-        </Tooltip>
-      </div>
-    );
+export default function ProjectCardLanguages({ distribution, languages }: Props) {
+  if (distribution === undefined) {
+    return null;
   }
+
+  const parsedLanguages = distribution.split(';').map(item => item.split('='));
+  const finalLanguages = sortBy(parsedLanguages, l => -1 * Number(l[1])).map(l =>
+    getLanguageName(languages, l[0])
+  );
+
+  const tooltip = (
+    <span>
+      {finalLanguages.map(language => (
+        <span key={language}>
+          {language}
+          <br />
+        </span>
+      ))}
+    </span>
+  );
+
+  const languagesText =
+    finalLanguages.slice(0, 2).join(', ') + (finalLanguages.length > 2 ? ', ...' : '');
+
+  return (
+    <div className="project-card-languages">
+      <Tooltip placement="bottom" overlay={tooltip}>
+        <span>{languagesText}</span>
+      </Tooltip>
+    </div>
+  );
 }
 
 function getLanguageName(languages: Languages, key: string): string {

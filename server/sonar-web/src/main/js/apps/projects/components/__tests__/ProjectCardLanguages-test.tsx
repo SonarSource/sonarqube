@@ -28,26 +28,26 @@ const languages = {
 
 it('renders', () => {
   expect(
-    shallow(<ProjectCardLanguages distribution="java=137;js=15" />, { context: { languages } })
+    shallow(<ProjectCardLanguages distribution="java=137;js=15" languages={languages} />)
   ).toMatchSnapshot();
 });
 
 it('sorts languages', () => {
   expect(
-    shallow(<ProjectCardLanguages distribution="java=13;js=152" />, { context: { languages } })
+    shallow(<ProjectCardLanguages distribution="java=13;js=152" languages={languages} />)
   ).toMatchSnapshot();
 });
 
 it('handles unknown languages', () => {
   expect(
-    shallow(<ProjectCardLanguages distribution="java=13;cpp=18" />, { context: { languages } })
+    shallow(<ProjectCardLanguages distribution="java=13;cpp=18" languages={languages} />)
   ).toMatchSnapshot();
 
   expect(
-    shallow(<ProjectCardLanguages distribution="java=13;<null>=18" />, { context: { languages } })
+    shallow(<ProjectCardLanguages distribution="java=13;<null>=18" languages={languages} />)
   ).toMatchSnapshot();
 });
 
 it('does not render', () => {
-  expect(shallow(<ProjectCardLanguages />, { context: { languages } }).type()).toBeNull();
+  expect(shallow(<ProjectCardLanguages languages={languages} />).type()).toBeNull();
 });

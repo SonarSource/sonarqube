@@ -18,31 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import OrganizationLink from '../../../components/ui/OrganizationLink';
 
 interface Props {
   organization?: { key: string; name: string };
+  organizationsEnabled: boolean;
 }
 
-export default class ProjectCardOrganization extends React.PureComponent<Props> {
-  static contextTypes = {
-    organizationsEnabled: PropTypes.bool
-  };
-
-  render() {
-    const { organization } = this.props;
-    const { organizationsEnabled } = this.context;
-
-    if (!organization || !organizationsEnabled) {
-      return null;
-    }
-
-    return (
-      <span className="text-normal">
-        <OrganizationLink organization={organization}>{organization.name}</OrganizationLink>
-        <span className="slash-separator" />
-      </span>
-    );
+export default function ProjectCardOrganization({ organization, organizationsEnabled }: Props) {
+  if (!organization || !organizationsEnabled) {
+    return null;
   }
+
+  return (
+    <span className="text-normal">
+      <OrganizationLink organization={organization}>{organization.name}</OrganizationLink>
+      <span className="slash-separator" />
+    </span>
+  );
 }

@@ -20,7 +20,11 @@
 import { keyBy } from 'lodash';
 import { RECEIVE_LANGUAGES } from './actions';
 
-const reducer = (state = {}, action = {}) => {
+export interface Languages {
+  [key: string]: { key: string; name: string };
+}
+
+const reducer = (state: Languages = {}, action: any = {}) => {
   if (action.type === RECEIVE_LANGUAGES) {
     return keyBy(action.languages, 'key');
   }
@@ -30,6 +34,6 @@ const reducer = (state = {}, action = {}) => {
 
 export default reducer;
 
-export const getLanguages = state => state;
+export const getLanguages = (state: Languages) => state;
 
-export const getLanguageByKey = (state, key) => state[key];
+export const getLanguageByKey = (state: Languages, key: string) => state[key];

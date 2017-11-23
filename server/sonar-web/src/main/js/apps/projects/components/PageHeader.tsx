@@ -23,12 +23,13 @@ import SearchFilterContainer from '../filters/SearchFilterContainer';
 import Tooltip from '../../../components/controls/Tooltip';
 import PerspectiveSelect from './PerspectiveSelect';
 import ProjectsSortingSelect from './ProjectsSortingSelect';
+import { CurrentUser } from '../../../app/types';
 import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
 import { Project } from '../types';
 
 interface Props {
-  currentUser?: { isLoggedIn: boolean };
+  currentUser: CurrentUser;
   isFavorite?: boolean;
   loading: boolean;
   onPerspectiveChange: (x: { view: string; visualization?: string }) => void;

@@ -18,19 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { difference, sortBy } from 'lodash';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';
 import SearchableFilterFooter from './SearchableFilterFooter';
 import SearchableFilterOption from './SearchableFilterOption';
-import { getLanguageByKey } from '../../../store/languages/reducer';
+import { getLanguageByKey, Languages } from '../../../store/languages/reducer';
 import { translate } from '../../../helpers/l10n';
 import { Facet } from '../types';
 
 interface Props {
   facet?: Facet;
   isFavorite?: boolean;
+  languages: Languages;
   maxFacetValue?: number;
   organization?: string;
   property?: string;
@@ -41,18 +41,14 @@ interface Props {
 const LIST_SIZE = 10;
 
 export default class LanguagesFilter extends React.Component<Props> {
-  static contextTypes = {
-    languages: PropTypes.object.isRequired
-  };
-
   getSearchOptions = () => {
-    let languageKeys = Object.keys(this.context.languages);
+    let languageKeys = Object.keys(this.props.languages);
     if (this.props.facet) {
       languageKeys = difference(languageKeys, Object.keys(this.props.facet));
     }
     return languageKeys
       .slice(0, LIST_SIZE)
-      .map(key => ({ label: this.context.languages[key].name, value: key }));
+      .map(key => ({ label: this.props.languages[key].name, value: key }));
   };
 
   getSortedOptions = (facet: Facet = {}) =>
@@ -63,7 +59,7 @@ export default class LanguagesFilter extends React.Component<Props> {
   renderOption = (option: string) => (
     <SearchableFilterOption
       optionKey={option}
-      option={getLanguageByKey(this.context.languages, option)}
+      option={getLanguageByKey(this.props.languages, option)}
     />
   );
 
