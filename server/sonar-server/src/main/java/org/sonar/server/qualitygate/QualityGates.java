@@ -69,18 +69,6 @@ public class QualityGates {
     this.organizationProvider = organizationProvider;
   }
 
-  public QualityGateDto rename(long idToRename, String name) {
-    checkIsQualityGateAdministrator();
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityGateDto toRename = getNonNullQgate(idToRename);
-      validateQualityGate(dbSession, idToRename, name);
-      toRename.setName(name);
-      dao.update(toRename, dbSession);
-      dbSession.commit();
-      return toRename;
-    }
-  }
-
   public QualityGateDto copy(long sourceId, String destinationName) {
     checkIsQualityGateAdministrator();
     getNonNullQgate(sourceId);
