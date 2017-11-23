@@ -33,7 +33,7 @@ interface Props {
   loading: boolean;
   onPerspectiveChange: (x: { view: string; visualization?: string }) => void;
   onSortChange: (sort: string, desc: boolean) => void;
-  organization?: { key: string };
+  organization?: string;
   projects?: Project[];
   query: RawQuery;
   selectedSort: string;

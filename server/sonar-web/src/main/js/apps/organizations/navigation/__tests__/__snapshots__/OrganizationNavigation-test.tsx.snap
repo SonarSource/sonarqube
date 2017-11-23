@@ -30,67 +30,9 @@ exports[`admin 1`] = `
     className="navbar-context-meta"
   />
   <NavBarTabs>
-    <li>
-      <Link
-        className=""
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to="/organizations/foo/projects"
-      >
-        projects.page
-      </Link>
-    </li>
-    <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to={
-          Object {
-            "pathname": "/organizations/foo/issues",
-            "query": Object {
-              "resolved": "false",
-            },
-          }
-        }
-      >
-        issues.page
-      </Link>
-    </li>
-    <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to="/organizations/foo/quality_profiles"
-      >
-        quality_profiles.page
-      </Link>
-    </li>
-    <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to="/organizations/foo/rules"
-      >
-        coding_rules.page
-      </Link>
-    </li>
-    <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to={
-          Object {
-            "pathname": "/organizations/foo/quality_gates",
-          }
-        }
-      >
-        quality_gates.page
-      </Link>
-    </li>
+    <Connect(CommonNavigation)
+      organization="foo"
+    />
     <li>
       <Link
         activeClassName="active"
@@ -215,67 +157,9 @@ exports[`regular user 1`] = `
     className="navbar-context-meta"
   />
   <NavBarTabs>
-    <li>
-      <Link
-        className=""
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to="/organizations/foo/projects"
-      >
-        projects.page
-      </Link>
-    </li>
-    <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to={
-          Object {
-            "pathname": "/organizations/foo/issues",
-            "query": Object {
-              "resolved": "false",
-            },
-          }
-        }
-      >
-        issues.page
-      </Link>
-    </li>
-    <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to="/organizations/foo/quality_profiles"
-      >
-        quality_profiles.page
-      </Link>
-    </li>
-    <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to="/organizations/foo/rules"
-      >
-        coding_rules.page
-      </Link>
-    </li>
-    <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to={
-          Object {
-            "pathname": "/organizations/foo/quality_gates",
-          }
-        }
-      >
-        quality_gates.page
-      </Link>
-    </li>
+    <Connect(CommonNavigation)
+      organization="foo"
+    />
     <li>
       <Link
         activeClassName="active"
@@ -320,67 +204,9 @@ exports[`undeletable org 1`] = `
     className="navbar-context-meta"
   />
   <NavBarTabs>
-    <li>
-      <Link
-        className=""
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to="/organizations/foo/projects"
-      >
-        projects.page
-      </Link>
-    </li>
-    <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to={
-          Object {
-            "pathname": "/organizations/foo/issues",
-            "query": Object {
-              "resolved": "false",
-            },
-          }
-        }
-      >
-        issues.page
-      </Link>
-    </li>
-    <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to="/organizations/foo/quality_profiles"
-      >
-        quality_profiles.page
-      </Link>
-    </li>
-    <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to="/organizations/foo/rules"
-      >
-        coding_rules.page
-      </Link>
-    </li>
-    <li>
-      <Link
-        activeClassName="active"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to={
-          Object {
-            "pathname": "/organizations/foo/quality_gates",
-          }
-        }
-      >
-        quality_gates.page
-      </Link>
-    </li>
+    <Connect(CommonNavigation)
+      organization="foo"
+    />
     <li>
       <Link
         activeClassName="active"

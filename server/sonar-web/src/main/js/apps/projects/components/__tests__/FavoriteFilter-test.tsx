@@ -51,14 +51,14 @@ it('saves last selection', () => {
 
 it('handles organization', () => {
   expect(
-    shallow(<FavoriteFilter organization={{ key: 'org' }} query={query} />, {
+    shallow(<FavoriteFilter organization="org" query={query} />, {
       context: { currentUser }
     })
   ).toMatchSnapshot();
 });
 
 it('does not save last selection with organization', () => {
-  const wrapper = shallow(<FavoriteFilter organization={{ key: 'org' }} query={query} />, {
+  const wrapper = shallow(<FavoriteFilter organization="org" query={query} />, {
     context: { currentUser }
   });
   click(wrapper.find('#favorite-projects'));

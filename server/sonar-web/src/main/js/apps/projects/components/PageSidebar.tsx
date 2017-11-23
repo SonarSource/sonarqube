@@ -43,7 +43,7 @@ import { Facets } from '../types';
 interface Props {
   facets?: Facets;
   isFavorite: boolean;
-  organization?: { key: string };
+  organization?: string;
   query: RawQuery;
   view: string;
   visualization: string;
@@ -55,7 +55,7 @@ export default function PageSidebar(props: Props) {
     .filter(key => !['view', 'visualization', 'sort'].includes(key))
     .some(key => query[key] != null);
   const isLeakView = view === 'leak';
-  const basePathName = organization ? `/organizations/${organization.key}/projects` : '/projects';
+  const basePathName = organization ? `/organizations/${organization}/projects` : '/projects';
   const pathname = basePathName + (isFavorite ? '/favorite' : '');
   const maxFacetValue = getMaxFacetValue(facets);
   const facetProps = { isFavorite, maxFacetValue, organization, query };

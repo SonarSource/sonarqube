@@ -24,18 +24,18 @@ import ProfileActions from '../components/ProfileActions';
 import ProfileDate from '../components/ProfileDate';
 import BuiltInBadge from '../components/BuiltInBadge';
 import { translate } from '../../../helpers/l10n';
-import {
-  isStagnant,
-  getProfilesPath,
-  getProfilesForLanguagePath,
-  getProfileChangelogPath
-} from '../utils';
+import { isStagnant } from '../utils';
 import { Profile } from '../types';
+import {
+  getProfilesUrl,
+  getProfilesForLanguageUrl,
+  getProfileChangelogUrl
+} from '../../../helpers/urls';
 
 interface Props {
   onRequestFail: (reasong: any) => void;
   profile: Profile;
-  organization: string | null;
+  organization?: string;
   updateProfiles: () => Promise<void>;
 }
 
@@ -73,12 +73,12 @@ export default class ProfileHeader extends React.PureComponent<Props> {
     return (
       <header className="page-header quality-profile-header">
         <div className="note spacer-bottom">
-          <IndexLink to={getProfilesPath(organization)} className="text-muted">
+          <IndexLink to={getProfilesUrl(organization)} className="text-muted">
             {translate('quality_profiles.page')}
           </IndexLink>
           {' / '}
           <Link
-            to={getProfilesForLanguagePath(profile.language, organization)}
+            to={getProfilesForLanguageUrl(profile.language, organization)}
             className="text-muted">
             {profile.languageName}
           </Link>
@@ -101,7 +101,7 @@ export default class ProfileHeader extends React.PureComponent<Props> {
             {this.renderUsageDate()}
             <li>
               <Link
-                to={getProfileChangelogPath(profile.name, profile.language, organization)}
+                to={getProfileChangelogUrl(profile.name, profile.language, organization)}
                 className="button">
                 {translate('changelog')}
               </Link>

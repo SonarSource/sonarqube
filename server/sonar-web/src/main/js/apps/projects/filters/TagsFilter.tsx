@@ -31,7 +31,7 @@ interface Props {
   facet?: Facet;
   isFavorite?: boolean;
   maxFacetValue?: number;
-  organization?: { key: string };
+  organization?: string;
   property?: string;
   query: { [x: string]: any };
   value?: string[];

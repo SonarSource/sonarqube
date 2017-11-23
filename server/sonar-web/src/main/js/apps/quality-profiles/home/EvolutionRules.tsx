@@ -37,7 +37,7 @@ function parseRules(r: any) {
 }
 
 interface Props {
-  organization: string | null;
+  organization?: string;
 }
 
 interface Rule {

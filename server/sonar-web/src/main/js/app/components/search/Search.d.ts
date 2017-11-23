@@ -1,7 +1,7 @@
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,10 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { IndexRoute } from 'react-router';
-import MaintenanceAppContainer from './components/MaintenanceAppContainer';
-import SetupAppContainer from './components/SetupAppContainer';
+import { AppState } from '../../../store/appState/duck';
+import { CurrentUser } from '../../types';
 
-export const maintenanceRoutes = <IndexRoute component={MaintenanceAppContainer} />;
+export interface Props {
+  appState: AppState;
+  currentUser: CurrentUser;
+}
 
-export const setupRoutes = <IndexRoute component={SetupAppContainer} />;
+export default class Search extends React.PureComponent<Props> {}

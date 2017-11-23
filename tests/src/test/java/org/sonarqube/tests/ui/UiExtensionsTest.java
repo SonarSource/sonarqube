@@ -52,7 +52,7 @@ public class UiExtensionsTest {
 
   @Test
   public void test_global_page() {
-    tester.openBrowser().open("/about");
+    tester.openBrowser().open("/projects");
 
     // on about page
     $("#global-navigation-more").click();

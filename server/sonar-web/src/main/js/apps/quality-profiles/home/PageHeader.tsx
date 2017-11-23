@@ -21,16 +21,16 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import CreateProfileForm from './CreateProfileForm';
 import RestoreProfileForm from './RestoreProfileForm';
-import { getProfilePath } from '../utils';
 import { translate } from '../../../helpers/l10n';
 import { Profile } from '../types';
 import { Actions } from '../../../api/quality-profiles';
+import { getProfileUrl } from '../../../helpers/urls';
 
 interface Props {
   actions: Actions;
   languages: Array<{ key: string; name: string }>;
   onRequestFail: (reason: any) => void;
-  organization: string | null;
+  organization?: string;
   updateProfiles: () => Promise<void>;
 }
 
@@ -58,7 +58,7 @@ export default class PageHeader extends React.PureComponent<Props, State> {
   handleCreate = (profile: Profile) => {
     this.props.updateProfiles().then(() => {
       this.context.router.push(
-        getProfilePath(profile.name, profile.language, this.props.organization)
+        getProfileUrl(profile.name, profile.language, this.props.organization)
       );
     });
   };

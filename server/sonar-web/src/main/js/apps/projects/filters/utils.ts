@@ -22,13 +22,13 @@ import { RawQuery } from '../../../helpers/query';
 
 interface OwnProps {
   isFavorite?: boolean;
-  organization?: { key: string };
+  organization?: string;
   query: RawQuery;
 }
 
 export function getFilterUrl(ownProps: OwnProps, part: RawQuery) {
   const basePathName = ownProps.organization
-    ? `/organizations/${ownProps.organization.key}/projects`
+    ? `/organizations/${ownProps.organization}/projects`
     : '/projects';
   const pathname = basePathName + (ownProps.isFavorite ? '/favorite' : '');
   const query: RawQuery = omitBy({ ...ownProps.query, ...part }, isNil);

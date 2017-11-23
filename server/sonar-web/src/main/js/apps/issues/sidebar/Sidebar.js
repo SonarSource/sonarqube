@@ -51,7 +51,7 @@ type Props = {|
   onFacetToggle: (property: string) => void,
   onFilterChange: (changes: { [string]: Array<string> }) => void,
   openFacets: { [string]: boolean },
-  organization?: { key: string },
+  organization?: string,
   query: Query,
   referencedComponents: { [string]: ReferencedComponent },
   referencedLanguages: { [string]: ReferencedLanguage },

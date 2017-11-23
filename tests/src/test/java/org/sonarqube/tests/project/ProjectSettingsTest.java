@@ -26,12 +26,10 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.openqa.selenium.By;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.qa.util.pageobjects.settings.SettingsPage;
 
-import static com.codeborne.selenide.Selenide.$;
 import static util.ItUtils.projectDir;
 
 public class ProjectSettingsTest {
@@ -81,9 +79,7 @@ public class ProjectSettingsTest {
   public void display_correct_global_setting() {
     analyzeSample();
     Navigation nav = tester.openBrowser();
-    SettingsPage page = nav.logIn()
-      .submitCredentials(adminUser)
-      .openSettings("sample")
+    nav.logIn().submitCredentials(adminUser).openSettings("sample")
       .openCategory("Analysis Scope")
       .assertSettingDisplayed("sonar.coverage.exclusions")
       .setStringValue("sonar.coverage.exclusions", "foo")
@@ -92,9 +88,7 @@ public class ProjectSettingsTest {
 
     // login as root
     tester.wsClient().users().skipOnboardingTutorial();
-    nav.logIn().submitCredentials("admin", "admin");
-    $(".global-navbar-menu ").$(By.linkText("Administration")).click();
-    page
+    nav.logIn().submitCredentials("admin", "admin").openSettings(null)
       .openCategory("Analysis Scope")
       .assertSettingDisplayed("sonar.coverage.exclusions")
       .assertStringSettingValue("sonar.coverage.exclusions", "");

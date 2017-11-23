@@ -17,16 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router';
-import classNames from 'classnames';
-import { translate } from '../../../helpers/l10n';
+import * as classNames from 'classnames';
+import { Organization } from '../../../app/types';
 import ContextNavBar from '../../../components/nav/ContextNavBar';
 import NavBarTabs from '../../../components/nav/NavBarTabs';
 import OrganizationIcon from '../../../components/icons-components/OrganizationIcon';
-import { getQualityGatesUrl } from '../../../helpers/urls';
-/*:: import type { Organization } from '../../../store/organizations/duck'; */
+import CommonNavigation from '../../../components/common/CommonNavigation';
+import { translate } from '../../../helpers/l10n';
 
 const ADMIN_PATHS = [
   'edit',
@@ -37,14 +36,13 @@ const ADMIN_PATHS = [
   'projects_management'
 ];
 
-export default class OrganizationNavigation extends React.PureComponent {
-  /*:: props: {
-    location: { pathname: string },
-    organization: Organization
-  };
-*/
+interface Props {
+  location: { pathname: string };
+  organization: Organization;
+}
 
-  renderAdministration(adminActive /*: boolean */) {
+export default class OrganizationNavigation extends React.PureComponent<Props> {
+  renderAdministration(adminActive: boolean) {
     const { organization } = this.props;
 
     return (
@@ -104,7 +102,7 @@ export default class OrganizationNavigation extends React.PureComponent {
     return extensions.map(this.renderExtension);
   }
 
-  renderExtension = (extension /*: { key: string, name: string } */) => {
+  renderExtension = (extension: { key: string; name: string }) => {
     const { organization } = this.props;
     const pathname = `/organizations/${organization.key}/extension/${extension.key}`;
     return (
@@ -116,7 +114,7 @@ export default class OrganizationNavigation extends React.PureComponent {
     );
   };
 
-  renderExtensions(moreActive /*: boolean */) {
+  renderExtensions(moreActive: boolean) {
     const extensions = this.props.organization.pages || [];
     if (extensions.length > 0) {
       return (
@@ -138,10 +136,6 @@ export default class OrganizationNavigation extends React.PureComponent {
 
   render() {
     const { organization, location } = this.props;
-
-    const isHomeActive =
-      location.pathname === `organizations/${organization.key}/projects` ||
-      location.pathname === `organizations/${organization.key}/projects/favorite`;
 
     const adminPathsWithExtensions = (organization.adminPages || [])
       .map(e => `extension/${e.key}`)
@@ -192,40 +186,7 @@ export default class OrganizationNavigation extends React.PureComponent {
         </div>
 
         <NavBarTabs>
-          <li>
-            <Link
-              to={`/organizations/${organization.key}/projects`}
-              className={isHomeActive ? 'active' : ''}>
-              {translate('projects.page')}
-            </Link>
-          </li>
-          <li>
-            <Link
-              to={{
-                pathname: `/organizations/${organization.key}/issues`,
-                query: { resolved: 'false' }
-              }}
-              activeClassName="active">
-              {translate('issues.page')}
-            </Link>
-          </li>
-          <li>
-            <Link
-              to={`/organizations/${organization.key}/quality_profiles`}
-              activeClassName="active">
-              {translate('quality_profiles.page')}
-            </Link>
-          </li>
-          <li>
-            <Link to={`/organizations/${organization.key}/rules`} activeClassName="active">
-              {translate('coding_rules.page')}
-            </Link>
-          </li>
-          <li>
-            <Link to={getQualityGatesUrl(organization.key)} activeClassName="active">
-              {translate('quality_gates.page')}
-            </Link>
-          </li>
+          <CommonNavigation organization={organization.key} />
           <li>
             <Link to={`/organizations/${organization.key}/members`} activeClassName="active">
               {translate('organization.members.page')}

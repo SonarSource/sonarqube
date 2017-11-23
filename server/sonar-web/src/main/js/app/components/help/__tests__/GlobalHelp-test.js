@@ -57,8 +57,8 @@ it('display special links page for SonarCloud', () => {
     <GlobalHelp
       currentUser={{ isLoggedIn: false }}
       onClose={jest.fn()}
+      onSonarCloud={true}
       onTutorialSelect={jest.fn()}
-      sonarCloud={true}
     />
   );
   clickOnSection(wrapper, 'links');

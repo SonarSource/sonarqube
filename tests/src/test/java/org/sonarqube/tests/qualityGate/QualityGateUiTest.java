@@ -99,9 +99,7 @@ public class QualityGateUiTest {
       .logIn().submitCredentials(login)
       .openQualityGates();
 
-    SelenideElement element = $(".navbar-global .global-navbar-menu")
-      .find(By.linkText("Quality Gates"))
-      .should(Condition.exist);
+    SelenideElement element = $(".navbar-context").find(By.linkText("Quality Gates")).should(Condition.exist);
     assertThat(element.attr("href")).endsWith("/quality_gates");
   }
 

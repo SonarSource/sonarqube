@@ -78,6 +78,7 @@ const routes = [
       },
       {
         path: 'quality_profiles',
+        component: OrganizationContainer,
         childRoutes: qualityProfilesRoutes
       },
       {

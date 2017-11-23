@@ -39,7 +39,7 @@ type Props = {|
   onChange: (changes: {}) => void,
   onToggle: (property: string) => void,
   open: boolean,
-  organization?: { key: string },
+  organization?: string,
   stats?: { [string]: number },
   referencedUsers: { [string]: ReferencedUser }
 |};
@@ -79,7 +79,7 @@ export default class AssigneeFacet extends React.PureComponent {
   handleSearch = (query /*: string */) => {
     let organization = this.props.component && this.props.component.organization;
     if (this.props.organization && !organization) {
-      organization = this.props.organization.key;
+      organization = this.props.organization;
     }
     return searchAssignees(query, organization);
   };

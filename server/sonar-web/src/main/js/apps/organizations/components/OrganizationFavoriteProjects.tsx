@@ -23,7 +23,7 @@ import AllProjects from '../../projects/components/AllProjects';
 
 interface Props {
   location: { pathname: string; query: { [x: string]: string } };
-  organization: { key: string };
+  organization: string;
 }
 
 export default function OrganizationFavoriteProjects(props: Props) {

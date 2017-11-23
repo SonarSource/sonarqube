@@ -32,7 +32,6 @@ it('should render ComparisonEmpty', () => {
       inLeft={[]}
       inRight={[]}
       modified={[]}
-      organization={null}
     />
   );
   expect(output.is(ComparisonEmpty)).toBe(true);
@@ -66,7 +65,6 @@ it('should compare', () => {
       inLeft={inLeft}
       inRight={inRight}
       modified={modified}
-      organization={null}
     />
   );
 

@@ -25,7 +25,7 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   language: string;
-  organization: string | null;
+  organization?: string;
   profile: string;
   sonarway: string;
   sonarWayMissingRules: number;

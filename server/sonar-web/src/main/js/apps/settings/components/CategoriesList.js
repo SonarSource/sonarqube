@@ -56,7 +56,7 @@ export default class CategoriesList extends React.PureComponent {
     const className =
       category.key.toLowerCase() === this.props.selectedCategory.toLowerCase() ? 'active' : '';
 
-    const pathname = this.props.component ? '/project/settings' : '/settings';
+    const pathname = this.props.component ? '/project/settings' : '/admin/settings';
 
     return (
       <IndexLink to={{ pathname, query }} className={className} title={category.name}>

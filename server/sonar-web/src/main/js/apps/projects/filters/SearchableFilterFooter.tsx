@@ -31,7 +31,7 @@ interface Props {
   onOpen?: () => void;
   isLoading?: boolean;
   isFavorite?: boolean;
-  organization?: { key: string };
+  organization?: string;
 }
 
 export default class SearchableFilterFooter extends React.PureComponent<Props> {

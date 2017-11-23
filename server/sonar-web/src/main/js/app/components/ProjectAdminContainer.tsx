@@ -18,36 +18,40 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import IssuesFilter from './IssuesFilter';
-import { Facet } from '../types';
-import BugIcon from '../../../components/icons-components/BugIcon';
-import { translate } from '../../../helpers/l10n';
+import { Component } from '../types';
+import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
 
 interface Props {
-  className?: string;
-  facet?: Facet;
-  headerDetail?: React.ReactNode;
-  isFavorite?: boolean;
-  maxFacetValue?: number;
-  organization?: string;
-  query: { [x: string]: any };
-  value?: any;
+  children: JSX.Element;
+  component: Component;
 }
 
-export default function ReliabilityFilter(props: Props) {
-  return (
-    <IssuesFilter
-      {...props}
-      headerDetail={
-        <span className="note little-spacer-left">
-          {'('}
-          <BugIcon className="little-spacer-right" />
-          {translate('metric.bugs.name')}
-          {' )'}
-        </span>
-      }
-      name="Reliability"
-      property="reliability"
-    />
-  );
+export default class ProjectAdminContainer extends React.PureComponent<Props> {
+  componentDidMount() {
+    this.checkPermissions();
+  }
+
+  componentDidUpdate() {
+    this.checkPermissions();
+  }
+
+  isProjectAdmin() {
+    const { configuration } = this.props.component;
+    return configuration != null && configuration.showSettings;
+  }
+
+  checkPermissions() {
+    if (!this.isProjectAdmin()) {
+      handleRequiredAuthorization();
+    }
+  }
+
+  render() {
+    if (!this.isProjectAdmin()) {
+      return null;
+    }
+
+    const { children, ...props } = this.props;
+    return React.cloneElement(children, props);
+  }
 }
