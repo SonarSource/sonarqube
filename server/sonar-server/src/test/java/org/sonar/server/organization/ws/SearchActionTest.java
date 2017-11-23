@@ -35,7 +35,9 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.organization.OrganizationValidationImpl;
+import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common.Paging;
@@ -47,6 +49,7 @@ import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.organization.ws.SearchAction.PARAM_MEMBER;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
@@ -64,23 +67,25 @@ public class SearchActionTest {
   private System2 system2 = mock(System2.class);
 
   @Rule
-  public DbTester dbTester = DbTester.create(system2).setDisableDefaultOrganization(true);
+  public UserSessionRule userSession = UserSessionRule.standalone();
+  @Rule
+  public DbTester db = DbTester.create(system2).setDisableDefaultOrganization(true);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private SearchAction underTest = new SearchAction(dbTester.getDbClient(), new OrganizationsWsSupport(new OrganizationValidationImpl()));
-  private WsActionTester wsTester = new WsActionTester(underTest);
+  private SearchAction underTest = new SearchAction(db.getDbClient(), userSession, new OrganizationsWsSupport(new OrganizationValidationImpl()));
+  private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
-  public void verify_define() {
-    WebService.Action action = wsTester.getDef();
+  public void definition() {
+    WebService.Action action = ws.getDef();
     assertThat(action.key()).isEqualTo("search");
     assertThat(action.isPost()).isFalse();
     assertThat(action.description()).isEqualTo("Search for organizations");
     assertThat(action.isInternal()).isTrue();
     assertThat(action.since()).isEqualTo("6.2");
     assertThat(action.handler()).isEqualTo(underTest);
-    assertThat(action.params()).hasSize(3);
+    assertThat(action.params()).hasSize(4);
     assertThat(action.responseExample()).isEqualTo(getClass().getResource("search-example.json"));
 
     WebService.Param organizations = action.param("organizations");
@@ -100,6 +105,11 @@ public class SearchActionTest {
     assertThat(pageSize.defaultValue()).isEqualTo("100");
     assertThat(pageSize.maximumValue()).isEqualTo(500);
     assertThat(pageSize.description()).isEqualTo("Page size. Must be greater than 0 and less than 500");
+
+    WebService.Param member = action.param("member");
+    assertThat(member.since()).isEqualTo("7.0");
+    assertThat(member.defaultValue()).isEqualTo(String.valueOf(false));
+    assertThat(member.isRequired()).isFalse();
   }
 
   @Test
@@ -119,9 +129,12 @@ public class SearchActionTest {
       .setName("Foo Company")
       .setGuarded(true));
 
-    String response = executeJsonRequest(null, 25);
+    TestRequest request = ws.newRequest()
+      .setMediaType(MediaTypes.JSON);
+    populateRequest(request, null, 25);
+    String response = request.execute().getInput();
 
-    assertJson(response).isSimilarTo(wsTester.getDef().responseExampleAsString());
+    assertJson(response).isSimilarTo(ws.getDef().responseExampleAsString());
   }
 
   @Test
@@ -213,19 +226,19 @@ public class SearchActionTest {
     insertOrganization(ORGANIZATION_DTO.setUuid("uuid5").setKey("key-5"));
     insertOrganization(ORGANIZATION_DTO.setUuid("uuid4").setKey("key-4"));
 
-    SearchWsResponse response = executeRequest(1, 1, "key-1", "key-3", "key-5");
+    SearchWsResponse response = call(1, 1, "key-1", "key-3", "key-5");
     assertThat(response.getOrganizationsList()).extracting(Organization::getKey).containsOnly("key-5");
     assertThat(response.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsOnly(1, 1, 3);
 
-    response = executeRequest(1, 2, "key-1", "key-3", "key-5");
+    response = call(1, 2, "key-1", "key-3", "key-5");
     assertThat(response.getOrganizationsList()).extracting(Organization::getKey).containsOnly("key-5", "key-1");
     assertThat(response.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsOnly(1, 2, 3);
 
-    response = executeRequest(2, 2, "key-1", "key-3", "key-5");
+    response = call(2, 2, "key-1", "key-3", "key-5");
     assertThat(response.getOrganizationsList()).extracting(Organization::getKey).containsOnly("key-3");
     assertThat(response.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsOnly(2, 2, 3);
 
-    response = executeRequest(null, null);
+    response = call(null, null);
     assertThat(response.getOrganizationsList()).extracting(Organization::getKey).hasSize(5);
     assertThat(response.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsOnly(1, 100, 5);
   }
@@ -240,27 +253,39 @@ public class SearchActionTest {
       .containsExactly(ORGANIZATION_DTO.getKey());
   }
 
-  private List<Organization> executeRequestAndReturnList(@Nullable Integer page, @Nullable Integer pageSize, String... keys) {
-    return executeRequest(page, pageSize, keys).getOrganizationsList();
+  @Test
+  public void filter_organization_user_is_member_of() {
+    UserDto user = db.users().insertUser();
+    userSession.logIn(user);
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto organizationWithoutMember = db.organizations().insert();
+    db.organizations().addMember(organization, user);
+
+    SearchWsResponse result = call(ws.newRequest().setParam(PARAM_MEMBER, String.valueOf(true)));
+
+    assertThat(result.getOrganizationsList()).extracting(Organization::getKey)
+      .containsExactlyInAnyOrder(organization.getKey())
+      .doesNotContain(organizationWithoutMember.getKey());
   }
 
-  private SearchWsResponse executeRequest(@Nullable Integer page, @Nullable Integer pageSize, String... keys) {
-    TestRequest request = wsTester.newRequest();
-    populateRequest(request, page, pageSize, keys);
+  private List<Organization> executeRequestAndReturnList(@Nullable Integer page, @Nullable Integer pageSize, String... keys) {
+    return call(page, pageSize, keys).getOrganizationsList();
+  }
+
+  private SearchWsResponse call(TestRequest request) {
     return request.executeProtobuf(SearchWsResponse.class);
   }
 
   private void insertOrganization(OrganizationDto dto) {
-    DbSession dbSession = dbTester.getSession();
-    dbTester.getDbClient().organizationDao().insert(dbSession, dto, false);
+    DbSession dbSession = db.getSession();
+    db.getDbClient().organizationDao().insert(dbSession, dto, false);
     dbSession.commit();
   }
 
-  private String executeJsonRequest(@Nullable Integer page, @Nullable Integer pageSize, String... keys) {
-    TestRequest request = wsTester.newRequest()
-      .setMediaType(MediaTypes.JSON);
+  private SearchWsResponse call(@Nullable Integer page, @Nullable Integer pageSize, String... keys) {
+    TestRequest request = ws.newRequest();
     populateRequest(request, page, pageSize, keys);
-    return request.execute().getInput();
+    return call(request);
   }
 
   private void populateRequest(TestRequest request, @Nullable Integer page, @Nullable Integer pageSize, String... keys) {
