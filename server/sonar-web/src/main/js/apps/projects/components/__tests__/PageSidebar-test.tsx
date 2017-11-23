@@ -23,14 +23,26 @@ import PageSidebar from '../PageSidebar';
 
 it('should render correctly', () => {
   const sidebar = shallow(
-    <PageSidebar query={{ size: '3' }} view="overall" visualization="risk" isFavorite={true} />
+    <PageSidebar
+      getFilterUrl={jest.fn()}
+      onClearAll={jest.fn()}
+      query={{ size: '3' }}
+      view="overall"
+      visualization="risk"
+    />
   );
   expect(sidebar).toMatchSnapshot();
 });
 
 it('should render `leak` view correctly', () => {
   const sidebar = shallow(
-    <PageSidebar query={{ view: 'leak' }} view="leak" visualization="risk" isFavorite={false} />
+    <PageSidebar
+      getFilterUrl={jest.fn()}
+      onClearAll={jest.fn()}
+      query={{ view: 'leak' }}
+      view="leak"
+      visualization="risk"
+    />
   );
   expect(sidebar).toMatchSnapshot();
 });
@@ -38,13 +50,14 @@ it('should render `leak` view correctly', () => {
 it('reset function should work correctly with view and visualizations', () => {
   const sidebar = shallow(
     <PageSidebar
+      getFilterUrl={jest.fn()}
+      onClearAll={jest.fn()}
       query={{ view: 'visualizations', visualization: 'bugs' }}
       view="visualizations"
       visualization="bugs"
-      isFavorite={false}
     />
   );
-  expect(sidebar.find('.projects-facets-reset').exists()).toBeFalsy();
+  expect(sidebar.find('ClearAll').exists()).toBeFalsy();
   sidebar.setProps({ query: { size: '3' } });
-  expect(sidebar.find('.projects-facets-reset')).toMatchSnapshot();
+  expect(sidebar.find('ClearAll').exists()).toBeTruthy();
 });

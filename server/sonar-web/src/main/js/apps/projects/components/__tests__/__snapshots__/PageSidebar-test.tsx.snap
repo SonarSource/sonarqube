@@ -1,28 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`reset function should work correctly with view and visualizations 1`] = `
-<div
-  className="projects-facets-reset"
->
-  <Link
-    className="button button-red"
-    onlyActiveOnIndex={false}
-    style={Object {}}
-    to={
-      Object {
-        "pathname": "/projects",
-        "query": Object {
-          "view": "visualizations",
-          "visualization": "bugs",
-        },
-      }
-    }
-  >
-    clear_all_filters
-  </Link>
-</div>
-`;
-
 exports[`should render \`leak\` view correctly 1`] = `
 <div>
   <div
@@ -118,23 +95,9 @@ exports[`should render correctly 1`] = `
   <div
     className="projects-facets-header clearfix"
   >
-    <div
-      className="projects-facets-reset"
-    >
-      <Link
-        className="button button-red"
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to={
-          Object {
-            "pathname": "/projects/favorite",
-            "query": undefined,
-          }
-        }
-      >
-        clear_all_filters
-      </Link>
-    </div>
+    <ClearAll
+      onClearAll={[Function]}
+    />
     <h3>
       filters
     </h3>

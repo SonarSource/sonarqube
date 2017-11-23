@@ -24,6 +24,9 @@ import PageHeader from './PageHeader';
 import ProjectsList from './ProjectsList';
 import PageSidebar from './PageSidebar';
 import Visualizations from '../visualizations/Visualizations';
+import { Project, Facets } from '../types';
+import { fetchProjects, parseSorting, SORTING_SWITCH } from '../utils';
+import { parseUrlQuery, Query } from '../query';
 import { isLoggedInUser, CurrentUser } from '../../../app/types';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
@@ -32,9 +35,6 @@ import { translate } from '../../../helpers/l10n';
 import * as storage from '../../../helpers/storage';
 import { RawQuery } from '../../../helpers/query';
 import '../styles.css';
-import { Project, Facets } from '../types';
-import { fetchProjects, parseSorting, SORTING_SWITCH } from '../utils';
-import { parseUrlQuery, Query } from '../query';
 
 interface Props {
   isFavorite: boolean;
@@ -229,6 +229,10 @@ export default class App extends React.PureComponent<Props, State> {
     });
   };
 
+  handleClearAll = () => {
+    this.context.router.push({ pathname: this.props.location.pathname });
+  };
+
   renderSide = () => (
     <ScreenPositionHelper className="layout-page-side-outer">
       {({ top }) => (
@@ -238,6 +242,7 @@ export default class App extends React.PureComponent<Props, State> {
               <PageSidebar
                 facets={this.state.facets}
                 isFavorite={this.props.isFavorite}
+                onClearAll={this.handleClearAll}
                 organization={this.props.organization}
                 query={this.state.query}
                 view={this.getView()}

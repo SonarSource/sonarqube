@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { Link } from 'react-router';
 import { flatMap } from 'lodash';
 import LanguagesFilterContainer from '../filters/LanguagesFilterContainer';
 import CoverageFilter from '../filters/CoverageFilter';
@@ -38,10 +37,12 @@ import TagsFilter from '../filters/TagsFilter';
 import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
 import { Facets } from '../types';
+import ClearAll from './ClearAll';
 
 interface Props {
   facets?: Facets;
-  isFavorite: boolean;
+  getFilterUrl: (change: RawQuery | 'clear') => { pathname: string; query?: RawQuery };
+  onClearAll: () => void;
   organization?: string;
   query: RawQuery;
   view: string;
@@ -49,15 +50,13 @@ interface Props {
 }
 
 export default function PageSidebar(props: Props) {
-  const { facets, query, isFavorite, organization, view, visualization } = props;
+  const { facets, getFilterUrl, query, organization, view, visualization } = props;
   const isFiltered = Object.keys(query)
     .filter(key => !['view', 'visualization', 'sort'].includes(key))
     .some(key => query[key] != null);
   const isLeakView = view === 'leak';
-  const basePathName = organization ? `/organizations/${organization}/projects` : '/projects';
-  const pathname = basePathName + (isFavorite ? '/favorite' : '');
   const maxFacetValue = getMaxFacetValue(facets);
-  const facetProps = { isFavorite, maxFacetValue, organization, query };
+  const facetProps = { getFilterUrl, maxFacetValue, organization, query };
 
   let linkQuery: RawQuery | undefined = undefined;
   if (view !== 'overall') {
@@ -71,13 +70,7 @@ export default function PageSidebar(props: Props) {
   return (
     <div>
       <div className="projects-facets-header clearfix">
-        {isFiltered && (
-          <div className="projects-facets-reset">
-            <Link to={{ pathname, query: linkQuery }} className="button button-red">
-              {translate('clear_all_filters')}
-            </Link>
-          </div>
-        )}
+        {isFiltered && <ClearAll onClearAll={props.onClearAll} />}
 
         <h3>{translate('filters')}</h3>
       </div>
