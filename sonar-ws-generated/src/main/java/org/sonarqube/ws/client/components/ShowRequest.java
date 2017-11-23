@@ -23,7 +23,7 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Returns a component (file, directory, project, view…) and its ancestors. The ancestors are ordered from the parent to the root project. The 'componentId' or 'component' parameter must be provided.<br>Requires the following permission: 'Browse' on the project of the specified component.
+ * Returns a component (file, directory, project, view?) and its ancestors. The ancestors are ordered from the parent to the root project. The 'componentId' or 'component' parameter must be provided.<br>Requires the following permission: 'Browse' on the project of the specified component.
  *
  * This is part of the internal API.
  * This is a POST request.

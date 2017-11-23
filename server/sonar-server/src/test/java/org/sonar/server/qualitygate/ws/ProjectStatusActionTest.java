@@ -44,8 +44,8 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.Qualitygates.ProjectStatusWsResponse;
-import org.sonarqube.ws.Qualitygates.ProjectStatusWsResponse.Status;
+import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
+import org.sonarqube.ws.Qualitygates.ProjectStatusResponse.Status;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -166,7 +166,7 @@ public class ProjectStatusActionTest {
     dbSession.commit();
     userSession.addProjectPermission(UserRole.USER, project);
 
-    ProjectStatusWsResponse result = call(snapshot.getUuid());
+    ProjectStatusResponse result = call(snapshot.getUuid());
 
     assertThat(result.getProjectStatus().getStatus()).isEqualTo(Status.NONE);
     assertThat(result.getProjectStatus().getConditionsCount()).isEqualTo(0);
@@ -177,7 +177,7 @@ public class ProjectStatusActionTest {
     ComponentDto project = db.components().insertPrivateProject(db.organizations().insert());
     userSession.addProjectPermission(UserRole.USER, project);
 
-    ProjectStatusWsResponse result = callByProjectUuid(project.uuid());
+    ProjectStatusResponse result = callByProjectUuid(project.uuid());
 
     assertThat(result.getProjectStatus().getStatus()).isEqualTo(Status.NONE);
     assertThat(result.getProjectStatus().getConditionsCount()).isEqualTo(0);
@@ -280,16 +280,16 @@ public class ProjectStatusActionTest {
       .execute();
   }
 
-  private ProjectStatusWsResponse call(String taskId) {
+  private ProjectStatusResponse call(String taskId) {
     return ws.newRequest()
       .setParam("analysisId", taskId)
-      .executeProtobuf(ProjectStatusWsResponse.class);
+      .executeProtobuf(ProjectStatusResponse.class);
   }
 
-  private ProjectStatusWsResponse callByProjectUuid(String projectUuid) {
+  private ProjectStatusResponse callByProjectUuid(String projectUuid) {
     return ws.newRequest()
       .setParam(PARAM_PROJECT_ID, projectUuid)
-      .executeProtobuf(ProjectStatusWsResponse.class);
+      .executeProtobuf(ProjectStatusResponse.class);
   }
 
   private void logInAsSystemAdministrator() {

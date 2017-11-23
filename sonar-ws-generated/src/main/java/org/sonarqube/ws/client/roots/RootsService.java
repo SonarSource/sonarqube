@@ -26,6 +26,7 @@ import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
+import org.sonarqube.ws.Roots.SearchResponse;
 
 /**
  * Manage root users
@@ -46,11 +47,10 @@ public class RootsService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/roots/search">Further information about this action online (including a response example)</a>
    * @since 6.2
    */
-  public String search() {
+  public SearchResponse search() {
     return call(
-      new GetRequest(path("search"))
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+      new GetRequest(path("search")),
+      SearchResponse.parser());
   }
 
   /**

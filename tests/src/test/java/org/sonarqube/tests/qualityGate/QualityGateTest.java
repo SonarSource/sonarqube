@@ -45,12 +45,11 @@ import org.sonar.wsclient.qualitygate.QualityGateClient;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.TesterSession;
 import org.sonarqube.ws.Ce;
+import org.sonarqube.ws.Measures.Measure;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Organizations.Organization;
-import org.sonarqube.ws.Measures.Measure;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.Qualitygates;
-import org.sonarqube.ws.Qualitygates.ProjectStatusWsResponse;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
@@ -247,11 +246,11 @@ public class QualityGateTest {
       String taskId = getTaskIdInLocalReport(projectDir("qualitygate/xoo-sample"));
       String analysisId = getAnalysisId(taskId);
 
-      ProjectStatusWsResponse projectStatusWsResponse = tester.wsClient().qualityGates().projectStatus(new ProjectStatusRequest().setAnalysisId(analysisId));
-      ProjectStatusWsResponse.ProjectStatus projectStatus = projectStatusWsResponse.getProjectStatus();
-      assertThat(projectStatus.getStatus()).isEqualTo(ProjectStatusWsResponse.Status.ERROR);
+      Qualitygates.ProjectStatusResponse projectStatusWsResponse = tester.wsClient().qualityGates().projectStatus(new ProjectStatusRequest().setAnalysisId(analysisId));
+      Qualitygates.ProjectStatusResponse.ProjectStatus projectStatus = projectStatusWsResponse.getProjectStatus();
+      assertThat(projectStatus.getStatus()).isEqualTo(Qualitygates.ProjectStatusResponse.Status.ERROR);
       assertThat(projectStatus.getConditionsCount()).isEqualTo(1);
-      ProjectStatusWsResponse.Condition condition = projectStatus.getConditionsList().get(0);
+      Qualitygates.ProjectStatusResponse.Condition condition = projectStatus.getConditionsList().get(0);
       assertThat(condition.getMetricKey()).isEqualTo("ncloc");
       assertThat(condition.getErrorThreshold()).isEqualTo("7");
     } finally {
@@ -270,7 +269,7 @@ public class QualityGateTest {
     createCustomIntMetric(customMetricKey);
     try {
       // create quality gate
-      Qualitygates.CreateWsResponse simple = tester.wsClient().qualityGates().create(new CreateRequest().setName("OnCustomMetric"));
+      Qualitygates.CreateResponse simple = tester.wsClient().qualityGates().create(new CreateRequest().setName("OnCustomMetric"));
       Long qualityGateId = simple.getId();
       qgClient().createCondition(NewCondition.create(qualityGateId).metricKey(customMetricKey).operator("GT").warningThreshold("40"));
 
@@ -298,8 +297,8 @@ public class QualityGateTest {
     TesterSession qGateAdminTester = tester.as(user.getLogin());
     QualitygatesService qGateService = qGateAdminTester.qGates().service();
     // perform administration operations
-    Qualitygates.CreateWsResponse qualityGate = qGateAdminTester.qGates().generate();
-    Qualitygates.CreateConditionWsResponse condition = qGateService.createCondition(new CreateConditionRequest()
+    Qualitygates.CreateResponse qualityGate = qGateAdminTester.qGates().generate();
+    Qualitygates.CreateConditionResponse condition = qGateService.createCondition(new CreateConditionRequest()
       .setGateId(String.valueOf(qualityGate.getId())).setMetric("coverage").setOp("LT").setError("90"));
     qGateService.updateCondition(new UpdateConditionRequest()
       .setId(String.valueOf(condition.getId())).setMetric("coverage").setOp("LT").setError("90").setWarning("80"));

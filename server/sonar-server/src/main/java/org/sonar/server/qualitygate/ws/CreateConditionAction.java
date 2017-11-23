@@ -29,7 +29,7 @@ import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.Qualitygates.CreateConditionWsResponse;
+import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
 
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.qualitygate.ws.QualityGatesWs.addConditionParams;
@@ -64,6 +64,7 @@ public class CreateConditionAction implements QualityGatesWsAction {
       .setDescription("Add a new condition to a quality gate.<br>" +
         "Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
+      .setResponseExample(getClass().getResource("create-condition-example.json"))
       .setHandler(this);
 
     createCondition
@@ -89,14 +90,14 @@ public class CreateConditionAction implements QualityGatesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession, gateId, metric, operator, warning, error, period);
 
-      CreateConditionWsResponse.Builder createConditionWsResponse = CreateConditionWsResponse.newBuilder()
+      CreateConditionResponse.Builder createConditionResponse = CreateConditionResponse.newBuilder()
         .setId(condition.getId())
         .setMetric(condition.getMetricKey())
         .setOp(condition.getOperator());
-      setNullable(condition.getWarningThreshold(), createConditionWsResponse::setWarning);
-      setNullable(condition.getErrorThreshold(), createConditionWsResponse::setError);
-      setNullable(condition.getPeriod(), createConditionWsResponse::setPeriod);
-      writeProtobuf(createConditionWsResponse.build(), request, response);
+      setNullable(condition.getWarningThreshold(), createConditionResponse::setWarning);
+      setNullable(condition.getErrorThreshold(), createConditionResponse::setError);
+      setNullable(condition.getPeriod(), createConditionResponse::setPeriod);
+      writeProtobuf(createConditionResponse.build(), request, response);
       dbSession.commit();
     }
   }

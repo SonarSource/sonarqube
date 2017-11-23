@@ -36,6 +36,7 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
+import org.sonarqube.ws.client.roots.SetRootRequest;
 import org.sonarqube.ws.client.user.CreateRequest;
 import org.sonarqube.ws.client.user.SearchRequest;
 import org.sonarqube.ws.client.user.UsersService;
@@ -152,7 +153,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
   }
 
   public void setRoot(String login) {
-    adminWsClient().roots().setRoot(login);
+    adminWsClient().roots().setRoot(new SetRootRequest().setLogin(login));
   }
 
   public Optional<util.user.Users.User> getUserByLogin(String login) {

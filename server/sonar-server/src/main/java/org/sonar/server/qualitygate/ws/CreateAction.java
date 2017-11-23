@@ -29,7 +29,7 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.Qualitygates.CreateWsResponse;
+import org.sonarqube.ws.Qualitygates.CreateResponse;
 
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_CREATE;
@@ -38,6 +38,7 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAM
 public class CreateAction implements QualityGatesWsAction {
 
   public static final int NAME_MAXIMUM_LENGTH = 100;
+
   private final DbClient dbClient;
   private final UserSession userSession;
   private final QualityGateUpdater qualityGateUpdater;
@@ -58,6 +59,7 @@ public class CreateAction implements QualityGatesWsAction {
       .setDescription("Create a Quality Gate.<br>" +
         "Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
+      .setResponseExample(getClass().getResource("create-example.json"))
       .setHandler(this);
 
     action.createParam(PARAM_NAME)
@@ -73,11 +75,11 @@ public class CreateAction implements QualityGatesWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QualityGateDto newQualityGate = qualityGateUpdater.create(dbSession, request.mandatoryParam(PARAM_NAME));
-      CreateWsResponse.Builder createWsResponse = CreateWsResponse.newBuilder()
+      CreateResponse.Builder createResponse = CreateResponse.newBuilder()
         .setId(newQualityGate.getId())
         .setName(newQualityGate.getName());
       dbSession.commit();
-      writeProtobuf(createWsResponse.build(), request, response);
+      writeProtobuf(createResponse.build(), request, response);
     }
   }
 

@@ -28,8 +28,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.db.component.SnapshotDto;
-import org.sonarqube.ws.Qualitygates.ProjectStatusWsResponse;
-import org.sonarqube.ws.Qualitygates.ProjectStatusWsResponse.ProjectStatus;
+import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
+import org.sonarqube.ws.Qualitygates.ProjectStatusResponse.ProjectStatus;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -51,21 +51,21 @@ public class QualityGateDetailsFormatterTest {
 
     ProjectStatus result = underTest.format();
 
-    assertThat(result.getStatus()).isEqualTo(ProjectStatusWsResponse.Status.ERROR);
+    assertThat(result.getStatus()).isEqualTo(ProjectStatusResponse.Status.ERROR);
     // check conditions
     assertThat(result.getConditionsCount()).isEqualTo(4);
-    List<ProjectStatusWsResponse.Condition> conditions = result.getConditionsList();
+    List<ProjectStatusResponse.Condition> conditions = result.getConditionsList();
     assertThat(conditions).extracting("status").containsExactly(
-      ProjectStatusWsResponse.Status.ERROR,
-      ProjectStatusWsResponse.Status.WARN,
-      ProjectStatusWsResponse.Status.OK,
-      ProjectStatusWsResponse.Status.OK);
+      ProjectStatusResponse.Status.ERROR,
+      ProjectStatusResponse.Status.WARN,
+      ProjectStatusResponse.Status.OK,
+      ProjectStatusResponse.Status.OK);
     assertThat(conditions).extracting("metricKey").containsExactly("new_coverage", "new_blocker_violations", "new_critical_violations", "new_sqale_debt_ratio");
     assertThat(conditions).extracting("comparator").containsExactly(
-      ProjectStatusWsResponse.Comparator.LT,
-      ProjectStatusWsResponse.Comparator.GT,
-      ProjectStatusWsResponse.Comparator.NE,
-      ProjectStatusWsResponse.Comparator.EQ);
+      ProjectStatusResponse.Comparator.LT,
+      ProjectStatusResponse.Comparator.GT,
+      ProjectStatusResponse.Comparator.NE,
+      ProjectStatusResponse.Comparator.EQ);
     assertThat(conditions).extracting("periodIndex").containsExactly(1, 1, 1, 1);
     assertThat(conditions).extracting("warningThreshold").containsOnly("80", "");
     assertThat(conditions).extracting("errorThreshold").containsOnly("85", "0", "5");
@@ -73,7 +73,7 @@ public class QualityGateDetailsFormatterTest {
 
     // check periods
     assertThat(result.getPeriodsCount()).isEqualTo(1);
-    List<ProjectStatusWsResponse.Period> periods = result.getPeriodsList();
+    List<ProjectStatusResponse.Period> periods = result.getPeriodsList();
     assertThat(periods).extracting("index").containsExactly(1);
     assertThat(periods).extracting("mode").containsExactly("last_version");
     assertThat(periods).extracting("parameter").containsExactly("2015-12-07");
@@ -93,10 +93,10 @@ public class QualityGateDetailsFormatterTest {
 
     // check conditions
     assertThat(result.getConditionsCount()).isEqualTo(1);
-    List<ProjectStatusWsResponse.Condition> conditions = result.getConditionsList();
-    assertThat(conditions).extracting("status").containsExactly(ProjectStatusWsResponse.Status.ERROR);
+    List<ProjectStatusResponse.Condition> conditions = result.getConditionsList();
+    assertThat(conditions).extracting("status").containsExactly(ProjectStatusResponse.Status.ERROR);
     assertThat(conditions).extracting("metricKey").containsExactly("new_coverage");
-    assertThat(conditions).extracting("comparator").containsExactly(ProjectStatusWsResponse.Comparator.LT);
+    assertThat(conditions).extracting("comparator").containsExactly(ProjectStatusResponse.Comparator.LT);
     assertThat(conditions).extracting("periodIndex").containsExactly(1);
     assertThat(conditions).extracting("warningThreshold").containsOnly("80");
     assertThat(conditions).extracting("errorThreshold").containsOnly("85");

@@ -28,7 +28,7 @@ import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;
 import org.sonar.db.component.SnapshotDto;
-import org.sonarqube.ws.Qualitygates.ProjectStatusWsResponse;
+import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -36,15 +36,15 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 public class QualityGateDetailsFormatter {
   private final Optional<String> optionalMeasureData;
   private final Optional<SnapshotDto> optionalSnapshot;
-  private final ProjectStatusWsResponse.ProjectStatus.Builder projectStatusBuilder;
+  private final ProjectStatusResponse.ProjectStatus.Builder projectStatusBuilder;
 
   public QualityGateDetailsFormatter(Optional<String> measureData, Optional<SnapshotDto> snapshot) {
     this.optionalMeasureData = measureData;
     this.optionalSnapshot = snapshot;
-    this.projectStatusBuilder = ProjectStatusWsResponse.ProjectStatus.newBuilder();
+    this.projectStatusBuilder = ProjectStatusResponse.ProjectStatus.newBuilder();
   }
 
-  public ProjectStatusWsResponse.ProjectStatus format() {
+  public ProjectStatusResponse.ProjectStatus format() {
     if (!optionalMeasureData.isPresent()) {
       return newResponseWithoutQualityGateDetails();
     }
@@ -52,7 +52,7 @@ public class QualityGateDetailsFormatter {
     JsonParser parser = new JsonParser();
     JsonObject json = parser.parse(optionalMeasureData.get()).getAsJsonObject();
 
-    ProjectStatusWsResponse.Status qualityGateStatus = measureLevelToQualityGateStatus(json.get("level").getAsString());
+    ProjectStatusResponse.Status qualityGateStatus = measureLevelToQualityGateStatus(json.get("level").getAsString());
     projectStatusBuilder.setStatus(qualityGateStatus);
 
     formatIgnoredConditions(json);
@@ -76,7 +76,7 @@ public class QualityGateDetailsFormatter {
       return;
     }
 
-    ProjectStatusWsResponse.Period.Builder periodBuilder = ProjectStatusWsResponse.Period.newBuilder();
+    ProjectStatusResponse.Period.Builder periodBuilder = ProjectStatusResponse.Period.newBuilder();
     periodBuilder.clear();
 
     SnapshotDto snapshot = this.optionalSnapshot.get();
@@ -109,7 +109,7 @@ public class QualityGateDetailsFormatter {
   }
 
   private void formatCondition(JsonObject jsonCondition) {
-    ProjectStatusWsResponse.Condition.Builder conditionBuilder = ProjectStatusWsResponse.Condition.newBuilder();
+    ProjectStatusResponse.Condition.Builder conditionBuilder = ProjectStatusResponse.Condition.newBuilder();
 
     formatConditionLevel(conditionBuilder, jsonCondition);
     formatConditionMetric(conditionBuilder, jsonCondition);
@@ -122,28 +122,28 @@ public class QualityGateDetailsFormatter {
     projectStatusBuilder.addConditions(conditionBuilder);
   }
 
-  private static void formatConditionActual(ProjectStatusWsResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {
+  private static void formatConditionActual(ProjectStatusResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {
     JsonElement actual = jsonCondition.get("actual");
     if (actual != null && !isNullOrEmpty(actual.getAsString())) {
       conditionBuilder.setActualValue(actual.getAsString());
     }
   }
 
-  private static void formatConditionErrorThreshold(ProjectStatusWsResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {
+  private static void formatConditionErrorThreshold(ProjectStatusResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {
     JsonElement error = jsonCondition.get("error");
     if (error != null && !isNullOrEmpty(error.getAsString())) {
       conditionBuilder.setErrorThreshold(error.getAsString());
     }
   }
 
-  private static void formatConditionWarningThreshold(ProjectStatusWsResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {
+  private static void formatConditionWarningThreshold(ProjectStatusResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {
     JsonElement warning = jsonCondition.get("warning");
     if (warning != null && !isNullOrEmpty(warning.getAsString())) {
       conditionBuilder.setWarningThreshold(warning.getAsString());
     }
   }
 
-  private static void formatConditionPeriod(ProjectStatusWsResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {
+  private static void formatConditionPeriod(ProjectStatusResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {
     JsonElement periodIndex = jsonCondition.get("period");
     if (periodIndex == null) {
       return;
@@ -151,31 +151,31 @@ public class QualityGateDetailsFormatter {
     conditionBuilder.setPeriodIndex(periodIndex.getAsInt());
   }
 
-  private static void formatConditionOperation(ProjectStatusWsResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {
+  private static void formatConditionOperation(ProjectStatusResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {
     JsonElement op = jsonCondition.get("op");
     if (op != null && !isNullOrEmpty(op.getAsString())) {
       String stringOp = op.getAsString();
-      ProjectStatusWsResponse.Comparator comparator = measureOpToQualityGateComparator(stringOp);
+      ProjectStatusResponse.Comparator comparator = measureOpToQualityGateComparator(stringOp);
       conditionBuilder.setComparator(comparator);
     }
   }
 
-  private static void formatConditionMetric(ProjectStatusWsResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {
+  private static void formatConditionMetric(ProjectStatusResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {
     JsonElement metric = jsonCondition.get("metric");
     if (metric != null && !isNullOrEmpty(metric.getAsString())) {
       conditionBuilder.setMetricKey(metric.getAsString());
     }
   }
 
-  private static void formatConditionLevel(ProjectStatusWsResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {
+  private static void formatConditionLevel(ProjectStatusResponse.Condition.Builder conditionBuilder, JsonObject jsonCondition) {
     JsonElement measureLevel = jsonCondition.get("level");
     if (measureLevel != null && !isNullOrEmpty(measureLevel.getAsString())) {
       conditionBuilder.setStatus(measureLevelToQualityGateStatus(measureLevel.getAsString()));
     }
   }
 
-  private static ProjectStatusWsResponse.Status measureLevelToQualityGateStatus(String measureLevel) {
-    for (ProjectStatusWsResponse.Status status : ProjectStatusWsResponse.Status.values()) {
+  private static ProjectStatusResponse.Status measureLevelToQualityGateStatus(String measureLevel) {
+    for (ProjectStatusResponse.Status status : ProjectStatusResponse.Status.values()) {
       if (status.name().equals(measureLevel)) {
         return status;
       }
@@ -184,8 +184,8 @@ public class QualityGateDetailsFormatter {
     throw new IllegalStateException(String.format("Unknown quality gate status '%s'", measureLevel));
   }
 
-  private static ProjectStatusWsResponse.Comparator measureOpToQualityGateComparator(String measureOp) {
-    for (ProjectStatusWsResponse.Comparator comparator : ProjectStatusWsResponse.Comparator.values()) {
+  private static ProjectStatusResponse.Comparator measureOpToQualityGateComparator(String measureOp) {
+    for (ProjectStatusResponse.Comparator comparator : ProjectStatusResponse.Comparator.values()) {
       if (comparator.name().equals(measureOp)) {
         return comparator;
       }
@@ -194,8 +194,8 @@ public class QualityGateDetailsFormatter {
     throw new IllegalStateException(String.format("Unknown quality gate comparator '%s'", measureOp));
   }
 
-  private static ProjectStatusWsResponse.ProjectStatus newResponseWithoutQualityGateDetails() {
-    return ProjectStatusWsResponse.ProjectStatus.newBuilder().setStatus(ProjectStatusWsResponse.Status.NONE).build();
+  private static ProjectStatusResponse.ProjectStatus newResponseWithoutQualityGateDetails() {
+    return ProjectStatusResponse.ProjectStatus.newBuilder().setStatus(ProjectStatusResponse.Status.NONE).build();
   }
 
   private static Predicate<JsonObject> isConditionOnValidPeriod() {

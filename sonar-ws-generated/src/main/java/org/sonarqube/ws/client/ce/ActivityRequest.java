@@ -77,7 +77,7 @@ public class ActivityRequest {
   /**
    * Maximum date of end of task processing (inclusive)
    *
-   * Example value: "2017-11-16T10:21:24+0100"
+   * Example value: "2017-11-23T15:56:03+0100"
    */
   public ActivityRequest setMaxExecutedAt(String maxExecutedAt) {
     this.maxExecutedAt = maxExecutedAt;
@@ -91,7 +91,7 @@ public class ActivityRequest {
   /**
    * Minimum date of task submission (inclusive)
    *
-   * Example value: "2017-11-16T10:21:24+0100"
+   * Example value: "2017-11-23T15:56:03+0100"
    */
   public ActivityRequest setMinSubmittedAt(String minSubmittedAt) {
     this.minSubmittedAt = minSubmittedAt;
