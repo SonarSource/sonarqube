@@ -83,20 +83,23 @@ public class SearchActionTest {
     assertThat(action.params()).hasSize(3);
     assertThat(action.responseExample()).isEqualTo(getClass().getResource("search-example.json"));
 
-    WebService.Param organizationsParam = action.param("organizations");
-    assertThat(organizationsParam.isRequired()).isFalse();
-    assertThat(organizationsParam.defaultValue()).isNull();
-    assertThat(organizationsParam.description()).isEqualTo("Comma-separated list of organization keys");
-    assertThat(organizationsParam.exampleValue()).isEqualTo("my-org-1,foocorp");
-    assertThat(organizationsParam.since()).isEqualTo("6.3");
-    WebService.Param pParam = action.param("p");
-    assertThat(pParam.isRequired()).isFalse();
-    assertThat(pParam.defaultValue()).isEqualTo("1");
-    assertThat(pParam.description()).isEqualTo("1-based page number");
-    WebService.Param psParam = action.param("ps");
-    assertThat(psParam.isRequired()).isFalse();
-    assertThat(psParam.defaultValue()).isEqualTo("100");
-    assertThat(psParam.description()).isEqualTo("Page size. Must be greater than 0.");
+    WebService.Param organizations = action.param("organizations");
+    assertThat(organizations.isRequired()).isFalse();
+    assertThat(organizations.defaultValue()).isNull();
+    assertThat(organizations.description()).isEqualTo("Comma-separated list of organization keys");
+    assertThat(organizations.exampleValue()).isEqualTo("my-org-1,foocorp");
+    assertThat(organizations.since()).isEqualTo("6.3");
+
+    WebService.Param page = action.param("p");
+    assertThat(page.isRequired()).isFalse();
+    assertThat(page.defaultValue()).isEqualTo("1");
+    assertThat(page.description()).isEqualTo("1-based page number");
+
+    WebService.Param pageSize = action.param("ps");
+    assertThat(pageSize.isRequired()).isFalse();
+    assertThat(pageSize.defaultValue()).isEqualTo("100");
+    assertThat(pageSize.maximumValue()).isEqualTo(500);
+    assertThat(pageSize.description()).isEqualTo("Page size. Must be greater than 0 and less than 500");
   }
 
   @Test
