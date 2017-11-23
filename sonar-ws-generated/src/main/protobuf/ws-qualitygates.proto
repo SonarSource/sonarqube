@@ -73,7 +73,7 @@ message GetByProjectWsResponse {
 }
 
 message QualityGate {
-  optional string id = 1;
+  optional int64 id = 1;
   optional string name = 2;
   optional bool default = 3;
 }
