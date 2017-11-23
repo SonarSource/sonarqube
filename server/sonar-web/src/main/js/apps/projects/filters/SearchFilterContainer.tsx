@@ -18,26 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import { getFilterUrl } from './utils';
 import SearchBox from '../../../components/controls/SearchBox';
 import { translate } from '../../../helpers/l10n';
+import { RawQuery } from '../../../helpers/query';
 
 interface Props {
   className?: string;
-  query: { search?: string };
-  isFavorite?: boolean;
+  onQueryChange: (change: RawQuery) => void;
   organization?: string;
+  query: { search?: string };
 }
 
 export default class SearchFilterContainer extends React.PureComponent<Props> {
-  static contextTypes = {
-    router: PropTypes.object.isRequired
-  };
-
   handleSearch = (userQuery?: string) => {
-    const path = getFilterUrl(this.props, { search: userQuery });
-    this.context.router.push(path);
+    this.props.onQueryChange({ search: userQuery });
   };
 
   render() {

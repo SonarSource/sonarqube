@@ -30,9 +30,9 @@ import { Project } from '../types';
 
 interface Props {
   currentUser: CurrentUser;
-  isFavorite?: boolean;
   loading: boolean;
   onPerspectiveChange: (x: { view: string; visualization?: string }) => void;
+  onQueryChange: (change: RawQuery) => void;
   onSortChange: (sort: string, desc: boolean) => void;
   organization?: string;
   projects?: Project[];
@@ -80,7 +80,7 @@ export default function PageHeader(props: Props) {
       )}
 
       <SearchFilterContainer
-        isFavorite={props.isFavorite}
+        onQueryChange={props.onQueryChange}
         organization={props.organization}
         query={props.query}
       />

@@ -20,6 +20,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
+import { omitBy } from 'lodash';
 import PageHeader from './PageHeader';
 import ProjectsList from './ProjectsList';
 import PageSidebar from './PageSidebar';
@@ -220,13 +221,9 @@ export default class App extends React.PureComponent<Props, State> {
   }
 
   updateLocationQuery = (newQuery: RawQuery) => {
-    this.context.router.push({
-      pathname: this.props.location.pathname,
-      query: {
-        ...this.props.location.query,
-        ...newQuery
-      }
-    });
+    // omit `null`, `undefined` and empty string
+    const query = omitBy({ ...this.props.location.query, ...newQuery }, x => !x);
+    this.context.router.push({ pathname: this.props.location.pathname, query });
   };
 
   handleClearAll = () => {
@@ -261,9 +258,9 @@ export default class App extends React.PureComponent<Props, State> {
         <div className="layout-page-main-inner">
           <PageHeader
             currentUser={this.props.currentUser}
-            isFavorite={this.props.isFavorite}
             loading={this.state.loading}
             onPerspectiveChange={this.handlePerspectiveChange}
+            onQueryChange={this.updateLocationQuery}
             onSortChange={this.handleSortChange}
             organization={this.props.organization}
             projects={this.state.projects}
