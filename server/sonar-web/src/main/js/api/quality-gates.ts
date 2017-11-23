@@ -25,6 +25,7 @@ export function fetchQualityGatesAppDetails(): Promise<any> {
 }
 
 export interface QualityGate {
+  isBuiltIn?: boolean;
   isDefault?: boolean;
   id: number;
   name: string;
