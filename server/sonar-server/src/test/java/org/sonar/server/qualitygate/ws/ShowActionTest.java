@@ -30,6 +30,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
@@ -39,7 +41,10 @@ import org.sonarqube.ws.Qualitygates.ShowWsResponse.Condition;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.Qualitygates.Actions;
 
 public class ShowActionTest {
 
@@ -50,14 +55,19 @@ public class ShowActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private WsActionTester ws = new WsActionTester(new ShowAction(db.getDbClient(), new QualityGateFinder(db.getDbClient())));
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+
+  private WsActionTester ws = new WsActionTester(
+    new ShowAction(db.getDbClient(), new QualityGateFinder(db.getDbClient()), new QGateWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider)));
 
   @Test
   public void verify_definition() {
     WebService.Action action = ws.getDef();
     assertThat(action.since()).isEqualTo("4.3");
     assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription)
-      .containsExactlyInAnyOrder(tuple("7.0", "'isBuiltIn' field is added to the response"));
+      .containsExactlyInAnyOrder(
+        tuple("7.0", "'isBuiltIn' field is added to the response"),
+        tuple("7.0", "'actions' field is added in the response"));
     assertThat(action.params())
       .extracting(Param::key, Param::isRequired)
       .containsExactlyInAnyOrder(tuple("id", false), tuple("name", false));
@@ -65,6 +75,7 @@ public class ShowActionTest {
 
   @Test
   public void json_example() {
+    userSession.logIn("admin").addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate("My Quality Gate");
     MetricDto blockerViolationsMetric = db.measures().insertMetric(m -> m.setKey("blocker_violations"));
     MetricDto criticalViolationsMetric = db.measures().insertMetric(m -> m.setKey("critical_violations"));
@@ -132,6 +143,67 @@ public class ShowActionTest {
     assertThat(response.getId()).isEqualTo(qualityGate.getId());
     assertThat(response.getName()).isEqualTo(qualityGate.getName());
     assertThat(response.getConditionsList()).isEmpty();
+  }
+
+  @Test
+  public void actions() {
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+
+    ShowWsResponse response = ws.newRequest().setParam("name", qualityGate.getName())
+      .executeProtobuf(ShowWsResponse.class);
+
+    Actions actions = response.getActions();
+    assertThat(actions.getEdit()).isTrue();
+    assertThat(actions.getCopy()).isTrue();
+    assertThat(actions.getSetAsDefault()).isTrue();
+    assertThat(actions.getAssociateProjects()).isTrue();
+  }
+
+  @Test
+  public void actions_on_default() {
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    db.qualityGates().setDefaultQualityGate(qualityGate);
+
+    ShowWsResponse response = ws.newRequest().setParam("name", qualityGate.getName())
+      .executeProtobuf(ShowWsResponse.class);
+
+    Actions actions = response.getActions();
+    assertThat(actions.getEdit()).isTrue();
+    assertThat(actions.getCopy()).isTrue();
+    assertThat(actions.getSetAsDefault()).isFalse();
+    assertThat(actions.getAssociateProjects()).isFalse();
+  }
+
+  @Test
+  public void actions_on_built_in() {
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setBuiltIn(true));
+
+    ShowWsResponse response = ws.newRequest().setParam("name", qualityGate.getName())
+      .executeProtobuf(ShowWsResponse.class);
+
+    Actions actions = response.getActions();
+    assertThat(actions.getEdit()).isFalse();
+    assertThat(actions.getCopy()).isTrue();
+    assertThat(actions.getSetAsDefault()).isTrue();
+    assertThat(actions.getAssociateProjects()).isTrue();
+  }
+
+  @Test
+  public void actions_when_not_quality_gate_administer() {
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setBuiltIn(true));
+
+    ShowWsResponse response = ws.newRequest().setParam("name", qualityGate.getName())
+      .executeProtobuf(ShowWsResponse.class);
+
+    Actions actions = response.getActions();
+    assertThat(actions.getEdit()).isFalse();
+    assertThat(actions.getCopy()).isFalse();
+    assertThat(actions.getSetAsDefault()).isFalse();
+    assertThat(actions.getAssociateProjects()).isFalse();
   }
 
   @Test
