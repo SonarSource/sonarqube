@@ -30,7 +30,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
@@ -38,6 +41,10 @@ import org.apache.velocity.app.VelocityEngine;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class CodeFormatter {
+
+  private static final Set<String> PATH_EXCLUSIONS = new HashSet<>(Arrays.asList(
+    "api/components", "api/issues", "api/measures", "api/organizations", "api/permissions", "api/projects",
+    "api/project_analyses", "api/qualityprofiles", "api/rules", "api/settings", "api/users", "api/user_groups"));
 
   public static void format(String json) {
     JsonObject jsonElement = new Gson().fromJson(json, JsonObject.class);
@@ -47,13 +54,17 @@ public class CodeFormatter {
 
     for (JsonElement webServiceElement : webServices) {
       JsonObject webService = (JsonObject) webServiceElement;
+      String webServicePath = webService.get("path").getAsString();
+
+      if (PATH_EXCLUSIONS.contains(webServicePath)) {
+        continue;
+      }
 
       VelocityContext webServiceContext = new VelocityContext();
       webServiceContext.put("webService", webServiceElement);
       webServiceContext.put("helper", helper);
 
       String webServiceCode = applyTemplate("webService.vm", webServiceContext);
-      String webServicePath = webService.get("path").getAsString();
       writeSourceFile(helper.file(webServicePath), webServiceCode);
       writeSourceFile(helper.packageInfoFile(webServicePath), applyTemplate("package-info.vm", webServiceContext));
 
