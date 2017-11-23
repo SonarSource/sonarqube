@@ -34,12 +34,15 @@ import org.sonarqube.ws.Organizations.Organization;
 
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.organization.OrganizationQuery.newOrganizationQueryBuilder;
+import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Common.Paging;
 
 public class SearchAction implements OrganizationsWsAction {
   private static final String PARAM_ORGANIZATIONS = "organizations";
+  private static final String PARAM_MEMBER = "member";
   private static final String ACTION = "search";
+  private static final int MAX_SIZE = 500;
 
   private final DbClient dbClient;
   private final OrganizationsWsSupport wsSupport;
@@ -67,14 +70,15 @@ public class SearchAction implements OrganizationsWsAction {
       .setRequired(false)
       .setSince("6.3");
 
-    action.addPagingParams(100);
+    action.addPagingParams(100, MAX_SIZE);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      List<String> organizations = getOrganizationKeys(request);
       OrganizationQuery organizationQuery = newOrganizationQueryBuilder()
-        .setKeys(request.paramAsStrings(PARAM_ORGANIZATIONS))
+        .setKeys(organizations)
         .build();
 
       int total = dbClient.organizationDao().countByQuery(dbSession, organizationQuery);
@@ -101,6 +105,14 @@ public class SearchAction implements OrganizationsWsAction {
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setTotal(total)
       .build();
+  }
+
+  private static List<String> getOrganizationKeys(Request request) {
+    List<String> organizations = request.paramAsStrings(PARAM_ORGANIZATIONS);
+    if (organizations != null) {
+      checkRequest(organizations.size() <= MAX_SIZE, "Size of '%s' (%d) must be less than %d", PARAM_ORGANIZATIONS, organizations.size(), MAX_SIZE);
+    }
+    return organizations;
   }
 
 }
