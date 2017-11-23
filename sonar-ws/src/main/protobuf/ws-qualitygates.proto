@@ -140,13 +140,26 @@ message ListWsResponse {
   repeated QualityGate qualitygates = 1;
   // Deprecated since 7.0
   optional int64 default = 2;
+  optional RootActions actions = 3;
 
   message QualityGate {
     optional int64 id = 1;
     optional string name = 2;
     optional bool isDefault = 3;
     optional bool isBuiltIn = 4;
+    optional Actions actions = 5;
   }
+
+  message RootActions {
+    optional bool create = 1;
+  }
+}
+
+message Actions {
+  optional bool edit = 1;
+  optional bool setAsDefault = 2;
+  optional bool copy = 3;
+  optional bool associateProjects = 4;
 }
 
 
