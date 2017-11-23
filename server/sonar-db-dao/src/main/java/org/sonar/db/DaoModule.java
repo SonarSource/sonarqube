@@ -39,6 +39,7 @@ import org.sonar.db.es.EsQueueDao;
 import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
+import org.sonar.db.measure.LiveMeasureDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.metric.MetricDao;
@@ -92,6 +93,7 @@ public class DaoModule extends Module {
     ComponentDao.class,
     ComponentKeyUpdaterDao.class,
     ComponentLinkDao.class,
+    LiveMeasureDao.class,
     CustomMeasureDao.class,
     DefaultQProfileDao.class,
     DuplicationDao.class,

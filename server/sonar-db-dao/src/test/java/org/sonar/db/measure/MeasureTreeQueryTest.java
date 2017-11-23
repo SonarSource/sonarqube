@@ -43,14 +43,12 @@ public class MeasureTreeQueryTest {
       .setQualifiers(asList("FIL", "DIR"))
       .setNameOrKeyQuery("teSt")
       .setMetricIds(asList(10, 11))
-      .setPersonId(100L)
       .build();
 
     assertThat(query.getStrategy()).isEqualTo(CHILDREN);
     assertThat(query.getQualifiers()).containsOnly("FIL", "DIR");
     assertThat(query.getNameOrKeyQuery()).isEqualTo("teSt");
     assertThat(query.getMetricIds()).containsOnly(10, 11);
-    assertThat(query.getPersonId()).isEqualTo(100L);
   }
 
   @Test
@@ -63,7 +61,6 @@ public class MeasureTreeQueryTest {
     assertThat(query.getQualifiers()).isNull();
     assertThat(query.getNameOrKeyQuery()).isNull();
     assertThat(query.getMetricIds()).isNull();
-    assertThat(query.getPersonId()).isNull();
   }
 
   @Test

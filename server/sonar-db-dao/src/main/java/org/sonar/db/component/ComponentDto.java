@@ -138,7 +138,6 @@ public class ComponentDto {
   private String moduleUuid;
   private String moduleUuidPath;
   private String copyComponentUuid;
-  private String developerUuid;
   private String scope;
   private String qualifier;
   private String path;
@@ -401,16 +400,6 @@ public class ComponentDto {
     return this;
   }
 
-  @CheckForNull
-  public String getDeveloperUuid() {
-    return developerUuid;
-  }
-
-  public ComponentDto setDeveloperUuid(@Nullable String developerUuid) {
-    this.developerUuid = developerUuid;
-    return this;
-  }
-
   public Date getCreatedAt() {
     return createdAt;
   }
@@ -488,7 +477,6 @@ public class ComponentDto {
       .append("rootUuid", rootUuid)
       .append("mainBranchProjectUuid", mainBranchProjectUuid)
       .append("copyComponentUuid", copyComponentUuid)
-      .append("developerUuid", developerUuid)
       .append("path", path)
       .append("deprecatedKey", deprecatedKey)
       .append("name", name)
@@ -513,7 +501,6 @@ public class ComponentDto {
     copy.moduleUuid = moduleUuid;
     copy.moduleUuidPath = moduleUuidPath;
     copy.copyComponentUuid = copyComponentUuid;
-    copy.developerUuid = developerUuid;
     copy.scope = scope;
     copy.qualifier = qualifier;
     copy.path = path;

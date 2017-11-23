@@ -19,9 +19,9 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import com.google.common.base.Optional;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
@@ -150,6 +150,6 @@ public class QualityGateDetailsFormatterTest {
   }
 
   private static QualityGateDetailsFormatter newQualityGateDetailsFormatter(@Nullable String measureData, @Nullable SnapshotDto snapshotDto) {
-    return new QualityGateDetailsFormatter(Optional.fromNullable(measureData), Optional.fromNullable(snapshotDto));
+    return new QualityGateDetailsFormatter(Optional.ofNullable(measureData), Optional.ofNullable(snapshotDto));
   }
 }

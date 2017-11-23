@@ -26,9 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
@@ -45,8 +43,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.measure.MeasureQuery;
+import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.property.PropertyDto;
@@ -166,10 +163,6 @@ public class ComponentAction implements NavigationWsAction {
       .endObject();
   }
 
-  private static Function<MeasureDto, Stream<QualityProfile>> toQualityProfiles() {
-    return dbMeasure -> QPMeasureData.fromJson(dbMeasure.getData()).getProfiles().stream();
-  }
-
   private static void writePage(JsonWriter json, Page page) {
     json.beginObject()
       .prop("key", page.getKey())
@@ -205,12 +198,11 @@ public class ComponentAction implements NavigationWsAction {
     return componentFavourites.size() == 1;
   }
 
-  private void writeProfiles(JsonWriter json, DbSession session, ComponentDto component) {
+  private void writeProfiles(JsonWriter json, DbSession dbSession, ComponentDto component) {
     json.name("qualityProfiles").beginArray();
-    dbClient.measureDao().selectSingle(session, MeasureQuery.builder().setComponentUuid(component.projectUuid()).setMetricKey(QUALITY_PROFILES_KEY).build())
-      .ifPresent(dbMeasure -> Stream.of(dbMeasure)
-        .flatMap(toQualityProfiles())
-        .forEach(writeToJson(json)));
+    dbClient.liveMeasureDao().selectMeasure(dbSession, component.projectUuid(), QUALITY_PROFILES_KEY)
+      .map(LiveMeasureDto::getDataAsString)
+      .ifPresent(data -> QPMeasureData.fromJson(data).getProfiles().forEach(writeToJson(json)));
     json.endArray();
   }
 

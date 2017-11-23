@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.LiveMeasureDto;
 
 import static com.google.common.collect.ImmutableList.copyOf;
 import static java.util.Objects.requireNonNull;
@@ -86,16 +86,16 @@ class SearchMyProjectsData {
       snapshot -> formatDateTime(snapshot.getCreatedAt()))));
   }
 
-  private static Map<String, String> buildQualityGateStatuses(List<MeasureDto> measures) {
+  private static Map<String, String> buildQualityGateStatuses(List<LiveMeasureDto> measures) {
     return ImmutableMap.copyOf(measures.stream()
-      .collect(Collectors.toMap(MeasureDto::getComponentUuid, MeasureDto::getData)));
+      .collect(Collectors.toMap(LiveMeasureDto::getComponentUuid, LiveMeasureDto::getDataAsString)));
   }
 
   static class Builder {
     private List<ComponentDto> projects;
     private List<ComponentLinkDto> projectLinks;
     private List<SnapshotDto> snapshots;
-    private List<MeasureDto> qualityGates;
+    private List<LiveMeasureDto> qualityGates;
     private Integer totalNbOfProjects;
 
     private Builder() {
@@ -117,7 +117,7 @@ class SearchMyProjectsData {
       return this;
     }
 
-    public Builder setQualityGates(List<MeasureDto> qGateStatuses) {
+    public Builder setQualityGates(List<LiveMeasureDto> qGateStatuses) {
       this.qualityGates = qGateStatuses;
       return this;
     }

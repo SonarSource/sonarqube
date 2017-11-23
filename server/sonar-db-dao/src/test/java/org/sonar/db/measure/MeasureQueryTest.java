@@ -82,13 +82,6 @@ public class MeasureQueryTest {
   }
 
   @Test
-  public void create_query_from_person_id() {
-    MeasureQuery query = MeasureQuery.builder().setProjectUuids(asList("PROJECT_1", "PROJECT_2")).setPersonId(100L).build();
-
-    assertThat(query.getPersonId()).isEqualTo(100L);
-  }
-
-  @Test
   public void return_empty_when_metrics_are_empty() {
     assertThat(MeasureQuery.builder()
       .setProjectUuids(asList("PROJECT_1", "PROJECT_2"))

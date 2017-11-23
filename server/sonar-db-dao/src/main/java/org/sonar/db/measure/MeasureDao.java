@@ -19,24 +19,24 @@
  */
 package org.sonar.db.measure;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import org.apache.ibatis.session.ResultHandler;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDto;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class MeasureDao implements Dao {
 
-  public Optional<MeasureDto> selectSingle(DbSession dbSession, MeasureQuery query) {
-    List<MeasureDto> measures = selectByQuery(dbSession, query);
-    return Optional.ofNullable(Iterables.getOnlyElement(measures, null));
+  public Optional<MeasureDto> selectLastMeasure(DbSession dbSession, String componentUuid, String metricKey) {
+    return Optional.ofNullable(mapper(dbSession).selectLastMeasure(componentUuid, metricKey));
+  }
+
+  public Optional<MeasureDto> selectMeasure(DbSession dbSession, String analysisUuid, String componentUuid, String metricKey) {
+    return Optional.ofNullable(mapper(dbSession).selectMeasure(analysisUuid, componentUuid, metricKey));
   }
 
   /**
@@ -46,10 +46,6 @@ public class MeasureDao implements Dao {
    * - A list of projects in {@link MeasureQuery#projectUuids}
    * - A list of components in {@link MeasureQuery#componentUuids} with one mandatory project in {@link MeasureQuery#projectUuids}
    * - One single component in  {@link MeasureQuery#componentUuids}
-   * <p>
-   * In addition, this method returns measures which are not associated to any developer, unless one is specified in
-   * {@link MeasureQuery#personId}.
-   * </p>
    * <p>
    * Returned measure can optionally be filtered metric (either by specifying {@link MeasureQuery#metricIds}
    * or {@link MeasureQuery#metricKeys}).
@@ -78,13 +74,6 @@ public class MeasureDao implements Dao {
     return mapper(dbSession).selectByQueryOnSingleComponent(query);
   }
 
-  public void selectTreeByQuery(DbSession dbSession, ComponentDto baseComponent, MeasureTreeQuery query, ResultHandler<MeasureDto> resultHandler) {
-    if (query.returnsEmpty()) {
-      return;
-    }
-    mapper(dbSession).selectTreeByQuery(query, baseComponent.uuid(), query.getUuidPath(baseComponent), resultHandler);
-  }
-
   public List<PastMeasureDto> selectPastMeasures(DbSession dbSession, String componentUuid, String analysisUuid, Collection<Integer> metricIds) {
     if (metricIds.isEmpty()) {
       return emptyList();
@@ -105,19 +94,6 @@ public class MeasureDao implements Dao {
    */
   public List<MeasureDto> selectPastMeasures(DbSession dbSession, PastMeasureQuery query) {
     return mapper(dbSession).selectPastMeasuresOnSeveralAnalyses(query);
-  }
-
-  /**
-   * Used by developer cockpit.
-   */
-  public List<MeasureDto> selectProjectMeasuresOfDeveloper(DbSession dbSession, long developerId, Collection<Integer> metricIds) {
-    return executeLargeInputs(
-      metricIds,
-      ids -> mapper(dbSession).selectProjectMeasuresOfDeveloper(developerId, metricIds));
-  }
-
-  public List<MeasureDto> selectByComponentsAndMetrics(DbSession dbSession, Collection<String> componentUuids, Collection<Integer> metricIds) {
-    return executeLargeInputs(componentUuids, partitionComponentUuids -> mapper(dbSession).selectByComponentsAndMetrics(partitionComponentUuids, metricIds));
   }
 
   public void insert(DbSession session, MeasureDto measureDto) {

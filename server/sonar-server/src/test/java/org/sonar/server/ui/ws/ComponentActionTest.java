@@ -76,7 +76,7 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
-import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
+import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
@@ -262,8 +262,7 @@ public class ComponentActionTest {
   public void return_quality_profiles() throws Exception {
     init();
     componentDbTester.insertComponent(project);
-    SnapshotDto analysis = componentDbTester.insertSnapshot(newAnalysis(project));
-    addQualityProfiles(project, analysis,
+    addQualityProfiles(project,
       createQProfile("qp1", "Sonar Way Java", "java"),
       createQProfile("qp2", "Sonar Way Xoo", "xoo"));
     userSession.addProjectPermission(UserRole.USER, project);
@@ -329,7 +328,7 @@ public class ComponentActionTest {
       .build();
 
     init(page);
-    ComponentDto application = componentDbTester.insertApplication(dbTester.getDefaultOrganization());
+    ComponentDto application = componentDbTester.insertPublicApplication(dbTester.getDefaultOrganization());
     userSession.registerComponents(application);
 
     String result = ws.newRequest()
@@ -471,7 +470,7 @@ public class ComponentActionTest {
     when(resourceTypes.get(project.qualifier())).thenReturn(DefaultResourceTypes.get().getRootType());
     UserDto user = dbTester.users().insertUser("obiwan");
     propertyDbTester.insertProperty(new PropertyDto().setKey("favourite").setResourceId(project.getId()).setUserId(user.getId()));
-    addQualityProfiles(project, analysis,
+    addQualityProfiles(project,
       createQProfile("qp1", "Sonar Way Java", "java"),
       createQProfile("qp2", "Sonar Way Xoo", "xoo"));
     QualityGateDto qualityGateDto = dbTester.qualityGates().insertQualityGate("Sonar way");
@@ -580,11 +579,11 @@ public class ComponentActionTest {
     verify(execute(componentKey), expectedJson);
   }
 
-  private void addQualityProfiles(ComponentDto project, SnapshotDto analysis, QualityProfile... qps) {
-    MetricDto metricDto = newMetricDto().setKey(QUALITY_PROFILES_KEY);
-    dbClient.metricDao().insert(dbTester.getSession(), metricDto);
-    dbClient.measureDao().insert(dbTester.getSession(),
-      newMeasureDto(metricDto, project, analysis)
+  private void addQualityProfiles(ComponentDto project, QualityProfile... qps) {
+    MetricDto metric = newMetricDto().setKey(QUALITY_PROFILES_KEY);
+    dbClient.metricDao().insert(dbTester.getSession(), metric);
+    dbClient.liveMeasureDao().insert(dbTester.getSession(),
+      newLiveMeasure(project, metric)
         .setData(qualityProfilesToJson(qps)));
     dbTester.commit();
   }

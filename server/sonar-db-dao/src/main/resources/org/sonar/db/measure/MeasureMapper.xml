@@ -5,7 +5,6 @@
 
   <sql id="measureColumns">
     pm.metric_id as metricId,
-    pm.person_id as developerId,
     pm.component_uuid as componentUuid,
     pm.analysis_uuid as analysisUuid,
     pm.value as value,
@@ -16,10 +15,27 @@
     pm.variation_value_1 as variation
   </sql>
 
-  <sql id="extendedMeasureColumns">
-    <include refid="measureColumns"/>,
-    metric.name as metricKey
-  </sql>
+  <select id="selectLastMeasure" parameterType="map" resultType="Measure">
+    select <include refid="measureColumns"/>
+    from project_measures pm
+    inner join metrics m on m.id = pm.metric_id
+    inner join snapshots s on s.uuid = pm.analysis_uuid
+    where
+      pm.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
+      m.name = #{metricKey,jdbcType=VARCHAR} and
+      s.islast= ${_true}
+  </select>
+
+  <select id="selectMeasure" parameterType="map" resultType="Measure">
+    select <include refid="measureColumns"/>
+    from project_measures pm
+    inner join metrics m on m.id = pm.metric_id
+    inner join snapshots s on s.uuid = pm.analysis_uuid
+    where
+    pm.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
+    m.name = #{metricKey,jdbcType=VARCHAR} and
+    s.uuid = #{analysisUuid,jdbcType=VARCHAR}
+  </select>
 
   <select id="selectByQueryOnProjects" parameterType="map" resultType="Measure">
     select <include refid="measureColumns"/> from project_measures pm
@@ -79,60 +95,16 @@
         #{metricKey,jdbcType=VARCHAR}
       </foreach>
     </if>
-    <choose>
-      <when test="query.getPersonId() != null">
-        and pm.person_id = #{query.personId,jdbcType=BIGINT}
-      </when>
-      <otherwise>
-        and pm.person_id is null
-      </otherwise>
-    </choose>
-  </sql>
-
-  <select id="selectTreeByQuery" parameterType="map" resultType="Measure" fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
-    select <include refid="measureColumns"/> from project_measures pm
-    inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
-    inner join projects p on p.project_uuid=analysis.component_uuid and p.uuid=pm.component_uuid
-    <include refid="org.sonar.db.component.ComponentMapper.selectDescendantsJoins"/>
-    <where>
-      <include refid="selectTreeByQueryFilters"/>
-    </where>
-    -- Add measures of base component
-    union all
-    select <include refid="measureColumns"/> from project_measures pm
-    inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
-    inner join projects p on p.project_uuid=analysis.component_uuid and p.uuid=pm.component_uuid and pm.component_uuid=#{baseUuid}
-    <where>
-      <include refid="selectTreeByQueryFilters"/>
-    </where>
-  </select>
-
-  <sql id="selectTreeByQueryFilters">
-    and analysis.islast=${_true}
-    <if test="query.getMetricIds() != null">
-      and pm.metric_id in
-      <foreach item="metricId" collection="query.getMetricIds()" open="(" separator="," close=")">#{metricId}</foreach>
-    </if>
-    <choose>
-      <when test="query.getPersonId() != null">
-        and pm.person_id = #{query.personId,jdbcType=BIGINT}
-      </when>
-      <otherwise>
-        and pm.person_id is null
-      </otherwise>
-    </choose>
-    <include refid="org.sonar.db.component.ComponentMapper.selectDescendantsFilters"/>
   </sql>
 
   <select id="selectPastMeasuresOnSingleAnalysis" parameterType="map" resultType="org.sonar.db.measure.PastMeasureDto">
-    select pm.id as id, pm.metric_id as metricId, pm.person_id as personId, pm.value as value
+    select pm.id as id, pm.metric_id as metricId, pm.value as value
     from project_measures pm
     inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
     where
       pm.component_uuid = #{componentUuid,jdbcType=VARCHAR}
       and analysis.uuid = #{analysisUuid,jdbcType=VARCHAR}
       and pm.metric_id in <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">#{metricId}</foreach>
-      and pm.person_id is null
   </select>
 
   <select id="selectPastMeasuresOnSeveralAnalyses" parameterType="map" resultType="Measure">
@@ -148,38 +120,7 @@
       and analysis.created_at&lt;#{query.to, jdbcType=BIGINT}
     </if>
     and pm.metric_id in <foreach item="metricId" collection="query.metricIds" open="(" separator="," close=")">#{metricId, jdbcType=VARCHAR}</foreach>
-    and pm.person_id is null
     and analysis.status=#{query.status, jdbcType=VARCHAR}
-  </select>
-
-  <select id="selectProjectMeasuresOfDeveloper" parameterType="map" resultType="Measure">
-    SELECT
-      <include refid="measureColumns"/>
-    from
-      project_measures pm, snapshots s, projects p
-    where
-      pm.person_id=#{developerId,jdbcType=BIGINT}
-      and pm.metric_id in
-        <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">
-          #{metricId}
-        </foreach>
-      and s.uuid=pm.analysis_uuid
-      and s.islast=${_true}
-      and p.uuid=pm.component_uuid
-      and p.scope='PRJ'
-      and p.qualifier='TRK'
-  </select>
-
-  <select id="selectByComponentsAndMetrics" parameterType="map" resultType="Measure">
-    select <include refid="measureColumns"/>
-    from project_measures pm
-    inner join snapshots analysis on analysis.uuid = pm.analysis_uuid and analysis.islast=${_true}
-    inner join projects p on p.project_uuid=analysis.component_uuid and p.uuid=pm.component_uuid
-    <where>
-    and p.uuid in <foreach item="componentUuid" collection="componentUuids" open="(" separator="," close=")">#{componentUuid,jdbcType=VARCHAR}</foreach>
-    and pm.metric_id in <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">#{metricId,jdbcType=INTEGER}</foreach>
-    and pm.person_id is null
-    </where>
   </select>
 
   <insert id="insert" parameterType="Measure" useGeneratedKeys="false">
@@ -191,7 +132,6 @@
     text_value,
     alert_status,
     alert_text,
-    person_id,
     variation_value_1,
     measure_data)
     VALUES (
@@ -202,7 +142,6 @@
     #{textValue, jdbcType=VARCHAR},
     #{alertStatus, jdbcType=VARCHAR},
     #{alertText, jdbcType=VARCHAR},
-    #{developerId, jdbcType=INTEGER},
     #{variation, jdbcType=DOUBLE},
     #{dataValue, jdbcType=BINARY}
     )

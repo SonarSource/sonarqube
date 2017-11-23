@@ -25,7 +25,7 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.Measures;
 
@@ -149,9 +149,9 @@ class ComponentTreeData {
     private String data;
     private double variation;
 
-    private Measure(MeasureDto measureDto) {
+    private Measure(LiveMeasureDto measureDto) {
       this.value = toPrimitive(measureDto.getValue());
-      this.data = measureDto.getData();
+      this.data = measureDto.getDataAsString();
       this.variation = toPrimitive(measureDto.getVariation());
     }
 
@@ -176,7 +176,7 @@ class ComponentTreeData {
       return !isNaN(variation);
     }
 
-    static Measure createFromMeasureDto(MeasureDto measureDto) {
+    static Measure createFromMeasureDto(LiveMeasureDto measureDto) {
       return new Measure(measureDto);
     }
 

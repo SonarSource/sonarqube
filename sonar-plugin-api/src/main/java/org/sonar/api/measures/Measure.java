@@ -60,7 +60,6 @@ public class Measure<G extends Serializable> implements Serializable {
   protected Double variation4;
   protected Double variation5;
   protected String url;
-  protected Integer personId;
   protected PersistenceMode persistenceMode = PersistenceMode.FULL;
 
   public Measure(String metricKey) {
@@ -609,17 +608,20 @@ public class Measure<G extends Serializable> implements Serializable {
 
   /**
    * @since 2.14
+   * @deprecated in 6.5 with end of support of Developer cockpit plugin. Always return {@code null}.
    */
   @CheckForNull
+  @Deprecated
   public Integer getPersonId() {
-    return personId;
+    return null;
   }
 
   /**
    * @since 2.14
+   * @deprecated in 6.5 with end of support of Developer cockpit plugin.
    */
+  @Deprecated
   public Measure<G> setPersonId(@Nullable Integer i) {
-    this.personId = i;
     return this;
   }
 
@@ -663,17 +665,12 @@ public class Measure<G extends Serializable> implements Serializable {
     }
 
     Measure measure = (Measure) o;
-    if (metricKey != null ? !metricKey.equals(measure.metricKey) : (measure.metricKey != null)) {
-      return false;
-    }
-    return !(personId != null ? !personId.equals(measure.personId) : (measure.personId != null));
+    return metricKey != null ? metricKey.equals(measure.metricKey) : (measure.metricKey == null);
   }
 
   @Override
   public int hashCode() {
-    int result = metricKey != null ? metricKey.hashCode() : 0;
-    result = 31 * result + (personId != null ? personId.hashCode() : 0);
-    return result;
+    return metricKey != null ? metricKey.hashCode() : 0;
   }
 
   @Override

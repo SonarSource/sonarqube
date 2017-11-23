@@ -31,9 +31,6 @@ public class PastMeasureDto {
   @CheckForNull
   private Double value;
 
-  @CheckForNull
-  private Long personId;
-
   public double getValue() {
     requireNonNull(value);
     return value;
@@ -56,15 +53,4 @@ public class PastMeasureDto {
     this.metricId = i;
     return this;
   }
-
-  @CheckForNull
-  public Long getPersonId() {
-    return personId;
-  }
-
-  PastMeasureDto setPersonId(@Nullable Long l) {
-    this.personId = l;
-    return this;
-  }
-
 }

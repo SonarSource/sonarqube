@@ -36,7 +36,6 @@ public class MeasureDto {
   private String componentUuid;
   private String analysisUuid;
   private int metricId;
-  private Long developerId;
 
   @CheckForNull
   public Double getValue() {
@@ -128,16 +127,6 @@ public class MeasureDto {
     return this;
   }
 
-  @CheckForNull
-  public Long getDeveloperId() {
-    return developerId;
-  }
-
-  public MeasureDto setDeveloperId(@Nullable Long developerId) {
-    this.developerId = developerId;
-    return this;
-  }
-
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
@@ -150,7 +139,6 @@ public class MeasureDto {
       .add("componentUuid", componentUuid)
       .add("analysisUuid", analysisUuid)
       .add("metricId", metricId)
-      .add("developerId", developerId)
       .toString();
   }
 }

@@ -111,7 +111,6 @@ public class ComponentDaoTest {
     assertThat(result.scope()).isEqualTo("PRJ");
     assertThat(result.language()).isNull();
     assertThat(result.getCopyResourceUuid()).isNull();
-    assertThat(result.getDeveloperUuid()).isNull();
     assertThat(result.isPrivate()).isTrue();
 
     assertThat(underTest.selectByUuid(dbSession, "UNKNOWN")).isAbsent();
