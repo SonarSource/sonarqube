@@ -18,57 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
-import {
-  getAppState,
-  getGlobalSettingValue,
-  getMarketplaceEditionStatus
-} from '../../store/rootReducer';
-import { EditionStatus, getEditionStatus } from '../../api/marketplace';
-import { fetchEditions, setEditionStatus } from '../../store/marketplace/actions';
+import { getAppState } from '../../store/rootReducer';
 import { translate } from '../../helpers/l10n';
-import { Extension } from '../types';
+import { AppState } from '../../store/appState/duck';
 
 interface Props {
-  appState: {
-    adminPages: Extension[];
-    organizationsEnabled: boolean;
-    version: string;
-  };
-  editionsUrl: string;
-  editionStatus?: EditionStatus;
-  fetchEditions: (url: string, version: string) => void;
-  location: {};
-  setEditionStatus: (editionStatus: EditionStatus) => void;
+  appState: AppState;
 }
 
 class AdminContainer extends React.PureComponent<Props> {
-  static contextTypes = {
-    canAdmin: PropTypes.bool.isRequired
-  };
-
   componentDidMount() {
-    if (!this.context.canAdmin) {
+    if (!this.props.appState.canAdmin) {
       // workaround cyclic dependencies
-      import('../utils/handleRequiredAuthorization').then(handleRequredAuthorization =>
-        handleRequredAuthorization.default()
+      import('../utils/handleRequiredAuthorization').then(
+        handleRequredAuthorization => handleRequredAuthorization.default(),
+        () => {}
       );
-    } else {
-      this.props.fetchEditions(this.props.editionsUrl, this.props.appState.version);
-      this.fetchEditionStatus();
     }
   }
 
-  fetchEditionStatus = () =>
-    getEditionStatus().then(editionStatus => this.props.setEditionStatus(editionStatus), () => {});
-
   render() {
-    const { adminPages } = this.props.appState;
+    const { adminPages, canAdmin } = this.props.appState;
 
     // Check that the adminPages are loaded
-    if (!adminPages) {
+    if (!adminPages || !canAdmin) {
       return null;
     }
 
@@ -84,11 +59,7 @@ class AdminContainer extends React.PureComponent<Props> {
 }
 
 const mapStateToProps = (state: any) => ({
-  appState: getAppState(state),
-  editionStatus: getMarketplaceEditionStatus(state),
-  editionsUrl: (getGlobalSettingValue(state, 'sonar.editions.jsonUrl') || {}).value
+  appState: getAppState(state)
 });
 
-const mapDispatchToProps = { setEditionStatus, fetchEditions };
-
-export default connect(mapStateToProps, mapDispatchToProps)(AdminContainer as any);
+export default connect(mapStateToProps)(AdminContainer);
