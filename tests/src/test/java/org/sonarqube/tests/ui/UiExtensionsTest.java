@@ -69,7 +69,7 @@ public class UiExtensionsTest {
       .logIn().submitCredentials(administrator.getLogin())
       .open("/settings");
 
-    $("#settings-navigation-configuration").click();
+    $("#global-navigation-administration").click();
     $(By.linkText("Global Admin Page")).click();
 
     assertThat(url()).contains("uiextensionsplugin/global_admin_page");

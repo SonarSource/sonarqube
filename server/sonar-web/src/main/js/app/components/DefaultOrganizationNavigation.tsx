@@ -162,6 +162,7 @@ class DefaultOrganizationNavigation extends React.PureComponent<Props> {
         <a
           className={classNames('dropdown-toggle', { active: adminActive })}
           data-toggle="dropdown"
+          id="global-navigation-administration"
           href="#">
           {translate('layout.settings')}
           <i className="icon-dropdown little-spacer-left" />
