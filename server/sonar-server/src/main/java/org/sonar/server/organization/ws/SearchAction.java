@@ -20,6 +20,7 @@
 package org.sonar.server.organization.ws;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -29,6 +30,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.organization.OrganizationQuery;
+import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Organizations.Organization;
 
@@ -39,16 +41,18 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.Common.Paging;
 
 public class SearchAction implements OrganizationsWsAction {
-  private static final String PARAM_ORGANIZATIONS = "organizations";
-  private static final String PARAM_MEMBER = "member";
+  static final String PARAM_ORGANIZATIONS = "organizations";
+  static final String PARAM_MEMBER = "member";
   private static final String ACTION = "search";
   private static final int MAX_SIZE = 500;
 
   private final DbClient dbClient;
+  private final UserSession userSession;
   private final OrganizationsWsSupport wsSupport;
 
-  public SearchAction(DbClient dbClient, OrganizationsWsSupport wsSupport) {
+  public SearchAction(DbClient dbClient, UserSession userSession, OrganizationsWsSupport wsSupport) {
     this.dbClient = dbClient;
+    this.userSession = userSession;
     this.wsSupport = wsSupport;
   }
 
@@ -70,22 +74,30 @@ public class SearchAction implements OrganizationsWsAction {
       .setRequired(false)
       .setSince("6.3");
 
+    action.createParam(PARAM_MEMBER)
+      .setDescription("Filter organizations based on whether the authenticated user is a member. If false, no filter applies.")
+      .setSince("7.0")
+      .setDefaultValue(String.valueOf(false))
+      .setBooleanPossibleValues();
+
     action.addPagingParams(100, MAX_SIZE);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      Integer userId = getUserIdIfFilterMembership(request);
       List<String> organizations = getOrganizationKeys(request);
-      OrganizationQuery organizationQuery = newOrganizationQueryBuilder()
+      OrganizationQuery dbQuery = newOrganizationQueryBuilder()
         .setKeys(organizations)
+        .setMember(userId)
         .build();
 
-      int total = dbClient.organizationDao().countByQuery(dbSession, organizationQuery);
+      int total = dbClient.organizationDao().countByQuery(dbSession, dbQuery);
       Paging paging = buildWsPaging(request, total);
       List<OrganizationDto> dtos = dbClient.organizationDao().selectByQuery(
         dbSession,
-        organizationQuery,
+        dbQuery,
         forPage(paging.getPageIndex()).andSize(paging.getPageSize()));
       writeResponse(request, response, dtos, paging);
     }
@@ -107,6 +119,18 @@ public class SearchAction implements OrganizationsWsAction {
       .build();
   }
 
+  @CheckForNull
+  private Integer getUserIdIfFilterMembership(Request request) {
+    boolean filterOnAuthenticatedUser = request.mandatoryParamAsBoolean(PARAM_MEMBER);
+    if (!filterOnAuthenticatedUser) {
+      return null;
+    }
+
+    userSession.checkLoggedIn();
+    return userSession.getUserId();
+  }
+
+  @CheckForNull
   private static List<String> getOrganizationKeys(Request request) {
     List<String> organizations = request.paramAsStrings(PARAM_ORGANIZATIONS);
     if (organizations != null) {

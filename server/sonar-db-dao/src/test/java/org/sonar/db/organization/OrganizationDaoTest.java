@@ -499,6 +499,42 @@ public class OrganizationDaoTest {
   }
 
   @Test
+  public void selectByQuery_filter_on_a_member() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    OrganizationDto anotherOrganization = dbTester.organizations().insert();
+    OrganizationDto organizationWithoutMember = dbTester.organizations().insert();
+    UserDto user = dbTester.users().insertUser();
+    dbTester.organizations().addMember(organization, user);
+    dbTester.organizations().addMember(anotherOrganization, user);
+
+    List<OrganizationDto> result = underTest.selectByQuery(dbSession, OrganizationQuery.newOrganizationQueryBuilder().setMember(user.getId()).build(), forPage(1).andSize(100));
+
+    assertThat(result).extracting(OrganizationDto::getUuid)
+      .containsExactlyInAnyOrder(organization.getUuid(), anotherOrganization.getUuid())
+      .doesNotContain(organizationWithoutMember.getUuid());
+  }
+
+  @Test
+  public void selectByQuery_filter_on_a_member_and_keys() {
+    OrganizationDto organization = dbTester.organizations().insert();
+    OrganizationDto anotherOrganization = dbTester.organizations().insert();
+    OrganizationDto organizationWithoutKeyProvided = dbTester.organizations().insert();
+    OrganizationDto organizationWithoutMember = dbTester.organizations().insert();
+    UserDto user = dbTester.users().insertUser();
+    dbTester.organizations().addMember(organization, user);
+    dbTester.organizations().addMember(anotherOrganization, user);
+    dbTester.organizations().addMember(organizationWithoutKeyProvided, user);
+
+    List<OrganizationDto> result = underTest.selectByQuery(dbSession, OrganizationQuery.newOrganizationQueryBuilder()
+      .setKeys(Arrays.asList(organization.getKey(), anotherOrganization.getKey(), organizationWithoutMember.getKey()))
+      .setMember(user.getId()).build(), forPage(1).andSize(100));
+
+    assertThat(result).extracting(OrganizationDto::getUuid)
+      .containsExactlyInAnyOrder(organization.getUuid(), anotherOrganization.getUuid())
+      .doesNotContain(organizationWithoutKeyProvided.getUuid(), organizationWithoutMember.getUuid());
+  }
+
+  @Test
   public void getDefaultTemplates_returns_empty_when_table_is_empty() {
     assertThat(underTest.getDefaultTemplates(dbSession, ORGANIZATION_DTO_1.getUuid())).isEmpty();
   }
