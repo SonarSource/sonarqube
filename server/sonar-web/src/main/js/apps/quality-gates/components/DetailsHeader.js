@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import BuiltInBadge from './BuiltInBadge';
 import { translate } from '../../../helpers/l10n';
 
 export default class DetailsHeader extends React.PureComponent {
@@ -48,7 +49,10 @@ export default class DetailsHeader extends React.PureComponent {
       <div className="layout-page-header-panel layout-page-main-header issues-main-header">
         <div className="layout-page-header-panel-inner layout-page-main-header-inner">
           <div className="layout-page-main-inner">
-            <h2 className="pull-left">{qualityGate.name}</h2>
+            <h2 className="pull-left">
+              {qualityGate.name}
+              {qualityGate.isBuiltIn && <BuiltInBadge className="spacer-left" tooltip={true} />}
+            </h2>
             {edit && (
               <div className="pull-right">
                 <button id="quality-gate-rename" onClick={this.handleRenameClick}>
