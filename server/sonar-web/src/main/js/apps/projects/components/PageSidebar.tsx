@@ -20,7 +20,6 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { flatMap } from 'lodash';
-import FavoriteFilter from './FavoriteFilter';
 import LanguagesFilter from '../filters/LanguagesFilter';
 import CoverageFilter from '../filters/CoverageFilter';
 import DuplicationsFilter from '../filters/DuplicationsFilter';
@@ -71,8 +70,6 @@ export default function PageSidebar(props: Props) {
 
   return (
     <div>
-      <FavoriteFilter query={linkQuery} organization={organization} />
-
       <div className="projects-facets-header clearfix">
         {isFiltered && (
           <div className="projects-facets-reset">
