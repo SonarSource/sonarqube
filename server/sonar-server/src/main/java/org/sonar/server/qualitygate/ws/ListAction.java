@@ -21,30 +21,29 @@ package org.sonar.server.qualitygate.ws;
 
 import com.google.common.io.Resources;
 import java.util.Collection;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonarqube.ws.Qualitygates.ListWsResponse;
+import org.sonarqube.ws.Qualitygates.ListWsResponse.QualityGate;
 
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toList;
-import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ListAction implements QualityGatesWsAction {
 
   private final DbClient dbClient;
+  private final QGateWsSupport wsSupport;
 
-  public ListAction(DbClient dbClient) {
+  public ListAction(DbClient dbClient, QGateWsSupport wsSupport) {
     this.dbClient = dbClient;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -56,50 +55,35 @@ public class ListAction implements QualityGatesWsAction {
       .setChangelog(
         new Change("7.0", "'isDefault' field is added on quality gate"),
         new Change("7.0", "'default' field on root level is deprecated"),
-        new Change("7.0", "'isBuiltIn' field is added in the response"))
+        new Change("7.0", "'isBuiltIn' field is added in the response"),
+        new Change("7.0", "'actions' fields are added in the response"))
       .setHandler(this);
   }
 
   @Override
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityGateDto defaultQualityGate = getDefault(dbSession);
+      QualityGateDto defaultQualityGate = wsSupport.getDefault(dbSession);
       Collection<QualityGateDto> qualityGates = dbClient.qualityGateDao().selectAll(dbSession);
       writeProtobuf(buildResponse(qualityGates, defaultQualityGate), request, response);
     }
   }
 
-  private static ListWsResponse buildResponse(Collection<QualityGateDto> qualityGates, @Nullable QualityGateDto defaultQualityGate) {
+  private ListWsResponse buildResponse(Collection<QualityGateDto> qualityGates, @Nullable QualityGateDto defaultQualityGate) {
     Long defaultId = defaultQualityGate == null ? null : defaultQualityGate.getId();
     ListWsResponse.Builder builder = ListWsResponse.newBuilder()
+      .setActions(ListWsResponse.RootActions.newBuilder().setCreate(wsSupport.isQualityGateAdmin()))
       .addAllQualitygates(qualityGates.stream()
-        .map(qualityGate -> ListWsResponse.QualityGate.newBuilder()
+        .map(qualityGate -> QualityGate.newBuilder()
           .setId(qualityGate.getId())
           .setName(qualityGate.getName())
           .setIsDefault(qualityGate.getId().equals(defaultId))
           .setIsBuiltIn(qualityGate.isBuiltIn())
+          .setActions(wsSupport.getActions(qualityGate, defaultQualityGate))
           .build())
         .collect(toList()));
     setNullable(defaultId, builder::setDefault);
     return builder.build();
-  }
-
-  @CheckForNull
-  private QualityGateDto getDefault(DbSession dbSession) {
-    Long defaultId = getDefaultId(dbSession);
-    if (defaultId == null) {
-      return null;
-    }
-    return dbClient.qualityGateDao().selectById(dbSession, defaultId);
-  }
-
-  @CheckForNull
-  private Long getDefaultId(DbSession dbSession) {
-    PropertyDto defaultQgate = dbClient.propertiesDao().selectGlobalProperty(dbSession, SONAR_QUALITYGATE_PROPERTY);
-    if (defaultQgate == null || StringUtils.isBlank(defaultQgate.getValue())) {
-      return null;
-    }
-    return Long.valueOf(defaultQgate.getValue());
   }
 
 }
