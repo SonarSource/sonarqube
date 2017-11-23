@@ -106,7 +106,7 @@ public class GetByProjectAction implements QualityGatesWsAction {
     GetByProjectWsResponse.Builder response = GetByProjectWsResponse.newBuilder();
 
     response.getQualityGateBuilder()
-      .setId(String.valueOf(qualityGate.getId()))
+      .setId(qualityGate.getId())
       .setName(qualityGate.getName())
       .setDefault(data.get().isDefault());
 
