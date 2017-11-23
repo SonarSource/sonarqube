@@ -82,4 +82,8 @@ public class QGateWsSupport {
     return Long.valueOf(defaultQgate.getValue());
   }
 
+  void checkCanEdit() {
+    userSession.checkPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
+  }
+
 }

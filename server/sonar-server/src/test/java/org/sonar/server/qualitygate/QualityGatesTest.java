@@ -39,8 +39,6 @@ import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -89,47 +87,6 @@ public class QualityGatesTest {
     underTest = new QualityGates(dbClient, userSession, organizationProvider);
 
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, organizationProvider.get().getUuid());
-  }
-
-  @Test
-  public void should_rename_qgate() {
-    long id = QUALITY_GATE_ID;
-    String name = "SG-1";
-    QualityGateDto existing = new QualityGateDto().setId(id).setName("Golden");
-    when(dao.selectById(dbSession, id)).thenReturn(existing);
-    QualityGateDto sg1 = underTest.rename(id, name);
-    assertThat(sg1.getName()).isEqualTo(name);
-    verify(dao).selectById(dbSession, id);
-    verify(dao).selectByName(dbSession, name);
-    verify(dao).update(sg1, dbSession);
-  }
-
-  @Test
-  public void should_allow_rename_with_same_name() {
-    long id = QUALITY_GATE_ID;
-    String name = "SG-1";
-    QualityGateDto existing = new QualityGateDto().setId(id).setName(name);
-    when(dao.selectById(dbSession, id)).thenReturn(existing);
-    QualityGateDto sg1 = underTest.rename(id, name);
-    assertThat(sg1.getName()).isEqualTo(name);
-    verify(dao).selectById(dbSession, id);
-    verify(dao).selectByName(dbSession, name);
-    verify(dao).update(sg1, dbSession);
-  }
-
-  @Test(expected = NotFoundException.class)
-  public void should_fail_rename_on_inexistent_qgate() {
-    underTest.rename(QUALITY_GATE_ID, "Unknown");
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void should_fail_rename_on_duplicate_name() {
-    long id = QUALITY_GATE_ID;
-    String name = "SG-1";
-    QualityGateDto existing = new QualityGateDto().setId(id).setName("Golden");
-    when(dao.selectById(dbSession, id)).thenReturn(existing);
-    when(dao.selectByName(dbSession, name)).thenReturn(new QualityGateDto().setId(666L).setName(name));
-    underTest.rename(id, name);
   }
 
   @Test
