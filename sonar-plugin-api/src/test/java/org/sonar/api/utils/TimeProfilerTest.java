@@ -41,7 +41,7 @@ public class TimeProfilerTest {
     verify(logger).info(eq("{}..."), eq("Cycle analysis"));
 
     profiler.stop();
-    verify(logger).info(eq("{} done: {} ms"), eq("Cycle analysis"), anyInt());
+    verify(logger).info(eq("{} done: {} ms"), eq("Cycle analysis"), anyLong());
   }
 
   @Test
@@ -53,7 +53,7 @@ public class TimeProfilerTest {
     profiler.stop();
     profiler.stop();
     verify(logger, times(1)).info(anyString(), anyString()); // start() executes log() with 1 parameter
-    verify(logger, times(1)).info(anyString(), anyString(), anyInt()); // stop() executes log() with 3 parameters
+    verify(logger, times(1)).info(anyString(), anyString(), anyLong()); // stop() executes log() with 3 parameters
   }
 
   @Test
@@ -64,7 +64,7 @@ public class TimeProfilerTest {
     profiler.start("New task");
     profiler.stop();
     profiler.stop();
-    verify(logger, never()).info(eq("{} done: {} ms"), eq("Cycle analysis"), anyInt());
-    verify(logger, times(1)).info(eq("{} done: {} ms"), eq("New task"), anyInt());
+    verify(logger, never()).info(eq("{} done: {} ms"), eq("Cycle analysis"), anyLong());
+    verify(logger, times(1)).info(eq("{} done: {} ms"), eq("New task"), anyLong());
   }
 }

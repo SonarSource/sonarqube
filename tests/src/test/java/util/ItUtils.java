@@ -335,7 +335,7 @@ public class ItUtils {
 
   private static Stream<Measure> getStreamMeasures(Orchestrator orchestrator, String componentKey, String... metricKeys) {
     return newWsClient(orchestrator).measures().component(new ComponentWsRequest()
-      .setComponentKey(componentKey)
+      .setComponent(componentKey)
       .setMetricKeys(asList(metricKeys)))
       .getComponent().getMeasuresList()
       .stream();

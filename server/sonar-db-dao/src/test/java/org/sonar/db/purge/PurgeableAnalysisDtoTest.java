@@ -23,9 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PurgeableAnalysisDtoTest {
   @Rule
@@ -35,18 +33,18 @@ public class PurgeableAnalysisDtoTest {
   public void testEquals() {
     PurgeableAnalysisDto dto1 = new PurgeableAnalysisDto().setAnalysisUuid("u3");
     PurgeableAnalysisDto dto2 = new PurgeableAnalysisDto().setAnalysisUuid("u4");
-    assertThat(dto1.equals(dto2), is(false));
-    assertThat(dto2.equals(dto1), is(false));
-    assertThat(dto1.equals(dto1), is(true));
-    assertThat(dto1.equals(new PurgeableAnalysisDto().setAnalysisUuid("u3")), is(true));
-    assertThat(dto1.equals("bi_bop_a_lou_la"), is(false));
-    assertThat(dto1.equals(null), is(false));
+    assertThat(dto1.equals(dto2)).isFalse();
+    assertThat(dto2.equals(dto1)).isFalse();
+    assertThat(dto1.equals(dto1)).isTrue();
+    assertThat(dto1.equals(new PurgeableAnalysisDto().setAnalysisUuid("u3"))).isTrue();
+    assertThat(dto1.equals("bi_bop_a_lou_la")).isFalse();
+    assertThat(dto1.equals(null)).isFalse();
   }
 
   @Test
   public void testHasCode() {
     PurgeableAnalysisDto dto = new PurgeableAnalysisDto().setAnalysisUuid("u3");
-    assertThat(dto.hashCode(), is(dto.hashCode()));
+    assertThat(dto.hashCode()).isEqualTo(dto.hashCode());
 
     // no uuid => NPE
     dto = new PurgeableAnalysisDto();
@@ -58,6 +56,6 @@ public class PurgeableAnalysisDtoTest {
   @Test
   public void testToString() {
     PurgeableAnalysisDto dto = new PurgeableAnalysisDto().setAnalysisUuid("u3");
-    assertThat(dto.toString().length(), greaterThan(0));
+    assertThat(dto.toString()).isNotEmpty();
   }
 }

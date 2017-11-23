@@ -19,7 +19,7 @@
  */
 package org.sonar.duplications.detector;
 
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
 import java.util.Comparator;
