@@ -40,6 +40,7 @@ import org.sonarqube.ws.client.roots.SetRootRequest;
 import org.sonarqube.ws.client.user.CreateRequest;
 import org.sonarqube.ws.client.user.SearchRequest;
 import org.sonarqube.ws.client.user.UsersService;
+import org.sonarqube.ws.client.usergroups.AddUserRequest;
 import util.selenium.Consumer;
 
 import static java.util.Arrays.asList;
@@ -148,7 +149,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
   public String createAdminUser(String login, String password) {
     createUser(login, password);
     adminWsClient.permissions().addUser(new AddUserWsRequest().setLogin(login).setPermission("admin"));
-    adminWsClient.userGroups().addUser(org.sonarqube.ws.client.usergroup.AddUserWsRequest.builder().setLogin(login).setName("sonar-administrators").build());
+    adminWsClient.userGroups().addUser(new AddUserRequest().setLogin(login).setName("sonar-administrators"));
     return login;
   }
 

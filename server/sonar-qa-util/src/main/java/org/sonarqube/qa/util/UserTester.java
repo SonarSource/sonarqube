@@ -30,7 +30,7 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.user.CreateRequest;
 import org.sonarqube.ws.client.user.SearchRequest;
 import org.sonarqube.ws.client.user.UsersService;
-import org.sonarqube.ws.client.usergroup.AddUserWsRequest;
+import org.sonarqube.ws.client.usergroups.AddUserRequest;
 
 import static java.util.Arrays.stream;
 
@@ -75,7 +75,7 @@ public class UserTester {
   public final User generateAdministrator(Consumer<CreateRequest.Builder>... populators) {
     User user = generate(populators);
     session.wsClient().permissions().addUser(new org.sonarqube.ws.client.permission.AddUserWsRequest().setLogin(user.getLogin()).setPermission("admin"));
-    session.wsClient().userGroups().addUser(AddUserWsRequest.builder().setLogin(user.getLogin()).setName("sonar-administrators").build());
+    session.wsClient().userGroups().addUser(new AddUserRequest().setLogin(user.getLogin()).setName("sonar-administrators"));
     return user;
   }
 
@@ -84,11 +84,10 @@ public class UserTester {
     String organizationKey = organization.getKey();
     User user = generate(populators);
     session.wsClient().organizations().addMember(organizationKey, user.getLogin());
-    session.wsClient().userGroups().addUser(AddUserWsRequest.builder()
+    session.wsClient().userGroups().addUser(new AddUserRequest()
       .setOrganization(organizationKey)
       .setLogin(user.getLogin())
-      .setName("Owners")
-      .build());
+      .setName("Owners"));
     return user;
   }
 
@@ -96,11 +95,10 @@ public class UserTester {
   public final User generateAdministratorOnDefaultOrganization(Consumer<CreateRequest.Builder>... populators) {
     User user = generate(populators);
     session.wsClient().organizations().addMember(DEFAULT_ORGANIZATION_KEY, user.getLogin());
-    session.wsClient().userGroups().addUser(AddUserWsRequest.builder()
+    session.wsClient().userGroups().addUser(new AddUserRequest()
       .setOrganization(DEFAULT_ORGANIZATION_KEY)
       .setLogin(user.getLogin())
-      .setName("sonar-administrators")
-      .build());
+      .setName("sonar-administrators"));
     return user;
   }
 

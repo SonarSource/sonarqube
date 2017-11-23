@@ -30,8 +30,8 @@ import org.sonarqube.ws.UserGroups;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.Users.GroupsWsResponse.Group;
 import org.sonarqube.ws.client.user.GroupsRequest;
-import org.sonarqube.ws.client.usergroup.AddUserWsRequest;
-import org.sonarqube.ws.client.usergroup.CreateWsRequest;
+import org.sonarqube.ws.client.usergroups.AddUserRequest;
+import org.sonarqube.ws.client.usergroups.CreateRequest;
 
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,14 +47,14 @@ public class GroupTester {
   }
 
   @SafeVarargs
-  public final UserGroups.Group generate(@Nullable Organizations.Organization organization, Consumer<CreateWsRequest.Builder>... populators) {
+  public final UserGroups.Group generate(@Nullable Organizations.Organization organization, Consumer<CreateRequest>... populators) {
     int id = ID_GENERATOR.getAndIncrement();
-    CreateWsRequest.Builder request = CreateWsRequest.builder()
+    CreateRequest request = new CreateRequest()
       .setName("Group" + id)
       .setDescription("Description " + id)
       .setOrganization(organization != null ? organization.getKey() : null);
     stream(populators).forEach(p -> p.accept(request));
-    return session.wsClient().userGroups().create(request.build()).getGroup();
+    return session.wsClient().userGroups().create(request).getGroup();
   }
 
   public List<Group> getGroupsOfUser(@Nullable Organizations.Organization organization, String userLogin) {
@@ -68,11 +68,10 @@ public class GroupTester {
 
   public GroupTester addMemberToGroups(Organizations.Organization organization, String userLogin, String... groups) {
     for (String group : groups) {
-      AddUserWsRequest request = AddUserWsRequest.builder()
+      AddUserRequest request = new AddUserRequest()
         .setLogin(userLogin)
         .setOrganization(organization.getKey())
-        .setName(group)
-        .build();
+        .setName(group);
       session.wsClient().userGroups().addUser(request);
     }
     return this;

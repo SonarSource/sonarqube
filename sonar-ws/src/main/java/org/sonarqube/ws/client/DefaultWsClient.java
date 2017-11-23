@@ -38,7 +38,7 @@ import org.sonarqube.ws.client.rules.RulesService;
 import org.sonarqube.ws.client.settings.SettingsService;
 import org.sonarqube.ws.client.system.SystemService;
 import org.sonarqube.ws.client.user.UsersService;
-import org.sonarqube.ws.client.usergroup.UserGroupsService;
+import org.sonarqube.ws.client.usergroups.UserGroupsService;
 import org.sonarqube.ws.client.usertokens.UserTokensService;
 import org.sonarqube.ws.client.webhooks.WebhooksService;
 
