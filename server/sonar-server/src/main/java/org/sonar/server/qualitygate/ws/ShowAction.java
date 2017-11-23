@@ -51,10 +51,12 @@ public class ShowAction implements QualityGatesWsAction {
 
   private final DbClient dbClient;
   private final QualityGateFinder qualityGateFinder;
+  private final QGateWsSupport wsSupport;
 
-  public ShowAction(DbClient dbClient, QualityGateFinder qualityGateFinder) {
+  public ShowAction(DbClient dbClient, QualityGateFinder qualityGateFinder, QGateWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.qualityGateFinder = qualityGateFinder;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -63,7 +65,9 @@ public class ShowAction implements QualityGatesWsAction {
       .setDescription("Display the details of a quality gate")
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "show-example.json"))
-      .setChangelog(new Change("7.0", "'isBuiltIn' field is added to the response"))
+      .setChangelog(
+        new Change("7.0", "'isBuiltIn' field is added to the response"),
+        new Change("7.0", "'actions' field is added in the response"))
       .setHandler(this);
 
     action.createParam(PARAM_ID)
@@ -85,7 +89,8 @@ public class ShowAction implements QualityGatesWsAction {
       QualityGateDto qualityGate = qualityGateFinder.getByNameOrId(dbSession, name, id);
       Collection<QualityGateConditionDto> conditions = getConditions(dbSession, qualityGate);
       Map<Integer, MetricDto> metricsById = getMetricsById(dbSession, conditions);
-      writeProtobuf(buildResponse(qualityGate, conditions, metricsById), request, response);
+      QualityGateDto defaultQualityGate = wsSupport.getDefault(dbSession);
+      writeProtobuf(buildResponse(qualityGate, defaultQualityGate, conditions, metricsById), request, response);
     }
   }
 
@@ -100,7 +105,8 @@ public class ShowAction implements QualityGatesWsAction {
       .collect(uniqueIndex(MetricDto::getId));
   }
 
-  private static ShowWsResponse buildResponse(QualityGateDto qualityGate, Collection<QualityGateConditionDto> conditions, Map<Integer, MetricDto> metricsById) {
+  private ShowWsResponse buildResponse(QualityGateDto qualityGate, @Nullable QualityGateDto defaultQualityGate, Collection<QualityGateConditionDto> conditions,
+    Map<Integer, MetricDto> metricsById) {
     return ShowWsResponse.newBuilder()
       .setId(qualityGate.getId())
       .setName(qualityGate.getName())
@@ -108,6 +114,7 @@ public class ShowAction implements QualityGatesWsAction {
       .addAllConditions(conditions.stream()
         .map(toWsCondition(metricsById))
         .collect(toList()))
+      .setActions(wsSupport.getActions(qualityGate, defaultQualityGate))
       .build();
   }
 
