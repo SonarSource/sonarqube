@@ -33,7 +33,7 @@ import { Profile } from '../types';
 const TYPES = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
 
 interface Props {
-  organization: string | null;
+  organization?: string;
   profile: Profile;
 }
 

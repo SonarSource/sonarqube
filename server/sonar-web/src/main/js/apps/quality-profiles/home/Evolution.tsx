@@ -24,7 +24,7 @@ import EvolutionRules from './EvolutionRules';
 import { Profile } from '../types';
 
 interface Props {
-  organization: string | null;
+  organization?: string;
   profiles: Profile[];
 }
 

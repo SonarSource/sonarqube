@@ -28,7 +28,7 @@ import { Exporter, Profile } from '../types';
 interface Props {
   exporters: Exporter[];
   onRequestFail: (reasong: any) => void;
-  organization: string | null;
+  organization?: string;
   profile: Profile;
   profiles: Profile[];
   updateProfiles: () => Promise<void>;
@@ -45,10 +45,7 @@ export default function ProfileDetails(props: Props) {
           {profile.actions &&
             profile.actions.edit &&
             !profile.isBuiltIn && (
-              <ProfilePermissions
-                organization={props.organization || undefined}
-                profile={profile}
-              />
+              <ProfilePermissions organization={props.organization} profile={profile} />
             )}
         </div>
         <div className="quality-profile-grid-right">

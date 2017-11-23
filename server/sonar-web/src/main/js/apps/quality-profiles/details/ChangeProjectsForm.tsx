@@ -26,7 +26,7 @@ import { Profile } from '../types';
 
 interface Props {
   onClose: () => void;
-  organization: string | null;
+  organization?: string;
   profile: Profile;
 }
 

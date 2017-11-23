@@ -26,7 +26,7 @@ interface Props {
   onClose: () => void;
   onRequestFail: (reason: any) => void;
   onRestore: () => void;
-  organization: string | null;
+  organization?: string;
 }
 
 interface State {

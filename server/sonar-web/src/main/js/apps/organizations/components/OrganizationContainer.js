@@ -26,7 +26,7 @@ class OrganizationContainer extends React.PureComponent {
   render() {
     return React.cloneElement(this.props.children, {
       currentUser: this.props.currentUser,
-      organization: this.props.organization
+      organization: this.props.organization.key
     });
   }
 }

@@ -31,7 +31,7 @@ interface Props {
   isFavorite?: boolean;
   maxFacetValue?: number;
   name: string;
-  organization?: { key: string };
+  organization?: string;
   property: string;
   query: { [x: string]: any };
   value?: any;

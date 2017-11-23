@@ -17,35 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { shallow } from 'enzyme';
-import GlobalNavMenu from '../GlobalNavMenu';
+import * as React from 'react';
+import { render } from 'react-dom';
+import { Router, RouterState } from 'react-router';
+import { Provider } from 'react-redux';
+import routes from './routes';
+import getStore from './getStore';
+import getHistory from './getHistory';
 
-it('should work with extensions', () => {
-  const appState = {
-    globalPages: [{ key: 'foo', name: 'Foo' }],
-    qualifiers: ['TRK']
-  };
-  const currentUser = {
-    isLoggedIn: false
-  };
-  const wrapper = shallow(
-    <GlobalNavMenu appState={appState} currentUser={currentUser} location={{ pathname: '' }} />
-  );
-  expect(wrapper).toMatchSnapshot();
-});
+export default function startReactApp() {
+  const el = document.getElementById('content');
 
-it('should show administration menu if the user has the rights', () => {
-  const appState = {
-    canAdmin: true,
-    globalPages: [],
-    qualifiers: ['TRK']
-  };
-  const currentUser = {
-    isLoggedIn: false
-  };
-  const wrapper = shallow(
-    <GlobalNavMenu appState={appState} currentUser={currentUser} location={{ pathname: '' }} />
+  const history = getHistory();
+  const store = getStore();
+
+  render(
+    <Provider store={store}>
+      <Router history={history} onUpdate={handleUpdate} routes={routes} />
+    </Provider>,
+    el
   );
-  expect(wrapper).toMatchSnapshot();
-});
+}
+
+function handleUpdate(this: { state: RouterState }) {
+  const { action } = this.state.location;
+
+  if (action === 'PUSH') {
+    window.scrollTo(0, 0);
+  }
+}

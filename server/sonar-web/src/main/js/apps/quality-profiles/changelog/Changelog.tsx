@@ -30,7 +30,7 @@ import { ProfileChangelogEvent } from '../types';
 
 interface Props {
   events: ProfileChangelogEvent[];
-  organization: string | null;
+  organization?: string;
 }
 
 export default function Changelog(props: Props) {

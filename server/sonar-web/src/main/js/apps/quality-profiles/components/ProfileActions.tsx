@@ -23,9 +23,8 @@ import RenameProfileForm from './RenameProfileForm';
 import CopyProfileForm from './CopyProfileForm';
 import DeleteProfileForm from './DeleteProfileForm';
 import { translate } from '../../../helpers/l10n';
-import { getRulesUrl } from '../../../helpers/urls';
+import { getRulesUrl, getProfileUrl, getProfilesUrl, getProfileCompareUrl } from '../../../helpers/urls';
 import { setDefaultProfile } from '../../../api/quality-profiles';
-import { getProfilePath, getProfileComparePath, getProfilesPath } from '../utils';
 import { Profile } from '../types';
 import ActionsDropdown, {
   ActionsDropdownItem,
@@ -36,7 +35,7 @@ interface Props {
   className?: string;
   fromList?: boolean;
   onRequestFail: (reasong: any) => void;
-  organization: string | null;
+  organization?: string;
   profile: Profile;
   updateProfiles: () => Promise<void>;
 }
@@ -71,7 +70,7 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
       () => {
         if (!this.props.fromList) {
           this.context.router.replace(
-            getProfilePath(name, this.props.profile.language, this.props.organization)
+            getProfileUrl(name, this.props.profile.language, this.props.organization)
           );
         }
       },
@@ -91,7 +90,7 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
     this.props.updateProfiles().then(
       () => {
         this.context.router.push(
-          getProfilePath(name, this.props.profile.language, this.props.organization)
+          getProfileUrl(name, this.props.profile.language, this.props.organization)
         );
       },
       () => {}
@@ -111,7 +110,7 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
   };
 
   handleProfileDelete = () => {
-    this.context.router.replace(getProfilesPath(this.props.organization));
+    this.context.router.replace(getProfilesUrl(this.props.organization));
     this.props.updateProfiles();
   };
 
@@ -161,7 +160,7 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
 
         <ActionsDropdownItem
           id="quality-profile-compare"
-          to={getProfileComparePath(profile.name, profile.language, this.props.organization)}>
+          to={getProfileCompareUrl(profile.name, profile.language, this.props.organization)}>
           {translate('compare')}
         </ActionsDropdownItem>
 

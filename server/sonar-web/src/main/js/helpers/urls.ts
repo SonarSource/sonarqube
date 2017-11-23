@@ -19,7 +19,6 @@
  */
 import { stringify } from 'querystring';
 import { isShortLivingBranch } from './branches';
-import { getProfilePath } from '../apps/quality-profiles/utils';
 import { Branch } from '../app/types';
 
 interface Query {
@@ -33,6 +32,10 @@ interface Location {
 
 export function getBaseUrl(): string {
   return (window as any).baseUrl;
+}
+
+export function getProjectsUrl(organization?: string) {
+  return organization ? `organizations/${organization}/projects` : 'projects';
 }
 
 /**
@@ -68,8 +71,9 @@ export function getProjectBranchUrl(key: string, branch: Branch): Location {
 /**
  * Generate URL for a global issues page
  */
-export function getIssuesUrl(query: Query): Location {
-  return { pathname: '/issues', query };
+export function getIssuesUrl(query: Query, organization?: string): Location {
+  const pathname = organization ? `/organizations/${organization}/issues` : '/issues';
+  return { pathname, query };
 }
 
 /**
@@ -125,9 +129,9 @@ export function getComponentPermissionsUrl(componentKey: string): Location {
 export function getQualityProfileUrl(
   name: string,
   language: string,
-  organization?: string | null
+  organization?: string
 ): Location {
-  return getProfilePath(name, language, organization);
+  return getProfileUrl(name, language, organization);
 }
 
 export function getQualityGateUrl(key: string, organization?: string | null): Location {
@@ -146,7 +150,7 @@ export function getQualityGatesUrl(organization?: string | null): Location {
 /**
  * Generate URL for the rules page
  */
-export function getRulesUrl(query: { [x: string]: string }, organization?: string | null): string {
+export function getRulesUrl(query: { [x: string]: string }, organization?: string): string {
   const path = organization ? `/organizations/${organization}/rules` : '/coding_rules';
 
   if (query) {
@@ -164,7 +168,7 @@ export function getRulesUrl(query: { [x: string]: string }, organization?: strin
 /**
  * Generate URL for the rules page filtering only active deprecated rules
  */
-export function getDeprecatedActiveRulesUrl(query = {}, organization?: string | null): string {
+export function getDeprecatedActiveRulesUrl(query = {}, organization?: string): string {
   const baseQuery = { activation: 'true', statuses: 'DEPRECATED' };
   return getRulesUrl({ ...query, ...baseQuery }, organization);
 }
@@ -175,4 +179,59 @@ export function getMarkdownHelpUrl(): string {
 
 export function getCodeUrl(project: string, branch?: string, selected?: string) {
   return { pathname: '/code', query: { id: project, branch, selected } };
+}
+
+export function getProfilesUrl(organization?: string) {
+  return organization ? `/organizations/${organization}/quality_profiles` : '/profiles';
+}
+
+export function getProfilesForLanguageUrl(language: string, organization?: string) {
+  return {
+    pathname: getProfilesUrl(organization),
+    query: { language }
+  };
+}
+
+export function getProfileUrl(name: string, language: string, organization?: string) {
+  return {
+    pathname: getProfilesUrl(organization) + '/show',
+    query: { name, language }
+  };
+}
+
+export function getProfileCompareUrl(
+  name: string,
+  language: string,
+  organization?: string,
+  withKey?: string
+) {
+  const query = { language, name };
+  if (withKey) {
+    Object.assign(query, { withKey });
+  }
+  return {
+    pathname: getProfilesUrl(organization) + '/compare',
+    query
+  };
+}
+
+export function getProfileChangelogUrl(
+  name: string,
+  language: string,
+  organization?: string,
+  filter?: { since?: string; to?: string }
+) {
+  const query = { language, name };
+  if (filter) {
+    if (filter.since) {
+      Object.assign(query, { since: filter.since });
+    }
+    if (filter.to) {
+      Object.assign(query, { to: filter.to });
+    }
+  }
+  return {
+    pathname: getProfilesUrl(organization) + '/changelog',
+    query
+  };
 }

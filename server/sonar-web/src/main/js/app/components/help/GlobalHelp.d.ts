@@ -1,7 +1,7 @@
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,19 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import { withRouter } from 'react-router';
-import { connect } from 'react-redux';
-import GlobalNavUser from './GlobalNavUser';
-import { fetchMyOrganizations } from '../../../../apps/account/organizations/actions';
-import { getMyOrganizations } from '../../../../store/rootReducer';
+import * as React from 'react';
+import { AppState } from '../../../store/appState/duck';
+import { CurrentUser } from '../../types';
 
-const mapStateToProps = state => ({
-  organizations: getMyOrganizations(state)
-});
+interface Props {
+  currentUser: CurrentUser;
+  onClose: () => void;
+  onTutorialSelect: () => void;
+  onSonarCloud: boolean;
+}
 
-const mapDispatchToProps = {
-  fetchMyOrganizations
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(GlobalNavUser));
+export default class GlobalHelp extends React.PureComponent<Props> {}

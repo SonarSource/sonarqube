@@ -24,8 +24,8 @@ import ChangelogSearch from './ChangelogSearch';
 import ChangelogEmpty from './ChangelogEmpty';
 import { getProfileChangelog } from '../../../api/quality-profiles';
 import { translate } from '../../../helpers/l10n';
-import { getProfileChangelogPath } from '../utils';
 import { Profile, ProfileChangelogEvent } from '../types';
+import { getProfileChangelogUrl } from '../../../helpers/urls';
 
 interface Props {
   location: {
@@ -34,7 +34,7 @@ interface Props {
       to?: string;
     };
   };
-  organization: string | null;
+  organization?: string;
   profile: Profile;
 }
 
@@ -126,7 +126,7 @@ export default class ChangelogContainer extends React.PureComponent<Props, State
   }
 
   handleFromDateChange = (fromDate?: string) => {
-    const path = getProfileChangelogPath(
+    const path = getProfileChangelogUrl(
       this.props.profile.name,
       this.props.profile.language,
       this.props.organization,
@@ -139,7 +139,7 @@ export default class ChangelogContainer extends React.PureComponent<Props, State
   };
 
   handleToDateChange = (toDate?: string) => {
-    const path = getProfileChangelogPath(
+    const path = getProfileChangelogUrl(
       this.props.profile.name,
       this.props.profile.language,
       this.props.organization,
@@ -152,7 +152,7 @@ export default class ChangelogContainer extends React.PureComponent<Props, State
   };
 
   handleReset = () => {
-    const path = getProfileChangelogPath(
+    const path = getProfileChangelogUrl(
       this.props.profile.name,
       this.props.profile.language,
       this.props.organization

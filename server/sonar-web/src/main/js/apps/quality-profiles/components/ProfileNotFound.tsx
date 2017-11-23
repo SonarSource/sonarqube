@@ -20,17 +20,17 @@
 import * as React from 'react';
 import { IndexLink } from 'react-router';
 import { translate } from '../../../helpers/l10n';
-import { getProfilesPath } from '../utils';
+import { getProfilesUrl } from '../../../helpers/urls';
 
 interface Props {
-  organization: string | null;
+  organization?: string;
 }
 
 export default function ProfileNotFound(props: Props) {
   return (
     <div className="quality-profile-not-found">
       <div className="note spacer-bottom">
-        <IndexLink to={getProfilesPath(props.organization)} className="text-muted">
+        <IndexLink to={getProfilesUrl(props.organization)} className="text-muted">
           {translate('quality_profiles.page')}
         </IndexLink>
       </div>

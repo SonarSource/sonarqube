@@ -35,7 +35,7 @@ type Props = {|
   onIssueClick: string => void,
   onPopupToggle: (issue: string, popupName: string, open: ?boolean ) => void,
   openPopup: ?{ issue: string, name: string},
-  organization?: { key: string },
+  organization?: string,
   selectedIssue: ?Issue
 |};
 */

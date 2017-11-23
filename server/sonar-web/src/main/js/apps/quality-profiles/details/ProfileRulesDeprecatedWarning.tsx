@@ -25,7 +25,7 @@ import { translate } from '../../../helpers/l10n';
 
 interface Props {
   activeDeprecatedRules: number;
-  organization: string | null;
+  organization?: string;
   profile: string;
 }
 

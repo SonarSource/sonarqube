@@ -9,57 +9,11 @@ exports[`renders 1`] = `
     encodeSpecialCharacters={true}
     title="projects.page"
   />
-  <div
+  <ScreenPositionHelper
     className="layout-page-side-outer"
-  >
-    <div
-      className="layout-page-side projects-page-side"
-      style={
-        Object {
-          "top": 30,
-        }
-      }
-    >
-      <div
-        className="layout-page-side-inner"
-      >
-        <div
-          className="layout-page-filters"
-        >
-          <PageSidebar
-            isFavorite={false}
-            query={
-              Object {
-                "coverage": undefined,
-                "duplications": undefined,
-                "gate": undefined,
-                "languages": undefined,
-                "maintainability": undefined,
-                "new_coverage": undefined,
-                "new_duplications": undefined,
-                "new_lines": undefined,
-                "new_maintainability": undefined,
-                "new_reliability": undefined,
-                "new_security": undefined,
-                "reliability": undefined,
-                "search": undefined,
-                "security": undefined,
-                "size": undefined,
-                "sort": undefined,
-                "tags": undefined,
-                "view": undefined,
-                "visualization": undefined,
-              }
-            }
-            view="overall"
-            visualization="risk"
-          />
-        </div>
-      </div>
-    </div>
-  </div>
+  />
   <div
-    className="layout-page-main projects-page-content"
+    className="layout-page-main"
   >
     <div
       className="layout-page-header-panel layout-page-main-header"
@@ -180,39 +134,11 @@ exports[`renders 2`] = `
     encodeSpecialCharacters={true}
     title="projects.page"
   />
-  <div
+  <ScreenPositionHelper
     className="layout-page-side-outer"
-  >
-    <div
-      className="layout-page-side projects-page-side"
-      style={
-        Object {
-          "top": 30,
-        }
-      }
-    >
-      <div
-        className="layout-page-side-inner"
-      >
-        <div
-          className="layout-page-filters"
-        >
-          <PageSidebar
-            isFavorite={false}
-            query={
-              Object {
-                "view": "visualizations",
-              }
-            }
-            view="visualizations"
-            visualization="risk"
-          />
-        </div>
-      </div>
-    </div>
-  </div>
+  />
   <div
-    className="layout-page-main projects-page-content"
+    className="layout-page-main"
   >
     <div
       className="layout-page-header-panel layout-page-main-header"

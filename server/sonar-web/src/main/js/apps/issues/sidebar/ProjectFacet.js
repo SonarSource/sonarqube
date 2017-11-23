@@ -39,7 +39,7 @@ type Props = {|
   onChange: (changes: { [string]: Array<string> }) => void,
   onToggle: (property: string) => void,
   open: boolean,
-  organization?: { key: string },
+  organization?: string,
   stats?: { [string]: number },
   referencedComponents: { [string]: ReferencedComponent },
   projects: Array<string>
@@ -86,7 +86,7 @@ export default class ProjectFacet extends React.PureComponent {
     return searchProjects({
       ps: 50,
       filter: query ? `query = "${query}"` : '',
-      organization: organization && organization.key
+      organization
     }).then(response =>
       response.components.map(component => ({
         label: component.name,

@@ -20,12 +20,15 @@
 
 import { Extension } from '../../app/types';
 
-interface AppState {
+export interface AppState {
   adminPages?: Extension[];
-  authenticationError: boolean;
-  authorizationError: boolean;
-  organizationsEnabled: boolean;
-  qualifiers?: string[];
+  authenticationError?: boolean;
+  authorizationError?: boolean;
+  defaultOrganization?: string;
+  globalPages: Extension[];
+  canAdmin?: boolean;
+  organizationsEnabled?: boolean;
+  qualifiers: string[];
 }
 
 interface SetAppStateAction {
@@ -60,9 +63,8 @@ export function requireAuthorization(): RequireAuthorizationAction {
 }
 
 const defaultValue: AppState = {
-  authenticationError: false,
-  authorizationError: false,
-  organizationsEnabled: false
+  globalPages: [],
+  qualifiers: []
 };
 
 export default function(state: AppState = defaultValue, action: Action): AppState {

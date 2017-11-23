@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import OrganizationNavigation from '../OrganizationNavigation';
 
@@ -25,20 +25,27 @@ jest.mock('../../../issues/utils', () => ({
   isMySet: () => false
 }));
 
+const baseOrganization = {
+  canAdmin: false,
+  canDelete: false,
+  key: 'foo',
+  name: 'Foo',
+  projectVisibility: 'visible'
+};
+
 it('regular user', () => {
-  const organization = { key: 'foo', name: 'Foo', canAdmin: false, canDelete: false };
   expect(
     shallow(
       <OrganizationNavigation
         location={{ pathname: '/organizations/foo' }}
-        organization={organization}
+        organization={baseOrganization}
       />
     )
   ).toMatchSnapshot();
 });
 
 it('admin', () => {
-  const organization = { key: 'foo', name: 'Foo', canAdmin: true, canDelete: true };
+  const organization = { ...baseOrganization, canAdmin: true, canDelete: true };
   expect(
     shallow(
       <OrganizationNavigation
@@ -50,7 +57,7 @@ it('admin', () => {
 });
 
 it('undeletable org', () => {
-  const organization = { key: 'foo', name: 'Foo', canAdmin: true, canDelete: false };
+  const organization = { ...baseOrganization, canAdmin: true };
   expect(
     shallow(
       <OrganizationNavigation

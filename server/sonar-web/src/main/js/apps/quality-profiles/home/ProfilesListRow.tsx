@@ -31,7 +31,7 @@ import Tooltip from '../../../components/controls/Tooltip';
 
 interface Props {
   onRequestFail: (reason: any) => void;
-  organization: string | null;
+  organization?: string;
   profile: Profile;
   updateProfiles: () => Promise<void>;
 }

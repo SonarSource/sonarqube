@@ -31,7 +31,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { Project } from '../types';
 
 interface Props {
-  organization?: { key: string };
+  organization?: string;
   project: Project;
 }
 

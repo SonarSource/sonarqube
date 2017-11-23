@@ -25,6 +25,7 @@ import ProjectsList from './ProjectsList';
 import PageSidebar from './PageSidebar';
 import Visualizations from '../visualizations/Visualizations';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
+import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import ListFooter from '../../../components/controls/ListFooter';
 import { translate } from '../../../helpers/l10n';
 import * as storage from '../../../helpers/storage';
@@ -37,7 +38,7 @@ import { parseUrlQuery, Query } from '../query';
 interface Props {
   isFavorite: boolean;
   location: { pathname: string; query: { [x: string]: string } };
-  organization?: { key: string };
+  organization?: string;
 }
 
 interface State {
@@ -107,11 +108,7 @@ export default class AllProjects extends React.PureComponent<Props, State> {
 
   fetchProjects = (query: any) => {
     this.setState({ loading: true, query });
-    fetchProjects(
-      query,
-      this.props.isFavorite,
-      this.props.organization && this.props.organization.key
-    ).then(response => {
+    fetchProjects(query, this.props.isFavorite, this.props.organization).then(response => {
       if (this.mounted) {
         this.setState({
           facets: response.facets,
@@ -131,7 +128,7 @@ export default class AllProjects extends React.PureComponent<Props, State> {
       fetchProjects(
         query,
         this.props.isFavorite,
-        this.props.organization && this.props.organization.key,
+        this.props.organization,
         pageIndex + 1
       ).then(response => {
         if (this.mounted) {
@@ -220,24 +217,24 @@ export default class AllProjects extends React.PureComponent<Props, State> {
   };
 
   renderSide = () => (
-    <div className="layout-page-side-outer">
-      <div
-        className="layout-page-side projects-page-side"
-        style={{ top: this.props.organization ? 95 : 30 }}>
-        <div className="layout-page-side-inner">
-          <div className="layout-page-filters">
-            <PageSidebar
-              facets={this.state.facets}
-              isFavorite={this.props.isFavorite}
-              organization={this.props.organization}
-              query={this.state.query}
-              view={this.getView()}
-              visualization={this.getVisualization()}
-            />
+    <ScreenPositionHelper className="layout-page-side-outer">
+      {({ top }) => (
+        <div className="layout-page-side projects-page-side" style={{ top }}>
+          <div className="layout-page-side-inner">
+            <div className="layout-page-filters">
+              <PageSidebar
+                facets={this.state.facets}
+                isFavorite={this.props.isFavorite}
+                organization={this.props.organization}
+                query={this.state.query}
+                view={this.getView()}
+                visualization={this.getVisualization()}
+              />
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      )}
+    </ScreenPositionHelper>
   );
 
   renderHeader = () => (
@@ -304,7 +301,7 @@ export default class AllProjects extends React.PureComponent<Props, State> {
 
         {this.renderSide()}
 
-        <div className="layout-page-main projects-page-content">
+        <div className="layout-page-main">
           {this.renderHeader()}
           {this.renderMain()}
         </div>

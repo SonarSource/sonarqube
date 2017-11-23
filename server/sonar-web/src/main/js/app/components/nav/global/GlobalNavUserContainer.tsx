@@ -17,45 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import handleRequiredAuthorization from '../utils/handleRequiredAuthorization';
+import { connect } from 'react-redux';
+import GlobalNavUser from './GlobalNavUser';
+import { fetchMyOrganizations } from '../../../../apps/account/organizations/actions';
+import { getMyOrganizations } from '../../../../store/rootReducer';
 
-export default class ProjectAdminContainer extends React.PureComponent {
-  /*::
-  props: {
-    component: {
-      configuration?: {
-        showSettings: boolean
-      }
-    }
-  };
-  */
-
-  componentDidMount() {
-    this.checkPermissions();
-  }
-
-  componentDidUpdate() {
-    this.checkPermissions();
-  }
-
-  isProjectAdmin() {
-    const { configuration } = this.props.component;
-    return configuration != null && configuration.showSettings;
-  }
-
-  checkPermissions() {
-    if (!this.isProjectAdmin()) {
-      handleRequiredAuthorization();
-    }
-  }
-
-  render() {
-    if (!this.isProjectAdmin()) {
-      return null;
-    }
-
-    const { children, ...props } = this.props;
-    return React.cloneElement(children, props);
-  }
+interface StateProps {
+  organizations: Array<{ key: string; name: string }>;
 }
+
+const mapStateToProps = (state: any): StateProps => ({
+  organizations: getMyOrganizations(state)
+});
+
+interface DispatchProps {
+  fetchMyOrganizations: () => Promise<void>;
+}
+
+// `as any`, because we don't have proper typings for redux-thunk async actions
+const mapDispatchToProps = { fetchMyOrganizations } as any;
+
+export default connect<StateProps, DispatchProps>(mapStateToProps, mapDispatchToProps)(
+  GlobalNavUser
+);
