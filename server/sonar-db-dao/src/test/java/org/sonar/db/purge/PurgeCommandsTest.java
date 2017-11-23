@@ -164,7 +164,7 @@ public class PurgeCommandsTest {
   @Test
   public void deletePermissions_deletes_permissions_of_view() {
     OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertView(organization);
+    ComponentDto project = dbTester.components().insertPublicPortfolio(organization);
     addPermissions(organization, project);
 
     PurgeCommands purgeCommands = new PurgeCommands(dbTester.getSession(), profiler);

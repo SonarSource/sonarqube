@@ -47,15 +47,11 @@ public class MeasureTreeQuery {
   @CheckForNull
   private final Collection<Integer> metricIds;
 
-  @CheckForNull
-  private final Long personId;
-
   private MeasureTreeQuery(Builder builder) {
     this.nameOrKeyQuery = builder.nameOrKeyQuery;
     this.qualifiers = builder.qualifiers == null ? null : newArrayList(builder.qualifiers);
     this.strategy = requireNonNull(builder.strategy);
     this.metricIds = builder.metricIds;
-    this.personId = builder.personId;
   }
 
   @CheckForNull
@@ -83,11 +79,6 @@ public class MeasureTreeQuery {
   @CheckForNull
   public Collection<Integer> getMetricIds() {
     return metricIds;
-  }
-
-  @CheckForNull
-  public Long getPersonId() {
-    return personId;
   }
 
   public String getUuidPath(ComponentDto component) {
@@ -120,9 +111,6 @@ public class MeasureTreeQuery {
     @CheckForNull
     private Collection<Integer> metricIds;
 
-    @CheckForNull
-    private Long personId;
-
     private Builder() {
     }
 
@@ -146,11 +134,6 @@ public class MeasureTreeQuery {
      */
     public Builder setMetricIds(@Nullable Collection<Integer> metricIds) {
       this.metricIds = metricIds;
-      return this;
-    }
-
-    public Builder setPersonId(@Nullable Long personId) {
-      this.personId = personId;
       return this;
     }
 

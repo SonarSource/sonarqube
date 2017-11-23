@@ -97,4 +97,6 @@ public interface PurgeMapper {
   void deleteWebhookDeliveriesByProjectUuid(@Param("projectUuid") String projectUuid);
 
   void deleteBranchByUuid(@Param("uuid") String uuid);
+
+  void deleteLiveMeasuresByProjectUuid(@Param("projectUuid") String projectUuid);
 }

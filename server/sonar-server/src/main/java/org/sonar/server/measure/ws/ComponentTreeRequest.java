@@ -26,7 +26,6 @@ import javax.annotation.Nullable;
 class ComponentTreeRequest {
 
   private String baseComponentId;
-  private String baseComponentKey;
   private String component;
   private String branch;
   private String strategy;

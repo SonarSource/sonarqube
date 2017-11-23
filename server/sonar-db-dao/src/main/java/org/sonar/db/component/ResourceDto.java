@@ -45,7 +45,6 @@ public class ResourceDto {
   private String description;
   private String language;
   private String copyComponentUuid;
-  private String developerUuid;
   private Date createdAt;
 
   public Long getId() {
@@ -199,16 +198,6 @@ public class ResourceDto {
 
   public ResourceDto setCopyComponentUuid(@Nullable String copyComponentUuid) {
     this.copyComponentUuid = copyComponentUuid;
-    return this;
-  }
-
-  @CheckForNull
-  public String getDeveloperUuid() {
-    return developerUuid;
-  }
-
-  public ResourceDto setDeveloperUuid(@Nullable String developerUuid) {
-    this.developerUuid = developerUuid;
     return this;
   }
 

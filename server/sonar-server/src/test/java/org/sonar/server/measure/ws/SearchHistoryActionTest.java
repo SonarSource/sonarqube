@@ -265,20 +265,6 @@ public class SearchHistoryActionTest {
   }
 
   @Test
-  public void do_not_return_developer_measures() {
-    wsRequest.setMetrics(singletonList(complexityMetric.getKey()));
-    dbClient.measureDao().insert(dbSession, newMeasureDto(complexityMetric, project, analysis).setDeveloperId(42L));
-    db.commit();
-
-    SearchHistoryResponse result = call();
-
-    assertThat(result.getMeasuresCount()).isEqualTo(1);
-    assertThat(result.getMeasures(0).getHistoryCount()).isEqualTo(1);
-    assertThat(result.getMeasures(0).getHistory(0).hasDate()).isTrue();
-    assertThat(result.getMeasures(0).getHistory(0).hasValue()).isFalse();
-  }
-
-  @Test
   public void branch() {
     ComponentDto project = db.components().insertPrivateProject();
     userSession.addProjectPermission(UserRole.USER, project);

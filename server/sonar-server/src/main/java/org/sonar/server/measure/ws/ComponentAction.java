@@ -43,25 +43,22 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.measure.MeasureQuery;
+import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricDtoFunctions;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.measure.ws.MetricDtoWithBestValue.MetricDtoToMetricDtoWithBestValueFunction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.Measures.ComponentWsResponse;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
-import static org.sonar.server.component.ComponentFinder.ParamNames.DEVELOPER_ID_AND_KEY;
 import static org.sonar.server.measure.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createAdditionalFieldsParameter;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createDeveloperParameters;
@@ -133,6 +130,10 @@ public class ComponentAction implements MeasuresWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    if (request.param(PARAM_DEVELOPER_ID) != null || request.param(PARAM_DEVELOPER_KEY) != null) {
+      throw new NotFoundException("The Developer Cockpit feature has been dropped. The specified developer cannot be found.");
+    }
+
     ComponentWsResponse componentWsResponse = doHandle(toComponentWsRequest(request));
     writeProtobuf(componentWsResponse, request, response);
   }
@@ -140,13 +141,12 @@ public class ComponentAction implements MeasuresWsAction {
   private ComponentWsResponse doHandle(ComponentRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = loadComponent(dbSession, request);
-      Long developerId = searchDeveloperId(dbSession, request);
       Optional<ComponentDto> refComponent = getReferenceComponent(dbSession, component);
       checkPermissions(component);
       SnapshotDto analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, component.projectUuid()).orElse(null);
       List<MetricDto> metrics = searchMetrics(dbSession, request);
       List<Measures.Period> periods = snapshotToWsPeriods(analysis);
-      List<MeasureDto> measures = searchMeasures(dbSession, component, analysis, metrics, developerId);
+      List<LiveMeasureDto> measures = searchMeasures(dbSession, component, metrics);
 
       return buildResponse(request, component, refComponent, measures, metrics, periods);
     }
@@ -162,15 +162,6 @@ public class ComponentAction implements MeasuresWsAction {
       : componentFinder.getByKeyAndBranch(dbSession, componentKey, branch);
   }
 
-  @CheckForNull
-  private Long searchDeveloperId(DbSession dbSession, ComponentRequest request) {
-    if (request.getDeveloperId() == null && request.getDeveloperKey() == null) {
-      return null;
-    }
-
-    return componentFinder.getByUuidOrKey(dbSession, request.getDeveloperId(), request.getDeveloperKey(), DEVELOPER_ID_AND_KEY).getId();
-  }
-
   private Optional<ComponentDto> getReferenceComponent(DbSession dbSession, ComponentDto component) {
     if (component.getCopyResourceUuid() == null) {
       return Optional.absent();
@@ -179,12 +170,12 @@ public class ComponentAction implements MeasuresWsAction {
     return dbClient.componentDao().selectByUuid(dbSession, component.getCopyResourceUuid());
   }
 
-  private static ComponentWsResponse buildResponse(ComponentRequest request, ComponentDto component, Optional<ComponentDto> refComponent, List<MeasureDto> measures,
+  private static ComponentWsResponse buildResponse(ComponentRequest request, ComponentDto component, Optional<ComponentDto> refComponent, List<LiveMeasureDto> measures,
     List<MetricDto> metrics, List<Measures.Period> periods) {
     ComponentWsResponse.Builder response = ComponentWsResponse.newBuilder();
     Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDto::getId);
-    Map<MetricDto, MeasureDto> measuresByMetric = new HashMap<>();
-    for (MeasureDto measure : measures) {
+    Map<MetricDto, LiveMeasureDto> measuresByMetric = new HashMap<>();
+    for (LiveMeasureDto measure : measures) {
       MetricDto metric = metricsById.get(measure.getMetricId());
       measuresByMetric.put(metric, measure);
     }
@@ -223,20 +214,10 @@ public class ComponentAction implements MeasuresWsAction {
     return metrics;
   }
 
-  private List<MeasureDto> searchMeasures(DbSession dbSession, ComponentDto component, @Nullable SnapshotDto analysis, List<MetricDto> metrics, @Nullable Long developerId) {
-    if (analysis == null) {
-      return emptyList();
-    }
-
+  private List<LiveMeasureDto> searchMeasures(DbSession dbSession, ComponentDto component, List<MetricDto> metrics) {
     List<Integer> metricIds = Lists.transform(metrics, MetricDto::getId);
-    MeasureQuery query = MeasureQuery.builder()
-      .setPersonId(developerId)
-      .setMetricIds(metricIds)
-      .setComponentUuid(component.uuid())
-      .build();
-    List<MeasureDto> measures = dbClient.measureDao().selectByQuery(dbSession, query);
+    List<LiveMeasureDto> measures = dbClient.liveMeasureDao().selectByComponentUuids(dbSession, singletonList(component.uuid()), metricIds);
     addBestValuesToMeasures(measures, component, metrics);
-
     return measures;
   }
 
@@ -247,16 +228,16 @@ public class ComponentAction implements MeasuresWsAction {
    * <li>metric is optimized for best value</li>
    * </ul>
    */
-  private static void addBestValuesToMeasures(List<MeasureDto> measures, ComponentDto component, List<MetricDto> metrics) {
+  private static void addBestValuesToMeasures(List<LiveMeasureDto> measures, ComponentDto component, List<MetricDto> metrics) {
     if (!QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE.contains(component.qualifier())) {
       return;
     }
 
     List<MetricDtoWithBestValue> metricWithBestValueList = metrics.stream()
       .filter(MetricDtoFunctions.isOptimizedForBestValue())
-      .map(new MetricDtoToMetricDtoWithBestValueFunction())
+      .map(MetricDtoWithBestValue::new)
       .collect(MoreCollectors.toList(metrics.size()));
-    Map<Integer, MeasureDto> measuresByMetricId = Maps.uniqueIndex(measures, MeasureDto::getMetricId);
+    Map<Integer, LiveMeasureDto> measuresByMetricId = Maps.uniqueIndex(measures, LiveMeasureDto::getMetricId);
 
     for (MetricDtoWithBestValue metricWithBestValue : metricWithBestValueList) {
       if (measuresByMetricId.get(metricWithBestValue.getMetric().getId()) == null) {
@@ -271,9 +252,7 @@ public class ComponentAction implements MeasuresWsAction {
       .setComponent(request.param(PARAM_COMPONENT))
       .setBranch(request.param(PARAM_BRANCH))
       .setAdditionalFields(request.paramAsStrings(PARAM_ADDITIONAL_FIELDS))
-      .setMetricKeys(request.mandatoryParamAsStrings(PARAM_METRIC_KEYS))
-      .setDeveloperId(request.param(PARAM_DEVELOPER_ID))
-      .setDeveloperKey(request.param(PARAM_DEVELOPER_KEY));
+      .setMetricKeys(request.mandatoryParamAsStrings(PARAM_METRIC_KEYS));
     checkRequest(!componentRequest.getMetricKeys().isEmpty(), "At least one metric key must be provided");
     return componentRequest;
   }

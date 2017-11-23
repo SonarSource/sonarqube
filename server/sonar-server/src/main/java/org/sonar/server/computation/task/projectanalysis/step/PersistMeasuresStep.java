@@ -19,24 +19,23 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.ImmutableList;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import javax.annotation.Nonnull;
+import org.sonar.core.config.PurgeConstants;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit;
 import org.sonar.server.computation.task.projectanalysis.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.component.TypeAwareVisitorAdapter;
-import org.sonar.server.computation.task.projectanalysis.measure.BestValueOptimization;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureToMeasureDto;
@@ -44,35 +43,32 @@ import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.computation.task.step.ComputationStep;
 
-import static com.google.common.collect.FluentIterable.from;
-import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION_KEY;
-import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION_KEY;
-import static org.sonar.api.measures.CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.PRE_ORDER;
 
 public class PersistMeasuresStep implements ComputationStep {
-
-  /**
-   * List of metrics that should not be persisted on file measure (Waiting for SONAR-6688 to be implemented)
-   */
-  private static final List<String> NOT_TO_PERSIST_ON_FILE_METRIC_KEYS = ImmutableList.of(
-    FILE_COMPLEXITY_DISTRIBUTION_KEY,
-    FUNCTION_COMPLEXITY_DISTRIBUTION_KEY,
-    CLASS_COMPLEXITY_DISTRIBUTION_KEY);
 
   private final DbClient dbClient;
   private final MetricRepository metricRepository;
   private final MeasureToMeasureDto measureToMeasureDto;
   private final TreeRootHolder treeRootHolder;
   private final MeasureRepository measureRepository;
+  private final boolean persistDirectories;
 
   public PersistMeasuresStep(DbClient dbClient, MetricRepository metricRepository, MeasureToMeasureDto measureToMeasureDto,
-    TreeRootHolder treeRootHolder, MeasureRepository measureRepository) {
+    TreeRootHolder treeRootHolder, MeasureRepository measureRepository, ConfigurationRepository settings) {
+    this(dbClient, metricRepository, measureToMeasureDto, treeRootHolder,measureRepository,
+      !settings.getConfiguration().getBoolean(PurgeConstants.PROPERTY_CLEAN_DIRECTORY).orElseThrow(() -> new IllegalStateException("Missing default value")));
+  }
+
+  @VisibleForTesting
+  PersistMeasuresStep(DbClient dbClient, MetricRepository metricRepository, MeasureToMeasureDto measureToMeasureDto, TreeRootHolder treeRootHolder,
+    MeasureRepository measureRepository, boolean persistDirectories) {
     this.dbClient = dbClient;
     this.metricRepository = metricRepository;
     this.measureToMeasureDto = measureToMeasureDto;
     this.treeRootHolder = treeRootHolder;
     this.measureRepository = measureRepository;
+    this.persistDirectories = persistDirectories;
   }
 
   @Override
@@ -97,25 +93,47 @@ public class PersistMeasuresStep implements ComputationStep {
     }
 
     @Override
-    public void visitAny(Component component) {
-      Multimap<String, Measure> measures = measureRepository.getRawMeasures(component);
-      persistMeasures(component, measures);
+    public void visitProject(Component project) {
+      persistMeasures(project);
     }
 
-    private void persistMeasures(Component component, Multimap<String, Measure> batchReportMeasures) {
-      for (Map.Entry<String, Collection<Measure>> measures : batchReportMeasures.asMap().entrySet()) {
-        String metricKey = measures.getKey();
-        if (NOT_TO_PERSIST_ON_FILE_METRIC_KEYS.contains(metricKey) && component.getType() == Component.Type.FILE) {
-          continue;
-        }
+    @Override
+    public void visitModule(Component module) {
+      persistMeasures(module);
+    }
 
+    @Override
+    public void visitDirectory(Component directory) {
+      if (persistDirectories) {
+        persistMeasures(directory);
+      }
+    }
+
+    @Override
+    public void visitView(Component view) {
+      persistMeasures(view);
+    }
+
+    @Override
+    public void visitSubView(Component subView) {
+      persistMeasures(subView);
+    }
+
+    @Override
+    public void visitProjectView(Component projectView) {
+      persistMeasures(projectView);
+    }
+
+    private void persistMeasures(Component component) {
+      Multimap<String, Measure> measures = measureRepository.getRawMeasures(component);
+      for (Map.Entry<String, Collection<Measure>> measuresByMetricKey : measures.asMap().entrySet()) {
+        String metricKey = measuresByMetricKey.getKey();
         Metric metric = metricRepository.getByKey(metricKey);
-        Predicate<Measure> notBestValueOptimized = Predicates.not(BestValueOptimization.from(metric, component));
         MeasureDao measureDao = dbClient.measureDao();
-        for (Measure measure : from(measures.getValue()).filter(NonEmptyMeasure.INSTANCE).filter(notBestValueOptimized)) {
+        measuresByMetricKey.getValue().stream().filter(NonEmptyMeasure.INSTANCE).forEach(measure -> {
           MeasureDto measureDto = measureToMeasureDto.toMeasureDto(measure, metric, component);
           measureDao.insert(session, measureDto);
-        }
+        });
       }
     }
 
@@ -125,7 +143,7 @@ public class PersistMeasuresStep implements ComputationStep {
     INSTANCE;
 
     @Override
-    public boolean apply(@Nonnull Measure input) {
+    public boolean test(@Nonnull Measure input) {
       return input.getValueType() != Measure.ValueType.NO_VALUE || input.hasVariation() || input.getData() != null;
     }
   }

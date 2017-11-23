@@ -25,7 +25,6 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -135,19 +134,18 @@ public class AppActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto directory = db.components().insertComponent(newDirectory(project, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(project, directory));
-    SnapshotDto analysis = db.components().insertSnapshot(project);
     MetricDto lines = db.measures().insertMetric(m -> m.setKey(LINES_KEY));
-    db.measures().insertMeasure(file, analysis, lines, m -> m.setValue(200d));
+    db.measures().insertLiveMeasure(file, lines, m -> m.setValue(200d));
     MetricDto duplicatedLines = db.measures().insertMetric(m -> m.setKey(DUPLICATED_LINES_DENSITY_KEY));
-    db.measures().insertMeasure(file, analysis, duplicatedLines, m -> m.setValue(7.4));
+    db.measures().insertLiveMeasure(file, duplicatedLines, m -> m.setValue(7.4));
     MetricDto tests = db.measures().insertMetric(m -> m.setKey(TESTS_KEY));
-    db.measures().insertMeasure(file, analysis, tests, m -> m.setValue(3d));
+    db.measures().insertLiveMeasure(file, tests, m -> m.setValue(3d));
     MetricDto technicalDebt = db.measures().insertMetric(m -> m.setKey(TECHNICAL_DEBT_KEY));
-    db.measures().insertMeasure(file, analysis, technicalDebt, m -> m.setValue(182d));
+    db.measures().insertLiveMeasure(file, technicalDebt, m -> m.setValue(182d));
     MetricDto issues = db.measures().insertMetric(m -> m.setKey(VIOLATIONS_KEY));
-    db.measures().insertMeasure(file, analysis, issues, m -> m.setValue(231d));
+    db.measures().insertLiveMeasure(file, issues, m -> m.setValue(231d));
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
-    db.measures().insertMeasure(file, analysis, coverage, m -> m.setValue(95.4d));
+    db.measures().insertLiveMeasure(file, coverage, m -> m.setValue(95.4d));
     userSession.logIn("john").addProjectPermission(USER, project);
 
     String result = ws.newRequest()
@@ -170,9 +168,8 @@ public class AppActionTest {
   public void get_by_uuid() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project, project));
-    SnapshotDto analysis = db.components().insertSnapshot(project);
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
-    db.measures().insertMeasure(file, analysis, coverage, m -> m.setValue(95.4d));
+    db.measures().insertLiveMeasure(file, coverage, m -> m.setValue(95.4d));
     userSession.logIn("john").addProjectPermission(USER, project);
 
     String result = ws.newRequest()
@@ -258,9 +255,8 @@ public class AppActionTest {
     ComponentDto module = db.components().insertComponent(newModuleDto(branch));
     ComponentDto directory = db.components().insertComponent(newDirectory(module, "src"));
     ComponentDto file = db.components().insertComponent(newFileDto(module, directory));
-    SnapshotDto analysis = db.components().insertSnapshot(branch);
     MetricDto coverage = db.measures().insertMetric(m -> m.setKey(COVERAGE_KEY));
-    db.measures().insertMeasure(file, analysis, coverage, m -> m.setValue(95.4d));
+    db.measures().insertLiveMeasure(file, coverage, m -> m.setValue(95.4d));
 
     String result = ws.newRequest()
       .setParam("component", file.getKey())

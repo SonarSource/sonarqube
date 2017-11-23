@@ -344,7 +344,7 @@ public class ItUtils {
   @CheckForNull
   public static Measure getMeasureWithVariation(Orchestrator orchestrator, String componentKey, String metricKey) {
     Measures.ComponentWsResponse response = newWsClient(orchestrator).measures().component(new ComponentRequest()
-      .setComponentKey(componentKey)
+      .setComponent(componentKey)
       .setMetricKeys(singletonList(metricKey))
       .setAdditionalFields(singletonList("periods")));
     List<Measure> measures = response.getComponent().getMeasuresList();

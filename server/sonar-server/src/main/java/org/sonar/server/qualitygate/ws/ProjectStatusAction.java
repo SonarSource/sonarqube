@@ -19,11 +19,11 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import com.google.common.base.Optional;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -35,8 +35,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.measure.MeasureQuery;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
 import org.sonar.server.exceptions.BadRequestException;
@@ -45,7 +45,6 @@ import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.util.Collections.singletonList;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -88,8 +87,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
       .setSince("5.3")
       .setHandler(this)
       .setChangelog(
-        new Change("6.4", "The field 'ignoredConditions' is added to the response")
-      );
+        new Change("6.4", "The field 'ignoredConditions' is added to the response"));
 
     action.createParam(PARAM_ANALYSIS_ID)
       .setDescription("Analysis id")
@@ -120,11 +118,11 @@ public class ProjectStatusAction implements QualityGatesWsAction {
     writeProtobuf(projectStatusResponse, request, response);
   }
 
-  private ProjectStatusResponse doHandle(String analysisId, String projectId, String projectKey) {
+  private ProjectStatusResponse doHandle(@Nullable String analysisId, @Nullable String projectId, @Nullable String projectKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectAndSnapshot projectAndSnapshot = getProjectAndSnapshot(dbSession, analysisId, projectId, projectKey);
       checkPermission(projectAndSnapshot.project);
-      Optional<String> measureData = getQualityGateDetailsMeasureData(dbSession, projectAndSnapshot.project);
+      Optional<String> measureData = loadQualityGateDetails(dbSession, projectAndSnapshot, analysisId != null);
 
       return ProjectStatusResponse.newBuilder()
         .setProjectStatus(new QualityGateDetailsFormatter(measureData, projectAndSnapshot.snapshotDto).format())
@@ -132,10 +130,11 @@ public class ProjectStatusAction implements QualityGatesWsAction {
     }
   }
 
-  private ProjectAndSnapshot getProjectAndSnapshot(DbSession dbSession, String analysisId, String projectId, String projectKey) {
+  private ProjectAndSnapshot getProjectAndSnapshot(DbSession dbSession, @Nullable String analysisId, @Nullable String projectId, @Nullable String projectKey) {
     if (!isNullOrEmpty(analysisId)) {
       return getSnapshotThenProject(dbSession, analysisId);
-    } else if (!isNullOrEmpty(projectId) ^ !isNullOrEmpty(projectKey)) {
+    }
+    if (!isNullOrEmpty(projectId) ^ !isNullOrEmpty(projectKey)) {
       return getProjectThenSnapshot(dbSession, projectId, projectKey);
     }
 
@@ -144,7 +143,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
 
   private ProjectAndSnapshot getProjectThenSnapshot(DbSession dbSession, String projectId, String projectKey) {
     ComponentDto projectDto = componentFinder.getByUuidOrKey(dbSession, projectId, projectKey, ParamNames.PROJECT_ID_AND_KEY);
-    java.util.Optional<SnapshotDto> snapshot = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, projectDto.projectUuid());
+    Optional<SnapshotDto> snapshot = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, projectDto.projectUuid());
     return new ProjectAndSnapshot(projectDto, snapshot.orElse(null));
   }
 
@@ -155,20 +154,24 @@ public class ProjectStatusAction implements QualityGatesWsAction {
   }
 
   private SnapshotDto getSnapshot(DbSession dbSession, String analysisUuid) {
-    java.util.Optional<SnapshotDto> snapshotDto = dbClient.snapshotDao().selectByUuid(dbSession, analysisUuid);
+    Optional<SnapshotDto> snapshotDto = dbClient.snapshotDao().selectByUuid(dbSession, analysisUuid);
     return checkFoundWithOptional(snapshotDto, "Analysis with id '%s' is not found", analysisUuid);
   }
 
-  private Optional<String> getQualityGateDetailsMeasureData(DbSession dbSession, ComponentDto project) {
-    MeasureQuery measureQuery = MeasureQuery.builder()
-      .setProjectUuids(singletonList(project.projectUuid()))
-      .setMetricKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY)
-      .build();
-    List<MeasureDto> measures = dbClient.measureDao().selectByQuery(dbSession, measureQuery);
+  private Optional<String> loadQualityGateDetails(DbSession dbSession, ProjectAndSnapshot projectAndSnapshot, boolean onAnalysis) {
+    if (onAnalysis) {
+      if (!projectAndSnapshot.snapshotDto.isPresent()) {
+        return Optional.empty();
+      }
+      // get the gate status as it was computed during the specified analysis
+      String analysisUuid = projectAndSnapshot.snapshotDto.get().getUuid();
+      return dbClient.measureDao().selectMeasure(dbSession, analysisUuid, projectAndSnapshot.project.projectUuid(), CoreMetrics.QUALITY_GATE_DETAILS_KEY)
+        .map(MeasureDto::getData);
+    }
 
-    return measures.isEmpty()
-      ? Optional.absent()
-      : Optional.fromNullable(measures.get(0).getData());
+    // do not restrict to a specified analysis, use the live measure
+    Optional<LiveMeasureDto> measure = dbClient.liveMeasureDao().selectMeasure(dbSession, projectAndSnapshot.project.projectUuid(), CoreMetrics.QUALITY_GATE_DETAILS_KEY);
+    return measure.map(LiveMeasureDto::getDataAsString);
   }
 
   private void checkPermission(ComponentDto project) {
@@ -178,13 +181,14 @@ public class ProjectStatusAction implements QualityGatesWsAction {
     }
   }
 
+  @Immutable
   private static class ProjectAndSnapshot {
     private final ComponentDto project;
     private final Optional<SnapshotDto> snapshotDto;
 
     private ProjectAndSnapshot(ComponentDto project, @Nullable SnapshotDto snapshotDto) {
       this.project = project;
-      this.snapshotDto = Optional.fromNullable(snapshotDto);
+      this.snapshotDto = Optional.ofNullable(snapshotDto);
     }
   }
 }

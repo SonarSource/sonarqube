@@ -34,7 +34,6 @@ import org.sonar.db.component.BranchType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -250,8 +249,7 @@ public class ListActionTest {
     ComponentDto project = db.components().insertMainBranch();
     userSession.logIn().addProjectPermission(UserRole.USER, project);
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setBranchType(BranchType.LONG));
-    SnapshotDto branchAnalysis = db.components().insertSnapshot(branch);
-    db.measures().insertMeasure(branch, branchAnalysis, qualityGateStatus, m -> m.setData("OK"));
+    db.measures().insertLiveMeasure(branch, qualityGateStatus, m -> m.setData("OK"));
 
     ListWsResponse response = ws.newRequest()
       .setParam("project", project.getKey())

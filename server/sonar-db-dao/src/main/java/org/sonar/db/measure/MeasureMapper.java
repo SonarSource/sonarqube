@@ -19,12 +19,24 @@
  */
 package org.sonar.db.measure;
 
-import java.util.Collection;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.ResultHandler;
 
 public interface MeasureMapper {
+
+  @CheckForNull
+  MeasureDto selectLastMeasure(
+    @Param("componentUuid") String componentUuid,
+    @Param("metricKey") String metricKey
+  );
+
+  @CheckForNull
+  MeasureDto selectMeasure(
+    @Param("analysisUuid") String analysisUuid,
+    @Param("componentUuid") String componentUuid,
+    @Param("metricKey") String metricKey
+  );
 
   List<MeasureDto> selectByQueryOnProjects(@Param("query") MeasureQuery query);
 
@@ -32,18 +44,10 @@ public interface MeasureMapper {
 
   List<MeasureDto> selectByQueryOnSingleComponent(@Param("query") MeasureQuery query);
 
-  void selectTreeByQuery(@Param("query") MeasureTreeQuery measureQuery, @Param("baseUuid") String baseUuid, @Param("baseUuidPath") String baseUuidPath,
-                         ResultHandler<MeasureDto> resultHandler);
-
-
   List<PastMeasureDto> selectPastMeasuresOnSingleAnalysis(@Param("componentUuid") String componentUuid, @Param("analysisUuid") String analysisUuid,
     @Param("metricIds") List<Integer> metricIds);
 
   List<MeasureDto> selectPastMeasuresOnSeveralAnalyses(@Param("query") PastMeasureQuery query);
-
-  List<MeasureDto> selectProjectMeasuresOfDeveloper(@Param("developerId") long developerId, @Param("metricIds") Collection<Integer> metricIds);
-
-  List<MeasureDto> selectByComponentsAndMetrics(@Param("componentUuids") List<String> componentUuids, @Param("metricIds") Collection<Integer> metricIds);
 
   void insert(MeasureDto measureDto);
 }

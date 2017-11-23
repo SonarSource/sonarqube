@@ -30,7 +30,7 @@ import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -78,9 +78,9 @@ public class ComponentTreeSortTest {
     // same number than path field
     double currentValue = 9;
     for (ComponentDto component : components) {
-      measuresByComponentUuidAndMetric.put(component.uuid(), violationsMetric, createFromMeasureDto(new MeasureDto().setValue(currentValue)
+      measuresByComponentUuidAndMetric.put(component.uuid(), violationsMetric, createFromMeasureDto(new LiveMeasureDto().setValue(currentValue)
         .setVariation(-currentValue)));
-      measuresByComponentUuidAndMetric.put(component.uuid(), sqaleIndexMetric, createFromMeasureDto(new MeasureDto().setData(String.valueOf(currentValue))));
+      measuresByComponentUuidAndMetric.put(component.uuid(), sqaleIndexMetric, createFromMeasureDto(new LiveMeasureDto().setData(String.valueOf(currentValue))));
       currentValue--;
     }
   }
@@ -167,7 +167,7 @@ public class ComponentTreeSortTest {
     for (int i = 0; i < components.size(); i++) {
       ComponentDto component = components.get(i);
       String alertStatus = statuses.get(i % 3);
-      measuresByComponentUuidAndMetric.put(component.uuid(), metrics.get(0), createFromMeasureDto(new MeasureDto().setData(alertStatus)));
+      measuresByComponentUuidAndMetric.put(component.uuid(), metrics.get(0), createFromMeasureDto(new LiveMeasureDto().setData(alertStatus)));
     }
     ComponentTreeRequest wsRequest = newRequest(newArrayList(METRIC_SORT, NAME_SORT), true, CoreMetrics.ALERT_STATUS_KEY);
 

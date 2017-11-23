@@ -19,12 +19,13 @@
  */
 package org.sonar.server.project.ws;
 
-import java.util.List;
-import java.util.function.Function;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import java.util.List;
+import java.util.function.Function;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Change;
@@ -39,19 +40,15 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.measure.MeasureQuery;
-import org.sonar.db.metric.MetricDto;
+import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse;
 import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse.Link;
 import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse.Project;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -177,12 +174,8 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
     List<String> projectUuids = Lists.transform(projects, ComponentDto::projectUuid);
     List<ComponentLinkDto> projectLinks = dbClient.componentLinkDao().selectByComponentUuids(dbSession, projectUuids);
     List<SnapshotDto> snapshots = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids);
-    MetricDto gateStatusMetric = dbClient.metricDao().selectOrFailByKey(dbSession, CoreMetrics.ALERT_STATUS_KEY);
-    MeasureQuery measureQuery = MeasureQuery.builder()
-            .setProjectUuids(projectUuids)
-            .setMetricId(gateStatusMetric.getId())
-            .build();
-    List<MeasureDto> qualityGates = dbClient.measureDao().selectByQuery(dbSession, measureQuery);
+    List<LiveMeasureDto> qualityGates = dbClient.liveMeasureDao()
+      .selectByComponentUuidsAndMetricKeys(dbSession, projectUuids, singletonList(CoreMetrics.ALERT_STATUS_KEY));
 
     data.setProjects(projects)
             .setProjectLinks(projectLinks)

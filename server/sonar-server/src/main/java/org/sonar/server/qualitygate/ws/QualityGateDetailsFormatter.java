@@ -19,11 +19,11 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import com.google.common.base.Optional;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nullable;

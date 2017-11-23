@@ -49,12 +49,12 @@ public class PurgeConfiguration {
     this.maxAgeInDaysOfInactiveShortLivingBranches = maxAgeInDaysOfInactiveShortLivingBranches;
   }
 
-  public static PurgeConfiguration newDefaultPurgeConfiguration(Configuration config, IdUuidPair idUuidPair, Collection<String> disabledComponentUuids) {
+  public static PurgeConfiguration newDefaultPurgeConfiguration(Configuration config, IdUuidPair rootId, Collection<String> disabledComponentUuids) {
     String[] scopes = new String[] {Scopes.FILE};
     if (config.getBoolean(PurgeConstants.PROPERTY_CLEAN_DIRECTORY).orElse(false)) {
       scopes = new String[] {Scopes.DIRECTORY, Scopes.FILE};
     }
-    return new PurgeConfiguration(idUuidPair, scopes, config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES).get(),
+    return new PurgeConfiguration(rootId, scopes, config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES).get(),
       config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_INACTIVE_SHORT_LIVING_BRANCHES), System2.INSTANCE, disabledComponentUuids);
   }
 

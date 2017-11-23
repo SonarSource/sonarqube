@@ -30,8 +30,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.measure.MeasureQuery;
+import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
@@ -110,12 +109,8 @@ public class ShowAction implements DuplicationsWsAction {
 
   @CheckForNull
   private String findDataFromComponent(DbSession dbSession, ComponentDto component) {
-    MeasureQuery query = MeasureQuery.builder()
-      .setComponentUuid(component.uuid())
-      .setMetricKey(CoreMetrics.DUPLICATIONS_DATA_KEY)
-      .build();
-    return dbClient.measureDao().selectSingle(dbSession, query)
-      .map(MeasureDto::getData)
+    return dbClient.liveMeasureDao().selectMeasure(dbSession, component.uuid(), CoreMetrics.DUPLICATIONS_DATA_KEY)
+      .map(LiveMeasureDto::getDataAsString)
       .orElse(null);
   }
 }

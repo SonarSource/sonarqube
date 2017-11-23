@@ -90,23 +90,4 @@
                     description="[null]"
                     measure_data="[null]"/>
 
-  <!-- delete measure on developers -->
-  <project_measures id="7"
-                    component_uuid="1"
-                    analysis_uuid="u1"
-                    metric_id="2"
-                    variation_value_1="[null]"
-                    variation_value_2="[null]"
-                    variation_value_3="[null]"
-                    person_id="123456"
-                    variation_value_4="[null]"
-                    variation_value_5="[null]"
-                    alert_text="[null]"
-                    value="10.0"
-                    text_value="[null]"
-                    tendency="[null]"
-                    measure_date="[null]"
-                    alert_status="[null]"
-                    description="[null]"
-                    measure_data="[null]"/>
 </dataset>
