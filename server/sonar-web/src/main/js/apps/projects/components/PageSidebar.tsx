@@ -20,8 +20,8 @@
 import * as React from 'react';
 import { Link } from 'react-router';
 import { flatMap } from 'lodash';
-import FavoriteFilter from './FavoriteFilter';
-import LanguagesFilter from '../filters/LanguagesFilter';
+import FavoriteFilterContainer from './FavoriteFilterContainer';
+import LanguagesFilterContainer from '../filters/LanguagesFilterContainer';
 import CoverageFilter from '../filters/CoverageFilter';
 import DuplicationsFilter from '../filters/DuplicationsFilter';
 import MaintainabilityFilter from '../filters/MaintainabilityFilter';
@@ -45,6 +45,7 @@ interface Props {
   isFavorite: boolean;
   organization?: { key: string };
   query: RawQuery;
+  showFavoriteFilter: boolean;
   view: string;
   visualization: string;
 }
@@ -71,7 +72,9 @@ export default function PageSidebar(props: Props) {
 
   return (
     <div>
-      <FavoriteFilter query={linkQuery} organization={organization} />
+      {props.showFavoriteFilter && (
+        <FavoriteFilterContainer query={linkQuery} organization={organization} />
+      )}
 
       <div className="projects-facets-header clearfix">
         {isFiltered && (
@@ -156,7 +159,11 @@ export default function PageSidebar(props: Props) {
           value={query.new_lines}
         />
       ]}
-      <LanguagesFilter {...facetProps} facet={facets && facets.languages} value={query.languages} />
+      <LanguagesFilterContainer
+        {...facetProps}
+        facet={facets && facets.languages}
+        value={query.languages}
+      />
       <TagsFilter {...facetProps} facet={facets && facets.tags} value={query.tags} />
     </div>
   );

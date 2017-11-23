@@ -30,7 +30,8 @@ export default class GlobalNavMenu extends React.PureComponent {
     currentUser: PropTypes.object.isRequired,
     location: PropTypes.shape({
       pathname: PropTypes.string.isRequired
-    }).isRequired
+    }).isRequired,
+    sonarCloud: PropTypes.bool
   };
 
   static defaultProps = {
@@ -46,7 +47,7 @@ export default class GlobalNavMenu extends React.PureComponent {
     return (
       <li>
         <Link to="/projects" activeClassName="active">
-          {translate('projects.page')}
+          {this.props.sonarCloud ? translate('my_projects') : translate('projects.page')}
         </Link>
       </li>
     );

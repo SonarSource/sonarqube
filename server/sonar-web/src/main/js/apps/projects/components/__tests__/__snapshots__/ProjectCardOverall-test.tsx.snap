@@ -11,7 +11,7 @@ exports[`should display the overall measures and quality gate 1`] = `
     <h2
       className="project-card-name"
     >
-      <ProjectCardOrganization
+      <Connect(ProjectCardOrganization)
         organization={
           Object {
             "key": "org",

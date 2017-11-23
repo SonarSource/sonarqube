@@ -24,6 +24,7 @@ import PageHeader from './PageHeader';
 import ProjectsList from './ProjectsList';
 import PageSidebar from './PageSidebar';
 import Visualizations from '../visualizations/Visualizations';
+import { CurrentUser, isLoggedIn } from '../../../app/types';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
 import ListFooter from '../../../components/controls/ListFooter';
 import { translate } from '../../../helpers/l10n';
@@ -34,10 +35,13 @@ import { Project, Facets } from '../types';
 import { fetchProjects, parseSorting, SORTING_SWITCH } from '../utils';
 import { parseUrlQuery, Query } from '../query';
 
-interface Props {
+export interface Props {
+  currentUser: CurrentUser;
   isFavorite: boolean;
   location: { pathname: string; query: { [x: string]: string } };
+  onSonarCloud: boolean;
   organization?: { key: string };
+  organizationsEnabled: boolean;
 }
 
 interface State {
@@ -53,8 +57,6 @@ export default class AllProjects extends React.PureComponent<Props, State> {
   mounted: boolean;
 
   static contextTypes = {
-    currentUser: PropTypes.object.isRequired,
-    organizationsEnabled: PropTypes.bool,
     router: PropTypes.object.isRequired
   };
 
@@ -65,7 +67,13 @@ export default class AllProjects extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    if (this.props.isFavorite && !this.context.currentUser.isLoggedIn) {
+
+    const html = document.querySelector('html');
+    if (html) {
+      html.classList.add('dashboard-page');
+    }
+
+    if (this.props.isFavorite && !isLoggedIn(this.props.currentUser)) {
       handleRequiredAuthentication();
       return;
     }
@@ -84,6 +92,12 @@ export default class AllProjects extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
+
+    const html = document.querySelector('html');
+    if (html) {
+      html.classList.remove('dashboard-page');
+    }
+
     const footer = document.getElementById('footer');
     if (footer) {
       footer.classList.remove('page-footer-with-sidebar');
@@ -231,6 +245,7 @@ export default class AllProjects extends React.PureComponent<Props, State> {
               isFavorite={this.props.isFavorite}
               organization={this.props.organization}
               query={this.state.query}
+              showFavoriteFilter={!this.props.onSonarCloud}
               view={this.getView()}
               visualization={this.getVisualization()}
             />
@@ -245,7 +260,7 @@ export default class AllProjects extends React.PureComponent<Props, State> {
       <div className="layout-page-header-panel-inner layout-page-main-header-inner">
         <div className="layout-page-main-inner">
           <PageHeader
-            currentUser={this.context.currentUser}
+            currentUser={this.props.currentUser}
             isFavorite={this.props.isFavorite}
             loading={this.state.loading}
             onPerspectiveChange={this.handlePerspectiveChange}
@@ -268,7 +283,7 @@ export default class AllProjects extends React.PureComponent<Props, State> {
       <div className="layout-page-main-inner">
         {this.state.projects && (
           <Visualizations
-            displayOrganizations={!this.props.organization && !!this.context.organizationsEnabled}
+            displayOrganizations={!this.props.organization && this.props.organizationsEnabled}
             projects={this.state.projects}
             sort={this.state.query.sort}
             total={this.state.total}
@@ -299,7 +314,7 @@ export default class AllProjects extends React.PureComponent<Props, State> {
 
   render() {
     return (
-      <div className="layout-page projects-page">
+      <div className="layout-page projects-page" id="projects-page">
         <Helmet title={translate('projects.page')} />
 
         {this.renderSide()}

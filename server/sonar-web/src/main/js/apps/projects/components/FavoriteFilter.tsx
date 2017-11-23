@@ -18,22 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import { IndexLink, Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
+import { CurrentUser, isLoggedIn } from '../../../app/types';
 import { saveAll, saveFavorite } from '../../../helpers/storage';
 import { RawQuery } from '../../../helpers/query';
 
 interface Props {
+  currentUser: CurrentUser;
   organization?: { key: string };
   query?: RawQuery;
 }
 
 export default class FavoriteFilter extends React.PureComponent<Props> {
-  static contextTypes = {
-    currentUser: PropTypes.object.isRequired
-  };
-
   handleSaveFavorite = () => {
     if (!this.props.organization) {
       saveFavorite();
@@ -47,7 +44,7 @@ export default class FavoriteFilter extends React.PureComponent<Props> {
   };
 
   render() {
-    if (!this.context.currentUser.isLoggedIn) {
+    if (!isLoggedIn(this.props.currentUser)) {
       return null;
     }
 

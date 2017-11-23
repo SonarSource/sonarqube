@@ -17,20 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import AllProjectsContainer from '../../projects/components/AllProjectsContainer';
+import { keyBy } from 'lodash';
+import { RECEIVE_LANGUAGES } from './actions';
 
-interface Props {
-  location: { pathname: string; query: { [x: string]: string } };
-  organization: { key: string };
+export interface Languages {
+  [key: string]: { key: string; name: string };
 }
 
-export default function OrganizationProjects(props: Props) {
-  return (
-    <AllProjectsContainer
-      isFavorite={false}
-      location={props.location}
-      organization={props.organization}
-    />
-  );
-}
+const reducer = (state: Languages = {}, action: any = {}) => {
+  if (action.type === RECEIVE_LANGUAGES) {
+    return keyBy(action.languages, 'key');
+  }
+
+  return state;
+};
+
+export default reducer;
+
+export const getLanguages = (state: Languages) => state;
+
+export const getLanguageByKey = (state: Languages, key: string) => state[key];

@@ -23,7 +23,7 @@ import DateFromNow from '../../../components/intl/DateFromNow';
 import DateTimeFormatter from '../../../components/intl/DateTimeFormatter';
 import ProjectCardQualityGate from './ProjectCardQualityGate';
 import ProjectCardLeakMeasures from './ProjectCardLeakMeasures';
-import ProjectCardOrganization from './ProjectCardOrganization';
+import ProjectCardOrganizationContainer from './ProjectCardOrganizationContainer';
 import Favorite from '../../../components/controls/Favorite';
 import TagsList from '../../../components/tags/TagsList';
 import PrivateBadge from '../../../components/common/PrivateBadge';
@@ -52,7 +52,9 @@ export default function ProjectCardLeak({ organization, project }: Props) {
           />
         )}
         <h2 className="project-card-name">
-          {!organization && <ProjectCardOrganization organization={project.organization} />}
+          {!organization && (
+            <ProjectCardOrganizationContainer organization={project.organization} />
+          )}
           <Link to={{ pathname: '/dashboard', query: { id: project.key } }}>{project.name}</Link>
         </h2>
         {project.analysisDate && <ProjectCardQualityGate status={measures!['alert_status']} />}
