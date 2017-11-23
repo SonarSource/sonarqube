@@ -100,9 +100,9 @@ public class ProjectKeyUpdatePageTest {
     ProjectKeyPage page = openPage("sample");
     page.openFineGrainedUpdate().tryFineGrainedUpdate("sample:module_a:module_a1", "another");
 
-    $("#update-key-confirmation-form").shouldNotBe(visible);
+    $(".process-spinner-success").shouldBe(visible);
 
-    tester.openBrowser().openProjectKey("another");
+    tester.openBrowser().logIn().submitCredentials("admin").openProjectKey("another");
     assertThat(url()).endsWith("/project/key?id=another");
   }
 

@@ -119,7 +119,9 @@ public class UiTest {
     assertThat(url()).contains("/project/issues?id=sample&resolved=false&types=CODE_SMELL");
     $$(".facet.active").shouldHaveSize(2).find(text("Code Smell")).should(exist);
 
-    $("#global-navigation").find("a[href=\"/profiles\"]").click();
+    $(".navbar-brand").click();
+    $(".about-page-projects-link").click();
+    $("#global-navigation a[href=\"/profiles\"]").click();
 
     // on quality profiles page
     assertThat(url()).contains("/profiles");

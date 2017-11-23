@@ -49,7 +49,7 @@ function DefaultOrganizationNavigation({ appState, location, organization }: Pro
   );
 
   return (
-    <ContextNavBar height={65}>
+    <ContextNavBar id="global-navigation" height={65}>
       {renderHeader(organization)}
       {renderMeta(organization)}
       <NavBarTabs>
@@ -120,6 +120,7 @@ function renderExtensions(extensions: Extension[], pathname: string) {
       <a
         className={classNames('dropdown-toggle', { active: isDropdownActive })}
         data-toggle="dropdown"
+        id="global-navigation-more"
         href="#">
         {translate('more')}
         <span className="icon-dropdown little-spacer-left" />
