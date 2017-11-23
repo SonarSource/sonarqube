@@ -54,7 +54,7 @@ message SearchWsResponse {
         optional bool edit = 1;
         optional bool setAsDefault = 2;
         optional bool copy = 3;
-      }
+    }
   }
 
   message Actions {

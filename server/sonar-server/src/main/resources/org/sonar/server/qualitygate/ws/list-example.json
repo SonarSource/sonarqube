@@ -4,14 +4,29 @@
       "id": 2,
       "name": "Sonar way",
       "isDefault": true,
-      "isBuiltIn": true
+      "isBuiltIn": true,
+      "actions": {
+        "edit": false,
+        "setAsDefault": false,
+        "copy": true,
+        "associateProjects": false
+      }
     },
     {
       "id": 4,
       "name": "Sonar way - Without Coverage",
       "isDefault": false,
-      "isBuiltIn": false
+      "isBuiltIn": false,
+      "actions": {
+        "edit": true,
+        "setAsDefault": true,
+        "copy": true,
+        "associateProjects": true
+      }
     }
   ],
+  "actions": {
+    "create": true
+  },
   "default": 2
 }
