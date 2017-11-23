@@ -33,7 +33,7 @@ import org.sonarqube.ws.client.qualityprofile.ActivateRuleWsRequest;
 import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
 import org.sonarqube.ws.client.qualityprofile.CreateRequest;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
-import org.sonarqube.ws.client.rule.SearchWsRequest;
+import org.sonarqube.ws.client.rules.SearchRequest;
 
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
@@ -97,11 +97,11 @@ public class QProfileTester {
   public QProfileTester assertThatNumberOfActiveRulesEqualsTo(String profileKey, int expectedActiveRules) {
     try {
       List<String> facetIds = asList("active_severities", "repositories", "languages", "severities", "statuses", "types");
-      SearchWsRequest request = new SearchWsRequest()
-        .setQProfile(profileKey)
-        .setActivation(true)
+      SearchRequest request = new SearchRequest()
+        .setQprofile(profileKey)
+        .setActivation("true")
         .setFacets(facetIds)
-        .setFields(singletonList("actives"));
+        .setF(singletonList("actives"));
       Rules.SearchResponse response = session.wsClient().rules().search(request);
 
       // assume that expectedActiveRules fits in first page of results

@@ -33,7 +33,7 @@ import org.sonarqube.tests.Byteman;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Qualityprofiles;
-import org.sonarqube.ws.client.rule.SearchWsRequest;
+import org.sonarqube.ws.client.rules.SearchRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -100,7 +100,7 @@ public class ActiveRuleEsResilienceTest {
   }
 
   private long searchActiveRules(Qualityprofiles.CreateWsResponse.QualityProfile profile) {
-    SearchWsRequest request = new SearchWsRequest().setActivation(true).setQProfile(profile.getKey());
+    SearchRequest request = new SearchRequest().setActivation("true").setQprofile(profile.getKey());
     return tester.wsClient().rules().search(request).getRulesCount();
   }
 }

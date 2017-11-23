@@ -29,10 +29,10 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.sonarqube.tests.Byteman;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.client.rule.CreateWsRequest;
-import org.sonarqube.ws.client.rule.SearchWsRequest;
+import org.sonarqube.tests.Byteman;
+import org.sonarqube.ws.client.rules.CreateRequest;
+import org.sonarqube.ws.client.rules.SearchRequest;
 import util.ItUtils;
 
 import static java.util.Collections.singletonList;
@@ -78,13 +78,12 @@ public class RuleEsResilienceTest {
 
   @Test
   public void creation_of_custom_rule_is_resilient_to_elasticsearch_errors() throws Exception {
-    CreateWsRequest request = new CreateWsRequest.Builder()
+    CreateRequest request = new CreateRequest()
       .setCustomKey("my_custom_rule")
       .setName("My custom rule")
       .setTemplateKey("xoo:xoo-template")
       .setMarkdownDescription("The *initial* rule")
-      .setSeverity("MAJOR")
-      .build();
+      .setSeverity("MAJOR");
     tester.wsClient().rules().create(request);
 
     // rule exists in db but is not indexed. Search returns no results.
@@ -100,8 +99,8 @@ public class RuleEsResilienceTest {
   }
 
   private boolean nameFoundInSearch(String query) {
-    SearchWsRequest request = new SearchWsRequest()
-      .setQuery(query)
+    SearchRequest request = new SearchRequest()
+      .setQ(query)
       .setRepositories(singletonList("xoo"));
     return tester.wsClient().rules().search(request).getRulesCount() > 0;
   }

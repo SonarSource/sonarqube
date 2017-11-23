@@ -31,7 +31,7 @@ import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Qualityprofiles.CreateWsResponse;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
 import org.sonarqube.ws.Rules;
-import org.sonarqube.ws.client.rule.SearchWsRequest;
+import org.sonarqube.ws.client.rules.SearchRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -55,7 +55,7 @@ public class RulesWsTest {
     Organization org = tester.organizations().generate();
     SearchWsResponse.QualityProfile sonarWay = getProfile(org, p -> PROFILE_SONAR_WAY.equals(p.getName()) && LANGUAGE_XOO.equals(p.getLanguage()) && p.getIsBuiltIn());
 
-    List<Rules.Rule> result = tester.wsClient().rules().search(new SearchWsRequest().setQProfile(sonarWay.getKey()).setActivation(true))
+    List<Rules.Rule> result = tester.wsClient().rules().search(new SearchRequest().setQprofile(sonarWay.getKey()).setActivation("true"))
       .getRulesList();
 
     assertThat(result)
@@ -71,9 +71,9 @@ public class RulesWsTest {
     tester.qProfiles().activateRule(xooProfile, RULE_ONE_ISSUE_PER_LINE);
     SearchWsResponse.QualityProfile sonarWay = getProfile(org, p -> PROFILE_SONAR_WAY.equals(p.getName()) && LANGUAGE_XOO.equals(p.getLanguage()) && p.getIsBuiltIn());
 
-    List<Rules.Rule> result = tester.wsClient().rules().search(new SearchWsRequest()
-      .setQProfile(xooProfile.getKey())
-      .setActivation(false)
+    List<Rules.Rule> result = tester.wsClient().rules().search(new SearchRequest()
+      .setQprofile(xooProfile.getKey())
+      .setActivation("false")
       .setCompareToProfile(sonarWay.getKey()))
       .getRulesList();
 

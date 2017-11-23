@@ -28,7 +28,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Encryption;
-import org.sonar.api.config.Settings;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.exceptions.BadRequestException;
@@ -39,8 +38,8 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Settings.EncryptWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_VALUE;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.settings.SettingsWsParameters.PARAM_VALUE;
 
 public class EncryptActionTest {
   @Rule
