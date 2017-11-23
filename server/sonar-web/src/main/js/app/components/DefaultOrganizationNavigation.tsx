@@ -172,6 +172,7 @@ class DefaultOrganizationNavigation extends React.PureComponent<Props> {
           {this.renderLink('/admin/settings', 'settings.page')}
           {this.renderLink('/admin/settings/encryption', 'property.category.security.encryption')}
           {this.renderLink('/admin/custom_metrics', 'custom_metrics.page')}
+          {this.renderLink('/admin/projects_management', 'projects_management')}
           {withoutSupport.map(({ key, name }) => (
             <li key={key}>
               <Link to={`/admin/extension/${key}`} activeClassName="active">
@@ -188,10 +189,8 @@ class DefaultOrganizationNavigation extends React.PureComponent<Props> {
           {this.renderLink('/admin/permission_templates', 'permission_templates')}
 
           <li className="divider" />
-          {this.renderLink('/admin/projects_management', 'projects_management')}
+          <li className="dropdown-header">{translate('instance')}</li>
           {this.renderLink('/admin/background_tasks', 'background_tasks.page')}
-
-          <li className="divider" />
           {this.renderLink('/admin/system', 'sidebar.system')}
           {this.renderLink('/admin/marketplace', 'marketplace.page')}
           {supportExtension && this.renderLink('/admin/extension/license/support', 'support')}
