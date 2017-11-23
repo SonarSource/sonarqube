@@ -23,19 +23,28 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.qualitygate.QualityGates;
+import org.sonar.server.qualitygate.QualityGateFinder;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.server.qualitygate.ws.CreateAction.NAME_MAXIMUM_LENGTH;
+import static org.sonar.server.util.Validation.CANT_BE_EMPTY_MESSAGE;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_NAME;
 
 public class RenameAction implements QualityGatesWsAction {
 
-  private final QualityGates qualityGates;
+  private final DbClient dbClient;
+  private final QualityGateFinder qualityGateFinder;
+  private final QGateWsSupport wsSupport;
 
-  public RenameAction(QualityGates qualityGates) {
-    this.qualityGates = qualityGates;
+  public RenameAction(DbClient dbClient, QualityGateFinder qualityGateFinder, QGateWsSupport wsSupport) {
+    this.dbClient = dbClient;
+    this.qualityGateFinder = qualityGateFinder;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -43,7 +52,7 @@ public class RenameAction implements QualityGatesWsAction {
     WebService.NewAction action = controller.createAction("rename")
       .setPost(true)
       .setDescription("Rename a Quality Gate.<br>" +
-    "Requires the 'Administer Quality Gates' permission.")
+        "Requires the 'Administer Quality Gates' permission.")
       .setSince("4.3")
       .setHandler(this);
 
@@ -61,10 +70,29 @@ public class RenameAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    long idToRename = QualityGatesWs.parseId(request, PARAM_ID);
-    QualityGateDto renamedQualityGate = qualityGates.rename(idToRename, request.mandatoryParam(PARAM_NAME));
+    wsSupport.checkCanEdit();
+    long id = QualityGatesWs.parseId(request, PARAM_ID);
+    QualityGateDto renamedQualityGate = rename(id, request.mandatoryParam(PARAM_NAME));
     JsonWriter writer = response.newJsonWriter();
     QualityGatesWs.writeQualityGate(renamedQualityGate, writer).close();
+  }
+
+  private QualityGateDto rename(long id, String name) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      QualityGateDto qualityGate = qualityGateFinder.getById(dbSession, id);
+      checkArgument(!isNullOrEmpty(name), CANT_BE_EMPTY_MESSAGE, "Name");
+      checkNotAlreadyExists(dbSession, qualityGate, name);
+      qualityGate.setName(name);
+      dbClient.qualityGateDao().update(qualityGate, dbSession);
+      dbSession.commit();
+      return qualityGate;
+    }
+  }
+
+  private void checkNotAlreadyExists(DbSession dbSession, QualityGateDto qualityGate, String name) {
+    QualityGateDto existingQgate = dbClient.qualityGateDao().selectByName(dbSession, name);
+    boolean isModifyingCurrentQgate = existingQgate == null || existingQgate.getId().equals(qualityGate.getId());
+    checkArgument(isModifyingCurrentQgate, "Name '%s' has already been taken", name);
   }
 
 }
