@@ -20,7 +20,6 @@
 package org.sonarqube.tests.settings;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category1Suite;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
@@ -30,15 +29,15 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.ws.Settings;
-import org.sonarqube.ws.client.setting.SetRequest;
-import org.sonarqube.ws.client.setting.SettingsService;
-import org.sonarqube.ws.client.setting.ValuesRequest;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.qa.util.pageobjects.settings.SettingsPage;
+import org.sonarqube.tests.Category1Suite;
+import org.sonarqube.ws.Settings;
+import org.sonarqube.ws.client.settings.SetRequest;
+import org.sonarqube.ws.client.settings.SettingsService;
+import org.sonarqube.ws.client.settings.ValuesRequest;
 import util.user.UserRule;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -109,12 +108,11 @@ public class PropertySetsTest {
 
   @Test
   public void edit_property_set() {
-    SETTINGS.set(SetRequest.builder()
+    SETTINGS.set(new SetRequest()
       .setKey("sonar.test.jira.servers")
-      .setFieldValues(newArrayList(
+      .setFieldValues(asList(
         "{\"key\":\"jira1\", \"url\":\"http://jira1\", \"port\":\"12345\"}",
-        "{\"key\":\"jira2\", \"url\":\"http://jira2\", \"port\":\"54321\"}"))
-      .build());
+        "{\"key\":\"jira2\", \"url\":\"http://jira2\", \"port\":\"54321\"}")));
 
     assertPropertySet("sonar.test.jira.servers",
       asList(entry("key", "jira1"), entry("url", "http://jira1"), entry("port", "12345")),
@@ -123,14 +121,13 @@ public class PropertySetsTest {
 
   @Test
   public void delete_property_set() throws Exception {
-    SETTINGS.set(SetRequest.builder()
+    SETTINGS.set(new SetRequest()
       .setKey("sonar.test.jira.servers")
-      .setFieldValues(newArrayList("{\"url\":\"http://jira1\"}", "{\"port\":\"12345\"}"))
-      .build());
+      .setFieldValues(asList("{\"url\":\"http://jira1\"}", "{\"port\":\"12345\"}")));
 
     resetSettings(orchestrator, null, "sonar.test.jira.servers");
 
-    assertThat(SETTINGS.values(ValuesRequest.builder().setKeys("sonar.test.jira.servers").build()).getSettingsList()).isEmpty();
+    assertThat(SETTINGS.values(new ValuesRequest().setKeys(asList("sonar.test.jira.servers"))).getSettingsList()).isEmpty();
   }
 
   private void assertPropertySet(String baseSettingKey, List<Map.Entry<String, String>>... fieldsValues) {
@@ -144,7 +141,7 @@ public class PropertySetsTest {
   }
 
   private Settings.Setting getSetting(String key) {
-    Settings.ValuesWsResponse response = SETTINGS.values(ValuesRequest.builder().setKeys(key).build());
+    Settings.ValuesWsResponse response = SETTINGS.values(new ValuesRequest().setKeys(asList(key)));
     List<Settings.Setting> settings = response.getSettingsList();
     assertThat(settings).hasSize(1);
     return settings.get(0);

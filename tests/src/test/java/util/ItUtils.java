@@ -73,8 +73,8 @@ import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.component.ShowWsRequest;
 import org.sonarqube.ws.client.measure.ComponentWsRequest;
 import org.sonarqube.ws.client.qualityprofile.RestoreWsRequest;
-import org.sonarqube.ws.client.setting.ResetRequest;
-import org.sonarqube.ws.client.setting.SetRequest;
+import org.sonarqube.ws.client.settings.ResetRequest;
+import org.sonarqube.ws.client.settings.SetRequest;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.sonar.orchestrator.container.Server.ADMIN_LOGIN;
@@ -267,9 +267,9 @@ public class ItUtils {
   @Deprecated
   public static void setServerProperty(Orchestrator orchestrator, @Nullable String componentKey, String key, @Nullable String value) {
     if (value == null) {
-      newAdminWsClient(orchestrator).settings().reset(ResetRequest.builder().setKeys(key).setComponent(componentKey).build());
+      newAdminWsClient(orchestrator).settings().reset(new ResetRequest().setKeys(asList(key)).setComponent(componentKey));
     } else {
-      newAdminWsClient(orchestrator).settings().set(SetRequest.builder().setKey(key).setValue(value).setComponent(componentKey).build());
+      newAdminWsClient(orchestrator).settings().set(new SetRequest().setKey(key).setValue(value).setComponent(componentKey));
     }
   }
 
@@ -289,7 +289,7 @@ public class ItUtils {
   @Deprecated
   public static void resetSettings(Orchestrator orchestrator, @Nullable String componentKey, String... keys) {
     if (keys.length > 0) {
-      newAdminWsClient(orchestrator).settings().reset(ResetRequest.builder().setKeys(keys).setComponent(componentKey).build());
+      newAdminWsClient(orchestrator).settings().reset(new ResetRequest().setKeys(Arrays.asList(keys)).setComponent(componentKey));
     }
   }
 

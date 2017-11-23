@@ -21,6 +21,8 @@ package org.sonarqube.tests.webhook;
 
 import com.sonar.orchestrator.Orchestrator;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,8 +37,8 @@ import org.sonarqube.ws.Webhooks;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.project.DeleteRequest;
-import org.sonarqube.ws.client.setting.ResetRequest;
-import org.sonarqube.ws.client.setting.SetRequest;
+import org.sonarqube.ws.client.settings.ResetRequest;
+import org.sonarqube.ws.client.settings.SetRequest;
 import org.sonarqube.ws.client.webhooks.DeliveriesRequest;
 import org.sonarqube.ws.client.webhooks.DeliveryRequest;
 import util.ItUtils;
@@ -272,10 +274,10 @@ public class WebhooksTest {
 
   private void setProperty(@Nullable String componentKey, String key, @Nullable String value) {
     if (value == null) {
-      ResetRequest req = ResetRequest.builder().setKeys(key).setComponent(componentKey).build();
+      ResetRequest req = new ResetRequest().setKeys(Collections.singletonList(key)).setComponent(componentKey);
       adminWs.settings().reset(req);
     } else {
-      SetRequest req = SetRequest.builder().setKey(key).setValue(value).setComponent(componentKey).build();
+      SetRequest req = new SetRequest().setKey(key).setValue(value).setComponent(componentKey);
       adminWs.settings().set(req);
     }
   }

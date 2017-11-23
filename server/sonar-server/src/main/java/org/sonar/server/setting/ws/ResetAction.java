@@ -36,15 +36,14 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.setting.ws.SettingValidations.SettingData;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.setting.ResetRequest;
+import org.sonarqube.ws.client.settings.ResetRequest;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_RESET;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_BRANCH;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEYS;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEYS;
 
 public class ResetAction implements SettingsWsAction {
 
@@ -67,7 +66,7 @@ public class ResetAction implements SettingsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction(ACTION_RESET)
+    WebService.NewAction action = context.createAction("reset")
       .setDescription("Remove a setting value.<br>" +
         "Requires one of the following permissions: " +
         "<ul>" +
@@ -79,7 +78,7 @@ public class ResetAction implements SettingsWsAction {
       .setHandler(this);
 
     action.createParam(PARAM_KEYS)
-      .setDescription("Setting keys")
+      .setDescription("Comma-separated list of keys")
       .setExampleValue("sonar.links.scm,sonar.debt.hoursInDay")
       .setRequired(true);
     action.createParam(PARAM_COMPONENT)
@@ -126,11 +125,10 @@ public class ResetAction implements SettingsWsAction {
   }
 
   private static ResetRequest toWsRequest(Request request) {
-    return ResetRequest.builder()
+    return new ResetRequest()
       .setKeys(request.paramAsStrings(PARAM_KEYS))
       .setComponent(request.param(PARAM_COMPONENT))
-      .setBranch(request.param(PARAM_BRANCH))
-      .build();
+      .setBranch(request.param(PARAM_BRANCH));
   }
 
   private Optional<ComponentDto> getComponent(DbSession dbSession, ResetRequest request) {

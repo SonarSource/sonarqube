@@ -44,8 +44,8 @@ import org.junit.Test;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.setting.SetRequest;
-import org.sonarqube.ws.client.setting.SettingsService;
+import org.sonarqube.ws.client.settings.SetRequest;
+import org.sonarqube.ws.client.settings.SettingsService;
 import util.user.UserRule;
 
 import static java.net.URLEncoder.encode;
@@ -309,11 +309,11 @@ public class DeprecatedPropertiesWsTest {
   }
 
   private static void setProperty(String key, String value, @Nullable String componentKey) {
-    adminSettingsService.set(SetRequest.builder().setKey(key).setValue(value).setComponent(componentKey).build());
+    adminSettingsService.set(new SetRequest().setKey(key).setValue(value).setComponent(componentKey));
   }
 
   private static void setProperty(String key, List<String> values, @Nullable String componentKey) {
-    adminSettingsService.set(SetRequest.builder().setKey(key).setValues(values).setComponent(componentKey).build());
+    adminSettingsService.set(new SetRequest().setKey(key).setValues(values).setComponent(componentKey));
   }
 
   private static List<Properties.Property> getProperties(@Nullable String componentKey) {
