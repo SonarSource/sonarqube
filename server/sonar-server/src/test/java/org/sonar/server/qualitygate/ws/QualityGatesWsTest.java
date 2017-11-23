@@ -70,7 +70,7 @@ public class QualityGatesWsTest {
       new SearchAction(projectFinder),
       new CreateAction(null, null, null, null),
       new CopyAction(qGates),
-      new DestroyAction(qGates), new RenameAction(qGates),
+      new DestroyAction(qGates),
       new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),
       new CreateConditionAction(null, null, null, null),
       new UpdateConditionAction(null, null, null, null),
@@ -86,7 +86,7 @@ public class QualityGatesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualitygates");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(13);
+    assertThat(controller.actions()).hasSize(12);
 
     Action create = controller.action("create");
     assertThat(create).isNotNull();
@@ -112,15 +112,6 @@ public class QualityGatesWsTest {
     assertThat(destroy.isPost()).isTrue();
     assertThat(destroy.param("id")).isNotNull();
     assertThat(destroy.isInternal()).isFalse();
-
-    Action rename = controller.action("rename");
-    assertThat(rename).isNotNull();
-    assertThat(rename.handler()).isNotNull();
-    assertThat(rename.since()).isEqualTo("4.3");
-    assertThat(rename.isPost()).isTrue();
-    assertThat(rename.param("id")).isNotNull();
-    assertThat(rename.param("name")).isNotNull();
-    assertThat(rename.isInternal()).isFalse();
 
     Action setDefault = controller.action("set_as_default");
     assertThat(setDefault).isNotNull();
@@ -173,16 +164,6 @@ public class QualityGatesWsTest {
     when(qGates.copy(24L, name)).thenReturn(new QualityGateDto().setId(42L).setName(name));
     tester.newPostRequest("api/qualitygates", "copy").setParam("id", "24").setParam("name", name).execute()
       .assertJson("{\"id\":42,\"name\":\"Copied QG\"}");
-  }
-
-  @Test
-  public void rename_nominal() throws Exception {
-    Long id = 42L;
-    String name = "New QG";
-    when(qGates.rename(id, name)).thenReturn(new QualityGateDto().setId(id).setName(name));
-    tester.newPostRequest("api/qualitygates", "rename").setParam("id", id.toString()).setParam("name", name).execute()
-      .assertJson("{\"id\":42,\"name\":\"New QG\"}");
-    ;
   }
 
   @Test
