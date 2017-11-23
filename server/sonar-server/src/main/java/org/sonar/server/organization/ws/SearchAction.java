@@ -67,7 +67,7 @@ public class SearchAction implements OrganizationsWsAction {
       .setRequired(false)
       .setSince("6.3");
 
-    action.addPagingParams(25);
+    action.addPagingParams(100);
   }
 
   @Override

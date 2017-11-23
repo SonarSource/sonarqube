@@ -95,7 +95,7 @@ public class SearchActionTest {
     assertThat(pParam.description()).isEqualTo("1-based page number");
     WebService.Param psParam = action.param("ps");
     assertThat(psParam.isRequired()).isFalse();
-    assertThat(psParam.defaultValue()).isEqualTo("25");
+    assertThat(psParam.defaultValue()).isEqualTo("100");
     assertThat(psParam.description()).isEqualTo("Page size. Must be greater than 0.");
   }
 
@@ -116,7 +116,7 @@ public class SearchActionTest {
       .setName("Foo Company")
       .setGuarded(true));
 
-    String response = executeJsonRequest(null, null);
+    String response = executeJsonRequest(null, 25);
 
     assertJson(response).isSimilarTo(wsTester.getDef().responseExampleAsString());
   }
@@ -224,7 +224,7 @@ public class SearchActionTest {
 
     response = executeRequest(null, null);
     assertThat(response.getOrganizationsList()).extracting(Organization::getKey).hasSize(5);
-    assertThat(response.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsOnly(1, 25, 5);
+    assertThat(response.getPaging()).extracting(Paging::getPageIndex, Paging::getPageSize, Paging::getTotal).containsOnly(1, 100, 5);
   }
 
   @Test
