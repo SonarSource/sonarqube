@@ -34,13 +34,13 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Qualitygates.QualityGate;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
-import static org.sonar.test.JsonAssert.assertJson;
 
 public class RenameActionTest {
 
@@ -85,18 +85,13 @@ public class RenameActionTest {
     logAsQualityGateAdminister();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("old name"));
 
-    String result = ws.newRequest()
+    QualityGate result = ws.newRequest()
       .setParam("id", qualityGate.getId().toString())
       .setParam("name", "new name")
-      .execute()
-      .getInput();
+      .executeProtobuf(QualityGate.class);
 
-    assertJson(result).isSimilarTo(
-      format("{\n" +
-        "  \"id\": %s,\n" +
-        "  \"name\": \"new name\"\n" +
-        "}",
-        qualityGate.getId()));
+    assertThat(result.getId()).isEqualTo(qualityGate.getId());
+    assertThat(result.getName()).isEqualTo("new name");
   }
 
   @Test
