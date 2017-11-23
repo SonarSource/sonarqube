@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
-import org.sonarqube.ws.Qualitygates.CreateWsResponse;
+import org.sonarqube.ws.Qualitygates;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
@@ -50,7 +50,7 @@ public class OrganizationQualityGateTest {
   public void always_display_current_quality_gate_in_effect() throws Exception {
     Organization organization = tester.organizations().generate();
     Project project = tester.projects().provision(organization);
-    CreateWsResponse qualityGate = tester.qGates().generate();
+    Qualitygates.CreateResponse qualityGate = tester.qGates().generate();
     tester.qGates().associateProject(qualityGate, project);
     tester.wsClient().qualityGates().createCondition(new CreateConditionRequest()
       .setGateId(String.valueOf(qualityGate.getId()))
@@ -80,7 +80,7 @@ public class OrganizationQualityGateTest {
     Map currentQualityGate2 = (Map) ItUtils.jsonToMap(response2.content()).get("qualityGate");
     assertThat((long) (double) (Double) currentQualityGate2.get("key")).isEqualTo(qualityGate.getId());
 
-    CreateWsResponse qualityGate2 = tester.qGates().generate();
+    Qualitygates.CreateResponse qualityGate2 = tester.qGates().generate();
     tester.qGates().associateProject(qualityGate2, project);
     tester.wsClient().qualityGates().createCondition(new CreateConditionRequest()
       .setGateId(String.valueOf(qualityGate2.getId()))

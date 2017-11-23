@@ -25,7 +25,7 @@ option java_outer_classname = "Qualitygates";
 option optimize_for = SPEED;
 
 // GET api/qualitygates/project_status
-message ProjectStatusWsResponse {
+message ProjectStatusResponse {
   optional ProjectStatus projectStatus = 1;
 
   message ProjectStatus {
@@ -68,7 +68,7 @@ message ProjectStatusWsResponse {
 }
 
 // GET api/qualitygates/get_by_project
-message GetByProjectWsResponse {
+message GetByProjectResponse {
   optional QualityGate qualityGate = 1;
 }
 
@@ -79,7 +79,7 @@ message QualityGate {
 }
 
 // GET api/qualitygates/app
-message AppWsResponse {
+message AppResponse {
   optional bool edit = 1;
   repeated Metric metrics = 3;
 
@@ -93,13 +93,13 @@ message AppWsResponse {
 }
 
 // POST api/qualitygates/create
-message CreateWsResponse {
+message CreateResponse {
   optional int64 id = 1;
   optional string name = 2;
 }
 
 // POST api/qualitygates/create_condition
-message CreateConditionWsResponse {
+message CreateConditionResponse {
   optional int64 id = 1;
   optional string metric = 2;
   optional string op = 3;
@@ -109,7 +109,7 @@ message CreateConditionWsResponse {
 }
 
 // POST api/qualitygates/update_condition
-message UpdateConditionWsResponse {
+message UpdateConditionResponse {
   optional int64 id = 1;
   optional string metric = 2;
   optional string op = 3;

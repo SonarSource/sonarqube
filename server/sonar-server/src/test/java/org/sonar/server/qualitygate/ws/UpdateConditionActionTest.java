@@ -42,7 +42,7 @@ import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.Qualitygates.CreateConditionWsResponse;
+import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
@@ -99,7 +99,7 @@ public class UpdateConditionActionTest {
   public void update_warning_condition() throws Exception {
     logInAsQualityGateAdmin();
 
-    CreateConditionWsResponse response = executeRequest(conditionDto.getId(), coverageMetricDto.getKey(), "LT", "90", null, null);
+    CreateConditionResponse response = executeRequest(conditionDto.getId(), coverageMetricDto.getKey(), "LT", "90", null, null);
 
     assertCondition(response, "LT", "90", null, null);
   }
@@ -108,7 +108,7 @@ public class UpdateConditionActionTest {
   public void update_error_condition() throws Exception {
     logInAsQualityGateAdmin();
 
-    CreateConditionWsResponse response = executeRequest(conditionDto.getId(), coverageMetricDto.getKey(), "LT", null, "90", null);
+    CreateConditionResponse response = executeRequest(conditionDto.getId(), coverageMetricDto.getKey(), "LT", null, "90", null);
 
     assertCondition(response, "LT", null, "90", null);
   }
@@ -117,7 +117,7 @@ public class UpdateConditionActionTest {
   public void update_condition_over_leak_period() throws Exception {
     logInAsQualityGateAdmin();
 
-    CreateConditionWsResponse response = executeRequest(conditionDto.getId(), coverageMetricDto.getKey(), "LT", null, "90", 1);
+    CreateConditionResponse response = executeRequest(conditionDto.getId(), coverageMetricDto.getKey(), "LT", null, "90", 1);
 
     assertCondition(response, "LT", null, "90", 1);
   }
@@ -155,7 +155,7 @@ public class UpdateConditionActionTest {
     assertThat(action.params()).hasSize(6);
   }
 
-  private void assertCondition(CreateConditionWsResponse response, String operator, @Nullable String warning, @Nullable String error, @Nullable Integer period) {
+  private void assertCondition(CreateConditionResponse response, String operator, @Nullable String warning, @Nullable String error, @Nullable Integer period) {
     List<QualityGateConditionDto> conditionDtoList = new ArrayList<>(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateDto.getId()));
     assertThat(conditionDtoList).hasSize(1);
     QualityGateConditionDto qualityGateConditionDto = conditionDtoList.get(0);
@@ -186,7 +186,7 @@ public class UpdateConditionActionTest {
     }
   }
 
-  private CreateConditionWsResponse executeRequest(long conditionId, String metricKey, String operator, @Nullable String warning, @Nullable String error,
+  private CreateConditionResponse executeRequest(long conditionId, String metricKey, String operator, @Nullable String warning, @Nullable String error,
     @Nullable Integer period) {
     TestRequest request = ws.newRequest()
       .setParam(PARAM_ID, Long.toString(conditionId))
@@ -201,7 +201,7 @@ public class UpdateConditionActionTest {
     if (period != null) {
       request.setParam(PARAM_PERIOD, Integer.toString(period));
     }
-    return request.executeProtobuf(CreateConditionWsResponse.class);
+    return request.executeProtobuf(CreateConditionResponse.class);
   }
 
   private void logInAsQualityGateAdmin() {

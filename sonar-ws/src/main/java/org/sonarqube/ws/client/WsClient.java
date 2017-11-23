@@ -33,7 +33,7 @@ import org.sonarqube.ws.client.projectbranches.ProjectBranchesService;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
-import org.sonarqube.ws.client.root.RootsService;
+import org.sonarqube.ws.client.roots.RootsService;
 import org.sonarqube.ws.client.rule.RulesService;
 import org.sonarqube.ws.client.setting.SettingsService;
 import org.sonarqube.ws.client.system.SystemService;

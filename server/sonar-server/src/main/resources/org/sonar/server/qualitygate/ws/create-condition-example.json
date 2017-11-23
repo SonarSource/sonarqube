@@ -1,0 +1,7 @@
+{
+  "id": 1,
+  "metric": "blocker_violations",
+  "op": "LT",
+  "error": "10",
+  "warning": "5"
+}

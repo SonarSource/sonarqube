@@ -43,6 +43,8 @@ import org.sonarqube.ws.client.organization.SearchWsRequest;
 import org.sonarqube.ws.client.organization.UpdateWsRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.permission.PermissionsService;
+import org.sonarqube.ws.client.roots.SetRootRequest;
+import org.sonarqube.ws.client.roots.UnsetRootRequest;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -181,13 +183,13 @@ public class OrganizationTest {
     User user = tester.users().generate();
     OrganizationTester asUser = tester.as(user.getLogin()).organizations();
 
-    tester.wsClient().roots().setRoot(user.getLogin());
+    tester.wsClient().roots().setRoot(new SetRootRequest().setLogin(user.getLogin()));
     Organization org = asUser.generate();
 
     // delete org, attempt recreate when no root anymore and ensure it can't anymore
     asUser.service().delete(org.getKey());
 
-    tester.wsClient().roots().unsetRoot(user.getLogin());
+    tester.wsClient().roots().unsetRoot(new UnsetRootRequest().setLogin(user.getLogin()));
     expectForbiddenError(() -> asUser.generate());
   }
 

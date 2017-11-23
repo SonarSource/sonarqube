@@ -21,11 +21,11 @@ syntax = "proto2";
 package sonarqube.ws.root;
 
 option java_package = "org.sonarqube.ws";
-option java_outer_classname = "Root";
+option java_outer_classname = "Roots";
 option optimize_for = SPEED;
 
 // WS api/root/search
-message SearchWsResponse {
+message SearchResponse {
   repeated RootContent roots = 1;
 }
 

@@ -86,7 +86,7 @@ public class QualityGateNotificationTest {
       .failIfNotSuccessful();
 
     // Create quality gate with conditions on variations
-    Qualitygates.CreateWsResponse simple = tester.qGates().generate();
+    Qualitygates.CreateResponse simple = tester.qGates().generate();
     tester.qGates().service()
       .createCondition(new CreateConditionRequest().setGateId(String.valueOf(simple.getId())).setMetric("ncloc").setPeriod("1").setOp("EQ").setWarning("0"));
     Project project = tester.projects().provision();

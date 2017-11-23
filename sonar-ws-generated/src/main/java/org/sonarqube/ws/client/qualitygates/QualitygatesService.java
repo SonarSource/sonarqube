@@ -21,12 +21,13 @@ package org.sonarqube.ws.client.qualitygates;
 
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.Qualitygates.AppWsResponse;
-import org.sonarqube.ws.Qualitygates.CreateConditionWsResponse;
-import org.sonarqube.ws.Qualitygates.CreateWsResponse;
-import org.sonarqube.ws.Qualitygates.GetByProjectWsResponse;
-import org.sonarqube.ws.Qualitygates.ProjectStatusWsResponse;
-import org.sonarqube.ws.Qualitygates.UpdateConditionWsResponse;
+import org.sonarqube.ws.Qualitygates;
+import org.sonarqube.ws.Qualitygates.AppResponse;
+import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
+import org.sonarqube.ws.Qualitygates.CreateResponse;
+import org.sonarqube.ws.Qualitygates.GetByProjectResponse;
+import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
+import org.sonarqube.ws.Qualitygates.UpdateConditionResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
@@ -51,10 +52,10 @@ public class QualitygatesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/app">Further information about this action online (including a response example)</a>
    * @since 4.3
    */
-  public AppWsResponse app() {
+  public AppResponse app() {
     return call(
       new GetRequest(path("app")),
-      AppWsResponse.parser());
+      AppResponse.parser());
   }
 
   /**
@@ -82,11 +83,11 @@ public class QualitygatesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/create">Further information about this action online (including a response example)</a>
    * @since 4.3
    */
-  public CreateWsResponse create(CreateRequest request) {
+  public Qualitygates.CreateResponse create(CreateRequest request) {
     return call(
       new PostRequest(path("create"))
         .setParam("name", request.getName()),
-      CreateWsResponse.parser());
+      CreateResponse.parser());
   }
 
   /**
@@ -97,7 +98,7 @@ public class QualitygatesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/create_condition">Further information about this action online (including a response example)</a>
    * @since 4.3
    */
-  public CreateConditionWsResponse createCondition(CreateConditionRequest request) {
+  public CreateConditionResponse createCondition(CreateConditionRequest request) {
     return call(
       new PostRequest(path("create_condition"))
         .setParam("error", request.getError())
@@ -106,7 +107,7 @@ public class QualitygatesService extends BaseService {
         .setParam("op", request.getOp())
         .setParam("period", request.getPeriod())
         .setParam("warning", request.getWarning()),
-      CreateConditionWsResponse.parser());
+      CreateConditionResponse.parser());
   }
 
   /**
@@ -166,11 +167,11 @@ public class QualitygatesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/get_by_project">Further information about this action online (including a response example)</a>
    * @since 6.1
    */
-  public GetByProjectWsResponse getByProject(GetByProjectRequest request) {
+  public GetByProjectResponse getByProject(GetByProjectRequest request) {
     return call(
       new GetRequest(path("get_by_project"))
         .setParam("project", request.getProject()),
-      GetByProjectWsResponse.parser());
+      GetByProjectResponse.parser());
   }
 
   /**
@@ -196,13 +197,13 @@ public class QualitygatesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/project_status">Further information about this action online (including a response example)</a>
    * @since 5.3
    */
-  public ProjectStatusWsResponse projectStatus(ProjectStatusRequest request) {
+  public ProjectStatusResponse projectStatus(ProjectStatusRequest request) {
     return call(
       new GetRequest(path("project_status"))
         .setParam("analysisId", request.getAnalysisId())
         .setParam("projectId", request.getProjectId())
         .setParam("projectKey", request.getProjectKey()),
-      ProjectStatusWsResponse.parser());
+      ProjectStatusResponse.parser());
   }
 
   /**
@@ -326,6 +327,6 @@ public class QualitygatesService extends BaseService {
         .setParam("op", request.getOp())
         .setParam("period", request.getPeriod())
         .setParam("warning", request.getWarning()),
-      UpdateConditionWsResponse.parser());
+      UpdateConditionResponse.parser());
   }
 }

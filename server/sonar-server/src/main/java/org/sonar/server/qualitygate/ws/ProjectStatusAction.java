@@ -42,7 +42,7 @@ import org.sonar.server.component.ComponentFinder.ParamNames;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
-import org.sonarqube.ws.Qualitygates.ProjectStatusWsResponse;
+import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Collections.singletonList;
@@ -56,7 +56,7 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PRO
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 
 public class ProjectStatusAction implements QualityGatesWsAction {
-  private static final String QG_STATUSES_ONE_LINE = Arrays.stream(ProjectStatusWsResponse.Status.values())
+  private static final String QG_STATUSES_ONE_LINE = Arrays.stream(ProjectStatusResponse.Status.values())
     .map(Enum::toString)
     .collect(Collectors.joining(", "));
   private static final String MSG_ONE_PARAMETER_ONLY = String.format("Either '%s', '%s' or '%s' must be provided", PARAM_ANALYSIS_ID, PARAM_PROJECT_ID, PARAM_PROJECT_KEY);
@@ -83,7 +83,7 @@ public class ProjectStatusAction implements QualityGatesWsAction {
         "<li>'Administer System'</li>" +
         "<li>'Administer' rights on the specified project</li>" +
         "<li>'Browse' on the specified project</li>" +
-        "</ul>", QG_STATUSES_ONE_LINE, ProjectStatusWsResponse.Status.NONE))
+        "</ul>", QG_STATUSES_ONE_LINE, ProjectStatusResponse.Status.NONE))
       .setResponseExample(getClass().getResource("project_status-example.json"))
       .setSince("5.3")
       .setHandler(this)
@@ -116,17 +116,17 @@ public class ProjectStatusAction implements QualityGatesWsAction {
         ^ !isNullOrEmpty(projectId)
         ^ !isNullOrEmpty(projectKey),
       MSG_ONE_PARAMETER_ONLY);
-    ProjectStatusWsResponse projectStatusWsResponse = doHandle(analysisId, projectId, projectKey);
-    writeProtobuf(projectStatusWsResponse, request, response);
+    ProjectStatusResponse projectStatusResponse = doHandle(analysisId, projectId, projectKey);
+    writeProtobuf(projectStatusResponse, request, response);
   }
 
-  private ProjectStatusWsResponse doHandle(String analysisId, String projectId, String projectKey) {
+  private ProjectStatusResponse doHandle(String analysisId, String projectId, String projectKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ProjectAndSnapshot projectAndSnapshot = getProjectAndSnapshot(dbSession, analysisId, projectId, projectKey);
       checkPermission(projectAndSnapshot.project);
       Optional<String> measureData = getQualityGateDetailsMeasureData(dbSession, projectAndSnapshot.project);
 
-      return ProjectStatusWsResponse.newBuilder()
+      return ProjectStatusResponse.newBuilder()
         .setProjectStatus(new QualityGateDetailsFormatter(measureData, projectAndSnapshot.snapshotDto).format())
         .build();
     }

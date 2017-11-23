@@ -35,7 +35,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.Root;
+import org.sonarqube.ws.Roots;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -112,9 +112,9 @@ public class SearchActionTest {
     userDao.setRoot(dbSession, rootDto.getLogin(), true);
     dbSession.commit();
 
-    List<Root.RootContent> roots = executeRequest();
+    List<Roots.RootContent> roots = executeRequest();
     assertThat(roots).hasSize(1);
-    Root.RootContent root = roots.iterator().next();
+    Roots.RootContent root = roots.iterator().next();
     assertThat(root.getLogin()).isEqualTo(rootDto.getLogin());
     assertThat(root.hasName()).isFalse();
     assertThat(root.hasEmail()).isFalse();
@@ -132,7 +132,7 @@ public class SearchActionTest {
     dbSession.commit();
 
     assertThat(executeRequest())
-      .extracting(Root.RootContent::getName)
+      .extracting(Roots.RootContent::getName)
       .containsExactly("bbb", "ccc");
   }
 
@@ -140,9 +140,9 @@ public class SearchActionTest {
     return userSessionRule.logIn().setRoot();
   }
 
-  private List<Root.RootContent> executeRequest() {
+  private List<Roots.RootContent> executeRequest() {
     return wsTester.newRequest()
-      .executeProtobuf(Root.SearchWsResponse.class)
+      .executeProtobuf(Roots.SearchResponse.class)
       .getRootsList();
   }
 

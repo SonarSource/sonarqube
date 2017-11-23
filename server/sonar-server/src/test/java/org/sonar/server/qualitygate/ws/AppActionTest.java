@@ -32,7 +32,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.Qualitygates.AppWsResponse;
+import org.sonarqube.ws.Qualitygates.AppResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.Metric.ValueType.BOOL;
@@ -70,11 +70,11 @@ public class AppActionTest {
       .setHidden(true));
     dbSession.commit();
 
-    AppWsResponse response = executeRequest();
+    AppResponse response = executeRequest();
 
-    List<AppWsResponse.Metric> metrics = response.getMetricsList();
+    List<AppResponse.Metric> metrics = response.getMetricsList();
     assertThat(metrics).hasSize(1);
-    AppWsResponse.Metric metric = metrics.get(0);
+    AppResponse.Metric metric = metrics.get(0);
     assertThat(metric.getKey()).isEqualTo("metric");
     assertThat(metric.getName()).isEqualTo("Metric");
     assertThat(metric.getDomain()).isEqualTo("General");
@@ -92,11 +92,11 @@ public class AppActionTest {
       .setHidden(true));
     dbSession.commit();
 
-    AppWsResponse response = executeRequest();
+    AppResponse response = executeRequest();
 
-    List<AppWsResponse.Metric> metrics = response.getMetricsList();
+    List<AppResponse.Metric> metrics = response.getMetricsList();
     assertThat(metrics).hasSize(1);
-    AppWsResponse.Metric metric = metrics.get(0);
+    AppResponse.Metric metric = metrics.get(0);
     assertThat(metric.getKey()).isEqualTo("metric");
     assertThat(metric.hasDomain()).isFalse();
   }
@@ -109,9 +109,9 @@ public class AppActionTest {
       newMetricDto().setKey("sqale_rating").setValueType(RATING.name()).setHidden(false),
       newMetricDto().setKey("none_core_rating").setValueType(RATING.name()).setHidden(false));
 
-    AppWsResponse response = executeRequest();
+    AppResponse response = executeRequest();
 
-    assertThat(response.getMetricsList()).extracting(AppWsResponse.Metric::getKey).containsOnly(
+    assertThat(response.getMetricsList()).extracting(AppResponse.Metric::getKey).containsOnly(
       "reliability_rating", "new_reliability_rating", "sqale_rating");
   }
 
@@ -125,7 +125,7 @@ public class AppActionTest {
       .setHidden(false));
     dbSession.commit();
 
-    AppWsResponse response = executeRequest();
+    AppResponse response = executeRequest();
 
     assertThat(response.getMetricsList()).isEmpty();
   }
@@ -140,7 +140,7 @@ public class AppActionTest {
       .setHidden(false));
     dbSession.commit();
 
-    AppWsResponse response = executeRequest();
+    AppResponse response = executeRequest();
 
     assertThat(response.getMetricsList()).isEmpty();
   }
@@ -155,7 +155,7 @@ public class AppActionTest {
       .setHidden(false));
     dbSession.commit();
 
-    AppWsResponse response = executeRequest();
+    AppResponse response = executeRequest();
 
     assertThat(response.getMetricsList()).isEmpty();
   }
@@ -164,7 +164,7 @@ public class AppActionTest {
   public void return_edit_to_false_when_not_quality_gate_permission() throws Exception {
     userSession.logIn();
 
-    AppWsResponse response = executeRequest();
+    AppResponse response = executeRequest();
 
     assertThat(response.getEdit()).isFalse();
   }
@@ -173,7 +173,7 @@ public class AppActionTest {
   public void return_edit_to_true_when_quality_gate_permission() throws Exception {
     userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES, db.getDefaultOrganization());
 
-    AppWsResponse response = executeRequest();
+    AppResponse response = executeRequest();
 
     assertThat(response.getEdit()).isTrue();
   }
@@ -220,7 +220,7 @@ public class AppActionTest {
     dbSession.commit();
   }
 
-  private AppWsResponse executeRequest() {
-    return ws.newRequest().executeProtobuf(AppWsResponse.class);
+  private AppResponse executeRequest() {
+    return ws.newRequest().executeProtobuf(AppResponse.class);
   }
 }

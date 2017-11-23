@@ -28,7 +28,7 @@ import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.Qualitygates.UpdateConditionWsResponse;
+import org.sonarqube.ws.Qualitygates.UpdateConditionResponse;
 
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
@@ -88,14 +88,14 @@ public class UpdateConditionAction implements QualityGatesWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QualityGateConditionDto condition = qualityGateConditionsUpdater.updateCondition(dbSession, id, metric, operator, warning, error, period);
-      UpdateConditionWsResponse.Builder updateConditionWsResponse = UpdateConditionWsResponse.newBuilder()
+      UpdateConditionResponse.Builder updateConditionResponse = UpdateConditionResponse.newBuilder()
         .setId(condition.getId())
         .setMetric(condition.getMetricKey())
         .setOp(condition.getOperator());
-      setNullable(condition.getWarningThreshold(), updateConditionWsResponse::setWarning);
-      setNullable(condition.getErrorThreshold(), updateConditionWsResponse::setError);
-      setNullable(condition.getPeriod(), updateConditionWsResponse::setPeriod);
-      writeProtobuf(updateConditionWsResponse.build(), request, response);
+      setNullable(condition.getWarningThreshold(), updateConditionResponse::setWarning);
+      setNullable(condition.getErrorThreshold(), updateConditionResponse::setError);
+      setNullable(condition.getPeriod(), updateConditionResponse::setPeriod);
+      writeProtobuf(updateConditionResponse.build(), request, response);
       dbSession.commit();
     }
   }
