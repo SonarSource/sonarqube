@@ -35,6 +35,7 @@ import AdminContainer from '../components/AdminContainer';
 import GlobalPageExtension from '../components/extensions/GlobalPageExtension';
 import GlobalAdminPageExtension from '../components/extensions/GlobalAdminPageExtension';
 import DefaultOrganizationContainer from '../components/DefaultOrganizationContainer';
+import MyProjectsContainer from '../components/MyProjectsContainer';
 import MarkdownHelp from '../components/MarkdownHelp';
 import NotFound from '../components/NotFound';
 import aboutRoutes from '../../apps/about/routes';
@@ -57,7 +58,7 @@ import projectActivityRoutes from '../../apps/projectActivity/routes';
 import projectBranchesRoutes from '../../apps/projectBranches/routes';
 import projectQualityGateRoutes from '../../apps/projectQualityGate/routes';
 import projectQualityProfilesRoutes from '../../apps/projectQualityProfiles/routes';
-import projectsRoutes from '../../apps/projects/routes';
+import Projects from '../../apps/projects/Projects';
 import projectsManagementRoutes from '../../apps/projectsManagement/routes';
 import qualityGatesRoutes from '../../apps/quality-gates/routes';
 import qualityProfilesRoutes from '../../apps/quality-profiles/routes';
@@ -145,11 +146,13 @@ export default [
                 childRoute('web_api', webAPIRoutes),
                 projectRoutes,
 
+                componentRoute('/projects/favorite', MyProjectsContainer),
+
                 nest(DefaultOrganizationContainer, [
                   childRoute('coding_rules', codingRulesRoutes),
                   componentRoute('extension/:pluginKey/:extensionKey', GlobalPageExtension),
                   childRoute('issues', issuesRoutes),
-                  childRoute('projects', projectsRoutes),
+                  componentRoute('projects', Projects),
                   childRoute('quality_gates', qualityGatesRoutes),
                   componentRoute('portfolios', PortfoliosPage),
                   childRoute('profiles', qualityProfilesRoutes),

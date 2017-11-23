@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router';
 import GlobalNavBranding from './GlobalNavBranding';
 import GlobalNavUserContainer from './GlobalNavUserContainer';
 import Search from '../../search/Search';
@@ -31,7 +32,7 @@ import { getCurrentUser, getAppState, getGlobalSettingValue } from '../../../../
 import { AppState } from '../../../../store/appState/duck';
 import { skipOnboarding } from '../../../../store/users/actions';
 import { translate } from '../../../../helpers/l10n';
-import { CurrentUser } from '../../../types';
+import { CurrentUser, isLoggedInUser } from '../../../types';
 import './GlobalNav.css';
 
 interface StateProps {
@@ -109,6 +110,16 @@ class GlobalNav extends React.PureComponent<Props, State> {
     return (
       <NavBar className="navbar-global" id="global-navigation" height={30}>
         <GlobalNavBranding />
+
+        {isLoggedInUser(this.props.currentUser) && (
+          <ul className="global-navbar-menu pull-left">
+            <li>
+              <Link to="/projects/favorite" activeClassName="active">
+                {translate('my_projects')}
+              </Link>
+            </li>
+          </ul>
+        )}
 
         <ul className="global-navbar-menu pull-right">
           <Search appState={this.props.appState} currentUser={this.props.currentUser} />
