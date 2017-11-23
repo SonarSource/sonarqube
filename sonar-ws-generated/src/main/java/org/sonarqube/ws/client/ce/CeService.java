@@ -28,6 +28,7 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.Ce.ActivityResponse;
 import org.sonarqube.ws.Ce.ActivityStatusWsResponse;
+import org.sonarqube.ws.Ce.ComponentResponse;
 import org.sonarqube.ws.Ce.SubmitResponse;
 import org.sonarqube.ws.Ce.TaskResponse;
 import org.sonarqube.ws.Ce.TaskTypesWsResponse;
@@ -123,13 +124,12 @@ public class CeService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce/component">Further information about this action online (including a response example)</a>
    * @since 5.2
    */
-  public String component(ComponentRequest request) {
+  public ComponentResponse component(ComponentRequest request) {
     return call(
       new GetRequest(path("component"))
         .setParam("component", request.getComponent())
-        .setParam("componentId", request.getComponentId())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setParam("componentId", request.getComponentId()),
+      ComponentResponse.parser());
   }
 
   /**
