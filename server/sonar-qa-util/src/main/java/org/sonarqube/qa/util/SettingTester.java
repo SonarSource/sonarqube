@@ -26,10 +26,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.sonarqube.ws.Settings;
-import org.sonarqube.ws.client.setting.ListDefinitionsRequest;
-import org.sonarqube.ws.client.setting.ResetRequest;
-import org.sonarqube.ws.client.setting.SetRequest;
-import org.sonarqube.ws.client.setting.SettingsService;
+import org.sonarqube.ws.client.settings.ListDefinitionsRequest;
+import org.sonarqube.ws.client.settings.ResetRequest;
+import org.sonarqube.ws.client.settings.SetRequest;
+import org.sonarqube.ws.client.settings.SettingsService;
+
+import static java.util.Arrays.asList;
 
 public class SettingTester {
 
@@ -48,21 +50,21 @@ public class SettingTester {
 
   void deleteAll() {
     List<String> settingKeys = Stream.concat(
-      session.wsClient().settings().listDefinitions(ListDefinitionsRequest.builder().build()).getDefinitionsList()
+      session.wsClient().settings().listDefinitions(new ListDefinitionsRequest()).getDefinitionsList()
         .stream()
         .filter(def -> def.getType() != Settings.Type.LICENSE)
         .map(Settings.Definition::getKey),
       EMAIL_SETTINGS.stream())
       .collect(Collectors.toList());
-    session.wsClient().settings().reset(ResetRequest.builder().setKeys(settingKeys).build());
+    session.wsClient().settings().reset(new ResetRequest().setKeys(settingKeys));
   }
 
   public void resetSettings(String... keys){
-    session.wsClient().settings().reset(ResetRequest.builder().setKeys(keys).build());
+    session.wsClient().settings().reset(new ResetRequest().setKeys(asList(keys)));
   }
 
   public void resetProjectSettings(String projectKey, String... keys){
-    session.wsClient().settings().reset(ResetRequest.builder().setComponent(projectKey).setKeys(keys).build());
+    session.wsClient().settings().reset(new ResetRequest().setComponent(projectKey).setKeys(asList(keys)));
   }
 
   public void setGlobalSetting(String key, @Nullable String value) {
@@ -87,9 +89,9 @@ public class SettingTester {
 
   private void setSetting(@Nullable String componentKey, String key, @Nullable String value) {
     if (value == null) {
-      session.wsClient().settings().reset(ResetRequest.builder().setKeys(key).setComponent(componentKey).build());
+      session.wsClient().settings().reset(new ResetRequest().setKeys(asList(key)).setComponent(componentKey));
     } else {
-      session.wsClient().settings().set(SetRequest.builder().setKey(key).setValue(value).setComponent(componentKey).build());
+      session.wsClient().settings().set(new SetRequest().setKey(key).setValue(value).setComponent(componentKey));
     }
   }
 

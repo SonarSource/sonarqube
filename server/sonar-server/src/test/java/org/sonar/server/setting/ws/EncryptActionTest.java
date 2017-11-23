@@ -40,7 +40,7 @@ import org.sonarqube.ws.Settings.EncryptWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUE;
+import static org.sonarqube.ws.client.settings.SettingsWsParameters.PARAM_VALUE;
 
 public class EncryptActionTest {
   @Rule

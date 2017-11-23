@@ -35,7 +35,7 @@ import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
 import org.sonarqube.ws.client.roots.RootsService;
 import org.sonarqube.ws.client.rule.RulesService;
-import org.sonarqube.ws.client.setting.SettingsService;
+import org.sonarqube.ws.client.settings.SettingsService;
 import org.sonarqube.ws.client.system.SystemService;
 import org.sonarqube.ws.client.user.UsersService;
 import org.sonarqube.ws.client.usergroup.UserGroupsService;

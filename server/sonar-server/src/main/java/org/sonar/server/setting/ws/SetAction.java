@@ -54,19 +54,18 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.platform.SettingsChangeNotifier;
 import org.sonar.server.setting.ws.SettingValidations.SettingData;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.setting.SetRequest;
+import org.sonarqube.ws.client.settings.SetRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkRequest;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_SET;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_BRANCH;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_FIELD_VALUES;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEY;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUE;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUES;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_FIELD_VALUES;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEY;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_VALUE;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_VALUES;
 
 public class SetAction implements SettingsWsAction {
   private static final Collector<CharSequence, ?, String> COMMA_JOINER = Collectors.joining(",");
@@ -96,7 +95,7 @@ public class SetAction implements SettingsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction(ACTION_SET)
+    WebService.NewAction action = context.createAction("set")
       .setDescription("Update a setting value.<br>" +
         "Either '%s' or '%s' must be provided.<br> " +
         "Requires one of the following permissions: " +
@@ -283,14 +282,13 @@ public class SetAction implements SettingsWsAction {
   }
 
   private static SetRequest toWsRequest(Request request) {
-    return SetRequest.builder()
+    return new SetRequest()
       .setKey(request.mandatoryParam(PARAM_KEY))
       .setValue(request.param(PARAM_VALUE))
       .setValues(request.multiParam(PARAM_VALUES))
       .setFieldValues(request.multiParam(PARAM_FIELD_VALUES))
       .setComponent(request.param(PARAM_COMPONENT))
-      .setBranch(request.param(PARAM_BRANCH))
-      .build();
+      .setBranch(request.param(PARAM_BRANCH));
   }
 
   private static Map<String, String> readOneFieldValues(String json, String key) {

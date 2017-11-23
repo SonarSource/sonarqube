@@ -24,7 +24,6 @@ import java.util.Set;
 import org.sonar.api.server.ws.WebService;
 
 import static org.sonar.core.config.CorePropertyDefinitions.LEAK_PERIOD;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.CONTROLLER_SETTINGS;
 
 public class SettingsWs implements WebService {
 
@@ -38,7 +37,7 @@ public class SettingsWs implements WebService {
 
   @Override
   public void define(Context context) {
-    NewController controller = context.createController(CONTROLLER_SETTINGS)
+    NewController controller = context.createController("api/settings")
       .setDescription("Manage settings.")
       .setSince("6.1");
     for (SettingsWsAction action : actions) {
