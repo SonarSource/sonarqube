@@ -27,12 +27,16 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualitygates.ListWsResponse.QualityGate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.Qualitygates.ListWsResponse;
 
@@ -44,8 +48,9 @@ public class ListActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create();
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
-  private WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient()));
+  private WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(), new QGateWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider)));
 
   @Test
   public void verify_definition() {
@@ -58,12 +63,14 @@ public class ListActionTest {
       .containsExactlyInAnyOrder(
         tuple("7.0", "'isDefault' field is added on quality gate"),
         tuple("7.0", "'default' field on root level is deprecated"),
-        tuple("7.0", "'isBuiltIn' field is added in the response"));
+        tuple("7.0", "'isBuiltIn' field is added in the response"),
+        tuple("7.0", "'actions' fields are added in the response"));
     assertThat(action.params()).isEmpty();
   }
 
   @Test
   public void json_example() {
+    userSession.logIn("admin").addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
     QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(qualityGate -> qualityGate.setName("Sonar way").setBuiltIn(true));
     db.qualityGates().insertQualityGate(qualityGate -> qualityGate.setName("Sonar way - Without Coverage").setBuiltIn(false));
     db.qualityGates().setDefaultQualityGate(defaultQualityGate);
@@ -124,6 +131,46 @@ public class ListActionTest {
     assertThat(response.getQualitygatesList())
       .extracting(QualityGate::getId, QualityGate::getName, QualityGate::getIsDefault)
       .containsExactlyInAnyOrder(tuple(qualityGate.getId(), qualityGate.getName(), false));
+  }
+
+  @Test
+  public void actions_with_quality_gate_administer_permission() {
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
+    QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way").setBuiltIn(true));
+    QualityGateDto otherQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way - Without Coverage").setBuiltIn(false));
+    db.qualityGates().setDefaultQualityGate(defaultQualityGate);
+
+    ListWsResponse response = ws.newRequest().executeProtobuf(ListWsResponse.class);
+
+    assertThat(response.getActions())
+      .extracting(ListWsResponse.RootActions::getCreate)
+      .containsExactlyInAnyOrder(true);
+    assertThat(response.getQualitygatesList())
+      .extracting(QualityGate::getName,
+        qg -> qg.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault(), qp -> qp.getActions().getAssociateProjects())
+      .containsExactlyInAnyOrder(
+        tuple(defaultQualityGate.getName(), false, true, false, false),
+        tuple(otherQualityGate.getName(), true, true, true, true));
+  }
+
+  @Test
+  public void actions_without_quality_gate_administer_permission() {
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
+    QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way").setBuiltIn(true));
+    QualityGateDto otherQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way - Without Coverage").setBuiltIn(false));
+    db.qualityGates().setDefaultQualityGate(defaultQualityGate);
+
+    ListWsResponse response = ws.newRequest().executeProtobuf(ListWsResponse.class);
+
+    assertThat(response.getActions())
+      .extracting(ListWsResponse.RootActions::getCreate)
+      .containsExactlyInAnyOrder(false);
+    assertThat(response.getQualitygatesList())
+      .extracting(QualityGate::getName,
+        qg -> qg.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault(), qp -> qp.getActions().getAssociateProjects())
+      .containsExactlyInAnyOrder(
+        tuple(defaultQualityGate.getName(), false, false, false, false),
+        tuple(otherQualityGate.getName(), false, false, false, false));
   }
 
   @Test
