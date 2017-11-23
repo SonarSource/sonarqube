@@ -16,5 +16,11 @@
       "op": "LT",
       "warning": "0"
     }
-  ]
+  ],
+  "actions": {
+    "edit": true,
+    "setAsDefault": true,
+    "copy": true,
+    "associateProjects": true
+  }
 }

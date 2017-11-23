@@ -124,6 +124,7 @@ message ShowWsResponse {
   optional string name = 2;
   repeated Condition conditions = 3;
   optional bool isBuiltIn = 4;
+  optional Actions actions = 5;
 
   message Condition {
     optional int64 id = 1;
