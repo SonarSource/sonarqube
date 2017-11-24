@@ -142,7 +142,7 @@ class DefaultOrganizationNavigation extends React.PureComponent<Props> {
 
   renderLink(path: string, label: string) {
     return (
-      <li>
+      <li key={path}>
         <IndexLink to={path} activeClassName="active">
           {translate(label)}
         </IndexLink>
@@ -202,13 +202,7 @@ class DefaultOrganizationNavigation extends React.PureComponent<Props> {
   render() {
     const { appState, organization } = this.props;
     const portfoliosExtension = appState.globalPages.find(({ key }) => key === PORTFOLIOS);
-    const portfoliosLink = portfoliosExtension && (
-      <li key="portfolios">
-        <Link to="/portfolios" activeClassName="active">
-          {translate('portfolios.page')}
-        </Link>
-      </li>
-    );
+    const portfoliosLink = portfoliosExtension && this.renderLink('/portfolios', 'portfolios.page');
 
     const { editionStatus } = this.props;
     let notification;
