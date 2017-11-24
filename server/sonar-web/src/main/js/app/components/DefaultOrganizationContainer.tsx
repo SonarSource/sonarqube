@@ -21,16 +21,21 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import DefaultOrganizationNavigation from './DefaultOrganizationNavigation';
 import NotFound from './NotFound';
-import { Organization } from '../types';
+import { Organization, Extension } from '../types';
+import { getSettingsNavigation } from '../../api/nav';
 import { getOrganization, getOrganizationNavigation } from '../../api/organizations';
-import { AppState } from '../../store/appState/duck';
+import { AppState, setAdminPages } from '../../store/appState/duck';
 import { getAppState } from '../../store/rootReducer';
 
 interface StateProps {
   appState: AppState;
 }
 
-interface Props extends StateProps {
+interface DispatchProps {
+  setAdminPages: (extensions: Extension[]) => void;
+}
+
+interface Props extends StateProps, DispatchProps {
   children: JSX.Element;
   location: { pathname: string };
 }
@@ -60,11 +65,13 @@ class DefaultOrganizationContainer extends React.PureComponent<Props, State> {
       this.setState({ loading: true });
       Promise.all([
         getOrganization(defaultOrganization),
-        getOrganizationNavigation(defaultOrganization)
+        getOrganizationNavigation(defaultOrganization),
+        getSettingsNavigation()
       ]).then(
-        ([a, b]) => {
+        ([organization, navigation, settings]) => {
+          this.props.setAdminPages(settings.extensions);
           if (this.mounted) {
-            this.setState({ loading: false, organization: { ...a, ...b } });
+            this.setState({ loading: false, organization: { ...organization, ...navigation } });
           }
         },
         () => {
@@ -101,4 +108,8 @@ const mapStateToProps = (state: any) => ({
   appState: getAppState(state)
 });
 
-export default connect<StateProps>(mapStateToProps)(DefaultOrganizationContainer);
+const mapDispatchToProps = { setAdminPages };
+
+export default connect<StateProps, DispatchProps>(mapStateToProps, mapDispatchToProps)(
+  DefaultOrganizationContainer
+);

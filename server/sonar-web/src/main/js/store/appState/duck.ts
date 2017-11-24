@@ -29,6 +29,7 @@ export interface AppState {
   canAdmin?: boolean;
   organizationsEnabled?: boolean;
   qualifiers: string[];
+  version?: string;
 }
 
 interface SetAppStateAction {
