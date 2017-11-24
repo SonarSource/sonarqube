@@ -25,7 +25,6 @@ import {
   RENAME,
   COPY,
   SET_AS_DEFAULT,
-  UNSET_AS_DEFAULT,
   ADD_CONDITION,
   DELETE_CONDITION,
   SAVE_CONDITION
@@ -74,16 +73,6 @@ export default function rootReducer(state = initialState, action = {}) {
           ...state.qualityGate,
           isDefault: state.qualityGate.id === action.qualityGate.id
         }
-      };
-    case UNSET_AS_DEFAULT:
-      return {
-        ...state,
-        qualityGates: state.qualityGates.map(candidate => {
-          return candidate.id === action.qualityGate.id
-            ? { ...candidate, isDefault: false }
-            : candidate;
-        }),
-        qualityGate: { ...state.qualityGate, isDefault: false }
       };
     case ADD_CONDITION:
       return {
