@@ -50,7 +50,7 @@ public class ListActionTest {
   public DbTester db = DbTester.create();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
-  private WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(), new QGateWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider)));
+  private WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(), new QualityGatesWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider)));
 
   @Test
   public void verify_definition() {

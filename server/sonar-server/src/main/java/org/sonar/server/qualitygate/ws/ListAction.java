@@ -39,9 +39,9 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 public class ListAction implements QualityGatesWsAction {
 
   private final DbClient dbClient;
-  private final QGateWsSupport wsSupport;
+  private final QualityGatesWsSupport wsSupport;
 
-  public ListAction(DbClient dbClient, QGateWsSupport wsSupport) {
+  public ListAction(DbClient dbClient, QualityGatesWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
   }
