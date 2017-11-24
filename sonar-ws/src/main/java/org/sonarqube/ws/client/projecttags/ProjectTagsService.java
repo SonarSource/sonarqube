@@ -29,7 +29,6 @@ import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.ProjectTags.SearchResponse;
 
 /**
- * Manage project tags
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_tags">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -40,7 +39,6 @@ public class ProjectTagsService extends BaseService {
   }
 
   /**
-   * Search tags
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -56,7 +54,6 @@ public class ProjectTagsService extends BaseService {
   }
 
   /**
-   * Set tags on a project.<br>Requires the following permission: 'Administer' rights on the specified project
    *
    * This is part of the internal API.
    * This is a POST request.

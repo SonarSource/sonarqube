@@ -22,8 +22,6 @@ package org.sonarqube.ws.client.favorites;
 import javax.annotation.Generated;
 
 /**
- * Remove a component (project, directory, file etc.) as favorite for the authenticated user.<br>Requires authentication.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/favorites/remove">Further information about this action online (including a response example)</a>
@@ -35,8 +33,6 @@ public class RemoveRequest {
   private String component;
 
   /**
-   * Component key
-   *
    * This is a mandatory parameter.
    * Example value: "my_project"
    */

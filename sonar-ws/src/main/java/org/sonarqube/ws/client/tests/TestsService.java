@@ -19,15 +19,17 @@
  */
 package org.sonarqube.ws.client.tests;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
+import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.Tests.CoveredFilesResponse;
 import org.sonarqube.ws.Tests.ListResponse;
 
 /**
- * Get details on test files. See also api/sources. Deprecated since 5.6.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/tests">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -38,7 +40,6 @@ public class TestsService extends BaseService {
   }
 
   /**
-   * Get the list of source files covered by a test. Require Browse permission on test file's project
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -57,7 +58,6 @@ public class TestsService extends BaseService {
   }
 
   /**
-   * Get the list of tests either in a test file or that test a given line of source code.<br /> Requires 'Browse' permission on the file's project.<br /> One (and only one) of the following combination of parameters must be provided: <ul><li>testId - get a specific test</li><li>testFileId - get the tests in a test file</li><li>testFileKey - get the tests in a test file</li><li>sourceFileId and sourceFileLineNumber - get the tests that cover a specific line of code</li><li>sourceFileKey and sourceFileLineNumber - get the tests that cover a specific line of code</li></ul>
    *
    * This is part of the internal API.
    * This is a GET request.

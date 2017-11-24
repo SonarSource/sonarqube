@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Update a setting value.<br>Either 'value' or 'values' must be provided.<br> Requires one of the following permissions: <ul><li>'Administer System'</li><li>'Administer' rights on the specified component</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings/set">Further information about this action online (including a response example)</a>
@@ -41,8 +39,6 @@ public class SetRequest {
   private List<String> values;
 
   /**
-   * Branch key. Only available on following settings : sonar.leak.period
-   *
    * This is part of the internal API.
    * Example value: "feature/my_branch"
    */
@@ -56,8 +52,6 @@ public class SetRequest {
   }
 
   /**
-   * Component key
-   *
    * Example value: "my_project"
    */
   public SetRequest setComponent(String component) {
@@ -70,8 +64,6 @@ public class SetRequest {
   }
 
   /**
-   * Setting field values. To set several values, the parameter must be called once for each value.
-   *
    * Example value: "fieldValues={\"firstField\":\"first value\", \"secondField\":\"second value\", \"thirdField\":\"third value\"}"
    */
   public SetRequest setFieldValues(List<String> fieldValues) {
@@ -84,8 +76,6 @@ public class SetRequest {
   }
 
   /**
-   * Setting key
-   *
    * This is a mandatory parameter.
    * Example value: "sonar.links.scm"
    */
@@ -99,8 +89,6 @@ public class SetRequest {
   }
 
   /**
-   * Setting value. To reset a value, please use the reset web service.
-   *
    * Example value: "git@github.com:SonarSource/sonarqube.git"
    */
   public SetRequest setValue(String value) {
@@ -113,8 +101,6 @@ public class SetRequest {
   }
 
   /**
-   * Setting multi value. To set several values, the parameter must be called once for each value.
-   *
    * Example value: "values=firstValue&values=secondValue&values=thirdValue"
    */
   public SetRequest setValues(List<String> values) {

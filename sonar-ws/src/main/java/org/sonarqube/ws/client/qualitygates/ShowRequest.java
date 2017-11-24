@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Display the details of a quality gate
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/show">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class ShowRequest {
   private String name;
 
   /**
-   * ID of the quality gate. Either id or name must be set
-   *
    * Example value: "1"
    */
   public ShowRequest setId(String id) {
@@ -50,8 +47,6 @@ public class ShowRequest {
   }
 
   /**
-   * Name of the quality gate. Either id or name must be set
-   *
    * Example value: "My Quality Gate"
    */
   public ShowRequest setName(String name) {

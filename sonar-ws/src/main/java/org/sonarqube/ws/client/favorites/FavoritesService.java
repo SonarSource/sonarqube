@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client.favorites;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
@@ -28,7 +29,6 @@ import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.Favorites.SearchResponse;
 
 /**
- * Manage user favorites
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/favorites">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -39,7 +39,6 @@ public class FavoritesService extends BaseService {
   }
 
   /**
-   * Add a component (project, directory, file etc.) as favorite for the authenticated user.<br>Requires authentication and the following permission: 'Browse' on the project of the specified component.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -55,7 +54,6 @@ public class FavoritesService extends BaseService {
   }
 
   /**
-   * Remove a component (project, directory, file etc.) as favorite for the authenticated user.<br>Requires authentication.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -71,7 +69,6 @@ public class FavoritesService extends BaseService {
   }
 
   /**
-   * Search for the authenticated user favorites.<br>Requires authentication.
    *
    * This is part of the internal API.
    * This is a GET request.

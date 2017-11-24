@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.issues;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Change type of issue, for instance from 'code smell' to 'bug'.<br/>Requires the following permissions:<ul>  <li>'Authentication'</li>  <li>'Browse' rights on project of the specified issue</li>  <li>'Administer Issues' rights on project of the specified issue</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/set_type">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class SetTypeRequest {
   private String type;
 
   /**
-   * Issue key
-   *
    * This is a mandatory parameter.
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
@@ -51,8 +48,6 @@ public class SetTypeRequest {
   }
 
   /**
-   * New type
-   *
    * This is a mandatory parameter.
    * Possible values:
    * <ul>

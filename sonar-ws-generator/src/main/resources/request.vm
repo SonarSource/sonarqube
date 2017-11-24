@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * $action.description.asString
- *
 #if ($action.internal)
  * This is part of the internal API.
 #end
@@ -51,10 +49,6 @@ public class $helper.requestType($webService.path.asString, $action.key.asString
 #foreach($param in $action.params)
 
   /**
-#if ($param.description.asString)
-   * $param.description.asString
-   *
-#end
 #if ($param.required.asBoolean)
    * This is a mandatory parameter.
 #end

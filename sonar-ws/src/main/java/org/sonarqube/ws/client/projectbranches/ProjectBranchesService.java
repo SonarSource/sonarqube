@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client.projectbranches;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
@@ -28,7 +29,6 @@ import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.ProjectBranches.ListWsResponse;
 
 /**
- * Manage branch (only available when the Branch plugin is installed)
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_branches">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -39,7 +39,6 @@ public class ProjectBranchesService extends BaseService {
   }
 
   /**
-   * Delete a non-main branch of a project.<br/>Requires 'Administer' rights on the specified project.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -56,7 +55,6 @@ public class ProjectBranchesService extends BaseService {
   }
 
   /**
-   * List the branches of a project.<br/>Requires 'Administer' rights on the specified project.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -71,7 +69,6 @@ public class ProjectBranchesService extends BaseService {
   }
 
   /**
-   * Rename the main branch of a project.<br/>Requires 'Administer' permission on the specified project.
    *
    * This is part of the internal API.
    * This is a POST request.

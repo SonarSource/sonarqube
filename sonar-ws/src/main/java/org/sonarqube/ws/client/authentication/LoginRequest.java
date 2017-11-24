@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.authentication;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Authenticate a user.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/authentication/login">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class LoginRequest {
   private String password;
 
   /**
-   * Login of the user
-   *
    * This is a mandatory parameter.
    */
   public LoginRequest setLogin(String login) {
@@ -50,8 +47,6 @@ public class LoginRequest {
   }
 
   /**
-   * Password of the user
-   *
    * This is a mandatory parameter.
    */
   public LoginRequest setPassword(String password) {

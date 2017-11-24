@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.issues;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Do workflow transition on an issue. Requires authentication and Browse permission on project.<br/>The transitions 'wontfix' and 'falsepositive' require the permission 'Administer Issues'.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/do_transition">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class DoTransitionRequest {
   private String transition;
 
   /**
-   * Issue key
-   *
    * This is a mandatory parameter.
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
@@ -51,8 +48,6 @@ public class DoTransitionRequest {
   }
 
   /**
-   * Transition
-   *
    * This is a mandatory parameter.
    * Possible values:
    * <ul>

@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * List custom measures. The project id or project key must be provided.<br />Requires 'Administer System' permission or 'Administer' permission on the project.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/custom_measures/search">Further information about this action online (including a response example)</a>
@@ -40,8 +38,6 @@ public class SearchRequest {
   private String ps;
 
   /**
-   * Comma-separated list of the fields to be returned in response. All the fields are returned by default.
-   *
    * Possible values:
    * <ul>
    *   <li>"projectId"</li>
@@ -65,8 +61,6 @@ public class SearchRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public SearchRequest setP(String p) {
@@ -79,8 +73,6 @@ public class SearchRequest {
   }
 
   /**
-   * Project id
-   *
    * Example value: "ce4c03d6-430f-40a9-b777-ad877c00aa4d"
    */
   public SearchRequest setProjectId(String projectId) {
@@ -93,8 +85,6 @@ public class SearchRequest {
   }
 
   /**
-   * Project key
-   *
    * Example value: "my_project"
    */
   public SearchRequest setProjectKey(String projectKey) {
@@ -107,8 +97,6 @@ public class SearchRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 500
-   *
    * Example value: "20"
    */
   public SearchRequest setPs(String ps) {

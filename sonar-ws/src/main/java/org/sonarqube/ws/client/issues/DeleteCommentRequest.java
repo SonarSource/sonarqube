@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.issues;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Delete a comment.<br/>Requires authentication and the following permission: 'Browse' on the project of the specified issue.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/delete_comment">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class DeleteCommentRequest {
   private String comment;
 
   /**
-   * Comment key
-   *
    * This is a mandatory parameter.
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */

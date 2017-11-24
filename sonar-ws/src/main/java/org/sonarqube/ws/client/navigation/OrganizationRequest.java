@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.navigation;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Get information concerning organization navigation for the current user
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/navigation/organization">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class OrganizationRequest {
   private String organization;
 
   /**
-   * the organization key
-   *
    * This is a mandatory parameter.
    * Example value: "my-org"
    */

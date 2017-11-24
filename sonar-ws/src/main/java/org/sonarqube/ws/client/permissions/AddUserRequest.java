@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.permissions;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Add permission to a user.<br /> This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br />Requires one of the following permissions:<ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions/add_user">Further information about this action online (including a response example)</a>
@@ -39,8 +38,6 @@ public class AddUserRequest {
   private String projectKey;
 
   /**
-   * User login
-   *
    * This is a mandatory parameter.
    * Example value: "g.hopper"
    */
@@ -54,8 +51,6 @@ public class AddUserRequest {
   }
 
   /**
-   * Key of organization, cannot be used at the same time with projectId and projectKey
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -69,8 +64,6 @@ public class AddUserRequest {
   }
 
   /**
-   * Permission<ul><li>Possible values for global permissions: admin, profileadmin, gateadmin, scan, provisioning</li><li>Possible values for project permissions admin, codeviewer, issueadmin, scan, user</li></ul>
-   *
    * This is a mandatory parameter.
    */
   public AddUserRequest setPermission(String permission) {
@@ -83,8 +76,6 @@ public class AddUserRequest {
   }
 
   /**
-   * Project id
-   *
    * Example value: "ce4c03d6-430f-40a9-b777-ad877c00aa4d"
    */
   public AddUserRequest setProjectId(String projectId) {
@@ -97,8 +88,6 @@ public class AddUserRequest {
   }
 
   /**
-   * Project key
-   *
    * Example value: "my_project"
    */
   public AddUserRequest setProjectKey(String projectKey) {

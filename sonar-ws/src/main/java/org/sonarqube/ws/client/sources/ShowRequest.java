@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.sources;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Get source code. Require See Source Code permission on file's project<br/>Each element of the result array is composed of:<ol><li>Line number</li><li>Content of the line</li></ol>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/sources/show">Further information about this action online (including a response example)</a>
@@ -37,8 +36,6 @@ public class ShowRequest {
   private String to;
 
   /**
-   * First line to return. Starts at 1
-   *
    * Example value: "10"
    */
   public ShowRequest setFrom(String from) {
@@ -51,8 +48,6 @@ public class ShowRequest {
   }
 
   /**
-   * File key
-   *
    * This is a mandatory parameter.
    * Example value: "my_project:/src/foo/Bar.php"
    */
@@ -66,8 +61,6 @@ public class ShowRequest {
   }
 
   /**
-   * Last line to return (inclusive)
-   *
    * Example value: "20"
    */
   public ShowRequest setTo(String to) {

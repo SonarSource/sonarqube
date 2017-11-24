@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.projects;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Update a project or module key and all its sub-components keys.<br>Either 'from' or 'projectId' must be provided.<br> Requires one of the following permissions: <ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects/update_key">Further information about this action online (including a response example)</a>
@@ -37,8 +36,6 @@ public class UpdateKeyRequest {
   private String to;
 
   /**
-   * Project or module key
-   *
    * Example value: "my_old_project"
    */
   public UpdateKeyRequest setFrom(String from) {
@@ -51,8 +48,6 @@ public class UpdateKeyRequest {
   }
 
   /**
-   * Project or module id
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    * @deprecated since 6.4
    */
@@ -67,8 +62,6 @@ public class UpdateKeyRequest {
   }
 
   /**
-   * New component key
-   *
    * This is a mandatory parameter.
    * Example value: "my_new_project"
    */

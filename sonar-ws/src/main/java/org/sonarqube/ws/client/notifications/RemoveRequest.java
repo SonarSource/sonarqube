@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.notifications;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Remove a notification for the authenticated user.<br>Requires one of the following permissions:<ul>  <li>Authentication if no login is provided</li>  <li>System administration if a login is provided</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/notifications/remove">Further information about this action online (including a response example)</a>
@@ -38,8 +37,6 @@ public class RemoveRequest {
   private String type;
 
   /**
-   * Channel through which the notification is sent. For example, notifications can be sent by email.
-   *
    * Possible values:
    * <ul>
    *   <li>"EmailNotificationChannel"</li>
@@ -55,8 +52,6 @@ public class RemoveRequest {
   }
 
   /**
-   * User login
-   *
    */
   public RemoveRequest setLogin(String login) {
     this.login = login;
@@ -68,8 +63,6 @@ public class RemoveRequest {
   }
 
   /**
-   * Project key
-   *
    * Example value: "my_project"
    */
   public RemoveRequest setProject(String project) {
@@ -82,8 +75,6 @@ public class RemoveRequest {
   }
 
   /**
-   * Notification type. Possible values are for:<ul>  <li>Global notifications: CeReportTaskFailure, ChangesOnMyIssue, NewAlerts, NewFalsePositiveIssue, NewIssues, SQ-MyNewIssues</li>  <li>Per project notifications: CeReportTaskFailure, ChangesOnMyIssue, NewAlerts, NewFalsePositiveIssue, NewIssues, SQ-MyNewIssues</li></ul>
-   *
    * This is a mandatory parameter.
    * Example value: "SQ-MyNewIssues"
    */

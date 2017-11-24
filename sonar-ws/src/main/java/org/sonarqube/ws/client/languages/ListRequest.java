@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.languages;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * List supported programming languages
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/languages/list">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class ListRequest {
   private String q;
 
   /**
-   * The size of the list to return, 0 for all languages
-   *
    * Example value: "25"
    */
   public ListRequest setPs(String ps) {
@@ -50,8 +47,6 @@ public class ListRequest {
   }
 
   /**
-   * A pattern to match language keys/names against
-   *
    * Example value: "java"
    */
   public ListRequest setQ(String q) {

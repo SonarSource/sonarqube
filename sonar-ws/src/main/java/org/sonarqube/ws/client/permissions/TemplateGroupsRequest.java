@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.permissions;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Lists the groups with their permission as individual groups rather than through user affiliation on the chosen template.<br />This service defaults to all groups, but can be limited to groups with a specific permission by providing the desired permission.<br>Requires the following permission: 'Administer System'.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions/template_groups">Further information about this action online (including a response example)</a>
@@ -41,8 +40,6 @@ public class TemplateGroupsRequest {
   private String templateName;
 
   /**
-   * Key of organization, used when group name is set
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -56,8 +53,6 @@ public class TemplateGroupsRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public TemplateGroupsRequest setP(String p) {
@@ -70,8 +65,6 @@ public class TemplateGroupsRequest {
   }
 
   /**
-   * Permission<ul><li>Possible values for project permissions admin, codeviewer, issueadmin, scan, user</li></ul>
-   *
    * This is a mandatory parameter.
    * Possible values:
    * <ul>
@@ -92,8 +85,6 @@ public class TemplateGroupsRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 100
-   *
    * Example value: "20"
    */
   public TemplateGroupsRequest setPs(String ps) {
@@ -106,8 +97,6 @@ public class TemplateGroupsRequest {
   }
 
   /**
-   * Limit search to group names that contain the supplied string. <br/>When this parameter is not set, only group having at least one permission are returned.
-   *
    * Example value: "eri"
    */
   public TemplateGroupsRequest setQ(String q) {
@@ -120,8 +109,6 @@ public class TemplateGroupsRequest {
   }
 
   /**
-   * Template id
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
   public TemplateGroupsRequest setTemplateId(String templateId) {
@@ -134,8 +121,6 @@ public class TemplateGroupsRequest {
   }
 
   /**
-   * Template name
-   *
    * Example value: "Default Permission Template for Projects"
    */
   public TemplateGroupsRequest setTemplateName(String templateName) {

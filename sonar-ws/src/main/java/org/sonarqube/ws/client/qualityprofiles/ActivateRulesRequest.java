@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Bulk-activate rules on one quality profile.<br> Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/activate_rules">Further information about this action online (including a response example)</a>
@@ -56,8 +54,6 @@ public class ActivateRulesRequest {
   private List<String> types;
 
   /**
-   * Filter rules that are activated or deactivated on the selected Quality profile. Ignored if the parameter 'qprofile' is not set.
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -76,8 +72,6 @@ public class ActivateRulesRequest {
   }
 
   /**
-   * Comma-separated list of activation severities, i.e the severity of rules in Quality profiles.
-   *
    * Example value: "CRITICAL,BLOCKER"
    * Possible values:
    * <ul>
@@ -98,8 +92,6 @@ public class ActivateRulesRequest {
   }
 
   /**
-   * Ascending sort
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -118,8 +110,6 @@ public class ActivateRulesRequest {
   }
 
   /**
-   * Filters rules added since date. Format is yyyy-MM-dd
-   *
    * Example value: "2014-06-22"
    */
   public ActivateRulesRequest setAvailableSince(String availableSince) {
@@ -132,8 +122,6 @@ public class ActivateRulesRequest {
   }
 
   /**
-   * Quality profile key to filter rules that are activated. Meant to compare easily to profile set in 'qprofile'
-   *
    * This is part of the internal API.
    * Example value: "AU-TpxcA-iU5OvuD2FLz"
    */
@@ -147,8 +135,6 @@ public class ActivateRulesRequest {
   }
 
   /**
-   * Comma-separated list of values of inheritance for a rule within a quality profile. Used only if the parameter 'activation' is set.
-   *
    * Example value: "INHERITED,OVERRIDES"
    * Possible values:
    * <ul>
@@ -167,8 +153,6 @@ public class ActivateRulesRequest {
   }
 
   /**
-   * Filter template rules
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -187,8 +171,6 @@ public class ActivateRulesRequest {
   }
 
   /**
-   * Comma-separated list of languages
-   *
    * Example value: "java,js"
    */
   public ActivateRulesRequest setLanguages(List<String> languages) {
@@ -201,8 +183,6 @@ public class ActivateRulesRequest {
   }
 
   /**
-   * Organization key
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -216,8 +196,6 @@ public class ActivateRulesRequest {
   }
 
   /**
-   * UTF-8 search query
-   *
    * Example value: "xpath"
    */
   public ActivateRulesRequest setQ(String q) {
@@ -230,8 +208,6 @@ public class ActivateRulesRequest {
   }
 
   /**
-   * Quality profile key to filter on. Used only if the parameter 'activation' is set.
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
   public ActivateRulesRequest setQprofile(String qprofile) {
@@ -244,8 +220,6 @@ public class ActivateRulesRequest {
   }
 
   /**
-   * Comma-separated list of repositories
-   *
    * Example value: "checkstyle,findbugs"
    */
   public ActivateRulesRequest setRepositories(List<String> repositories) {
@@ -258,8 +232,6 @@ public class ActivateRulesRequest {
   }
 
   /**
-   * Key of rule to search for
-   *
    * Example value: "squid:S001"
    */
   public ActivateRulesRequest setRuleKey(String ruleKey) {
@@ -272,8 +244,6 @@ public class ActivateRulesRequest {
   }
 
   /**
-   * Sort field
-   *
    * Example value: "name"
    * Possible values:
    * <ul>
@@ -293,8 +263,6 @@ public class ActivateRulesRequest {
   }
 
   /**
-   * Comma-separated list of default severities. Not the same than severity of rules in Quality profiles.
-   *
    * Example value: "CRITICAL,BLOCKER"
    * Possible values:
    * <ul>
@@ -315,8 +283,6 @@ public class ActivateRulesRequest {
   }
 
   /**
-   * Comma-separated list of status codes
-   *
    * Example value: "READY"
    * Possible values:
    * <ul>
@@ -336,8 +302,6 @@ public class ActivateRulesRequest {
   }
 
   /**
-   * Comma-separated list of tags. Returned rules match any of the tags (OR operator)
-   *
    * Example value: "security,java8"
    */
   public ActivateRulesRequest setTags(List<String> tags) {
@@ -350,8 +314,6 @@ public class ActivateRulesRequest {
   }
 
   /**
-   * Quality Profile key on which the rule activation is done. To retrieve a quality profile key please see <code>api/qualityprofiles/search</code>
-   *
    * This is a mandatory parameter.
    * Example value: "AU-TpxcA-iU5OvuD2FL0"
    */
@@ -365,8 +327,6 @@ public class ActivateRulesRequest {
   }
 
   /**
-   * Severity to set on the activated rules
-   *
    * Possible values:
    * <ul>
    *   <li>"INFO"</li>
@@ -386,8 +346,6 @@ public class ActivateRulesRequest {
   }
 
   /**
-   * Key of the template rule to filter on. Used to search for the custom rules based on this template.
-   *
    * Example value: "java:S001"
    */
   public ActivateRulesRequest setTemplateKey(String templateKey) {
@@ -400,8 +358,6 @@ public class ActivateRulesRequest {
   }
 
   /**
-   * Comma-separated list of types. Returned rules match any of the tags (OR operator)
-   *
    * Example value: "BUG"
    * Possible values:
    * <ul>

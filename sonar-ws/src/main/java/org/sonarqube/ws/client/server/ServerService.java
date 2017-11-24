@@ -28,7 +28,6 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 /**
- * $webService.description.asString
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/server">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -39,7 +38,6 @@ public class ServerService extends BaseService {
   }
 
   /**
-   * Version of SonarQube in plain text
    *
    * This is part of the internal API.
    * This is a GET request.

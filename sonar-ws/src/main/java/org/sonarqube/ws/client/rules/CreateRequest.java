@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.rules;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Create a custom rule.<br>Requires the 'Administer Quality Profiles' permission
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/rules/create">Further information about this action online (including a response example)</a>
@@ -36,7 +35,7 @@ public class CreateRequest {
   private String manualKey;
   private String markdownDescription;
   private String name;
-  private String params;
+  private List<String> params;
   private String preventReactivation;
   private String severity;
   private String status;
@@ -44,8 +43,6 @@ public class CreateRequest {
   private String type;
 
   /**
-   * Key of the custom rule
-   *
    * This is a mandatory parameter.
    * Example value: "Todo_should_not_be_used"
    */
@@ -59,8 +56,6 @@ public class CreateRequest {
   }
 
   /**
-   * Manual rules are no more supported. This parameter is ignored
-   *
    * Example value: "Error_handling"
    * @deprecated since 5.5
    */
@@ -75,8 +70,6 @@ public class CreateRequest {
   }
 
   /**
-   * Rule description
-   *
    * This is a mandatory parameter.
    * Example value: "Description of my custom rule"
    */
@@ -90,8 +83,6 @@ public class CreateRequest {
   }
 
   /**
-   * Rule name
-   *
    * This is a mandatory parameter.
    * Example value: "My custom rule"
    */
@@ -105,21 +96,17 @@ public class CreateRequest {
   }
 
   /**
-   * Parameters as semi-colon list of <key>=<value>, for example 'params=key1=v1;key2=v2' (Only for custom rule)
-   *
    */
-  public CreateRequest setParams(String params) {
+  public CreateRequest setParams(List<String> params) {
     this.params = params;
     return this;
   }
 
-  public String getParams() {
+  public List<String> getParams() {
     return params;
   }
 
   /**
-   * If set to true and if the rule has been deactivated (status 'REMOVED'), a status 409 will be returned
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -138,8 +125,6 @@ public class CreateRequest {
   }
 
   /**
-   * Rule severity
-   *
    * Possible values:
    * <ul>
    *   <li>"INFO"</li>
@@ -159,8 +144,6 @@ public class CreateRequest {
   }
 
   /**
-   * Rule status
-   *
    * Possible values:
    * <ul>
    *   <li>"BETA"</li>
@@ -179,8 +162,6 @@ public class CreateRequest {
   }
 
   /**
-   * Key of the template rule in order to create a custom rule (mandatory for custom rule)
-   *
    * Example value: "java:XPath"
    */
   public CreateRequest setTemplateKey(String templateKey) {
@@ -193,8 +174,6 @@ public class CreateRequest {
   }
 
   /**
-   * Rule type
-   *
    * Possible values:
    * <ul>
    *   <li>"CODE_SMELL"</li>

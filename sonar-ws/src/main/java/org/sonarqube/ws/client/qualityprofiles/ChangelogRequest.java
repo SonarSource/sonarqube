@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualityprofiles;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Get the history of changes on a quality profile: rule activation/deactivation, change in parameters/severity. Events are ordered by date in descending order (most recent first).
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/changelog">Further information about this action online (including a response example)</a>
@@ -42,8 +41,6 @@ public class ChangelogRequest {
   private String to;
 
   /**
-   * Quality profile key
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    * @deprecated since 6.6
    */
@@ -58,8 +55,6 @@ public class ChangelogRequest {
   }
 
   /**
-   * Quality profile language. If this parameter is set, 'key' must not be set and 'language' must be set to disambiguate.
-   *
    */
   public ChangelogRequest setLanguage(String language) {
     this.language = language;
@@ -71,8 +66,6 @@ public class ChangelogRequest {
   }
 
   /**
-   * Organization key. If no organization is provided, the default organization is used.
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -86,8 +79,6 @@ public class ChangelogRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public ChangelogRequest setP(String p) {
@@ -100,8 +91,6 @@ public class ChangelogRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 500
-   *
    * Example value: "20"
    */
   public ChangelogRequest setPs(String ps) {
@@ -114,8 +103,6 @@ public class ChangelogRequest {
   }
 
   /**
-   * Quality profile name. If this parameter is set, 'key' must not be set and 'language' must be set to disambiguate.
-   *
    * Example value: "Sonar way"
    */
   public ChangelogRequest setQualityProfile(String qualityProfile) {
@@ -128,8 +115,6 @@ public class ChangelogRequest {
   }
 
   /**
-   * Start date for the changelog. <br>Either a date (server timezone) or datetime can be provided.
-   *
    * Example value: "2017-10-19 or 2017-10-19T13:00:00+0200"
    */
   public ChangelogRequest setSince(String since) {
@@ -142,8 +127,6 @@ public class ChangelogRequest {
   }
 
   /**
-   * End date for the changelog. <br>Either a date (server timezone) or datetime can be provided.
-   *
    * Example value: "2017-10-19 or 2017-10-19T13:00:00+0200"
    */
   public ChangelogRequest setTo(String to) {

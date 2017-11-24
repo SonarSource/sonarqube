@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.permissions;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Lists the users with their permissions as individual users rather than through group affiliation.<br>This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br> This service defaults to all users, but can be limited to users with a specific permission by providing the desired permission.<br>Requires one of the following permissions:<ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions/users">Further information about this action online (including a response example)</a>
@@ -41,8 +40,6 @@ public class UsersRequest {
   private String q;
 
   /**
-   * Key of organization, used when group name is set
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -56,8 +53,6 @@ public class UsersRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public UsersRequest setP(String p) {
@@ -70,8 +65,6 @@ public class UsersRequest {
   }
 
   /**
-   * Permission<ul><li>Possible values for global permissions: admin, profileadmin, gateadmin, scan, provisioning</li><li>Possible values for project permissions admin, codeviewer, issueadmin, scan, user</li></ul>
-   *
    */
   public UsersRequest setPermission(String permission) {
     this.permission = permission;
@@ -83,8 +76,6 @@ public class UsersRequest {
   }
 
   /**
-   * Project id
-   *
    * Example value: "ce4c03d6-430f-40a9-b777-ad877c00aa4d"
    */
   public UsersRequest setProjectId(String projectId) {
@@ -97,8 +88,6 @@ public class UsersRequest {
   }
 
   /**
-   * Project key
-   *
    * Example value: "my_project"
    */
   public UsersRequest setProjectKey(String projectKey) {
@@ -111,8 +100,6 @@ public class UsersRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 100
-   *
    * Example value: "20"
    */
   public UsersRequest setPs(String ps) {
@@ -125,8 +112,6 @@ public class UsersRequest {
   }
 
   /**
-   * Limit search to user names that contain the supplied string. <br/>When this parameter is not set, only users having at least one permission are returned.
-   *
    * Example value: "eri"
    */
   public UsersRequest setQ(String q) {

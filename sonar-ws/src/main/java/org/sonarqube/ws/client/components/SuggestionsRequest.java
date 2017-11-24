@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Internal WS for the top-right search engine. The result will contain component search results, grouped by their qualifiers.<p>Each result contains:<ul><li>the organization key</li><li>the component key</li><li>the component's name (unescaped)</li><li>optionally a display name, which puts emphasis to matching characters (this text contains html tags and parts of the html-escaped name)</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/components/suggestions">Further information about this action online (including a response example)</a>
@@ -38,8 +36,6 @@ public class SuggestionsRequest {
   private String s;
 
   /**
-   * Category, for which to display the next 20 results (skipping the first 6 results)
-   *
    * Possible values:
    * <ul>
    *   <li>"VW"</li>
@@ -61,8 +57,6 @@ public class SuggestionsRequest {
   }
 
   /**
-   * Comma separated list of component keys, that have recently been browsed by the user. Only the first 50 items will be used. Order is not taken into account.
-   *
    * Example value: "org.sonarsource:sonarqube,some.other:project"
    */
   public SuggestionsRequest setRecentlyBrowsed(List<String> recentlyBrowsed) {
@@ -75,8 +69,6 @@ public class SuggestionsRequest {
   }
 
   /**
-   * Search query: can contain several search tokens separated by spaces.
-   *
    * Example value: "sonar"
    */
   public SuggestionsRequest setS(String s) {

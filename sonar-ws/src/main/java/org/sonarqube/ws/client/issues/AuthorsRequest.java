@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.issues;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Search SCM accounts which match a given query
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/authors">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class AuthorsRequest {
   private String q;
 
   /**
-   * The size of the list to return
-   *
    * Example value: "25"
    */
   public AuthorsRequest setPs(String ps) {
@@ -50,8 +47,6 @@ public class AuthorsRequest {
   }
 
   /**
-   * A pattern to match SCM accounts against
-   *
    * Example value: "luke"
    */
   public AuthorsRequest setQ(String q) {

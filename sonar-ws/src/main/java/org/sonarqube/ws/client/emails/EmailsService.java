@@ -19,14 +19,15 @@
  */
 package org.sonarqube.ws.client.emails;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 /**
- * Manage emails
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/emails">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -37,7 +38,6 @@ public class EmailsService extends BaseService {
   }
 
   /**
-   * Test email configuration by sending an email<br>Requires 'Administer System' permission.
    *
    * This is part of the internal API.
    * This is a POST request.

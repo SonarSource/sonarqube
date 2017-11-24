@@ -35,7 +35,6 @@ import org.sonarqube.ws.Qualityprofiles.SearchUsersResponse;
 import org.sonarqube.ws.Qualityprofiles.ShowResponse;
 
 /**
- * Manage quality profiles.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -46,7 +45,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Activate a rule on a Quality Profile.<br> Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -57,7 +55,7 @@ public class QualityprofilesService extends BaseService {
     call(
       new PostRequest(path("activate_rule"))
         .setParam("key", request.getKey())
-        .setParam("params", request.getParams())
+        .setParam("params", request.getParams() == null ? null : request.getParams().stream().collect(Collectors.joining(",")))
         .setParam("reset", request.getReset())
         .setParam("rule", request.getRule())
         .setParam("severity", request.getSeverity())
@@ -66,7 +64,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Bulk-activate rules on one quality profile.<br> Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -102,7 +99,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Allow a group to edit a Quality Profile.<br>Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -121,7 +117,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Associate a project with a quality profile.<br> Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li>  <li>Administer right on the specified project</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -142,7 +137,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Allow a user to edit a Quality Profile.<br>Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -161,7 +155,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Backup a quality profile in XML form. The exported profile can be restored through api/qualityprofiles/restore.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -180,7 +173,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Change a quality profile's parent.<br>Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -201,7 +193,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Get the history of changes on a quality profile: rule activation/deactivation, change in parameters/severity. Events are ordered by date in descending order (most recent first).
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -224,7 +215,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Compare two quality profiles.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -241,7 +231,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Copy a quality profile.<br> Requires to be logged in and the 'Administer Quality Profiles' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -257,7 +246,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Create a quality profile.<br>Requires to be logged in and the 'Administer Quality Profiles' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -274,7 +262,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Deactivate a rule on a quality profile.<br> Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -291,7 +278,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Bulk deactivate rules on Quality profiles.<br>Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -326,7 +312,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Delete a quality profile and all its descendants. The default quality profile cannot be deleted.<br> Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -345,7 +330,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Export a quality profile.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -364,7 +348,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Lists available profile export formats.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -379,7 +362,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * List supported importers.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -394,7 +376,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Show a quality profile's ancestors and children.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -412,7 +393,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * List projects with their association status regarding a quality profile
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -432,7 +412,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Remove the ability from a group to edit a Quality Profile.<br>Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -451,7 +430,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Remove a project's association with a quality profile.<br> Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li>  <li>Administer right on the specified project</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -472,7 +450,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Remove the ability from a user to edit a Quality Profile.<br>Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -491,7 +468,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Rename a quality profile.<br> Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -508,7 +484,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Restore a quality profile using an XML file. The restored profile name is taken from the backup file, so if a profile with the same name and language already exists, it will be overwritten.<br> Requires to be logged in and the 'Administer Quality Profiles' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -525,7 +500,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * This web service has no effect since 6.4. It's no more possible to restore built-in quality profiles because they are automatically updated and read only. Returns HTTP code 410.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -542,7 +516,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Search quality profiles
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -561,7 +534,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * List the groups that are allowed to edit a Quality Profile.<br>Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -582,7 +554,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * List the users that are allowed to edit a Quality Profile.<br>Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -603,7 +574,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Select the default profile for a given language.<br> Requires to be logged in and the 'Administer Quality Profiles' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -622,7 +592,6 @@ public class QualityprofilesService extends BaseService {
   }
 
   /**
-   * Show a quality profile
    *
    * This is part of the internal API.
    * This is a GET request.

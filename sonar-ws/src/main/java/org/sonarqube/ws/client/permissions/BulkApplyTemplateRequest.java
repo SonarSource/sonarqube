@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Apply a permission template to several projects.<br />The template id or name must be provided.<br />Requires the following permission: 'Administer System'.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions/bulk_apply_template">Further information about this action online (including a response example)</a>
@@ -44,8 +42,6 @@ public class BulkApplyTemplateRequest {
   private String visibility;
 
   /**
-   * Filter the projects for which last analysis is older than the given date (exclusive).<br> Either a date (server timezone) or datetime can be provided.
-   *
    * Example value: "2017-10-19 or 2017-10-19T13:00:00+0200"
    */
   public BulkApplyTemplateRequest setAnalyzedBefore(String analyzedBefore) {
@@ -58,8 +54,6 @@ public class BulkApplyTemplateRequest {
   }
 
   /**
-   * Filter the projects that are provisioned
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -78,8 +72,6 @@ public class BulkApplyTemplateRequest {
   }
 
   /**
-   * Key of organization, used when group name is set
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -93,8 +85,6 @@ public class BulkApplyTemplateRequest {
   }
 
   /**
-   * Comma-separated list of project keys
-   *
    * Example value: "my_project,another_project"
    */
   public BulkApplyTemplateRequest setProjects(List<String> projects) {
@@ -107,8 +97,6 @@ public class BulkApplyTemplateRequest {
   }
 
   /**
-   * Limit search to: <ul><li>project names that contain the supplied string</li><li>project keys that are exactly the same as the supplied string</li></ul>
-   *
    * Example value: "apac"
    */
   public BulkApplyTemplateRequest setQ(String q) {
@@ -121,8 +109,6 @@ public class BulkApplyTemplateRequest {
   }
 
   /**
-   * Comma-separated list of component qualifiers. Filter the results with the specified qualifiers. Possible values are:<ul><li>TRK - Projects</li></ul>
-   *
    * Possible values:
    * <ul>
    *   <li>"TRK"</li>
@@ -138,8 +124,6 @@ public class BulkApplyTemplateRequest {
   }
 
   /**
-   * Template id
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
   public BulkApplyTemplateRequest setTemplateId(String templateId) {
@@ -152,8 +136,6 @@ public class BulkApplyTemplateRequest {
   }
 
   /**
-   * Template name
-   *
    * Example value: "Default Permission Template for Projects"
    */
   public BulkApplyTemplateRequest setTemplateName(String templateName) {
@@ -166,8 +148,6 @@ public class BulkApplyTemplateRequest {
   }
 
   /**
-   * Filter the projects that should be visible to everyone (public), or only specific user/groups (private).<br/>If no visibility is specified, the default project visibility of the organization will be used.
-   *
    * This is part of the internal API.
    * Possible values:
    * <ul>

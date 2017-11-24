@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.issues;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Assign/Unassign an issue. Requires authentication and Browse permission on project
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/assign">Further information about this action online (including a response example)</a>
@@ -37,8 +36,6 @@ public class AssignRequest {
   private String me;
 
   /**
-   * Login of the assignee. When not set, it will unassign the issue. Use '_me' to assign to current user
-   *
    * Example value: "admin"
    */
   public AssignRequest setAssignee(String assignee) {
@@ -51,8 +48,6 @@ public class AssignRequest {
   }
 
   /**
-   * Issue key
-   *
    * This is a mandatory parameter.
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
@@ -66,8 +61,6 @@ public class AssignRequest {
   }
 
   /**
-   * (deprecated) Assign the issue to the logged-in user. Replaced by the parameter assignee=_me
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>

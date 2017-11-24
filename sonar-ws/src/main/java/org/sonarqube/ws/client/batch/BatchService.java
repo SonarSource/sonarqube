@@ -19,15 +19,16 @@
  */
 package org.sonarqube.ws.client.batch;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.Batch.WsProjectResponse;
 
 /**
- * Get JAR files and referentials for batch
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/batch">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -38,7 +39,6 @@ public class BatchService extends BaseService {
   }
 
   /**
-   * Download a JAR file listed in the index (see batch/index)
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -54,7 +54,6 @@ public class BatchService extends BaseService {
   }
 
   /**
-   * List the JAR files to be downloaded by scanners
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -69,7 +68,6 @@ public class BatchService extends BaseService {
   }
 
   /**
-   * Return open issues
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -86,7 +84,6 @@ public class BatchService extends BaseService {
   }
 
   /**
-   * Return project repository
    *
    * This is part of the internal API.
    * This is a GET request.

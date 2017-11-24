@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.permissions;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * List permission templates.<br />Requires the following permission: 'Administer System'.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions/search_templates">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class SearchTemplatesRequest {
   private String q;
 
   /**
-   * Key of organization, used when group name is set
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -51,8 +48,6 @@ public class SearchTemplatesRequest {
   }
 
   /**
-   * Limit search to permission template names that contain the supplied string.
-   *
    * Example value: "defau"
    */
   public SearchTemplatesRequest setQ(String q) {

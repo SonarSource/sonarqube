@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Navigate through components based on the chosen strategy. The componentId or the component parameter must be provided.<br>Requires the following permission: 'Browse' on the specified project.<br>When limiting search with the q parameter, directories are not returned.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/components/tree">Further information about this action online (including a response example)</a>
@@ -45,8 +43,6 @@ public class TreeRequest {
   private String strategy;
 
   /**
-   * Ascending sort
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -65,8 +61,6 @@ public class TreeRequest {
   }
 
   /**
-   * Branch key
-   *
    * This is part of the internal API.
    * Example value: "feature/my_branch"
    */
@@ -80,8 +74,6 @@ public class TreeRequest {
   }
 
   /**
-   * Base component key. The search is based on this component.
-   *
    * Example value: "my_project"
    */
   public TreeRequest setComponent(String component) {
@@ -94,8 +86,6 @@ public class TreeRequest {
   }
 
   /**
-   * Base component id. The search is based on this component.
-   *
    * Example value: "AU-TpxcA-iU5OvuD2FLz"
    * @deprecated since 6.4
    */
@@ -110,8 +100,6 @@ public class TreeRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public TreeRequest setP(String p) {
@@ -124,8 +112,6 @@ public class TreeRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 500
-   *
    * Example value: "20"
    */
   public TreeRequest setPs(String ps) {
@@ -138,8 +124,6 @@ public class TreeRequest {
   }
 
   /**
-   * Limit search to: <ul><li>component names that contain the supplied string</li><li>component keys that are exactly the same as the supplied string</li></ul>
-   *
    * Example value: "FILE_NAM"
    */
   public TreeRequest setQ(String q) {
@@ -152,8 +136,6 @@ public class TreeRequest {
   }
 
   /**
-   * Comma-separated list of component qualifiers. Filter the results with the specified qualifiers. Possible values are:<ul><li>BRC - Sub-projects</li><li>DIR - Directories</li><li>FIL - Files</li><li>TRK - Projects</li><li>UTS - Test Files</li></ul>
-   *
    * Possible values:
    * <ul>
    *   <li>"BRC"</li>
@@ -173,8 +155,6 @@ public class TreeRequest {
   }
 
   /**
-   * Comma-separated list of sort fields
-   *
    * Example value: "name, path"
    * Possible values:
    * <ul>
@@ -193,8 +173,6 @@ public class TreeRequest {
   }
 
   /**
-   * Strategy to search for base component descendants:<ul><li>children: return the children components of the base component. Grandchildren components are not returned</li><li>all: return all the descendants components of the base component. Grandchildren are returned.</li><li>leaves: return all the descendant components (files, in general) which don't have other children. They are the leaves of the component tree.</li></ul>
-   *
    * Possible values:
    * <ul>
    *   <li>"all"</li>

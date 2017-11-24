@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.permissions;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Lists the users with their permission as individual users rather than through group affiliation on the chosen template. <br />This service defaults to all users, but can be limited to users with a specific permission by providing the desired permission.<br>Requires the following permission: 'Administer System'.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions/template_users">Further information about this action online (including a response example)</a>
@@ -41,8 +40,6 @@ public class TemplateUsersRequest {
   private String templateName;
 
   /**
-   * Key of organization, used when group name is set
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -56,8 +53,6 @@ public class TemplateUsersRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public TemplateUsersRequest setP(String p) {
@@ -70,8 +65,6 @@ public class TemplateUsersRequest {
   }
 
   /**
-   * Permission<ul><li>Possible values for project permissions admin, codeviewer, issueadmin, scan, user</li></ul>
-   *
    * Possible values:
    * <ul>
    *   <li>"admin"</li>
@@ -91,8 +84,6 @@ public class TemplateUsersRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 100
-   *
    * Example value: "20"
    */
   public TemplateUsersRequest setPs(String ps) {
@@ -105,8 +96,6 @@ public class TemplateUsersRequest {
   }
 
   /**
-   * Limit search to user names that contain the supplied string. <br/>When this parameter is not set, only users having at least one permission are returned.
-   *
    * Example value: "eri"
    */
   public TemplateUsersRequest setQ(String q) {
@@ -119,8 +108,6 @@ public class TemplateUsersRequest {
   }
 
   /**
-   * Template id
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
   public TemplateUsersRequest setTemplateId(String templateId) {
@@ -133,8 +120,6 @@ public class TemplateUsersRequest {
   }
 
   /**
-   * Template name
-   *
    * Example value: "Default Permission Template for Projects"
    */
   public TemplateUsersRequest setTemplateName(String templateName) {

@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.webservices;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Display web service response example
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/webservices/response_example">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class ResponseExampleRequest {
   private String controller;
 
   /**
-   * Action of the web service
-   *
    * This is a mandatory parameter.
    * Example value: "search"
    */
@@ -51,8 +48,6 @@ public class ResponseExampleRequest {
   }
 
   /**
-   * Controller of the web service
-   *
    * This is a mandatory parameter.
    * Example value: "api/issues"
    */

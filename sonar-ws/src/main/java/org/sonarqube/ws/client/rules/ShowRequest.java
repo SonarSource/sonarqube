@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.rules;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Get detailed information about a rule<br>Since 5.5, following fields in the response have been deprecated :<ul><li>"effortToFixDescription" becomes "gapDescription"</li><li>"debtRemFnCoeff" becomes "remFnGapMultiplier"</li><li>"defaultDebtRemFnCoeff" becomes "defaultRemFnGapMultiplier"</li><li>"debtRemFnOffset" becomes "remFnBaseEffort"</li><li>"defaultDebtRemFnOffset" becomes "defaultRemFnBaseEffort"</li><li>"debtOverloaded" becomes "remFnOverloaded"</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/rules/show">Further information about this action online (including a response example)</a>
@@ -37,8 +36,6 @@ public class ShowRequest {
   private String organization;
 
   /**
-   * Show rule's activations for all profiles ("active rules")
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -57,8 +54,6 @@ public class ShowRequest {
   }
 
   /**
-   * Rule key
-   *
    * This is a mandatory parameter.
    * Example value: "javascript:EmptyBlock"
    */
@@ -72,8 +67,6 @@ public class ShowRequest {
   }
 
   /**
-   * Organization key
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */

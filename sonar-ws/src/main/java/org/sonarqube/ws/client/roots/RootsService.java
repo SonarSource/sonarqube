@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client.roots;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
@@ -28,7 +29,6 @@ import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.Roots.SearchResponse;
 
 /**
- * Manage root users
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/roots">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -39,7 +39,6 @@ public class RootsService extends BaseService {
   }
 
   /**
-   * Search for root users.<br/>Requires to be root.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -53,7 +52,6 @@ public class RootsService extends BaseService {
   }
 
   /**
-   * Make the specified user root.<br/>Requires to be root.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -69,7 +67,6 @@ public class RootsService extends BaseService {
   }
 
   /**
-   * Make the specified user not root.<br/>Requires to be root.
    *
    * This is part of the internal API.
    * This is a POST request.

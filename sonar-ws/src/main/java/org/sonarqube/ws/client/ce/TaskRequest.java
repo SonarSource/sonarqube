@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Give Compute Engine task details such as type, status, duration and associated component.<br />Requires 'Administer System' or 'Execute Analysis' permission.<br/>Since 6.1, field "logs" is deprecated and its value is always false.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce/task">Further information about this action online (including a response example)</a>
@@ -37,8 +35,6 @@ public class TaskRequest {
   private String id;
 
   /**
-   * Comma-separated list of the optional fields to be returned in response.
-   *
    * Possible values:
    * <ul>
    *   <li>"stacktrace"</li>
@@ -55,8 +51,6 @@ public class TaskRequest {
   }
 
   /**
-   * Id of task
-   *
    * This is a mandatory parameter.
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */

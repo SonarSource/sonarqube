@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.custommeasures;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Update a custom measure. Value and/or description must be provided<br />Requires 'Administer System' permission or 'Administer' permission on the project.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/custom_measures/update">Further information about this action online (including a response example)</a>
@@ -49,8 +48,6 @@ public class UpdateRequest {
   }
 
   /**
-   * id
-   *
    * This is a mandatory parameter.
    * Example value: "42"
    */
@@ -64,8 +61,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Measure value. Value type depends on metric type:<ul><li>INT - type: integer</li><li>FLOAT - type: double</li><li>PERCENT - type: double</li><li>BOOL - the possible values are true or false</li><li>STRING - type: string</li><li>MILLISEC - type: integer</li><li>DATA - type: string</li><li>LEVEL - the possible values are OK, WARN, ERROR</li><li>DISTRIB - type: string</li><li>RATING - type: double</li><li>WORK_DUR - long representing the number of minutes</li></ul>
-   *
    * Example value: "true"
    */
   public UpdateRequest setValue(String value) {

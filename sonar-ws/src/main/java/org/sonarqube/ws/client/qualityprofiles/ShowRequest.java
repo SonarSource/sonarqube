@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualityprofiles;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Show a quality profile
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/show">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class ShowRequest {
   private String key;
 
   /**
-   * Add the number of missing rules from the related Sonar way profile in the response
-   *
    * This is part of the internal API.
    * Possible values:
    * <ul>
@@ -57,8 +54,6 @@ public class ShowRequest {
   }
 
   /**
-   * Quality profile key
-   *
    * This is a mandatory parameter.
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */

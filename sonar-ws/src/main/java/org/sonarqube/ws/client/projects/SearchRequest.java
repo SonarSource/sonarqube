@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Search for projects or views to administrate them.<br>Requires 'System Administrator' permission
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects/search">Further information about this action online (including a response example)</a>
@@ -45,8 +43,6 @@ public class SearchRequest {
   private String visibility;
 
   /**
-   * Filter the projects for which last analysis is older than the given date (exclusive).<br> Either a date (server timezone) or datetime can be provided.
-   *
    * Example value: "2017-10-19 or 2017-10-19T13:00:00+0200"
    */
   public SearchRequest setAnalyzedBefore(String analyzedBefore) {
@@ -59,8 +55,6 @@ public class SearchRequest {
   }
 
   /**
-   * Filter the projects that are provisioned
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -79,8 +73,6 @@ public class SearchRequest {
   }
 
   /**
-   * The key of the organization
-   *
    * This is part of the internal API.
    */
   public SearchRequest setOrganization(String organization) {
@@ -93,8 +85,6 @@ public class SearchRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public SearchRequest setP(String p) {
@@ -107,8 +97,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of project ids
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy,AU-TpxcA-iU5OvuD2FLz"
    * @deprecated since 6.6
    */
@@ -123,8 +111,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of project keys
-   *
    * Example value: "my_project,another_project"
    */
   public SearchRequest setProjects(List<String> projects) {
@@ -137,8 +123,6 @@ public class SearchRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 500
-   *
    * Example value: "20"
    */
   public SearchRequest setPs(String ps) {
@@ -151,8 +135,6 @@ public class SearchRequest {
   }
 
   /**
-   * Limit search to: <ul><li>component names that contain the supplied string</li><li>component keys that contain the supplied string</li></ul>
-   *
    * Example value: "sonar"
    */
   public SearchRequest setQ(String q) {
@@ -165,8 +147,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of component qualifiers. Filter the results with the specified qualifiers
-   *
    * Possible values:
    * <ul>
    *   <li>"TRK"</li>
@@ -184,8 +164,6 @@ public class SearchRequest {
   }
 
   /**
-   * Filter the projects that should be visible to everyone (public), or only specific user/groups (private).<br/>If no visibility is specified, the default project visibility of the organization will be used.
-   *
    * This is part of the internal API.
    * Possible values:
    * <ul>

@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.settings;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * List settings definitions.<br>Requires 'Browse' permission when a component is specified<br/>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings/list_definitions">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class ListDefinitionsRequest {
   private String component;
 
   /**
-   * Branch key. Only available on following settings : sonar.leak.period
-   *
    * This is part of the internal API.
    * Example value: "feature/my_branch"
    */
@@ -51,8 +48,6 @@ public class ListDefinitionsRequest {
   }
 
   /**
-   * Component key
-   *
    * Example value: "my_project"
    */
   public ListDefinitionsRequest setComponent(String component) {

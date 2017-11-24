@@ -19,14 +19,15 @@
  */
 package org.sonarqube.ws.client.navigation;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 /**
- * Get information required to build navigation UI components
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/navigation">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -37,7 +38,6 @@ public class NavigationService extends BaseService {
   }
 
   /**
-   * Get information concerning component navigation for the current user. Requires the 'Browse' permission on the component's project.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -54,7 +54,6 @@ public class NavigationService extends BaseService {
   }
 
   /**
-   * Get information concerning global navigation for the current user.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -69,7 +68,6 @@ public class NavigationService extends BaseService {
   }
 
   /**
-   * Get information concerning organization navigation for the current user
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -85,7 +83,6 @@ public class NavigationService extends BaseService {
   }
 
   /**
-   * Get configuration information for the settings page:<ul>  <li>List plugin-contributed pages</li>  <li>Show update center (or not)</li></ul>
    *
    * This is part of the internal API.
    * This is a GET request.

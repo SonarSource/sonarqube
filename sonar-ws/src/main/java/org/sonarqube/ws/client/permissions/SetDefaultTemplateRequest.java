@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.permissions;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Set a permission template as default.<br />Requires the following permission: 'Administer System'.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions/set_default_template">Further information about this action online (including a response example)</a>
@@ -38,8 +37,6 @@ public class SetDefaultTemplateRequest {
   private String templateName;
 
   /**
-   * Key of organization, used when group name is set
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -53,8 +50,6 @@ public class SetDefaultTemplateRequest {
   }
 
   /**
-   * Project qualifier. Filter the results with the specified qualifier. Possible values are:<ul><li>TRK - Projects</li></ul>
-   *
    * Possible values:
    * <ul>
    *   <li>"TRK"</li>
@@ -70,8 +65,6 @@ public class SetDefaultTemplateRequest {
   }
 
   /**
-   * Template id
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
   public SetDefaultTemplateRequest setTemplateId(String templateId) {
@@ -84,8 +77,6 @@ public class SetDefaultTemplateRequest {
   }
 
   /**
-   * Template name
-   *
    * Example value: "Default Permission Template for Projects"
    */
   public SetDefaultTemplateRequest setTemplateName(String templateName) {

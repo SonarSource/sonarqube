@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.duplications;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Get duplications. Require Browse permission on file's project
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/duplications/show">Further information about this action online (including a response example)</a>
@@ -37,8 +36,6 @@ public class ShowRequest {
   private String uuid;
 
   /**
-   * Branch key
-   *
    * This is part of the internal API.
    * Example value: "feature/my_branch"
    */
@@ -52,8 +49,6 @@ public class ShowRequest {
   }
 
   /**
-   * File key
-   *
    * Example value: "my_project:/src/foo/Bar.php"
    */
   public ShowRequest setKey(String key) {
@@ -66,8 +61,6 @@ public class ShowRequest {
   }
 
   /**
-   * File ID. If provided, 'key' must not be provided.
-   *
    * Example value: "584a89f2-8037-4f7b-b82c-8b45d2d63fb2"
    * @deprecated since 6.5
    */

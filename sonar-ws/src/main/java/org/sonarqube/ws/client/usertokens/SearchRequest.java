@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.usertokens;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * List the access tokens of a user.<br>The login must exist and active.<br>If the login is set, it requires administration permissions. Otherwise, a token is generated for the authenticated user.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/user_tokens/search">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class SearchRequest {
   private String login;
 
   /**
-   * User login
-   *
    * Example value: "g.hopper"
    */
   public SearchRequest setLogin(String login) {

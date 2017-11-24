@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.organizations;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Remove a member from an organization.<br>Requires 'Administer System' permission on the specified organization.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/organizations/remove_member">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class RemoveMemberRequest {
   private String organization;
 
   /**
-   * User login
-   *
    * This is a mandatory parameter.
    * Example value: "ray.bradbury"
    */
@@ -51,8 +48,6 @@ public class RemoveMemberRequest {
   }
 
   /**
-   * Organization key
-   *
    * This is a mandatory parameter.
    * Example value: "my-org"
    */

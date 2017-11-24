@@ -28,7 +28,6 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 /**
- * Removed since 6.3, please use api/components and api/measures instead
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/resources">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -39,7 +38,6 @@ public class ResourcesService extends BaseService {
   }
 
   /**
-   * The web service is removed and you're invited to use the alternatives: <ul><li>if you need one component without measures: api/components/show</li><li>if you need one component with measures: api/measures/component</li><li>if you need several components without measures: api/components/tree</li><li>if you need several components with measures: api/measures/component_tree</li></ul>
    *
    * This is part of the internal API.
    * This is a GET request.

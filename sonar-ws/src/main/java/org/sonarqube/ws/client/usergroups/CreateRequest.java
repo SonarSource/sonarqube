@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.usergroups;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Create a group.<br>Requires the following permission: 'Administer System'.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/user_groups/create">Further information about this action online (including a response example)</a>
@@ -37,8 +36,6 @@ public class CreateRequest {
   private String organization;
 
   /**
-   * Description for the new group. A group description cannot be larger than 200 characters.
-   *
    * Example value: "Default group for new users"
    */
   public CreateRequest setDescription(String description) {
@@ -51,8 +48,6 @@ public class CreateRequest {
   }
 
   /**
-   * Name for the new group. A group name cannot be larger than 255 characters and must be unique. The value 'anyone' (whatever the case) is reserved and cannot be used.
-   *
    * This is a mandatory parameter.
    * Example value: "sonar-users"
    */
@@ -66,8 +61,6 @@ public class CreateRequest {
   }
 
   /**
-   * Key of organization. If unset then default organization is used.
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */

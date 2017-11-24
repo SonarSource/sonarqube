@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.l10n;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Get all localization messages for a given locale
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/l10n/index">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class IndexRequest {
   private String ts;
 
   /**
-   * BCP47 language tag, used to override the browser Accept-Language header
-   *
    * Example value: "fr-CH"
    */
   public IndexRequest setLocale(String locale) {
@@ -50,8 +47,6 @@ public class IndexRequest {
   }
 
   /**
-   * Date of the last cache update.
-   *
    * Example value: "2014-06-04T09:31:42+0000"
    */
   public IndexRequest setTs(String ts) {

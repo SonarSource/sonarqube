@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Set tags on an issue. <br/>Requires authentication and Browse permission on project
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/set_tags">Further information about this action online (including a response example)</a>
@@ -37,8 +35,6 @@ public class SetTagsRequest {
   private List<String> tags;
 
   /**
-   * Issue key
-   *
    * This is a mandatory parameter.
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
@@ -52,8 +48,6 @@ public class SetTagsRequest {
   }
 
   /**
-   * Comma-separated list of tags. All tags are removed if parameter is empty or not set.
-   *
    * Example value: "security,cwe,misra-c"
    */
   public SetTagsRequest setTags(List<String> tags) {

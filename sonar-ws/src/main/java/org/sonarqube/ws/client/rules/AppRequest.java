@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.rules;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Get data required for rendering the page 'Coding Rules'.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/rules/app">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class AppRequest {
   private String organization;
 
   /**
-   * Organization key
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */

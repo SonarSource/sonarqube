@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.sources;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Show source code with line oriented info. Require See Source Code permission on file's project<br/>Each element of the result array is an object which contains:<ol><li>Line number</li><li>Content of the line</li><li>Author of the line (from SCM information)</li><li>Revision of the line (from SCM information)</li><li>Last commit date of the line (from SCM information)</li><li>Line hits from coverage</li><li>Number of conditions to cover in tests</li><li>Number of conditions covered by tests</li></ol>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/sources/lines">Further information about this action online (including a response example)</a>
@@ -39,8 +38,6 @@ public class LinesRequest {
   private String uuid;
 
   /**
-   * Branch key
-   *
    * This is part of the internal API.
    * Example value: "feature/my_branch"
    */
@@ -54,8 +51,6 @@ public class LinesRequest {
   }
 
   /**
-   * First line to return. Starts from 1
-   *
    * Example value: "10"
    */
   public LinesRequest setFrom(String from) {
@@ -68,8 +63,6 @@ public class LinesRequest {
   }
 
   /**
-   * File key. Mandatory if param 'uuid' is not set. Available since 5.2
-   *
    * Example value: "my_project:/src/foo/Bar.php"
    */
   public LinesRequest setKey(String key) {
@@ -82,8 +75,6 @@ public class LinesRequest {
   }
 
   /**
-   * Optional last line to return (inclusive). It must be greater than or equal to parameter 'from'. If unset, then all the lines greater than or equal to 'from' are returned.
-   *
    * Example value: "20"
    */
   public LinesRequest setTo(String to) {
@@ -96,8 +87,6 @@ public class LinesRequest {
   }
 
   /**
-   * File uuid. Mandatory if param 'key' is not set
-   *
    * Example value: "f333aab4-7e3a-4d70-87e1-f4c491f05e5c"
    */
   public LinesRequest setUuid(String uuid) {

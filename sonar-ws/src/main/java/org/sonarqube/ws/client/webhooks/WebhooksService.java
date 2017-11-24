@@ -19,15 +19,17 @@
  */
 package org.sonarqube.ws.client.webhooks;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
+import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.Webhooks.DeliveriesWsResponse;
 import org.sonarqube.ws.Webhooks.DeliveryWsResponse;
 
 /**
- * Webhooks allow to notify external services when a project analysis is done
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/webhooks">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -38,7 +40,6 @@ public class WebhooksService extends BaseService {
   }
 
   /**
-   * Get the recent deliveries for a specified project or Compute Engine task.<br/>Require 'Administer' permission on the related project.<br/>Note that additional information are returned by api/webhooks/delivery.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -54,7 +55,6 @@ public class WebhooksService extends BaseService {
   }
 
   /**
-   * Get a webhook delivery by its id.<br/>Require 'Administer System' permission.<br/>Note that additional information are returned by api/webhooks/delivery.
    *
    * This is part of the internal API.
    * This is a GET request.

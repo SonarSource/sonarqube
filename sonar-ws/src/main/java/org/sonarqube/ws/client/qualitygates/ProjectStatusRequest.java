@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Get the quality gate status of a project or a Compute Engine task.<br />Either 'analysisId', 'projectId' or 'projectKey' must be provided<br />The different statuses returned are: OK, WARN, ERROR, NONE. The NONE status is returned when there is no quality gate associated with the analysis.<br />Returns an HTTP code 404 if the analysis associated with the task is not found or does not exist.<br />Requires one of the following permissions:<ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li><li>'Browse' on the specified project</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/project_status">Further information about this action online (including a response example)</a>
@@ -37,8 +36,6 @@ public class ProjectStatusRequest {
   private String projectKey;
 
   /**
-   * Analysis id
-   *
    * Example value: "AU-TpxcA-iU5OvuD2FL1"
    */
   public ProjectStatusRequest setAnalysisId(String analysisId) {
@@ -51,8 +48,6 @@ public class ProjectStatusRequest {
   }
 
   /**
-   * Project id
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
   public ProjectStatusRequest setProjectId(String projectId) {
@@ -65,8 +60,6 @@ public class ProjectStatusRequest {
   }
 
   /**
-   * Project key
-   *
    * Example value: "my_project"
    */
   public ProjectStatusRequest setProjectKey(String projectKey) {

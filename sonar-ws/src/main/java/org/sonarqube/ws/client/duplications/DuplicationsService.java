@@ -19,14 +19,16 @@
  */
 package org.sonarqube.ws.client.duplications;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
+import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.Duplications.ShowResponse;
 
 /**
- * Get duplication information for a project.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/duplications">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -37,7 +39,6 @@ public class DuplicationsService extends BaseService {
   }
 
   /**
-   * Get duplications. Require Browse permission on file's project
    *
    * This is part of the internal API.
    * This is a GET request.

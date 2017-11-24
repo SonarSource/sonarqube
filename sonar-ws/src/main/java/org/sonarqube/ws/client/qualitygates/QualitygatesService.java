@@ -19,22 +19,21 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.Qualitygates;
-import org.sonarqube.ws.Qualitygates.AppResponse;
-import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
-import org.sonarqube.ws.Qualitygates.CreateResponse;
-import org.sonarqube.ws.Qualitygates.GetByProjectResponse;
-import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
-import org.sonarqube.ws.Qualitygates.UpdateConditionResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
+import org.sonarqube.ws.Qualitygates.AppResponse;
+import org.sonarqube.ws.Qualitygates.CreateResponse;
+import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
+import org.sonarqube.ws.Qualitygates.GetByProjectResponse;
+import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
+import org.sonarqube.ws.Qualitygates.UpdateConditionResponse;
 
 /**
- * Manage quality gates, including conditions and project association.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -45,7 +44,6 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   * Get initialization items for the admin UI. For internal use
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -59,7 +57,6 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   * Copy a Quality Gate.<br>Requires the 'Administer Quality Gates' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -76,14 +73,13 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   * Create a Quality Gate.<br>Requires the 'Administer Quality Gates' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/create">Further information about this action online (including a response example)</a>
    * @since 4.3
    */
-  public Qualitygates.CreateResponse create(CreateRequest request) {
+  public CreateResponse create(CreateRequest request) {
     return call(
       new PostRequest(path("create"))
         .setParam("name", request.getName()),
@@ -91,7 +87,6 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   * Add a new condition to a quality gate.<br>Requires the 'Administer Quality Gates' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -111,7 +106,6 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   * Delete a condition from a quality gate.<br>Requires the 'Administer Quality Gates' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -127,7 +121,6 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   * Remove the association of a project from a quality gate.<br>Requires the 'Administer Quality Gates' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -144,7 +137,6 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   * Delete a Quality Gate.<br>Requires the 'Administer Quality Gates' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -160,7 +152,6 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   * Get the quality gate of a project.<br />Requires one of the following permissions:<ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li><li>'Browse' on the specified project</li></ul>
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -175,7 +166,6 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   * Get a list of quality gates
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -190,7 +180,6 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   * Get the quality gate status of a project or a Compute Engine task.<br />Either 'analysisId', 'projectId' or 'projectKey' must be provided<br />The different statuses returned are: OK, WARN, ERROR, NONE. The NONE status is returned when there is no quality gate associated with the analysis.<br />Returns an HTTP code 404 if the analysis associated with the task is not found or does not exist.<br />Requires one of the following permissions:<ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li><li>'Browse' on the specified project</li></ul>
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -207,7 +196,6 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   * Rename a Quality Gate.<br>Requires the 'Administer Quality Gates' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -224,7 +212,6 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   * Search for projects associated (or not) to a quality gate.<br/>Only authorized projects for current user will be returned.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -244,7 +231,6 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   * Associate a project to a quality gate.<br>The 'projectId' or 'projectKey' must be provided.<br>Project id as a numeric value is deprecated since 6.1. Please use the id similar to 'AU-TpxcA-iU5OvuD2FLz'.<br>Requires the 'Administer Quality Gates' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -262,7 +248,6 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   * Set a quality gate as the default quality gate.<br>Requires the 'Administer Quality Gates' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -278,7 +263,6 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   * Display the details of a quality gate
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -295,7 +279,6 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   * Unset a quality gate as the default quality gate.<br>Requires the 'Administer Quality Gates' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -311,7 +294,6 @@ public class QualitygatesService extends BaseService {
   }
 
   /**
-   * Update a condition attached to a quality gate.<br>Requires the 'Administer Quality Gates' permission.
    *
    * This is part of the internal API.
    * This is a POST request.

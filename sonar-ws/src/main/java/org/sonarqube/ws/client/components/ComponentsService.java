@@ -24,6 +24,7 @@ import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.Components.SearchWsResponse;
 import org.sonarqube.ws.Components.SearchProjectsWsResponse;
@@ -32,7 +33,6 @@ import org.sonarqube.ws.Components.SuggestionsWsResponse;
 import org.sonarqube.ws.Components.TreeWsResponse;
 
 /**
- * Get information about a component (file, directory, project, ...) and its ancestors or descendants. Update a project or module key.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/components">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -43,7 +43,6 @@ public class ComponentsService extends BaseService {
   }
 
   /**
-   * Coverage data required for rendering the component viewer.<br>Requires the following permission: 'Browse'.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -61,7 +60,6 @@ public class ComponentsService extends BaseService {
   }
 
   /**
-   * Search for components
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -81,7 +79,6 @@ public class ComponentsService extends BaseService {
   }
 
   /**
-   * Search for projects
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -103,7 +100,6 @@ public class ComponentsService extends BaseService {
   }
 
   /**
-   * Returns a component (file, directory, project, view?) and its ancestors. The ancestors are ordered from the parent to the root project. The 'componentId' or 'component' parameter must be provided.<br>Requires the following permission: 'Browse' on the project of the specified component.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -120,7 +116,6 @@ public class ComponentsService extends BaseService {
   }
 
   /**
-   * Internal WS for the top-right search engine. The result will contain component search results, grouped by their qualifiers.<p>Each result contains:<ul><li>the organization key</li><li>the component key</li><li>the component's name (unescaped)</li><li>optionally a display name, which puts emphasis to matching characters (this text contains html tags and parts of the html-escaped name)</li></ul>
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -137,7 +132,6 @@ public class ComponentsService extends BaseService {
   }
 
   /**
-   * Navigate through components based on the chosen strategy. The componentId or the component parameter must be provided.<br>Requires the following permission: 'Browse' on the specified project.<br>When limiting search with the q parameter, directories are not returned.
    *
    * This is part of the internal API.
    * This is a GET request.

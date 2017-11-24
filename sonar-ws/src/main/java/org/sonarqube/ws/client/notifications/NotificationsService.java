@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client.notifications;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
@@ -28,7 +29,6 @@ import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.Notifications.ListResponse;
 
 /**
- * Manage notifications of the authenticated user
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/notifications">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -39,7 +39,6 @@ public class NotificationsService extends BaseService {
   }
 
   /**
-   * Add a notification for the authenticated user.<br>Requires one of the following permissions:<ul> <li>Authentication if no login is provided. If a project is provided, requires the 'Browse' permission on the specified project.</li> <li>System administration if a login is provided. If a project is provided, requires the 'Browse' permission on the specified project.</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -58,7 +57,6 @@ public class NotificationsService extends BaseService {
   }
 
   /**
-   * List notifications of the authenticated user.<br>Requires one of the following permissions:<ul>  <li>Authentication if no login is provided</li>  <li>System administration if a login is provided</li></ul>
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -73,7 +71,6 @@ public class NotificationsService extends BaseService {
   }
 
   /**
-   * Remove a notification for the authenticated user.<br>Requires one of the following permissions:<ul>  <li>Authentication if no login is provided</li>  <li>System administration if a login is provided</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.

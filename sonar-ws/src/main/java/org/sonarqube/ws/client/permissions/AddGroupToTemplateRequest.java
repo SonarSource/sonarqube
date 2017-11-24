@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.permissions;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Add a group to a permission template.<br /> The group id or group name must be provided. <br />Requires the following permission: 'Administer System'.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions/add_group_to_template">Further information about this action online (including a response example)</a>
@@ -40,8 +39,6 @@ public class AddGroupToTemplateRequest {
   private String templateName;
 
   /**
-   * Group id
-   *
    * Example value: "42"
    */
   public AddGroupToTemplateRequest setGroupId(String groupId) {
@@ -54,8 +51,6 @@ public class AddGroupToTemplateRequest {
   }
 
   /**
-   * Group name or 'anyone' (case insensitive)
-   *
    * Example value: "sonar-administrators"
    */
   public AddGroupToTemplateRequest setGroupName(String groupName) {
@@ -68,8 +63,6 @@ public class AddGroupToTemplateRequest {
   }
 
   /**
-   * Key of organization, used when group name is set
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -83,8 +76,6 @@ public class AddGroupToTemplateRequest {
   }
 
   /**
-   * Permission<ul><li>Possible values for project permissions admin, codeviewer, issueadmin, scan, user</li></ul>
-   *
    * This is a mandatory parameter.
    * Possible values:
    * <ul>
@@ -105,8 +96,6 @@ public class AddGroupToTemplateRequest {
   }
 
   /**
-   * Template id
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
   public AddGroupToTemplateRequest setTemplateId(String templateId) {
@@ -119,8 +108,6 @@ public class AddGroupToTemplateRequest {
   }
 
   /**
-   * Template name
-   *
    * Example value: "Default Permission Template for Projects"
    */
   public AddGroupToTemplateRequest setTemplateName(String templateName) {

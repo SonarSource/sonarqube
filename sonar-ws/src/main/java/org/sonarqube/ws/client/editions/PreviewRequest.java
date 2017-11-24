@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.editions;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Preview the changes to SonarQube to match the specified license. Requires 'Administer System' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/editions/preview">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class PreviewRequest {
   private String license;
 
   /**
-   * the license
-   *
    * This is a mandatory parameter.
    */
   public PreviewRequest setLicense(String license) {

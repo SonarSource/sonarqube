@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.emails;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Test email configuration by sending an email<br>Requires 'Administer System' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/emails/send">Further information about this action online (including a response example)</a>
@@ -37,8 +36,6 @@ public class SendRequest {
   private String to;
 
   /**
-   * Content of the email
-   *
    * This is a mandatory parameter.
    */
   public SendRequest setMessage(String message) {
@@ -51,8 +48,6 @@ public class SendRequest {
   }
 
   /**
-   * Subject of the email
-   *
    * Example value: "Test Message from SonarQube"
    */
   public SendRequest setSubject(String subject) {
@@ -65,8 +60,6 @@ public class SendRequest {
   }
 
   /**
-   * Email address
-   *
    * This is a mandatory parameter.
    * Example value: "john@doo.com"
    */

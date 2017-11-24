@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.properties;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * This web service is deprecated, please use api/settings/values instead.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/properties/index">Further information about this action online (including a response example)</a>
@@ -37,8 +36,6 @@ public class IndexRequest {
   private String resource;
 
   /**
-   * Only json response format is available
-   *
    * Possible values:
    * <ul>
    *   <li>"json"</li>
@@ -54,8 +51,6 @@ public class IndexRequest {
   }
 
   /**
-   * Setting key
-   *
    * Example value: "sonar.test.inclusions"
    */
   public IndexRequest setId(String id) {
@@ -68,8 +63,6 @@ public class IndexRequest {
   }
 
   /**
-   * Component key or database id
-   *
    * Example value: "my_project"
    */
   public IndexRequest setResource(String resource) {

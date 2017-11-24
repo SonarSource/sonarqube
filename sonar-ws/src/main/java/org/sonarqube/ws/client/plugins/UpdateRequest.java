@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.plugins;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Updates a plugin specified by its key to the latest version compatible with the SonarQube instance.<br/>Plugin information is retrieved from Update Center.<br/>Requires user to be authenticated with Administer System permissions
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/plugins/update">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class UpdateRequest {
   private String key;
 
   /**
-   * The key identifying the plugin to update
-   *
    * This is a mandatory parameter.
    */
   public UpdateRequest setKey(String key) {

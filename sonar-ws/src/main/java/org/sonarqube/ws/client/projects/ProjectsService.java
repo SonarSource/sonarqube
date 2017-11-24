@@ -32,7 +32,6 @@ import org.sonarqube.ws.Projects.SearchWsResponse;
 import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse;
 
 /**
- * Manage project existence.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -43,7 +42,6 @@ public class ProjectsService extends BaseService {
   }
 
   /**
-   * Delete one or several projects.<br />Requires 'Administer System' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -66,7 +64,6 @@ public class ProjectsService extends BaseService {
   }
 
   /**
-   * Bulk update a project or module key and all its sub-components keys. The bulk update allows to replace a part of the current key by another string on the current project and all its sub-modules.<br>It's possible to simulate the bulk update by setting the parameter 'dryRun' at true. No key is updated with a dry run.<br>Ex: to rename a project with key 'my_project' to 'my_new_project' and all its sub-components keys, call the WS with parameters:<ul>  <li>project: my_project</li>  <li>from: my_</li>  <li>to: my_new_</li></ul>Either 'projectId' or 'project' must be provided.<br> Requires one of the following permissions: <ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -85,7 +82,6 @@ public class ProjectsService extends BaseService {
   }
 
   /**
-   * Create a project.<br/>Requires 'Create Projects' permission
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -104,7 +100,6 @@ public class ProjectsService extends BaseService {
   }
 
   /**
-   * Delete a project.<br> Requires 'Administer System' permission or 'Administer' permission on the project.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -121,7 +116,6 @@ public class ProjectsService extends BaseService {
   }
 
   /**
-   * List ghost projects.<br> With the current architecture, it's no more possible to have invisible ghost projects. Therefore, the web service is deprecated.<br> Requires 'Administer System' permission.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -143,7 +137,6 @@ public class ProjectsService extends BaseService {
   }
 
   /**
-   * This web service is deprecated, please use api/components/search instead
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -168,7 +161,6 @@ public class ProjectsService extends BaseService {
   }
 
   /**
-   * Get the list of provisioned projects.<br> Web service is deprecated. Use api/projects/search instead, with onProvisionedOnly=true.<br> Require 'Create Projects' permission.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -190,7 +182,6 @@ public class ProjectsService extends BaseService {
   }
 
   /**
-   * Search for projects or views to administrate them.<br>Requires 'System Administrator' permission
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -214,7 +205,6 @@ public class ProjectsService extends BaseService {
   }
 
   /**
-   * Return list of projects for which the current user has 'Administer' permission.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -230,7 +220,6 @@ public class ProjectsService extends BaseService {
   }
 
   /**
-   * Update a project or module key and all its sub-components keys.<br>Either 'from' or 'projectId' must be provided.<br> Requires one of the following permissions: <ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -248,7 +237,6 @@ public class ProjectsService extends BaseService {
   }
 
   /**
-   * Updates visibility of a project.<br>Requires 'Project administer' permission on the specified project
    *
    * This is part of the internal API.
    * This is a POST request.

@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.sources;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Get source code as line number / text pairs. Require See Source Code permission on file
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/sources/index">Further information about this action online (including a response example)</a>
@@ -37,8 +36,6 @@ public class IndexRequest {
   private String to;
 
   /**
-   * First line
-   *
    */
   public IndexRequest setFrom(String from) {
     this.from = from;
@@ -50,8 +47,6 @@ public class IndexRequest {
   }
 
   /**
-   * File key
-   *
    * This is a mandatory parameter.
    * Example value: "my_project:/src/foo/Bar.php"
    */
@@ -65,8 +60,6 @@ public class IndexRequest {
   }
 
   /**
-   * Last line (excluded). If not specified, all lines are returned until end of file
-   *
    */
   public IndexRequest setTo(String to) {
     this.to = to;

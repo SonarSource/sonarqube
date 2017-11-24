@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.organizations;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Create an organization.<br />Requires 'Administer System' permission unless any logged in user is allowed to create an organization (see appropriate setting). Organization support must be enabled.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/organizations/create">Further information about this action online (including a response example)</a>
@@ -39,8 +38,6 @@ public class CreateRequest {
   private String url;
 
   /**
-   * URL of the organization avatar.<br/> It must be less than 256 chars long.
-   *
    * Example value: "https://www.foo.com/foo.png"
    */
   public CreateRequest setAvatar(String avatar) {
@@ -53,8 +50,6 @@ public class CreateRequest {
   }
 
   /**
-   * Description of the organization.<br/> It must be less than 256 chars long.
-   *
    * Example value: "The Foo company produces quality software for Bar."
    */
   public CreateRequest setDescription(String description) {
@@ -67,8 +62,6 @@ public class CreateRequest {
   }
 
   /**
-   * Key of the organization. <br />The key is unique to the whole SonarQube. <br/>When not specified, the key is computed from the name. <br />Otherwise, it must be between 2 and 32 chars long. All chars must be lower-case letters (a to z), digits or dash (but dash can neither be trailing nor heading)
-   *
    * Example value: "foo-company"
    */
   public CreateRequest setKey(String key) {
@@ -81,8 +74,6 @@ public class CreateRequest {
   }
 
   /**
-   * Name of the organization. <br />It must be between 2 and 64 chars longs.
-   *
    * This is a mandatory parameter.
    * Example value: "Foo Company"
    */
@@ -96,8 +87,6 @@ public class CreateRequest {
   }
 
   /**
-   * URL of the organization.<br/> It must be less than 256 chars long.
-   *
    * Example value: "https://www.foo.com"
    */
   public CreateRequest setUrl(String url) {

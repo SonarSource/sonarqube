@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.users;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Deactivate a user. Requires Administer System permission
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/users/deactivate">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class DeactivateRequest {
   private String login;
 
   /**
-   * User login
-   *
    * This is a mandatory parameter.
    * Example value: "myuser"
    */

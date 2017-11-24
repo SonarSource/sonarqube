@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Delete a condition from a quality gate.<br>Requires the 'Administer Quality Gates' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/delete_condition">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class DeleteConditionRequest {
   private String id;
 
   /**
-   * Condition ID
-   *
    * This is a mandatory parameter.
    * Example value: "2"
    */

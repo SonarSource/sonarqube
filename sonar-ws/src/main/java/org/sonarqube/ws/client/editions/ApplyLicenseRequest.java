@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.editions;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Apply changes to SonarQube to match the specified license. Clear error message of previous automatic install of an edition, if there is any. Require 'Administer System' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/editions/apply_license">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class ApplyLicenseRequest {
   private String license;
 
   /**
-   * the license
-   *
    * This is a mandatory parameter.
    */
   public ApplyLicenseRequest setLicense(String license) {

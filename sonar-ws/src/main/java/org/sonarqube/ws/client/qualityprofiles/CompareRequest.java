@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualityprofiles;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Compare two quality profiles.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/compare">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class CompareRequest {
   private String rightKey;
 
   /**
-   * Profile key.
-   *
    * This is a mandatory parameter.
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
@@ -51,8 +48,6 @@ public class CompareRequest {
   }
 
   /**
-   * Another profile key.
-   *
    * This is a mandatory parameter.
    * Example value: "AU-TpxcA-iU5OvuD2FLz"
    */

@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.usergroups;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Update a group.<br>Requires the following permission: 'Administer System'.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/user_groups/update">Further information about this action online (including a response example)</a>
@@ -37,8 +36,6 @@ public class UpdateRequest {
   private String name;
 
   /**
-   * New optional description for the group. A group description cannot be larger than 200 characters. If value is not defined, then description is not changed.
-   *
    * Example value: "Default group for new users"
    */
   public UpdateRequest setDescription(String description) {
@@ -51,8 +48,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Identifier of the group.
-   *
    * This is a mandatory parameter.
    * Example value: "42"
    */
@@ -66,8 +61,6 @@ public class UpdateRequest {
   }
 
   /**
-   * New optional name for the group. A group name cannot be larger than 255 characters and must be unique. Value 'anyone' (whatever the case) is reserved and cannot be used. If value is empty or not defined, then name is not changed.
-   *
    * Example value: "my-group"
    */
   public UpdateRequest setName(String name) {

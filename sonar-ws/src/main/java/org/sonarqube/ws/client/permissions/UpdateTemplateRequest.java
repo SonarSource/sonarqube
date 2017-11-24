@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.permissions;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Update a permission template.<br />Requires the following permission: 'Administer System'.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions/update_template">Further information about this action online (including a response example)</a>
@@ -38,8 +37,6 @@ public class UpdateTemplateRequest {
   private String projectKeyPattern;
 
   /**
-   * Description
-   *
    * Example value: "Permissions for all projects related to the financial service"
    */
   public UpdateTemplateRequest setDescription(String description) {
@@ -52,8 +49,6 @@ public class UpdateTemplateRequest {
   }
 
   /**
-   * Id
-   *
    * This is a mandatory parameter.
    * Example value: "af8cb8cc-1e78-4c4e-8c00-ee8e814009a5"
    */
@@ -67,8 +62,6 @@ public class UpdateTemplateRequest {
   }
 
   /**
-   * Name
-   *
    * Example value: "Financial Service Permissions"
    */
   public UpdateTemplateRequest setName(String name) {
@@ -81,8 +74,6 @@ public class UpdateTemplateRequest {
   }
 
   /**
-   * Project key pattern. Must be a valid Java regular expression
-   *
    * Example value: ".*\\.finance\\..*"
    */
   public UpdateTemplateRequest setProjectKeyPattern(String projectKeyPattern) {

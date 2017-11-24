@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.projects;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Return list of projects for which the current user has 'Administer' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects/search_my_projects">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class SearchMyProjectsRequest {
   private String ps;
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public SearchMyProjectsRequest setP(String p) {
@@ -50,8 +47,6 @@ public class SearchMyProjectsRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 500
-   *
    * Example value: "20"
    */
   public SearchMyProjectsRequest setPs(String ps) {

@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.projecttags;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Search tags
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_tags/search">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class SearchRequest {
   private String q;
 
   /**
-   * Page size. Must be greater than 0 and less than 100
-   *
    * Example value: "20"
    */
   public SearchRequest setPs(String ps) {
@@ -50,8 +47,6 @@ public class SearchRequest {
   }
 
   /**
-   * Limit search to tags that contain the supplied string.
-   *
    * Example value: "off"
    */
   public SearchRequest setQ(String q) {

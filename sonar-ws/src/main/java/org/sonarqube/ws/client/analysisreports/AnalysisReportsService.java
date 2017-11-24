@@ -26,7 +26,6 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 /**
- * Get details about Compute Engine tasks.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/analysis_reports">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -37,7 +36,6 @@ public class AnalysisReportsService extends BaseService {
   }
 
   /**
-   * Check if the queue of Compute Engine is empty
    *
    * This is part of the internal API.
    * This is a GET request.

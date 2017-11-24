@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.permissions;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Apply a permission template to one project.<br>The project id or project key must be provided.<br>The template id or name must be provided.<br>Requires the following permission: 'Administer System'.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions/apply_template">Further information about this action online (including a response example)</a>
@@ -39,8 +38,6 @@ public class ApplyTemplateRequest {
   private String templateName;
 
   /**
-   * Key of organization, used when group name is set
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -54,8 +51,6 @@ public class ApplyTemplateRequest {
   }
 
   /**
-   * Project id
-   *
    * Example value: "ce4c03d6-430f-40a9-b777-ad877c00aa4d"
    */
   public ApplyTemplateRequest setProjectId(String projectId) {
@@ -68,8 +63,6 @@ public class ApplyTemplateRequest {
   }
 
   /**
-   * Project key
-   *
    * Example value: "my_project"
    */
   public ApplyTemplateRequest setProjectKey(String projectKey) {
@@ -82,8 +75,6 @@ public class ApplyTemplateRequest {
   }
 
   /**
-   * Template id
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
   public ApplyTemplateRequest setTemplateId(String templateId) {
@@ -96,8 +87,6 @@ public class ApplyTemplateRequest {
   }
 
   /**
-   * Template name
-   *
    * Example value: "Default Permission Template for Projects"
    */
   public ApplyTemplateRequest setTemplateName(String templateName) {

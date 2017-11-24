@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualityprofiles;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Change a quality profile's parent.<br>Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/change_parent">Further information about this action online (including a response example)</a>
@@ -40,8 +39,6 @@ public class ChangeParentRequest {
   private String qualityProfile;
 
   /**
-   * Quality profile key
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    * @deprecated since 6.6
    */
@@ -56,8 +53,6 @@ public class ChangeParentRequest {
   }
 
   /**
-   * Quality profile language. If this parameter is set, 'key' must not be set and 'language' must be set to disambiguate.
-   *
    */
   public ChangeParentRequest setLanguage(String language) {
     this.language = language;
@@ -69,8 +64,6 @@ public class ChangeParentRequest {
   }
 
   /**
-   * Organization key. If no organization is provided, the default organization is used.
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -84,8 +77,6 @@ public class ChangeParentRequest {
   }
 
   /**
-   * New parent profile key.<br> If no profile is provided, the inheritance link with current parent profile (if any) is broken, which deactivates all rules which come from the parent and are not overridden.
-   *
    * Example value: "AU-TpxcA-iU5OvuD2FLz"
    * @deprecated since 6.6
    */
@@ -100,8 +91,6 @@ public class ChangeParentRequest {
   }
 
   /**
-   * Quality profile name. If this parameter is set, 'parentKey' must not be set and 'language' must be set to disambiguate.
-   *
    * Example value: "Sonar way"
    */
   public ChangeParentRequest setParentQualityProfile(String parentQualityProfile) {
@@ -114,8 +103,6 @@ public class ChangeParentRequest {
   }
 
   /**
-   * Quality profile name. If this parameter is set, 'key' must not be set and 'language' must be set to disambiguate.
-   *
    * Example value: "Sonar way"
    */
   public ChangeParentRequest setQualityProfile(String qualityProfile) {

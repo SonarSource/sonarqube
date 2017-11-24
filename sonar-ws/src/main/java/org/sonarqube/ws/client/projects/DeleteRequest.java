@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.projects;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Delete a project.<br> Requires 'Administer System' permission or 'Administer' permission on the project.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects/delete">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class DeleteRequest {
   private String projectId;
 
   /**
-   * Project key
-   *
    * Example value: "my_project"
    */
   public DeleteRequest setProject(String project) {
@@ -50,8 +47,6 @@ public class DeleteRequest {
   }
 
   /**
-   * Project ID
-   *
    * Example value: "ce4c03d6-430f-40a9-b777-ad877c00aa4d"
    * @deprecated since 6.4
    */

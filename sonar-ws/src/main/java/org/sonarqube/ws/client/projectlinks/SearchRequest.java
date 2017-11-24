@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.projectlinks;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * List links of a project.<br>The 'projectId' or 'projectKey' must be provided.<br>Requires one of the following permissions:<ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li><li>'Browse' on the specified project</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_links/search">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class SearchRequest {
   private String projectKey;
 
   /**
-   * Project Id
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
   public SearchRequest setProjectId(String projectId) {
@@ -50,8 +47,6 @@ public class SearchRequest {
   }
 
   /**
-   * Project Key
-   *
    * Example value: "my_project"
    */
   public SearchRequest setProjectKey(String projectKey) {

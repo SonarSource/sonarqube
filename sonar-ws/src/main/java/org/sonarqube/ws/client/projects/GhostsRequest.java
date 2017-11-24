@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * List ghost projects.<br> With the current architecture, it's no more possible to have invisible ghost projects. Therefore, the web service is deprecated.<br> Requires 'Administer System' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects/ghosts">Further information about this action online (including a response example)</a>
@@ -40,8 +38,6 @@ public class GhostsRequest {
   private String q;
 
   /**
-   * Comma-separated list of the fields to be returned in response. All the fields are returned by default.
-   *
    * Possible values:
    * <ul>
    *   <li>"name"</li>
@@ -61,8 +57,6 @@ public class GhostsRequest {
   }
 
   /**
-   * Organization key
-   *
    * This is part of the internal API.
    */
   public GhostsRequest setOrganization(String organization) {
@@ -75,8 +69,6 @@ public class GhostsRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public GhostsRequest setP(String p) {
@@ -89,8 +81,6 @@ public class GhostsRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 500
-   *
    * Example value: "20"
    */
   public GhostsRequest setPs(String ps) {
@@ -103,8 +93,6 @@ public class GhostsRequest {
   }
 
   /**
-   * Limit search to names or keys that contain the supplied string.
-   *
    * Example value: "sonar"
    */
   public GhostsRequest setQ(String q) {

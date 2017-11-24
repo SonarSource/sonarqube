@@ -28,7 +28,6 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 /**
- * Manage the plugins on the server, including installing, uninstalling, and upgrading.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/plugins">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -39,7 +38,6 @@ public class PluginsService extends BaseService {
   }
 
   /**
-   * Get the list of all the plugins available for installation on the SonarQube instance, sorted by plugin name.<br/>Plugin information is retrieved from Update Center. Date and time at which Update Center was last refreshed is provided in the response.<br/>Update status values are: <ul><li>COMPATIBLE: plugin is compatible with current SonarQube instance.</li><li>INCOMPATIBLE: plugin is not compatible with current SonarQube instance.</li><li>REQUIRES_SYSTEM_UPGRADE: plugin requires SonarQube to be upgraded before being installed.</li><li>DEPS_REQUIRE_SYSTEM_UPGRADE: at least one plugin on which the plugin is dependent requires SonarQube to be upgraded.</li></ul>Require 'Administer System' permission.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -54,7 +52,6 @@ public class PluginsService extends BaseService {
   }
 
   /**
-   * Cancels any operation pending on any plugin (install, update or uninstall)<br/>Requires user to be authenticated with Administer System permissions
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -69,7 +66,6 @@ public class PluginsService extends BaseService {
   }
 
   /**
-   * Installs the latest version of a plugin specified by its key.<br/>Plugin information is retrieved from Update Center.<br/>Requires user to be authenticated with Administer System permissions
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -85,7 +81,6 @@ public class PluginsService extends BaseService {
   }
 
   /**
-   * Get the list of all the plugins installed on the SonarQube instance, sorted by plugin name.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -101,7 +96,6 @@ public class PluginsService extends BaseService {
   }
 
   /**
-   * Get the list of plugins which will either be installed or removed at the next startup of the SonarQube instance, sorted by plugin name.<br/>Require 'Administer System' permission.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -116,7 +110,6 @@ public class PluginsService extends BaseService {
   }
 
   /**
-   * Uninstalls the plugin specified by its key.<br/>Requires user to be authenticated with Administer System permissions.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -132,7 +125,6 @@ public class PluginsService extends BaseService {
   }
 
   /**
-   * Updates a plugin specified by its key to the latest version compatible with the SonarQube instance.<br/>Plugin information is retrieved from Update Center.<br/>Requires user to be authenticated with Administer System permissions
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -148,7 +140,6 @@ public class PluginsService extends BaseService {
   }
 
   /**
-   * Lists plugins installed on the SonarQube instance for which at least one newer version is available, sorted by plugin name.<br/>Each newer version is listed, ordered from the oldest to the newest, with its own update/compatibility status.<br/>Plugin information is retrieved from Update Center. Date and time at which Update Center was last refreshed is provided in the response.<br/>Update status values are: [COMPATIBLE, INCOMPATIBLE, REQUIRES_UPGRADE, DEPS_REQUIRE_UPGRADE].<br/>Require 'Administer System' permission.
    *
    * This is part of the internal API.
    * This is a GET request.

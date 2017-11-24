@@ -31,7 +31,6 @@ import org.sonarqube.ws.Issues.ChangelogWsResponse;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 
 /**
- * Read and update issues.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -42,7 +41,6 @@ public class IssuesService extends BaseService {
   }
 
   /**
-   * Add a comment.<br/>Requires authentication and the following permission: 'Browse' on the project of the specified issue.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -59,7 +57,6 @@ public class IssuesService extends BaseService {
   }
 
   /**
-   * Assign/Unassign an issue. Requires authentication and Browse permission on project
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -77,7 +74,6 @@ public class IssuesService extends BaseService {
   }
 
   /**
-   * Search SCM accounts which match a given query
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -94,7 +90,6 @@ public class IssuesService extends BaseService {
   }
 
   /**
-   * Bulk change on issues.<br/>Requires authentication.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -105,20 +100,19 @@ public class IssuesService extends BaseService {
     return call(
       new PostRequest(path("bulk_change"))
         .setParam("add_tags", request.getAddTags())
-        .setParam("assign", request.getAssign())
-        .setParam("comment", request.getComment())
+        .setParam("assign", request.getAssign() == null ? null : request.getAssign().stream().collect(Collectors.joining(",")))
+        .setParam("comment", request.getComment() == null ? null : request.getComment().stream().collect(Collectors.joining(",")))
         .setParam("do_transition", request.getDoTransition())
         .setParam("issues", request.getIssues() == null ? null : request.getIssues().stream().collect(Collectors.joining(",")))
-        .setParam("plan", request.getPlan())
+        .setParam("plan", request.getPlan() == null ? null : request.getPlan().stream().collect(Collectors.joining(",")))
         .setParam("remove_tags", request.getRemoveTags())
         .setParam("sendNotifications", request.getSendNotifications())
-        .setParam("set_severity", request.getSetSeverity())
-        .setParam("set_type", request.getSetType()),
+        .setParam("set_severity", request.getSetSeverity() == null ? null : request.getSetSeverity().stream().collect(Collectors.joining(",")))
+        .setParam("set_type", request.getSetType() == null ? null : request.getSetType().stream().collect(Collectors.joining(","))),
       BulkChangeWsResponse.parser());
   }
 
   /**
-   * Display changelog of an issue.<br/>Requires the 'Browse' permission on the project of the specified issue.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -133,7 +127,6 @@ public class IssuesService extends BaseService {
   }
 
   /**
-   * List tags for the issues under a given component (including issues on the descendants of the component)
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -151,7 +144,6 @@ public class IssuesService extends BaseService {
   }
 
   /**
-   * Delete a comment.<br/>Requires authentication and the following permission: 'Browse' on the project of the specified issue.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -167,7 +159,6 @@ public class IssuesService extends BaseService {
   }
 
   /**
-   * Do workflow transition on an issue. Requires authentication and Browse permission on project.<br/>The transitions 'wontfix' and 'falsepositive' require the permission 'Administer Issues'.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -184,7 +175,6 @@ public class IssuesService extends BaseService {
   }
 
   /**
-   * Edit a comment.<br/>Requires authentication and the following permission: 'Browse' on the project of the specified issue.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -201,7 +191,6 @@ public class IssuesService extends BaseService {
   }
 
   /**
-   * Search for issues.<br>At most one of the following parameters can be provided at the same time: componentKeys, componentUuids, components, componentRootUuids, componentRoots.<br>Requires the 'Browse' permission on the specified project(s).
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -252,7 +241,6 @@ public class IssuesService extends BaseService {
   }
 
   /**
-   * Change severity.<br/>Requires the following permissions:<ul>  <li>'Authentication'</li>  <li>'Browse' rights on project of the specified issue</li>  <li>'Administer Issues' rights on project of the specified issue</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -269,7 +257,6 @@ public class IssuesService extends BaseService {
   }
 
   /**
-   * Set tags on an issue. <br/>Requires authentication and Browse permission on project
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -286,7 +273,6 @@ public class IssuesService extends BaseService {
   }
 
   /**
-   * Change type of issue, for instance from 'code smell' to 'bug'.<br/>Requires the following permissions:<ul>  <li>'Authentication'</li>  <li>'Browse' rights on project of the specified issue</li>  <li>'Administer Issues' rights on project of the specified issue</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -303,7 +289,6 @@ public class IssuesService extends BaseService {
   }
 
   /**
-   * List tags matching a given query
    *
    * This is part of the internal API.
    * This is a GET request.

@@ -22,18 +22,17 @@ package org.sonarqube.ws.client.settings;
 import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.Settings.CheckSecretKeyWsResponse;
 import org.sonarqube.ws.Settings.EncryptWsResponse;
 import org.sonarqube.ws.Settings.GenerateSecretKeyWsResponse;
 import org.sonarqube.ws.Settings.ListDefinitionsWsResponse;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
-import org.sonarqube.ws.client.BaseService;
-import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsConnector;
 
 /**
- * Manage settings.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -44,7 +43,6 @@ public class SettingsService extends BaseService {
   }
 
   /**
-   * Check if a secret key is available.<br>Requires the 'Administer System' permission.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -58,7 +56,6 @@ public class SettingsService extends BaseService {
   }
 
   /**
-   * Encrypt a setting value.<br>Requires 'Administer System' permission.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -73,7 +70,6 @@ public class SettingsService extends BaseService {
   }
 
   /**
-   * Generate a secret key.<br>Requires the 'Administer System' permission
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -87,7 +83,6 @@ public class SettingsService extends BaseService {
   }
 
   /**
-   * List settings definitions.<br>Requires 'Browse' permission when a component is specified<br/>
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -103,7 +98,6 @@ public class SettingsService extends BaseService {
   }
 
   /**
-   * Remove a setting value.<br>Requires one of the following permissions: <ul><li>'Administer System'</li><li>'Administer' rights on the specified component</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -121,7 +115,6 @@ public class SettingsService extends BaseService {
   }
 
   /**
-   * Update a setting value.<br>Either 'value' or 'values' must be provided.<br> Requires one of the following permissions: <ul><li>'Administer System'</li><li>'Administer' rights on the specified component</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -142,7 +135,6 @@ public class SettingsService extends BaseService {
   }
 
   /**
-   * List settings values.<br>If no value has been set for a setting, then the default value is returned.<br>Requires 'Browse' permission when a component is specified<br/>
    *
    * This is part of the internal API.
    * This is a GET request.

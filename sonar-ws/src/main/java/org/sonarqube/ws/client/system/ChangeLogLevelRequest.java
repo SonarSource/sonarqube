@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.system;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Temporarily changes level of logs. New level is not persistent and is lost when restarting server. Requires system administration permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/system/change_log_level">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class ChangeLogLevelRequest {
   private String level;
 
   /**
-   * The new level. Be cautious: DEBUG, and even more TRACE, may have performance impacts.
-   *
    * This is a mandatory parameter.
    * Possible values:
    * <ul>

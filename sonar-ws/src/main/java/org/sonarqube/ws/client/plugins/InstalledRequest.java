@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Get the list of all the plugins installed on the SonarQube instance, sorted by plugin name.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/plugins/installed">Further information about this action online (including a response example)</a>
@@ -36,8 +34,6 @@ public class InstalledRequest {
   private List<String> f;
 
   /**
-   * Comma-separated list of the additional fields to be returned in response. No additional field is returned by default. Possible values are:<ul><li>category - category as defined in the Update Center. A connection to the Update Center is needed</li></lu>
-   *
    * Possible values:
    * <ul>
    *   <li>"category"</li>

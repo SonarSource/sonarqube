@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * List settings values.<br>If no value has been set for a setting, then the default value is returned.<br>Requires 'Browse' permission when a component is specified<br/>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings/values">Further information about this action online (including a response example)</a>
@@ -38,8 +36,6 @@ public class ValuesRequest {
   private List<String> keys;
 
   /**
-   * Branch key
-   *
    * This is part of the internal API.
    * Example value: "feature/my_branch"
    */
@@ -53,8 +49,6 @@ public class ValuesRequest {
   }
 
   /**
-   * Component key
-   *
    * Example value: "my_project"
    */
   public ValuesRequest setComponent(String component) {
@@ -67,8 +61,6 @@ public class ValuesRequest {
   }
 
   /**
-   * List of setting keys
-   *
    * Example value: "sonar.test.inclusions,sonar.dbcleaner.cleanDirectory"
    */
   public ValuesRequest setKeys(List<String> keys) {

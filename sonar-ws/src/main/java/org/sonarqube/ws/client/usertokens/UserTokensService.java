@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client.usertokens;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
@@ -29,7 +30,6 @@ import org.sonarqube.ws.UserTokens.GenerateWsResponse;
 import org.sonarqube.ws.UserTokens.SearchWsResponse;
 
 /**
- * List, create, and delete a user's access tokens.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/user_tokens">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -40,7 +40,6 @@ public class UserTokensService extends BaseService {
   }
 
   /**
-   * Generate a user access token. <br />Please keep your tokens secret. They enable to authenticate and analyze projects.<br />If the login is set, it requires administration permissions. Otherwise, a token is generated for the authenticated user.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -56,7 +55,6 @@ public class UserTokensService extends BaseService {
   }
 
   /**
-   * Revoke a user access token. <br/>If the login is set, it requires administration permissions. Otherwise, a token is generated for the authenticated user.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -73,7 +71,6 @@ public class UserTokensService extends BaseService {
   }
 
   /**
-   * List the access tokens of a user.<br>The login must exist and active.<br>If the login is set, it requires administration permissions. Otherwise, a token is generated for the authenticated user.
    *
    * This is part of the internal API.
    * This is a GET request.

@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.components;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Coverage data required for rendering the component viewer.<br>Requires the following permission: 'Browse'.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/components/app">Further information about this action online (including a response example)</a>
@@ -37,8 +36,6 @@ public class AppRequest {
   private String componentId;
 
   /**
-   * Branch key
-   *
    * This is part of the internal API.
    * Example value: "feature/my_branch"
    */
@@ -52,8 +49,6 @@ public class AppRequest {
   }
 
   /**
-   * Component key
-   *
    * Example value: "my_project"
    */
   public AppRequest setComponent(String component) {
@@ -66,8 +61,6 @@ public class AppRequest {
   }
 
   /**
-   * Component ID
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    * @deprecated since 6.4
    */

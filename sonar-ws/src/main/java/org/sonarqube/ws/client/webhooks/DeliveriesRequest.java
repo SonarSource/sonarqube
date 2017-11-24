@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.webhooks;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Get the recent deliveries for a specified project or Compute Engine task.<br/>Require 'Administer' permission on the related project.<br/>Note that additional information are returned by api/webhooks/delivery.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/webhooks/deliveries">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class DeliveriesRequest {
   private String componentKey;
 
   /**
-   * Id of the Compute Engine task
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
   public DeliveriesRequest setCeTaskId(String ceTaskId) {
@@ -50,8 +47,6 @@ public class DeliveriesRequest {
   }
 
   /**
-   * Key of the project
-   *
    * Example value: "my-project"
    */
   public DeliveriesRequest setComponentKey(String componentKey) {

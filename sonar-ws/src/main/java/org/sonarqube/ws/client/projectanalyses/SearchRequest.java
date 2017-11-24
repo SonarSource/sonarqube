@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.projectanalyses;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Search a project analyses and attached events.<br>Requires the following permission: 'Browse' on the specified project
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_analyses/search">Further information about this action online (including a response example)</a>
@@ -41,8 +40,6 @@ public class SearchRequest {
   private String to;
 
   /**
-   * Branch key
-   *
    * This is part of the internal API.
    * Example value: "feature/my_branch"
    */
@@ -56,8 +53,6 @@ public class SearchRequest {
   }
 
   /**
-   * Event category. Filter analyses that have at least one event of the category specified.
-   *
    * Example value: "OTHER"
    * Possible values:
    * <ul>
@@ -77,8 +72,6 @@ public class SearchRequest {
   }
 
   /**
-   * Filter analyses created after the given date (inclusive). <br>Either a date (server timezone) or datetime can be provided
-   *
    * Example value: "2013-05-01"
    */
   public SearchRequest setFrom(String from) {
@@ -91,8 +84,6 @@ public class SearchRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public SearchRequest setP(String p) {
@@ -105,8 +96,6 @@ public class SearchRequest {
   }
 
   /**
-   * Project key
-   *
    * This is a mandatory parameter.
    * Example value: "my_project"
    */
@@ -120,8 +109,6 @@ public class SearchRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 500
-   *
    * Example value: "20"
    */
   public SearchRequest setPs(String ps) {
@@ -134,8 +121,6 @@ public class SearchRequest {
   }
 
   /**
-   * Filter analyses created before the given date (inclusive). <br>Either a date (server timezone) or datetime can be provided
-   *
    * Example value: "2017-10-19 or 2017-10-19T13:00:00+0200"
    */
   public SearchRequest setTo(String to) {

@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.ce;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Submits a scanner report to the queue. Report is processed asynchronously. Requires analysis permission. If the project does not exist, then the provisioning permission is also required.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce/submit">Further information about this action online (including a response example)</a>
@@ -40,8 +39,6 @@ public class SubmitRequest {
   private String report;
 
   /**
-   * Optional characteristic of the analysis. Can be repeated to define multiple characteristics.
-   *
    * Example value: "branchType=long"
    */
   public SubmitRequest setCharacteristic(String characteristic) {
@@ -54,8 +51,6 @@ public class SubmitRequest {
   }
 
   /**
-   * Key of the organization the project belongs to
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -69,8 +64,6 @@ public class SubmitRequest {
   }
 
   /**
-   * Optional branch of project
-   *
    * Example value: "branch-1.x"
    */
   public SubmitRequest setProjectBranch(String projectBranch) {
@@ -83,8 +76,6 @@ public class SubmitRequest {
   }
 
   /**
-   * Key of project
-   *
    * This is a mandatory parameter.
    * Example value: "my_project"
    */
@@ -98,8 +89,6 @@ public class SubmitRequest {
   }
 
   /**
-   * Optional name of the project, used only if the project does not exist yet.
-   *
    * Example value: "My Project"
    */
   public SubmitRequest setProjectName(String projectName) {
@@ -112,8 +101,6 @@ public class SubmitRequest {
   }
 
   /**
-   * Report file. Format is not an API, it changes among SonarQube versions.
-   *
    * This is a mandatory parameter.
    */
   public SubmitRequest setReport(String report) {

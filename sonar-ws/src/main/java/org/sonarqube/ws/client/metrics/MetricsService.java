@@ -28,7 +28,6 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 /**
- * Get information on automatic metrics, and manage custom metrics. See also api/custom_measures.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/metrics">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -39,7 +38,6 @@ public class MetricsService extends BaseService {
   }
 
   /**
-   * Create custom metric.<br /> Requires 'Administer System' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -59,7 +57,6 @@ public class MetricsService extends BaseService {
   }
 
   /**
-   * Delete metrics and associated measures. Delete only custom metrics.<br />Ids or keys must be provided. <br />Requires 'Administer System' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -70,13 +67,12 @@ public class MetricsService extends BaseService {
     call(
       new PostRequest(path("delete"))
         .setParam("ids", request.getIds())
-        .setParam("keys", request.getKeys())
+        .setParam("keys", request.getKeys() == null ? null : request.getKeys().stream().collect(Collectors.joining(",")))
         .setMediaType(MediaTypes.JSON)
       ).content();
   }
 
   /**
-   * List all custom metric domains.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -91,7 +87,6 @@ public class MetricsService extends BaseService {
   }
 
   /**
-   * Search for metrics
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -110,7 +105,6 @@ public class MetricsService extends BaseService {
   }
 
   /**
-   * List all available metric types.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -125,7 +119,6 @@ public class MetricsService extends BaseService {
   }
 
   /**
-   * Update a custom metric.<br /> Requires 'Administer System' permission.
    *
    * This is part of the internal API.
    * This is a POST request.

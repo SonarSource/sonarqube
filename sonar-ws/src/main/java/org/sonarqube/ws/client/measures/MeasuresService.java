@@ -21,8 +21,10 @@ package org.sonarqube.ws.client.measures;
 
 import java.util.stream.Collectors;
 import javax.annotation.Generated;
+import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 import org.sonarqube.ws.Measures.ComponentWsResponse;
 import org.sonarqube.ws.Measures.ComponentTreeWsResponse;
@@ -30,7 +32,6 @@ import org.sonarqube.ws.Measures.SearchWsResponse;
 import org.sonarqube.ws.Measures.SearchHistoryResponse;
 
 /**
- * Get components or children with specified measures.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/measures">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -41,7 +42,6 @@ public class MeasuresService extends BaseService {
   }
 
   /**
-   * Return component with specified measures. The componentId or the component parameter must be provided.<br>Requires the following permission: 'Browse' on the project of specified component.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -62,7 +62,6 @@ public class MeasuresService extends BaseService {
   }
 
   /**
-   * Navigate through components based on the chosen strategy with specified measures. The baseComponentId or the component parameter must be provided.<br>Requires the following permission: 'Browse' on the specified project.<br>When limiting search with the q parameter, directories are not returned.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -93,7 +92,6 @@ public class MeasuresService extends BaseService {
   }
 
   /**
-   * Search for project measures ordered by project names.<br>At most 100 projects can be provided.<br>Returns the projects with the 'Browse' permission.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -109,7 +107,6 @@ public class MeasuresService extends BaseService {
   }
 
   /**
-   * Search measures history of a component.<br>Measures are ordered chronologically.<br>Pagination applies to the number of measures for each metric.<br>Requires the following permission: 'Browse' on the specified component
    *
    * This is part of the internal API.
    * This is a GET request.

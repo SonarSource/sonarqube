@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.projects;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * This web service is deprecated, please use api/components/search instead
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects/index">Further information about this action online (including a response example)</a>
@@ -42,8 +41,6 @@ public class IndexRequest {
   private String views;
 
   /**
-   * Since 6.3, this parameter has no effect
-   *
    * @deprecated since 6.3
    */
   @Deprecated
@@ -57,8 +54,6 @@ public class IndexRequest {
   }
 
   /**
-   * Only json response format is available
-   *
    * Possible values:
    * <ul>
    *   <li>"json"</li>
@@ -74,8 +69,6 @@ public class IndexRequest {
   }
 
   /**
-   * Since 6.3, this parameter has no effect
-   *
    * @deprecated since 6.3
    */
   @Deprecated
@@ -89,8 +82,6 @@ public class IndexRequest {
   }
 
   /**
-   * key or ID of the project
-   *
    * Example value: "my_project"
    */
   public IndexRequest setProject(String project) {
@@ -103,8 +94,6 @@ public class IndexRequest {
   }
 
   /**
-   * Substring of project name, case insensitive. Ignored if the parameter key is set
-   *
    * Example value: "Sonar"
    */
   public IndexRequest setSearch(String search) {
@@ -117,8 +106,6 @@ public class IndexRequest {
   }
 
   /**
-   * Load sub-projects. Ignored if the parameter key is set
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -137,8 +124,6 @@ public class IndexRequest {
   }
 
   /**
-   * Since 6.3, this parameter has no effect
-   *
    * @deprecated since 6.3
    */
   @Deprecated
@@ -152,8 +137,6 @@ public class IndexRequest {
   }
 
   /**
-   * Since 6.3, this parameter has no effect
-   *
    * @deprecated since 6.3
    */
   @Deprecated

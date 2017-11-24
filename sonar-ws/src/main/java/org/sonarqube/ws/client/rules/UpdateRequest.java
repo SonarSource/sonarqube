@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Update an existing rule.<br>Requires the 'Administer Quality Profiles' permission
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/rules/update">Further information about this action online (including a response example)</a>
@@ -42,7 +40,7 @@ public class UpdateRequest {
   private String markdownNote;
   private String name;
   private String organization;
-  private String params;
+  private List<String> params;
   private String remediationFnBaseEffort;
   private String remediationFnType;
   private String remediationFyGapMultiplier;
@@ -96,8 +94,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Debt characteristics are no more supported. This parameter is ignored.
-   *
    * @deprecated since 5.5
    */
   @Deprecated
@@ -111,8 +107,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Key of the rule to update
-   *
    * This is a mandatory parameter.
    * Example value: "javascript:NullCheck"
    */
@@ -126,8 +120,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Rule description (mandatory for custom rule and manual rule)
-   *
    * Example value: "Description of my custom rule"
    */
   public UpdateRequest setMarkdownDescription(String markdownDescription) {
@@ -140,8 +132,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Optional note in markdown format. Use empty value to remove current note. Note is not changedif the parameter is not set.
-   *
    * Example value: "my *note*"
    */
   public UpdateRequest setMarkdownNote(String markdownNote) {
@@ -154,8 +144,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Rule name (mandatory for custom rule)
-   *
    * Example value: "My custom rule"
    */
   public UpdateRequest setName(String name) {
@@ -168,8 +156,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Organization key
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -183,21 +169,17 @@ public class UpdateRequest {
   }
 
   /**
-   * Parameters as semi-colon list of <key>=<value>, for example 'params=key1=v1;key2=v2' (Only when updating a custom rule)
-   *
    */
-  public UpdateRequest setParams(String params) {
+  public UpdateRequest setParams(List<String> params) {
     this.params = params;
     return this;
   }
 
-  public String getParams() {
+  public List<String> getParams() {
     return params;
   }
 
   /**
-   * Base effort of the remediation function of the rule
-   *
    * Example value: "1d"
    */
   public UpdateRequest setRemediationFnBaseEffort(String remediationFnBaseEffort) {
@@ -210,8 +192,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Type of the remediation function of the rule
-   *
    * Possible values:
    * <ul>
    *   <li>"LINEAR"</li>
@@ -229,8 +209,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Gap multiplier of the remediation function of the rule
-   *
    * Example value: "3min"
    */
   public UpdateRequest setRemediationFyGapMultiplier(String remediationFyGapMultiplier) {
@@ -243,8 +221,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Rule severity (Only when updating a custom rule)
-   *
    * Possible values:
    * <ul>
    *   <li>"INFO"</li>
@@ -264,8 +240,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Rule status (Only when updating a custom rule)
-   *
    * Possible values:
    * <ul>
    *   <li>"BETA"</li>
@@ -284,8 +258,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Optional comma-separated list of tags to set. Use blank value to remove current tags. Tags are not changed if the parameter is not set.
-   *
    * Example value: "java8,security"
    */
   public UpdateRequest setTags(List<String> tags) {

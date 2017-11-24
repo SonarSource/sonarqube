@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Search for a collection of relevant rules matching a specified query.<br/>Since 5.5, following fields in the response have been deprecated :<ul><li>"effortToFixDescription" becomes "gapDescription"</li><li>"debtRemFnCoeff" becomes "remFnGapMultiplier"</li><li>"defaultDebtRemFnCoeff" becomes "defaultRemFnGapMultiplier"</li><li>"debtRemFnOffset" becomes "remFnBaseEffort"</li><li>"defaultDebtRemFnOffset" becomes "defaultRemFnBaseEffort"</li><li>"debtOverloaded" becomes "remFnOverloaded"</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/rules/search">Further information about this action online (including a response example)</a>
@@ -58,8 +56,6 @@ public class SearchRequest {
   private List<String> types;
 
   /**
-   * Filter rules that are activated or deactivated on the selected Quality profile. Ignored if the parameter 'qprofile' is not set.
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -78,8 +74,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of activation severities, i.e the severity of rules in Quality profiles.
-   *
    * Example value: "CRITICAL,BLOCKER"
    * Possible values:
    * <ul>
@@ -100,8 +94,6 @@ public class SearchRequest {
   }
 
   /**
-   * Ascending sort
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -120,8 +112,6 @@ public class SearchRequest {
   }
 
   /**
-   * Filters rules added since date. Format is yyyy-MM-dd
-   *
    * Example value: "2014-06-22"
    */
   public SearchRequest setAvailableSince(String availableSince) {
@@ -134,8 +124,6 @@ public class SearchRequest {
   }
 
   /**
-   * Quality profile key to filter rules that are activated. Meant to compare easily to profile set in 'qprofile'
-   *
    * This is part of the internal API.
    * Example value: "AU-TpxcA-iU5OvuD2FLz"
    */
@@ -149,8 +137,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of the fields to be returned in response. All the fields are returned by default, except actives.Since 5.5, following fields have been deprecated :<ul><li>"defaultDebtRemFn" becomes "defaultRemFn"</li><li>"debtRemFn" becomes "remFn"</li><li>"effortToFixDescription" becomes "gapDescription"</li><li>"debtOverloaded" becomes "remFnOverloaded"</li></ul>
-   *
    * Example value: "repo,name"
    * Possible values:
    * <ul>
@@ -193,8 +179,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of the facets to be computed. No facet is computed by default.
-   *
    * Example value: "languages,repositories"
    * Possible values:
    * <ul>
@@ -218,8 +202,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of values of inheritance for a rule within a quality profile. Used only if the parameter 'activation' is set.
-   *
    * Example value: "INHERITED,OVERRIDES"
    * Possible values:
    * <ul>
@@ -238,8 +220,6 @@ public class SearchRequest {
   }
 
   /**
-   * Filter template rules
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -258,8 +238,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of languages
-   *
    * Example value: "java,js"
    */
   public SearchRequest setLanguages(List<String> languages) {
@@ -272,8 +250,6 @@ public class SearchRequest {
   }
 
   /**
-   * Organization key
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -287,8 +263,6 @@ public class SearchRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public SearchRequest setP(String p) {
@@ -301,8 +275,6 @@ public class SearchRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 500
-   *
    * Example value: "20"
    */
   public SearchRequest setPs(String ps) {
@@ -315,8 +287,6 @@ public class SearchRequest {
   }
 
   /**
-   * UTF-8 search query
-   *
    * Example value: "xpath"
    */
   public SearchRequest setQ(String q) {
@@ -329,8 +299,6 @@ public class SearchRequest {
   }
 
   /**
-   * Quality profile key to filter on. Used only if the parameter 'activation' is set.
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
   public SearchRequest setQprofile(String qprofile) {
@@ -343,8 +311,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of repositories
-   *
    * Example value: "checkstyle,findbugs"
    */
   public SearchRequest setRepositories(List<String> repositories) {
@@ -357,8 +323,6 @@ public class SearchRequest {
   }
 
   /**
-   * Key of rule to search for
-   *
    * Example value: "squid:S001"
    */
   public SearchRequest setRuleKey(String ruleKey) {
@@ -371,8 +335,6 @@ public class SearchRequest {
   }
 
   /**
-   * Sort field
-   *
    * Example value: "name"
    * Possible values:
    * <ul>
@@ -392,8 +354,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of default severities. Not the same than severity of rules in Quality profiles.
-   *
    * Example value: "CRITICAL,BLOCKER"
    * Possible values:
    * <ul>
@@ -414,8 +374,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of status codes
-   *
    * Example value: "READY"
    * Possible values:
    * <ul>
@@ -435,8 +393,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of tags. Returned rules match any of the tags (OR operator)
-   *
    * Example value: "security,java8"
    */
   public SearchRequest setTags(List<String> tags) {
@@ -449,8 +405,6 @@ public class SearchRequest {
   }
 
   /**
-   * Key of the template rule to filter on. Used to search for the custom rules based on this template.
-   *
    * Example value: "java:S001"
    */
   public SearchRequest setTemplateKey(String templateKey) {
@@ -463,8 +417,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of types. Returned rules match any of the tags (OR operator)
-   *
    * Example value: "BUG"
    * Possible values:
    * <ul>

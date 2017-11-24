@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Search for project measures ordered by project names.<br>At most 100 projects can be provided.<br>Returns the projects with the 'Browse' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/measures/search">Further information about this action online (including a response example)</a>
@@ -37,8 +35,6 @@ public class SearchRequest {
   private List<String> projectKeys;
 
   /**
-   * Metric keys
-   *
    * This is a mandatory parameter.
    * Example value: "ncloc,complexity,violations"
    */
@@ -52,8 +48,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of project, view or sub-view keys
-   *
    * This is a mandatory parameter.
    * Example value: "my_project,another_project"
    */

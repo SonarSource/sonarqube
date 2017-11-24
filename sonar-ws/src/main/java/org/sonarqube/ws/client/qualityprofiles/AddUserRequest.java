@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualityprofiles;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Allow a user to edit a Quality Profile.<br>Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/add_user">Further information about this action online (including a response example)</a>
@@ -38,8 +37,6 @@ public class AddUserRequest {
   private String qualityProfile;
 
   /**
-   * Quality profile language
-   *
    * This is a mandatory parameter.
    */
   public AddUserRequest setLanguage(String language) {
@@ -52,8 +49,6 @@ public class AddUserRequest {
   }
 
   /**
-   * User login
-   *
    * This is a mandatory parameter.
    * Example value: "john.doe"
    */
@@ -67,8 +62,6 @@ public class AddUserRequest {
   }
 
   /**
-   * Organization key. If no organization is provided, the default organization is used.
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -82,8 +75,6 @@ public class AddUserRequest {
   }
 
   /**
-   * Quality Profile name
-   *
    * This is a mandatory parameter.
    * Example value: "Recommended quality profile"
    */

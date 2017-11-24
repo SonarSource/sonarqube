@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Associate a project to a quality gate.<br>The 'projectId' or 'projectKey' must be provided.<br>Project id as a numeric value is deprecated since 6.1. Please use the id similar to 'AU-TpxcA-iU5OvuD2FLz'.<br>Requires the 'Administer Quality Gates' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/select">Further information about this action online (including a response example)</a>
@@ -37,8 +36,6 @@ public class SelectRequest {
   private String projectKey;
 
   /**
-   * Quality gate id
-   *
    * This is a mandatory parameter.
    * Example value: "1"
    */
@@ -52,8 +49,6 @@ public class SelectRequest {
   }
 
   /**
-   * Project id. Project id as an numeric value is deprecated since 6.1
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
   public SelectRequest setProjectId(String projectId) {
@@ -66,8 +61,6 @@ public class SelectRequest {
   }
 
   /**
-   * Project key
-   *
    * Example value: "my_project"
    */
   public SelectRequest setProjectKey(String projectKey) {

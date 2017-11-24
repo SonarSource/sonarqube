@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualityprofiles;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Delete a quality profile and all its descendants. The default quality profile cannot be deleted.<br> Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/delete">Further information about this action online (including a response example)</a>
@@ -38,8 +37,6 @@ public class DeleteRequest {
   private String qualityProfile;
 
   /**
-   * Quality profile key
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    * @deprecated since 6.6
    */
@@ -54,8 +51,6 @@ public class DeleteRequest {
   }
 
   /**
-   * Quality profile language. If this parameter is set, 'key' must not be set and 'language' must be set to disambiguate.
-   *
    */
   public DeleteRequest setLanguage(String language) {
     this.language = language;
@@ -67,8 +62,6 @@ public class DeleteRequest {
   }
 
   /**
-   * Organization key. If no organization is provided, the default organization is used.
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -82,8 +75,6 @@ public class DeleteRequest {
   }
 
   /**
-   * Quality profile name. If this parameter is set, 'key' must not be set and 'language' must be set to disambiguate.
-   *
    * Example value: "Sonar way"
    */
   public DeleteRequest setQualityProfile(String qualityProfile) {

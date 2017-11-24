@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.users;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Lists the groups a user belongs to. <br/>Requires Administer System permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/users/groups">Further information about this action online (including a response example)</a>
@@ -40,8 +39,6 @@ public class GroupsRequest {
   private String selected;
 
   /**
-   * A user login
-   *
    * This is a mandatory parameter.
    * Example value: "admin"
    */
@@ -55,8 +52,6 @@ public class GroupsRequest {
   }
 
   /**
-   * Organization key
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -70,8 +65,6 @@ public class GroupsRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public GroupsRequest setP(String p) {
@@ -84,8 +77,6 @@ public class GroupsRequest {
   }
 
   /**
-   * Page size. Must be greater than 0.
-   *
    * Example value: "20"
    */
   public GroupsRequest setPs(String ps) {
@@ -98,8 +89,6 @@ public class GroupsRequest {
   }
 
   /**
-   * Limit search to group names that contain the supplied string.
-   *
    * Example value: "users"
    */
   public GroupsRequest setQ(String q) {
@@ -112,8 +101,6 @@ public class GroupsRequest {
   }
 
   /**
-   * Depending on the value, show only selected items (selected=selected), deselected items (selected=deselected), or all items with their selection status (selected=all).
-   *
    * Possible values:
    * <ul>
    *   <li>"all"</li>

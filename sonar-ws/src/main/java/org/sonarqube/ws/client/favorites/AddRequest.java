@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.favorites;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Add a component (project, directory, file etc.) as favorite for the authenticated user.<br>Requires authentication and the following permission: 'Browse' on the project of the specified component.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/favorites/add">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class AddRequest {
   private String component;
 
   /**
-   * Component key
-   *
    * This is a mandatory parameter.
    * Example value: "my_project:/src/foo/Bar.php"
    */
