@@ -85,7 +85,7 @@ public class QualityGateConditionsUpdaterTest {
 
   @Test
   public void create_warning_condition_without_period() {
-    QualityGateConditionDto result = underTest.createCondition(dbSession, qualityGateDto.getId(), "coverage", "LT", "90", null, null);
+    QualityGateConditionDto result = underTest.createCondition(dbSession, qualityGateDto, "coverage", "LT", "90", null, null);
 
     verifyCondition(result, coverageMetricDto.getId(), "LT", "90", null, null);
   }
@@ -98,7 +98,7 @@ public class QualityGateConditionsUpdaterTest {
       .setHidden(false));
     dbSession.commit();
 
-    QualityGateConditionDto result = underTest.createCondition(dbSession, qualityGateDto.getId(), "new_coverage", "LT", null, "80", 1);
+    QualityGateConditionDto result = underTest.createCondition(dbSession, qualityGateDto, "new_coverage", "LT", null, "80", 1);
 
     verifyCondition(result, metricDto.getId(), "LT", null, "80", 1);
   }
@@ -113,7 +113,7 @@ public class QualityGateConditionsUpdaterTest {
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Condition on metric 'Coverage' already exists.");
-    underTest.createCondition(dbSession, qualityGateDto.getId(), coverageMetricDto.getKey(), "LT", "90", null, null);
+    underTest.createCondition(dbSession, qualityGateDto, coverageMetricDto.getKey(), "LT", "90", null, null);
   }
 
   @Test
@@ -126,14 +126,14 @@ public class QualityGateConditionsUpdaterTest {
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Condition on metric 'Coverage' over leak period already exists.");
-    underTest.createCondition(dbSession, qualityGateDto.getId(), coverageMetricDto.getKey(), "LT", "90", null, 1);
+    underTest.createCondition(dbSession, qualityGateDto, coverageMetricDto.getKey(), "LT", "90", null, 1);
   }
 
   @Test
   public void fail_to_create_condition_on_missing_metric() {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("There is no metric with key=new_coverage");
-    underTest.createCondition(dbSession, qualityGateDto.getId(), "new_coverage", "LT", null, "80", 2);
+    underTest.createCondition(dbSession, qualityGateDto, "new_coverage", "LT", null, "80", 2);
   }
 
   @Test
@@ -147,14 +147,14 @@ public class QualityGateConditionsUpdaterTest {
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Metric '" + metricKey + "' cannot be used to define a condition.");
-    underTest.createCondition(dbSession, qualityGateDto.getId(), metricKey, "EQ", null, "80", null);
+    underTest.createCondition(dbSession, qualityGateDto, metricKey, "EQ", null, "80", null);
   }
 
   @Test
   public void fail_to_create_condition_on_not_allowed_operator() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Operator UNKNOWN is not allowed for metric type PERCENT.");
-    underTest.createCondition(dbSession, qualityGateDto.getId(), "coverage", "UNKNOWN", null, "80", 2);
+    underTest.createCondition(dbSession, qualityGateDto, "coverage", "UNKNOWN", null, "80", 2);
   }
 
   @Test
@@ -167,19 +167,19 @@ public class QualityGateConditionsUpdaterTest {
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("A period must be selected for differential metrics.");
-    underTest.createCondition(dbSession, qualityGateDto.getId(), "new_coverage", "EQ", null, "90", null);
+    underTest.createCondition(dbSession, qualityGateDto, "new_coverage", "EQ", null, "90", null);
   }
 
   @Test
   public void fail_to_create_condition_on_invalid_period() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The only valid quality gate period is 1, the leak period.");
-    underTest.createCondition(dbSession, qualityGateDto.getId(), "coverage", "EQ", null, "90", 6);
+    underTest.createCondition(dbSession, qualityGateDto, "coverage", "EQ", null, "90", 6);
   }
 
   @Test
   public void create_condition_on_rating_metric() {
-    QualityGateConditionDto result = underTest.createCondition(dbSession, qualityGateDto.getId(), ratingMetricDto.getKey(), "GT", null, "3", null);
+    QualityGateConditionDto result = underTest.createCondition(dbSession, qualityGateDto, ratingMetricDto.getKey(), "GT", null, "3", null);
 
     verifyCondition(result, ratingMetricDto.getId(), "GT", null, "3", null);
   }
@@ -188,28 +188,28 @@ public class QualityGateConditionsUpdaterTest {
   public void fail_to_create_condition_on_rating_metric_on_leak_period() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The metric 'Reliability Rating' cannot be used on the leak period");
-    underTest.createCondition(dbSession, qualityGateDto.getId(), ratingMetricDto.getKey(), "GT", null, "3", 1);
+    underTest.createCondition(dbSession, qualityGateDto, ratingMetricDto.getKey(), "GT", null, "3", 1);
   }
 
   @Test
   public void fail_to_create_warning_condition_on_invalid_rating_metric() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("'6' is not a valid rating");
-    underTest.createCondition(dbSession, qualityGateDto.getId(), ratingMetricDto.getKey(), "GT", "6", null, null);
+    underTest.createCondition(dbSession, qualityGateDto, ratingMetricDto.getKey(), "GT", "6", null, null);
   }
 
   @Test
   public void fail_to_create_error_condition_on_invalid_rating_metric() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("'80' is not a valid rating");
-    underTest.createCondition(dbSession, qualityGateDto.getId(), ratingMetricDto.getKey(), "GT", null, "80", null);
+    underTest.createCondition(dbSession, qualityGateDto, ratingMetricDto.getKey(), "GT", null, "80", null);
   }
 
   @Test
   public void fail_to_create_condition_on_greater_than_E() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("There's no worse rating than E (5)");
-    underTest.createCondition(dbSession, qualityGateDto.getId(), ratingMetricDto.getKey(), "GT", "5", null, null);
+    underTest.createCondition(dbSession, qualityGateDto, ratingMetricDto.getKey(), "GT", "5", null, null);
   }
 
   @Test

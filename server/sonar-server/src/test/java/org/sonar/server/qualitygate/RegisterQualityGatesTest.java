@@ -123,7 +123,7 @@ public class RegisterQualityGatesTest {
     createBuiltInConditions(builtin);
 
     // Add another condition
-    qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(),
+    qualityGateConditionsUpdater.createCondition(dbSession, builtin,
       NEW_SECURITY_REMEDIATION_EFFORT_KEY, OPERATOR_GREATER_THAN, null, "5", LEAK_PERIOD);
 
     dbSession.commit();
@@ -301,15 +301,15 @@ public class RegisterQualityGatesTest {
   private List<QualityGateConditionDto> createBuiltInConditions(QualityGateDto builtin) {
     List<QualityGateConditionDto> conditions = new ArrayList<>();
 
-    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(),
+    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, builtin,
       NEW_SECURITY_RATING_KEY, OPERATOR_GREATER_THAN, null, "1", LEAK_PERIOD));
-    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(),
+    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, builtin,
       NEW_RELIABILITY_RATING_KEY, OPERATOR_GREATER_THAN, null, "1", LEAK_PERIOD));
-    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(),
+    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, builtin,
       NEW_MAINTAINABILITY_RATING_KEY, OPERATOR_GREATER_THAN, null, "1", LEAK_PERIOD));
-    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(),
+    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, builtin,
       NEW_COVERAGE_KEY, OPERATOR_LESS_THAN, null, "80", LEAK_PERIOD));
-    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(),
+    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, builtin,
       NEW_DUPLICATED_LINES_DENSITY_KEY, OPERATOR_GREATER_THAN, null, "3", LEAK_PERIOD));
 
     return conditions;
