@@ -26,8 +26,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
+import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates.CreateConditionWsResponse;
 
@@ -48,13 +50,15 @@ public class CreateConditionAction implements QualityGatesWsAction {
   private final DbClient dbClient;
   private final QualityGateConditionsUpdater qualityGateConditionsUpdater;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final QualityGateFinder qualityGateFinder;
 
   public CreateConditionAction(UserSession userSession, DbClient dbClient, QualityGateConditionsUpdater qualityGateConditionsUpdater,
-    DefaultOrganizationProvider defaultOrganizationProvider) {
+    DefaultOrganizationProvider defaultOrganizationProvider, QualityGateFinder qualityGateFinder) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.qualityGateConditionsUpdater = qualityGateConditionsUpdater;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.qualityGateFinder = qualityGateFinder;
   }
 
   @Override
@@ -87,8 +91,8 @@ public class CreateConditionAction implements QualityGatesWsAction {
     Integer period = request.paramAsInt(PARAM_PERIOD);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession, gateId, metric, operator, warning, error, period);
-
+      QualityGateDto qualityGate = qualityGateFinder.getById(dbSession, gateId);
+      QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession, qualityGate, metric, operator, warning, error, period);
       CreateConditionWsResponse.Builder createConditionWsResponse = CreateConditionWsResponse.newBuilder()
         .setId(condition.getId())
         .setMetric(condition.getMetricKey())
