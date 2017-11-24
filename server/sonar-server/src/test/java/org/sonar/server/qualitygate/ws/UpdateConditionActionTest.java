@@ -22,7 +22,6 @@ package org.sonar.server.qualitygate.ws;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -34,7 +33,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
-import org.sonar.db.qualitygate.QualityGateDbTester;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -45,9 +43,8 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualitygates.CreateConditionWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.metric.MetricTesting.newMetricDto;
+import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
-import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.PERCENT;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ERROR;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_METRIC;
@@ -69,67 +66,78 @@ public class UpdateConditionActionTest {
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private QualityGateDbTester qualityGateDbTester = new QualityGateDbTester(db);
   private UpdateConditionAction underTest = new UpdateConditionAction(userSession, dbClient, new QualityGateConditionsUpdater(dbClient), defaultOrganizationProvider);
-  private QualityGateDto qualityGateDto;
-  private QualityGateConditionDto conditionDto;
-  private MetricDto coverageMetricDto = newMetricDto()
-    .setKey("coverage")
-    .setShortName("Coverage")
-    .setValueType(PERCENT.name())
-    .setHidden(false);
 
-  WsActionTester ws = new WsActionTester(underTest);
-
-  @Before
-  public void setUp() throws Exception {
-    MetricDto metricDto = dbClient.metricDao().insert(dbSession, coverageMetricDto);
-    qualityGateDto = qualityGateDbTester.insertQualityGate();
-    conditionDto = new QualityGateConditionDto().setQualityGateId(qualityGateDto.getId())
-      .setMetricId(metricDto.getId())
-      .setOperator("GT")
-      .setWarningThreshold(null)
-      .setErrorThreshold("80")
-      .setPeriod(1);
-    dbClient.gateConditionDao().insert(conditionDto, dbSession);
-    dbSession.commit();
-  }
+  private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
   public void update_warning_condition() throws Exception {
     logInAsQualityGateAdmin();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false));
+    QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
+      c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80").setPeriod(null));
 
-    CreateConditionWsResponse response = executeRequest(conditionDto.getId(), coverageMetricDto.getKey(), "LT", "90", null, null);
+    executeRequest(condition.getId(), metric.getKey(), "LT", "90", null, null);
 
-    assertCondition(response, "LT", "90", null, null);
+    assertCondition(qualityGate, metric, "LT", "90", null, null);
   }
 
   @Test
   public void update_error_condition() throws Exception {
     logInAsQualityGateAdmin();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false));
+    QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
+      c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80").setPeriod(null));
 
-    CreateConditionWsResponse response = executeRequest(conditionDto.getId(), coverageMetricDto.getKey(), "LT", null, "90", null);
+    executeRequest(condition.getId(), metric.getKey(), "LT", null, "90", null);
 
-    assertCondition(response, "LT", null, "90", null);
+    assertCondition(qualityGate, metric, "LT", null, "90", null);
   }
 
   @Test
   public void update_condition_over_leak_period() throws Exception {
     logInAsQualityGateAdmin();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false));
+    QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
+      c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80").setPeriod(null));
 
-    CreateConditionWsResponse response = executeRequest(conditionDto.getId(), coverageMetricDto.getKey(), "LT", null, "90", 1);
+    executeRequest(condition.getId(), metric.getKey(), "LT", null, "90", 1);
 
-    assertCondition(response, "LT", null, "90", 1);
+    assertCondition(qualityGate, metric,"LT", null, "90", 1);
+  }
+
+  @Test
+  public void test_response() throws Exception {
+    logInAsQualityGateAdmin();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false));
+    QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
+      c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80").setPeriod(null));
+
+    CreateConditionWsResponse response = executeRequest(condition.getId(), metric.getKey(), "LT", "90", "45", 1);
+
+    assertThat(response.getId()).isEqualTo(condition.getId());
+    assertThat(response.getMetric()).isEqualTo(metric.getKey());
+    assertThat(response.getOp()).isEqualTo("LT");
+    assertThat(response.getWarning()).isEqualTo("90");
+    assertThat(response.getError()).isEqualTo("45");
+    assertThat(response.getPeriod()).isEqualTo(1);
   }
 
   @Test
   public void throw_ForbiddenException_if_not_gate_administrator() throws Exception {
     userSession.logIn();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false));
+    QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric);
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    executeRequest(conditionDto.getId(), coverageMetricDto.getKey(), "LT", "90", null, null);
+    executeRequest(condition.getId(), metric.getKey(), "LT", "90", null, null);
   }
 
   @Test
@@ -138,11 +146,14 @@ public class UpdateConditionActionTest {
     // is defined on the default organization
     OrganizationDto org = db.organizations().insert();
     userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES, org);
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false));
+    QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric);
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    executeRequest(conditionDto.getId(), coverageMetricDto.getKey(), "LT", "90", null, null);
+    executeRequest(condition.getId(), metric.getKey(), "LT", "90", null, null);
   }
 
   @Test
@@ -155,35 +166,16 @@ public class UpdateConditionActionTest {
     assertThat(action.params()).hasSize(6);
   }
 
-  private void assertCondition(CreateConditionWsResponse response, String operator, @Nullable String warning, @Nullable String error, @Nullable Integer period) {
-    List<QualityGateConditionDto> conditionDtoList = new ArrayList<>(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateDto.getId()));
+  private void assertCondition(QualityGateDto qualityGate, MetricDto metric, String operator, @Nullable String warning, @Nullable String error, @Nullable Integer period) {
+    List<QualityGateConditionDto> conditionDtoList = new ArrayList<>(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGate.getId()));
     assertThat(conditionDtoList).hasSize(1);
-    QualityGateConditionDto qualityGateConditionDto = conditionDtoList.get(0);
-    assertThat(qualityGateConditionDto.getQualityGateId()).isEqualTo(qualityGateDto.getId());
-    assertThat(qualityGateConditionDto.getMetricId()).isEqualTo(coverageMetricDto.getId().longValue());
-    assertThat(qualityGateConditionDto.getOperator()).isEqualTo(operator);
-    assertThat(qualityGateConditionDto.getWarningThreshold()).isEqualTo(warning);
-    assertThat(qualityGateConditionDto.getErrorThreshold()).isEqualTo(error);
-    assertThat(qualityGateConditionDto.getPeriod()).isEqualTo(period);
-
-    assertThat(response.getId()).isEqualTo(qualityGateConditionDto.getId());
-    assertThat(response.getMetric()).isEqualTo(coverageMetricDto.getKey());
-    assertThat(response.getOp()).isEqualTo(operator);
-    if (warning != null) {
-      assertThat(response.getWarning()).isEqualTo(warning);
-    } else {
-      assertThat(response.hasWarning()).isFalse();
-    }
-    if (error != null) {
-      assertThat(response.getError()).isEqualTo(error);
-    } else {
-      assertThat(response.hasError()).isFalse();
-    }
-    if (period != null) {
-      assertThat(response.getPeriod()).isEqualTo(period);
-    } else {
-      assertThat(response.hasPeriod()).isFalse();
-    }
+    QualityGateConditionDto condition = conditionDtoList.get(0);
+    assertThat(condition.getQualityGateId()).isEqualTo(qualityGate.getId());
+    assertThat(condition.getMetricId()).isEqualTo(metric.getId().longValue());
+    assertThat(condition.getOperator()).isEqualTo(operator);
+    assertThat(condition.getWarningThreshold()).isEqualTo(warning);
+    assertThat(condition.getErrorThreshold()).isEqualTo(error);
+    assertThat(condition.getPeriod()).isEqualTo(period);
   }
 
   private CreateConditionWsResponse executeRequest(long conditionId, String metricKey, String operator, @Nullable String warning, @Nullable String error,
