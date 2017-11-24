@@ -54,7 +54,8 @@ public class DeleteConditionActionTest {
 
   private TestDefaultOrganizationProvider organizationProvider = TestDefaultOrganizationProvider.from(db);
 
-  private WsActionTester ws = new WsActionTester(new DeleteConditionAction(userSession, db.getDbClient(), new QualityGatesWsSupport(db.getDbClient(), organizationProvider)));
+  private WsActionTester ws = new WsActionTester(
+    new DeleteConditionAction(userSession, db.getDbClient(), new QualityGatesWsSupport(db.getDbClient(), userSession, organizationProvider)));
 
   @Test
   public void definition() {

@@ -58,7 +58,7 @@ public class ShowActionTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
   private WsActionTester ws = new WsActionTester(
-    new ShowAction(db.getDbClient(), new QualityGateFinder(db.getDbClient()), new QGateWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider)));
+    new ShowAction(db.getDbClient(), new QualityGateFinder(db.getDbClient()), new QualityGatesWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider)));
 
   @Test
   public void verify_definition() {
