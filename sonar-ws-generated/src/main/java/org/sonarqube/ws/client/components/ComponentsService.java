@@ -36,7 +36,7 @@ import org.sonarqube.ws.Components.TreeWsResponse;
  * Get information about a component (file, directory, project, ...) and its ancestors or descendants. Update a project or module key.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/components">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class ComponentsService extends BaseService {
 
   public ComponentsService(WsConnector wsConnector) {

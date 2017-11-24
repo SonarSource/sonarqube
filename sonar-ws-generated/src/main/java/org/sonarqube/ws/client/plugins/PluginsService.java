@@ -31,7 +31,7 @@ import org.sonarqube.ws.client.WsConnector;
  * Manage the plugins on the server, including installing, uninstalling, and upgrading.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/plugins">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class PluginsService extends BaseService {
 
   public PluginsService(WsConnector wsConnector) {

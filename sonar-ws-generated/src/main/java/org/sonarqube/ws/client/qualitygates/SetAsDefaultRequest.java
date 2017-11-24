@@ -30,7 +30,7 @@ import javax.annotation.Generated;
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/set_as_default">Further information about this action online (including a response example)</a>
  * @since 4.3
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class SetAsDefaultRequest {
 
   private String id;

@@ -31,7 +31,7 @@ import org.sonarqube.ws.client.WsConnector;
  * Removed since 6.3, please use api/qualityprofiles instead
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/profiles">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class ProfilesService extends BaseService {
 
   public ProfilesService(WsConnector wsConnector) {

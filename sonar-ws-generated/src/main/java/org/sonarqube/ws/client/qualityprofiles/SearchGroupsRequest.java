@@ -30,7 +30,7 @@ import javax.annotation.Generated;
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/search_groups">Further information about this action online (including a response example)</a>
  * @since 6.6
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class SearchGroupsRequest {
 
   private String language;

@@ -30,7 +30,7 @@ import javax.annotation.Generated;
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/bulk_change">Further information about this action online (including a response example)</a>
  * @since 3.7
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class BulkChangeRequest {
 
   private String addTags;

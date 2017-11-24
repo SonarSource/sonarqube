@@ -30,7 +30,7 @@ import javax.annotation.Generated;
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions/delete_template">Further information about this action online (including a response example)</a>
  * @since 5.2
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class DeleteTemplateRequest {
 
   private String organization;

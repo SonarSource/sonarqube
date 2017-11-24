@@ -35,7 +35,7 @@ import org.sonarqube.ws.Measures.SearchHistoryResponse;
  * Get components or children with specified measures.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/measures">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class MeasuresService extends BaseService {
 
   public MeasuresService(WsConnector wsConnector) {

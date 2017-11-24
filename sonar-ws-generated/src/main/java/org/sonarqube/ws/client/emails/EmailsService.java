@@ -31,7 +31,7 @@ import org.sonarqube.ws.client.WsConnector;
  * Manage emails
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/emails">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class EmailsService extends BaseService {
 
   public EmailsService(WsConnector wsConnector) {

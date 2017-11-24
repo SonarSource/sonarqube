@@ -33,7 +33,7 @@ import org.sonarqube.ws.UserTokens.SearchWsResponse;
  * List, create, and delete a user's access tokens.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/user_tokens">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class UserTokensService extends BaseService {
 
   public UserTokensService(WsConnector wsConnector) {

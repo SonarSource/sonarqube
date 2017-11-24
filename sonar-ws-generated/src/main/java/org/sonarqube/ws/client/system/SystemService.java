@@ -33,7 +33,7 @@ import org.sonarqube.ws.System.StatusResponse;
  * Get system details, and perform some management actions, such as restarting, and initiating a database migration (as part of a system upgrade).
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/system">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class SystemService extends BaseService {
 
   public SystemService(WsConnector wsConnector) {

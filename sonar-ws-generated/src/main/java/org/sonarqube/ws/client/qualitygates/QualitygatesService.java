@@ -37,7 +37,7 @@ import org.sonarqube.ws.client.WsConnector;
  * Manage quality gates, including conditions and project association.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class QualitygatesService extends BaseService {
 
   public QualitygatesService(WsConnector wsConnector) {

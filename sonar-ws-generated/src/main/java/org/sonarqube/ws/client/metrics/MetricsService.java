@@ -31,7 +31,7 @@ import org.sonarqube.ws.client.WsConnector;
  * Get information on automatic metrics, and manage custom metrics. See also api/custom_measures.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/metrics">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class MetricsService extends BaseService {
 
   public MetricsService(WsConnector wsConnector) {

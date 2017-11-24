@@ -38,7 +38,7 @@ import org.sonarqube.ws.Ce.WorkerCountResponse;
  * Get information on Compute Engine tasks.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class CeService extends BaseService {
 
   public CeService(WsConnector wsConnector) {

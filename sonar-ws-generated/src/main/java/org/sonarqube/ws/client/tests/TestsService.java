@@ -33,7 +33,7 @@ import org.sonarqube.ws.Tests.ListResponse;
  * Get details on test files. See also api/sources. Deprecated since 5.6.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/tests">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class TestsService extends BaseService {
 
   public TestsService(WsConnector wsConnector) {

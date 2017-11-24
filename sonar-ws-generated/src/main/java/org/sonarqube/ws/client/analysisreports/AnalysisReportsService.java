@@ -31,7 +31,7 @@ import org.sonarqube.ws.client.WsConnector;
  * Get details about Compute Engine tasks.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/analysis_reports">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class AnalysisReportsService extends BaseService {
 
   public AnalysisReportsService(WsConnector wsConnector) {

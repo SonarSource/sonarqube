@@ -32,7 +32,7 @@ import org.sonarqube.ws.Favorites.SearchResponse;
  * Manage user favorites
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/favorites">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class FavoritesService extends BaseService {
 
   public FavoritesService(WsConnector wsConnector) {

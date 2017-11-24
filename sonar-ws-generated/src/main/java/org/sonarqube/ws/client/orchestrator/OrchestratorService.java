@@ -31,7 +31,7 @@ import org.sonarqube.ws.client.WsConnector;
  * Orchestrator web service
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/orchestrator">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class OrchestratorService extends BaseService {
 
   public OrchestratorService(WsConnector wsConnector) {

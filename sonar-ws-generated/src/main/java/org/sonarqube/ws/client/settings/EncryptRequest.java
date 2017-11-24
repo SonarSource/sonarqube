@@ -29,7 +29,7 @@ import javax.annotation.Generated;
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings/encrypt">Further information about this action online (including a response example)</a>
  * @since 6.1
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class EncryptRequest {
 
   private String value;

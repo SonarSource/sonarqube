@@ -32,7 +32,7 @@ import org.sonarqube.ws.Notifications.ListResponse;
  * Manage notifications of the authenticated user
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/notifications">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class NotificationsService extends BaseService {
 
   public NotificationsService(WsConnector wsConnector) {

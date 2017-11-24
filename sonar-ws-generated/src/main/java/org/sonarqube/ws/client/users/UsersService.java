@@ -36,7 +36,7 @@ import org.sonarqube.ws.Users.SearchWsResponse;
  * Manage users.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/users">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class UsersService extends BaseService {
 
   public UsersService(WsConnector wsConnector) {
