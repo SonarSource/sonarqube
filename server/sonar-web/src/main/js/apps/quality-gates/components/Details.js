@@ -20,11 +20,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
-import {
-  fetchQualityGate,
-  setQualityGateAsDefault,
-  unsetQualityGateAsDefault
-} from '../../../api/quality-gates';
+import { fetchQualityGate, setQualityGateAsDefault } from '../../../api/quality-gates';
 import DetailsHeader from './DetailsHeader';
 import DetailsContent from './DetailsContent';
 import RenameView from '../views/rename-view';
@@ -77,11 +73,9 @@ export default class Details extends React.PureComponent {
   };
 
   handleSetAsDefaultClick = () => {
-    const { qualityGate, onSetAsDefault, onUnsetAsDefault } = this.props;
-    if (qualityGate.isDefault) {
-      unsetQualityGateAsDefault(qualityGate.id).then(() => onUnsetAsDefault(qualityGate));
-    } else {
-      setQualityGateAsDefault(qualityGate.id).then(() => onSetAsDefault(qualityGate));
+    const { qualityGate, onSetAsDefault } = this.props;
+    if (!qualityGate.isDefault) {
+      setQualityGateAsDefault(qualityGate.id).then(() => onSetAsDefault(qualityGate), () => {});
     }
   };
 

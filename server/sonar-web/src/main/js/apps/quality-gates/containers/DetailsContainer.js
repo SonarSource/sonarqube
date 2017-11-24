@@ -24,7 +24,6 @@ import {
   renameQualityGate,
   copyQualityGate,
   setQualityGateAsDefault,
-  unsetQualityGateAsDefault,
   addCondition,
   deleteCondition,
   saveCondition
@@ -44,7 +43,6 @@ const mapDispatchToProps = dispatch => ({
   onRename: (qualityGate, newName) => dispatch(renameQualityGate(qualityGate, newName)),
   onCopy: qualityGate => dispatch(copyQualityGate(qualityGate)),
   onSetAsDefault: qualityGate => dispatch(setQualityGateAsDefault(qualityGate)),
-  onUnsetAsDefault: qualityGate => dispatch(unsetQualityGateAsDefault(qualityGate)),
   onAddCondition: metric => dispatch(addCondition(metric)),
   onSaveCondition: (oldCondition, newCondition) =>
     dispatch(saveCondition(oldCondition, newCondition)),
