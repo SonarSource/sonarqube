@@ -19,29 +19,33 @@
  */
 package org.sonarqube.tests.plugins;
 
-import com.google.common.collect.Sets;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
-import com.sonar.orchestrator.locator.URLLocation;
 import java.io.File;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
+import org.sonarqube.tests.plugins.checks.AbapCheck;
+import org.sonarqube.tests.plugins.checks.CCheck;
 import org.sonarqube.tests.plugins.checks.Check;
+import org.sonarqube.tests.plugins.checks.CobolCheck;
+import org.sonarqube.tests.plugins.checks.CppCheck;
 import org.sonarqube.tests.plugins.checks.FlexCheck;
 import org.sonarqube.tests.plugins.checks.GroovyCheck;
 import org.sonarqube.tests.plugins.checks.JavaCheck;
 import org.sonarqube.tests.plugins.checks.JavascriptCheck;
 import org.sonarqube.tests.plugins.checks.PhpCheck;
+import org.sonarqube.tests.plugins.checks.PliCheck;
+import org.sonarqube.tests.plugins.checks.PlsqlCheck;
 import org.sonarqube.tests.plugins.checks.PythonCheck;
+import org.sonarqube.tests.plugins.checks.RpgCheck;
+import org.sonarqube.tests.plugins.checks.SwiftCheck;
 import org.sonarqube.tests.plugins.checks.Validation;
 import org.sonarqube.tests.plugins.checks.WebCheck;
 
@@ -54,26 +58,20 @@ import static org.assertj.core.api.Assertions.fail;
  */
 public class PluginsTest {
 
-  private static final Set<String> LICENSED_PLUGINS = Sets.newHashSet(
-    "abap", "cobol", "cpp", "objc", "pli", "plsql", "rpg",
-    "swift", "vb", "vbnet");
-
   private static final List<Check> CHECKS = Arrays.asList(
-    // FIXME plsql is disabled as latest release is not using new license manager new AbapCheck(),
-    // FIXME cpp is disabled as latest release is not using new license manager new CCheck(), new CppCheck(),
-    // FIXME cobol is disabled as latest release is not using new license manager new CobolCheck(),
-    // FIXME css plugin is temporary disabled as for the moment incompatible with the web plugin
-    // new CssCheck(),
+    new AbapCheck(),
+    new CCheck(), new CppCheck(),
+    new CobolCheck(),
     new FlexCheck(),
     new GroovyCheck(),
     new JavaCheck(),
     new JavascriptCheck(),
     new PhpCheck(),
-    // FIXME pli is disabled as latest release is not using new license manager new PliCheck(),
-    // FIXME plsql is disabled as latest release is not using new license manager  new PlsqlCheck(),
+    new PliCheck(),
+    new PlsqlCheck(),
     new PythonCheck(),
-    // FIXME rpg is disabled as latest release is not using new license manager new RpgCheck(),
-    // FIXME swift is disabled as latest release is not using new license manager new SwiftCheck(),
+    new RpgCheck(),
+    new SwiftCheck(),
     // SONAR-7618 Visual Basic 2.2 not compatible with CE not loading @ServerSide
     // new VbCheck(),
     new WebCheck());
@@ -85,28 +83,23 @@ public class PluginsTest {
     OrchestratorBuilder builder = Orchestrator.builderEnv()
       .setZipFile(byWildcardMavenFilename(new File("../sonar-application/target"), "sonar*.zip").getFile());
 
-    // FIXME JSON plugin is temporarily disabled as for the moment the github repo doesn't exist anymore installPlugin(builder, "JSON");;
     installPlugin(builder, "Sonargraph");
-    // FIXME abap is disabled as latest release is not using new license manager installPlugin(builder, "abap");
+    installPlugin(builder, "abap");
     // FIXME AEM Rules plugin is disabled because it is no more compatible with SonarQube 6.4 (ClassNotFoundException: com.google.common.base.Functions) installPlugin(builder, "aemrules");
     installPlugin(builder, "android");
     installPlugin(builder, "authbitbucket");
     installPlugin(builder, "authgithub");
     installPlugin(builder, "checkstyle");
     installPlugin(builder, "clover");
-    // FIXME cobol is disabled as latest release is not using new license manager installPlugin(builder, "cobol");
+    installPlugin(builder, "cobol");
     installPlugin(builder, "codecrackercsharp");
-    // FIXME cpp is disabled as latest release is not using new license manager installPlugin(builder, "cpp");
+    installPlugin(builder, "cpp");
     installPlugin(builder, "csharp");
-    // FIXME css plugin is temporarily disabled as for the moment incompatible with the web plugin installPlugin(builder, "css");
-    // FIXME erlang plugin is temporarily disabled because it is not compatible with SQ 6.4 until usage of Colorizer API is removed
-    // FIXME findbugs plugin is temporarily disabled because it is not compatible with SQ 6.4 until usage of Colorizer API is removed
     installPlugin(builder, "flex");
     installPlugin(builder, "github");
     installPlugin(builder, "googleanalytics");
     installPlugin(builder, "groovy");
     installPlugin(builder, "java");
-    // FIXME javaProperties plugin is temporarily disabled as for the moment the github repo doesn't exist anymore installPlugin(builder, "javaProperties");
     installPlugin(builder, "javascript");
     installPlugin(builder, "jdepend");
     installPlugin(builder, "l10nde");
@@ -123,15 +116,13 @@ public class PluginsTest {
     installPlugin(builder, "lua");
     installPlugin(builder, "php");
     installPlugin(builder, "pitest");
-    // SONAR-7618 SonarPLI release 1.5.0.702 not compatible with CE not loading @ServerSide. To be reset to LATEST_RELEASE as soon as SonarPLI 1.5.1 is released.
-    // FIXME pli is disabled as latest release is not using new license manager installPlugin(builder, new URL("https://sonarsource.bintray.com/CommercialDistribution/sonar-pli-plugin/sonar-pli-plugin-1.5.1.872.jar"));
-    // SONAR-7618 SonarPLSQL 2.9.0.901 not compatible with CE not loading @ServerSide. To be reset to LATEST_RELEASE as soon as SonarPLSQL 2.9.1 is released.
-    // FIXME plsql is disabled as latest release is not using new license manager installPlugin(builder, new URL("https://sonarsource.bintray.com/CommercialDistribution/sonar-plsql-plugin/sonar-plsql-plugin-2.9.1.1051.jar"));
+    installPlugin(builder, "pli");
+    installPlugin(builder, "plsql");
     installPlugin(builder, "pmd");
     // FIXME puppet plugin is temporarily disabled because it is not compatible with SQ 6.4 until usage of Colorizer API is removed
     installPlugin(builder, "python");
     installPlugin(builder, "rci");
-    // FIXME rpg is disabled as latest release is not using new license manager installPlugin(builder, "rpg");
+    installPlugin(builder, "rpg");
     installPlugin(builder, "scmclearcase");
     installPlugin(builder, "scmcvs");
     installPlugin(builder, "scmgit");
@@ -143,15 +134,17 @@ public class PluginsTest {
     installPlugin(builder, "softvis3d");
     installPlugin(builder, "sonargraphintegration");
     installPlugin(builder, "status");
-    // FIXME swift is disabled as latest release is not using new license manager installPlugin(builder, "swift");
+    installPlugin(builder, "swift");
     // SONAR-7618 Visual Basic 2.2 not compatible with CE not loading @ServerSide
     // installPlugin(builder, "vb");
-    // FIXME vbnet is disabled as latest release is not using new license manager installPlugin(builder, "vbnet");
+    installPlugin(builder, "vbnet");
     installPlugin(builder, "web");
     installPlugin(builder, "xanitizer");
     installPlugin(builder, "xml");
 
-    activateLicenses(builder);
+    installPlugin(builder, "license");
+    builder.activateLicense();
+
     ORCHESTRATOR = builder.build();
     ORCHESTRATOR.start();
   }
@@ -190,16 +183,8 @@ public class PluginsTest {
     return analysis;
   }
 
-  private static void activateLicenses(OrchestratorBuilder builder) {
-    LICENSED_PLUGINS.forEach(builder::activateLicense);
-  }
-
   private static void installPlugin(OrchestratorBuilder builder, String pluginKey) {
     builder.setOrchestratorProperty(pluginKey + "Version", "LATEST_RELEASE");
     builder.addPlugin(pluginKey);
-  }
-
-  private static void installPlugin(OrchestratorBuilder builder, URL url) {
-    builder.addPlugin(URLLocation.create(url));
   }
 }
