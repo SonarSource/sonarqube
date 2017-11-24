@@ -24,7 +24,7 @@ import Sidebar from '../Sidebar';
 jest.mock('../../../../store/rootReducer', () => ({}));
 
 const renderSidebar = props =>
-  shallow(<Sidebar facets={{}} myIssues={false} openFacets={{}} query={{}} {...props} />)
+  shallow(<Sidebar facets={{}} openFacets={{}} query={{}} {...props} />)
     .children()
     .map(node => node.name());
 

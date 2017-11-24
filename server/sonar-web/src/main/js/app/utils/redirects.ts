@@ -21,10 +21,7 @@ import { RouteProps, RouterState } from 'react-router';
 import { LocationDescriptor } from 'history';
 
 export default [
-  redirect('/accout/issues', () => ({
-    pathname: '/issues',
-    query: { myIssues: 'true', resolved: 'false' }
-  })),
+  plainRedirect('/accout/issues', '/issues/my'),
   plainRedirect('/admin', '/admin/settings'),
   plainRedirect('/background_tasks', '/admin/background_tasks'),
   redirect('/codingrules', () => '/coding_rules' + window.location.hash),

@@ -18,27 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { CurrentUser, isLoggedInUser } from '../../app/types';
-import { isMySet } from '../../apps/issues/utils';
-import { getCurrentUser } from '../../store/rootReducer';
 import { translate } from '../../helpers/l10n';
 import * as urls from '../../helpers/urls';
 
 interface Props {
   afterProjects?: JSX.Element;
-  currentUser: CurrentUser;
   organization?: string;
 }
 
 // remove `: any` when https://github.com/DefinitelyTyped/DefinitelyTyped/issues/20249 is resolved
-function CommonNavigation({ afterProjects, currentUser, organization }: Props): any {
-  const issuesQuery =
-    isLoggedInUser(currentUser) && isMySet()
-      ? { resolved: 'false', myIssues: 'true' }
-      : { resolved: 'false' };
-
+export default function CommonNavigation({ afterProjects, organization }: Props): any {
   return [
     <li key="projects">
       <Link to={urls.getProjectsUrl(organization)} activeClassName="active">
@@ -47,7 +37,7 @@ function CommonNavigation({ afterProjects, currentUser, organization }: Props): 
     </li>,
     afterProjects,
     <li key="issues">
-      <Link to={urls.getIssuesUrl(issuesQuery, organization)} activeClassName="active">
+      <Link to={urls.getIssuesUrl({ resolved: 'false' }, organization)} activeClassName="active">
         {translate('issues.page')}
       </Link>
     </li>,
@@ -68,9 +58,3 @@ function CommonNavigation({ afterProjects, currentUser, organization }: Props): 
     </li>
   ];
 }
-
-const mapStateToProps = (state: any) => ({
-  currentUser: getCurrentUser(state)
-});
-
-export default connect(mapStateToProps)(CommonNavigation);

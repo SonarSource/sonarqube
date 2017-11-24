@@ -118,6 +118,11 @@ class GlobalNav extends React.PureComponent<Props, State> {
                 {translate('my_projects')}
               </Link>
             </li>
+            <li>
+              <Link to="/issues/my?resolved=false" activeClassName="active">
+                {translate('my_issues')}
+              </Link>
+            </li>
           </ul>
         )}
 

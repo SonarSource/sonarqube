@@ -30,7 +30,7 @@ exports[`admin 1`] = `
     className="navbar-context-meta"
   />
   <NavBarTabs>
-    <Connect(CommonNavigation)
+    <CommonNavigation
       organization="foo"
     />
     <li>
@@ -157,7 +157,7 @@ exports[`regular user 1`] = `
     className="navbar-context-meta"
   />
   <NavBarTabs>
-    <Connect(CommonNavigation)
+    <CommonNavigation
       organization="foo"
     />
     <li>
@@ -204,7 +204,7 @@ exports[`undeletable org 1`] = `
     className="navbar-context-meta"
   />
   <NavBarTabs>
-    <Connect(CommonNavigation)
+    <CommonNavigation
       organization="foo"
     />
     <li>

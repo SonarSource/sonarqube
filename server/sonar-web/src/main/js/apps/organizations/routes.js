@@ -32,7 +32,7 @@ import OrganizationProjectsManagement from './components/OrganizationProjectsMan
 import OrganizationDelete from './components/OrganizationDelete';
 import qualityGatesRoutes from '../quality-gates/routes';
 import qualityProfilesRoutes from '../quality-profiles/routes';
-import issuesRoutes from '../issues/routes';
+import Issues from '../issues/Issues';
 
 const routes = [
   {
@@ -55,7 +55,7 @@ const routes = [
       {
         path: 'issues',
         component: OrganizationContainer,
-        childRoutes: issuesRoutes
+        childRoutes: [{ indexRoute: { component: Issues } }]
       },
       {
         path: 'members',

@@ -36,6 +36,7 @@ import GlobalPageExtension from '../components/extensions/GlobalPageExtension';
 import GlobalAdminPageExtension from '../components/extensions/GlobalAdminPageExtension';
 import DefaultOrganizationContainer from '../components/DefaultOrganizationContainer';
 import MyProjectsContainer from '../components/MyProjectsContainer';
+import MyIssuesContainer from '../components/MyIssuesContainer';
 import MarkdownHelp from '../components/MarkdownHelp';
 import NotFound from '../components/NotFound';
 import aboutRoutes from '../../apps/about/routes';
@@ -47,7 +48,7 @@ import componentRoutes from '../../apps/component/routes';
 import componentMeasuresRoutes from '../../apps/component-measures/routes';
 import customMeasuresRoutes from '../../apps/custom-measures/routes';
 import groupsRoutes from '../../apps/groups/routes';
-import issuesRoutes from '../../apps/issues/routes';
+import Issues from '../../apps/issues/Issues';
 import marketplaceRoutes from '../../apps/marketplace/routes';
 import metricsRoutes from '../../apps/metrics/routes';
 import overviewRoutes from '../../apps/overview/routes';
@@ -95,7 +96,7 @@ const projectRoutes: PlainRoute = {
     childRoute('portfolio', portfolioRoutes),
     childRoute('project/activity', projectActivityRoutes),
     componentRoute('project/extension/:pluginKey/:extensionKey', ProjectPageExtension),
-    childRoute('project/issues', issuesRoutes),
+    componentRoute('project/issues', Issues),
     childRoute('project/quality_gate', projectQualityGateRoutes),
     childRoute('project/quality_profiles', projectQualityProfilesRoutes),
     projestAdminRoute
@@ -147,11 +148,12 @@ export default [
                 projectRoutes,
 
                 componentRoute('/projects/favorite', MyProjectsContainer),
+                componentRoute('/issues/my', MyIssuesContainer),
 
                 nest(DefaultOrganizationContainer, [
                   childRoute('coding_rules', codingRulesRoutes),
                   componentRoute('extension/:pluginKey/:extensionKey', GlobalPageExtension),
-                  childRoute('issues', issuesRoutes),
+                  componentRoute('issues', Issues),
                   componentRoute('projects', Projects),
                   childRoute('quality_gates', qualityGatesRoutes),
                   componentRoute('portfolios', PortfoliosPage),

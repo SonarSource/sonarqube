@@ -47,7 +47,7 @@ import TypeFacet from './TypeFacet';
 type Props = {|
   component?: Component,
   facets: { [string]: Facet },
-  myIssues: boolean,
+  myIssues?: boolean,
   onFacetToggle: (property: string) => void,
   onFilterChange: (changes: { [string]: Array<string> }) => void,
   openFacets: { [string]: boolean },

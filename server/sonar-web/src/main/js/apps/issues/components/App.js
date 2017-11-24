@@ -24,7 +24,6 @@ import key from 'keymaster';
 import { keyBy, without } from 'lodash';
 import PageActions from './PageActions';
 import FiltersHeader from './FiltersHeader';
-import MyIssuesFilter from './MyIssuesFilter';
 import Sidebar from '../sidebar/Sidebar';
 import IssuesList from './IssuesList';
 import ComponentBreadcrumbs from './ComponentBreadcrumbs';
@@ -35,13 +34,11 @@ import ConciseIssuesListHeader from '../conciseIssuesList/ConciseIssuesListHeade
 import * as actions from '../actions';
 import {
   parseQuery,
-  areMyIssuesSelected,
   areQueriesEqual,
   getOpen,
   serializeQuery,
   parseFacets,
-  mapFacet,
-  saveMyIssues
+  mapFacet
 } from '../utils';
 /*:: import type {
   Query,
@@ -71,6 +68,7 @@ export type Props = {
   currentUser: CurrentUser,
   fetchIssues: (query: RawQuery, requestOrganizations?: boolean) => Promise<*>,
   location: { pathname: string, query: RawQuery },
+  myIssues?: boolean,
   onBranchesChange: () => void,
   organization?: string,
   router: {
@@ -88,7 +86,6 @@ export type State = {
   issues: Array<Issue>,
   loading: boolean,
   locationsNavigator: boolean,
-  myIssues: boolean,
   openFacets: { [string]: boolean },
   openIssue: ?Issue,
   openPopup: ?{
@@ -123,7 +120,6 @@ export default class App extends React.PureComponent {
       issues: [],
       loading: true,
       locationsNavigator: false,
-      myIssues: areMyIssuesSelected(props.location.query),
       openFacets: { severities: true, types: true },
       openIssue: null,
       openPopup: null,
@@ -141,7 +137,7 @@ export default class App extends React.PureComponent {
   componentDidMount() {
     this.mounted = true;
 
-    if (this.state.myIssues && !this.props.currentUser.isLoggedIn) {
+    if (this.props.myIssues && !this.props.currentUser.isLoggedIn) {
       handleRequiredAuthentication();
       return;
     }
@@ -171,11 +167,7 @@ export default class App extends React.PureComponent {
       this.setState({ selectedFlowIndex: null, selectedLocationIndex: null });
     }
 
-    this.setState({
-      myIssues: areMyIssuesSelected(nextProps.location.query),
-      openIssue,
-      query: parseQuery(nextProps.location.query)
-    });
+    this.setState({ openIssue, query: parseQuery(nextProps.location.query) });
   }
 
   componentDidUpdate(prevProps /*: Props */, prevState /*: State */) {
@@ -184,8 +176,8 @@ export default class App extends React.PureComponent {
     if (
       prevProps.component !== this.props.component ||
       prevProps.branch !== this.props.branch ||
-      !areQueriesEqual(prevQuery, query) ||
-      areMyIssuesSelected(prevQuery) !== areMyIssuesSelected(query)
+      prevProps.myIssues !== this.props.myIssues ||
+      !areQueriesEqual(prevQuery, query)
     ) {
       this.fetchFirstIssues();
     } else if (
@@ -324,7 +316,6 @@ export default class App extends React.PureComponent {
         ...serializeQuery(this.state.query),
         branch: this.props.branch && getBranchName(this.props.branch),
         id: this.props.component && this.props.component.key,
-        myIssues: this.state.myIssues ? 'true' : undefined,
         open: issue
       }
     };
@@ -343,7 +334,6 @@ export default class App extends React.PureComponent {
           ...serializeQuery(this.state.query),
           branch: this.props.branch && getBranchName(this.props.branch),
           id: this.props.component && this.props.component.key,
-          myIssues: this.state.myIssues ? 'true' : undefined,
           open: undefined
         }
       });
@@ -373,8 +363,8 @@ export default class App extends React.PureComponent {
     requestFacets /*: ?boolean */ = false,
     requestOrganizations /*: boolean | void */ = true
   ) => {
-    const { component, organization } = this.props;
-    const { myIssues, openFacets, query } = this.state;
+    const { component, myIssues, organization } = this.props;
+    const { openFacets, query } = this.state;
 
     const facets = requestFacets
       ? Object.keys(openFacets)
@@ -580,24 +570,7 @@ export default class App extends React.PureComponent {
       query: {
         ...serializeQuery({ ...this.state.query, ...changes }),
         branch: this.props.branch && getBranchName(this.props.branch),
-        id: this.props.component && this.props.component.key,
-        myIssues: this.state.myIssues ? 'true' : undefined
-      }
-    });
-  };
-
-  handleMyIssuesChange = (myIssues /*: boolean */) => {
-    this.closeFacet('assignees');
-    if (!this.props.component) {
-      saveMyIssues(myIssues);
-    }
-    this.props.router.push({
-      pathname: this.props.location.pathname,
-      query: {
-        ...serializeQuery({ ...this.state.query, assigned: true, assignees: [] }),
-        branch: this.props.branch && getBranchName(this.props.branch),
-        id: this.props.component && this.props.component.key,
-        myIssues: myIssues ? 'true' : undefined
+        id: this.props.component && this.props.component.key
       }
     });
   };
@@ -623,8 +596,7 @@ export default class App extends React.PureComponent {
       query: {
         ...DEFAULT_QUERY,
         branch: this.props.branch && getBranchName(this.props.branch),
-        id: this.props.component && this.props.component.key,
-        myIssues: this.state.myIssues ? 'true' : undefined
+        id: this.props.component && this.props.component.key
       }
     });
   };
@@ -754,22 +726,16 @@ export default class App extends React.PureComponent {
   }
 
   renderFacets() {
-    const { component, currentUser } = this.props;
+    const { component, currentUser, myIssues } = this.props;
     const { query } = this.state;
 
     return (
       <div className="layout-page-filters">
-        {currentUser.isLoggedIn && (
-          <MyIssuesFilter
-            myIssues={this.state.myIssues}
-            onMyIssuesChange={this.handleMyIssuesChange}
-          />
-        )}
         <FiltersHeader displayReset={this.isFiltered()} onReset={this.handleReset} />
         <Sidebar
           component={component}
           facets={this.state.facets}
-          myIssues={this.state.myIssues}
+          myIssues={myIssues}
           onFacetToggle={this.handleFacetToggle}
           onFilterChange={this.handleFilterChange}
           openFacets={this.state.openFacets}
