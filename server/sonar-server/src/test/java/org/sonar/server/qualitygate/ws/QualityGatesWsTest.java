@@ -72,7 +72,6 @@ public class QualityGatesWsTest {
       new CopyAction(qGates),
       new DestroyAction(qGates),
       new SetAsDefaultAction(qGates),
-      new CreateConditionAction(null, null, null, null),
       new DeleteConditionAction(null, null, null),
       selectAction,
       new DeselectAction(qGates, mock(DbClient.class), mock(ComponentFinder.class))));
@@ -84,15 +83,7 @@ public class QualityGatesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualitygates");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(10);
-
-    Action create = controller.action("create");
-    assertThat(create).isNotNull();
-    assertThat(create.handler()).isNotNull();
-    assertThat(create.since()).isEqualTo("4.3");
-    assertThat(create.isPost()).isTrue();
-    assertThat(create.param("name")).isNotNull();
-    assertThat(create.isInternal()).isFalse();
+    assertThat(controller.actions()).hasSize(9);
 
     Action copy = controller.action("copy");
     assertThat(copy).isNotNull();
@@ -132,19 +123,6 @@ public class QualityGatesWsTest {
     assertThat(unsetDefault.handler()).isEqualTo(RemovedWebServiceHandler.INSTANCE);
     assertThat(unsetDefault.responseExample()).isEqualTo(RemovedWebServiceHandler.INSTANCE.getResponseExample());
     assertThat(unsetDefault.isInternal()).isFalse();
-
-    Action createCondition = controller.action("create_condition");
-    assertThat(createCondition).isNotNull();
-    assertThat(createCondition.handler()).isNotNull();
-    assertThat(createCondition.since()).isEqualTo("4.3");
-    assertThat(createCondition.isPost()).isTrue();
-    assertThat(createCondition.param("gateId")).isNotNull();
-    assertThat(createCondition.param("metric")).isNotNull();
-    assertThat(createCondition.param("op")).isNotNull();
-    assertThat(createCondition.param("warning")).isNotNull();
-    assertThat(createCondition.param("error")).isNotNull();
-    assertThat(createCondition.param("period")).isNotNull();
-    assertThat(createCondition.isInternal()).isFalse();
   }
 
   @Test

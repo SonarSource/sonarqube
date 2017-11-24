@@ -63,8 +63,7 @@ public class RegisterQualityGates implements Startable {
     new QualityGateCondition().setMetricKey(NEW_RELIABILITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setPeriod(LEAK_PERIOD).setErrorThreshold(A_RATING),
     new QualityGateCondition().setMetricKey(NEW_MAINTAINABILITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setPeriod(LEAK_PERIOD).setErrorThreshold(A_RATING),
     new QualityGateCondition().setMetricKey(NEW_COVERAGE_KEY).setOperator(OPERATOR_LESS_THAN).setPeriod(LEAK_PERIOD).setErrorThreshold("80"),
-    new QualityGateCondition().setMetricKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setOperator(OPERATOR_GREATER_THAN).setPeriod(LEAK_PERIOD).setErrorThreshold("3")
-  );
+    new QualityGateCondition().setMetricKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setOperator(OPERATOR_GREATER_THAN).setPeriod(LEAK_PERIOD).setErrorThreshold("3"));
 
   private final DbClient dbClient;
   private final QualityGateConditionsUpdater qualityGateConditionsUpdater;
@@ -138,10 +137,8 @@ public class RegisterQualityGates implements Startable {
     List<QualityGateCondition> qgConditionsToBeCreated = new ArrayList<>(QUALITY_GATE_CONDITIONS);
     qgConditionsToBeCreated.removeAll(qualityGateConditions);
     qgConditionsToBeCreated.stream()
-      .forEach(qgc ->
-        qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(), qgc.getMetricKey(), qgc.getOperator(), qgc.getWarningThreshold(),
-          qgc.getErrorThreshold(), qgc.getPeriod())
-      );
+      .forEach(qgc -> qualityGateConditionsUpdater.createCondition(dbSession, builtin, qgc.getMetricKey(), qgc.getOperator(), qgc.getWarningThreshold(),
+        qgc.getErrorThreshold(), qgc.getPeriod()));
 
     if (!qgConditionsToBeCreated.isEmpty() || !qgConditionsToBeDeleted.isEmpty()) {
       LOGGER.info("Built-in quality gate's conditions of [{}] has been updated", BUILTIN_QUALITY_GATE_NAME);
