@@ -60,6 +60,7 @@ message Organization {
   optional string url = 4;
   optional string avatar = 5;
   optional bool guarded = 6;
+  optional bool isAdmin = 7;
 }
 
 message User {
