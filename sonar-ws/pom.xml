@@ -41,10 +41,6 @@
     </dependency>
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
-      <artifactId>sonar-ws-generated</artifactId>
-    </dependency>    
-    <dependency>
-      <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-plugin-api</artifactId>
       <scope>provided</scope>
       <optional>true</optional>
