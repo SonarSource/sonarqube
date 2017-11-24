@@ -73,7 +73,6 @@ public class QualityGatesWsTest {
       new DestroyAction(qGates),
       new SetAsDefaultAction(qGates),
       new CreateConditionAction(null, null, null, null),
-      new UpdateConditionAction(null, null, null, null),
       new DeleteConditionAction(null, null, null),
       selectAction,
       new DeselectAction(qGates, mock(DbClient.class), mock(ComponentFinder.class))));
@@ -85,7 +84,7 @@ public class QualityGatesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualitygates");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(11);
+    assertThat(controller.actions()).hasSize(10);
 
     Action create = controller.action("create");
     assertThat(create).isNotNull();
@@ -146,19 +145,6 @@ public class QualityGatesWsTest {
     assertThat(createCondition.param("error")).isNotNull();
     assertThat(createCondition.param("period")).isNotNull();
     assertThat(createCondition.isInternal()).isFalse();
-
-    Action updateCondition = controller.action("update_condition");
-    assertThat(updateCondition).isNotNull();
-    assertThat(updateCondition.handler()).isNotNull();
-    assertThat(updateCondition.since()).isEqualTo("4.3");
-    assertThat(updateCondition.isPost()).isTrue();
-    assertThat(updateCondition.param("id")).isNotNull();
-    assertThat(updateCondition.param("metric")).isNotNull();
-    assertThat(updateCondition.param("op")).isNotNull();
-    assertThat(updateCondition.param("warning")).isNotNull();
-    assertThat(updateCondition.param("error")).isNotNull();
-    assertThat(updateCondition.param("period")).isNotNull();
-    assertThat(updateCondition.isInternal()).isFalse();
   }
 
   @Test
