@@ -30,7 +30,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
@@ -39,12 +38,11 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Arrays.asList;
 
 public class CodeFormatter {
 
-  private static final Set<String> PATH_EXCLUSIONS = new HashSet<>(Arrays.asList(
-    "api/components", "api/issues", "api/measures", "api/organizations", "api/permissions", "api/projects",
-    "api/project_analyses", "api/qualityprofiles", "api/rules", "api/settings", "api/users", "api/user_groups"));
+  private static final Set<String> PATH_EXCLUSIONS = new HashSet<>(asList("api/orchestrator"));
 
   public static void format(String json) {
     JsonObject jsonElement = new Gson().fromJson(json, JsonObject.class);
@@ -57,6 +55,7 @@ public class CodeFormatter {
       String webServicePath = webService.get("path").getAsString();
 
       if (PATH_EXCLUSIONS.contains(webServicePath)) {
+        System.out.println("Excluding WS " + webServicePath + " from code generation");
         continue;
       }
 
