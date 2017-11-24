@@ -32,6 +32,7 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.projects.ProjectsPage;
 import org.sonarqube.ws.Organizations.Organization;
 
+import static com.codeborne.selenide.Selenide.clearBrowserLocalStorage;
 import static com.codeborne.selenide.WebDriverRunner.url;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,6 +52,7 @@ public class ProjectLeakPageTest {
 
   @Before
   public void setUp() {
+    clearBrowserLocalStorage();
     tester.settings().setGlobalSettings("sonar.leak.period", "previous_version");
     organization = tester.organizations().generate();
     restoreProfile(orchestrator, ProjectLeakPageTest.class.getResource("/projectSearch/SearchProjectsTest/with-many-rules.xml"), organization.getKey());
