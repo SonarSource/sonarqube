@@ -87,19 +87,17 @@ export default class SearchSelect extends React.PureComponent {
     );
   };
 
-  handleBlur = () => {
-    this.setState({ options: [], query: '' });
-  };
-
   handleChange = (option /*: Option */) => {
     this.props.onSelect(option.value);
   };
 
-  handleInputChange = (query /*: string */ = '') => {
+  handleInputChange = (query /*: string */) => {
+    // `onInputChange` is called with an empty string after a user selects a value
+    // in this case we shouldn't reset `options`, because it also resets select value :(
     if (query.length >= this.props.minimumQueryLength) {
       this.setState({ loading: true, query });
       this.search(query);
-    } else {
+    } else if (query.length > 0) {
       this.setState({ options: [], query });
     }
   };
@@ -121,7 +119,7 @@ export default class SearchSelect extends React.PureComponent {
             ? translateWithParameters('select2.tooShort', this.props.minimumQueryLength)
             : translate('select2.noMatches')
         }
-        onBlur={this.props.resetOnBlur ? this.handleBlur : undefined}
+        onBlurResetsInput={this.props.resetOnBlur}
         onChange={this.handleChange}
         onInputChange={this.handleInputChange}
         onOpen={this.props.minimumQueryLength === 0 ? this.handleInputChange : undefined}
