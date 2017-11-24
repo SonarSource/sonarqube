@@ -21,8 +21,8 @@
 jest.mock('../../../api/quality-gates', () => ({
   associateGateWithProject: jest.fn(() => Promise.resolve()),
   dissociateGateWithProject: jest.fn(() => Promise.resolve()),
-  fetchQualityGates: jest.fn(),
-  getGateForProject: jest.fn()
+  fetchQualityGates: jest.fn(() => Promise.resolve({})),
+  getGateForProject: jest.fn(() => Promise.resolve())
 }));
 
 jest.mock('../../../app/utils/addGlobalSuccessMessage', () => ({
