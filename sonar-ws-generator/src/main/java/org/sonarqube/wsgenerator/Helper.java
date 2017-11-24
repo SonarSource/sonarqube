@@ -110,10 +110,7 @@ public class Helper {
   private Stream<String> guessResponseOuterClassName(String path) {
     return Stream.of(
       rawName(path),
-      rawName(path).replaceFirst("Qualityprofiles", "QualityProfiles"),
       "Ws" + rawName(path),
-      "Ws" + rawName(path).replaceFirst("Qualitygates", "QualityGates"),
-      "Ws" + rawName(path).replaceFirst("ProjectBranches", "Branches"),
       rawName(path) + "Ws");
   }
 
