@@ -27,7 +27,7 @@ interface Props {
   tooltip?: boolean;
 }
 
-export default function BuiltInBadge({ className, tooltip = true }: Props) {
+export default function BuiltInQualityProfileBadge({ className, tooltip = true }: Props) {
   const badge = (
     <div className={classNames('outline-badge', className)}>
       {translate('quality_profiles.built_in')}
