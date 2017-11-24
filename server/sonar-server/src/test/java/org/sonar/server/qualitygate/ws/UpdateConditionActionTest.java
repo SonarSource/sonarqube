@@ -19,8 +19,6 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,6 +33,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonar.server.tester.UserSessionRule;
@@ -42,7 +41,9 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERROR;
@@ -66,7 +67,8 @@ public class UpdateConditionActionTest {
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private UpdateConditionAction underTest = new UpdateConditionAction(userSession, dbClient, new QualityGateConditionsUpdater(dbClient), defaultOrganizationProvider);
+  private UpdateConditionAction underTest = new UpdateConditionAction(dbClient, new QualityGateConditionsUpdater(dbClient),
+    new QualityGatesWsSupport(dbClient, userSession, defaultOrganizationProvider));
 
   private WsActionTester ws = new WsActionTester(underTest);
 
@@ -74,7 +76,7 @@ public class UpdateConditionActionTest {
   public void update_warning_condition() throws Exception {
     logInAsQualityGateAdmin();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false));
+    MetricDto metric = insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
       c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80").setPeriod(null));
 
@@ -87,7 +89,7 @@ public class UpdateConditionActionTest {
   public void update_error_condition() throws Exception {
     logInAsQualityGateAdmin();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false));
+    MetricDto metric = insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
       c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80").setPeriod(null));
 
@@ -100,20 +102,20 @@ public class UpdateConditionActionTest {
   public void update_condition_over_leak_period() throws Exception {
     logInAsQualityGateAdmin();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false));
+    MetricDto metric = insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
       c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80").setPeriod(null));
 
     executeRequest(condition.getId(), metric.getKey(), "LT", null, "90", 1);
 
-    assertCondition(qualityGate, metric,"LT", null, "90", 1);
+    assertCondition(qualityGate, metric, "LT", null, "90", 1);
   }
 
   @Test
   public void test_response() throws Exception {
     logInAsQualityGateAdmin();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false));
+    MetricDto metric = insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric,
       c -> c.setOperator("GT").setWarningThreshold(null).setErrorThreshold("80").setPeriod(null));
 
@@ -128,10 +130,50 @@ public class UpdateConditionActionTest {
   }
 
   @Test
+  public void fail_to_update_built_in_quality_gate() {
+    logInAsQualityGateAdmin();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setBuiltIn(true));
+    MetricDto metric = insertMetric();
+    QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
+
+    executeRequest(condition.getId(), metric.getKey(), "LT", "90", "45", 1);
+  }
+
+  @Test
+  public void fail_on_unknown_condition() {
+    logInAsQualityGateAdmin();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    MetricDto metric = insertMetric();
+    db.qualityGates().addCondition(qualityGate, metric);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("No quality gate condition with id '123'");
+
+    executeRequest(123L, metric.getKey(), "LT", "90", null, null);
+  }
+
+  @Test
+  public void fail_when_condition_match_unknown_quality_gate() {
+    logInAsQualityGateAdmin();
+    MetricDto metric = insertMetric();
+    QualityGateConditionDto condition = new QualityGateConditionDto().setQualityGateId(123L);
+    db.getDbClient().gateConditionDao().insert(condition, dbSession);
+    db.commit();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage(format("Condition '%s' is linked to an unknown quality gate '%s'", condition.getId(), 123L));
+
+    executeRequest(condition.getId(), metric.getKey(), "LT", "90", null, null);
+  }
+
+  @Test
   public void throw_ForbiddenException_if_not_gate_administrator() throws Exception {
     userSession.logIn();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false));
+    MetricDto metric = insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric);
 
     expectedException.expect(ForbiddenException.class);
@@ -147,7 +189,7 @@ public class UpdateConditionActionTest {
     OrganizationDto org = db.organizations().insert();
     userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES, org);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false));
+    MetricDto metric = insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric);
 
     expectedException.expect(ForbiddenException.class);
@@ -167,15 +209,10 @@ public class UpdateConditionActionTest {
   }
 
   private void assertCondition(QualityGateDto qualityGate, MetricDto metric, String operator, @Nullable String warning, @Nullable String error, @Nullable Integer period) {
-    List<QualityGateConditionDto> conditionDtoList = new ArrayList<>(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGate.getId()));
-    assertThat(conditionDtoList).hasSize(1);
-    QualityGateConditionDto condition = conditionDtoList.get(0);
-    assertThat(condition.getQualityGateId()).isEqualTo(qualityGate.getId());
-    assertThat(condition.getMetricId()).isEqualTo(metric.getId().longValue());
-    assertThat(condition.getOperator()).isEqualTo(operator);
-    assertThat(condition.getWarningThreshold()).isEqualTo(warning);
-    assertThat(condition.getErrorThreshold()).isEqualTo(error);
-    assertThat(condition.getPeriod()).isEqualTo(period);
+    assertThat(dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGate.getId()))
+      .extracting(QualityGateConditionDto::getQualityGateId, QualityGateConditionDto::getMetricId, QualityGateConditionDto::getOperator,
+        QualityGateConditionDto::getWarningThreshold, QualityGateConditionDto::getErrorThreshold, QualityGateConditionDto::getPeriod)
+      .containsExactlyInAnyOrder(tuple(qualityGate.getId(), metric.getId().longValue(), operator, warning, error, period));
   }
 
   private CreateConditionResponse executeRequest(long conditionId, String metricKey, String operator, @Nullable String warning, @Nullable String error,
@@ -198,6 +235,10 @@ public class UpdateConditionActionTest {
 
   private void logInAsQualityGateAdmin() {
     userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES, db.getDefaultOrganization());
+  }
+
+  private MetricDto insertMetric() {
+    return db.measures().insertMetric(m -> m.setValueType(INT.name()).setHidden(false));
   }
 
 }

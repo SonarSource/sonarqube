@@ -75,9 +75,8 @@ public class QualityGateConditionsUpdater {
     return newCondition;
   }
 
-  public QualityGateConditionDto updateCondition(DbSession dbSession, long condId, String metricKey, String operator,
+  public QualityGateConditionDto updateCondition(DbSession dbSession, QualityGateConditionDto condition, String metricKey, String operator,
     @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
-    QualityGateConditionDto condition = getNonNullCondition(dbSession, condId);
     MetricDto metric = getNonNullMetric(dbSession, metricKey);
     validateCondition(metric, operator, warningThreshold, errorThreshold, period);
     checkConditionDoesNotAlreadyExistOnSameMetricAndPeriod(getConditions(dbSession, condition.getQualityGateId(), condition.getId()), metric, period);
@@ -107,14 +106,6 @@ public class QualityGateConditionsUpdater {
       throw new NotFoundException(format("There is no metric with key=%s", metricKey));
     }
     return metric;
-  }
-
-  private QualityGateConditionDto getNonNullCondition(DbSession dbSession, long id) {
-    QualityGateConditionDto condition = dbClient.gateConditionDao().selectById(id, dbSession);
-    if (condition == null) {
-      throw new NotFoundException("There is no condition with id=" + id);
-    }
-    return condition;
   }
 
   private Collection<QualityGateConditionDto> getConditions(DbSession dbSession, long qGateId, @Nullable Long conditionId) {
