@@ -51,9 +51,9 @@ public class ShowAction implements QualityGatesWsAction {
 
   private final DbClient dbClient;
   private final QualityGateFinder qualityGateFinder;
-  private final QGateWsSupport wsSupport;
+  private final QualityGatesWsSupport wsSupport;
 
-  public ShowAction(DbClient dbClient, QualityGateFinder qualityGateFinder, QGateWsSupport wsSupport) {
+  public ShowAction(DbClient dbClient, QualityGateFinder qualityGateFinder, QualityGatesWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.qualityGateFinder = qualityGateFinder;
     this.wsSupport = wsSupport;
