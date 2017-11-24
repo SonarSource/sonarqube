@@ -73,9 +73,7 @@ export default class DetailsHeader extends React.PureComponent {
                   className="little-spacer-left"
                   id="quality-gate-toggle-default"
                   onClick={this.handleSetAsDefaultClick}>
-                  {qualityGate.isDefault
-                    ? translate('unset_as_default')
-                    : translate('set_as_default')}
+                  {translate('set_as_default')}
                 </button>
               )}
               {actions.edit && (

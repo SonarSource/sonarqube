@@ -74,10 +74,6 @@ export function setQualityGateAsDefault(id: string): Promise<void | Response> {
   return post('/api/qualitygates/set_as_default', { id }).catch(throwGlobalError);
 }
 
-export function unsetQualityGateAsDefault(id: string): Promise<void | Response> {
-  return post('/api/qualitygates/unset_default', { id }).catch(throwGlobalError);
-}
-
 export function createCondition(gateId: string, condition: RequestData): Promise<any> {
   return postJSON('/api/qualitygates/create_condition', { ...condition, gateId });
 }
