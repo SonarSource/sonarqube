@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import BuiltInBadge from './BuiltInBadge';
+import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 import { translate } from '../../../helpers/l10n';
 
 export default class DetailsHeader extends React.PureComponent {
@@ -51,7 +51,7 @@ export default class DetailsHeader extends React.PureComponent {
           <div className="layout-page-main-inner">
             <h2 className="pull-left">
               {qualityGate.name}
-              {qualityGate.isBuiltIn && <BuiltInBadge className="spacer-left" tooltip={true} />}
+              {qualityGate.isBuiltIn && <BuiltInQualityGateBadge className="spacer-left" />}
             </h2>
 
             <div className="pull-right">

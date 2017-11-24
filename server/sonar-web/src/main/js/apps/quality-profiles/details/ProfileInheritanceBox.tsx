@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import ProfileLink from '../components/ProfileLink';
-import BuiltInBadge from '../components/BuiltInBadge';
+import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
 import Tooltip from '../../../components/controls/Tooltip';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
@@ -58,7 +58,7 @@ export default function ProfileInheritanceBox({ displayLink = true, ...props }: 
           ) : (
             profile.name
           )}
-          {profile.isBuiltIn && <BuiltInBadge className="spacer-left" />}
+          {profile.isBuiltIn && <BuiltInQualityProfileBadge className="spacer-left" />}
           {extendsBuiltIn && (
             <Tooltip overlay={translate('quality_profiles.extends_built_in')}>
               <i className="icon-help spacer-left" />

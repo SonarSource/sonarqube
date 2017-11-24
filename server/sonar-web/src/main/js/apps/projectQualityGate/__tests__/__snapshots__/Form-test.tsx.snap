@@ -10,10 +10,6 @@ exports[`renders 1`] = `
     options={
       Array [
         Object {
-          "label": "none",
-          "value": "",
-        },
-        Object {
           "isDefault": undefined,
           "label": "name-1",
           "value": "1",
@@ -25,7 +21,6 @@ exports[`renders 1`] = `
         },
       ]
     }
-    placeholder="none"
     style={
       Object {
         "width": 300,
