@@ -22,7 +22,7 @@ import { Link, IndexLink } from 'react-router';
 import ProfileLink from '../components/ProfileLink';
 import ProfileActions from '../components/ProfileActions';
 import ProfileDate from '../components/ProfileDate';
-import BuiltInBadge from '../components/BuiltInBadge';
+import BuiltInQualityProfileBadge from '../components/BuiltInQualityProfileBadge';
 import { translate } from '../../../helpers/l10n';
 import {
   isStagnant,
@@ -92,7 +92,9 @@ export default class ProfileHeader extends React.PureComponent<Props> {
             organization={organization}>
             <span>{profile.name}</span>
           </ProfileLink>
-          {profile.isBuiltIn && <BuiltInBadge className="spacer-left" tooltip={false} />}
+          {profile.isBuiltIn && (
+            <BuiltInQualityProfileBadge className="spacer-left" tooltip={false} />
+          )}
         </h1>
 
         <div className="pull-right">
