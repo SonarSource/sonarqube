@@ -33,9 +33,30 @@ import javax.annotation.Generated;
 @Generated("https://github.com/SonarSource/sonar-ws-generator")
 public class SearchRequest {
 
+  private String member;
   private List<String> organizations;
   private String p;
   private String ps;
+
+  /**
+   * Filter organizations based on whether the authenticated user is a member
+   *
+   * Possible values:
+   * <ul>
+   *   <li>"true"</li>
+   *   <li>"false"</li>
+   *   <li>"yes"</li>
+   *   <li>"no"</li>
+   * </ul>
+   */
+  public SearchRequest setMember(String member) {
+    this.member = member;
+    return this;
+  }
+
+  public String getMember() {
+    return member;
+  }
 
   /**
    * Comma-separated list of organization keys
@@ -66,7 +87,7 @@ public class SearchRequest {
   }
 
   /**
-   * Page size. Must be greater than 0.
+   * Page size. Must be greater than 0 and less than 500
    *
    * Example value: "20"
    */
