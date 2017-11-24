@@ -25,13 +25,12 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
-import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates.UpdateConditionResponse;
 
+import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.core.util.Protobuf.setNullable;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWs.addConditionParams;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_UPDATE_CONDITION;
@@ -44,17 +43,14 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_WAR
 
 public class UpdateConditionAction implements QualityGatesWsAction {
 
-  private final UserSession userSession;
   private final DbClient dbClient;
   private final QualityGateConditionsUpdater qualityGateConditionsUpdater;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
+  private final QualityGatesWsSupport wsSupport;
 
-  public UpdateConditionAction(UserSession userSession, DbClient dbClient, QualityGateConditionsUpdater qualityGateConditionsUpdater,
-    DefaultOrganizationProvider defaultOrganizationProvider) {
-    this.userSession = userSession;
+  public UpdateConditionAction(DbClient dbClient, QualityGateConditionsUpdater qualityGateConditionsUpdater, QualityGatesWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.qualityGateConditionsUpdater = qualityGateConditionsUpdater;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -77,8 +73,6 @@ public class UpdateConditionAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    userSession.checkPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
-
     int id = request.mandatoryParamAsInt(PARAM_ID);
     String metric = request.mandatoryParam(PARAM_METRIC);
     String operator = request.mandatoryParam(PARAM_OPERATOR);
@@ -87,14 +81,18 @@ public class UpdateConditionAction implements QualityGatesWsAction {
     Integer period = request.paramAsInt(PARAM_PERIOD);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityGateConditionDto condition = qualityGateConditionsUpdater.updateCondition(dbSession, id, metric, operator, warning, error, period);
+      QualityGateConditionDto condition = wsSupport.getCondition(dbSession, id);
+      QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectById(dbSession, condition.getQualityGateId());
+      checkState(qualityGateDto != null, "Condition '%s' is linked to an unknown quality gate '%s'", id, condition.getQualityGateId());
+      wsSupport.checkCanEdit(qualityGateDto);
+      QualityGateConditionDto updatedCondition = qualityGateConditionsUpdater.updateCondition(dbSession, condition, metric, operator, warning, error, period);
       UpdateConditionResponse.Builder updateConditionResponse = UpdateConditionResponse.newBuilder()
-        .setId(condition.getId())
-        .setMetric(condition.getMetricKey())
-        .setOp(condition.getOperator());
-      setNullable(condition.getWarningThreshold(), updateConditionResponse::setWarning);
-      setNullable(condition.getErrorThreshold(), updateConditionResponse::setError);
-      setNullable(condition.getPeriod(), updateConditionResponse::setPeriod);
+        .setId(updatedCondition.getId())
+        .setMetric(updatedCondition.getMetricKey())
+        .setOp(updatedCondition.getOperator());
+      setNullable(updatedCondition.getWarningThreshold(), updateConditionResponse::setWarning);
+      setNullable(updatedCondition.getErrorThreshold(), updateConditionResponse::setError);
+      setNullable(updatedCondition.getPeriod(), updateConditionResponse::setPeriod);
       writeProtobuf(updateConditionResponse.build(), request, response);
       dbSession.commit();
     }
