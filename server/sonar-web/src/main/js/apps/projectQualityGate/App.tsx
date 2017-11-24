@@ -69,7 +69,7 @@ export default class App extends React.PureComponent<Props> {
   fetchQualityGates() {
     this.setState({ loading: true });
     Promise.all([fetchQualityGates(), getGateForProject(this.props.component.key)]).then(
-      ([allGates, gate]) => {
+      ([{ qualitygates: allGates }, gate]) => {
         if (this.mounted) {
           this.setState({ allGates, gate, loading: false });
         }
