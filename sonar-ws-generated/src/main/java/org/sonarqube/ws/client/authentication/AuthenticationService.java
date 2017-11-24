@@ -31,7 +31,7 @@ import org.sonarqube.ws.client.WsConnector;
  * Handle authentication.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/authentication">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class AuthenticationService extends BaseService {
 
   public AuthenticationService(WsConnector wsConnector) {

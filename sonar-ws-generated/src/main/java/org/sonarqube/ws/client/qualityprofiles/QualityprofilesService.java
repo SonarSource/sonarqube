@@ -38,7 +38,7 @@ import org.sonarqube.ws.Qualityprofiles.ShowResponse;
  * Manage quality profiles.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class QualityprofilesService extends BaseService {
 
   public QualityprofilesService(WsConnector wsConnector) {

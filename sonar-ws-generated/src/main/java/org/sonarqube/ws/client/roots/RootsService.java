@@ -32,7 +32,7 @@ import org.sonarqube.ws.Roots.SearchResponse;
  * Manage root users
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/roots">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class RootsService extends BaseService {
 
   public RootsService(WsConnector wsConnector) {

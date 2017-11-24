@@ -31,7 +31,7 @@ import org.sonarqube.ws.client.WsConnector;
  * Removed since 6.3, please use api/measures/search_history instead
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/timemachine">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class TimemachineService extends BaseService {
 
   public TimemachineService(WsConnector wsConnector) {

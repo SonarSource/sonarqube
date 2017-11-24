@@ -36,7 +36,7 @@ import org.sonarqube.ws.client.WsConnector;
  * Manage settings.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class SettingsService extends BaseService {
 
   public SettingsService(WsConnector wsConnector) {

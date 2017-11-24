@@ -31,7 +31,7 @@ import org.sonarqube.ws.client.WsConnector;
  * Get information required to build navigation UI components
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/navigation">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class NavigationService extends BaseService {
 
   public NavigationService(WsConnector wsConnector) {

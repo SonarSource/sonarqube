@@ -34,7 +34,7 @@ import org.sonarqube.ws.Editions.StatusResponse;
  * Manage SonarSource commercial editions.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/editions">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class EditionsService extends BaseService {
 
   public EditionsService(WsConnector wsConnector) {

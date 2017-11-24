@@ -31,7 +31,7 @@ import org.sonarqube.ws.client.WsConnector;
  * Get list of installed plugins
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/updatecenter">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class UpdatecenterService extends BaseService {
 
   public UpdatecenterService(WsConnector wsConnector) {

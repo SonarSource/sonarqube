@@ -36,7 +36,7 @@ import org.sonarqube.ws.Rules.UpdateResponse;
  * Get and update some details of automatic rules, and manage custom rules.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/rules">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class RulesService extends BaseService {
 
   public RulesService(WsConnector wsConnector) {

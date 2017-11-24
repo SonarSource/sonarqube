@@ -31,7 +31,7 @@ import org.sonarqube.ws.client.WsConnector;
  * Get details on source files. See also api/tests.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/sources">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class SourcesService extends BaseService {
 
   public SourcesService(WsConnector wsConnector) {

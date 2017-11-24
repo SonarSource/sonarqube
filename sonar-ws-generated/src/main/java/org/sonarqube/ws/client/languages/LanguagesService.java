@@ -31,7 +31,7 @@ import org.sonarqube.ws.client.WsConnector;
  * Get the list of programming languages supported in this instance.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/languages">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class LanguagesService extends BaseService {
 
   public LanguagesService(WsConnector wsConnector) {

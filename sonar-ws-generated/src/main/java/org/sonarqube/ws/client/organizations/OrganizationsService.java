@@ -36,7 +36,7 @@ import org.sonarqube.ws.Organizations.UpdateWsResponse;
  * Manage organizations.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/organizations">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class OrganizationsService extends BaseService {
 
   public OrganizationsService(WsConnector wsConnector) {

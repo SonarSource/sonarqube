@@ -39,7 +39,7 @@ import org.sonarqube.ws.Permissions.UsersWsResponse;
  * Manage permission templates, and the granting and revoking of permissions at the global and project levels.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class PermissionsService extends BaseService {
 
   public PermissionsService(WsConnector wsConnector) {

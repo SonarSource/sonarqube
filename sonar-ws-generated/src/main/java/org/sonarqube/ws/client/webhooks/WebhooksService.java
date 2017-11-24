@@ -33,7 +33,7 @@ import org.sonarqube.ws.Webhooks.DeliveryWsResponse;
  * Webhooks allow to notify external services when a project analysis is done
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/webhooks">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class WebhooksService extends BaseService {
 
   public WebhooksService(WsConnector wsConnector) {

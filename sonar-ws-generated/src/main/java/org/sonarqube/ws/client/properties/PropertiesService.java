@@ -31,7 +31,7 @@ import org.sonarqube.ws.client.WsConnector;
  * This web service is deprecated, please use api/settings instead.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/properties">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class PropertiesService extends BaseService {
 
   public PropertiesService(WsConnector wsConnector) {

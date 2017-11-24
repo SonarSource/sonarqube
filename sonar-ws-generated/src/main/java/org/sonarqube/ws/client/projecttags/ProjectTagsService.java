@@ -32,7 +32,7 @@ import org.sonarqube.ws.ProjectTags.SearchResponse;
  * Manage project tags
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_tags">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class ProjectTagsService extends BaseService {
 
   public ProjectTagsService(WsConnector wsConnector) {

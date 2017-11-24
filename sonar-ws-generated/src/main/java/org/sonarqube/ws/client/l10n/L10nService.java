@@ -31,7 +31,7 @@ import org.sonarqube.ws.client.WsConnector;
  * Manage localization.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/l10n">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class L10nService extends BaseService {
 
   public L10nService(WsConnector wsConnector) {

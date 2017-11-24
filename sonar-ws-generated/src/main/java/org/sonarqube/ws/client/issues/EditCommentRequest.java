@@ -30,7 +30,7 @@ import javax.annotation.Generated;
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/edit_comment">Further information about this action online (including a response example)</a>
  * @since 3.6
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class EditCommentRequest {
 
   private String comment;

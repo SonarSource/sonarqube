@@ -30,7 +30,7 @@ import javax.annotation.Generated;
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions/remove_project_creator_from_template">Further information about this action online (including a response example)</a>
  * @since 6.0
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class RemoveProjectCreatorFromTemplateRequest {
 
   private String organization;

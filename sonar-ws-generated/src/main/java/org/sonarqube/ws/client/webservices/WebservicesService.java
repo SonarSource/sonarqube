@@ -31,7 +31,7 @@ import org.sonarqube.ws.client.WsConnector;
  * Get information on the web api supported on this instance.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/webservices">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class WebservicesService extends BaseService {
 
   public WebservicesService(WsConnector wsConnector) {

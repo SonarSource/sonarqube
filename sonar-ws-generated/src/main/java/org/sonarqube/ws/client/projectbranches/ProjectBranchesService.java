@@ -32,7 +32,7 @@ import org.sonarqube.ws.ProjectBranches.ListWsResponse;
  * Manage branch (only available when the Branch plugin is installed)
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_branches">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class ProjectBranchesService extends BaseService {
 
   public ProjectBranchesService(WsConnector wsConnector) {

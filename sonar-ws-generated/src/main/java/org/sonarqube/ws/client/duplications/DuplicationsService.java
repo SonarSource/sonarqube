@@ -32,7 +32,7 @@ import org.sonarqube.ws.Duplications.ShowResponse;
  * Get duplication information for a project.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/duplications">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class DuplicationsService extends BaseService {
 
   public DuplicationsService(WsConnector wsConnector) {

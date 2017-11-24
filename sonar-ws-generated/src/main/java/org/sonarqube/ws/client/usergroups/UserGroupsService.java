@@ -34,7 +34,7 @@ import org.sonarqube.ws.UserGroups.UpdateWsResponse;
  * Manage user groups.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/user_groups">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class UserGroupsService extends BaseService {
 
   public UserGroupsService(WsConnector wsConnector) {

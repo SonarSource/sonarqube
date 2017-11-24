@@ -32,7 +32,7 @@ import org.sonarqube.ws.Batch.WsProjectResponse;
  * Get JAR files and referentials for batch
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/batch">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class BatchService extends BaseService {
 
   public BatchService(WsConnector wsConnector) {

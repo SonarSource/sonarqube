@@ -33,7 +33,7 @@ import org.sonarqube.ws.ProjectLinks.SearchWsResponse;
  * Manage projects links.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_links">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class ProjectLinksService extends BaseService {
 
   public ProjectLinksService(WsConnector wsConnector) {

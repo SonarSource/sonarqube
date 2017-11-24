@@ -30,7 +30,7 @@ import javax.annotation.Generated;
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/organizations/remove_member">Further information about this action online (including a response example)</a>
  * @since 6.4
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class RemoveMemberRequest {
 
   private String login;

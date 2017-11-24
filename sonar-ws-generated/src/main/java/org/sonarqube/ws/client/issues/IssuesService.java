@@ -34,7 +34,7 @@ import org.sonarqube.ws.Issues.SearchWsResponse;
  * Read and update issues.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues">Further information about this web service online</a>
  */
-@Generated("https://github.com/SonarSource/sonar-ws-generator")
+@Generated("sonar-ws-generator")
 public class IssuesService extends BaseService {
 
   public IssuesService(WsConnector wsConnector) {
