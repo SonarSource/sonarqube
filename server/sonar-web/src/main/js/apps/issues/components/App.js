@@ -726,7 +726,7 @@ export default class App extends React.PureComponent {
   }
 
   renderFacets() {
-    const { component, currentUser, myIssues } = this.props;
+    const { component, myIssues } = this.props;
     const { query } = this.state;
 
     return (

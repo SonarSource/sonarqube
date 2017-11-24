@@ -50,22 +50,13 @@ interface Props {
 }
 
 export default function PageSidebar(props: Props) {
-  const { facets, onQueryChange, query, organization, view, visualization } = props;
+  const { facets, onQueryChange, query, organization, view } = props;
   const isFiltered = Object.keys(query)
     .filter(key => !['view', 'visualization', 'sort'].includes(key))
     .some(key => query[key] != null);
   const isLeakView = view === 'leak';
   const maxFacetValue = getMaxFacetValue(facets);
   const facetProps = { onQueryChange, maxFacetValue, organization, query };
-
-  let linkQuery: RawQuery | undefined = undefined;
-  if (view !== 'overall') {
-    linkQuery = { view };
-
-    if (view === 'visualizations') {
-      linkQuery.visualization = visualization;
-    }
-  }
 
   return (
     <div>
