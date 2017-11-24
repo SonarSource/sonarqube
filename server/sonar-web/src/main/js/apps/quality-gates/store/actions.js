@@ -74,14 +74,6 @@ export function setQualityGateAsDefault(qualityGate) {
   };
 }
 
-export const UNSET_AS_DEFAULT = 'qualityGates/UNSET_AS_DEFAULT';
-export function unsetQualityGateAsDefault(qualityGate) {
-  return {
-    type: UNSET_AS_DEFAULT,
-    qualityGate
-  };
-}
-
 export const ADD_CONDITION = 'qualityGates/ADD_CONDITION';
 export function addCondition(metric) {
   return {
