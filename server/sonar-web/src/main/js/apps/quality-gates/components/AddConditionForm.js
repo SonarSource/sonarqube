@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { sortBy } from 'lodash';
+import { omitBy, map, sortBy } from 'lodash';
 import Select from '../../../components/controls/Select';
 import { translate, getLocalizedMetricName, getLocalizedMetricDomain } from '../../../helpers/l10n';
 
@@ -30,15 +30,15 @@ export default function AddConditionForm({ metrics, onSelect }) {
     onSelect(metric);
   }
 
-  const metricsToDisplay = metrics.filter(metric => !metric.hidden);
-  const sortedMetrics = sortBy(metricsToDisplay, 'domain');
-  const options = sortedMetrics.map(metric => {
-    return {
+  const metricsToDisplay = omitBy(metrics, metric => metric.hidden);
+  const options = sortBy(
+    map(metricsToDisplay, metric => ({
       value: metric.key,
       label: getLocalizedMetricName(metric),
       domain: metric.domain
-    };
-  });
+    })),
+    'domain'
+  );
 
   // use "disabled" property to emulate optgroups
   const optionsWithDomains = [];
