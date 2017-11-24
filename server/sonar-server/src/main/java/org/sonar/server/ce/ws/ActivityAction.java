@@ -35,7 +35,6 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
 import org.sonar.ce.taskprocessor.CeTaskProcessor;
 import org.sonar.core.util.Uuids;
@@ -146,10 +145,10 @@ public class ActivityAction implements CeWsAction {
       .setPossibleValues(taskTypes);
     action.createParam(PARAM_MIN_SUBMITTED_AT)
       .setDescription("Minimum date of task submission (inclusive)")
-      .setExampleValue(DateUtils.formatDateTime(new Date()));
+      .setExampleValue("2017-10-19T13:00:00+0200");
     action.createParam(PARAM_MAX_EXECUTED_AT)
       .setDescription("Maximum date of end of task processing (inclusive)")
-      .setExampleValue(DateUtils.formatDateTime(new Date()));
+      .setExampleValue("2017-10-19T13:00:00+0200");
     action.createParam(Param.PAGE)
       .setDescription("Deprecated parameter")
       .setDeprecatedSince("5.5")
