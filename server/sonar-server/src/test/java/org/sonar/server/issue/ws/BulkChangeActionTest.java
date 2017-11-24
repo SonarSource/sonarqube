@@ -56,12 +56,12 @@ import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.issue.notification.IssueChangeNotification;
-import org.sonar.server.issue.webhook.IssueChangeWebhook;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.qualitygate.changeevent.IssueChangeTrigger;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -117,7 +117,7 @@ public class BulkChangeActionTest {
   private IssueStorage issueStorage = new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient,
     new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient)));
   private NotificationManager notificationManager = mock(NotificationManager.class);
-  private IssueChangeWebhook issueChangeWebhook = mock(IssueChangeWebhook.class);
+  private IssueChangeTrigger issueChangeTrigger = mock(IssueChangeTrigger.class);
   private List<Action> actions = new ArrayList<>();
 
   private RuleDto rule;
@@ -126,7 +126,7 @@ public class BulkChangeActionTest {
   private ComponentDto file;
   private UserDto user;
 
-  private WsActionTester tester = new WsActionTester(new BulkChangeAction(system2, userSession, dbClient, issueStorage, notificationManager, actions, issueChangeWebhook));
+  private WsActionTester tester = new WsActionTester(new BulkChangeAction(system2, userSession, dbClient, issueStorage, notificationManager, actions, issueChangeTrigger));
 
   @Before
   public void setUp() throws Exception {
@@ -173,7 +173,7 @@ public class BulkChangeActionTest {
     assertThat(reloaded.getSeverity()).isEqualTo(MINOR);
     assertThat(reloaded.getUpdatedAt()).isEqualTo(NOW);
 
-    verifyZeroInteractions(issueChangeWebhook);
+    verifyZeroInteractions(issueChangeTrigger);
   }
 
   @Test
@@ -191,7 +191,7 @@ public class BulkChangeActionTest {
     assertThat(reloaded.getTags()).containsOnly("tag1", "tag2", "tag3");
     assertThat(reloaded.getUpdatedAt()).isEqualTo(NOW);
 
-    verifyZeroInteractions(issueChangeWebhook);
+    verifyZeroInteractions(issueChangeTrigger);
   }
 
   @Test
@@ -209,7 +209,7 @@ public class BulkChangeActionTest {
     assertThat(reloaded.getAssignee()).isNull();
     assertThat(reloaded.getUpdatedAt()).isEqualTo(NOW);
 
-    verifyZeroInteractions(issueChangeWebhook);
+    verifyZeroInteractions(issueChangeTrigger);
   }
 
   @Test
@@ -530,12 +530,12 @@ public class BulkChangeActionTest {
   private void verifyIssueChangeWebhookCalled(@Nullable RuleType expectedRuleType, @Nullable String transitionKey,
     String[] componentUUids,
     IssueDto... issueDtos) {
-    ArgumentCaptor<IssueChangeWebhook.IssueChangeData> issueChangeDataCaptor = ArgumentCaptor.forClass(IssueChangeWebhook.IssueChangeData.class);
-    verify(issueChangeWebhook).onChange(
+    ArgumentCaptor<IssueChangeTrigger.IssueChangeData> issueChangeDataCaptor = ArgumentCaptor.forClass(IssueChangeTrigger.IssueChangeData.class);
+    verify(issueChangeTrigger).onChange(
       issueChangeDataCaptor.capture(),
-      eq(new IssueChangeWebhook.IssueChange(expectedRuleType, transitionKey)),
+      eq(new IssueChangeTrigger.IssueChange(expectedRuleType, transitionKey)),
       eq(IssueChangeContext.createUser(new Date(NOW), userSession.getLogin())));
-    IssueChangeWebhook.IssueChangeData issueChangeData = issueChangeDataCaptor.getValue();
+    IssueChangeTrigger.IssueChangeData issueChangeData = issueChangeDataCaptor.getValue();
     assertThat(issueChangeData.getIssues())
       .extracting(DefaultIssue::key)
       .containsOnly(Arrays.stream(issueDtos).map(IssueDto::getKey).toArray(String[]::new));

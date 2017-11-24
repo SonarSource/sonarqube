@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.issue.webhook;
+package org.sonar.server.qualitygate.changeevent;
 
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -32,7 +32,7 @@ import org.sonar.server.issue.ws.SearchResponseData;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public interface IssueChangeWebhook {
+public interface IssueChangeTrigger {
   /**
    * Will call webhooks once for any short living branch which has at least one issue in {@link SearchResponseData} and
    * if change described in {@link IssueChange} can alter the status of the short living branch.

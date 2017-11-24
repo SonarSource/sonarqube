@@ -31,11 +31,12 @@ import org.sonar.server.computation.task.step.ComputationStep;
 
 /**
  * Persist analysis properties
- * Only properties starting with "sonar.analysis" will be persisted in database
+ * Only properties starting with "sonar.analysis" or "sonar.pullrequest" will be persisted in database
  */
 public class PersistAnalysisPropertiesStep implements ComputationStep {
 
   private static final String SONAR_ANALYSIS = "sonar.analysis.";
+  private static final String SONAR_PULL_REQUEST = "sonar.pullrequest.";
 
   private final DbClient dbClient;
   private final AnalysisMetadataHolder analysisMetadataHolder;
@@ -55,10 +56,11 @@ public class PersistAnalysisPropertiesStep implements ComputationStep {
     final List<AnalysisPropertyDto> analysisPropertyDtos = new ArrayList<>();
     reportReader.readContextProperties().forEachRemaining(
       contextProperty -> {
-        if (contextProperty.getKey().startsWith(SONAR_ANALYSIS)) {
+        String propertyKey = contextProperty.getKey();
+        if (propertyKey.startsWith(SONAR_ANALYSIS) || propertyKey.startsWith(SONAR_PULL_REQUEST)) {
           analysisPropertyDtos.add(new AnalysisPropertyDto()
             .setUuid(uuidFactory.create())
-            .setKey(contextProperty.getKey())
+            .setKey(propertyKey)
             .setValue(contextProperty.getValue())
             .setSnapshotUuid(analysisMetadataHolder.getUuid()));
         }

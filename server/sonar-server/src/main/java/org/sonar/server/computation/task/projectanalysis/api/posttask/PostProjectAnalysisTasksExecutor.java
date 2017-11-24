@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.posttask.Analysis;
@@ -37,6 +36,7 @@ import org.sonar.api.ce.posttask.ScannerContext;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.Condition;
@@ -191,7 +191,8 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
 
   private static Collection<QualityGate.Condition> convert(Set<Condition> conditions, Map<Condition, ConditionStatus> statusPerConditions) {
     return conditions.stream()
-      .map(new ConditionToCondition(statusPerConditions)::apply).collect(Collectors.toList());
+      .map(new ConditionToCondition(statusPerConditions)::apply)
+      .collect(MoreCollectors.toList(statusPerConditions.size()));
   }
 
   private static class ProjectAnalysisImpl implements PostProjectAnalysisTask.ProjectAnalysis {

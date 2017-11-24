@@ -19,6 +19,7 @@
  */
 package org.sonar.db.component;
 
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -167,5 +168,51 @@ public final class SnapshotDto {
    */
   public Long getCreatedAt() {
     return createdAt;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    SnapshotDto that = (SnapshotDto) o;
+    return Objects.equals(id, that.id) &&
+      Objects.equals(uuid, that.uuid) &&
+      Objects.equals(componentUuid, that.componentUuid) &&
+      Objects.equals(createdAt, that.createdAt) &&
+      Objects.equals(buildDate, that.buildDate) &&
+      Objects.equals(status, that.status) &&
+      Objects.equals(purgeStatus, that.purgeStatus) &&
+      Objects.equals(last, that.last) &&
+      Objects.equals(version, that.version) &&
+      Objects.equals(periodMode, that.periodMode) &&
+      Objects.equals(periodParam, that.periodParam) &&
+      Objects.equals(periodDate, that.periodDate);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, uuid, componentUuid, createdAt, buildDate, status, purgeStatus, last, version, periodMode, periodParam, periodDate);
+  }
+
+  @Override
+  public String toString() {
+    return "SnapshotDto{" +
+      "id=" + id +
+      ", uuid='" + uuid + '\'' +
+      ", componentUuid='" + componentUuid + '\'' +
+      ", createdAt=" + createdAt +
+      ", buildDate=" + buildDate +
+      ", status='" + status + '\'' +
+      ", purgeStatus=" + purgeStatus +
+      ", last=" + last +
+      ", version='" + version + '\'' +
+      ", periodMode='" + periodMode + '\'' +
+      ", periodParam='" + periodParam + '\'' +
+      ", periodDate=" + periodDate +
+      '}';
   }
 }

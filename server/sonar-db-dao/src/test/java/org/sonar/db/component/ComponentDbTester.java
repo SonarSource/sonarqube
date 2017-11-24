@@ -27,6 +27,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
 import static org.sonar.db.component.BranchType.LONG;
@@ -273,6 +274,16 @@ public class ComponentDbTester {
     // MainBranchProjectUuid will be null if it's a main branch
     BranchDto branchDto = newBranchDto(firstNonNull(project.getMainBranchProjectUuid(), project.projectUuid()), LONG);
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(branchDto));
+    ComponentDto branch = newProjectBranch(project, branchDto);
+    insertComponent(branch);
+    dbClient.branchDao().insert(dbSession, branchDto);
+    db.commit();
+    return branch;
+  }
+
+  public final ComponentDto insertProjectBranch(ComponentDto project, BranchDto branchDto) {
+    // MainBranchProjectUuid will be null if it's a main branch
+    checkArgument(branchDto.getProjectUuid().equals(firstNonNull(project.getMainBranchProjectUuid(), project.projectUuid())));
     ComponentDto branch = newProjectBranch(project, branchDto);
     insertComponent(branch);
     dbClient.branchDao().insert(dbSession, branchDto);

@@ -37,7 +37,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.TransitionService;
-import org.sonar.server.issue.webhook.IssueChangeWebhook;
+import org.sonar.server.qualitygate.changeevent.IssueChangeTrigger;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.ImmutableList.copyOf;
@@ -54,10 +54,10 @@ public class DoTransitionAction implements IssuesWsAction {
   private final TransitionService transitionService;
   private final OperationResponseWriter responseWriter;
   private final System2 system2;
-  private final IssueChangeWebhook issueChangeWebhook;
+  private final IssueChangeTrigger issueChangeTrigger;
 
   public DoTransitionAction(DbClient dbClient, UserSession userSession, IssueFinder issueFinder, IssueUpdater issueUpdater, TransitionService transitionService,
-    OperationResponseWriter responseWriter, System2 system2, IssueChangeWebhook issueChangeWebhook) {
+    OperationResponseWriter responseWriter, System2 system2, IssueChangeTrigger issueChangeTrigger) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.issueFinder = issueFinder;
@@ -65,7 +65,7 @@ public class DoTransitionAction implements IssuesWsAction {
     this.transitionService = transitionService;
     this.responseWriter = responseWriter;
     this.system2 = system2;
-    this.issueChangeWebhook = issueChangeWebhook;
+    this.issueChangeTrigger = issueChangeTrigger;
   }
 
   @Override
@@ -108,11 +108,11 @@ public class DoTransitionAction implements IssuesWsAction {
     transitionService.checkTransitionPermission(transitionKey, defaultIssue);
     if (transitionService.doTransition(defaultIssue, context, transitionKey)) {
       SearchResponseData searchResponseData = issueUpdater.saveIssueAndPreloadSearchResponseData(session, defaultIssue, context, null);
-      issueChangeWebhook.onChange(
-        new IssueChangeWebhook.IssueChangeData(
+      issueChangeTrigger.onChange(
+        new IssueChangeTrigger.IssueChangeData(
           searchResponseData.getIssues().stream().map(IssueDto::toDefaultIssue).collect(MoreCollectors.toList(searchResponseData.getIssues().size())),
           copyOf(searchResponseData.getComponents())),
-        new IssueChangeWebhook.IssueChange(transitionKey),
+        new IssueChangeTrigger.IssueChange(transitionKey),
         context);
       return searchResponseData;
     }

@@ -20,9 +20,9 @@
 
 package org.sonar.server.computation.task.projectanalysis.step;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -44,45 +44,73 @@ public class PersistAnalysisPropertiesStepTest {
   private static final String SNAPSHOT_UUID = randomAlphanumeric(40);
   private static final String SMALL_VALUE1 = randomAlphanumeric(50);
   private static final String SMALL_VALUE2 = randomAlphanumeric(50);
+  private static final String SMALL_VALUE3 = randomAlphanumeric(50);
   private static final String BIG_VALUE = randomAlphanumeric(5000);
+  private static final String VALUE_PREFIX_FOR_PR_PROPERTIES = "pr_";
   private static final List<ScannerReport.ContextProperty> PROPERTIES = Arrays.asList(
     newContextProperty("key1", "value1"),
     newContextProperty("key2", "value1"),
     newContextProperty("sonar.analysis", SMALL_VALUE1),
-    newContextProperty("sonar.analysis.branch", SMALL_VALUE1),
+    newContextProperty("sonar.analysis.branch", SMALL_VALUE2),
     newContextProperty("sonar.analysis.empty_string", ""),
     newContextProperty("sonar.analysis.big_value", BIG_VALUE),
-    newContextProperty("sonar.analysis.", SMALL_VALUE2));
+    newContextProperty("sonar.analysis.", SMALL_VALUE3),
+    newContextProperty("sonar.pullrequest", VALUE_PREFIX_FOR_PR_PROPERTIES + SMALL_VALUE1),
+    newContextProperty("sonar.pullrequest.branch", VALUE_PREFIX_FOR_PR_PROPERTIES + SMALL_VALUE2),
+    newContextProperty("sonar.pullrequest.empty_string", ""),
+    newContextProperty("sonar.pullrequest.big_value", VALUE_PREFIX_FOR_PR_PROPERTIES + BIG_VALUE),
+    newContextProperty("sonar.pullrequest.", VALUE_PREFIX_FOR_PR_PROPERTIES + SMALL_VALUE3));
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private BatchReportReader batchReportReader = mock(BatchReportReader.class);
   private AnalysisMetadataHolder analysisMetadataHolder = mock(AnalysisMetadataHolder.class);
-  private PersistAnalysisPropertiesStep underTest = new PersistAnalysisPropertiesStep(dbTester.getDbClient(), analysisMetadataHolder, batchReportReader, UuidFactoryFast.getInstance());
+  private PersistAnalysisPropertiesStep underTest = new PersistAnalysisPropertiesStep(dbTester.getDbClient(), analysisMetadataHolder, batchReportReader,
+    UuidFactoryFast.getInstance());
 
   @Test
-  public void persist_should_store_only_sonarDotAnalysis_properties() {
+  public void persist_should_stores_sonarDotAnalysisDot_and_sonarDotPullRequestDot_properties() {
     when(batchReportReader.readContextProperties()).thenReturn(CloseableIterator.from(PROPERTIES.iterator()));
     when(analysisMetadataHolder.getUuid()).thenReturn(SNAPSHOT_UUID);
-    underTest.execute();
-    assertThat(dbTester.countRowsOfTable("analysis_properties")).isEqualTo(4);
 
+    underTest.execute();
+
+    assertThat(dbTester.countRowsOfTable("analysis_properties")).isEqualTo(8);
     List<AnalysisPropertyDto> propertyDtos = dbTester.getDbClient()
       .analysisPropertiesDao().selectBySnapshotUuid(dbTester.getSession(), SNAPSHOT_UUID);
 
     assertThat(propertyDtos)
       .extracting(AnalysisPropertyDto::getSnapshotUuid, AnalysisPropertyDto::getKey, AnalysisPropertyDto::getValue)
       .containsExactlyInAnyOrder(
-        tuple(SNAPSHOT_UUID, "sonar.analysis.branch", SMALL_VALUE1),
+        tuple(SNAPSHOT_UUID, "sonar.analysis.branch", SMALL_VALUE2),
         tuple(SNAPSHOT_UUID, "sonar.analysis.empty_string", ""),
         tuple(SNAPSHOT_UUID, "sonar.analysis.big_value", BIG_VALUE),
-        tuple(SNAPSHOT_UUID, "sonar.analysis.", SMALL_VALUE2)
-      );
+        tuple(SNAPSHOT_UUID, "sonar.analysis.", SMALL_VALUE3),
+        tuple(SNAPSHOT_UUID, "sonar.pullrequest.branch", VALUE_PREFIX_FOR_PR_PROPERTIES + SMALL_VALUE2),
+        tuple(SNAPSHOT_UUID, "sonar.pullrequest.empty_string", ""),
+        tuple(SNAPSHOT_UUID, "sonar.pullrequest.big_value", VALUE_PREFIX_FOR_PR_PROPERTIES + BIG_VALUE),
+        tuple(SNAPSHOT_UUID, "sonar.pullrequest.", VALUE_PREFIX_FOR_PR_PROPERTIES + SMALL_VALUE3));
   }
 
   @Test
-  public void persist_should_not_store_anything_if_there_is_no_sonarDotAnalysis_properties() {
+  public void persist_filtering_of_properties_is_case_sensitive() {
+    when(batchReportReader.readContextProperties()).thenReturn(CloseableIterator.from(ImmutableList.of(
+      newContextProperty("sonar.ANALYSIS.foo", "foo"),
+      newContextProperty("sonar.anaLysis.bar", "bar"),
+      newContextProperty("sonar.anaLYSIS.doo", "doh"),
+      newContextProperty("sonar.PULLREQUEST.foo", "foo"),
+      newContextProperty("sonar.pullRequest.bar", "bar"),
+      newContextProperty("sonar.pullREQUEST.doo", "doh")).iterator()));
+    when(analysisMetadataHolder.getUuid()).thenReturn(SNAPSHOT_UUID);
+
+    underTest.execute();
+
+    assertThat(dbTester.countRowsOfTable("analysis_properties")).isEqualTo(0);
+  }
+
+  @Test
+  public void persist_should_not_store_anything_if_there_is_no_context_properties() {
     when(batchReportReader.readContextProperties()).thenReturn(CloseableIterator.emptyCloseableIterator());
     when(analysisMetadataHolder.getUuid()).thenReturn(SNAPSHOT_UUID);
 
