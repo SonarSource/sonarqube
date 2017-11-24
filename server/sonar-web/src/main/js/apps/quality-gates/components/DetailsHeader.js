@@ -43,8 +43,8 @@ export default class DetailsHeader extends React.PureComponent {
   };
 
   render() {
-    const { qualityGate, edit } = this.props;
-
+    const { qualityGate } = this.props;
+    const actions = qualityGate.actions || {};
     return (
       <div className="layout-page-header-panel layout-page-main-header issues-main-header">
         <div className="layout-page-header-panel-inner layout-page-main-header-inner">
@@ -53,17 +53,22 @@ export default class DetailsHeader extends React.PureComponent {
               {qualityGate.name}
               {qualityGate.isBuiltIn && <BuiltInBadge className="spacer-left" tooltip={true} />}
             </h2>
-            {edit && (
-              <div className="pull-right">
+
+            <div className="pull-right">
+              {actions.edit && (
                 <button id="quality-gate-rename" onClick={this.handleRenameClick}>
                   {translate('rename')}
                 </button>
+              )}
+              {actions.copy && (
                 <button
                   className="little-spacer-left"
                   id="quality-gate-copy"
                   onClick={this.handleCopyClick}>
                   {translate('copy')}
                 </button>
+              )}
+              {actions.setAsDefault && (
                 <button
                   className="little-spacer-left"
                   id="quality-gate-toggle-default"
@@ -72,14 +77,16 @@ export default class DetailsHeader extends React.PureComponent {
                     ? translate('unset_as_default')
                     : translate('set_as_default')}
                 </button>
+              )}
+              {actions.edit && (
                 <button
                   id="quality-gate-delete"
                   className="little-spacer-left button-red"
                   onClick={this.handleDeleteClick}>
                   {translate('delete')}
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
