@@ -216,7 +216,7 @@ public class QualityGateConditionsUpdaterTest {
   public void update_condition() {
     QualityGateConditionDto condition = insertCondition(coverageMetricDto.getId(), "LT", null, "80", null);
 
-    QualityGateConditionDto result = underTest.updateCondition(dbSession, condition.getId(), "coverage", "GT", "60", null, 1);
+    QualityGateConditionDto result = underTest.updateCondition(dbSession, condition, "coverage", "GT", "60", null, 1);
 
     verifyCondition(result, coverageMetricDto.getId(), "GT", "60", null, 1);
   }
@@ -225,7 +225,7 @@ public class QualityGateConditionsUpdaterTest {
   public void update_condition_over_leak_period() {
     QualityGateConditionDto condition = insertCondition(coverageMetricDto.getId(), "GT", "80", null, 1);
 
-    QualityGateConditionDto result = underTest.updateCondition(dbSession, condition.getId(), "coverage", "LT", null, "80", null);
+    QualityGateConditionDto result = underTest.updateCondition(dbSession, condition, "coverage", "LT", null, "80", null);
 
     verifyCondition(result, coverageMetricDto.getId(), "LT", null, "80", null);
   }
@@ -234,7 +234,7 @@ public class QualityGateConditionsUpdaterTest {
   public void update_condition_on_rating_metric() {
     QualityGateConditionDto condition = insertCondition(ratingMetricDto.getId(), "LT", null, "3", null);
 
-    QualityGateConditionDto result = underTest.updateCondition(dbSession, condition.getId(), ratingMetricDto.getKey(), "GT", "4", null, null);
+    QualityGateConditionDto result = underTest.updateCondition(dbSession, condition, ratingMetricDto.getKey(), "GT", "4", null, null);
 
     verifyCondition(result, ratingMetricDto.getId(), "GT", "4", null, null);
   }
@@ -245,7 +245,7 @@ public class QualityGateConditionsUpdaterTest {
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The metric 'Reliability Rating' cannot be used on the leak period");
-    underTest.updateCondition(dbSession, condition.getId(), ratingMetricDto.getKey(), "GT", "4", null, 1);
+    underTest.updateCondition(dbSession, condition, ratingMetricDto.getKey(), "GT", "4", null, 1);
   }
 
   @Test
@@ -258,7 +258,7 @@ public class QualityGateConditionsUpdaterTest {
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The metric 'Not core rating' cannot be used");
-    underTest.updateCondition(dbSession, condition.getId(), metricDto.getKey(), "GT", "4", null, 1);
+    underTest.updateCondition(dbSession, condition, metricDto.getKey(), "GT", "4", null, 1);
   }
 
   @Test
@@ -273,7 +273,7 @@ public class QualityGateConditionsUpdaterTest {
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Metric '" + metricKey + "' cannot be used to define a condition.");
-    underTest.updateCondition(dbSession, condition.getId(), metricDto.getKey(), "GT", "60", null, 1);
+    underTest.updateCondition(dbSession, condition, metricDto.getKey(), "GT", "60", null, 1);
   }
 
   @Test
@@ -284,7 +284,7 @@ public class QualityGateConditionsUpdaterTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Condition on metric 'Coverage' over leak period already exists.");
     // Update condition not on leak period to be on leak period => will fail as this condition already exist
-    underTest.updateCondition(dbSession, conditionNotOnLeakPeriod.getId(), coverageMetricDto.getKey(), "GT", "80", null, 1);
+    underTest.updateCondition(dbSession, conditionNotOnLeakPeriod, coverageMetricDto.getKey(), "GT", "80", null, 1);
   }
 
   @DataProvider
