@@ -238,8 +238,8 @@ export default class App extends React.PureComponent<Props, State> {
             <div className="layout-page-filters">
               <PageSidebar
                 facets={this.state.facets}
-                isFavorite={this.props.isFavorite}
                 onClearAll={this.handleClearAll}
+                onQueryChange={this.updateLocationQuery}
                 organization={this.props.organization}
                 query={this.state.query}
                 view={this.getView()}

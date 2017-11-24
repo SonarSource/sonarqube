@@ -15,6 +15,7 @@ exports[`renders 1`] = `
     </span>
   }
   name="Security"
+  onQueryChange={[Function]}
   property="security"
   query={Object {}}
 />

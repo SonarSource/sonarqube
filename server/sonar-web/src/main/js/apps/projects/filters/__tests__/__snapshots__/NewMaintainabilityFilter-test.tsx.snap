@@ -16,6 +16,7 @@ exports[`renders 1`] = `
     </span>
   }
   name="Maintainability"
+  onQueryChange={[Function]}
   property="new_maintainability"
   query={Object {}}
 />

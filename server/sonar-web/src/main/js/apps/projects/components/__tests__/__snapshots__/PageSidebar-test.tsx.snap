@@ -10,7 +10,7 @@ exports[`should render \`leak\` view correctly 1`] = `
     </h3>
   </div>
   <QualityGateFilter
-    isFavorite={false}
+    onQueryChange={[Function]}
     query={
       Object {
         "view": "leak",
@@ -18,8 +18,8 @@ exports[`should render \`leak\` view correctly 1`] = `
     }
   />
   <NewReliabilityFilter
-    isFavorite={false}
     key="new_reliability"
+    onQueryChange={[Function]}
     query={
       Object {
         "view": "leak",
@@ -27,8 +27,8 @@ exports[`should render \`leak\` view correctly 1`] = `
     }
   />
   <NewSecurityFilter
-    isFavorite={false}
     key="new_security"
+    onQueryChange={[Function]}
     query={
       Object {
         "view": "leak",
@@ -36,8 +36,8 @@ exports[`should render \`leak\` view correctly 1`] = `
     }
   />
   <NewMaintainabilityFilter
-    isFavorite={false}
     key="new_maintainability"
+    onQueryChange={[Function]}
     query={
       Object {
         "view": "leak",
@@ -45,8 +45,8 @@ exports[`should render \`leak\` view correctly 1`] = `
     }
   />
   <NewCoverageFilter
-    isFavorite={false}
     key="new_coverage"
+    onQueryChange={[Function]}
     query={
       Object {
         "view": "leak",
@@ -54,8 +54,8 @@ exports[`should render \`leak\` view correctly 1`] = `
     }
   />
   <NewDuplicationsFilter
-    isFavorite={false}
     key="new_duplications"
+    onQueryChange={[Function]}
     query={
       Object {
         "view": "leak",
@@ -63,8 +63,8 @@ exports[`should render \`leak\` view correctly 1`] = `
     }
   />
   <NewLinesFilter
-    isFavorite={false}
     key="new_lines"
+    onQueryChange={[Function]}
     query={
       Object {
         "view": "leak",
@@ -72,7 +72,7 @@ exports[`should render \`leak\` view correctly 1`] = `
     }
   />
   <Connect(LanguagesFilter)
-    isFavorite={false}
+    onQueryChange={[Function]}
     query={
       Object {
         "view": "leak",
@@ -80,7 +80,7 @@ exports[`should render \`leak\` view correctly 1`] = `
     }
   />
   <TagsFilter
-    isFavorite={false}
+    onQueryChange={[Function]}
     query={
       Object {
         "view": "leak",
@@ -103,7 +103,7 @@ exports[`should render correctly 1`] = `
     </h3>
   </div>
   <QualityGateFilter
-    isFavorite={true}
+    onQueryChange={[Function]}
     query={
       Object {
         "size": "3",
@@ -111,8 +111,8 @@ exports[`should render correctly 1`] = `
     }
   />
   <ReliabilityFilter
-    isFavorite={true}
     key="reliability"
+    onQueryChange={[Function]}
     query={
       Object {
         "size": "3",
@@ -120,8 +120,8 @@ exports[`should render correctly 1`] = `
     }
   />
   <SecurityFilter
-    isFavorite={true}
     key="security"
+    onQueryChange={[Function]}
     query={
       Object {
         "size": "3",
@@ -129,8 +129,8 @@ exports[`should render correctly 1`] = `
     }
   />
   <MaintainabilityFilter
-    isFavorite={true}
     key="maintainability"
+    onQueryChange={[Function]}
     query={
       Object {
         "size": "3",
@@ -138,8 +138,8 @@ exports[`should render correctly 1`] = `
     }
   />
   <CoverageFilter
-    isFavorite={true}
     key="coverage"
+    onQueryChange={[Function]}
     query={
       Object {
         "size": "3",
@@ -147,8 +147,8 @@ exports[`should render correctly 1`] = `
     }
   />
   <DuplicationsFilter
-    isFavorite={true}
     key="duplications"
+    onQueryChange={[Function]}
     query={
       Object {
         "size": "3",
@@ -156,8 +156,8 @@ exports[`should render correctly 1`] = `
     }
   />
   <SizeFilter
-    isFavorite={true}
     key="size"
+    onQueryChange={[Function]}
     query={
       Object {
         "size": "3",
@@ -166,7 +166,7 @@ exports[`should render correctly 1`] = `
     value="3"
   />
   <Connect(LanguagesFilter)
-    isFavorite={true}
+    onQueryChange={[Function]}
     query={
       Object {
         "size": "3",
@@ -174,7 +174,7 @@ exports[`should render correctly 1`] = `
     }
   />
   <TagsFilter
-    isFavorite={true}
+    onQueryChange={[Function]}
     query={
       Object {
         "size": "3",

@@ -19,17 +19,17 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { Link } from 'react-router';
-import { getFilterUrl } from './utils';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 import { Facet } from '../types';
+import { RawQuery } from '../../../helpers/query';
 
 export type Option = string | number;
 
 interface Props {
   property: string;
   className?: string;
+  onQueryChange: (change: RawQuery) => void;
   options: Option[];
   query: { [x: string]: any };
   renderOption: (option: Option, isSelected: boolean) => React.ReactNode;
@@ -38,7 +38,6 @@ interface Props {
   facet?: Facet;
   maxFacetValue?: number;
   optionClassName?: string;
-  isFavorite?: boolean;
   organization?: string;
 
   getFacetValueForOption?: (facet: Facet, option: Option) => void;
@@ -54,7 +53,7 @@ interface Props {
 export default class Filter extends React.PureComponent<Props> {
   isSelected(option: Option): boolean {
     const { value } = this.props;
-    return Array.isArray(value) ? value.includes(option) : option === value;
+    return Array.isArray(value) ? value.includes(option) : String(option) === String(value);
   }
 
   highlightUnder(option?: Option): boolean {
@@ -66,23 +65,28 @@ export default class Filter extends React.PureComponent<Props> {
     );
   }
 
-  blurOnClick = (event: React.SyntheticEvent<HTMLElement>) => event.currentTarget.blur();
+  handleClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    event.currentTarget.blur();
 
-  getPath(option: Option) {
     const { property, value } = this.props;
+    const { key: option } = event.currentTarget.dataset;
     let urlOption;
 
-    if (Array.isArray(value)) {
-      if (this.isSelected(option)) {
-        urlOption = value.length > 1 ? value.filter(val => val !== option).join(',') : null;
+    if (option) {
+      if (Array.isArray(value)) {
+        if (this.isSelected(option)) {
+          urlOption = value.length > 1 ? value.filter(val => val !== option).join(',') : null;
+        } else {
+          urlOption = value.concat(option).join(',');
+        }
       } else {
-        urlOption = value.concat(option).join(',');
+        urlOption = this.isSelected(option) ? null : option;
       }
-    } else {
-      urlOption = this.isSelected(option) ? null : option;
+
+      this.props.onQueryChange({ [property]: urlOption });
     }
-    return getFilterUrl(this.props, { [property]: urlOption });
-  }
+  };
 
   renderOptionBar(facetValue: number | undefined) {
     if (facetValue === undefined || !this.props.maxFacetValue) {
@@ -111,7 +115,6 @@ export default class Filter extends React.PureComponent<Props> {
       this.props.optionClassName
     );
 
-    const path = this.getPath(option);
     const facetValue =
       facet && getFacetValueForOption ? getFacetValueForOption(facet, option) : undefined;
 
@@ -122,12 +125,7 @@ export default class Filter extends React.PureComponent<Props> {
       option > value;
 
     return (
-      <Link
-        key={option}
-        className={className}
-        to={path}
-        data-key={option}
-        onClick={this.blurOnClick}>
+      <a className={className} data-key={option} href="#" key={option} onClick={this.handleClick}>
         <span className="facet-name">
           {this.props.renderOption(option, this.isSelected(option) || isUnderSelectedOption)}
         </span>
@@ -137,7 +135,7 @@ export default class Filter extends React.PureComponent<Props> {
             {this.renderOptionBar(facetValue)}
           </span>
         )}
-      </Link>
+      </a>
     );
   }
 

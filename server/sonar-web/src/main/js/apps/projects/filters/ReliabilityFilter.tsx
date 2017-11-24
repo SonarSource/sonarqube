@@ -22,13 +22,14 @@ import IssuesFilter from './IssuesFilter';
 import { Facet } from '../types';
 import BugIcon from '../../../components/icons-components/BugIcon';
 import { translate } from '../../../helpers/l10n';
+import { RawQuery } from '../../../helpers/query';
 
 interface Props {
   className?: string;
   facet?: Facet;
   headerDetail?: React.ReactNode;
-  isFavorite?: boolean;
   maxFacetValue?: number;
+  onQueryChange: (change: RawQuery) => void;
   organization?: string;
   query: { [x: string]: any };
   value?: any;

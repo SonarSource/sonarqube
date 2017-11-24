@@ -22,5 +22,5 @@ import { shallow } from 'enzyme';
 import NewCoverageFilter from '../NewCoverageFilter';
 
 it('renders', () => {
-  expect(shallow(<NewCoverageFilter query={{}} />)).toMatchSnapshot();
+  expect(shallow(<NewCoverageFilter onQueryChange={jest.fn()} query={{}} />)).toMatchSnapshot();
 });

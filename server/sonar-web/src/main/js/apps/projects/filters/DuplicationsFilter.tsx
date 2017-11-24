@@ -27,12 +27,13 @@ import {
 } from '../../../helpers/ratings';
 import { translate } from '../../../helpers/l10n';
 import { Facet } from '../types';
+import { RawQuery } from '../../../helpers/query';
 
 export interface Props {
   className?: string;
   facet?: Facet;
-  isFavorite?: boolean;
   maxFacetValue?: number;
+  onQueryChange: (change: RawQuery) => void;
   organization?: string;
   property?: string;
   query: { [x: string]: any };
@@ -45,13 +46,13 @@ export default function DuplicationsFilter(props: Props) {
     <Filter
       facet={props.facet}
       maxFacetValue={props.maxFacetValue}
+      onQueryChange={props.onQueryChange}
       value={props.value}
       property={property}
       className={props.className}
       options={[1, 2, 3, 4, 5, 6]}
       query={props.query}
       renderOption={renderOption}
-      isFavorite={props.isFavorite}
       organization={props.organization}
       getFacetValueForOption={getFacetValueForOption}
       highlightUnder={1}

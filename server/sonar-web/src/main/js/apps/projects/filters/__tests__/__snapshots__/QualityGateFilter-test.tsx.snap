@@ -8,6 +8,7 @@ exports[`renders 1`] = `
       name="projects.facets.quality_gate"
     />
   }
+  onQueryChange={[Function]}
   options={
     Array [
       "OK",

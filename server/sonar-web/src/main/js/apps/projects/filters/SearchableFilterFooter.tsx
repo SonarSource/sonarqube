@@ -18,12 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import { getFilterUrl } from './utils';
 import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
+import { RawQuery } from '../../../helpers/query';
 
 interface Props {
+  onQueryChange: (change: RawQuery) => void;
   property: string;
   query: { [x: string]: any };
   options: Array<{ label: string; value: string }>;
@@ -35,14 +35,9 @@ interface Props {
 }
 
 export default class SearchableFilterFooter extends React.PureComponent<Props> {
-  static contextTypes = {
-    router: PropTypes.object.isRequired
-  };
-
   handleOptionChange = ({ value }: { value: string }) => {
     const urlOptions = (this.props.query[this.props.property] || []).concat(value).join(',');
-    const path = getFilterUrl(this.props, { [this.props.property]: urlOptions });
-    this.context.router.push(path);
+    this.props.onQueryChange({ [this.props.property]: urlOptions });
   };
 
   render() {

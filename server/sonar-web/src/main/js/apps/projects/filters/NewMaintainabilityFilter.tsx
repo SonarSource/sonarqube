@@ -22,12 +22,13 @@ import CodeSmellIcon from '../../../components/icons-components/CodeSmellIcon';
 import IssuesFilter from './IssuesFilter';
 import { translate } from '../../../helpers/l10n';
 import { Facet } from '../types';
+import { RawQuery } from '../../../helpers/query';
 
 interface Props {
   className?: string;
   facet?: Facet;
-  isFavorite?: boolean;
   maxFacetValue?: number;
+  onQueryChange: (change: RawQuery) => void;
   organization?: string;
   query: { [x: string]: any };
   value?: any;

@@ -22,7 +22,7 @@ import { shallow } from 'enzyme';
 import SizeFilter from '../SizeFilter';
 
 it('renders', () => {
-  const wrapper = shallow(<SizeFilter query={{}} />);
+  const wrapper = shallow(<SizeFilter onQueryChange={jest.fn()} query={{}} />);
   expect(wrapper).toMatchSnapshot();
 
   const renderOption = wrapper.prop('renderOption');

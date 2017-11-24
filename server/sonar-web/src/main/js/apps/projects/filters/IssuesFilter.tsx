@@ -23,14 +23,15 @@ import FilterHeader from './FilterHeader';
 import Rating from '../../../components/ui/Rating';
 import { translate } from '../../../helpers/l10n';
 import { Facet } from '../types';
+import { RawQuery } from '../../../helpers/query';
 
 interface Props {
   className?: string;
   facet?: Facet;
   headerDetail?: React.ReactNode;
-  isFavorite?: boolean;
   maxFacetValue?: number;
   name: string;
+  onQueryChange: (change: RawQuery) => void;
   organization?: string;
   property: string;
   query: { [x: string]: any };
@@ -42,13 +43,13 @@ export default function IssuesFilter(props: Props) {
     <Filter
       facet={props.facet}
       maxFacetValue={props.maxFacetValue}
+      onQueryChange={props.onQueryChange}
       value={props.value}
       property={props.property}
       className={props.className}
       options={[1, 2, 3, 4, 5]}
       query={props.query}
       renderOption={renderOption}
-      isFavorite={props.isFavorite}
       organization={props.organization}
       getFacetValueForOption={getFacetValueForOption}
       highlightUnder={1}

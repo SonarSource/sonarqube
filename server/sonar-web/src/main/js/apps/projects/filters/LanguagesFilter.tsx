@@ -26,12 +26,13 @@ import SearchableFilterOption from './SearchableFilterOption';
 import { getLanguageByKey, Languages } from '../../../store/languages/reducer';
 import { translate } from '../../../helpers/l10n';
 import { Facet } from '../types';
+import { RawQuery } from '../../../helpers/query';
 
 interface Props {
   facet?: Facet;
-  isFavorite?: boolean;
   languages: Languages;
   maxFacetValue?: number;
+  onQueryChange: (change: RawQuery) => void;
   organization?: string;
   property?: string;
   query: { [x: string]: any };
@@ -68,6 +69,7 @@ export default class LanguagesFilter extends React.Component<Props> {
 
     return (
       <Filter
+        onQueryChange={this.props.onQueryChange}
         property={property}
         options={this.getSortedOptions(this.props.facet)}
         query={this.props.query}
@@ -75,13 +77,12 @@ export default class LanguagesFilter extends React.Component<Props> {
         value={this.props.value}
         facet={this.props.facet}
         maxFacetValue={this.props.maxFacetValue}
-        isFavorite={this.props.isFavorite}
         organization={this.props.organization}
         getFacetValueForOption={this.getFacetValueForOption}
         header={<FilterHeader name={translate('projects.facets.languages')} />}
         footer={
           <SearchableFilterFooter
-            isFavorite={this.props.isFavorite}
+            onQueryChange={this.props.onQueryChange}
             organization={this.props.organization}
             options={this.getSearchOptions()}
             property={property}

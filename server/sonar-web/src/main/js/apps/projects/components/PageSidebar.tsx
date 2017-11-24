@@ -41,8 +41,8 @@ import ClearAll from './ClearAll';
 
 interface Props {
   facets?: Facets;
-  getFilterUrl: (change: RawQuery | 'clear') => { pathname: string; query?: RawQuery };
   onClearAll: () => void;
+  onQueryChange: (change: RawQuery) => void;
   organization?: string;
   query: RawQuery;
   view: string;
@@ -50,13 +50,13 @@ interface Props {
 }
 
 export default function PageSidebar(props: Props) {
-  const { facets, getFilterUrl, query, organization, view, visualization } = props;
+  const { facets, onQueryChange, query, organization, view, visualization } = props;
   const isFiltered = Object.keys(query)
     .filter(key => !['view', 'visualization', 'sort'].includes(key))
     .some(key => query[key] != null);
   const isLeakView = view === 'leak';
   const maxFacetValue = getMaxFacetValue(facets);
-  const facetProps = { getFilterUrl, maxFacetValue, organization, query };
+  const facetProps = { onQueryChange, maxFacetValue, organization, query };
 
   let linkQuery: RawQuery | undefined = undefined;
   if (view !== 'overall') {

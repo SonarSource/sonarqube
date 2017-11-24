@@ -22,5 +22,5 @@ import { shallow } from 'enzyme';
 import MaintainabilityFilter from '../MaintainabilityFilter';
 
 it('renders', () => {
-  expect(shallow(<MaintainabilityFilter query={{}} />)).toMatchSnapshot();
+  expect(shallow(<MaintainabilityFilter onQueryChange={jest.fn()} query={{}} />)).toMatchSnapshot();
 });

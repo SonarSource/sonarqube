@@ -20,15 +20,16 @@
 import * as React from 'react';
 import Filter from './Filter';
 import FilterHeader from './FilterHeader';
+import { Facet } from '../types';
 import Level from '../../../components/ui/Level';
 import { translate } from '../../../helpers/l10n';
-import { Facet } from '../types';
+import { RawQuery } from '../../../helpers/query';
 
 export interface Props {
   className?: string;
   facet?: Facet;
-  isFavorite?: boolean;
   maxFacetValue?: number;
+  onQueryChange: (change: RawQuery) => void;
   organization?: string;
   query: { [x: string]: any };
   value?: any;
@@ -39,12 +40,12 @@ export default function QualityGateFilter(props: Props) {
     <Filter
       facet={props.facet}
       maxFacetValue={props.maxFacetValue}
+      onQueryChange={props.onQueryChange}
       value={props.value}
       property="gate"
       options={['OK', 'WARN', 'ERROR']}
       query={props.query}
       renderOption={renderOption}
-      isFavorite={props.isFavorite}
       organization={props.organization}
       getFacetValueForOption={getFacetValueForOption}
       header={<FilterHeader name={translate('projects.facets.quality_gate')} />}

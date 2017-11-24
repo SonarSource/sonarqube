@@ -8,75 +8,48 @@ exports[`highlights under 1`] = `
   <div
     className="search-navigator-facet-list projects-facet-list"
   >
-    <Link
+    <a
       className="facet search-navigator-facet projects-facet"
       data-key={1}
+      href="#"
       key="1"
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/projects",
-          "query": Object {
-            "foo": 1,
-          },
-        }
-      }
     >
       <span
         className="facet-name"
       >
         1
       </span>
-    </Link>
+    </a>
     <div
       className="search-navigator-facet-highlight-under-container"
     >
-      <Link
+      <a
         className="facet search-navigator-facet projects-facet"
         data-key={2}
+        href="#"
         key="2"
         onClick={[Function]}
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to={
-          Object {
-            "pathname": "/projects",
-            "query": Object {
-              "foo": 2,
-            },
-          }
-        }
       >
         <span
           className="facet-name"
         >
           2
         </span>
-      </Link>
-      <Link
+      </a>
+      <a
         className="facet search-navigator-facet projects-facet"
         data-key={3}
+        href="#"
         key="3"
         onClick={[Function]}
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to={
-          Object {
-            "pathname": "/projects",
-            "query": Object {
-              "foo": 3,
-            },
-          }
-        }
       >
         <span
           className="facet-name"
         >
           3
         </span>
-      </Link>
+      </a>
     </div>
   </div>
 </div>
@@ -90,73 +63,48 @@ exports[`hightlights under selected 1`] = `
   <div
     className="search-navigator-facet-list projects-facet-list"
   >
-    <Link
+    <a
       className="facet search-navigator-facet projects-facet"
       data-key={1}
+      href="#"
       key="1"
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/projects",
-          "query": Object {
-            "foo": 1,
-          },
-        }
-      }
     >
       <span
         className="facet-name"
       >
         1
       </span>
-    </Link>
+    </a>
     <div
       className="search-navigator-facet-highlight-under-container"
     >
-      <Link
+      <a
         className="facet search-navigator-facet projects-facet active"
         data-key={2}
+        href="#"
         key="2"
         onClick={[Function]}
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to={
-          Object {
-            "pathname": "/projects",
-            "query": Object {},
-          }
-        }
       >
         <span
           className="facet-name"
         >
           2
         </span>
-      </Link>
-      <Link
+      </a>
+      <a
         className="facet search-navigator-facet projects-facet"
         data-key={3}
+        href="#"
         key="3"
         onClick={[Function]}
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to={
-          Object {
-            "pathname": "/projects",
-            "query": Object {
-              "foo": 3,
-            },
-          }
-        }
       >
         <span
           className="facet-name"
         >
           3
         </span>
-      </Link>
+      </a>
     </div>
   </div>
 </div>
@@ -170,72 +118,45 @@ exports[`renders 1`] = `
   <div
     className="search-navigator-facet-list projects-facet-list"
   >
-    <Link
+    <a
       className="facet search-navigator-facet projects-facet"
       data-key={1}
+      href="#"
       key="1"
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/projects",
-          "query": Object {
-            "foo": 1,
-          },
-        }
-      }
     >
       <span
         className="facet-name"
       >
         1
       </span>
-    </Link>
-    <Link
+    </a>
+    <a
       className="facet search-navigator-facet projects-facet"
       data-key={2}
+      href="#"
       key="2"
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/projects",
-          "query": Object {
-            "foo": 2,
-          },
-        }
-      }
     >
       <span
         className="facet-name"
       >
         2
       </span>
-    </Link>
-    <Link
+    </a>
+    <a
       className="facet search-navigator-facet projects-facet"
       data-key={3}
+      href="#"
       key="3"
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/projects",
-          "query": Object {
-            "foo": 3,
-          },
-        }
-      }
     >
       <span
         className="facet-name"
       >
         3
       </span>
-    </Link>
+    </a>
   </div>
 </div>
 `;
@@ -248,21 +169,12 @@ exports[`renders facet bar chart 1`] = `
   <div
     className="search-navigator-facet-list projects-facet-list"
   >
-    <Link
+    <a
       className="facet search-navigator-facet projects-facet"
       data-key="a"
+      href="#"
       key="a"
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/projects",
-          "query": Object {
-            "foo": "a",
-          },
-        }
-      }
     >
       <span
         className="facet-name"
@@ -286,22 +198,13 @@ exports[`renders facet bar chart 1`] = `
           />
         </div>
       </span>
-    </Link>
-    <Link
+    </a>
+    <a
       className="facet search-navigator-facet projects-facet"
       data-key="b"
+      href="#"
       key="b"
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/projects",
-          "query": Object {
-            "foo": "b",
-          },
-        }
-      }
     >
       <span
         className="facet-name"
@@ -325,22 +228,13 @@ exports[`renders facet bar chart 1`] = `
           />
         </div>
       </span>
-    </Link>
-    <Link
+    </a>
+    <a
       className="facet search-navigator-facet projects-facet"
       data-key="c"
+      href="#"
       key="c"
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/projects",
-          "query": Object {
-            "foo": "c",
-          },
-        }
-      }
     >
       <span
         className="facet-name"
@@ -364,7 +258,7 @@ exports[`renders facet bar chart 1`] = `
           />
         </div>
       </span>
-    </Link>
+    </a>
   </div>
 </div>
 `;
@@ -378,72 +272,45 @@ exports[`renders header and footer 1`] = `
   <div
     className="search-navigator-facet-list projects-facet-list"
   >
-    <Link
+    <a
       className="facet search-navigator-facet projects-facet"
       data-key={1}
+      href="#"
       key="1"
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/projects",
-          "query": Object {
-            "foo": 1,
-          },
-        }
-      }
     >
       <span
         className="facet-name"
       >
         1
       </span>
-    </Link>
-    <Link
+    </a>
+    <a
       className="facet search-navigator-facet projects-facet"
       data-key={2}
+      href="#"
       key="2"
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/projects",
-          "query": Object {
-            "foo": 2,
-          },
-        }
-      }
     >
       <span
         className="facet-name"
       >
         2
       </span>
-    </Link>
-    <Link
+    </a>
+    <a
       className="facet search-navigator-facet projects-facet"
       data-key={3}
+      href="#"
       key="3"
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/projects",
-          "query": Object {
-            "foo": 3,
-          },
-        }
-      }
     >
       <span
         className="facet-name"
       >
         3
       </span>
-    </Link>
+    </a>
   </div>
   <footer />
 </div>
@@ -457,72 +324,45 @@ exports[`renders multiple selected 1`] = `
   <div
     className="search-navigator-facet-list projects-facet-list"
   >
-    <Link
+    <a
       className="facet search-navigator-facet projects-facet active"
       data-key={1}
+      href="#"
       key="1"
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/projects",
-          "query": Object {
-            "foo": "2",
-          },
-        }
-      }
     >
       <span
         className="facet-name"
       >
         1
       </span>
-    </Link>
-    <Link
+    </a>
+    <a
       className="facet search-navigator-facet projects-facet active"
       data-key={2}
+      href="#"
       key="2"
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/projects",
-          "query": Object {
-            "foo": "1",
-          },
-        }
-      }
     >
       <span
         className="facet-name"
       >
         2
       </span>
-    </Link>
-    <Link
+    </a>
+    <a
       className="facet search-navigator-facet projects-facet"
       data-key={3}
+      href="#"
       key="3"
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/projects",
-          "query": Object {
-            "foo": "1,2,3",
-          },
-        }
-      }
     >
       <span
         className="facet-name"
       >
         3
       </span>
-    </Link>
+    </a>
   </div>
 </div>
 `;
@@ -548,70 +388,45 @@ exports[`renders selected 1`] = `
   <div
     className="search-navigator-facet-list projects-facet-list"
   >
-    <Link
+    <a
       className="facet search-navigator-facet projects-facet"
       data-key={1}
+      href="#"
       key="1"
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/projects",
-          "query": Object {
-            "foo": 1,
-          },
-        }
-      }
     >
       <span
         className="facet-name"
       >
         1
       </span>
-    </Link>
-    <Link
+    </a>
+    <a
       className="facet search-navigator-facet projects-facet active"
       data-key={2}
+      href="#"
       key="2"
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/projects",
-          "query": Object {},
-        }
-      }
     >
       <span
         className="facet-name"
       >
         2
       </span>
-    </Link>
-    <Link
+    </a>
+    <a
       className="facet search-navigator-facet projects-facet"
       data-key={3}
+      href="#"
       key="3"
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/projects",
-          "query": Object {
-            "foo": 3,
-          },
-        }
-      }
     >
       <span
         className="facet-name"
       >
         3
       </span>
-    </Link>
+    </a>
   </div>
 </div>
 `;

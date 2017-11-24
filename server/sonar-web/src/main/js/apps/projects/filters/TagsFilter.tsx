@@ -26,11 +26,12 @@ import SearchableFilterOption from './SearchableFilterOption';
 import { searchProjectTags } from '../../../api/components';
 import { translate } from '../../../helpers/l10n';
 import { Facet } from '../types';
+import { RawQuery } from '../../../helpers/query';
 
 interface Props {
   facet?: Facet;
-  isFavorite?: boolean;
   maxFacetValue?: number;
+  onQueryChange: (change: RawQuery) => void;
   organization?: string;
   property?: string;
   query: { [x: string]: any };
@@ -101,6 +102,7 @@ export default class TagsFilter extends React.PureComponent<Props, State> {
 
     return (
       <Filter
+        onQueryChange={this.props.onQueryChange}
         property={property}
         options={this.getSortedOptions(this.props.facet)}
         query={this.props.query}
@@ -108,13 +110,12 @@ export default class TagsFilter extends React.PureComponent<Props, State> {
         value={this.props.value}
         facet={this.props.facet}
         maxFacetValue={this.props.maxFacetValue}
-        isFavorite={this.props.isFavorite}
         organization={this.props.organization}
         getFacetValueForOption={this.getFacetValueForOption}
         header={<FilterHeader name={translate('projects.facets.tags')} />}
         footer={
           <SearchableFilterFooter
-            isFavorite={this.props.isFavorite}
+            onQueryChange={this.props.onQueryChange}
             isLoading={this.state.isLoading}
             onInputChange={this.handleSearch}
             onOpen={this.handleSearch}

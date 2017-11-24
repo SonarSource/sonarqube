@@ -24,8 +24,8 @@ import PageSidebar from '../PageSidebar';
 it('should render correctly', () => {
   const sidebar = shallow(
     <PageSidebar
-      getFilterUrl={jest.fn()}
       onClearAll={jest.fn()}
+      onQueryChange={jest.fn()}
       query={{ size: '3' }}
       view="overall"
       visualization="risk"
@@ -37,8 +37,8 @@ it('should render correctly', () => {
 it('should render `leak` view correctly', () => {
   const sidebar = shallow(
     <PageSidebar
-      getFilterUrl={jest.fn()}
       onClearAll={jest.fn()}
+      onQueryChange={jest.fn()}
       query={{ view: 'leak' }}
       view="leak"
       visualization="risk"
@@ -50,8 +50,8 @@ it('should render `leak` view correctly', () => {
 it('reset function should work correctly with view and visualizations', () => {
   const sidebar = shallow(
     <PageSidebar
-      getFilterUrl={jest.fn()}
       onClearAll={jest.fn()}
+      onQueryChange={jest.fn()}
       query={{ view: 'visualizations', visualization: 'bugs' }}
       view="visualizations"
       visualization="bugs"
