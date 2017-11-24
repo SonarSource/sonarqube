@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.users;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Update a user. If a deactivated user account exists with the given login, it will be reactivated. Requires Administer System permission
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/users/update">Further information about this action online (including a response example)</a>
@@ -39,8 +38,6 @@ public class UpdateRequest {
   private String scmAccounts;
 
   /**
-   * User email
-   *
    * Example value: "myname@email.com"
    */
   public UpdateRequest setEmail(String email) {
@@ -53,8 +50,6 @@ public class UpdateRequest {
   }
 
   /**
-   * User login
-   *
    * This is a mandatory parameter.
    * Example value: "myuser"
    */
@@ -68,8 +63,6 @@ public class UpdateRequest {
   }
 
   /**
-   * User name
-   *
    * Example value: "My Name"
    */
   public UpdateRequest setName(String name) {
@@ -82,8 +75,6 @@ public class UpdateRequest {
   }
 
   /**
-   * SCM accounts. To set several values, the parameter must be called once for each value.
-   *
    * Example value: "scmAccount=firstValue&scmAccount=secondValue&scmAccount=thirdValue"
    */
   public UpdateRequest setScmAccount(String scmAccount) {
@@ -96,8 +87,6 @@ public class UpdateRequest {
   }
 
   /**
-   * This parameter is deprecated, please use 'scmAccount' instead
-   *
    * Example value: "myscmaccount1,myscmaccount2"
    * @deprecated since 6.1
    */

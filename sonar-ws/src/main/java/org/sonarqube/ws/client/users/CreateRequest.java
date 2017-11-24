@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.users;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Create a user.<br/>If a deactivated user account exists with the given login, it will be reactivated.<br/>Requires Administer System permission
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/users/create">Further information about this action online (including a response example)</a>
@@ -41,8 +40,6 @@ public class CreateRequest {
   private String scmAccounts;
 
   /**
-   * User email
-   *
    * Example value: "myname@email.com"
    */
   public CreateRequest setEmail(String email) {
@@ -55,8 +52,6 @@ public class CreateRequest {
   }
 
   /**
-   * Specify if the user should be authenticated from SonarQube server or from an external authentication system. Password should not be set when local is set to false.
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -75,8 +70,6 @@ public class CreateRequest {
   }
 
   /**
-   * User login
-   *
    * This is a mandatory parameter.
    * Example value: "myuser"
    */
@@ -90,8 +83,6 @@ public class CreateRequest {
   }
 
   /**
-   * User name
-   *
    * This is a mandatory parameter.
    * Example value: "My Name"
    */
@@ -105,8 +96,6 @@ public class CreateRequest {
   }
 
   /**
-   * User password. Only mandatory when creating local user, otherwise it should not be set
-   *
    * Example value: "mypassword"
    */
   public CreateRequest setPassword(String password) {
@@ -119,8 +108,6 @@ public class CreateRequest {
   }
 
   /**
-   * SCM accounts. To set several values, the parameter must be called once for each value.
-   *
    * Example value: "scmAccount=firstValue&scmAccount=secondValue&scmAccount=thirdValue"
    */
   public CreateRequest setScmAccount(String scmAccount) {
@@ -133,8 +120,6 @@ public class CreateRequest {
   }
 
   /**
-   * This parameter is deprecated, please use 'scmAccount' instead
-   *
    * Example value: "myscmaccount1,myscmaccount2"
    * @deprecated since 6.1
    */

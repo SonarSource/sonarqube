@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.projectlinks;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Create a new project link.<br>Requires 'Administer' permission on the specified project, or global 'Administer' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_links/create">Further information about this action online (including a response example)</a>
@@ -38,8 +37,6 @@ public class CreateRequest {
   private String url;
 
   /**
-   * Link name
-   *
    * This is a mandatory parameter.
    * Example value: "Custom"
    */
@@ -53,8 +50,6 @@ public class CreateRequest {
   }
 
   /**
-   * Project id
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
   public CreateRequest setProjectId(String projectId) {
@@ -67,8 +62,6 @@ public class CreateRequest {
   }
 
   /**
-   * Project key
-   *
    * Example value: "my_project"
    */
   public CreateRequest setProjectKey(String projectKey) {
@@ -81,8 +74,6 @@ public class CreateRequest {
   }
 
   /**
-   * Link url
-   *
    * This is a mandatory parameter.
    * Example value: "http://example.com"
    */

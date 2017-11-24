@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.projectbranches;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * List the branches of a project.<br/>Requires 'Administer' rights on the specified project.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_branches/list">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class ListRequest {
   private String project;
 
   /**
-   * Project key
-   *
    * This is a mandatory parameter.
    * Example value: "my_project"
    */

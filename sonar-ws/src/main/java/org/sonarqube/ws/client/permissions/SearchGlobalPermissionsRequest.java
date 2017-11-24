@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.permissions;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * List global permissions. <br />Requires the following permission: 'Administer System'
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions/search_global_permissions">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class SearchGlobalPermissionsRequest {
   private String organization;
 
   /**
-   * Key of organization, used when group name is set
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */

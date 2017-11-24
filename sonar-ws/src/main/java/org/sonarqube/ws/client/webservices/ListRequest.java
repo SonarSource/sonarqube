@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.webservices;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * List web services
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/webservices/list">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class ListRequest {
   private String includeInternals;
 
   /**
-   * Include web services that are implemented for internal use only. Their forward-compatibility is not assured
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>

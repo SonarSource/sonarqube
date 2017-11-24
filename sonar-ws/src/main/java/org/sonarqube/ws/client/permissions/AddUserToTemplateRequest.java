@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.permissions;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Add a user to a permission template.<br /> Requires the following permission: 'Administer System'.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions/add_user_to_template">Further information about this action online (including a response example)</a>
@@ -39,8 +38,6 @@ public class AddUserToTemplateRequest {
   private String templateName;
 
   /**
-   * User login
-   *
    * This is a mandatory parameter.
    * Example value: "g.hopper"
    */
@@ -54,8 +51,6 @@ public class AddUserToTemplateRequest {
   }
 
   /**
-   * Key of organization, used when group name is set
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -69,8 +64,6 @@ public class AddUserToTemplateRequest {
   }
 
   /**
-   * Permission<ul><li>Possible values for project permissions admin, codeviewer, issueadmin, scan, user</li></ul>
-   *
    * This is a mandatory parameter.
    * Possible values:
    * <ul>
@@ -91,8 +84,6 @@ public class AddUserToTemplateRequest {
   }
 
   /**
-   * Template id
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
   public AddUserToTemplateRequest setTemplateId(String templateId) {
@@ -105,8 +96,6 @@ public class AddUserToTemplateRequest {
   }
 
   /**
-   * Template name
-   *
    * Example value: "Default Permission Template for Projects"
    */
   public AddUserToTemplateRequest setTemplateName(String templateName) {

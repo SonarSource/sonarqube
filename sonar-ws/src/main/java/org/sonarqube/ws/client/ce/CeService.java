@@ -35,7 +35,6 @@ import org.sonarqube.ws.Ce.TaskTypesWsResponse;
 import org.sonarqube.ws.Ce.WorkerCountResponse;
 
 /**
- * Get information on Compute Engine tasks.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -46,7 +45,6 @@ public class CeService extends BaseService {
   }
 
   /**
-   * Search for tasks.<br> Requires the system administration permission, or project administration permission if componentId is set.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -70,7 +68,6 @@ public class CeService extends BaseService {
   }
 
   /**
-   * Return CE activity related metrics.<br>Requires 'Administer System' permission or 'Administer' rights on the specified project.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -86,7 +83,6 @@ public class CeService extends BaseService {
   }
 
   /**
-   * Cancels a pending task.<br/>In-progress tasks cannot be canceled.<br/>Requires one of the following permissions:<ul><li>'Administer System'</li><li>'Administer' rights on the project related to the task</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -102,7 +98,6 @@ public class CeService extends BaseService {
   }
 
   /**
-   * Cancels all pending tasks. Requires system administration permission. In-progress tasks are not canceled.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -117,7 +112,6 @@ public class CeService extends BaseService {
   }
 
   /**
-   * Get the pending tasks, in-progress tasks and the last executed task of a given component (usually a project).<br>Requires the following permission: 'Browse' on the specified component.<br>Either 'componentId' or 'component' must be provided.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -133,7 +127,6 @@ public class CeService extends BaseService {
   }
 
   /**
-   * Submits a scanner report to the queue. Report is processed asynchronously. Requires analysis permission. If the project does not exist, then the provisioning permission is also required.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -153,7 +146,6 @@ public class CeService extends BaseService {
   }
 
   /**
-   * Give Compute Engine task details such as type, status, duration and associated component.<br />Requires 'Administer System' or 'Execute Analysis' permission.<br/>Since 6.1, field "logs" is deprecated and its value is always false.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -169,7 +161,6 @@ public class CeService extends BaseService {
   }
 
   /**
-   * List available task types
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -183,7 +174,6 @@ public class CeService extends BaseService {
   }
 
   /**
-   * Return number of Compute Engine workers.<br/>Requires the system administration permission
    *
    * This is part of the internal API.
    * This is a GET request.

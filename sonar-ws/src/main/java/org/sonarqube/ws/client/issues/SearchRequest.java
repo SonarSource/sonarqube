@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Search for issues.<br>At most one of the following parameters can be provided at the same time: componentKeys, componentUuids, components, componentRootUuids, componentRoots.<br>Requires the 'Browse' permission on the specified project(s).
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/search">Further information about this action online (including a response example)</a>
@@ -72,8 +70,6 @@ public class SearchRequest {
   private List<String> types;
 
   /**
-   * Comma-separated list of the optional fields to be returned in response. Action plans are dropped in 5.5, it is not returned in the response.
-   *
    * Possible values:
    * <ul>
    *   <li>"_all"</li>
@@ -96,8 +92,6 @@ public class SearchRequest {
   }
 
   /**
-   * Ascending sort
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -116,8 +110,6 @@ public class SearchRequest {
   }
 
   /**
-   * To retrieve assigned or unassigned issues
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -136,8 +128,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of assignee logins. The value '__me__' can be used as a placeholder for user who performs the request
-   *
    * Example value: "admin,usera,__me__"
    */
   public SearchRequest setAssignees(List<String> assignees) {
@@ -150,8 +140,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of SCM accounts
-   *
    * Example value: "torvalds@linux-foundation.org"
    */
   public SearchRequest setAuthors(List<String> authors) {
@@ -164,8 +152,6 @@ public class SearchRequest {
   }
 
   /**
-   * Branch key
-   *
    * This is part of the internal API.
    * Example value: "feature/my_branch"
    */
@@ -179,8 +165,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of component keys. Retrieve issues associated to a specific list of components (and all its descendants). A component can be a portfolio, project, module, directory or file.
-   *
    * Example value: "my_project"
    */
   public SearchRequest setComponentKeys(List<String> componentKeys) {
@@ -193,8 +177,6 @@ public class SearchRequest {
   }
 
   /**
-   * If used, will have the same meaning as componentUuids AND onComponentOnly=false.
-   *
    * @deprecated since 5.1
    */
   @Deprecated
@@ -208,8 +190,6 @@ public class SearchRequest {
   }
 
   /**
-   * If used, will have the same meaning as componentKeys AND onComponentOnly=false.
-   *
    * @deprecated since 5.1
    */
   @Deprecated
@@ -223,8 +203,6 @@ public class SearchRequest {
   }
 
   /**
-   * To retrieve issues associated to a specific list of components their sub-components (comma-separated list of component IDs). This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. A component can be a project, module, directory or file.
-   *
    * Example value: "584a89f2-8037-4f7b-b82c-8b45d2d63fb2"
    * @deprecated since 6.5
    */
@@ -239,8 +217,6 @@ public class SearchRequest {
   }
 
   /**
-   * If used, will have the same meaning as componentKeys AND onComponentOnly=true.
-   *
    * @deprecated since 5.1
    */
   @Deprecated
@@ -254,8 +230,6 @@ public class SearchRequest {
   }
 
   /**
-   * To retrieve issues created after the given date (inclusive). <br>Either a date (server timezone) or datetime can be provided. <br>If this parameter is set, createdSince must not be set
-   *
    * Example value: "2017-10-19 or 2017-10-19T13:00:00+0200"
    */
   public SearchRequest setCreatedAfter(String createdAfter) {
@@ -268,8 +242,6 @@ public class SearchRequest {
   }
 
   /**
-   * Datetime to retrieve issues created during a specific analysis
-   *
    * Example value: "2017-10-19T13:00:00+0200"
    */
   public SearchRequest setCreatedAt(String createdAt) {
@@ -282,8 +254,6 @@ public class SearchRequest {
   }
 
   /**
-   * To retrieve issues created before the given date (inclusive). <br>Either a date (server timezone) or datetime can be provided.
-   *
    * Example value: "2017-10-19 or 2017-10-19T13:00:00+0200"
    */
   public SearchRequest setCreatedBefore(String createdBefore) {
@@ -296,8 +266,6 @@ public class SearchRequest {
   }
 
   /**
-   * To retrieve issues created during a time span before the current time (exclusive). Accepted units are 'y' for year, 'm' for month, 'w' for week and 'd' for day. If this parameter is set, createdAfter must not be set
-   *
    * Example value: "1m2w (1 month 2 weeks)"
    */
   public SearchRequest setCreatedInLast(String createdInLast) {
@@ -310,8 +278,6 @@ public class SearchRequest {
   }
 
   /**
-   * To retrieve issues associated to a specific list of directories (comma-separated list of directory paths). This parameter is only meaningful when a module is selected. This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. 
-   *
    * This is part of the internal API.
    * Example value: "src/main/java/org/sonar/server/"
    */
@@ -325,8 +291,6 @@ public class SearchRequest {
   }
 
   /**
-   * Choose the returned value for facet items, either count of issues or sum of debt.<br/>Since 5.5, 'debt' mode is deprecated and replaced by 'effort'
-   *
    * Possible values:
    * <ul>
    *   <li>"count"</li>
@@ -344,8 +308,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of the facets to be computed. No facet is computed by default.<br/>Since 5.5, facet 'actionPlans' is deprecated.<br/>Since 5.5, facet 'reporters' is deprecated.
-   *
    * Possible values:
    * <ul>
    *   <li>"severities"</li>
@@ -377,8 +339,6 @@ public class SearchRequest {
   }
 
   /**
-   * To retrieve issues associated to a specific list of files (comma-separated list of file IDs). This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. 
-   *
    * This is part of the internal API.
    * Example value: "bdd82933-3070-4903-9188-7d8749e8bb92"
    */
@@ -392,8 +352,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of issue keys
-   *
    * Example value: "5bccd6e8-f525-43a2-8d76-fcb13dde79ef"
    */
   public SearchRequest setIssues(List<String> issues) {
@@ -406,8 +364,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of languages. Available since 4.4
-   *
    * Example value: "java,js"
    */
   public SearchRequest setLanguages(List<String> languages) {
@@ -420,8 +376,6 @@ public class SearchRequest {
   }
 
   /**
-   * To retrieve issues associated to a specific list of modules (comma-separated list of module IDs). This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. 
-   *
    * This is part of the internal API.
    * Example value: "7d8749e8-3070-4903-9188-bdd82933bb92"
    */
@@ -435,8 +389,6 @@ public class SearchRequest {
   }
 
   /**
-   * Return only issues at a component's level, not on its descendants (modules, directories, files, etc). This parameter is only considered when componentKeys or componentUuids is set. Using the deprecated componentRoots or componentRootUuids parameters will set this parameter to false. Using the deprecated components parameter will set this parameter to true.
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -455,8 +407,6 @@ public class SearchRequest {
   }
 
   /**
-   * Organization key
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -470,8 +420,6 @@ public class SearchRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public SearchRequest setP(String p) {
@@ -484,8 +432,6 @@ public class SearchRequest {
   }
 
   /**
-   * To retrieve issues associated to a specific list of projects (comma-separated list of project IDs). This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. Portfolios are not supported. If this parameter is set, 'projects' must not be set.
-   *
    * This is part of the internal API.
    * Example value: "7d8749e8-3070-4903-9188-bdd82933bb92"
    */
@@ -499,8 +445,6 @@ public class SearchRequest {
   }
 
   /**
-   * To retrieve issues associated to a specific list of projects (comma-separated list of project keys). This parameter is mostly used by the Issues page, please prefer usage of the componentKeys parameter. If this parameter is set, projectUuids must not be set.
-   *
    * This is part of the internal API.
    * Example value: "my_project"
    */
@@ -514,8 +458,6 @@ public class SearchRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 500
-   *
    * Example value: "20"
    */
   public SearchRequest setPs(String ps) {
@@ -528,8 +470,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of resolutions
-   *
    * Example value: "FIXED,REMOVED"
    * Possible values:
    * <ul>
@@ -549,8 +489,6 @@ public class SearchRequest {
   }
 
   /**
-   * To match resolved or unresolved issues
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -569,8 +507,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of coding rule keys. Format is &lt;repository&gt;:&lt;rule&gt;
-   *
    * Example value: "squid:AvoidCycles"
    */
   public SearchRequest setRules(List<String> rules) {
@@ -583,8 +519,6 @@ public class SearchRequest {
   }
 
   /**
-   * Sort field
-   *
    * Possible values:
    * <ul>
    *   <li>"CREATION_DATE"</li>
@@ -606,8 +540,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of severities
-   *
    * Example value: "BLOCKER,CRITICAL"
    * Possible values:
    * <ul>
@@ -628,8 +560,6 @@ public class SearchRequest {
   }
 
   /**
-   * To retrieve issues created since the leak period.<br>If this parameter is set to a truthy value, createdAfter must not be set and one component id or key must be provided.
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -648,8 +578,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of statuses
-   *
    * Example value: "OPEN,REOPENED"
    * Possible values:
    * <ul>
@@ -670,8 +598,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of tags.
-   *
    * Example value: "security,convention"
    */
   public SearchRequest setTags(List<String> tags) {
@@ -684,8 +610,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of types.
-   *
    * Example value: "CODE_SMELL,BUG"
    * Possible values:
    * <ul>

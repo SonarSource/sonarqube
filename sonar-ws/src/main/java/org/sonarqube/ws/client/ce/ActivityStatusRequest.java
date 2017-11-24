@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.ce;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Return CE activity related metrics.<br>Requires 'Administer System' permission or 'Administer' rights on the specified project.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce/activity_status">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class ActivityStatusRequest {
   private String componentKey;
 
   /**
-   * Id of the component (project) to filter on
-   *
    * Example value: "AU-TpxcA-iU5OvuD2FL0"
    */
   public ActivityStatusRequest setComponentId(String componentId) {
@@ -50,8 +47,6 @@ public class ActivityStatusRequest {
   }
 
   /**
-   * Key of the component (project) to filter on
-   *
    * Example value: "my_project"
    */
   public ActivityStatusRequest setComponentKey(String componentKey) {

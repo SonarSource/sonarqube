@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.organizations;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Delete an organization.<br/>Require 'Administer System' permission on the specified organization. Organization support must be enabled.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/organizations/delete">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class DeleteRequest {
   private String organization;
 
   /**
-   * Organization key
-   *
    * This is a mandatory parameter.
    * Example value: "foo-company"
    */

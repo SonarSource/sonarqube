@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.usergroups;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Remove a user from a group.<br />'id' or 'name' must be provided.<br>Requires the following permission: 'Administer System'.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/user_groups/remove_user">Further information about this action online (including a response example)</a>
@@ -38,8 +37,6 @@ public class RemoveUserRequest {
   private String organization;
 
   /**
-   * Group id
-   *
    * Example value: "42"
    */
   public RemoveUserRequest setId(String id) {
@@ -52,8 +49,6 @@ public class RemoveUserRequest {
   }
 
   /**
-   * User login
-   *
    * Example value: "g.hopper"
    */
   public RemoveUserRequest setLogin(String login) {
@@ -66,8 +61,6 @@ public class RemoveUserRequest {
   }
 
   /**
-   * Group name
-   *
    * Example value: "sonar-administrators"
    */
   public RemoveUserRequest setName(String name) {
@@ -80,8 +73,6 @@ public class RemoveUserRequest {
   }
 
   /**
-   * Key of organization
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */

@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.projectanalyses;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Create a project analysis event.<br>Only event of category 'VERSION' and 'OTHER' can be created.<br>Requires one of the following permissions:<ul>  <li>'Administer System'</li>  <li>'Administer' rights on the specified project</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_analyses/create_event">Further information about this action online (including a response example)</a>
@@ -37,8 +36,6 @@ public class CreateEventRequest {
   private String name;
 
   /**
-   * Analysis key
-   *
    * This is a mandatory parameter.
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
@@ -52,8 +49,6 @@ public class CreateEventRequest {
   }
 
   /**
-   * Category
-   *
    * Possible values:
    * <ul>
    *   <li>"VERSION"</li>
@@ -70,8 +65,6 @@ public class CreateEventRequest {
   }
 
   /**
-   * Name
-   *
    * This is a mandatory parameter.
    * Example value: "5.6"
    */

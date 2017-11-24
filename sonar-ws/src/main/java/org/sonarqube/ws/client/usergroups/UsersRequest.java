@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.usergroups;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Search for users with membership information with respect to a group.<br>Requires the following permission: 'Administer System'.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/user_groups/users">Further information about this action online (including a response example)</a>
@@ -41,8 +40,6 @@ public class UsersRequest {
   private String selected;
 
   /**
-   * Group id
-   *
    * Example value: "42"
    */
   public UsersRequest setId(String id) {
@@ -55,8 +52,6 @@ public class UsersRequest {
   }
 
   /**
-   * Group name
-   *
    * Example value: "sonar-administrators"
    */
   public UsersRequest setName(String name) {
@@ -69,8 +64,6 @@ public class UsersRequest {
   }
 
   /**
-   * Key of organization
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -84,8 +77,6 @@ public class UsersRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public UsersRequest setP(String p) {
@@ -98,8 +89,6 @@ public class UsersRequest {
   }
 
   /**
-   * Page size. Must be greater than 0.
-   *
    * Example value: "20"
    */
   public UsersRequest setPs(String ps) {
@@ -112,8 +101,6 @@ public class UsersRequest {
   }
 
   /**
-   * Limit search to names or logins that contain the supplied string.
-   *
    * Example value: "freddy"
    */
   public UsersRequest setQ(String q) {
@@ -126,8 +113,6 @@ public class UsersRequest {
   }
 
   /**
-   * Depending on the value, show only selected items (selected=selected), deselected items (selected=deselected), or all items with their selection status (selected=all).
-   *
    * Possible values:
    * <ul>
    *   <li>"all"</li>

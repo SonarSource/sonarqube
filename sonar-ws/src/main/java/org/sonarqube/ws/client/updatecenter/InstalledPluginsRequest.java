@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.updatecenter;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Get the list of all the plugins installed on the SonarQube instance
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/updatecenter/installed_plugins">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class InstalledPluginsRequest {
   private String format;
 
   /**
-   * Only json response format is available
-   *
    * Possible values:
    * <ul>
    *   <li>"json"</li>

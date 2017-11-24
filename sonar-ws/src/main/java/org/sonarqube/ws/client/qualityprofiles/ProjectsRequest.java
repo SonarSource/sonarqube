@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualityprofiles;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * List projects with their association status regarding a quality profile
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/projects">Further information about this action online (including a response example)</a>
@@ -39,8 +38,6 @@ public class ProjectsRequest {
   private String selected;
 
   /**
-   * Quality profile key
-   *
    * This is a mandatory parameter.
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
@@ -54,8 +51,6 @@ public class ProjectsRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public ProjectsRequest setP(String p) {
@@ -68,8 +63,6 @@ public class ProjectsRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 500
-   *
    * Example value: "20"
    */
   public ProjectsRequest setPs(String ps) {
@@ -82,8 +75,6 @@ public class ProjectsRequest {
   }
 
   /**
-   * Limit search to projects that contain the supplied string.
-   *
    * Example value: "sonar"
    */
   public ProjectsRequest setQ(String q) {
@@ -96,8 +87,6 @@ public class ProjectsRequest {
   }
 
   /**
-   * Depending on the value, show only selected items (selected=selected), deselected items (selected=deselected), or all items with their selection status (selected=all).
-   *
    * Possible values:
    * <ul>
    *   <li>"all"</li>

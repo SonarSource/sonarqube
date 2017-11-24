@@ -28,7 +28,6 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 /**
- * Removed since 6.3, please use api/favorites and api/notifications instead
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/user_properties">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -39,7 +38,6 @@ public class UserPropertiesService extends BaseService {
   }
 
   /**
-   * This web service is removed
    *
    * This is part of the internal API.
    * This is a GET request.

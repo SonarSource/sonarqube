@@ -19,14 +19,15 @@
  */
 package org.sonarqube.ws.client.l10n;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 /**
- * Manage localization.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/l10n">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -37,7 +38,6 @@ public class L10nService extends BaseService {
   }
 
   /**
-   * Get all localization messages for a given locale
    *
    * This is part of the internal API.
    * This is a GET request.

@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Search for user groups.<br>Requires the following permission: 'Administer System'.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/user_groups/search">Further information about this action online (including a response example)</a>
@@ -40,8 +38,6 @@ public class SearchRequest {
   private String q;
 
   /**
-   * Comma-separated list of the fields to be returned in response. All the fields are returned by default.
-   *
    * Possible values:
    * <ul>
    *   <li>"name"</li>
@@ -59,8 +55,6 @@ public class SearchRequest {
   }
 
   /**
-   * Key of organization. If not set then groups are searched in default organization.
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -74,8 +68,6 @@ public class SearchRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public SearchRequest setP(String p) {
@@ -88,8 +80,6 @@ public class SearchRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 500
-   *
    * Example value: "20"
    */
   public SearchRequest setPs(String ps) {
@@ -102,8 +92,6 @@ public class SearchRequest {
   }
 
   /**
-   * Limit search to names that contain the supplied string.
-   *
    * Example value: "sonar-users"
    */
   public SearchRequest setQ(String q) {

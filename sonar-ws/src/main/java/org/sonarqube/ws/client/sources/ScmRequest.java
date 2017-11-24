@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.sources;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Get SCM information of source files. Require See Source Code permission on file's project<br/>Each element of the result array is composed of:<ol><li>Line number</li><li>Author of the commit</li><li>Datetime of the commit (before 5.2 it was only the Date)</li><li>Revision of the commit (added in 5.2)</li></ol>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/sources/scm">Further information about this action online (including a response example)</a>
@@ -38,8 +37,6 @@ public class ScmRequest {
   private String to;
 
   /**
-   * Group lines by SCM commit if value is false, else display commits for each line, even if two consecutive lines relate to the same commit.
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -58,8 +55,6 @@ public class ScmRequest {
   }
 
   /**
-   * First line to return. Starts at 1
-   *
    * Example value: "10"
    */
   public ScmRequest setFrom(String from) {
@@ -72,8 +67,6 @@ public class ScmRequest {
   }
 
   /**
-   * File key
-   *
    * This is a mandatory parameter.
    * Example value: "my_project:/src/foo/Bar.php"
    */
@@ -87,8 +80,6 @@ public class ScmRequest {
   }
 
   /**
-   * Last line to return (inclusive)
-   *
    * Example value: "20"
    */
   public ScmRequest setTo(String to) {

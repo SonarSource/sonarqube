@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.projectanalyses;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Update a project analysis event.<br>Only events of category 'VERSION' and 'OTHER' can be updated.<br>Requires one of the following permissions:<ul>  <li>'Administer System'</li>  <li>'Administer' rights on the specified project</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_analyses/update_event">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class UpdateEventRequest {
   private String name;
 
   /**
-   * Event key
-   *
    * This is a mandatory parameter.
    * Example value: "AU-TpxcA-iU5OvuD2FL5"
    */
@@ -51,8 +48,6 @@ public class UpdateEventRequest {
   }
 
   /**
-   * New name
-   *
    * Example value: "5.6"
    */
   public UpdateEventRequest setName(String name) {

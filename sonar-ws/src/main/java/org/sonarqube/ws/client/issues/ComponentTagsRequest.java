@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.issues;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * List tags for the issues under a given component (including issues on the descendants of the component)
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/component_tags">Further information about this action online (including a response example)</a>
@@ -37,8 +36,6 @@ public class ComponentTagsRequest {
   private String ps;
 
   /**
-   * A component UUID
-   *
    * This is a mandatory parameter.
    * Example value: "7d8749e8-3070-4903-9188-bdd82933bb92"
    */
@@ -52,8 +49,6 @@ public class ComponentTagsRequest {
   }
 
   /**
-   * To retrieve tags on issues created after the given date (inclusive). <br>Either a date (server timezone) or datetime can be provided.
-   *
    * Example value: "2017-10-19 or 2017-10-19T13:00:00+0200"
    */
   public ComponentTagsRequest setCreatedAfter(String createdAfter) {
@@ -66,8 +61,6 @@ public class ComponentTagsRequest {
   }
 
   /**
-   * The maximum size of the list to return
-   *
    * Example value: "25"
    */
   public ComponentTagsRequest setPs(String ps) {

@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.updatecenter;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Upload a plugin.<br /> Requires 'Administer System' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/updatecenter/upload">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class UploadRequest {
   private String file;
 
   /**
-   * The jar file of the plugin to install
-   *
    * This is a mandatory parameter.
    */
   public UploadRequest setFile(String file) {

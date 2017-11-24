@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.metrics;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Update a custom metric.<br /> Requires 'Administer System' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/metrics/update">Further information about this action online (including a response example)</a>
@@ -40,8 +39,6 @@ public class UpdateRequest {
   private String type;
 
   /**
-   * Description
-   *
    * Example value: "Size of the team"
    */
   public UpdateRequest setDescription(String description) {
@@ -54,8 +51,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Domain
-   *
    * Example value: "Tests"
    */
   public UpdateRequest setDomain(String domain) {
@@ -68,8 +63,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Id of the custom metric to update
-   *
    * This is a mandatory parameter.
    * Example value: "42"
    */
@@ -83,8 +76,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Key
-   *
    * Example value: "team_size"
    */
   public UpdateRequest setKey(String key) {
@@ -97,8 +88,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Name
-   *
    */
   public UpdateRequest setName(String name) {
     this.name = name;
@@ -110,8 +99,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Metric type key
-   *
    * Example value: "INT"
    * Possible values:
    * <ul>

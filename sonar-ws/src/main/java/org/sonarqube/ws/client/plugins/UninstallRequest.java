@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.plugins;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Uninstalls the plugin specified by its key.<br/>Requires user to be authenticated with Administer System permissions.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/plugins/uninstall">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class UninstallRequest {
   private String key;
 
   /**
-   * The key identifying the plugin to uninstall
-   *
    * This is a mandatory parameter.
    */
   public UninstallRequest setKey(String key) {

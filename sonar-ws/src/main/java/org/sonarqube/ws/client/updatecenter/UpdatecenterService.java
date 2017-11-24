@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client.updatecenter;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
@@ -27,7 +28,6 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 /**
- * Get list of installed plugins
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/updatecenter">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -38,7 +38,6 @@ public class UpdatecenterService extends BaseService {
   }
 
   /**
-   * Get the list of all the plugins installed on the SonarQube instance
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -56,7 +55,6 @@ public class UpdatecenterService extends BaseService {
   }
 
   /**
-   * Upload a plugin.<br /> Requires 'Administer System' permission.
    *
    * This is part of the internal API.
    * This is a POST request.

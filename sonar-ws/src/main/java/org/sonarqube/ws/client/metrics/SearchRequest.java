@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Search for metrics
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/metrics/search">Further information about this action online (including a response example)</a>
@@ -39,8 +37,6 @@ public class SearchRequest {
   private String ps;
 
   /**
-   * Comma-separated list of the fields to be returned in response. All the fields are returned by default.
-   *
    * Possible values:
    * <ul>
    *   <li>"name"</li>
@@ -63,8 +59,6 @@ public class SearchRequest {
   }
 
   /**
-   * Choose custom metrics following 3 cases:<ul><li>true: only custom metrics are returned</li><li>false: only non custom metrics are returned</li><li>not specified: all metrics are returned</li></ul>
-   *
    * Example value: "true"
    */
   public SearchRequest setIsCustom(String isCustom) {
@@ -77,8 +71,6 @@ public class SearchRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public SearchRequest setP(String p) {
@@ -91,8 +83,6 @@ public class SearchRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 500
-   *
    * Example value: "20"
    */
   public SearchRequest setPs(String ps) {

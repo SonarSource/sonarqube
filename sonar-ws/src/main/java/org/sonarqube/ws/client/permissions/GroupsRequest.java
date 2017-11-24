@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.permissions;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Lists the groups with their permissions.<br>This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br> This service defaults to all groups, but can be limited to groups with a specific permission by providing the desired permission.<br>Requires one of the following permissions:<ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions/groups">Further information about this action online (including a response example)</a>
@@ -41,8 +40,6 @@ public class GroupsRequest {
   private String q;
 
   /**
-   * Key of organization, used when group name is set
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -56,8 +53,6 @@ public class GroupsRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public GroupsRequest setP(String p) {
@@ -70,8 +65,6 @@ public class GroupsRequest {
   }
 
   /**
-   * Permission<ul><li>Possible values for global permissions: admin, profileadmin, gateadmin, scan, provisioning</li><li>Possible values for project permissions admin, codeviewer, issueadmin, scan, user</li></ul>
-   *
    */
   public GroupsRequest setPermission(String permission) {
     this.permission = permission;
@@ -83,8 +76,6 @@ public class GroupsRequest {
   }
 
   /**
-   * Project id
-   *
    * Example value: "ce4c03d6-430f-40a9-b777-ad877c00aa4d"
    */
   public GroupsRequest setProjectId(String projectId) {
@@ -97,8 +88,6 @@ public class GroupsRequest {
   }
 
   /**
-   * Project key
-   *
    * Example value: "my_project"
    */
   public GroupsRequest setProjectKey(String projectKey) {
@@ -111,8 +100,6 @@ public class GroupsRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 100
-   *
    * Example value: "20"
    */
   public GroupsRequest setPs(String ps) {
@@ -125,8 +112,6 @@ public class GroupsRequest {
   }
 
   /**
-   * Limit search to group names that contain the supplied string. When this parameter is not set, only groups having at least one permission are returned.
-   *
    * Example value: "sonar"
    */
   public GroupsRequest setQ(String q) {

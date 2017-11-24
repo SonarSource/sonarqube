@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.organizations;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Search members of an organization
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/organizations/search_members">Further information about this action online (including a response example)</a>
@@ -39,8 +38,6 @@ public class SearchMembersRequest {
   private String selected;
 
   /**
-   * Organization key
-   *
    * This is part of the internal API.
    */
   public SearchMembersRequest setOrganization(String organization) {
@@ -53,8 +50,6 @@ public class SearchMembersRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public SearchMembersRequest setP(String p) {
@@ -67,8 +62,6 @@ public class SearchMembersRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 500
-   *
    * Example value: "20"
    */
   public SearchMembersRequest setPs(String ps) {
@@ -81,8 +74,6 @@ public class SearchMembersRequest {
   }
 
   /**
-   * Limit search to names or logins that contain the supplied string.
-   *
    * Example value: "orwe"
    */
   public SearchMembersRequest setQ(String q) {
@@ -95,8 +86,6 @@ public class SearchMembersRequest {
   }
 
   /**
-   * Depending on the value, show only selected items (selected=selected) or deselected items (selected=deselected).
-   *
    * This is part of the internal API.
    * Possible values:
    * <ul>

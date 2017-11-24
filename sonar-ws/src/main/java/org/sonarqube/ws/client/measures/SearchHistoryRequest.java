@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Search measures history of a component.<br>Measures are ordered chronologically.<br>Pagination applies to the number of measures for each metric.<br>Requires the following permission: 'Browse' on the specified component
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/measures/search_history">Further information about this action online (including a response example)</a>
@@ -42,8 +40,6 @@ public class SearchHistoryRequest {
   private String to;
 
   /**
-   * Branch key
-   *
    * This is part of the internal API.
    * Example value: "feature/my_branch"
    */
@@ -57,8 +53,6 @@ public class SearchHistoryRequest {
   }
 
   /**
-   * Component key
-   *
    * This is a mandatory parameter.
    * Example value: "my_project"
    */
@@ -72,8 +66,6 @@ public class SearchHistoryRequest {
   }
 
   /**
-   * Filter measures created after the given date (inclusive). <br>Either a date (server timezone) or datetime can be provided
-   *
    * Example value: "2017-10-19 or 2017-10-19T13:00:00+0200"
    */
   public SearchHistoryRequest setFrom(String from) {
@@ -86,8 +78,6 @@ public class SearchHistoryRequest {
   }
 
   /**
-   * Comma-separated list of metric keys
-   *
    * This is a mandatory parameter.
    * Example value: "ncloc,coverage,new_violations"
    */
@@ -101,8 +91,6 @@ public class SearchHistoryRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public SearchHistoryRequest setP(String p) {
@@ -115,8 +103,6 @@ public class SearchHistoryRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 1000
-   *
    * Example value: "20"
    */
   public SearchHistoryRequest setPs(String ps) {
@@ -129,8 +115,6 @@ public class SearchHistoryRequest {
   }
 
   /**
-   * Filter measures created before the given date (inclusive). <br>Either a date (server timezone) or datetime can be provided
-   *
    * Example value: "2017-10-19 or 2017-10-19T13:00:00+0200"
    */
   public SearchHistoryRequest setTo(String to) {

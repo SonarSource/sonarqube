@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualityprofiles;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * List the groups that are allowed to edit a Quality Profile.<br>Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/search_groups">Further information about this action online (including a response example)</a>
@@ -41,8 +40,6 @@ public class SearchGroupsRequest {
   private String selected;
 
   /**
-   * Quality profile language
-   *
    * This is a mandatory parameter.
    */
   public SearchGroupsRequest setLanguage(String language) {
@@ -55,8 +52,6 @@ public class SearchGroupsRequest {
   }
 
   /**
-   * Organization key. If no organization is provided, the default organization is used.
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -70,8 +65,6 @@ public class SearchGroupsRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public SearchGroupsRequest setP(String p) {
@@ -84,8 +77,6 @@ public class SearchGroupsRequest {
   }
 
   /**
-   * Page size. Must be greater than 0.
-   *
    * Example value: "20"
    */
   public SearchGroupsRequest setPs(String ps) {
@@ -98,8 +89,6 @@ public class SearchGroupsRequest {
   }
 
   /**
-   * Limit search to group names that contain the supplied string.
-   *
    * Example value: "sonar"
    */
   public SearchGroupsRequest setQ(String q) {
@@ -112,8 +101,6 @@ public class SearchGroupsRequest {
   }
 
   /**
-   * Quality Profile name
-   *
    * This is a mandatory parameter.
    * Example value: "Recommended quality profile"
    */
@@ -127,8 +114,6 @@ public class SearchGroupsRequest {
   }
 
   /**
-   * Depending on the value, show only selected items (selected=selected), deselected items (selected=deselected), or all items with their selection status (selected=all).
-   *
    * Possible values:
    * <ul>
    *   <li>"all"</li>

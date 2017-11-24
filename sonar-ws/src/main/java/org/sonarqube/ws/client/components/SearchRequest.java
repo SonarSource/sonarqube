@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Search for components
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/components/search">Further information about this action online (including a response example)</a>
@@ -41,8 +39,6 @@ public class SearchRequest {
   private List<String> qualifiers;
 
   /**
-   * Language key. If provided, only components for the given language are returned.
-   *
    * Example value: ""
    */
   public SearchRequest setLanguage(String language) {
@@ -55,8 +51,6 @@ public class SearchRequest {
   }
 
   /**
-   * Organization key
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -70,8 +64,6 @@ public class SearchRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public SearchRequest setP(String p) {
@@ -84,8 +76,6 @@ public class SearchRequest {
   }
 
   /**
-   * Page size. Must be greater than 0.
-   *
    * Example value: "20"
    */
   public SearchRequest setPs(String ps) {
@@ -98,8 +88,6 @@ public class SearchRequest {
   }
 
   /**
-   * Limit search to: <ul><li>component names that contain the supplied string</li><li>component keys that are exactly the same as the supplied string</li></ul>
-   *
    * Example value: "sonar"
    */
   public SearchRequest setQ(String q) {
@@ -112,8 +100,6 @@ public class SearchRequest {
   }
 
   /**
-   * Comma-separated list of component qualifiers. Filter the results with the specified qualifiers. Possible values are:<ul><li>BRC - Sub-projects</li><li>DIR - Directories</li><li>FIL - Files</li><li>TRK - Projects</li><li>UTS - Test Files</li></ul>
-   *
    * This is a mandatory parameter.
    * Possible values:
    * <ul>

@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Set a quality gate as the default quality gate.<br>Requires the 'Administer Quality Gates' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/set_as_default">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class SetAsDefaultRequest {
   private String id;
 
   /**
-   * ID of the quality gate to set as default
-   *
    * This is a mandatory parameter.
    * Example value: "1"
    */

@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Bulk change on issues.<br/>Requires authentication.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/bulk_change">Further information about this action online (including a response example)</a>
@@ -34,19 +32,17 @@ import javax.annotation.Generated;
 public class BulkChangeRequest {
 
   private String addTags;
-  private String assign;
-  private String comment;
+  private List<String> assign;
+  private List<String> comment;
   private String doTransition;
   private List<String> issues;
-  private String plan;
+  private List<String> plan;
   private String removeTags;
   private String sendNotifications;
-  private String setSeverity;
-  private String setType;
+  private List<String> setSeverity;
+  private List<String> setType;
 
   /**
-   * Add tags
-   *
    * Example value: "security,java8"
    */
   public BulkChangeRequest setAddTags(String addTags) {
@@ -59,36 +55,30 @@ public class BulkChangeRequest {
   }
 
   /**
-   * To assign the list of issues to a specific user (login), or un-assign all the issues
-   *
    * Example value: "john.smith"
    */
-  public BulkChangeRequest setAssign(String assign) {
+  public BulkChangeRequest setAssign(List<String> assign) {
     this.assign = assign;
     return this;
   }
 
-  public String getAssign() {
+  public List<String> getAssign() {
     return assign;
   }
 
   /**
-   * To add a comment to a list of issues
-   *
    * Example value: "Here is my comment"
    */
-  public BulkChangeRequest setComment(String comment) {
+  public BulkChangeRequest setComment(List<String> comment) {
     this.comment = comment;
     return this;
   }
 
-  public String getComment() {
+  public List<String> getComment() {
     return comment;
   }
 
   /**
-   * Transition
-   *
    * Example value: "reopen"
    * Possible values:
    * <ul>
@@ -111,8 +101,6 @@ public class BulkChangeRequest {
   }
 
   /**
-   * Comma-separated list of issue keys
-   *
    * This is a mandatory parameter.
    * Example value: "AU-Tpxb--iU5OvuD2FLy,AU-TpxcA-iU5OvuD2FLz"
    */
@@ -126,23 +114,19 @@ public class BulkChangeRequest {
   }
 
   /**
-   * In 5.5, action plans are dropped. Has no effect. To plan the list of issues to a specific action plan (key), or unlink all the issues from an action plan
-   *
    * @deprecated since 5.5
    */
   @Deprecated
-  public BulkChangeRequest setPlan(String plan) {
+  public BulkChangeRequest setPlan(List<String> plan) {
     this.plan = plan;
     return this;
   }
 
-  public String getPlan() {
+  public List<String> getPlan() {
     return plan;
   }
 
   /**
-   * Remove tags
-   *
    * Example value: "security,java8"
    */
   public BulkChangeRequest setRemoveTags(String removeTags) {
@@ -173,8 +157,6 @@ public class BulkChangeRequest {
   }
 
   /**
-   * To change the severity of the list of issues
-   *
    * Example value: "BLOCKER"
    * Possible values:
    * <ul>
@@ -185,18 +167,16 @@ public class BulkChangeRequest {
    *   <li>"BLOCKER"</li>
    * </ul>
    */
-  public BulkChangeRequest setSetSeverity(String setSeverity) {
+  public BulkChangeRequest setSetSeverity(List<String> setSeverity) {
     this.setSeverity = setSeverity;
     return this;
   }
 
-  public String getSetSeverity() {
+  public List<String> getSetSeverity() {
     return setSeverity;
   }
 
   /**
-   * To change the type of the list of issues
-   *
    * Example value: "BUG"
    * Possible values:
    * <ul>
@@ -205,12 +185,12 @@ public class BulkChangeRequest {
    *   <li>"VULNERABILITY"</li>
    * </ul>
    */
-  public BulkChangeRequest setSetType(String setType) {
+  public BulkChangeRequest setSetType(List<String> setType) {
     this.setType = setType;
     return this;
   }
 
-  public String getSetType() {
+  public List<String> getSetType() {
     return setType;
   }
 }

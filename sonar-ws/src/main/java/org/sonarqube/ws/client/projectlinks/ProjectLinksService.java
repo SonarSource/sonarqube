@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client.projectlinks;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
@@ -29,7 +30,6 @@ import org.sonarqube.ws.ProjectLinks.CreateWsResponse;
 import org.sonarqube.ws.ProjectLinks.SearchWsResponse;
 
 /**
- * Manage projects links.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_links">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -40,7 +40,6 @@ public class ProjectLinksService extends BaseService {
   }
 
   /**
-   * Create a new project link.<br>Requires 'Administer' permission on the specified project, or global 'Administer' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -58,7 +57,6 @@ public class ProjectLinksService extends BaseService {
   }
 
   /**
-   * Delete existing project link.<br>Requires 'Administer' permission on the specified project, or global 'Administer' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -74,7 +72,6 @@ public class ProjectLinksService extends BaseService {
   }
 
   /**
-   * List links of a project.<br>The 'projectId' or 'projectKey' must be provided.<br>Requires one of the following permissions:<ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li><li>'Browse' on the specified project</li></ul>
    *
    * This is part of the internal API.
    * This is a GET request.

@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.tests;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Get the list of source files covered by a test. Require Browse permission on test file's project
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/tests/covered_files">Further information about this action online (including a response example)</a>
@@ -37,8 +36,6 @@ public class CoveredFilesRequest {
   private String testId;
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public CoveredFilesRequest setP(String p) {
@@ -51,8 +48,6 @@ public class CoveredFilesRequest {
   }
 
   /**
-   * Page size. Must be greater than 0.
-   *
    * Example value: "20"
    */
   public CoveredFilesRequest setPs(String ps) {
@@ -65,8 +60,6 @@ public class CoveredFilesRequest {
   }
 
   /**
-   * Test ID
-   *
    * This is a mandatory parameter.
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */

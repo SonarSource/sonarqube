@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.users;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Update a user's password. Authenticated users can change their own password, provided that the account is not linked to an external authentication system. Administer System permission is required to change another user's password.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/users/change_password">Further information about this action online (including a response example)</a>
@@ -37,8 +36,6 @@ public class ChangePasswordRequest {
   private String previousPassword;
 
   /**
-   * User login
-   *
    * This is a mandatory parameter.
    * Example value: "myuser"
    */
@@ -52,8 +49,6 @@ public class ChangePasswordRequest {
   }
 
   /**
-   * New password
-   *
    * This is a mandatory parameter.
    * Example value: "mypassword"
    */
@@ -67,8 +62,6 @@ public class ChangePasswordRequest {
   }
 
   /**
-   * Previous password. Required when changing one's own password.
-   *
    * Example value: "oldpassword"
    */
   public ChangePasswordRequest setPreviousPassword(String previousPassword) {

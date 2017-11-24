@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.favorites;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Search for the authenticated user favorites.<br>Requires authentication.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/favorites/search">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class SearchRequest {
   private String ps;
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public SearchRequest setP(String p) {
@@ -50,8 +47,6 @@ public class SearchRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 500
-   *
    * Example value: "20"
    */
   public SearchRequest setPs(String ps) {

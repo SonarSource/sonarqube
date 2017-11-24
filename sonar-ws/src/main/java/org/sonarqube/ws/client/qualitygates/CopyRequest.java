@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Copy a Quality Gate.<br>Requires the 'Administer Quality Gates' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/copy">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class CopyRequest {
   private String name;
 
   /**
-   * The ID of the source quality gate
-   *
    * This is a mandatory parameter.
    * Example value: "1"
    */
@@ -51,8 +48,6 @@ public class CopyRequest {
   }
 
   /**
-   * The name of the quality gate to create
-   *
    * This is a mandatory parameter.
    * Example value: "My Quality Gate"
    */

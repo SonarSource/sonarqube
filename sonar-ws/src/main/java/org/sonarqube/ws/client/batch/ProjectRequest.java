@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.batch;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Return project repository
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/batch/project">Further information about this action online (including a response example)</a>
@@ -38,8 +37,6 @@ public class ProjectRequest {
   private String profile;
 
   /**
-   * Branch key
-   *
    * Example value: "feature/my_branch"
    */
   public ProjectRequest setBranch(String branch) {
@@ -52,8 +49,6 @@ public class ProjectRequest {
   }
 
   /**
-   * Issues mode or not
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -72,8 +67,6 @@ public class ProjectRequest {
   }
 
   /**
-   * Project or module key
-   *
    * This is a mandatory parameter.
    * Example value: "my_project"
    */
@@ -87,8 +80,6 @@ public class ProjectRequest {
   }
 
   /**
-   * Profile name
-   *
    * Example value: "SonarQube Way"
    */
   public ProjectRequest setProfile(String profile) {

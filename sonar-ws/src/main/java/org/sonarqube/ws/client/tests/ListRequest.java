@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.tests;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Get the list of tests either in a test file or that test a given line of source code.<br /> Requires 'Browse' permission on the file's project.<br /> One (and only one) of the following combination of parameters must be provided: <ul><li>testId - get a specific test</li><li>testFileId - get the tests in a test file</li><li>testFileKey - get the tests in a test file</li><li>sourceFileId and sourceFileLineNumber - get the tests that cover a specific line of code</li><li>sourceFileKey and sourceFileLineNumber - get the tests that cover a specific line of code</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/tests/list">Further information about this action online (including a response example)</a>
@@ -43,8 +42,6 @@ public class ListRequest {
   private String testId;
 
   /**
-   * Branch key
-   *
    * This is part of the internal API.
    * Example value: "feature/my_branch"
    */
@@ -58,8 +55,6 @@ public class ListRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public ListRequest setP(String p) {
@@ -72,8 +67,6 @@ public class ListRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 500
-   *
    * Example value: "20"
    */
   public ListRequest setPs(String ps) {
@@ -86,8 +79,6 @@ public class ListRequest {
   }
 
   /**
-   * ID of source file. Must be provided with the source file line number.
-   *
    * Example value: "AU-TpxcA-iU5OvuD2FL0"
    */
   public ListRequest setSourceFileId(String sourceFileId) {
@@ -100,8 +91,6 @@ public class ListRequest {
   }
 
   /**
-   * Key of source file. Must be provided with the source file line number.
-   *
    * Example value: "my_project:/src/foo/Bar.php"
    */
   public ListRequest setSourceFileKey(String sourceFileKey) {
@@ -114,8 +103,6 @@ public class ListRequest {
   }
 
   /**
-   * Source file line number. Must be provided with the source file ID or key.
-   *
    * Example value: "10"
    */
   public ListRequest setSourceFileLineNumber(String sourceFileLineNumber) {
@@ -128,8 +115,6 @@ public class ListRequest {
   }
 
   /**
-   * ID of test file
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
   public ListRequest setTestFileId(String testFileId) {
@@ -142,8 +127,6 @@ public class ListRequest {
   }
 
   /**
-   * Key of test file
-   *
    * Example value: "MY_PROJECT:src/test/java/foo/BarTest.java"
    */
   public ListRequest setTestFileKey(String testFileKey) {
@@ -156,8 +139,6 @@ public class ListRequest {
   }
 
   /**
-   * ID of test
-   *
    * Example value: "AU-TpxcA-iU5OvuD2FLz"
    */
   public ListRequest setTestId(String testId) {

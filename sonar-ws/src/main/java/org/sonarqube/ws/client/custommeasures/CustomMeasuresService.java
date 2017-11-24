@@ -28,7 +28,6 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 /**
- * Manage custom measures for a project. See also api/metrics.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/custom_measures">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -39,7 +38,6 @@ public class CustomMeasuresService extends BaseService {
   }
 
   /**
-   * Create a custom measure.<br /> The project id or the project key must be provided (only project and module custom measures can be created). The metric id or the metric key must be provided.<br/>Requires 'Administer System' permission or 'Administer' permission on the project.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -60,7 +58,6 @@ public class CustomMeasuresService extends BaseService {
   }
 
   /**
-   * Delete a custom measure.<br /> Requires 'Administer System' permission or 'Administer' permission on the project.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -76,7 +73,6 @@ public class CustomMeasuresService extends BaseService {
   }
 
   /**
-   * List all custom metrics for which no custom measure already exists on a given project.<br /> The project id or project key must be provided.<br />Requires 'Administer System' permission or 'Administer' permission on the project.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -93,7 +89,6 @@ public class CustomMeasuresService extends BaseService {
   }
 
   /**
-   * List custom measures. The project id or project key must be provided.<br />Requires 'Administer System' permission or 'Administer' permission on the project.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -113,7 +108,6 @@ public class CustomMeasuresService extends BaseService {
   }
 
   /**
-   * Update a custom measure. Value and/or description must be provided<br />Requires 'Administer System' permission or 'Administer' permission on the project.
    *
    * This is part of the internal API.
    * This is a POST request.

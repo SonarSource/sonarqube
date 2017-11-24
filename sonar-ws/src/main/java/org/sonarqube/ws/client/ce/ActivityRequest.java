@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Search for tasks.<br> Requires the system administration permission, or project administration permission if componentId is set.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce/activity">Further information about this action online (including a response example)</a>
@@ -45,8 +43,6 @@ public class ActivityRequest {
   private String type;
 
   /**
-   * Id of the component (project) to filter on
-   *
    * Example value: "AU-TpxcA-iU5OvuD2FL0"
    */
   public ActivityRequest setComponentId(String componentId) {
@@ -59,8 +55,6 @@ public class ActivityRequest {
   }
 
   /**
-   * Limit search to: <ul><li>component names that contain the supplied string</li><li>component keys that are exactly the same as the supplied string</li></ul>Must not be set together with componentId.<br />Deprecated and replaced by 'q'
-   *
    * Example value: "Apache"
    * @deprecated since 5.5
    */
@@ -75,9 +69,7 @@ public class ActivityRequest {
   }
 
   /**
-   * Maximum date of end of task processing (inclusive)
-   *
-   * Example value: "2017-11-23T15:56:03+0100"
+   * Example value: "2017-10-19T13:00:00+0200"
    */
   public ActivityRequest setMaxExecutedAt(String maxExecutedAt) {
     this.maxExecutedAt = maxExecutedAt;
@@ -89,9 +81,7 @@ public class ActivityRequest {
   }
 
   /**
-   * Minimum date of task submission (inclusive)
-   *
-   * Example value: "2017-11-23T15:56:03+0100"
+   * Example value: "2017-10-19T13:00:00+0200"
    */
   public ActivityRequest setMinSubmittedAt(String minSubmittedAt) {
     this.minSubmittedAt = minSubmittedAt;
@@ -103,8 +93,6 @@ public class ActivityRequest {
   }
 
   /**
-   * Filter on the last tasks (only the most recent finished task by project)
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -123,8 +111,6 @@ public class ActivityRequest {
   }
 
   /**
-   * Deprecated parameter
-   *
    * @deprecated since 5.5
    */
   @Deprecated
@@ -138,8 +124,6 @@ public class ActivityRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 1000
-   *
    * Example value: "20"
    */
   public ActivityRequest setPs(String ps) {
@@ -152,8 +136,6 @@ public class ActivityRequest {
   }
 
   /**
-   * Limit search to: <ul><li>component names that contain the supplied string</li><li>component keys that are exactly the same as the supplied string</li><li>task ids that are exactly the same as the supplied string</li></ul>Must not be set together with componentId
-   *
    * Example value: "Apache"
    */
   public ActivityRequest setQ(String q) {
@@ -166,8 +148,6 @@ public class ActivityRequest {
   }
 
   /**
-   * Comma separated list of task statuses
-   *
    * Example value: "IN_PROGRESS,SUCCESS"
    * Possible values:
    * <ul>
@@ -188,8 +168,6 @@ public class ActivityRequest {
   }
 
   /**
-   * Task type
-   *
    * Example value: "REPORT"
    * Possible values:
    * <ul>

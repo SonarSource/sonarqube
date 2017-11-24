@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.batch;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Return open issues
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/batch/issues">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class IssuesRequest {
   private String key;
 
   /**
-   * Branch key
-   *
    * Example value: "feature/my_branch"
    */
   public IssuesRequest setBranch(String branch) {
@@ -50,8 +47,6 @@ public class IssuesRequest {
   }
 
   /**
-   * Project, module or file key
-   *
    * This is a mandatory parameter.
    * Example value: "my_project"
    */

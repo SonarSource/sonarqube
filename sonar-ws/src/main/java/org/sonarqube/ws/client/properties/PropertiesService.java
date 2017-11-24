@@ -19,14 +19,15 @@
  */
 package org.sonarqube.ws.client.properties;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 /**
- * This web service is deprecated, please use api/settings instead.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/properties">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -37,7 +38,6 @@ public class PropertiesService extends BaseService {
   }
 
   /**
-   * This web service is deprecated, please use api/settings/values instead.
    *
    * This is part of the internal API.
    * This is a GET request.

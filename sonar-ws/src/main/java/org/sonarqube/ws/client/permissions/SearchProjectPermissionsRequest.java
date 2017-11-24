@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.permissions;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * List project permissions. A project can be a technical project, a view or a developer.<br />Requires one of the following permissions:<ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions/search_project_permissions">Further information about this action online (including a response example)</a>
@@ -40,8 +39,6 @@ public class SearchProjectPermissionsRequest {
   private String qualifier;
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public SearchProjectPermissionsRequest setP(String p) {
@@ -54,8 +51,6 @@ public class SearchProjectPermissionsRequest {
   }
 
   /**
-   * Project id
-   *
    * Example value: "ce4c03d6-430f-40a9-b777-ad877c00aa4d"
    */
   public SearchProjectPermissionsRequest setProjectId(String projectId) {
@@ -68,8 +63,6 @@ public class SearchProjectPermissionsRequest {
   }
 
   /**
-   * Project key
-   *
    * Example value: "my_project"
    */
   public SearchProjectPermissionsRequest setProjectKey(String projectKey) {
@@ -82,8 +75,6 @@ public class SearchProjectPermissionsRequest {
   }
 
   /**
-   * Page size. Must be greater than 0.
-   *
    * Example value: "20"
    */
   public SearchProjectPermissionsRequest setPs(String ps) {
@@ -96,8 +87,6 @@ public class SearchProjectPermissionsRequest {
   }
 
   /**
-   * Limit search to: <ul><li>project names that contain the supplied string</li><li>project keys that are exactly the same as the supplied string</li></ul>
-   *
    * Example value: "apac"
    */
   public SearchProjectPermissionsRequest setQ(String q) {
@@ -110,8 +99,6 @@ public class SearchProjectPermissionsRequest {
   }
 
   /**
-   * Project qualifier. Filter the results with the specified qualifier. Possible values are:<ul><li>TRK - Projects</li></ul>
-   *
    * Possible values:
    * <ul>
    *   <li>"TRK"</li>

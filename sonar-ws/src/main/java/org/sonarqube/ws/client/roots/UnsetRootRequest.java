@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.roots;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Make the specified user not root.<br/>Requires to be root.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/roots/unset_root">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class UnsetRootRequest {
   private String login;
 
   /**
-   * A user login
-   *
    * This is a mandatory parameter.
    * Example value: "admin"
    */

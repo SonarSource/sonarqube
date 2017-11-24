@@ -33,7 +33,6 @@ $helper.responseTypeImport($webService.path.asString, $action.key.asString)
 #end
 
 /**
- * $webService.description.asString
  * @see <a href="$helper.apiDocUrl($webService.path.asString)">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -45,7 +44,6 @@ public class $helper.className($webService.path.asString) extends BaseService {
 #foreach($action in $webService.actions)
 
   /**
-   * $action.description.asString
    *
 #if ($action.internal)
    * This is part of the internal API.

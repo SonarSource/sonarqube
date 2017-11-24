@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client.authentication;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
@@ -27,7 +28,6 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 /**
- * Handle authentication.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/authentication">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -38,7 +38,6 @@ public class AuthenticationService extends BaseService {
   }
 
   /**
-   * Authenticate a user.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -55,7 +54,6 @@ public class AuthenticationService extends BaseService {
   }
 
   /**
-   * Logout a user.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -70,7 +68,6 @@ public class AuthenticationService extends BaseService {
   }
 
   /**
-   * Check credentials.
    *
    * This is part of the internal API.
    * This is a GET request.

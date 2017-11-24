@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.metrics;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Delete metrics and associated measures. Delete only custom metrics.<br />Ids or keys must be provided. <br />Requires 'Administer System' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/metrics/delete">Further information about this action online (including a response example)</a>
@@ -33,11 +32,9 @@ import javax.annotation.Generated;
 public class DeleteRequest {
 
   private String ids;
-  private String keys;
+  private List<String> keys;
 
   /**
-   * Metrics ids to delete.
-   *
    * Example value: "5, 23, 42"
    */
   public DeleteRequest setIds(String ids) {
@@ -50,16 +47,14 @@ public class DeleteRequest {
   }
 
   /**
-   * Metrics keys to delete
-   *
    * Example value: "team_size, business_value"
    */
-  public DeleteRequest setKeys(String keys) {
+  public DeleteRequest setKeys(List<String> keys) {
     this.keys = keys;
     return this;
   }
 
-  public String getKeys() {
+  public List<String> getKeys() {
     return keys;
   }
 }

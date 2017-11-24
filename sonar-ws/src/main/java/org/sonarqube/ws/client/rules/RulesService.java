@@ -33,7 +33,6 @@ import org.sonarqube.ws.Rules.ShowResponse;
 import org.sonarqube.ws.Rules.UpdateResponse;
 
 /**
- * Get and update some details of automatic rules, and manage custom rules.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/rules">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -44,7 +43,6 @@ public class RulesService extends BaseService {
   }
 
   /**
-   * Get data required for rendering the page 'Coding Rules'.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -60,7 +58,6 @@ public class RulesService extends BaseService {
   }
 
   /**
-   * Create a custom rule.<br>Requires the 'Administer Quality Profiles' permission
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -74,7 +71,7 @@ public class RulesService extends BaseService {
         .setParam("manual_key", request.getManualKey())
         .setParam("markdown_description", request.getMarkdownDescription())
         .setParam("name", request.getName())
-        .setParam("params", request.getParams())
+        .setParam("params", request.getParams() == null ? null : request.getParams().stream().collect(Collectors.joining(",")))
         .setParam("prevent_reactivation", request.getPreventReactivation())
         .setParam("severity", request.getSeverity())
         .setParam("status", request.getStatus())
@@ -84,7 +81,6 @@ public class RulesService extends BaseService {
   }
 
   /**
-   * Delete custom rule.<br/>Requires the 'Administer Quality Profiles' permission
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -100,7 +96,6 @@ public class RulesService extends BaseService {
   }
 
   /**
-   * List rules, excluding the manual rules and the rules with status REMOVED. JSON format is not supported for response.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -114,7 +109,6 @@ public class RulesService extends BaseService {
   }
 
   /**
-   * List available rule repositories
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -131,7 +125,6 @@ public class RulesService extends BaseService {
   }
 
   /**
-   * Search for a collection of relevant rules matching a specified query.<br/>Since 5.5, following fields in the response have been deprecated :<ul><li>"effortToFixDescription" becomes "gapDescription"</li><li>"debtRemFnCoeff" becomes "remFnGapMultiplier"</li><li>"defaultDebtRemFnCoeff" becomes "defaultRemFnGapMultiplier"</li><li>"debtRemFnOffset" becomes "remFnBaseEffort"</li><li>"defaultDebtRemFnOffset" becomes "defaultRemFnBaseEffort"</li><li>"debtOverloaded" becomes "remFnOverloaded"</li></ul>
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -168,7 +161,6 @@ public class RulesService extends BaseService {
   }
 
   /**
-   * Get detailed information about a rule<br>Since 5.5, following fields in the response have been deprecated :<ul><li>"effortToFixDescription" becomes "gapDescription"</li><li>"debtRemFnCoeff" becomes "remFnGapMultiplier"</li><li>"defaultDebtRemFnCoeff" becomes "defaultRemFnGapMultiplier"</li><li>"debtRemFnOffset" becomes "remFnBaseEffort"</li><li>"defaultDebtRemFnOffset" becomes "defaultRemFnBaseEffort"</li><li>"debtOverloaded" becomes "remFnOverloaded"</li></ul>
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -185,7 +177,6 @@ public class RulesService extends BaseService {
   }
 
   /**
-   * List rule tags
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -203,7 +194,6 @@ public class RulesService extends BaseService {
   }
 
   /**
-   * Update an existing rule.<br>Requires the 'Administer Quality Profiles' permission
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -222,7 +212,7 @@ public class RulesService extends BaseService {
         .setParam("markdown_note", request.getMarkdownNote())
         .setParam("name", request.getName())
         .setParam("organization", request.getOrganization())
-        .setParam("params", request.getParams())
+        .setParam("params", request.getParams() == null ? null : request.getParams().stream().collect(Collectors.joining(",")))
         .setParam("remediation_fn_base_effort", request.getRemediationFnBaseEffort())
         .setParam("remediation_fn_type", request.getRemediationFnType())
         .setParam("remediation_fy_gap_multiplier", request.getRemediationFyGapMultiplier())

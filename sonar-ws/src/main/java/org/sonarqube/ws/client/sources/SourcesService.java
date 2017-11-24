@@ -19,14 +19,15 @@
  */
 package org.sonarqube.ws.client.sources;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 /**
- * Get details on source files. See also api/tests.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/sources">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -37,7 +38,6 @@ public class SourcesService extends BaseService {
   }
 
   /**
-   * Show line line hashes for a given file. Require See Source Code permission on file's project<br/>
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -53,7 +53,6 @@ public class SourcesService extends BaseService {
   }
 
   /**
-   * Get source code as line number / text pairs. Require See Source Code permission on file
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -71,7 +70,6 @@ public class SourcesService extends BaseService {
   }
 
   /**
-   * Show source code with line oriented info. Require See Source Code permission on file's project<br/>Each element of the result array is an object which contains:<ol><li>Line number</li><li>Content of the line</li><li>Author of the line (from SCM information)</li><li>Revision of the line (from SCM information)</li><li>Last commit date of the line (from SCM information)</li><li>Line hits from coverage</li><li>Number of conditions to cover in tests</li><li>Number of conditions covered by tests</li></ol>
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -91,7 +89,6 @@ public class SourcesService extends BaseService {
   }
 
   /**
-   * Get source code as raw text. Require 'See Source Code' permission on file
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -108,7 +105,6 @@ public class SourcesService extends BaseService {
   }
 
   /**
-   * Get SCM information of source files. Require See Source Code permission on file's project<br/>Each element of the result array is composed of:<ol><li>Line number</li><li>Author of the commit</li><li>Datetime of the commit (before 5.2 it was only the Date)</li><li>Revision of the commit (added in 5.2)</li></ol>
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -127,7 +123,6 @@ public class SourcesService extends BaseService {
   }
 
   /**
-   * Get source code. Require See Source Code permission on file's project<br/>Each element of the result array is composed of:<ol><li>Line number</li><li>Content of the line</li></ol>
    *
    * This is part of the internal API.
    * This is a GET request.

@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.usergroups;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Delete a group. The default groups cannot be deleted.<br/>'id' or 'name' must be provided.<br />Requires the following permission: 'Administer System'.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/user_groups/delete">Further information about this action online (including a response example)</a>
@@ -37,8 +36,6 @@ public class DeleteRequest {
   private String organization;
 
   /**
-   * Group id
-   *
    * Example value: "42"
    */
   public DeleteRequest setId(String id) {
@@ -51,8 +48,6 @@ public class DeleteRequest {
   }
 
   /**
-   * Group name
-   *
    * Example value: "sonar-administrators"
    */
   public DeleteRequest setName(String name) {
@@ -65,8 +60,6 @@ public class DeleteRequest {
   }
 
   /**
-   * Key of organization
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */

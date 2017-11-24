@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualityprofiles;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Export a quality profile.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/export">Further information about this action online (including a response example)</a>
@@ -38,8 +37,6 @@ public class ExportRequest {
   private String qualityProfile;
 
   /**
-   * Quality profile key
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    * @deprecated since 6.6
    */
@@ -54,8 +51,6 @@ public class ExportRequest {
   }
 
   /**
-   * Quality profile language.  If this parameter is set, 'key' must not be set.
-   *
    * Example value: ""
    */
   public ExportRequest setLanguage(String language) {
@@ -68,8 +63,6 @@ public class ExportRequest {
   }
 
   /**
-   * Organization key. If no organization is provided, the default organization is used.
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -83,8 +76,6 @@ public class ExportRequest {
   }
 
   /**
-   * Quality profile name to export. If left empty, the default profile for the language is exported. If this parameter is set, 'key' must not be set.
-   *
    * Example value: "My Sonar way"
    */
   public ExportRequest setQualityProfile(String qualityProfile) {

@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client.editions;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
@@ -30,7 +31,6 @@ import org.sonarqube.ws.Editions.PreviewResponse;
 import org.sonarqube.ws.Editions.StatusResponse;
 
 /**
- * Manage SonarSource commercial editions.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/editions">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -41,7 +41,6 @@ public class EditionsService extends BaseService {
   }
 
   /**
-   * Apply changes to SonarQube to match the specified license. Clear error message of previous automatic install of an edition, if there is any. Require 'Administer System' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -57,7 +56,6 @@ public class EditionsService extends BaseService {
   }
 
   /**
-   * Clear error message of last install of an edition (if any). Require 'Administer System' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -72,7 +70,6 @@ public class EditionsService extends BaseService {
   }
 
   /**
-   * Provide data to prefill license request forms: the server ID and the total number of lines of code.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -86,7 +83,6 @@ public class EditionsService extends BaseService {
   }
 
   /**
-   * Preview the changes to SonarQube to match the specified license. Requires 'Administer System' permission.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -101,7 +97,6 @@ public class EditionsService extends BaseService {
   }
 
   /**
-   * Provide status of SonarSource commercial edition of the current SonarQube. Requires 'Administer System' permission.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -115,7 +110,6 @@ public class EditionsService extends BaseService {
   }
 
   /**
-   * Uninstall the currently installed edition. Requires 'Administer System' permission.
    *
    * This is part of the internal API.
    * This is a POST request.

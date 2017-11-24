@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Remove the association of a project from a quality gate.<br>Requires the 'Administer Quality Gates' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/deselect">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class DeselectRequest {
   private String projectKey;
 
   /**
-   * Project id
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    * @deprecated since 6.1
    */
@@ -52,8 +49,6 @@ public class DeselectRequest {
   }
 
   /**
-   * Project key
-   *
    * Example value: "my_project"
    */
   public DeselectRequest setProjectKey(String projectKey) {

@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.projectbranches;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Delete a non-main branch of a project.<br/>Requires 'Administer' rights on the specified project.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_branches/delete">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class DeleteRequest {
   private String project;
 
   /**
-   * Name of the branch
-   *
    * This is a mandatory parameter.
    * Example value: "branch1"
    */
@@ -51,8 +48,6 @@ public class DeleteRequest {
   }
 
   /**
-   * Project key
-   *
    * This is a mandatory parameter.
    * Example value: "my_project"
    */

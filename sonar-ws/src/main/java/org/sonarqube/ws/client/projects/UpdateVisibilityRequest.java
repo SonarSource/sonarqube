@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.projects;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Updates visibility of a project.<br>Requires 'Project administer' permission on the specified project
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects/update_visibility">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class UpdateVisibilityRequest {
   private String visibility;
 
   /**
-   * Project key
-   *
    * This is a mandatory parameter.
    * Example value: "my_project"
    */
@@ -51,8 +48,6 @@ public class UpdateVisibilityRequest {
   }
 
   /**
-   * New visibility
-   *
    * This is a mandatory parameter.
    * Possible values:
    * <ul>

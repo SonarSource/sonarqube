@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.custommeasures;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Delete a custom measure.<br /> Requires 'Administer System' permission or 'Administer' permission on the project.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/custom_measures/delete">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class DeleteRequest {
   private String id;
 
   /**
-   * Id
-   *
    * This is a mandatory parameter.
    * Example value: "24"
    */

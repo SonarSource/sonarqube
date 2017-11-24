@@ -33,7 +33,6 @@ import org.sonarqube.ws.Organizations.SearchMembersWsResponse;
 import org.sonarqube.ws.Organizations.UpdateWsResponse;
 
 /**
- * Manage organizations.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/organizations">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -44,7 +43,6 @@ public class OrganizationsService extends BaseService {
   }
 
   /**
-   * Add a user as a member of an organization.<br>Requires 'Administer System' permission on the specified organization.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -60,7 +58,6 @@ public class OrganizationsService extends BaseService {
   }
 
   /**
-   * Create an organization.<br />Requires 'Administer System' permission unless any logged in user is allowed to create an organization (see appropriate setting). Organization support must be enabled.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -79,7 +76,6 @@ public class OrganizationsService extends BaseService {
   }
 
   /**
-   * Delete an organization.<br/>Require 'Administer System' permission on the specified organization. Organization support must be enabled.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -95,7 +91,6 @@ public class OrganizationsService extends BaseService {
   }
 
   /**
-   * Enable support of organizations.<br />'Administer System' permission is required. The logged-in user will be flagged as root and will be able to manage organizations and other root users.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -110,7 +105,6 @@ public class OrganizationsService extends BaseService {
   }
 
   /**
-   * Remove a member from an organization.<br>Requires 'Administer System' permission on the specified organization.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -127,7 +121,6 @@ public class OrganizationsService extends BaseService {
   }
 
   /**
-   * Search for organizations
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -144,7 +137,6 @@ public class OrganizationsService extends BaseService {
   }
 
   /**
-   * Search members of an organization
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -163,7 +155,6 @@ public class OrganizationsService extends BaseService {
   }
 
   /**
-   * List keys of the organizations for which the currently authenticated user has the System Administer permission for.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -178,7 +169,6 @@ public class OrganizationsService extends BaseService {
   }
 
   /**
-   * Update an organization.<br/>Require 'Administer System' permission. Organization support must be enabled.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -197,7 +187,6 @@ public class OrganizationsService extends BaseService {
   }
 
   /**
-   * Update the default visibility for new projects of the specified organization.
    *
    * This is part of the internal API.
    * This is a POST request.

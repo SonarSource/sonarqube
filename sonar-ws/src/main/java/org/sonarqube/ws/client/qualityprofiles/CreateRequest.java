@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualityprofiles;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Create a quality profile.<br>Requires to be logged in and the 'Administer Quality Profiles' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/create">Further information about this action online (including a response example)</a>
@@ -37,8 +36,6 @@ public class CreateRequest {
   private String organization;
 
   /**
-   * Quality profile language
-   *
    * This is a mandatory parameter.
    * Example value: "js"
    */
@@ -52,8 +49,6 @@ public class CreateRequest {
   }
 
   /**
-   * Quality profile name
-   *
    * This is a mandatory parameter.
    * Example value: "My Sonar way"
    */
@@ -67,8 +62,6 @@ public class CreateRequest {
   }
 
   /**
-   * Organization key. If no organization is provided, the default organization is used.
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */

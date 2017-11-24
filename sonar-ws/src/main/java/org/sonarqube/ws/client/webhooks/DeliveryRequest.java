@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.webhooks;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Get a webhook delivery by its id.<br/>Require 'Administer System' permission.<br/>Note that additional information are returned by api/webhooks/delivery.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/webhooks/delivery">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class DeliveryRequest {
   private String deliveryId;
 
   /**
-   * Id of delivery
-   *
    * This is a mandatory parameter.
    * Example value: "AU-TpxcA-iU5OvuD2FL3"
    */

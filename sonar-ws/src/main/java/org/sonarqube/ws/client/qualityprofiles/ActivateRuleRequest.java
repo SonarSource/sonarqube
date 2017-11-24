@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualityprofiles;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Activate a rule on a Quality Profile.<br> Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/activate_rule">Further information about this action online (including a response example)</a>
@@ -33,14 +32,12 @@ import javax.annotation.Generated;
 public class ActivateRuleRequest {
 
   private String key;
-  private String params;
+  private List<String> params;
   private String reset;
   private String rule;
   private String severity;
 
   /**
-   * Quality Profile key. Can be obtained through <code>api/qualityprofiles/search</code>
-   *
    * This is a mandatory parameter.
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
@@ -54,22 +51,18 @@ public class ActivateRuleRequest {
   }
 
   /**
-   * Parameters as semi-colon list of <code>key=value</code>. Ignored if parameter reset is true.
-   *
    * Example value: "params=key1=v1;key2=v2"
    */
-  public ActivateRuleRequest setParams(String params) {
+  public ActivateRuleRequest setParams(List<String> params) {
     this.params = params;
     return this;
   }
 
-  public String getParams() {
+  public List<String> getParams() {
     return params;
   }
 
   /**
-   * Reset severity and parameters of activated rule. Set the values defined on parent profile or from rule default values.
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -88,8 +81,6 @@ public class ActivateRuleRequest {
   }
 
   /**
-   * Rule key
-   *
    * This is a mandatory parameter.
    * Example value: "squid:AvoidCycles"
    */
@@ -103,8 +94,6 @@ public class ActivateRuleRequest {
   }
 
   /**
-   * Severity. Ignored if parameter reset is true.
-   *
    * Possible values:
    * <ul>
    *   <li>"INFO"</li>

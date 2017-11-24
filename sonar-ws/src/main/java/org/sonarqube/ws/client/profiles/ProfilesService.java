@@ -28,7 +28,6 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 /**
- * Removed since 6.3, please use api/qualityprofiles instead
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/profiles">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -39,7 +38,6 @@ public class ProfilesService extends BaseService {
   }
 
   /**
-   * Get a profile.<br/>The web service is removed and you're invited to use api/qualityprofiles/search instead
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -56,7 +54,6 @@ public class ProfilesService extends BaseService {
   }
 
   /**
-   * Get a list of profiles.<br/>The web service is removed and you're invited to use api/qualityprofiles/search instead
    *
    * This is part of the internal API.
    * This is a GET request.

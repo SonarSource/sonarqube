@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.permissions;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Create a permission template.<br />Requires the following permission: 'Administer System'.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions/create_template">Further information about this action online (including a response example)</a>
@@ -38,8 +37,6 @@ public class CreateTemplateRequest {
   private String projectKeyPattern;
 
   /**
-   * Description
-   *
    * Example value: "Permissions for all projects related to the financial service"
    */
   public CreateTemplateRequest setDescription(String description) {
@@ -52,8 +49,6 @@ public class CreateTemplateRequest {
   }
 
   /**
-   * Name
-   *
    * This is a mandatory parameter.
    * Example value: "Financial Service Permissions"
    */
@@ -67,8 +62,6 @@ public class CreateTemplateRequest {
   }
 
   /**
-   * Key of organization, used when group name is set
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -82,8 +75,6 @@ public class CreateTemplateRequest {
   }
 
   /**
-   * Project key pattern. Must be a valid Java regular expression
-   *
    * Example value: ".*\\.finance\\..*"
    */
   public CreateTemplateRequest setProjectKeyPattern(String projectKeyPattern) {

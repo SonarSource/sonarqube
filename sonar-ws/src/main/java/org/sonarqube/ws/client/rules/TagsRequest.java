@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.rules;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * List rule tags
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/rules/tags">Further information about this action online (including a response example)</a>
@@ -37,8 +36,6 @@ public class TagsRequest {
   private String q;
 
   /**
-   * Organization key
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -52,8 +49,6 @@ public class TagsRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 100
-   *
    * Example value: "20"
    */
   public TagsRequest setPs(String ps) {
@@ -66,8 +61,6 @@ public class TagsRequest {
   }
 
   /**
-   * Limit search to tags that contain the supplied string.
-   *
    * Example value: "misra"
    */
   public TagsRequest setQ(String q) {

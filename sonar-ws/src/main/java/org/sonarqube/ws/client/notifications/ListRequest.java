@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.notifications;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * List notifications of the authenticated user.<br>Requires one of the following permissions:<ul>  <li>Authentication if no login is provided</li>  <li>System administration if a login is provided</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/notifications/list">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class ListRequest {
   private String login;
 
   /**
-   * User login
-   *
    */
   public ListRequest setLogin(String login) {
     this.login = login;

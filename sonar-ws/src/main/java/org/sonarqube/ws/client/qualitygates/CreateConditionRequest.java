@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Add a new condition to a quality gate.<br>Requires the 'Administer Quality Gates' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/create_condition">Further information about this action online (including a response example)</a>
@@ -40,8 +39,6 @@ public class CreateConditionRequest {
   private String warning;
 
   /**
-   * Condition error threshold
-   *
    * Example value: "10"
    */
   public CreateConditionRequest setError(String error) {
@@ -54,8 +51,6 @@ public class CreateConditionRequest {
   }
 
   /**
-   * ID of the quality gate
-   *
    * This is a mandatory parameter.
    * Example value: "1"
    */
@@ -69,8 +64,6 @@ public class CreateConditionRequest {
   }
 
   /**
-   * Condition metric
-   *
    * This is a mandatory parameter.
    * Example value: "blocker_violations"
    */
@@ -84,8 +77,6 @@ public class CreateConditionRequest {
   }
 
   /**
-   * Condition operator:<br/><ul><li>EQ = equals</li><li>NE = is not</li><li>LT = is lower than</li><li>GT = is greater than</li></ui>
-   *
    * Example value: "EQ"
    * Possible values:
    * <ul>
@@ -105,8 +96,6 @@ public class CreateConditionRequest {
   }
 
   /**
-   * Condition period. If not set, the absolute value is considered.
-   *
    * Possible values:
    * <ul>
    *   <li>"1"</li>
@@ -122,8 +111,6 @@ public class CreateConditionRequest {
   }
 
   /**
-   * Condition warning threshold
-   *
    * Example value: "5"
    */
   public CreateConditionRequest setWarning(String warning) {

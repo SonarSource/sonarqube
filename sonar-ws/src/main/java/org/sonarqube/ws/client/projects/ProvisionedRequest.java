@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Get the list of provisioned projects.<br> Web service is deprecated. Use api/projects/search instead, with onProvisionedOnly=true.<br> Require 'Create Projects' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects/provisioned">Further information about this action online (including a response example)</a>
@@ -40,8 +38,6 @@ public class ProvisionedRequest {
   private String q;
 
   /**
-   * Comma-separated list of the fields to be returned in response. All the fields are returned by default.
-   *
    * Possible values:
    * <ul>
    *   <li>"name"</li>
@@ -61,8 +57,6 @@ public class ProvisionedRequest {
   }
 
   /**
-   * The key of the organization
-   *
    * This is part of the internal API.
    */
   public ProvisionedRequest setOrganization(String organization) {
@@ -75,8 +69,6 @@ public class ProvisionedRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public ProvisionedRequest setP(String p) {
@@ -89,8 +81,6 @@ public class ProvisionedRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 500
-   *
    * Example value: "20"
    */
   public ProvisionedRequest setPs(String ps) {
@@ -103,8 +93,6 @@ public class ProvisionedRequest {
   }
 
   /**
-   * Limit search to names or keys that contain the supplied string.
-   *
    * Example value: "sonar"
    */
   public ProvisionedRequest setQ(String q) {

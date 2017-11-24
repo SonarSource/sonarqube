@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.ce;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Get the pending tasks, in-progress tasks and the last executed task of a given component (usually a project).<br>Requires the following permission: 'Browse' on the specified component.<br>Either 'componentId' or 'component' must be provided.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/ce/component">Further information about this action online (including a response example)</a>

@@ -36,7 +36,6 @@ import org.sonarqube.ws.Permissions.UpdateTemplateWsResponse;
 import org.sonarqube.ws.Permissions.UsersWsResponse;
 
 /**
- * Manage permission templates, and the granting and revoking of permissions at the global and project levels.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -47,7 +46,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * Add permission to a group.<br /> This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br /> The group name or group id must be provided. <br />Requires one of the following permissions:<ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -68,7 +66,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * Add a group to a permission template.<br /> The group id or group name must be provided. <br />Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -89,7 +86,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * Add a project creator to a permission template.<br>Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -108,7 +104,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * Add permission to a user.<br /> This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br />Requires one of the following permissions:<ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -128,7 +123,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * Add a user to a permission template.<br /> Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -148,7 +142,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * Apply a permission template to one project.<br>The project id or project key must be provided.<br>The template id or name must be provided.<br>Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -168,7 +161,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * Apply a permission template to several projects.<br />The template id or name must be provided.<br />Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -192,7 +184,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * Create a permission template.<br />Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -210,7 +201,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * Delete a permission template.<br />Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -228,7 +218,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * Lists the groups with their permissions.<br>This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br> This service defaults to all groups, but can be limited to groups with a specific permission by providing the desired permission.<br>Requires one of the following permissions:<ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li></ul>
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -249,7 +238,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * Remove a permission from a group.<br /> This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br /> The group id or group name must be provided, not both.<br />Requires one of the following permissions:<ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -270,7 +258,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * Remove a group from a permission template.<br /> The group id or group name must be provided. <br />Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -291,7 +278,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * Remove a project creator from a permission template.<br>Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -310,7 +296,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * Remove permission from a user.<br /> This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br /> Requires one of the following permissions:<ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -330,7 +315,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * Remove a user from a permission template.<br /> Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -350,7 +334,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * List global permissions. <br />Requires the following permission: 'Administer System'
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -367,7 +350,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * List project permissions. A project can be a technical project, a view or a developer.<br />Requires one of the following permissions:<ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li></ul>
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -389,7 +371,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * List permission templates.<br />Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -405,7 +386,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * Set a permission template as default.<br />Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -424,7 +404,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * Lists the groups with their permission as individual groups rather than through user affiliation on the chosen template.<br />This service defaults to all groups, but can be limited to groups with a specific permission by providing the desired permission.<br>Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -445,7 +424,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * Lists the users with their permission as individual users rather than through group affiliation on the chosen template. <br />This service defaults to all users, but can be limited to users with a specific permission by providing the desired permission.<br>Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -467,7 +445,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * Update a permission template.<br />Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -485,7 +462,6 @@ public class PermissionsService extends BaseService {
   }
 
   /**
-   * Lists the users with their permissions as individual users rather than through group affiliation.<br>This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br> This service defaults to all users, but can be limited to users with a specific permission by providing the desired permission.<br>Requires one of the following permissions:<ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li></ul>
    *
    * This is part of the internal API.
    * This is a GET request.

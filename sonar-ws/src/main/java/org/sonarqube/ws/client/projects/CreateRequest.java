@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.projects;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Create a project.<br/>Requires 'Create Projects' permission
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects/create">Further information about this action online (including a response example)</a>
@@ -39,8 +38,6 @@ public class CreateRequest {
   private String visibility;
 
   /**
-   * SCM Branch of the project. The key of the project will become key:branch, for instance 'SonarQube:branch-5.0'
-   *
    * Example value: "branch-5.0"
    */
   public CreateRequest setBranch(String branch) {
@@ -53,8 +50,6 @@ public class CreateRequest {
   }
 
   /**
-   * Name of the project
-   *
    * This is a mandatory parameter.
    * Example value: "SonarQube"
    */
@@ -68,8 +63,6 @@ public class CreateRequest {
   }
 
   /**
-   * The key of the organization
-   *
    * This is part of the internal API.
    */
   public CreateRequest setOrganization(String organization) {
@@ -82,8 +75,6 @@ public class CreateRequest {
   }
 
   /**
-   * Key of the project
-   *
    * This is a mandatory parameter.
    * Example value: "my_project"
    */
@@ -97,8 +88,6 @@ public class CreateRequest {
   }
 
   /**
-   * Whether the created project should be visible to everyone, or only specific user/groups.<br/>If no visibility is specified, the default project visibility of the organization will be used.
-   *
    * This is part of the internal API.
    * Possible values:
    * <ul>

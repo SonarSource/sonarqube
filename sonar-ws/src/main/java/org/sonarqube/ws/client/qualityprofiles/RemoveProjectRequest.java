@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualityprofiles;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Remove a project's association with a quality profile.<br> Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li>  <li>Administer right on the specified project</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/remove_project">Further information about this action online (including a response example)</a>
@@ -40,8 +39,6 @@ public class RemoveProjectRequest {
   private String qualityProfile;
 
   /**
-   * Quality profile key
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    * @deprecated since 6.6
    */
@@ -56,8 +53,6 @@ public class RemoveProjectRequest {
   }
 
   /**
-   * Quality profile language. If this parameter is set, 'key' must not be set and 'language' must be set to disambiguate.
-   *
    */
   public RemoveProjectRequest setLanguage(String language) {
     this.language = language;
@@ -69,8 +64,6 @@ public class RemoveProjectRequest {
   }
 
   /**
-   * Organization key. If no organization is provided, the default organization is used.
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -84,8 +77,6 @@ public class RemoveProjectRequest {
   }
 
   /**
-   * Project key
-   *
    * Example value: "my_project"
    */
   public RemoveProjectRequest setProject(String project) {
@@ -98,8 +89,6 @@ public class RemoveProjectRequest {
   }
 
   /**
-   * Project ID. Either this parameter, or 'project' must be set.
-   *
    * Example value: "AU-TpxcB-iU5OvuD2FL6"
    * @deprecated since 6.5
    */
@@ -114,8 +103,6 @@ public class RemoveProjectRequest {
   }
 
   /**
-   * Quality profile name. If this parameter is set, 'key' must not be set and 'language' must be set to disambiguate.
-   *
    * Example value: "Sonar way"
    */
   public RemoveProjectRequest setQualityProfile(String qualityProfile) {

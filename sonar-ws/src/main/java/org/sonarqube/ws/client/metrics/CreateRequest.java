@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.metrics;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Create custom metric.<br /> Requires 'Administer System' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/metrics/create">Further information about this action online (including a response example)</a>
@@ -39,8 +38,6 @@ public class CreateRequest {
   private String type;
 
   /**
-   * Description
-   *
    * Example value: "Size of the team"
    */
   public CreateRequest setDescription(String description) {
@@ -53,8 +50,6 @@ public class CreateRequest {
   }
 
   /**
-   * Domain
-   *
    * Example value: "Tests"
    */
   public CreateRequest setDomain(String domain) {
@@ -67,8 +62,6 @@ public class CreateRequest {
   }
 
   /**
-   * Key
-   *
    * This is a mandatory parameter.
    * Example value: "team_size"
    */
@@ -82,8 +75,6 @@ public class CreateRequest {
   }
 
   /**
-   * Name
-   *
    * This is a mandatory parameter.
    * Example value: "Team Size"
    */
@@ -97,8 +88,6 @@ public class CreateRequest {
   }
 
   /**
-   * Metric type key
-   *
    * This is a mandatory parameter.
    * Example value: "INT"
    * Possible values:

@@ -31,7 +31,6 @@ import org.sonarqube.ws.UserGroups.SearchWsResponse;
 import org.sonarqube.ws.UserGroups.UpdateWsResponse;
 
 /**
- * Manage user groups.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/user_groups">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -42,7 +41,6 @@ public class UserGroupsService extends BaseService {
   }
 
   /**
-   * Add a user to a group.<br />'id' or 'name' must be provided.<br />Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -61,7 +59,6 @@ public class UserGroupsService extends BaseService {
   }
 
   /**
-   * Create a group.<br>Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -78,7 +75,6 @@ public class UserGroupsService extends BaseService {
   }
 
   /**
-   * Delete a group. The default groups cannot be deleted.<br/>'id' or 'name' must be provided.<br />Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -96,7 +92,6 @@ public class UserGroupsService extends BaseService {
   }
 
   /**
-   * Remove a user from a group.<br />'id' or 'name' must be provided.<br>Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -115,7 +110,6 @@ public class UserGroupsService extends BaseService {
   }
 
   /**
-   * Search for user groups.<br>Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -134,7 +128,6 @@ public class UserGroupsService extends BaseService {
   }
 
   /**
-   * Update a group.<br>Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -151,7 +144,6 @@ public class UserGroupsService extends BaseService {
   }
 
   /**
-   * Search for users with membership information with respect to a group.<br>Requires the following permission: 'Administer System'.
    *
    * This is part of the internal API.
    * This is a GET request.

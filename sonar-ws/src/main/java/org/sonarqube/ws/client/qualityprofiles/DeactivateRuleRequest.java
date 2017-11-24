@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualityprofiles;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Deactivate a rule on a quality profile.<br> Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/deactivate_rule">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class DeactivateRuleRequest {
   private String rule;
 
   /**
-   * Quality Profile key. Can be obtained through <code>api/qualityprofiles/search</code>
-   *
    * This is a mandatory parameter.
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
@@ -51,8 +48,6 @@ public class DeactivateRuleRequest {
   }
 
   /**
-   * Rule key
-   *
    * This is a mandatory parameter.
    * Example value: "squid:AvoidCycles"
    */

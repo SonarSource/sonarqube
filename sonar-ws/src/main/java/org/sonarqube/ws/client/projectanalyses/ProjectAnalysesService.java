@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client.projectanalyses;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
@@ -30,7 +31,6 @@ import org.sonarqube.ws.ProjectAnalyses.SearchResponse;
 import org.sonarqube.ws.ProjectAnalyses.UpdateEventResponse;
 
 /**
- * Manage project analyses.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_analyses">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -41,7 +41,6 @@ public class ProjectAnalysesService extends BaseService {
   }
 
   /**
-   * Create a project analysis event.<br>Only event of category 'VERSION' and 'OTHER' can be created.<br>Requires one of the following permissions:<ul>  <li>'Administer System'</li>  <li>'Administer' rights on the specified project</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -58,7 +57,6 @@ public class ProjectAnalysesService extends BaseService {
   }
 
   /**
-   * Delete a project analysis.<br>Requires one of the following permissions:<ul>  <li>'Administer System'</li>  <li>'Administer' rights on the project of the specified analysis</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -74,7 +72,6 @@ public class ProjectAnalysesService extends BaseService {
   }
 
   /**
-   * Delete a project analysis event.<br>Only event of category 'VERSION' and 'OTHER' can be deleted.<br>Requires one of the following permissions:<ul>  <li>'Administer System'</li>  <li>'Administer' rights on the specified project</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -90,7 +87,6 @@ public class ProjectAnalysesService extends BaseService {
   }
 
   /**
-   * Search a project analyses and attached events.<br>Requires the following permission: 'Browse' on the specified project
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -111,7 +107,6 @@ public class ProjectAnalysesService extends BaseService {
   }
 
   /**
-   * Update a project analysis event.<br>Only events of category 'VERSION' and 'OTHER' can be updated.<br>Requires one of the following permissions:<ul>  <li>'Administer System'</li>  <li>'Administer' rights on the specified project</li></ul>
    *
    * This is part of the internal API.
    * This is a POST request.

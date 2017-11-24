@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.organizations;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Update an organization.<br/>Require 'Administer System' permission. Organization support must be enabled.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/organizations/update">Further information about this action online (including a response example)</a>
@@ -39,8 +38,6 @@ public class UpdateRequest {
   private String url;
 
   /**
-   * URL of the organization avatar.<br/> It must be less than 256 chars long.
-   *
    * Example value: "https://www.foo.com/foo.png"
    */
   public UpdateRequest setAvatar(String avatar) {
@@ -53,8 +50,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Description of the organization.<br/> It must be less than 256 chars long.
-   *
    * Example value: "The Foo company produces quality software for Bar."
    */
   public UpdateRequest setDescription(String description) {
@@ -67,8 +62,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Organization key
-   *
    * This is a mandatory parameter.
    * Example value: "foo-company"
    */
@@ -82,8 +75,6 @@ public class UpdateRequest {
   }
 
   /**
-   * Name of the organization. <br />It must be between 2 and 64 chars longs.
-   *
    * Example value: "Foo Company"
    */
   public UpdateRequest setName(String name) {
@@ -96,8 +87,6 @@ public class UpdateRequest {
   }
 
   /**
-   * URL of the organization.<br/> It must be less than 256 chars long.
-   *
    * Example value: "https://www.foo.com"
    */
   public UpdateRequest setUrl(String url) {

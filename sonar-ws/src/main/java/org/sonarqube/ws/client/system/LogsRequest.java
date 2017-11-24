@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.system;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Get system logs in plain-text format. Requires system administration permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/system/logs">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class LogsRequest {
   private String process;
 
   /**
-   * Process to get logs from
-   *
    * Possible values:
    * <ul>
    *   <li>"app"</li>

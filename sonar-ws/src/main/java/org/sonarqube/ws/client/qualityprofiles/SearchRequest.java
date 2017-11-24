@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualityprofiles;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Search quality profiles
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/search">Further information about this action online (including a response example)</a>
@@ -39,8 +38,6 @@ public class SearchRequest {
   private String qualityProfile;
 
   /**
-   * If set to true, return only the quality profiles marked as default for each language
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -59,8 +56,6 @@ public class SearchRequest {
   }
 
   /**
-   * Language key. If provided, only profiles for the given language are returned.
-   *
    */
   public SearchRequest setLanguage(String language) {
     this.language = language;
@@ -72,8 +67,6 @@ public class SearchRequest {
   }
 
   /**
-   * Organization key. If no organization is provided, the default organization is used.
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -87,8 +80,6 @@ public class SearchRequest {
   }
 
   /**
-   * Project key
-   *
    * Example value: "my_project"
    */
   public SearchRequest setProject(String project) {
@@ -101,8 +92,6 @@ public class SearchRequest {
   }
 
   /**
-   * Quality profile name
-   *
    * Example value: "SonarQube Way"
    */
   public SearchRequest setQualityProfile(String qualityProfile) {

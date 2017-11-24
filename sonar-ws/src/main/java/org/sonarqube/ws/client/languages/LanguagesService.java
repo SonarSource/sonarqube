@@ -19,14 +19,15 @@
  */
 package org.sonarqube.ws.client.languages;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 /**
- * Get the list of programming languages supported in this instance.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/languages">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -37,7 +38,6 @@ public class LanguagesService extends BaseService {
   }
 
   /**
-   * List supported programming languages
    *
    * This is part of the internal API.
    * This is a GET request.

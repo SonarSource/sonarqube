@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.permissions;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Remove a permission from a group.<br /> This service defaults to global permissions, but can be limited to project permissions by providing project id or project key.<br /> The group id or group name must be provided, not both.<br />Requires one of the following permissions:<ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/permissions/remove_group">Further information about this action online (including a response example)</a>
@@ -40,8 +39,6 @@ public class RemoveGroupRequest {
   private String projectKey;
 
   /**
-   * Group id
-   *
    * Example value: "42"
    */
   public RemoveGroupRequest setGroupId(String groupId) {
@@ -54,8 +51,6 @@ public class RemoveGroupRequest {
   }
 
   /**
-   * Group name or 'anyone' (case insensitive)
-   *
    * Example value: "sonar-administrators"
    */
   public RemoveGroupRequest setGroupName(String groupName) {
@@ -68,8 +63,6 @@ public class RemoveGroupRequest {
   }
 
   /**
-   * Key of organization, used when group name is set
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -83,8 +76,6 @@ public class RemoveGroupRequest {
   }
 
   /**
-   * Permission<ul><li>Possible values for global permissions: admin, profileadmin, gateadmin, scan, provisioning</li><li>Possible values for project permissions admin, codeviewer, issueadmin, scan, user</li></ul>
-   *
    * This is a mandatory parameter.
    */
   public RemoveGroupRequest setPermission(String permission) {
@@ -97,8 +88,6 @@ public class RemoveGroupRequest {
   }
 
   /**
-   * Project id
-   *
    * Example value: "ce4c03d6-430f-40a9-b777-ad877c00aa4d"
    */
   public RemoveGroupRequest setProjectId(String projectId) {
@@ -111,8 +100,6 @@ public class RemoveGroupRequest {
   }
 
   /**
-   * Project key
-   *
    * Example value: "my_project"
    */
   public RemoveGroupRequest setProjectKey(String projectKey) {

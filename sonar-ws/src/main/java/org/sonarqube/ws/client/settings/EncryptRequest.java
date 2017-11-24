@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.settings;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Encrypt a setting value.<br>Requires 'Administer System' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/settings/encrypt">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class EncryptRequest {
   private String value;
 
   /**
-   * Setting value to encrypt
-   *
    * This is a mandatory parameter.
    * Example value: "my value"
    */

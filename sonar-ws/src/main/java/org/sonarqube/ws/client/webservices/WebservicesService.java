@@ -19,14 +19,15 @@
  */
 package org.sonarqube.ws.client.webservices;
 
+import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 /**
- * Get information on the web api supported on this instance.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/webservices">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -37,7 +38,6 @@ public class WebservicesService extends BaseService {
   }
 
   /**
-   * List web services
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -53,7 +53,6 @@ public class WebservicesService extends BaseService {
   }
 
   /**
-   * Display web service response example
    *
    * This is part of the internal API.
    * This is a GET request.

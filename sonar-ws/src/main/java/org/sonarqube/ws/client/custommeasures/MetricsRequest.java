@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.custommeasures;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * List all custom metrics for which no custom measure already exists on a given project.<br /> The project id or project key must be provided.<br />Requires 'Administer System' permission or 'Administer' permission on the project.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/custom_measures/metrics">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class MetricsRequest {
   private String projectKey;
 
   /**
-   * Project id
-   *
    * Example value: "ce4c03d6-430f-40a9-b777-ad877c00aa4d"
    */
   public MetricsRequest setProjectId(String projectId) {
@@ -50,8 +47,6 @@ public class MetricsRequest {
   }
 
   /**
-   * Project key
-   *
    * Example value: "my_project"
    */
   public MetricsRequest setProjectKey(String projectKey) {

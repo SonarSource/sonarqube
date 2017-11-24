@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Set tags on a project.<br>Requires the following permission: 'Administer' rights on the specified project
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_tags/set">Further information about this action online (including a response example)</a>
@@ -37,8 +35,6 @@ public class SetRequest {
   private List<String> tags;
 
   /**
-   * Project key
-   *
    * This is a mandatory parameter.
    * Example value: "my_project"
    */
@@ -52,8 +48,6 @@ public class SetRequest {
   }
 
   /**
-   * Comma-separated list of tags
-   *
    * This is a mandatory parameter.
    * Example value: "finance, offshore"
    */

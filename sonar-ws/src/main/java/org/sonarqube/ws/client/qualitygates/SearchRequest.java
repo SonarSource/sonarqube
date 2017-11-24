@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Search for projects associated (or not) to a quality gate.<br/>Only authorized projects for current user will be returned.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/search">Further information about this action online (including a response example)</a>
@@ -39,8 +38,6 @@ public class SearchRequest {
   private String selected;
 
   /**
-   * Quality Gate ID
-   *
    * This is a mandatory parameter.
    * Example value: "1"
    */
@@ -54,8 +51,6 @@ public class SearchRequest {
   }
 
   /**
-   * Page number
-   *
    * Example value: "2"
    */
   public SearchRequest setPage(String page) {
@@ -68,8 +63,6 @@ public class SearchRequest {
   }
 
   /**
-   * Page size
-   *
    * Example value: "10"
    */
   public SearchRequest setPageSize(String pageSize) {
@@ -82,8 +75,6 @@ public class SearchRequest {
   }
 
   /**
-   * To search for projects containing this string. If this parameter is set, "selected" is set to "all".
-   *
    * Example value: "abc"
    */
   public SearchRequest setQuery(String query) {
@@ -96,8 +87,6 @@ public class SearchRequest {
   }
 
   /**
-   * Depending on the value, show only selected items (selected=selected), deselected items (selected=deselected), or all items with their selection status (selected=all).
-   *
    * Possible values:
    * <ul>
    *   <li>"all"</li>

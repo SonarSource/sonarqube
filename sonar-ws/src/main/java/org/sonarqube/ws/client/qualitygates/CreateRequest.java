@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Create a Quality Gate.<br>Requires the 'Administer Quality Gates' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/create">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class CreateRequest {
   private String name;
 
   /**
-   * The name of the quality gate to create
-   *
    * This is a mandatory parameter.
    * Example value: "My Quality Gate"
    */

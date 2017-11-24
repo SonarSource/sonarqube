@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.projectanalyses;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Delete a project analysis event.<br>Only event of category 'VERSION' and 'OTHER' can be deleted.<br>Requires one of the following permissions:<ul>  <li>'Administer System'</li>  <li>'Administer' rights on the specified project</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_analyses/delete_event">Further information about this action online (including a response example)</a>
@@ -35,8 +34,6 @@ public class DeleteEventRequest {
   private String event;
 
   /**
-   * Event key
-   *
    * This is a mandatory parameter.
    * Example value: "AU-TpxcA-iU5OvuD2FLz"
    */

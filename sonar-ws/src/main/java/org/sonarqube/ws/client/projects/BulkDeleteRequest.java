@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Delete one or several projects.<br />Requires 'Administer System' permission.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects/bulk_delete">Further information about this action online (including a response example)</a>
@@ -43,8 +41,6 @@ public class BulkDeleteRequest {
   private String visibility;
 
   /**
-   * Filter the projects for which last analysis is older than the given date (exclusive).<br> Either a date (server timezone) or datetime can be provided.
-   *
    * Example value: "2017-10-19 or 2017-10-19T13:00:00+0200"
    */
   public BulkDeleteRequest setAnalyzedBefore(String analyzedBefore) {
@@ -57,8 +53,6 @@ public class BulkDeleteRequest {
   }
 
   /**
-   * Filter the projects that are provisioned
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -77,8 +71,6 @@ public class BulkDeleteRequest {
   }
 
   /**
-   * The key of the organization
-   *
    * This is part of the internal API.
    */
   public BulkDeleteRequest setOrganization(String organization) {
@@ -91,8 +83,6 @@ public class BulkDeleteRequest {
   }
 
   /**
-   * Comma-separated list of project ids
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy,AU-TpxcA-iU5OvuD2FLz"
    * @deprecated since 6.4
    */
@@ -107,8 +97,6 @@ public class BulkDeleteRequest {
   }
 
   /**
-   * Comma-separated list of project keys
-   *
    * Example value: "my_project,another_project"
    */
   public BulkDeleteRequest setProjects(List<String> projects) {
@@ -121,8 +109,6 @@ public class BulkDeleteRequest {
   }
 
   /**
-   * Limit to: <ul><li>component names that contain the supplied string</li><li>component keys that contain the supplied string</li></ul>
-   *
    * Example value: "sonar"
    */
   public BulkDeleteRequest setQ(String q) {
@@ -135,8 +121,6 @@ public class BulkDeleteRequest {
   }
 
   /**
-   * Comma-separated list of component qualifiers. Filter the results with the specified qualifiers
-   *
    * Possible values:
    * <ul>
    *   <li>"TRK"</li>
@@ -154,8 +138,6 @@ public class BulkDeleteRequest {
   }
 
   /**
-   * Filter the projects that should be visible to everyone (public), or only specific user/groups (private).<br/>If no visibility is specified, the default project visibility of the organization will be used.
-   *
    * This is part of the internal API.
    * Possible values:
    * <ul>

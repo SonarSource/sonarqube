@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.rules;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * List available rule repositories
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/rules/repositories">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class RepositoriesRequest {
   private String q;
 
   /**
-   * A language key; if provided, only repositories for the given language will be returned
-   *
    * Example value: "java"
    */
   public RepositoriesRequest setLanguage(String language) {
@@ -50,8 +47,6 @@ public class RepositoriesRequest {
   }
 
   /**
-   * A pattern to match repository keys/names against
-   *
    * Example value: "squid"
    */
   public RepositoriesRequest setQ(String q) {

@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Bulk deactivate rules on Quality profiles.<br>Requires one of the following permissions:<ul>  <li>'Administer Quality Profiles'</li>  <li>Edit right on the specified quality profile</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/deactivate_rules">Further information about this action online (including a response example)</a>
@@ -55,8 +53,6 @@ public class DeactivateRulesRequest {
   private List<String> types;
 
   /**
-   * Filter rules that are activated or deactivated on the selected Quality profile. Ignored if the parameter 'qprofile' is not set.
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -75,8 +71,6 @@ public class DeactivateRulesRequest {
   }
 
   /**
-   * Comma-separated list of activation severities, i.e the severity of rules in Quality profiles.
-   *
    * Example value: "CRITICAL,BLOCKER"
    * Possible values:
    * <ul>
@@ -97,8 +91,6 @@ public class DeactivateRulesRequest {
   }
 
   /**
-   * Ascending sort
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -117,8 +109,6 @@ public class DeactivateRulesRequest {
   }
 
   /**
-   * Filters rules added since date. Format is yyyy-MM-dd
-   *
    * Example value: "2014-06-22"
    */
   public DeactivateRulesRequest setAvailableSince(String availableSince) {
@@ -131,8 +121,6 @@ public class DeactivateRulesRequest {
   }
 
   /**
-   * Quality profile key to filter rules that are activated. Meant to compare easily to profile set in 'qprofile'
-   *
    * This is part of the internal API.
    * Example value: "AU-TpxcA-iU5OvuD2FLz"
    */
@@ -146,8 +134,6 @@ public class DeactivateRulesRequest {
   }
 
   /**
-   * Comma-separated list of values of inheritance for a rule within a quality profile. Used only if the parameter 'activation' is set.
-   *
    * Example value: "INHERITED,OVERRIDES"
    * Possible values:
    * <ul>
@@ -166,8 +152,6 @@ public class DeactivateRulesRequest {
   }
 
   /**
-   * Filter template rules
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -186,8 +170,6 @@ public class DeactivateRulesRequest {
   }
 
   /**
-   * Comma-separated list of languages
-   *
    * Example value: "java,js"
    */
   public DeactivateRulesRequest setLanguages(List<String> languages) {
@@ -200,8 +182,6 @@ public class DeactivateRulesRequest {
   }
 
   /**
-   * Organization key
-   *
    * This is part of the internal API.
    * Example value: "my-org"
    */
@@ -215,8 +195,6 @@ public class DeactivateRulesRequest {
   }
 
   /**
-   * UTF-8 search query
-   *
    * Example value: "xpath"
    */
   public DeactivateRulesRequest setQ(String q) {
@@ -229,8 +207,6 @@ public class DeactivateRulesRequest {
   }
 
   /**
-   * Quality profile key to filter on. Used only if the parameter 'activation' is set.
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    */
   public DeactivateRulesRequest setQprofile(String qprofile) {
@@ -243,8 +219,6 @@ public class DeactivateRulesRequest {
   }
 
   /**
-   * Comma-separated list of repositories
-   *
    * Example value: "checkstyle,findbugs"
    */
   public DeactivateRulesRequest setRepositories(List<String> repositories) {
@@ -257,8 +231,6 @@ public class DeactivateRulesRequest {
   }
 
   /**
-   * Key of rule to search for
-   *
    * Example value: "squid:S001"
    */
   public DeactivateRulesRequest setRuleKey(String ruleKey) {
@@ -271,8 +243,6 @@ public class DeactivateRulesRequest {
   }
 
   /**
-   * Sort field
-   *
    * Example value: "name"
    * Possible values:
    * <ul>
@@ -292,8 +262,6 @@ public class DeactivateRulesRequest {
   }
 
   /**
-   * Comma-separated list of default severities. Not the same than severity of rules in Quality profiles.
-   *
    * Example value: "CRITICAL,BLOCKER"
    * Possible values:
    * <ul>
@@ -314,8 +282,6 @@ public class DeactivateRulesRequest {
   }
 
   /**
-   * Comma-separated list of status codes
-   *
    * Example value: "READY"
    * Possible values:
    * <ul>
@@ -335,8 +301,6 @@ public class DeactivateRulesRequest {
   }
 
   /**
-   * Comma-separated list of tags. Returned rules match any of the tags (OR operator)
-   *
    * Example value: "security,java8"
    */
   public DeactivateRulesRequest setTags(List<String> tags) {
@@ -349,8 +313,6 @@ public class DeactivateRulesRequest {
   }
 
   /**
-   * Quality Profile key on which the rule deactivation is done. To retrieve a profile key please see <code>api/qualityprofiles/search</code>
-   *
    * This is a mandatory parameter.
    * Example value: "AU-TpxcA-iU5OvuD2FL1"
    */
@@ -364,8 +326,6 @@ public class DeactivateRulesRequest {
   }
 
   /**
-   * Key of the template rule to filter on. Used to search for the custom rules based on this template.
-   *
    * Example value: "java:S001"
    */
   public DeactivateRulesRequest setTemplateKey(String templateKey) {
@@ -378,8 +338,6 @@ public class DeactivateRulesRequest {
   }
 
   /**
-   * Comma-separated list of types. Returned rules match any of the tags (OR operator)
-   *
    * Example value: "BUG"
    * Possible values:
    * <ul>

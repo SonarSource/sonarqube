@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.usertokens;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Revoke a user access token. <br/>If the login is set, it requires administration permissions. Otherwise, a token is generated for the authenticated user.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/user_tokens/revoke">Further information about this action online (including a response example)</a>
@@ -36,8 +35,6 @@ public class RevokeRequest {
   private String name;
 
   /**
-   * User login
-   *
    * Example value: "g.hopper"
    */
   public RevokeRequest setLogin(String login) {
@@ -50,8 +47,6 @@ public class RevokeRequest {
   }
 
   /**
-   * Token name
-   *
    * This is a mandatory parameter.
    * Example value: "Project scan on Travis"
    */

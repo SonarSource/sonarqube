@@ -19,11 +19,10 @@
  */
 package org.sonarqube.ws.client.projects;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Bulk update a project or module key and all its sub-components keys. The bulk update allows to replace a part of the current key by another string on the current project and all its sub-modules.<br>It's possible to simulate the bulk update by setting the parameter 'dryRun' at true. No key is updated with a dry run.<br>Ex: to rename a project with key 'my_project' to 'my_new_project' and all its sub-components keys, call the WS with parameters:<ul>  <li>project: my_project</li>  <li>from: my_</li>  <li>to: my_new_</li></ul>Either 'projectId' or 'project' must be provided.<br> Requires one of the following permissions: <ul><li>'Administer System'</li><li>'Administer' rights on the specified project</li></ul>
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/projects/bulk_update_key">Further information about this action online (including a response example)</a>
@@ -39,8 +38,6 @@ public class BulkUpdateKeyRequest {
   private String to;
 
   /**
-   * Simulate bulk update. No component key is updated.
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -59,8 +56,6 @@ public class BulkUpdateKeyRequest {
   }
 
   /**
-   * String to match in components keys
-   *
    * This is a mandatory parameter.
    * Example value: "_old"
    */
@@ -74,8 +69,6 @@ public class BulkUpdateKeyRequest {
   }
 
   /**
-   * Project or module key
-   *
    * Example value: "my_old_project"
    */
   public BulkUpdateKeyRequest setProject(String project) {
@@ -88,8 +81,6 @@ public class BulkUpdateKeyRequest {
   }
 
   /**
-   * Project or module ID
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    * @deprecated since 6.4
    */
@@ -104,8 +95,6 @@ public class BulkUpdateKeyRequest {
   }
 
   /**
-   * String replacement in components keys
-   *
    * This is a mandatory parameter.
    * Example value: "_new"
    */

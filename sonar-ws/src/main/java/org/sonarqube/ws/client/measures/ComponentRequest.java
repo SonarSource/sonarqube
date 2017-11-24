@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Return component with specified measures. The componentId or the component parameter must be provided.<br>Requires the following permission: 'Browse' on the project of specified component.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/measures/component">Further information about this action online (including a response example)</a>
@@ -42,8 +40,6 @@ public class ComponentRequest {
   private String metricKeys;
 
   /**
-   * Comma-separated list of additional fields that can be returned in the response.
-   *
    * Example value: "periods,metrics"
    * Possible values:
    * <ul>
@@ -61,8 +57,6 @@ public class ComponentRequest {
   }
 
   /**
-   * Branch key
-   *
    * This is part of the internal API.
    * Example value: "feature/my_branch"
    */
@@ -76,8 +70,6 @@ public class ComponentRequest {
   }
 
   /**
-   * Component key
-   *
    * Example value: "my_project"
    */
   public ComponentRequest setComponent(String component) {
@@ -90,8 +82,6 @@ public class ComponentRequest {
   }
 
   /**
-   * Component id
-   *
    * Example value: "AU-Tpxb--iU5OvuD2FLy"
    * @deprecated since 6.6
    */
@@ -106,8 +96,6 @@ public class ComponentRequest {
   }
 
   /**
-   * Deprecated parameter, used previously with the Developer Cockpit plugin. No measures are returned if parameter is set.
-   *
    * @deprecated since 6.4
    */
   @Deprecated
@@ -121,8 +109,6 @@ public class ComponentRequest {
   }
 
   /**
-   * Deprecated parameter, used previously with the Developer Cockpit plugin. No measures are returned if parameter is set.
-   *
    * @deprecated since 6.4
    */
   @Deprecated
@@ -136,8 +122,6 @@ public class ComponentRequest {
   }
 
   /**
-   * Metric keys
-   *
    * This is a mandatory parameter.
    * Example value: "ncloc,complexity,violations"
    */

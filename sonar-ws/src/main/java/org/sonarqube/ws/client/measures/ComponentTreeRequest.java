@@ -23,8 +23,6 @@ import java.util.List;
 import javax.annotation.Generated;
 
 /**
- * Navigate through components based on the chosen strategy with specified measures. The baseComponentId or the component parameter must be provided.<br>Requires the following permission: 'Browse' on the specified project.<br>When limiting search with the q parameter, directories are not returned.
- *
  * This is part of the internal API.
  * This is a POST request.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/measures/component_tree">Further information about this action online (including a response example)</a>
@@ -52,8 +50,6 @@ public class ComponentTreeRequest {
   private String strategy;
 
   /**
-   * Comma-separated list of additional fields that can be returned in the response.
-   *
    * Example value: "periods,metrics"
    * Possible values:
    * <ul>
@@ -71,8 +67,6 @@ public class ComponentTreeRequest {
   }
 
   /**
-   * Ascending sort
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
@@ -91,8 +85,6 @@ public class ComponentTreeRequest {
   }
 
   /**
-   * Base component id. The search is based on this component.
-   *
    * Example value: "AU-TpxcA-iU5OvuD2FLz"
    * @deprecated since 6.6
    */
@@ -107,8 +99,6 @@ public class ComponentTreeRequest {
   }
 
   /**
-   * Branch key
-   *
    * This is part of the internal API.
    * Example value: "feature/my_branch"
    */
@@ -122,8 +112,6 @@ public class ComponentTreeRequest {
   }
 
   /**
-   * Component key. The search is based on this component.
-   *
    * Example value: "my_project"
    */
   public ComponentTreeRequest setComponent(String component) {
@@ -136,8 +124,6 @@ public class ComponentTreeRequest {
   }
 
   /**
-   * Deprecated parameter, used previously with the Developer Cockpit plugin. No measures are returned if parameter is set.
-   *
    * @deprecated since 6.4
    */
   @Deprecated
@@ -151,8 +137,6 @@ public class ComponentTreeRequest {
   }
 
   /**
-   * Deprecated parameter, used previously with the Developer Cockpit plugin. No measures are returned if parameter is set.
-   *
    * @deprecated since 6.4
    */
   @Deprecated
@@ -166,8 +150,6 @@ public class ComponentTreeRequest {
   }
 
   /**
-   * Metric keys. Types DISTRIB, DATA are not allowed
-   *
    * This is a mandatory parameter.
    * Example value: "ncloc,complexity,violations"
    */
@@ -181,8 +163,6 @@ public class ComponentTreeRequest {
   }
 
   /**
-   * Sort measures by leak period or not ?. The 's' parameter must contain the 'metricPeriod' value.
-   *
    * Possible values:
    * <ul>
    *   <li>"1"</li>
@@ -198,8 +178,6 @@ public class ComponentTreeRequest {
   }
 
   /**
-   * Metric key to sort by. The 's' parameter must contain the 'metric' or 'metricPeriod' value. It must be part of the 'metricKeys' parameter
-   *
    * Example value: "ncloc"
    */
   public ComponentTreeRequest setMetricSort(String metricSort) {
@@ -212,8 +190,6 @@ public class ComponentTreeRequest {
   }
 
   /**
-   * Filter components. Sort must be on a metric. Possible values are: <ul><li>all: return all components</li><li>withMeasuresOnly: filter out components that do not have a measure on the sorted metric</li></ul>
-   *
    * Possible values:
    * <ul>
    *   <li>"all"</li>
@@ -230,8 +206,6 @@ public class ComponentTreeRequest {
   }
 
   /**
-   * 1-based page number
-   *
    * Example value: "42"
    */
   public ComponentTreeRequest setP(String p) {
@@ -244,8 +218,6 @@ public class ComponentTreeRequest {
   }
 
   /**
-   * Page size. Must be greater than 0 and less than 500
-   *
    * Example value: "20"
    */
   public ComponentTreeRequest setPs(String ps) {
@@ -258,8 +230,6 @@ public class ComponentTreeRequest {
   }
 
   /**
-   * Limit search to: <ul><li>component names that contain the supplied string</li><li>component keys that are exactly the same as the supplied string</li></ul>
-   *
    * Example value: "FILE_NAM"
    */
   public ComponentTreeRequest setQ(String q) {
@@ -272,8 +242,6 @@ public class ComponentTreeRequest {
   }
 
   /**
-   * Comma-separated list of component qualifiers. Filter the results with the specified qualifiers. Possible values are:<ul><li>BRC - Sub-projects</li><li>DIR - Directories</li><li>FIL - Files</li><li>TRK - Projects</li><li>UTS - Test Files</li></ul>
-   *
    * Possible values:
    * <ul>
    *   <li>"BRC"</li>
@@ -293,8 +261,6 @@ public class ComponentTreeRequest {
   }
 
   /**
-   * Comma-separated list of sort fields
-   *
    * Example value: "name,path"
    * Possible values:
    * <ul>
@@ -315,8 +281,6 @@ public class ComponentTreeRequest {
   }
 
   /**
-   * Strategy to search for base component descendants:<ul><li>children: return the children components of the base component. Grandchildren components are not returned</li><li>all: return all the descendants components of the base component. Grandchildren are returned.</li><li>leaves: return all the descendant components (files, in general) which don't have other children. They are the leaves of the component tree.</li></ul>
-   *
    * Possible values:
    * <ul>
    *   <li>"all"</li>

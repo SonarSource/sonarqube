@@ -33,7 +33,6 @@ import org.sonarqube.ws.Users.IdentityProvidersWsResponse;
 import org.sonarqube.ws.Users.SearchWsResponse;
 
 /**
- * Manage users.
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/users">Further information about this web service online</a>
  */
 @Generated("sonar-ws-generator")
@@ -44,7 +43,6 @@ public class UsersService extends BaseService {
   }
 
   /**
-   * Update a user's password. Authenticated users can change their own password, provided that the account is not linked to an external authentication system. Administer System permission is required to change another user's password.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -62,7 +60,6 @@ public class UsersService extends BaseService {
   }
 
   /**
-   * Create a user.<br/>If a deactivated user account exists with the given login, it will be reactivated.<br/>Requires Administer System permission
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -83,7 +80,6 @@ public class UsersService extends BaseService {
   }
 
   /**
-   * Get the details of the current authenticated user.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -97,7 +93,6 @@ public class UsersService extends BaseService {
   }
 
   /**
-   * Deactivate a user. Requires Administer System permission
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -113,7 +108,6 @@ public class UsersService extends BaseService {
   }
 
   /**
-   * Lists the groups a user belongs to. <br/>Requires Administer System permission.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -133,7 +127,6 @@ public class UsersService extends BaseService {
   }
 
   /**
-   * List the external identity providers
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -147,7 +140,6 @@ public class UsersService extends BaseService {
   }
 
   /**
-   * Get a list of active users. <br/>Administer System permission is required to show the 'groups' field.<br/>When accessed anonymously, only logins and names are returned.
    *
    * This is part of the internal API.
    * This is a GET request.
@@ -165,7 +157,6 @@ public class UsersService extends BaseService {
   }
 
   /**
-   * Stores that the user has skipped the onboarding tutorial and does not want to see it after future logins.<br/>Requires authentication.
    *
    * This is part of the internal API.
    * This is a POST request.
@@ -180,7 +171,6 @@ public class UsersService extends BaseService {
   }
 
   /**
-   * Update a user. If a deactivated user account exists with the given login, it will be reactivated. Requires Administer System permission
    *
    * This is part of the internal API.
    * This is a POST request.
