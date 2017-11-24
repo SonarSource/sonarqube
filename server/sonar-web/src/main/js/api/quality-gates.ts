@@ -20,32 +20,37 @@
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-export function fetchQualityGatesAppDetails(): Promise<any> {
-  return getJSON('/api/qualitygates/app').catch(throwGlobalError);
+interface Condition {
+  error?: string;
+  id: number;
+  metric: string;
+  op: string;
+  period?: number;
+  warning?: string;
 }
 
 export interface QualityGate {
+  actions?: {
+    associateProjects: boolean;
+    copy: boolean;
+    edit: boolean;
+    setAsDefault: boolean;
+  };
+  conditions?: Condition[];
+  id: number;
   isBuiltIn?: boolean;
   isDefault?: boolean;
-  id: number;
   name: string;
 }
 
-export function fetchQualityGates(): Promise<QualityGate[]> {
-  return getJSON('/api/qualitygates/list').then(
-    r =>
-      r.qualitygates.map((qualityGate: any) => {
-        return {
-          ...qualityGate,
-          id: qualityGate.id,
-          isDefault: qualityGate.id === r.default
-        };
-      }),
-    throwGlobalError
-  );
+export function fetchQualityGates(): Promise<{
+  actions: { create: boolean };
+  qualitygates: QualityGate[];
+}> {
+  return getJSON('/api/qualitygates/list').catch(throwGlobalError);
 }
 
-export function fetchQualityGate(id: string): Promise<any> {
+export function fetchQualityGate(id: string): Promise<QualityGate> {
   return getJSON('/api/qualitygates/show', { id }).catch(throwGlobalError);
 }
 
@@ -87,11 +92,10 @@ export function deleteCondition(id: string): Promise<void> {
 
 export function getGateForProject(project: string): Promise<QualityGate | undefined> {
   return getJSON('/api/qualitygates/get_by_project', { project }).then(
-    r =>
-      r.qualityGate && {
-        id: r.qualityGate.id,
-        isDefault: r.qualityGate.default,
-        name: r.qualityGate.name
+    ({ qualityGate }) =>
+      qualityGate && {
+        ...qualityGate,
+        isDefault: qualityGate.default
       }
   );
 }
