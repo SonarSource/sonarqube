@@ -34,7 +34,7 @@ import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.ce.TaskRequest;
-import org.sonarqube.ws.client.organization.UpdateProjectVisibilityWsRequest;
+import org.sonarqube.ws.client.organization.UpdateProjectVisibilityRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
 import util.ItUtils;
@@ -127,7 +127,7 @@ public class BillingTest {
   public void does_not_fail_to_update_default_projects_visibility_to_private() {
     tester.settings().setGlobalSettings("sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
 
-    tester.wsClient().organizations().updateProjectVisibility(UpdateProjectVisibilityWsRequest.builder()
+    tester.wsClient().organizations().updateProjectVisibility(UpdateProjectVisibilityRequest.builder()
       .setOrganization(organization.getKey())
       .setProjectVisibility("private")
       .build());
@@ -143,7 +143,7 @@ public class BillingTest {
     expectHttpError(400,
       format("Organization %s cannot use private project", organization.getKey()),
       () -> tester.wsClient().organizations()
-        .updateProjectVisibility(UpdateProjectVisibilityWsRequest.builder().setOrganization(organization.getKey()).setProjectVisibility("private").build()));
+        .updateProjectVisibility(UpdateProjectVisibilityRequest.builder().setOrganization(organization.getKey()).setProjectVisibility("private").build()));
   }
 
   @Test

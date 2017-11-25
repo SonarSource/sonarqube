@@ -29,7 +29,7 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.permission.DeleteTemplateWsRequest;
+import org.sonarqube.ws.client.permission.DeleteTemplateRequest;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
@@ -53,8 +53,8 @@ public class DeleteTemplateAction implements PermissionsWsAction {
     this.defaultTemplatesResolver = defaultTemplatesResolver;
   }
 
-  private static DeleteTemplateWsRequest toDeleteTemplateWsRequest(Request request) {
-    return new DeleteTemplateWsRequest()
+  private static DeleteTemplateRequest toDeleteTemplateWsRequest(Request request) {
+    return new DeleteTemplateRequest()
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
       .setOrganization(request.param(PARAM_ORGANIZATION))
       .setTemplateName(request.param(PARAM_TEMPLATE_NAME));
@@ -79,7 +79,7 @@ public class DeleteTemplateAction implements PermissionsWsAction {
     response.noContent();
   }
 
-  private void doHandle(DeleteTemplateWsRequest request) {
+  private void doHandle(DeleteTemplateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = finder.findTemplate(dbSession, newTemplateRef(
         request.getTemplateId(), request.getOrganization(), request.getTemplateName()));

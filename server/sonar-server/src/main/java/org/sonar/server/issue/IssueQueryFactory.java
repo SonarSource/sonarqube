@@ -53,7 +53,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
+import org.sonarqube.ws.client.issue.SearchRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
@@ -99,7 +99,7 @@ public class IssueQueryFactory {
     this.userSession = userSession;
   }
 
-  public IssueQuery create(SearchWsRequest request) {
+  public IssueQuery create(SearchRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       IssueQuery.Builder builder = IssueQuery.builder()
         .issueKeys(request.getIssues())
@@ -155,7 +155,7 @@ public class IssueQueryFactory {
     return organization.map(OrganizationDto::getUuid).orElse(UNKNOWN);
   }
 
-  private Date buildCreatedAfterFromRequest(DbSession dbSession, SearchWsRequest request, List<ComponentDto> componentUuids) {
+  private Date buildCreatedAfterFromRequest(DbSession dbSession, SearchRequest request, List<ComponentDto> componentUuids) {
     Date createdAfter = parseStartingDateOrDateTime(request.getCreatedAfter());
     String createdInLast = request.getCreatedInLast();
 
@@ -192,7 +192,7 @@ public class IssueQueryFactory {
     return assignees;
   }
 
-  private boolean mergeDeprecatedComponentParameters(DbSession session, SearchWsRequest request, List<ComponentDto> allComponents) {
+  private boolean mergeDeprecatedComponentParameters(DbSession session, SearchRequest request, List<ComponentDto> allComponents) {
     Boolean onComponentOnly = request.getOnComponentOnly();
     Collection<String> components = request.getComponents();
     Collection<String> componentUuids = request.getComponentUuids();
@@ -232,7 +232,7 @@ public class IssueQueryFactory {
   }
 
   private void addComponentParameters(IssueQuery.Builder builder, DbSession session, boolean onComponentOnly,
-    List<ComponentDto> components, SearchWsRequest request) {
+    List<ComponentDto> components, SearchRequest request) {
 
     builder.onComponentOnly(onComponentOnly);
     if (onComponentOnly) {
@@ -259,7 +259,7 @@ public class IssueQueryFactory {
     addComponentsBasedOnQualifier(builder, session, components, request);
   }
 
-  private void addComponentsBasedOnQualifier(IssueQuery.Builder builder, DbSession dbSession, List<ComponentDto> components, SearchWsRequest request) {
+  private void addComponentsBasedOnQualifier(IssueQuery.Builder builder, DbSession dbSession, List<ComponentDto> components, SearchRequest request) {
     if (components.isEmpty()) {
       return;
     }
@@ -310,7 +310,7 @@ public class IssueQueryFactory {
     builder.viewUuids(filteredViewUuids);
   }
 
-  private void addApplications(IssueQuery.Builder builder, DbSession dbSession, List<ComponentDto> applications, SearchWsRequest request) {
+  private void addApplications(IssueQuery.Builder builder, DbSession dbSession, List<ComponentDto> applications, SearchRequest request) {
     Set<String> authorizedApplicationUuids = applications.stream()
       .filter(app -> userSession.hasComponentPermission(UserRole.USER, app))
       .map(ComponentDto::uuid)
@@ -320,7 +320,7 @@ public class IssueQueryFactory {
     addCreatedAfterByProjects(builder, dbSession, request, authorizedApplicationUuids);
   }
 
-  private void addCreatedAfterByProjects(IssueQuery.Builder builder, DbSession dbSession, SearchWsRequest request, Set<String> applicationUuids) {
+  private void addCreatedAfterByProjects(IssueQuery.Builder builder, DbSession dbSession, SearchRequest request, Set<String> applicationUuids) {
     if (request.getSinceLeakPeriod() == null || !request.getSinceLeakPeriod()) {
       return;
     }

@@ -125,7 +125,7 @@ public class ProjectsServiceTest {
 
   @Test
   public void bulk_delete() {
-    underTest.bulkDelete(SearchWsRequest.builder()
+    underTest.bulkDelete(SearchRequest.builder()
       .setOrganization("default")
       .setQuery("project")
       .setQualifiers(asList("TRK", "VW"))
@@ -147,7 +147,7 @@ public class ProjectsServiceTest {
 
   @Test
   public void search() {
-    underTest.search(SearchWsRequest.builder()
+    underTest.search(SearchRequest.builder()
       .setOrganization("default")
       .setQuery("project")
       .setQualifiers(asList("TRK", "VW"))

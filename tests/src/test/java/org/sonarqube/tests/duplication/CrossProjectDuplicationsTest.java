@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
+import org.sonarqube.ws.client.issue.SearchRequest;
 import util.ItUtils;
 import util.issue.IssueRule;
 
@@ -94,7 +94,7 @@ public class CrossProjectDuplicationsTest {
 
   @Test
   public void issue_on_duplicated_blocks_is_generated_on_file() throws Exception {
-    assertThat(issueRule.search(new SearchWsRequest().setComponentKeys(singletonList(DUPLICATE_FILE)).setRules(singletonList("common-xoo:DuplicatedBlocks"))).getIssuesList())
+    assertThat(issueRule.search(new SearchRequest().setComponentKeys(singletonList(DUPLICATE_FILE)).setRules(singletonList("common-xoo:DuplicatedBlocks"))).getIssuesList())
       .hasSize(1);
   }
 

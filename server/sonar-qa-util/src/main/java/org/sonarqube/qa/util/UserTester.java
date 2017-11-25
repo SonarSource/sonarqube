@@ -74,7 +74,7 @@ public class UserTester {
   @SafeVarargs
   public final User generateAdministrator(Consumer<CreateRequest.Builder>... populators) {
     User user = generate(populators);
-    session.wsClient().permissions().addUser(new org.sonarqube.ws.client.permission.AddUserWsRequest().setLogin(user.getLogin()).setPermission("admin"));
+    session.wsClient().permissions().addUser(new org.sonarqube.ws.client.permission.AddUserRequest().setLogin(user.getLogin()).setPermission("admin"));
     session.wsClient().userGroups().addUser(new AddUserRequest().setLogin(user.getLogin()).setName("sonar-administrators"));
     return user;
   }

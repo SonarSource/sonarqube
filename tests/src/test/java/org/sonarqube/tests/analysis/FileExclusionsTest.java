@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.Components.Component;
-import org.sonarqube.ws.client.component.TreeWsRequest;
+import org.sonarqube.ws.client.component.TreeRequest;
 import util.ItUtils;
 
 import static java.util.Collections.singletonList;
@@ -134,6 +134,6 @@ public class FileExclusionsTest {
   }
 
   public static List<Component> getComponents(String qualifier) {
-    return newWsClient(orchestrator).components().tree(new TreeWsRequest().setBaseComponentKey(PROJECT).setQualifiers(singletonList(qualifier))).getComponentsList();
+    return newWsClient(orchestrator).components().tree(new TreeRequest().setBaseComponentKey(PROJECT).setQualifiers(singletonList(qualifier))).getComponentsList();
   }
 }

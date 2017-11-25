@@ -36,7 +36,7 @@ import org.sonar.server.component.ComponentFinder.ParamNames;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects.BulkUpdateKeyWsResponse;
-import org.sonarqube.ws.client.project.BulkUpdateKeyWsRequest;
+import org.sonarqube.ws.client.project.BulkUpdateKeyRequest;
 
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.db.component.ComponentKeyUpdaterDao.checkIsProjectOrModule;
@@ -131,7 +131,7 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
     writeProtobuf(doHandle(toWsRequest(request)), request, response);
   }
 
-  private BulkUpdateKeyWsResponse doHandle(BulkUpdateKeyWsRequest request) {
+  private BulkUpdateKeyWsResponse doHandle(BulkUpdateKeyRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto projectOrModule = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.ID_AND_KEY);
       checkIsProjectOrModule(projectOrModule);
@@ -153,7 +153,7 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
     newKeysWithDuplicateMap.entrySet().forEach(entry -> checkRequest(!entry.getValue(), "Impossible to update key: a component with key \"%s\" already exists.", entry.getKey()));
   }
 
-  private void bulkUpdateKey(DbSession dbSession, BulkUpdateKeyWsRequest request, ComponentDto projectOrModule) {
+  private void bulkUpdateKey(DbSession dbSession, BulkUpdateKeyRequest request, ComponentDto projectOrModule) {
     componentService.bulkUpdateKey(dbSession, projectOrModule, request.getFrom(), request.getTo());
   }
 
@@ -175,8 +175,8 @@ public class BulkUpdateKeyAction implements ProjectsWsAction {
     return response.build();
   }
 
-  private static BulkUpdateKeyWsRequest toWsRequest(Request request) {
-    return BulkUpdateKeyWsRequest.builder()
+  private static BulkUpdateKeyRequest toWsRequest(Request request) {
+    return BulkUpdateKeyRequest.builder()
       .setId(request.param(PARAM_PROJECT_ID))
       .setKey(request.param(PARAM_PROJECT))
       .setFrom(request.mandatoryParam(PARAM_FROM))

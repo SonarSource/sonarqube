@@ -33,7 +33,7 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.permission.SetDefaultTemplateWsRequest;
+import org.sonarqube.ws.client.permission.SetDefaultTemplateRequest;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
@@ -63,8 +63,8 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
     this.i18n = i18n;
   }
 
-  private static SetDefaultTemplateWsRequest toSetDefaultTemplateWsRequest(Request request) {
-    return new SetDefaultTemplateWsRequest()
+  private static SetDefaultTemplateRequest toSetDefaultTemplateWsRequest(Request request) {
+    return new SetDefaultTemplateRequest()
       .setQualifier(request.param(PARAM_QUALIFIER))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
       .setOrganization(request.param(PARAM_ORGANIZATION))
@@ -91,7 +91,7 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
     response.noContent();
   }
 
-  private void doHandle(SetDefaultTemplateWsRequest request) {
+  private void doHandle(SetDefaultTemplateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       String qualifier = request.getQualifier();
       PermissionTemplateDto template = findTemplate(dbSession, request);
@@ -102,7 +102,7 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
     }
   }
 
-  private PermissionTemplateDto findTemplate(DbSession dbSession, SetDefaultTemplateWsRequest request) {
+  private PermissionTemplateDto findTemplate(DbSession dbSession, SetDefaultTemplateRequest request) {
     return wsSupport.findTemplate(dbSession, newTemplateRef(request.getTemplateId(),
       request.getOrganization(), request.getTemplateName()));
   }

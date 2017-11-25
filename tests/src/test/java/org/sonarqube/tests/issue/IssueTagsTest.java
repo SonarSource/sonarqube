@@ -32,8 +32,8 @@ import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
-import org.sonarqube.ws.client.permission.AddUserWsRequest;
+import org.sonarqube.ws.client.issue.SearchRequest;
+import org.sonarqube.ws.client.permission.AddUserRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import util.ItUtils;
 
@@ -75,7 +75,7 @@ public class IssueTagsTest {
         .build());
     analyzeProject(projectKey);
 
-    String issue = tester.wsClient().issues().search(new SearchWsRequest()).getIssues(0).getKey();
+    String issue = tester.wsClient().issues().search(new SearchRequest()).getIssues(0).getKey();
     tester.wsClient().issues().setTags(issue, "bla", "blubb");
 
     String[] publicTags = {"bad-practice", "convention", "pitfall"};
@@ -112,7 +112,7 @@ public class IssueTagsTest {
 
   private void grantUserPermission(String projectKey, User member) {
     tester.wsClient().permissions().addUser(
-      new AddUserWsRequest()
+      new AddUserRequest()
         .setLogin(member.getLogin())
         .setPermission("user")
         .setProjectKey(projectKey));

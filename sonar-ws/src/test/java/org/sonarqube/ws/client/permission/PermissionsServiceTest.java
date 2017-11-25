@@ -83,7 +83,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void groups_does_POST_on_WS_groups() {
-    GroupsWsRequest request = new GroupsWsRequest();
+    GroupsRequest request = new GroupsRequest();
     underTest.groups(request
       .setPermission(PERMISSION_VALUE)
       .setProjectId(PROJECT_ID_VALUE)
@@ -107,7 +107,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void addGroup_does_POST_on_Ws_add_group() {
-    underTest.addGroup(new AddGroupWsRequest()
+    underTest.addGroup(new AddGroupRequest()
       .setOrganization(ORGANIZATION_VALUE)
       .setPermission(PERMISSION_VALUE)
       .setProjectId(PROJECT_ID_VALUE)
@@ -131,7 +131,7 @@ public class PermissionsServiceTest {
   @Test
   public void addGroupToTemplate_does_POST_on_Ws_add_group_to_template() {
     underTest.addGroupToTemplate(
-      new AddGroupToTemplateWsRequest()
+      new AddGroupToTemplateRequest()
         .setGroupId(GROUP_ID_VALUE)
         .setGroupName(GROUP_NAME_VALUE)
         .setPermission(PERMISSION_VALUE)
@@ -153,7 +153,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void addUser_does_POST_on_Ws_add_user() {
-    underTest.addUser(new AddUserWsRequest()
+    underTest.addUser(new AddUserRequest()
       .setLogin(LOGIN_VALUE)
       .setOrganization(ORGANIZATION_VALUE)
       .setPermission(PERMISSION_VALUE)
@@ -175,7 +175,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void addUserToTemplate_does_POST_on_Ws_add_user_to_template() {
-    underTest.addUserToTemplate(new AddUserToTemplateWsRequest()
+    underTest.addUserToTemplate(new AddUserToTemplateRequest()
       .setOrganization(ORGANIZATION_VALUE)
       .setPermission(PERMISSION_VALUE)
       .setLogin(LOGIN_VALUE)
@@ -197,7 +197,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void applyTemplate_does_POST_on_Ws_apply_template() {
-    underTest.applyTemplate(new ApplyTemplateWsRequest()
+    underTest.applyTemplate(new ApplyTemplateRequest()
       .setOrganization(ORGANIZATION_VALUE)
       .setProjectId(PROJECT_ID_VALUE)
       .setProjectKey(PROJECT_KEY_VALUE)
@@ -219,7 +219,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void bulk_apply_template() {
-    underTest.bulkApplyTemplate(new BulkApplyTemplateWsRequest()
+    underTest.bulkApplyTemplate(new BulkApplyTemplateRequest()
       .setOrganization(ORGANIZATION_VALUE)
       .setTemplateId(TEMPLATE_ID_VALUE)
       .setTemplateName(TEMPLATE_NAME_VALUE)
@@ -248,7 +248,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void createTemplate_does_POST_on_Ws_create_template() {
-    underTest.createTemplate(new CreateTemplateWsRequest()
+    underTest.createTemplate(new CreateTemplateRequest()
       .setOrganization(ORGANIZATION_VALUE)
       .setName(NAME_VALUE)
       .setDescription(DESCRIPTION_VALUE)
@@ -268,7 +268,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void deleteTemplate_does_POST_on_Ws_delete_template() {
-    underTest.deleteTemplate(new DeleteTemplateWsRequest()
+    underTest.deleteTemplate(new DeleteTemplateRequest()
       .setTemplateId(TEMPLATE_ID_VALUE)
       .setTemplateName(TEMPLATE_NAME_VALUE)
       .setOrganization(ORGANIZATION_VALUE)
@@ -286,7 +286,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void removeGroup_does_POST_on_Ws_remove_group() {
-    underTest.removeGroup(new RemoveGroupWsRequest()
+    underTest.removeGroup(new RemoveGroupRequest()
       .setPermission(PERMISSION_VALUE)
       .setGroupId(GROUP_ID_VALUE)
       .setGroupName(GROUP_NAME_VALUE)
@@ -310,7 +310,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void removeGroupFromTemplate_does_POST_on_Ws_remove_group_from_template() {
-    underTest.removeGroupFromTemplate(new RemoveGroupFromTemplateWsRequest()
+    underTest.removeGroupFromTemplate(new RemoveGroupFromTemplateRequest()
       .setPermission(PERMISSION_VALUE)
       .setGroupId(GROUP_ID_VALUE)
       .setGroupName(GROUP_NAME_VALUE)
@@ -334,7 +334,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void removeUser_does_POST_on_Ws_remove_user() {
-    underTest.removeUser(new RemoveUserWsRequest()
+    underTest.removeUser(new RemoveUserRequest()
       .setPermission(PERMISSION_VALUE)
       .setLogin(LOGIN_VALUE)
       .setProjectId(PROJECT_ID_VALUE)
@@ -354,7 +354,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void removeUserFromTemplate_does_POST_on_Ws_remove_user_from_template() {
-    underTest.removeUserFromTemplate(new RemoveUserFromTemplateWsRequest()
+    underTest.removeUserFromTemplate(new RemoveUserFromTemplateRequest()
       .setPermission(PERMISSION_VALUE)
       .setLogin(LOGIN_VALUE)
       .setTemplateId(TEMPLATE_ID_VALUE)
@@ -387,7 +387,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void searchProjectPermissions_does_GET_on_Ws_search_project_permissions() {
-    underTest.searchProjectPermissions(new SearchProjectPermissionsWsRequest()
+    underTest.searchProjectPermissions(new SearchProjectPermissionsRequest()
       .setProjectId(PROJECT_ID_VALUE)
       .setProjectKey(PROJECT_KEY_VALUE)
       .setQualifier(QUALIFIER_VALUE)
@@ -411,7 +411,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void searchTemplates_does_GET_on_Ws_search_templates() {
-    underTest.searchTemplates(new SearchTemplatesWsRequest()
+    underTest.searchTemplates(new SearchTemplatesRequest()
       .setQuery(QUERY_VALUE)
     );
 
@@ -425,7 +425,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void setDefaultTemplate_does_POST_on_Ws_set_default_template() {
-    underTest.setDefaultTemplate(new SetDefaultTemplateWsRequest()
+    underTest.setDefaultTemplate(new SetDefaultTemplateRequest()
       .setQualifier(QUALIFIER_VALUE)
       .setTemplateId(TEMPLATE_ID_VALUE)
       .setTemplateName(TEMPLATE_NAME_VALUE)
@@ -443,7 +443,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void updateTemplate_does_POST_on_Ws_update_template() {
-    underTest.updateTemplate(new UpdateTemplateWsRequest()
+    underTest.updateTemplate(new UpdateTemplateRequest()
       .setDescription(DESCRIPTION_VALUE)
       .setId(TEMPLATE_ID_VALUE)
       .setName(TEMPLATE_NAME_VALUE)
@@ -463,7 +463,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void add_project_creator_to_template() {
-    underTest.addProjectCreatorToTemplate(AddProjectCreatorToTemplateWsRequest.builder()
+    underTest.addProjectCreatorToTemplate(AddProjectCreatorToTemplateRequest.builder()
       .setPermission(PERMISSION_VALUE)
       .setTemplateId(TEMPLATE_ID_VALUE)
       .setTemplateName(TEMPLATE_NAME_VALUE)
@@ -483,7 +483,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void remove_project_creator_from_template() {
-    underTest.removeProjectCreatorFromTemplate(RemoveProjectCreatorFromTemplateWsRequest.builder()
+    underTest.removeProjectCreatorFromTemplate(RemoveProjectCreatorFromTemplateRequest.builder()
       .setPermission(PERMISSION_VALUE)
       .setTemplateId(TEMPLATE_ID_VALUE)
       .setTemplateName(TEMPLATE_NAME_VALUE)
@@ -503,7 +503,7 @@ public class PermissionsServiceTest {
 
   @Test
   public void users() {
-    underTest.users(new UsersWsRequest()
+    underTest.users(new UsersRequest()
       .setOrganization("org")
       .setProjectKey("project")
       .setProjectId("ABCD")

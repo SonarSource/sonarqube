@@ -41,7 +41,7 @@ import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
 import org.sonarqube.ws.client.qualityprofile.ChangeParentRequest;
 import org.sonarqube.ws.client.qualityprofile.CopyRequest;
 import org.sonarqube.ws.client.qualityprofile.CreateRequest;
-import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
+import org.sonarqube.ws.client.qualityprofile.SearchRequest;
 import org.sonarqube.ws.client.qualityprofile.SetDefaultRequest;
 import util.ItUtils;
 
@@ -154,10 +154,10 @@ public class CustomQualityProfilesTest {
 
     tester.organizations().service().delete(org.getKey());
 
-    expectMissingError(() -> tester.qProfiles().service().search(new SearchWsRequest()
+    expectMissingError(() -> tester.qProfiles().service().search(new SearchRequest()
       .setOrganizationKey(org.getKey())));
 
-    tester.qProfiles().service().search(new SearchWsRequest()).getProfilesList()
+    tester.qProfiles().service().search(new SearchRequest()).getProfilesList()
       .forEach(p -> {
         assertThat(p.getOrganization()).isNotEqualTo(org.getKey());
         assertThat(p.getKey()).isNotIn(parentProfile.getKey(), copyResponse.getKey(), inheritedProfile1.getKey(), inheritedProfile2.getKey());
@@ -319,7 +319,7 @@ public class CustomQualityProfilesTest {
   }
 
   private Qualityprofiles.SearchWsResponse.QualityProfile getProfile(Organization organization, Predicate<Qualityprofiles.SearchWsResponse.QualityProfile> filter) {
-    return tester.qProfiles().service().search(new SearchWsRequest()
+    return tester.qProfiles().service().search(new SearchRequest()
       .setOrganizationKey(organization.getKey())).getProfilesList()
       .stream()
       .filter(filter)

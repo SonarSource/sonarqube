@@ -32,7 +32,7 @@ import org.sonar.server.permission.UserId;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.permission.AddUserToTemplateWsRequest;
+import org.sonarqube.ws.client.permission.AddUserToTemplateRequest;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
@@ -56,8 +56,8 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
     this.userSession = userSession;
   }
 
-  private static AddUserToTemplateWsRequest toAddUserToTemplateWsRequest(Request request) {
-    return new AddUserToTemplateWsRequest()
+  private static AddUserToTemplateRequest toAddUserToTemplateWsRequest(Request request) {
+    return new AddUserToTemplateRequest()
       .setLogin(request.mandatoryParam(PARAM_USER_LOGIN))
       .setPermission(request.mandatoryParam(PARAM_PERMISSION))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
@@ -86,7 +86,7 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
     response.noContent();
   }
 
-  private void doHandle(AddUserToTemplateWsRequest request) {
+  private void doHandle(AddUserToTemplateRequest request) {
     String permission = request.getPermission();
     String userLogin = request.getLogin();
 

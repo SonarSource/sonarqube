@@ -24,14 +24,14 @@ import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
+import org.sonarqube.ws.client.measure.ComponentTreeRequest;
 
 import static org.sonar.server.measure.ws.ComponentTreeData.Measure;
 
 class HasMeasure implements Predicate<ComponentDto> {
   private final Predicate<ComponentDto> predicate;
 
-  HasMeasure(Table<String, MetricDto, ComponentTreeData.Measure> table, MetricDto metric, ComponentTreeWsRequest request) {
+  HasMeasure(Table<String, MetricDto, ComponentTreeData.Measure> table, MetricDto metric, ComponentTreeRequest request) {
     Integer periodIndex = request.getMetricPeriodSort();
     this.predicate = periodIndex == null
       ? new HasAbsoluteValue(table, metric)

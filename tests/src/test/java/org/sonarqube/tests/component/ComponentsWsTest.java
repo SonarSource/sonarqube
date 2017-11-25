@@ -27,8 +27,8 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Components;
-import org.sonarqube.ws.client.component.SearchWsRequest;
-import org.sonarqube.ws.client.component.ShowWsRequest;
+import org.sonarqube.ws.client.component.SearchRequest;
+import org.sonarqube.ws.client.component.ShowRequest;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,7 +53,7 @@ public class ComponentsWsTest {
 
   @Test
   public void show() {
-    Components.ShowWsResponse response = tester.wsClient().components().show(new ShowWsRequest().setKey(FILE_KEY));
+    Components.ShowWsResponse response = tester.wsClient().components().show(new ShowRequest().setKey(FILE_KEY));
 
     assertThat(response).isNotNull();
     assertThat(response.getComponent().getKey()).isEqualTo(FILE_KEY);
@@ -62,7 +62,7 @@ public class ComponentsWsTest {
 
   @Test
   public void search() {
-    Components.SearchWsResponse response = tester.wsClient().components().search(new SearchWsRequest()
+    Components.SearchWsResponse response = tester.wsClient().components().search(new SearchRequest()
       .setQualifiers(singletonList("FIL")));
 
     assertThat(response).isNotNull();

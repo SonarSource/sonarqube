@@ -31,7 +31,7 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.HttpException;
-import org.sonarqube.ws.client.permission.AddUserWsRequest;
+import org.sonarqube.ws.client.permission.AddUserRequest;
 
 public class OrganizationMembershipTest {
 
@@ -78,7 +78,7 @@ public class OrganizationMembershipTest {
     User user = tester.users().generate();
     addMembership(organization, user);
 
-    tester.wsClient().permissions().addUser(new AddUserWsRequest().setLogin(user.getLogin()).setPermission("admin").setOrganization(organization.getKey()));
+    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(user.getLogin()).setPermission("admin").setOrganization(organization.getKey()));
     tester.organizations().assertThatMemberOf(organization, user);
 
     removeMembership(organization, user);
@@ -91,7 +91,7 @@ public class OrganizationMembershipTest {
     User user = tester.users().generate();
     addMembership(organization, user);
 
-    tester.wsClient().permissions().addUser(new AddUserWsRequest().setLogin(user.getLogin()).setPermission("admin").setOrganization(organization.getKey()));
+    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(user.getLogin()).setPermission("admin").setOrganization(organization.getKey()));
     tester.organizations().assertThatMemberOf(organization, user);
     // Admin is the creator of the organization so he was granted with admin permission
     tester.wsClient().organizations().removeMember(organization.getKey(), "admin");

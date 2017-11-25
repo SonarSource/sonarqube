@@ -32,7 +32,7 @@ import org.sonarqube.ws.Projects.CreateWsResponse;
 import org.sonarqube.ws.Projects.SearchWsResponse;
 import org.sonarqube.ws.Projects.SearchWsResponse.Component;
 import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.project.SearchWsRequest;
+import org.sonarqube.ws.client.project.SearchRequest;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,7 +59,7 @@ public class ProjectSearchTest {
     analyzeProject(oldProject.getKey(), moreThanOneYearAgo, organization.getKey());
     analyzeProject(recentProject.getKey(), now, organization.getKey());
 
-    SearchWsResponse result = tester.wsClient().projects().search(SearchWsRequest.builder()
+    SearchWsResponse result = tester.wsClient().projects().search(SearchRequest.builder()
       .setOrganization(organization.getKey())
       .setQualifiers(singletonList("TRK"))
       .setAnalyzedBefore(formatDate(oneYearAgo)).build());
@@ -78,7 +78,7 @@ public class ProjectSearchTest {
     analyzeProject(upperCaseProject.getKey(), organization.getKey());
     analyzeProject(anotherProject.getKey(), organization.getKey());
 
-    SearchWsResponse result = tester.wsClient().projects().search(SearchWsRequest.builder()
+    SearchWsResponse result = tester.wsClient().projects().search(SearchRequest.builder()
       .setOrganization(organization.getKey())
       .setQualifiers(singletonList("TRK"))
       .setQuery("JeCt-K")
@@ -101,7 +101,7 @@ public class ProjectSearchTest {
     String result = tester.wsClient().wsConnector().call(new GetRequest("api/projects/provisioned")
       .setParam("organization", organization.getKey()))
       .failIfNotSuccessful().content();
-   SearchWsResponse searchResult = tester.wsClient().projects().search(SearchWsRequest.builder()
+   SearchWsResponse searchResult = tester.wsClient().projects().search(SearchRequest.builder()
      .setQualifiers(singletonList("TRK"))
      .setOrganization(organization.getKey())
      .setOnProvisionedOnly(true).build());

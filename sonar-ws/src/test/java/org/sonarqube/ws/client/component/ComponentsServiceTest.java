@@ -93,7 +93,7 @@ public class ComponentsServiceTest {
   public void show() {
     String key = randomAlphanumeric(20);
     String id = randomAlphanumeric(20);
-    underTest.show(new ShowWsRequest()
+    underTest.show(new ShowRequest()
       .setKey(key)
       .setId(id)
       .setBranch("my_branch"));
@@ -109,9 +109,9 @@ public class ComponentsServiceTest {
 
   @Test
   public void suggestions() {
-    SuggestionsWsRequest.More more = SuggestionsWsRequest.More.BRC;
+    SuggestionsRequest.More more = SuggestionsRequest.More.BRC;
     String s = randomAlphanumeric(20);
-    underTest.suggestions(SuggestionsWsRequest.builder()
+    underTest.suggestions(SuggestionsRequest.builder()
       .setMore(more)
       .setS(s)
       .setRecentlyBrowsed(asList("key-1", "key-2"))
@@ -134,7 +134,7 @@ public class ComponentsServiceTest {
     int page = 17;
     int pageSize = 39;
     String textQuery = randomAlphanumeric(20);
-    underTest.search(new SearchWsRequest()
+    underTest.search(new SearchRequest()
       .setOrganization(organization)
       .setQualifiers(asList("q1", "q2"))
       .setPage(page)
@@ -160,7 +160,7 @@ public class ComponentsServiceTest {
     int page = 17;
     int pageSize = 39;
     String query = randomAlphanumeric(20);
-    underTest.tree(new TreeWsRequest()
+    underTest.tree(new TreeRequest()
       .setBaseComponentId(componentId)
       .setBaseComponentKey(componentKey)
       .setComponent(componentKey)

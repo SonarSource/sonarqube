@@ -40,7 +40,7 @@ import org.sonar.db.component.ComponentTreeQuery.Strategy;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.Measures.ComponentTreeWsResponse;
-import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
+import org.sonarqube.ws.client.measure.ComponentTreeRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -219,7 +219,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     writeProtobuf(componentTreeWsResponse, request, response);
   }
 
-  private ComponentTreeWsResponse doHandle(ComponentTreeWsRequest request) {
+  private ComponentTreeWsResponse doHandle(ComponentTreeRequest request) {
     ComponentTreeData data = dataLoader.load(request);
     if (data.getComponents() == null) {
       return emptyResponse(data.getBaseComponent(), request);
@@ -234,7 +234,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
         .andTotal(data.getComponentCount()));
   }
 
-  private static ComponentTreeWsResponse buildResponse(ComponentTreeWsRequest request, ComponentTreeData data, Paging paging) {
+  private static ComponentTreeWsResponse buildResponse(ComponentTreeRequest request, ComponentTreeData data, Paging paging) {
     ComponentTreeWsResponse.Builder response = ComponentTreeWsResponse.newBuilder();
     response.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
@@ -269,17 +269,17 @@ public class ComponentTreeAction implements MeasuresWsAction {
     return response.build();
   }
 
-  private static boolean areMetricsInResponse(ComponentTreeWsRequest request) {
+  private static boolean areMetricsInResponse(ComponentTreeRequest request) {
     List<String> additionalFields = request.getAdditionalFields();
     return additionalFields != null && additionalFields.contains(ADDITIONAL_METRICS);
   }
 
-  private static boolean arePeriodsInResponse(ComponentTreeWsRequest request) {
+  private static boolean arePeriodsInResponse(ComponentTreeRequest request) {
     List<String> additionalFields = request.getAdditionalFields();
     return additionalFields != null && additionalFields.contains(ADDITIONAL_PERIODS);
   }
 
-  private static ComponentTreeWsResponse emptyResponse(ComponentDto baseComponent, ComponentTreeWsRequest request) {
+  private static ComponentTreeWsResponse emptyResponse(ComponentDto baseComponent, ComponentTreeRequest request) {
     ComponentTreeWsResponse.Builder response = ComponentTreeWsResponse.newBuilder();
     response.getPagingBuilder()
       .setPageIndex(request.getPage())
@@ -289,10 +289,10 @@ public class ComponentTreeAction implements MeasuresWsAction {
     return response.build();
   }
 
-  private static ComponentTreeWsRequest toComponentTreeWsRequest(Request request) {
+  private static ComponentTreeRequest toComponentTreeWsRequest(Request request) {
     List<String> metricKeys = request.mandatoryParamAsStrings(PARAM_METRIC_KEYS);
     checkArgument(metricKeys.size() <= MAX_METRIC_KEYS, "Number of metrics keys is limited to %s, got %s", MAX_METRIC_KEYS, metricKeys.size());
-    ComponentTreeWsRequest componentTreeWsRequest = new ComponentTreeWsRequest()
+    ComponentTreeRequest componentTreeRequest = new ComponentTreeRequest()
       .setBaseComponentId(request.param(DEPRECATED_PARAM_BASE_COMPONENT_ID))
       .setComponent(request.param(PARAM_COMPONENT))
       .setBranch(request.param(PARAM_BRANCH))
@@ -310,20 +310,20 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setQuery(request.param(Param.TEXT_QUERY));
-    String metricSortValue = componentTreeWsRequest.getMetricSort();
-    checkRequest(!componentTreeWsRequest.getMetricKeys().isEmpty(), "The '%s' parameter must contain at least one metric key", PARAM_METRIC_KEYS);
-    List<String> sorts = Optional.ofNullable(componentTreeWsRequest.getSort()).orElse(emptyList());
+    String metricSortValue = componentTreeRequest.getMetricSort();
+    checkRequest(!componentTreeRequest.getMetricKeys().isEmpty(), "The '%s' parameter must contain at least one metric key", PARAM_METRIC_KEYS);
+    List<String> sorts = Optional.ofNullable(componentTreeRequest.getSort()).orElse(emptyList());
     checkRequest(metricSortValue == null ^ sorts.contains(METRIC_SORT) ^ sorts.contains(METRIC_PERIOD_SORT),
       "To sort by a metric, the '%s' parameter must contain '%s' or '%s', and a metric key must be provided in the '%s' parameter",
       Param.SORT, METRIC_SORT, METRIC_PERIOD_SORT, PARAM_METRIC_SORT);
-    checkRequest(metricSortValue == null ^ componentTreeWsRequest.getMetricKeys().contains(metricSortValue),
+    checkRequest(metricSortValue == null ^ componentTreeRequest.getMetricKeys().contains(metricSortValue),
       "To sort by the '%s' metric, it must be in the list of metric keys in the '%s' parameter", metricSortValue, PARAM_METRIC_KEYS);
-    checkRequest(componentTreeWsRequest.getMetricPeriodSort() == null ^ sorts.contains(METRIC_PERIOD_SORT),
+    checkRequest(componentTreeRequest.getMetricPeriodSort() == null ^ sorts.contains(METRIC_PERIOD_SORT),
       "To sort by a metric period, the '%s' parameter must contain '%s' and the '%s' must be provided.", Param.SORT, METRIC_PERIOD_SORT, PARAM_METRIC_PERIOD_SORT);
-    checkRequest(ALL_METRIC_SORT_FILTER.equals(componentTreeWsRequest.getMetricSortFilter()) || metricSortValue != null,
+    checkRequest(ALL_METRIC_SORT_FILTER.equals(componentTreeRequest.getMetricSortFilter()) || metricSortValue != null,
       "To filter components based on the sort metric, the '%s' parameter must contain '%s' or '%s' and the '%s' parameter must be provided",
       Param.SORT, METRIC_SORT, METRIC_PERIOD_SORT, PARAM_METRIC_SORT);
-    return componentTreeWsRequest;
+    return componentTreeRequest;
   }
 
   private static Measures.Component.Builder toWsComponent(ComponentDto component, Map<MetricDto, ComponentTreeData.Measure> measures,

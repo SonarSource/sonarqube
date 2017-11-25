@@ -29,7 +29,7 @@ import org.sonarqube.ws.Qualityprofiles.CreateWsResponse.QualityProfile;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.client.HttpException;
-import org.sonarqube.ws.client.qualityprofile.ActivateRuleWsRequest;
+import org.sonarqube.ws.client.qualityprofile.ActivateRuleRequest;
 import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
 import org.sonarqube.ws.client.qualityprofile.CreateRequest;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
@@ -69,7 +69,7 @@ public class QProfileTester {
   }
 
   public QProfileTester activateRule(String profileKey, String ruleKey) {
-    ActivateRuleWsRequest request = ActivateRuleWsRequest.builder()
+    ActivateRuleRequest request = ActivateRuleRequest.builder()
       .setKey(profileKey)
       .setRuleKey(ruleKey)
       .build();

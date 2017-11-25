@@ -48,7 +48,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.Organizations.SearchMembersWsResponse;
 import org.sonarqube.ws.Organizations.User;
-import org.sonarqube.ws.client.organization.SearchMembersWsRequest;
+import org.sonarqube.ws.client.organization.SearchMembersRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -73,7 +73,7 @@ public class SearchMembersActionTest {
 
   private WsActionTester ws = new WsActionTester(new SearchMembersAction(dbClient, new UserIndex(es.client(), System2.INSTANCE), organizationProvider, userSession, new AvatarResolverImpl()));
 
-  private SearchMembersWsRequest request = new SearchMembersWsRequest();
+  private SearchMembersRequest request = new SearchMembersRequest();
 
   @Test
   public void empty_response() {

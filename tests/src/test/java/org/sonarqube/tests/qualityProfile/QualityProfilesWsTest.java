@@ -38,8 +38,8 @@ import org.sonarqube.ws.Qualityprofiles.ShowResponse.QualityProfile;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.qualityprofile.ChangelogWsRequest;
-import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
+import org.sonarqube.ws.client.qualityprofile.ChangelogRequest;
+import org.sonarqube.ws.client.qualityprofile.SearchRequest;
 import org.sonarqube.ws.client.qualityprofile.ShowRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -133,7 +133,7 @@ public class QualityProfilesWsTest {
     Organization org = tester.organizations().generate();
     CreateWsResponse.QualityProfile profile = tester.qProfiles().createXooProfile(org);
 
-    String changelog = tester.wsClient().qualityProfiles().changelog(ChangelogWsRequest.builder()
+    String changelog = tester.wsClient().qualityProfiles().changelog(ChangelogRequest.builder()
       .setOrganization(org.getKey())
       .setLanguage(profile.getLanguage())
       .setQualityProfile(profile.getName())
@@ -143,14 +143,14 @@ public class QualityProfilesWsTest {
     tester.qProfiles().activateRule(profile, RULE_ONE_BUG_PER_LINE);
     tester.qProfiles().activateRule(profile, RULE_ONE_ISSUE_PER_LINE);
 
-    String changelog2 = tester.wsClient().qualityProfiles().changelog(ChangelogWsRequest.builder()
+    String changelog2 = tester.wsClient().qualityProfiles().changelog(ChangelogRequest.builder()
       .setOrganization(org.getKey())
       .setLanguage(profile.getLanguage())
       .setQualityProfile(profile.getName())
       .build());
     JSONAssert.assertEquals(EXPECTED_CHANGELOG, changelog2, JSONCompareMode.LENIENT);
 
-    String changelog3 = tester.wsClient().qualityProfiles().changelog(ChangelogWsRequest.builder()
+    String changelog3 = tester.wsClient().qualityProfiles().changelog(ChangelogRequest.builder()
       .setOrganization(org.getKey())
       .setLanguage(profile.getLanguage())
       .setQualityProfile(profile.getName())
@@ -160,7 +160,7 @@ public class QualityProfilesWsTest {
   }
 
   private SearchWsResponse.QualityProfile getProfile(Organization organization, Predicate<SearchWsResponse.QualityProfile> filter) {
-    return tester.qProfiles().service().search(new SearchWsRequest()
+    return tester.qProfiles().service().search(new SearchRequest()
       .setOrganizationKey(organization.getKey())).getProfilesList()
       .stream()
       .filter(filter)

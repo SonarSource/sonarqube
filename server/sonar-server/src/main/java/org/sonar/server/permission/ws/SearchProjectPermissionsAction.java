@@ -39,7 +39,7 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Permissions.Permission;
 import org.sonarqube.ws.Permissions.SearchProjectPermissionsWsResponse;
 import org.sonarqube.ws.Permissions.SearchProjectPermissionsWsResponse.Project;
-import org.sonarqube.ws.client.permission.SearchProjectPermissionsWsRequest;
+import org.sonarqube.ws.client.permission.SearchProjectPermissionsRequest;
 
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
@@ -104,7 +104,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
     writeProtobuf(searchProjectPermissionsWsResponse, wsRequest, wsResponse);
   }
 
-  private SearchProjectPermissionsWsResponse doHandle(SearchProjectPermissionsWsRequest request) {
+  private SearchProjectPermissionsWsResponse doHandle(SearchProjectPermissionsRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       checkAuthorized(dbSession, request);
       validateQualifier(request.getQualifier(), resourceTypes);
@@ -113,8 +113,8 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
     }
   }
 
-  private static SearchProjectPermissionsWsRequest toSearchProjectPermissionsWsRequest(Request request) {
-    return new SearchProjectPermissionsWsRequest()
+  private static SearchProjectPermissionsRequest toSearchProjectPermissionsWsRequest(Request request) {
+    return new SearchProjectPermissionsRequest()
       .setProjectId(request.param(PARAM_PROJECT_ID))
       .setProjectKey(request.param(PARAM_PROJECT_KEY))
       .setQualifier(request.param(PARAM_QUALIFIER))
@@ -123,7 +123,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
       .setQuery(request.param(Param.TEXT_QUERY));
   }
 
-  private void checkAuthorized(DbSession dbSession, SearchProjectPermissionsWsRequest request) {
+  private void checkAuthorized(DbSession dbSession, SearchProjectPermissionsRequest request) {
     com.google.common.base.Optional<ProjectWsRef> projectRef = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
     if (projectRef.isPresent()) {
       ComponentDto project = wsSupport.getRootComponentOrModule(dbSession, projectRef.get());

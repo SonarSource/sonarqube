@@ -34,7 +34,7 @@ import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions.CreateTemplateWsResponse;
 import org.sonarqube.ws.Permissions.PermissionTemplate;
-import org.sonarqube.ws.client.permission.CreateTemplateWsRequest;
+import org.sonarqube.ws.client.permission.CreateTemplateRequest;
 
 import static java.lang.String.format;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
@@ -65,8 +65,8 @@ public class CreateTemplateAction implements PermissionsWsAction {
     this.wsSupport = wsSupport;
   }
 
-  private static CreateTemplateWsRequest toCreateTemplateWsRequest(Request request) {
-    return new CreateTemplateWsRequest()
+  private static CreateTemplateRequest toCreateTemplateWsRequest(Request request) {
+    return new CreateTemplateRequest()
       .setName(request.mandatoryParam(PARAM_NAME))
       .setDescription(request.param(PARAM_DESCRIPTION))
       .setProjectKeyPattern(request.param(PARAM_PROJECT_KEY_PATTERN))
@@ -104,7 +104,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
     writeProtobuf(createTemplateWsResponse, request, response);
   }
 
-  private CreateTemplateWsResponse doHandle(CreateTemplateWsRequest request) {
+  private CreateTemplateWsResponse doHandle(CreateTemplateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto org = wsSupport.findOrganization(dbSession, request.getOrganization());
       checkGlobalAdmin(userSession, org.getUuid());
@@ -126,7 +126,7 @@ public class CreateTemplateAction implements PermissionsWsAction {
     checkRequest(permissionTemplateWithSameName == null, format(MSG_TEMPLATE_WITH_SAME_NAME, name));
   }
 
-  private PermissionTemplateDto insertTemplate(DbSession dbSession, OrganizationDto org, CreateTemplateWsRequest request) {
+  private PermissionTemplateDto insertTemplate(DbSession dbSession, OrganizationDto org, CreateTemplateRequest request) {
     Date now = new Date(system.now());
     PermissionTemplateDto template = dbClient.permissionTemplateDao().insert(dbSession, new PermissionTemplateDto()
       .setUuid(Uuids.create())

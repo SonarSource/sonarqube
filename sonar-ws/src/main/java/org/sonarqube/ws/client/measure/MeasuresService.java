@@ -56,7 +56,7 @@ public class MeasuresService extends BaseService {
     super(wsConnector, CONTROLLER_MEASURES);
   }
 
-  public ComponentTreeWsResponse componentTree(ComponentTreeWsRequest request) {
+  public ComponentTreeWsResponse componentTree(ComponentTreeRequest request) {
     GetRequest getRequest = new GetRequest(path(ACTION_COMPONENT_TREE))
       .setParam(DEPRECATED_PARAM_BASE_COMPONENT_ID, request.getBaseComponentId())
       .setParam(DEPRECATED_PARAM_BASE_COMPONENT_KEY, request.getBaseComponentKey())
@@ -79,7 +79,7 @@ public class MeasuresService extends BaseService {
     return call(getRequest, ComponentTreeWsResponse.parser());
   }
 
-  public ComponentWsResponse component(ComponentWsRequest request) {
+  public ComponentWsResponse component(ComponentRequest request) {
     GetRequest getRequest = new GetRequest(path(ACTION_COMPONENT))
       .setParam(DEPRECATED_PARAM_COMPONENT_ID, request.getComponentId())
       .setParam(DEPRECATED_PARAM_COMPONENT_KEY, request.getComponentKey())

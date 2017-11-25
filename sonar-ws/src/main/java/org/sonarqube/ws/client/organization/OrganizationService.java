@@ -40,7 +40,7 @@ public class OrganizationService extends BaseService {
     super(wsConnector, "api/organizations");
   }
 
-  public SearchWsResponse search(SearchWsRequest request) {
+  public SearchWsResponse search(SearchRequest request) {
     GetRequest get = new GetRequest(path("search"))
       .setParam("organizations", inlineMultipleParamValue(request.getOrganizations()))
       .setParam(PAGE, request.getPage())
@@ -49,7 +49,7 @@ public class OrganizationService extends BaseService {
     return call(get, SearchWsResponse.parser());
   }
 
-  public CreateWsResponse create(CreateWsRequest request) {
+  public CreateWsResponse create(CreateRequest request) {
     PostRequest post = new PostRequest(path("create"))
       .setParam("name", request.getName())
       .setParam("key", request.getKey())
@@ -60,7 +60,7 @@ public class OrganizationService extends BaseService {
     return call(post, CreateWsResponse.parser());
   }
 
-  public UpdateWsResponse update(UpdateWsRequest request) {
+  public UpdateWsResponse update(UpdateRequest request) {
     PostRequest post = new PostRequest(path("update"))
       .setParam("key", request.getKey())
       .setParam("name", request.getName())
@@ -78,7 +78,7 @@ public class OrganizationService extends BaseService {
     call(post).failIfNotSuccessful();
   }
 
-  public SearchMembersWsResponse searchMembers(SearchMembersWsRequest request) {
+  public SearchMembersWsResponse searchMembers(SearchMembersRequest request) {
     GetRequest get = new GetRequest(path("search_members"))
       .setParam("organization", request.getOrganization())
       .setParam("selected", request.getSelected())
@@ -105,7 +105,7 @@ public class OrganizationService extends BaseService {
     call(post);
   }
 
-  public void updateProjectVisibility(UpdateProjectVisibilityWsRequest request) {
+  public void updateProjectVisibility(UpdateProjectVisibilityRequest request) {
     PostRequest post = new PostRequest(path("update_project_visibility"))
       .setParam("organization", request.getOrganization())
       .setParam("projectVisibility", request.getProjectVisibility());

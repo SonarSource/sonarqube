@@ -53,7 +53,7 @@ import org.sonar.server.measure.ws.MetricDtoWithBestValue.MetricDtoToMetricDtoWi
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.Measures.ComponentWsResponse;
-import org.sonarqube.ws.client.measure.ComponentWsRequest;
+import org.sonarqube.ws.client.measure.ComponentRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -138,7 +138,7 @@ public class ComponentAction implements MeasuresWsAction {
     writeProtobuf(componentWsResponse, request, response);
   }
 
-  private ComponentWsResponse doHandle(ComponentWsRequest request) {
+  private ComponentWsResponse doHandle(ComponentRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = loadComponent(dbSession, request);
       Long developerId = searchDeveloperId(dbSession, request);
@@ -153,7 +153,7 @@ public class ComponentAction implements MeasuresWsAction {
     }
   }
 
-  private ComponentDto loadComponent(DbSession dbSession, ComponentWsRequest request) {
+  private ComponentDto loadComponent(DbSession dbSession, ComponentRequest request) {
     String componentKey = request.getComponent();
     String componentId = request.getComponentId();
     String branch = request.getBranch();
@@ -164,7 +164,7 @@ public class ComponentAction implements MeasuresWsAction {
   }
 
   @CheckForNull
-  private Long searchDeveloperId(DbSession dbSession, ComponentWsRequest request) {
+  private Long searchDeveloperId(DbSession dbSession, ComponentRequest request) {
     if (request.getDeveloperId() == null && request.getDeveloperKey() == null) {
       return null;
     }
@@ -180,8 +180,8 @@ public class ComponentAction implements MeasuresWsAction {
     return dbClient.componentDao().selectByUuid(dbSession, component.getCopyResourceUuid());
   }
 
-  private static ComponentWsResponse buildResponse(ComponentWsRequest request, ComponentDto component, Optional<ComponentDto> refComponent, List<MeasureDto> measures,
-    List<MetricDto> metrics, List<Measures.Period> periods) {
+  private static ComponentWsResponse buildResponse(ComponentRequest request, ComponentDto component, Optional<ComponentDto> refComponent, List<MeasureDto> measures,
+                                                   List<MetricDto> metrics, List<Measures.Period> periods) {
     ComponentWsResponse.Builder response = ComponentWsResponse.newBuilder();
     Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDto::getId);
     Map<MetricDto, MeasureDto> measuresByMetric = new HashMap<>();
@@ -210,7 +210,7 @@ public class ComponentAction implements MeasuresWsAction {
     return response.build();
   }
 
-  private List<MetricDto> searchMetrics(DbSession dbSession, ComponentWsRequest request) {
+  private List<MetricDto> searchMetrics(DbSession dbSession, ComponentRequest request) {
     List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, request.getMetricKeys());
     if (metrics.size() < request.getMetricKeys().size()) {
       List<String> foundMetricKeys = Lists.transform(metrics, MetricDto::getKey);
@@ -266,8 +266,8 @@ public class ComponentAction implements MeasuresWsAction {
     }
   }
 
-  private static ComponentWsRequest toComponentWsRequest(Request request) {
-    ComponentWsRequest componentWsRequest = new ComponentWsRequest()
+  private static ComponentRequest toComponentWsRequest(Request request) {
+    ComponentRequest componentRequest = new ComponentRequest()
       .setComponentId(request.param(DEPRECATED_PARAM_COMPONENT_ID))
       .setComponent(request.param(PARAM_COMPONENT))
       .setBranch(request.param(PARAM_BRANCH))
@@ -275,8 +275,8 @@ public class ComponentAction implements MeasuresWsAction {
       .setMetricKeys(request.mandatoryParamAsStrings(PARAM_METRIC_KEYS))
       .setDeveloperId(request.param(PARAM_DEVELOPER_ID))
       .setDeveloperKey(request.param(PARAM_DEVELOPER_KEY));
-    checkRequest(!componentWsRequest.getMetricKeys().isEmpty(), "At least one metric key must be provided");
-    return componentWsRequest;
+    checkRequest(!componentRequest.getMetricKeys().isEmpty(), "At least one metric key must be provided");
+    return componentRequest;
   }
 
   private void checkPermissions(ComponentDto baseComponent) {

@@ -30,7 +30,7 @@ import org.junit.rules.RuleChain;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
+import org.sonarqube.ws.client.issue.SearchRequest;
 import util.ItUtils;
 import util.issue.IssueRule;
 
@@ -153,7 +153,7 @@ public class DuplicationsTest {
 
   @Test
   public void issues_on_duplicated_blocks_are_generated_on_each_file() throws Exception {
-    assertThat(issueRule.search(new SearchWsRequest().setRules(singletonList("common-xoo:DuplicatedBlocks"))).getIssuesList()).hasSize(13);
+    assertThat(issueRule.search(new SearchRequest().setRules(singletonList("common-xoo:DuplicatedBlocks"))).getIssuesList()).hasSize(13);
   }
 
   @Test

@@ -81,7 +81,7 @@ public class MeasuresServiceTest {
 
   @Test
   public void component() {
-    ComponentWsRequest request = new ComponentWsRequest()
+    ComponentRequest request = new ComponentRequest()
       .setComponentId(VALUE_BASE_COMPONENT_ID)
       .setComponentKey(VALUE_BASE_COMPONENT_KEY)
       .setComponent(VALUE_BASE_COMPONENT_KEY)
@@ -110,7 +110,7 @@ public class MeasuresServiceTest {
 
   @Test
   public void component_tree() {
-    ComponentTreeWsRequest componentTreeRequest = new ComponentTreeWsRequest()
+    ComponentTreeRequest componentTreeRequest = new ComponentTreeRequest()
       .setBaseComponentId(VALUE_BASE_COMPONENT_ID)
       .setBaseComponentKey(VALUE_BASE_COMPONENT_KEY)
       .setComponent(VALUE_BASE_COMPONENT_KEY)

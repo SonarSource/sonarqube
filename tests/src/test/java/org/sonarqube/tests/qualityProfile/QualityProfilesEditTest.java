@@ -35,14 +35,13 @@ import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
 import org.sonarqube.ws.UserGroups;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.permission.AddUserWsRequest;
+import org.sonarqube.ws.client.permission.AddUserRequest;
 import org.sonarqube.ws.client.qualityprofile.AddGroupRequest;
-import org.sonarqube.ws.client.qualityprofile.AddUserRequest;
 import org.sonarqube.ws.client.qualityprofile.RemoveGroupRequest;
 import org.sonarqube.ws.client.qualityprofile.RemoveUserRequest;
 import org.sonarqube.ws.client.qualityprofile.SearchGroupsRequest;
 import org.sonarqube.ws.client.qualityprofile.SearchUsersRequest;
-import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
+import org.sonarqube.ws.client.qualityprofile.SearchRequest;
 import org.sonarqube.ws.client.qualityprofile.ShowRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -211,7 +210,7 @@ public class QualityProfilesEditTest {
     CreateWsResponse.QualityProfile xooProfile3 = tester.qProfiles().createXooProfile(organization);
 
     SearchWsResponse result = tester.as(user.getLogin())
-      .qProfiles().service().search(new SearchWsRequest().setOrganizationKey(organization.getKey()));
+      .qProfiles().service().search(new SearchRequest().setOrganizationKey(organization.getKey()));
     assertThat(result.getActions().getCreate()).isFalse();
     assertThat(result.getProfilesList())
       .extracting(SearchWsResponse.QualityProfile::getKey, qp -> qp.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault())
@@ -226,10 +225,10 @@ public class QualityProfilesEditTest {
     Organization organization = tester.organizations().generate();
     User user = tester.users().generateMember(organization);
     CreateWsResponse.QualityProfile xooProfile = tester.qProfiles().createXooProfile(organization);
-    tester.wsClient().permissions().addUser(new AddUserWsRequest().setOrganization(organization.getKey()).setLogin(user.getLogin()).setPermission("profileadmin"));
+    tester.wsClient().permissions().addUser(new AddUserRequest().setOrganization(organization.getKey()).setLogin(user.getLogin()).setPermission("profileadmin"));
 
     SearchWsResponse result = tester.as(user.getLogin())
-      .qProfiles().service().search(new SearchWsRequest().setOrganizationKey(organization.getKey()));
+      .qProfiles().service().search(new SearchRequest().setOrganizationKey(organization.getKey()));
     assertThat(result.getActions().getCreate()).isTrue();
     assertThat(result.getProfilesList())
       .extracting(SearchWsResponse.QualityProfile::getKey, qp -> qp.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault())
@@ -267,7 +266,7 @@ public class QualityProfilesEditTest {
   }
 
   private void addUserPermission(Organization organization, User user, CreateWsResponse.QualityProfile qProfile) {
-    tester.qProfiles().service().addUser(AddUserRequest.builder()
+    tester.qProfiles().service().addUser(org.sonarqube.ws.client.qualityprofile.AddUserRequest.builder()
       .setOrganization(organization.getKey())
       .setQualityProfile(qProfile.getName())
       .setLanguage(qProfile.getLanguage())
@@ -285,7 +284,7 @@ public class QualityProfilesEditTest {
   }
 
   private SearchWsResponse.QualityProfile getProfile(Organization organization, Predicate<SearchWsResponse.QualityProfile> filter) {
-    return tester.qProfiles().service().search(new SearchWsRequest()
+    return tester.qProfiles().service().search(new SearchRequest()
       .setOrganizationKey(organization.getKey())).getProfilesList()
       .stream()
       .filter(filter)

@@ -31,7 +31,7 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.permission.RemoveProjectCreatorFromTemplateWsRequest;
+import org.sonarqube.ws.client.permission.RemoveProjectCreatorFromTemplateRequest;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
@@ -55,8 +55,8 @@ public class RemoveProjectCreatorFromTemplateAction implements PermissionsWsActi
     this.system = system;
   }
 
-  private static RemoveProjectCreatorFromTemplateWsRequest toWsRequest(Request request) {
-    RemoveProjectCreatorFromTemplateWsRequest wsRequest = RemoveProjectCreatorFromTemplateWsRequest.builder()
+  private static RemoveProjectCreatorFromTemplateRequest toWsRequest(Request request) {
+    RemoveProjectCreatorFromTemplateRequest wsRequest = RemoveProjectCreatorFromTemplateRequest.builder()
       .setPermission(request.mandatoryParam(PARAM_PERMISSION))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
       .setOrganization(request.param(PARAM_ORGANIZATION))
@@ -85,7 +85,7 @@ public class RemoveProjectCreatorFromTemplateAction implements PermissionsWsActi
     response.noContent();
   }
 
-  private void doHandle(RemoveProjectCreatorFromTemplateWsRequest request) {
+  private void doHandle(RemoveProjectCreatorFromTemplateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(
         request.getTemplateId(), request.getOrganization(), request.getTemplateName()));

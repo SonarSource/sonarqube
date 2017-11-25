@@ -39,7 +39,7 @@ import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.permission.BulkApplyTemplateWsRequest;
+import org.sonarqube.ws.client.permission.BulkApplyTemplateRequest;
 
 import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -137,7 +137,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
     response.noContent();
   }
 
-  private void doHandle(BulkApplyTemplateWsRequest request) {
+  private void doHandle(BulkApplyTemplateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
         request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
@@ -150,8 +150,8 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
     }
   }
 
-  private static BulkApplyTemplateWsRequest toBulkApplyTemplateWsRequest(Request request) {
-    return new BulkApplyTemplateWsRequest()
+  private static BulkApplyTemplateRequest toBulkApplyTemplateWsRequest(Request request) {
+    return new BulkApplyTemplateRequest()
       .setOrganization(request.param(PARAM_ORGANIZATION))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
       .setTemplateName(request.param(PARAM_TEMPLATE_NAME))
@@ -163,7 +163,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
       .setProjects(request.paramAsStrings(PARAM_PROJECTS));
   }
 
-  private static ComponentQuery buildDbQuery(BulkApplyTemplateWsRequest request) {
+  private static ComponentQuery buildDbQuery(BulkApplyTemplateRequest request) {
     Collection<String> qualifiers = request.getQualifiers();
     ComponentQuery.Builder query = ComponentQuery.builder()
       .setQualifiers(qualifiers.toArray(new String[qualifiers.size()]));

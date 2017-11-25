@@ -32,7 +32,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
+import org.sonarqube.ws.client.measure.ComponentTreeRequest;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;
@@ -88,7 +88,7 @@ public class ComponentTreeSortTest {
 
   @Test
   public void sort_by_names() {
-    ComponentTreeWsRequest wsRequest = newRequest(singletonList(NAME_SORT), true, null);
+    ComponentTreeRequest wsRequest = newRequest(singletonList(NAME_SORT), true, null);
     List<ComponentDto> result = sortComponents(wsRequest);
 
     assertThat(result).extracting("name")
@@ -97,7 +97,7 @@ public class ComponentTreeSortTest {
 
   @Test
   public void sort_by_qualifier() {
-    ComponentTreeWsRequest wsRequest = newRequest(singletonList(QUALIFIER_SORT), false, null);
+    ComponentTreeRequest wsRequest = newRequest(singletonList(QUALIFIER_SORT), false, null);
 
     List<ComponentDto> result = sortComponents(wsRequest);
 
@@ -107,7 +107,7 @@ public class ComponentTreeSortTest {
 
   @Test
   public void sort_by_path() {
-    ComponentTreeWsRequest wsRequest = newRequest(singletonList(PATH_SORT), true, null);
+    ComponentTreeRequest wsRequest = newRequest(singletonList(PATH_SORT), true, null);
 
     List<ComponentDto> result = sortComponents(wsRequest);
 
@@ -118,7 +118,7 @@ public class ComponentTreeSortTest {
   @Test
   public void sort_by_numerical_metric_key_ascending() {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
-    ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_SORT), true, NUM_METRIC_KEY);
+    ComponentTreeRequest wsRequest = newRequest(singletonList(METRIC_SORT), true, NUM_METRIC_KEY);
 
     List<ComponentDto> result = sortComponents(wsRequest);
 
@@ -129,7 +129,7 @@ public class ComponentTreeSortTest {
   @Test
   public void sort_by_numerical_metric_key_descending() {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
-    ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_SORT), false, NUM_METRIC_KEY);
+    ComponentTreeRequest wsRequest = newRequest(singletonList(METRIC_SORT), false, NUM_METRIC_KEY);
 
     List<ComponentDto> result = sortComponents(wsRequest);
 
@@ -144,7 +144,7 @@ public class ComponentTreeSortTest {
       newComponentWithoutSnapshotId("PROJECT 11", Qualifiers.PROJECT, "PROJECT_PATH_1"),
       newComponentWithoutSnapshotId("PROJECT 0", Qualifiers.PROJECT, "PROJECT_PATH_2"));
 
-    ComponentTreeWsRequest wsRequest = newRequest(newArrayList(PATH_SORT), false, null);
+    ComponentTreeRequest wsRequest = newRequest(newArrayList(PATH_SORT), false, null);
 
     List<ComponentDto> result = sortComponents(wsRequest);
 
@@ -170,7 +170,7 @@ public class ComponentTreeSortTest {
       String alertStatus = statuses.get(i % 3);
       measuresByComponentUuidAndMetric.put(component.uuid(), metrics.get(0), createFromMeasureDto(new MeasureDto().setData(alertStatus)));
     }
-    ComponentTreeWsRequest wsRequest = newRequest(newArrayList(METRIC_SORT, NAME_SORT), true, CoreMetrics.ALERT_STATUS_KEY);
+    ComponentTreeRequest wsRequest = newRequest(newArrayList(METRIC_SORT, NAME_SORT), true, CoreMetrics.ALERT_STATUS_KEY);
 
     List<ComponentDto> result = sortComponents(wsRequest);
 
@@ -183,7 +183,7 @@ public class ComponentTreeSortTest {
   @Test
   public void sort_by_numerical_metric_period_1_key_ascending() {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
-    ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_PERIOD_SORT), true, NUM_METRIC_KEY).setMetricPeriodSort(1);
+    ComponentTreeRequest wsRequest = newRequest(singletonList(METRIC_PERIOD_SORT), true, NUM_METRIC_KEY).setMetricPeriodSort(1);
 
     List<ComponentDto> result = sortComponents(wsRequest);
 
@@ -194,7 +194,7 @@ public class ComponentTreeSortTest {
   @Test
   public void sort_by_numerical_metric_period_1_key_descending() {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
-    ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_PERIOD_SORT), false, NUM_METRIC_KEY).setMetricPeriodSort(1);
+    ComponentTreeRequest wsRequest = newRequest(singletonList(METRIC_PERIOD_SORT), false, NUM_METRIC_KEY).setMetricPeriodSort(1);
 
     List<ComponentDto> result = sortComponents(wsRequest);
 
@@ -205,7 +205,7 @@ public class ComponentTreeSortTest {
   @Test
   public void sort_by_numerical_metric_period_5_key() {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
-    ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_SORT), false, NUM_METRIC_KEY).setMetricPeriodSort(5);
+    ComponentTreeRequest wsRequest = newRequest(singletonList(METRIC_SORT), false, NUM_METRIC_KEY).setMetricPeriodSort(5);
 
     List<ComponentDto> result = sortComponents(wsRequest);
 
@@ -216,7 +216,7 @@ public class ComponentTreeSortTest {
   @Test
   public void sort_by_textual_metric_key_ascending() {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
-    ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_SORT), true, TEXT_METRIC_KEY);
+    ComponentTreeRequest wsRequest = newRequest(singletonList(METRIC_SORT), true, TEXT_METRIC_KEY);
 
     List<ComponentDto> result = sortComponents(wsRequest);
 
@@ -227,7 +227,7 @@ public class ComponentTreeSortTest {
   @Test
   public void sort_by_textual_metric_key_descending() {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
-    ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_SORT), false, TEXT_METRIC_KEY);
+    ComponentTreeRequest wsRequest = newRequest(singletonList(METRIC_SORT), false, TEXT_METRIC_KEY);
 
     List<ComponentDto> result = sortComponents(wsRequest);
 
@@ -241,7 +241,7 @@ public class ComponentTreeSortTest {
       newComponentWithoutSnapshotId("name-1", "qualifier-1", "path-2"),
       newComponentWithoutSnapshotId("name-1", "qualifier-1", "path-3"),
       newComponentWithoutSnapshotId("name-1", "qualifier-1", "path-1"));
-    ComponentTreeWsRequest wsRequest = newRequest(newArrayList(NAME_SORT, QUALIFIER_SORT, PATH_SORT), true, null);
+    ComponentTreeRequest wsRequest = newRequest(newArrayList(NAME_SORT, QUALIFIER_SORT, PATH_SORT), true, null);
 
     List<ComponentDto> result = sortComponents(wsRequest);
 
@@ -249,7 +249,7 @@ public class ComponentTreeSortTest {
       .containsExactly("path-1", "path-2", "path-3");
   }
 
-  private List<ComponentDto> sortComponents(ComponentTreeWsRequest wsRequest) {
+  private List<ComponentDto> sortComponents(ComponentTreeRequest wsRequest) {
     return ComponentTreeSort.sortComponents(components, wsRequest, metrics, measuresByComponentUuidAndMetric);
   }
 
@@ -261,8 +261,8 @@ public class ComponentTreeSortTest {
       .setPath(path);
   }
 
-  private static ComponentTreeWsRequest newRequest(List<String> sortFields, boolean isAscending, @Nullable String metricKey) {
-    return new ComponentTreeWsRequest()
+  private static ComponentTreeRequest newRequest(List<String> sortFields, boolean isAscending, @Nullable String metricKey) {
+    return new ComponentTreeRequest()
       .setAsc(isAscending)
       .setSort(sortFields)
       .setMetricSort(metricKey);

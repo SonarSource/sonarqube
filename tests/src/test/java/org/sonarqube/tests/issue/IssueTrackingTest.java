@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
+import org.sonarqube.ws.client.issue.SearchRequest;
 import util.ItUtils;
 
 import static java.util.Collections.singletonList;
@@ -71,7 +71,7 @@ public class IssueTrackingTest extends AbstractIssueTest {
       "sonar.projectDate", NEW_DATE_STR,
       "sonar.exclusions", "**/*.xoo");
 
-    issues = searchIssues(new SearchWsRequest().setProjectKeys(singletonList("sample"))).getIssuesList();
+    issues = searchIssues(new SearchRequest().setProjectKeys(singletonList("sample"))).getIssuesList();
     assertThat(issues).hasSize(1);
     assertThat(issues.get(0).getStatus()).isEqualTo("CLOSED");
     assertThat(issues.get(0).getResolution()).isEqualTo("FIXED");
@@ -119,14 +119,14 @@ public class IssueTrackingTest extends AbstractIssueTest {
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
 
     // Only one issue is created
-    assertThat(searchIssues(new SearchWsRequest()).getIssuesList()).hasSize(1);
+    assertThat(searchIssues(new SearchRequest()).getIssuesList()).hasSize(1);
     Issue issue = getRandomIssue();
 
     // Re analysis of the same project
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
 
     // No new issue should be created
-    assertThat(searchIssues(new SearchWsRequest()).getIssuesList()).hasSize(1);
+    assertThat(searchIssues(new SearchRequest()).getIssuesList()).hasSize(1);
 
     // The issue on module should stay open and be the same from the first analysis
     Issue reloadIssue = getIssueByKey(issue.getKey());
@@ -146,14 +146,14 @@ public class IssueTrackingTest extends AbstractIssueTest {
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-multi-modules-sample");
 
     // One issue by module are created
-    List<Issue> issues = searchIssues(new SearchWsRequest()).getIssuesList();
+    List<Issue> issues = searchIssues(new SearchRequest()).getIssuesList();
     assertThat(issues).hasSize(4);
 
     // Re analysis of the same project
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-multi-modules-sample");
 
     // No new issue should be created
-    assertThat(searchIssues(new SearchWsRequest()).getIssuesList()).hasSize(issues.size());
+    assertThat(searchIssues(new SearchRequest()).getIssuesList()).hasSize(issues.size());
 
     // Issues on modules should stay open and be the same from the first analysis
     for (Issue issue : issues) {
@@ -200,20 +200,20 @@ public class IssueTrackingTest extends AbstractIssueTest {
   }
 
   private List<Issue> searchUnresolvedIssuesByComponent(String componentKey) {
-    return searchIssues(new SearchWsRequest().setComponentKeys(singletonList(componentKey)).setResolved(false)).getIssuesList();
+    return searchIssues(new SearchRequest().setComponentKeys(singletonList(componentKey)).setResolved(false)).getIssuesList();
   }
 
   private static Issue getRandomIssue() {
-    return searchIssues(new SearchWsRequest()).getIssues(0);
+    return searchIssues(new SearchRequest()).getIssues(0);
   }
 
   private static Issue getIssueByKey(String issueKey) {
-    SearchWsResponse search = searchIssues(new SearchWsRequest().setIssues(singletonList(issueKey)));
+    SearchWsResponse search = searchIssues(new SearchRequest().setIssues(singletonList(issueKey)));
     assertThat(search.getTotal()).isEqualTo(1);
     return search.getIssues(0);
   }
 
-  private static SearchWsResponse searchIssues(SearchWsRequest request) {
+  private static SearchWsResponse searchIssues(SearchRequest request) {
     return adminClient.issues().search(request);
   }
 

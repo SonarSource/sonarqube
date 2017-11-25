@@ -39,7 +39,7 @@ public class OrganizationServiceTest {
 
   @Test
   public void search() {
-    underTest.search(SearchWsRequest.builder()
+    underTest.search(SearchRequest.builder()
       .setOrganizations("orga1", "orga2")
       .setPage(2)
       .setPageSize(10)
@@ -56,7 +56,7 @@ public class OrganizationServiceTest {
 
   @Test
   public void search_members() {
-    underTest.searchMembers(new SearchMembersWsRequest()
+    underTest.searchMembers(new SearchMembersRequest()
       .setOrganization("orga")
       .setSelected("selected")
       .setQuery("john")
@@ -99,7 +99,7 @@ public class OrganizationServiceTest {
 
   @Test
   public void update_project_visibility() {
-    underTest.updateProjectVisibility(UpdateProjectVisibilityWsRequest.builder()
+    underTest.updateProjectVisibility(UpdateProjectVisibilityRequest.builder()
       .setOrganization("O1")
       .setProjectVisibility("private")
     .build());

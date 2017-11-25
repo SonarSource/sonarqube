@@ -32,7 +32,7 @@ import org.junit.rules.Timeout;
 import org.sonarqube.ws.System;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.permission.AddUserWsRequest;
+import org.sonarqube.ws.client.permission.AddUserRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -97,7 +97,7 @@ public class RestartTest {
   private void createSystemAdministrator(String login, String password) {
     WsClient wsClient = newAdminWsClient(orchestrator);
     createNonSystemAdministrator(wsClient, login, password);
-    wsClient.permissions().addUser(new AddUserWsRequest().setLogin(login).setPermission("admin"));
+    wsClient.permissions().addUser(new AddUserRequest().setLogin(login).setPermission("admin"));
   }
 
   private void createNonSystemAdministrator(String login, String password) {

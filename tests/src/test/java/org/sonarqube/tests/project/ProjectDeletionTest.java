@@ -43,7 +43,7 @@ import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.project.DeleteRequest;
-import org.sonarqube.ws.client.project.SearchWsRequest;
+import org.sonarqube.ws.client.project.SearchRequest;
 import util.ItUtils;
 
 import static java.util.Collections.singletonList;
@@ -165,7 +165,7 @@ public class ProjectDeletionTest {
   }
 
   private void bulkDeleteProjects(Organizations.Organization organization, Project... projects) {
-    SearchWsRequest request = SearchWsRequest.builder()
+    SearchRequest request = SearchRequest.builder()
       .setOrganization(organization.getKey())
       .setProjects(Arrays.stream(projects).map(Project::getKey).collect(Collectors.toList()))
       .build();
@@ -194,7 +194,7 @@ public class ProjectDeletionTest {
    */
   private boolean isInProjectsSearch(Organizations.Organization organization, String name) {
     Projects.SearchWsResponse response = tester.wsClient().projects().search(
-      SearchWsRequest.builder().setOrganization(organization.getKey()).setQuery(name).setQualifiers(singletonList("TRK")).build());
+      SearchRequest.builder().setOrganization(organization.getKey()).setQuery(name).setQualifiers(singletonList("TRK")).build());
     return response.getComponentsCount() > 0;
   }
 
