@@ -38,12 +38,12 @@ import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.Users.CreateWsResponse;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
-import org.sonarqube.ws.client.permission.AddUserToTemplateWsRequest;
-import org.sonarqube.ws.client.permission.ApplyTemplateWsRequest;
-import org.sonarqube.ws.client.permission.BulkApplyTemplateWsRequest;
-import org.sonarqube.ws.client.permission.CreateTemplateWsRequest;
+import org.sonarqube.ws.client.permission.AddUserToTemplateRequest;
+import org.sonarqube.ws.client.permission.ApplyTemplateRequest;
+import org.sonarqube.ws.client.permission.BulkApplyTemplateRequest;
+import org.sonarqube.ws.client.permission.CreateTemplateRequest;
 import org.sonarqube.ws.client.permission.PermissionsService;
-import org.sonarqube.ws.client.permission.UsersWsRequest;
+import org.sonarqube.ws.client.permission.UsersRequest;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,7 +90,7 @@ public class PermissionTemplateTest {
     CreateWsResponse.User user = tester.users().generateMember(organization);
     CreateWsResponse.User anotherUser = tester.users().generateMember(organization);
     Permissions.PermissionTemplate template = createTemplate(organization).getPermissionTemplate();
-    tester.wsClient().permissions().addUserToTemplate(new AddUserToTemplateWsRequest()
+    tester.wsClient().permissions().addUserToTemplate(new AddUserToTemplateRequest()
       .setOrganization(organization.getKey())
       .setTemplateId(template.getId())
       .setLogin(user.getLogin())
@@ -99,7 +99,7 @@ public class PermissionTemplateTest {
     Project project2 = createPrivateProject(organization);
     Project untouchedProject = createPrivateProject(organization);
 
-    tester.wsClient().permissions().bulkApplyTemplate(new BulkApplyTemplateWsRequest()
+    tester.wsClient().permissions().bulkApplyTemplate(new BulkApplyTemplateRequest()
       .setOrganization(organization.getKey())
       .setTemplateId(template.getId())
       .setProjects(Arrays.asList(project1.getKey(), project2.getKey())));
@@ -157,23 +157,23 @@ public class PermissionTemplateTest {
   private void createAndApplyTemplate(Organization organization, Project project, CreateWsResponse.User user) {
     String templateName = "For user";
     PermissionsService service = tester.wsClient().permissions();
-    service.createTemplate(new CreateTemplateWsRequest()
+    service.createTemplate(new CreateTemplateRequest()
       .setOrganization(organization.getKey())
       .setName(templateName)
       .setDescription("Give admin permissions to single user"));
-    service.addUserToTemplate(new AddUserToTemplateWsRequest()
+    service.addUserToTemplate(new AddUserToTemplateRequest()
       .setOrganization(organization.getKey())
       .setLogin(user.getLogin())
       .setPermission("user")
       .setTemplateName(templateName));
-    service.applyTemplate(new ApplyTemplateWsRequest()
+    service.applyTemplate(new ApplyTemplateRequest()
       .setOrganization(organization.getKey())
       .setProjectKey(project.getKey())
       .setTemplateName(templateName));
   }
 
   private CreateTemplateWsResponse createTemplate(Organization organization) {
-    return tester.wsClient().permissions().createTemplate(new CreateTemplateWsRequest()
+    return tester.wsClient().permissions().createTemplate(new CreateTemplateRequest()
       .setOrganization(organization.getKey())
       .setName(randomAlphabetic(20)));
   }
@@ -199,7 +199,7 @@ public class PermissionTemplateTest {
   }
 
   private boolean hasBrowsePermission(CreateWsResponse.User user, Organization organization, Project project) {
-    UsersWsRequest request = new UsersWsRequest()
+    UsersRequest request = new UsersRequest()
       .setOrganization(organization.getKey())
       .setProjectKey(project.getKey())
       .setPermission("user");

@@ -32,9 +32,9 @@ import org.sonarqube.ws.Favorites.Favorite;
 import org.sonarqube.ws.Permissions;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.favorites.SearchRequest;
-import org.sonarqube.ws.client.permission.AddProjectCreatorToTemplateWsRequest;
-import org.sonarqube.ws.client.permission.RemoveProjectCreatorFromTemplateWsRequest;
-import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
+import org.sonarqube.ws.client.permission.AddProjectCreatorToTemplateRequest;
+import org.sonarqube.ws.client.permission.RemoveProjectCreatorFromTemplateRequest;
+import org.sonarqube.ws.client.permission.SearchTemplatesRequest;
 
 import static com.sonar.orchestrator.container.Server.ADMIN_LOGIN;
 import static com.sonar.orchestrator.container.Server.ADMIN_PASSWORD;
@@ -105,18 +105,18 @@ public class FavoriteTest {
   }
 
   private void addProjectCreatorPermission() {
-    Permissions.SearchTemplatesWsResponse permissionTemplates = adminWsClient.permissions().searchTemplates(new SearchTemplatesWsRequest());
+    Permissions.SearchTemplatesWsResponse permissionTemplates = adminWsClient.permissions().searchTemplates(new SearchTemplatesRequest());
     assertThat(permissionTemplates.getDefaultTemplatesCount()).isEqualTo(1);
-    adminWsClient.permissions().addProjectCreatorToTemplate(AddProjectCreatorToTemplateWsRequest.builder()
+    adminWsClient.permissions().addProjectCreatorToTemplate(AddProjectCreatorToTemplateRequest.builder()
       .setTemplateId(permissionTemplates.getDefaultTemplates(0).getTemplateId())
       .setPermission("admin")
       .build());
   }
 
   private void removeProjectCreatorPermission() {
-    Permissions.SearchTemplatesWsResponse permissionTemplates = adminWsClient.permissions().searchTemplates(new SearchTemplatesWsRequest());
+    Permissions.SearchTemplatesWsResponse permissionTemplates = adminWsClient.permissions().searchTemplates(new SearchTemplatesRequest());
     assertThat(permissionTemplates.getDefaultTemplatesCount()).isEqualTo(1);
-    adminWsClient.permissions().removeProjectCreatorFromTemplate(RemoveProjectCreatorFromTemplateWsRequest.builder()
+    adminWsClient.permissions().removeProjectCreatorFromTemplate(RemoveProjectCreatorFromTemplateRequest.builder()
       .setTemplateId(permissionTemplates.getDefaultTemplates(0).getTemplateId())
       .setPermission("admin")
       .build());

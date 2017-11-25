@@ -42,7 +42,7 @@ import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.measure.ComponentWsRequest;
+import org.sonarqube.ws.client.measure.ComponentRequest;
 
 import static com.codeborne.selenide.Condition.hasText;
 import static com.codeborne.selenide.Selenide.$;
@@ -198,7 +198,7 @@ public class UpgradeTest {
   }
 
   private int countFiles(String key) {
-    Measure measure = newWsClient(orchestrator).measures().component(new ComponentWsRequest().setComponentKey(key).setMetricKeys(Collections.singletonList("files")))
+    Measure measure = newWsClient(orchestrator).measures().component(new ComponentRequest().setComponentKey(key).setMetricKeys(Collections.singletonList("files")))
       .getComponent().getMeasures(0);
     return parseInt(measure.getValue());
   }

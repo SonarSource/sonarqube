@@ -158,7 +158,7 @@ public class IssuesService extends BaseService {
       Issues.Operation.parser());
   }
 
-  public SearchWsResponse search(SearchWsRequest request) {
+  public SearchWsResponse search(SearchRequest request) {
     return call(
       new GetRequest(path(ACTION_SEARCH))
         .setParam(DEPRECATED_PARAM_ACTION_PLANS, inlineMultipleParamValue(request.getActionPlans()))

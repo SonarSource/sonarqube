@@ -34,7 +34,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.permission.CountPerProjectPermission;
-import org.sonarqube.ws.client.permission.SearchProjectPermissionsWsRequest;
+import org.sonarqube.ws.client.permission.SearchProjectPermissionsRequest;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.api.utils.Paging.forPageIndex;
@@ -52,7 +52,7 @@ public class SearchProjectPermissionsDataLoader {
     this.rootQualifiers = Collections2.transform(resourceTypes.getRoots(), ResourceType::getQualifier).toArray(new String[resourceTypes.getRoots().size()]);
   }
 
-  SearchProjectPermissionsData load(DbSession dbSession, SearchProjectPermissionsWsRequest request) {
+  SearchProjectPermissionsData load(DbSession dbSession, SearchProjectPermissionsRequest request) {
     SearchProjectPermissionsData.Builder data = newBuilder();
     int countRootComponents = countRootComponents(dbSession, request);
     List<ComponentDto> rootComponents = searchRootComponents(dbSession, request, paging(request, countRootComponents));
@@ -66,17 +66,17 @@ public class SearchProjectPermissionsDataLoader {
     return data.build();
   }
 
-  private static Paging paging(SearchProjectPermissionsWsRequest request, int total) {
+  private static Paging paging(SearchProjectPermissionsRequest request, int total) {
     return forPageIndex(request.getPage())
       .withPageSize(request.getPageSize())
       .andTotal(total);
   }
 
-  private int countRootComponents(DbSession dbSession, SearchProjectPermissionsWsRequest request) {
+  private int countRootComponents(DbSession dbSession, SearchProjectPermissionsRequest request) {
     return dbClient.componentDao().countByQuery(dbSession, toDbQuery(request));
   }
 
-  private List<ComponentDto> searchRootComponents(DbSession dbSession, SearchProjectPermissionsWsRequest request, Paging paging) {
+  private List<ComponentDto> searchRootComponents(DbSession dbSession, SearchProjectPermissionsRequest request, Paging paging) {
     Optional<ProjectWsRef> project = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
 
     if (project.isPresent()) {
@@ -86,7 +86,7 @@ public class SearchProjectPermissionsDataLoader {
     return dbClient.componentDao().selectByQuery(dbSession, toDbQuery(request), paging.offset(), paging.pageSize());
   }
 
-  private ComponentQuery toDbQuery(SearchProjectPermissionsWsRequest wsRequest) {
+  private ComponentQuery toDbQuery(SearchProjectPermissionsRequest wsRequest) {
     return ComponentQuery.builder()
       .setQualifiers(qualifiers(wsRequest.getQualifier()))
       .setNameOrKeyQuery(wsRequest.getQuery())

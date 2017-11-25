@@ -43,7 +43,7 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.SearchWsResponse;
-import org.sonarqube.ws.client.component.SearchWsRequest;
+import org.sonarqube.ws.client.component.SearchRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.stream.Collectors.toMap;
@@ -116,8 +116,8 @@ public class SearchAction implements ComponentsWsAction {
     writeProtobuf(searchWsResponse, wsRequest, wsResponse);
   }
 
-  private static SearchWsRequest toSearchWsRequest(Request request) {
-    return new SearchWsRequest()
+  private static SearchRequest toSearchWsRequest(Request request) {
+    return new SearchRequest()
       .setOrganization(request.param(PARAM_ORGANIZATION))
       .setQualifiers(request.mandatoryParamAsStrings(PARAM_QUALIFIERS))
       .setLanguage(request.param(PARAM_LANGUAGE))
@@ -126,7 +126,7 @@ public class SearchAction implements ComponentsWsAction {
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
   }
 
-  private SearchWsResponse doHandle(SearchWsRequest request) {
+  private SearchWsResponse doHandle(SearchRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = getOrganization(dbSession, request);
       ComponentQuery esQuery = buildEsQuery(organization, request);
@@ -148,7 +148,7 @@ public class SearchAction implements ComponentsWsAction {
     return projects.stream().collect(toMap(ComponentDto::uuid, ComponentDto::getDbKey));
   }
 
-  private OrganizationDto getOrganization(DbSession dbSession, SearchWsRequest request) {
+  private OrganizationDto getOrganization(DbSession dbSession, SearchRequest request) {
     String organizationKey = Optional.ofNullable(request.getOrganization())
       .orElseGet(defaultOrganizationProvider.get()::getKey);
     return WsUtils.checkFoundWithOptional(
@@ -156,7 +156,7 @@ public class SearchAction implements ComponentsWsAction {
       "No organizationDto with key '%s'", organizationKey);
   }
 
-  private static ComponentQuery buildEsQuery(OrganizationDto organization, SearchWsRequest request) {
+  private static ComponentQuery buildEsQuery(OrganizationDto organization, SearchRequest request) {
     return ComponentQuery.builder()
       .setQuery(request.getQuery())
       .setOrganization(organization.getUuid())

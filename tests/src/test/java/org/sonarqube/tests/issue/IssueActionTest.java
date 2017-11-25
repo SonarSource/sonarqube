@@ -30,7 +30,7 @@ import org.sonarqube.ws.client.issue.AddCommentRequest;
 import org.sonarqube.ws.client.issue.AssignRequest;
 import org.sonarqube.ws.client.issue.EditCommentRequest;
 import org.sonarqube.ws.client.issue.IssuesService;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
+import org.sonarqube.ws.client.issue.SearchRequest;
 import org.sonarqube.ws.client.issue.SetSeverityRequest;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
@@ -157,18 +157,18 @@ public class IssueActionTest extends AbstractIssueTest {
   @Test
   public void assign() {
     assertThat(randomIssue.hasAssignee()).isFalse();
-    Issues.SearchWsResponse response = issueRule.search(new SearchWsRequest().setIssues(singletonList(randomIssue.getKey())));
+    Issues.SearchWsResponse response = issueRule.search(new SearchRequest().setIssues(singletonList(randomIssue.getKey())));
     assertThat(response.getUsers().getUsersList()).isEmpty();
 
     issuesService.assign(new AssignRequest(randomIssue.getKey(), "admin"));
-    assertThat(issueRule.search(new SearchWsRequest().setAssignees(singletonList("admin"))).getIssuesList()).hasSize(1);
+    assertThat(issueRule.search(new SearchRequest().setAssignees(singletonList("admin"))).getIssuesList()).hasSize(1);
 
     projectAnalysis.run();
     Issue reloaded = issueRule.getByKey(randomIssue.getKey());
     assertThat(reloaded.getAssignee()).isEqualTo("admin");
     assertThat(reloaded.getCreationDate()).isEqualTo(randomIssue.getCreationDate());
 
-    response = issueRule.search(new SearchWsRequest().setIssues(singletonList(randomIssue.getKey())).setAdditionalFields(singletonList("users")));
+    response = issueRule.search(new SearchRequest().setIssues(singletonList(randomIssue.getKey())).setAdditionalFields(singletonList("users")));
     assertThat(response.getUsers().getUsersList().stream().filter(user -> "admin".equals(user.getLogin())).findFirst()).isPresent();
     assertThat(response.getUsers().getUsersList().stream().filter(user -> "Administrator".equals(user.getName())).findFirst()).isPresent();
 
@@ -176,7 +176,7 @@ public class IssueActionTest extends AbstractIssueTest {
     issuesService.assign(new AssignRequest(randomIssue.getKey(), null));
     reloaded = issueRule.getByKey(randomIssue.getKey());
     assertThat(reloaded.hasAssignee()).isFalse();
-    assertThat(issueRule.search(new SearchWsRequest().setAssignees(singletonList("admin"))).getIssuesList()).isEmpty();
+    assertThat(issueRule.search(new SearchRequest().setAssignees(singletonList("admin"))).getIssuesList()).isEmpty();
   }
 
   /**
@@ -194,7 +194,7 @@ public class IssueActionTest extends AbstractIssueTest {
   }
 
   private static List<Issue> searchIssuesBySeverities(String projectKey, String severity) {
-    return issueRule.search(new SearchWsRequest().setProjectKeys(singletonList(projectKey)).setSeverities(singletonList(severity))).getIssuesList();
+    return issueRule.search(new SearchRequest().setProjectKeys(singletonList(projectKey)).setSeverities(singletonList(severity))).getIssuesList();
   }
 
 }

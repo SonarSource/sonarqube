@@ -31,7 +31,7 @@ import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.BulkChangeWsResponse;
 import org.sonarqube.ws.client.issue.BulkChangeRequest;
 import org.sonarqube.ws.client.issue.IssuesService;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
+import org.sonarqube.ws.client.issue.SearchRequest;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
 import util.issue.IssueRule;
@@ -259,7 +259,7 @@ public class IssueBulkChangeTest extends AbstractIssueTest {
   }
 
   private static String[] searchIssueKeys(int limit) {
-    return getIssueKeys(issueRule.search(new SearchWsRequest()).getIssuesList(), limit);
+    return getIssueKeys(issueRule.search(new SearchRequest()).getIssuesList(), limit);
   }
 
   private static String[] getIssueKeys(List<Issues.Issue> issues, int nbIssues) {

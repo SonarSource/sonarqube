@@ -35,7 +35,7 @@ import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
+import org.sonarqube.ws.client.issue.SearchRequest;
 import util.ItUtils;
 
 import static java.util.Arrays.asList;
@@ -261,16 +261,16 @@ public class IssueSearchTest extends AbstractIssueTest {
 
   @Test
   public void search_issues_by_types() throws IOException {
-    assertThat(searchIssues(new SearchWsRequest().setTypes(singletonList("CODE_SMELL"))).getPaging().getTotal()).isEqualTo(142);
-    assertThat(searchIssues(new SearchWsRequest().setTypes(singletonList("BUG"))).getPaging().getTotal()).isEqualTo(122);
-    assertThat(searchIssues(new SearchWsRequest().setTypes(singletonList("VULNERABILITY"))).getPaging().getTotal()).isEqualTo(8);
+    assertThat(searchIssues(new SearchRequest().setTypes(singletonList("CODE_SMELL"))).getPaging().getTotal()).isEqualTo(142);
+    assertThat(searchIssues(new SearchRequest().setTypes(singletonList("BUG"))).getPaging().getTotal()).isEqualTo(122);
+    assertThat(searchIssues(new SearchRequest().setTypes(singletonList("VULNERABILITY"))).getPaging().getTotal()).isEqualTo(8);
   }
 
   private List<org.sonarqube.ws.Issues.Issue> searchByRuleKey(String... ruleKey) throws IOException {
-    return searchIssues(new SearchWsRequest().setRules(asList(ruleKey))).getIssuesList();
+    return searchIssues(new SearchRequest().setRules(asList(ruleKey))).getIssuesList();
   }
 
-  private SearchWsResponse searchIssues(SearchWsRequest request) throws IOException {
+  private SearchWsResponse searchIssues(SearchRequest request) throws IOException {
     return newAdminWsClient(ORCHESTRATOR).issues().search(request);
   }
 

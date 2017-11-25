@@ -36,7 +36,7 @@ import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.qualityprofile.ChangeParentRequest;
 import org.sonarqube.ws.client.qualityprofile.CopyRequest;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
-import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
+import org.sonarqube.ws.client.qualityprofile.SearchRequest;
 import org.sonarqube.ws.client.qualityprofile.SetDefaultRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +55,7 @@ public class BuiltInQualityProfilesTest {
   @Test
   public void built_in_profiles_are_available_in_new_organization() {
     Organization org = tester.organizations().generate();
-    SearchWsResponse result = tester.qProfiles().service().search(new SearchWsRequest().setOrganizationKey(org.getKey()));
+    SearchWsResponse result = tester.qProfiles().service().search(new SearchRequest().setOrganizationKey(org.getKey()));
 
     assertThat(result.getProfilesList())
       .extracting(QualityProfile::getName, QualityProfile::getLanguage, QualityProfile::getIsBuiltIn, QualityProfile::getIsDefault)
@@ -70,7 +70,7 @@ public class BuiltInQualityProfilesTest {
 
   @Test
   public void built_in_profiles_are_available_in_default_organization() {
-    SearchWsResponse result = tester.qProfiles().service().search(new SearchWsRequest().setOrganizationKey("default-organization"));
+    SearchWsResponse result = tester.qProfiles().service().search(new SearchRequest().setOrganizationKey("default-organization"));
 
     assertThat(result.getProfilesList())
       .extracting(QualityProfile::getOrganization, QualityProfile::getName, QualityProfile::getLanguage, QualityProfile::getIsBuiltIn, QualityProfile::getIsDefault)
@@ -154,7 +154,7 @@ public class BuiltInQualityProfilesTest {
   }
 
   private QualityProfile getProfile(Organization organization, Predicate<QualityProfile> filter) {
-    return tester.qProfiles().service().search(new SearchWsRequest()
+    return tester.qProfiles().service().search(new SearchRequest()
       .setOrganizationKey(organization.getKey())).getProfilesList()
       .stream()
       .filter(filter)

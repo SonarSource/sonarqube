@@ -31,7 +31,7 @@ import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.permission.ApplyTemplateWsRequest;
+import org.sonarqube.ws.client.permission.ApplyTemplateRequest;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
@@ -58,8 +58,8 @@ public class ApplyTemplateAction implements PermissionsWsAction {
     this.wsSupport = wsSupport;
   }
 
-  private static ApplyTemplateWsRequest toApplyTemplateWsRequest(Request request) {
-    return new ApplyTemplateWsRequest()
+  private static ApplyTemplateRequest toApplyTemplateWsRequest(Request request) {
+    return new ApplyTemplateRequest()
       .setProjectId(request.param(PARAM_PROJECT_ID))
       .setProjectKey(request.param(PARAM_PROJECT_KEY))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
@@ -88,7 +88,7 @@ public class ApplyTemplateAction implements PermissionsWsAction {
     response.noContent();
   }
 
-  private void doHandle(ApplyTemplateWsRequest request) {
+  private void doHandle(ApplyTemplateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
         request.getTemplateId(), request.getOrganization(), request.getTemplateName()));

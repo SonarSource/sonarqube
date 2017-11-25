@@ -52,8 +52,8 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.issue.AssignRequest;
 import org.sonarqube.ws.client.issue.BulkChangeRequest;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
-import org.sonarqube.ws.client.permission.AddUserWsRequest;
+import org.sonarqube.ws.client.issue.SearchRequest;
+import org.sonarqube.ws.client.permission.AddUserRequest;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
@@ -174,7 +174,7 @@ public class IssueNotificationsTest {
     clearSmtpMessages();
 
     // Change assignee
-    SearchWsResponse issues = tester.wsClient().issues().search(new SearchWsRequest().setProjectKeys(singletonList(PROJECT_KEY)));
+    SearchWsResponse issues = tester.wsClient().issues().search(new SearchRequest().setProjectKeys(singletonList(PROJECT_KEY)));
     Issue issue = issues.getIssuesList().get(0);
     tester.wsClient().issues().assign(new AssignRequest(issue.getKey(), userWithUserRole.getLogin()));
 
@@ -245,7 +245,7 @@ public class IssueNotificationsTest {
     assertThat(smtpServer.getMessages()).hasSize(privateProject ? 2 : 3);
     clearSmtpMessages();
 
-    SearchWsResponse issues = tester.wsClient().issues().search(new SearchWsRequest().setProjectKeys(singletonList(PROJECT_KEY)));
+    SearchWsResponse issues = tester.wsClient().issues().search(new SearchRequest().setProjectKeys(singletonList(PROJECT_KEY)));
     Issue issue = issues.getIssuesList().get(0);
 
     // bulk change without notification by default
@@ -307,7 +307,7 @@ public class IssueNotificationsTest {
         .setEmail("userWithUserRole@nowhere.com"));
     tester.organizations().addMember(organization, userWithUserRole);
     tester.wsClient().permissions().addUser(
-      new AddUserWsRequest()
+      new AddUserRequest()
         .setLogin(userWithUserRole.getLogin())
         .setProjectKey(PROJECT_KEY)
         .setPermission("user"));

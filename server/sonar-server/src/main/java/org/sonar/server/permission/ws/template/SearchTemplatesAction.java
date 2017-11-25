@@ -39,7 +39,7 @@ import org.sonarqube.ws.Permissions.Permission;
 import org.sonarqube.ws.Permissions.PermissionTemplate;
 import org.sonarqube.ws.Permissions.SearchTemplatesWsResponse;
 import org.sonarqube.ws.Permissions.SearchTemplatesWsResponse.TemplateIdQualifier;
-import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
+import org.sonarqube.ws.client.permission.SearchTemplatesRequest;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -83,7 +83,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto org = support.findOrganization(dbSession, wsRequest.param(PARAM_ORGANIZATION));
-      SearchTemplatesWsRequest request = new SearchTemplatesWsRequest()
+      SearchTemplatesRequest request = new SearchTemplatesRequest()
         .setOrganizationUuid(org.getUuid())
         .setQuery(wsRequest.param(Param.TEXT_QUERY));
       checkGlobalAdmin(userSession, request.getOrganizationUuid());

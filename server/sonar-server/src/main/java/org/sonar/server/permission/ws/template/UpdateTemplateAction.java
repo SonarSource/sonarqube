@@ -33,7 +33,7 @@ import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions.PermissionTemplate;
 import org.sonarqube.ws.Permissions.UpdateTemplateWsResponse;
-import org.sonarqube.ws.client.permission.UpdateTemplateWsRequest;
+import org.sonarqube.ws.client.permission.UpdateTemplateRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.String.format;
@@ -65,8 +65,8 @@ public class UpdateTemplateAction implements PermissionsWsAction {
     this.wsSupport = wsSupport;
   }
 
-  private static UpdateTemplateWsRequest toUpdateTemplateWsRequest(Request request) {
-    return new UpdateTemplateWsRequest()
+  private static UpdateTemplateRequest toUpdateTemplateWsRequest(Request request) {
+    return new UpdateTemplateRequest()
       .setId(request.mandatoryParam(PARAM_ID))
       .setName(request.param(PARAM_NAME))
       .setDescription(request.param(PARAM_DESCRIPTION))
@@ -104,7 +104,7 @@ public class UpdateTemplateAction implements PermissionsWsAction {
     writeProtobuf(updateTemplateWsResponse, request, response);
   }
 
-  private UpdateTemplateWsResponse doHandle(UpdateTemplateWsRequest request) {
+  private UpdateTemplateWsResponse doHandle(UpdateTemplateRequest request) {
     String uuid = request.getId();
     String nameParam = request.getName();
     String descriptionParam = request.getDescription();

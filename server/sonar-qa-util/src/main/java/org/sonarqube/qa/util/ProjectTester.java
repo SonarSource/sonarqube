@@ -27,7 +27,7 @@ import org.sonarqube.ws.Projects;
 import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.project.DeleteRequest;
 import org.sonarqube.ws.client.project.ProjectsService;
-import org.sonarqube.ws.client.project.SearchWsRequest;
+import org.sonarqube.ws.client.project.SearchRequest;
 
 import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
@@ -44,7 +44,7 @@ public class ProjectTester {
 
   void deleteAll() {
     ProjectsService service = session.wsClient().projects();
-    service.search(SearchWsRequest.builder().setQualifiers(singletonList("TRK")).build()).getComponentsList().forEach(p ->
+    service.search(SearchRequest.builder().setQualifiers(singletonList("TRK")).build()).getComponentsList().forEach(p ->
       service.delete(DeleteRequest.builder().setKey(p.getKey()).build()));
   }
 

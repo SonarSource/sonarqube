@@ -29,7 +29,7 @@ import org.sonar.server.permission.UserId;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.permission.RemoveUserFromTemplateWsRequest;
+import org.sonarqube.ws.client.permission.RemoveUserFromTemplateRequest;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
@@ -53,8 +53,8 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
     this.userSession = userSession;
   }
 
-  private static RemoveUserFromTemplateWsRequest toRemoveUserFromTemplateWsRequest(Request request) {
-    return new RemoveUserFromTemplateWsRequest()
+  private static RemoveUserFromTemplateRequest toRemoveUserFromTemplateWsRequest(Request request) {
+    return new RemoveUserFromTemplateRequest()
       .setPermission(request.mandatoryParam(PARAM_PERMISSION))
       .setLogin(request.mandatoryParam(PARAM_USER_LOGIN))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
@@ -83,7 +83,7 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
     response.noContent();
   }
 
-  private void doHandle(RemoveUserFromTemplateWsRequest request) {
+  private void doHandle(RemoveUserFromTemplateRequest request) {
     String permission = request.getPermission();
     String userLogin = request.getLogin();
 

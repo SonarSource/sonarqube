@@ -30,7 +30,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
 import org.sonar.server.component.ComponentService;
-import org.sonarqube.ws.client.project.UpdateKeyWsRequest;
+import org.sonarqube.ws.client.project.UpdateKeyRequest;
 
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_UPDATE_KEY;
@@ -97,15 +97,15 @@ public class UpdateKeyAction implements ProjectsWsAction {
     response.noContent();
   }
 
-  private void doHandle(UpdateKeyWsRequest request) {
+  private void doHandle(UpdateKeyRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto projectOrModule = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.PROJECT_ID_AND_FROM);
       componentService.updateKey(dbSession, projectOrModule, request.getNewKey());
     }
   }
 
-  private static UpdateKeyWsRequest toWsRequest(Request request) {
-    return UpdateKeyWsRequest.builder()
+  private static UpdateKeyRequest toWsRequest(Request request) {
+    return UpdateKeyRequest.builder()
       .setId(request.param(PARAM_PROJECT_ID))
       .setKey(request.param(PARAM_FROM))
       .setNewKey(request.mandatoryParam(PARAM_TO))

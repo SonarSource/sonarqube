@@ -61,7 +61,7 @@ public class QualityProfilesServiceTest {
 
   @Test
   public void search() {
-    underTest.search(new SearchWsRequest()
+    underTest.search(new SearchRequest()
       .setDefaults(true)
       .setProjectKey("project")
       .setLanguage("language")
@@ -184,7 +184,7 @@ public class QualityProfilesServiceTest {
 
   @Test
   public void activate_rule() {
-    underTest.activateRule(ActivateRuleWsRequest.builder()
+    underTest.activateRule(ActivateRuleRequest.builder()
       .setRuleKey("R1")
       .setKey("P1")
       .setOrganization("O1")

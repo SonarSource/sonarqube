@@ -31,7 +31,7 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.permission.AddProjectCreatorToTemplateWsRequest;
+import org.sonarqube.ws.client.permission.AddProjectCreatorToTemplateRequest;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
@@ -55,8 +55,8 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
     this.system = system;
   }
 
-  private static AddProjectCreatorToTemplateWsRequest toWsRequest(Request request) {
-    AddProjectCreatorToTemplateWsRequest wsRequest = AddProjectCreatorToTemplateWsRequest.builder()
+  private static AddProjectCreatorToTemplateRequest toWsRequest(Request request) {
+    AddProjectCreatorToTemplateRequest wsRequest = AddProjectCreatorToTemplateRequest.builder()
       .setPermission(request.mandatoryParam(PARAM_PERMISSION))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
       .setOrganization(request.param(PARAM_ORGANIZATION))
@@ -85,7 +85,7 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
     response.noContent();
   }
 
-  private void doHandle(AddProjectCreatorToTemplateWsRequest request) {
+  private void doHandle(AddProjectCreatorToTemplateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(
         request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
@@ -101,7 +101,7 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
     }
   }
 
-  private void addTemplatePermission(DbSession dbSession, AddProjectCreatorToTemplateWsRequest request, PermissionTemplateDto template) {
+  private void addTemplatePermission(DbSession dbSession, AddProjectCreatorToTemplateRequest request, PermissionTemplateDto template) {
     long now = system.now();
     dbClient.permissionTemplateCharacteristicDao().insert(dbSession, new PermissionTemplateCharacteristicDto()
       .setPermission(request.getPermission())

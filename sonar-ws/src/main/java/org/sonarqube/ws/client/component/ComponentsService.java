@@ -52,7 +52,7 @@ public class ComponentsService extends BaseService {
     super(wsConnector, CONTROLLER_COMPONENTS);
   }
 
-  public SearchWsResponse search(SearchWsRequest request) {
+  public SearchWsResponse search(SearchRequest request) {
     GetRequest get = new GetRequest(path(ACTION_SEARCH))
       .setParam(PARAM_ORGANIZATION, request.getOrganization())
       .setParam(PARAM_QUALIFIERS, Joiner.on(",").join(request.getQualifiers()))
@@ -62,7 +62,7 @@ public class ComponentsService extends BaseService {
     return call(get, SearchWsResponse.parser());
   }
 
-  public TreeWsResponse tree(TreeWsRequest request) {
+  public TreeWsResponse tree(TreeRequest request) {
     GetRequest get = new GetRequest(path(ACTION_TREE))
       .setParam(PARAM_COMPONENT_ID, request.getBaseComponentId())
       .setParam("baseComponentKey", request.getBaseComponentKey())
@@ -77,7 +77,7 @@ public class ComponentsService extends BaseService {
     return call(get, TreeWsResponse.parser());
   }
 
-  public ShowWsResponse show(ShowWsRequest request) {
+  public ShowWsResponse show(ShowRequest request) {
     GetRequest get = new GetRequest(path(ACTION_SHOW))
       .setParam(PARAM_COMPONENT_ID, request.getId())
       .setParam(PARAM_COMPONENT, request.getKey())
@@ -100,7 +100,7 @@ public class ComponentsService extends BaseService {
     return call(get, SearchProjectsWsResponse.parser());
   }
 
-  public WsResponse suggestions(SuggestionsWsRequest request) {
+  public WsResponse suggestions(SuggestionsRequest request) {
     GetRequest get = new GetRequest(path(ACTION_SUGGESTIONS))
       .setParam("more", request.getMore() == null ? null : request.getMore().toString())
       .setParam("recentlyBrowsed", request.getRecentlyBrowsed().stream().collect(Collectors.joining(",")))

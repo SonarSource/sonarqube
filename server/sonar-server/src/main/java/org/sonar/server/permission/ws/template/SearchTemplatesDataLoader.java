@@ -30,7 +30,7 @@ import org.sonar.db.permission.template.CountByTemplateAndPermissionDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.ws.template.DefaultTemplatesResolver.ResolvedDefaultTemplates;
-import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
+import org.sonarqube.ws.client.permission.SearchTemplatesRequest;
 
 import static org.sonar.server.permission.ws.template.SearchTemplatesData.builder;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
@@ -44,7 +44,7 @@ public class SearchTemplatesDataLoader {
     this.defaultTemplatesResolver = defaultTemplatesResolver;
   }
 
-  public SearchTemplatesData load(DbSession dbSession, SearchTemplatesWsRequest request) {
+  public SearchTemplatesData load(DbSession dbSession, SearchTemplatesRequest request) {
     SearchTemplatesData.Builder data = builder();
     List<PermissionTemplateDto> templates = searchTemplates(dbSession, request);
     List<Long> templateIds = Lists.transform(templates, PermissionTemplateDto::getId);
@@ -63,7 +63,7 @@ public class SearchTemplatesDataLoader {
     return data.build();
   }
 
-  private List<PermissionTemplateDto> searchTemplates(DbSession dbSession, SearchTemplatesWsRequest request) {
+  private List<PermissionTemplateDto> searchTemplates(DbSession dbSession, SearchTemplatesRequest request) {
     return dbClient.permissionTemplateDao().selectAll(dbSession, request.getOrganizationUuid(), request.getQuery());
   }
 

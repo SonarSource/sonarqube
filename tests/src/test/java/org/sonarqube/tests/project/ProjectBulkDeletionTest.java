@@ -30,7 +30,7 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Projects.CreateWsResponse;
 import org.sonarqube.ws.Projects.SearchWsResponse.Component;
-import org.sonarqube.ws.client.project.SearchWsRequest;
+import org.sonarqube.ws.client.project.SearchRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.runProjectAnalysis;
@@ -52,12 +52,12 @@ public class ProjectBulkDeletionTest {
 
     analyzeProject(analyzedProject.getKey(), organization.getKey());
 
-    tester.wsClient().projects().bulkDelete(SearchWsRequest.builder()
+    tester.wsClient().projects().bulkDelete(SearchRequest.builder()
       .setOrganization(organization.getKey())
       .setQuery("FIRST-PROVISIONED")
       .setOnProvisionedOnly(true).build());
 
-    List<Component> projects = tester.wsClient().projects().search(SearchWsRequest.builder().setOrganization(organization.getKey()).build()).getComponentsList();
+    List<Component> projects = tester.wsClient().projects().search(SearchRequest.builder().setOrganization(organization.getKey()).build()).getComponentsList();
     assertThat(projects).extracting(Component::getKey)
       .containsExactlyInAnyOrder(analyzedProject.getKey(), secondProvisionedProject.getKey())
       .doesNotContain(firstProvisionedProject.getKey());
@@ -67,7 +67,7 @@ public class ProjectBulkDeletionTest {
   public void delete_more_than_50_projects_at_the_same_time() {
     Organizations.Organization organization = tester.organizations().generate();
     IntStream.range(0, 60).forEach(i -> tester.projects().provision(organization));
-    SearchWsRequest request = SearchWsRequest.builder().setOrganization(organization.getKey()).build();
+    SearchRequest request = SearchRequest.builder().setOrganization(organization.getKey()).build();
     assertThat(tester.wsClient().projects().search(request).getPaging().getTotal()).isEqualTo(60);
 
     tester.wsClient().projects().bulkDelete(request);

@@ -85,7 +85,7 @@ public class ProjectsService extends BaseService {
       .setParam("project", request.getKey()));
   }
 
-  public void bulkDelete(SearchWsRequest request) {
+  public void bulkDelete(SearchRequest request) {
     PostRequest post = new PostRequest(path("bulk_delete"))
       .setParam(PARAM_ORGANIZATION, request.getOrganization())
       .setParam(PARAM_QUALIFIERS, inlineMultipleParamValue(request.getQualifiers()))
@@ -98,7 +98,7 @@ public class ProjectsService extends BaseService {
     call(post);
   }
 
-  public void updateKey(UpdateKeyWsRequest request) {
+  public void updateKey(UpdateKeyRequest request) {
     PostRequest post = new PostRequest(path(ACTION_UPDATE_KEY))
       .setParam(PARAM_PROJECT_ID, request.getId())
       .setParam(PARAM_FROM, request.getKey())
@@ -107,7 +107,7 @@ public class ProjectsService extends BaseService {
     call(post);
   }
 
-  public BulkUpdateKeyWsResponse bulkUpdateKey(BulkUpdateKeyWsRequest request) {
+  public BulkUpdateKeyWsResponse bulkUpdateKey(BulkUpdateKeyRequest request) {
     PostRequest post = new PostRequest(path(ACTION_BULK_UPDATE_KEY))
       .setParam(PARAM_PROJECT_ID, request.getId())
       .setParam(PARAM_PROJECT, request.getKey())
@@ -117,7 +117,7 @@ public class ProjectsService extends BaseService {
     return call(post, BulkUpdateKeyWsResponse.parser());
   }
 
-  public SearchWsResponse search(SearchWsRequest request) {
+  public SearchWsResponse search(SearchRequest request) {
     GetRequest get = new GetRequest(path(ACTION_SEARCH))
       .setParam(PARAM_ORGANIZATION, request.getOrganization())
       .setParam(PARAM_QUALIFIERS, Joiner.on(",").join(request.getQualifiers()))

@@ -33,7 +33,7 @@ import org.sonar.wsclient.user.UserParameters;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.issue.BulkChangeRequest;
-import org.sonarqube.ws.client.permission.AddUserWsRequest;
+import org.sonarqube.ws.client.permission.AddUserRequest;
 import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
 import util.ItUtils;
 
@@ -265,7 +265,7 @@ public class IssuePermissionTest {
 
   private void addUserPermission(String login, String projectKey, String permission) {
     tester.wsClient().permissions().addUser(
-      new AddUserWsRequest()
+      new AddUserRequest()
         .setLogin(login)
         .setProjectKey(projectKey)
         .setPermission(permission));

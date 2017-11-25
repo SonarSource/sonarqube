@@ -37,7 +37,7 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.component.SearchProjectsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
-import org.sonarqube.ws.client.project.SearchWsRequest;
+import org.sonarqube.ws.client.project.SearchRequest;
 import util.ItUtils;
 
 import static java.util.Collections.singletonList;
@@ -101,7 +101,7 @@ public class ProjectProvisioningTest {
    */
   private boolean isInProjectsSearch(Organizations.Organization organization, String name) {
     Projects.SearchWsResponse response = tester.wsClient().projects().search(
-      SearchWsRequest.builder().setOrganization(organization.getKey()).setQuery(name).setQualifiers(singletonList("TRK")).build());
+      SearchRequest.builder().setOrganization(organization.getKey()).setQuery(name).setQualifiers(singletonList("TRK")).build());
     return response.getComponentsCount() > 0;
   }
 

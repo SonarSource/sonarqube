@@ -35,7 +35,7 @@ import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.issue.AssignRequest;
 import org.sonarqube.ws.client.issue.BulkChangeRequest;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
+import org.sonarqube.ws.client.issue.SearchRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
 import org.sonarqube.qa.util.pageobjects.issues.IssuesPage;
@@ -125,15 +125,15 @@ public class OrganizationIssueAssignTest {
     tester.organizations().addMember(org1, user);
     provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, org1.getKey());
     provisionAndAnalyseProject("sample2", org2.getKey());
-    List<String> issues = issueRule.search(new org.sonarqube.ws.client.issue.SearchWsRequest()).getIssuesList().stream().map(Issue::getKey).collect(Collectors.toList());
+    List<String> issues = issueRule.search(new SearchRequest()).getIssuesList().stream().map(Issue::getKey).collect(Collectors.toList());
 
     Issues.BulkChangeWsResponse response = tester.wsClient().issues()
       .bulkChange(BulkChangeRequest.builder().setIssues(issues).setAssign(user.getLogin()).build());
 
     assertThat(response.getIgnored()).isGreaterThan(0);
-    assertThat(issueRule.search(new SearchWsRequest().setProjectKeys(singletonList("sample"))).getIssuesList()).extracting(Issue::getAssignee)
+    assertThat(issueRule.search(new SearchRequest().setProjectKeys(singletonList("sample"))).getIssuesList()).extracting(Issue::getAssignee)
       .containsOnly(user.getLogin());
-    assertThat(issueRule.search(new SearchWsRequest().setProjectKeys(singletonList("sample2"))).getIssuesList()).extracting(Issue::hasAssignee)
+    assertThat(issueRule.search(new SearchRequest().setProjectKeys(singletonList("sample2"))).getIssuesList()).extracting(Issue::hasAssignee)
       .containsOnly(false);
   }
 

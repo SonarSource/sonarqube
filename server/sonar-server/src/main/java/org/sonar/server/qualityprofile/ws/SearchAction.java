@@ -52,7 +52,7 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.LanguageParamUtils;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
-import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
+import org.sonarqube.ws.client.qualityprofile.SearchRequest;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -132,8 +132,8 @@ public class SearchAction implements QProfileWsAction {
     writeProtobuf(searchWsResponse, request, response);
   }
 
-  private static SearchWsRequest toSearchWsRequest(Request request) {
-    return new SearchWsRequest()
+  private static SearchRequest toSearchWsRequest(Request request) {
+    return new SearchRequest()
       .setOrganizationKey(request.param(PARAM_ORGANIZATION))
       .setProjectKey(request.param(PARAM_PROJECT))
       .setQualityProfile(request.param(PARAM_QUALITY_PROFILE))
@@ -141,12 +141,12 @@ public class SearchAction implements QProfileWsAction {
       .setLanguage(request.param(PARAM_LANGUAGE));
   }
 
-  private SearchWsResponse doHandle(SearchWsRequest request) {
+  private SearchWsResponse doHandle(SearchRequest request) {
     SearchData data = load(request);
     return buildResponse(data);
   }
 
-  private SearchData load(SearchWsRequest request) {
+  private SearchData load(SearchRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
 
       OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.getOrganizationKey());
@@ -172,7 +172,7 @@ public class SearchAction implements QProfileWsAction {
   }
 
   @CheckForNull
-  private ComponentDto findProject(DbSession dbSession, OrganizationDto organization, SearchWsRequest request) {
+  private ComponentDto findProject(DbSession dbSession, OrganizationDto organization, SearchRequest request) {
     if (request.getProjectKey() == null) {
       return null;
     }
@@ -205,7 +205,7 @@ public class SearchAction implements QProfileWsAction {
         .collect(toList());
   }
 
-  private List<QProfileDto> searchProfiles(DbSession dbSession, SearchWsRequest request, OrganizationDto organization, List<QProfileDto> defaultProfiles,
+  private List<QProfileDto> searchProfiles(DbSession dbSession, SearchRequest request, OrganizationDto organization, List<QProfileDto> defaultProfiles,
                                            @Nullable ComponentDto project) {
     Collection<QProfileDto> profiles = selectAllProfiles(dbSession, organization);
 
@@ -223,15 +223,15 @@ public class SearchAction implements QProfileWsAction {
     return p -> languages.get(p.getLanguage()) != null;
   }
 
-  private static Predicate<QProfileDto> byName(SearchWsRequest request) {
+  private static Predicate<QProfileDto> byName(SearchRequest request) {
     return p -> request.getQualityProfile() == null || Objects.equals(p.getName(), request.getQualityProfile());
   }
 
-  private static Predicate<QProfileDto> byLanguage(SearchWsRequest request) {
+  private static Predicate<QProfileDto> byLanguage(SearchRequest request) {
     return p -> request.getLanguage() == null || Objects.equals(p.getLanguage(), request.getLanguage());
   }
 
-  private static Predicate<QProfileDto> byDefault(SearchWsRequest request, List<QProfileDto> defaultProfiles) {
+  private static Predicate<QProfileDto> byDefault(SearchRequest request, List<QProfileDto> defaultProfiles) {
     Set<String> defaultProfileUuids = defaultProfiles.stream().map(QProfileDto::getKee).collect(Collectors.toSet());
     return p -> !request.getDefaults() || defaultProfileUuids.contains(p.getKee());
   }

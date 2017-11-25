@@ -25,7 +25,7 @@ import org.junit.rules.ExternalResource;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
+import org.sonarqube.ws.client.issue.SearchRequest;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -47,24 +47,24 @@ public class IssueRule extends ExternalResource {
     return new IssueRule(requireNonNull(orchestrator, "Orchestrator instance can not be null"));
   }
 
-  public SearchWsResponse search(SearchWsRequest request) {
+  public SearchWsResponse search(SearchRequest request) {
     return adminWsClient().issues().search(request);
   }
 
   public Issue getRandomIssue() {
-    List<Issue> issues = search(new SearchWsRequest()).getIssuesList();
+    List<Issue> issues = search(new SearchRequest()).getIssuesList();
     assertThat(issues).isNotEmpty();
     return issues.get(0);
   }
 
   public Issue getByKey(String issueKey) {
-    List<Issue> issues = search(new SearchWsRequest().setIssues(singletonList(issueKey)).setAdditionalFields(singletonList("_all"))).getIssuesList();
+    List<Issue> issues = search(new SearchRequest().setIssues(singletonList(issueKey)).setAdditionalFields(singletonList("_all"))).getIssuesList();
     assertThat(issues).hasSize(1);
     return issues.iterator().next();
   }
 
   public List<Issue> getByKeys(String... issueKeys) {
-    List<Issue> issues = search(new SearchWsRequest().setIssues(asList(issueKeys)).setAdditionalFields(singletonList("_all"))).getIssuesList();
+    List<Issue> issues = search(new SearchRequest().setIssues(asList(issueKeys)).setAdditionalFields(singletonList("_all"))).getIssuesList();
     assertThat(issues).hasSize(issueKeys.length);
     return issues;
   }

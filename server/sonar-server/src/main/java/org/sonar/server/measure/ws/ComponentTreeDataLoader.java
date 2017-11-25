@@ -60,7 +60,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.measure.ws.ComponentTreeData.Measure;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
+import org.sonarqube.ws.client.measure.ComponentTreeRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -93,7 +93,7 @@ public class ComponentTreeDataLoader {
     this.resourceTypes = resourceTypes;
   }
 
-  ComponentTreeData load(ComponentTreeWsRequest wsRequest) {
+  ComponentTreeData load(ComponentTreeRequest wsRequest) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto baseComponent = loadComponent(dbSession, wsRequest);
       checkPermissions(baseComponent);
@@ -130,7 +130,7 @@ public class ComponentTreeDataLoader {
     }
   }
 
-  private ComponentDto loadComponent(DbSession dbSession, ComponentTreeWsRequest request) {
+  private ComponentDto loadComponent(DbSession dbSession, ComponentTreeRequest request) {
     String componentKey = request.getComponent();
     String componentId = request.getBaseComponentId();
     String branch = request.getBranch();
@@ -141,7 +141,7 @@ public class ComponentTreeDataLoader {
   }
 
   @CheckForNull
-  private Long searchDeveloperId(DbSession dbSession, ComponentTreeWsRequest wsRequest) {
+  private Long searchDeveloperId(DbSession dbSession, ComponentTreeRequest wsRequest) {
     if (wsRequest.getDeveloperId() == null && wsRequest.getDeveloperKey() == null) {
       return null;
     }
@@ -170,7 +170,7 @@ public class ComponentTreeDataLoader {
     return dbClient.componentDao().selectDescendants(dbSession, componentTreeQuery);
   }
 
-  private List<MetricDto> searchMetrics(DbSession dbSession, ComponentTreeWsRequest request) {
+  private List<MetricDto> searchMetrics(DbSession dbSession, ComponentTreeRequest request) {
     List<String> metricKeys = requireNonNull(request.getMetricKeys());
     List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, metricKeys);
     if (metrics.size() < metricKeys.size()) {
@@ -246,7 +246,7 @@ public class ComponentTreeDataLoader {
   }
 
   private static List<ComponentDto> filterComponents(List<ComponentDto> components,
-    Table<String, MetricDto, Measure> measuresByComponentUuidAndMetric, List<MetricDto> metrics, ComponentTreeWsRequest wsRequest) {
+    Table<String, MetricDto, Measure> measuresByComponentUuidAndMetric, List<MetricDto> metrics, ComponentTreeRequest wsRequest) {
     if (!componentWithMeasuresOnly(wsRequest)) {
       return components;
     }
@@ -261,16 +261,16 @@ public class ComponentTreeDataLoader {
       .collect(MoreCollectors.toList(components.size()));
   }
 
-  private static boolean componentWithMeasuresOnly(ComponentTreeWsRequest wsRequest) {
+  private static boolean componentWithMeasuresOnly(ComponentTreeRequest wsRequest) {
     return WITH_MEASURES_ONLY_METRIC_SORT_FILTER.equals(wsRequest.getMetricSortFilter());
   }
 
-  private static List<ComponentDto> sortComponents(List<ComponentDto> components, ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
-    Table<String, MetricDto, Measure> measuresByComponentUuidAndMetric) {
+  private static List<ComponentDto> sortComponents(List<ComponentDto> components, ComponentTreeRequest wsRequest, List<MetricDto> metrics,
+                                                   Table<String, MetricDto, Measure> measuresByComponentUuidAndMetric) {
     return ComponentTreeSort.sortComponents(components, wsRequest, metrics, measuresByComponentUuidAndMetric);
   }
 
-  private static List<ComponentDto> paginateComponents(List<ComponentDto> components, ComponentTreeWsRequest wsRequest) {
+  private static List<ComponentDto> paginateComponents(List<ComponentDto> components, ComponentTreeRequest wsRequest) {
     return components.stream()
       .skip(offset(wsRequest.getPage(), wsRequest.getPageSize()))
       .limit(wsRequest.getPageSize())
@@ -278,7 +278,7 @@ public class ComponentTreeDataLoader {
   }
 
   @CheckForNull
-  private List<String> childrenQualifiers(ComponentTreeWsRequest request, String baseQualifier) {
+  private List<String> childrenQualifiers(ComponentTreeRequest request, String baseQualifier) {
     List<String> requestQualifiers = request.getQualifiers();
     List<String> childrenQualifiers = null;
     if (LEAVES_STRATEGY.equals(request.getStrategy())) {
@@ -298,7 +298,7 @@ public class ComponentTreeDataLoader {
     return new ArrayList<>(qualifiersIntersection);
   }
 
-  private ComponentTreeQuery toComponentTreeQuery(ComponentTreeWsRequest wsRequest, ComponentDto baseComponent) {
+  private ComponentTreeQuery toComponentTreeQuery(ComponentTreeRequest wsRequest, ComponentDto baseComponent) {
     List<String> childrenQualifiers = childrenQualifiers(wsRequest, baseComponent.qualifier());
 
     ComponentTreeQuery.Builder componentTreeQueryBuilder = ComponentTreeQuery.builder()

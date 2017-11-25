@@ -82,7 +82,7 @@ public class QualityProfilesService extends BaseService {
     super(wsConnector, CONTROLLER_QUALITY_PROFILES);
   }
 
-  public void activateRule(ActivateRuleWsRequest request) {
+  public void activateRule(ActivateRuleRequest request) {
     PostRequest httpRequest = new PostRequest(path(ACTION_ACTIVATE_RULE));
     httpRequest.setParam(PARAM_ORGANIZATION, request.getOrganization().orElse(null));
     httpRequest.setParam(PARAM_PARAMS, request.getParams().orElse(null));
@@ -100,14 +100,14 @@ public class QualityProfilesService extends BaseService {
     call(httpRequest);
   }
 
-  public void restoreProfile(RestoreWsRequest request) {
+  public void restoreProfile(RestoreRequest request) {
     PostRequest httpRequest = new PostRequest(path(ACTION_RESTORE));
     httpRequest.setParam(PARAM_ORGANIZATION, request.getOrganization().orElse(null));
     httpRequest.setPart(PARAM_BACKUP, new PostRequest.Part(MediaTypes.XML, request.getBackup()));
     call(httpRequest);
   }
 
-  public SearchWsResponse search(SearchWsRequest request) {
+  public SearchWsResponse search(SearchRequest request) {
     return call(
       new GetRequest(path(ACTION_SEARCH))
         .setParam(PARAM_DEFAULTS, request.getDefaults())
@@ -243,7 +243,7 @@ public class QualityProfilesService extends BaseService {
       SearchGroupsResponse.parser());
   }
 
-  public String changelog(ChangelogWsRequest request) {
+  public String changelog(ChangelogRequest request) {
     PostRequest postRequest = new PostRequest(path("changelog"))
       .setParam("language", request.getLanguage())
       .setParam("organization", request.getOrganization())

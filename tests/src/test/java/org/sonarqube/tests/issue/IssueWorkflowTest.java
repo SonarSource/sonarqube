@@ -28,7 +28,7 @@ import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.issue.DoTransitionRequest;
 import org.sonarqube.ws.client.issue.IssuesService;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
+import org.sonarqube.ws.client.issue.SearchRequest;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
 import util.issue.IssueRule;
@@ -70,7 +70,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
    */
   @Test
   public void issue_is_closed_as_removed_when_rule_is_disabled() throws Exception {
-    SearchWsRequest ruleSearchRequest = new SearchWsRequest().setRules(singletonList("xoo:OneIssuePerLine"));
+    SearchRequest ruleSearchRequest = new SearchRequest().setRules(singletonList("xoo:OneIssuePerLine"));
     List<Issue> issues = issueRule.search(ruleSearchRequest).getIssuesList();
     assertThat(issues).isNotEmpty();
 
@@ -302,12 +302,12 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   }
 
   private List<String> transitions(String issueKey) {
-    Issues.SearchWsResponse response = searchIssues(new SearchWsRequest().setIssues(singletonList(issueKey)).setAdditionalFields(singletonList("transitions")));
+    Issues.SearchWsResponse response = searchIssues(new SearchRequest().setIssues(singletonList(issueKey)).setAdditionalFields(singletonList("transitions")));
     assertThat(response.getTotal()).isEqualTo(1);
     return response.getIssues(0).getTransitions().getTransitionsList();
   }
 
-  private Issues.SearchWsResponse searchIssues(SearchWsRequest request) {
+  private Issues.SearchWsResponse searchIssues(SearchRequest request) {
     return newAdminWsClient(ORCHESTRATOR).issues().search(request);
   }
 

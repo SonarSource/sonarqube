@@ -36,7 +36,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
+import org.sonarqube.ws.client.issue.SearchRequest;
 import util.ItUtils;
 
 import static java.lang.String.format;
@@ -116,7 +116,7 @@ public class LogsTest {
 
   private void generateSqlAndEsLogsInWebAndCe() {
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
-    ItUtils.newAdminWsClient(orchestrator).issues().search(new SearchWsRequest()
+    ItUtils.newAdminWsClient(orchestrator).issues().search(new SearchRequest()
       .setProjectKeys(Collections.singletonList("sample")));
   }
 

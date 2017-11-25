@@ -52,7 +52,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.TreeWsResponse;
-import org.sonarqube.ws.client.component.TreeWsRequest;
+import org.sonarqube.ws.client.component.TreeRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
@@ -170,26 +170,26 @@ public class TreeAction implements ComponentsWsAction {
     writeProtobuf(treeWsResponse, request, response);
   }
 
-  private TreeWsResponse doHandle(TreeWsRequest treeWsRequest) {
+  private TreeWsResponse doHandle(TreeRequest treeRequest) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto baseComponent = loadComponent(dbSession, treeWsRequest);
+      ComponentDto baseComponent = loadComponent(dbSession, treeRequest);
       checkPermissions(baseComponent);
       OrganizationDto organizationDto = componentFinder.getOrganization(dbSession, baseComponent);
 
-      ComponentTreeQuery query = toComponentTreeQuery(treeWsRequest, baseComponent);
+      ComponentTreeQuery query = toComponentTreeQuery(treeRequest, baseComponent);
       List<ComponentDto> components = dbClient.componentDao().selectDescendants(dbSession, query);
       int total = components.size();
-      components = sortComponents(components, treeWsRequest);
-      components = paginateComponents(components, treeWsRequest);
+      components = sortComponents(components, treeRequest);
+      components = paginateComponents(components, treeRequest);
 
       Map<String, ComponentDto> referenceComponentsByUuid = searchReferenceComponentsByUuid(dbSession, components);
 
       return buildResponse(baseComponent, organizationDto, components, referenceComponentsByUuid,
-        Paging.forPageIndex(treeWsRequest.getPage()).withPageSize(treeWsRequest.getPageSize()).andTotal(total));
+        Paging.forPageIndex(treeRequest.getPage()).withPageSize(treeRequest.getPageSize()).andTotal(total));
     }
   }
 
-  private ComponentDto loadComponent(DbSession dbSession, TreeWsRequest request) {
+  private ComponentDto loadComponent(DbSession dbSession, TreeRequest request) {
     String componentId = request.getBaseComponentId();
     String componentKey = request.getBaseComponentKey();
     String branch = request.getBranch();
@@ -246,7 +246,7 @@ public class TreeAction implements ComponentsWsAction {
     return wsComponent;
   }
 
-  private ComponentTreeQuery toComponentTreeQuery(TreeWsRequest request, ComponentDto baseComponent) {
+  private ComponentTreeQuery toComponentTreeQuery(TreeRequest request, ComponentDto baseComponent) {
     List<String> childrenQualifiers = childrenQualifiers(request, baseComponent.qualifier());
 
     ComponentTreeQuery.Builder query = ComponentTreeQuery.builder()
@@ -263,7 +263,7 @@ public class TreeAction implements ComponentsWsAction {
   }
 
   @CheckForNull
-  private List<String> childrenQualifiers(TreeWsRequest request, String baseQualifier) {
+  private List<String> childrenQualifiers(TreeRequest request, String baseQualifier) {
     List<String> requestQualifiers = request.getQualifiers();
     List<String> childrenQualifiers = null;
     if (LEAVES_STRATEGY.equals(request.getStrategy())) {
@@ -283,8 +283,8 @@ public class TreeAction implements ComponentsWsAction {
     return new ArrayList<>(qualifiersIntersection);
   }
 
-  private static TreeWsRequest toTreeWsRequest(Request request) {
-    return new TreeWsRequest()
+  private static TreeRequest toTreeWsRequest(Request request) {
+    return new TreeRequest()
       .setBaseComponentId(request.param(PARAM_COMPONENT_ID))
       .setBaseComponentKey(request.param(PARAM_COMPONENT))
       .setBranch(request.param(PARAM_BRANCH))
@@ -297,12 +297,12 @@ public class TreeAction implements ComponentsWsAction {
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
   }
 
-  private static List<ComponentDto> paginateComponents(List<ComponentDto> components, TreeWsRequest wsRequest) {
+  private static List<ComponentDto> paginateComponents(List<ComponentDto> components, TreeRequest wsRequest) {
     return components.stream().skip(offset(wsRequest.getPage(), wsRequest.getPageSize()))
       .limit(wsRequest.getPageSize()).collect(toList());
   }
 
-  public static List<ComponentDto> sortComponents(List<ComponentDto> components, TreeWsRequest wsRequest) {
+  public static List<ComponentDto> sortComponents(List<ComponentDto> components, TreeRequest wsRequest) {
     List<String> sortParameters = wsRequest.getSort();
     if (sortParameters == null || sortParameters.isEmpty()) {
       return components;
