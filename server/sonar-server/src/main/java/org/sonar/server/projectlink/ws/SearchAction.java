@@ -33,7 +33,6 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.ProjectLinks.Link;
 import org.sonarqube.ws.ProjectLinks.SearchWsResponse;
-import org.sonarqube.ws.client.projectlinks.SearchRequest;
 
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
@@ -133,5 +132,29 @@ public class SearchAction implements ProjectLinksWsAction {
     return new SearchRequest()
       .setProjectId(request.param(PARAM_PROJECT_ID))
       .setProjectKey(request.param(PARAM_PROJECT_KEY));
+  }
+
+  private static class SearchRequest {
+
+    private String projectId;
+    private String projectKey;
+
+    public SearchRequest setProjectId(String projectId) {
+      this.projectId = projectId;
+      return this;
+    }
+
+    public String getProjectId() {
+      return projectId;
+    }
+
+    public SearchRequest setProjectKey(String projectKey) {
+      this.projectKey = projectKey;
+      return this;
+    }
+
+    public String getProjectKey() {
+      return projectKey;
+    }
   }
 }

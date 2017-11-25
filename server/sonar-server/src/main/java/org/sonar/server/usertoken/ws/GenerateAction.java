@@ -33,7 +33,6 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.usertoken.TokenGenerator;
 import org.sonarqube.ws.UserTokens;
 import org.sonarqube.ws.UserTokens.GenerateWsResponse;
-import org.sonarqube.ws.client.usertokens.GenerateRequest;
 
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
@@ -154,5 +153,29 @@ public class GenerateAction implements UserTokensWsAction {
       .setName(userTokenDto.getName())
       .setToken(token)
       .build();
+  }
+
+  private static class GenerateRequest {
+
+    private String login;
+    private String name;
+
+    public GenerateRequest setLogin(String login) {
+      this.login = login;
+      return this;
+    }
+
+    public String getLogin() {
+      return login;
+    }
+
+    public GenerateRequest setName(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public String getName() {
+      return name;
+    }
   }
 }

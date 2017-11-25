@@ -61,16 +61,14 @@ public class SearchTemplatesActionTest extends BasePermissionWsTest<SearchTempla
   @Override
   protected SearchTemplatesAction buildWsAction() {
     DefaultTemplatesResolver defaultTemplatesResolverWithViews = new DefaultTemplatesResolverImpl(resourceTypesWithViews);
-    SearchTemplatesDataLoader dataLoaderWithViews = new SearchTemplatesDataLoader(dbClient, defaultTemplatesResolverWithViews);
-    SearchTemplatesAction searchTemplatesAction = new SearchTemplatesAction(dbClient, userSession, i18n, newPermissionWsSupport(), dataLoaderWithViews);
+    SearchTemplatesAction searchTemplatesAction = new SearchTemplatesAction(dbClient, userSession, i18n, newPermissionWsSupport(), defaultTemplatesResolverWithViews);
     return searchTemplatesAction;
   }
 
   @Before
   public void setUp() {
     DefaultTemplatesResolver defaultTemplatesResolverWithViews = new DefaultTemplatesResolverImpl(resourceTypesWithoutViews);
-    SearchTemplatesDataLoader dataLoaderWithViews = new SearchTemplatesDataLoader(dbClient, defaultTemplatesResolverWithViews);
-    underTestWithoutViews = new WsActionTester(new SearchTemplatesAction(dbClient, userSession, i18n, newPermissionWsSupport(), dataLoaderWithViews));
+    underTestWithoutViews = new WsActionTester(new SearchTemplatesAction(dbClient, userSession, i18n, newPermissionWsSupport(), defaultTemplatesResolverWithViews));
     i18n.setProjectPermissions();
     userSession.logIn().addPermission(ADMINISTER, db.getDefaultOrganization());
   }

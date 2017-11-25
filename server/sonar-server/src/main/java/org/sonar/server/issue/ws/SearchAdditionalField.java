@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import org.sonarqube.ws.client.issue.SearchRequest;
+import org.sonar.server.issue.SearchRequest;
 
 public enum SearchAdditionalField {
 

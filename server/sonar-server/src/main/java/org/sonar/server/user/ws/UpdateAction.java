@@ -34,9 +34,14 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
-import org.sonarqube.ws.client.user.UpdateRequest;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.sonar.server.user.UserUpdater.EMAIL_MAX_LENGTH;
 import static org.sonar.server.user.UserUpdater.LOGIN_MAX_LENGTH;
@@ -154,5 +159,78 @@ public class UpdateAction implements UsersWsAction {
     }
     List<String> oldScmAccounts = request.paramAsStrings(PARAM_SCM_ACCOUNTS);
     return oldScmAccounts != null ? oldScmAccounts : new ArrayList<>();
+  }
+
+  private static class UpdateRequest {
+
+    private final String login;
+    private final String name;
+    private final String email;
+    private final List<String> scmAccounts;
+
+    private UpdateRequest(Builder builder) {
+      this.login = builder.login;
+      this.name = builder.name;
+      this.email = builder.email;
+      this.scmAccounts = builder.scmAccounts;
+    }
+
+    public String getLogin() {
+      return login;
+    }
+
+    @CheckForNull
+    public String getName() {
+      return name;
+    }
+
+    @CheckForNull
+    public String getEmail() {
+      return email;
+    }
+
+    public List<String> getScmAccounts() {
+      return scmAccounts;
+    }
+
+    public static Builder builder() {
+      return new Builder();
+    }
+  }
+
+  private static class Builder {
+    private String login;
+    private String name;
+    private String email;
+    private List<String> scmAccounts = emptyList();
+
+    private Builder() {
+      // enforce factory method use
+    }
+
+    public Builder setLogin(String login) {
+      this.login = login;
+      return this;
+    }
+
+    public Builder setName(@Nullable String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder setEmail(@Nullable String email) {
+      this.email = email;
+      return this;
+    }
+
+    public Builder setScmAccounts(List<String> scmAccounts) {
+      this.scmAccounts = scmAccounts;
+      return this;
+    }
+
+    public UpdateRequest build() {
+      checkArgument(!isNullOrEmpty(login), "Login is mandatory and must not be empty");
+      return new UpdateRequest(this);
+    }
   }
 }

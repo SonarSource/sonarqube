@@ -66,8 +66,7 @@ public class SearchProjectPermissionsActionTest extends BasePermissionWsTest<Sea
     i18n.setProjectPermissions();
     ResourceTypesRule rootResourceTypes = newRootResourceTypes();
     PermissionWsSupport wsSupport = newPermissionWsSupport();
-    SearchProjectPermissionsDataLoader dataLoader = new SearchProjectPermissionsDataLoader(db.getDbClient(), wsSupport, rootResourceTypes);
-    return new SearchProjectPermissionsAction(db.getDbClient(), userSession, i18n, rootResourceTypes, dataLoader, wsSupport);
+    return new SearchProjectPermissionsAction(db.getDbClient(), userSession, i18n, rootResourceTypes, wsSupport);
   }
 
   @Test

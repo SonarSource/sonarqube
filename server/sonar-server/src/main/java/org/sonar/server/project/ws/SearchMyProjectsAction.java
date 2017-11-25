@@ -19,37 +19,53 @@
  */
 package org.sonar.server.project.ws;
 
+import java.util.List;
 import java.util.function.Function;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
+import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentLinkDto;
+import org.sonar.db.component.ComponentQuery;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.MeasureQuery;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse;
 import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse.Link;
 import org.sonarqube.ws.Projects.SearchMyProjectsWsResponse.Project;
-import org.sonarqube.ws.client.project.SearchMyProjectsRequest;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Objects.requireNonNull;
+import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.core.util.Protobuf.setNullable;
+import static org.sonar.server.project.ws.SearchMyProjectsData.builder;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class SearchMyProjectsAction implements ProjectsWsAction {
   private static final int MAX_SIZE = 500;
 
   private final DbClient dbClient;
-  private final SearchMyProjectsDataLoader dataLoader;
   private final UserSession userSession;
 
-  public SearchMyProjectsAction(DbClient dbClient, SearchMyProjectsDataLoader dataLoader, UserSession userSession) {
+  public SearchMyProjectsAction(DbClient dbClient, UserSession userSession) {
     this.dbClient = dbClient;
-    this.dataLoader = dataLoader;
     this.userSession = userSession;
   }
 
@@ -76,7 +92,7 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
     checkAuthenticated();
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      SearchMyProjectsData data = dataLoader.load(dbSession, request);
+      SearchMyProjectsData data = load(dbSession, request);
       return buildResponse(request, data);
     }
   }
@@ -151,6 +167,101 @@ public class SearchMyProjectsAction implements ProjectsWsAction {
       }
 
       return link.build();
+    }
+  }
+
+  SearchMyProjectsData load(DbSession dbSession, SearchMyProjectsRequest request) {
+    SearchMyProjectsData.Builder data = builder();
+    ProjectsResult searchResult = searchProjects(dbSession, request);
+    List<ComponentDto> projects = searchResult.projects;
+    List<String> projectUuids = Lists.transform(projects, ComponentDto::projectUuid);
+    List<ComponentLinkDto> projectLinks = dbClient.componentLinkDao().selectByComponentUuids(dbSession, projectUuids);
+    List<SnapshotDto> snapshots = dbClient.snapshotDao().selectLastAnalysesByRootComponentUuids(dbSession, projectUuids);
+    MetricDto gateStatusMetric = dbClient.metricDao().selectOrFailByKey(dbSession, CoreMetrics.ALERT_STATUS_KEY);
+    MeasureQuery measureQuery = MeasureQuery.builder()
+            .setProjectUuids(projectUuids)
+            .setMetricId(gateStatusMetric.getId())
+            .build();
+    List<MeasureDto> qualityGates = dbClient.measureDao().selectByQuery(dbSession, measureQuery);
+
+    data.setProjects(projects)
+            .setProjectLinks(projectLinks)
+            .setSnapshots(snapshots)
+            .setQualityGates(qualityGates)
+            .setTotalNbOfProjects(searchResult.total);
+
+    return data.build();
+  }
+
+  @VisibleForTesting
+  ProjectsResult searchProjects(DbSession dbSession, SearchMyProjectsRequest request) {
+    int userId = requireNonNull(userSession.getUserId(), "Current user must be authenticated");
+
+    List<Long> componentIds = dbClient.roleDao().selectComponentIdsByPermissionAndUserId(dbSession, UserRole.ADMIN, userId);
+    ComponentQuery dbQuery = ComponentQuery.builder()
+            .setQualifiers(Qualifiers.PROJECT)
+            .setComponentIds(ImmutableSet.copyOf(componentIds))
+            .build();
+
+    return new ProjectsResult(
+            dbClient.componentDao().selectByQuery(dbSession, dbQuery, offset(request.getPage(), request.getPageSize()), request.getPageSize()),
+            dbClient.componentDao().countByQuery(dbSession, dbQuery));
+  }
+
+  private static class ProjectsResult {
+    private final List<ComponentDto> projects;
+    private final int total;
+
+    private ProjectsResult(List<ComponentDto> projects, int total) {
+      this.projects = projects;
+      this.total = total;
+    }
+  }
+
+  private static class SearchMyProjectsRequest {
+    private final Integer page;
+    private final Integer pageSize;
+
+    private SearchMyProjectsRequest(Builder builder) {
+      this.page = builder.page;
+      this.pageSize = builder.pageSize;
+    }
+
+    @CheckForNull
+    public Integer getPage() {
+      return page;
+    }
+
+    @CheckForNull
+    public Integer getPageSize() {
+      return pageSize;
+    }
+
+    public static Builder builder() {
+      return new Builder();
+    }
+  }
+
+  private static class Builder {
+    private Integer page;
+    private Integer pageSize;
+
+    private Builder() {
+      // enforce method constructor
+    }
+
+    public Builder setPage(@Nullable Integer page) {
+      this.page = page;
+      return this;
+    }
+
+    public Builder setPageSize(@Nullable Integer pageSize) {
+      this.pageSize = pageSize;
+      return this;
+    }
+
+    public SearchMyProjectsRequest build() {
+      return new SearchMyProjectsRequest(this);
     }
   }
 }

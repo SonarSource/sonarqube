@@ -34,7 +34,6 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.ListDefinitionsWsResponse;
-import org.sonarqube.ws.client.settings.ListDefinitionsRequest;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Comparator.comparing;
@@ -161,4 +160,27 @@ public class ListDefinitionsAction implements SettingsWsAction {
       .build();
   }
 
+  private static class ListDefinitionsRequest {
+
+    private String branch;
+    private String component;
+
+    public ListDefinitionsRequest setBranch(String branch) {
+      this.branch = branch;
+      return this;
+    }
+
+    public String getBranch() {
+      return branch;
+    }
+
+    public ListDefinitionsRequest setComponent(String component) {
+      this.component = component;
+      return this;
+    }
+
+    public String getComponent() {
+      return component;
+    }
+  }
 }

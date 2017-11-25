@@ -46,6 +46,8 @@ import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.server.component.ws.SearchProjectsAction.RequestBuilder;
+import org.sonar.server.component.ws.SearchProjectsAction.SearchProjectsRequest;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
@@ -59,7 +61,6 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Components.Component;
 import org.sonarqube.ws.Components.SearchProjectsWsResponse;
-import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -134,7 +135,7 @@ public class SearchProjectsActionTest {
   private WsActionTester ws = new WsActionTester(
     new SearchProjectsAction(dbClient, index, userSession));
 
-  private SearchProjectsRequest.Builder request = SearchProjectsRequest.builder();
+  private RequestBuilder request = SearchProjectsRequest.builder();
 
   @Test
   public void verify_definition() {
@@ -1111,7 +1112,7 @@ public class SearchProjectsActionTest {
     call(request.setPageSize(501));
   }
 
-  private SearchProjectsWsResponse call(SearchProjectsRequest.Builder requestBuilder) {
+  private SearchProjectsWsResponse call(RequestBuilder requestBuilder) {
     SearchProjectsRequest wsRequest = requestBuilder.build();
     TestRequest httpRequest = ws.newRequest();
     ofNullable(wsRequest.getOrganization()).ifPresent(organization -> httpRequest.setParam(PARAM_ORGANIZATION, organization));

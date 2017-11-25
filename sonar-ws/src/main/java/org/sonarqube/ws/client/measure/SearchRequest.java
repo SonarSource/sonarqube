@@ -24,7 +24,7 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkArgument;
 
 public class SearchRequest {
-  public static final int MAX_NB_PROJECTS = 100;
+  private static final int MAX_NB_PROJECTS = 100;
 
   private final List<String> metricKeys;
   private final List<String> projectKeys;

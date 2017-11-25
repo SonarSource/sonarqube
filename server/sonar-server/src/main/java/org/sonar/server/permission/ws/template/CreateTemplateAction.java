@@ -34,9 +34,12 @@ import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions.CreateTemplateWsResponse;
 import org.sonarqube.ws.Permissions.PermissionTemplate;
-import org.sonarqube.ws.client.permission.CreateTemplateRequest;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPattern;
@@ -138,5 +141,51 @@ public class CreateTemplateAction implements PermissionsWsAction {
       .setUpdatedAt(now));
     dbSession.commit();
     return template;
+  }
+
+  private static class CreateTemplateRequest {
+    private String description;
+    private String name;
+    private String projectKeyPattern;
+    private String organization;
+
+    @CheckForNull
+    public String getDescription() {
+      return description;
+    }
+
+    public CreateTemplateRequest setDescription(@Nullable String description) {
+      this.description = description;
+      return this;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public CreateTemplateRequest setName(String name) {
+      this.name = requireNonNull(name);
+      return this;
+    }
+
+    @CheckForNull
+    public String getProjectKeyPattern() {
+      return projectKeyPattern;
+    }
+
+    public CreateTemplateRequest setProjectKeyPattern(@Nullable String projectKeyPattern) {
+      this.projectKeyPattern = projectKeyPattern;
+      return this;
+    }
+
+    @CheckForNull
+    public String getOrganization() {
+      return organization;
+    }
+
+    public CreateTemplateRequest setOrganization(@Nullable String s) {
+      this.organization = s;
+      return this;
+    }
   }
 }

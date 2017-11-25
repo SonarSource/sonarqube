@@ -25,7 +25,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.usertokens.RevokeRequest;
 
 import static org.sonar.server.usertoken.ws.UserTokensWsParameters.ACTION_REVOKE;
 import static org.sonar.server.usertoken.ws.UserTokensWsParameters.PARAM_LOGIN;
@@ -61,26 +60,18 @@ public class RevokeAction implements UserTokensWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    doHandle(toRevokeRequest(request));
-    response.noContent();
-  }
+    String login = request.param(PARAM_LOGIN);
+    if (login == null) {
+      login = userSession.getLogin();
+    }
+    String name = request.mandatoryParam(PARAM_NAME);
 
-  private void doHandle(RevokeRequest request) {
-    TokenPermissionsValidator.validate(userSession, request.getLogin());
+    TokenPermissionsValidator.validate(userSession, login);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      dbClient.userTokenDao().deleteByLoginAndName(dbSession, request.getLogin(), request.getName());
+      dbClient.userTokenDao().deleteByLoginAndName(dbSession, login, name);
       dbSession.commit();
     }
-  }
-
-  private RevokeRequest toRevokeRequest(Request request) {
-    RevokeRequest RevokeRequest = new RevokeRequest()
-      .setLogin(request.param(PARAM_LOGIN))
-      .setName(request.mandatoryParam(PARAM_NAME));
-    if (RevokeRequest.getLogin() == null) {
-      RevokeRequest.setLogin(userSession.getLogin());
-    }
-    return RevokeRequest;
+    response.noContent();
   }
 }

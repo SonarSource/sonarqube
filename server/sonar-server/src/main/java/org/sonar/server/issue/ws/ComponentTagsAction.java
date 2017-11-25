@@ -29,7 +29,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQueryFactory;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonarqube.ws.client.issue.SearchRequest;
+import org.sonar.server.issue.SearchRequest;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;

@@ -21,7 +21,6 @@ package org.sonar.server.ce.ws;
 
 import com.google.common.base.Optional;
 import org.sonar.api.server.ws.Change;
-import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
@@ -35,7 +34,6 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.Ce.ActivityStatusWsResponse;
-import org.sonarqube.ws.client.ce.ActivityStatusRequest;
 
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_KEY;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -75,12 +73,12 @@ public class ActivityStatusAction implements CeWsAction {
   }
 
   @Override
-  public void handle(Request request, Response response) throws Exception {
+  public void handle(org.sonar.api.server.ws.Request request, Response response) throws Exception {
     ActivityStatusWsResponse activityStatusResponse = doHandle(toWsRequest(request));
     writeProtobuf(activityStatusResponse, request, response);
   }
 
-  private ActivityStatusWsResponse doHandle(ActivityStatusRequest request) {
+  private ActivityStatusWsResponse doHandle(Request request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<ComponentDto> component = searchComponent(dbSession, request);
       String componentUuid = component.isPresent() ? component.get().uuid() : null;
@@ -97,7 +95,7 @@ public class ActivityStatusAction implements CeWsAction {
     }
   }
 
-  private Optional<ComponentDto> searchComponent(DbSession dbSession, ActivityStatusRequest request) {
+  private Optional<ComponentDto> searchComponent(DbSession dbSession, Request request) {
     ComponentDto component = null;
     if (hasComponentInRequest(request)) {
       component = componentFinder.getByUuidOrKey(dbSession, request.getComponentId(), request.getComponentKey(), COMPONENT_ID_AND_KEY);
@@ -113,13 +111,37 @@ public class ActivityStatusAction implements CeWsAction {
     }
   }
 
-  private static boolean hasComponentInRequest(ActivityStatusRequest request) {
+  private static boolean hasComponentInRequest(Request request) {
     return request.getComponentId() != null || request.getComponentKey() != null;
   }
 
-  private static ActivityStatusRequest toWsRequest(Request request) {
-    return new ActivityStatusRequest()
+  private static Request toWsRequest(org.sonar.api.server.ws.Request request) {
+    return new Request()
       .setComponentId(request.param(PARAM_COMPONENT_ID))
       .setComponentKey(request.param(DEPRECATED_PARAM_COMPONENT_KEY));
+  }
+
+  private static class Request {
+
+    private String componentId;
+    private String componentKey;
+
+    public Request setComponentId(String componentId) {
+      this.componentId = componentId;
+      return this;
+    }
+
+    public String getComponentId() {
+      return componentId;
+    }
+
+    public Request setComponentKey(String componentKey) {
+      this.componentKey = componentKey;
+      return this;
+    }
+
+    public String getComponentKey() {
+      return componentKey;
+    }
   }
 }

@@ -20,10 +20,13 @@
 package org.sonar.server.user.ws;
 
 import com.google.common.collect.Multimap;
+
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -42,7 +45,6 @@ import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserQuery;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.Users.SearchWsResponse;
-import org.sonarqube.ws.client.user.SearchRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
@@ -188,4 +190,76 @@ public class SearchAction implements UsersWsAction {
       .build();
   }
 
+  private static class SearchRequest {
+
+    private final Integer page;
+    private final Integer pageSize;
+    private final String query;
+    private final List<String> possibleFields;
+
+    private SearchRequest(Builder builder) {
+      this.page = builder.page;
+      this.pageSize = builder.pageSize;
+      this.query = builder.query;
+      this.possibleFields = builder.additionalFields;
+    }
+
+    @CheckForNull
+    public Integer getPage() {
+      return page;
+    }
+
+    @CheckForNull
+    public Integer getPageSize() {
+      return pageSize;
+    }
+
+    @CheckForNull
+    public String getQuery() {
+      return query;
+    }
+
+    public List<String> getPossibleFields() {
+      return possibleFields;
+    }
+
+    public static Builder builder() {
+      return new Builder();
+    }
+  }
+
+  private static class Builder {
+    private Integer page;
+    private Integer pageSize;
+    private String query;
+    private List<String> additionalFields = new ArrayList<>();
+
+    private Builder() {
+      // enforce factory method use
+    }
+
+    public Builder setPage(@Nullable Integer page) {
+      this.page = page;
+      return this;
+    }
+
+    public Builder setPageSize(@Nullable Integer pageSize) {
+      this.pageSize = pageSize;
+      return this;
+    }
+
+    public Builder setQuery(@Nullable String query) {
+      this.query = query;
+      return this;
+    }
+
+    public Builder setPossibleFields(List<String> possibleFields) {
+      this.additionalFields = possibleFields;
+      return this;
+    }
+
+    public SearchRequest build() {
+      return new SearchRequest(this);
+    }
+  }
 }

@@ -31,7 +31,7 @@ import org.sonar.server.issue.IssueQueryFactory;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.client.issue.SearchRequest;
+import org.sonar.server.issue.SearchRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;

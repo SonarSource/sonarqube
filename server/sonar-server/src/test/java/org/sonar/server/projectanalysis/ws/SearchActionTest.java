@@ -48,7 +48,6 @@ import org.sonarqube.ws.ProjectAnalyses.Analysis;
 import org.sonarqube.ws.ProjectAnalyses.Event;
 import org.sonarqube.ws.ProjectAnalyses.SearchResponse;
 import org.sonarqube.ws.client.projectanalysis.EventCategory;
-import org.sonarqube.ws.client.projectanalysis.SearchRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;

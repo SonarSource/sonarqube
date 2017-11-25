@@ -26,7 +26,6 @@ import java.util.Set;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
@@ -43,9 +42,12 @@ import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.SearchWsResponse;
-import org.sonarqube.ws.client.component.SearchRequest;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toMap;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
@@ -111,12 +113,12 @@ public class SearchAction implements ComponentsWsAction {
   }
 
   @Override
-  public void handle(Request wsRequest, Response wsResponse) throws Exception {
+  public void handle(org.sonar.api.server.ws.Request wsRequest, Response wsResponse) throws Exception {
     SearchWsResponse searchWsResponse = doHandle(toSearchWsRequest(wsRequest));
     writeProtobuf(searchWsResponse, wsRequest, wsResponse);
   }
 
-  private static SearchRequest toSearchWsRequest(Request request) {
+  private static SearchRequest toSearchWsRequest(org.sonar.api.server.ws.Request request) {
     return new SearchRequest()
       .setOrganization(request.param(PARAM_ORGANIZATION))
       .setQualifiers(request.mandatoryParamAsStrings(PARAM_QUALIFIERS))
@@ -196,5 +198,74 @@ public class SearchAction implements ComponentsWsAction {
     setNullable(dto.language(), builder::setLanguage);
     return builder.build();
   }
+
+  static class SearchRequest {
+    private String organization;
+    private List<String> qualifiers;
+    private Integer page;
+    private Integer pageSize;
+    private String query;
+    private String language;
+
+    @CheckForNull
+    public String getOrganization() {
+      return organization;
+    }
+
+    public SearchRequest setOrganization(@Nullable String organization) {
+      this.organization = organization;
+      return this;
+    }
+
+    public List<String> getQualifiers() {
+      return qualifiers;
+    }
+
+    public SearchRequest setQualifiers(List<String> qualifiers) {
+      this.qualifiers = requireNonNull(qualifiers);
+      return this;
+    }
+
+    @CheckForNull
+    public Integer getPage() {
+      return page;
+    }
+
+    public SearchRequest setPage(int page) {
+      this.page = page;
+      return this;
+    }
+
+    @CheckForNull
+    public Integer getPageSize() {
+      return pageSize;
+    }
+
+    public SearchRequest setPageSize(int pageSize) {
+      this.pageSize = pageSize;
+      return this;
+    }
+
+    @CheckForNull
+    public String getQuery() {
+      return query;
+    }
+
+    public SearchRequest setQuery(@Nullable String query) {
+      this.query = query;
+      return this;
+    }
+
+    @CheckForNull
+    public String getLanguage() {
+      return language;
+    }
+
+    public SearchRequest setLanguage(@Nullable String language) {
+      this.language = language;
+      return this;
+    }
+  }
+
 
 }

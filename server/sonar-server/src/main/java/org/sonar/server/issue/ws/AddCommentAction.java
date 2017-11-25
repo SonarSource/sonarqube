@@ -35,11 +35,11 @@ import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.issue.AddCommentRequest;
 import org.sonarqube.ws.client.issue.IssuesWsParameters;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TEXT;
@@ -109,4 +109,22 @@ public class AddCommentAction implements IssuesWsAction {
     return wsRequest;
   }
 
+  private static class AddCommentRequest {
+
+    private final String issue;
+    private final String text;
+
+    private AddCommentRequest(String issue, String text) {
+      this.issue = requireNonNull(issue, "Issue key cannot be null");
+      this.text = requireNonNull(text, "Text cannot be null");
+    }
+
+    public String getIssue() {
+      return issue;
+    }
+
+    public String getText() {
+      return text;
+    }
+  }
 }

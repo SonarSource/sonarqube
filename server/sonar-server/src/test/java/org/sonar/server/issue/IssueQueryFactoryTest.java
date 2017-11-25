@@ -35,7 +35,6 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonarqube.ws.client.issue.SearchRequest;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
