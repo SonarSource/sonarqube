@@ -19,9 +19,16 @@
  */
 package org.sonar.server.permission.ws;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Table;
+import com.google.common.collect.TreeBasedTable;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -32,6 +39,8 @@ import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQuery;
+import org.sonar.db.permission.CountPerProjectPermission;
 import org.sonar.server.permission.PermissionPrivilegeChecker;
 import org.sonar.server.permission.ProjectId;
 import org.sonar.server.user.UserSession;
@@ -39,11 +48,16 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Permissions.Permission;
 import org.sonarqube.ws.Permissions.SearchProjectPermissionsWsResponse;
 import org.sonarqube.ws.Permissions.SearchProjectPermissionsWsResponse.Project;
-import org.sonarqube.ws.client.permission.SearchProjectPermissionsRequest;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import static java.util.Collections.singletonList;
+import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
 import static org.sonar.server.permission.ws.ProjectWsRef.newOptionalWsProjectRef;
+import static org.sonar.server.permission.ws.SearchProjectPermissionsData.newBuilder;
 import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -59,17 +73,17 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
   private final UserSession userSession;
   private final I18n i18n;
   private final ResourceTypes resourceTypes;
-  private final SearchProjectPermissionsDataLoader dataLoader;
   private final PermissionWsSupport wsSupport;
+  private final String[] rootQualifiers;
 
   public SearchProjectPermissionsAction(DbClient dbClient, UserSession userSession, I18n i18n, ResourceTypes resourceTypes,
-    SearchProjectPermissionsDataLoader dataLoader, PermissionWsSupport wsSupport) {
+    PermissionWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.i18n = i18n;
     this.resourceTypes = resourceTypes;
-    this.dataLoader = dataLoader;
     this.wsSupport = wsSupport;
+    this.rootQualifiers = Collections2.transform(resourceTypes.getRoots(), ResourceType::getQualifier).toArray(new String[resourceTypes.getRoots().size()]);
   }
 
   @Override
@@ -108,7 +122,7 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       checkAuthorized(dbSession, request);
       validateQualifier(request.getQualifier(), resourceTypes);
-      SearchProjectPermissionsData data = dataLoader.load(dbSession, request);
+      SearchProjectPermissionsData data = load(dbSession, request);
       return buildResponse(data);
     }
   }
@@ -181,5 +195,141 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
 
   private String i18nName(String permissionKey) {
     return i18n.message(Locale.ENGLISH, PROPERTY_PREFIX + permissionKey, permissionKey);
+  }
+
+  private SearchProjectPermissionsData load(DbSession dbSession, SearchProjectPermissionsRequest request) {
+    SearchProjectPermissionsData.Builder data = newBuilder();
+    int countRootComponents = countRootComponents(dbSession, request);
+    List<ComponentDto> rootComponents = searchRootComponents(dbSession, request, paging(request, countRootComponents));
+    List<Long> rootComponentIds = Lists.transform(rootComponents, ComponentDto::getId);
+
+    data.rootComponents(rootComponents)
+            .paging(paging(request, countRootComponents))
+            .userCountByProjectIdAndPermission(userCountByRootComponentIdAndPermission(dbSession, rootComponentIds))
+            .groupCountByProjectIdAndPermission(groupCountByRootComponentIdAndPermission(dbSession, rootComponentIds));
+
+    return data.build();
+  }
+
+  private static Paging paging(SearchProjectPermissionsRequest request, int total) {
+    return forPageIndex(request.getPage())
+            .withPageSize(request.getPageSize())
+            .andTotal(total);
+  }
+
+  private int countRootComponents(DbSession dbSession, SearchProjectPermissionsRequest request) {
+    return dbClient.componentDao().countByQuery(dbSession, toDbQuery(request));
+  }
+
+  private List<ComponentDto> searchRootComponents(DbSession dbSession, SearchProjectPermissionsRequest request, Paging paging) {
+    com.google.common.base.Optional<ProjectWsRef> project = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
+
+    if (project.isPresent()) {
+      return singletonList(wsSupport.getRootComponentOrModule(dbSession, project.get()));
+    }
+
+    return dbClient.componentDao().selectByQuery(dbSession, toDbQuery(request), paging.offset(), paging.pageSize());
+  }
+
+  private ComponentQuery toDbQuery(SearchProjectPermissionsRequest wsRequest) {
+    return ComponentQuery.builder()
+            .setQualifiers(qualifiers(wsRequest.getQualifier()))
+            .setNameOrKeyQuery(wsRequest.getQuery())
+            .build();
+  }
+
+  private String[] qualifiers(@Nullable String requestQualifier) {
+    return requestQualifier == null
+            ? rootQualifiers
+            : (new String[] {requestQualifier});
+  }
+
+  private Table<Long, String, Integer> userCountByRootComponentIdAndPermission(DbSession dbSession, List<Long> rootComponentIds) {
+    final Table<Long, String, Integer> userCountByRootComponentIdAndPermission = TreeBasedTable.create();
+
+    dbClient.userPermissionDao().countUsersByProjectPermission(dbSession, rootComponentIds).forEach(
+            row -> userCountByRootComponentIdAndPermission.put(row.getComponentId(), row.getPermission(), row.getCount()));
+
+    return userCountByRootComponentIdAndPermission;
+  }
+
+  private Table<Long, String, Integer> groupCountByRootComponentIdAndPermission(DbSession dbSession, List<Long> rootComponentIds) {
+    final Table<Long, String, Integer> userCountByRootComponentIdAndPermission = TreeBasedTable.create();
+
+    dbClient.groupPermissionDao().groupsCountByComponentIdAndPermission(dbSession, rootComponentIds, context -> {
+      CountPerProjectPermission row = (CountPerProjectPermission) context.getResultObject();
+      userCountByRootComponentIdAndPermission.put(row.getComponentId(), row.getPermission(), row.getCount());
+    });
+
+    return userCountByRootComponentIdAndPermission;
+  }
+
+  private static class SearchProjectPermissionsRequest {
+    private String projectId;
+    private String projectKey;
+    private String qualifier;
+    private Integer page;
+    private Integer pageSize;
+    private String query;
+
+    @CheckForNull
+    public String getProjectId() {
+      return projectId;
+    }
+
+    public SearchProjectPermissionsRequest setProjectId(@Nullable String projectId) {
+      this.projectId = projectId;
+      return this;
+    }
+
+    @CheckForNull
+    public String getProjectKey() {
+      return projectKey;
+    }
+
+    public SearchProjectPermissionsRequest setProjectKey(@Nullable String projectKey) {
+      this.projectKey = projectKey;
+      return this;
+    }
+
+    @CheckForNull
+    public Integer getPage() {
+      return page;
+    }
+
+    public SearchProjectPermissionsRequest setPage(int page) {
+      this.page = page;
+      return this;
+    }
+
+    @CheckForNull
+    public Integer getPageSize() {
+      return pageSize;
+    }
+
+    public SearchProjectPermissionsRequest setPageSize(int pageSize) {
+      this.pageSize = pageSize;
+      return this;
+    }
+
+    @CheckForNull
+    public String getQuery() {
+      return query;
+    }
+
+    public SearchProjectPermissionsRequest setQuery(@Nullable String query) {
+      this.query = query;
+      return this;
+    }
+
+    @CheckForNull
+    public String getQualifier() {
+      return qualifier;
+    }
+
+    public SearchProjectPermissionsRequest setQualifier(@Nullable String qualifier) {
+      this.qualifier = qualifier;
+      return this;
+    }
   }
 }

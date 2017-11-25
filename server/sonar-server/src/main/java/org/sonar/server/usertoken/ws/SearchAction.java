@@ -29,7 +29,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.UserTokens.SearchWsResponse;
-import org.sonarqube.ws.client.usertokens.SearchRequest;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.ws.WsUtils.checkFound;
@@ -63,27 +62,22 @@ public class SearchAction implements UserTokensWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    SearchWsResponse searchWsResponse = doHandle(toSearchRequest(request));
+    String login = request.param(PARAM_LOGIN);
+    if (login == null) {
+      login = userSession.getLogin();
+    }
+    SearchWsResponse searchWsResponse = doHandle(login);
     writeProtobuf(searchWsResponse, request, response);
   }
 
-  private SearchWsResponse doHandle(SearchRequest request) {
-    TokenPermissionsValidator.validate(userSession, request.getLogin());
+  private SearchWsResponse doHandle(String login) {
+    TokenPermissionsValidator.validate(userSession, login);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String login = request.getLogin();
       checkLoginExists(dbSession, login);
       List<UserTokenDto> userTokens = dbClient.userTokenDao().selectByLogin(dbSession, login);
       return buildResponse(login, userTokens);
     }
-  }
-
-  private SearchRequest toSearchRequest(Request request) {
-    SearchRequest SearchRequest = new SearchRequest().setLogin(request.param(PARAM_LOGIN));
-    if (SearchRequest.getLogin() == null) {
-      SearchRequest.setLogin(userSession.getLogin());
-    }
-    return SearchRequest;
   }
 
   private static SearchWsResponse buildResponse(String login, List<UserTokenDto> userTokensDto) {

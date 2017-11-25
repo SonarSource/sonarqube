@@ -35,7 +35,6 @@ import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonarqube.ws.client.measure.ComponentTreeRequest;
 
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.lang.String.format;

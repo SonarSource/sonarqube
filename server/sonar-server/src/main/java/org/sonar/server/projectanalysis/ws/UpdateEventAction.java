@@ -38,10 +38,12 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.ProjectAnalyses.Event;
 import org.sonarqube.ws.ProjectAnalyses.UpdateEventResponse;
 import org.sonarqube.ws.client.projectanalysis.EventCategory;
-import org.sonarqube.ws.client.projectanalysis.UpdateEventRequest;
+
+import javax.annotation.CheckForNull;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.projectanalysis.ws.EventValidator.checkModifiable;
@@ -188,5 +190,24 @@ public class UpdateEventAction implements ProjectAnalysesWsAction {
     return request -> new UpdateEventRequest(
       request.mandatoryParam(PARAM_EVENT),
       request.param(PARAM_NAME));
+  }
+
+  private static class UpdateEventRequest {
+    private final String event;
+    private final String name;
+
+    public UpdateEventRequest(String event, String name) {
+      this.event = requireNonNull(event, "Event key is required");
+      this.name = requireNonNull(name, "Name is required");
+    }
+
+    public String getEvent() {
+      return event;
+    }
+
+    @CheckForNull
+    public String getName() {
+      return name;
+    }
   }
 }

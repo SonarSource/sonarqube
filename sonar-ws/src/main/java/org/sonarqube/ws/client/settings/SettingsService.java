@@ -126,10 +126,10 @@ public class SettingsService extends BaseService {
       new PostRequest(path("set"))
         .setParam("branch", request.getBranch())
         .setParam("component", request.getComponent())
-        .setParam("fieldValues", request.getFieldValues() == null ? null : request.getFieldValues().stream().collect(Collectors.joining(",")))
+        .setParam("fieldValues", request.getFieldValues() == null ? null : request.getFieldValues())
         .setParam("key", request.getKey())
         .setParam("value", request.getValue())
-        .setParam("values", request.getValues() == null ? null : request.getValues().stream().collect(Collectors.joining(",")))
+        .setParam("values", request.getValues() == null ? null : request.getValues())
         .setMediaType(MediaTypes.JSON)
       ).content();
   }

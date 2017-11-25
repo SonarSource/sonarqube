@@ -39,7 +39,6 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.ws.AvatarResolver;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Qualityprofiles.SearchUsersResponse;
-import org.sonarqube.ws.client.qualityprofile.SearchUsersRequest;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;

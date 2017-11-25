@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -67,10 +68,12 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Issues.BulkChangeWsResponse;
-import org.sonarqube.ws.client.issue.BulkChangeRequest;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Matchers.eq;
@@ -145,7 +148,7 @@ public class BulkChangeActionTest {
     setUserProjectPermissions(USER, ISSUE_ADMIN);
     IssueDto issueDto = db.issues().insertIssue(newUnresolvedIssue().setType(BUG));
 
-    BulkChangeWsResponse response = call(BulkChangeRequest.builder()
+    BulkChangeWsResponse response = call(builder()
       .setIssues(singletonList(issueDto.getKey()))
       .setSetType(RuleType.CODE_SMELL.name())
       .build());
@@ -163,7 +166,7 @@ public class BulkChangeActionTest {
     setUserProjectPermissions(USER, ISSUE_ADMIN);
     IssueDto issueDto = db.issues().insertIssue(newUnresolvedIssue().setSeverity(MAJOR));
 
-    BulkChangeWsResponse response = call(BulkChangeRequest.builder()
+    BulkChangeWsResponse response = call(builder()
       .setIssues(singletonList(issueDto.getKey()))
       .setSetSeverity(MINOR)
       .build());
@@ -181,7 +184,7 @@ public class BulkChangeActionTest {
     setUserProjectPermissions(USER, ISSUE_ADMIN);
     IssueDto issueDto = db.issues().insertIssue(newUnresolvedIssue().setTags(asList("tag1", "tag2")));
 
-    BulkChangeWsResponse response = call(BulkChangeRequest.builder()
+    BulkChangeWsResponse response = call(builder()
       .setIssues(singletonList(issueDto.getKey()))
       .setAddTags(singletonList("tag3"))
       .build());
@@ -199,7 +202,7 @@ public class BulkChangeActionTest {
     setUserProjectPermissions(USER);
     IssueDto issueDto = db.issues().insertIssue(newUnresolvedIssue().setAssignee("arthur"));
 
-    BulkChangeWsResponse response = call(BulkChangeRequest.builder()
+    BulkChangeWsResponse response = call(builder()
       .setIssues(singletonList(issueDto.getKey()))
       .setAssign("")
       .build());
@@ -217,7 +220,7 @@ public class BulkChangeActionTest {
     setUserProjectPermissions(USER);
     IssueDto issueDto = db.issues().insertIssue(newUnresolvedIssue().setType(BUG));
 
-    BulkChangeWsResponse response = call(BulkChangeRequest.builder()
+    BulkChangeWsResponse response = call(builder()
       .setIssues(singletonList(issueDto.getKey()))
       .setDoTransition("confirm")
       .setComment("type was badly defined")
@@ -241,7 +244,7 @@ public class BulkChangeActionTest {
     IssueDto issue2 = db.issues().insertIssue(newUnresolvedIssue().setAssignee(userToAssign.getLogin())).setType(BUG).setSeverity(MAJOR);
     IssueDto issue3 = db.issues().insertIssue(newUnresolvedIssue().setAssignee(null)).setType(VULNERABILITY).setSeverity(MAJOR);
 
-    BulkChangeWsResponse response = call(BulkChangeRequest.builder()
+    BulkChangeWsResponse response = call(builder()
       .setIssues(asList(issue1.getKey(), issue2.getKey(), issue3.getKey()))
       .setAssign(userToAssign.getLogin())
       .setSetSeverity(MINOR)
@@ -264,7 +267,7 @@ public class BulkChangeActionTest {
     setUserProjectPermissions(USER);
     IssueDto issueDto = db.issues().insertIssue(newUnresolvedIssue().setType(BUG));
 
-    BulkChangeWsResponse response = call(BulkChangeRequest.builder()
+    BulkChangeWsResponse response = call(builder()
       .setIssues(singletonList(issueDto.getKey()))
       .setDoTransition("confirm")
       .setSendNotifications(true)
@@ -294,7 +297,7 @@ public class BulkChangeActionTest {
     ComponentDto fileOnBranch = db.components().insertComponent(newFileDto(branch));
     IssueDto issueDto = db.issues().insertIssue(newUnresolvedIssue(rule, fileOnBranch, branch).setType(BUG));
 
-    BulkChangeWsResponse response = call(BulkChangeRequest.builder()
+    BulkChangeWsResponse response = call(builder()
       .setIssues(singletonList(issueDto.getKey()))
       .setDoTransition("confirm")
       .setSendNotifications(true)
@@ -323,7 +326,7 @@ public class BulkChangeActionTest {
     IssueDto issue3 = db.issues().insertIssue(newUnresolvedIssue().setType(VULNERABILITY));
     ArgumentCaptor<IssueChangeNotification> issueChangeNotificationCaptor = ArgumentCaptor.forClass(IssueChangeNotification.class);
 
-    BulkChangeWsResponse response = call(BulkChangeRequest.builder()
+    BulkChangeWsResponse response = call(builder()
       .setIssues(asList(issue1.getKey(), issue2.getKey(), issue3.getKey()))
       .setSetType(RuleType.BUG.name())
       .setSendNotifications(true)
@@ -345,7 +348,7 @@ public class BulkChangeActionTest {
     IssueDto issue2 = db.issues().insertIssue(newResolvedIssue().setType(BUG));
     IssueDto issue3 = db.issues().insertIssue(newResolvedIssue().setType(BUG));
 
-    BulkChangeWsResponse response = call(BulkChangeRequest.builder()
+    BulkChangeWsResponse response = call(builder()
       .setIssues(asList(issue1.getKey(), issue2.getKey(), issue3.getKey()))
       .setSetType(VULNERABILITY.name())
       .build());
@@ -369,7 +372,7 @@ public class BulkChangeActionTest {
     IssueDto issue2 = db.issues().insertIssue(newUnresolvedIssue().setType(VULNERABILITY));
     IssueDto issue3 = db.issues().insertIssue(newUnresolvedIssue().setType(VULNERABILITY));
 
-    BulkChangeWsResponse response = call(BulkChangeRequest.builder()
+    BulkChangeWsResponse response = call(builder()
       .setIssues(asList(issue1.getKey(), issue2.getKey(), issue3.getKey()))
       .setSetType(VULNERABILITY.name())
       .build());
@@ -393,7 +396,7 @@ public class BulkChangeActionTest {
     IssueDto issue2 = db.issues().insertIssue(newUnresolvedIssue().setType(VULNERABILITY));
     IssueDto issue3 = db.issues().insertIssue(newUnresolvedIssue().setType(VULNERABILITY));
 
-    BulkChangeWsResponse response = call(BulkChangeRequest.builder()
+    BulkChangeWsResponse response = call(builder()
       .setIssues(asList(issue1.getKey(), issue2.getKey(), issue3.getKey()))
       .setSetType(VULNERABILITY.name())
       .setComment("test")
@@ -417,7 +420,7 @@ public class BulkChangeActionTest {
     IssueDto notAuthorizedIssue1 = db.issues().insertIssue(newUnresolvedIssue(rule, anotherFile, anotherProject).setType(BUG));
     IssueDto notAuthorizedIssue2 = db.issues().insertIssue(newUnresolvedIssue(rule, anotherFile, anotherProject).setType(BUG));
 
-    BulkChangeWsResponse response = call(BulkChangeRequest.builder()
+    BulkChangeWsResponse response = call(builder()
       .setIssues(asList(authorizedIssue.getKey(), notAuthorizedIssue1.getKey(), notAuthorizedIssue2.getKey()))
       .setSetType(VULNERABILITY.name())
       .build());
@@ -445,7 +448,7 @@ public class BulkChangeActionTest {
     IssueDto notAuthorizedIssue1 = db.issues().insertIssue(newUnresolvedIssue(rule, anotherFile, anotherProject).setType(BUG));
     IssueDto notAuthorizedIssue2 = db.issues().insertIssue(newUnresolvedIssue(rule, anotherFile, anotherProject).setType(BUG));
 
-    BulkChangeWsResponse response = call(BulkChangeRequest.builder()
+    BulkChangeWsResponse response = call(builder()
       .setIssues(asList(authorizedIssue1.getKey(), notAuthorizedIssue1.getKey(), notAuthorizedIssue2.getKey()))
       .setSetType(VULNERABILITY.name())
       .build());
@@ -471,7 +474,7 @@ public class BulkChangeActionTest {
     IssueDto notAuthorizedIssue1 = db.issues().insertIssue(newUnresolvedIssue(rule, anotherFile, anotherProject).setSeverity(MAJOR));
     IssueDto notAuthorizedIssue2 = db.issues().insertIssue(newUnresolvedIssue(rule, anotherFile, anotherProject).setSeverity(MAJOR));
 
-    BulkChangeWsResponse response = call(BulkChangeRequest.builder()
+    BulkChangeWsResponse response = call(builder()
       .setIssues(asList(authorizedIssue1.getKey(), notAuthorizedIssue1.getKey(), notAuthorizedIssue2.getKey()))
       .setSetSeverity(MINOR)
       .build());
@@ -492,7 +495,7 @@ public class BulkChangeActionTest {
     expectedException.expectMessage("At least one action must be provided");
     expectedException.expect(IllegalArgumentException.class);
 
-    call(BulkChangeRequest.builder()
+    call(builder()
       .setIssues(singletonList(issueDto.getKey()))
       .setComment("type was badly defined")
       .build());
@@ -504,7 +507,7 @@ public class BulkChangeActionTest {
     expectedException.expectMessage("Number of issues is limited to 500");
     expectedException.expect(IllegalArgumentException.class);
 
-    call(BulkChangeRequest.builder()
+    call(builder()
       .setIssues(IntStream.range(0, 510).mapToObj(String::valueOf).collect(Collectors.toList()))
       .setSetSeverity(MINOR)
       .build());
@@ -514,7 +517,7 @@ public class BulkChangeActionTest {
   public void fail_when_not_authenticated() throws Exception {
     expectedException.expect(UnauthorizedException.class);
 
-    call(BulkChangeRequest.builder().setIssues(singletonList("ABCD")).build());
+    call(builder().setIssues(singletonList("ABCD")).build());
   }
 
   @Test
@@ -607,4 +610,137 @@ public class BulkChangeActionTest {
     actions.add(new org.sonar.server.issue.CommentAction(issueFieldsSetter));
   }
 
+  private static class BulkChangeRequest {
+
+    private final List<String> issues;
+    private final String assign;
+    private final String setSeverity;
+    private final String setType;
+    private final String doTransition;
+    private final List<String> addTags;
+    private final List<String> removeTags;
+    private final String comment;
+    private final Boolean sendNotifications;
+
+    private BulkChangeRequest(Builder builder) {
+      this.issues = builder.issues;
+      this.assign = builder.assign;
+      this.setSeverity = builder.setSeverity;
+      this.setType = builder.setType;
+      this.doTransition = builder.doTransition;
+      this.addTags = builder.addTags;
+      this.removeTags = builder.removeTags;
+      this.comment = builder.comment;
+      this.sendNotifications = builder.sendNotifications;
+    }
+
+    public List<String> getIssues() {
+      return issues;
+    }
+
+    @CheckForNull
+    public String getAssign() {
+      return assign;
+    }
+
+    @CheckForNull
+    public String getSetSeverity() {
+      return setSeverity;
+    }
+
+    @CheckForNull
+    public String getSetType() {
+      return setType;
+    }
+
+    @CheckForNull
+    public String getDoTransition() {
+      return doTransition;
+    }
+
+    public List<String> getAddTags() {
+      return addTags;
+    }
+
+    public List<String> getRemoveTags() {
+      return removeTags;
+    }
+
+    @CheckForNull
+    public String getComment() {
+      return comment;
+    }
+
+    @CheckForNull
+    public Boolean getSendNotifications() {
+      return sendNotifications;
+    }
+
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+    private List<String> issues;
+    private String assign;
+    private String setSeverity;
+    private String setType;
+    private String doTransition;
+    private List<String> addTags = newArrayList();
+    private List<String> removeTags = newArrayList();
+    private String comment;
+    private Boolean sendNotifications;
+
+    public Builder setIssues(List<String> issues) {
+      this.issues = issues;
+      return this;
+    }
+
+    public Builder setAssign(@Nullable String assign) {
+      this.assign = assign;
+      return this;
+    }
+
+    public Builder setSetSeverity(@Nullable String setSeverity) {
+      this.setSeverity = setSeverity;
+      return this;
+    }
+
+    public Builder setSetType(@Nullable String setType) {
+      this.setType = setType;
+      return this;
+    }
+
+    public Builder setDoTransition(@Nullable String doTransition) {
+      this.doTransition = doTransition;
+      return this;
+    }
+
+    public Builder setAddTags(List<String> addTags) {
+      this.addTags = requireNonNull(addTags);
+      return this;
+    }
+
+    public Builder setRemoveTags(List<String> removeTags) {
+      this.removeTags = requireNonNull(removeTags);
+      return this;
+    }
+
+    public Builder setComment(@Nullable String comment) {
+      this.comment = comment;
+      return this;
+    }
+
+    public Builder setSendNotifications(@Nullable Boolean sendNotifications) {
+      this.sendNotifications = sendNotifications;
+      return this;
+    }
+
+    public BulkChangeRequest build() {
+      checkArgument(issues != null && !issues.isEmpty(), "Issue keys must be provided");
+      return new BulkChangeRequest(this);
+    }
+  }
 }

@@ -39,7 +39,6 @@ import org.sonar.server.notification.NotificationUpdater;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
-import org.sonarqube.ws.client.notifications.AddRequest;
 
 import static java.util.Optional.empty;
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -171,5 +170,49 @@ public class AddAction implements NotificationsWsAction {
     }
 
     return add;
+  }
+
+  private static class AddRequest {
+
+    private String channel;
+    private String login;
+    private String project;
+    private String type;
+
+    public AddRequest setChannel(String channel) {
+      this.channel = channel;
+      return this;
+    }
+
+    public String getChannel() {
+      return channel;
+    }
+
+    public AddRequest setLogin(String login) {
+      this.login = login;
+      return this;
+    }
+
+    public String getLogin() {
+      return login;
+    }
+
+    public AddRequest setProject(String project) {
+      this.project = project;
+      return this;
+    }
+
+    public String getProject() {
+      return project;
+    }
+
+    public AddRequest setType(String type) {
+      this.type = type;
+      return this;
+    }
+
+    public String getType() {
+      return type;
+    }
   }
 }

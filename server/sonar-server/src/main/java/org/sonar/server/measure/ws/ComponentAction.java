@@ -53,7 +53,6 @@ import org.sonar.server.measure.ws.MetricDtoWithBestValue.MetricDtoToMetricDtoWi
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.Measures.ComponentWsResponse;
-import org.sonarqube.ws.client.measure.ComponentRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -181,7 +180,7 @@ public class ComponentAction implements MeasuresWsAction {
   }
 
   private static ComponentWsResponse buildResponse(ComponentRequest request, ComponentDto component, Optional<ComponentDto> refComponent, List<MeasureDto> measures,
-                                                   List<MetricDto> metrics, List<Measures.Period> periods) {
+    List<MetricDto> metrics, List<Measures.Period> periods) {
     ComponentWsResponse.Builder response = ComponentWsResponse.newBuilder();
     Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDto::getId);
     Map<MetricDto, MeasureDto> measuresByMetric = new HashMap<>();
@@ -281,5 +280,92 @@ public class ComponentAction implements MeasuresWsAction {
 
   private void checkPermissions(ComponentDto baseComponent) {
     userSession.checkComponentPermission(UserRole.USER, baseComponent);
+  }
+
+  private static class ComponentRequest {
+    private String componentId;
+    private String component;
+    private String branch;
+    private List<String> metricKeys;
+    private List<String> additionalFields;
+    private String developerId;
+    private String developerKey;
+
+    /**
+     * @deprecated since 6.6, please use {@link #getComponent()} instead
+     */
+    @Deprecated
+    @CheckForNull
+    private String getComponentId() {
+      return componentId;
+    }
+
+    /**
+     * @deprecated since 6.6, please use {@link #setComponent(String)} instead
+     */
+    @Deprecated
+    private ComponentRequest setComponentId(@Nullable String componentId) {
+      this.componentId = componentId;
+      return this;
+    }
+
+    @CheckForNull
+    private String getComponent() {
+      return component;
+    }
+
+    private ComponentRequest setComponent(@Nullable String component) {
+      this.component = component;
+      return this;
+    }
+
+    @CheckForNull
+    private String getBranch() {
+      return branch;
+    }
+
+    private ComponentRequest setBranch(@Nullable String branch) {
+      this.branch = branch;
+      return this;
+    }
+
+    private List<String> getMetricKeys() {
+      return metricKeys;
+    }
+
+    private ComponentRequest setMetricKeys(@Nullable List<String> metricKeys) {
+      this.metricKeys = metricKeys;
+      return this;
+    }
+
+    @CheckForNull
+    private List<String> getAdditionalFields() {
+      return additionalFields;
+    }
+
+    private ComponentRequest setAdditionalFields(@Nullable List<String> additionalFields) {
+      this.additionalFields = additionalFields;
+      return this;
+    }
+
+    @CheckForNull
+    private String getDeveloperId() {
+      return developerId;
+    }
+
+    private ComponentRequest setDeveloperId(@Nullable String developerId) {
+      this.developerId = developerId;
+      return this;
+    }
+
+    @CheckForNull
+    private String getDeveloperKey() {
+      return developerKey;
+    }
+
+    private ComponentRequest setDeveloperKey(@Nullable String developerKey) {
+      this.developerKey = developerKey;
+      return this;
+    }
   }
 }

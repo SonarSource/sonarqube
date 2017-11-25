@@ -21,6 +21,7 @@ package org.sonar.server.component.ws;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,6 +33,7 @@ import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Change;
@@ -58,12 +60,13 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Components.Component;
 import org.sonarqube.ws.Components.SearchProjectsWsResponse;
-import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.api.server.ws.WebService.Param.FIELDS;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
@@ -82,13 +85,13 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SEARCH_PROJECTS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_FILTER;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
-import static org.sonarqube.ws.client.component.SearchProjectsRequest.DEFAULT_PAGE_SIZE;
-import static org.sonarqube.ws.client.component.SearchProjectsRequest.MAX_PAGE_SIZE;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_LANGUAGES;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.FILTER_TAGS;
 
 public class SearchProjectsAction implements ComponentsWsAction {
 
+  public static final int MAX_PAGE_SIZE = 500;
+  public static final int DEFAULT_PAGE_SIZE = 100;
   private static final String ANALYSIS_DATE = "analysisDate";
   private static final String LEAK_PERIOD_DATE = "leakPeriodDate";
   private static final Set<String> POSSIBLE_FIELDS = newHashSet(ANALYSIS_DATE, LEAK_PERIOD_DATE);
@@ -289,7 +292,7 @@ public class SearchProjectsAction implements ComponentsWsAction {
   }
 
   private static SearchProjectsRequest toRequest(Request httpRequest) {
-    SearchProjectsRequest.Builder request = SearchProjectsRequest.builder()
+    RequestBuilder request = new RequestBuilder()
       .setOrganization(httpRequest.param(PARAM_ORGANIZATION))
       .setFilter(httpRequest.param(PARAM_FILTER))
       .setSort(httpRequest.mandatoryParam(Param.SORT))
@@ -465,6 +468,135 @@ public class SearchProjectsAction implements ComponentsWsAction {
       this.facets = searchResults.getFacets();
       this.analysisByProjectUuid = analysisByProjectUuid;
       this.query = query;
+    }
+  }
+
+  static class SearchProjectsRequest {
+
+    private final int page;
+    private final int pageSize;
+    private final String organization;
+    private final String filter;
+    private final List<String> facets;
+    private final String sort;
+    private final Boolean asc;
+    private final List<String> additionalFields;
+
+    private SearchProjectsRequest(RequestBuilder builder) {
+      this.page = builder.page;
+      this.pageSize = builder.pageSize;
+      this.organization = builder.organization;
+      this.filter = builder.filter;
+      this.facets = builder.facets;
+      this.sort = builder.sort;
+      this.asc = builder.asc;
+      this.additionalFields = builder.additionalFields;
+    }
+
+    @CheckForNull
+    public String getOrganization() {
+      return organization;
+    }
+
+    @CheckForNull
+    public String getFilter() {
+      return filter;
+    }
+
+    public List<String> getFacets() {
+      return facets;
+    }
+
+    @CheckForNull
+    public String getSort() {
+      return sort;
+    }
+
+    public int getPageSize() {
+      return pageSize;
+    }
+
+    public int getPage() {
+      return page;
+    }
+
+    @CheckForNull
+    public Boolean getAsc() {
+      return asc;
+    }
+
+    public List<String> getAdditionalFields() {
+      return additionalFields;
+    }
+
+    public static RequestBuilder builder() {
+      return new RequestBuilder();
+    }
+  }
+
+  static class RequestBuilder {
+    private String organization;
+    private Integer page;
+    private Integer pageSize;
+    private String filter;
+    private List<String> facets = new ArrayList<>();
+    private String sort;
+    private Boolean asc;
+    private List<String> additionalFields = new ArrayList<>();
+
+    private RequestBuilder() {
+      // enforce static factory method
+    }
+
+    public RequestBuilder setOrganization(@Nullable String organization) {
+      this.organization = organization;
+      return this;
+    }
+
+    public RequestBuilder setFilter(@Nullable String filter) {
+      this.filter = filter;
+      return this;
+    }
+
+    public RequestBuilder setFacets(List<String> facets) {
+      this.facets = requireNonNull(facets);
+      return this;
+    }
+
+    public RequestBuilder setPage(int page) {
+      this.page = page;
+      return this;
+    }
+
+    public RequestBuilder setPageSize(int pageSize) {
+      this.pageSize = pageSize;
+      return this;
+    }
+
+    public RequestBuilder setSort(@Nullable String sort) {
+      this.sort = sort;
+      return this;
+    }
+
+    public RequestBuilder setAsc(boolean asc) {
+      this.asc = asc;
+      return this;
+    }
+
+    public RequestBuilder setAdditionalFields(List<String> additionalFields) {
+      this.additionalFields = requireNonNull(additionalFields, "additional fields cannot be null");
+      return this;
+    }
+
+    public SearchProjectsRequest build() {
+      if (page == null) {
+        page = 1;
+      }
+      if (pageSize == null) {
+        pageSize = DEFAULT_PAGE_SIZE;
+      }
+      checkArgument(pageSize <= MAX_PAGE_SIZE, "Page size must not be greater than %s", MAX_PAGE_SIZE);
+      return new SearchProjectsRequest(this);
     }
   }
 }

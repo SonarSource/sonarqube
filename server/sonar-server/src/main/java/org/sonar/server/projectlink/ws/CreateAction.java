@@ -31,7 +31,6 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.ProjectLinks;
 import org.sonarqube.ws.ProjectLinks.CreateWsResponse;
-import org.sonarqube.ws.client.projectlinks.CreateRequest;
 
 import static org.sonar.core.util.Slug.slugify;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
@@ -146,5 +145,49 @@ public class CreateAction implements ProjectLinksWsAction {
   private static String nameToType(String name) {
     String slugified = slugify(name);
     return slugified.substring(0, Math.min(slugified.length(), LINK_TYPE_MAX_LENGTH));
+  }
+
+  private static class CreateRequest {
+
+    private String name;
+    private String projectId;
+    private String projectKey;
+    private String url;
+
+    public CreateRequest setName(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public CreateRequest setProjectId(String projectId) {
+      this.projectId = projectId;
+      return this;
+    }
+
+    public String getProjectId() {
+      return projectId;
+    }
+
+    public CreateRequest setProjectKey(String projectKey) {
+      this.projectKey = projectKey;
+      return this;
+    }
+
+    public String getProjectKey() {
+      return projectKey;
+    }
+
+    public CreateRequest setUrl(String url) {
+      this.url = url;
+      return this;
+    }
+
+    public String getUrl() {
+      return url;
+    }
   }
 }

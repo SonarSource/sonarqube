@@ -79,7 +79,7 @@ public class SearchMyProjectsActionTest {
     alertStatusMetric = dbClient.metricDao().insert(dbSession, newMetricDto().setKey(ALERT_STATUS_KEY).setValueType(ValueType.LEVEL.name()));
     db.commit();
 
-    ws = new WsActionTester(new SearchMyProjectsAction(dbClient, new SearchMyProjectsDataLoader(userSession, dbClient), userSession));
+    ws = new WsActionTester(new SearchMyProjectsAction(dbClient, userSession));
   }
 
   @Test

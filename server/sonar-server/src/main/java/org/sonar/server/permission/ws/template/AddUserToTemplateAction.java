@@ -32,8 +32,11 @@ import org.sonar.server.permission.UserId;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.permission.AddUserToTemplateRequest;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
@@ -109,5 +112,61 @@ public class AddUserToTemplateAction implements PermissionsWsAction {
     PermissionQuery permissionQuery = PermissionQuery.builder().setOrganizationUuid(organizationDto.getUuid()).setPermission(permission).build();
     List<String> usersWithPermission = dbClient.permissionTemplateDao().selectUserLoginsByQueryAndTemplate(dbSession, permissionQuery, templateId);
     return usersWithPermission.stream().anyMatch(s -> s.equals(userLogin));
+  }
+
+  private static class AddUserToTemplateRequest {
+    private String login;
+    private String permission;
+    private String templateId;
+    private String organization;
+    private String templateName;
+
+    public String getLogin() {
+      return login;
+    }
+
+    public AddUserToTemplateRequest setLogin(String login) {
+      this.login = requireNonNull(login);
+      return this;
+    }
+
+    public String getPermission() {
+      return permission;
+    }
+
+    public AddUserToTemplateRequest setPermission(String permission) {
+      this.permission = requireNonNull(permission);
+      return this;
+    }
+
+    @CheckForNull
+    public String getTemplateId() {
+      return templateId;
+    }
+
+    public AddUserToTemplateRequest setTemplateId(@Nullable String templateId) {
+      this.templateId = templateId;
+      return this;
+    }
+
+    @CheckForNull
+    public String getTemplateName() {
+      return templateName;
+    }
+
+    public AddUserToTemplateRequest setTemplateName(@Nullable String templateName) {
+      this.templateName = templateName;
+      return this;
+    }
+
+    @CheckForNull
+    public String getOrganization() {
+      return organization;
+    }
+
+    public AddUserToTemplateRequest setOrganization(@Nullable String s) {
+      this.organization = s;
+      return this;
+    }
   }
 }

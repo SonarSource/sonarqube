@@ -38,7 +38,6 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Favorites.Favorite;
 import org.sonarqube.ws.Favorites.SearchResponse;
-import org.sonarqube.ws.client.favorites.SearchRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -160,4 +159,27 @@ public class SearchAction implements FavoritesWsAction {
     return builder.build();
   }
 
+  private static class SearchRequest {
+
+    private String p;
+    private String ps;
+
+    public SearchRequest setP(String p) {
+      this.p = p;
+      return this;
+    }
+
+    public String getP() {
+      return p;
+    }
+
+    public SearchRequest setPs(String ps) {
+      this.ps = ps;
+      return this;
+    }
+
+    public String getPs() {
+      return ps;
+    }
+  }
 }

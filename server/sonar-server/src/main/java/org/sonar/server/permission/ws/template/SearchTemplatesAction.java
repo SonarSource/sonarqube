@@ -19,7 +19,12 @@
  */
 package org.sonar.server.permission.ws.template;
 
+import java.util.List;
 import java.util.Locale;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Table;
+import com.google.common.collect.TreeBasedTable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
@@ -29,7 +34,10 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.core.permission.ProjectPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.DefaultTemplates;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.template.CountByTemplateAndPermissionDto;
+import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
@@ -39,12 +47,16 @@ import org.sonarqube.ws.Permissions.Permission;
 import org.sonarqube.ws.Permissions.PermissionTemplate;
 import org.sonarqube.ws.Permissions.SearchTemplatesWsResponse;
 import org.sonarqube.ws.Permissions.SearchTemplatesWsResponse.TemplateIdQualifier;
-import org.sonarqube.ws.client.permission.SearchTemplatesRequest;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createOrganizationParameter;
+import static org.sonar.server.permission.ws.template.SearchTemplatesData.builder;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_ORGANIZATION;
 
@@ -56,14 +68,14 @@ public class SearchTemplatesAction implements PermissionsWsAction {
   private final UserSession userSession;
   private final I18n i18n;
   private final PermissionWsSupport support;
-  private final SearchTemplatesDataLoader dataLoader;
+  private final DefaultTemplatesResolver defaultTemplatesResolver;
 
-  public SearchTemplatesAction(DbClient dbClient, UserSession userSession, I18n i18n, PermissionWsSupport support, SearchTemplatesDataLoader dataLoader) {
+  public SearchTemplatesAction(DbClient dbClient, UserSession userSession, I18n i18n, PermissionWsSupport support, DefaultTemplatesResolver defaultTemplatesResolver) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.i18n = i18n;
     this.support = support;
-    this.dataLoader = dataLoader;
+    this.defaultTemplatesResolver = defaultTemplatesResolver;
   }
 
   @Override
@@ -88,7 +100,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
         .setQuery(wsRequest.param(Param.TEXT_QUERY));
       checkGlobalAdmin(userSession, request.getOrganizationUuid());
 
-      SearchTemplatesWsResponse searchTemplatesWsResponse = buildResponse(dataLoader.load(dbSession, request));
+      SearchTemplatesWsResponse searchTemplatesWsResponse = buildResponse(load(dbSession, request));
       writeProtobuf(searchTemplatesWsResponse, wsRequest, wsResponse);
     }
   }
@@ -163,5 +175,85 @@ public class SearchTemplatesAction implements PermissionsWsAction {
 
   private String i18nName(String permissionKey) {
     return i18n.message(Locale.ENGLISH, PROPERTY_PREFIX + permissionKey, permissionKey);
+  }
+
+  private SearchTemplatesData load(DbSession dbSession, SearchTemplatesRequest request) {
+    SearchTemplatesData.Builder data = builder();
+    List<PermissionTemplateDto> templates = searchTemplates(dbSession, request);
+    List<Long> templateIds = Lists.transform(templates, PermissionTemplateDto::getId);
+
+    DefaultTemplates defaultTemplates = checkFoundWithOptional(
+            dbClient.organizationDao().getDefaultTemplates(dbSession, request.getOrganizationUuid()),
+            "No Default templates for organization with uuid '%s'", request.getOrganizationUuid());
+    DefaultTemplatesResolver.ResolvedDefaultTemplates resolvedDefaultTemplates = defaultTemplatesResolver.resolve(defaultTemplates);
+
+    data.templates(templates)
+            .defaultTemplates(resolvedDefaultTemplates)
+            .userCountByTemplateIdAndPermission(userCountByTemplateIdAndPermission(dbSession, templateIds))
+            .groupCountByTemplateIdAndPermission(groupCountByTemplateIdAndPermission(dbSession, templateIds))
+            .withProjectCreatorByTemplateIdAndPermission(withProjectCreatorsByTemplateIdAndPermission(dbSession, templateIds));
+
+    return data.build();
+  }
+
+  private List<PermissionTemplateDto> searchTemplates(DbSession dbSession, SearchTemplatesRequest request) {
+    return dbClient.permissionTemplateDao().selectAll(dbSession, request.getOrganizationUuid(), request.getQuery());
+  }
+
+  private Table<Long, String, Integer> userCountByTemplateIdAndPermission(DbSession dbSession, List<Long> templateIds) {
+    final Table<Long, String, Integer> userCountByTemplateIdAndPermission = TreeBasedTable.create();
+
+    dbClient.permissionTemplateDao().usersCountByTemplateIdAndPermission(dbSession, templateIds, context -> {
+      CountByTemplateAndPermissionDto row = context.getResultObject();
+      userCountByTemplateIdAndPermission.put(row.getTemplateId(), row.getPermission(), row.getCount());
+    });
+
+    return userCountByTemplateIdAndPermission;
+  }
+
+  private Table<Long, String, Integer> groupCountByTemplateIdAndPermission(DbSession dbSession, List<Long> templateIds) {
+    final Table<Long, String, Integer> userCountByTemplateIdAndPermission = TreeBasedTable.create();
+
+    dbClient.permissionTemplateDao().groupsCountByTemplateIdAndPermission(dbSession, templateIds, context -> {
+      CountByTemplateAndPermissionDto row = context.getResultObject();
+      userCountByTemplateIdAndPermission.put(row.getTemplateId(), row.getPermission(), row.getCount());
+    });
+
+    return userCountByTemplateIdAndPermission;
+  }
+
+  private Table<Long, String, Boolean> withProjectCreatorsByTemplateIdAndPermission(DbSession dbSession, List<Long> templateIds) {
+    final Table<Long, String, Boolean> templatePermissionsByTemplateIdAndPermission = TreeBasedTable.create();
+
+    List<PermissionTemplateCharacteristicDto> templatePermissions = dbClient.permissionTemplateCharacteristicDao().selectByTemplateIds(dbSession, templateIds);
+    templatePermissions.stream()
+            .forEach(templatePermission -> templatePermissionsByTemplateIdAndPermission.put(templatePermission.getTemplateId(), templatePermission.getPermission(),
+                    templatePermission.getWithProjectCreator()));
+
+    return templatePermissionsByTemplateIdAndPermission;
+  }
+
+  private static class SearchTemplatesRequest {
+    private String query;
+    private String organizationUuid;
+
+    @CheckForNull
+    public String getQuery() {
+      return query;
+    }
+
+    public SearchTemplatesRequest setQuery(@Nullable String query) {
+      this.query = query;
+      return this;
+    }
+
+    public String getOrganizationUuid() {
+      return organizationUuid;
+    }
+
+    public SearchTemplatesRequest setOrganizationUuid(String s) {
+      this.organizationUuid = s;
+      return this;
+    }
   }
 }

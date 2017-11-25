@@ -37,11 +37,11 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.issue.EditCommentRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_EDIT_COMMENT;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_COMMENT;
@@ -152,4 +152,22 @@ public class EditCommentAction implements IssuesWsAction {
     }
   }
 
+  public static class EditCommentRequest {
+
+    private final String comment;
+    private final String text;
+
+    public EditCommentRequest(String comment, String text) {
+      this.comment = requireNonNull(comment, "Comment key cannot be null");
+      this.text = requireNonNull(text, "Text cannot be null");
+    }
+
+    public String getComment() {
+      return comment;
+    }
+
+    public String getText() {
+      return text;
+    }
+  }
 }

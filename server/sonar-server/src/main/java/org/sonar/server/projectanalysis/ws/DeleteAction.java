@@ -19,9 +19,6 @@
  */
 package org.sonar.server.projectanalysis.ws;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Stream;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -32,7 +29,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.projectanalysis.DeleteRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -69,33 +65,21 @@ public class DeleteAction implements ProjectAnalysesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    Stream.of(request)
-      .map(toWsRequest())
-      .forEach(deleteAnalysis());
+    String analysisParam = request.mandatoryParam(PARAM_ANALYSIS);
 
-    response.noContent();
-
-  }
-
-  private static Function<Request, DeleteRequest> toWsRequest() {
-    return request -> new DeleteRequest(request.mandatoryParam(PARAM_ANALYSIS));
-  }
-
-  private Consumer<DeleteRequest> deleteAnalysis() {
-    return request -> {
-      try (DbSession dbSession = dbClient.openSession(false)) {
-        SnapshotDto analysis = dbClient.snapshotDao().selectByUuid(dbSession, request.getAnalysis())
-          .orElseThrow(() -> analysisNotFoundException(request.getAnalysis()));
-        if (STATUS_UNPROCESSED.equals(analysis.getStatus())) {
-          throw analysisNotFoundException(request.getAnalysis());
-        }
-        userSession.checkComponentUuidPermission(UserRole.ADMIN, analysis.getComponentUuid());
-        checkArgument(!analysis.getLast(), "The last analysis '%s' cannot be deleted", request.getAnalysis());
-        analysis.setStatus(STATUS_UNPROCESSED);
-        dbClient.snapshotDao().update(dbSession, analysis);
-        dbSession.commit();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      SnapshotDto analysis = dbClient.snapshotDao().selectByUuid(dbSession, analysisParam)
+        .orElseThrow(() -> analysisNotFoundException(analysisParam));
+      if (STATUS_UNPROCESSED.equals(analysis.getStatus())) {
+        throw analysisNotFoundException(analysisParam);
       }
-    };
+      userSession.checkComponentUuidPermission(UserRole.ADMIN, analysis.getComponentUuid());
+      checkArgument(!analysis.getLast(), "The last analysis '%s' cannot be deleted", analysisParam);
+      analysis.setStatus(STATUS_UNPROCESSED);
+      dbClient.snapshotDao().update(dbSession, analysis);
+      dbSession.commit();
+    }
+    response.noContent();
   }
 
   private static NotFoundException analysisNotFoundException(String analysis) {

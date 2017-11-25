@@ -36,7 +36,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.setting.ws.SettingValidations.SettingData;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.settings.ResetRequest;
 
 import static java.util.Collections.emptyList;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
@@ -144,6 +143,40 @@ public class ResetAction implements SettingsWsAction {
       userSession.checkComponentPermission(UserRole.ADMIN, component.get());
     } else {
       userSession.checkIsSystemAdministrator();
+    }
+  }
+
+  private static class ResetRequest {
+
+    private String branch;
+    private String component;
+    private List<String> keys;
+
+    public ResetRequest setBranch(String branch) {
+      this.branch = branch;
+      return this;
+    }
+
+    public String getBranch() {
+      return branch;
+    }
+
+    public ResetRequest setComponent(String component) {
+      this.component = component;
+      return this;
+    }
+
+    public String getComponent() {
+      return component;
+    }
+
+    public ResetRequest setKeys(List<String> keys) {
+      this.keys = keys;
+      return this;
+    }
+
+    public List<String> getKeys() {
+      return keys;
     }
   }
 }

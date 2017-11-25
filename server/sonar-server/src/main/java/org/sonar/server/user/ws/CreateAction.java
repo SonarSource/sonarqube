@@ -33,9 +33,14 @@ import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
 import org.sonarqube.ws.Users.CreateWsResponse;
-import org.sonarqube.ws.client.user.CreateRequest;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static java.util.Collections.emptyList;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 import static org.sonar.server.user.UserUpdater.EMAIL_MAX_LENGTH;
@@ -166,5 +171,105 @@ public class CreateAction implements UsersWsAction {
     }
     List<String> oldScmAccounts = request.paramAsStrings(PARAM_SCM_ACCOUNTS);
     return oldScmAccounts != null ? oldScmAccounts : Collections.emptyList();
+  }
+
+  static class CreateRequest {
+
+    private final String login;
+    private final String password;
+    private final String name;
+    private final String email;
+    private final List<String> scmAccounts;
+    private final boolean local;
+
+    private CreateRequest(Builder builder) {
+      this.login = builder.login;
+      this.password = builder.password;
+      this.name = builder.name;
+      this.email = builder.email;
+      this.scmAccounts = builder.scmAccounts;
+      this.local = builder.local;
+    }
+
+    public String getLogin() {
+      return login;
+    }
+
+    @CheckForNull
+    public String getPassword() {
+      return password;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    @CheckForNull
+    public String getEmail() {
+      return email;
+    }
+
+    public List<String> getScmAccounts() {
+      return scmAccounts;
+    }
+
+    public boolean isLocal() {
+      return local;
+    }
+
+    public static Builder builder() {
+      return new Builder();
+    }
+  }
+
+  static class Builder {
+    private String login;
+    private String password;
+    private String name;
+    private String email;
+    private List<String> scmAccounts = emptyList();
+    private boolean local = true;
+
+    private Builder() {
+      // enforce factory method use
+    }
+
+    public Builder setLogin(String login) {
+      this.login = login;
+      return this;
+    }
+
+    public Builder setPassword(@Nullable String password) {
+      this.password = password;
+      return this;
+    }
+
+    public Builder setName(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder setEmail(@Nullable String email) {
+      this.email = email;
+      return this;
+    }
+
+    public Builder setScmAccounts(List<String> scmAccounts) {
+      this.scmAccounts = scmAccounts;
+      return this;
+    }
+
+    public Builder setLocal(boolean local) {
+      this.local = local;
+      return this;
+    }
+
+    public CreateRequest build() {
+      checkArgument(!isNullOrEmpty(login), "Login is mandatory and must not be empty");
+      checkArgument(!isNullOrEmpty(name), "Name is mandatory and must not be empty");
+      checkArgument(!local || !isNullOrEmpty(password), "Password is mandatory and must not be empty");
+      checkArgument(local || isNullOrEmpty(password), "Password should only be set on local user");
+      return new CreateRequest(this);
+    }
   }
 }

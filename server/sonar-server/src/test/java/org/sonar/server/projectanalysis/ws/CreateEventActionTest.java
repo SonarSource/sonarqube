@@ -45,7 +45,6 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.ProjectAnalyses;
 import org.sonarqube.ws.ProjectAnalyses.CreateEventResponse;
-import org.sonarqube.ws.client.projectanalysis.CreateEventRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -107,14 +106,10 @@ public class CreateEventActionTest {
   public void create_event_in_db() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
-    CreateEventRequest.Builder request = CreateEventRequest.builder()
-      .setAnalysis(analysis.getUuid())
-      .setCategory(VERSION)
-      .setName("5.6.3");
     when(system.now()).thenReturn(123_456_789L);
     logInAsProjectAdministrator(project);
 
-    CreateEventResponse result = call(request);
+    CreateEventResponse result = call(VERSION.name(), "5.6.3", analysis.getUuid());
 
     List<EventDto> dbEvents = dbClient.eventDao().selectByComponentUuid(dbSession, analysis.getComponentUuid());
     assertThat(dbEvents).hasSize(1);
@@ -133,13 +128,9 @@ public class CreateEventActionTest {
   public void create_event_as_project_admin() {
     ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), "P1");
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
-    CreateEventRequest.Builder request = CreateEventRequest.builder()
-      .setAnalysis(analysis.getUuid())
-      .setCategory(VERSION)
-      .setName("5.6.3");
     logInAsProjectAdministrator(project);
 
-    CreateEventResponse result = call(request);
+    CreateEventResponse result = call(VERSION.name(), "5.6.3", analysis.getUuid());
 
     assertThat(result.getEvent().getKey()).isNotEmpty();
   }
@@ -148,13 +139,9 @@ public class CreateEventActionTest {
   public void create_version_event() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
-    CreateEventRequest.Builder request = CreateEventRequest.builder()
-      .setAnalysis(analysis.getUuid())
-      .setCategory(VERSION)
-      .setName("5.6.3");
     logInAsProjectAdministrator(project);
 
-    call(request);
+    call(VERSION.name(), "5.6.3", analysis.getUuid());
 
     Optional<SnapshotDto> newAnalysis = dbClient.snapshotDao().selectByUuid(dbSession, analysis.getUuid());
     assertThat(newAnalysis.get().getVersion()).isEqualTo("5.6.3");
@@ -164,12 +151,9 @@ public class CreateEventActionTest {
   public void create_other_event_with_ws_response() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
-    CreateEventRequest.Builder request = CreateEventRequest.builder()
-      .setAnalysis(analysis.getUuid())
-      .setName("Project Import");
     logInAsProjectAdministrator(project);
 
-    CreateEventResponse result = call(request);
+    CreateEventResponse result = call(OTHER.name(), "Project Import", analysis.getUuid());
 
     SnapshotDto newAnalysis = dbClient.snapshotDao().selectByUuid(dbSession, analysis.getUuid()).get();
     assertThat(analysis.getVersion()).isEqualTo(newAnalysis.getVersion());
@@ -185,13 +169,9 @@ public class CreateEventActionTest {
   public void create_event_without_description() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
-    CreateEventRequest.Builder request = CreateEventRequest.builder()
-      .setAnalysis(analysis.getUuid())
-      .setCategory(OTHER)
-      .setName("Project Import");
     logInAsProjectAdministrator(project);
 
-    CreateEventResponse result = call(request);
+    CreateEventResponse result = call(OTHER.name(), "Project Import", analysis.getUuid());
 
     ProjectAnalyses.Event event = result.getEvent();
     assertThat(event.getKey()).isNotEmpty();
@@ -202,13 +182,9 @@ public class CreateEventActionTest {
   public void create_event_on_application() {
     ComponentDto application = ComponentTesting.newApplication(db.getDefaultOrganization());
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(application);
-    CreateEventRequest.Builder request = CreateEventRequest.builder()
-      .setAnalysis(analysis.getUuid())
-      .setCategory(OTHER)
-      .setName("Application Event");
     logInAsProjectAdministrator(application);
 
-    CreateEventResponse result = call(request);
+    CreateEventResponse result = call(OTHER.name(), "Application Event", analysis.getUuid());
 
     ProjectAnalyses.Event event = result.getEvent();
     assertThat(event.getName()).isEqualTo("Application Event");
@@ -218,20 +194,12 @@ public class CreateEventActionTest {
   public void create_2_version_events_on_same_project() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     SnapshotDto firstAnalysis = db.components().insertProjectAndSnapshot(project);
-    CreateEventRequest.Builder firstRequest = CreateEventRequest.builder()
-      .setAnalysis(firstAnalysis.getUuid())
-      .setCategory(VERSION)
-      .setName("5.6.3");
     SnapshotDto secondAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     db.commit();
-    CreateEventRequest.Builder secondRequest = CreateEventRequest.builder()
-      .setAnalysis(secondAnalysis.getUuid())
-      .setCategory(VERSION)
-      .setName("6.3");
     logInAsProjectAdministrator(project);
 
-    call(firstRequest);
-    call(secondRequest);
+    call(VERSION.name(), "5.6.3", firstAnalysis.getUuid());
+    call(VERSION.name(), "6.3", secondAnalysis.getUuid());
 
     List<EventDto> events = dbClient.eventDao().selectByComponentUuid(dbSession, project.uuid());
     assertThat(events).hasSize(2);
@@ -241,13 +209,12 @@ public class CreateEventActionTest {
   public void fail_if_not_blank_name() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
-    CreateEventRequest.Builder request = CreateEventRequest.builder().setAnalysis(analysis.getUuid()).setName("    ");
     logInAsProjectAdministrator(project);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("A non empty name is required");
 
-    call(request);
+    call(OTHER.name(), "    ", analysis.getUuid());
   }
 
   @Test
@@ -257,46 +224,33 @@ public class CreateEventActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Analysis 'A42' is not found");
 
-    CreateEventRequest.Builder request = CreateEventRequest.builder()
-      .setAnalysis("A42")
-      .setCategory(OTHER)
-      .setName("Project Import");
-
-    call(request);
+    call(OTHER.name(), "Project Import", "A42");
   }
 
   @Test
   public void fail_if_2_version_events_on_the_same_analysis() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
-    CreateEventRequest.Builder request = CreateEventRequest.builder()
-      .setAnalysis(analysis.getUuid())
-      .setCategory(VERSION)
-      .setName("5.6.3");
     logInAsProjectAdministrator(project);
-    call(request);
+    call(VERSION.name(), "5.6.3", analysis.getUuid());
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("A version event already exists on analysis '" + analysis.getUuid() + "'");
 
-    call(request.setName("6.3"));
+    call(VERSION.name(), "6.3", analysis.getUuid());
   }
 
   @Test
   public void fail_if_2_other_events_on_same_analysis_with_same_name() {
     ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(project);
-    CreateEventRequest.Builder request = CreateEventRequest.builder()
-      .setAnalysis(analysis.getUuid())
-      .setCategory(OTHER)
-      .setName("Project Import");
     logInAsProjectAdministrator(project);
-    call(request);
+    call(OTHER.name(), "Project Import", analysis.getUuid());
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("An 'Other' event with the same name already exists on analysis '" + analysis.getUuid() + "'");
 
-    call(request.setName("Project Import"));
+    call(OTHER.name(), "Project Import", analysis.getUuid());
   }
 
   @Test
@@ -317,32 +271,24 @@ public class CreateEventActionTest {
   public void fail_if_create_on_view() {
     ComponentDto view = newView(db.organizations().insert());
     SnapshotDto analysis = db.components().insertViewAndSnapshot(view);
-    CreateEventRequest.Builder request = CreateEventRequest.builder()
-      .setAnalysis(analysis.getUuid())
-      .setCategory(OTHER)
-      .setName("View Event");
     logInAsProjectAdministrator(view);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("An event must be created on a project or an application");
 
-    call(request);
+    call(OTHER.name(), "View Event", analysis.getUuid());
   }
 
   @Test
   public void fail_if_create_version_event_on_application() {
     ComponentDto application = newApplication(db.organizations().insert());
     SnapshotDto analysis = db.components().insertViewAndSnapshot(application);
-    CreateEventRequest.Builder request = CreateEventRequest.builder()
-      .setAnalysis(analysis.getUuid())
-      .setCategory(VERSION)
-      .setName("5.6.3");
     logInAsProjectAdministrator(application);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("A version event must be created on a project");
 
-    call(request);
+    call(VERSION.name(), "5.6.3", analysis.getUuid());
   }
 
   @Test
@@ -350,30 +296,22 @@ public class CreateEventActionTest {
     userSession.logIn();
     SnapshotDto analysis = dbClient.snapshotDao().insert(dbSession, newSnapshot().setUuid("A1"));
     db.commit();
-    CreateEventRequest.Builder request = CreateEventRequest.builder()
-      .setAnalysis(analysis.getUuid())
-      .setCategory(VERSION)
-      .setName("5.6.3");
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Project of analysis 'A1' is not found");
 
-    call(request);
+    call(VERSION.name(), "5.6.3", analysis.getUuid());
   }
 
   @Test
   public void throw_ForbiddenException_if_not_project_administrator() {
     SnapshotDto analysis = db.components().insertProjectAndSnapshot(newPrivateProjectDto(db.organizations().insert(), "P1"));
-    CreateEventRequest.Builder request = CreateEventRequest.builder()
-      .setAnalysis(analysis.getUuid())
-      .setCategory(VERSION)
-      .setName("5.6.3");
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    call(request);
+    call(VERSION.name(), "5.6.3", analysis.getUuid());
   }
 
   @Test
@@ -389,14 +327,13 @@ public class CreateEventActionTest {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
   }
 
-  private CreateEventResponse call(CreateEventRequest.Builder requestBuilder) {
-    CreateEventRequest request = requestBuilder.build();
+  private CreateEventResponse call(String categoryName, String name, String analysis) {
     TestRequest httpRequest = ws.newRequest()
       .setMethod(POST.name());
 
-    httpRequest.setParam(PARAM_CATEGORY, request.getCategory().name())
-      .setParam(PARAM_NAME, request.getName())
-      .setParam(PARAM_ANALYSIS, request.getAnalysis());
+    httpRequest.setParam(PARAM_CATEGORY, categoryName)
+      .setParam(PARAM_NAME, name)
+      .setParam(PARAM_ANALYSIS, analysis);
 
     return httpRequest.executeProtobuf(CreateEventResponse.class);
   }

@@ -28,7 +28,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentLinkDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
-import org.sonarqube.ws.client.projectlinks.DeleteRequest;
 
 import static org.sonar.db.component.ComponentLinkDto.PROVIDED_TYPES;
 import static org.sonar.server.projectlink.ws.ProjectLinksWsParameters.ACTION_DELETE;
@@ -61,19 +60,13 @@ public class DeleteAction implements ProjectLinksWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    DeleteRequest deleteWsRequest = toDeleteWsRequest(request);
-    doHandle(deleteWsRequest);
+    doHandle(request.mandatoryParam(PARAM_ID));
     response.noContent();
   }
 
-  private static DeleteRequest toDeleteWsRequest(Request request) {
-    return new DeleteRequest()
-      .setId(request.mandatoryParam(PARAM_ID));
-  }
-
-  private void doHandle(DeleteRequest request) {
+  private void doHandle(String idParam) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      long id = Long.parseLong(request.getId());
+      long id = Long.parseLong(idParam);
       ComponentLinkDto link = dbClient.componentLinkDao().selectById(dbSession, id);
 
       link = WsUtils.checkFound(link, "Link with id '%s' not found", id);

@@ -33,7 +33,9 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.permission.SetDefaultTemplateRequest;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateQualifier;
@@ -120,5 +122,52 @@ public class SetDefaultTemplateAction implements PermissionsWsAction {
       defaultTemplates.setViewUuid(permissionTemplateDto.getUuid());
     }
     organizationDao.setDefaultTemplates(dbSession, organizationUuid, defaultTemplates);
+  }
+
+  private static class SetDefaultTemplateRequest {
+    private String qualifier;
+    private String templateId;
+    private String organization;
+    private String templateName;
+
+    @CheckForNull
+    public String getQualifier() {
+      return qualifier;
+    }
+
+    public SetDefaultTemplateRequest setQualifier(@Nullable String qualifier) {
+      this.qualifier = qualifier;
+      return this;
+    }
+
+    @CheckForNull
+    public String getTemplateId() {
+      return templateId;
+    }
+
+    public SetDefaultTemplateRequest setTemplateId(@Nullable String templateId) {
+      this.templateId = templateId;
+      return this;
+    }
+
+    @CheckForNull
+    public String getOrganization() {
+      return organization;
+    }
+
+    public SetDefaultTemplateRequest setOrganization(@Nullable String s) {
+      this.organization = s;
+      return this;
+    }
+
+    @CheckForNull
+    public String getTemplateName() {
+      return templateName;
+    }
+
+    public SetDefaultTemplateRequest setTemplateName(@Nullable String templateName) {
+      this.templateName = templateName;
+      return this;
+    }
   }
 }

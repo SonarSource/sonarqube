@@ -51,7 +51,7 @@ import org.sonar.server.issue.IssueQueryFactory;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.SearchWsResponse;
-import org.sonarqube.ws.client.issue.SearchRequest;
+import org.sonar.server.issue.SearchRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.concat;

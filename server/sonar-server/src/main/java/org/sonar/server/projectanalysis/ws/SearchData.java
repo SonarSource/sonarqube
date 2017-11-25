@@ -29,7 +29,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventDto;
-import org.sonarqube.ws.client.projectanalysis.SearchRequest;
 
 import static java.util.Objects.requireNonNull;
 

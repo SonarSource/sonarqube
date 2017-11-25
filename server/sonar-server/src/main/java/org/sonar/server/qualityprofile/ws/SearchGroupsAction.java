@@ -38,7 +38,6 @@ import org.sonar.db.qualityprofile.SearchGroupsQuery;
 import org.sonar.db.user.GroupDto;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Qualityprofiles;
-import org.sonarqube.ws.client.qualityprofile.SearchUsersRequest;
 
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;

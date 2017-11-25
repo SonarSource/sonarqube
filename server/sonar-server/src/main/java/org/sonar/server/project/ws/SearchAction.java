@@ -40,7 +40,6 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Projects.SearchWsResponse;
-import org.sonarqube.ws.client.project.SearchRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.api.resources.Qualifiers.APP;

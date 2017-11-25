@@ -53,7 +53,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Components.Component;
 import org.sonarqube.ws.Components.SearchWsResponse;
-import org.sonarqube.ws.client.component.SearchRequest;
+import org.sonar.server.component.ws.SearchAction.SearchRequest;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;

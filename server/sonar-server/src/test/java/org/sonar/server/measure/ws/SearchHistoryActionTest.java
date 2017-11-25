@@ -43,6 +43,8 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.measure.ws.SearchHistoryAction.Builder;
+import org.sonar.server.measure.ws.SearchHistoryAction.SearchHistoryRequest;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -50,7 +52,6 @@ import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.Measures.SearchHistoryResponse;
 import org.sonarqube.ws.Measures.SearchHistoryResponse.HistoryMeasure;
 import org.sonarqube.ws.Measures.SearchHistoryResponse.HistoryValue;
-import org.sonarqube.ws.client.measure.SearchHistoryRequest;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Double.parseDouble;
@@ -94,7 +95,7 @@ public class SearchHistoryActionTest {
   private MetricDto complexityMetric;
   private MetricDto nclocMetric;
   private MetricDto newViolationMetric;
-  private SearchHistoryRequest.Builder wsRequest;
+  private Builder wsRequest;
 
   @Before
   public void setUp() {

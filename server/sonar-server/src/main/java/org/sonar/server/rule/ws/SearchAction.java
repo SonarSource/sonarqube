@@ -58,7 +58,6 @@ import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules.SearchResponse;
-import org.sonarqube.ws.client.rules.SearchRequest;
 
 import static java.lang.String.format;
 import static org.sonar.api.server.ws.WebService.Param.ASCENDING;
@@ -448,27 +447,18 @@ public class SearchAction implements RulesWsAction {
   }
 
   private static SearchRequest toSearchWsRequest(Request request) {
+    request.mandatoryParamAsBoolean(ASCENDING);
     return new SearchRequest()
-      .setActivation("" + request.paramAsBoolean(PARAM_ACTIVATION))
       .setActiveSeverities(request.paramAsStrings(PARAM_ACTIVE_SEVERITIES))
-      .setAsc("" + request.mandatoryParamAsBoolean(ASCENDING))
-      .setAvailableSince(request.param(PARAM_AVAILABLE_SINCE))
       .setF(request.paramAsStrings(FIELDS))
       .setFacets(request.paramAsStrings(FACETS))
-      .setInheritance(request.paramAsStrings(PARAM_INHERITANCE))
-      .setIsTemplate("" + request.paramAsBoolean(PARAM_IS_TEMPLATE))
       .setLanguages(request.paramAsStrings(PARAM_LANGUAGES))
       .setP("" + request.mandatoryParamAsInt(PAGE))
       .setPs("" + request.mandatoryParamAsInt(PAGE_SIZE))
-      .setQ(request.param(TEXT_QUERY))
-      .setQprofile(request.param(PARAM_QPROFILE))
       .setRepositories(request.paramAsStrings(PARAM_REPOSITORIES))
-      .setRuleKey(request.param(PARAM_RULE_KEY))
-      .setS(request.param(SORT))
       .setSeverities(request.paramAsStrings(PARAM_SEVERITIES))
       .setStatuses(request.paramAsStrings(PARAM_STATUSES))
       .setTags(request.paramAsStrings(PARAM_TAGS))
-      .setTemplateKey(request.param(PARAM_TEMPLATE_KEY))
       .setTypes(request.paramAsStrings(PARAM_TYPES));
   }
 
@@ -539,4 +529,117 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
+  private static class SearchRequest {
+
+    private List<String> activeSeverities;
+    private List<String> f;
+    private List<String> facets;
+    private List<String> languages;
+    private String p;
+    private String ps;
+    private List<String> repositories;
+    private List<String> severities;
+    private List<String> statuses;
+    private List<String> tags;
+    private List<String> types;
+
+    private SearchRequest setActiveSeverities(List<String> activeSeverities) {
+      this.activeSeverities = activeSeverities;
+      return this;
+    }
+
+    private List<String> getActiveSeverities() {
+      return activeSeverities;
+    }
+
+    private SearchRequest setF(List<String> f) {
+      this.f = f;
+      return this;
+    }
+
+    private List<String> getF() {
+      return f;
+    }
+
+    private SearchRequest setFacets(List<String> facets) {
+      this.facets = facets;
+      return this;
+    }
+
+    private List<String> getFacets() {
+      return facets;
+    }
+
+    private SearchRequest setLanguages(List<String> languages) {
+      this.languages = languages;
+      return this;
+    }
+
+    private List<String> getLanguages() {
+      return languages;
+    }
+
+    private SearchRequest setP(String p) {
+      this.p = p;
+      return this;
+    }
+
+    private String getP() {
+      return p;
+    }
+
+    private SearchRequest setPs(String ps) {
+      this.ps = ps;
+      return this;
+    }
+
+    private String getPs() {
+      return ps;
+    }
+
+    private SearchRequest setRepositories(List<String> repositories) {
+      this.repositories = repositories;
+      return this;
+    }
+
+    private List<String> getRepositories() {
+      return repositories;
+    }
+
+    private SearchRequest setSeverities(List<String> severities) {
+      this.severities = severities;
+      return this;
+    }
+
+    private List<String> getSeverities() {
+      return severities;
+    }
+
+    private SearchRequest setStatuses(List<String> statuses) {
+      this.statuses = statuses;
+      return this;
+    }
+
+    private List<String> getStatuses() {
+      return statuses;
+    }
+
+    private SearchRequest setTags(List<String> tags) {
+      this.tags = tags;
+      return this;
+    }
+
+    private List<String> getTags() {
+      return tags;
+    }
+
+    private SearchRequest setTypes(List<String> types) {
+      this.types = types;
+      return this;
+    }
+
+    private List<String> getTypes() {
+      return types;
+    }
+  }
 }

@@ -25,7 +25,6 @@ public class MeasuresWsModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      ComponentTreeDataLoader.class,
       MeasuresWs.class,
       ComponentTreeAction.class,
       ComponentAction.class,

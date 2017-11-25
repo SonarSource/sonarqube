@@ -41,7 +41,6 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.ProjectAnalyses;
 import org.sonarqube.ws.client.projectanalysis.EventCategory;
-import org.sonarqube.ws.client.projectanalysis.SearchRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.api.utils.DateUtils.parseEndingDateOrDateTime;
@@ -57,7 +56,7 @@ import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameter
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_FROM;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_PROJECT;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_TO;
-import static org.sonarqube.ws.client.projectanalysis.SearchRequest.DEFAULT_PAGE_SIZE;
+import static org.sonar.server.projectanalysis.ws.SearchRequest.DEFAULT_PAGE_SIZE;
 
 public class SearchAction implements ProjectAnalysesWsAction {
   private static final Set<String> ALLOWED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.APP, Qualifiers.VIEW);

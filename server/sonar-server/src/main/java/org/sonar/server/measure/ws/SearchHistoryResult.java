@@ -31,7 +31,6 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.client.measure.SearchHistoryRequest;
 
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
@@ -40,15 +39,17 @@ import static org.sonar.db.metric.MetricDtoFunctions.isOptimizedForBestValue;
 import static org.sonar.server.measure.ws.MetricDtoWithBestValue.isEligibleForBestValue;
 
 class SearchHistoryResult {
-  private final SearchHistoryRequest request;
+  private final int page;
+  private final int pageSize;
   private List<SnapshotDto> analyses;
   private List<MetricDto> metrics;
   private List<MeasureDto> measures;
   private Common.Paging paging;
   private ComponentDto component;
 
-  SearchHistoryResult(SearchHistoryRequest request) {
-    this.request = request;
+  SearchHistoryResult(int page, int pageSize) {
+    this.page = page;
+    this.pageSize = pageSize;
   }
 
   public ComponentDto getComponent() {
@@ -66,8 +67,8 @@ class SearchHistoryResult {
   }
 
   SearchHistoryResult setAnalyses(List<SnapshotDto> analyses) {
-    this.paging = Common.Paging.newBuilder().setPageIndex(request.getPage()).setPageSize(request.getPageSize()).setTotal(analyses.size()).build();
-    this.analyses = analyses.stream().skip(offset(request.getPage(), request.getPageSize())).limit(request.getPageSize()).collect(MoreCollectors.toList());
+    this.paging = Common.Paging.newBuilder().setPageIndex(page).setPageSize(pageSize).setTotal(analyses.size()).build();
+    this.analyses = analyses.stream().skip(offset(page, pageSize)).limit(pageSize).collect(MoreCollectors.toList());
 
     return this;
   }

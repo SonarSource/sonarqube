@@ -52,7 +52,6 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.LanguageParamUtils;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
-import org.sonarqube.ws.client.qualityprofile.SearchRequest;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -319,4 +318,59 @@ public class SearchAction implements QProfileWsAction {
     }
   }
 
+  private static class SearchRequest {
+    private String organizationKey;
+    private boolean defaults;
+    private String language;
+    private String qualityProfile;
+    private String projectKey;
+
+    public String getOrganizationKey() {
+      return organizationKey;
+    }
+
+    public SearchRequest setOrganizationKey(String organizationKey) {
+      this.organizationKey = organizationKey;
+      return this;
+    }
+
+    public boolean getDefaults() {
+      return defaults;
+    }
+
+    public SearchRequest setDefaults(boolean defaults) {
+      this.defaults = defaults;
+      return this;
+    }
+
+    @CheckForNull
+    public String getLanguage() {
+      return language;
+    }
+
+    public SearchRequest setLanguage(@Nullable String language) {
+      this.language = language;
+      return this;
+    }
+
+    @CheckForNull
+    public String getQualityProfile() {
+      return qualityProfile;
+    }
+
+    public SearchRequest setQualityProfile(@Nullable String qualityProfile) {
+      this.qualityProfile = qualityProfile;
+      return this;
+    }
+
+    @CheckForNull
+    public String getProjectKey() {
+      return projectKey;
+    }
+
+    public SearchRequest setProjectKey(@Nullable String projectKey) {
+      this.projectKey = projectKey;
+      return this;
+    }
+  }
 }

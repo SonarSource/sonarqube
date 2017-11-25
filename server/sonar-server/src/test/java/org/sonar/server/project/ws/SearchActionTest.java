@@ -48,7 +48,6 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Projects.SearchWsResponse;
 import org.sonarqube.ws.Projects.SearchWsResponse.Component;
 import org.sonarqube.ws.client.component.ComponentsWsParameters;
-import org.sonarqube.ws.client.project.SearchRequest;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;

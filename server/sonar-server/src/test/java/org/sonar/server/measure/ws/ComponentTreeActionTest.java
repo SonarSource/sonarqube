@@ -112,7 +112,7 @@ public class ComponentTreeActionTest {
 
   private WsActionTester ws = new WsActionTester(
     new ComponentTreeAction(
-      new ComponentTreeDataLoader(dbClient, new ComponentFinder(dbClient, resourceTypes), userSession, resourceTypes),
+      dbClient, new ComponentFinder(dbClient, resourceTypes), userSession,
       i18n, resourceTypes));
 
   @Test

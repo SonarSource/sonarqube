@@ -42,7 +42,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.ProjectAnalyses.CreateEventResponse;
 import org.sonarqube.ws.ProjectAnalyses.Event;
-import org.sonarqube.ws.client.projectanalysis.CreateEventRequest;
 import org.sonarqube.ws.client.projectanalysis.EventCategory;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -217,6 +216,67 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
         };
       default:
         throw new IllegalStateException("Event category not handled: " + request.getCategory());
+    }
+  }
+
+  private static class CreateEventRequest {
+    private final String analysis;
+    private final EventCategory category;
+    private final String name;
+
+    private CreateEventRequest(Builder builder) {
+      analysis = builder.analysis;
+      category = builder.category;
+      name = builder.name;
+    }
+
+    public String getAnalysis() {
+      return analysis;
+    }
+
+    public EventCategory getCategory() {
+      return category;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public static Builder builder() {
+      return new Builder();
+    }
+  }
+
+  private static class Builder {
+    private String analysis;
+    private EventCategory category = EventCategory.OTHER;
+    private String name;
+
+    private Builder() {
+      // enforce static factory method
+    }
+
+    public Builder setAnalysis(String analysis) {
+      this.analysis = analysis;
+      return this;
+    }
+
+    public Builder setCategory(EventCategory category) {
+      this.category = category;
+      return this;
+    }
+
+    public Builder setName(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public CreateEventRequest build() {
+      checkArgument(analysis != null, "Analysis key is required");
+      checkArgument(category != null, "Category is required");
+      checkArgument(name != null, "Name is required");
+
+      return new CreateEventRequest(this);
     }
   }
 }

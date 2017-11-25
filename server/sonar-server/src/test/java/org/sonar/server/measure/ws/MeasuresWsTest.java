@@ -31,7 +31,7 @@ import org.sonar.server.ws.WsTester;
 public class MeasuresWsTest {
   WsTester ws = new WsTester(
     new MeasuresWs(
-      new ComponentTreeAction(mock(ComponentTreeDataLoader.class), mock(I18n.class), mock(ResourceTypes.class))));
+      new ComponentAction(null, null, null)));
 
   @Test
   public void define_ws() {

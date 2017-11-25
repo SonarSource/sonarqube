@@ -32,7 +32,6 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonarqube.ws.client.measure.ComponentTreeRequest;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Collections.singletonList;
