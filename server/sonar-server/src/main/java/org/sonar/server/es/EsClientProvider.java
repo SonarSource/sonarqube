@@ -77,7 +77,7 @@ public class EsClientProvider extends ProviderAdapter {
           .forEach(h -> addHostToClient(h, nativeClient));
         LOGGER.info("Connected to remote Elasticsearch: [{}]", displayedAddresses(nativeClient));
       } else {
-        HostAndPort host = HostAndPort.fromParts(config.get(ProcessProperties.SEARCH_HOST).get(), config.getInt(ProcessProperties.SEARCH_PORT).get());
+        HostAndPort host = HostAndPort.fromParts(config.get(ProcessProperties.SEARCH_HOST).get(), config.getInt(ProcessProperties.SEARCH_PORT).getAsInt());
         addHostToClient(host, nativeClient);
         LOGGER.info("Connected to local Elasticsearch: [{}]", displayedAddresses(nativeClient));
       }

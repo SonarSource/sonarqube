@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform;
 
-import java.util.Optional;
+import java.util.OptionalLong;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -56,7 +56,7 @@ public class DatabaseServerCompatibilityTest {
 
     DatabaseVersion version = mock(DatabaseVersion.class);
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
-    when(version.getVersion()).thenReturn(Optional.of(12L));
+    when(version.getVersion()).thenReturn(OptionalLong.of(12L));
     new DatabaseServerCompatibility(version).start();
   }
 
@@ -64,7 +64,7 @@ public class DatabaseServerCompatibilityTest {
   public void log_warning_if_requires_upgrade() {
     DatabaseVersion version = mock(DatabaseVersion.class);
     when(version.getStatus()).thenReturn(DatabaseVersion.Status.REQUIRES_UPGRADE);
-    when(version.getVersion()).thenReturn(Optional.of(DatabaseVersion.MIN_UPGRADE_VERSION));
+    when(version.getVersion()).thenReturn(OptionalLong.of(DatabaseVersion.MIN_UPGRADE_VERSION));
     new DatabaseServerCompatibility(version).start();
 
     assertThat(logTester.logs()).hasSize(2);

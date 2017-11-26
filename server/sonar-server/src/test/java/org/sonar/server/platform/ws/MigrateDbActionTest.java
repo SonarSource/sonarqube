@@ -23,9 +23,10 @@ import com.google.common.collect.ImmutableList;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Optional;
+import java.util.OptionalLong;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -54,6 +55,7 @@ import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Stat
 import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status.RUNNING;
 import static org.sonar.server.platform.db.migration.DatabaseMigrationState.Status.SUCCEEDED;
 import static org.sonar.test.JsonAssert.assertJson;
+
 
 @RunWith(DataProviderRunner.class)
 public class MigrateDbActionTest {
@@ -88,13 +90,13 @@ public class MigrateDbActionTest {
   @Before
   public void wireMocksTogether() {
     when(database.getDialect()).thenReturn(dialect);
-    when(databaseVersion.getVersion()).thenReturn(Optional.of(150L));
+    when(databaseVersion.getVersion()).thenReturn(OptionalLong.of(150L));
   }
 
   @Test
   public void ISE_is_thrown_when_version_can_not_be_retrieved_from_database() throws Exception {
     reset(databaseVersion);
-    when(databaseVersion.getVersion()).thenReturn(Optional.empty());
+    when(databaseVersion.getVersion()).thenReturn(OptionalLong.empty());
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Cannot connect to Database.");

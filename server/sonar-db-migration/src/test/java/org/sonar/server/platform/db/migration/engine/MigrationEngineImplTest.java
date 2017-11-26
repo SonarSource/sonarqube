@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.db.migration.engine;
 
-import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.stream.Stream;
 import org.junit.Test;
 import org.sonar.core.platform.ComponentContainer;
@@ -49,7 +49,7 @@ public class MigrationEngineImplTest {
 
   @Test
   public void execute_execute_all_steps_of_there_is_no_last_migration_number() {
-    when(migrationHistory.getLastMigrationNumber()).thenReturn(Optional.empty());
+    when(migrationHistory.getLastMigrationNumber()).thenReturn(OptionalLong.empty());
     Stream<RegisteredMigrationStep> steps = Stream.of(new RegisteredMigrationStep(1, "doo", MigrationStep.class));
     when(migrationSteps.readAll()).thenReturn(steps);
 
@@ -61,7 +61,7 @@ public class MigrationEngineImplTest {
 
   @Test
   public void execute_execute_steps_from_last_migration_number_plus_1() {
-    when(migrationHistory.getLastMigrationNumber()).thenReturn(Optional.of(50L));
+    when(migrationHistory.getLastMigrationNumber()).thenReturn(OptionalLong.of(50L));
     Stream<RegisteredMigrationStep> steps = Stream.of(new RegisteredMigrationStep(1, "doo", MigrationStep.class));
     when(migrationSteps.readFrom(51)).thenReturn(steps);
 

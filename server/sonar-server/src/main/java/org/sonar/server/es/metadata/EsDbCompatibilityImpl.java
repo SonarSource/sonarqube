@@ -21,6 +21,7 @@ package org.sonar.server.es.metadata;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalLong;
 import org.sonar.db.DbClient;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
 
@@ -48,8 +49,8 @@ public class EsDbCompatibilityImpl implements EsDbCompatibility {
     if (!registeredVersion.isPresent()) {
       return false;
     }
-    return getDbSchemaVersion()
-      .filter(effectiveVersion -> Objects.equals(registeredVersion.get(), effectiveVersion))
+    return Optional.ofNullable(getDbSchemaVersion().isPresent() ?getDbSchemaVersion().getAsLong() : null)
+			.filter(effectiveVersion -> Objects.equals(registeredVersion.get(), effectiveVersion))
       .isPresent();
   }
 
@@ -63,7 +64,7 @@ public class EsDbCompatibilityImpl implements EsDbCompatibility {
     return dbClient.getDatabase().getDialect().getId();
   }
 
-  private Optional<Long> getDbSchemaVersion() {
+  private OptionalLong getDbSchemaVersion() {
     return dbMigrationHistory.getLastMigrationNumber();
   }
 }

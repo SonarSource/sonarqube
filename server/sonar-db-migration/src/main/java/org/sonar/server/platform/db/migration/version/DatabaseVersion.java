@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.db.migration.version;
 
-import java.util.Optional;
+import java.util.OptionalLong;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
 import org.sonar.server.platform.db.migration.step.MigrationSteps;
 
@@ -47,15 +47,15 @@ public class DatabaseVersion {
   /**
    * Convenience method to retrieve the value of {@link MigrationHistory#getLastMigrationNumber()}.
    */
-  public Optional<Long> getVersion() {
+  public OptionalLong getVersion() {
     return migrationHistory.getLastMigrationNumber();
   }
 
-  private static Status getStatus(Optional<Long> currentVersion, long lastVersion) {
+  private static Status getStatus(OptionalLong currentVersion, long lastVersion) {
     if (!currentVersion.isPresent()) {
       return Status.FRESH_INSTALL;
     }
-    Long aLong = currentVersion.get();
+    Long aLong = currentVersion.getAsLong();
     if (aLong == lastVersion) {
       return Status.UP_TO_DATE;
     }

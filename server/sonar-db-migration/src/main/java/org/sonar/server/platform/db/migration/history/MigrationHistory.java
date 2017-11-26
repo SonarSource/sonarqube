@@ -20,6 +20,7 @@
 package org.sonar.server.platform.db.migration.history;
 
 import java.util.Optional;
+import java.util.OptionalLong;
 import org.sonar.api.Startable;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
 
@@ -43,7 +44,7 @@ public interface MigrationHistory extends Startable {
    *
    * @return a long >= 0 or empty if the migration history is empty.
    */
-  Optional<Long> getLastMigrationNumber();
+  OptionalLong getLastMigrationNumber();
 
   /**
    * Saves in persisted migration history the fact that the specified {@link RegisteredMigrationStep} has

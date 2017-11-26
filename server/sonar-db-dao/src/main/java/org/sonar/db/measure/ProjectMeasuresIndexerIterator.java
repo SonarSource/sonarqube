@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -195,9 +195,9 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
 
   private static void readMeasure(ResultSet rs, Measures measures) throws SQLException {
     String metricKey = rs.getString(FIELD_METRIC_NAME);
-    Optional<Double> value = metricKey.startsWith("new_") ? getDouble(rs, FIELD_MEASURE_VARIATION_VALUE_1) : getDouble(rs, FIELD_MEASURE_VALUE);
+    OptionalDouble value = metricKey.startsWith("new_") ? getDouble(rs, FIELD_MEASURE_VARIATION_VALUE_1) : getDouble(rs, FIELD_MEASURE_VALUE);
     if (value.isPresent()) {
-      measures.addNumericMeasure(metricKey, value.get());
+      measures.addNumericMeasure(metricKey, value.getAsDouble());
       return;
     }
     if (ALERT_STATUS_KEY.equals(metricKey)) {
@@ -222,13 +222,13 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     measuresStatement.close();
   }
 
-  private static Optional<Double> getDouble(ResultSet rs, int index) {
+  private static OptionalDouble getDouble(ResultSet rs, int index) {
     try {
       Double value = rs.getDouble(index);
       if (!rs.wasNull()) {
-        return Optional.of(value);
+        return OptionalDouble.of(value);
       }
-      return Optional.empty();
+      return OptionalDouble.empty();
     } catch (SQLException e) {
       throw new IllegalStateException("Fail to get double value", e);
     }

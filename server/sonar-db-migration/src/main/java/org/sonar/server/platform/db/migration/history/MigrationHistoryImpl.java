@@ -28,7 +28,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
+import java.util.OptionalLong;
 import org.sonar.db.Database;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.server.platform.db.migration.step.RegisteredMigrationStep;
@@ -60,14 +60,14 @@ public class MigrationHistoryImpl implements MigrationHistory {
   }
 
   @Override
-  public Optional<Long> getLastMigrationNumber() {
+  public OptionalLong getLastMigrationNumber() {
     try (Connection connection = database.getDataSource().getConnection()) {
       List<Long> versions = selectVersions(connection);
 
       if (!versions.isEmpty()) {
-        return Optional.of(versions.get(versions.size() - 1));
+        return OptionalLong.of(versions.get(versions.size() - 1));
       }
-      return Optional.empty();
+      return OptionalLong.empty();
     } catch (SQLException e) {
       throw new IllegalStateException("Failed to read content of table " + SCHEMA_MIGRATIONS_TABLE, e);
     }

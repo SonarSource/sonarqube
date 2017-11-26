@@ -20,6 +20,8 @@
 package org.sonar.api.config;
 
 import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.internal.MapSettings;
@@ -133,9 +135,9 @@ public interface Configuration {
    * @return the value as {@code int}. If the property does not have value nor default value, then {@code empty} is returned.
    * @throws NumberFormatException if value is not empty and is not a parsable integer
    */
-  default Optional<Integer> getInt(String key) {
+  default OptionalInt getInt(String key) {
     try {
-      return get(key).map(String::trim).map(Integer::parseInt);
+      return get(key).map(String::trim).map(Integer::parseInt).map(OptionalInt::of).orElseGet(OptionalInt::empty);
     } catch (NumberFormatException e) {
       throw new IllegalStateException(String.format("The property '%s' is not an int value: %s", key, e.getMessage()));
     }
@@ -146,9 +148,9 @@ public interface Configuration {
    * @return the value as {@code long}. If the property does not have value nor default value, then {@code empty} is returned.
    * @throws NumberFormatException if value is not empty and is not a parsable {@code long}
    */
-  default Optional<Long> getLong(String key) {
+  default OptionalLong getLong(String key) {
     try {
-      return get(key).map(String::trim).map(Long::parseLong);
+      return get(key).map(String::trim).map(Long::parseLong).map(OptionalLong::of).orElseGet(OptionalLong::empty);
     } catch (NumberFormatException e) {
       throw new IllegalStateException(String.format("The property '%s' is not an long value: %s", key, e.getMessage()));
     }

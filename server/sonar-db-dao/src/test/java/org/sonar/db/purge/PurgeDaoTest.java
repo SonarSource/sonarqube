@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -133,7 +133,7 @@ public class PurgeDaoTest {
   public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteHistoricalDataOfDirectoriesAndFiles.xml");
     PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, "ABCD"), new String[] {Scopes.DIRECTORY, Scopes.FILE},
-      30, Optional.of(30), System2.INSTANCE, Collections.emptyList());
+      30, OptionalInt.of(30), System2.INSTANCE, Collections.emptyList());
 
     underTest.purge(dbSession, conf, PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
@@ -358,7 +358,7 @@ public class PurgeDaoTest {
   public void should_delete_all_closed_issues() {
     dbTester.prepareDbUnit(getClass(), "should_delete_all_closed_issues.xml");
     PurgeConfiguration conf = new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, "1"), new String[0],
-      0, Optional.empty(), System2.INSTANCE, Collections.emptyList());
+      0, OptionalInt.empty(), System2.INSTANCE, Collections.emptyList());
     underTest.purge(dbSession, conf, PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
     dbTester.assertDbUnit(getClass(), "should_delete_all_closed_issues-result.xml", "issues", "issue_changes");
@@ -627,11 +627,11 @@ public class PurgeDaoTest {
   }
 
   private static PurgeConfiguration newConfigurationWith30Days() {
-    return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, THE_PROJECT_UUID), new String[0], 30, Optional.of(30), System2.INSTANCE, Collections.emptyList());
+    return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, THE_PROJECT_UUID), new String[0], 30, OptionalInt.of(30), System2.INSTANCE, Collections.emptyList());
   }
 
   private static PurgeConfiguration newConfigurationWith30Days(System2 system2, String rootProjectUuid, String... disabledComponentUuids) {
-    return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, rootProjectUuid), new String[0], 30, Optional.of(30), system2, asList(disabledComponentUuids));
+    return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, rootProjectUuid), new String[0], 30, OptionalInt.of(30), system2, asList(disabledComponentUuids));
   }
 
 }

@@ -31,6 +31,7 @@ import static org.sonar.api.measures.CoreMetrics.LINES_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 
 import java.util.HashSet;
+import java.util.OptionalInt;
 import java.util.Set;
 
 import javax.annotation.CheckForNull;
@@ -199,26 +200,26 @@ public class DuplicationMeasures {
 
     private Optional<Measure> createDuplicatedLinesDensityMeasure(DuplicationCounter counter, CreateMeasureContext context) {
       int duplicatedLines = counter.lineCount;
-      java.util.Optional<Integer> nbLines = getNbLinesFromLocOrNcloc(context);
-      if (nbLines.isPresent() && nbLines.get() > 0) {
-        double density = Math.min(100d, 100d * duplicatedLines / nbLines.get());
+      OptionalInt nbLines = getNbLinesFromLocOrNcloc(context);
+      if (nbLines.isPresent() && nbLines.getAsInt() > 0) {
+        double density = Math.min(100d, 100d * duplicatedLines / nbLines.getAsInt());
         return Optional.of(Measure.newMeasureBuilder().create(density, context.getMetric().getDecimalScale()));
       }
       return Optional.absent();
     }
 
-    private java.util.Optional<Integer> getNbLinesFromLocOrNcloc(CreateMeasureContext context) {
+    private OptionalInt getNbLinesFromLocOrNcloc(CreateMeasureContext context) {
       Optional<Measure> lines = measureRepository.getRawMeasure(context.getComponent(), linesMetric);
       if (lines.isPresent()) {
-        return java.util.Optional.of(lines.get().getIntValue());
+        return OptionalInt.of(lines.get().getIntValue());
       }
       Optional<Measure> nclocs = measureRepository.getRawMeasure(context.getComponent(), nclocMetric);
       if (nclocs.isPresent()) {
         Optional<Measure> commentLines = measureRepository.getRawMeasure(context.getComponent(), commentLinesMetric);
         int nbLines = nclocs.get().getIntValue();
-        return java.util.Optional.of(commentLines.isPresent() ? (nbLines + commentLines.get().getIntValue()) : nbLines);
+        return OptionalInt.of(commentLines.isPresent() ? (nbLines + commentLines.get().getIntValue()) : nbLines);
       }
-      return java.util.Optional.empty();
+      return OptionalInt.empty();
     }
 
     @Override

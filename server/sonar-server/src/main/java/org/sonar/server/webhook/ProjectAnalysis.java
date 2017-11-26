@@ -22,6 +22,7 @@ package org.sonar.server.webhook;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalLong;
 import javax.annotation.Nullable;
 
 import static com.google.common.collect.ImmutableMap.copyOf;
@@ -72,8 +73,8 @@ public class ProjectAnalysis {
     return Optional.ofNullable(analysis);
   }
 
-  public Optional<Long> getUpdatedAt() {
-    return Optional.ofNullable(updatedAt);
+  public OptionalLong getUpdatedAt() {
+    return Optional.ofNullable(updatedAt).map(OptionalLong::of).orElseGet(OptionalLong::empty);
   }
 
   @Override

@@ -20,6 +20,7 @@
 package org.sonar.server.qualitygate;
 
 import java.util.Optional;
+import java.util.OptionalLong;
 import javax.annotation.CheckForNull;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -45,9 +46,9 @@ public class QualityGateFinder {
    * As it's possible to have no default quality gate, this method can return {@link Optional#empty()}
    */
   public Optional<QualityGateData> getQualityGate(DbSession dbSession, long componentId) {
-    Optional<Long> qualityGateId = dbClient.projectQgateAssociationDao().selectQGateIdByComponentId(dbSession, componentId);
+    OptionalLong qualityGateId = dbClient.projectQgateAssociationDao().selectQGateIdByComponentId(dbSession, componentId);
     if (qualityGateId.isPresent()) {
-      return Optional.of(new QualityGateData(selectOrFailById(dbSession, qualityGateId.get()), false));
+      return Optional.of(new QualityGateData(selectOrFailById(dbSession, qualityGateId.getAsLong()), false));
     } else {
       QualityGateDto defaultQualityGate = getDefault(dbSession);
       if (defaultQualityGate == null) {

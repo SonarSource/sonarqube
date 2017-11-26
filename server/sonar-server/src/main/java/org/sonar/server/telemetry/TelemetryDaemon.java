@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Date;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -144,8 +145,8 @@ public class TelemetryDaemon implements Startable {
   }
 
   private boolean shouldUploadStatistics(long now) {
-    Optional<Long> lastPing = internalProperties.read(I_PROP_LAST_PING).map(Long::valueOf);
-    return !lastPing.isPresent() || now - lastPing.get() >= SEVEN_DAYS;
+    OptionalLong lastPing = internalProperties.read(I_PROP_LAST_PING).map(Long::valueOf).map(OptionalLong::of).orElseGet(OptionalLong::empty);
+    return !lastPing.isPresent() || now - lastPing.getAsLong() >= SEVEN_DAYS;
   }
 
   private static long startOfDay(long now) {

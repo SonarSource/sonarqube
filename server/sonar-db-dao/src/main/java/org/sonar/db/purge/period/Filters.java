@@ -45,12 +45,12 @@ class Filters {
   }
 
   static Date getDateFromWeeks(Configuration config, String propertyKey) {
-    int weeks = config.getInt(propertyKey).get();
+    int weeks = config.getInt(propertyKey).getAsInt();
     return DateUtils.addWeeks(new Date(), -weeks);
   }
 
   static Date getDateFromHours(Configuration config, String propertyKey) {
-    int hours = config.getInt(propertyKey).get();
+    int hours = config.getInt(propertyKey).getAsInt();
     return DateUtils.addHours(new Date(), -hours);
   }
 

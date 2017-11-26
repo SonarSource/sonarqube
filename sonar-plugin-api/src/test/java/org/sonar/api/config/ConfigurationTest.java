@@ -45,14 +45,14 @@ public class ConfigurationTest {
   public void getInt() {
     int value = new Random().nextInt();
 
-    verifySupportHeadAndOrTrailingWhitespaces(value, Configuration::getInt);
+    verifySupportHeadAndOrTrailingWhitespaces(value, (c,s)->Optional.of(c.getInt(s).getAsInt()));
   }
 
   @Test
   public void getLong() {
     long value = new Random().nextLong();
 
-    verifySupportHeadAndOrTrailingWhitespaces(value, Configuration::getLong);
+    verifySupportHeadAndOrTrailingWhitespaces(value, (c,s)->Optional.of(c.getLong(s).getAsLong()));
   }
 
   @Test

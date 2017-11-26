@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.db.migration.version;
 
-import java.util.Optional;
+import java.util.OptionalLong;
 import javax.annotation.Nullable;
 import org.junit.Test;
 import org.sonar.server.platform.db.migration.history.MigrationHistory;
@@ -32,6 +32,8 @@ import static org.sonar.server.platform.db.migration.version.DatabaseVersion.Sta
 import static org.sonar.server.platform.db.migration.version.DatabaseVersion.Status.REQUIRES_DOWNGRADE;
 import static org.sonar.server.platform.db.migration.version.DatabaseVersion.Status.REQUIRES_UPGRADE;
 import static org.sonar.server.platform.db.migration.version.DatabaseVersion.Status.UP_TO_DATE;
+
+import java.util.Optional;
 
 public class DatabaseVersionTest {
 
@@ -71,7 +73,7 @@ public class DatabaseVersionTest {
   }
 
   private void mockMaxMigrationNumberInDb(@Nullable Long value1) {
-    when(migrationHistory.getLastMigrationNumber()).thenReturn(Optional.ofNullable(value1));
+    when(migrationHistory.getLastMigrationNumber()).thenReturn(Optional.ofNullable(value1).map(OptionalLong::of).orElseGet(OptionalLong::empty));
   }
 
   private void mockMaxMigrationNumberInConfig(long value) {
