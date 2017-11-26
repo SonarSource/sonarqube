@@ -68,7 +68,7 @@ public class MigrationHistoryImplTest {
   public void done_adds_migration_number_to_table() {
     underTest.done(new RegisteredMigrationStep(12, "aa", MigrationStep.class));
 
-    assertEquals(underTest.getLastMigrationNumber().getAsLong(),12);
+    assertThat(underTest.getLastMigrationNumber().getAsLong()).isEqualTo(12);
   }
 
   private void insert(int... versions) throws SQLException {
