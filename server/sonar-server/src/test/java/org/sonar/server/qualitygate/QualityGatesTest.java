@@ -106,48 +106,6 @@ public class QualityGatesTest {
   }
 
   @Test
-  public void should_delete_qgate() {
-    long idToDelete = QUALITY_GATE_ID;
-    String name = "To Delete";
-    QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
-    when(dao.selectById(dbSession, idToDelete)).thenReturn(toDelete);
-    when(dbClient.openSession(false)).thenReturn(dbSession);
-    underTest.delete(idToDelete);
-    verify(dao).selectById(dbSession, idToDelete);
-    verify(propertiesDao).deleteProjectProperties("sonar.qualitygate", "42", dbSession);
-    verify(dao).delete(toDelete, dbSession);
-  }
-
-  @Test
-  public void should_delete_qgate_if_non_default() {
-    long idToDelete = QUALITY_GATE_ID;
-    String name = "To Delete";
-    QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
-    when(dao.selectById(dbSession, idToDelete)).thenReturn(toDelete);
-    when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue("666"));
-    when(dbClient.openSession(false)).thenReturn(dbSession);
-    underTest.delete(idToDelete);
-    verify(dao).selectById(dbSession, idToDelete);
-    verify(propertiesDao).deleteProjectProperties("sonar.qualitygate", "42", dbSession);
-    verify(dao).delete(toDelete, dbSession);
-  }
-
-  @Test
-  public void should_delete_qgate_even_if_default() {
-    long idToDelete = QUALITY_GATE_ID;
-    String name = "To Delete";
-    QualityGateDto toDelete = new QualityGateDto().setId(idToDelete).setName(name);
-    when(dao.selectById(dbSession, idToDelete)).thenReturn(toDelete);
-    when(propertiesDao.selectGlobalProperty("sonar.qualitygate")).thenReturn(new PropertyDto().setValue("42"));
-    when(dbClient.openSession(false)).thenReturn(dbSession);
-    underTest.delete(idToDelete);
-    verify(dao).selectById(dbSession, idToDelete);
-    verify(propertiesDao).deleteGlobalProperty("sonar.qualitygate", dbSession);
-    verify(propertiesDao).deleteProjectProperties("sonar.qualitygate", "42", dbSession);
-    verify(dao).delete(toDelete, dbSession);
-  }
-
-  @Test
   public void should_copy_qgate() {
     String name = "Atlantis";
     long sourceId = QUALITY_GATE_ID;
