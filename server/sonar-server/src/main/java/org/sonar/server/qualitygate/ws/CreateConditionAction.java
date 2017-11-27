@@ -24,13 +24,10 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonar.server.qualitygate.QualityGateFinder;
-import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates.CreateConditionWsResponse;
 
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -46,19 +43,16 @@ import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM
 
 public class CreateConditionAction implements QualityGatesWsAction {
 
-  private final UserSession userSession;
   private final DbClient dbClient;
   private final QualityGateConditionsUpdater qualityGateConditionsUpdater;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final QualityGateFinder qualityGateFinder;
+  private final QualityGatesWsSupport wsSupport;
 
-  public CreateConditionAction(UserSession userSession, DbClient dbClient, QualityGateConditionsUpdater qualityGateConditionsUpdater,
-    DefaultOrganizationProvider defaultOrganizationProvider, QualityGateFinder qualityGateFinder) {
-    this.userSession = userSession;
+  public CreateConditionAction(DbClient dbClient, QualityGateConditionsUpdater qualityGateConditionsUpdater, QualityGateFinder qualityGateFinder, QualityGatesWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.qualityGateConditionsUpdater = qualityGateConditionsUpdater;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.qualityGateFinder = qualityGateFinder;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -81,8 +75,6 @@ public class CreateConditionAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
-
     int gateId = request.mandatoryParamAsInt(PARAM_GATE_ID);
     String metric = request.mandatoryParam(PARAM_METRIC);
     String operator = request.mandatoryParam(PARAM_OPERATOR);
@@ -92,6 +84,7 @@ public class CreateConditionAction implements QualityGatesWsAction {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       QualityGateDto qualityGate = qualityGateFinder.getById(dbSession, gateId);
+      wsSupport.checkCanEdit(qualityGate);
       QualityGateConditionDto condition = qualityGateConditionsUpdater.createCondition(dbSession, qualityGate, metric, operator, warning, error, period);
       CreateConditionWsResponse.Builder createConditionWsResponse = CreateConditionWsResponse.newBuilder()
         .setId(condition.getId())
