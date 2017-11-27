@@ -102,31 +102,16 @@ public class QualityGateTest {
   }
 
   @Test
-  public void do_not_compute_status_if_no_gate() throws Exception {
-    qgClient().unsetDefault();
-    String projectKey = newProjectKey();
-    BuildResult buildResult = executeAnalysis(projectKey);
-
-    verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_NO_QG);
-
-    assertThat(getGateStatusMeasure(projectKey)).isNull();
-  }
-
-  @Test
   public void status_ok_if_empty_gate() throws Exception {
     QualityGate empty = qgClient().create("Empty");
     qgClient().setDefault(empty.id());
 
-    try {
-      String projectKey = newProjectKey();
-      BuildResult buildResult = executeAnalysis(projectKey);
+    String projectKey = newProjectKey();
+    BuildResult buildResult = executeAnalysis(projectKey);
 
-      verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_OK);
+    verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_OK);
 
-      assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("OK");
-    } finally {
-      qgClient().unsetDefault();
-    }
+    assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("OK");
   }
 
   @Test
@@ -135,16 +120,12 @@ public class QualityGateTest {
     qgClient().setDefault(simple.id());
     qgClient().createCondition(NewCondition.create(simple.id()).metricKey("ncloc").operator("GT").warningThreshold("40"));
 
-    try {
-      String projectKey = newProjectKey();
-      BuildResult buildResult = executeAnalysis(projectKey);
+    String projectKey = newProjectKey();
+    BuildResult buildResult = executeAnalysis(projectKey);
 
-      verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_OK);
+    verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_OK);
 
-      assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("OK");
-    } finally {
-      qgClient().unsetDefault();
-    }
+    assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("OK");
   }
 
   @Test
@@ -153,16 +134,12 @@ public class QualityGateTest {
     qgClient().setDefault(simple.id());
     qgClient().createCondition(NewCondition.create(simple.id()).metricKey("ncloc").operator("GT").warningThreshold("10"));
 
-    try {
-      String projectKey = newProjectKey();
-      BuildResult buildResult = executeAnalysis(projectKey);
+    String projectKey = newProjectKey();
+    BuildResult buildResult = executeAnalysis(projectKey);
 
-      verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_WARN);
+    verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_WARN);
 
-      assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("WARN");
-    } finally {
-      qgClient().unsetDefault();
-    }
+    assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("WARN");
   }
 
   @Test
@@ -171,16 +148,12 @@ public class QualityGateTest {
     qgClient().setDefault(simple.id());
     qgClient().createCondition(NewCondition.create(simple.id()).metricKey("ncloc").operator("GT").errorThreshold("10"));
 
-    try {
-      String projectKey = newProjectKey();
-      BuildResult buildResult = executeAnalysis(projectKey);
+    String projectKey = newProjectKey();
+    BuildResult buildResult = executeAnalysis(projectKey);
 
-      verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_ERROR);
+    verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_ERROR);
 
-      assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("ERROR");
-    } finally {
-      qgClient().unsetDefault();
-    }
+    assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("ERROR");
   }
 
   @Test
@@ -195,15 +168,11 @@ public class QualityGateTest {
     orchestrator.getServer().provisionProject(projectKey, projectKey);
     associateQualityGateToProject(error.id(), projectKey);
 
-    try {
-      BuildResult buildResult = executeAnalysis(projectKey);
+    BuildResult buildResult = executeAnalysis(projectKey);
 
-      verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_ERROR);
+    verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_ERROR);
 
-      assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("ERROR");
-    } finally {
-      qgClient().unsetDefault();
-    }
+    assertThat(getGateStatusMeasure(projectKey).getValue()).isEqualTo("ERROR");
   }
 
   @Test
@@ -213,22 +182,18 @@ public class QualityGateTest {
     qgClient().createCondition(NewCondition.create(allTypes.id()).metricKey("duplicated_lines_density").operator("GT").warningThreshold("20"));
     qgClient().setDefault(allTypes.id());
 
-    try {
-      String projectKey = newProjectKey();
-      BuildResult buildResult = executeAnalysis(projectKey, "sonar.cpd.xoo.minimumLines", "2", "sonar.cpd.xoo.minimumTokens", "5");
+    String projectKey = newProjectKey();
+    BuildResult buildResult = executeAnalysis(projectKey, "sonar.cpd.xoo.minimumLines", "2", "sonar.cpd.xoo.minimumTokens", "5");
 
-      verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_WARN);
+    verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_WARN);
 
-      Measure alertStatus = getGateStatusMeasure(projectKey);
-      assertThat(alertStatus.getValue()).isEqualTo("WARN");
+    Measure alertStatus = getGateStatusMeasure(projectKey);
+    assertThat(alertStatus.getValue()).isEqualTo("WARN");
 
-      String qualityGateDetailJson = getMeasure(orchestrator, projectKey, "quality_gate_details").getValue();
-      assertThat(QualityGateDetails.parse(qualityGateDetailJson).getConditions())
-        .extracting(QualityGateDetails.Conditions::getMetric, QualityGateDetails.Conditions::getOp, QualityGateDetails.Conditions::getWarning)
-        .contains(tuple("ncloc", "GT", "10"), tuple("duplicated_lines_density", "GT", "20"));
-    } finally {
-      qgClient().unsetDefault();
-    }
+    String qualityGateDetailJson = getMeasure(orchestrator, projectKey, "quality_gate_details").getValue();
+    assertThat(QualityGateDetails.parse(qualityGateDetailJson).getConditions())
+      .extracting(QualityGateDetails.Conditions::getMetric, QualityGateDetails.Conditions::getOp, QualityGateDetails.Conditions::getWarning)
+      .contains(tuple("ncloc", "GT", "10"), tuple("duplicated_lines_density", "GT", "20"));
   }
 
   @Test
@@ -237,25 +202,21 @@ public class QualityGateTest {
     qgClient().setDefault(simple.id());
     qgClient().createCondition(NewCondition.create(simple.id()).metricKey("ncloc").operator("GT").errorThreshold("7"));
 
-    try {
-      String projectKey = newProjectKey();
-      BuildResult buildResult = executeAnalysis(projectKey);
+    String projectKey = newProjectKey();
+    BuildResult buildResult = executeAnalysis(projectKey);
 
-      verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_ERROR);
+    verifyQGStatusInPostTask(buildResult, projectKey, TASK_STATUS_SUCCESS, QG_STATUS_ERROR);
 
-      String taskId = getTaskIdInLocalReport(projectDir("qualitygate/xoo-sample"));
-      String analysisId = getAnalysisId(taskId);
+    String taskId = getTaskIdInLocalReport(projectDir("qualitygate/xoo-sample"));
+    String analysisId = getAnalysisId(taskId);
 
-      Qualitygates.ProjectStatusResponse projectStatusWsResponse = tester.wsClient().qualityGates().projectStatus(new ProjectStatusRequest().setAnalysisId(analysisId));
-      Qualitygates.ProjectStatusResponse.ProjectStatus projectStatus = projectStatusWsResponse.getProjectStatus();
-      assertThat(projectStatus.getStatus()).isEqualTo(Qualitygates.ProjectStatusResponse.Status.ERROR);
-      assertThat(projectStatus.getConditionsCount()).isEqualTo(1);
-      Qualitygates.ProjectStatusResponse.Condition condition = projectStatus.getConditionsList().get(0);
-      assertThat(condition.getMetricKey()).isEqualTo("ncloc");
-      assertThat(condition.getErrorThreshold()).isEqualTo("7");
-    } finally {
-      qgClient().unsetDefault();
-    }
+    ProjectStatusWsResponse projectStatusWsResponse = tester.wsClient().qualityGates().projectStatus(new ProjectStatusRequest().setAnalysisId(analysisId));
+    ProjectStatusWsResponse.ProjectStatus projectStatus = projectStatusWsResponse.getProjectStatus();
+    assertThat(projectStatus.getStatus()).isEqualTo(ProjectStatusWsResponse.Status.ERROR);
+    assertThat(projectStatus.getConditionsCount()).isEqualTo(1);
+    ProjectStatusWsResponse.Condition condition = projectStatus.getConditionsList().get(0);
+    assertThat(condition.getMetricKey()).isEqualTo("ncloc");
+    assertThat(condition.getErrorThreshold()).isEqualTo("7");
   }
 
   @Test
