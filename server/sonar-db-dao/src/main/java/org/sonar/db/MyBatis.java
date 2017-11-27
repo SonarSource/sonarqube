@@ -62,8 +62,6 @@ import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
 import org.sonar.db.issue.ShortBranchIssueDto;
-import org.sonar.db.loadedtemplate.LoadedTemplateDto;
-import org.sonar.db.loadedtemplate.LoadedTemplateMapper;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.MeasureMapper;
 import org.sonar.db.measure.custom.CustomMeasureDto;
@@ -166,7 +164,6 @@ public class MyBatis implements Startable {
     confBuilder.loadAlias("KeyLongValue", KeyLongValue.class);
     confBuilder.loadAlias("Issue", IssueDto.class);
     confBuilder.loadAlias("ShortBranchIssue", ShortBranchIssueDto.class);
-    confBuilder.loadAlias("LoadedTemplate", LoadedTemplateDto.class);
     confBuilder.loadAlias("Measure", MeasureDto.class);
     confBuilder.loadAlias("NotificationQueue", NotificationQueueDto.class);
     confBuilder.loadAlias("Organization", OrganizationDto.class);
@@ -223,7 +220,6 @@ public class MyBatis implements Startable {
       IsAliveMapper.class,
       IssueChangeMapper.class,
       IssueMapper.class,
-      LoadedTemplateMapper.class,
       MeasureMapper.class,
       MetricMapper.class,
       NotificationQueueMapper.class,
