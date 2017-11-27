@@ -24,20 +24,18 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
-import org.sonar.server.user.UserSession;
+import org.sonar.db.qualitygate.QualityGateConditionDto;
+import org.sonar.db.qualitygate.QualityGateDto;
 
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 
 public class DeleteConditionAction implements QualityGatesWsAction {
 
   private final DbClient dbClient;
-  private final UserSession userSession;
   private final QualityGatesWsSupport wsSupport;
 
-  public DeleteConditionAction(UserSession userSession, DbClient dbClient, QualityGatesWsSupport wsSupport) {
-    this.userSession = userSession;
+  public DeleteConditionAction(DbClient dbClient, QualityGatesWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
   }
@@ -62,9 +60,13 @@ public class DeleteConditionAction implements QualityGatesWsAction {
   public void handle(Request request, Response response) {
     long conditionId = request.mandatoryParamAsLong(PARAM_ID);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = wsSupport.getOrganization(dbSession);
-      userSession.checkPermission(ADMINISTER_QUALITY_GATES, organization);
-      dbClient.gateConditionDao().delete(wsSupport.getCondition(dbSession, conditionId), dbSession);
+
+      QualityGateConditionDto condition = wsSupport.getCondition(dbSession, conditionId);
+      QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectById(dbSession, condition.getQualityGateId());
+      checkState(qualityGateDto != null, "Condition '%s' is linked to an unknown quality gate '%s'", conditionId, condition.getQualityGateId());
+      wsSupport.checkCanEdit(qualityGateDto);
+
+      dbClient.gateConditionDao().delete(condition, dbSession);
       dbSession.commit();
       response.noContent();
     }
