@@ -37,7 +37,6 @@ import org.sonar.db.es.EsQueueDao;
 import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
-import org.sonar.db.loadedtemplate.LoadedTemplateDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.metric.MetricDao;
@@ -85,7 +84,6 @@ public class DbClient {
   private final OrganizationDao organizationDao;
   private final OrganizationMemberDao organizationMemberDao;
   private final QualityProfileDao qualityProfileDao;
-  private final LoadedTemplateDao loadedTemplateDao;
   private final PropertiesDao propertiesDao;
   private final InternalPropertiesDao internalPropertiesDao;
   private final SnapshotDao snapshotDao;
@@ -147,7 +145,6 @@ public class DbClient {
     organizationDao = getDao(map, OrganizationDao.class);
     organizationMemberDao = getDao(map, OrganizationMemberDao.class);
     qualityProfileDao = getDao(map, QualityProfileDao.class);
-    loadedTemplateDao = getDao(map, LoadedTemplateDao.class);
     propertiesDao = getDao(map, PropertiesDao.class);
     internalPropertiesDao = getDao(map, InternalPropertiesDao.class);
     snapshotDao = getDao(map, SnapshotDao.class);
@@ -230,10 +227,6 @@ public class DbClient {
 
   public QualityProfileDao qualityProfileDao() {
     return qualityProfileDao;
-  }
-
-  public LoadedTemplateDao loadedTemplateDao() {
-    return loadedTemplateDao;
   }
 
   public PropertiesDao propertiesDao() {
