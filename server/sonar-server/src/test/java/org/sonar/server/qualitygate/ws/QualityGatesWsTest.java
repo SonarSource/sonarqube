@@ -72,7 +72,6 @@ public class QualityGatesWsTest {
       new CopyAction(qGates),
       new DestroyAction(qGates),
       new SetAsDefaultAction(qGates),
-      new DeleteConditionAction(null, null, null),
       selectAction,
       new DeselectAction(qGates, mock(DbClient.class), mock(ComponentFinder.class))));
   }
@@ -83,7 +82,7 @@ public class QualityGatesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualitygates");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(9);
+    assertThat(controller.actions()).hasSize(8);
 
     Action copy = controller.action("copy");
     assertThat(copy).isNotNull();
