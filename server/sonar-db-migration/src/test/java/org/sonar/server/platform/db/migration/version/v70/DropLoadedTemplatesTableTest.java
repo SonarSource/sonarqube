@@ -19,23 +19,30 @@
  */
 package org.sonar.server.platform.db.migration.version.v70;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class DropLoadedTemplatesTableTest {
 
-public class DbVersion70Test {
+  @Rule
+  public CoreDbTester db = CoreDbTester.createForSchema(DropLoadedTemplatesTableTest.class, "loaded_templates.sql");
 
-  private DbVersion70 underTest = new DbVersion70();
+  private DropLoadedTemplatesTable underTest = new DropLoadedTemplatesTable(db.database());
 
   @Test
-  public void migrationNumber_starts_at_1900() {
-    verifyMinimumMigrationNumber(underTest, 1900);
+  public void delete_tables() throws SQLException {
+    underTest.execute();
+
+    db.assertTableDoesNotExist("loaded_templates");
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 6);
-  }
+  public void migration_is_re_entrant() throws Exception {
+    underTest.execute();
+    underTest.execute();
 
+    db.assertTableDoesNotExist("loaded_templates");
+  }
 }
