@@ -27,6 +27,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Controller;
 import org.sonar.db.DbClient;
@@ -39,9 +40,11 @@ import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QgateProjectFinder.Association;
 import org.sonar.server.qualitygate.QualityGates;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.RemovedWebServiceHandler;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -68,7 +71,7 @@ public class QualityGatesWsTest {
       new CreateAction(null, null, null, null),
       new CopyAction(qGates),
       new DestroyAction(qGates),
-      new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),
+      new SetAsDefaultAction(qGates),
       new CreateConditionAction(null, null, null, null),
       new UpdateConditionAction(null, null, null, null),
       new DeleteConditionAction(null, null, null),
@@ -121,7 +124,14 @@ public class QualityGatesWsTest {
     assertThat(unsetDefault).isNotNull();
     assertThat(unsetDefault.handler()).isNotNull();
     assertThat(unsetDefault.since()).isEqualTo("4.3");
+    assertThat(unsetDefault.deprecatedSince()).isEqualTo("7.0");
+    assertThat(unsetDefault.changelog())
+      .extracting(Change::getVersion, Change::getDescription)
+      .containsOnly(
+        tuple("7.0", "Unset a quality gate is no more authorized"));
     assertThat(unsetDefault.isPost()).isTrue();
+    assertThat(unsetDefault.handler()).isEqualTo(RemovedWebServiceHandler.INSTANCE);
+    assertThat(unsetDefault.responseExample()).isEqualTo(RemovedWebServiceHandler.INSTANCE.getResponseExample());
     assertThat(unsetDefault.isInternal()).isFalse();
 
     Action createCondition = controller.action("create_condition");
@@ -157,21 +167,6 @@ public class QualityGatesWsTest {
     when(qGates.copy(24L, name)).thenReturn(new QualityGateDto().setId(42L).setName(name));
     tester.newPostRequest("api/qualitygates", "copy").setParam("id", "24").setParam("name", name).execute()
       .assertJson("{\"id\":42,\"name\":\"Copied QG\"}");
-  }
-
-  @Test
-  public void set_as_default_nominal() throws Exception {
-    Long id = 42L;
-    tester.newPostRequest("api/qualitygates", "set_as_default").setParam("id", id.toString()).execute()
-      .assertNoContent();
-    verify(qGates).setDefault(id);
-  }
-
-  @Test
-  public void unset_default_nominal() throws Exception {
-    tester.newPostRequest("api/qualitygates", "unset_default").execute()
-      .assertNoContent();
-    verify(qGates).setDefault(null);
   }
 
   @Test
