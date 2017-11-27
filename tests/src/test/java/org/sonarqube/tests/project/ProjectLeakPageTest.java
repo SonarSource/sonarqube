@@ -32,7 +32,6 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.projects.ProjectsPage;
 import org.sonarqube.ws.Organizations.Organization;
 
-import static com.codeborne.selenide.Selenide.clearBrowserLocalStorage;
 import static com.codeborne.selenide.WebDriverRunner.url;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,7 +51,6 @@ public class ProjectLeakPageTest {
 
   @Before
   public void setUp() {
-    clearBrowserLocalStorage();
     tester.settings().setGlobalSettings("sonar.leak.period", "previous_version");
     organization = tester.organizations().generate();
     restoreProfile(orchestrator, ProjectLeakPageTest.class.getResource("/projectSearch/SearchProjectsTest/with-many-rules.xml"), organization.getKey());
@@ -73,7 +71,7 @@ public class ProjectLeakPageTest {
     // Check the facets and project cards
     ProjectsPage page = tester.openBrowser().openProjects(organization.getKey());
     page.changePerspective("Leak");
-    assertThat(url()).endsWith("/projects?view=leak");
+    assertThat(url()).contains("view=leak");
     page.shouldHaveTotal(2);
     page.getProjectByKey(projectKey2)
       .shouldHaveMeasure("new_reliability_rating", "0A")
