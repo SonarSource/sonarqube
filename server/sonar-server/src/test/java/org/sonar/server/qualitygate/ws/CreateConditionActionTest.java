@@ -41,6 +41,7 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.api.measures.Metric.ValueType.INT;
@@ -66,8 +67,8 @@ public class CreateConditionActionTest {
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private CreateConditionAction underTest = new CreateConditionAction(userSession, dbClient, new QualityGateConditionsUpdater(dbClient), defaultOrganizationProvider,
-    new QualityGateFinder(dbClient));
+  private CreateConditionAction underTest = new CreateConditionAction(dbClient, new QualityGateConditionsUpdater(dbClient),
+    new QualityGateFinder(dbClient), new QualityGatesWsSupport(dbClient, userSession, defaultOrganizationProvider));
 
   private WsActionTester ws = new WsActionTester(underTest);
 
@@ -102,6 +103,18 @@ public class CreateConditionActionTest {
     executeRequest(qualityGate.getId(), metric.getKey(), "LT", null, "90", 1);
 
     assertCondition(qualityGate, metric, "LT", null, "90", 1);
+  }
+
+  @Test
+  public void fail_to_update_built_in_quality_gate() {
+    logInAsQualityGateAdmin();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setBuiltIn(true));
+    MetricDto metric = insertMetric();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
+
+    executeRequest(qualityGate.getId(), metric.getKey(), "LT", null, "90", 1);
   }
 
   @Test
