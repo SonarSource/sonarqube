@@ -53,11 +53,11 @@ public class InfoAction implements SystemWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkIsSystemAdministrator();
-    try (JsonWriter json = response.newJsonWriter()) {
-      json.beginObject();
-      systemInfoWriter.write(json);
-      json.endObject();
-    }
+    JsonWriter json = response.newJsonWriter();
+    json.beginObject();
+    systemInfoWriter.write(json);
+    json.endObject();
+    json.close();
   }
 
 }
