@@ -36,7 +36,6 @@ import org.sonar.server.qualitygate.ws.SearchAction;
 import org.sonar.server.qualitygate.ws.SelectAction;
 import org.sonar.server.qualitygate.ws.SetAsDefaultAction;
 import org.sonar.server.qualitygate.ws.ShowAction;
-import org.sonar.server.qualitygate.ws.UnsetDefaultAction;
 import org.sonar.server.qualitygate.ws.UpdateConditionAction;
 
 public class QualityGateModule extends Module {
@@ -59,7 +58,6 @@ public class QualityGateModule extends Module {
       CopyAction.class,
       DestroyAction.class,
       SetAsDefaultAction.class,
-      UnsetDefaultAction.class,
       SelectAction.class,
       DeselectAction.class,
       CreateConditionAction.class,
