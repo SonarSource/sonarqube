@@ -19,12 +19,14 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.ws.RemovedWebServiceHandler;
 
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.CONTROLLER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERROR;
@@ -53,6 +55,18 @@ public class QualityGatesWs implements WebService {
     for (QualityGatesWsAction action : actions) {
       action.define(controller);
     }
+
+    // unset_default is no more authorized
+    controller.createAction("unset_default")
+      .setDescription("This webservice is no more available : a default quality gate is mandatory.")
+      .setSince("4.3")
+      .setDeprecatedSince("7.0")
+      .setPost(true)
+      .setHandler(RemovedWebServiceHandler.INSTANCE)
+      .setResponseExample(RemovedWebServiceHandler.INSTANCE.getResponseExample())
+      .setChangelog(
+        new Change("7.0", "Unset a quality gate is no more authorized")
+      );
 
     controller.done();
   }
