@@ -57,9 +57,6 @@ public class QualityGatesWsTest {
   @Mock
   private QgateProjectFinder projectFinder;
 
-  @Mock
-  private AppAction appHandler;
-
   WsTester tester;
 
   @Before
@@ -76,8 +73,7 @@ public class QualityGatesWsTest {
       new UpdateConditionAction(null, null, null, null),
       new DeleteConditionAction(null, null, null),
       selectAction,
-      new DeselectAction(qGates, mock(DbClient.class), mock(ComponentFinder.class)),
-      new AppAction(null, null, null)));
+      new DeselectAction(qGates, mock(DbClient.class), mock(ComponentFinder.class))));
   }
 
   @Test
@@ -86,7 +82,7 @@ public class QualityGatesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualitygates");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(12);
+    assertThat(controller.actions()).hasSize(11);
 
     Action create = controller.action("create");
     assertThat(create).isNotNull();
@@ -153,9 +149,6 @@ public class QualityGatesWsTest {
     assertThat(updateCondition.param("error")).isNotNull();
     assertThat(updateCondition.param("period")).isNotNull();
     assertThat(updateCondition.isInternal()).isFalse();
-
-    Action appInit = controller.action("app");
-    assertThat(appInit.isInternal()).isTrue();
   }
 
   @Test

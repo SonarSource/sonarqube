@@ -20,7 +20,6 @@
 package org.sonar.server.qualitygate;
 
 import org.sonar.core.platform.Module;
-import org.sonar.server.qualitygate.ws.AppAction;
 import org.sonar.server.qualitygate.ws.CopyAction;
 import org.sonar.server.qualitygate.ws.CreateAction;
 import org.sonar.server.qualitygate.ws.CreateConditionAction;
@@ -66,7 +65,6 @@ public class QualityGateModule extends Module {
       CreateConditionAction.class,
       DeleteConditionAction.class,
       UpdateConditionAction.class,
-      AppAction.class,
       ProjectStatusAction.class,
       GetByProjectAction.class);
   }
