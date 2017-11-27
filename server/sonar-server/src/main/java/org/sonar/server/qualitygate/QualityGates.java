@@ -87,6 +87,7 @@ public class QualityGates {
     }
   }
 
+  @Deprecated // GJT
   public void delete(long idToDelete) {
     checkIsQualityGateAdministrator();
     QualityGateDto qGate = getNonNullQgate(idToDelete);
