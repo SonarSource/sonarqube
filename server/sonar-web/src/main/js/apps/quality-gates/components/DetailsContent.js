@@ -39,7 +39,7 @@ export default class DetailsContent extends React.PureComponent {
           qualityGate={gate}
           conditions={conditions}
           metrics={metrics}
-          edit={actions.edit}
+          edit={actions.manageConditions}
           onAddCondition={onAddCondition}
           onSaveCondition={onSaveCondition}
           onDeleteCondition={onDeleteCondition}
