@@ -50,6 +50,7 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.Qualitygates;
+import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
@@ -65,6 +66,7 @@ import org.sonarqube.ws.client.qualitygates.UpdateConditionRequest;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
+import static org.sonarqube.ws.Qualitygates.ProjectStatusResponse.Status.ERROR;
 import static util.ItUtils.concat;
 import static util.ItUtils.extractCeTaskId;
 import static util.ItUtils.getMeasure;
@@ -210,11 +212,11 @@ public class QualityGateTest {
     String taskId = getTaskIdInLocalReport(projectDir("qualitygate/xoo-sample"));
     String analysisId = getAnalysisId(taskId);
 
-    ProjectStatusWsResponse projectStatusWsResponse = tester.wsClient().qualityGates().projectStatus(new ProjectStatusRequest().setAnalysisId(analysisId));
-    ProjectStatusWsResponse.ProjectStatus projectStatus = projectStatusWsResponse.getProjectStatus();
-    assertThat(projectStatus.getStatus()).isEqualTo(ProjectStatusWsResponse.Status.ERROR);
+    ProjectStatusResponse projectStatusWsResponse = tester.wsClient().qualityGates().projectStatus(new ProjectStatusRequest().setAnalysisId(analysisId));
+    ProjectStatusResponse.ProjectStatus projectStatus = projectStatusWsResponse.getProjectStatus();
+    assertThat(projectStatus.getStatus()).isEqualTo(ERROR);
     assertThat(projectStatus.getConditionsCount()).isEqualTo(1);
-    ProjectStatusWsResponse.Condition condition = projectStatus.getConditionsList().get(0);
+    ProjectStatusResponse.Condition condition = projectStatus.getConditionsList().get(0);
     assertThat(condition.getMetricKey()).isEqualTo("ncloc");
     assertThat(condition.getErrorThreshold()).isEqualTo("7");
   }
