@@ -69,16 +69,23 @@ export default class ApplicationQualityGate extends React.PureComponent {
 
   fetchDetails = () => {
     this.setState({ loading: true });
-    getApplicationQualityGate(this.props.component.key).then(({ status, projects, metrics }) => {
-      if (this.mounted) {
-        this.setState({
-          loading: false,
-          metrics: keyBy(metrics, 'key'),
-          status,
-          projects
-        });
+    getApplicationQualityGate(this.props.component.key).then(
+      ({ status, projects, metrics }) => {
+        if (this.mounted) {
+          this.setState({
+            loading: false,
+            metrics: keyBy(metrics, 'key'),
+            status,
+            projects
+          });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
       }
-    });
+    );
   };
 
   render() {
