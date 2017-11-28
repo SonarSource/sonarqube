@@ -32,19 +32,19 @@ import org.sonar.api.utils.DateUtils;
  * <p>
  * <h3>How to use</h3>
  * <pre>
- *   try (JsonWriter jsonWriter = JsonWriter.of(writer)) {
- *     jsonWriter
- *       .beginObject()
- *       .prop("aBoolean", true)
- *       .prop("aInt", 123)
- *       .prop("aString", "foo")
- *       .beginObject().name("aList")
- *         .beginArray()
- *           .beginObject().prop("key", "ABC").endObject()
- *           .beginObject().prop("key", "DEF").endObject()
- *         .endArray()
- *       .endObject()
- *   }
+ *   JsonWriter jsonWriter = JsonWriter.of(writer)
+ *   jsonWriter
+ *     .beginObject()
+ *     .prop("aBoolean", true)
+ *     .prop("aInt", 123)
+ *     .prop("aString", "foo")
+ *     .beginObject().name("aList")
+ *       .beginArray()
+ *         .beginObject().prop("key", "ABC").endObject()
+ *         .beginObject().prop("key", "DEF").endObject()
+ *       .endArray()
+ *     .endObject()
+ *   jsonWriter.close();
  * </pre>
  * 
  * <p>
@@ -55,15 +55,11 @@ import org.sonar.api.utils.DateUtils;
  * By default, empty strings are serialized. To disable empty string serialization,
  * use {@link #setSerializeEmptys(boolean)}.
  * </p>
- * <p>
- * {@link JsonWriter} implements {@link AutoCloseable} since version 6.3. The
- * method {@link #close()} closes the underlying writer.
- * </p>
  *
  *
  * @since 4.2
  */
-public class JsonWriter implements AutoCloseable {
+public class JsonWriter {
 
   private final com.google.gson.stream.JsonWriter stream;
   private boolean serializeEmptyStrings;
@@ -381,9 +377,10 @@ public class JsonWriter implements AutoCloseable {
   }
 
   /**
+   * Close JsonWriter resource and associated streams.<br>
+   * In the context of a {@link org.sonar.api.server.ws.WebService.Action} the associated {@link javax.servlet.ServletOutputStream} is closed.
    * @throws org.sonar.api.utils.text.WriterException on any failure
    */
-  @Override
   public void close() {
     try {
       stream.close();
