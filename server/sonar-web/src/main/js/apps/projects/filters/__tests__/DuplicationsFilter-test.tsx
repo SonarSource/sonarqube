@@ -22,7 +22,7 @@ import { shallow } from 'enzyme';
 import DuplicationsFilter from '../DuplicationsFilter';
 
 it('renders', () => {
-  const wrapper = shallow(<DuplicationsFilter query={{}} />);
+  const wrapper = shallow(<DuplicationsFilter onQueryChange={jest.fn()} query={{}} />);
   expect(wrapper).toMatchSnapshot();
 
   const renderOption = wrapper.prop('renderOption');

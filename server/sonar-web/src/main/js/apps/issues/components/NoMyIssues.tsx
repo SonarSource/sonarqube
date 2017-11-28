@@ -1,7 +1,7 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2016 SonarSource SA
- * mailto:contact AT sonarsource DOT com
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,9 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow } from 'enzyme';
-import NewCoverageFilter from '../NewCoverageFilter';
+import { translate } from '../../../helpers/l10n';
+import '../../../components/common/EmptySearch.css';
 
-it('renders', () => {
-  expect(shallow(<NewCoverageFilter onQueryChange={jest.fn()} query={{}} />)).toMatchSnapshot();
-});
+export default function NoMyIssues() {
+  return (
+    <div className="empty-search">
+      <h3>{translate('issues.no_my_issues')}</h3>
+    </div>
+  );
+}

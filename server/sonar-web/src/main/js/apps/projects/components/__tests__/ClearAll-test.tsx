@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2016 SonarSource SA
+ * Copyright (C) 2009-2017 SonarSource SA
  * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,8 +19,16 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import NewCoverageFilter from '../NewCoverageFilter';
+import ClearAll from '../ClearAll';
+import { click } from '../../../../helpers/testUtils';
 
 it('renders', () => {
-  expect(shallow(<NewCoverageFilter onQueryChange={jest.fn()} query={{}} />)).toMatchSnapshot();
+  expect(shallow(<ClearAll onClearAll={jest.fn()} />)).toMatchSnapshot();
+});
+
+it('clears all', () => {
+  const onClearAll = jest.fn();
+  const wrapper = shallow(<ClearAll onClearAll={onClearAll} />);
+  click(wrapper.find('button'));
+  expect(onClearAll).toBeCalled();
 });

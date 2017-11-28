@@ -24,7 +24,8 @@ import PageSidebar from '../PageSidebar';
 it('should render correctly', () => {
   const sidebar = shallow(
     <PageSidebar
-      isFavorite={true}
+      onClearAll={jest.fn()}
+      onQueryChange={jest.fn()}
       query={{ size: '3' }}
       showFavoriteFilter={true}
       view="overall"
@@ -37,7 +38,8 @@ it('should render correctly', () => {
 it('should render `leak` view correctly', () => {
   const sidebar = shallow(
     <PageSidebar
-      isFavorite={false}
+      onClearAll={jest.fn()}
+      onQueryChange={jest.fn()}
       query={{ view: 'leak' }}
       showFavoriteFilter={true}
       view="leak"
@@ -50,14 +52,15 @@ it('should render `leak` view correctly', () => {
 it('reset function should work correctly with view and visualizations', () => {
   const sidebar = shallow(
     <PageSidebar
-      isFavorite={false}
+      onClearAll={jest.fn()}
+      onQueryChange={jest.fn()}
       query={{ view: 'visualizations', visualization: 'bugs' }}
       showFavoriteFilter={true}
       view="visualizations"
       visualization="bugs"
     />
   );
-  expect(sidebar.find('.projects-facets-reset').exists()).toBeFalsy();
+  expect(sidebar.find('ClearAll').exists()).toBeFalsy();
   sidebar.setProps({ query: { size: '3' } });
-  expect(sidebar.find('.projects-facets-reset')).toMatchSnapshot();
+  expect(sidebar.find('ClearAll').exists()).toBeTruthy();
 });

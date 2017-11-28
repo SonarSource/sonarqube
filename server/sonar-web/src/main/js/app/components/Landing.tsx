@@ -17,26 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import PropTypes from 'prop-types';
-import { withRouter } from 'react-router';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { getCurrentUser, getGlobalSettingValue } from '../../store/rootReducer';
+import { CurrentUser, isLoggedIn } from '../types';
 
-class Landing extends React.PureComponent {
-  static propTypes = {
-    currentUser: PropTypes.oneOfType([PropTypes.bool, PropTypes.object]).isRequired
+interface Props {
+  currentUser: CurrentUser;
+  onSonarCloud: boolean;
+}
+
+class Landing extends React.PureComponent<Props> {
+  static contextTypes = {
+    router: PropTypes.object.isRequired
   };
 
   componentDidMount() {
-    const { currentUser, router, onSonarCloud } = this.props;
-    if (currentUser.isLoggedIn) {
-      router.replace('/projects');
-    } else if (onSonarCloud && onSonarCloud.value === 'true') {
-      window.location = 'https://about.sonarcloud.io';
+    const { currentUser, onSonarCloud } = this.props;
+    if (isLoggedIn(currentUser)) {
+      this.context.router.replace('/projects');
+    } else if (onSonarCloud) {
+      window.location.href = 'https://about.sonarcloud.io';
     } else {
-      router.replace('/about');
+      this.context.router.replace('/about');
     }
   }
 
@@ -45,9 +49,12 @@ class Landing extends React.PureComponent {
   }
 }
 
-const mapStateToProps = state => ({
-  currentUser: getCurrentUser(state),
-  onSonarCloud: getGlobalSettingValue(state, 'sonar.sonarcloud.enabled')
-});
+const mapStateToProps = (state: any) => {
+  const onSonarCloudSetting = getGlobalSettingValue(state, 'sonar.sonarcloud.enabled');
+  return {
+    currentUser: getCurrentUser(state),
+    onSonarCloud: Boolean(onSonarCloudSetting && onSonarCloudSetting.value === 'true')
+  };
+};
 
-export default connect(mapStateToProps)(withRouter(Landing));
+export default connect<Props>(mapStateToProps)(Landing);

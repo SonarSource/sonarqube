@@ -30,6 +30,7 @@ interface Props {
   cardType?: string;
   isFavorite: boolean;
   isFiltered: boolean;
+  onSonarCloud: boolean;
   organization?: { key: string };
   projects: Project[];
   query: Query;
@@ -41,7 +42,11 @@ export default class ProjectsList extends React.PureComponent<Props> {
     if (isFiltered) {
       return isFavorite ? <EmptyFavoriteSearch query={query} /> : <EmptySearch />;
     }
-    return isFavorite ? <NoFavoriteProjects /> : <EmptyInstance />;
+    return isFavorite ? (
+      <NoFavoriteProjects onSonarCloud={this.props.onSonarCloud} />
+    ) : (
+      <EmptyInstance />
+    );
   }
 
   render() {

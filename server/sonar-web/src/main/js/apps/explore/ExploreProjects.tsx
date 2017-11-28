@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2016 SonarSource SA
+ * Copyright (C) 2009-2017 SonarSource SA
  * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,9 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow } from 'enzyme';
-import NewCoverageFilter from '../NewCoverageFilter';
+import AllProjectsContainer from '../projects/components/AllProjectsContainer';
+import { RawQuery } from '../../helpers/query';
 
-it('renders', () => {
-  expect(shallow(<NewCoverageFilter onQueryChange={jest.fn()} query={{}} />)).toMatchSnapshot();
-});
+interface Props {
+  location: { pathname: string; query: RawQuery };
+}
+
+export default function ExploreProjects(props: Props) {
+  return <AllProjectsContainer isFavorite={false} {...props} />;
+}

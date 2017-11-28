@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2016 SonarSource SA
+ * Copyright (C) 2009-2017 SonarSource SA
  * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -18,9 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { shallow } from 'enzyme';
-import NewCoverageFilter from '../NewCoverageFilter';
+import { Link } from 'react-router';
+import { translate } from '../../../../helpers/l10n';
 
-it('renders', () => {
-  expect(shallow(<NewCoverageFilter onQueryChange={jest.fn()} query={{}} />)).toMatchSnapshot();
-});
+interface Props {
+  location: { pathname: string };
+  onSonarCloud: boolean;
+}
+
+export default function GlobalNavExplore({ location, onSonarCloud }: Props) {
+  if (!onSonarCloud) {
+    return null;
+  }
+
+  const active = location.pathname.startsWith('explore');
+
+  return (
+    <ul className="global-navbar-menu spacer-right pull-right">
+      <li>
+        <Link to="/explore/projects" className={active ? 'active' : undefined}>
+          {translate('explore')}
+        </Link>
+      </li>
+    </ul>
+  );
+}

@@ -63,6 +63,7 @@ it('renders facet bar chart', () => {
 function shallowRender(props?: any) {
   return shallow(
     <Filter
+      onQueryChange={jest.fn()}
       options={[1, 2, 3]}
       property="foo"
       query={{}}

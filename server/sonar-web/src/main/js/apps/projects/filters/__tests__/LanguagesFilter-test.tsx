@@ -34,7 +34,12 @@ const languagesFacet = { java: 39, cs: 4, js: 1 };
 
 it('should render the languages without the ones in the facet', () => {
   const wrapper = shallow(
-    <LanguagesFilter facet={languagesFacet} languages={languages} query={{ languages: null }} />
+    <LanguagesFilter
+      facet={languagesFacet}
+      languages={languages}
+      onQueryChange={jest.fn()}
+      query={{ languages: null }}
+    />
   );
   expect(wrapper).toMatchSnapshot();
 });
@@ -43,8 +48,8 @@ it('should render the languages facet with the selected languages', () => {
   const wrapper = shallow(
     <LanguagesFilter
       facet={languagesFacet}
-      isFavorite={true}
       languages={languages}
+      onQueryChange={jest.fn()}
       query={{ languages: ['java', 'cs'] }}
       value={['java', 'cs']}
     />
@@ -69,8 +74,8 @@ it('should render maximum 10 languages in the searchbox results', () => {
   const wrapper = shallow(
     <LanguagesFilter
       facet={{ ...languagesFacet, g: 1 }}
-      isFavorite={true}
       languages={manyLanguages}
+      onQueryChange={jest.fn()}
       query={{ languages: ['java', 'g'] }}
       value={['java', 'g']}
     />

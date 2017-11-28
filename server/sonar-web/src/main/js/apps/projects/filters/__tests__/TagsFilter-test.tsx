@@ -25,7 +25,9 @@ const tags = ['lang', 'sonar', 'csharp', 'dotnet', 'it', 'net'];
 const tagsFacet = { lang: 4, sonar: 3, csharp: 1 };
 
 it('should render the tags without the ones in the facet', () => {
-  const wrapper = shallow(<TagsFilter query={{ tags: null }} facet={tagsFacet} />);
+  const wrapper = shallow(
+    <TagsFilter onQueryChange={jest.fn()} query={{ tags: null }} facet={tagsFacet} />
+  );
   expect(wrapper).toMatchSnapshot();
   wrapper.setState({ tags });
   expect(wrapper).toMatchSnapshot();
@@ -34,10 +36,10 @@ it('should render the tags without the ones in the facet', () => {
 it('should render the tags facet with the selected tags', () => {
   const wrapper = shallow(
     <TagsFilter
+      onQueryChange={jest.fn()}
       query={{ tags: ['lang', 'sonar'] }}
       value={['lang', 'sonar']}
       facet={tagsFacet}
-      isFavorite={true}
     />
   );
   expect(wrapper).toMatchSnapshot();
@@ -47,10 +49,10 @@ it('should render the tags facet with the selected tags', () => {
 it('should render maximum 10 tags in the searchbox results', () => {
   const wrapper = shallow(
     <TagsFilter
+      onQueryChange={jest.fn()}
       query={{ languages: ['java', 'ad'] }}
       value={['java', 'ad']}
       facet={{ ...tagsFacet, ad: 1 }}
-      isFavorite={true}
     />
   );
   wrapper.setState({ tags: [...tags, 'aa', 'ab', 'ac', 'ad', 'ae', 'af', 'ag', 'ah', 'ai'] });

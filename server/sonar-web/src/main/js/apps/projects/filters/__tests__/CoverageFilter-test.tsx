@@ -22,7 +22,7 @@ import { shallow } from 'enzyme';
 import CoverageFilter from '../CoverageFilter';
 
 it('renders', () => {
-  const wrapper = shallow(<CoverageFilter query={{}} />);
+  const wrapper = shallow(<CoverageFilter onQueryChange={jest.fn()} query={{}} />);
   expect(wrapper).toMatchSnapshot();
 
   const renderOption = wrapper.prop('renderOption');

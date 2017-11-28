@@ -10,6 +10,7 @@ exports[`renders 1`] = `
   }
   highlightUnder={1}
   highlightUnderMax={5}
+  onQueryChange={[Function]}
   options={
     Array [
       1,

@@ -17,6 +17,7 @@ exports[`should render correctly 1`] = `
     view="overall"
   />
   <SearchFilterContainer
+    onQueryChange={[Function]}
     query={
       Object {
         "search": "test",
@@ -56,6 +57,7 @@ exports[`should render correctly while loading 1`] = `
     view="overall"
   />
   <SearchFilterContainer
+    onQueryChange={[Function]}
     query={
       Object {
         "search": "test",
@@ -108,6 +110,7 @@ exports[`should render disabled sorting options for visualizations 1`] = `
     </div>
   </Tooltip>
   <SearchFilterContainer
+    onQueryChange={[Function]}
     query={
       Object {
         "search": "test",

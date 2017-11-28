@@ -22,7 +22,7 @@ import { shallow } from 'enzyme';
 import NewLinesFilter from '../NewLinesFilter';
 
 it('renders', () => {
-  const wrapper = shallow(<NewLinesFilter query={{}} />);
+  const wrapper = shallow(<NewLinesFilter onQueryChange={jest.fn()} query={{}} />);
   expect(wrapper).toMatchSnapshot();
 
   const renderOption = wrapper.prop('renderOption');

@@ -25,11 +25,18 @@ import {
   areThereCustomOrganizations,
   getGlobalSettingValue
 } from '../../../store/rootReducer';
+import { RawQuery } from '../../../helpers/query';
 
 interface StateProps {
   currentUser: CurrentUser;
   onSonarCloud: boolean;
   organizationsEnabled: boolean;
+}
+
+interface OwnProps {
+  isFavorite: boolean;
+  location: { pathname: string; query: RawQuery };
+  organization?: { key: string };
 }
 
 const stateToProps = (state: any) => {
@@ -41,4 +48,6 @@ const stateToProps = (state: any) => {
   };
 };
 
-export default connect<StateProps, any, any>(stateToProps)(lazyLoad(() => import('./AllProjects')));
+export default connect<StateProps, {}, OwnProps>(stateToProps)(
+  lazyLoad(() => import('./AllProjects'))
+);

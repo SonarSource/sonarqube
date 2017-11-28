@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="projects-facets-reset"
+>
+  <button
+    className="button-red"
+    onClick={[Function]}
+  >
+    clear_all_filters
+  </button>
+</div>
+`;

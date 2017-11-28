@@ -88,6 +88,7 @@ interface DispatchProps {
 const mapDispatchToProps = { fetchIssues: fetchIssues as any } as DispatchProps;
 
 interface OwnProps {
+  location: { pathname: string; query: RawQuery };
   myIssues?: boolean;
 }
 
