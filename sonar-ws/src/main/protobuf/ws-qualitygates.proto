@@ -157,10 +157,12 @@ message ListWsResponse {
 }
 
 message Actions {
-  optional bool edit = 1;
+  optional bool rename = 1;
   optional bool setAsDefault = 2;
   optional bool copy = 3;
   optional bool associateProjects = 4;
+  optional bool delete = 5;
+  optional bool manageConditions = 6;
 }
 
 
