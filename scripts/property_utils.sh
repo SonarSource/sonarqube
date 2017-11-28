@@ -30,7 +30,7 @@ function set_property {
   local VALUE=$2
   local FILE=$3
 
-  local REGEXP="${PROPERTY//\./\\.}[ \t]*="
+  local REGEXP="^${PROPERTY//\./\\.}[ \t]*="
 
   if grep -q "$REGEXP" "$FILE"; then
      # delete line of specified property
