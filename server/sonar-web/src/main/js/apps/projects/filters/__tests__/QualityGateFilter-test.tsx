@@ -22,7 +22,7 @@ import { shallow } from 'enzyme';
 import QualityGateFilter from '../QualityGateFilter';
 
 it('renders', () => {
-  const wrapper = shallow(<QualityGateFilter query={{}} />);
+  const wrapper = shallow(<QualityGateFilter onQueryChange={jest.fn()} query={{}} />);
   expect(wrapper).toMatchSnapshot();
 
   const renderOption = wrapper.prop('renderOption');

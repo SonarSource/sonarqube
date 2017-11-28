@@ -30,6 +30,7 @@ const options = [
 it('should render items without the ones in the facet', () => {
   const wrapper = shallow(
     <SearchableFilterFooter
+      onQueryChange={jest.fn()}
       property="languages"
       query={{ languages: ['java'] }}
       options={options}
@@ -40,18 +41,16 @@ it('should render items without the ones in the facet', () => {
 });
 
 it('should render items without the ones in the facet', () => {
-  const push = jest.fn();
+  const onQueryChange = jest.fn();
   const wrapper = shallow(
     <SearchableFilterFooter
+      onQueryChange={onQueryChange}
       property="languages"
       query={{ languages: ['java'] }}
       options={options}
     />,
-    { context: { router: { push } } }
+    { context: { router: { push: jest.fn() } } }
   );
   (wrapper.find('Select').prop('onChange') as Function)({ value: 'js' });
-  expect(push).toBeCalledWith({
-    pathname: '/projects',
-    query: { languages: 'java,js' }
-  });
+  expect(onQueryChange).toBeCalledWith({ languages: 'java,js' });
 });

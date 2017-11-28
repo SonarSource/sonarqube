@@ -21,13 +21,17 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { translate } from '../../../helpers/l10n';
 
-export default function NoFavoriteProjects() {
+interface Props {
+  onSonarCloud: boolean;
+}
+
+export default function NoFavoriteProjects({ onSonarCloud }: Props) {
   return (
     <div className="projects-empty-list">
       <h3>{translate('projects.no_favorite_projects')}</h3>
       <p className="big-spacer-top">{translate('projects.no_favorite_projects.engagement')}</p>
       <p className="big-spacer-top">
-        <Link to="/projects/all" className="button">
+        <Link to={onSonarCloud ? '/explore/projects' : '/projects/all'} className="button">
           {translate('projects.explore_projects')}
         </Link>
       </p>

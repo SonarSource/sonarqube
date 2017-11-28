@@ -22,5 +22,5 @@ import { shallow } from 'enzyme';
 import NewDuplicationsFilter from '../NewDuplicationsFilter';
 
 it('renders', () => {
-  expect(shallow(<NewDuplicationsFilter query={{}} />)).toMatchSnapshot();
+  expect(shallow(<NewDuplicationsFilter onQueryChange={jest.fn()} query={{}} />)).toMatchSnapshot();
 });

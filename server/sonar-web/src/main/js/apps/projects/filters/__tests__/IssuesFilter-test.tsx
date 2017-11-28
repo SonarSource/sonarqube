@@ -22,7 +22,9 @@ import { shallow } from 'enzyme';
 import IssuesFilter from '../IssuesFilter';
 
 it('renders', () => {
-  const wrapper = shallow(<IssuesFilter name="bugs" property="bugs" query={{}} />);
+  const wrapper = shallow(
+    <IssuesFilter name="bugs" onQueryChange={jest.fn()} property="bugs" query={{}} />
+  );
   expect(wrapper).toMatchSnapshot();
 
   const renderOption = wrapper.prop('renderOption');

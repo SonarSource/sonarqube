@@ -22,6 +22,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import GlobalNavBranding from './GlobalNavBranding';
 import GlobalNavMenu from './GlobalNavMenu';
+import GlobalNavExplore from './GlobalNavExplore';
 import GlobalNavUserContainer from './GlobalNavUserContainer';
 import Search from '../../search/Search';
 import GlobalHelp from '../../help/GlobalHelp';
@@ -38,8 +39,9 @@ import './GlobalNav.css';
 type Props = {
   appState: { organizationsEnabled: boolean },
   currentUser: { isLoggedIn: boolean, showOnboardingTutorial: boolean },
+  location: { pathname: string },
   skipOnboarding: () => void,
-  sonarCloud: boolean
+  onSonarCloud: boolean
 };
 */
 
@@ -129,12 +131,14 @@ class GlobalNav extends React.PureComponent {
           <GlobalNavUserContainer {...this.props} />
         </ul>
 
+        <GlobalNavExplore location={this.props.location} onSonarCloud={this.props.onSonarCloud} />
+
         {this.state.helpOpen && (
           <GlobalHelp
             currentUser={this.props.currentUser}
             onClose={this.closeHelp}
             onTutorialSelect={this.openOnboardingTutorial}
-            sonarCloud={this.props.sonarCloud}
+            onSonarCloud={this.props.onSonarCloud}
           />
         )}
 
@@ -152,7 +156,7 @@ const mapStateToProps = state => {
   return {
     currentUser: getCurrentUser(state),
     appState: getAppState(state),
-    sonarCloud: sonarCloudSetting != null && sonarCloudSetting.value === 'true'
+    onSonarCloud: Boolean(sonarCloudSetting && sonarCloudSetting.value === 'true')
   };
 };
 

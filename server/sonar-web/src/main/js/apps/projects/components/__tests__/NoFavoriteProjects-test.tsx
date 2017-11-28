@@ -22,5 +22,5 @@ import { shallow } from 'enzyme';
 import NoFavoriteProjects from '../NoFavoriteProjects';
 
 it('renders', () => {
-  expect(shallow(<NoFavoriteProjects />)).toMatchSnapshot();
+  expect(shallow(<NoFavoriteProjects onSonarCloud={false} />)).toMatchSnapshot();
 });

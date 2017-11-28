@@ -22,5 +22,5 @@ import { shallow } from 'enzyme';
 import NewReliabilityFilter from '../NewReliabilityFilter';
 
 it('renders', () => {
-  expect(shallow(<NewReliabilityFilter query={{}} />)).toMatchSnapshot();
+  expect(shallow(<NewReliabilityFilter onQueryChange={jest.fn()} query={{}} />)).toMatchSnapshot();
 });

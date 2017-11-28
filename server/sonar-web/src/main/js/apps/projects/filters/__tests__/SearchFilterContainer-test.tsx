@@ -22,9 +22,11 @@ import { shallow } from 'enzyme';
 import SearchFilterContainer from '../SearchFilterContainer';
 
 it('searches', () => {
-  const push = jest.fn();
-  const wrapper = shallow(<SearchFilterContainer query={{}} />, { context: { router: { push } } });
+  const onQueryChange = jest.fn();
+  const wrapper = shallow(<SearchFilterContainer onQueryChange={onQueryChange} query={{}} />, {
+    context: { router: { push: jest.fn() } }
+  });
   expect(wrapper).toMatchSnapshot();
   wrapper.find('SearchBox').prop<Function>('onChange')('foo');
-  expect(push).toBeCalledWith({ pathname: '/projects', query: { search: 'foo' } });
+  expect(onQueryChange).toBeCalledWith({ search: 'foo' });
 });

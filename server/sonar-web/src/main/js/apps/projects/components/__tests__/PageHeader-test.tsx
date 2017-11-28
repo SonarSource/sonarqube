@@ -73,6 +73,7 @@ function shallowRender(props?: {}) {
       currentUser={{ isLoggedIn: false }}
       loading={false}
       onPerspectiveChange={jest.fn()}
+      onQueryChange={jest.fn()}
       onSortChange={jest.fn()}
       projects={[]}
       query={{ search: 'test' }}

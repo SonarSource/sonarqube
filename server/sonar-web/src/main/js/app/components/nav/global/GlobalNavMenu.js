@@ -20,6 +20,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router';
+import { isLoggedIn } from '../../../../app/types';
 import { translate } from '../../../../helpers/l10n';
 import { getQualityGatesUrl } from '../../../../helpers/urls';
 import { isMySet } from '../../../../apps/issues/utils';
@@ -31,7 +32,7 @@ export default class GlobalNavMenu extends React.PureComponent {
     location: PropTypes.shape({
       pathname: PropTypes.string.isRequired
     }).isRequired,
-    sonarCloud: PropTypes.bool
+    onSonarCloud: PropTypes.bool
   };
 
   static defaultProps = {
@@ -44,10 +45,14 @@ export default class GlobalNavMenu extends React.PureComponent {
   }
 
   renderProjects() {
+    if (this.props.onSonarCloud && !isLoggedIn(this.props.currentUser)) {
+      return null;
+    }
+
     return (
       <li>
         <Link to="/projects" activeClassName="active">
-          {this.props.sonarCloud ? translate('my_projects') : translate('projects.page')}
+          {this.props.onSonarCloud ? translate('my_projects') : translate('projects.page')}
         </Link>
       </li>
     );
@@ -64,9 +69,13 @@ export default class GlobalNavMenu extends React.PureComponent {
   }
 
   renderIssuesLink() {
+    if (this.props.onSonarCloud && !isLoggedIn(this.props.currentUser)) {
+      return null;
+    }
+
     const active = this.props.location.pathname === 'issues';
 
-    if (this.props.sonarCloud) {
+    if (this.props.onSonarCloud) {
       return (
         <li>
           <Link

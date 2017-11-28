@@ -46,6 +46,10 @@ export default class DefaultPageSelector extends React.PureComponent<Props, Stat
   }
 
   componentDidMount() {
+    if (this.props.onSonarCloud && !isLoggedIn(this.props.currentUser)) {
+      this.context.router.replace('/explore/projects');
+    }
+
     if (!this.props.onSonarCloud) {
       this.defineIfShouldBeRedirected();
     }
@@ -98,15 +102,20 @@ export default class DefaultPageSelector extends React.PureComponent<Props, Stat
   }
 
   render() {
-    if (this.props.onSonarCloud) {
+    if (this.props.onSonarCloud && isLoggedIn(this.props.currentUser)) {
       return <AllProjectsContainer isFavorite={true} location={this.props.location} />;
     }
 
     const { shouldBeRedirected, shouldForceSorting } = this.state;
-    if (shouldBeRedirected == null || shouldBeRedirected === true || shouldForceSorting != null) {
-      return null;
-    } else {
+
+    if (
+      shouldBeRedirected !== undefined &&
+      shouldBeRedirected !== true &&
+      shouldForceSorting === undefined
+    ) {
       return <AllProjectsContainer isFavorite={false} location={this.props.location} />;
     }
+
+    return null;
   }
 }

@@ -48,6 +48,9 @@ import componentMeasuresRoutes from '../../apps/component-measures/routes';
 import customMeasuresRoutes from '../../apps/custom-measures/routes';
 import groupsRoutes from '../../apps/groups/routes';
 import Issues from '../../apps/issues/components/AppContainer';
+import Explore from '../../apps/explore/Explore';
+import ExploreIssues from '../../apps/explore/ExploreIssues';
+import ExploreProjects from '../../apps/explore/ExploreProjects';
 import IssuesPageSelector from '../../apps/issues/IssuesPageSelector';
 import marketplaceRoutes from '../../apps/marketplace/routes';
 import metricsRoutes from '../../apps/metrics/routes';
@@ -164,6 +167,10 @@ const startReactApp = () => {
                   <Route path="account" childRoutes={accountRoutes} />
                   <Route path="coding_rules" childRoutes={codingRulesRoutes} />
                   <Route path="component" childRoutes={componentRoutes} />
+                  <Route path="explore" component={Explore}>
+                    <Route path="issues" component={ExploreIssues} />
+                    <Route path="projects" component={ExploreProjects} />
+                  </Route>
                   <Route
                     path="extension/:pluginKey/:extensionKey"
                     component={GlobalPageExtension}

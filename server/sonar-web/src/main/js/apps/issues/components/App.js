@@ -31,6 +31,7 @@ import IssuesList from './IssuesList';
 import ComponentBreadcrumbs from './ComponentBreadcrumbs';
 import IssuesSourceViewer from './IssuesSourceViewer';
 import BulkChangeModal from './BulkChangeModal';
+import NoMyIssues from './NoMyIssues';
 import ConciseIssuesList from '../conciseIssuesList/ConciseIssuesList';
 import ConciseIssuesListHeader from '../conciseIssuesList/ConciseIssuesListHeader';
 import * as actions from '../actions';
@@ -868,7 +869,8 @@ export default class App extends React.PureComponent {
           <ListFooter total={paging.total} count={issues.length} loadMore={this.fetchMoreIssues} />
         )}
 
-        {paging.total === 0 && <EmptySearch />}
+        {paging.total === 0 &&
+          (this.state.myIssues && !this.isFiltered() ? <NoMyIssues /> : <EmptySearch />)}
       </div>
     );
   }

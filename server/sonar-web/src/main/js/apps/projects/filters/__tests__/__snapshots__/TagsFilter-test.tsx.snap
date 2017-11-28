@@ -12,10 +12,10 @@ exports[`should render maximum 10 tags in the searchbox results 1`] = `
   }
   footer={
     <SearchableFilterFooter
-      isFavorite={true}
       isLoading={false}
       onInputChange={[Function]}
       onOpen={[Function]}
+      onQueryChange={[Function]}
       options={
         Array [
           Object {
@@ -78,7 +78,7 @@ exports[`should render maximum 10 tags in the searchbox results 1`] = `
       name="projects.facets.tags"
     />
   }
-  isFavorite={true}
+  onQueryChange={[Function]}
   options={
     Array [
       "lang",
@@ -117,10 +117,10 @@ exports[`should render the tags facet with the selected tags 1`] = `
   }
   footer={
     <SearchableFilterFooter
-      isFavorite={true}
       isLoading={false}
       onInputChange={[Function]}
       onOpen={[Function]}
+      onQueryChange={[Function]}
       options={Array []}
       organization={undefined}
       property="tags"
@@ -140,7 +140,7 @@ exports[`should render the tags facet with the selected tags 1`] = `
       name="projects.facets.tags"
     />
   }
-  isFavorite={true}
+  onQueryChange={[Function]}
   options={
     Array [
       "lang",
@@ -178,21 +178,12 @@ exports[`should render the tags facet with the selected tags 2`] = `
   <div
     className="search-navigator-facet-list projects-facet-list"
   >
-    <Link
+    <a
       className="facet search-navigator-facet projects-facet active"
       data-key="lang"
+      href="#"
       key="lang"
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/projects/favorite",
-          "query": Object {
-            "tags": "sonar",
-          },
-        }
-      }
     >
       <span
         className="facet-name"
@@ -206,22 +197,13 @@ exports[`should render the tags facet with the selected tags 2`] = `
       >
         4
       </span>
-    </Link>
-    <Link
+    </a>
+    <a
       className="facet search-navigator-facet projects-facet active"
       data-key="sonar"
+      href="#"
       key="sonar"
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/projects/favorite",
-          "query": Object {
-            "tags": "lang",
-          },
-        }
-      }
     >
       <span
         className="facet-name"
@@ -235,22 +217,13 @@ exports[`should render the tags facet with the selected tags 2`] = `
       >
         3
       </span>
-    </Link>
-    <Link
+    </a>
+    <a
       className="facet search-navigator-facet projects-facet"
       data-key="csharp"
+      href="#"
       key="csharp"
       onClick={[Function]}
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to={
-        Object {
-          "pathname": "/projects/favorite",
-          "query": Object {
-            "tags": "lang,sonar,csharp",
-          },
-        }
-      }
     >
       <span
         className="facet-name"
@@ -264,13 +237,13 @@ exports[`should render the tags facet with the selected tags 2`] = `
       >
         1
       </span>
-    </Link>
+    </a>
   </div>
   <SearchableFilterFooter
-    isFavorite={true}
     isLoading={false}
     onInputChange={[Function]}
     onOpen={[Function]}
+    onQueryChange={[Function]}
     options={Array []}
     property="tags"
     query={
@@ -296,10 +269,10 @@ exports[`should render the tags without the ones in the facet 1`] = `
   }
   footer={
     <SearchableFilterFooter
-      isFavorite={undefined}
       isLoading={false}
       onInputChange={[Function]}
       onOpen={[Function]}
+      onQueryChange={[Function]}
       options={Array []}
       organization={undefined}
       property="tags"
@@ -316,6 +289,7 @@ exports[`should render the tags without the ones in the facet 1`] = `
       name="projects.facets.tags"
     />
   }
+  onQueryChange={[Function]}
   options={
     Array [
       "lang",
@@ -344,10 +318,10 @@ exports[`should render the tags without the ones in the facet 2`] = `
   }
   footer={
     <SearchableFilterFooter
-      isFavorite={undefined}
       isLoading={false}
       onInputChange={[Function]}
       onOpen={[Function]}
+      onQueryChange={[Function]}
       options={
         Array [
           Object {
@@ -379,6 +353,7 @@ exports[`should render the tags without the ones in the facet 2`] = `
       name="projects.facets.tags"
     />
   }
+  onQueryChange={[Function]}
   options={
     Array [
       "lang",

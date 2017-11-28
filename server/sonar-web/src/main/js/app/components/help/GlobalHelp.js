@@ -32,7 +32,7 @@ type Props = {
   currentUser: { isLoggedIn: boolean },
   onClose: () => void,
   onTutorialSelect: () => void,
-  sonarCloud?: boolean
+  onSonarCloud?: boolean
 };
 */
 
@@ -62,7 +62,7 @@ export default class GlobalHelp extends React.PureComponent {
       case 'shortcuts':
         return <ShortcutsHelp />;
       case 'links':
-        return this.props.sonarCloud ? (
+        return this.props.onSonarCloud ? (
           <LinksHelpSonarCloud onClose={this.props.onClose} />
         ) : (
           <LinksHelp onClose={this.props.onClose} />

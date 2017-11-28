@@ -20,12 +20,14 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
+import { omitBy } from 'lodash';
 import PageHeader from './PageHeader';
 import ProjectsList from './ProjectsList';
 import PageSidebar from './PageSidebar';
 import Visualizations from '../visualizations/Visualizations';
 import { CurrentUser, isLoggedIn } from '../../../app/types';
 import handleRequiredAuthentication from '../../../app/utils/handleRequiredAuthentication';
+import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
 import ListFooter from '../../../components/controls/ListFooter';
 import { translate } from '../../../helpers/l10n';
 import * as storage from '../../../helpers/storage';
@@ -38,7 +40,7 @@ import { parseUrlQuery, Query } from '../query';
 export interface Props {
   currentUser: CurrentUser;
   isFavorite: boolean;
-  location: { pathname: string; query: { [x: string]: string } };
+  location: { pathname: string; query: RawQuery };
   onSonarCloud: boolean;
   organization?: { key: string };
   organizationsEnabled: boolean;
@@ -224,35 +226,35 @@ export default class AllProjects extends React.PureComponent<Props, State> {
   }
 
   updateLocationQuery = (newQuery: RawQuery) => {
-    this.context.router.push({
-      pathname: this.props.location.pathname,
-      query: {
-        ...this.props.location.query,
-        ...newQuery
-      }
-    });
+    const query = omitBy({ ...this.props.location.query, ...newQuery }, x => !x);
+    this.context.router.push({ pathname: this.props.location.pathname, query });
+  };
+
+  handleClearAll = () => {
+    this.context.router.push({ pathname: this.props.location.pathname });
   };
 
   renderSide = () => (
-    <div className="layout-page-side-outer">
-      <div
-        className="layout-page-side projects-page-side"
-        style={{ top: this.props.organization ? 95 : 30 }}>
-        <div className="layout-page-side-inner">
-          <div className="layout-page-filters">
-            <PageSidebar
-              facets={this.state.facets}
-              isFavorite={this.props.isFavorite}
-              organization={this.props.organization}
-              query={this.state.query}
-              showFavoriteFilter={!this.props.onSonarCloud}
-              view={this.getView()}
-              visualization={this.getVisualization()}
-            />
+    <ScreenPositionHelper className="layout-page-side-outer">
+      {({ top }) => (
+        <div className="layout-page-side projects-page-side" style={{ top }}>
+          <div className="layout-page-side-inner">
+            <div className="layout-page-filters">
+              <PageSidebar
+                facets={this.state.facets}
+                onClearAll={this.handleClearAll}
+                onQueryChange={this.updateLocationQuery}
+                organization={this.props.organization}
+                query={this.state.query}
+                showFavoriteFilter={!this.props.onSonarCloud}
+                view={this.getView()}
+                visualization={this.getVisualization()}
+              />
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      )}
+    </ScreenPositionHelper>
   );
 
   renderHeader = () => (
@@ -261,9 +263,9 @@ export default class AllProjects extends React.PureComponent<Props, State> {
         <div className="layout-page-main-inner">
           <PageHeader
             currentUser={this.props.currentUser}
-            isFavorite={this.props.isFavorite}
             loading={this.state.loading}
             onPerspectiveChange={this.handlePerspectiveChange}
+            onQueryChange={this.updateLocationQuery}
             onSortChange={this.handleSortChange}
             organization={this.props.organization}
             projects={this.state.projects}
@@ -298,6 +300,7 @@ export default class AllProjects extends React.PureComponent<Props, State> {
             cardType={this.getView()}
             isFavorite={this.props.isFavorite}
             isFiltered={this.isFiltered()}
+            onSonarCloud={this.props.onSonarCloud}
             organization={this.props.organization}
             projects={this.state.projects}
             query={this.state.query}
@@ -319,7 +322,7 @@ export default class AllProjects extends React.PureComponent<Props, State> {
 
         {this.renderSide()}
 
-        <div className="layout-page-main projects-page-content">
+        <div className="layout-page-main">
           {this.renderHeader()}
           {this.renderMain()}
         </div>

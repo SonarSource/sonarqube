@@ -22,5 +22,5 @@ import { shallow } from 'enzyme';
 import SecurityFilter from '../SecurityFilter';
 
 it('renders', () => {
-  expect(shallow(<SecurityFilter query={{}} />)).toMatchSnapshot();
+  expect(shallow(<SecurityFilter onQueryChange={jest.fn()} query={{}} />)).toMatchSnapshot();
 });

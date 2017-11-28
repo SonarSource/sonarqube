@@ -1,11 +1,3 @@
-.projects-page-side {
-  transition: top 150ms ease-out;
-}
-
-.projects-page-content {
-  transition: padding-top 150ms ease-out;
-}
-
 .projects-topbar-items {
   display: flex;
   align-items: center;
