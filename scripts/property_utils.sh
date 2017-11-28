@@ -21,8 +21,8 @@ function write_prop {
   # uncomment below to help debug calls to set_property
   #echo "setting property $PROPERTY to value $VALUE in $FILE"
   
-  echo "" >> $FILE
-  echo "${PROPERTY}=${VALUE}" >> $FILE 
+  echo >> "$FILE"
+  echo "${PROPERTY}=${VALUE}" >> "$FILE"
 }
 
 function set_property {
@@ -37,13 +37,13 @@ function set_property {
     LINE_COUNT=$(cnt_lines $FILE)
 
     if [[ "$OSTYPE" == "darwin"* ]]; then
-      sed -i '' /${REGEXP}/d "$FILE"
+      sed -i '' "/${REGEXP}/d" "$FILE"
     else
-      sed -i /${REGEXP}/d "$FILE"
+      sed -i "/${REGEXP}/d" "$FILE"
     fi
 
     # add property if at least one line deleted
-    local NEW_LINE_COUNT=$(cnt_lines $FILE)
+    local NEW_LINE_COUNT=$(cnt_lines "$FILE")
 
     if [[ $LINE_COUNT -gt $NEW_LINE_COUNT ]]; then
       write_prop "$PROPERTY" "$VALUE" "$FILE"
