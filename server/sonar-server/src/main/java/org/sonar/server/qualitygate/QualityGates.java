@@ -23,7 +23,6 @@ import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -87,20 +86,6 @@ public class QualityGates {
     }
   }
 
-  @Deprecated // GJT
-  public void delete(long idToDelete) {
-    checkIsQualityGateAdministrator();
-    QualityGateDto qGate = getNonNullQgate(idToDelete);
-    try (DbSession session = dbClient.openSession(false)) {
-      if (isDefault(qGate)) {
-        propertiesDao.deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY, session);
-      }
-      propertiesDao.deleteProjectProperties(SONAR_QUALITYGATE_PROPERTY, Long.toString(idToDelete), session);
-      dao.delete(qGate, session);
-      session.commit();
-    }
-  }
-
   /**
    * Use {@link QualityGateUpdater#setDefault(DbSession, QualityGateDto)}
    * @deprecated
@@ -132,18 +117,6 @@ public class QualityGates {
     checkProjectAdmin(project);
     propertiesDao.deleteProjectProperty(SONAR_QUALITYGATE_PROPERTY, project.getId(), dbSession);
     dbSession.commit();
-  }
-
-  private boolean isDefault(QualityGateDto qGate) {
-    return qGate.getId().equals(getDefaultId());
-  }
-
-  private Long getDefaultId() {
-    PropertyDto defaultQgate = propertiesDao.selectGlobalProperty(SONAR_QUALITYGATE_PROPERTY);
-    if (defaultQgate == null || StringUtils.isBlank(defaultQgate.getValue())) {
-      return null;
-    }
-    return Long.valueOf(defaultQgate.getValue());
   }
 
   private QualityGateDto getNonNullQgate(long id) {
