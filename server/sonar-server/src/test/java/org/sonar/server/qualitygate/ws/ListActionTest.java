@@ -141,7 +141,8 @@ public class ListActionTest {
   @Test
   public void actions_with_quality_gate_administer_permission() {
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
-    QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way").setBuiltIn(true));
+    QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("Default").setBuiltIn(false));
+    QualityGateDto builtInQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way").setBuiltIn(true));
     QualityGateDto otherQualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("Sonar way - Without Coverage").setBuiltIn(false));
     db.qualityGates().setDefaultQualityGate(defaultQualityGate);
 
@@ -152,10 +153,12 @@ public class ListActionTest {
       .containsExactlyInAnyOrder(true);
     assertThat(response.getQualitygatesList())
       .extracting(QualityGate::getName,
-        qg -> qg.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault(), qp -> qp.getActions().getAssociateProjects())
+        qg -> qg.getActions().getRename(), qg -> qg.getActions().getDelete(), qg -> qg.getActions().getManageConditions(),
+        qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault(), qp -> qp.getActions().getAssociateProjects())
       .containsExactlyInAnyOrder(
-        tuple(defaultQualityGate.getName(), false, true, false, false),
-        tuple(otherQualityGate.getName(), true, true, true, true));
+        tuple(defaultQualityGate.getName(), true, false, true, true, false, false),
+        tuple(builtInQualityGate.getName(), false, false, false, true, true, true),
+        tuple(otherQualityGate.getName(), true, true, true, true, true, true));
   }
 
   @Test
@@ -172,10 +175,11 @@ public class ListActionTest {
       .containsExactlyInAnyOrder(false);
     assertThat(response.getQualitygatesList())
       .extracting(QualityGate::getName,
-        qg -> qg.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault(), qp -> qp.getActions().getAssociateProjects())
+        qg -> qg.getActions().getRename(), qg -> qg.getActions().getDelete(), qg -> qg.getActions().getManageConditions(),
+        qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault(), qp -> qp.getActions().getAssociateProjects())
       .containsExactlyInAnyOrder(
-        tuple(defaultQualityGate.getName(), false, false, false, false),
-        tuple(otherQualityGate.getName(), false, false, false, false));
+        tuple(defaultQualityGate.getName(), false, false, false, false, false, false),
+        tuple(otherQualityGate.getName(), false, false, false, false, false, false));
   }
 
   @Test

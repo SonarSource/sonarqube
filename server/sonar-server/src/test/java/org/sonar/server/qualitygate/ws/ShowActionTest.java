@@ -156,7 +156,9 @@ public class ShowActionTest {
       .executeProtobuf(ShowWsResponse.class);
 
     Actions actions = response.getActions();
-    assertThat(actions.getEdit()).isTrue();
+    assertThat(actions.getRename()).isTrue();
+    assertThat(actions.getManageConditions()).isTrue();
+    assertThat(actions.getDelete()).isTrue();
     assertThat(actions.getCopy()).isTrue();
     assertThat(actions.getSetAsDefault()).isTrue();
     assertThat(actions.getAssociateProjects()).isTrue();
@@ -172,7 +174,9 @@ public class ShowActionTest {
       .executeProtobuf(ShowWsResponse.class);
 
     Actions actions = response.getActions();
-    assertThat(actions.getEdit()).isTrue();
+    assertThat(actions.getRename()).isTrue();
+    assertThat(actions.getManageConditions()).isTrue();
+    assertThat(actions.getDelete()).isFalse();
     assertThat(actions.getCopy()).isTrue();
     assertThat(actions.getSetAsDefault()).isFalse();
     assertThat(actions.getAssociateProjects()).isFalse();
@@ -187,7 +191,9 @@ public class ShowActionTest {
       .executeProtobuf(ShowWsResponse.class);
 
     Actions actions = response.getActions();
-    assertThat(actions.getEdit()).isFalse();
+    assertThat(actions.getRename()).isFalse();
+    assertThat(actions.getManageConditions()).isFalse();
+    assertThat(actions.getDelete()).isFalse();
     assertThat(actions.getCopy()).isTrue();
     assertThat(actions.getSetAsDefault()).isTrue();
     assertThat(actions.getAssociateProjects()).isTrue();
@@ -202,7 +208,9 @@ public class ShowActionTest {
       .executeProtobuf(ShowWsResponse.class);
 
     Actions actions = response.getActions();
-    assertThat(actions.getEdit()).isFalse();
+    assertThat(actions.getRename()).isFalse();
+    assertThat(actions.getManageConditions()).isFalse();
+    assertThat(actions.getDelete()).isFalse();
     assertThat(actions.getCopy()).isFalse();
     assertThat(actions.getSetAsDefault()).isFalse();
     assertThat(actions.getAssociateProjects()).isFalse();
