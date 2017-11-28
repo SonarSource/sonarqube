@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
@@ -55,10 +56,11 @@ public class ShowActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
+  private DbClient dbClient = db.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-
   private WsActionTester ws = new WsActionTester(
-    new ShowAction(db.getDbClient(), new QualityGateFinder(db.getDbClient()), new QualityGatesWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider)));
+    new ShowAction(db.getDbClient(), new QualityGateFinder(db.getDbClient()),
+      new QualityGatesWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider)));
 
   @Test
   public void verify_definition() {

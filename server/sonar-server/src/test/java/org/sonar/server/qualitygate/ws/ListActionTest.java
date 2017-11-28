@@ -25,10 +25,12 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualitygates.ListWsResponse.QualityGate;
@@ -48,9 +50,12 @@ public class ListActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create();
-  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
 
-  private WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(), new QualityGatesWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider)));
+  private DbClient dbClient = db.getDbClient();
+  private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private QualityGateFinder qualityGateFinder = new QualityGateFinder(dbClient);
+  private WsActionTester ws = new WsActionTester(new ListAction(db.getDbClient(),
+    new QualityGatesWsSupport(dbClient, userSession, defaultOrganizationProvider), qualityGateFinder));
 
   @Test
   public void verify_definition() {

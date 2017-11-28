@@ -21,6 +21,7 @@ package org.sonar.server.qualitygate.ws;
 
 import com.google.common.io.Resources;
 import java.util.Collection;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -29,6 +30,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonarqube.ws.Qualitygates.ListWsResponse;
 import org.sonarqube.ws.Qualitygates.ListWsResponse.QualityGate;
 
@@ -40,10 +42,12 @@ public class ListAction implements QualityGatesWsAction {
 
   private final DbClient dbClient;
   private final QualityGatesWsSupport wsSupport;
+  private final QualityGateFinder finder;
 
-  public ListAction(DbClient dbClient, QualityGatesWsSupport wsSupport) {
+  public ListAction(DbClient dbClient, QualityGatesWsSupport wsSupport, QualityGateFinder finder) {
     this.dbClient = dbClient;
     this.wsSupport = wsSupport;
+    this.finder = finder;
   }
 
   @Override
@@ -63,9 +67,9 @@ public class ListAction implements QualityGatesWsAction {
   @Override
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityGateDto defaultQualityGate = wsSupport.getDefault(dbSession);
+      Optional<QualityGateDto> defaultQualityGate = finder.getDefault(dbSession);
       Collection<QualityGateDto> qualityGates = dbClient.qualityGateDao().selectAll(dbSession);
-      writeProtobuf(buildResponse(qualityGates, defaultQualityGate), request, response);
+      writeProtobuf(buildResponse(qualityGates, defaultQualityGate.orElse(null)), request, response);
     }
   }
 
