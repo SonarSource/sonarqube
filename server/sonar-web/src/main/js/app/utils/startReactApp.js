@@ -47,7 +47,8 @@ import componentRoutes from '../../apps/component/routes';
 import componentMeasuresRoutes from '../../apps/component-measures/routes';
 import customMeasuresRoutes from '../../apps/custom-measures/routes';
 import groupsRoutes from '../../apps/groups/routes';
-import issuesRoutes from '../../apps/issues/routes';
+import Issues from '../../apps/issues/components/AppContainer';
+import IssuesPageSelector from '../../apps/issues/IssuesPageSelector';
 import marketplaceRoutes from '../../apps/marketplace/routes';
 import metricsRoutes from '../../apps/metrics/routes';
 import overviewRoutes from '../../apps/overview/routes';
@@ -167,7 +168,7 @@ const startReactApp = () => {
                     path="extension/:pluginKey/:extensionKey"
                     component={GlobalPageExtension}
                   />
-                  <Route path="issues" childRoutes={issuesRoutes} />
+                  <Route path="issues" component={IssuesPageSelector} />
                   <Route path="organizations" childRoutes={organizationsRoutes} />
                   <Route path="projects" childRoutes={projectsRoutes} />
                   <Route path="quality_gates" childRoutes={qualityGatesRoutes} />
@@ -187,7 +188,7 @@ const startReactApp = () => {
                       path="project/extension/:pluginKey/:extensionKey"
                       component={ProjectPageExtension}
                     />
-                    <Route path="project/issues" childRoutes={issuesRoutes} />
+                    <Route path="project/issues" component={Issues} />
                     <Route path="project/quality_gate" childRoutes={projectQualityGateRoutes} />
                     <Route
                       path="project/quality_profiles"

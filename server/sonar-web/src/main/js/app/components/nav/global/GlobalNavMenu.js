@@ -64,11 +64,24 @@ export default class GlobalNavMenu extends React.PureComponent {
   }
 
   renderIssuesLink() {
+    const active = this.props.location.pathname === 'issues';
+
+    if (this.props.sonarCloud) {
+      return (
+        <li>
+          <Link
+            to={{ pathname: '/issues', query: { resolved: 'false' } }}
+            className={active ? 'active' : undefined}>
+            {translate('my_issues')}
+          </Link>
+        </li>
+      );
+    }
+
     const query =
       this.props.currentUser.isLoggedIn && isMySet()
         ? { resolved: 'false', myIssues: 'true' }
         : { resolved: 'false' };
-    const active = this.props.location.pathname === 'issues';
     return (
       <li>
         <Link to={{ pathname: '/issues', query }} className={active ? 'active' : undefined}>

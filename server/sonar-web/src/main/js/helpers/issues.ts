@@ -50,7 +50,7 @@ interface IssueBase {
   [x: string]: any;
 }
 
-interface RawIssue extends IssueBase {
+export interface RawIssue extends IssueBase {
   assignee?: string;
   author?: string;
   comments?: Array<Comment>;

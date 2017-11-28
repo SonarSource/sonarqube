@@ -17,25 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
-/*:: import type { Dispatch } from 'redux'; */
+import { Dispatch } from 'redux';
 import { uniq } from 'lodash';
-import App from './App';
 import throwGlobalError from '../../../app/utils/throwGlobalError';
-import { getCurrentUser, areThereCustomOrganizations } from '../../../store/rootReducer';
+import {
+  getCurrentUser,
+  areThereCustomOrganizations,
+  getGlobalSettingValue
+} from '../../../store/rootReducer';
 import { getOrganizations } from '../../../api/organizations';
 import { receiveOrganizations } from '../../../store/organizations/duck';
 import { searchIssues } from '../../../api/issues';
 import { parseIssueFromResponse } from '../../../helpers/issues';
-/*:: import type { RawQuery } from '../../../helpers/query'; */
+import { RawQuery } from '../../../helpers/query';
+import { CurrentUser } from '../../../app/types';
+import { lazyLoad } from '../../../components/lazyLoad';
 
-const mapStateToProps = state => ({
-  currentUser: getCurrentUser(state)
-});
+interface StateProps {
+  currentUser: CurrentUser;
+  onSonarCloud: boolean;
+}
 
-const fetchIssueOrganizations = issues => dispatch => {
+const mapStateToProps = (state: any): StateProps => {
+  const onSonarCloudSetting = getGlobalSettingValue(state, 'sonar.sonarcloud.enabled');
+  return {
+    currentUser: getCurrentUser(state),
+    onSonarCloud: Boolean(onSonarCloudSetting && onSonarCloudSetting.value === 'true')
+  };
+};
+
+const fetchIssueOrganizations = (issues: any[]) => (dispatch: Dispatch<any>) => {
   if (!issues.length) {
     return Promise.resolve();
   }
@@ -47,9 +59,10 @@ const fetchIssueOrganizations = issues => dispatch => {
   );
 };
 
-const fetchIssues = (query /*: RawQuery */, requestOrganizations /*: boolean */ = true) => (
-  dispatch,
-  getState
+const fetchIssues = (query: RawQuery, requestOrganizations = true) => (
+  // use `Function` to be able to do `dispatch(...).then(...)`
+  dispatch: Function,
+  getState: () => any
 ) => {
   const organizationsEnabled = areThereCustomOrganizations(getState());
   return searchIssues({ ...query, additionalFields: '_all' })
@@ -67,6 +80,17 @@ const fetchIssues = (query /*: RawQuery */, requestOrganizations /*: boolean */ 
     .catch(throwGlobalError);
 };
 
-const mapDispatchToProps = { fetchIssues };
+interface DispatchProps {
+  fetchIssues: (query: RawQuery, requestOrganizations?: boolean) => Promise<void>;
+}
 
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(App));
+// have to type cast this, because of async action
+const mapDispatchToProps = { fetchIssues: fetchIssues as any } as DispatchProps;
+
+interface OwnProps {
+  myIssues?: boolean;
+}
+
+export default connect<StateProps, DispatchProps, OwnProps>(mapStateToProps, mapDispatchToProps)(
+  lazyLoad(() => import('./App'))
+);
