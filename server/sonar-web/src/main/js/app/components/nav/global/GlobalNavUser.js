@@ -44,7 +44,7 @@ type Props = {
   currentUser: CurrentUser,
   fetchMyOrganizations: () => Promise<*>,
   location: Object,
-  organizations: Array<{ key: string, name: string }>,
+  organizations: Array<{ isAdmin: bool, key: string, name: string }>,
   router: { push: string => void }
 };
 */
@@ -157,9 +157,17 @@ export default class GlobalNavUser extends React.PureComponent {
             {hasOrganizations &&
               sortBy(organizations, org => org.name.toLowerCase()).map(organization => (
                 <li key={organization.key}>
-                  <OrganizationLink organization={organization} onClick={this.closeDropdown}>
-                    <OrganizationIcon />
-                    <span className="spacer-left">{organization.name}</span>
+                  <OrganizationLink
+                    className="dropdown-item-flex"
+                    organization={organization}
+                    onClick={this.closeDropdown}>
+                    <div>
+                      <OrganizationIcon />
+                      <span className="spacer-left">{organization.name}</span>
+                    </div>
+                    {organization.isAdmin && (
+                      <span className="outline-badge spacer-left">{translate('admin')}</span>
+                    )}
                   </OrganizationLink>
                 </li>
               ))}

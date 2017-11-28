@@ -201,6 +201,7 @@ exports[`should render the users organizations 1`] = `
       key="bar"
     >
       <OrganizationLink
+        className="dropdown-item-flex"
         onClick={[Function]}
         organization={
           Object {
@@ -209,18 +210,21 @@ exports[`should render the users organizations 1`] = `
           }
         }
       >
-        <OrganizationIcon />
-        <span
-          className="spacer-left"
-        >
-          bar
-        </span>
+        <div>
+          <OrganizationIcon />
+          <span
+            className="spacer-left"
+          >
+            bar
+          </span>
+        </div>
       </OrganizationLink>
     </li>
     <li
       key="foo"
     >
       <OrganizationLink
+        className="dropdown-item-flex"
         onClick={[Function]}
         organization={
           Object {
@@ -229,18 +233,21 @@ exports[`should render the users organizations 1`] = `
           }
         }
       >
-        <OrganizationIcon />
-        <span
-          className="spacer-left"
-        >
-          Foo
-        </span>
+        <div>
+          <OrganizationIcon />
+          <span
+            className="spacer-left"
+          >
+            Foo
+          </span>
+        </div>
       </OrganizationLink>
     </li>
     <li
       key="myorg"
     >
       <OrganizationLink
+        className="dropdown-item-flex"
         onClick={[Function]}
         organization={
           Object {
@@ -249,12 +256,14 @@ exports[`should render the users organizations 1`] = `
           }
         }
       >
-        <OrganizationIcon />
-        <span
-          className="spacer-left"
-        >
-          MyOrg
-        </span>
+        <div>
+          <OrganizationIcon />
+          <span
+            className="spacer-left"
+          >
+            MyOrg
+          </span>
+        </div>
       </OrganizationLink>
     </li>
     <li

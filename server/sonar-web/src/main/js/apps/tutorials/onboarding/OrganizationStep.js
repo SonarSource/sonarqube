@@ -23,7 +23,7 @@ import classNames from 'classnames';
 import { sortBy } from 'lodash';
 import Step from './Step';
 import NewOrganizationForm from './NewOrganizationForm';
-import { getMyOrganizations } from '../../../api/organizations';
+import { getOrganizations } from '../../../api/organizations';
 import Select from '../../../components/controls/Select';
 import { translate } from '../../../helpers/l10n';
 
@@ -68,13 +68,15 @@ export default class OrganizationStep extends React.PureComponent {
   }
 
   fetchOrganizations = () => {
-    getMyOrganizations().then(
-      organizations => {
+    getOrganizations({ member: true }).then(
+      ({ organizations }) => {
         if (this.mounted) {
+          const organizationKeys = organizations.map(o => o.key);
           // best guess: if there is only one organization, then it is personal
           // otherwise, we can't guess, let's display them all as just "existing organizations"
-          const personalOrganization = organizations.length === 1 ? organizations[0] : undefined;
-          const existingOrganizations = organizations.length > 1 ? sortBy(organizations) : [];
+          const personalOrganization =
+            organizationKeys.length === 1 ? organizationKeys[0] : undefined;
+          const existingOrganizations = organizationKeys.length > 1 ? sortBy(organizationKeys) : [];
           const selection = personalOrganization
             ? 'personal'
             : existingOrganizations.length > 0 ? 'existing' : 'new';

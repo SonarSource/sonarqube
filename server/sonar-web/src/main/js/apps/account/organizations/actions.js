@@ -17,20 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as api from '../../../api/organizations';
+import { getOrganizations } from '../../../api/organizations';
 import { receiveMyOrganizations } from '../../../store/organizations/duck';
 import { getValues } from '../../../api/settings';
 import { receiveValues } from '../../settings/store/values/actions';
 
 export const fetchMyOrganizations = () => dispatch => {
-  return api.getMyOrganizations().then(keys => {
-    if (keys.length > 0) {
-      return api.getOrganizations(keys).then(({ organizations }) => {
-        return dispatch(receiveMyOrganizations(organizations));
-      });
-    } else {
-      return dispatch(receiveMyOrganizations([]));
-    }
+  return getOrganizations({ member: true }).then(({ organizations }) => {
+    return dispatch(receiveMyOrganizations(organizations));
   });
 };
 

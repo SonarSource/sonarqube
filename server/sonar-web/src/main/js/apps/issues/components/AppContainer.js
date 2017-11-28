@@ -41,7 +41,7 @@ const fetchIssueOrganizations = issues => dispatch => {
   }
 
   const organizationKeys = uniq(issues.map(issue => issue.organization));
-  return getOrganizations(organizationKeys).then(
+  return getOrganizations({ organizations: organizationKeys.join() }).then(
     response => dispatch(receiveOrganizations(response.organizations)),
     throwGlobalError
   );

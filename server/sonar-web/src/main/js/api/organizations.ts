@@ -20,11 +20,17 @@
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
+interface GetOrganizationsParameters {
+  organizations?: string;
+  member?: boolean;
+}
+
 interface GetOrganizationsResponse {
   organizations: Array<{
     avatar?: string;
     description?: string;
     guarded: boolean;
+    isAdmin: boolean;
     key: string;
     name: string;
     url?: string;
@@ -36,20 +42,14 @@ interface GetOrganizationsResponse {
   };
 }
 
-export function getOrganizations(organizations?: string[]): Promise<GetOrganizationsResponse> {
-  const data: RequestData = {};
-  if (organizations) {
-    Object.assign(data, { organizations: organizations.join() });
-  }
+export function getOrganizations(
+  data: GetOrganizationsParameters
+): Promise<GetOrganizationsResponse> {
   return getJSON('/api/organizations/search', data);
 }
 
-export function getMyOrganizations(): Promise<any> {
-  return getJSON('/api/organizations/search_my_organizations').then(r => r.organizations);
-}
-
 export function getOrganization(key: string): Promise<any> {
-  return getOrganizations([key])
+  return getOrganizations({ organizations: key })
     .then(r => r.organizations.find((o: any) => o.key === key))
     .catch(throwGlobalError);
 }
