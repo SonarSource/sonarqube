@@ -34,9 +34,9 @@ beforeEach(() => {
     'metric.level.ERROR': 'Error',
     'metric.level.WARN': 'Warning',
     'metric.level.OK': 'Ok',
+    'short_number_suffix.g': 'G',
     'short_number_suffix.k': 'k',
-    'short_number_suffix.m': 'm',
-    'short_number_suffix.b': 'b'
+    'short_number_suffix.m': 'M'
   });
 });
 
@@ -60,7 +60,7 @@ describe('#formatMeasure()', () => {
     expect(formatMeasure(1529, 'SHORT_INT')).toBe('1.5k');
     expect(formatMeasure(10000, 'SHORT_INT')).toBe('10k');
     expect(formatMeasure(10678, 'SHORT_INT')).toBe('11k');
-    expect(formatMeasure(1234567890, 'SHORT_INT')).toBe('1b');
+    expect(formatMeasure(1234567890, 'SHORT_INT')).toBe('1G');
   });
 
   it('should format FLOAT', () => {
@@ -130,8 +130,8 @@ describe('#formatMeasure()', () => {
     expect(formatMeasure(-1 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('-1min');
 
     expect(formatMeasure(1529 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('1.5kd');
-    expect(formatMeasure(1234567 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('1md');
-    expect(formatMeasure(1234567 * ONE_DAY + 2 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('1md');
+    expect(formatMeasure(1234567 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('1Md');
+    expect(formatMeasure(1234567 * ONE_DAY + 2 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('1Md');
   });
 
   it('should format RATING', () => {
@@ -247,8 +247,8 @@ describe('#formatMeasureVariation()', () => {
     expect(formatMeasureVariation(-1 * ONE_MINUTE, 'SHORT_WORK_DUR')).toBe('-1min');
 
     expect(formatMeasureVariation(1529 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('+1.5kd');
-    expect(formatMeasureVariation(1234567 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('+1md');
-    expect(formatMeasureVariation(1234567 * ONE_DAY + 2 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('+1md');
+    expect(formatMeasureVariation(1234567 * ONE_DAY, 'SHORT_WORK_DUR')).toBe('+1Md');
+    expect(formatMeasureVariation(1234567 * ONE_DAY + 2 * ONE_HOUR, 'SHORT_WORK_DUR')).toBe('+1Md');
   });
 
   it('should not format unknown type', () => {
