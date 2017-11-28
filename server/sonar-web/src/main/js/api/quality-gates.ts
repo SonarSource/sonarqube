@@ -33,7 +33,9 @@ export interface QualityGate {
   actions?: {
     associateProjects: boolean;
     copy: boolean;
-    edit: boolean;
+    delete: boolean;
+    manageConditions: boolean;
+    rename: boolean;
     setAsDefault: boolean;
   };
   conditions?: Condition[];
