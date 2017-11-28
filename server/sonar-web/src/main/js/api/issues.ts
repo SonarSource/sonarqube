@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
+import { RawIssue } from '../helpers/issues';
 
 export interface IssueResponse {
   components?: Array<{}>;
@@ -30,7 +31,7 @@ interface IssuesResponse {
   components?: Array<{}>;
   debtTotal?: number;
   facets: Array<{}>;
-  issues: Array<{}>;
+  issues: RawIssue[];
   paging: {
     pageIndex: number;
     pageSize: number;
