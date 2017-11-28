@@ -68,20 +68,20 @@ public class ShowAction implements QualityGatesWsAction {
     QualityGateDto qGate = qGateId == null ? qualityGates.get(qGateName) : qualityGates.get(qGateId);
     qGateId = qGate.getId();
 
-    try (JsonWriter writer = response.newJsonWriter()) {
-      writer.beginObject()
-        .prop(PARAM_ID, qGate.getId())
-        .prop(PARAM_NAME, qGate.getName());
-      Collection<QualityGateConditionDto> conditions = qualityGates.listConditions(qGateId);
-      if (!conditions.isEmpty()) {
-        writer.name("conditions").beginArray();
-        for (QualityGateConditionDto condition : conditions) {
-          QualityGatesWs.writeQualityGateCondition(condition, writer);
-        }
-        writer.endArray();
+    JsonWriter writer = response.newJsonWriter();
+    writer.beginObject()
+      .prop(PARAM_ID, qGate.getId())
+      .prop(PARAM_NAME, qGate.getName());
+    Collection<QualityGateConditionDto> conditions = qualityGates.listConditions(qGateId);
+    if (!conditions.isEmpty()) {
+      writer.name("conditions").beginArray();
+      for (QualityGateConditionDto condition : conditions) {
+        QualityGatesWs.writeQualityGateCondition(condition, writer);
       }
-      writer.endObject().close();
+      writer.endArray();
     }
+    writer.endObject().close();
+    writer.close();
   }
 
   private static void checkOneOfIdOrNamePresent(@Nullable Long qGateId, @Nullable String qGateName) {

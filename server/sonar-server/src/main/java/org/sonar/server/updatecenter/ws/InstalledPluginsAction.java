@@ -54,19 +54,19 @@ public class InstalledPluginsAction implements UpdateCenterWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    try (JsonWriter json = response.newJsonWriter()) {
-      json.beginArray();
-      for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
-        Version version = pluginInfo.getVersion();
-        json.beginObject()
-          .prop("key", pluginInfo.getKey())
-          .prop("name", pluginInfo.getName());
-        if (version != null) {
-          json.prop("version", version.getName());
-        }
-        json.endObject();
+    JsonWriter json = response.newJsonWriter();
+    json.beginArray();
+    for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
+      Version version = pluginInfo.getVersion();
+      json.beginObject()
+        .prop("key", pluginInfo.getKey())
+        .prop("name", pluginInfo.getName());
+      if (version != null) {
+        json.prop("version", version.getName());
       }
-      json.endArray().close();
+      json.endObject();
     }
+    json.endArray().close();
+    json.close();
   }
 }

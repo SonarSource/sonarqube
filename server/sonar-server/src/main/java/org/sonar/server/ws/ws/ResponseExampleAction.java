@@ -67,12 +67,12 @@ public class ResponseExampleAction implements WebServicesWsAction {
       return;
     }
 
-    try (JsonWriter json = response.newJsonWriter()) {
-      json.beginObject()
-        .prop("format", action.responseExampleFormat())
-        .prop("example", action.responseExampleAsString())
-        .endObject();
-    }
+    JsonWriter json = response.newJsonWriter();
+    json.beginObject()
+      .prop("format", action.responseExampleFormat())
+      .prop("example", action.responseExampleAsString())
+      .endObject();
+    json.close();
   }
 
   @Override

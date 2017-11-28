@@ -62,11 +62,11 @@ public class TagsAction implements IssuesWsAction {
   }
 
   private static void writeResponse(Response response, List<String> tags) {
-    try (JsonWriter json = response.newJsonWriter()) {
-      json.beginObject().name("tags").beginArray();
-      tags.forEach(json::value);
-      json.endArray().endObject();
-    }
+    JsonWriter json = response.newJsonWriter();
+    json.beginObject().name("tags").beginArray();
+    tags.forEach(json::value);
+    json.endArray().endObject();
+    json.close();
   }
 
   @Override

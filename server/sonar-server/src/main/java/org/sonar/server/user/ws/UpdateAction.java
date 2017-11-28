@@ -124,19 +124,20 @@ public class UpdateAction implements UsersWsAction {
     if (!request.getScmAccounts().isEmpty()) {
       updateUser.setScmAccounts(request.getScmAccounts());
     }
-    userUpdater.updateAndCommit(dbSession, updateUser, u -> {});
+    userUpdater.updateAndCommit(dbSession, updateUser, u -> {
+    });
   }
 
   private void writeUser(DbSession dbSession, Response response, String login) {
-    try (JsonWriter json = response.newJsonWriter()) {
-      json.beginObject();
-      json.name("user");
-      Set<String> groups = new HashSet<>();
-      UserDto user = checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' doesn't exist", login);
-      groups.addAll(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(login)).get(login));
-      userWriter.write(json, user, groups, UserJsonWriter.FIELDS);
-      json.endObject().close();
-    }
+    JsonWriter json = response.newJsonWriter();
+    json.beginObject();
+    json.name("user");
+    Set<String> groups = new HashSet<>();
+    UserDto user = checkFound(dbClient.userDao().selectByLogin(dbSession, login), "User '%s' doesn't exist", login);
+    groups.addAll(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(login)).get(login));
+    userWriter.write(json, user, groups, UserJsonWriter.FIELDS);
+    json.endObject().close();
+    json.close();
   }
 
   private static UpdateRequest toWsRequest(Request request) {

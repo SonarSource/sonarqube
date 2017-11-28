@@ -62,19 +62,19 @@ public class QPMeasureData {
 
   public static String toJson(QPMeasureData data) {
     StringWriter json = new StringWriter();
-    try (JsonWriter writer = JsonWriter.of(json)) {
-      writer.beginArray();
-      for (QualityProfile profile : data.getProfiles()) {
-        writer
-          .beginObject()
-          .prop("key", profile.getQpKey())
-          .prop("language", profile.getLanguageKey())
-          .prop("name", profile.getQpName())
-          .prop("rulesUpdatedAt", UtcDateUtils.formatDateTime(profile.getRulesUpdatedAt()))
-          .endObject();
-      }
-      writer.endArray();
+    JsonWriter writer = JsonWriter.of(json);
+    writer.beginArray();
+    for (QualityProfile profile : data.getProfiles()) {
+      writer
+        .beginObject()
+        .prop("key", profile.getQpKey())
+        .prop("language", profile.getLanguageKey())
+        .prop("name", profile.getQpName())
+        .prop("rulesUpdatedAt", UtcDateUtils.formatDateTime(profile.getRulesUpdatedAt()))
+        .endObject();
     }
+    writer.endArray();
+    writer.close();
     return json.toString();
   }
 

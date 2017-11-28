@@ -99,20 +99,20 @@ public class GlobalAction implements NavigationWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    try (JsonWriter json = response.newJsonWriter()) {
-      json.beginObject();
-      writeActions(json);
-      writePages(json);
-      writeSettings(json);
-      writeDeprecatedLogoProperties(json);
-      writeQualifiers(json);
-      writeVersion(json);
-      writeDatabaseProduction(json);
-      writeOrganizationSupport(json);
-      writeBranchSupport(json);
-      json.prop("standalone", webServer.isStandalone());
-      json.endObject();
-    }
+    JsonWriter json = response.newJsonWriter();
+    json.beginObject();
+    writeActions(json);
+    writePages(json);
+    writeSettings(json);
+    writeDeprecatedLogoProperties(json);
+    writeQualifiers(json);
+    writeVersion(json);
+    writeDatabaseProduction(json);
+    writeOrganizationSupport(json);
+    writeBranchSupport(json);
+    json.prop("standalone", webServer.isStandalone());
+    json.endObject();
+    json.close();
   }
 
   private void writeActions(JsonWriter json) {

@@ -85,13 +85,13 @@ public class UpgradesAction implements SystemWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    try (JsonWriter jsonWriter = response.newJsonWriter()) {
-      jsonWriter.setSerializeEmptys(false);
+    JsonWriter jsonWriter = response.newJsonWriter();
+    jsonWriter.setSerializeEmptys(false);
 
-      writeResponse(jsonWriter);
+    writeResponse(jsonWriter);
 
-      jsonWriter.close();
-    }
+    jsonWriter.close();
+    jsonWriter.close();
   }
 
   private void writeResponse(JsonWriter jsonWriter) {

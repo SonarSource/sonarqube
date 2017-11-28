@@ -116,14 +116,14 @@ public class DeactivateAction implements UsersWsAction {
       // when deactivating user
       checkFound(user, "User '%s' doesn't exist", login);
 
-      try (JsonWriter json = response.newJsonWriter()) {
-        json.beginObject();
-        json.name("user");
-        Set<String> groups = new HashSet<>();
-        groups.addAll(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(login)).get(login));
-        userWriter.write(json, user, groups, UserJsonWriter.FIELDS);
-        json.endObject();
-      }
+      JsonWriter json = response.newJsonWriter();
+      json.beginObject();
+      json.name("user");
+      Set<String> groups = new HashSet<>();
+      groups.addAll(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(login)).get(login));
+      userWriter.write(json, user, groups, UserJsonWriter.FIELDS);
+      json.endObject();
+      json.close();
     }
   }
 

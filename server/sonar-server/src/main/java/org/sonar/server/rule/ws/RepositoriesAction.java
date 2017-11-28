@@ -71,18 +71,18 @@ public class RepositoriesAction implements RulesWsAction {
     String query = request.param(Param.TEXT_QUERY);
     String languageKey = request.param(LANGUAGE);
 
-    try (JsonWriter json = response.newJsonWriter()) {
-      json.beginObject().name("repositories").beginArray();
-      for (RuleRepositoryDto repo : listMatchingRepositories(query, languageKey)) {
-        json
-          .beginObject()
-          .prop("key", repo.getKey())
-          .prop("name", repo.getName())
-          .prop(LANGUAGE, repo.getLanguage())
-          .endObject();
-      }
-      json.endArray().endObject();
+    JsonWriter json = response.newJsonWriter();
+    json.beginObject().name("repositories").beginArray();
+    for (RuleRepositoryDto repo : listMatchingRepositories(query, languageKey)) {
+      json
+        .beginObject()
+        .prop("key", repo.getKey())
+        .prop("name", repo.getName())
+        .prop(LANGUAGE, repo.getLanguage())
+        .endObject();
     }
+    json.endArray().endObject();
+    json.close();
   }
 
   private Collection<RuleRepositoryDto> listMatchingRepositories(@Nullable String query, @Nullable String languageKey) {
