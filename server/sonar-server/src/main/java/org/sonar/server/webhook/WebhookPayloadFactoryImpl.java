@@ -52,18 +52,18 @@ public class WebhookPayloadFactoryImpl implements WebhookPayloadFactory {
   @Override
   public WebhookPayload create(ProjectAnalysis analysis) {
     Writer string = new StringWriter();
-    try (JsonWriter writer = JsonWriter.of(string)) {
-      writer.beginObject();
-      writeServer(writer);
-      writeTask(writer, analysis.getCeTask());
-      writeDates(writer, analysis, system2);
-      writeProject(analysis, writer, analysis.getProject());
-      analysis.getBranch().ifPresent(b -> writeBranch(writer, analysis.getProject(), b));
-      analysis.getQualityGate().ifPresent(qualityGate -> writeQualityGate(writer, qualityGate));
-      writeAnalysisProperties(writer, analysis.getProperties());
-      writer.endObject().close();
-      return new WebhookPayload(analysis.getProject().getKey(), string.toString());
-    }
+    JsonWriter writer = JsonWriter.of(string);
+    writer.beginObject();
+    writeServer(writer);
+    writeTask(writer, analysis.getCeTask());
+    writeDates(writer, analysis, system2);
+    writeProject(analysis, writer, analysis.getProject());
+    analysis.getBranch().ifPresent(b -> writeBranch(writer, analysis.getProject(), b));
+    analysis.getQualityGate().ifPresent(qualityGate -> writeQualityGate(writer, qualityGate));
+    writeAnalysisProperties(writer, analysis.getProperties());
+    writer.endObject().close();
+    writer.close();
+    return new WebhookPayload(analysis.getProject().getKey(), string.toString());
   }
 
   private void writeServer(JsonWriter writer) {

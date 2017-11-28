@@ -161,9 +161,9 @@ public class ProtobufJsonFormat {
 
   public static String toJson(Message message) {
     StringWriter json = new StringWriter();
-    try (JsonWriter jsonWriter = JsonWriter.of(json)) {
-      write(message, jsonWriter);
-    }
+    JsonWriter jsonWriter = JsonWriter.of(json);
+    write(message, jsonWriter);
+    jsonWriter.close();
     return json.toString();
   }
 

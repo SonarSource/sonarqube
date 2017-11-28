@@ -54,13 +54,13 @@ public class ListAction implements RequestHandler {
     String query = request.param(Param.TEXT_QUERY);
     int pageSize = request.mandatoryParamAsInt("ps");
 
-    try (JsonWriter json = response.newJsonWriter()) {
-      json.beginObject().name("languages").beginArray();
-      for (Language language : listMatchingLanguages(query, pageSize)) {
-        json.beginObject().prop("key", language.getKey()).prop("name", language.getName()).endObject();
-      }
-      json.endArray().endObject();
+    JsonWriter json = response.newJsonWriter();
+    json.beginObject().name("languages").beginArray();
+    for (Language language : listMatchingLanguages(query, pageSize)) {
+      json.beginObject().prop("key", language.getKey()).prop("name", language.getName()).endObject();
     }
+    json.endArray().endObject();
+    json.close();
   }
 
   void define(WebService.NewController controller) {

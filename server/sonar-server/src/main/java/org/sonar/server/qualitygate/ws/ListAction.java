@@ -46,18 +46,18 @@ public class ListAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    try (JsonWriter writer = response.newJsonWriter()) {
-      writer.beginObject().name("qualitygates").beginArray();
-      for (QualityGateDto qgate : qualityGates.list()) {
-        QualityGatesWs.writeQualityGate(qgate, writer);
-      }
-      writer.endArray();
-      QualityGateDto defaultQgate = qualityGates.getDefault();
-      if (defaultQgate != null) {
-        writer.prop("default", defaultQgate.getId());
-      }
-      writer.endObject().close();
+    JsonWriter writer = response.newJsonWriter();
+    writer.beginObject().name("qualitygates").beginArray();
+    for (QualityGateDto qgate : qualityGates.list()) {
+      QualityGatesWs.writeQualityGate(qgate, writer);
     }
+    writer.endArray();
+    QualityGateDto defaultQgate = qualityGates.getDefault();
+    if (defaultQgate != null) {
+      writer.prop("default", defaultQgate.getId());
+    }
+    writer.endObject().close();
+    writer.close();
   }
 
 }

@@ -63,17 +63,17 @@ public class AuthorsAction implements IssuesWsAction {
     String query = request.param(Param.TEXT_QUERY);
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
 
-    try (JsonWriter json = response.newJsonWriter()) {
-      json.beginObject()
-        .name("authors")
-        .beginArray();
+    JsonWriter json = response.newJsonWriter();
+    json.beginObject()
+      .name("authors")
+      .beginArray();
 
-      for (String login : listAuthors(query, pageSize)) {
-        json.value(login);
-      }
-
-      json.endArray().endObject();
+    for (String login : listAuthors(query, pageSize)) {
+      json.value(login);
     }
+
+    json.endArray().endObject();
+    json.close();
   }
 
   public List<String> listAuthors(@Nullable String textQuery, int pageSize) {

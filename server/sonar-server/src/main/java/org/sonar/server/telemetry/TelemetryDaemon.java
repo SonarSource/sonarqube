@@ -126,20 +126,20 @@ public class TelemetryDaemon implements Startable {
 
   private void optOut() {
     StringWriter json = new StringWriter();
-    try (JsonWriter writer = JsonWriter.of(json)) {
-      writer.beginObject();
-      writer.prop("id", dataLoader.loadServerId());
-      writer.endObject();
-    }
+    JsonWriter writer = JsonWriter.of(json);
+    writer.beginObject();
+    writer.prop("id", dataLoader.loadServerId());
+    writer.endObject();
+    writer.close();
     telemetryClient.optOut(json.toString());
   }
 
   private void uploadStatistics() throws IOException {
     TelemetryData statistics = dataLoader.load();
     StringWriter jsonString = new StringWriter();
-    try (JsonWriter json = JsonWriter.of(jsonString)) {
-      writeTelemetryData(json, statistics);
-    }
+    JsonWriter json = JsonWriter.of(jsonString);
+    writeTelemetryData(json, statistics);
+    json.close();
     telemetryClient.upload(jsonString.toString());
   }
 

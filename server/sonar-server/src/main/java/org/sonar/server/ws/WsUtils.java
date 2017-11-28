@@ -52,9 +52,9 @@ public class WsUtils {
         msg.writeTo(output);
       } else {
         response.stream().setMediaType(JSON);
-        try (JsonWriter writer = JsonWriter.of(new OutputStreamWriter(output, UTF_8))) {
-          ProtobufJsonFormat.write(msg, writer);
-        }
+        JsonWriter writer = JsonWriter.of(new OutputStreamWriter(output, UTF_8));
+        ProtobufJsonFormat.write(msg, writer);
+        writer.close();
       }
     } catch (Exception e) {
       throw new IllegalStateException("Error while writing protobuf message", e);

@@ -80,11 +80,11 @@ public class ValidateAction extends ServletFilter implements AuthenticationWsAct
     boolean isAuthenticated = authenticate(request, response);
     response.setContentType(MediaTypes.JSON);
 
-    try (JsonWriter jsonWriter = JsonWriter.of(response.getWriter())) {
-      jsonWriter.beginObject();
-      jsonWriter.prop("valid", isAuthenticated);
-      jsonWriter.endObject();
-    }
+    JsonWriter jsonWriter = JsonWriter.of(response.getWriter());
+    jsonWriter.beginObject();
+    jsonWriter.prop("valid", isAuthenticated);
+    jsonWriter.endObject();
+    jsonWriter.close();
   }
 
   private boolean authenticate(HttpServletRequest request, HttpServletResponse response) {

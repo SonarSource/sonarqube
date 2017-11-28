@@ -137,10 +137,12 @@ public class WebServiceEngine implements LocalConnector, Startable {
     stream.setStatus(status);
     stream.setMediaType(MediaTypes.JSON);
 
-    try (JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8))) {
+    try {
+      JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8));
       json.beginObject();
       writeErrors(json, errors);
       json.endObject();
+      json.close();
     } catch (Exception e) {
       // Do not hide the potential exception raised in the try block.
       throw Throwables.propagate(e);

@@ -104,28 +104,28 @@ public class TestResultSetIterator extends ResultSetIterator<Row> {
       ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 
       // all the fields must be present, even if value is null
-      try (JsonWriter writer = JsonWriter.of(new OutputStreamWriter(bytes, StandardCharsets.UTF_8)).setSerializeNulls(true)) {
+      JsonWriter writer = JsonWriter.of(new OutputStreamWriter(bytes, StandardCharsets.UTF_8)).setSerializeNulls(true);
+      writer.beginObject();
+      writer.prop(FIELD_PROJECT_UUID, projectUuid);
+      writer.prop(FIELD_FILE_UUID, fileUuid);
+      writer.prop(FIELD_TEST_UUID, test.getUuid());
+      writer.prop(FIELD_NAME, test.getName());
+      writer.prop(FIELD_STATUS, test.hasStatus() ? test.getStatus().toString() : null);
+      writer.prop(FIELD_DURATION_IN_MS, test.hasExecutionTimeMs() ? test.getExecutionTimeMs() : null);
+      writer.prop(FIELD_MESSAGE, test.hasMsg() ? test.getMsg() : null);
+      writer.prop(FIELD_STACKTRACE, test.hasStacktrace() ? test.getStacktrace() : null);
+      writer.prop(FIELD_UPDATED_AT, EsUtils.formatDateTime(updatedAt));
+      writer.name(FIELD_COVERED_FILES);
+      writer.beginArray();
+      for (DbFileSources.Test.CoveredFile coveredFile : test.getCoveredFileList()) {
         writer.beginObject();
-        writer.prop(FIELD_PROJECT_UUID, projectUuid);
-        writer.prop(FIELD_FILE_UUID, fileUuid);
-        writer.prop(FIELD_TEST_UUID, test.getUuid());
-        writer.prop(FIELD_NAME, test.getName());
-        writer.prop(FIELD_STATUS, test.hasStatus() ? test.getStatus().toString() : null);
-        writer.prop(FIELD_DURATION_IN_MS, test.hasExecutionTimeMs() ? test.getExecutionTimeMs() : null);
-        writer.prop(FIELD_MESSAGE, test.hasMsg() ? test.getMsg() : null);
-        writer.prop(FIELD_STACKTRACE, test.hasStacktrace() ? test.getStacktrace() : null);
-        writer.prop(FIELD_UPDATED_AT, EsUtils.formatDateTime(updatedAt));
-        writer.name(FIELD_COVERED_FILES);
-        writer.beginArray();
-        for (DbFileSources.Test.CoveredFile coveredFile : test.getCoveredFileList()) {
-          writer.beginObject();
-          writer.prop(FIELD_COVERED_FILE_UUID, coveredFile.getFileUuid());
-          writer.name(FIELD_COVERED_FILE_LINES).valueObject(coveredFile.getCoveredLineList());
-          writer.endObject();
-        }
-        writer.endArray();
+        writer.prop(FIELD_COVERED_FILE_UUID, coveredFile.getFileUuid());
+        writer.name(FIELD_COVERED_FILE_LINES).valueObject(coveredFile.getCoveredLineList());
         writer.endObject();
       }
+      writer.endArray();
+      writer.endObject();
+      writer.close();
       // This is an optimization to reduce memory consumption and multiple conversions from Map to JSON.
       // UpdateRequest#doc() and #upsert() take the same parameter values, so:
       // - passing the same Map would execute two JSON serializations

@@ -106,18 +106,18 @@ public class JSONReport implements Reporter {
 
   @VisibleForTesting
   void writeJson(Writer writer) {
-    try (JsonWriter json = JsonWriter.of(writer)) {
-      json.beginObject();
-      json.prop("version", server.getVersion());
+    JsonWriter json = JsonWriter.of(writer);
+    json.beginObject();
+    json.prop("version", server.getVersion());
 
-      Set<RuleKey> ruleKeys = new LinkedHashSet<>();
-      Set<String> userLogins = new LinkedHashSet<>();
-      writeJsonIssues(json, ruleKeys, userLogins);
-      writeJsonComponents(json);
-      writeJsonRules(json, ruleKeys);
-      writeUsers(json, userLogins);
-      json.endObject();
-    }
+    Set<RuleKey> ruleKeys = new LinkedHashSet<>();
+    Set<String> userLogins = new LinkedHashSet<>();
+    writeJsonIssues(json, ruleKeys, userLogins);
+    writeJsonComponents(json);
+    writeJsonRules(json, ruleKeys);
+    writeUsers(json, userLogins);
+    json.endObject();
+    json.close();
   }
 
   private void writeJsonIssues(JsonWriter json, Set<RuleKey> ruleKeys, Set<String> logins) {
