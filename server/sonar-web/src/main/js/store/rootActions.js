@@ -45,7 +45,7 @@ export const fetchMetrics = () => dispatch =>
   getAllMetrics().then(metrics => dispatch(receiveMetrics(metrics)), onFail(dispatch));
 
 export const fetchOrganizations = (organizations /*: Array<string> | void */) => dispatch =>
-  getOrganizations(organizations).then(
+  getOrganizations({ organizations: organizations && organizations.join() }).then(
     r => dispatch(receiveOrganizations(r.organizations)),
     onFail(dispatch)
   );
