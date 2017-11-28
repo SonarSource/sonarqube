@@ -60,7 +60,9 @@ public class QualityGatesWsSupport {
     boolean isQualityGateAdmin = isQualityGateAdmin();
     return Qualitygates.Actions.newBuilder()
       .setCopy(isQualityGateAdmin)
-      .setEdit(!isBuiltIn && isQualityGateAdmin)
+      .setRename(!isBuiltIn && isQualityGateAdmin)
+      .setManageConditions(!isBuiltIn && isQualityGateAdmin)
+      .setDelete(!isDefault && !isBuiltIn && isQualityGateAdmin)
       .setSetAsDefault(!isDefault && isQualityGateAdmin)
       .setAssociateProjects(!isDefault && isQualityGateAdmin)
       .build();
