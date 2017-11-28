@@ -22,6 +22,7 @@ package org.sonar.server.qualitygate.ws;
 import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import javax.annotation.Nullable;
@@ -89,8 +90,8 @@ public class ShowAction implements QualityGatesWsAction {
       QualityGateDto qualityGate = qualityGateFinder.getByNameOrId(dbSession, name, id);
       Collection<QualityGateConditionDto> conditions = getConditions(dbSession, qualityGate);
       Map<Integer, MetricDto> metricsById = getMetricsById(dbSession, conditions);
-      QualityGateDto defaultQualityGate = wsSupport.getDefault(dbSession);
-      writeProtobuf(buildResponse(qualityGate, defaultQualityGate, conditions, metricsById), request, response);
+      Optional<QualityGateDto> defaultQualityGate = qualityGateFinder.getDefault(dbSession);
+      writeProtobuf(buildResponse(qualityGate, defaultQualityGate.orElse(null), conditions, metricsById), request, response);
     }
   }
 
