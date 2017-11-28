@@ -35,7 +35,6 @@ import org.sonar.db.qualitygate.ProjectQgateAssociation;
 import org.sonar.db.qualitygate.ProjectQgateAssociationQuery;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QgateProjectFinder.Association;
 import org.sonar.server.qualitygate.QualityGates;
@@ -70,7 +69,6 @@ public class QualityGatesWsTest {
       new SearchAction(projectFinder),
       new CreateAction(null, null, null, null),
       new CopyAction(qGates),
-      new DestroyAction(qGates),
       new SetAsDefaultAction(qGates),
       selectAction,
       new DeselectAction(qGates, mock(DbClient.class), mock(ComponentFinder.class))));
@@ -82,7 +80,7 @@ public class QualityGatesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualitygates");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(8);
+    assertThat(controller.actions()).hasSize(7);
 
     Action copy = controller.action("copy");
     assertThat(copy).isNotNull();
@@ -92,14 +90,6 @@ public class QualityGatesWsTest {
     assertThat(copy.param("id")).isNotNull();
     assertThat(copy.param("name")).isNotNull();
     assertThat(copy.isInternal()).isFalse();
-
-    Action destroy = controller.action("destroy");
-    assertThat(destroy).isNotNull();
-    assertThat(destroy.handler()).isNotNull();
-    assertThat(destroy.since()).isEqualTo("4.3");
-    assertThat(destroy.isPost()).isTrue();
-    assertThat(destroy.param("id")).isNotNull();
-    assertThat(destroy.isInternal()).isFalse();
 
     Action setDefault = controller.action("set_as_default");
     assertThat(setDefault).isNotNull();
@@ -130,23 +120,6 @@ public class QualityGatesWsTest {
     when(qGates.copy(24L, name)).thenReturn(new QualityGateDto().setId(42L).setName(name));
     tester.newPostRequest("api/qualitygates", "copy").setParam("id", "24").setParam("name", name).execute()
       .assertJson("{\"id\":42,\"name\":\"Copied QG\"}");
-  }
-
-  @Test
-  public void destroy_nominal() throws Exception {
-    Long id = 42L;
-    tester.newPostRequest("api/qualitygates", "destroy").setParam("id", id.toString()).execute()
-      .assertNoContent();
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void destroy_without_id() throws Exception {
-    tester.newPostRequest("api/qualitygates", "destroy").execute();
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void destroy_with_invalid_id() throws Exception {
-    tester.newPostRequest("api/qualitygates", "destroy").setParam("id", "polop").execute();
   }
 
   @Test
