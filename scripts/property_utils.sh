@@ -34,7 +34,7 @@ function set_property {
 
   if grep -q "$REGEXP" "$FILE"; then
      # delete line of specified property
-    LINE_COUNT=$(cnt_lines $FILE)
+    LINE_COUNT=$(cnt_lines "$FILE")
 
     if [[ "$OSTYPE" == "darwin"* ]]; then
       sed -i '' "/${REGEXP}/d" "$FILE"
