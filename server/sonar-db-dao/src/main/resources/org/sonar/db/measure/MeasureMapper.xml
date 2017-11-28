@@ -121,7 +121,20 @@
         and pm.person_id is null
       </otherwise>
     </choose>
-    <include refid="org.sonar.db.component.ComponentMapper.selectDescendantsFilters"/>
+    and p.enabled = ${_true}
+    <if test="query.qualifiers != null">
+      and p.qualifier in
+      <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
+        #{qualifier,jdbcType=VARCHAR}
+      </foreach>
+    </if>
+    <if test="query.nameOrKeyQuery != null">
+      and (
+      p.kee = #{query.nameOrKeyQuery,jdbcType=VARCHAR}
+      or
+      upper(p.name) like #{query.nameOrKeyUpperLikeQuery,jdbcType=VARCHAR} escape '/'
+      )
+    </if>
   </sql>
 
   <select id="selectPastMeasuresOnSingleAnalysis" parameterType="map" resultType="org.sonar.db.measure.PastMeasureDto">

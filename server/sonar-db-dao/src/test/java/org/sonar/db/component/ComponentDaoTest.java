@@ -34,6 +34,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -1281,18 +1282,18 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void select_descendants_with_children_stragegy() {
+  public void select_descendants_with_children_strategy() {
     // project has 2 children: module and file 1. Other files are part of module.
     ComponentDto project = newPrivateProjectDto(db.organizations().insert(), PROJECT_UUID);
     db.components().insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto(MODULE_UUID, project);
     db.components().insertComponent(module);
-    ComponentDto file1 = newFileDto(project, null, FILE_1_UUID).setDbKey("file-key-1").setName("File One");
-    db.components().insertComponent(file1);
-    ComponentDto file2 = newFileDto(module, null, FILE_2_UUID).setDbKey("file-key-2").setName("File Two");
-    db.components().insertComponent(file2);
-    ComponentDto file3 = newFileDto(module, null, FILE_3_UUID).setDbKey("file-key-3").setName("File Three");
-    db.components().insertComponent(file3);
+    ComponentDto fileInProject = newFileDto(project, null, FILE_1_UUID).setDbKey("file-key-1").setName("File One");
+    db.components().insertComponent(fileInProject);
+    ComponentDto file1InModule = newFileDto(module, null, FILE_2_UUID).setDbKey("file-key-2").setName("File Two");
+    db.components().insertComponent(file1InModule);
+    ComponentDto file2InModule = newFileDto(module, null, FILE_3_UUID).setDbKey("file-key-3").setName("File Three");
+    db.components().insertComponent(file2InModule);
     db.commit();
 
     // test children of root
@@ -1344,6 +1345,16 @@ public class ComponentDaoTest {
     // test children of leaf component (file here), matching name
     query = newTreeQuery(FILE_1_UUID).setNameOrKeyQuery("Foo").build();
     assertThat(underTest.selectDescendants(dbSession, query)).isEmpty();
+
+    // test filtering by scope
+    query = newTreeQuery(project.uuid()).setScopes(asList(Scopes.FILE)).build();
+    assertThat(underTest.selectDescendants(dbSession, query))
+      .extracting(ComponentDto::uuid)
+      .containsExactlyInAnyOrder(fileInProject.uuid());
+    query = newTreeQuery(project.uuid()).setScopes(asList(Scopes.PROJECT)).build();
+    assertThat(underTest.selectDescendants(dbSession, query))
+      .extracting(ComponentDto::uuid)
+      .containsExactlyInAnyOrder(module.uuid());
   }
 
   @Test

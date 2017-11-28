@@ -30,16 +30,19 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.config.PurgeConstants;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+
 public class PurgeConfiguration {
 
   private final IdUuidPair rootProjectIdUuid;
-  private final String[] scopesWithoutHistoricalData;
+  private final Collection<String> scopesWithoutHistoricalData;
   private final int maxAgeInDaysOfClosedIssues;
   private final Optional<Integer> maxAgeInDaysOfInactiveShortLivingBranches;
   private final System2 system2;
   private final Collection<String> disabledComponentUuids;
 
-  public PurgeConfiguration(IdUuidPair rootProjectId, String[] scopesWithoutHistoricalData, int maxAgeInDaysOfClosedIssues,
+  public PurgeConfiguration(IdUuidPair rootProjectId, Collection<String> scopesWithoutHistoricalData, int maxAgeInDaysOfClosedIssues,
     Optional<Integer> maxAgeInDaysOfInactiveShortLivingBranches, System2 system2, Collection<String> disabledComponentUuids) {
     this.rootProjectIdUuid = rootProjectId;
     this.scopesWithoutHistoricalData = scopesWithoutHistoricalData;
@@ -50,11 +53,11 @@ public class PurgeConfiguration {
   }
 
   public static PurgeConfiguration newDefaultPurgeConfiguration(Configuration config, IdUuidPair idUuidPair, Collection<String> disabledComponentUuids) {
-    String[] scopes = new String[] {Scopes.FILE};
+    Collection<String> scopesWithoutHistoricalData = singletonList(Scopes.FILE);
     if (config.getBoolean(PurgeConstants.PROPERTY_CLEAN_DIRECTORY).orElse(false)) {
-      scopes = new String[] {Scopes.DIRECTORY, Scopes.FILE};
+      scopesWithoutHistoricalData = asList(Scopes.FILE, Scopes.DIRECTORY);
     }
-    return new PurgeConfiguration(idUuidPair, scopes, config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES).get(),
+    return new PurgeConfiguration(idUuidPair, scopesWithoutHistoricalData, config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_CLOSED_ISSUES).get(),
       config.getInt(PurgeConstants.DAYS_BEFORE_DELETING_INACTIVE_SHORT_LIVING_BRANCHES), System2.INSTANCE, disabledComponentUuids);
   }
 
@@ -62,7 +65,7 @@ public class PurgeConfiguration {
     return rootProjectIdUuid;
   }
 
-  public String[] scopesWithoutHistoricalData() {
+  public Collection<String> getScopesWithoutHistoricalData() {
     return scopesWithoutHistoricalData;
   }
 
