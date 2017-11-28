@@ -55,7 +55,7 @@ export default class DetailsHeader extends React.PureComponent {
             </h2>
 
             <div className="pull-right">
-              {actions.edit && (
+              {actions.rename && (
                 <button id="quality-gate-rename" onClick={this.handleRenameClick}>
                   {translate('rename')}
                 </button>
@@ -76,7 +76,7 @@ export default class DetailsHeader extends React.PureComponent {
                   {translate('set_as_default')}
                 </button>
               )}
-              {actions.edit && (
+              {actions.delete && (
                 <button
                   id="quality-gate-delete"
                   className="little-spacer-left button-red"

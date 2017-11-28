@@ -21,7 +21,7 @@ import React from 'react';
 import CreateView from '../views/create-view';
 import { translate } from '../../../helpers/l10n';
 
-export default function ListHeader({ canEdit, onAdd }) {
+export default function ListHeader({ canCreate, onAdd }) {
   function handleAddClick(e) {
     e.preventDefault();
     new CreateView({ onAdd }).render();
@@ -30,7 +30,7 @@ export default function ListHeader({ canEdit, onAdd }) {
   return (
     <header className="page-header">
       <h1 className="page-title">{translate('quality_gates.page')}</h1>
-      {canEdit && (
+      {canCreate && (
         <div className="page-actions">
           <button id="quality-gate-add" onClick={handleAddClick}>
             {translate('create')}

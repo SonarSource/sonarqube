@@ -81,7 +81,7 @@ export default class QualityGatesApp extends Component {
             <div className="layout-page-side" style={{ top }}>
               <div className="layout-page-side-inner">
                 <div className="layout-page-filters">
-                  <ListHeader canEdit={actions && actions.create} onAdd={this.handleAdd} />
+                  <ListHeader canCreate={actions && actions.create} onAdd={this.handleAdd} />
                   {qualityGates && <List organization={organization} qualityGates={qualityGates} />}
                 </div>
               </div>
