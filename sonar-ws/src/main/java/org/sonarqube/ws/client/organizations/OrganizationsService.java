@@ -130,6 +130,7 @@ public class OrganizationsService extends BaseService {
   public SearchWsResponse search(SearchRequest request) {
     return call(
       new GetRequest(path("search"))
+        .setParam("member", request.getMember())
         .setParam("organizations", request.getOrganizations() == null ? null : request.getOrganizations().stream().collect(Collectors.joining(",")))
         .setParam("p", request.getP())
         .setParam("ps", request.getPs()),
@@ -152,20 +153,6 @@ public class OrganizationsService extends BaseService {
         .setParam("q", request.getQ())
         .setParam("selected", request.getSelected()),
       SearchMembersWsResponse.parser());
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a GET request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/organizations/search_my_organizations">Further information about this action online (including a response example)</a>
-   * @since 6.3
-   */
-  public String searchMyOrganizations() {
-    return call(
-      new GetRequest(path("search_my_organizations"))
-        .setMediaType(MediaTypes.JSON)
-      ).content();
   }
 
   /**
