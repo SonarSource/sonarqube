@@ -44,6 +44,7 @@ public class GroupDaoTest {
   private static final OrganizationDto AN_ORGANIZATION = new OrganizationDto()
     .setKey("an-org")
     .setName("An Org")
+    .setDefaultQualityGateUuid("1")
     .setUuid("abcde");
 
   private System2 system2 = mock(System2.class);
