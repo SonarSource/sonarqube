@@ -19,8 +19,6 @@
  */
 package org.sonar.db.qualitygate;
 
-import java.util.Collection;
-import java.util.Iterator;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -28,24 +26,28 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 
 public class QualityGateDaoTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
+  private QualityGateDbTester qualityGateDbTester = new QualityGateDbTester(db);
   private DbSession dbSession = db.getSession();
   private QualityGateDao underTest = db.getDbClient().qualityGateDao();
 
   @Test
-  public void testInsert() throws Exception {
-    db.prepareDbUnit(getClass(), "insert.xml");
+  public void testInsert() {
     QualityGateDto newQgate = new QualityGateDto().setName("My Quality Gate");
 
     underTest.insert(dbSession, newQgate);
     dbSession.commit();
 
-    db.assertDbUnitTable(getClass(), "insert-result.xml", "quality_gates", "name");
+    assertThat(underTest.selectAll(dbSession)).extracting(QualityGateDto::getName, QualityGateDto::isBuiltIn)
+      .containsExactlyInAnyOrder(
+        // TODO : tuple("Sonar way", true),
+        tuple("My Quality Gate", false));
     assertThat(newQgate.getId()).isNotNull();
   }
 
@@ -59,49 +61,63 @@ public class QualityGateDaoTest {
   }
 
   @Test
-  public void testSelectAll() throws Exception {
-    db.prepareDbUnit(getClass(), "selectAll.xml");
+  public void testSelectAll() {
+    insertQualityGates();
 
-    Collection<QualityGateDto> allQualityGates = underTest.selectAll(dbSession);
-
-    assertThat(allQualityGates).hasSize(3);
-    Iterator<QualityGateDto> gatesIterator = allQualityGates.iterator();
-    assertThat(gatesIterator.next().getName()).isEqualTo("Balanced");
-    assertThat(gatesIterator.next().getName()).isEqualTo("Lenient");
-    assertThat(gatesIterator.next().getName()).isEqualTo("Very strict");
+    assertThat(underTest.selectAll(dbSession)).extracting(QualityGateDto::getName, QualityGateDto::isBuiltIn)
+      .containsExactlyInAnyOrder(
+        // TODO : tuple("Sonar Way", true),
+        tuple("Balanced", false),
+        tuple("Lenient", false),
+        tuple("Very strict", false));
   }
 
   @Test
-  public void testSelectByName() throws Exception {
-    db.prepareDbUnit(getClass(), "selectAll.xml");
+  public void testSelectByName() {
+    insertQualityGates();
     assertThat(underTest.selectByName(dbSession, "Balanced").getName()).isEqualTo("Balanced");
     assertThat(underTest.selectByName(dbSession, "Unknown")).isNull();
   }
 
   @Test
-  public void testSelectById() throws Exception {
-    db.prepareDbUnit(getClass(), "selectAll.xml");
-    assertThat(underTest.selectById(dbSession, 1L).getName()).isEqualTo("Very strict");
+  public void testSelectById() {
+    insertQualityGates();
+    assertThat(underTest.selectById(dbSession, underTest.selectByName(dbSession, "Very strict").getId()).getName()).isEqualTo("Very strict");
     assertThat(underTest.selectById(dbSession, 42L)).isNull();
   }
 
   @Test
-  public void testDelete() throws Exception {
-    db.prepareDbUnit(getClass(), "selectAll.xml");
+  public void testDelete() {
+    insertQualityGates();
 
-    underTest.delete(new QualityGateDto().setId(1L), dbSession);
+    underTest.delete(underTest.selectByName(dbSession, "Very strict"), dbSession);
     dbSession.commit();
 
-    db.assertDbUnitTable(getClass(), "delete-result.xml", "quality_gates", "id", "name");
+    assertThat(underTest.selectAll(dbSession)).extracting(QualityGateDto::getName, QualityGateDto::isBuiltIn)
+      .containsExactlyInAnyOrder(
+        // TODO : tuple("Sonar Way", true),
+        tuple("Balanced", false),
+        tuple("Lenient", false));
   }
 
   @Test
-  public void testUpdate() throws Exception {
-    db.prepareDbUnit(getClass(), "selectAll.xml");
+  public void testUpdate() {
+    insertQualityGates();
 
-    underTest.update(new QualityGateDto().setId(1L).setName("Not so strict"), dbSession);
+    underTest.update(underTest.selectByName(dbSession, "Very strict").setName("Not so strict"), dbSession);
     dbSession.commit();
 
-    db.assertDbUnitTable(getClass(), "update-result.xml", "quality_gates", "id", "name");
+    assertThat(underTest.selectAll(dbSession)).extracting(QualityGateDto::getName, QualityGateDto::isBuiltIn)
+      .containsExactlyInAnyOrder(
+        // TODO :  tuple("Sonar Way", true),
+        tuple("Balanced", false),
+        tuple("Lenient", false),
+        tuple("Not so strict", false));
+  }
+
+  private void insertQualityGates() {
+    qualityGateDbTester.insertQualityGate(g -> g.setName("Very strict").setBuiltIn(false));
+    qualityGateDbTester.insertQualityGate(g -> g.setName("Balanced").setBuiltIn(false));
+    qualityGateDbTester.insertQualityGate(g -> g.setName("Lenient").setBuiltIn(false));
   }
 }
