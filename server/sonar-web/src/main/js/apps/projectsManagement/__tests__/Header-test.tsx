@@ -23,7 +23,7 @@ import Header, { Props } from '../Header';
 import { Visibility } from '../../../app/types';
 import { click } from '../../../helpers/testUtils';
 
-const organization = { key: 'org', name: 'org', projectVisibility: 'public' };
+const organization = { key: 'org', name: 'org', projectVisibility: Visibility.Public };
 
 it('renders', () => {
   expect(shallowRender()).toMatchSnapshot();

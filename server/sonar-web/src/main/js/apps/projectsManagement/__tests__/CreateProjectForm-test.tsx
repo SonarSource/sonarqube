@@ -28,10 +28,11 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import CreateProjectForm from '../CreateProjectForm';
 import { change, submit, click } from '../../../helpers/testUtils';
+import { Visibility } from '../../../app/types';
 
 const createProject = require('../../../api/components').createProject as jest.Mock<any>;
 
-const organization = { key: 'org', name: 'org', projectVisibility: 'public' };
+const organization = { key: 'org', name: 'org', projectVisibility: Visibility.Public };
 
 it('creates project', async () => {
   const wrapper = shallow(
