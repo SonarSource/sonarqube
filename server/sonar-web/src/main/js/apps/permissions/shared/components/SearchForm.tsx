@@ -17,13 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import RadioToggle from '../../../../components/controls/RadioToggle';
 import SearchBox from '../../../../components/controls/SearchBox';
-import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import { translate } from '../../../../helpers/l10n';
 
-export default function SearchForm(props) {
+interface Props {
+  filter: string;
+  onFilter: (value: string) => void;
+  onSearch: (value: string) => void;
+  query: string;
+}
+
+export default function SearchForm(props: Props) {
   const filterOptions = [
     { value: 'all', label: translate('all') },
     { value: 'users', label: translate('users.page') },

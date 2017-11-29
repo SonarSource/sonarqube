@@ -178,12 +178,20 @@ export function removeProjectCreatorFromTemplate(
   return post('/api/permissions/remove_project_creator_from_template', { templateId, permission });
 }
 
+export interface PermissionUser {
+  login: string;
+  name: string;
+  email?: string;
+  permissions: string[];
+  avatar?: string;
+}
+
 export function getPermissionsUsersForComponent(
   projectKey: string,
   query?: string,
   permission?: string,
   organization?: string
-): Promise<any> {
+): Promise<PermissionUser[]> {
   const data: RequestData = { projectKey, ps: PAGE_SIZE };
   if (query) {
     data.q = query;
@@ -197,12 +205,19 @@ export function getPermissionsUsersForComponent(
   return getJSON('/api/permissions/users', data).then(r => r.users);
 }
 
+export interface PermissionGroup {
+  id: string;
+  name: string;
+  description?: string;
+  permissions: string[];
+}
+
 export function getPermissionsGroupsForComponent(
   projectKey: string,
   query: string = '',
   permission?: string,
   organization?: string
-): Promise<any> {
+): Promise<PermissionGroup[]> {
   const data: RequestData = { projectKey, ps: PAGE_SIZE };
   if (query) {
     data.q = query;
@@ -220,7 +235,7 @@ export function getGlobalPermissionsUsers(
   query?: string,
   permission?: string,
   organization?: string
-): Promise<any> {
+): Promise<PermissionUser[]> {
   const data: RequestData = { ps: PAGE_SIZE };
   if (query) {
     data.q = query;
@@ -238,7 +253,7 @@ export function getGlobalPermissionsGroups(
   query?: string,
   permission?: string,
   organization?: string
-): Promise<any> {
+): Promise<PermissionGroup[]> {
   const data: RequestData = { ps: PAGE_SIZE };
   if (query) {
     data.q = query;

@@ -17,17 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
+import * as classNames from 'classnames';
 import { Link } from 'react-router';
-import classNames from 'classnames';
 import * as theme from '../../../app/theme';
 import { translate } from '../../../helpers/l10n';
 import ContextNavBar from '../../../components/nav/ContextNavBar';
 import NavBarTabs from '../../../components/nav/NavBarTabs';
 import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 import { getQualityGatesUrl } from '../../../helpers/urls';
-/*:: import type { Organization } from '../../../store/organizations/duck'; */
+import { Extension, Organization } from '../../../app/types';
 
 const ADMIN_PATHS = [
   'edit',
@@ -38,14 +37,13 @@ const ADMIN_PATHS = [
   'projects_management'
 ];
 
-export default class OrganizationNavigation extends React.PureComponent {
-  /*:: props: {
-    location: { pathname: string },
-    organization: Organization
-  };
-*/
+interface Props {
+  location: { pathname: string };
+  organization: Organization;
+}
 
-  renderAdministration(adminActive /*: boolean */) {
+export default class OrganizationNavigation extends React.PureComponent<Props> {
+  renderAdministration(adminActive: boolean) {
     const { organization } = this.props;
 
     return (
@@ -105,7 +103,7 @@ export default class OrganizationNavigation extends React.PureComponent {
     return extensions.map(this.renderExtension);
   }
 
-  renderExtension = (extension /*: { key: string, name: string } */) => {
+  renderExtension = (extension: Extension) => {
     const { organization } = this.props;
     const pathname = `/organizations/${organization.key}/extension/${extension.key}`;
     return (
@@ -117,7 +115,7 @@ export default class OrganizationNavigation extends React.PureComponent {
     );
   };
 
-  renderExtensions(moreActive /*: boolean */) {
+  renderExtensions(moreActive: boolean) {
     const extensions = this.props.organization.pages || [];
     if (extensions.length > 0) {
       return (

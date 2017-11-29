@@ -17,29 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { getPermissionsAppError } from '../../../../store/rootReducer';
+import * as React from 'react';
+import Helmet from 'react-helmet';
+import PageHeader from './PageHeader';
+import AllHoldersListContainer from './AllHoldersListContainer';
+import PageError from '../../shared/components/PageError';
+import { translate } from '../../../../helpers/l10n';
+import { Organization } from '../../../../app/types';
+import '../../styles.css';
 
-class PageError extends React.PureComponent {
-  static propTypes = {
-    message: PropTypes.string
-  };
-
-  render() {
-    const { message } = this.props;
-
-    if (!message) {
-      return null;
-    }
-
-    return <div className="alert alert-danger">{message}</div>;
-  }
+interface Props {
+  organization?: Organization;
 }
 
-const mapStateToProps = state => ({
-  message: getPermissionsAppError(state)
-});
-
-export default connect(mapStateToProps)(PageError);
+export default function App({ organization }: Props) {
+  return (
+    <div className="page page-limited">
+      <Helmet title={translate('global_permissions.permission')} />
+      <PageHeader organization={organization} />
+      <PageError />
+      <AllHoldersListContainer organization={organization} />
+    </div>
+  );
+}
