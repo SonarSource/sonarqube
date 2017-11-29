@@ -163,6 +163,7 @@
       guarded,
       new_project_private,
       user_id,
+      default_quality_gate_uuid,
       created_at,
       updated_at
     )
@@ -177,6 +178,7 @@
       #{organization.guarded, jdbcType=BOOLEAN},
       #{newProjectPrivate, jdbcType=BOOLEAN},
       #{organization.userId, jdbcType=INTEGER},
+      #{organization.defaultQualityGateUuid, jdbcType=VARCHAR},
       #{organization.createdAt, jdbcType=BIGINT},
       #{organization.updatedAt, jdbcType=BIGINT}
     )

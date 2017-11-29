@@ -58,7 +58,7 @@ public class ComponentDaoWithDuplicatedKeysTest {
   }
 
   @Test
-  public void return_nothing() throws Exception {
+  public void return_nothing()  {
     assertThat(underTest.selectComponentsHavingSameKeyOrderedById(db.getSession(), PROJECT_KEY)).isEmpty();
   }
 
