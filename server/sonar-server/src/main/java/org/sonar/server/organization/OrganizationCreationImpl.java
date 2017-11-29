@@ -20,6 +20,7 @@
 package org.sonar.server.organization;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -75,8 +76,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
 
   public OrganizationCreationImpl(DbClient dbClient, System2 system2, UuidFactory uuidFactory,
     OrganizationValidation organizationValidation, Configuration config, UserIndexer userIndexer,
-    BuiltInQProfileRepository builtInQProfileRepository,
-    DefaultGroupCreator defaultGroupCreator) {
+    BuiltInQProfileRepository builtInQProfileRepository, DefaultGroupCreator defaultGroupCreator) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
@@ -95,8 +95,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
       throw new KeyConflictException(format("Organization key '%s' is already used", key));
     }
 
-    OrganizationDto organization = insertOrganization(dbSession, newOrganization, dto -> {
-    });
+    OrganizationDto organization = insertOrganization(dbSession, newOrganization);
     insertOrganizationMember(dbSession, organization, userCreator.getId());
     GroupDto ownerGroup = insertOwnersGroup(dbSession, organization);
     GroupDto defaultGroup = defaultGroupCreator.create(dbSession, organization.getUuid());
@@ -180,15 +179,16 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     organizationValidation.checkAvatar(newOrganization.getAvatar());
   }
 
-  private OrganizationDto insertOrganization(DbSession dbSession, NewOrganization newOrganization, Consumer<OrganizationDto> extendCreation) {
+  private OrganizationDto insertOrganization(DbSession dbSession, NewOrganization newOrganization, Consumer<OrganizationDto>... extendCreation) {
     OrganizationDto res = new OrganizationDto()
       .setUuid(uuidFactory.create())
       .setName(newOrganization.getName())
       .setKey(newOrganization.getKey())
       .setDescription(newOrganization.getDescription())
       .setUrl(newOrganization.getUrl())
+      // TODO .setDefaultQualityGateUuid("" + qualityGateFinder.getBuiltInQualityGate(dbSession).getId())
       .setAvatarUrl(newOrganization.getAvatar());
-    extendCreation.accept(res);
+    Arrays.stream(extendCreation).forEach(c -> c.accept(res));
     dbClient.organizationDao().insert(dbSession, res, false);
     return res;
   }

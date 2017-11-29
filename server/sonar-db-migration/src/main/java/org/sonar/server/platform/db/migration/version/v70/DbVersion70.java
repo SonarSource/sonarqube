@@ -37,6 +37,8 @@ public class DbVersion70 implements DbVersion {
       .add(1907, "Populate table live_measures", PopulateLiveMeasures.class)
       .add(1908, "Delete person and file measures", DeletePersonAndFileMeasures.class)
       .add(1909, "Drop index on project_measures.person_id", DropIndexOnPersonMeasures.class)
+      .add(1910, "Create ORG_QUALITY_GATES table", CreateOrgQualityGatesTable.class)
+      .add(1911, "Add ORGANIZATIONS.DEFAULT_QUALITY_GATE_UUID", AddDefaultQualityGateUuidToOrganizations.class)
     ;
   }
 }
