@@ -75,6 +75,7 @@ public final class SqTables {
     "organizations",
     "organization_members",
     "org_qprofiles",
+    "org_quality_gates",
     "permission_templates",
     "perm_templates_users",
     "perm_templates_groups",

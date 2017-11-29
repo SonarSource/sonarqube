@@ -33,6 +33,14 @@
     where id=#{id}
   </select>
 
+  <select id="selectBuiltIn" resultType="org.sonar.db.qualitygate.QualityGateDto">
+    SELECT
+      <include refid="gateColumns"/>
+    FROM quality_gates
+    WHERE
+      is_built_in = ${_true}
+  </select>
+
   <update id="delete" parameterType="long">
     delete from quality_gates where id=#{id}
   </update>
