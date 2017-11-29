@@ -17,39 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
+import Checkbox from '../../../../components/controls/Checkbox';
 import GroupIcon from '../../../../components/icons-components/GroupIcon';
+import { PermissionGroup } from '../../../../api/permissions';
 
-export default class GroupHolder extends React.PureComponent {
-  static propTypes = {
-    group: PropTypes.object.isRequired,
-    permissions: PropTypes.array.isRequired,
-    selectedPermission: PropTypes.string,
-    permissionsOrder: PropTypes.array.isRequired,
-    onToggle: PropTypes.func.isRequired
-  };
+interface Props {
+  group: PermissionGroup;
+  permissions: string[];
+  selectedPermission?: string;
+  permissionsOrder: string[];
+  onToggle: (group: PermissionGroup, permission: string) => void;
+}
 
-  handleClick(permission, e) {
-    e.preventDefault();
-    e.target.blur();
-    this.props.onToggle(this.props.group, permission);
-  }
+export default class GroupHolder extends React.PureComponent<Props> {
+  handleCheck = (_checked: boolean, permission?: string) =>
+    permission && this.props.onToggle(this.props.group, permission);
 
   render() {
     const { selectedPermission } = this.props;
-    const permissionCells = this.props.permissionsOrder.map(p => (
+    const permissionCells = this.props.permissionsOrder.map(permission => (
       <td
-        key={p.key}
+        key={permission}
         className="text-center text-middle"
-        style={{ backgroundColor: p.key === selectedPermission ? '#d9edf7' : 'transparent' }}>
-        <button className="button-clean" onClick={this.handleClick.bind(this, p.key)}>
-          {this.props.permissions.includes(p.key) ? (
-            <i className="icon-checkbox icon-checkbox-checked" />
-          ) : (
-            <i className="icon-checkbox" />
-          )}
-        </button>
+        style={{ backgroundColor: permission === selectedPermission ? '#d9edf7' : 'transparent' }}>
+        <Checkbox
+          checked={this.props.permissions.includes(permission)}
+          id={permission}
+          onCheck={this.handleCheck}
+        />
       </td>
     ));
 
