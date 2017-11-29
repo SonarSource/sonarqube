@@ -24,8 +24,8 @@ import java.util.function.Predicate;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Qualityprofiles.CreateWsResponse;
@@ -213,11 +213,12 @@ public class QualityProfilesEditTest {
       .qProfiles().service().search(new SearchRequest().setOrganizationKey(organization.getKey()));
     assertThat(result.getActions().getCreate()).isFalse();
     assertThat(result.getProfilesList())
-      .extracting(SearchWsResponse.QualityProfile::getKey, qp -> qp.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault())
+      .extracting(SearchWsResponse.QualityProfile::getKey, qp -> qp.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault(),
+        qp -> qp.getActions().getDelete(), qp -> qp.getActions().getAssociateProjects())
       .contains(
-        tuple(xooProfile1.getKey(), true, false, false),
-        tuple(xooProfile2.getKey(), true, false, false),
-        tuple(xooProfile3.getKey(), false, false, false));
+        tuple(xooProfile1.getKey(), true, false, false, true, true),
+        tuple(xooProfile2.getKey(), true, false, false, true, true),
+        tuple(xooProfile3.getKey(), false, false, false, false, false));
   }
 
   @Test
@@ -231,9 +232,10 @@ public class QualityProfilesEditTest {
       .qProfiles().service().search(new SearchRequest().setOrganizationKey(organization.getKey()));
     assertThat(result.getActions().getCreate()).isTrue();
     assertThat(result.getProfilesList())
-      .extracting(SearchWsResponse.QualityProfile::getKey, qp -> qp.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault())
+      .extracting(SearchWsResponse.QualityProfile::getKey, qp -> qp.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault(),
+        qp -> qp.getActions().getDelete(), qp -> qp.getActions().getAssociateProjects())
       .contains(
-        tuple(xooProfile.getKey(), true, true, true));
+        tuple(xooProfile.getKey(), true, true, true, true, true));
   }
 
   @Test

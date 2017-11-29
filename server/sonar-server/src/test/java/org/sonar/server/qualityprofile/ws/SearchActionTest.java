@@ -97,7 +97,10 @@ public class SearchActionTest {
 
     assertThat(definition.changelog())
       .extracting(Change::getVersion, Change::getDescription)
-      .containsExactlyInAnyOrder(tuple("6.5", "The parameters 'defaults', 'project' and 'language' can be combined without any constraint"));
+      .containsExactlyInAnyOrder(
+        tuple("6.5", "The parameters 'defaults', 'project' and 'language' can be combined without any constraint"),
+        tuple("6.6", "Add available actions 'edit', 'copy' and 'setAsDefault' and global action 'create'"),
+        tuple("7.0", "Add available actions 'delete' and 'associateProjects'"));
 
     WebService.Param organization = definition.param("organization");
     assertThat(organization).isNotNull();
@@ -328,16 +331,21 @@ public class SearchActionTest {
     OrganizationDto organization = db.organizations().insert();
     QProfileDto customProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO1.getKey()));
     QProfileDto builtInProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO1.getKey()).setIsBuiltIn(true));
+    QProfileDto defaultProfile = db.qualityProfiles().insert(organization, p -> p.setLanguage(XOO1.getKey()));
+    db.qualityProfiles().setAsDefault(defaultProfile);
     UserDto user = db.users().insertUser();
     userSession.logIn(user).addPermission(OrganizationPermission.ADMINISTER_QUALITY_PROFILES, organization);
 
     SearchWsResponse result = call(ws.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey()));
 
-    assertThat(result.getProfilesList()).extracting(QualityProfile::getKey, qp -> qp.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault())
+    assertThat(result.getProfilesList())
+      .extracting(QualityProfile::getKey, qp -> qp.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault(),
+        qp -> qp.getActions().getDelete(), qp -> qp.getActions().getAssociateProjects())
       .containsExactlyInAnyOrder(
-        tuple(customProfile.getKee(), true, true, true),
-        tuple(builtInProfile.getKee(), false, true, true));
+        tuple(customProfile.getKee(), true, true, true, true, true),
+        tuple(builtInProfile.getKee(), false, true, true, false, true),
+        tuple(defaultProfile.getKee(), true, true, false, false, false));
     assertThat(result.getActions().getCreate()).isTrue();
   }
 
@@ -357,12 +365,14 @@ public class SearchActionTest {
     SearchWsResponse result = call(ws.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey()));
 
-    assertThat(result.getProfilesList()).extracting(QualityProfile::getKey, qp -> qp.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault())
+    assertThat(result.getProfilesList())
+      .extracting(QualityProfile::getKey, qp -> qp.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault(),
+        qp -> qp.getActions().getDelete(), qp -> qp.getActions().getAssociateProjects())
       .containsExactlyInAnyOrder(
-        tuple(profile1.getKee(), true, false, false),
-        tuple(profile2.getKee(), false, false, false),
-        tuple(profile3.getKee(), true, false, false),
-        tuple(builtInProfile.getKee(), false, false, false));
+        tuple(profile1.getKee(), true, false, false, true, true),
+        tuple(profile2.getKee(), false, false, false, false, false),
+        tuple(profile3.getKee(), true, false, false, true, true),
+        tuple(builtInProfile.getKee(), false, false, false, false, false));
     assertThat(result.getActions().getCreate()).isFalse();
   }
 
@@ -375,8 +385,10 @@ public class SearchActionTest {
     SearchWsResponse result = call(ws.newRequest()
       .setParam(PARAM_ORGANIZATION, organization.getKey()));
 
-    assertThat(result.getProfilesList()).extracting(QualityProfile::getKey, qp -> qp.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault())
-      .containsExactlyInAnyOrder(tuple(profile.getKee(), false, false, false));
+    assertThat(result.getProfilesList())
+      .extracting(QualityProfile::getKey, qp -> qp.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault(),
+        qp -> qp.getActions().getDelete(), qp -> qp.getActions().getAssociateProjects())
+      .containsExactlyInAnyOrder(tuple(profile.getKee(), false, false, false, false, false));
     assertThat(result.getActions().getCreate()).isFalse();
   }
 
