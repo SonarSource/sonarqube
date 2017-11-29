@@ -34,12 +34,10 @@ export default function GlobalNavExplore({ location, onSonarCloud }: Props) {
   const active = location.pathname.startsWith('explore');
 
   return (
-    <ul className="global-navbar-menu spacer-right pull-right">
-      <li>
-        <Link to="/explore/projects" className={active ? 'active' : undefined}>
-          {translate('explore')}
-        </Link>
-      </li>
-    </ul>
+    <li>
+      <Link to="/explore/projects" className={active ? 'active' : undefined}>
+        {translate('explore')}
+      </Link>
+    </li>
   );
 }

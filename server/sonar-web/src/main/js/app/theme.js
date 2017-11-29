@@ -57,6 +57,11 @@ module.exports = {
   smallControlHeight: '20px',
   tinyControlHeight: '16px',
 
+  globalNavHeight: '48px',
+  globalNavHeightRaw: 48,
+  globalNavContentHeight: '32px',
+  globalNavContentHeightRaw: 32,
+
   // different
   defaultShadow: '0 6px 12px rgba(0, 0, 0, 0.175)',
 

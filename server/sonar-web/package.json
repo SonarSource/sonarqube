@@ -93,6 +93,7 @@
     "html-webpack-plugin": "2.30.1",
     "jest": "21.2.1",
     "lint-staged": "4.3.0",
+    "postcss-calc": "6.0.1",
     "postcss-custom-properties": "6.2.0",
     "postcss-loader": "2.0.8",
     "prettier": "1.7.4",

@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import GlobalFooterContainer from './GlobalFooterContainer';
+import * as theme from '../theme';
 import NavBar from '../../components/nav/NavBar';
 
 interface Props {
@@ -45,7 +46,7 @@ export default class SimpleContainer extends React.PureComponent<Props> {
     return (
       <div className="global-container">
         <div className="page-wrapper" id="container">
-          <NavBar className="navbar-global" height={30} />
+          <NavBar className="navbar-global" height={theme.globalNavHeightRaw} />
 
           <div id="bd" className="page-wrapper-simple">
             <div id="nonav" className="page-simple">

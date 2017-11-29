@@ -26,6 +26,7 @@ import GlobalNavExplore from './GlobalNavExplore';
 import GlobalNavUserContainer from './GlobalNavUserContainer';
 import Search from '../../search/Search';
 import GlobalHelp from '../../help/GlobalHelp';
+import * as theme from '../../../theme';
 import NavBar from '../../../../components/nav/NavBar';
 import Tooltip from '../../../../components/controls/Tooltip';
 import HelpIcon from '../../../../components/icons-components/HelpIcon';
@@ -107,13 +108,13 @@ class GlobalNav extends React.PureComponent {
 
   render() {
     return (
-      <NavBar className="navbar-global" id="global-navigation" height={30}>
+      <NavBar className="navbar-global" id="global-navigation" height={theme.globalNavHeightRaw}>
         <GlobalNavBranding />
 
         <GlobalNavMenu {...this.props} />
 
         <ul className="global-navbar-menu pull-right">
-          <Search appState={this.props.appState} currentUser={this.props.currentUser} />
+          <GlobalNavExplore location={this.props.location} onSonarCloud={this.props.onSonarCloud} />
           <li>
             <a className="navbar-help" onClick={this.handleHelpClick} href="#">
               {this.state.onboardingTutorialTooltip ? (
@@ -128,10 +129,9 @@ class GlobalNav extends React.PureComponent {
               )}
             </a>
           </li>
+          <Search appState={this.props.appState} currentUser={this.props.currentUser} />
           <GlobalNavUserContainer {...this.props} />
         </ul>
-
-        <GlobalNavExplore location={this.props.location} onSonarCloud={this.props.onSonarCloud} />
 
         {this.state.helpOpen && (
           <GlobalHelp
