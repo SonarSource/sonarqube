@@ -25,7 +25,6 @@ import { Organization } from '../../../../app/types';
 import { PermissionUser, PermissionGroup } from '../../../../api/permissions';
 
 const PERMISSIONS_ORDER = ['admin', 'profileadmin', 'gateadmin', 'scan', 'provisioning'];
-const PERMISSIONS_FOR_CUSTOM_ORG = ['admin', 'profileadmin', 'scan', 'provisioning'];
 
 interface Props {
   filter: string;
@@ -70,13 +69,8 @@ export default class AllHoldersList extends React.PureComponent<Props> {
   };
 
   render() {
-    const order =
-      this.props.organization && !this.props.organization.isDefault
-        ? PERMISSIONS_FOR_CUSTOM_ORG
-        : PERMISSIONS_ORDER;
-
+    const order = PERMISSIONS_ORDER;
     const l10nPrefix = this.props.organization ? 'organizations_permissions' : 'global_permissions';
-
     const permissions = order.map(p => ({
       key: p,
       name: translate(l10nPrefix, p),
