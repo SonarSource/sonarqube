@@ -15,7 +15,9 @@
       "actions": {
         "edit": false,
         "setAsDefault": false,
-        "copy": false
+        "copy": false,
+        "delete": false,
+        "associateProjects": false
       }
     },
     {
@@ -37,7 +39,9 @@
       "actions": {
         "edit": true,
         "setAsDefault": false,
-        "copy": false
+        "copy": false,
+        "delete": true,
+        "associateProjects": true
       }
     },
     {
@@ -55,7 +59,9 @@
       "actions": {
         "edit": true,
         "setAsDefault": false,
-        "copy": false
+        "copy": false,
+        "delete": false,
+        "associateProjects": false
       }
     },
     {
@@ -72,7 +78,9 @@
       "actions": {
         "edit": false,
         "setAsDefault": false,
-        "copy": false
+        "copy": false,
+        "delete": false,
+        "associateProjects": false
       }
     }
   ],
