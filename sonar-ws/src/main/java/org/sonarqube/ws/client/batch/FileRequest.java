@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client.batch;
 
+import java.util.List;
 import javax.annotation.Generated;
 
 /**

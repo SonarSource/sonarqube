@@ -37,8 +37,6 @@ public class SearchRequest {
   private String ps;
 
   /**
-   * Filter organizations based on whether the authenticated user is a member
-   *
    * Possible values:
    * <ul>
    *   <li>"true"</li>
