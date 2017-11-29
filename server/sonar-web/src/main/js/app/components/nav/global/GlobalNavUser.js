@@ -22,6 +22,7 @@ import React from 'react';
 import classNames from 'classnames';
 import { sortBy } from 'lodash';
 import { Link } from 'react-router';
+import * as theme from '../../../theme';
 import Avatar from '../../../../components/ui/Avatar';
 import OrganizationIcon from '../../../../components/icons-components/OrganizationIcon';
 import OrganizationLink from '../../../../components/ui/OrganizationLink';
@@ -124,7 +125,11 @@ export default class GlobalNavUser extends React.PureComponent {
         className={classNames('dropdown js-user-authenticated', { open: this.state.open })}
         ref={node => (this.node = node)}>
         <a className="dropdown-toggle navbar-avatar" href="#" onClick={this.toggleDropdown}>
-          <Avatar hash={currentUser.avatar} name={currentUser.name} size={24} />
+          <Avatar
+            hash={currentUser.avatar}
+            name={currentUser.name}
+            size={theme.globalNavContentHeightRaw}
+          />
         </a>
         {this.state.open && (
           <ul className="dropdown-menu dropdown-menu-right">

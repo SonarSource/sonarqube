@@ -12,7 +12,7 @@ exports[`should not render the users organizations when they are not activated 1
     <Connect(Avatar)
       hash="abcd1234"
       name="foo"
-      size={24}
+      size={32}
     />
   </a>
   <ul
@@ -85,7 +85,7 @@ exports[`should render the right interface for logged in user 1`] = `
     <Connect(Avatar)
       hash="abcd1234"
       name="foo"
-      size={24}
+      size={32}
     />
   </a>
   <ul
@@ -146,7 +146,7 @@ exports[`should render the users organizations 1`] = `
     <Connect(Avatar)
       hash="abcd1234"
       name="foo"
-      size={24}
+      size={32}
     />
   </a>
   <ul
@@ -294,7 +294,7 @@ exports[`should update the component correctly when the user changes to anonymou
     <Connect(Avatar)
       hash="abcd1234"
       name="foo"
-      size={24}
+      size={32}
     />
   </a>
   <ul

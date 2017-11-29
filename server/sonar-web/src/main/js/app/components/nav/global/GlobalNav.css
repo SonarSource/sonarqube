@@ -5,16 +5,15 @@
 }
 
 .navbar-brand {
-  display: block;
-  margin-left: -10px;
-  padding-left: 10px;
-  padding-right: 10px;
-  border: none;
-}
-
-.navbar-brand:hover,
-.navbar-brand:focus {
-  background-color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: var(--globalNavHeight);
+  margin-left: calc(-1 * (var(--globalNavHeight) - var(--globalNavContentHeight)) / 2);
+  padding-top: 4px;
+  padding-left: calc((var(--globalNavHeight) - var(--globalNavContentHeight)) / 2);
+  padding-right: calc((var(--globalNavHeight) - var(--globalNavContentHeight)) / 2);
+  border-bottom: 4px solid transparent;
 }
 
 .navbar-login {
@@ -23,37 +22,46 @@
 }
 
 .navbar-avatar {
-  margin-right: -3px !important;
-  padding: 3px !important;
+  margin-right: calc(-1 * (var(--globalNavHeight) - var(--globalNavContentHeight)) / 2);
+  padding: calc((var(--globalNavHeight) - var(--globalNavContentHeight)) / 2) !important;
+  border: none !important;
 }
 
 .navbar-help {
-  line-height: 16px !important;
-  padding: 7px !important;
+  height: var(--globalNavHeight);
+  padding: calc(var(--globalNavHeight) - var(--globalNavContentHeight)) 12px !important;
+  border-bottom: none !important;
   color: #fff !important;
 }
 
 .global-navbar-menu {
   display: flex;
   align-items: center;
+  height: var(--globalNavHeight);
 }
 
 .global-navbar-menu > li > a {
   display: block;
-  padding: 8px 10px;
-  line-height: 14px;
-  border: none;
+  height: var(--globalNavHeight);
+  padding: calc((var(--globalNavHeight) - var(--globalNavContentHeight)) / 2) 10px;
+  line-height: var(--globalNavContentHeight);
+  border-bottom: 4px solid transparent;
+  box-sizing: border-box;
   color: #ccc;
   font-size: var(--smallFontSize);
   letter-spacing: 0.05em;
-  transition: none;
 }
 
+.navbar-brand:hover,
+.navbar-brand:focus,
 .global-navbar-menu > li > a.active,
 .global-navbar-menu > li > a:hover,
 .global-navbar-menu > li > a:focus {
-  background-color: var(--blue);
-  color: #fff;
+  background-color: #020202;
+}
+
+.global-navbar-menu > li > a.active {
+  border-bottom-color: #646464;
 }
 
 @media print {

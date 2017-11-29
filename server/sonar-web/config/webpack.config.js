@@ -27,7 +27,8 @@ const postcssLoader = () => ({
       require('autoprefixer'),
       require('postcss-custom-properties')({
         variables: require('../src/main/js/app/theme')
-      })
+      }),
+      require('postcss-calc')
     ]
   }
 });
