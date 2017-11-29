@@ -21,6 +21,7 @@
 import * as React from 'react';
 import { mount } from 'enzyme';
 import App, { Props } from '../App';
+import { Visibility } from '../../../app/types';
 
 jest.mock('react-dom');
 
@@ -42,7 +43,7 @@ jest.mock('../../../api/components', () => ({ getComponents: jest.fn() }));
 
 const getComponents = require('../../../api/components').getComponents as jest.Mock<any>;
 
-const organization = { key: 'org', name: 'org', projectVisibility: 'public' };
+const organization = { key: 'org', name: 'org', projectVisibility: Visibility.Public };
 
 const defaultSearchParameters = {
   organization: 'org',
