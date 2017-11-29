@@ -108,7 +108,7 @@ export interface Metric {
 }
 
 export interface Organization {
-  adminPages?: Array<{ key: string; name: string }>;
+  adminPages?: { key: string; name: string }[];
   avatar?: string;
   canAdmin?: boolean;
   canDelete?: boolean;
@@ -118,8 +118,8 @@ export interface Organization {
   isDefault?: boolean;
   key: string;
   name: string;
-  pages?: Array<{ key: string; name: string }>;
-  projectVisibility: string;
+  pages?: { key: string; name: string }[];
+  projectVisibility: Visibility;
   url?: string;
 }
 

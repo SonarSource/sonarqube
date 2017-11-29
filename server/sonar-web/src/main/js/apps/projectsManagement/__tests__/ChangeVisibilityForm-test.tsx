@@ -21,12 +21,13 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import ChangeVisibilityForm, { Props } from '../ChangeVisibilityForm';
 import { click } from '../../../helpers/testUtils';
+import { Visibility } from '../../../app/types';
 
 const organization = {
   canUpdateProjectsVisibilityToPrivate: true,
   key: 'org',
   name: 'org',
-  projectVisibility: 'public'
+  projectVisibility: Visibility.Public
 };
 
 it('renders disabled', () => {
