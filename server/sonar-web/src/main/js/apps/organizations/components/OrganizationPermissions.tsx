@@ -17,24 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
 import GlobalPermissionsApp from '../../permissions/global/components/App';
 import { getOrganizationByKey } from '../../../store/rootReducer';
-/*:: import type { Organization } from '../../../store/organizations/duck'; */
+import { Organization } from '../../../app/types';
 
-/*::
-type Props = {
-  organization: Organization
-};
-*/
-
-function OrganizationPermissions(props /*: Props */) {
-  return <GlobalPermissionsApp organization={props.organization} />;
+interface Props {
+  organization: Organization;
 }
 
-const mapStateToProps = (state, ownProps) => ({
+function OrganizationPermissions({ organization }: Props) {
+  return <GlobalPermissionsApp organization={organization} />;
+}
+
+const mapStateToProps = (state: any, ownProps: any) => ({
   organization: getOrganizationByKey(state, ownProps.params.organizationKey)
 });
 

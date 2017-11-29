@@ -17,40 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import { connect } from 'react-redux';
+import * as React from 'react';
 import SearchForm from '../../shared/components/SearchForm';
 import HoldersList from '../../shared/components/HoldersList';
-import {
-  loadHolders,
-  grantToUser,
-  revokeFromUser,
-  grantToGroup,
-  revokeFromGroup,
-  updateFilter,
-  updateQuery,
-  selectPermission
-} from '../store/actions';
 import { translate } from '../../../../helpers/l10n';
-import {
-  getPermissionsAppUsers,
-  getPermissionsAppGroups,
-  getPermissionsAppQuery,
-  getPermissionsAppFilter,
-  getPermissionsAppSelectedPermission
-} from '../../../../store/rootReducer';
+import { Organization } from '../../../../app/types';
+import { PermissionUser, PermissionGroup } from '../../../../api/permissions';
 
 const PERMISSIONS_ORDER = ['admin', 'profileadmin', 'gateadmin', 'scan', 'provisioning'];
-
 const PERMISSIONS_FOR_CUSTOM_ORG = ['admin', 'profileadmin', 'scan', 'provisioning'];
 
-class AllHoldersList extends React.PureComponent {
+interface Props {
+  filter: string;
+  grantPermissionToGroup: (groupName: string, permission: string) => void;
+  grantPermissionToUser: (login: string, permission: string) => void;
+  groups: PermissionGroup[];
+  loadHolders: () => void;
+  onFilter: (filter: string) => void;
+  onSearch: (query: string) => void;
+  onSelectPermission: (permission: string) => void;
+  organization?: Organization;
+  query: string;
+  revokePermissionFromGroup: (groupName: string, permission: string) => void;
+  revokePermissionFromUser: (login: string, permission: string) => void;
+  selectedPermission?: string;
+  users: PermissionUser[];
+}
+
+export default class AllHoldersList extends React.PureComponent<Props> {
   componentDidMount() {
     this.props.loadHolders();
   }
 
-  handleToggleUser(user, permission) {
+  handleToggleUser = (user: PermissionUser, permission: string) => {
     const hasPermission = user.permissions.includes(permission);
 
     if (hasPermission) {
@@ -58,9 +57,9 @@ class AllHoldersList extends React.PureComponent {
     } else {
       this.props.grantPermissionToUser(user.login, permission);
     }
-  }
+  };
 
-  handleToggleGroup(group, permission) {
+  handleToggleGroup = (group: PermissionGroup, permission: string) => {
     const hasPermission = group.permissions.includes(permission);
 
     if (hasPermission) {
@@ -68,7 +67,7 @@ class AllHoldersList extends React.PureComponent {
     } else {
       this.props.grantPermissionToGroup(group.name, permission);
     }
-  }
+  };
 
   render() {
     const order =
@@ -91,8 +90,8 @@ class AllHoldersList extends React.PureComponent {
         users={this.props.users}
         groups={this.props.groups}
         onSelectPermission={this.props.onSelectPermission}
-        onToggleUser={this.handleToggleUser.bind(this)}
-        onToggleGroup={this.handleToggleGroup.bind(this)}>
+        onToggleUser={this.handleToggleUser}
+        onToggleGroup={this.handleToggleGroup}>
         <SearchForm
           query={this.props.query}
           filter={this.props.filter}
@@ -103,37 +102,3 @@ class AllHoldersList extends React.PureComponent {
     );
   }
 }
-
-const mapStateToProps = state => ({
-  users: getPermissionsAppUsers(state),
-  groups: getPermissionsAppGroups(state),
-  query: getPermissionsAppQuery(state),
-  filter: getPermissionsAppFilter(state),
-  selectedPermission: getPermissionsAppSelectedPermission(state)
-});
-
-/*::
-type OwnProps = {
-  organization?: { key: string }
-};
-*/
-
-const mapDispatchToProps = (dispatch /*: Function */, ownProps /*: OwnProps */) => {
-  const organizationKey = ownProps.organization ? ownProps.organization.key : undefined;
-  return {
-    loadHolders: () => dispatch(loadHolders(organizationKey)),
-    onSearch: query => dispatch(updateQuery(query, organizationKey)),
-    onFilter: filter => dispatch(updateFilter(filter, organizationKey)),
-    onSelectPermission: permission => dispatch(selectPermission(permission, organizationKey)),
-    grantPermissionToUser: (login, permission) =>
-      dispatch(grantToUser(login, permission, organizationKey)),
-    revokePermissionFromUser: (login, permission) =>
-      dispatch(revokeFromUser(login, permission, organizationKey)),
-    grantPermissionToGroup: (groupName, permission) =>
-      dispatch(grantToGroup(groupName, permission, organizationKey)),
-    revokePermissionFromGroup: (groupName, permission) =>
-      dispatch(revokeFromGroup(groupName, permission, organizationKey))
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(AllHoldersList);

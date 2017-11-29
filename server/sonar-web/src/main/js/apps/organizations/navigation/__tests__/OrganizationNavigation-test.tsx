@@ -17,46 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import OrganizationNavigation from '../OrganizationNavigation';
+import { Visibility } from '../../../../app/types';
 
 jest.mock('../../../issues/utils', () => ({
   isMySet: () => false
 }));
 
+const organization = {
+  key: 'foo',
+  name: 'Foo',
+  canAdmin: false,
+  canDelete: false,
+  projectVisibility: Visibility.Public
+};
+
 it('regular user', () => {
-  const organization = { key: 'foo', name: 'Foo', canAdmin: false, canDelete: false };
-  expect(
-    shallow(
-      <OrganizationNavigation
-        location={{ pathname: '/organizations/foo' }}
-        organization={organization}
-      />
-    )
-  ).toMatchSnapshot();
+  expect(getWrapper()).toMatchSnapshot();
 });
 
 it('admin', () => {
-  const organization = { key: 'foo', name: 'Foo', canAdmin: true, canDelete: true };
   expect(
-    shallow(
-      <OrganizationNavigation
-        location={{ pathname: '/organizations/foo' }}
-        organization={organization}
-      />
-    )
+    getWrapper({ organization: { ...organization, canAdmin: true, canDelete: true } })
   ).toMatchSnapshot();
 });
 
 it('undeletable org', () => {
-  const organization = { key: 'foo', name: 'Foo', canAdmin: true, canDelete: false };
   expect(
-    shallow(
-      <OrganizationNavigation
-        location={{ pathname: '/organizations/foo' }}
-        organization={organization}
-      />
-    )
+    getWrapper({ organization: { ...organization, canAdmin: true, canDelete: false } })
   ).toMatchSnapshot();
 });
+
+function getWrapper(props = {}) {
+  return shallow(
+    <OrganizationNavigation
+      location={{ pathname: '/organizations/foo' }}
+      organization={organization}
+      {...props}
+    />
+  );
+}
