@@ -17,22 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import Helmet from 'react-helmet';
-import PageHeader from './PageHeader';
-import AllHoldersList from './AllHoldersList';
-import PageError from '../../shared/components/PageError';
-import { translate } from '../../../../helpers/l10n';
-import '../../styles.css';
+import * as React from 'react';
+import { connect } from 'react-redux';
+import { getPermissionsAppError } from '../../../../store/rootReducer';
 
-export default function App(props /*: { organization?: {} } */) {
-  return (
-    <div className="page page-limited">
-      <Helmet title={translate('global_permissions.permission')} />
-      <PageHeader organization={props.organization} />
-      <PageError />
-      <AllHoldersList organization={props.organization} />
-    </div>
-  );
+interface Props {
+  message: string;
 }
+
+function PageError({ message }: Props) {
+  if (!message) {
+    return null;
+  }
+
+  return <div className="alert alert-danger">{message}</div>;
+}
+
+const mapStateToProps = (state: any) => ({
+  message: getPermissionsAppError(state)
+});
+
+export default connect(mapStateToProps)(PageError);

@@ -17,69 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import UserHolder from './UserHolder';
 import GroupHolder from './GroupHolder';
-import Tooltip from '../../../../components/controls/Tooltip';
-import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import PermissionHeader, { Permission } from './PermissionHeader';
+import { PermissionUser, PermissionGroup } from '../../../../api/permissions';
+import { translate } from '../../../../helpers/l10n';
 
-export default class HoldersList extends React.PureComponent {
-  static propTypes = {
-    permissions: PropTypes.array.isRequired,
-    users: PropTypes.array.isRequired,
-    groups: PropTypes.array.isRequired,
-    selectedPermission: PropTypes.string,
-    showPublicProjectsWarning: PropTypes.bool,
-    onSelectPermission: PropTypes.func.isRequired,
-    onToggleUser: PropTypes.func.isRequired,
-    onToggleGroup: PropTypes.func.isRequired
-  };
+interface Props {
+  permissions: Permission[];
+  users: PermissionUser[];
+  groups: PermissionGroup[];
+  selectedPermission?: string;
+  showPublicProjectsWarning?: boolean;
+  onSelectPermission: (permission: string) => void;
+  onToggleUser: (user: PermissionUser, permission: string) => void;
+  onToggleGroup: (group: PermissionGroup, permission: string) => void;
+}
 
-  static defaultProps = {
-    showPublicProjectsWarning: false
-  };
-
-  handlePermissionClick = event => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    this.props.onSelectPermission(event.currentTarget.dataset.key);
-  };
-
-  renderTooltip = permission =>
-    this.props.showPublicProjectsWarning &&
-    (permission.key === 'user' || permission.key === 'codeviewer') ? (
-      <div>
-        {permission.description}
-        <div className="alert alert-warning spacer-top">
-          {translate('projects_role.public_projects_warning')}
-        </div>
-      </div>
-    ) : (
-      permission.description
-    );
-
+export default class HoldersList extends React.PureComponent<Props> {
   renderTableHeader() {
-    const { selectedPermission } = this.props;
+    const { onSelectPermission, selectedPermission, showPublicProjectsWarning } = this.props;
     const cells = this.props.permissions.map(p => (
-      <th
+      <PermissionHeader
         key={p.key}
-        className="permission-column text-center"
-        style={{
-          backgroundColor: p.key === selectedPermission ? '#d9edf7' : 'transparent'
-        }}>
-        <div className="permission-column-inner">
-          <Tooltip
-            overlay={translateWithParameters('global_permissions.filter_by_x_permission', p.name)}>
-            <a data-key={p.key} href="#" onClick={this.handlePermissionClick}>
-              {p.name}
-            </a>
-          </Tooltip>
-          <Tooltip overlay={this.renderTooltip(p)}>
-            <i className="icon-help little-spacer-left" />
-          </Tooltip>
-        </div>
-      </th>
+        onSelectPermission={onSelectPermission}
+        permission={p}
+        selectedPermission={selectedPermission}
+        showPublicProjectsWarning={showPublicProjectsWarning}
+      />
     ));
     return (
       <thead>
@@ -101,13 +67,15 @@ export default class HoldersList extends React.PureComponent {
   }
 
   render() {
+    const permissionsOrder = this.props.permissions.map(p => p.key);
+
     const users = this.props.users.map(user => (
       <UserHolder
         key={'user-' + user.login}
         user={user}
         permissions={user.permissions}
         selectedPermission={this.props.selectedPermission}
-        permissionsOrder={this.props.permissions}
+        permissionsOrder={permissionsOrder}
         onToggle={this.props.onToggleUser}
       />
     ));
@@ -118,7 +86,7 @@ export default class HoldersList extends React.PureComponent {
         group={group}
         permissions={group.permissions}
         selectedPermission={this.props.selectedPermission}
-        permissionsOrder={this.props.permissions}
+        permissionsOrder={permissionsOrder}
         onToggle={this.props.onToggleGroup}
       />
     ));
