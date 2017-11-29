@@ -1,6 +1,0 @@
-<dataset>
-
-  <quality_gates id="2" name="Balanced" is_built_in="[false]"/>
-  <quality_gates id="3" name="Lenient" is_built_in="[false]"/>
-
-</dataset>

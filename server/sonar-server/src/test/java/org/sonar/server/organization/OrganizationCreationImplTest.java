@@ -52,6 +52,7 @@ import org.sonar.db.user.UserMembershipDto;
 import org.sonar.db.user.UserMembershipQuery;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.BuiltInQProfile;
 import org.sonar.server.qualityprofile.BuiltInQProfileRepositoryRule;
 import org.sonar.server.qualityprofile.QProfileName;
