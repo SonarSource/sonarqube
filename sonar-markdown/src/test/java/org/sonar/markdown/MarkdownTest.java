@@ -100,15 +100,16 @@ public class MarkdownTest {
   }
 
   @Test
-  public void shouldEmphaseText() {
-    assertThat(Markdown.convertToHtml("This is *important*")).isEqualTo("This is <strong>important</strong>");
-    assertThat(Markdown.convertToHtml("This should not be * \n emphase")).isEqualTo("This should not be * <br/> emphase");
+  public void shouldEmphasisText() {
+    assertThat(Markdown.convertToHtml("This is *Sparta !!!*")).isEqualTo("This is <strong>Sparta !!!</strong>");
+    assertThat(Markdown.convertToHtml("This is *A*")).isEqualTo("This is <strong>A</strong>");
+    assertThat(Markdown.convertToHtml("This should not be * \n emphasized")).isEqualTo("This should not be * <br/> emphasized");
     assertThat(Markdown.convertToHtml("This is *very* very *important*")).isEqualTo("This is <strong>very</strong> very <strong>important</strong>");
-    assertThat(Markdown.convertToHtml("Not * emphase * because of whitespaces")).isEqualTo("Not * emphase * because of whitespaces");
-    assertThat(Markdown.convertToHtml("Not *emphase * because of whitespace")).isEqualTo("Not *emphase * because of whitespace");
-    assertThat(Markdown.convertToHtml("Not * emphase* because of whitespace")).isEqualTo("Not * emphase* because of whitespace");
-    assertThat(Markdown.convertToHtml("emphase*inside*word")).isEqualTo("emphase<strong>inside</strong>word");
-    assertThat(Markdown.convertToHtml("*Emphase many words*")).isEqualTo("<strong>Emphase many words</strong>");
+    assertThat(Markdown.convertToHtml("Not * emphasized * because of whitespaces")).isEqualTo("Not * emphasized * because of whitespaces");
+    assertThat(Markdown.convertToHtml("Not *emphasized * because of whitespace")).isEqualTo("Not *emphasized * because of whitespace");
+    assertThat(Markdown.convertToHtml("Not * emphasized* because of whitespace")).isEqualTo("Not * emphasized* because of whitespace");
+    assertThat(Markdown.convertToHtml("emphasized*inside*word")).isEqualTo("emphasized<strong>inside</strong>word");
+    assertThat(Markdown.convertToHtml("*Emphasize many words*")).isEqualTo("<strong>Emphasize many words</strong>");
   }
 
   @Test
