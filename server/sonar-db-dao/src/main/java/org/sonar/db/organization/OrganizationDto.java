@@ -35,6 +35,7 @@ public class OrganizationDto {
   private String url;
   /** avatar url can be null */
   private String avatarUrl;
+
   /**
    * Flag indicated whether being root is required to be able to delete this organization.
    */
@@ -42,6 +43,7 @@ public class OrganizationDto {
   /** If of the user for whom the organization was created, can be null. */
   private Integer userId;
   private Integer defaultGroupId;
+  private String defaultQualityGateUuid;
   private long createdAt;
   private long updatedAt;
 
@@ -146,6 +148,15 @@ public class OrganizationDto {
     return this;
   }
 
+  public String getDefaultQualityGateUuid() {
+    return defaultQualityGateUuid;
+  }
+
+  public OrganizationDto setDefaultQualityGateUuid(String defaultQualityGateUuid) {
+    this.defaultQualityGateUuid = defaultQualityGateUuid;
+    return this;
+  }
+
   @Override
   public String toString() {
     return "OrganizationDto{" +
@@ -157,6 +168,7 @@ public class OrganizationDto {
       ", avatarUrl='" + avatarUrl + '\'' +
       ", guarded=" + guarded +
       ", userId=" + userId +
+      ", defaultQualityGateUuid=" + defaultQualityGateUuid +
       ", createdAt=" + createdAt +
       ", updatedAt=" + updatedAt +
       '}';

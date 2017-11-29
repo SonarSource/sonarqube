@@ -27,6 +27,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 
+import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
 import static org.sonar.server.ws.WsUtils.checkFound;
 
@@ -81,6 +82,12 @@ public class QualityGateFinder {
       return Optional.ofNullable(
         dbClient.qualityGateDao().selectById(dbSession, defaultQualityGateId.get()));
     }
+  }
+
+  public QualityGateDto getBuiltInQualityGate(DbSession dbSession) {
+    QualityGateDto builtIn = dbClient.qualityGateDao().selectBuiltIn(dbSession);
+    checkState(builtIn != null, "Builtin quality gate is missing.");
+    return builtIn;
   }
 
   private Optional<Long> getDefaultId(DbSession dbSession) {

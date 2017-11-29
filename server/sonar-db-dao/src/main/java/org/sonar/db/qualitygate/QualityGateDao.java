@@ -59,6 +59,10 @@ public class QualityGateDao implements Dao {
     mapper(dbSession).ensureOneBuiltInQualityGate(builtInName);
   }
 
+  public QualityGateDto selectBuiltIn(DbSession dbSession) {
+    return mapper(dbSession).selectBuiltIn();
+  }
+
   private static QualityGateMapper mapper(DbSession session) {
     return session.getMapper(QualityGateMapper.class);
   }

@@ -5,6 +5,7 @@
                  name="org1_name"
                  guarded="[false]"
                  new_project_private="[false]"
+                 default_quality_gate_uuid="1"
                  created_at="1000"
                  updated_at="2000"/>
 

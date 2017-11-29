@@ -37,6 +37,7 @@ public class OrganizationTesting {
       .setName(randomAlphanumeric(64))
       .setDescription(randomAlphanumeric(256))
       .setAvatarUrl(randomAlphanumeric(256))
+      .setDefaultQualityGateUuid("1") // TODO check that using it directly is ok
       .setUrl(randomAlphanumeric(256));
   }
 }

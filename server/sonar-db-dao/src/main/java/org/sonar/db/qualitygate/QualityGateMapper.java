@@ -31,6 +31,8 @@ public interface QualityGateMapper {
 
   QualityGateDto selectById(long id);
 
+  QualityGateDto selectBuiltIn();
+
   void delete(long id);
 
   void update(QualityGateDto qGate);
