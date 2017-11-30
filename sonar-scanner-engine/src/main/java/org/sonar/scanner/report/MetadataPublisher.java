@@ -19,11 +19,18 @@
  */
 package org.sonar.scanner.report;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
+import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.scanner.ProjectAnalysisInfo;
 import org.sonar.scanner.bootstrap.ScannerPlugin;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
@@ -34,10 +41,13 @@ import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
+import org.sonar.scanner.scm.ScmConfiguration;
 
 import static org.sonar.core.config.ScannerProperties.ORGANIZATION;
 
 public class MetadataPublisher implements ReportPublisherStep {
+
+  private static final Logger LOG = Loggers.get(MetadataPublisher.class);
 
   private final Configuration settings;
   private final ModuleQProfiles qProfiles;
@@ -47,8 +57,12 @@ public class MetadataPublisher implements ReportPublisherStep {
   private final ScannerPluginRepository pluginRepository;
   private final BranchConfiguration branchConfiguration;
 
+  @Nullable
+  private final ScmConfiguration scmConfiguration;
+
   public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, Configuration settings,
-    ModuleQProfiles qProfiles, CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration) {
+    ModuleQProfiles qProfiles, CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration,
+    @Nullable ScmConfiguration scmConfiguration) {
     this.projectAnalysisInfo = projectAnalysisInfo;
     this.moduleHierarchy = moduleHierarchy;
     this.settings = settings;
@@ -56,6 +70,12 @@ public class MetadataPublisher implements ReportPublisherStep {
     this.cpdSettings = cpdSettings;
     this.pluginRepository = pluginRepository;
     this.branchConfiguration = branchConfiguration;
+    this.scmConfiguration = scmConfiguration;
+  }
+
+  public MetadataPublisher(ProjectAnalysisInfo projectAnalysisInfo, InputModuleHierarchy moduleHierarchy, Configuration settings,
+    ModuleQProfiles qProfiles, CpdSettings cpdSettings, ScannerPluginRepository pluginRepository, BranchConfiguration branchConfiguration) {
+    this(projectAnalysisInfo, moduleHierarchy, settings, qProfiles, cpdSettings, pluginRepository, branchConfiguration, null);
   }
 
   @Override
@@ -80,6 +100,23 @@ public class MetadataPublisher implements ReportPublisherStep {
     }
     Optional.ofNullable(rootProject.getBranch()).ifPresent(builder::setDeprecatedBranch);
 
+    if (scmConfiguration != null) {
+      ScmProvider scmProvider = scmConfiguration.provider();
+      if (scmProvider != null) {
+        Path projectBasedir = moduleHierarchy.root().getBaseDir();
+        try {
+          builder.setRelativePathFromScmRoot(toSonarQubePath(scmProvider.relativePathFromScmRoot(projectBasedir)));
+        } catch (UnsupportedOperationException e) {
+          LOG.debug(e.getMessage());
+        }
+        try {
+          builder.setScmRevisionId(scmProvider.revisionId(projectBasedir));
+        } catch (UnsupportedOperationException e) {
+          LOG.debug(e.getMessage());
+        }
+      }
+    }
+
     for (QProfile qp : qProfiles.findAll()) {
       builder.getMutableQprofilesPerLanguage().put(qp.getLanguage(), ScannerReport.Metadata.QProfile.newBuilder()
         .setKey(qp.getKey())
@@ -101,4 +138,14 @@ public class MetadataPublisher implements ReportPublisherStep {
     }
     return BranchType.SHORT;
   }
+
+  private static String toSonarQubePath(Path path) {
+    String pathAsString = path.toString();
+    char sonarQubeSeparatorChar = '/';
+    if (File.separatorChar != sonarQubeSeparatorChar) {
+      return pathAsString.replaceAll(Pattern.quote(File.separator), String.valueOf(sonarQubeSeparatorChar));
+    }
+    return pathAsString;
+  }
+
 }

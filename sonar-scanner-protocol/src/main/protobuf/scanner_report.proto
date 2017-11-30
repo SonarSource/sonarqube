@@ -43,6 +43,9 @@ message Metadata {
   BranchType branch_type = 10;
   string merge_branch_name = 11;
 
+  string relative_path_from_scm_root = 12;
+  string scm_revision_id = 13;
+
   message QProfile {
     string key = 1;
     string name = 2;
