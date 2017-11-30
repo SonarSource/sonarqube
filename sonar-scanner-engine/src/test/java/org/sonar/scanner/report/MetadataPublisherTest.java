@@ -22,6 +22,8 @@ package org.sonar.scanner.report;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,10 +34,10 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.InputModuleHierarchy;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.scm.ScmProvider;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.core.config.ScannerProperties;
 import org.sonar.scanner.ProjectAnalysisInfo;
-import org.sonar.scanner.analysis.DefaultAnalysisMode;
 import org.sonar.scanner.bootstrap.ScannerPlugin;
 import org.sonar.scanner.bootstrap.ScannerPluginRepository;
 import org.sonar.scanner.cpd.CpdSettings;
@@ -46,11 +48,13 @@ import org.sonar.scanner.rule.ModuleQProfiles;
 import org.sonar.scanner.rule.QProfile;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchType;
+import org.sonar.scanner.scm.ScmConfiguration;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -66,9 +70,10 @@ public class MetadataPublisherTest {
   private ProjectAnalysisInfo projectAnalysisInfo;
   private CpdSettings cpdSettings;
   private InputModuleHierarchy inputModuleHierarchy;
-  private DefaultAnalysisMode analysisMode;
   private ScannerPluginRepository pluginRepository;
   private BranchConfiguration branches;
+  private ScmConfiguration scmConfiguration;
+  private ScmProvider scmProvider;
 
   @Before
   public void prepare() throws IOException {
@@ -78,6 +83,11 @@ public class MetadataPublisherTest {
     settings = new MapSettings();
     qProfiles = mock(ModuleQProfiles.class);
     pluginRepository = mock(ScannerPluginRepository.class);
+
+    scmProvider = mock(ScmProvider.class);
+    when(scmProvider.relativePathFromScmRoot(any(Path.class))).thenReturn(Paths.get("dummy/path"));
+    when(scmProvider.revisionId(any(Path.class))).thenReturn("dummy-sha1");
+
     createPublisher(ProjectDefinition.create().setKey("foo"));
     when(pluginRepository.getPluginsByKey()).thenReturn(emptyMap());
   }
@@ -86,10 +96,11 @@ public class MetadataPublisherTest {
     rootModule = new DefaultInputModule(def.setBaseDir(temp.newFolder()).setWorkDir(temp.newFolder()), TestInputFileBuilder.nextBatchId());
     inputModuleHierarchy = mock(InputModuleHierarchy.class);
     when(inputModuleHierarchy.root()).thenReturn(rootModule);
-    analysisMode = mock(DefaultAnalysisMode.class);
     branches = mock(BranchConfiguration.class);
+    scmConfiguration = mock(ScmConfiguration.class);
+    when(scmConfiguration.provider()).thenReturn(scmProvider);
     underTest = new MetadataPublisher(projectAnalysisInfo, inputModuleHierarchy, settings.asConfig(), qProfiles, cpdSettings,
-      pluginRepository, branches);
+      pluginRepository, branches, scmConfiguration);
   }
 
   @Test
@@ -196,4 +207,80 @@ public class MetadataPublisherTest {
     assertThat(metadata.getMergeBranchName()).isEqualTo(branchTarget);
   }
 
+  @Test
+  public void write_project_basedir() throws Exception {
+    String path = "some/dir";
+    Path relativePathFromScmRoot = Paths.get(path);
+    when(scmProvider.relativePathFromScmRoot(any(Path.class))).thenReturn(relativePathFromScmRoot);
+
+    File outputDir = temp.newFolder();
+    underTest.publish(new ScannerReportWriter(outputDir));
+
+    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReport.Metadata metadata = reader.readMetadata();
+    assertThat(metadata.getRelativePathFromScmRoot()).isEqualTo(path);
+  }
+
+  @Test
+  public void write_revision_id() throws Exception {
+    String revisionId = "some-sha1";
+    when(scmProvider.revisionId(any(Path.class))).thenReturn(revisionId);
+
+    File outputDir = temp.newFolder();
+    underTest.publish(new ScannerReportWriter(outputDir));
+
+    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReport.Metadata metadata = reader.readMetadata();
+    assertThat(metadata.getScmRevisionId()).isEqualTo(revisionId);
+  }
+
+  @Test
+  public void should_not_crash_when_scm_provider_does_not_support_relativePathFromScmRoot() throws IOException {
+    String revisionId = "some-sha1";
+
+    ScmProvider fakeScmProvider = new ScmProvider() {
+      @Override
+      public String key() {
+        return "foo";
+      }
+
+      @Override
+      public String revisionId(Path path) {
+        return revisionId;
+      }
+    };
+    when(scmConfiguration.provider()).thenReturn(fakeScmProvider);
+
+    File outputDir = temp.newFolder();
+    underTest.publish(new ScannerReportWriter(outputDir));
+
+    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReport.Metadata metadata = reader.readMetadata();
+    assertThat(metadata.getScmRevisionId()).isEqualTo(revisionId);
+  }
+
+  @Test
+  public void should_not_crash_when_scm_provider_does_not_support_revisionId() throws IOException {
+    String relativePathFromScmRoot = "some/path";
+
+    ScmProvider fakeScmProvider = new ScmProvider() {
+      @Override
+      public String key() {
+        return "foo";
+      }
+
+      @Override
+      public Path relativePathFromScmRoot(Path path) {
+        return Paths.get(relativePathFromScmRoot);
+      }
+    };
+    when(scmConfiguration.provider()).thenReturn(fakeScmProvider);
+
+    File outputDir = temp.newFolder();
+    underTest.publish(new ScannerReportWriter(outputDir));
+
+    ScannerReportReader reader = new ScannerReportReader(outputDir);
+    ScannerReport.Metadata metadata = reader.readMetadata();
+    assertThat(metadata.getRelativePathFromScmRoot()).isEqualTo(relativePathFromScmRoot);
+  }
 }
