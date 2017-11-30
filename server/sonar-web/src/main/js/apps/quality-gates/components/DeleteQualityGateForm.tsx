@@ -62,7 +62,7 @@ export default class DeleteQualityGateForm extends React.PureComponent<Props, St
     event.preventDefault();
     const { organization, qualityGate } = this.props;
     this.setState({ loading: true });
-    deleteQualityGate(qualityGate.id).then(
+    deleteQualityGate({ id: qualityGate.id, organization }).then(
       () => {
         this.props.onDelete(qualityGate);
         this.context.router.replace(getQualityGatesUrl(organization));

@@ -36,8 +36,10 @@ export default function BuiltInQualityGateBadge({ className, tooltip = true }: P
 
   const overlay = (
     <div>
-      <p>{translate('quality_gates.built_in.description.1')}</p>
-      <p>{translate('quality_gates.built_in.description.2')}</p>
+      <span>{translate('quality_gates.built_in.description.1')}</span>
+      <span className="little-spacer-left">
+        {translate('quality_gates.built_in.description.2')}
+      </span>
     </div>
   );
 

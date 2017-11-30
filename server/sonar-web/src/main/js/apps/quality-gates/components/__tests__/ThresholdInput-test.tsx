@@ -17,15 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import ThresholdInput from '../ThresholdInput';
 import { change } from '../../../../helpers/testUtils';
 
 describe('on strings', () => {
+  const metric = { key: 'foo', name: 'Foo', type: 'INTEGER' };
   it('should render text input', () => {
     const input = shallow(
-      <ThresholdInput name="foo" value="2" metric={{ type: 'INTEGER' }} onChange={jest.fn()} />
+      <ThresholdInput name="foo" value="2" metric={metric} onChange={jest.fn()} />
     ).find('input');
     expect(input.length).toEqual(1);
     expect(input.prop('name')).toEqual('foo');
@@ -35,7 +36,7 @@ describe('on strings', () => {
   it('should change', () => {
     const onChange = jest.fn();
     const input = shallow(
-      <ThresholdInput name="foo" value="2" metric={{ type: 'INTEGER' }} onChange={onChange} />
+      <ThresholdInput name="foo" value="2" metric={metric} onChange={onChange} />
     ).find('input');
     change(input, 'bar');
     expect(onChange).toBeCalledWith('bar');
@@ -43,9 +44,10 @@ describe('on strings', () => {
 });
 
 describe('on ratings', () => {
+  const metric = { key: 'foo', name: 'Foo', type: 'RATING' };
   it('should render Select', () => {
     const select = shallow(
-      <ThresholdInput name="foo" value="2" metric={{ type: 'RATING' }} onChange={jest.fn()} />
+      <ThresholdInput name="foo" value="2" metric={metric} onChange={jest.fn()} />
     ).find('Select');
     expect(select.length).toEqual(1);
     expect(select.prop('value')).toEqual('2');
@@ -54,18 +56,18 @@ describe('on ratings', () => {
   it('should set', () => {
     const onChange = jest.fn();
     const select = shallow(
-      <ThresholdInput name="foo" value="2" metric={{ type: 'RATING' }} onChange={onChange} />
+      <ThresholdInput name="foo" value="2" metric={metric} onChange={onChange} />
     ).find('Select');
-    select.prop('onChange')({ label: 'D', value: '4' });
+    (select.prop('onChange') as Function)({ label: 'D', value: '4' });
     expect(onChange).toBeCalledWith('4');
   });
 
   it('should unset', () => {
     const onChange = jest.fn();
     const select = shallow(
-      <ThresholdInput name="foo" value="2" metric={{ type: 'RATING' }} onChange={onChange} />
+      <ThresholdInput name="foo" value="2" metric={metric} onChange={onChange} />
     ).find('Select');
-    select.prop('onChange')(null);
+    (select.prop('onChange') as Function)(null);
     expect(onChange).toBeCalledWith('');
   });
 });

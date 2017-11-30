@@ -51,15 +51,20 @@ export default class QualityGatesApp extends Component {
   }
 
   fetchQualityGates = () =>
-    fetchQualityGates().then(({ actions, qualitygates: qualityGates }) => {
-      const { organization, updateStore } = this.props;
-      updateStore({ actions, qualityGates });
-      if (qualityGates && qualityGates.length === 1 && !actions.create) {
-        this.context.router.replace(
-          getQualityGateUrl(String(qualityGates[0].id), organization && organization.key)
-        );
-      }
-    });
+    fetchQualityGates({
+      organization: this.props.organization && this.props.organization.key
+    }).then(
+      ({ actions, qualitygates: qualityGates }) => {
+        const { organization, updateStore } = this.props;
+        updateStore({ actions, qualityGates });
+        if (qualityGates && qualityGates.length === 1 && !actions.create) {
+          this.context.router.replace(
+            getQualityGateUrl(String(qualityGates[0].id), organization && organization.key)
+          );
+        }
+      },
+      () => {}
+    );
 
   render() {
     const { children, qualityGates, actions, organization } = this.props;
