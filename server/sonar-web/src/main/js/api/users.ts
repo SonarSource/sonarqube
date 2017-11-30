@@ -19,7 +19,7 @@
  */
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { Paging } from '../app/types';
+import { CurrentUser, Paging } from '../app/types';
 
 export interface IdentityProvider {
   backgroundColor: string;
@@ -42,7 +42,7 @@ export interface User {
   avatar?: string;
 }
 
-export function getCurrentUser(): Promise<any> {
+export function getCurrentUser(): Promise<CurrentUser> {
   return getJSON('/api/users/current');
 }
 

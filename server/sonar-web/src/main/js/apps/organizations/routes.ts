@@ -17,20 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { RouterState, RedirectFunction } from 'react-router';
+import GlobalPermissionsApp from '../permissions/global/components/App';
 import OrganizationPageContainer from './components/OrganizationPage';
 import OrganizationPageExtension from '../../app/components/extensions/OrganizationPageExtension';
 import OrganizationContainer from './components/OrganizationContainer';
 import OrganizationProjects from './components/OrganizationProjects';
 import OrganizationFavoriteProjects from './components/OrganizationFavoriteProjects';
 import OrganizationRules from './components/OrganizationRules';
-import OrganizationAdminContainer from './components/OrganizationAdmin';
+import OrganizationAdminContainer from './components/OrganizationAdminContainer';
 import OrganizationEdit from './components/OrganizationEdit';
 import OrganizationGroups from './components/OrganizationGroups';
 import OrganizationMembersContainer from './components/OrganizationMembersContainer';
-import OrganizationPermissions from './components/OrganizationPermissions';
-import OrganizationPermissionTemplates from './components/OrganizationPermissionTemplates';
-import OrganizationProjectsManagement from './components/OrganizationProjectsManagement';
 import OrganizationDelete from './components/OrganizationDelete';
+import PermissionTemplateApp from '../permission-templates/components/AppContainer';
+import ProjectManagementApp from '../projectsManagement/AppContainer';
 import qualityGatesRoutes from '../quality-gates/routes';
 import qualityProfilesRoutes from '../quality-profiles/routes';
 import issuesRoutes from '../issues/routes';
@@ -42,7 +43,7 @@ const routes = [
     childRoutes: [
       {
         indexRoute: {
-          onEnter(nextState, replace) {
+          onEnter(nextState: RouterState, replace: RedirectFunction) {
             const { params } = nextState;
             replace(`/organizations/${params.organizationKey}/projects`);
           }
@@ -95,9 +96,9 @@ const routes = [
           { path: 'delete', component: OrganizationDelete },
           { path: 'edit', component: OrganizationEdit },
           { path: 'groups', component: OrganizationGroups },
-          { path: 'permissions', component: OrganizationPermissions },
-          { path: 'permission_templates', component: OrganizationPermissionTemplates },
-          { path: 'projects_management', component: OrganizationProjectsManagement }
+          { path: 'permissions', component: GlobalPermissionsApp },
+          { path: 'permission_templates', component: PermissionTemplateApp },
+          { path: 'projects_management', component: ProjectManagementApp }
         ]
       }
     ]
