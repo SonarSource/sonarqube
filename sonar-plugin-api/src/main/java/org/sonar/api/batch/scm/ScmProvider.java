@@ -53,7 +53,7 @@ public abstract class ScmProvider {
   }
 
   public BlameCommand blameCommand() {
-    throw new UnsupportedOperationException("Blame command is not supported by " + key() + " provider");
+    throw new UnsupportedOperationException(formatUnsupportedMessage("Blame command"));
   }
 
   /**
@@ -63,5 +63,24 @@ public abstract class ScmProvider {
   @Nullable
   public Set<Path> branchChangedFiles(String targetBranchName, Path rootBaseDir) {
     return null;
+  }
+
+  /**
+  * The relative path from SCM root
+  */
+  public Path relativePathFromScmRoot(Path path) {
+    throw new UnsupportedOperationException(formatUnsupportedMessage("Getting relative path from SCM root"));
+  }
+
+  /**
+   * The current revision id of the analyzed code,
+   * for example the SHA1 of the current HEAD in a Git branch.
+   */
+  public String revisionId(Path path) {
+    throw new UnsupportedOperationException(formatUnsupportedMessage("Getting revision id"));
+  }
+
+  private String formatUnsupportedMessage(String prefix) {
+    return prefix + " is not supported by " + key() + " provider";
   }
 }
