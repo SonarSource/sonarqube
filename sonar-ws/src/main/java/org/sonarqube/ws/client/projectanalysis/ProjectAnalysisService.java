@@ -30,6 +30,10 @@ import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameter
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_CATEGORY;
 import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_PROJECT;
 
+/**
+ * @deprecated since 7.0, use {@link org.sonarqube.ws.client.projectanalyses.ProjectAnalysesService} instead
+ */
+@Deprecated
 public class ProjectAnalysisService extends BaseService {
 
   public ProjectAnalysisService(WsConnector wsConnector) {
