@@ -20,19 +20,22 @@
 package org.sonarqube.ws.client;
 
 import org.sonarqube.ws.client.ce.CeService;
-import org.sonarqube.ws.client.component.ComponentsService;
+import org.sonarqube.ws.client.components.ComponentsService;
 import org.sonarqube.ws.client.favorites.FavoritesService;
-import org.sonarqube.ws.client.issue.IssuesService;
-import org.sonarqube.ws.client.measure.MeasuresService;
+import org.sonarqube.ws.client.issues.IssuesService;
+import org.sonarqube.ws.client.measures.MeasuresService;
 import org.sonarqube.ws.client.notifications.NotificationsService;
 import org.sonarqube.ws.client.organization.OrganizationService;
-import org.sonarqube.ws.client.permission.PermissionsService;
+import org.sonarqube.ws.client.organizations.OrganizationsService;
+import org.sonarqube.ws.client.permissions.PermissionsService;
 import org.sonarqube.ws.client.project.ProjectsService;
+import org.sonarqube.ws.client.projectanalyses.ProjectAnalysesService;
 import org.sonarqube.ws.client.projectanalysis.ProjectAnalysisService;
 import org.sonarqube.ws.client.projectbranches.ProjectBranchesService;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
+import org.sonarqube.ws.client.qualityprofiles.QualityprofilesService;
 import org.sonarqube.ws.client.roots.RootsService;
 import org.sonarqube.ws.client.rules.RulesService;
 import org.sonarqube.ws.client.settings.SettingsService;
@@ -61,19 +64,50 @@ import org.sonarqube.ws.client.webhooks.WebhooksService;
  * @since 5.3
  */
 public interface WsClient {
-  OrganizationService organizations();
+
+  /**
+   * @deprecated since 7.0 use {@link #organizations()} instead
+   */
+  @Deprecated
+  OrganizationService organizationsOld();
+
+  OrganizationsService organizations();
+
+  /**
+   * @deprecated since 7.0 use {@link #components()} instead
+   */
+  @Deprecated
+  org.sonarqube.ws.client.component.ComponentsService componentsOld();
 
   ComponentsService components();
 
   FavoritesService favorites();
 
+  /**
+   * @deprecated since 7.0 use {@link #issues()} instead
+   */
+  @Deprecated
+  org.sonarqube.ws.client.issue.IssuesService issuesOld();
+
   IssuesService issues();
 
   NotificationsService notifications();
 
+  /**
+   * @deprecated since 7.0 use {@link #permissions()} instead
+   */
+  @Deprecated
+  org.sonarqube.ws.client.permission.PermissionsService permissionsOld();
+
   PermissionsService permissions();
 
-  QualityProfilesService qualityProfiles();
+  /**
+   * @deprecated since 7.0 use {@link #qualityProfiles()} instead
+   */
+  @Deprecated
+  QualityProfilesService qualityProfilesOld();
+
+  QualityprofilesService qualityProfiles();
 
   UsersService users();
 
@@ -82,6 +116,12 @@ public interface WsClient {
   UserTokensService userTokens();
 
   QualitygatesService qualityGates();
+
+  /**
+   * @deprecated since 7.0 use {@link #measures()} instead
+   */
+  @Deprecated
+  org.sonarqube.ws.client.measure.MeasuresService measuresOld();
 
   MeasuresService measures();
 
@@ -120,8 +160,12 @@ public interface WsClient {
 
   /**
    * @since 6.3
+   * @deprecated since 7.0 use {@link #projectAnalyses()} instead
    */
-  ProjectAnalysisService projectAnalysis();
+  @Deprecated
+  ProjectAnalysisService projectAnalysisOld();
+
+  ProjectAnalysesService projectAnalyses();
 
   /**
    * @since 6.6>

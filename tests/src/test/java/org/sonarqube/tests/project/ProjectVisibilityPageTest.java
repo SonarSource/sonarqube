@@ -57,7 +57,7 @@ public class ProjectVisibilityPageTest {
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")).setProperties("sonar.projectKey", "sample2"));
     tester.wsClient().projects().updateVisibility(UpdateVisibilityRequest.builder().setProject("sample2").setVisibility("private").build());
     // Remove 'Admin' permission for admin group on project 2 -> No one can access or admin this project, expect System Admin
-    tester.wsClient().permissions().removeGroup(new RemoveGroupRequest().setProjectKey("sample2").setGroupName("sonar-administrators").setPermission("admin"));
+    tester.wsClient().permissionsOld().removeGroup(new RemoveGroupRequest().setProjectKey("sample2").setGroupName("sonar-administrators").setPermission("admin"));
 
     tester.openBrowser().logIn().submitCredentials(adminUser)
       .openProjectsManagement("default-organization")
@@ -84,7 +84,7 @@ public class ProjectVisibilityPageTest {
       .createProject("foo", "foo", visibility)
       .shouldHaveProjectsCount(1);
 
-    Components.SearchProjectsWsResponse response = newAdminWsClient(orchestrator).components().searchProjects(
+    Components.SearchProjectsWsResponse response = newAdminWsClient(orchestrator).componentsOld().searchProjects(
       SearchProjectsRequest.builder().build());
     assertThat(response.getComponentsCount()).isEqualTo(1);
     assertThat(response.getComponents(0).getKey()).isEqualTo("foo");

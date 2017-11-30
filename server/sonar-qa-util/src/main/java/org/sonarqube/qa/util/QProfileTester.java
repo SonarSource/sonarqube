@@ -50,7 +50,7 @@ public class QProfileTester {
   }
 
   public QualityProfilesService service() {
-    return session.wsClient().qualityProfiles();
+    return session.wsClient().qualityProfilesOld();
   }
 
   @SafeVarargs

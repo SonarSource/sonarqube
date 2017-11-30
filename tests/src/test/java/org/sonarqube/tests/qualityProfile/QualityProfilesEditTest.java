@@ -226,7 +226,7 @@ public class QualityProfilesEditTest {
     Organization organization = tester.organizations().generate();
     User user = tester.users().generateMember(organization);
     CreateWsResponse.QualityProfile xooProfile = tester.qProfiles().createXooProfile(organization);
-    tester.wsClient().permissions().addUser(new AddUserRequest().setOrganization(organization.getKey()).setLogin(user.getLogin()).setPermission("profileadmin"));
+    tester.wsClient().permissionsOld().addUser(new AddUserRequest().setOrganization(organization.getKey()).setLogin(user.getLogin()).setPermission("profileadmin"));
 
     SearchWsResponse result = tester.as(user.getLogin())
       .qProfiles().service().search(new SearchRequest().setOrganizationKey(organization.getKey()));

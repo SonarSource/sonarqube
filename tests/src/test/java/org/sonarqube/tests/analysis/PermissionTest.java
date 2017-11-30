@@ -147,7 +147,7 @@ public class PermissionTest {
   }
 
   private void addUserPermission(String login, String permission, @Nullable String projectKey) {
-    adminWsClient.permissions().addUser(new AddUserRequest()
+    adminWsClient.permissionsOld().addUser(new AddUserRequest()
       .setLogin(login)
       .setPermission(permission)
       .setProjectKey(projectKey));

@@ -48,8 +48,8 @@ public class PermissionTemplatePageTest {
     String userLogin = tester.users().generateMemberOfDefaultOrganization().getLogin();
     String adminLogin = tester.users().generateAdministratorOnDefaultOrganization().getLogin();
 
-    tester.wsClient().permissions().createTemplate(new CreateTemplateRequest().setName("foo-template"));
-    tester.wsClient().permissions().addUserToTemplate(
+    tester.wsClient().permissionsOld().createTemplate(new CreateTemplateRequest().setName("foo-template"));
+    tester.wsClient().permissionsOld().addUserToTemplate(
       new AddUserToTemplateRequest()
         .setPermission("admin")
         .setTemplateName("foo-template")
@@ -58,7 +58,7 @@ public class PermissionTemplatePageTest {
     ProjectsManagementPage page = tester.openBrowser().logIn().submitCredentials(adminLogin).openProjectsManagement();
     page.shouldHaveProject(project);
     page.bulkApplyPermissionTemplate("foo-template");
-    Permissions.UsersWsResponse usersResponse = tester.wsClient().permissions().users(new UsersRequest()
+    Permissions.UsersWsResponse usersResponse = tester.wsClient().permissionsOld().users(new UsersRequest()
       .setProjectKey(project)
       .setPermission("admin")
     );

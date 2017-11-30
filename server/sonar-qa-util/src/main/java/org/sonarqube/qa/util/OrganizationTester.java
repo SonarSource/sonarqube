@@ -136,6 +136,6 @@ public class OrganizationTester {
   }
 
   public OrganizationService service() {
-    return session.wsClient().organizations();
+    return session.wsClient().organizationsOld();
   }
 }

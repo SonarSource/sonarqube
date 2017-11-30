@@ -214,7 +214,7 @@ public class IssueTrackingTest extends AbstractIssueTest {
   }
 
   private static SearchWsResponse searchIssues(SearchRequest request) {
-    return adminClient.issues().search(request);
+    return adminClient.issuesOld().search(request);
   }
 
 }

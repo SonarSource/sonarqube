@@ -271,7 +271,7 @@ public class IssueSearchTest extends AbstractIssueTest {
   }
 
   private SearchWsResponse searchIssues(SearchRequest request) throws IOException {
-    return newAdminWsClient(ORCHESTRATOR).issues().search(request);
+    return newAdminWsClient(ORCHESTRATOR).issuesOld().search(request);
   }
 
 }

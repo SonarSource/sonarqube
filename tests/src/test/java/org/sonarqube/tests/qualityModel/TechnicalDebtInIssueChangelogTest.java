@@ -58,7 +58,7 @@ public class TechnicalDebtInIssueChangelogTest {
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample"))
       .setProperties("sonar.oneIssuePerFile.effortToFix", "10"));
 
-    Issues.Issue firstIssue = tester.wsClient().issues().search(new SearchRequest()).getIssues(0);
+    Issues.Issue firstIssue = tester.wsClient().issuesOld().search(new SearchRequest()).getIssues(0);
 
     List<Issues.ChangelogWsResponse.Changelog> changes = changelog(firstIssue.getKey()).getChangelogList();
     assertThat(changes).hasSize(1);
@@ -68,7 +68,7 @@ public class TechnicalDebtInIssueChangelogTest {
   }
 
   private Issues.ChangelogWsResponse changelog(String issueKey) {
-    return tester.wsClient().issues().changelog(issueKey);
+    return tester.wsClient().issuesOld().changelog(issueKey);
   }
 
 }

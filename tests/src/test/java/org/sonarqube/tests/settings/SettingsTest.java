@@ -81,7 +81,7 @@ public class SettingsTest {
     userRule.createUser("scanner-user", "scanner-user");
     adminWsClient = newAdminWsClient(orchestrator);
     // Remove 'Execute Analysis' permission from anyone
-    adminWsClient.permissions().removeGroup(new RemoveGroupRequest().setGroupName("anyone").setPermission("scan"));
+    adminWsClient.permissionsOld().removeGroup(new RemoveGroupRequest().setGroupName("anyone").setPermission("scan"));
 
     // Anonymous user, without 'Execute Analysis' permission
     anonymousSettingsService = newWsClient(orchestrator).settings();
@@ -90,7 +90,7 @@ public class SettingsTest {
     userSettingsService = newUserWsClient(orchestrator, "setting-user", "setting-user").settings();
 
     // User with 'Execute Analysis' permission
-    adminWsClient.permissions().addUser(new AddUserRequest().setLogin("scanner-user").setPermission("scan"));
+    adminWsClient.permissionsOld().addUser(new AddUserRequest().setLogin("scanner-user").setPermission("scan"));
     scanSettingsService = newUserWsClient(orchestrator, "scanner-user", "scanner-user").settings();
 
     // User with 'Administer System' permission but without 'Execute Analysis' permission
@@ -101,7 +101,7 @@ public class SettingsTest {
   public static void tearDown() throws Exception {
     userRule.deactivateUsers("setting-user", "scanner-user");
     // Restore 'Execute Analysis' permission to anyone
-    adminWsClient.permissions().addGroup(new AddGroupRequest().setGroupName("anyone").setPermission("scan"));
+    adminWsClient.permissionsOld().addGroup(new AddGroupRequest().setGroupName("anyone").setPermission("scan"));
   }
 
   @After

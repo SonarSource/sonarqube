@@ -229,7 +229,7 @@ public class AnalysisEsResilienceTest {
     SearchRequest request = new SearchRequest()
       .setProjectKeys(Collections.singletonList(projectKey))
       .setFacets(Collections.singletonList("statuses"));
-    return tester.wsClient().issues().search(request);
+    return tester.wsClient().issuesOld().search(request);
   }
 
   private List<String> searchFile(String key, Organization organization) {
@@ -237,7 +237,7 @@ public class AnalysisEsResilienceTest {
       .setS(key)
       .build();
     Map<String, Object> response = ItUtils.jsonToMap(
-      tester.wsClient().components().suggestions(query).content()
+      tester.wsClient().componentsOld().suggestions(query).content()
     );
     List results = (List) response.get("results");
     Map trkResult = (Map) results.stream().filter(result -> "FIL".equals(((Map) result).get("q"))).findAny().get();

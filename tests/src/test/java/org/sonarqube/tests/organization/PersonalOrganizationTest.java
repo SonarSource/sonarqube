@@ -52,7 +52,7 @@ public class PersonalOrganizationTest {
   public void personal_organizations_are_created_for_new_users() {
     Users.CreateWsResponse.User user = tester.users().generate();
 
-    List<Organizations.Organization> existing = tester.wsClient().organizations().search(SearchRequest.builder().build()).getOrganizationsList();
+    List<Organizations.Organization> existing = tester.wsClient().organizationsOld().search(SearchRequest.builder().build()).getOrganizationsList();
     assertThat(existing)
       .filteredOn(Organizations.Organization::getGuarded)
       .filteredOn(o -> o.getKey().equals(user.getLogin()))

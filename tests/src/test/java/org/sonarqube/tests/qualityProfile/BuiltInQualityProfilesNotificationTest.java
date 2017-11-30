@@ -77,7 +77,7 @@ public class BuiltInQualityProfilesNotificationTest {
     userRule = UserRule.from(orchestrator);
     Users.CreateWsResponse.User profileAdmin1 = userRule.generate();
     WsClient wsClient = ItUtils.newAdminWsClient(orchestrator);
-    wsClient.permissions().addUser(new AddUserRequest().setLogin(profileAdmin1.getLogin()).setPermission("profileadmin"));
+    wsClient.permissionsOld().addUser(new AddUserRequest().setLogin(profileAdmin1.getLogin()).setPermission("profileadmin"));
 
     orchestrator.restartServer();
 
@@ -100,19 +100,19 @@ public class BuiltInQualityProfilesNotificationTest {
     // Create a quality profile administrator (user having direct permission)
     Users.CreateWsResponse.User profileAdmin1 = userRule.generate();
     WsClient wsClient = ItUtils.newAdminWsClient(orchestrator);
-    wsClient.permissions().addUser(new AddUserRequest().setLogin(profileAdmin1.getLogin()).setPermission("profileadmin"));
+    wsClient.permissionsOld().addUser(new AddUserRequest().setLogin(profileAdmin1.getLogin()).setPermission("profileadmin"));
     // Create a quality profile administrator (user having permission from a group)
     Users.CreateWsResponse.User profileAdmin2 = userRule.generate();
     String groupName = randomAlphanumeric(20);
     wsClient.wsConnector().call(new PostRequest("api/user_groups/create").setParam("name", groupName)).failIfNotSuccessful();
-    wsClient.permissions().addGroup(new AddGroupRequest().setPermission("profileadmin").setGroupName(groupName));
+    wsClient.permissionsOld().addGroup(new AddGroupRequest().setPermission("profileadmin").setGroupName(groupName));
     wsClient.wsConnector().call(new PostRequest("api/user_groups/add_user").setParam("name", groupName).setParam("login", profileAdmin2.getLogin())).failIfNotSuccessful();
     // Create a user not being quality profile administrator
     Users.CreateWsResponse.User noProfileAdmin = userRule.generate();
 
     // Create a child profile on the built-in profile => The notification should not take into account updates of this profile
-    wsClient.qualityProfiles().create(CreateRequest.builder().setLanguage("foo").setName("child").build());
-    wsClient.qualityProfiles().changeParent(ChangeParentRequest.builder().setProfileName("child").setParentName("Basic").setLanguage("foo").build());
+    wsClient.qualityProfilesOld().create(CreateRequest.builder().setLanguage("foo").setName("child").build());
+    wsClient.qualityProfilesOld().changeParent(ChangeParentRequest.builder().setProfileName("child").setParentName("Basic").setLanguage("foo").build());
 
     // uninstall plugin V1
     wsClient.wsConnector().call(new PostRequest("api/plugins/uninstall").setParam("key", "foo")).failIfNotSuccessful();
@@ -156,7 +156,7 @@ public class BuiltInQualityProfilesNotificationTest {
     userRule = UserRule.from(orchestrator);
     Users.CreateWsResponse.User profileAdmin1 = userRule.generate();
     WsClient wsClient = ItUtils.newAdminWsClient(orchestrator);
-    wsClient.permissions().addUser(new AddUserRequest().setLogin(profileAdmin1.getLogin()).setPermission("profileadmin"));
+    wsClient.permissionsOld().addUser(new AddUserRequest().setLogin(profileAdmin1.getLogin()).setPermission("profileadmin"));
 
     // uninstall plugin V1
     wsClient.wsConnector().call(new PostRequest("api/plugins/uninstall").setParam("key", "foo")).failIfNotSuccessful();
