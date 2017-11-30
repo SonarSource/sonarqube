@@ -17,16 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getJSON, post, postJSON, RequestData } from '../helpers/request';
+import { getJSON, post, postJSON } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
-interface Condition {
-  error?: string;
-  id: number;
+export interface ConditionBase {
+  error: string;
   metric: string;
-  op: string;
+  op?: string;
   period?: number;
-  warning?: string;
+  warning: string;
+}
+
+export interface Condition extends ConditionBase {
+  id: number;
 }
 
 export interface QualityGate {
@@ -45,15 +48,20 @@ export interface QualityGate {
   name: string;
 }
 
-export function fetchQualityGates(): Promise<{
+export function fetchQualityGates(data: {
+  organization?: string;
+}): Promise<{
   actions: { create: boolean };
   qualitygates: QualityGate[];
 }> {
-  return getJSON('/api/qualitygates/list').catch(throwGlobalError);
+  return getJSON('/api/qualitygates/list', data).catch(throwGlobalError);
 }
 
-export function fetchQualityGate(id: number): Promise<QualityGate> {
-  return getJSON('/api/qualitygates/show', { id }).catch(throwGlobalError);
+export function fetchQualityGate(data: {
+  id: number;
+  organization?: string;
+}): Promise<QualityGate> {
+  return getJSON('/api/qualitygates/show', data).catch(throwGlobalError);
 }
 
 export function createQualityGate(data: {
@@ -63,8 +71,11 @@ export function createQualityGate(data: {
   return postJSON('/api/qualitygates/create', data).catch(throwGlobalError);
 }
 
-export function deleteQualityGate(id: number): Promise<void> {
-  return post('/api/qualitygates/destroy', { id });
+export function deleteQualityGate(data: {
+  id: number;
+  organization?: string;
+}): Promise<void | Response> {
+  return post('/api/qualitygates/destroy', data).catch(throwGlobalError);
 }
 
 export function renameQualityGate(data: {
@@ -83,46 +94,63 @@ export function copyQualityGate(data: {
   return postJSON('/api/qualitygates/copy', data).catch(throwGlobalError);
 }
 
-export function setQualityGateAsDefault(id: number): Promise<void | Response> {
-  return post('/api/qualitygates/set_as_default', { id }).catch(throwGlobalError);
+export function setQualityGateAsDefault(data: {
+  id: number;
+  organization?: string;
+}): Promise<void | Response> {
+  return post('/api/qualitygates/set_as_default', data).catch(throwGlobalError);
 }
 
-export function createCondition(gateId: number, condition: RequestData): Promise<any> {
-  return postJSON('/api/qualitygates/create_condition', { ...condition, gateId });
+export function createCondition(
+  data: {
+    gateId: number;
+    organization?: string;
+  } & ConditionBase
+): Promise<Condition> {
+  return postJSON('/api/qualitygates/create_condition', data);
 }
 
-export function updateCondition(condition: RequestData): Promise<any> {
-  return postJSON('/api/qualitygates/update_condition', condition);
+export function updateCondition(data: { organization?: string } & Condition): Promise<Condition> {
+  return postJSON('/api/qualitygates/update_condition', data);
 }
 
-export function deleteCondition(id: number): Promise<void> {
-  return post('/api/qualitygates/delete_condition', { id });
+export function deleteCondition(data: { id: number; organization?: string }): Promise<void> {
+  return post('/api/qualitygates/delete_condition', data);
 }
 
-export function getGateForProject(project: string): Promise<QualityGate | undefined> {
-  return getJSON('/api/qualitygates/get_by_project', { project }).then(
+export function getGateForProject(data: {
+  organization?: string;
+  project: string;
+}): Promise<QualityGate | undefined> {
+  return getJSON('/api/qualitygates/get_by_project', data).then(
     ({ qualityGate }) =>
       qualityGate && {
         ...qualityGate,
         isDefault: qualityGate.default
-      }
+      },
+    throwGlobalError
   );
 }
 
-export function associateGateWithProject(
-  gateId: number,
-  projectKey: string
-): Promise<void | Response> {
-  return post('/api/qualitygates/select', { gateId, projectKey }).catch(throwGlobalError);
+export function associateGateWithProject(data: {
+  gateId: number;
+  organization?: string;
+  projectKey: string;
+}): Promise<void | Response> {
+  return post('/api/qualitygates/select', data).catch(throwGlobalError);
 }
 
-export function dissociateGateWithProject(
-  gateId: number,
-  projectKey: string
-): Promise<void | Response> {
-  return post('/api/qualitygates/deselect', { gateId, projectKey }).catch(throwGlobalError);
+export function dissociateGateWithProject(data: {
+  gateId: number;
+  organization?: string;
+  projectKey: string;
+}): Promise<void | Response> {
+  return post('/api/qualitygates/deselect', data).catch(throwGlobalError);
 }
 
-export function getApplicationQualityGate(application: string): Promise<any> {
-  return getJSON('/api/qualitygates/application_status', { application });
+export function getApplicationQualityGate(data: {
+  application: string;
+  organization?: string;
+}): Promise<void | Response> {
+  return getJSON('/api/qualitygates/application_status', data).catch(throwGlobalError);
 }

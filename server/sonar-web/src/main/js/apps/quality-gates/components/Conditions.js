@@ -62,7 +62,8 @@ export default class Conditions extends React.PureComponent {
       edit,
       onAddCondition,
       onSaveCondition,
-      onDeleteCondition
+      onDeleteCondition,
+      organization
     } = this.props;
 
     const existingConditions = conditions.filter(condition => metrics[condition.metric]);
@@ -130,6 +131,7 @@ export default class Conditions extends React.PureComponent {
                   onDeleteCondition={onDeleteCondition}
                   onError={this.handleError.bind(this)}
                   onResetError={this.handleResetError.bind(this)}
+                  organization={organization}
                 />
               ))}
             </tbody>

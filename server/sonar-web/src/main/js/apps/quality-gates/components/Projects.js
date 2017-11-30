@@ -44,12 +44,13 @@ export default class Projects extends React.PureComponent {
   }
 
   renderView() {
-    const { qualityGate, edit } = this.props;
+    const { qualityGate, edit, organization } = this.props;
 
     this.projectsView = new ProjectsView({
       qualityGate,
       edit,
-      container: this.refs.container
+      container: this.refs.container,
+      organization
     });
     this.projectsView.render();
   }
