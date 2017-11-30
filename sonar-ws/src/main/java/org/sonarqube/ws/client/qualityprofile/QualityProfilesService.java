@@ -76,6 +76,10 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TO_NAME;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.RestoreActionParameters.PARAM_BACKUP;
 
+/**
+ * @deprecated since 7.0, use {@link org.sonarqube.ws.client.qualityprofiles.QualityprofilesService} instead
+ */
+@Deprecated
 public class QualityProfilesService extends BaseService {
 
   public QualityProfilesService(WsConnector wsConnector) {

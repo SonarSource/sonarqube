@@ -98,6 +98,10 @@ import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TRANSITION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TYPES;
 
+/**
+ * @deprecated since 7.0, use {@link org.sonarqube.ws.client.issues.IssuesService} instead
+ */
+@Deprecated
 public class IssuesService extends BaseService {
 
   public IssuesService(WsConnector wsConnector) {
