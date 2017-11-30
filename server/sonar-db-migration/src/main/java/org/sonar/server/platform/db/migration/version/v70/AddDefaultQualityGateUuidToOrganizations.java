@@ -34,7 +34,7 @@ public class AddDefaultQualityGateUuidToOrganizations extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new AddColumnsBuilder(getDialect(), "quality_gates")
+    context.execute(new AddColumnsBuilder(getDialect(), "organizations")
       .addColumn(newVarcharColumnDefBuilder()
         .setColumnName("default_quality_gate_uuid")
         .setIsNullable(true)
