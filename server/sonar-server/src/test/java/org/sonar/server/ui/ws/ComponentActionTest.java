@@ -78,6 +78,7 @@ import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.ui.ws.ComponentAction.PARAM_COMPONENT;
@@ -180,7 +181,7 @@ public class ComponentActionTest {
   public void return_info_if_user_is_system_administrator() throws Exception {
     init();
     componentDbTester.insertComponent(project);
-    userSession.logIn().setSystemAdministrator();
+    userSession.logIn().setSystemAdministrator().addPermission(ADMINISTER, project.getOrganizationUuid());
 
     verifySuccess(project.getDbKey());
   }
@@ -552,6 +553,25 @@ public class ComponentActionTest {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
     when(billingValidations.canUpdateProjectVisibilityToPrivate(any(BillingValidations.Organization.class))).thenReturn(true);
     assertJson(execute(project.getDbKey())).isSimilarTo("{\"configuration\": {\"canUpdateProjectVisibilityToPrivate\": true}}");
+  }
+
+  @Test
+  public void org_admin_can_access_to_project_permission_management() {
+    init(createPages());
+    OrganizationDto org = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPublicProject(org);
+    userSession.logIn()
+      .addPermission(ADMINISTER, org);
+    when(resourceTypes.get(project.qualifier())).thenReturn(DefaultResourceTypes.get().getRootType());
+
+    String result = execute(project.getDbKey());
+
+    assertJson(result).isSimilarTo("" +
+      "{\n" +
+      "  \"configuration\": {\n" +
+      "    \"showPermissions\": true\n" +
+      "  }\n" +
+      "}\n");
   }
 
   private void init(Page... pages) {
