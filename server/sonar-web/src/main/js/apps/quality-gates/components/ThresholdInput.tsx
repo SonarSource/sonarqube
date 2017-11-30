@@ -17,23 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import Select from '../../../components/controls/Select';
+import { Metric } from '../../../app/types';
 
-export default class ThresholdInput extends React.PureComponent {
-  static propTypes = {
-    name: PropTypes.string.isRequired,
-    value: PropTypes.any,
-    metric: PropTypes.object.isRequired,
-    onChange: PropTypes.func.isRequired
+interface Props {
+  name: string;
+  value: string;
+  metric: Metric;
+  onChange: (value: string) => void;
+}
+
+export default class ThresholdInput extends React.PureComponent<Props> {
+  handleChange = (e: React.SyntheticEvent<HTMLInputElement>) => {
+    this.props.onChange(e.currentTarget.value);
   };
 
-  handleChange = e => {
-    this.props.onChange(e.target.value);
-  };
-
-  handleSelectChange = option => {
+  handleSelectChange = (option: any) => {
     if (option) {
       this.props.onChange(option.value);
     } else {
@@ -51,17 +51,15 @@ export default class ThresholdInput extends React.PureComponent {
       { label: 'D', value: '4' }
     ];
 
-    const realValue = value === '' ? null : value;
-
     return (
       <Select
         className="input-tiny text-middle"
         name={name}
-        value={realValue}
-        options={options}
-        searchable={false}
-        placeholder=""
         onChange={this.handleSelectChange}
+        options={options}
+        placeholder=""
+        searchable={false}
+        value={value}
       />
     );
   }
@@ -80,7 +78,6 @@ export default class ThresholdInput extends React.PureComponent {
         className="input-tiny text-middle"
         value={value}
         data-type={metric.type}
-        placeholder={metric.placeholder}
         onChange={this.handleChange}
       />
     );

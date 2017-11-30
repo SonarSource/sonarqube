@@ -72,16 +72,18 @@ beforeEach(() => {
 
 it('checks permissions', () => {
   handleRequiredAuthorization.mockClear();
-  mount(<App component={{ ...component, configuration: undefined }} />);
+  mount(
+    <App component={{ ...component, configuration: undefined }} onComponentChange={jest.fn()} />
+  );
   expect(handleRequiredAuthorization).toBeCalled();
 });
 
 it('fetches quality gates', () => {
   fetchQualityGates.mockClear();
   getGateForProject.mockClear();
-  mount(<App component={component} />);
-  expect(fetchQualityGates).toBeCalledWith();
-  expect(getGateForProject).toBeCalledWith('component');
+  mount(<App component={component} onComponentChange={jest.fn()} />);
+  expect(fetchQualityGates).toBeCalledWith({ organization: 'org' });
+  expect(getGateForProject).toBeCalledWith({ organization: 'org', project: 'component' });
 });
 
 it('changes quality gate from custom to default', () => {
@@ -89,28 +91,44 @@ it('changes quality gate from custom to default', () => {
   const allGates = [gate, randomGate('bar', true), randomGate('baz')];
   const wrapper = mountRender(allGates, gate);
   wrapper.find('Form').prop<Function>('onChange')('foo', 'bar');
-  expect(associateGateWithProject).toBeCalledWith('bar', 'component');
+  expect(associateGateWithProject).toBeCalledWith({
+    gateId: 'bar',
+    organization: 'org',
+    projectKey: 'component'
+  });
 });
 
 it('changes quality gate from custom to custom', () => {
   const allGates = [randomGate('foo'), randomGate('bar', true), randomGate('baz')];
   const wrapper = mountRender(allGates, randomGate('foo'));
   wrapper.find('Form').prop<Function>('onChange')('foo', 'baz');
-  expect(associateGateWithProject).toBeCalledWith('baz', 'component');
+  expect(associateGateWithProject).toBeCalledWith({
+    gateId: 'baz',
+    organization: 'org',
+    projectKey: 'component'
+  });
 });
 
 it('changes quality gate from custom to none', () => {
   const allGates = [randomGate('foo'), randomGate('bar'), randomGate('baz')];
   const wrapper = mountRender(allGates, randomGate('foo'));
   wrapper.find('Form').prop<Function>('onChange')('foo', undefined);
-  expect(dissociateGateWithProject).toBeCalledWith('foo', 'component');
+  expect(dissociateGateWithProject).toBeCalledWith({
+    gateId: 'foo',
+    organization: 'org',
+    projectKey: 'component'
+  });
 });
 
 it('changes quality gate from none to custom', () => {
   const allGates = [randomGate('foo'), randomGate('bar'), randomGate('baz')];
   const wrapper = mountRender(allGates);
   wrapper.find('Form').prop<Function>('onChange')(undefined, 'baz');
-  expect(associateGateWithProject).toBeCalledWith('baz', 'component');
+  expect(associateGateWithProject).toBeCalledWith({
+    gateId: 'baz',
+    organization: 'org',
+    projectKey: 'component'
+  });
 });
 
 function randomGate(id: string, isDefault = false) {
@@ -118,7 +136,7 @@ function randomGate(id: string, isDefault = false) {
 }
 
 function mountRender(allGates: any[], gate?: any) {
-  const wrapper = mount(<App component={component} />);
+  const wrapper = mount(<App component={component} onComponentChange={jest.fn()} />);
   wrapper.setState({ allGates, loading: false, gate });
   return wrapper;
 }

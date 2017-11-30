@@ -34,7 +34,8 @@ type Props = {
     id: string,
     key: string,
     qualifier: string,
-    tags: Array<string>
+    tags: Array<string>,
+    organization?: string
   },
   onComponentChange: {} => void,
   router: Object
