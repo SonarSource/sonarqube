@@ -25,18 +25,16 @@ import { translate } from '../../../helpers/l10n';
 export default Marionette.ItemView.extend({
   template: () => {},
 
-  initialize(options) {
-    this.organization = options.organization;
-  },
-
   onRender() {
-    const { qualityGate } = this.options;
+    const { qualityGate, organization } = this.options;
 
     const extra = {
       gateId: qualityGate.id
     };
-    if (this.organization) {
-      extra.organization = this.organization.key;
+    let orgQuery = '';
+    if (organization) {
+      extra.organization = organization;
+      orgQuery = '&organization=' + organization;
     }
 
     new SelectList({
@@ -47,7 +45,7 @@ export default Marionette.ItemView.extend({
       dangerouslyUnescapedHtmlFormat(item) {
         return escapeHtml(item.name);
       },
-      searchUrl: window.baseUrl + '/api/qualitygates/search?gateId=' + qualityGate.id,
+      searchUrl: `${window.baseUrl}/api/qualitygates/search?gateId=${qualityGate.id}${orgQuery}`,
       selectUrl: window.baseUrl + '/api/qualitygates/select',
       deselectUrl: window.baseUrl + '/api/qualitygates/deselect',
       extra,

@@ -23,7 +23,8 @@
 export type Component = {
   id: string,
   key: string,
-  qualifier: string
+  qualifier: string,
+  organization?: string
 };
 */
 

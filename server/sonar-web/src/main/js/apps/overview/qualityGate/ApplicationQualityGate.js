@@ -27,7 +27,7 @@ import { translate } from '../../../helpers/l10n';
 
 /*::
 type Props = {
-  component: { key: string }
+  component: { key: string, organization?: string }
 };
 */
 
@@ -68,8 +68,12 @@ export default class ApplicationQualityGate extends React.PureComponent {
   }
 
   fetchDetails = () => {
+    const { component } = this.props;
     this.setState({ loading: true });
-    getApplicationQualityGate(this.props.component.key).then(
+    getApplicationQualityGate({
+      application: component.key,
+      organization: component.organization
+    }).then(
       ({ status, projects, metrics }) => {
         if (this.mounted) {
           this.setState({

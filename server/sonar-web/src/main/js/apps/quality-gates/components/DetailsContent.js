@@ -24,7 +24,7 @@ import { translate } from '../../../helpers/l10n';
 
 export default class DetailsContent extends React.PureComponent {
   render() {
-    const { gate, metrics } = this.props;
+    const { gate, metrics, organization } = this.props;
     const { onAddCondition, onDeleteCondition, onSaveCondition } = this.props;
     const conditions = gate.conditions || [];
     const actions = gate.actions || {};
@@ -43,6 +43,7 @@ export default class DetailsContent extends React.PureComponent {
           onAddCondition={onAddCondition}
           onSaveCondition={onSaveCondition}
           onDeleteCondition={onDeleteCondition}
+          organization={organization}
         />
 
         <div id="quality-gate-projects" className="quality-gate-section">
@@ -50,7 +51,11 @@ export default class DetailsContent extends React.PureComponent {
           {gate.isDefault ? (
             defaultMessage
           ) : (
-            <Projects qualityGate={gate} edit={actions.associateProjects} />
+            <Projects
+              qualityGate={gate}
+              edit={actions.associateProjects}
+              organization={organization}
+            />
           )}
         </div>
       </div>
