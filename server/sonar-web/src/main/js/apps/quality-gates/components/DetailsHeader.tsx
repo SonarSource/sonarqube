@@ -17,34 +17,59 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
+import RenameQualityGateForm from './RenameQualityGateForm';
+import CopyQualityGateForm from './CopyQualityGateForm';
+import DeleteQualityGateForm from './DeleteQualityGateForm';
+import { QualityGate, setQualityGateAsDefault } from '../../../api/quality-gates';
 import { translate } from '../../../helpers/l10n';
 
-export default class DetailsHeader extends React.PureComponent {
-  handleRenameClick = e => {
+interface Props {
+  qualityGate: QualityGate;
+  onRename: (qualityGate: QualityGate, newName: string) => void;
+  onCopy: (newQualityGate: QualityGate) => void;
+  onSetAsDefault: (qualityGate: QualityGate) => void;
+  onDelete: (qualityGate: QualityGate) => void;
+  organization?: string;
+}
+
+interface State {
+  openPopup?: string;
+}
+
+export default class DetailsHeader extends React.PureComponent<Props, State> {
+  state = { openPopup: undefined };
+
+  handleRenameClick = (e: React.SyntheticEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    this.props.onRename();
+    this.setState({ openPopup: 'rename' });
   };
 
-  handleCopyClick = e => {
+  handleCopyClick = (e: React.SyntheticEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    this.props.onCopy();
+    this.setState({ openPopup: 'copy' });
   };
 
-  handleSetAsDefaultClick = e => {
+  handleSetAsDefaultClick = (e: React.SyntheticEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    this.props.onSetAsDefault();
+    const { qualityGate, onSetAsDefault } = this.props;
+    if (!qualityGate.isDefault) {
+      setQualityGateAsDefault(qualityGate.id).then(() => onSetAsDefault(qualityGate), () => {});
+    }
   };
 
-  handleDeleteClick = e => {
+  handleDeleteClick = (e: React.SyntheticEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    this.props.onDelete();
+    this.setState({ openPopup: 'delete' });
   };
+
+  handleClosePopup = () => this.setState({ openPopup: undefined });
 
   render() {
-    const { qualityGate } = this.props;
-    const actions = qualityGate.actions || {};
+    const { organization, qualityGate } = this.props;
+    const { openPopup } = this.state;
+    const actions = qualityGate.actions || ({} as any);
     return (
       <div className="layout-page-header-panel layout-page-main-header issues-main-header">
         <div className="layout-page-header-panel-inner layout-page-main-header-inner">
@@ -83,6 +108,32 @@ export default class DetailsHeader extends React.PureComponent {
                   onClick={this.handleDeleteClick}>
                   {translate('delete')}
                 </button>
+              )}
+              {openPopup === 'rename' && (
+                <RenameQualityGateForm
+                  onRename={this.props.onRename}
+                  organization={organization}
+                  onClose={this.handleClosePopup}
+                  qualityGate={qualityGate}
+                />
+              )}
+
+              {openPopup === 'copy' && (
+                <CopyQualityGateForm
+                  onCopy={this.props.onCopy}
+                  organization={organization}
+                  onClose={this.handleClosePopup}
+                  qualityGate={qualityGate}
+                />
+              )}
+
+              {openPopup === 'delete' && (
+                <DeleteQualityGateForm
+                  onDelete={this.props.onDelete}
+                  organization={organization}
+                  onClose={this.handleClosePopup}
+                  qualityGate={qualityGate}
+                />
               )}
             </div>
           </div>
