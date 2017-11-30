@@ -105,18 +105,18 @@ public class FavoriteTest {
   }
 
   private void addProjectCreatorPermission() {
-    Permissions.SearchTemplatesWsResponse permissionTemplates = adminWsClient.permissions().searchTemplates(new SearchTemplatesRequest());
+    Permissions.SearchTemplatesWsResponse permissionTemplates = adminWsClient.permissionsOld().searchTemplates(new SearchTemplatesRequest());
     assertThat(permissionTemplates.getDefaultTemplatesCount()).isEqualTo(1);
-    adminWsClient.permissions().addProjectCreatorToTemplate(AddProjectCreatorToTemplateRequest.builder()
+    adminWsClient.permissionsOld().addProjectCreatorToTemplate(AddProjectCreatorToTemplateRequest.builder()
       .setTemplateId(permissionTemplates.getDefaultTemplates(0).getTemplateId())
       .setPermission("admin")
       .build());
   }
 
   private void removeProjectCreatorPermission() {
-    Permissions.SearchTemplatesWsResponse permissionTemplates = adminWsClient.permissions().searchTemplates(new SearchTemplatesRequest());
+    Permissions.SearchTemplatesWsResponse permissionTemplates = adminWsClient.permissionsOld().searchTemplates(new SearchTemplatesRequest());
     assertThat(permissionTemplates.getDefaultTemplatesCount()).isEqualTo(1);
-    adminWsClient.permissions().removeProjectCreatorFromTemplate(RemoveProjectCreatorFromTemplateRequest.builder()
+    adminWsClient.permissionsOld().removeProjectCreatorFromTemplate(RemoveProjectCreatorFromTemplateRequest.builder()
       .setTemplateId(permissionTemplates.getDefaultTemplates(0).getTemplateId())
       .setPermission("admin")
       .build());

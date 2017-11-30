@@ -80,7 +80,7 @@ public class DuplicationTest extends AbstractPerfTest {
   }
 
   private Map<String, Double> getMeasures(String key) {
-    return newWsClient().measures().component(new ComponentRequest()
+    return newWsClient().measuresOld().component(new ComponentRequest()
       .setComponentKey(key)
       .setMetricKeys(asList("duplicated_lines", "duplicated_blocks", "duplicated_files", "duplicated_lines_density")))
       .getComponent().getMeasuresList()

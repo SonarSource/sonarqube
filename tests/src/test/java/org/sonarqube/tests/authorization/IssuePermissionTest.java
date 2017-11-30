@@ -256,7 +256,7 @@ public class IssuePermissionTest {
   }
 
   private Issues.BulkChangeWsResponse makeBlockerAndFalsePositive(String user, Issue issueOnPrivateProject, Issue issueOnPublicProject) {
-    return newUserWsClient(orchestrator, user, "password").issues()
+    return newUserWsClient(orchestrator, user, "password").issuesOld()
       .bulkChange(BulkChangeRequest.builder().setIssues(asList(issueOnPrivateProject.key(), issueOnPublicProject.key()))
         .setSetSeverity("BLOCKER")
         .setDoTransition("falsepositive")
@@ -264,7 +264,7 @@ public class IssuePermissionTest {
   }
 
   private void addUserPermission(String login, String projectKey, String permission) {
-    tester.wsClient().permissions().addUser(
+    tester.wsClient().permissionsOld().addUser(
       new AddUserRequest()
         .setLogin(login)
         .setProjectKey(projectKey)
@@ -272,6 +272,6 @@ public class IssuePermissionTest {
   }
 
   private static Issues.ChangelogWsResponse changelog(String issueKey, String login, String password) {
-    return newUserWsClient(orchestrator, login, password).issues().changelog(issueKey);
+    return newUserWsClient(orchestrator, login, password).issuesOld().changelog(issueKey);
   }
 }

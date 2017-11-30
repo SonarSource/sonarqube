@@ -68,7 +68,7 @@ public class ProjectBulkDeletionPageTest {
     $(".modal button").click();
     $("#projects-management-page").shouldNotHave(text(project1.getName())).shouldNotHave(text(project3.getName()));
 
-    assertThat(tester.wsClient().components().searchProjects(SearchProjectsRequest.builder().build())
+    assertThat(tester.wsClient().componentsOld().searchProjects(SearchProjectsRequest.builder().build())
       .getComponentsCount()).isEqualTo(1);
   }
 }

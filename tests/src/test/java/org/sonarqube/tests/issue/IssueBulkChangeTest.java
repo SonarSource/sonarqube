@@ -69,7 +69,7 @@ public class IssueBulkChangeTest extends AbstractIssueTest {
     String projectKey = projectAnalysisRule.registerProject("shared/xoo-sample");
     this.xooSampleLittleIssuesAnalysis = projectAnalysisRule.newProjectAnalysis(projectKey)
       .withQualityProfile(qualityProfileKey);
-    this.issuesService = newAdminWsClient(ORCHESTRATOR).issues();
+    this.issuesService = newAdminWsClient(ORCHESTRATOR).issuesOld();
   }
 
   @Test

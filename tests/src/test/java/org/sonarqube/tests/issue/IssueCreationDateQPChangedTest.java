@@ -358,7 +358,7 @@ public class IssueCreationDateQPChangedTest extends AbstractIssueTest {
     private static Date getAnalysisDate(Function<List<ProjectAnalyses.Analysis>, Optional<ProjectAnalyses.Analysis>> chooseItem) {
       return Optional.of(
         ItUtils.newWsClient(ORCHESTRATOR)
-          .projectAnalysis()
+          .projectAnalysisOld()
           .search(SearchRequest.builder().setProject(SAMPLE_PROJECT_KEY).build())
           .getAnalysesList())
         .flatMap(chooseItem)

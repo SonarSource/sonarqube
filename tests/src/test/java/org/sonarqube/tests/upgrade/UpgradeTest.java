@@ -198,7 +198,7 @@ public class UpgradeTest {
   }
 
   private int countFiles(String key) {
-    Measure measure = newWsClient(orchestrator).measures().component(new ComponentRequest().setComponentKey(key).setMetricKeys(Collections.singletonList("files")))
+    Measure measure = newWsClient(orchestrator).measuresOld().component(new ComponentRequest().setComponentKey(key).setMetricKeys(Collections.singletonList("files")))
       .getComponent().getMeasures(0);
     return parseInt(measure.getValue());
   }

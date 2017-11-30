@@ -112,7 +112,7 @@ public class IssueFilterOnCommonRulesTest extends AbstractIssueTest {
   }
 
   private List<Issues.Issue> findIssuesByRuleKey(String ruleKey) {
-    return adminWsClient.issues().search(
+    return adminWsClient.issuesOld().search(
       new SearchRequest()
         .setComponents(singletonList(FILE_KEY))
         .setRules(singletonList(ruleKey)))
@@ -120,7 +120,7 @@ public class IssueFilterOnCommonRulesTest extends AbstractIssueTest {
   }
 
   private List<Issues.Issue> findAllIssues() {
-    return adminWsClient.issues().search(new SearchRequest()).getIssuesList();
+    return adminWsClient.issuesOld().search(new SearchRequest()).getIssuesList();
   }
 
 }

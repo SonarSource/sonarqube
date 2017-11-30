@@ -63,7 +63,7 @@ public class LiteTest {
   @Test
   public void call_issues_ws() {
     // all issues
-    IssuesService issuesService = tester.wsClient().issues();
+    IssuesService issuesService = tester.wsClient().issuesOld();
     Issues.SearchWsResponse response = issuesService.search(new SearchRequest());
     assertThat(response.getIssuesCount()).isGreaterThan(0);
 
@@ -75,7 +75,7 @@ public class LiteTest {
   @Test
   public void call_components_ws() {
     // files in project
-    Components.TreeWsResponse tree = tester.wsClient().components().tree(new TreeRequest()
+    Components.TreeWsResponse tree = tester.wsClient().componentsOld().tree(new TreeRequest()
       .setBaseComponentKey(PROJECT_KEY)
       .setQualifiers(singletonList("FIL")));
     assertThat(tree.getComponentsCount()).isEqualTo(4);
@@ -88,7 +88,7 @@ public class LiteTest {
   @Test
   public void call_measures_ws() {
     // project measures
-    MeasuresService measuresService = tester.wsClient().measures();
+    MeasuresService measuresService = tester.wsClient().measuresOld();
     Measures.ComponentWsResponse component = measuresService.component(new ComponentRequest()
       .setComponentKey(PROJECT_KEY)
       .setMetricKeys(asList("lines", "ncloc", "files")));

@@ -184,7 +184,7 @@ public class OrganizationQualityProfilesUiTest {
   }
 
   private void inheritProfile(String language, String name, String parentName) {
-    tester.wsClient().qualityProfiles().changeParent(ChangeParentRequest.builder()
+    tester.wsClient().qualityProfilesOld().changeParent(ChangeParentRequest.builder()
       .setLanguage(language)
       .setProfileName(name)
       .setParentName(parentName)
@@ -200,7 +200,7 @@ public class OrganizationQualityProfilesUiTest {
   }
 
   private void addProfileToProject(String language, String profileName, String projectKey) {
-    tester.wsClient().qualityProfiles().addProject(AddProjectRequest.builder()
+    tester.wsClient().qualityProfilesOld().addProject(AddProjectRequest.builder()
       .setLanguage(language)
       .setQualityProfile(profileName)
       .setProjectKey(projectKey)

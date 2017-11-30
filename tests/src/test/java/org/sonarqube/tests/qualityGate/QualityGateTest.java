@@ -256,7 +256,7 @@ public class QualityGateTest {
     // user is quality gate admin of default organization
     Organization organization = tester.organizations().getDefaultOrganization();
     Users.CreateWsResponse.User user = tester.users().generateMember(organization);
-    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(user.getLogin()).setPermission("gateadmin").setOrganization(organization.getKey()));
+    tester.wsClient().permissionsOld().addUser(new AddUserRequest().setLogin(user.getLogin()).setPermission("gateadmin").setOrganization(organization.getKey()));
     TesterSession qGateAdminTester = tester.as(user.getLogin());
     QualitygatesService qGateService = qGateAdminTester.qGates().service();
     // perform administration operations

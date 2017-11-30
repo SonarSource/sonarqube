@@ -54,7 +54,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
 
   @Before
   public void before() {
-    issuesService = newAdminWsClient(ORCHESTRATOR).issues();
+    issuesService = newAdminWsClient(ORCHESTRATOR).issuesOld();
     String oneIssuePerFileProfileKey = projectAnalysisRule.registerProfile("/issue/IssueWorkflowTest/xoo-one-issue-per-line-profile.xml");
     String analyzedProjectKey = projectAnalysisRule.registerProject("issue/workflow");
     analysisWithIssues = projectAnalysisRule.newProjectAnalysis(analyzedProjectKey).withQualityProfile(oneIssuePerFileProfileKey);
@@ -308,7 +308,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   }
 
   private Issues.SearchWsResponse searchIssues(SearchRequest request) {
-    return newAdminWsClient(ORCHESTRATOR).issues().search(request);
+    return newAdminWsClient(ORCHESTRATOR).issuesOld().search(request);
   }
 
 }

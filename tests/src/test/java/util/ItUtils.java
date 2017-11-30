@@ -334,7 +334,7 @@ public class ItUtils {
   }
 
   private static Stream<Measure> getStreamMeasures(Orchestrator orchestrator, String componentKey, String... metricKeys) {
-    return newWsClient(orchestrator).measures().component(new ComponentRequest()
+    return newWsClient(orchestrator).measuresOld().component(new ComponentRequest()
       .setComponent(componentKey)
       .setMetricKeys(asList(metricKeys)))
       .getComponent().getMeasuresList()
@@ -343,7 +343,7 @@ public class ItUtils {
 
   @CheckForNull
   public static Measure getMeasureWithVariation(Orchestrator orchestrator, String componentKey, String metricKey) {
-    Measures.ComponentWsResponse response = newWsClient(orchestrator).measures().component(new ComponentRequest()
+    Measures.ComponentWsResponse response = newWsClient(orchestrator).measuresOld().component(new ComponentRequest()
       .setComponent(componentKey)
       .setMetricKeys(singletonList(metricKey))
       .setAdditionalFields(singletonList("periods")));
@@ -353,7 +353,7 @@ public class ItUtils {
 
   @CheckForNull
   public static Map<String, Measure> getMeasuresWithVariationsByMetricKey(Orchestrator orchestrator, String componentKey, String... metricKeys) {
-    return newWsClient(orchestrator).measures().component(new ComponentRequest()
+    return newWsClient(orchestrator).measuresOld().component(new ComponentRequest()
       .setComponentKey(componentKey)
       .setMetricKeys(asList(metricKeys))
       .setAdditionalFields(singletonList("periods"))).getComponent().getMeasuresList()
@@ -373,7 +373,7 @@ public class ItUtils {
   @CheckForNull
   public static Component getComponent(Orchestrator orchestrator, String componentKey) {
     try {
-      return newWsClient(orchestrator).components().show(new ShowRequest().setKey((componentKey))).getComponent();
+      return newWsClient(orchestrator).componentsOld().show(new ShowRequest().setKey((componentKey))).getComponent();
     } catch (org.sonarqube.ws.client.HttpException e) {
       if (e.code() == 404) {
         return null;
@@ -403,7 +403,7 @@ public class ItUtils {
       throw new IllegalArgumentException("Cannot find quality profile xml file '" + resource + "' in classpath");
     }
     newAdminWsClient(orchestrator)
-      .qualityProfiles()
+      .qualityProfilesOld()
       .restoreProfile(
         RestoreRequest.builder()
           .setBackup(new File(uri))

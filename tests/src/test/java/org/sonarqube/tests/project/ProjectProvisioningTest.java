@@ -109,7 +109,7 @@ public class ProjectProvisioningTest {
    * Projects page - api/components/search_projects - uses ES + DB
    */
   private boolean isInComponentSearchProjects(String name) {
-    Components.SearchProjectsWsResponse response = tester.wsClient().components().searchProjects(
+    Components.SearchProjectsWsResponse response = tester.wsClient().componentsOld().searchProjects(
       SearchProjectsRequest.builder().setFilter("query=\"" + name + "\"").build());
     return response.getComponentsCount() > 0;
   }

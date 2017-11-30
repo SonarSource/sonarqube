@@ -83,7 +83,7 @@ public class OrganizationIdentityProviderTest {
     Group group = tester.groups().generate(null);
     User user = tester.users().generate();
     // Add user as member of default organization
-    tester.wsClient().organizations().addMember("default-organization", user.getLogin());
+    tester.wsClient().organizationsOld().addMember("default-organization", user.getLogin());
     tester.groups().assertThatUserIsMemberOf(null, user.getLogin(), "Members");
     enableUserCreationByAuthPlugin(user.getLogin());
     // No group is returned by the plugin

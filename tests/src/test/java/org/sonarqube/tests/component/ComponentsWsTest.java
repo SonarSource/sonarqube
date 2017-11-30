@@ -53,7 +53,7 @@ public class ComponentsWsTest {
 
   @Test
   public void show() {
-    Components.ShowWsResponse response = tester.wsClient().components().show(new ShowRequest().setKey(FILE_KEY));
+    Components.ShowWsResponse response = tester.wsClient().componentsOld().show(new ShowRequest().setKey(FILE_KEY));
 
     assertThat(response).isNotNull();
     assertThat(response.getComponent().getKey()).isEqualTo(FILE_KEY);
@@ -62,7 +62,7 @@ public class ComponentsWsTest {
 
   @Test
   public void search() {
-    Components.SearchWsResponse response = tester.wsClient().components().search(new SearchRequest()
+    Components.SearchWsResponse response = tester.wsClient().componentsOld().search(new SearchRequest()
       .setQualifiers(singletonList("FIL")));
 
     assertThat(response).isNotNull();
