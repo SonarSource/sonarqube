@@ -193,12 +193,8 @@ class OrganizationEdit extends React.PureComponent {
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({
-  organization: getOrganizationByKey(state, ownProps.params.organizationKey)
-});
-
 const mapDispatchToProps = { updateOrganization };
 
-export default connect(mapStateToProps, mapDispatchToProps)(OrganizationEdit);
+export default connect(null, mapDispatchToProps)(OrganizationEdit);
 
 export const UnconnectedOrganizationEdit = OrganizationEdit;

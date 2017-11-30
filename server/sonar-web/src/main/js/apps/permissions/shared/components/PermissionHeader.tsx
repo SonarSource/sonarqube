@@ -35,10 +35,6 @@ interface Props {
 }
 
 export default class PermissionHeader extends React.PureComponent<Props> {
-  static defaultProps = {
-    showPublicProjectsWarning: false
-  };
-
   handlePermissionClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     event.currentTarget.blur();

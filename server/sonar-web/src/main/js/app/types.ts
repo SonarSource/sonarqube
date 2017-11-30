@@ -133,3 +133,8 @@ export enum Visibility {
   Public = 'public',
   Private = 'private'
 }
+
+export interface CurrentUser {
+  isLoggedIn: boolean;
+  showOnboardingTutorial?: boolean;
+}
