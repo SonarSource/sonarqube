@@ -27,10 +27,8 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Components;
-import org.sonarqube.ws.client.component.SearchRequest;
-import org.sonarqube.ws.client.component.ShowRequest;
+import org.sonarqube.ws.client.components.ShowRequest;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
@@ -53,19 +51,10 @@ public class ComponentsWsTest {
 
   @Test
   public void show() {
-    Components.ShowWsResponse response = tester.wsClient().componentsOld().show(new ShowRequest().setKey(FILE_KEY));
+    Components.ShowWsResponse response = tester.wsClient().components().show(new ShowRequest().setComponent(FILE_KEY));
 
     assertThat(response).isNotNull();
     assertThat(response.getComponent().getKey()).isEqualTo(FILE_KEY);
     assertThat(response.getAncestorsList()).isNotEmpty();
-  }
-
-  @Test
-  public void search() {
-    Components.SearchWsResponse response = tester.wsClient().componentsOld().search(new SearchRequest()
-      .setQualifiers(singletonList("FIL")));
-
-    assertThat(response).isNotNull();
-    assertThat(response.getComponents(0).getKey()).isEqualTo(FILE_KEY);
   }
 }

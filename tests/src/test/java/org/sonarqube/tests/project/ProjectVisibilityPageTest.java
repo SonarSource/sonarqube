@@ -28,12 +28,11 @@ import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.ProjectsManagementPage;
 import org.sonarqube.ws.Components;
-import org.sonarqube.ws.client.component.SearchProjectsRequest;
+import org.sonarqube.ws.client.components.SearchProjectsRequest;
 import org.sonarqube.ws.client.permission.RemoveGroupRequest;
 import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
 public class ProjectVisibilityPageTest {
@@ -84,8 +83,8 @@ public class ProjectVisibilityPageTest {
       .createProject("foo", "foo", visibility)
       .shouldHaveProjectsCount(1);
 
-    Components.SearchProjectsWsResponse response = newAdminWsClient(orchestrator).componentsOld().searchProjects(
-      SearchProjectsRequest.builder().build());
+    Components.SearchProjectsWsResponse response = tester.wsClient().components().searchProjects(
+      new SearchProjectsRequest());
     assertThat(response.getComponentsCount()).isEqualTo(1);
     assertThat(response.getComponents(0).getKey()).isEqualTo("foo");
     assertThat(response.getComponents(0).getName()).isEqualTo("foo");

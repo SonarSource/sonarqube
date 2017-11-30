@@ -49,14 +49,65 @@ message SearchWsResponse {
   optional sonarqube.ws.commons.Facets facets = 12;
 }
 
-// Response of most of POST/issues/{operation}, for instance assign, add_comment and set_severity
 message Operation {
   optional Issue issue = 1;
   repeated Component components = 2;
   repeated sonarqube.ws.commons.Rule rules = 3;
   repeated Users.User users = 4;
-  // Deprecated since 5.5, action plan has been removed
-  repeated ActionPlan unusedActionPlans = 5;
+}
+message AddCommentResponse {
+  optional Issue issue = 1;
+  repeated Component components = 2;
+  repeated sonarqube.ws.commons.Rule rules = 3;
+  repeated Users.User users = 4;
+}
+message AssignResponse {
+  optional Issue issue = 1;
+  repeated Component components = 2;
+  repeated sonarqube.ws.commons.Rule rules = 3;
+  repeated Users.User users = 4;
+}
+message AuthorsResponse {
+  optional Issue issue = 1;
+  repeated Component components = 2;
+  repeated sonarqube.ws.commons.Rule rules = 3;
+  repeated Users.User users = 4;
+}
+message DeleteCommentResponse {
+  optional Issue issue = 1;
+  repeated Component components = 2;
+  repeated sonarqube.ws.commons.Rule rules = 3;
+  repeated Users.User users = 4;
+}
+message DoTransitionResponse {
+  optional Issue issue = 1;
+  repeated Component components = 2;
+  repeated sonarqube.ws.commons.Rule rules = 3;
+  repeated Users.User users = 4;
+}
+message SetSeverityResponse {
+  optional Issue issue = 1;
+  repeated Component components = 2;
+  repeated sonarqube.ws.commons.Rule rules = 3;
+  repeated Users.User users = 4;
+}
+message SetTagsResponse {
+  optional Issue issue = 1;
+  repeated Component components = 2;
+  repeated sonarqube.ws.commons.Rule rules = 3;
+  repeated Users.User users = 4;
+}
+message SetTypeResponse {
+  optional Issue issue = 1;
+  repeated Component components = 2;
+  repeated sonarqube.ws.commons.Rule rules = 3;
+  repeated Users.User users = 4;
+}
+message TagsResponse {
+  optional Issue issue = 1;
+  repeated Component components = 2;
+  repeated sonarqube.ws.commons.Rule rules = 3;
+  repeated Users.User users = 4;
 }
 
 message Issue {
