@@ -33,6 +33,7 @@ public class QualityGateDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
+  private QualityGateDbTester qualityGateDbTester = new QualityGateDbTester(db);
   private DbSession dbSession = db.getSession();
   private QualityGateDao underTest = db.getDbClient().qualityGateDao();
 
@@ -61,7 +62,7 @@ public class QualityGateDaoTest {
 
   @Test
   public void testSelectAll() {
-    db.prepareDbUnit(getClass(), "selectAll.xml");
+    insertQualityGates();
 
     assertThat(underTest.selectAll(dbSession)).extracting(QualityGateDto::getName, QualityGateDto::isBuiltIn)
       .containsExactlyInAnyOrder(
@@ -73,23 +74,23 @@ public class QualityGateDaoTest {
 
   @Test
   public void testSelectByName() {
-    db.prepareDbUnit(getClass(), "selectAll.xml");
+    insertQualityGates();
     assertThat(underTest.selectByName(dbSession, "Balanced").getName()).isEqualTo("Balanced");
     assertThat(underTest.selectByName(dbSession, "Unknown")).isNull();
   }
 
   @Test
   public void testSelectById() {
-    db.prepareDbUnit(getClass(), "selectAll.xml");
-    assertThat(underTest.selectById(dbSession, -1L).getName()).isEqualTo("Very strict");
+    insertQualityGates();
+    assertThat(underTest.selectById(dbSession, underTest.selectByName(dbSession, "Very strict").getId()).getName()).isEqualTo("Very strict");
     assertThat(underTest.selectById(dbSession, 42L)).isNull();
   }
 
   @Test
   public void testDelete() {
-    db.prepareDbUnit(getClass(), "selectAll.xml");
+    insertQualityGates();
 
-    underTest.delete(new QualityGateDto().setId(-1L), dbSession);
+    underTest.delete(underTest.selectByName(dbSession, "Very strict"), dbSession);
     dbSession.commit();
 
     assertThat(underTest.selectAll(dbSession)).extracting(QualityGateDto::getName, QualityGateDto::isBuiltIn)
@@ -101,9 +102,9 @@ public class QualityGateDaoTest {
 
   @Test
   public void testUpdate() {
-    db.prepareDbUnit(getClass(), "selectAll.xml");
+    insertQualityGates();
 
-    underTest.update(new QualityGateDto().setId(-1L).setName("Not so strict"), dbSession);
+    underTest.update(underTest.selectByName(dbSession, "Very strict").setName("Not so strict"), dbSession);
     dbSession.commit();
 
     assertThat(underTest.selectAll(dbSession)).extracting(QualityGateDto::getName, QualityGateDto::isBuiltIn)
@@ -112,5 +113,11 @@ public class QualityGateDaoTest {
         tuple("Balanced", false),
         tuple("Lenient", false),
         tuple("Not so strict", false));
+  }
+
+  private void insertQualityGates() {
+    qualityGateDbTester.insertQualityGate(g -> g.setName("Very strict").setBuiltIn(false));
+    qualityGateDbTester.insertQualityGate(g -> g.setName("Balanced").setBuiltIn(false));
+    qualityGateDbTester.insertQualityGate(g -> g.setName("Lenient").setBuiltIn(false));
   }
 }
