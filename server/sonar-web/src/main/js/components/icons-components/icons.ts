@@ -40,7 +40,6 @@ export { default as LinkIcon } from './LinkIcon';
 export { default as ListIcon } from './ListIcon';
 export { default as LongLivingBranchIcon } from './LongLivingBranchIcon';
 export { default as OpenCloseIcon } from './OpenCloseIcon';
-export { default as OrganizationIcon } from './OrganizationIcon';
 export { default as PendingIcon } from './PendingIcon';
 export { default as ProjectEventIcon } from './ProjectEventIcon';
 export { default as PullRequestIcon } from './PullRequestIcon';

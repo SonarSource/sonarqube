@@ -2,6 +2,8 @@
   display: flex;
   align-items: center;
   clear: left;
+  height: var(--controlHeight);
+  margin-top: var(--gridSize);
 }
 
 .navbar-tabs > li + li {
@@ -10,8 +12,10 @@
 
 .navbar-tabs > li > a {
   display: block;
-  padding: 7px 0 4px;
+  height: var(--controlHeight);
+  line-height: calc(var(--controlHeight) - 6px);
   border-bottom: 3px solid transparent;
+  box-sizing: border-box;
   color: var(--baseFontColor);
   transition: none;
 }

@@ -19,6 +19,7 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import * as theme from '../../app/theme';
 import ContextNavBar from '../../components/nav/ContextNavBar';
 import NavBarTabs from '../../components/nav/NavBarTabs';
 import { translate } from '../../helpers/l10n';
@@ -30,7 +31,7 @@ interface Props {
 export default function Explore(props: Props) {
   return (
     <div id="explore">
-      <ContextNavBar id="explore-navigation" height={65}>
+      <ContextNavBar id="explore-navigation" height={theme.contextNavHeightRaw}>
         <div className="navbar-context-header">
           <h1 className="display-inline-block">{translate('explore')}</h1>
         </div>

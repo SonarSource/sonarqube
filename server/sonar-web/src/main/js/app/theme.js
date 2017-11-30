@@ -20,6 +20,8 @@
 
 // IMPORTANT: any change in this file requires restart of the dev server
 
+const grid = 8;
+
 module.exports = {
   // colors
   blue: '#4b9fd5',
@@ -48,19 +50,23 @@ module.exports = {
   leakBorderColor: '#eae3c7',
 
   // sizes
+  gridSize: `${grid}px`,
+
   baseFontSize: '13px',
   smallFontSize: '12px',
   mediumFontSize: '14px',
   bigFontSize: '16px',
 
-  controlHeight: '24px',
-  smallControlHeight: '20px',
-  tinyControlHeight: '16px',
+  controlHeight: `${3 * grid}px`,
+  smallControlHeight: `${2.5 * grid}px`,
+  tinyControlHeight: `${2 * grid}px`,
 
-  globalNavHeight: '48px',
-  globalNavHeightRaw: 48,
-  globalNavContentHeight: '32px',
-  globalNavContentHeightRaw: 32,
+  globalNavHeight: `${6 * grid}px`,
+  globalNavHeightRaw: 6 * grid,
+  globalNavContentHeight: `${4 * grid}px`,
+  globalNavContentHeightRaw: 4 * grid,
+
+  contextNavHeightRaw: 9 * grid,
 
   // different
   defaultShadow: '0 6px 12px rgba(0, 0, 0, 0.175)',

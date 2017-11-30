@@ -207,11 +207,21 @@ exports[`should render the users organizations 1`] = `
           Object {
             "key": "bar",
             "name": "bar",
+            "projectVisibility": "public",
           }
         }
       >
         <div>
-          <OrganizationIcon />
+          <OrganizationAvatar
+            organization={
+              Object {
+                "key": "bar",
+                "name": "bar",
+                "projectVisibility": "public",
+              }
+            }
+            small={true}
+          />
           <span
             className="spacer-left"
           >
@@ -230,11 +240,21 @@ exports[`should render the users organizations 1`] = `
           Object {
             "key": "foo",
             "name": "Foo",
+            "projectVisibility": "public",
           }
         }
       >
         <div>
-          <OrganizationIcon />
+          <OrganizationAvatar
+            organization={
+              Object {
+                "key": "foo",
+                "name": "Foo",
+                "projectVisibility": "public",
+              }
+            }
+            small={true}
+          />
           <span
             className="spacer-left"
           >
@@ -253,11 +273,21 @@ exports[`should render the users organizations 1`] = `
           Object {
             "key": "myorg",
             "name": "MyOrg",
+            "projectVisibility": "public",
           }
         }
       >
         <div>
-          <OrganizationIcon />
+          <OrganizationAvatar
+            organization={
+              Object {
+                "key": "myorg",
+                "name": "MyOrg",
+                "projectVisibility": "public",
+              }
+            }
+            small={true}
+          />
           <span
             className="spacer-left"
           >

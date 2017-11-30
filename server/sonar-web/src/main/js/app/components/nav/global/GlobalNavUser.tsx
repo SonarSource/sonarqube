@@ -17,80 +17,72 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import classNames from 'classnames';
+import * as React from 'react';
+import * as classNames from 'classnames';
 import { sortBy } from 'lodash';
+import * as PropTypes from 'prop-types';
 import { Link } from 'react-router';
 import * as theme from '../../../theme';
+import { CurrentUser, LoggedInUser, isLoggedIn, Organization } from '../../../types';
 import Avatar from '../../../../components/ui/Avatar';
-import OrganizationIcon from '../../../../components/icons-components/OrganizationIcon';
 import OrganizationLink from '../../../../components/ui/OrganizationLink';
 import { translate } from '../../../../helpers/l10n';
+import { getBaseUrl } from '../../../../helpers/urls';
+import OrganizationAvatar from '../../../../components/common/OrganizationAvatar';
 
-/*::
-type CurrentUser = {
-  avatar?: string,
-  email?: string,
-  isLoggedIn: boolean,
-  name: string
-};
-*/
+interface Props {
+  appState: { organizationsEnabled: boolean };
+  currentUser: CurrentUser;
+  fetchMyOrganizations: () => Promise<void>;
+  organizations: Organization[];
+}
 
-/*::
-type Props = {
-  appState: {
-    organizationsEnabled: boolean
-  },
-  currentUser: CurrentUser,
-  fetchMyOrganizations: () => Promise<*>,
-  location: Object,
-  organizations: Array<{ isAdmin: bool, key: string, name: string }>,
-  router: { push: string => void }
-};
-*/
+interface State {
+  open: boolean;
+}
 
-/*::
-type State = {
-  open: boolean
-};
-*/
+export default class GlobalNavUser extends React.PureComponent<Props, State> {
+  node?: HTMLElement | null;
 
-export default class GlobalNavUser extends React.PureComponent {
-  /*:: node: HTMLElement; */
-  /*:: props: Props; */
-  state /*: State */ = { open: false };
+  static contextTypes = {
+    router: PropTypes.object
+  };
+
+  constructor(props: Props) {
+    super(props);
+    this.state = { open: false };
+  }
 
   componentWillUnmount() {
     window.removeEventListener('click', this.handleClickOutside);
   }
 
-  handleClickOutside = (event /*: { target: HTMLElement } */) => {
-    if (!this.node || !this.node.contains(event.target)) {
+  handleClickOutside = (event: MouseEvent) => {
+    if (!this.node || !this.node.contains(event.target as Node)) {
       this.closeDropdown();
     }
   };
 
-  handleLogin = (e /*: Event */) => {
-    e.preventDefault();
-    const shouldReturnToCurrentPage = window.location.pathname !== `${window.baseUrl}/about`;
+  handleLogin = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    const shouldReturnToCurrentPage = window.location.pathname !== `${getBaseUrl()}/about`;
     if (shouldReturnToCurrentPage) {
       const returnTo = encodeURIComponent(window.location.pathname + window.location.search);
-      window.location =
-        window.baseUrl + `/sessions/new?return_to=${returnTo}${window.location.hash}`;
+      window.location.href =
+        getBaseUrl() + `/sessions/new?return_to=${returnTo}${window.location.hash}`;
     } else {
-      window.location = `${window.baseUrl}/sessions/new`;
+      window.location.href = `${getBaseUrl()}/sessions/new`;
     }
   };
 
-  handleLogout = (e /*: Event */) => {
-    e.preventDefault();
+  handleLogout = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
     this.closeDropdown();
-    this.props.router.push('/sessions/logout');
+    this.context.router.push('/sessions/logout');
   };
 
-  toggleDropdown = (evt /*: Event */) => {
-    evt.preventDefault();
+  toggleDropdown = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
     if (this.state.open) {
       this.closeDropdown();
     } else {
@@ -118,7 +110,8 @@ export default class GlobalNavUser extends React.PureComponent {
   };
 
   renderAuthenticated() {
-    const { currentUser, organizations } = this.props;
+    const { organizations } = this.props;
+    const currentUser = this.props.currentUser as LoggedInUser;
     const hasOrganizations = this.props.appState.organizationsEnabled && organizations.length > 0;
     return (
       <li
@@ -167,10 +160,10 @@ export default class GlobalNavUser extends React.PureComponent {
                     organization={organization}
                     onClick={this.closeDropdown}>
                     <div>
-                      <OrganizationIcon />
+                      <OrganizationAvatar organization={organization} small={true} />
                       <span className="spacer-left">{organization.name}</span>
                     </div>
-                    {organization.isAdmin && (
+                    {organization.canAdmin && (
                       <span className="outline-badge spacer-left">{translate('admin')}</span>
                     )}
                   </OrganizationLink>
@@ -199,6 +192,6 @@ export default class GlobalNavUser extends React.PureComponent {
   }
 
   render() {
-    return this.props.currentUser.isLoggedIn ? this.renderAuthenticated() : this.renderAnonymous();
+    return isLoggedIn(this.props.currentUser) ? this.renderAuthenticated() : this.renderAnonymous();
   }
 }

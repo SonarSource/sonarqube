@@ -12,7 +12,7 @@ exports[`should not render breadcrumbs with one element 1`] = `
     key="my-project"
   >
     <span
-      className="navbar-context-title-qualifier little-spacer-right"
+      className="navbar-context-title-qualifier spacer-right"
     >
       <QualifierIcon
         qualifier="TRK"
@@ -27,14 +27,13 @@ exports[`should not render breadcrumbs with one element 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
+            "branch": undefined,
             "id": "my-project",
           },
         }
       }
     >
-      <strong>
-        My Project
-      </strong>
+      My Project
     </Link>
   </span>
 </h1>
@@ -54,15 +53,16 @@ exports[`should render organization 1`] = `
     title="My Project"
   />
   <span>
-    <span
-      className="navbar-context-title-qualifier little-spacer-right"
-    >
-      <QualifierIcon
-        qualifier="TRK"
-      />
-    </span>
+    <OrganizationAvatar
+      organization={
+        Object {
+          "key": "foo",
+          "name": "The Foo Organization",
+        }
+      }
+    />
     <OrganizationLink
-      className="link-base-color link-no-underline"
+      className="link-base-color link-no-underline spacer-left"
       organization={
         Object {
           "key": "foo",
@@ -79,6 +79,13 @@ exports[`should render organization 1`] = `
   <span
     key="my-project"
   >
+    <span
+      className="navbar-context-title-qualifier spacer-right"
+    >
+      <QualifierIcon
+        qualifier="TRK"
+      />
+    </span>
     <Link
       className="link-base-color link-no-underline"
       onlyActiveOnIndex={false}
@@ -88,14 +95,13 @@ exports[`should render organization 1`] = `
         Object {
           "pathname": "/dashboard",
           "query": Object {
+            "branch": undefined,
             "id": "my-project",
           },
         }
       }
     >
-      <strong>
-        My Project
-      </strong>
+      My Project
     </Link>
   </span>
 </h1>

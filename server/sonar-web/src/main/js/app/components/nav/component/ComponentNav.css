@@ -1,6 +1,8 @@
 .navbar-context-favorite {
-  float: left;
-  padding: 7px 10px 0 0;
+  display: inline-block;
+  vertical-align: top;
+  padding-top: var(--gridSize);
+  padding-left: calc(1.5 * var(--gridSize));
 }
 
 .navbar-context-title-qualifier {
@@ -11,9 +13,10 @@
 }
 
 .navbar-context-branches {
-  float: left;
-  padding: 8px 0 6px;
-  margin-left: 16px;
+  display: inline-block;
+  vertical-align: top;
+  padding: var(--gridSize) 0;
+  margin-left: calc(2 * var(--gridSize));
   line-height: 16px;
 }
 

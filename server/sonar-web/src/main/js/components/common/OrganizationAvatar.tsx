@@ -1,7 +1,7 @@
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,19 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getOrganizations } from '../../../api/organizations';
-import { receiveMyOrganizations } from '../../../store/organizations/duck';
-import { getValues } from '../../../api/settings';
-import { receiveValues } from '../../settings/store/values/actions';
+import * as React from 'react';
+import * as classNames from 'classnames';
+import GenericAvatar from '../ui/GenericAvatar';
+import './OrganizationAvatar.css';
 
-export const fetchMyOrganizations = () => dispatch => {
-  return getOrganizations({ member: true }).then(({ organizations }) => {
-    return dispatch(receiveMyOrganizations(organizations));
-  });
-};
+interface Props {
+  organization: {
+    avatar?: string;
+    name: string;
+  };
+  small?: boolean;
+}
 
-export const fetchIfAnyoneCanCreateOrganizations = () => dispatch => {
-  return getValues('sonar.organizations.anyoneCanCreate').then(values => {
-    dispatch(receiveValues(values));
-  });
-};
+export default function OrganizationAvatar({ organization, small }: Props) {
+  return (
+    <div
+      className={classNames('navbar-context-avatar', 'rounded', {
+        'is-empty': !organization.avatar,
+        'is-small': small
+      })}>
+      {organization.avatar ? (
+        <img className="rounded" src={organization.avatar} alt={organization.name} />
+      ) : (
+        <GenericAvatar name={organization.name} size={small ? 15 : 30} />
+      )}
+    </div>
+  );
+}

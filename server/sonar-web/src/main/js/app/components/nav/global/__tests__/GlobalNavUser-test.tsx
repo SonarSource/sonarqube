@@ -17,15 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import GlobalNavUser from '../GlobalNavUser';
 
 const currentUser = { avatar: 'abcd1234', isLoggedIn: true, name: 'foo', email: 'foo@bar.baz' };
 const organizations = [
-  { key: 'myorg', name: 'MyOrg' },
-  { key: 'foo', name: 'Foo' },
-  { key: 'bar', name: 'bar' }
+  { key: 'myorg', name: 'MyOrg', projectVisibility: 'public' },
+  { key: 'foo', name: 'Foo', projectVisibility: 'public' },
+  { key: 'bar', name: 'bar', projectVisibility: 'public' }
 ];
 const appState = { organizationsEnabled: true };
 
@@ -35,7 +35,7 @@ it('should render the right interface for anonymous user', () => {
     <GlobalNavUser
       appState={appState}
       currentUser={currentUser}
-      fetchMyOrganizations={() => {}}
+      fetchMyOrganizations={jest.fn()}
       organizations={[]}
     />
   );
@@ -47,7 +47,7 @@ it('should render the right interface for logged in user', () => {
     <GlobalNavUser
       appState={appState}
       currentUser={currentUser}
-      fetchMyOrganizations={() => {}}
+      fetchMyOrganizations={jest.fn()}
       organizations={[]}
     />
   );
@@ -60,7 +60,7 @@ it('should render the users organizations', () => {
     <GlobalNavUser
       appState={appState}
       currentUser={currentUser}
-      fetchMyOrganizations={() => {}}
+      fetchMyOrganizations={jest.fn()}
       organizations={organizations}
     />
   );
@@ -73,7 +73,7 @@ it('should not render the users organizations when they are not activated', () =
     <GlobalNavUser
       appState={{ organizationsEnabled: false }}
       currentUser={currentUser}
-      fetchMyOrganizations={() => {}}
+      fetchMyOrganizations={jest.fn()}
       organizations={organizations}
     />
   );
@@ -109,9 +109,9 @@ it('should lazyload the organizations when opening the dropdown', () => {
     />
   );
   expect(fetchMyOrganizations.mock.calls.length).toBe(0);
-  wrapper.instance().openDropdown();
+  (wrapper.instance() as GlobalNavUser).openDropdown();
   expect(fetchMyOrganizations.mock.calls.length).toBe(1);
-  wrapper.instance().openDropdown();
+  (wrapper.instance() as GlobalNavUser).openDropdown();
   expect(fetchMyOrganizations.mock.calls.length).toBe(2);
 });
 
@@ -125,11 +125,11 @@ it('should update the organizations when the user changes', () => {
       organizations={organizations}
     />
   );
-  wrapper.instance().openDropdown();
+  (wrapper.instance() as GlobalNavUser).openDropdown();
   expect(fetchMyOrganizations.mock.calls.length).toBe(1);
   wrapper.setProps({
     currentUser: { isLoggedIn: true, name: 'test', email: 'test@sonarsource.com' }
   });
-  wrapper.instance().openDropdown();
+  (wrapper.instance() as GlobalNavUser).openDropdown();
   expect(fetchMyOrganizations.mock.calls.length).toBe(2);
 });
