@@ -22,7 +22,7 @@ import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 import RenameQualityGateForm from './RenameQualityGateForm';
 import CopyQualityGateForm from './CopyQualityGateForm';
 import DeleteQualityGateForm from './DeleteQualityGateForm';
-import { QualityGate, setQualityGateAsDefault } from '../../../api/quality-gates';
+import { fetchQualityGate, QualityGate, setQualityGateAsDefault } from '../../../api/quality-gates';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
@@ -53,9 +53,11 @@ export default class DetailsHeader extends React.PureComponent<Props, State> {
 
   handleSetAsDefaultClick = (e: React.SyntheticEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const { qualityGate, onSetAsDefault } = this.props;
+    const { qualityGate, onSetAsDefault, organization } = this.props;
     if (!qualityGate.isDefault) {
-      setQualityGateAsDefault(qualityGate.id).then(() => onSetAsDefault(qualityGate), () => {});
+      setQualityGateAsDefault({ id: qualityGate.id, organization })
+        .then(() => fetchQualityGate({ id: qualityGate.id, organization }))
+        .then(qualityGate => onSetAsDefault(qualityGate), () => {});
     }
   };
 
