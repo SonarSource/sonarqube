@@ -20,13 +20,11 @@
 // @flow
 import React from 'react';
 import Helmet from 'react-helmet';
-import { connect } from 'react-redux';
 import init from '../../groups/init';
-import { getOrganizationByKey } from '../../../store/rootReducer';
 import { translate } from '../../../helpers/l10n';
 /*:: import type { Organization } from '../../../store/organizations/duck'; */
 
-class OrganizationGroups extends React.PureComponent {
+export default class OrganizationGroups extends React.PureComponent {
   /*:: props: {
     organization: Organization
   };
@@ -45,9 +43,3 @@ class OrganizationGroups extends React.PureComponent {
     );
   }
 }
-
-const mapStateToProps = (state, ownProps) => ({
-  organization: getOrganizationByKey(state, ownProps.params.organizationKey)
-});
-
-export default connect(mapStateToProps)(OrganizationGroups);

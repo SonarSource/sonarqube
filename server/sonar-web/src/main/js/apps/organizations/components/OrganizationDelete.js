@@ -115,12 +115,8 @@ class OrganizationDelete extends React.PureComponent {
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({
-  organization: getOrganizationByKey(state, ownProps.params.organizationKey)
-});
-
 const mapDispatchToProps = { deleteOrganization };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(OrganizationDelete));
+export default connect(null, mapDispatchToProps)(withRouter(OrganizationDelete));
 
 export const UnconnectedOrganizationDelete = OrganizationDelete;
