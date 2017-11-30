@@ -46,6 +46,10 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORG
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STRATEGY;
 
+/**
+ * @deprecated since 7.0, use {@link org.sonarqube.ws.client.components.ComponentsService} instead
+ */
+@Deprecated
 public class ComponentsService extends BaseService {
 
   public ComponentsService(WsConnector wsConnector) {

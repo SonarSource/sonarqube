@@ -47,6 +47,10 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_T
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_USER_LOGIN;
 
+/**
+ * @deprecated since 7.0, use {@link PermissionsService} instead
+ */
+@Deprecated
 public class PermissionsService extends BaseService {
 
   public PermissionsService(WsConnector wsConnector) {

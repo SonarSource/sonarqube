@@ -51,6 +51,10 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFI
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEGY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_TO;
 
+/**
+ * @deprecated since 7.0, use {@link org.sonarqube.ws.client.measures.MeasuresService} instead
+ */
+@Deprecated
 public class MeasuresService extends BaseService {
   public MeasuresService(WsConnector wsConnector) {
     super(wsConnector, CONTROLLER_MEASURES);

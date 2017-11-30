@@ -34,6 +34,10 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonarqube.ws.Organizations.CreateWsResponse;
 import static org.sonarqube.ws.Organizations.UpdateWsResponse;
 
+/**
+ * @deprecated since 7.0, use {@link org.sonarqube.ws.client.organizations.OrganizationsService} instead
+ */
+@Deprecated
 public class OrganizationService extends BaseService {
 
   public OrganizationService(WsConnector wsConnector) {
