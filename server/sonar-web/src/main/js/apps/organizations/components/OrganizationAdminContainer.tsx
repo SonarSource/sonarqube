@@ -19,20 +19,51 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import GlobalPermissionsApp from '../../permissions/global/components/App';
+import { RouterState } from 'react-router';
 import { getOrganizationByKey } from '../../../store/rootReducer';
+import handleRequiredAuthorization from '../../../app/utils/handleRequiredAuthorization';
 import { Organization } from '../../../app/types';
 
-interface Props {
-  organization: Organization;
+interface StateToProps {
+  organization?: Organization;
 }
 
-function OrganizationPermissions({ organization }: Props) {
-  return <GlobalPermissionsApp organization={organization} />;
+interface OwnProps extends RouterState {
+  children: JSX.Element;
 }
 
-const mapStateToProps = (state: any, ownProps: any) => ({
+interface Props extends StateToProps, Pick<OwnProps, 'children' | 'location'> {}
+
+export class OrganizationAdmin extends React.PureComponent<Props> {
+  componentDidMount() {
+    this.checkPermissions();
+  }
+
+  componentDidUpdate() {
+    this.checkPermissions();
+  }
+
+  isOrganizationAdmin = () => this.props.organization && this.props.organization.canAdmin;
+
+  checkPermissions = () => {
+    if (!this.isOrganizationAdmin()) {
+      handleRequiredAuthorization();
+    }
+  };
+
+  render() {
+    if (!this.isOrganizationAdmin()) {
+      return null;
+    }
+    return React.cloneElement(this.props.children, {
+      location: this.props.location,
+      organization: this.props.organization
+    });
+  }
+}
+
+const mapStateToProps = (state: any, ownProps: OwnProps) => ({
   organization: getOrganizationByKey(state, ownProps.params.organizationKey)
 });
 
-export default connect(mapStateToProps)(OrganizationPermissions);
+export default connect<StateToProps, {}, OwnProps>(mapStateToProps)(OrganizationAdmin);

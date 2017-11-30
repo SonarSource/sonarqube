@@ -69,9 +69,8 @@ export default class AllHoldersList extends React.PureComponent<Props> {
   };
 
   render() {
-    const order = PERMISSIONS_ORDER;
     const l10nPrefix = this.props.organization ? 'organizations_permissions' : 'global_permissions';
-    const permissions = order.map(p => ({
+    const permissions = PERMISSIONS_ORDER.map(p => ({
       key: p,
       name: translate(l10nPrefix, p),
       description: translate(l10nPrefix, p, 'desc')

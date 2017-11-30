@@ -1,7 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`should render children 1`] = `
-<div>
-  hello
-</div>
-`;

@@ -20,12 +20,13 @@
 import * as React from 'react';
 import { shallow } from 'enzyme';
 import GlobalNavUser from '../GlobalNavUser';
+import { Visibility } from '../../../../types';
 
 const currentUser = { avatar: 'abcd1234', isLoggedIn: true, name: 'foo', email: 'foo@bar.baz' };
 const organizations = [
-  { key: 'myorg', name: 'MyOrg', projectVisibility: 'public' },
-  { key: 'foo', name: 'Foo', projectVisibility: 'public' },
-  { key: 'bar', name: 'bar', projectVisibility: 'public' }
+  { key: 'myorg', name: 'MyOrg', projectVisibility: Visibility.Public },
+  { key: 'foo', name: 'Foo', projectVisibility: Visibility.Public },
+  { key: 'bar', name: 'bar', projectVisibility: Visibility.Public }
 ];
 const appState = { organizationsEnabled: true };
 
