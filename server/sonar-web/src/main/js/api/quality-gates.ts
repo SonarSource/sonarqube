@@ -52,31 +52,42 @@ export function fetchQualityGates(): Promise<{
   return getJSON('/api/qualitygates/list').catch(throwGlobalError);
 }
 
-export function fetchQualityGate(id: string): Promise<QualityGate> {
+export function fetchQualityGate(id: number): Promise<QualityGate> {
   return getJSON('/api/qualitygates/show', { id }).catch(throwGlobalError);
 }
 
-export function createQualityGate(name: string): Promise<any> {
-  return postJSON('/api/qualitygates/create', { name });
+export function createQualityGate(data: {
+  name: string;
+  organization?: string;
+}): Promise<QualityGate> {
+  return postJSON('/api/qualitygates/create', data).catch(throwGlobalError);
 }
 
-export function deleteQualityGate(id: string): Promise<void> {
+export function deleteQualityGate(id: number): Promise<void> {
   return post('/api/qualitygates/destroy', { id });
 }
 
-export function renameQualityGate(id: string, name: string): Promise<void> {
-  return post('/api/qualitygates/rename', { id, name });
+export function renameQualityGate(data: {
+  id: number;
+  name: string;
+  organization?: string;
+}): Promise<void | Response> {
+  return post('/api/qualitygates/rename', data).catch(throwGlobalError);
 }
 
-export function copyQualityGate(id: string, name: string): Promise<any> {
-  return postJSON('/api/qualitygates/copy', { id, name });
+export function copyQualityGate(data: {
+  id: number;
+  name: string;
+  organization?: string;
+}): Promise<QualityGate> {
+  return postJSON('/api/qualitygates/copy', data).catch(throwGlobalError);
 }
 
-export function setQualityGateAsDefault(id: string): Promise<void | Response> {
+export function setQualityGateAsDefault(id: number): Promise<void | Response> {
   return post('/api/qualitygates/set_as_default', { id }).catch(throwGlobalError);
 }
 
-export function createCondition(gateId: string, condition: RequestData): Promise<any> {
+export function createCondition(gateId: number, condition: RequestData): Promise<any> {
   return postJSON('/api/qualitygates/create_condition', { ...condition, gateId });
 }
 
@@ -84,7 +95,7 @@ export function updateCondition(condition: RequestData): Promise<any> {
   return postJSON('/api/qualitygates/update_condition', condition);
 }
 
-export function deleteCondition(id: string): Promise<void> {
+export function deleteCondition(id: number): Promise<void> {
   return post('/api/qualitygates/delete_condition', { id });
 }
 
