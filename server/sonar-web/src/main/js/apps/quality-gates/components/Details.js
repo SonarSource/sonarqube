@@ -23,10 +23,6 @@ import Helmet from 'react-helmet';
 import { fetchQualityGate, setQualityGateAsDefault } from '../../../api/quality-gates';
 import DetailsHeader from './DetailsHeader';
 import DetailsContent from './DetailsContent';
-import RenameView from '../views/rename-view';
-import CopyView from '../views/copy-view';
-import DeleteView from '../views/delete-view';
-import { getQualityGatesUrl, getQualityGateUrl } from '../../../helpers/urls';
 
 export default class Details extends React.PureComponent {
   static contextTypes = {
@@ -50,49 +46,8 @@ export default class Details extends React.PureComponent {
       () => {}
     );
 
-  handleRenameClick = () => {
-    const { qualityGate, onRename } = this.props;
-    new RenameView({
-      qualityGate,
-      onRename: (qualityGate, newName) => {
-        onRename(qualityGate, newName);
-      }
-    }).render();
-  };
-
-  handleCopyClick = () => {
-    const { qualityGate, onCopy, organization } = this.props;
-    const { router } = this.context;
-    new CopyView({
-      qualityGate,
-      onCopy: newQualityGate => {
-        onCopy(newQualityGate);
-        router.push(getQualityGateUrl(newQualityGate.id, organization && organization.key));
-      }
-    }).render();
-  };
-
-  handleSetAsDefaultClick = () => {
-    const { qualityGate, onSetAsDefault } = this.props;
-    if (!qualityGate.isDefault) {
-      setQualityGateAsDefault(qualityGate.id).then(() => onSetAsDefault(qualityGate), () => {});
-    }
-  };
-
-  handleDeleteClick = () => {
-    const { qualityGate, onDelete, organization } = this.props;
-    const { router } = this.context;
-    new DeleteView({
-      qualityGate,
-      onDelete: qualityGate => {
-        onDelete(qualityGate);
-        router.replace(getQualityGatesUrl(organization && organization.key));
-      }
-    }).render();
-  };
-
   render() {
-    const { qualityGate, metrics } = this.props;
+    const { organization, metrics, qualityGate } = this.props;
     const { onAddCondition, onDeleteCondition, onSaveCondition } = this.props;
 
     if (!qualityGate) {
@@ -104,11 +59,11 @@ export default class Details extends React.PureComponent {
         <Helmet title={qualityGate.name} />
         <DetailsHeader
           qualityGate={qualityGate}
-          onRename={this.handleRenameClick}
-          onCopy={this.handleCopyClick}
-          onSetAsDefault={this.handleSetAsDefaultClick}
-          onDelete={this.handleDeleteClick}
-          organization={this.props.organization}
+          onRename={this.props.onRename}
+          onCopy={this.props.onCopy}
+          onSetAsDefault={this.props.onSetAsDefault}
+          onDelete={this.props.onDelete}
+          organization={organization && organization.key}
         />
 
         <DetailsContent

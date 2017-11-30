@@ -25,8 +25,19 @@ import { translate } from '../../../helpers/l10n';
 export default Marionette.ItemView.extend({
   template: () => {},
 
+  initialize(options) {
+    this.organization = options.organization;
+  },
+
   onRender() {
     const { qualityGate } = this.options;
+
+    const extra = {
+      gateId: qualityGate.id
+    };
+    if (this.organization) {
+      extra.organization = this.organization.key;
+    }
 
     new SelectList({
       el: this.options.container,
@@ -39,9 +50,7 @@ export default Marionette.ItemView.extend({
       searchUrl: window.baseUrl + '/api/qualitygates/search?gateId=' + qualityGate.id,
       selectUrl: window.baseUrl + '/api/qualitygates/select',
       deselectUrl: window.baseUrl + '/api/qualitygates/deselect',
-      extra: {
-        gateId: qualityGate.id
-      },
+      extra,
       selectParameter: 'projectId',
       selectParameterValue: 'id',
       labels: {
