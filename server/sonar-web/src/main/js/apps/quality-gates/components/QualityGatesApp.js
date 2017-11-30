@@ -56,18 +56,10 @@ export default class QualityGatesApp extends Component {
       updateStore({ actions, qualityGates });
       if (qualityGates && qualityGates.length === 1 && !actions.create) {
         this.context.router.replace(
-          getQualityGateUrl(qualityGates[0].id, organization && organization.key)
+          getQualityGateUrl(String(qualityGates[0].id), organization && organization.key)
         );
       }
     });
-
-  handleAdd = qualityGate => {
-    const { addQualityGate, organization } = this.props;
-    const { router } = this.context;
-
-    addQualityGate(qualityGate);
-    router.push(getQualityGateUrl(qualityGate.id, organization && organization.key));
-  };
 
   render() {
     const { children, qualityGates, actions, organization } = this.props;
@@ -81,7 +73,11 @@ export default class QualityGatesApp extends Component {
             <div className="layout-page-side" style={{ top }}>
               <div className="layout-page-side-inner">
                 <div className="layout-page-filters">
-                  <ListHeader canCreate={actions && actions.create} onAdd={this.handleAdd} />
+                  <ListHeader
+                    canCreate={actions && actions.create}
+                    onAdd={this.props.addQualityGate}
+                    organization={organization}
+                  />
                   {qualityGates && <List organization={organization} qualityGates={qualityGates} />}
                 </div>
               </div>

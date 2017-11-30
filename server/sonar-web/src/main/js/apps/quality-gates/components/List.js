@@ -29,7 +29,7 @@ export default function List({ organization, qualityGates }) {
       {qualityGates.map(qualityGate => (
         <Link
           key={qualityGate.id}
-          to={getQualityGateUrl(qualityGate.id, organization && organization.key)}
+          to={getQualityGateUrl(String(qualityGate.id), organization && organization.key)}
           activeClassName="active"
           className="list-group-item"
           data-id={qualityGate.id}>
