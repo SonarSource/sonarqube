@@ -26,7 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
-import org.sonarqube.ws.client.component.SearchProjectsRequest;
+import org.sonarqube.ws.client.components.SearchProjectsRequest;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
@@ -68,7 +68,7 @@ public class ProjectBulkDeletionPageTest {
     $(".modal button").click();
     $("#projects-management-page").shouldNotHave(text(project1.getName())).shouldNotHave(text(project3.getName()));
 
-    assertThat(tester.wsClient().componentsOld().searchProjects(SearchProjectsRequest.builder().build())
+    assertThat(tester.wsClient().components().searchProjects(new SearchProjectsRequest())
       .getComponentsCount()).isEqualTo(1);
   }
 }

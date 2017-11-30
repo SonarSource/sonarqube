@@ -27,9 +27,7 @@ import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.ClassRule;
@@ -39,13 +37,15 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.tests.Byteman;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Common;
+import org.sonarqube.ws.Components;
+import org.sonarqube.ws.Components.SuggestionsWsResponse.Suggestion;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Organizations.Organization;
-import org.sonarqube.ws.Qualityprofiles.CreateWsResponse.QualityProfile;
 import org.sonarqube.ws.Projects;
+import org.sonarqube.ws.Qualityprofiles.CreateWsResponse.QualityProfile;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.ce.TaskRequest;
-import org.sonarqube.ws.client.component.SuggestionsRequest;
+import org.sonarqube.ws.client.components.SuggestionsRequest;
 import org.sonarqube.ws.client.issue.SearchRequest;
 import util.ItUtils;
 
@@ -98,9 +98,9 @@ public class AnalysisEsResilienceTest {
       .assignQProfileToProject(profile, project);
 
     executeAnalysis(projectKey, organization, orgAdministrator, "analysis/resilience/resilience-sample-v1", null);
-    assertThat(searchFile(fileKey, organization)).isNotEmpty();
-    assertThat(searchFile(file2Key, organization)).isEmpty();
-    assertThat(searchFile(file3Key, organization)).isEmpty();
+    assertThat(searchFile(fileKey)).isNotEmpty();
+    assertThat(searchFile(file2Key)).isEmpty();
+    assertThat(searchFile(file3Key)).isEmpty();
     Issues.SearchWsResponse issues = searchIssues(projectKey);
     assertThat(issues.getIssuesList())
       .extracting(Issues.Issue::getComponent)
@@ -108,9 +108,9 @@ public class AnalysisEsResilienceTest {
 
     byteman.activateScript("resilience/making_ce_indexation_failing.btm");
     executeAnalysis(projectKey, organization, orgAdministrator, "analysis/resilience/resilience-sample-v2", null);
-    assertThat(searchFile(fileKey, organization)).isNotEmpty();
-    assertThat(searchFile(file2Key, organization)).isEmpty();// inconsistency: in DB there is also file2Key
-    assertThat(searchFile(file3Key, organization)).isEmpty();// inconsistency: in DB there is also file3Key
+    assertThat(searchFile(fileKey)).isNotEmpty();
+    assertThat(searchFile(file2Key)).isEmpty();// inconsistency: in DB there is also file2Key
+    assertThat(searchFile(file3Key)).isEmpty();// inconsistency: in DB there is also file3Key
     issues = searchIssues(projectKey);
     assertThat(issues.getIssuesList())
       .extracting(Issues.Issue::getComponent)
@@ -118,9 +118,9 @@ public class AnalysisEsResilienceTest {
     byteman.deactivateAllRules();
 
     executeAnalysis(projectKey, organization, orgAdministrator, "analysis/resilience/resilience-sample-v3", null);
-    assertThat(searchFile(fileKey, organization)).isNotEmpty();
-    assertThat(searchFile(file2Key, organization)).isEmpty();
-    assertThat(searchFile(file3Key, organization)).isNotEmpty();
+    assertThat(searchFile(fileKey)).isNotEmpty();
+    assertThat(searchFile(file2Key)).isEmpty();
+    assertThat(searchFile(file3Key)).isNotEmpty();
     issues = searchIssues(projectKey);
     assertThat(issues.getIssuesList())
       .extracting(Issues.Issue::getComponent, Issues.Issue::getStatus)
@@ -144,7 +144,7 @@ public class AnalysisEsResilienceTest {
       .assignQProfileToProject(profile, project);
 
     executeAnalysis(projectKey, organization, orgAdministrator, "analysis/resilience/resilience-purge", "2000-01-01");
-    assertThat(searchFile(fileKey, organization)).isNotEmpty();
+    assertThat(searchFile(fileKey)).isNotEmpty();
     Issues.SearchWsResponse issues = searchIssues(projectKey);
     assertThat(issues.getIssuesList())
       .extracting(Issues.Issue::getComponent)
@@ -166,7 +166,7 @@ public class AnalysisEsResilienceTest {
       .contains("Caused by: java.lang.IllegalStateException: Unrecoverable indexation failures");
 
     // The issue must be present with status CLOSED in database
-    assertThat(searchFile(fileKey, organization)).isNotEmpty();
+    assertThat(searchFile(fileKey)).isNotEmpty();
     issues = searchIssues(projectKey);
     assertThat(issues.getIssuesList())
       .extracting(Issues.Issue::getComponent, Issues.Issue::getStatus)
@@ -189,7 +189,7 @@ public class AnalysisEsResilienceTest {
     // Second analysis must fix the issue,
     // The purge will delete the "old" issue
     executeAnalysis(projectKey, organization, orgAdministrator, "analysis/resilience/resilience-purge", null);
-    assertThat(searchFile(fileKey, organization)).isNotEmpty();
+    assertThat(searchFile(fileKey)).isNotEmpty();
     issues = searchIssues(projectKey);
     assertThat(issues.getIssuesList())
       .isEmpty();
@@ -232,18 +232,16 @@ public class AnalysisEsResilienceTest {
     return tester.wsClient().issuesOld().search(request);
   }
 
-  private List<String> searchFile(String key, Organization organization) {
-    SuggestionsRequest query = SuggestionsRequest.builder()
-      .setS(key)
-      .build();
-    Map<String, Object> response = ItUtils.jsonToMap(
-      tester.wsClient().componentsOld().suggestions(query).content()
-    );
-    List results = (List) response.get("results");
-    Map trkResult = (Map) results.stream().filter(result -> "FIL".equals(((Map) result).get("q"))).findAny().get();
-    List items = (List) trkResult.get("items");
-    Stream<String> x = items.stream().map(item -> (String) ((Map) item).get("key"));
-    return x.collect(Collectors.toList());
+  private List<String> searchFile(String key) {
+    SuggestionsRequest query = new SuggestionsRequest().setS(key);
+
+    Components.SuggestionsWsResponse response = tester.wsClient().components().suggestions(query);
+
+    return response
+      .getResultsList().stream().filter(result -> "FIL".equals(result.getQ())).findAny().get()
+      .getItemsList().stream()
+      .map(Suggestion::getKey)
+      .collect(Collectors.toList());
   }
 
   private String executeAnalysis(String projectKey, Organization organization, User orgAdministrator, String projectPath, @Nullable String date) {

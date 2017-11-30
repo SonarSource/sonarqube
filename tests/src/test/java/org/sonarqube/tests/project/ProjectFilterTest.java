@@ -34,7 +34,7 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Components.Component;
 import org.sonarqube.ws.Components.SearchProjectsWsResponse;
-import org.sonarqube.ws.client.component.SearchProjectsRequest;
+import org.sonarqube.ws.client.components.SearchProjectsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 
 import static java.util.Arrays.asList;
@@ -90,7 +90,7 @@ public class ProjectFilterTest {
     String projectKey = newProjectKey();
     tester.wsClient().projects().create(CreateRequest.builder().setKey(projectKey).setName(projectKey).setOrganization(organization.getKey()).build());
 
-    SearchProjectsWsResponse response = searchProjects(SearchProjectsRequest.builder().setOrganization(organization.getKey()).build());
+    SearchProjectsWsResponse response = searchProjects(new SearchProjectsRequest().setOrganization(organization.getKey()));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly(projectKey);
   }
@@ -110,7 +110,7 @@ public class ProjectFilterTest {
     tester.wsClient().projects().create(CreateRequest.builder().setKey(projectKey3).setName(projectKey3).setOrganization(organization.getKey()).build());
 
     SearchProjectsWsResponse response = searchProjects(
-      SearchProjectsRequest.builder().setAdditionalFields(singletonList("leakPeriodDate")).setOrganization(organization.getKey()).build());
+      new SearchProjectsRequest().setF(singletonList("leakPeriodDate")).setOrganization(organization.getKey()));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey, Component::hasLeakPeriodDate)
       .containsOnly(
@@ -137,18 +137,18 @@ public class ProjectFilterTest {
     assertThat(searchProjects("query = \"unknown\"").getComponentsList()).isEmpty();
 
     // Search by metric criteria and text query
-    assertThat(searchProjects(SearchProjectsRequest.builder().setFilter("query = \"pAch\" AND ncloc > 50").build()).getComponentsList())
+    assertThat(searchProjects(new SearchProjectsRequest().setFilter("query = \"pAch\" AND ncloc > 50")).getComponentsList())
       .extracting(Component::getKey).containsExactly("project3");
-    assertThat(searchProjects(SearchProjectsRequest.builder().setFilter("query = \"nd\" AND ncloc > 50").build()).getComponentsList())
+    assertThat(searchProjects(new SearchProjectsRequest().setFilter("query = \"nd\" AND ncloc > 50")).getComponentsList())
       .extracting(Component::getKey).containsExactly("project3", "project4");
-    assertThat(searchProjects(SearchProjectsRequest.builder().setFilter("query = \"unknown\" AND ncloc > 50").build()).getComponentsList()).isEmpty();
+    assertThat(searchProjects(new SearchProjectsRequest().setFilter("query = \"unknown\" AND ncloc > 50")).getComponentsList()).isEmpty();
     ;
 
     // Check facets
-    assertThat(searchProjects(SearchProjectsRequest.builder().setFilter("query = \"apache\"").setFacets(singletonList("ncloc")).build()).getFacets().getFacets(0).getValuesList())
+    assertThat(searchProjects(new SearchProjectsRequest().setFilter("query = \"apache\"").setFacets(singletonList("ncloc"))).getFacets().getFacets(0).getValuesList())
       .extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
       .containsOnly(tuple("*-1000.0", 3L), tuple("1000.0-10000.0", 0L), tuple("10000.0-100000.0", 0L), tuple("100000.0-500000.0", 0L), tuple("500000.0-*", 0L));
-    assertThat(searchProjects(SearchProjectsRequest.builder().setFilter("query = \"unknown\"").setFacets(singletonList("ncloc")).build()).getFacets().getFacets(0)
+    assertThat(searchProjects(new SearchProjectsRequest().setFilter("query = \"unknown\"").setFacets(singletonList("ncloc"))).getFacets().getFacets(0)
       .getValuesList()).extracting(Common.FacetValue::getVal, Common.FacetValue::getCount)
         .containsOnly(tuple("*-1000.0", 0L), tuple("1000.0-10000.0", 0L), tuple("10000.0-100000.0", 0L), tuple("100000.0-500000.0", 0L), tuple("500000.0-*", 0L));
   }
@@ -158,7 +158,7 @@ public class ProjectFilterTest {
     analyzeProject(newProjectKey(), "shared/xoo-sample");
     analyzeProject(newProjectKey(), "shared/xoo-multi-modules-sample");
 
-    SearchProjectsWsResponse response = searchProjects(SearchProjectsRequest.builder().setOrganization(organization.getKey()).setFacets(asList(
+    SearchProjectsWsResponse response = searchProjects(new SearchProjectsRequest().setOrganization(organization.getKey()).setFacets(asList(
       "alert_status",
       "coverage",
       "duplicated_lines_density",
@@ -167,7 +167,7 @@ public class ProjectFilterTest {
       "reliability_rating",
       "security_rating",
       "sqale_rating",
-      "tags")).build());
+      "tags")));
 
     checkFacet(response, "alert_status",
       tuple("OK", 2L),
@@ -228,8 +228,8 @@ public class ProjectFilterTest {
     analyzeProject(projectKey2, "projectSearch/xoo-history-v1", "sonar.projectDate", "2016-12-31");
     analyzeProject(projectKey2, "projectSearch/xoo-history-v2");
 
-    SearchProjectsWsResponse response = searchProjects(SearchProjectsRequest.builder().setOrganization(organization.getKey()).setFacets(asList(
-      "new_reliability_rating", "new_security_rating", "new_maintainability_rating", "new_coverage", "new_duplicated_lines_density", "new_lines")).build());
+    SearchProjectsWsResponse response = searchProjects(new SearchProjectsRequest().setOrganization(organization.getKey()).setFacets(asList(
+      "new_reliability_rating", "new_security_rating", "new_maintainability_rating", "new_coverage", "new_duplicated_lines_density", "new_lines")));
 
     checkFacet(response, "new_reliability_rating",
       tuple("1", 2L),
@@ -287,11 +287,11 @@ public class ProjectFilterTest {
   }
 
   private SearchProjectsWsResponse searchProjects(String filter) throws IOException {
-    return searchProjects(SearchProjectsRequest.builder().setOrganization(organization.getKey()).setFilter(filter).build());
+    return searchProjects(new SearchProjectsRequest().setOrganization(organization.getKey()).setFilter(filter));
   }
 
   private SearchProjectsWsResponse searchProjects(SearchProjectsRequest request) throws IOException {
-    return tester.wsClient().componentsOld().searchProjects(request);
+    return tester.wsClient().components().searchProjects(request);
   }
 
   private void verifyFilterMatches(String projectKey, String filter) throws IOException {

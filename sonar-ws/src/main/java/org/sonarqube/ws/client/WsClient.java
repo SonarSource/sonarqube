@@ -66,12 +66,6 @@ public interface WsClient {
 
   OrganizationsService organizations();
 
-  /**
-   * @deprecated since 7.0 use {@link #components()} instead
-   */
-  @Deprecated
-  org.sonarqube.ws.client.component.ComponentsService componentsOld();
-
   ComponentsService components();
 
   FavoritesService favorites();

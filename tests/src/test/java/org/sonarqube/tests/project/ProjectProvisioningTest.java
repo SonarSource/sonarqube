@@ -35,7 +35,7 @@ import org.sonarqube.ws.Projects;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.component.SearchProjectsRequest;
+import org.sonarqube.ws.client.components.SearchProjectsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.project.SearchRequest;
 import util.ItUtils;
@@ -109,8 +109,8 @@ public class ProjectProvisioningTest {
    * Projects page - api/components/search_projects - uses ES + DB
    */
   private boolean isInComponentSearchProjects(String name) {
-    Components.SearchProjectsWsResponse response = tester.wsClient().componentsOld().searchProjects(
-      SearchProjectsRequest.builder().setFilter("query=\"" + name + "\"").build());
+    Components.SearchProjectsWsResponse response = tester.wsClient().components().searchProjects(
+      new SearchProjectsRequest().setFilter("query=\"" + name + "\""));
     return response.getComponentsCount() > 0;
   }
 

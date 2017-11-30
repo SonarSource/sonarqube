@@ -21,14 +21,23 @@ package org.sonarqube.ws.client.issues;
 
 import java.util.stream.Collectors;
 import javax.annotation.Generated;
+import org.sonarqube.ws.Issues.AddCommentResponse;
+import org.sonarqube.ws.Issues.AssignResponse;
+import org.sonarqube.ws.Issues.AuthorsResponse;
+import org.sonarqube.ws.Issues.BulkChangeWsResponse;
+import org.sonarqube.ws.Issues.ChangelogWsResponse;
+import org.sonarqube.ws.Issues.DeleteCommentResponse;
+import org.sonarqube.ws.Issues.DoTransitionResponse;
+import org.sonarqube.ws.Issues.SearchWsResponse;
+import org.sonarqube.ws.Issues.SetSeverityResponse;
+import org.sonarqube.ws.Issues.SetTagsResponse;
+import org.sonarqube.ws.Issues.SetTypeResponse;
+import org.sonarqube.ws.Issues.TagsResponse;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
-import org.sonarqube.ws.Issues.BulkChangeWsResponse;
-import org.sonarqube.ws.Issues.ChangelogWsResponse;
-import org.sonarqube.ws.Issues.SearchWsResponse;
 
 /**
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues">Further information about this web service online</a>
@@ -47,13 +56,12 @@ public class IssuesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/add_comment">Further information about this action online (including a response example)</a>
    * @since 3.6
    */
-  public String addComment(AddCommentRequest request) {
+  public AddCommentResponse addComment(AddCommentRequest request) {
     return call(
       new PostRequest(path("add_comment"))
         .setParam("issue", request.getIssue())
-        .setParam("text", request.getText())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setParam("text", request.getText()),
+      AddCommentResponse.parser());
   }
 
   /**
@@ -63,14 +71,13 @@ public class IssuesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/assign">Further information about this action online (including a response example)</a>
    * @since 3.6
    */
-  public String assign(AssignRequest request) {
+  public AssignResponse assign(AssignRequest request) {
     return call(
       new PostRequest(path("assign"))
         .setParam("assignee", request.getAssignee())
         .setParam("issue", request.getIssue())
-        .setParam("me", request.getMe())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setParam("me", request.getMe()),
+      AssignResponse.parser());
   }
 
   /**
@@ -80,13 +87,12 @@ public class IssuesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/authors">Further information about this action online (including a response example)</a>
    * @since 5.1
    */
-  public String authors(AuthorsRequest request) {
+  public AuthorsResponse authors(AuthorsRequest request) {
     return call(
       new GetRequest(path("authors"))
         .setParam("ps", request.getPs())
-        .setParam("q", request.getQ())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setParam("q", request.getQ()),
+      AuthorsResponse.parser());
   }
 
   /**
@@ -150,12 +156,11 @@ public class IssuesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/delete_comment">Further information about this action online (including a response example)</a>
    * @since 3.6
    */
-  public String deleteComment(DeleteCommentRequest request) {
+  public DeleteCommentResponse deleteComment(DeleteCommentRequest request) {
     return call(
       new PostRequest(path("delete_comment"))
-        .setParam("comment", request.getComment())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setParam("comment", request.getComment()),
+      DeleteCommentResponse.parser());
   }
 
   /**
@@ -165,13 +170,12 @@ public class IssuesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/do_transition">Further information about this action online (including a response example)</a>
    * @since 3.6
    */
-  public String doTransition(DoTransitionRequest request) {
+  public DoTransitionResponse doTransition(DoTransitionRequest request) {
     return call(
       new PostRequest(path("do_transition"))
         .setParam("issue", request.getIssue())
-        .setParam("transition", request.getTransition())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setParam("transition", request.getTransition()),
+      DoTransitionResponse.parser());
   }
 
   /**
@@ -247,13 +251,12 @@ public class IssuesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/set_severity">Further information about this action online (including a response example)</a>
    * @since 3.6
    */
-  public String setSeverity(SetSeverityRequest request) {
+  public SetSeverityResponse setSeverity(SetSeverityRequest request) {
     return call(
       new PostRequest(path("set_severity"))
         .setParam("issue", request.getIssue())
-        .setParam("severity", request.getSeverity())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setParam("severity", request.getSeverity()),
+      SetSeverityResponse.parser());
   }
 
   /**
@@ -263,13 +266,12 @@ public class IssuesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/set_tags">Further information about this action online (including a response example)</a>
    * @since 5.1
    */
-  public String setTags(SetTagsRequest request) {
+  public SetTagsResponse setTags(SetTagsRequest request) {
     return call(
       new PostRequest(path("set_tags"))
         .setParam("issue", request.getIssue())
-        .setParam("tags", request.getTags() == null ? null : request.getTags().stream().collect(Collectors.joining(",")))
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setParam("tags", request.getTags() == null ? null : request.getTags().stream().collect(Collectors.joining(","))),
+      SetTagsResponse.parser());
   }
 
   /**
@@ -279,13 +281,12 @@ public class IssuesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/set_type">Further information about this action online (including a response example)</a>
    * @since 5.5
    */
-  public String setType(SetTypeRequest request) {
+  public SetTypeResponse setType(SetTypeRequest request) {
     return call(
       new PostRequest(path("set_type"))
         .setParam("issue", request.getIssue())
-        .setParam("type", request.getType())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setParam("type", request.getType()),
+      SetTypeResponse.parser());
   }
 
   /**
@@ -295,13 +296,12 @@ public class IssuesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/issues/tags">Further information about this action online (including a response example)</a>
    * @since 5.1
    */
-  public String tags(TagsRequest request) {
+  public TagsResponse tags(TagsRequest request) {
     return call(
       new GetRequest(path("tags"))
         .setParam("organization", request.getOrganization())
         .setParam("ps", request.getPs())
-        .setParam("q", request.getQ())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setParam("q", request.getQ()),
+      TagsResponse.parser());
   }
 }

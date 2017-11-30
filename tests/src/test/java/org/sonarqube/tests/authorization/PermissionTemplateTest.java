@@ -29,15 +29,15 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Permissions;
 import org.sonarqube.ws.Permissions.CreateTemplateWsResponse;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.Users.CreateWsResponse;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.component.SearchProjectsRequest;
+import org.sonarqube.ws.client.components.SearchProjectsRequest;
 import org.sonarqube.ws.client.permission.AddUserToTemplateRequest;
 import org.sonarqube.ws.client.permission.ApplyTemplateRequest;
 import org.sonarqube.ws.client.permission.BulkApplyTemplateRequest;
@@ -191,9 +191,9 @@ public class PermissionTemplateTest {
   }
 
   private boolean userHasAccessToIndexedProject(CreateWsResponse.User user, Organization organization, Project project) {
-    SearchProjectsRequest request = SearchProjectsRequest.builder().setOrganization(organization.getKey()).build();
+    SearchProjectsRequest request = new SearchProjectsRequest().setOrganization(organization.getKey());
     WsClient userSession = tester.as(user.getLogin()).wsClient();
-    return userSession.componentsOld().searchProjects(request)
+    return userSession.components().searchProjects(request)
       .getComponentsList().stream()
       .anyMatch(c -> c.getKey().equals(project.getKey()));
   }

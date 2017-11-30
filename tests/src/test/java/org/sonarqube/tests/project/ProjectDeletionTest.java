@@ -40,7 +40,7 @@ import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.component.SearchProjectsRequest;
+import org.sonarqube.ws.client.components.SearchProjectsRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.project.DeleteRequest;
 import org.sonarqube.ws.client.project.SearchRequest;
@@ -202,8 +202,8 @@ public class ProjectDeletionTest {
    * Projects page - api/components/search_projects - uses ES + DB
    */
   private boolean isInComponentSearchProjects(String name) {
-    Components.SearchProjectsWsResponse response = tester.wsClient().componentsOld().searchProjects(
-      SearchProjectsRequest.builder().setFilter("query=\"" + name + "\"").build());
+    Components.SearchProjectsWsResponse response = tester.wsClient().components().searchProjects(
+      new SearchProjectsRequest().setFilter("query=\"" + name + "\""));
     return response.getComponentsCount() > 0;
   }
 

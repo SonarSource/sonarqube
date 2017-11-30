@@ -28,7 +28,7 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Measures;
-import org.sonarqube.ws.client.component.TreeRequest;
+import org.sonarqube.ws.client.components.TreeRequest;
 import org.sonarqube.ws.client.issue.IssuesService;
 import org.sonarqube.ws.client.issue.SearchRequest;
 import org.sonarqube.ws.client.measure.ComponentTreeRequest;
@@ -75,8 +75,8 @@ public class LiteTest {
   @Test
   public void call_components_ws() {
     // files in project
-    Components.TreeWsResponse tree = tester.wsClient().componentsOld().tree(new TreeRequest()
-      .setBaseComponentKey(PROJECT_KEY)
+    Components.TreeWsResponse tree = tester.wsClient().components().tree(new TreeRequest()
+      .setComponent(PROJECT_KEY)
       .setQualifiers(singletonList("FIL")));
     assertThat(tree.getComponentsCount()).isEqualTo(4);
     tree.getComponentsList().forEach(c -> {

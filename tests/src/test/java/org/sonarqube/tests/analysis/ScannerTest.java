@@ -33,7 +33,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.tests.Category3Suite;
-import org.sonarqube.ws.client.component.SearchRequest;
+import org.sonarqube.ws.client.components.SearchRequest;
 import util.ItUtils;
 
 import static java.util.Collections.singletonList;
@@ -68,7 +68,7 @@ public class ScannerTest {
     scan("shared/xoo-multi-modules-sample");
     scan("shared/xoo-multi-modules-sample", "sonar.branch", "branch/0.x");
 
-    assertThat(tester.wsClient().componentsOld().search(new SearchRequest().setQualifiers(singletonList("TRK"))).getComponentsList()).hasSize(2);
+    assertThat(tester.wsClient().components().search(new SearchRequest().setQualifiers(singletonList("TRK"))).getComponentsList()).hasSize(2);
     assertThat(getComponent(orchestrator, "com.sonarsource.it.samples:multi-modules-sample").getName()).isEqualTo("Sonar :: Integration Tests :: Multi-modules Sample");
     assertThat(getComponent(orchestrator, "com.sonarsource.it.samples:multi-modules-sample:branch/0.x").getName())
       .isEqualTo("Sonar :: Integration Tests :: Multi-modules Sample branch/0.x");

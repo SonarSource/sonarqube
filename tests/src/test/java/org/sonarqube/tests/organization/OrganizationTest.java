@@ -36,7 +36,6 @@ import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.UserGroups.Group;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
-import org.sonarqube.ws.client.component.ComponentsService;
 import org.sonarqube.ws.client.organizations.AddMemberRequest;
 import org.sonarqube.ws.client.organizations.CreateRequest;
 import org.sonarqube.ws.client.organizations.DeleteRequest;
@@ -203,8 +202,7 @@ public class OrganizationTest {
       "sonar.organization", organization.getKey(),
       "sonar.login", user.getLogin(),
       "sonar.password", user.getLogin());
-    ComponentsService componentsService = tester.as(user.getLogin()).wsClient().componentsOld();
-    assertThat(searchSampleProject(organization.getKey(), componentsService).getComponentsList()).hasSize(1);
+    assertThat(searchSampleProject(organization.getKey()).getComponentsList()).hasSize(1);
   }
 
   @Test
@@ -219,8 +217,7 @@ public class OrganizationTest {
       assertThat(e.getResult().getLogs()).contains("Insufficient privileges");
     }
 
-    ComponentsService componentsService = tester.wsClient().componentsOld();
-    assertThat(searchSampleProject(organization.getKey(), componentsService).getComponentsCount()).isEqualTo(0);
+    assertThat(searchSampleProject(organization.getKey()).getComponentsCount()).isEqualTo(0);
   }
 
   @Test
@@ -229,8 +226,7 @@ public class OrganizationTest {
 
     runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.organization", organization.getKey(), "sonar.login", "admin", "sonar.password", "admin");
 
-    ComponentsService componentsService = tester.asAnonymous().wsClient().componentsOld();
-    assertThat(searchSampleProject(organization.getKey(), componentsService).getComponentsList()).hasSize(1);
+    assertThat(searchSampleProject(organization.getKey()).getComponentsList()).hasSize(1);
   }
 
   private void addPermissionsToUser(String orgKeyAndName, String login, String permission, String... otherPermissions) {
@@ -249,12 +245,11 @@ public class OrganizationTest {
       "sonar.organization", organization.getKey(),
       "sonar.login", "admin",
       "sonar.password", "admin");
-    ComponentsService componentsService = tester.wsClient().componentsOld();
-    assertThat(searchSampleProject(organization.getKey(), componentsService).getComponentsList()).hasSize(1);
+    assertThat(searchSampleProject(organization.getKey()).getComponentsList()).hasSize(1);
 
     tester.organizations().service().delete(new DeleteRequest().setOrganization(organization.getKey()));
 
-    expectNotFoundError(() -> searchSampleProject(organization.getKey(), componentsService));
+    expectNotFoundError(() -> searchSampleProject(organization.getKey()));
     assertThatOrganizationDoesNotExit(organization);
   }
 
@@ -297,12 +292,12 @@ public class OrganizationTest {
       .hasSize(1);
   }
 
-  private Components.SearchWsResponse searchSampleProject(String organizationKey, ComponentsService componentsService) {
-    return componentsService
-      .search(new org.sonarqube.ws.client.component.SearchRequest()
+  private Components.SearchWsResponse searchSampleProject(String organizationKey) {
+    return tester.wsClient().components()
+      .search(new org.sonarqube.ws.client.components.SearchRequest()
         .setOrganization(organizationKey)
         .setQualifiers(singletonList("TRK"))
-        .setQuery("sample"));
+        .setQ("sample"));
   }
 
   private void assertThatOrganizationDoesNotExit(Organization org) {
