@@ -504,5 +504,4 @@ public class ScannerMediumTester extends ExternalResource {
       }
     }
   }
-
 }
