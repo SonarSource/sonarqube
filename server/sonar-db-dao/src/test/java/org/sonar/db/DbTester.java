@@ -21,6 +21,7 @@ package org.sonar.db;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -42,6 +43,7 @@ import org.sonar.db.permission.template.PermissionTemplateDbTester;
 import org.sonar.db.plugin.PluginDbTester;
 import org.sonar.db.property.PropertyDbTester;
 import org.sonar.db.qualitygate.QualityGateDbTester;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QualityProfileDbTester;
 import org.sonar.db.rule.RuleDbTester;
 import org.sonar.db.source.FileSourceTester;
@@ -64,6 +66,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
   private boolean started = false;
   private String defaultOrganizationUuid = randomAlphanumeric(40);
   private OrganizationDto defaultOrganization;
+  private QualityGateDto builtInQualityGate;
 
   private final UserDbTester userTester;
   private final ComponentDbTester componentTester;
@@ -149,14 +152,30 @@ public class DbTester extends AbstractDbTester<TestDb> {
   }
 
   @Override
-  protected void before() throws Throwable {
+  protected void before() {
     db.start();
     db.truncateTables();
     initDbClient();
+    // TODO : insertBuiltInQualityGateIfTableExists();
+
     if (!disableDefaultOrganization) {
       insertDefaultOrganization();
     }
     started = true;
+  }
+
+  private void insertBuiltInQualityGateIfTableExists() {
+    try (DbSession dbSession = db.getMyBatis().openSession(false)) {
+      if (DatabaseUtils.tableExists("quality_gates", dbSession.getConnection())) {
+        builtInQualityGate = new QualityGateDto()
+          .setName("Sonar way")
+          .setBuiltIn(true)
+          .setCreatedAt(new Date(system2.now()))
+          .setCreatedAt(new Date(system2.now()));
+        client.qualityGateDao().insert(dbSession, builtInQualityGate);
+        dbSession.commit();
+      }
+    }
   }
 
   private void insertDefaultOrganization() {
