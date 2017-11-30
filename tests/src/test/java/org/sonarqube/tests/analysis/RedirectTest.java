@@ -93,7 +93,6 @@ public class RedirectTest {
   public void testFollowRedirectWithAuthentication() {
     orchestrator.getServer();
     SonarScanner sonarScanner = SonarScanner.create(ItUtils.projectDir("shared/xoo-sample"))
-      .setScannerVersion("2.7")
       .setProperty("sonar.host.url", "http://localhost:" + redirectPort)
       .setProperties(
         "sonar.login", com.sonar.orchestrator.container.Server.ADMIN_LOGIN,
