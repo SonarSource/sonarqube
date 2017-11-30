@@ -17,23 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-//@flow
-import React from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
+import { RouterState } from 'react-router';
 import { getCurrentUser, getOrganizationByKey } from '../../../store/rootReducer';
+import { Organization, CurrentUser } from '../../../app/types';
 
-class OrganizationContainer extends React.PureComponent {
+interface StateToProps {
+  organization?: Organization;
+  currentUser: CurrentUser;
+}
+
+interface OwnProps extends RouterState {
+  children: JSX.Element;
+}
+
+interface Props extends StateToProps, Pick<OwnProps, 'children' | 'location'> {}
+
+class OrganizationContainer extends React.PureComponent<Props> {
   render() {
     return React.cloneElement(this.props.children, {
+      location: this.props.location,
       currentUser: this.props.currentUser,
       organization: this.props.organization
     });
   }
 }
 
-const mapStateToProps = (state, ownProps) => ({
+const mapStateToProps = (state: any, ownProps: OwnProps) => ({
   organization: getOrganizationByKey(state, ownProps.params.organizationKey),
   currentUser: getCurrentUser(state)
 });
 
-export default connect(mapStateToProps)(OrganizationContainer);
+export default connect<StateToProps, {}, OwnProps>(mapStateToProps)(OrganizationContainer);

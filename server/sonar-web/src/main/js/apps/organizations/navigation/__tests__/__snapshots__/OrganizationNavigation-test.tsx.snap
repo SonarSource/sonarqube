@@ -18,6 +18,7 @@ exports[`admin 1`] = `
             "canDelete": true,
             "key": "foo",
             "name": "Foo",
+            "projectVisibility": "public",
           }
         }
       />
@@ -221,6 +222,7 @@ exports[`regular user 1`] = `
             "canDelete": false,
             "key": "foo",
             "name": "Foo",
+            "projectVisibility": "public",
           }
         }
       />
@@ -344,6 +346,7 @@ exports[`undeletable org 1`] = `
             "canDelete": false,
             "key": "foo",
             "name": "Foo",
+            "projectVisibility": "public",
           }
         }
       />
