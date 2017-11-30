@@ -37,6 +37,7 @@ import org.sonarqube.ws.Qualityprofiles.CreateWsResponse.QualityProfile;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.organizations.DeleteRequest;
 import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
 import org.sonarqube.ws.client.qualityprofile.ChangeParentRequest;
 import org.sonarqube.ws.client.qualityprofile.CopyRequest;
@@ -152,7 +153,7 @@ public class CustomQualityProfilesTest {
     adminSession.service().changeParent(
       ChangeParentRequest.builder().setParentKey(builtInProfile.getKey()).setProfileKey(inheritedProfile2.getKey()).build());
 
-    tester.organizations().service().delete(org.getKey());
+    tester.organizations().service().delete(new DeleteRequest().setOrganization(org.getKey()));
 
     expectMissingError(() -> tester.qProfiles().service().search(new SearchRequest()
       .setOrganizationKey(org.getKey())));

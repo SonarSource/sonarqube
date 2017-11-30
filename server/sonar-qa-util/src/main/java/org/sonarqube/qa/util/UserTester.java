@@ -27,6 +27,7 @@ import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.organizations.AddMemberRequest;
 import org.sonarqube.ws.client.user.CreateRequest;
 import org.sonarqube.ws.client.user.SearchRequest;
 import org.sonarqube.ws.client.user.UsersService;
@@ -74,7 +75,7 @@ public class UserTester {
   @SafeVarargs
   public final User generateAdministrator(Consumer<CreateRequest.Builder>... populators) {
     User user = generate(populators);
-    session.wsClient().permissionsOld().addUser(new org.sonarqube.ws.client.permission.AddUserRequest().setLogin(user.getLogin()).setPermission("admin"));
+    session.wsClient().permissions().addUser(new org.sonarqube.ws.client.permissions.AddUserRequest().setLogin(user.getLogin()).setPermission("admin"));
     session.wsClient().userGroups().addUser(new AddUserRequest().setLogin(user.getLogin()).setName("sonar-administrators"));
     return user;
   }
@@ -83,7 +84,7 @@ public class UserTester {
   public final User generateAdministrator(Organizations.Organization organization, Consumer<CreateRequest.Builder>... populators) {
     String organizationKey = organization.getKey();
     User user = generate(populators);
-    session.wsClient().organizationsOld().addMember(organizationKey, user.getLogin());
+    session.wsClient().organizations().addMember(new AddMemberRequest().setOrganization(organizationKey).setLogin(user.getLogin()));
     session.wsClient().userGroups().addUser(new AddUserRequest()
       .setOrganization(organizationKey)
       .setLogin(user.getLogin())
@@ -94,7 +95,7 @@ public class UserTester {
   @SafeVarargs
   public final User generateAdministratorOnDefaultOrganization(Consumer<CreateRequest.Builder>... populators) {
     User user = generate(populators);
-    session.wsClient().organizationsOld().addMember(DEFAULT_ORGANIZATION_KEY, user.getLogin());
+    session.wsClient().organizations().addMember(new AddMemberRequest().setOrganization(DEFAULT_ORGANIZATION_KEY).setLogin(user.getLogin()));
     session.wsClient().userGroups().addUser(new AddUserRequest()
       .setOrganization(DEFAULT_ORGANIZATION_KEY)
       .setLogin(user.getLogin())
@@ -105,14 +106,14 @@ public class UserTester {
   @SafeVarargs
   public final User generateMember(Organizations.Organization organization, Consumer<CreateRequest.Builder>... populators) {
     User user = generate(populators);
-    session.wsClient().organizationsOld().addMember(organization.getKey(), user.getLogin());
+    session.wsClient().organizations().addMember(new AddMemberRequest().setOrganization(organization.getKey()).setLogin(user.getLogin()));
     return user;
   }
 
   @SafeVarargs
   public final User generateMemberOfDefaultOrganization(Consumer<CreateRequest.Builder>... populators) {
     User user = generate(populators);
-    session.wsClient().organizationsOld().addMember(DEFAULT_ORGANIZATION_KEY, user.getLogin());
+    session.wsClient().organizations().addMember(new AddMemberRequest().setOrganization(DEFAULT_ORGANIZATION_KEY).setLogin(user.getLogin()));
     return user;
   }
 

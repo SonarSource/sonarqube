@@ -31,6 +31,7 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.HttpException;
+import org.sonarqube.ws.client.organizations.RemoveMemberRequest;
 import org.sonarqube.ws.client.permission.AddUserRequest;
 
 public class OrganizationMembershipTest {
@@ -94,7 +95,7 @@ public class OrganizationMembershipTest {
     tester.wsClient().permissionsOld().addUser(new AddUserRequest().setLogin(user.getLogin()).setPermission("admin").setOrganization(organization.getKey()));
     tester.organizations().assertThatMemberOf(organization, user);
     // Admin is the creator of the organization so he was granted with admin permission
-    tester.wsClient().organizationsOld().removeMember(organization.getKey(), "admin");
+    tester.wsClient().organizations().removeMember(new RemoveMemberRequest().setOrganization(organization.getKey()).setLogin("admin"));
 
     expectedException.expect(HttpException.class);
     expectedException.expectMessage("The last administrator member cannot be removed");
@@ -125,6 +126,6 @@ public class OrganizationMembershipTest {
   }
 
   private void removeMembership(Organization organization, User user) {
-    tester.wsClient().organizationsOld().removeMember(organization.getKey(), user.getLogin());
+    tester.wsClient().organizations().removeMember(new RemoveMemberRequest().setOrganization(organization.getKey()).setLogin(user.getLogin()));
   }
 }
