@@ -70,7 +70,7 @@ export default function rootReducer(state = initialState, action = {}) {
           return { ...candidate, isDefault: candidate.id === action.qualityGate.id };
         }),
         qualityGate: {
-          ...state.qualityGate,
+          ...action.qualityGate,
           isDefault: state.qualityGate.id === action.qualityGate.id
         }
       };

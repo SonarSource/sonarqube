@@ -20,7 +20,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
-import { fetchQualityGate, setQualityGateAsDefault } from '../../../api/quality-gates';
+import { fetchQualityGate } from '../../../api/quality-gates';
 import DetailsHeader from './DetailsHeader';
 import DetailsContent from './DetailsContent';
 
@@ -41,10 +41,10 @@ export default class Details extends React.PureComponent {
   }
 
   fetchDetails = () =>
-    fetchQualityGate(this.props.params.id).then(
-      qualityGate => this.props.onShow(qualityGate),
-      () => {}
-    );
+    fetchQualityGate({
+      id: this.props.params.id,
+      organization: this.props.organization && this.props.organization.key
+    }).then(qualityGate => this.props.onShow(qualityGate), () => {});
 
   render() {
     const { organization, metrics, qualityGate } = this.props;
@@ -72,6 +72,7 @@ export default class Details extends React.PureComponent {
           onAddCondition={onAddCondition}
           onSaveCondition={onSaveCondition}
           onDeleteCondition={onDeleteCondition}
+          organization={organization && organization.key}
         />
       </div>
     );

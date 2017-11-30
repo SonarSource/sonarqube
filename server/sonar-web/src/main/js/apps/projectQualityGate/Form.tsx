@@ -25,7 +25,7 @@ import { translate } from '../../helpers/l10n';
 interface Props {
   allGates: QualityGate[];
   gate?: QualityGate;
-  onChange: (oldGate: number | undefined, newGate: number) => Promise<void>;
+  onChange: (oldGate?: number, newGate?: number) => Promise<void>;
 }
 
 interface State {
