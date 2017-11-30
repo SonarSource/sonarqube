@@ -127,7 +127,7 @@ public class BillingTest {
   public void does_not_fail_to_update_default_projects_visibility_to_private() {
     tester.settings().setGlobalSettings("sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
 
-    tester.wsClient().organizations().updateProjectVisibility(UpdateProjectVisibilityRequest.builder()
+    tester.wsClient().organizationsOld().updateProjectVisibility(UpdateProjectVisibilityRequest.builder()
       .setOrganization(organization.getKey())
       .setProjectVisibility("private")
       .build());
@@ -142,7 +142,7 @@ public class BillingTest {
 
     expectHttpError(400,
       format("Organization %s cannot use private project", organization.getKey()),
-      () -> tester.wsClient().organizations()
+      () -> tester.wsClient().organizationsOld()
         .updateProjectVisibility(UpdateProjectVisibilityRequest.builder().setOrganization(organization.getKey()).setProjectVisibility("private").build()));
   }
 

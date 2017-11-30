@@ -63,7 +63,7 @@ public class IssueActionTest extends AbstractIssueTest {
 
     this.projectAnalysis = projectAnalysisRule.newProjectAnalysis(projectKey).withQualityProfile(qualityProfileKey);
     this.projectAnalysis.run();
-    this.issuesService = newAdminWsClient(ORCHESTRATOR).issues();
+    this.issuesService = newAdminWsClient(ORCHESTRATOR).issuesOld();
     this.randomIssue = issueRule.getRandomIssue();
   }
 

@@ -147,7 +147,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
 
   public String createAdminUser(String login, String password) {
     createUser(login, password);
-    adminWsClient.permissions().addUser(new AddUserRequest().setLogin(login).setPermission("admin"));
+    adminWsClient.permissionsOld().addUser(new AddUserRequest().setLogin(login).setPermission("admin"));
     adminWsClient.userGroups().addUser(new org.sonarqube.ws.client.usergroups.AddUserRequest().setLogin(login).setName("sonar-administrators"));
     return login;
   }

@@ -86,7 +86,7 @@ public class CommonRulesTest extends AbstractIssueTest {
   }
 
   private List<Issue> findIssues(String componentKey, String ruleKey) {
-    return adminWsClient.issues().search(
+    return adminWsClient.issuesOld().search(
       new SearchRequest()
         .setComponents(singletonList(componentKey))
         .setRules(singletonList(ruleKey)))

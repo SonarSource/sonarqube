@@ -125,7 +125,7 @@ public class OAuth2IdentityProviderTest {
     enablePlugin();
     tester.users().generate(u -> u.setLogin(USER_LOGIN));
     // Give user global admin permission as we want to go to a page where authentication is required
-    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(USER_LOGIN).setPermission("admin"));
+    tester.wsClient().permissionsOld().addUser(new AddUserRequest().setLogin(USER_LOGIN).setPermission("admin"));
 
     Navigation nav = tester.openBrowser();
     // Try to go to the settings page

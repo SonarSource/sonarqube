@@ -133,7 +133,7 @@ public class QualityProfilesWsTest {
     Organization org = tester.organizations().generate();
     CreateWsResponse.QualityProfile profile = tester.qProfiles().createXooProfile(org);
 
-    String changelog = tester.wsClient().qualityProfiles().changelog(ChangelogRequest.builder()
+    String changelog = tester.wsClient().qualityProfilesOld().changelog(ChangelogRequest.builder()
       .setOrganization(org.getKey())
       .setLanguage(profile.getLanguage())
       .setQualityProfile(profile.getName())
@@ -143,14 +143,14 @@ public class QualityProfilesWsTest {
     tester.qProfiles().activateRule(profile, RULE_ONE_BUG_PER_LINE);
     tester.qProfiles().activateRule(profile, RULE_ONE_ISSUE_PER_LINE);
 
-    String changelog2 = tester.wsClient().qualityProfiles().changelog(ChangelogRequest.builder()
+    String changelog2 = tester.wsClient().qualityProfilesOld().changelog(ChangelogRequest.builder()
       .setOrganization(org.getKey())
       .setLanguage(profile.getLanguage())
       .setQualityProfile(profile.getName())
       .build());
     JSONAssert.assertEquals(EXPECTED_CHANGELOG, changelog2, JSONCompareMode.LENIENT);
 
-    String changelog3 = tester.wsClient().qualityProfiles().changelog(ChangelogRequest.builder()
+    String changelog3 = tester.wsClient().qualityProfilesOld().changelog(ChangelogRequest.builder()
       .setOrganization(org.getKey())
       .setLanguage(profile.getLanguage())
       .setQualityProfile(profile.getName())

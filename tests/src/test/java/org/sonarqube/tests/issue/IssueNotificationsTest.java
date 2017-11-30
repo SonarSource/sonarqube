@@ -174,9 +174,9 @@ public class IssueNotificationsTest {
     clearSmtpMessages();
 
     // Change assignee
-    SearchWsResponse issues = tester.wsClient().issues().search(new SearchRequest().setProjectKeys(singletonList(PROJECT_KEY)));
+    SearchWsResponse issues = tester.wsClient().issuesOld().search(new SearchRequest().setProjectKeys(singletonList(PROJECT_KEY)));
     Issue issue = issues.getIssuesList().get(0);
-    tester.wsClient().issues().assign(new AssignRequest(issue.getKey(), userWithUserRole.getLogin()));
+    tester.wsClient().issuesOld().assign(new AssignRequest(issue.getKey(), userWithUserRole.getLogin()));
 
     // Only the assignee should receive the email
     waitUntilAllNotificationsAreDelivered(1);
@@ -245,18 +245,18 @@ public class IssueNotificationsTest {
     assertThat(smtpServer.getMessages()).hasSize(privateProject ? 2 : 3);
     clearSmtpMessages();
 
-    SearchWsResponse issues = tester.wsClient().issues().search(new SearchRequest().setProjectKeys(singletonList(PROJECT_KEY)));
+    SearchWsResponse issues = tester.wsClient().issuesOld().search(new SearchRequest().setProjectKeys(singletonList(PROJECT_KEY)));
     Issue issue = issues.getIssuesList().get(0);
 
     // bulk change without notification by default
-    tester.wsClient().issues().bulkChange(BulkChangeRequest.builder()
+    tester.wsClient().issuesOld().bulkChange(BulkChangeRequest.builder()
       .setIssues(singletonList(issue.getKey()))
       .setAssign(userWithUserRole.getLogin())
       .setSetSeverity("MINOR")
       .build());
 
     // bulk change with notification
-    tester.wsClient().issues().bulkChange(BulkChangeRequest.builder()
+    tester.wsClient().issuesOld().bulkChange(BulkChangeRequest.builder()
       .setIssues(singletonList(issue.getKey()))
       .setSetSeverity("BLOCKER")
       .setSendNotifications(true)
@@ -306,7 +306,7 @@ public class IssueNotificationsTest {
         .setName("userWithUserRole")
         .setEmail("userWithUserRole@nowhere.com"));
     tester.organizations().addMember(organization, userWithUserRole);
-    tester.wsClient().permissions().addUser(
+    tester.wsClient().permissionsOld().addUser(
       new AddUserRequest()
         .setLogin(userWithUserRole.getLogin())
         .setProjectKey(PROJECT_KEY)

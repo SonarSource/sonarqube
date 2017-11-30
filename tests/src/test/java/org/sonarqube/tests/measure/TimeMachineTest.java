@@ -102,7 +102,7 @@ public class TimeMachineTest {
   public void noDataForInterval() {
     Date now = new Date();
 
-    SearchHistoryResponse response = tester.wsClient().measures().searchHistory(SearchHistoryRequest.builder()
+    SearchHistoryResponse response = tester.wsClient().measuresOld().searchHistory(SearchHistoryRequest.builder()
       .setComponent(PROJECT_KEY)
       .setMetrics(singletonList("lines"))
       .setFrom(formatDate(now))
@@ -134,7 +134,7 @@ public class TimeMachineTest {
   }
 
   private static SearchHistoryResponse searchHistory(String... metrics) {
-    return tester.wsClient().measures().searchHistory(SearchHistoryRequest.builder()
+    return tester.wsClient().measuresOld().searchHistory(SearchHistoryRequest.builder()
       .setComponent(PROJECT_KEY)
       .setMetrics(Arrays.asList(metrics))
       .build());

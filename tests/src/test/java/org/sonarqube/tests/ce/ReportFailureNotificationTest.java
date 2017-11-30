@@ -109,12 +109,12 @@ public class ReportFailureNotificationTest {
     Projects.CreateWsResponse.Project project2 = tester.projects().provision(organization, t -> t.setName("Project2"));
     Projects.CreateWsResponse.Project project3 = tester.projects().provision(organization, t -> t.setName("Project3"));
     // user 1 is admin of project 1 and will subscribe to global notifications
-    tester.wsClient().permissions().addUser(new AddUserRequest()
+    tester.wsClient().permissionsOld().addUser(new AddUserRequest()
       .setLogin(user1.getLogin())
       .setPermission("admin")
       .setProjectKey(project1.getKey()));
     // user 2 is admin of project 2 but won't subscribe to global notifications
-    tester.wsClient().permissions().addUser(new AddUserRequest()
+    tester.wsClient().permissionsOld().addUser(new AddUserRequest()
       .setLogin(user2.getLogin())
       .setPermission("admin")
       .setProjectKey(project2.getKey()));

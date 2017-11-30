@@ -116,7 +116,7 @@ public class LogsTest {
 
   private void generateSqlAndEsLogsInWebAndCe() {
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
-    ItUtils.newAdminWsClient(orchestrator).issues().search(new SearchRequest()
+    ItUtils.newAdminWsClient(orchestrator).issuesOld().search(new SearchRequest()
       .setProjectKeys(Collections.singletonList("sample")));
   }
 

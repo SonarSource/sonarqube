@@ -127,7 +127,7 @@ public class OrganizationIssueAssignTest {
     provisionAndAnalyseProject("sample2", org2.getKey());
     List<String> issues = issueRule.search(new SearchRequest()).getIssuesList().stream().map(Issue::getKey).collect(Collectors.toList());
 
-    Issues.BulkChangeWsResponse response = tester.wsClient().issues()
+    Issues.BulkChangeWsResponse response = tester.wsClient().issuesOld()
       .bulkChange(BulkChangeRequest.builder().setIssues(issues).setAssign(user.getLogin()).build());
 
     assertThat(response.getIgnored()).isGreaterThan(0);
@@ -204,7 +204,7 @@ public class OrganizationIssueAssignTest {
   }
 
   private void addQualityProfileToProject(String organization, String projectKey) {
-    tester.wsClient().qualityProfiles().addProject(
+    tester.wsClient().qualityProfilesOld().addProject(
       AddProjectRequest.builder()
         .setProjectKey(projectKey)
         .setOrganization(organization)
@@ -214,6 +214,6 @@ public class OrganizationIssueAssignTest {
   }
 
   private Issues.Operation assignIssueTo(Issue issue, User u) {
-    return tester.wsClient().issues().assign(new AssignRequest(issue.getKey(), u.getLogin()));
+    return tester.wsClient().issuesOld().assign(new AssignRequest(issue.getKey(), u.getLogin()));
   }
 }

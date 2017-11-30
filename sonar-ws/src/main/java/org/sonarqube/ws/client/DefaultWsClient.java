@@ -106,17 +106,17 @@ class DefaultWsClient implements WsClient {
   }
 
   @Override
-  public OrganizationService organizations() {
+  public OrganizationService organizationsOld() {
     return organizations;
   }
 
   @Override
-  public PermissionsService permissions() {
+  public PermissionsService permissionsOld() {
     return this.permissionsService;
   }
 
   @Override
-  public ComponentsService components() {
+  public ComponentsService componentsOld() {
     return componentsService;
   }
 
@@ -126,12 +126,12 @@ class DefaultWsClient implements WsClient {
   }
 
   @Override
-  public QualityProfilesService qualityProfiles() {
+  public QualityProfilesService qualityProfilesOld() {
     return qualityProfilesService;
   }
 
   @Override
-  public IssuesService issues() {
+  public IssuesService issuesOld() {
     return issuesService;
   }
 
@@ -156,7 +156,7 @@ class DefaultWsClient implements WsClient {
   }
 
   @Override
-  public MeasuresService measures() {
+  public MeasuresService measuresOld() {
     return measuresService;
   }
 
@@ -201,7 +201,7 @@ class DefaultWsClient implements WsClient {
   }
 
   @Override
-  public ProjectAnalysisService projectAnalysis() {
+  public ProjectAnalysisService projectAnalysisOld() {
     return projectAnalysisService;
   }
 

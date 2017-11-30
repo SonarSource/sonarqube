@@ -97,7 +97,7 @@ public class RestartTest {
   private void createSystemAdministrator(String login, String password) {
     WsClient wsClient = newAdminWsClient(orchestrator);
     createNonSystemAdministrator(wsClient, login, password);
-    wsClient.permissions().addUser(new AddUserRequest().setLogin(login).setPermission("admin"));
+    wsClient.permissionsOld().addUser(new AddUserRequest().setLogin(login).setPermission("admin"));
   }
 
   private void createNonSystemAdministrator(String login, String password) {

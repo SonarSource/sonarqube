@@ -75,8 +75,8 @@ public class IssueTagsTest {
         .build());
     analyzeProject(projectKey);
 
-    String issue = tester.wsClient().issues().search(new SearchRequest()).getIssues(0).getKey();
-    tester.wsClient().issues().setTags(issue, "bla", "blubb");
+    String issue = tester.wsClient().issuesOld().search(new SearchRequest()).getIssues(0).getKey();
+    tester.wsClient().issuesOld().setTags(issue, "bla", "blubb");
 
     String[] publicTags = {"bad-practice", "convention", "pitfall"};
     String[] privateTags = {"bad-practice", "bla", "blubb", "convention", "pitfall"};
@@ -111,7 +111,7 @@ public class IssueTagsTest {
   }
 
   private void grantUserPermission(String projectKey, User member) {
-    tester.wsClient().permissions().addUser(
+    tester.wsClient().permissionsOld().addUser(
       new AddUserRequest()
         .setLogin(member.getLogin())
         .setPermission("user")
@@ -123,7 +123,7 @@ public class IssueTagsTest {
       (List<String>) ItUtils.jsonToMap(
         tester.as(userLogin)
           .wsClient()
-          .issues()
+          .issuesOld()
           .getTags(organization)
           .content())
         .get("tags")).containsExactly(
