@@ -23,10 +23,12 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import QualifierIcon from '../../../../components/shared/QualifierIcon';
 import { getOrganizationByKey, areThereCustomOrganizations } from '../../../../store/rootReducer';
+import OrganizationAvatar from '../../../../components/common/OrganizationAvatar';
 import OrganizationHelmet from '../../../../components/common/OrganizationHelmet';
 import OrganizationLink from '../../../../components/ui/OrganizationLink';
 import PrivateBadge from '../../../../components/common/PrivateBadge';
 import { collapsePath, limitComponentName } from '../../../../helpers/path';
+import { getProjectUrl } from '../../../../helpers/urls';
 
 class ComponentNavBreadcrumbs extends React.PureComponent {
   static propTypes = {
@@ -52,21 +54,16 @@ class ComponentNavBreadcrumbs extends React.PureComponent {
       const itemName = isPath ? collapsePath(item.name, 15) : limitComponentName(item.name);
       return (
         <span key={item.key}>
-          {!displayOrganization &&
-            index === 0 && (
-              <span className="navbar-context-title-qualifier little-spacer-right">
-                <QualifierIcon qualifier={lastItem.qualifier} />
-              </span>
-            )}
+          {index === 0 && (
+            <span className="navbar-context-title-qualifier spacer-right">
+              <QualifierIcon qualifier={lastItem.qualifier} />
+            </span>
+          )}
           <Link
+            className="link-base-color link-no-underline"
             title={item.name}
-            to={{ pathname: '/dashboard', query: { id: item.key } }}
-            className="link-base-color link-no-underline">
-            {index === breadcrumbs.length - 1 ? (
-              <strong>{itemName}</strong>
-            ) : (
-              <span>{itemName}</span>
-            )}
+            to={getProjectUrl(item.key)}>
+            {itemName}
           </Link>
           {index < breadcrumbs.length - 1 && <span className="slash-separator" />}
         </span>
@@ -81,12 +78,10 @@ class ComponentNavBreadcrumbs extends React.PureComponent {
         />
         {displayOrganization && (
           <span>
-            <span className="navbar-context-title-qualifier little-spacer-right">
-              <QualifierIcon qualifier={lastItem.qualifier} />
-            </span>
+            <OrganizationAvatar organization={organization} />
             <OrganizationLink
               organization={organization}
-              className="link-base-color link-no-underline">
+              className="link-base-color link-no-underline spacer-left">
               {organization.name}
             </OrganizationLink>
             <span className="slash-separator" />

@@ -2,7 +2,7 @@
 
 exports[`renders 1`] = `
 <ContextNavBar
-  height={95}
+  height={92}
   id="context-navigation"
   notif={
     <ComponentNavBgTaskNotif
@@ -27,9 +27,6 @@ exports[`renders 1`] = `
     />
   }
 >
-  <ComponentNavFavorite
-    component="component"
-  />
   <ComponentNavBreadcrumbs
     breadcrumbs={
       Array [
@@ -55,6 +52,9 @@ exports[`renders 1`] = `
         "qualifier": "TRK",
       }
     }
+  />
+  <ComponentNavFavorite
+    component="component"
   />
   <ComponentNavMeta
     component={

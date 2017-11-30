@@ -25,6 +25,7 @@ import ComponentNavMeta from './ComponentNavMeta';
 import ComponentNavMenu from './ComponentNavMenu';
 import ComponentNavBgTaskNotif from './ComponentNavBgTaskNotif';
 import RecentHistory from '../../RecentHistory';
+import * as theme from '../../../theme';
 import { Branch, Component } from '../../../types';
 import ContextNavBar from '../../../../components/nav/ContextNavBar';
 import { getTasksForComponent, PendingTask, Task } from '../../../../api/ce';
@@ -109,15 +110,15 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
     return (
       <ContextNavBar
         id="context-navigation"
-        height={notifComponent ? 95 : 65}
+        height={notifComponent ? theme.contextNavHeightRaw + 20 : theme.contextNavHeightRaw}
         notif={notifComponent}>
-        <ComponentNavFavorite
-          component={this.props.component.key}
-          favorite={this.props.component.isFavorite}
-        />
         <ComponentNavBreadcrumbs
           component={this.props.component}
           breadcrumbs={this.props.component.breadcrumbs}
+        />
+        <ComponentNavFavorite
+          component={this.props.component.key}
+          favorite={this.props.component.isFavorite}
         />
         {this.props.currentBranch && (
           <ComponentNavBranch

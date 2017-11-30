@@ -2,7 +2,7 @@
 
 exports[`admin 1`] = `
 <ContextNavBar
-  height={65}
+  height={72}
   id="context-navigation"
 >
   <div
@@ -11,25 +11,43 @@ exports[`admin 1`] = `
     <h1
       className="display-inline-block"
     >
-      <OrganizationIcon
-        className="little-spacer-right"
+      <OrganizationAvatar
+        organization={
+          Object {
+            "canAdmin": true,
+            "canDelete": true,
+            "key": "foo",
+            "name": "Foo",
+          }
+        }
       />
       <Link
-        className="link-base-color link-no-underline"
+        className="link-base-color link-no-underline spacer-left"
         onlyActiveOnIndex={false}
         style={Object {}}
         to="/organizations/foo"
       >
-        <strong>
-          Foo
-        </strong>
+        Foo
       </Link>
     </h1>
   </div>
   <div
     className="navbar-context-meta"
-  />
-  <NavBarTabs>
+  >
+    <div
+      className="text-muted"
+    >
+      <strong>
+        organization.key
+        :
+      </strong>
+       
+      foo
+    </div>
+  </div>
+  <NavBarTabs
+    className="navbar-context-tabs"
+  >
     <li>
       <Link
         className=""
@@ -187,7 +205,7 @@ exports[`admin 1`] = `
 
 exports[`regular user 1`] = `
 <ContextNavBar
-  height={65}
+  height={72}
   id="context-navigation"
 >
   <div
@@ -196,25 +214,43 @@ exports[`regular user 1`] = `
     <h1
       className="display-inline-block"
     >
-      <OrganizationIcon
-        className="little-spacer-right"
+      <OrganizationAvatar
+        organization={
+          Object {
+            "canAdmin": false,
+            "canDelete": false,
+            "key": "foo",
+            "name": "Foo",
+          }
+        }
       />
       <Link
-        className="link-base-color link-no-underline"
+        className="link-base-color link-no-underline spacer-left"
         onlyActiveOnIndex={false}
         style={Object {}}
         to="/organizations/foo"
       >
-        <strong>
-          Foo
-        </strong>
+        Foo
       </Link>
     </h1>
   </div>
   <div
     className="navbar-context-meta"
-  />
-  <NavBarTabs>
+  >
+    <div
+      className="text-muted"
+    >
+      <strong>
+        organization.key
+        :
+      </strong>
+       
+      foo
+    </div>
+  </div>
+  <NavBarTabs
+    className="navbar-context-tabs"
+  >
     <li>
       <Link
         className=""
@@ -292,7 +328,7 @@ exports[`regular user 1`] = `
 
 exports[`undeletable org 1`] = `
 <ContextNavBar
-  height={65}
+  height={72}
   id="context-navigation"
 >
   <div
@@ -301,25 +337,43 @@ exports[`undeletable org 1`] = `
     <h1
       className="display-inline-block"
     >
-      <OrganizationIcon
-        className="little-spacer-right"
+      <OrganizationAvatar
+        organization={
+          Object {
+            "canAdmin": true,
+            "canDelete": false,
+            "key": "foo",
+            "name": "Foo",
+          }
+        }
       />
       <Link
-        className="link-base-color link-no-underline"
+        className="link-base-color link-no-underline spacer-left"
         onlyActiveOnIndex={false}
         style={Object {}}
         to="/organizations/foo"
       >
-        <strong>
-          Foo
-        </strong>
+        Foo
       </Link>
     </h1>
   </div>
   <div
     className="navbar-context-meta"
-  />
-  <NavBarTabs>
+  >
+    <div
+      className="text-muted"
+    >
+      <strong>
+        organization.key
+        :
+      </strong>
+       
+      foo
+    </div>
+  </div>
+  <NavBarTabs
+    className="navbar-context-tabs"
+  >
     <li>
       <Link
         className=""

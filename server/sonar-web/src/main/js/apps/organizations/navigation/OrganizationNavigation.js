@@ -21,10 +21,11 @@
 import React from 'react';
 import { Link } from 'react-router';
 import classNames from 'classnames';
+import * as theme from '../../../app/theme';
 import { translate } from '../../../helpers/l10n';
 import ContextNavBar from '../../../components/nav/ContextNavBar';
 import NavBarTabs from '../../../components/nav/NavBarTabs';
-import OrganizationIcon from '../../../components/icons-components/OrganizationIcon';
+import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 import { getQualityGatesUrl } from '../../../helpers/urls';
 /*:: import type { Organization } from '../../../store/organizations/duck'; */
 
@@ -153,14 +154,14 @@ export default class OrganizationNavigation extends React.PureComponent {
     const moreActive = !adminActive && location.pathname.includes('/extension/');
 
     return (
-      <ContextNavBar id="context-navigation" height={65}>
+      <ContextNavBar id="context-navigation" height={theme.contextNavHeightRaw}>
         <div className="navbar-context-header">
           <h1 className="display-inline-block">
-            <OrganizationIcon className="little-spacer-right" />
+            <OrganizationAvatar organization={organization} />
             <Link
               to={`/organizations/${organization.key}`}
-              className="link-base-color link-no-underline">
-              <strong>{organization.name}</strong>
+              className="link-base-color link-no-underline spacer-left">
+              {organization.name}
             </Link>
           </h1>
           {organization.description != null && (
@@ -173,9 +174,9 @@ export default class OrganizationNavigation extends React.PureComponent {
         </div>
 
         <div className="navbar-context-meta">
-          {!!organization.avatar && (
-            <img src={organization.avatar} height={30} alt={organization.name} />
-          )}
+          <div className="text-muted">
+            <strong>{translate('organization.key')}:</strong> {organization.key}
+          </div>
           {organization.url != null && (
             <div>
               <p className="text-limited text-top">
@@ -191,7 +192,7 @@ export default class OrganizationNavigation extends React.PureComponent {
           )}
         </div>
 
-        <NavBarTabs>
+        <NavBarTabs className="navbar-context-tabs">
           <li>
             <Link
               to={`/organizations/${organization.key}/projects`}

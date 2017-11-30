@@ -1,7 +1,7 @@
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,19 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import { withRouter } from 'react-router';
-import { connect } from 'react-redux';
-import GlobalNavUser from './GlobalNavUser';
-import { fetchMyOrganizations } from '../../../../apps/account/organizations/actions';
-import { getMyOrganizations } from '../../../../store/rootReducer';
+.navbar-context-avatar {
+  display: inline-flex;
+  vertical-align: top;
+  justify-content: center;
+  align-items: center;
+  width: calc(4 * var(--gridSize));
+  height: calc(4 * var(--gridSize));
+  border: 1px solid var(--barBorderColor);
+}
 
-const mapStateToProps = state => ({
-  organizations: getMyOrganizations(state)
-});
+.navbar-context-avatar.is-empty {
+  border: none;
+}
 
-const mapDispatchToProps = {
-  fetchMyOrganizations
-};
+.navbar-context-avatar.is-small {
+  width: calc(2 * var(--gridSize));
+  height: calc(2 * var(--gridSize));
+}
 
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(GlobalNavUser));
+.navbar-context-avatar img {
+  vertical-align: top;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.navbar-context-avatar img,
+.navbar-context-avatar svg {
+  transform: none;
+}

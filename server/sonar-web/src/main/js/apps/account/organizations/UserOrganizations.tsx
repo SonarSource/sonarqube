@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import Helmet from 'react-helmet';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
@@ -26,40 +25,48 @@ import OrganizationsList from './OrganizationsList';
 import { translate } from '../../../helpers/l10n';
 import { fetchIfAnyoneCanCreateOrganizations, fetchMyOrganizations } from './actions';
 import { getAppState, getMyOrganizations, getGlobalSettingValue } from '../../../store/rootReducer';
-/*:: import type { Organization } from '../../../store/organizations/duck'; */
+import { Organization } from '../../../app/types';
 
-class UserOrganizations extends React.PureComponent {
-  /*:: mounted: boolean; */
+interface StateProps {
+  anyoneCanCreate?: { value: string };
+  canAdmin: boolean;
+  organizations: Array<Organization>;
+}
 
-  /*:: props: {
-    anyoneCanCreate?: { value: string },
-    canAdmin: boolean,
-    children?: React.Element<*>,
-    organizations: Array<Organization>,
-    fetchIfAnyoneCanCreateOrganizations: () => Promise<*>,
-    fetchMyOrganizations: () => Promise<*>
-  };
-*/
+interface DispatchProps {
+  fetchIfAnyoneCanCreateOrganizations: () => Promise<void>;
+  fetchMyOrganizations: () => Promise<void>;
+}
 
-  state /*: { loading: boolean } */ = {
-    loading: true
-  };
+interface Props extends StateProps, DispatchProps {
+  children?: React.ReactNode;
+}
+
+interface State {
+  loading: boolean;
+}
+
+class UserOrganizations extends React.PureComponent<Props, State> {
+  mounted: boolean;
+  state: State = { loading: true };
 
   componentDidMount() {
     this.mounted = true;
     Promise.all([
       this.props.fetchMyOrganizations(),
       this.props.fetchIfAnyoneCanCreateOrganizations()
-    ]).then(() => {
-      if (this.mounted) {
-        this.setState({ loading: false });
-      }
-    });
+    ]).then(this.stopLoading, this.stopLoading);
   }
 
   componentWillUnmount() {
     this.mounted = false;
   }
+
+  stopLoading = () => {
+    if (this.mounted) {
+      this.setState({ loading: false });
+    }
+  };
 
   render() {
     const anyoneCanCreate =
@@ -103,15 +110,15 @@ class UserOrganizations extends React.PureComponent {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state: any): StateProps => ({
   anyoneCanCreate: getGlobalSettingValue(state, 'sonar.organizations.anyoneCanCreate'),
   canAdmin: getAppState(state).canAdmin,
   organizations: getMyOrganizations(state)
 });
 
 const mapDispatchToProps = {
-  fetchMyOrganizations,
-  fetchIfAnyoneCanCreateOrganizations
-};
+  fetchMyOrganizations: fetchMyOrganizations as any,
+  fetchIfAnyoneCanCreateOrganizations: fetchIfAnyoneCanCreateOrganizations as any
+} as DispatchProps;
 
 export default connect(mapStateToProps, mapDispatchToProps)(UserOrganizations);
