@@ -66,6 +66,7 @@ import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
@@ -135,12 +136,12 @@ public class ComponentAction implements NavigationWsAction {
     try (DbSession session = dbClient.openSession(false)) {
       String branch = request.param(PARAM_BRANCH);
       ComponentDto component = componentFinder.getByKeyAndOptionalBranch(session, componentKey, branch);
+      OrganizationDto org = componentFinder.getOrganization(session, component);
       if (!userSession.hasComponentPermission(USER, component) &&
         !userSession.hasComponentPermission(ADMIN, component) &&
-        !userSession.isSystemAdministrator()) {
+        !userSession.hasPermission(ADMINISTER, org)) {
         throw insufficientPrivilegesException();
       }
-      OrganizationDto org = componentFinder.getOrganization(session, component);
       Optional<SnapshotDto> analysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(session, component.projectUuid());
 
       JsonWriter json = response.newJsonWriter();
@@ -149,6 +150,7 @@ public class ComponentAction implements NavigationWsAction {
       writeProfiles(json, session, component);
       writeQualityGate(json, session, component);
       if (userSession.hasComponentPermission(ADMIN, component) ||
+        userSession.hasPermission(ADMINISTER, org) ||
         userSession.hasPermission(ADMINISTER_QUALITY_PROFILES, org) ||
         userSession.hasPermission(ADMINISTER_QUALITY_GATES, org)) {
         writeConfiguration(json, component, org);
@@ -267,7 +269,7 @@ public class ComponentAction implements NavigationWsAction {
     json.prop("showQualityGates", isProject && (isProjectAdmin || isQualityGateAdmin));
     json.prop("showManualMeasures", showManualMeasures);
     json.prop("showLinks", isProjectAdmin && isProject);
-    json.prop("showPermissions", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_HAS_ROLE_POLICY));
+    json.prop("showPermissions", (isOrganizationAdmin || isProjectAdmin) && componentTypeHasProperty(component, PROPERTY_HAS_ROLE_POLICY));
     json.prop("showHistory", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_MODIFIABLE_HISTORY));
     json.prop("showUpdateKey", isProjectAdmin && componentTypeHasProperty(component, PROPERTY_UPDATABLE_KEY));
     json.prop("showBackgroundTasks", showBackgroundTasks);
