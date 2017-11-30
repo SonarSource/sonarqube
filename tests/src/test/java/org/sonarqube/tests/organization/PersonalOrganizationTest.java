@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Users;
-import org.sonarqube.ws.client.organization.SearchRequest;
+import org.sonarqube.ws.client.organizations.SearchRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,7 +52,7 @@ public class PersonalOrganizationTest {
   public void personal_organizations_are_created_for_new_users() {
     Users.CreateWsResponse.User user = tester.users().generate();
 
-    List<Organizations.Organization> existing = tester.wsClient().organizationsOld().search(SearchRequest.builder().build()).getOrganizationsList();
+    List<Organizations.Organization> existing = tester.wsClient().organizations().search(new SearchRequest()).getOrganizationsList();
     assertThat(existing)
       .filteredOn(Organizations.Organization::getGuarded)
       .filteredOn(o -> o.getKey().equals(user.getLogin()))

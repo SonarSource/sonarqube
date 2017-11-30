@@ -25,7 +25,6 @@ import org.sonarqube.ws.client.favorites.FavoritesService;
 import org.sonarqube.ws.client.issues.IssuesService;
 import org.sonarqube.ws.client.measures.MeasuresService;
 import org.sonarqube.ws.client.notifications.NotificationsService;
-import org.sonarqube.ws.client.organization.OrganizationService;
 import org.sonarqube.ws.client.organizations.OrganizationsService;
 import org.sonarqube.ws.client.permissions.PermissionsService;
 import org.sonarqube.ws.client.project.ProjectsService;
@@ -64,12 +63,6 @@ import org.sonarqube.ws.client.webhooks.WebhooksService;
  * @since 5.3
  */
 public interface WsClient {
-
-  /**
-   * @deprecated since 7.0 use {@link #organizations()} instead
-   */
-  @Deprecated
-  OrganizationService organizationsOld();
 
   OrganizationsService organizations();
 

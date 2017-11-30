@@ -31,6 +31,7 @@ import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.ws.UserGroups.Group;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.organizations.AddMemberRequest;
 
 public class OrganizationIdentityProviderTest {
 
@@ -83,7 +84,7 @@ public class OrganizationIdentityProviderTest {
     Group group = tester.groups().generate(null);
     User user = tester.users().generate();
     // Add user as member of default organization
-    tester.wsClient().organizationsOld().addMember("default-organization", user.getLogin());
+    tester.wsClient().organizations().addMember(new AddMemberRequest().setOrganization("default-organization").setLogin(user.getLogin()));
     tester.groups().assertThatUserIsMemberOf(null, user.getLogin(), "Members");
     enableUserCreationByAuthPlugin(user.getLogin());
     // No group is returned by the plugin

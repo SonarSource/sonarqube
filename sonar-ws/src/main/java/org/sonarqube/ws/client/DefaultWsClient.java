@@ -25,7 +25,6 @@ import org.sonarqube.ws.client.favorites.FavoritesService;
 import org.sonarqube.ws.client.issues.IssuesService;
 import org.sonarqube.ws.client.measures.MeasuresService;
 import org.sonarqube.ws.client.notifications.NotificationsService;
-import org.sonarqube.ws.client.organization.OrganizationService;
 import org.sonarqube.ws.client.organizations.OrganizationsService;
 import org.sonarqube.ws.client.permissions.PermissionsService;
 import org.sonarqube.ws.client.project.ProjectsService;
@@ -54,7 +53,6 @@ import org.sonarqube.ws.client.webhooks.WebhooksService;
 class DefaultWsClient implements WsClient {
 
   private final WsConnector wsConnector;
-  private final OrganizationService organizationsOld;
   private final OrganizationsService organizations;
   private final org.sonarqube.ws.client.permission.PermissionsService permissionsOld;
   private final PermissionsService permissions;
@@ -86,7 +84,6 @@ class DefaultWsClient implements WsClient {
 
   DefaultWsClient(WsConnector wsConnector) {
     this.wsConnector = wsConnector;
-    this.organizationsOld = new OrganizationService(wsConnector);
     this.organizations = new OrganizationsService(wsConnector);
     this.permissionsOld = new org.sonarqube.ws.client.permission.PermissionsService(wsConnector);
     this.permissions = new PermissionsService(wsConnector);
@@ -120,11 +117,6 @@ class DefaultWsClient implements WsClient {
   @Override
   public WsConnector wsConnector() {
     return wsConnector;
-  }
-
-  @Override
-  public OrganizationService organizationsOld() {
-    return organizationsOld;
   }
 
   @Override

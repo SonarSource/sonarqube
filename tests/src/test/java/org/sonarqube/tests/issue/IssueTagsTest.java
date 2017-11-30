@@ -34,6 +34,7 @@ import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Projects.CreateWsResponse;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.issue.SearchRequest;
+import org.sonarqube.ws.client.organizations.AddMemberRequest;
 import org.sonarqube.ws.client.permission.AddUserRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import util.ItUtils;
@@ -127,7 +128,7 @@ public class IssueTagsTest {
   }
 
   private void addMemberToOrganization(User member) {
-    tester.organizations().service().addMember(organization.getKey(), member.getLogin());
+    tester.organizations().service().addMember(new AddMemberRequest().setOrganization(organization.getKey()).setLogin(member.getLogin()));
   }
 
   private void grantUserPermission(String projectKey, User member) {
