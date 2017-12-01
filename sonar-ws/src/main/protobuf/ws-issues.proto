@@ -104,10 +104,7 @@ message SetTypeResponse {
   repeated Users.User users = 4;
 }
 message TagsResponse {
-  optional Issue issue = 1;
-  repeated Component components = 2;
-  repeated sonarqube.ws.commons.Rule rules = 3;
-  repeated Users.User users = 4;
+  repeated string tags = 1;
 }
 
 message Issue {

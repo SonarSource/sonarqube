@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.issue.SearchRequest;
+import org.sonarqube.ws.client.issues.SearchRequest;
 import util.ItUtils;
 
 import static java.util.Collections.singletonList;
@@ -112,15 +112,15 @@ public class IssueFilterOnCommonRulesTest extends AbstractIssueTest {
   }
 
   private List<Issues.Issue> findIssuesByRuleKey(String ruleKey) {
-    return adminWsClient.issuesOld().search(
+    return adminWsClient.issues().search(
       new SearchRequest()
-        .setComponents(singletonList(FILE_KEY))
+        .setComponentKeys(singletonList(FILE_KEY))
         .setRules(singletonList(ruleKey)))
       .getIssuesList();
   }
 
   private List<Issues.Issue> findAllIssues() {
-    return adminWsClient.issuesOld().search(new SearchRequest()).getIssuesList();
+    return adminWsClient.issues().search(new SearchRequest()).getIssuesList();
   }
 
 }

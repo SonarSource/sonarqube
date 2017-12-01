@@ -32,12 +32,14 @@ import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.user.UserParameters;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Issues;
-import org.sonarqube.ws.client.issue.BulkChangeRequest;
+import org.sonarqube.ws.client.issues.BulkChangeRequest;
+import org.sonarqube.ws.client.issues.ChangelogRequest;
 import org.sonarqube.ws.client.permission.AddUserRequest;
 import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
 import util.ItUtils;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newUserWsClient;
@@ -256,11 +258,10 @@ public class IssuePermissionTest {
   }
 
   private Issues.BulkChangeWsResponse makeBlockerAndFalsePositive(String user, Issue issueOnPrivateProject, Issue issueOnPublicProject) {
-    return newUserWsClient(orchestrator, user, "password").issuesOld()
-      .bulkChange(BulkChangeRequest.builder().setIssues(asList(issueOnPrivateProject.key(), issueOnPublicProject.key()))
-        .setSetSeverity("BLOCKER")
-        .setDoTransition("falsepositive")
-        .build());
+    return newUserWsClient(orchestrator, user, "password").issues()
+      .bulkChange(new BulkChangeRequest().setIssues(asList(issueOnPrivateProject.key(), issueOnPublicProject.key()))
+        .setSetSeverity(singletonList("BLOCKER"))
+        .setDoTransition("falsepositive"));
   }
 
   private void addUserPermission(String login, String projectKey, String permission) {
@@ -272,6 +273,6 @@ public class IssuePermissionTest {
   }
 
   private static Issues.ChangelogWsResponse changelog(String issueKey, String login, String password) {
-    return newUserWsClient(orchestrator, login, password).issuesOld().changelog(issueKey);
+    return newUserWsClient(orchestrator, login, password).issues().changelog(new ChangelogRequest().setIssue(issueKey));
   }
 }

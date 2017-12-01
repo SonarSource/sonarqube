@@ -46,7 +46,7 @@ import org.sonarqube.ws.Qualityprofiles.CreateWsResponse.QualityProfile;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.ce.TaskRequest;
 import org.sonarqube.ws.client.components.SuggestionsRequest;
-import org.sonarqube.ws.client.issue.SearchRequest;
+import org.sonarqube.ws.client.issues.SearchRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -227,9 +227,9 @@ public class AnalysisEsResilienceTest {
 
   private Issues.SearchWsResponse searchIssues(String projectKey) {
     SearchRequest request = new SearchRequest()
-      .setProjectKeys(Collections.singletonList(projectKey))
+      .setProjects(Collections.singletonList(projectKey))
       .setFacets(Collections.singletonList("statuses"));
-    return tester.wsClient().issuesOld().search(request);
+    return tester.wsClient().issues().search(request);
   }
 
   private List<String> searchFile(String key) {

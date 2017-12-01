@@ -29,8 +29,8 @@ import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.client.components.TreeRequest;
-import org.sonarqube.ws.client.issue.IssuesService;
-import org.sonarqube.ws.client.issue.SearchRequest;
+import org.sonarqube.ws.client.issues.IssuesService;
+import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarqube.ws.client.measure.ComponentTreeRequest;
 import org.sonarqube.ws.client.measure.ComponentRequest;
 import org.sonarqube.ws.client.measure.MeasuresService;
@@ -63,12 +63,12 @@ public class LiteTest {
   @Test
   public void call_issues_ws() {
     // all issues
-    IssuesService issuesService = tester.wsClient().issuesOld();
+    IssuesService issuesService = tester.wsClient().issues();
     Issues.SearchWsResponse response = issuesService.search(new SearchRequest());
     assertThat(response.getIssuesCount()).isGreaterThan(0);
 
     // project issues
-    response = issuesService.search(new SearchRequest().setProjectKeys(singletonList(PROJECT_KEY)));
+    response = issuesService.search(new SearchRequest().setProjects(singletonList(PROJECT_KEY)));
     assertThat(response.getIssuesCount()).isGreaterThan(0);
   }
 

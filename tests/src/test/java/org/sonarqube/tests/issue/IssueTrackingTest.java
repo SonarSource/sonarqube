@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.issue.SearchRequest;
+import org.sonarqube.ws.client.issues.SearchRequest;
 import util.ItUtils;
 
 import static java.util.Collections.singletonList;
@@ -71,7 +71,7 @@ public class IssueTrackingTest extends AbstractIssueTest {
       "sonar.projectDate", NEW_DATE_STR,
       "sonar.exclusions", "**/*.xoo");
 
-    issues = searchIssues(new SearchRequest().setProjectKeys(singletonList("sample"))).getIssuesList();
+    issues = searchIssues(new SearchRequest().setProjects(singletonList("sample"))).getIssuesList();
     assertThat(issues).hasSize(1);
     assertThat(issues.get(0).getStatus()).isEqualTo("CLOSED");
     assertThat(issues.get(0).getResolution()).isEqualTo("FIXED");
@@ -200,7 +200,7 @@ public class IssueTrackingTest extends AbstractIssueTest {
   }
 
   private List<Issue> searchUnresolvedIssuesByComponent(String componentKey) {
-    return searchIssues(new SearchRequest().setComponentKeys(singletonList(componentKey)).setResolved(false)).getIssuesList();
+    return searchIssues(new SearchRequest().setComponentKeys(singletonList(componentKey)).setResolved("false")).getIssuesList();
   }
 
   private static Issue getRandomIssue() {
@@ -214,7 +214,7 @@ public class IssueTrackingTest extends AbstractIssueTest {
   }
 
   private static SearchWsResponse searchIssues(SearchRequest request) {
-    return adminClient.issuesOld().search(request);
+    return adminClient.issues().search(request);
   }
 
 }

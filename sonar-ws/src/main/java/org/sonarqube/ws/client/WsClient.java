@@ -70,12 +70,6 @@ public interface WsClient {
 
   FavoritesService favorites();
 
-  /**
-   * @deprecated since 7.0 use {@link #issues()} instead
-   */
-  @Deprecated
-  org.sonarqube.ws.client.issue.IssuesService issuesOld();
-
   IssuesService issues();
 
   NotificationsService notifications();

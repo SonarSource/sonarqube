@@ -27,7 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Issues;
-import org.sonarqube.ws.client.issue.SearchRequest;
+import org.sonarqube.ws.client.issues.SearchRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +54,7 @@ public class TechnicalDebtTest {
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     // All the issues should have a technical debt
-    List<Issues.Issue> issues = tester.wsClient().issuesOld().search(new SearchRequest()).getIssuesList();
+    List<Issues.Issue> issues = tester.wsClient().issues().search(new SearchRequest()).getIssuesList();
     assertThat(issues).isNotEmpty();
     for (Issues.Issue issue : issues) {
       assertThat(issue.getDebt()).isEqualTo("1min");
