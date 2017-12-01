@@ -54,7 +54,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
         login: user.login,
         name: user.name,
         password: '',
-        scmAccounts: user.scmAccounts,
+        scmAccounts: user.scmAccounts || [],
         submitting: false
       };
     } else {
@@ -124,7 +124,7 @@ export default class UserForm extends React.PureComponent<Props, State> {
       email: this.state.email || undefined,
       login: this.state.login,
       name: this.state.name,
-      scmAccount: uniq(this.state.scmAccounts)
+      scmAccount: uniq(this.state.scmAccounts).join(',')
     }).then(() => {
       this.props.onUpdateUsers();
       this.props.onClose();
