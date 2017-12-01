@@ -137,15 +137,10 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
       this.props.organization
     );
 
-    const canActivateRules = actions.edit && !profile.isBuiltIn;
-    const canRename = actions.edit && !profile.isBuiltIn;
-    const canSetAsDefault = actions.setAsDefault && !profile.isDefault;
-    const canDelete = actions.edit && !profile.isDefault && !profile.isBuiltIn;
-
     return (
       <ActionsDropdown className={this.props.className}>
-        {canActivateRules && (
-          <ActionsDropdownItem to={activateMoreUrl}>
+        {actions.edit && (
+          <ActionsDropdownItem to={activateMoreUrl} id="quality-profile-activate-more-rules">
             {translate('quality_profiles.activate_more_rules')}
           </ActionsDropdownItem>
         )}
@@ -171,13 +166,13 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
           </ActionsDropdownItem>
         )}
 
-        {canRename && (
+        {actions.edit && (
           <ActionsDropdownItem id="quality-profile-rename" onClick={this.handleRenameClick}>
             {translate('rename')}
           </ActionsDropdownItem>
         )}
 
-        {canSetAsDefault && (
+        {actions.setAsDefault && (
           <ActionsDropdownItem
             id="quality-profile-set-as-default"
             onClick={this.handleSetDefaultClick}>
@@ -185,9 +180,9 @@ export default class ProfileActions extends React.PureComponent<Props, State> {
           </ActionsDropdownItem>
         )}
 
-        {canDelete && <ActionsDropdownDivider />}
+        {actions.delete && <ActionsDropdownDivider />}
 
-        {canDelete && (
+        {actions.delete && (
           <ActionsDropdownItem
             destructive={true}
             id="quality-profile-delete"

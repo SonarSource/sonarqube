@@ -69,15 +69,18 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
     }
 
     const data = { key: this.props.profile.key };
-    getProfileProjects(data).then((r: any) => {
-      if (this.mounted) {
-        this.setState({
-          projects: r.results,
-          more: r.more,
-          loading: false
-        });
-      }
-    });
+    getProfileProjects(data).then(
+      (r: any) => {
+        if (this.mounted) {
+          this.setState({
+            projects: r.results,
+            more: r.more,
+            loading: false
+          });
+        }
+      },
+      () => {}
+    );
   }
 
   handleChangeClick = (event: React.SyntheticEvent<HTMLElement>) => {
@@ -91,6 +94,10 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
   };
 
   renderDefault() {
+    if (this.state.loading) {
+      return <i className="spinner" />;
+    }
+
     return (
       <div>
         <span className="badge spacer-right">{translate('default')}</span>
@@ -100,6 +107,10 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
   }
 
   renderProjects() {
+    if (this.state.loading) {
+      return <i className="spinner" />;
+    }
+
     const { projects } = this.state;
 
     if (projects == null) {
@@ -130,8 +141,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
     return (
       <div className="boxed-group quality-profile-projects">
         {profile.actions &&
-          profile.actions.edit &&
-          !profile.isDefault && (
+          profile.actions.associateProjects && (
             <div className="boxed-group-actions">
               <button className="js-change-projects" onClick={this.handleChangeClick}>
                 {translate('quality_profiles.change_projects')}
@@ -144,13 +154,7 @@ export default class ProfileProjects extends React.PureComponent<Props, State> {
         </header>
 
         <div className="boxed-group-inner">
-          {this.state.loading ? (
-            <i className="spinner" />
-          ) : profile.isDefault ? (
-            this.renderDefault()
-          ) : (
-            this.renderProjects()
-          )}
+          {profile.isDefault ? this.renderDefault() : this.renderProjects()}
         </div>
 
         {this.state.formOpen && (
