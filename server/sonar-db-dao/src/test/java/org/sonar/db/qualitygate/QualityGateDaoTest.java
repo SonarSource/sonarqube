@@ -22,6 +22,7 @@ package org.sonar.db.qualitygate;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
@@ -39,7 +40,7 @@ public class QualityGateDaoTest {
 
   @Test
   public void testInsert() {
-    QualityGateDto newQgate = new QualityGateDto().setName("My Quality Gate");
+    QualityGateDto newQgate = new QualityGateDto().setName("My Quality Gate").setUuid(Uuids.createFast());
 
     underTest.insert(dbSession, newQgate);
     dbSession.commit();
@@ -53,7 +54,7 @@ public class QualityGateDaoTest {
 
   @Test
   public void insert_built_in() {
-    underTest.insert(db.getSession(), new QualityGateDto().setName("test").setBuiltIn(true));
+    underTest.insert(db.getSession(), new QualityGateDto().setName("test").setBuiltIn(true).setUuid(Uuids.createFast()));
 
     QualityGateDto reloaded = underTest.selectByName(db.getSession(), "test");
 

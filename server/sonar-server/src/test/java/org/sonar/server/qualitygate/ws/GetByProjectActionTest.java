@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -230,7 +231,7 @@ public class GetByProjectActionTest {
   }
 
   private QualityGateDto insertQualityGate(String name) {
-    QualityGateDto qualityGate = dbClient.qualityGateDao().insert(dbSession, new QualityGateDto().setName(name));
+    QualityGateDto qualityGate = dbClient.qualityGateDao().insert(dbSession, new QualityGateDto().setName(name).setUuid(Uuids.createFast()));
     db.commit();
     return qualityGate;
   }

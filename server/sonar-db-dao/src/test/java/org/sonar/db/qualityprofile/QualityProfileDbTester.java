@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
 import org.sonar.api.rule.Severity;
-import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -116,7 +116,7 @@ public class QualityProfileDbTester {
   public void addUserPermission(QProfileDto profile, UserDto user){
     checkArgument(!profile.isBuiltIn(), "Built-In profile cannot be used");
     dbClient.qProfileEditUsersDao().insert(dbSession, new QProfileEditUsersDto()
-      .setUuid(UuidFactoryFast.getInstance().create())
+      .setUuid(Uuids.createFast())
       .setUserId(user.getId())
       .setQProfileUuid(profile.getKee())
     );
@@ -126,7 +126,7 @@ public class QualityProfileDbTester {
   public void addGroupPermission(QProfileDto profile, GroupDto group){
     checkArgument(!profile.isBuiltIn(), "Built-In profile cannot be used");
     dbClient.qProfileEditGroupsDao().insert(dbSession, new QProfileEditGroupsDto()
-      .setUuid(UuidFactoryFast.getInstance().create())
+      .setUuid(Uuids.createFast())
       .setGroupId(group.getId())
       .setQProfileUuid(profile.getKee())
     );

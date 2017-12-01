@@ -28,9 +28,19 @@ public class QualityGateDto {
 
   private Long id;
   private String name;
+  private String uuid;
   private boolean isBuiltIn;
   private Date createdAt;
   private Date updatedAt;
+
+  public String getUuid() {
+    return uuid;
+  }
+
+  public QualityGateDto setUuid(String uuid) {
+    this.uuid = uuid;
+    return this;
+  }
 
   public Long getId() {
     return id;

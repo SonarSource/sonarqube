@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -71,13 +72,13 @@ public class QgateProjectFinderTest {
 
   @Before
   public void setUp() throws Exception {
-    qGate = new QualityGateDto().setName("Default Quality Gate");
+    qGate = new QualityGateDto().setName("Default Quality Gate").setUuid(Uuids.createFast());
     dbClient.qualityGateDao().insert(dbSession, qGate);
     dbTester.commit();
   }
 
   @Test
-  public void return_empty_association() throws Exception {
+  public void return_empty_association() {
     Association result = underTest.find(
       builder()
         .gateId(Long.toString(qGate.getId()))
@@ -87,7 +88,7 @@ public class QgateProjectFinderTest {
   }
 
   @Test
-  public void return_all_projects() throws Exception {
+  public void return_all_projects() {
     OrganizationDto org = dbTester.organizations().insert();
     ComponentDto associatedProject = insertProject(ComponentTesting.newPublicProjectDto(org));
     ComponentDto unassociatedProject = insertProject(ComponentTesting.newPublicProjectDto(org));
@@ -106,7 +107,7 @@ public class QgateProjectFinderTest {
   }
 
   @Test
-  public void return_only_associated_project() throws Exception {
+  public void return_only_associated_project() {
     OrganizationDto org = dbTester.organizations().insert();
     ComponentDto associatedProject = insertProject(ComponentTesting.newPublicProjectDto(org));
     insertProject(ComponentTesting.newPublicProjectDto(org));
@@ -124,7 +125,7 @@ public class QgateProjectFinderTest {
   }
 
   @Test
-  public void return_only_unassociated_project() throws Exception {
+  public void return_only_unassociated_project() {
     OrganizationDto org = dbTester.organizations().insert();
     ComponentDto associatedProject = insertProject(ComponentTesting.newPublicProjectDto(org));
     ComponentDto unassociatedProject = insertProject(ComponentTesting.newPublicProjectDto(org));
@@ -142,7 +143,7 @@ public class QgateProjectFinderTest {
   }
 
   @Test
-  public void return_only_authorized_projects() throws Exception {
+  public void return_only_authorized_projects() {
     UserDto user = dbTester.users().insertUser("a_login");
     OrganizationDto organizationDto = dbTester.organizations().insert();
     ComponentDto project1 = componentDbTester.insertComponent(ComponentTesting.newPrivateProjectDto(organizationDto));
@@ -161,7 +162,7 @@ public class QgateProjectFinderTest {
   }
 
   @Test
-  public void do_not_verify_permissions_if_user_is_root() throws Exception {
+  public void do_not_verify_permissions_if_user_is_root() {
     OrganizationDto org = dbTester.organizations().insert();
     ComponentDto project = componentDbTester.insertPrivateProject(org);
     ProjectQgateAssociationQuery query = builder()
@@ -225,7 +226,7 @@ public class QgateProjectFinderTest {
   }
 
   @Test
-  public void fail_on_unknown_quality_gate() throws Exception {
+  public void fail_on_unknown_quality_gate() {
     expectedException.expect(NotFoundException.class);
     underTest.find(builder().gateId("123").build());
   }
