@@ -23,6 +23,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -43,10 +45,10 @@ public class QualityGateUpdaterTest {
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private QualityGateUpdater underTest = new QualityGateUpdater(dbClient);
+  private QualityGateUpdater underTest = new QualityGateUpdater(dbClient, UuidFactoryFast.getInstance());
 
   @Test
-  public void create_quality_gate() throws Exception {
+  public void create_quality_gate() {
     QualityGateDto result = underTest.create(dbSession, QGATE_NAME);
 
     assertThat(result).isNotNull();
@@ -58,7 +60,7 @@ public class QualityGateUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_when_name_is_empty() throws Exception {
+  public void fail_to_create_when_name_is_empty() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Name can't be empty");
 
@@ -66,8 +68,8 @@ public class QualityGateUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_when_name_already_exists() throws Exception {
-    dbClient.qualityGateDao().insert(dbSession, new QualityGateDto().setName(QGATE_NAME));
+  public void fail_to_create_when_name_already_exists() {
+    dbClient.qualityGateDao().insert(dbSession, new QualityGateDto().setName(QGATE_NAME).setUuid(Uuids.createFast()));
     dbSession.commit();
 
     expectedException.expect(BadRequestException.class);
