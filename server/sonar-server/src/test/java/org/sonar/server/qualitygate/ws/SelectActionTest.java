@@ -186,7 +186,7 @@ public class SelectActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_id() throws Exception {
+  public void fail_when_using_branch_id() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertMainBranch(organization);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
