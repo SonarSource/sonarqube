@@ -29,6 +29,8 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.core.util.UuidFactoryFast;
+import org.sonar.core.util.Uuids;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -71,10 +73,11 @@ public class RegisterQualityGatesTest {
   private QualityGateConditionDao gateConditionDao = dbClient.gateConditionDao();
   private MetricDao metricDao = dbClient.metricDao();
   private QualityGateConditionsUpdater qualityGateConditionsUpdater = new QualityGateConditionsUpdater(dbClient);
-  private QualityGateUpdater qualityGateUpdater = new QualityGateUpdater(dbClient);
+  private QualityGateUpdater qualityGateUpdater = new QualityGateUpdater(dbClient, UuidFactoryFast.getInstance());
   private QualityGateFinder qualityGateFinder = new QualityGateFinder(dbClient);
 
-  private RegisterQualityGates underTest = new RegisterQualityGates(dbClient, qualityGateUpdater, qualityGateConditionsUpdater, qualityGateFinder, System2.INSTANCE);
+  private RegisterQualityGates underTest = new RegisterQualityGates(dbClient, qualityGateUpdater, qualityGateConditionsUpdater, qualityGateFinder,
+    UuidFactoryFast.getInstance(), System2.INSTANCE);
 
   @Before
   public void setup() {
@@ -102,7 +105,7 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void upgrade_empty_quality_gate() {
-    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(true);
+    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(true).setUuid(Uuids.createFast());
     qualityGateDao.insert(dbSession, builtin);
     dbSession.commit();
 
@@ -117,7 +120,7 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void upgrade_should_remove_deleted_condition() {
-    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(true);
+    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(true).setUuid(Uuids.createFast());
     qualityGateDao.insert(dbSession, builtin);
 
     createBuiltInConditions(builtin);
@@ -138,7 +141,7 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void upgrade_should_add_missing_condition() {
-    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(true);
+    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(true).setUuid(Uuids.createFast());
     qualityGateDao.insert(dbSession, builtin);
 
     List<QualityGateConditionDto> builtInConditions = createBuiltInConditions(builtin);
@@ -160,7 +163,7 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void should_set_SonarWay_as_builtin_when_not_set() {
-    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(false);
+    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(false).setUuid(Uuids.createFast());
     qualityGateDao.insert(dbSession, builtin);
 
     createBuiltInConditions(builtin);
@@ -177,7 +180,7 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void should_not_update_builtin_quality_gate_if_already_uptodate() {
-    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(true);
+    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(true).setUuid(Uuids.createFast());
     qualityGateDao.insert(dbSession, builtin);
 
     createBuiltInConditions(builtin);
@@ -202,7 +205,7 @@ public class RegisterQualityGatesTest {
   @Test
   public void ensure_only_one_built_in_quality_gate() {
     String qualityGateName = "IncorrectQualityGate";
-    QualityGateDto builtin = new QualityGateDto().setName(qualityGateName).setBuiltIn(true);
+    QualityGateDto builtin = new QualityGateDto().setName(qualityGateName).setBuiltIn(true).setUuid(Uuids.createFast());
     qualityGateDao.insert(dbSession, builtin);
     dbSession.commit();
 
@@ -230,7 +233,7 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void ensure_only_that_builtin_is_set_as_default_when_no_default_quality_gate() {
-    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(true);
+    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(true).setUuid(Uuids.createFast());
     qualityGateDao.insert(dbSession, builtin);
     dbSession.commit();
 
@@ -246,7 +249,7 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void builtin_quality_gate_with_incorrect_metricId_should_not_throw_an_exception() {
-    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(true);
+    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(true).setUuid(Uuids.createFast());
     qualityGateDao.insert(dbSession, builtin);
     QualityGateConditionDto conditionDto = new QualityGateConditionDto()
       .setMetricId(-1) // This Id does not exist
