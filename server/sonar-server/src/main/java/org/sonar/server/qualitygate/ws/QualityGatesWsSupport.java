@@ -20,9 +20,14 @@
 
 package org.sonar.server.qualitygate.ws;
 
+import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -31,7 +36,9 @@ import org.sonarqube.ws.Qualitygates;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
 import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class QualityGatesWsSupport {
 
@@ -53,6 +60,15 @@ public class QualityGatesWsSupport {
     return userSession.hasPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
   }
 
+  WebService.NewParam createOrganizationParam(NewAction action) {
+    return action
+      .createParam(PARAM_ORGANIZATION)
+      .setDescription("Organization key. If no organization is provided, the default organization is used.")
+      .setRequired(false)
+      .setInternal(false)
+      .setExampleValue("my-org");
+  }
+
   Qualitygates.Actions getActions(QualityGateDto qualityGate, @Nullable QualityGateDto defaultQualityGate) {
     Long defaultId = defaultQualityGate == null ? null : defaultQualityGate.getId();
     boolean isDefault = qualityGate.getId().equals(defaultId);
@@ -66,6 +82,13 @@ public class QualityGatesWsSupport {
       .setSetAsDefault(!isDefault && isQualityGateAdmin)
       .setAssociateProjects(!isDefault && isQualityGateAdmin)
       .build();
+  }
+
+  OrganizationDto getOrganization(DbSession dbSession, Request request) {
+    String organizationUuid = Optional.ofNullable(request.param(PARAM_ORGANIZATION))
+      .orElseGet(() -> defaultOrganizationProvider.get().getUuid());
+    Optional<OrganizationDto> organizationDto = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid);
+    return checkFoundWithOptional(organizationDto, "No organization with key '%s'", organizationUuid);
   }
 
   void checkCanEdit(QualityGateDto qualityGate) {
