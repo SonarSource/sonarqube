@@ -45,7 +45,6 @@ public class PopulateUuidOnQualityGates extends DataChange {
     massUpdate.rowPluralName("quality gates");
     massUpdate.update("update quality_gates set uuid=?, updated_at=? where id=?");
     massUpdate.execute((row, update) -> {
-      String name = row.getString(2);
       update.setString(1, uuidFactory.create());
       update.setDate(2, new Date(system2.now()));
       update.setLong(3, row.getLong(1));
