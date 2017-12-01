@@ -33,7 +33,7 @@ export interface User {
   name: string;
   active: boolean;
   email?: string;
-  scmAccounts: string[];
+  scmAccounts?: string[];
   groups?: string[];
   tokensCount?: number;
   local: boolean;
@@ -90,7 +90,7 @@ export function updateUser(data: {
   email?: string;
   login: string;
   name?: string;
-  scmAccount: string[];
+  scmAccount?: string;
 }): Promise<User> {
   return postJSON('/api/users/update', data);
 }
