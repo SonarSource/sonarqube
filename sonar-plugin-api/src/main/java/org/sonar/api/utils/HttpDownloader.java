@@ -33,7 +33,26 @@ import java.net.URI;
 @ScannerSide
 @ServerSide
 public abstract class HttpDownloader extends UriReader.SchemeProcessor {
+
+  /**
+   * Catch-all default timeout, replaced by
+   *   {@link #DEFAULT_READ_TIMEOUT_IN_MILLISECONDS}
+   *   {@link #DEFAULT_CONNECT_TIMEOUT_IN_MILLISECONDS}
+   *
+   * @deprecated since 7.0
+   */
+  @Deprecated
   public static final int TIMEOUT_MILLISECONDS = 20 * 1000;
+
+  /**
+   * @since 7.0
+   */
+  public static final int DEFAULT_READ_TIMEOUT_IN_MILLISECONDS = 60 * 1000;
+
+  /**
+   * @since 7.0
+   */
+  public static final int DEFAULT_CONNECT_TIMEOUT_IN_MILLISECONDS = 20 * 1000;
 
   public abstract String downloadPlainText(URI uri, String encoding);
 
