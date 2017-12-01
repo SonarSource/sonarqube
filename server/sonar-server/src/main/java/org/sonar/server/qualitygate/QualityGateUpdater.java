@@ -22,6 +22,7 @@ package org.sonar.server.qualitygate;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;
@@ -38,14 +39,19 @@ public class QualityGateUpdater {
   public static final String SONAR_QUALITYGATE_PROPERTY = "sonar.qualitygate";
 
   private final DbClient dbClient;
+  private final UuidFactory uuidFactory;
 
-  public QualityGateUpdater(DbClient dbClient) {
+  public QualityGateUpdater(DbClient dbClient, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
+    this.uuidFactory = uuidFactory;
   }
 
   public QualityGateDto create(DbSession dbSession, String name) {
     validateQualityGate(dbSession, null, name);
-    QualityGateDto newQualityGate = new QualityGateDto().setName(name).setBuiltIn(false);
+    QualityGateDto newQualityGate = new QualityGateDto()
+      .setName(name)
+      .setBuiltIn(false)
+      .setUuid(uuidFactory.create());
     dbClient.qualityGateDao().insert(dbSession, newQualityGate);
     return newQualityGate;
   }
