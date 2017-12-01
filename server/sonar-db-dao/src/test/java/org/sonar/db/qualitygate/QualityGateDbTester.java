@@ -21,6 +21,7 @@ package org.sonar.db.qualitygate;
 
 import java.util.Arrays;
 import java.util.function.Consumer;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -51,6 +52,7 @@ public class QualityGateDbTester {
   public final QualityGateDto insertQualityGate(Consumer<QualityGateDto>... dtoPopulators) {
     QualityGateDto qualityGate = new QualityGateDto()
       .setName(randomAlphanumeric(30))
+      .setUuid(Uuids.createFast())
       .setBuiltIn(false);
     Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(qualityGate));
     QualityGateDto updatedUser = dbClient.qualityGateDao().insert(dbSession, qualityGate);

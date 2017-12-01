@@ -30,6 +30,7 @@ import org.picocontainer.Startable;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -71,16 +72,18 @@ public class RegisterQualityGates implements Startable {
   private final QualityGateUpdater qualityGateUpdater;
   private final QualityGateDao qualityGateDao;
   private final QualityGateConditionDao qualityGateConditionDao;
+  private final UuidFactory uuidFactory;
   private final System2 system2;
 
   public RegisterQualityGates(DbClient dbClient, QualityGateUpdater qualityGateUpdater,
-    QualityGateConditionsUpdater qualityGateConditionsUpdater, QualityGateFinder qualityGateFinder, System2 system2) {
+    QualityGateConditionsUpdater qualityGateConditionsUpdater, QualityGateFinder qualityGateFinder, UuidFactory uuidFactory, System2 system2) {
     this.dbClient = dbClient;
     this.qualityGateConditionsUpdater = qualityGateConditionsUpdater;
     this.qualityGateUpdater = qualityGateUpdater;
     this.qualityGateFinder = qualityGateFinder;
     this.qualityGateDao = dbClient.qualityGateDao();
     this.qualityGateConditionDao = dbClient.gateConditionDao();
+    this.uuidFactory = uuidFactory;
     this.system2 = system2;
   }
 
@@ -154,6 +157,7 @@ public class RegisterQualityGates implements Startable {
     QualityGateDto qualityGate = new QualityGateDto()
       .setName(name)
       .setBuiltIn(true)
+      .setUuid(uuidFactory.create())
       .setCreatedAt(new Date(system2.now()));
     return dbClient.qualityGateDao().insert(dbSession, qualityGate);
   }
