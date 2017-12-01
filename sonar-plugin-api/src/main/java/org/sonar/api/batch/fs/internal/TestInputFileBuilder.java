@@ -23,9 +23,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
@@ -55,6 +57,8 @@ public class TestInputFileBuilder {
   private final int id;
   private final String relativePath;
   private final String moduleKey;
+  @CheckForNull
+  private Path projectBaseDir;
   private Path moduleBaseDir;
   private String language;
   private InputFile.Type type = InputFile.Type.MAIN;
@@ -77,7 +81,7 @@ public class TestInputFileBuilder {
   }
 
   /**
-   * Create a InputFile with a given module key and module base directory. 
+   * Create a InputFile with a given module key and module base directory.
    * The relative path is generated comparing the file path to the module base directory. 
    * filePath must point to a file that is within the module base directory.
    */
@@ -108,13 +112,22 @@ public class TestInputFileBuilder {
     return batchId++;
   }
 
-  public TestInputFileBuilder setModuleBaseDir(Path moduleBaseDir) {
-    try {
-      this.moduleBaseDir = moduleBaseDir.normalize().toRealPath(LinkOption.NOFOLLOW_LINKS);
-    } catch (IOException e) {
-      this.moduleBaseDir = moduleBaseDir.normalize();
-    }
+  public TestInputFileBuilder setProjectBaseDir(Path projectBaseDir) {
+    this.projectBaseDir = normalize(projectBaseDir);
     return this;
+  }
+
+  public TestInputFileBuilder setModuleBaseDir(Path moduleBaseDir) {
+    this.moduleBaseDir = normalize(moduleBaseDir);
+    return this;
+  }
+
+  private static Path normalize(Path path) {
+    try {
+      return path.normalize().toRealPath(LinkOption.NOFOLLOW_LINKS);
+    } catch (IOException e) {
+      return path.normalize();
+    }
   }
 
   public TestInputFileBuilder setLanguage(@Nullable String language) {
@@ -192,7 +205,12 @@ public class TestInputFileBuilder {
   }
 
   public DefaultInputFile build() {
-    DefaultIndexedFile indexedFile = new DefaultIndexedFile(moduleBaseDir.resolve(relativePath), moduleKey, relativePath, relativePath, type, language, id, new SensorStrategy());
+    Path absolutePath = moduleBaseDir.resolve(relativePath);
+    if (projectBaseDir == null) {
+      projectBaseDir = moduleBaseDir;
+    }
+    String projectRelativePath = projectBaseDir.relativize(absolutePath).toString();
+    DefaultIndexedFile indexedFile = new DefaultIndexedFile(absolutePath, moduleKey, projectRelativePath, relativePath, type, language, id, new SensorStrategy());
     DefaultInputFile inputFile = new DefaultInputFile(indexedFile,
       f -> f.setMetadata(new Metadata(lines, nonBlankLines, hash, originalLineOffsets, lastValidOffset)),
       contents);
@@ -203,11 +221,35 @@ public class TestInputFileBuilder {
   }
 
   public static DefaultInputModule newDefaultInputModule(String moduleKey, File baseDir) {
-    ProjectDefinition definition = ProjectDefinition.create().setKey(moduleKey).setBaseDir(baseDir).setWorkDir(new File(baseDir, ".sonar"));
+    ProjectDefinition definition = ProjectDefinition.create()
+      .setKey(moduleKey)
+      .setBaseDir(baseDir)
+      .setWorkDir(new File(baseDir, ".sonar"));
     return newDefaultInputModule(definition);
   }
 
   public static DefaultInputModule newDefaultInputModule(ProjectDefinition projectDefinition) {
     return new DefaultInputModule(projectDefinition, TestInputFileBuilder.nextBatchId());
+  }
+
+  public static DefaultInputModule newDefaultInputModule(DefaultInputModule parent, String key) throws IOException {
+    Path basedir = parent.getBaseDir().resolve(key);
+    Files.createDirectory(basedir);
+    return newDefaultInputModule(key, basedir.toFile());
+  }
+
+  public static DefaultInputDir newDefaultInputDir(DefaultInputModule module, String relativePath) throws IOException {
+    Path basedir = module.getBaseDir().resolve(relativePath);
+    Files.createDirectory(basedir);
+    return new DefaultInputDir(module.key(), relativePath)
+      .setModuleBaseDir(module.getBaseDir());
+  }
+
+  public static DefaultInputFile newDefaultInputFile(Path projectBaseDir, DefaultInputModule module, String relativePath) {
+    return new TestInputFileBuilder(module.key(), relativePath)
+      .setStatus(InputFile.Status.SAME)
+      .setProjectBaseDir(projectBaseDir)
+      .setModuleBaseDir(module.getBaseDir())
+      .build();
   }
 }
