@@ -25,6 +25,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -50,6 +51,19 @@ public class QualityGateDaoTest {
         // TODO : tuple("Sonar way", true),
         tuple("My Quality Gate", false));
     assertThat(newQgate.getId()).isNotNull();
+  }
+
+  @Test
+  public void associate() {
+    QualityGateDto qgate = db.qualityGates().insertQualityGate();
+    OrganizationDto org = db.organizations().insert();
+
+    underTest.associate(dbSession, Uuids.createFast(), org, qgate);
+
+    assertThat(underTest.selectByOrganizationAndUuid(dbSession, org, qgate.getUuid())).isNotNull();
+    assertThat(underTest.selectByOrganizationAndUuid(dbSession, org, qgate.getUuid()))
+      .extracting(QGateWithOrgDto::getId, QGateWithOrgDto::getUuid, QGateWithOrgDto::getOrganizationUuid, QGateWithOrgDto::getName)
+      .containsExactly(qgate.getId(), qgate.getUuid(), org.getUuid(), qgate.getName());
   }
 
   @Test

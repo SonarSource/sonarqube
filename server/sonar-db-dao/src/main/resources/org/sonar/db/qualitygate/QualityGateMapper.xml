@@ -3,9 +3,14 @@
 
 <mapper namespace="org.sonar.db.qualitygate.QualityGateMapper">
 
-  <insert id="insert" parameterType="QualityGate" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    insert into quality_gates (name, uuid, is_built_in, created_at, updated_at)
-    values (#{name}, #{uuid}, #{isBuiltIn}, #{createdAt}, #{updatedAt})
+  <insert id="insertQualityGate" parameterType="QualityGate" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    insert into quality_gates (uuid, name, is_built_in, created_at, updated_at)
+    values (#{uuid}, #{name}, #{isBuiltIn}, #{createdAt}, #{updatedAt})
+  </insert>
+
+  <insert id="insertOrgQualityGate" parameterType="Map">
+    INSERT INTO org_quality_gates (uuid, organization_uuid, quality_gate_uuid)
+    VALUES (#{uuid}, #{organizationUuid}, #{qualityGateUuid})
   </insert>
 
   <sql id="gateColumns">
@@ -25,6 +30,25 @@
     from quality_gates
     where name=#{name}
   </select>
+
+  <select id="selectByUuidAndOrganization" parameterType="Map" resultType="org.sonar.db.qualitygate.QGateWithOrgDto">
+    SELECT
+      qg.id as id,
+      qg.uuid as uuid,
+      qg.name as name,
+      qg.is_built_in as isBuiltIn,
+      oqg.organization_uuid as organizationUuid,
+      qg.created_at as createdAt,
+      qg.updated_at as updatedAd
+    FROM
+      quality_gates qg
+    INNER JOIN
+      org_quality_gates oqg ON oqg.quality_gate_uuid = qg.uuid
+    WHERE
+      qg.uuid = #{qualityGateUuid} AND
+      oqg.organization_uuid = #{organizationUuid}
+  </select>
+
 
   <select id="selectById" parameterType="long" resultType="QualityGate">
     select
