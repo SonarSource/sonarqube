@@ -20,16 +20,21 @@
 package org.sonar.db.qualitygate;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface QualityGateMapper {
 
-  void insert(QualityGateDto qualityGate);
+  void insertQualityGate(QualityGateDto qualityGate);
+
+  void insertOrgQualityGate(@Param("uuid") String uuid, @Param("organizationUuid") String organizationUuid, @Param("qualityGateUuid") String qualityGateUuuid);
 
   List<QualityGateDto> selectAll();
 
   QualityGateDto selectByName(String name);
 
   QualityGateDto selectById(long id);
+
+  QGateWithOrgDto selectByUuidAndOrganization(@Param("qualityGateUuid") String qualityGateUuid, @Param("organizationUuid") String organizationUuid);
 
   QualityGateDto selectBuiltIn();
 
