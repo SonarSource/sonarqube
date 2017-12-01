@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -84,7 +85,7 @@ public class QualityGatesTest {
     when(componentDao.selectOrFailById(eq(dbSession), anyLong())).thenReturn(
       newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), PROJECT_UUID).setId(1L).setDbKey(PROJECT_KEY));
 
-    underTest = new QualityGates(dbClient, userSession, organizationProvider);
+    underTest = new QualityGates(dbClient, userSession, organizationProvider, UuidFactoryFast.getInstance());
 
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, organizationProvider.get().getUuid());
   }

@@ -34,7 +34,11 @@ public class DbVersion70 implements DbVersion {
       .add(1904, "Rename quality gate \"SonarQube way\" to \"Sonar way\"", RenameOldSonarQubeWayQualityGate.class)
       .add(1905, "Drop LOADED_TEMPLATES table", DropLoadedTemplatesTable.class)
       .add(1906, "Create ORG_QUALITY_GATES table", CreateOrgQualityGatesTable.class)
-      .add(1907, "Add ORGANIZATIONS.DEFAULT_QUALITY_GATE_UUID", AddDefaultQualityGateUuidToOrganizations.class);
+      .add(1907, "Add ORGANIZATIONS.DEFAULT_QUALITY_GATE_UUID", AddDefaultQualityGateUuidToOrganizations.class)
+      .add(1908, "Create QUALITY_GATES.UUID", AddUuidToQualityGates.class)
+      .add(1909, "Populate QUALITY_GATES.UUID", PopulateUuidOnQualityGates.class)
+      .add(1910, "Make QUALITY_GATES.UUID not nullable", MakeUuidNotNullableOnQualityGates.class)
+    ;
   }
 
 }
