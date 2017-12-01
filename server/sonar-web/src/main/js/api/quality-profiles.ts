@@ -30,7 +30,9 @@ import { Paging } from '../app/types';
 import throwGlobalError from '../app/utils/throwGlobalError';
 
 export interface ProfileActions {
+  associateProjects?: boolean;
   copy?: boolean;
+  delete?: boolean;
   edit?: boolean;
   setAsDefault?: boolean;
 }
@@ -104,7 +106,7 @@ export function restoreQualityProfile(data: RequestData): Promise<any> {
 }
 
 export function getProfileProjects(data: RequestData): Promise<any> {
-  return getJSON('/api/qualityprofiles/projects', data);
+  return getJSON('/api/qualityprofiles/projects', data).catch(throwGlobalError);
 }
 
 export function getProfileInheritance(profileKey: string): Promise<any> {

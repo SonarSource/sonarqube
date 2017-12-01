@@ -50,7 +50,7 @@ it('renders with no permissions', () => {
   ).toMatchSnapshot();
 });
 
-it('renders with permission to edit', () => {
+it('renders with permission to edit only', () => {
   expect(
     shallow(
       <ProfileActions
@@ -69,7 +69,16 @@ it('renders with all permissions', () => {
       <ProfileActions
         onRequestFail={jest.fn()}
         organization="org"
-        profile={{ ...PROFILE, actions: { copy: true, edit: true, setAsDefault: true } }}
+        profile={{
+          ...PROFILE,
+          actions: {
+            copy: true,
+            edit: true,
+            delete: true,
+            setAsDefault: true,
+            associateProjects: true
+          }
+        }}
         updateProfiles={jest.fn()}
       />
     )

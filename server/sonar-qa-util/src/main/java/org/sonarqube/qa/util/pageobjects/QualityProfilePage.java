@@ -48,7 +48,19 @@ public class QualityProfilePage {
 
   public QualityProfilePage shouldAllowToChangeProjects() {
     Selenide.$(".js-change-projects").shouldBe(Condition.visible).click();
-    Selenide.$("#profile-projects .select-list-list").shouldBe(Condition.visible);
+    Selenide.$("#profile-projects .select-list-list-container").shouldBe(Condition.visible);
+    return this;
+  }
+
+  public QualityProfilePage shouldNotAllowToChangeProjects() {
+    Selenide.$(".js-change-projects").shouldNot(Condition.exist);
+    return this;
+  }
+
+  public QualityProfilePage shouldNotAllowToEdit() {
+    Selenide.$("button.dropdown-toggle").should(Condition.exist).click();
+    Selenide.$("#quality-profile-rename").shouldNot(Condition.exist);
+    Selenide.$("#quality-profile-activate-more-rules").shouldNot(Condition.exist);
     return this;
   }
 }

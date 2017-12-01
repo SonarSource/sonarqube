@@ -118,6 +118,17 @@ public class OrganizationQualityProfilesUiTest {
   }
 
   @Test
+  public void testBuiltIn() {
+    Navigation nav = tester.openBrowser().logIn().submitCredentials(user.getLogin());
+    nav.openQualityProfile("xoo", "Sonar way", "test-org")
+      .shouldNotAllowToEdit()
+      .shouldAllowToChangeProjects();
+    nav.openQualityProfile("xoo", "Basic", "test-org")
+      .shouldNotAllowToEdit()
+      .shouldNotAllowToChangeProjects();
+  }
+
+  @Test
   public void testCreation() {
     Selenese.runSelenese(orchestrator, "/organization/OrganizationQualityProfilesUiTest/should_create.html");
   }

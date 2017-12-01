@@ -3,6 +3,7 @@
 exports[`renders with all permissions 1`] = `
 <ActionsDropdown>
   <ActionsDropdownItem
+    id="quality-profile-activate-more-rules"
     to="/organizations/org/rules#qprofile=foo|activation=false"
   >
     quality_profiles.activate_more_rules
@@ -83,9 +84,10 @@ exports[`renders with no permissions 1`] = `
 </ActionsDropdown>
 `;
 
-exports[`renders with permission to edit 1`] = `
+exports[`renders with permission to edit only 1`] = `
 <ActionsDropdown>
   <ActionsDropdownItem
+    id="quality-profile-activate-more-rules"
     to="/organizations/org/rules#qprofile=foo|activation=false"
   >
     quality_profiles.activate_more_rules
@@ -116,14 +118,6 @@ exports[`renders with permission to edit 1`] = `
     onClick={[Function]}
   >
     rename
-  </ActionsDropdownItem>
-  <ActionsDropdownDivider />
-  <ActionsDropdownItem
-    destructive={true}
-    id="quality-profile-delete"
-    onClick={[Function]}
-  >
-    delete
   </ActionsDropdownItem>
 </ActionsDropdown>
 `;
