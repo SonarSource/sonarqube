@@ -28,6 +28,8 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDbTester;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
 
@@ -49,6 +51,8 @@ public class QualityGateUpdaterTest {
 
   @Test
   public void create_quality_gate() {
+    OrganizationDto organization = db.organizations().insert();
+
     QualityGateDto result = underTest.create(dbSession, QGATE_NAME);
 
     assertThat(result).isNotNull();

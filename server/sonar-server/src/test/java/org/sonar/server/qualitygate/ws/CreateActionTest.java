@@ -54,11 +54,12 @@ public class CreateActionTest {
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private CreateAction underTest = new CreateAction(dbClient, userSession, new QualityGateUpdater(dbClient, UuidFactoryFast.getInstance()), defaultOrganizationProvider);
+  private CreateAction underTest = new CreateAction(dbClient, userSession, new QualityGateUpdater(dbClient, UuidFactoryFast.getInstance()),
+    new QualityGatesWsSupport(dbClient, userSession, defaultOrganizationProvider));
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
-  public void create_quality_gate() throws Exception {
+  public void create_quality_gate() {
     logInAsQualityGateAdmin();
 
     CreateResponse response = executeRequest("Default");
@@ -71,7 +72,7 @@ public class CreateActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_gate_administrator() throws Exception {
+  public void throw_ForbiddenException_if_not_gate_administrator() {
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
@@ -81,7 +82,7 @@ public class CreateActionTest {
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_gate_administrator_of_default_organization() throws Exception {
+  public void throw_ForbiddenException_if_not_gate_administrator_of_default_organization() {
     // as long as organizations don't support Quality gates, the global permission
     // is defined on the default organization
     OrganizationDto org = db.organizations().insert();
@@ -100,7 +101,7 @@ public class CreateActionTest {
     assertThat(action.isInternal()).isFalse();
     assertThat(action.isPost()).isTrue();
     assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(1);
+    assertThat(action.params()).hasSize(2);
   }
 
   private CreateResponse executeRequest(String name) {
