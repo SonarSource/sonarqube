@@ -21,8 +21,12 @@ package org.sonar.scanner.report;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,13 +49,15 @@ import org.sonar.scanner.protocol.output.ScannerReport.Component.FileStatus;
 import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.scan.DefaultComponentTree;
+import org.sonar.scanner.scan.DefaultInputModuleHierarchy;
 import org.sonar.scanner.scan.branch.BranchConfiguration;
 import org.sonar.scanner.scan.branch.BranchType;
-import org.sonar.scanner.scan.DefaultComponentTree;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.batch.fs.internal.TestInputFileBuilder.*;
 
 public class ComponentsPublisherTest {
   @Rule
@@ -91,11 +97,12 @@ public class ComponentsPublisherTest {
       .setWorkDir(temp.newFolder());
     DefaultInputModule root = new DefaultInputModule(rootDef, 1);
 
+    Path moduleBaseDir = temp.newFolder().toPath();
     ProjectDefinition module1Def = ProjectDefinition.create()
       .setKey("module1")
       .setName("Module1")
       .setDescription("Module description")
-      .setBaseDir(temp.newFolder())
+      .setBaseDir(moduleBaseDir.toFile())
       .setWorkDir(temp.newFolder());
     rootDef.addSubProject(module1Def);
 
@@ -107,11 +114,19 @@ public class ComponentsPublisherTest {
     when(moduleHierarchy.parent(module1)).thenReturn(root);
     tree.index(module1, root);
 
-    DefaultInputDir dir = new DefaultInputDir("module1", "src", 3);
+    DefaultInputDir dir = new DefaultInputDir("module1", "src", 3)
+      .setModuleBaseDir(moduleBaseDir);
     tree.index(dir, module1);
+
+    DefaultInputDir dir2 = new DefaultInputDir("module1", "src2", 17)
+      .setModuleBaseDir(moduleBaseDir);
+    tree.index(dir2, module1);
 
     DefaultInputFile file = new TestInputFileBuilder("module1", "src/Foo.java", 4).setLines(2).setStatus(InputFile.Status.SAME).build();
     tree.index(file, dir);
+
+    DefaultInputFile file18 = new TestInputFileBuilder("module1", "src2/Foo.java", 18).setLines(2).setStatus(InputFile.Status.SAME).build();
+    tree.index(file18, dir2);
 
     DefaultInputFile file2 = new TestInputFileBuilder("module1", "src/Foo2.java", 5).setPublish(false).setLines(2).build();
     tree.index(file2, dir);
@@ -183,12 +198,13 @@ public class ComponentsPublisherTest {
     ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
     when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
 
+    Path moduleBaseDir = temp.newFolder().toPath();
     ProjectDefinition rootDef = ProjectDefinition.create()
       .setKey("foo")
       .setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0")
       .setName("Root project")
       .setDescription("Root description")
-      .setBaseDir(temp.newFolder())
+      .setBaseDir(moduleBaseDir.toFile())
       .setWorkDir(temp.newFolder());
     DefaultInputModule root = new DefaultInputModule(rootDef, 1);
 
@@ -197,15 +213,18 @@ public class ComponentsPublisherTest {
     when(moduleHierarchy.children(root)).thenReturn(Collections.emptyList());
 
     // dir with files
-    DefaultInputDir dir = new DefaultInputDir("module1", "src", 2);
+    DefaultInputDir dir = new DefaultInputDir("module1", "src", 2)
+      .setModuleBaseDir(moduleBaseDir);
     tree.index(dir, root);
 
     // dir without files and issues
-    DefaultInputDir dir2 = new DefaultInputDir("module1", "src2", 3);
+    DefaultInputDir dir2 = new DefaultInputDir("module1", "src2", 3)
+      .setModuleBaseDir(moduleBaseDir);
     tree.index(dir2, root);
 
     // dir without files but has issues
-    DefaultInputDir dir3 = new DefaultInputDir("module1", "src3", 4);
+    DefaultInputDir dir3 = new DefaultInputDir("module1", "src3", 4)
+      .setModuleBaseDir(moduleBaseDir);
     tree.index(dir3, root);
     writeIssue(4);
 
@@ -294,12 +313,13 @@ public class ComponentsPublisherTest {
     ProjectAnalysisInfo projectAnalysisInfo = mock(ProjectAnalysisInfo.class);
     when(projectAnalysisInfo.analysisDate()).thenReturn(DateUtils.parseDate("2012-12-12"));
 
+    Path moduleBaseDir = temp.newFolder().toPath();
     ProjectDefinition rootDef = ProjectDefinition.create()
       .setKey("foo")
       .setProperty(CoreProperties.PROJECT_VERSION_PROPERTY, "1.0")
       .setName("Root project")
       .setDescription("Root description")
-      .setBaseDir(temp.newFolder())
+      .setBaseDir(moduleBaseDir.toFile())
       .setWorkDir(temp.newFolder());
     DefaultInputModule root = new DefaultInputModule(rootDef, 1);
 
@@ -308,15 +328,18 @@ public class ComponentsPublisherTest {
     when(moduleHierarchy.children(root)).thenReturn(Collections.emptyList());
 
     // dir with changed files
-    DefaultInputDir dir = new DefaultInputDir("module1", "src", 2);
+    DefaultInputDir dir = new DefaultInputDir("module1", "src", 2)
+      .setModuleBaseDir(moduleBaseDir);
     tree.index(dir, root);
 
     // dir without changed files or issues
-    DefaultInputDir dir2 = new DefaultInputDir("module1", "src2", 3);
+    DefaultInputDir dir2 = new DefaultInputDir("module1", "src2", 3)
+      .setModuleBaseDir(moduleBaseDir);
     tree.index(dir2, root);
 
     // dir without changed files but has issues
-    DefaultInputDir dir3 = new DefaultInputDir("module1", "src3", 4);
+    DefaultInputDir dir3 = new DefaultInputDir("module1", "src3", 4)
+      .setModuleBaseDir(moduleBaseDir);
     tree.index(dir3, root);
     writeIssue(4);
 
@@ -366,10 +389,11 @@ public class ComponentsPublisherTest {
       .setWorkDir(temp.newFolder());
     DefaultInputModule root = new DefaultInputModule(rootDef, 1);
 
+    Path moduleBaseDir = temp.newFolder().toPath();
     ProjectDefinition module1Def = ProjectDefinition.create()
       .setKey("module1")
       .setDescription("Module description")
-      .setBaseDir(temp.newFolder())
+      .setBaseDir(moduleBaseDir.toFile())
       .setWorkDir(temp.newFolder());
     rootDef.addSubProject(module1Def);
     DefaultInputModule module1 = new DefaultInputModule(module1Def, 2);
@@ -379,7 +403,8 @@ public class ComponentsPublisherTest {
     when(moduleHierarchy.children(root)).thenReturn(Collections.singleton(module1));
     tree.index(module1, root);
 
-    DefaultInputDir dir = new DefaultInputDir("module1", "src", 3);
+    DefaultInputDir dir = new DefaultInputDir("module1", "src", 3)
+      .setModuleBaseDir(moduleBaseDir);
     tree.index(dir, module1);
 
     DefaultInputFile file = new TestInputFileBuilder("module1", "src/Foo.java", 4).setLines(2).setStatus(InputFile.Status.SAME).build();
@@ -435,12 +460,13 @@ public class ComponentsPublisherTest {
       .setWorkDir(temp.newFolder());
     DefaultInputModule root = new DefaultInputModule(rootDef, 1);
 
+    Path moduleBaseDir = temp.newFolder().toPath();
     ProjectDefinition module1Def = ProjectDefinition.create()
       .setKey("module1")
       .setName("Module1")
       .setProperty(CoreProperties.LINKS_CI, "http://ci")
       .setDescription("Module description")
-      .setBaseDir(temp.newFolder())
+      .setBaseDir(moduleBaseDir.toFile())
       .setWorkDir(temp.newFolder());
     rootDef.addSubProject(module1Def);
     DefaultInputModule module1 = new DefaultInputModule(module1Def, 2);
@@ -451,7 +477,8 @@ public class ComponentsPublisherTest {
     when(moduleHierarchy.parent(module1)).thenReturn(root);
     tree.index(module1, root);
 
-    DefaultInputDir dir = new DefaultInputDir("module1", "src", 3);
+    DefaultInputDir dir = new DefaultInputDir("module1", "src", 3)
+      .setModuleBaseDir(moduleBaseDir);
     tree.index(dir, module1);
 
     DefaultInputFile file = new TestInputFileBuilder("module1", "src/Foo.java", 4).setLines(2).setStatus(InputFile.Status.SAME).build();
@@ -472,5 +499,112 @@ public class ComponentsPublisherTest {
     assertThat(module1Protobuf.getLinkCount()).isEqualTo(1);
     assertThat(module1Protobuf.getLink(0).getType()).isEqualTo(ComponentLinkType.CI);
     assertThat(module1Protobuf.getLink(0).getHref()).isEqualTo("http://ci");
+  }
+
+  @Test
+  public void add_components_with_correct_project_relative_path() throws Exception {
+    Map<DefaultInputModule, DefaultInputModule> parents = new HashMap<>();
+
+    DefaultInputModule root = newDefaultInputModule("foo", temp.newFolder());
+
+    DefaultInputFile file = newDefaultInputFile(root.getBaseDir(), root, "Foo.java");
+    tree.index(file, root);
+
+    DefaultInputDir dir1 = newDefaultInputDir(root, "dir1");
+    tree.index(dir1, root);
+
+    DefaultInputFile dir1_file = newDefaultInputFile(root.getBaseDir(), root, "dir1/Foo.java");
+    tree.index(dir1_file, dir1);
+
+    DefaultInputDir dir1_dir1 = newDefaultInputDir(root, "dir1/dir1");
+    tree.index(dir1_dir1, dir1);
+
+    DefaultInputFile dir1_dir1_file = newDefaultInputFile(root.getBaseDir(), root, "dir1/dir1/Foo.java");
+    tree.index(dir1_dir1_file, dir1_dir1);
+
+    // module in root
+
+    DefaultInputModule mod1 = newDefaultInputModule(root, "mod1");
+    parents.put(mod1, root);
+    tree.index(mod1, root);
+
+    DefaultInputFile mod1_file = newDefaultInputFile(root.getBaseDir(), mod1, "Foo.java");
+    tree.index(mod1_file, mod1);
+
+    DefaultInputDir mod1_dir2 = newDefaultInputDir(mod1, "dir2");
+    tree.index(mod1_dir2, mod1);
+
+    DefaultInputFile mod1_dir2_file = newDefaultInputFile(root.getBaseDir(), mod1, "dir2/Foo.java");
+    tree.index(mod1_dir2_file, mod1_dir2);
+
+    // module in module
+
+    DefaultInputModule mod1_mod2 = newDefaultInputModule(mod1, "mod2");
+    parents.put(mod1_mod2, mod1);
+    tree.index(mod1_mod2, mod1);
+
+    DefaultInputFile mod1_mod2_file = newDefaultInputFile(root.getBaseDir(), mod1_mod2, "Foo.java");
+    tree.index(mod1_mod2_file, mod1_mod2);
+
+    DefaultInputDir mod1_mod2_dir = newDefaultInputDir(mod1_mod2, "dir");
+    tree.index(mod1_mod2_dir, mod1_mod2);
+
+    DefaultInputFile mod1_mod2_dir_file = newDefaultInputFile(root.getBaseDir(), mod1_mod2, "dir/Foo.java");
+    tree.index(mod1_mod2_dir_file, mod1_mod2_dir);
+
+    moduleHierarchy = new DefaultInputModuleHierarchy(parents);
+
+    ComponentsPublisher publisher = new ComponentsPublisher(moduleHierarchy, tree, branchConfiguration);
+    publisher.publish(writer);
+
+    ScannerReportReader reader = new ScannerReportReader(outputDir);
+
+    // project root
+    assertThat(reader.readComponent(root.batchId()).getPath()).isEmpty();
+    assertThat(reader.readComponent(root.batchId()).getProjectRelativePath()).isEmpty();
+
+    // file in root
+    assertThat(reader.readComponent(file.batchId()).getPath()).isEqualTo("Foo.java");
+    assertThat(reader.readComponent(file.batchId()).getProjectRelativePath()).isEqualTo("Foo.java");
+
+    // dir in root
+    assertThat(reader.readComponent(dir1.batchId()).getPath()).isEqualTo("dir1");
+    assertThat(reader.readComponent(dir1.batchId()).getProjectRelativePath()).isEqualTo("dir1");
+
+    // file in dir in root
+    assertThat(reader.readComponent(dir1_file.batchId()).getPath()).isEqualTo("dir1/Foo.java");
+    assertThat(reader.readComponent(dir1_file.batchId()).getProjectRelativePath()).isEqualTo("dir1/Foo.java");
+
+    // dir in dir in root
+    assertThat(reader.readComponent(dir1_dir1.batchId()).getPath()).isEqualTo("dir1/dir1");
+    assertThat(reader.readComponent(dir1_dir1.batchId()).getProjectRelativePath()).isEqualTo("dir1/dir1");
+
+    // module in root
+    assertThat(reader.readComponent(mod1.batchId()).getPath()).isEqualTo("mod1");
+    assertThat(reader.readComponent(mod1.batchId()).getProjectRelativePath()).isEqualTo("mod1");
+
+    // dir in module in root
+    assertThat(reader.readComponent(mod1_dir2.batchId()).getPath()).isEqualTo("dir2");
+    assertThat(reader.readComponent(mod1_dir2.batchId()).getProjectRelativePath()).isEqualTo("mod1/dir2");
+
+    // file in dir in module in root
+    assertThat(reader.readComponent(mod1_dir2_file.batchId()).getPath()).isEqualTo("dir2/Foo.java");
+    assertThat(reader.readComponent(mod1_dir2_file.batchId()).getProjectRelativePath()).isEqualTo("mod1/dir2/Foo.java");
+
+    // module in module
+    assertThat(reader.readComponent(mod1_mod2.batchId()).getPath()).isEqualTo("mod2");
+    assertThat(reader.readComponent(mod1_mod2.batchId()).getProjectRelativePath()).isEqualTo("mod1/mod2");
+
+    // file in module in module
+    assertThat(reader.readComponent(mod1_mod2_file.batchId()).getPath()).isEqualTo("Foo.java");
+    assertThat(reader.readComponent(mod1_mod2_file.batchId()).getProjectRelativePath()).isEqualTo("mod1/mod2/Foo.java");
+
+    // dir in module in module
+    assertThat(reader.readComponent(mod1_mod2_dir.batchId()).getPath()).isEqualTo("dir");
+    assertThat(reader.readComponent(mod1_mod2_dir.batchId()).getProjectRelativePath()).isEqualTo("mod1/mod2/dir");
+
+    // file in dir in module in module
+    assertThat(reader.readComponent(mod1_mod2_dir_file.batchId()).getPath()).isEqualTo("dir/Foo.java");
+    assertThat(reader.readComponent(mod1_mod2_dir_file.batchId()).getProjectRelativePath()).isEqualTo("mod1/mod2/dir/Foo.java");
   }
 }

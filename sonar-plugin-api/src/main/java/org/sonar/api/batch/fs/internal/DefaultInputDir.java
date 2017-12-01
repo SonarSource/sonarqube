@@ -84,7 +84,7 @@ public class DefaultInputDir extends DefaultInputComponent implements InputDir {
   }
 
   /**
-   * For testing purpose. Will be automaticall set when dir is added to {@link DefaultFileSystem}
+   * For testing purpose. Will be automatically set when dir is added to {@link DefaultFileSystem}
    */
   public DefaultInputDir setModuleBaseDir(Path moduleBaseDir) {
     this.moduleBaseDir = moduleBaseDir.normalize();
