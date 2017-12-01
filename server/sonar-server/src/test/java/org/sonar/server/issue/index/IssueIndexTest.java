@@ -1200,9 +1200,11 @@ public class IssueIndexTest {
     ruleIndexer.commitAndIndex(db.getSession(), asList(r1.getKey(), r2.getKey()));
 
     OrganizationDto org = db.organizations().insert();
+    OrganizationDto anotherOrg = db.organizations().insert();
     ComponentDto project = ComponentTesting.newPrivateProjectDto(newOrganizationDto());
     ComponentDto file = newFileDto(project, null);
     indexIssues(
+      newDoc("I42", file).setOrganizationUuid(anotherOrg.getUuid()).setRuleKey(r1.getKey().toString()).setTags(of("another")),
       newDoc("I1", file).setOrganizationUuid(org.getUuid()).setRuleKey(r1.getKey().toString()).setTags(of("convention", "java8", "bug")),
       newDoc("I2", file).setOrganizationUuid(org.getUuid()).setRuleKey(r1.getKey().toString()).setTags(of("convention", "bug")),
       newDoc("I3", file).setOrganizationUuid(org.getUuid()).setRuleKey(r2.getKey().toString()),
@@ -1214,6 +1216,7 @@ public class IssueIndexTest {
     assertThat(underTest.listTags(org, null, 1)).containsOnly("bug");
     assertThat(underTest.listTags(org, null, 100)).containsOnly("convention", "java8", "bug");
     assertThat(underTest.listTags(org, "invalidRegexp[", 100)).isEmpty();
+    assertThat(underTest.listTags(null, null, 100)).containsExactlyInAnyOrder("another", "convention", "java8", "bug");
   }
 
   @Test

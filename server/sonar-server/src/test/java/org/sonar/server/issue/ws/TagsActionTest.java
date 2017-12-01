@@ -37,7 +37,6 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
-import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.permission.index.AuthorizationTypeSupport;
 import org.sonar.server.permission.index.PermissionIndexerDao;
 import org.sonar.server.permission.index.PermissionIndexerTester;
@@ -70,7 +69,7 @@ public class TagsActionTest {
   private IssueIndex issueIndex = new IssueIndex(esTester.client(), System2.INSTANCE, userSession, new AuthorizationTypeSupport(userSession));
   private RuleIndex ruleIndex = new RuleIndex(esTester.client(), System2.INSTANCE);
 
-  private WsActionTester ws = new WsActionTester(new TagsAction(issueIndex, ruleIndex, dbTester.getDbClient(), TestDefaultOrganizationProvider.from(dbTester)));
+  private WsActionTester ws = new WsActionTester(new TagsAction(issueIndex, ruleIndex, dbTester.getDbClient()));
   private OrganizationDto organization;
 
   @Before
@@ -173,6 +172,19 @@ public class TagsActionTest {
   }
 
   @Test
+  public void without_organization_parameter_is_cross_organization() {
+    userSession.logIn();
+    OrganizationDto organization = dbTester.organizations().insert();
+    OrganizationDto anotherOrganization = dbTester.organizations().insert();
+    insertIssueWithBrowsePermission(organization, insertRuleWithoutTags(), "tag1");
+    insertIssueWithBrowsePermission(anotherOrganization, insertRuleWithoutTags(), "tag2");
+
+    String result = ws.newRequest().execute().getInput();
+
+    assertJson(result).isSimilarTo("{\"tags\":[\"tag1\", \"tag2\"]}");
+  }
+
+  @Test
   public void json_example() throws Exception {
     userSession.logIn();
     insertIssueWithBrowsePermission(insertRuleWithoutTags(), "convention");
@@ -223,12 +235,21 @@ public class TagsActionTest {
     return dbTester.rules().insert(setSystemTags());
   }
 
+  private void insertIssueWithBrowsePermission(OrganizationDto organization, RuleDefinitionDto rule, String... tags) {
+    IssueDto issue = insertIssueWithoutBrowsePermission(organization, rule, tags);
+    grantAccess(issue);
+  }
+
   private void insertIssueWithBrowsePermission(RuleDefinitionDto rule, String... tags) {
     IssueDto issue = insertIssueWithoutBrowsePermission(rule, tags);
     grantAccess(issue);
   }
 
   private IssueDto insertIssueWithoutBrowsePermission(RuleDefinitionDto rule, String... tags) {
+    return insertIssueWithoutBrowsePermission(organization, rule, tags);
+  }
+
+  private IssueDto insertIssueWithoutBrowsePermission(OrganizationDto organization, RuleDefinitionDto rule, String... tags) {
     IssueDto issue = dbTester.issues().insertIssue(organization, i -> i.setRule(rule).setTags(asList(tags)));
     ComponentDto project = dbTester.getDbClient().componentDao().selectByUuid(dbTester.getSession(), issue.getProjectUuid()).get();
     userSession.addProjectPermission(USER, project);
