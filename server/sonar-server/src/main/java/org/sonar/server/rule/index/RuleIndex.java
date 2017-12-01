@@ -20,6 +20,7 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -547,17 +548,21 @@ public class RuleIndex {
     return EsUtils.termsKeys(esResponse.getAggregations().get(AGGREGATION_NAME));
   }
 
-  public List<String> listTags(OrganizationDto organization, @Nullable String query, int size) {
+  public List<String> listTags(@Nullable OrganizationDto organization, @Nullable String query, int size) {
     int maxPageSize = 500;
     checkArgument(size <= maxPageSize, "Page size must be lower than or equals to " + maxPageSize);
     if (size <= 0) {
       return emptyList();
     }
 
+    ImmutableList.Builder<String> scopes = ImmutableList.<String>builder()
+      .add(RuleExtensionScope.system().getScope());
+    if (organization != null) {
+      scopes.add(RuleExtensionScope.organization(organization).getScope());
+    }
     TermsQueryBuilder scopeFilter = QueryBuilders.termsQuery(
       FIELD_RULE_EXTENSION_SCOPE,
-      RuleExtensionScope.system().getScope(),
-      RuleExtensionScope.organization(organization).getScope());
+      scopes.build().toArray(new String[0]));
 
     TermsAggregationBuilder termsAggregation = AggregationBuilders.terms(AGGREGATION_NAME_FOR_TAGS)
       .field(FIELD_RULE_EXTENSION_TAGS)
