@@ -60,7 +60,6 @@ class DefaultWsClient implements WsClient {
   private final FavoritesService favoritesService;
   private final QualityProfilesService qualityProfilesOld;
   private final QualityprofilesService qualityprofiles;
-  private final org.sonarqube.ws.client.issue.IssuesService issuesOld;
   private final IssuesService issues;
   private final UsersService usersService;
   private final UserGroupsService userGroupsService;
@@ -90,7 +89,6 @@ class DefaultWsClient implements WsClient {
     this.favoritesService = new FavoritesService(wsConnector);
     this.qualityProfilesOld = new QualityProfilesService(wsConnector);
     this.qualityprofiles = new QualityprofilesService(wsConnector);
-    this.issuesOld = new org.sonarqube.ws.client.issue.IssuesService(wsConnector);
     this.issues = new IssuesService(wsConnector);
     this.usersService = new UsersService(wsConnector);
     this.userGroupsService = new UserGroupsService(wsConnector);
@@ -150,11 +148,6 @@ class DefaultWsClient implements WsClient {
   @Override
   public QualityprofilesService qualityProfiles() {
     return qualityprofiles;
-  }
-
-  @Override
-  public org.sonarqube.ws.client.issue.IssuesService issuesOld() {
-    return issuesOld;
   }
 
   @Override

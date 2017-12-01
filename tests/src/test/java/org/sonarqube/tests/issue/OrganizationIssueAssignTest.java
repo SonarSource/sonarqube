@@ -21,7 +21,6 @@
 package org.sonarqube.tests.issue;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category6Suite;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Before;
@@ -29,16 +28,17 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.pageobjects.issues.IssuesPage;
+import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
-import org.sonarqube.ws.client.issue.AssignRequest;
-import org.sonarqube.ws.client.issue.BulkChangeRequest;
-import org.sonarqube.ws.client.issue.SearchRequest;
+import org.sonarqube.ws.client.issues.AssignRequest;
+import org.sonarqube.ws.client.issues.BulkChangeRequest;
+import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
-import org.sonarqube.qa.util.pageobjects.issues.IssuesPage;
 import util.issue.IssueRule;
 
 import static java.lang.String.format;
@@ -127,13 +127,13 @@ public class OrganizationIssueAssignTest {
     provisionAndAnalyseProject("sample2", org2.getKey());
     List<String> issues = issueRule.search(new SearchRequest()).getIssuesList().stream().map(Issue::getKey).collect(Collectors.toList());
 
-    Issues.BulkChangeWsResponse response = tester.wsClient().issuesOld()
-      .bulkChange(BulkChangeRequest.builder().setIssues(issues).setAssign(user.getLogin()).build());
+    Issues.BulkChangeWsResponse response = tester.wsClient().issues()
+      .bulkChange(new BulkChangeRequest().setIssues(issues).setAssign(singletonList(user.getLogin())));
 
     assertThat(response.getIgnored()).isGreaterThan(0);
-    assertThat(issueRule.search(new SearchRequest().setProjectKeys(singletonList("sample"))).getIssuesList()).extracting(Issue::getAssignee)
+    assertThat(issueRule.search(new SearchRequest().setProjects(singletonList("sample"))).getIssuesList()).extracting(Issue::getAssignee)
       .containsOnly(user.getLogin());
-    assertThat(issueRule.search(new SearchRequest().setProjectKeys(singletonList("sample2"))).getIssuesList()).extracting(Issue::hasAssignee)
+    assertThat(issueRule.search(new SearchRequest().setProjects(singletonList("sample2"))).getIssuesList()).extracting(Issue::hasAssignee)
       .containsOnly(false);
   }
 
@@ -213,7 +213,7 @@ public class OrganizationIssueAssignTest {
         .build());
   }
 
-  private Issues.Operation assignIssueTo(Issue issue, User u) {
-    return tester.wsClient().issuesOld().assign(new AssignRequest(issue.getKey(), u.getLogin()));
+  private Issues.AssignResponse assignIssueTo(Issue issue, User u) {
+    return tester.wsClient().issues().assign(new AssignRequest().setIssue(issue.getKey()).setAssignee(u.getLogin()));
   }
 }

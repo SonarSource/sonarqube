@@ -24,18 +24,18 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
-import org.sonarqube.ws.client.issue.DoTransitionRequest;
-import org.sonarqube.ws.client.issue.IssuesService;
-import org.sonarqube.ws.client.issue.SearchRequest;
+import org.sonarqube.ws.client.issues.IssuesService;
+import org.sonarqube.ws.client.issues.DoTransitionRequest;
+import org.sonarqube.ws.client.issues.SearchRequest;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
 import util.issue.IssueRule;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.toDatetime;
 
 public class IssueWorkflowTest extends AbstractIssueTest {
@@ -43,6 +43,9 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   @Rule
   public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(ORCHESTRATOR);
 
+  @Rule
+  public Tester tester = new Tester(ORCHESTRATOR);
+  
   @ClassRule
   public static final IssueRule issueRule = IssueRule.from(ORCHESTRATOR);
 
@@ -54,7 +57,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
 
   @Before
   public void before() {
-    issuesService = newAdminWsClient(ORCHESTRATOR).issuesOld();
+    issuesService = tester.wsClient().issues();
     String oneIssuePerFileProfileKey = projectAnalysisRule.registerProfile("/issue/IssueWorkflowTest/xoo-one-issue-per-line-profile.xml");
     String analyzedProjectKey = projectAnalysisRule.registerProject("issue/workflow");
     analysisWithIssues = projectAnalysisRule.newProjectAnalysis(analyzedProjectKey).withQualityProfile(oneIssuePerFileProfileKey);
@@ -90,7 +93,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   @Test
   public void user_should_confirm_issue() {
     // mark as confirmed
-    issuesService.doTransition(new DoTransitionRequest(issue.getKey(), "confirm"));
+    issuesService.doTransition(new DoTransitionRequest().setIssue(issue.getKey()).setTransition("confirm"));
 
     Issue confirmed = issueRule.getByKey(issue.getKey());
     assertThat(confirmed.getStatus()).isEqualTo("CONFIRMED");
@@ -99,7 +102,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
 
     // user unconfirm the issue
     assertThat(transitions(confirmed.getKey())).contains("unconfirm");
-    issuesService.doTransition(new DoTransitionRequest(confirmed.getKey(), "unconfirm"));
+    issuesService.doTransition(new DoTransitionRequest().setIssue(confirmed.getKey()).setTransition("unconfirm"));
 
     Issue unconfirmed = issueRule.getByKey(issue.getKey());
     assertThat(unconfirmed.getStatus()).isEqualTo("REOPENED");
@@ -113,7 +116,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   @Test
   public void user_should_mark_as_false_positive_confirmed_issue() {
     // mark as confirmed
-    issuesService.doTransition(new DoTransitionRequest(issue.getKey(), "confirm"));
+    issuesService.doTransition(new DoTransitionRequest().setIssue(issue.getKey()).setTransition("confirm"));
 
     Issue confirmed = issueRule.getByKey(issue.getKey());
     assertThat(confirmed.getStatus()).isEqualTo("CONFIRMED");
@@ -122,7 +125,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
 
     // user mark the issue as false-positive
     assertThat(transitions(confirmed.getKey())).contains("falsepositive");
-    issuesService.doTransition(new DoTransitionRequest(confirmed.getKey(), "falsepositive"));
+    issuesService.doTransition(new DoTransitionRequest().setIssue(confirmed.getKey()).setTransition("falsepositive"));
 
     Issue falsePositive = issueRule.getByKey(issue.getKey());
     assertThat(falsePositive.getStatus()).isEqualTo("RESOLVED");
@@ -136,7 +139,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   @Test
   public void scan_should_close_no_more_existing_confirmed() {
     // mark as confirmed
-    issuesService.doTransition(new DoTransitionRequest(issue.getKey(), "confirm"));
+    issuesService.doTransition(new DoTransitionRequest().setIssue(issue.getKey()).setTransition("confirm"));
     Issue falsePositive = issueRule.getByKey(issue.getKey());
     assertThat(falsePositive.getStatus()).isEqualTo("CONFIRMED");
     assertThat(falsePositive.hasResolution()).isFalse();
@@ -156,7 +159,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   @Test
   public void scan_should_reopen_unresolved_issue_but_marked_as_resolved() {
     // mark as resolved
-    issuesService.doTransition(new DoTransitionRequest(issue.getKey(), "resolve"));
+    issuesService.doTransition(new DoTransitionRequest().setIssue(issue.getKey()).setTransition("resolve"));
     Issue resolvedIssue = issueRule.getByKey(issue.getKey());
     assertThat(resolvedIssue.getStatus()).isEqualTo("RESOLVED");
     assertThat(resolvedIssue.getResolution()).isEqualTo("FIXED");
@@ -181,7 +184,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   @Test
   public void scan_should_close_resolved_issue() {
     // mark as resolved
-    issuesService.doTransition(new DoTransitionRequest(issue.getKey(), "resolve"));
+    issuesService.doTransition(new DoTransitionRequest().setIssue(issue.getKey()).setTransition("resolve"));
     Issue resolvedIssue = issueRule.getByKey(issue.getKey());
     assertThat(resolvedIssue.getStatus()).isEqualTo("RESOLVED");
     assertThat(resolvedIssue.getResolution()).isEqualTo("FIXED");
@@ -207,7 +210,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   @Test
   public void user_should_reopen_issue_marked_as_resolved() {
     // user marks issue as resolved
-    issuesService.doTransition(new DoTransitionRequest(issue.getKey(), "resolve"));
+    issuesService.doTransition(new DoTransitionRequest().setIssue(issue.getKey()).setTransition("resolve"));
     Issue resolved = issueRule.getByKey(issue.getKey());
     assertThat(resolved.getStatus()).isEqualTo("RESOLVED");
     assertThat(resolved.getResolution()).isEqualTo("FIXED");
@@ -229,7 +232,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   @Test
   public void scan_should_not_reopen_or_close_false_positives() {
     // user marks issue as false-positive
-    issuesService.doTransition(new DoTransitionRequest(issue.getKey(), "falsepositive"));
+    issuesService.doTransition(new DoTransitionRequest().setIssue(issue.getKey()).setTransition("falsepositive"));
 
     Issue falsePositive = issueRule.getByKey(issue.getKey());
     assertThat(falsePositive.getStatus()).isEqualTo("RESOLVED");
@@ -253,7 +256,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   @Test
   public void scan_should_close_no_more_existing_false_positive() {
     // user marks as false-positive
-    issuesService.doTransition(new DoTransitionRequest(issue.getKey(), "falsepositive"));
+    issuesService.doTransition(new DoTransitionRequest().setIssue(issue.getKey()).setTransition("falsepositive"));
     Issue falsePositive = issueRule.getByKey(issue.getKey());
     assertThat(falsePositive.getStatus()).isEqualTo("RESOLVED");
     assertThat(falsePositive.getResolution()).isEqualTo("FALSE-POSITIVE");
@@ -273,7 +276,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   @Test
   public void user_should_reopen_false_positive() {
     // user marks as false-positive
-    issuesService.doTransition(new DoTransitionRequest(issue.getKey(), "falsepositive"));
+    issuesService.doTransition(new DoTransitionRequest().setIssue(issue.getKey()).setTransition("falsepositive"));
 
     Issue falsePositive = issueRule.getByKey(issue.getKey());
     assertThat(falsePositive.getStatus()).isEqualTo("RESOLVED");
@@ -292,7 +295,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
 
   @Test
   public void user_should_not_reopen_closed_issue() {
-    issuesService.doTransition(new DoTransitionRequest(issue.getKey(), "resolve"));
+    issuesService.doTransition(new DoTransitionRequest().setIssue(issue.getKey()).setTransition("resolve"));
 
     // re-execute scan without rules -> the issue is closed
     analysisWithoutIssues.run();
@@ -308,7 +311,7 @@ public class IssueWorkflowTest extends AbstractIssueTest {
   }
 
   private Issues.SearchWsResponse searchIssues(SearchRequest request) {
-    return newAdminWsClient(ORCHESTRATOR).issuesOld().search(request);
+    return tester.wsClient().issues().search(request);
   }
 
 }

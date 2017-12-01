@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.issue.SearchRequest;
+import org.sonarqube.ws.client.issues.SearchRequest;
 import util.ItUtils;
 import util.issue.IssueRule;
 

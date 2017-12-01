@@ -25,7 +25,7 @@ import org.junit.rules.ExternalResource;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.issue.SearchRequest;
+import org.sonarqube.ws.client.issues.SearchRequest;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -48,7 +48,7 @@ public class IssueRule extends ExternalResource {
   }
 
   public SearchWsResponse search(SearchRequest request) {
-    return adminWsClient().issuesOld().search(request);
+    return adminWsClient().issues().search(request);
   }
 
   public Issue getRandomIssue() {

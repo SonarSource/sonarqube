@@ -20,27 +20,29 @@
 package org.sonarqube.tests.issue;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import org.apache.commons.lang.time.DateUtils;
+import org.assertj.core.api.AbstractListAssert;
 import org.assertj.core.api.Fail;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.sonar.wsclient.base.HttpException;
-import org.sonar.wsclient.base.Paging;
-import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
-import org.sonar.wsclient.issue.Issues;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.client.issue.SearchRequest;
+import org.sonarqube.ws.Issues;
+import org.sonarqube.ws.client.HttpException;
+import org.sonarqube.ws.client.issues.SearchRequest;
 import util.ItUtils;
+import util.selenium.Consumer;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static org.apache.commons.lang.time.DateUtils.addSeconds;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.wsclient.internal.EncodingUtils.toQueryParam;
 import static org.sonarqube.ws.Issues.SearchWsResponse;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
@@ -84,68 +86,66 @@ public class IssueSearchTest extends AbstractIssueTest {
 
   @Test
   public void search_all_issues() {
-    assertThat(search(IssueQuery.create()).list()).hasSize(DEFAULT_PAGINATED_RESULTS);
+    assertSearch().hasSize(DEFAULT_PAGINATED_RESULTS);
   }
 
   @Test
   public void search_issues_by_component_roots() {
-    assertThat(search(IssueQuery.create().componentRoots("com.sonarsource.it.samples:multi-modules-sample")).list()).hasSize(DEFAULT_PAGINATED_RESULTS);
-    assertThat(search(IssueQuery.create().componentRoots("com.sonarsource.it.samples:multi-modules-sample:module_a")).list()).hasSize(82);
-    assertThat(search(IssueQuery.create().componentRoots("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1")).list()).hasSize(36);
+    assertSearch(r -> r.setComponentRoots("com.sonarsource.it.samples:multi-modules-sample")).hasSize(DEFAULT_PAGINATED_RESULTS);
+    assertSearch(r -> r.setComponentRoots("com.sonarsource.it.samples:multi-modules-sample:module_a")).hasSize(82);
+    assertSearch(r -> r.setComponentRoots("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1")).hasSize(36);
 
     assertThat(search(IssueQuery.create().componentRoots("unknown")).list()).isEmpty();
   }
 
   @Test
   public void search_issues_by_components() {
-    assertThat(
-      search(IssueQuery.create().components("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo")).list())
-        .hasSize(34);
-    assertThat(search(IssueQuery.create().components("unknown")).list()).isEmpty();
+    assertSearch(r -> r.setComponents("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo")).hasSize(34);
+    assertSearch(r -> r.setComponents("unknown")).isEmpty();
   }
 
   @Test
   public void search_issues_by_severities() {
-    assertThat(search(IssueQuery.create().severities("BLOCKER")).list()).hasSize(8);
-    assertThat(search(IssueQuery.create().severities("CRITICAL")).list()).hasSize(8);
-    assertThat(search(IssueQuery.create().severities("MAJOR")).list()).hasSize(DEFAULT_PAGINATED_RESULTS);
-    assertThat(search(IssueQuery.create().severities("MINOR")).list()).hasSize(DEFAULT_PAGINATED_RESULTS);
-    assertThat(search(IssueQuery.create().severities("INFO")).list()).hasSize(4);
+    assertSearch(r -> r.setSeverities(singletonList("BLOCKER"))).hasSize(8);
+    assertSearch(r -> r.setSeverities(singletonList("CRITICAL"))).hasSize(8);
+    assertSearch(r -> r.setSeverities(singletonList("MAJOR"))).hasSize(DEFAULT_PAGINATED_RESULTS);
+    assertSearch(r -> r.setSeverities(singletonList("MINOR"))).hasSize(DEFAULT_PAGINATED_RESULTS);
+    assertSearch(r -> r.setSeverities(singletonList("INFO"))).hasSize(4);
   }
 
   @Test
   public void search_issues_by_statuses() {
-    assertThat(search(IssueQuery.create().statuses("OPEN")).list()).hasSize(DEFAULT_PAGINATED_RESULTS);
-    assertThat(search(IssueQuery.create().statuses("RESOLVED")).list()).hasSize(1);
-    assertThat(search(IssueQuery.create().statuses("CLOSED")).list()).isEmpty();
+    assertSearch(r -> r.setStatuses(singletonList("OPEN"))).hasSize(DEFAULT_PAGINATED_RESULTS);
+    assertSearch(r -> r.setStatuses(singletonList("RESOLVED"))).hasSize(1);
+    assertSearch(r -> r.setStatuses(singletonList("CLOSED"))).isEmpty();
   }
 
   @Test
   public void search_issues_by_resolutions() {
-    assertThat(search(IssueQuery.create().resolutions("FIXED")).list()).hasSize(1);
-    assertThat(search(IssueQuery.create().resolutions("FALSE-POSITIVE")).list()).isEmpty();
-    assertThat(search(IssueQuery.create().resolved(true)).list()).hasSize(1);
-    assertThat(search(IssueQuery.create().resolved(false)).paging().total()).isEqualTo(TOTAL_NB_ISSUES - 1);
+    assertSearch(r -> r.setResolutions(singletonList("FIXED"))).hasSize(1);
+    assertSearch(r -> r.setResolutions(singletonList("FALSE-POSITIVE"))).isEmpty();
+    assertSearch(r -> r.setResolved("true")).hasSize(1);
+    assertThat(searchResponse(r -> r.setResolved("false")).getPaging().getTotal()).isEqualTo(TOTAL_NB_ISSUES - 1);
   }
 
   @Test
   public void search_issues_by_assignees() {
-    assertThat(search(IssueQuery.create().assignees("admin")).list()).hasSize(1);
-    assertThat(search(IssueQuery.create().assignees("unknown")).list()).isEmpty();
-    assertThat(search(IssueQuery.create().assigned(true)).list()).hasSize(1);
-    assertThat(search(IssueQuery.create().assigned(false)).paging().total()).isEqualTo(TOTAL_NB_ISSUES - 1);
+    assertSearch(r -> r.setAssignees(singletonList("admin"))).hasSize(1);
+    assertSearch(r -> r.setAssignees(singletonList("unknown"))).isEmpty();
+    assertSearch(r -> r.setAssigned("true")).hasSize(1);
+    assertThat(searchResponse(r -> r.setAssigned("false")).getPaging().getTotal()).isEqualTo(TOTAL_NB_ISSUES - 1);
   }
 
   @Test
   public void search_issues_by_rules() {
-    assertThat(search(IssueQuery.create().rules("xoo:OneIssuePerLine")).list()).hasSize(DEFAULT_PAGINATED_RESULTS);
-    assertThat(search(IssueQuery.create().rules("xoo:OneIssuePerFile")).list()).hasSize(8);
+    assertSearch(r -> r.setRules(singletonList("xoo:OneIssuePerLine"))).hasSize(DEFAULT_PAGINATED_RESULTS);
+    assertSearch(r -> r.setRules(singletonList("xoo:OneIssuePerFile"))).hasSize(8);
 
     try {
-      search(IssueQuery.create().rules("unknown"));
+      searchResponse(r -> r.setRules(singletonList("unknown")));
       Assert.fail();
-    } catch (org.sonar.wsclient.base.HttpException e) {
-      assertThat(e.status()).isEqualTo(400);
+    } catch (HttpException e) {
+      assertThat(e.getMessage()).contains("Invalid rule key: unknown");
     }
   }
 
@@ -161,31 +161,30 @@ public class IssueSearchTest extends AbstractIssueTest {
 
     // createdAfter in the future => bad request
     try {
-      search(IssueQuery.create().createdAfter(future)).list();
+      searchResponse(r -> r.setCreatedAfter(toDateString(future)));
       Fail.fail("Expecting 400 from issues search WS");
     } catch (HttpException exception) {
       assertThat(exception.getMessage()).contains("Start bound cannot be in the future");
     }
 
     // after date
-    assertThat(search(IssueQuery.create().createdAfter(today)).list().size()).isGreaterThan(0);
-    assertThat(search(IssueQuery.create().createdAfter(past)).list().size()).isGreaterThan(0);
+    assertSearch(r -> r.setCreatedAfter(toDateString(today))).isNotEmpty();
+    assertSearch(r -> r.setCreatedAfter(toDateString(past))).isNotEmpty();
 
     // before
-    assertThat(search(IssueQuery.create().createdBefore(future)).list().size()).isGreaterThan(0);
-    assertThat(search(IssueQuery.create().createdBefore(past)).list()).isEmpty();
+    assertSearch(r -> r.setCreatedBefore(toDateString(future))).isNotEmpty();
+    assertSearch(r -> r.setCreatedBefore(toDateString(past))).isEmpty();
 
     // before and after
-    assertThat(search(IssueQuery.create().createdBefore(future).createdAfter(past)).list().size()).isGreaterThan(0);
+    assertSearch(r -> r.setCreatedBefore(toDateString(future)).setCreatedAfter(toDateString(past))).isNotEmpty();
 
     // createdAfter > createdBefore => bad request
     try {
-      search(IssueQuery.create().createdBefore(past).createdAfter(today)).list();
+      searchResponse(r -> r.setCreatedBefore(toDateString(past)).setCreatedAfter(toDateString(today)));
       Fail.fail("Expecting 400 from issues search WS");
     } catch (HttpException exception) {
       assertThat(exception.getMessage()).contains("Start bound cannot be larger or equal to end bound");
     }
-
   }
 
   /**
@@ -193,32 +192,32 @@ public class IssueSearchTest extends AbstractIssueTest {
    */
   @Test
   public void search_issues_by_languages() {
-    assertThat(search(IssueQuery.create().languages("xoo")).list()).hasSize(DEFAULT_PAGINATED_RESULTS);
-    assertThat(search(IssueQuery.create().languages("foo")).list()).isEmpty();
+    assertSearch(r -> r.setLanguages(singletonList("xoo"))).hasSize(DEFAULT_PAGINATED_RESULTS);
+    assertSearch(r -> r.setLanguages(singletonList("foo"))).isEmpty();
   }
 
   @Test
   public void paginate_results() {
-    Issues issues = search(IssueQuery.create().pageSize(20).pageIndex(2));
+    SearchWsResponse issues = searchResponse(r -> r.setPs("20").setP("2"));
 
-    assertThat(issues.list()).hasSize(20);
-    Paging paging = issues.paging();
-    assertThat(paging.pageIndex()).isEqualTo(2);
-    assertThat(paging.pageSize()).isEqualTo(20);
-    assertThat(paging.total()).isEqualTo(TOTAL_NB_ISSUES);
+    assertThat(issues.getIssuesList()).hasSize(20);
+    Common.Paging paging = issues.getPaging();
+    assertThat(paging.getPageIndex()).isEqualTo(2);
+    assertThat(paging.getPageSize()).isEqualTo(20);
+    assertThat(paging.getTotal()).isEqualTo(TOTAL_NB_ISSUES);
 
     // SONAR-3257
     // return max page size results when using negative page size value
-    assertThat(search(IssueQuery.create().pageSize(0)).list()).hasSize(TOTAL_NB_ISSUES);
-    assertThat(search(IssueQuery.create().pageSize(-1)).list()).hasSize(TOTAL_NB_ISSUES);
+    assertSearch(r -> r.setPs("0")).hasSize(TOTAL_NB_ISSUES);
+    assertSearch(r -> r.setPs("-1")).hasSize(TOTAL_NB_ISSUES);
   }
 
   @Test
   public void sort_results() {
-    List<Issue> issues = search(IssueQuery.create().sort("SEVERITY").asc(false)).list();
-    assertThat(issues.get(0).severity()).isEqualTo("BLOCKER");
-    assertThat(issues.get(8).severity()).isEqualTo("CRITICAL");
-    assertThat(issues.get(17).severity()).isEqualTo("MAJOR");
+    List<Issues.Issue> issues = searchResponse(r -> r.setS("SEVERITY").setAsc("false")).getIssuesList();
+    assertThat(issues.get(0).getSeverity()).isEqualTo(Common.Severity.BLOCKER);
+    assertThat(issues.get(8).getSeverity()).isEqualTo(Common.Severity.CRITICAL);
+    assertThat(issues.get(17).getSeverity()).isEqualTo(Common.Severity.MAJOR);
   }
 
   /**
@@ -226,52 +225,67 @@ public class IssueSearchTest extends AbstractIssueTest {
    */
   @Test
   public void search_by_exact_creation_date() {
-    final Issue issue = search(IssueQuery.create()).list().get(0);
-    assertThat(issue.creationDate()).isNotNull();
+    Issues.Issue issue = searchResponse().getIssues(0);
+    assertThat(issue.getCreationDate()).isNotNull();
 
     // search the issue key with the same date
-    assertThat(search(IssueQuery.create().issues().issues(issue.key()).createdAt(issue.creationDate())).list()).hasSize(1);
+    assertSearch(r -> r.setIssues(singletonList(issue.getKey())).setCreatedAt(issue.getCreationDate())).hasSize(1);
 
     // search issue key with 1 second more and less should return nothing
-    assertThat(search(IssueQuery.create().issues().issues(issue.key()).createdAt(DateUtils.addSeconds(issue.creationDate(), 1))).size()).isEqualTo(0);
-    assertThat(search(IssueQuery.create().issues().issues(issue.key()).createdAt(DateUtils.addSeconds(issue.creationDate(), -1))).size()).isEqualTo(0);
+    assertSearch(r -> r.setIssues(singletonList(issue.getKey())).setCreatedAt(toDateString(addSeconds(parse(issue.getCreationDate()), 1)))).isEmpty();
+    assertSearch(r -> r.setIssues(singletonList(issue.getKey())).setCreatedAt(toDateString(addSeconds(parse(issue.getCreationDate()), -1)))).isEmpty();
 
     // search with future and past dates that do not match any issues
-    assertThat(search(IssueQuery.create().createdAt(toDate("2020-01-01"))).size()).isEqualTo(0);
-    assertThat(search(IssueQuery.create().createdAt(toDate("2010-01-01"))).size()).isEqualTo(0);
+    assertSearch(r -> r.setCreatedAt(toDateString(toDate("2020-01-01")))).isEmpty();
+    assertSearch(r -> r.setCreatedAt(toDateString(toDate("2010-01-01")))).isEmpty();
   }
 
   @Test
   public void return_issue_type() throws Exception {
-    List<org.sonarqube.ws.Issues.Issue> issues = searchByRuleKey("xoo:OneBugIssuePerLine");
-    assertThat(issues).isNotEmpty();
-    org.sonarqube.ws.Issues.Issue issue = issues.get(0);
+    SearchWsResponse issues = searchResponse(r -> r.setRules(singletonList("xoo:OneBugIssuePerLine")));
+    assertThat(issues.getIssuesList()).isNotEmpty();
+    org.sonarqube.ws.Issues.Issue issue = issues.getIssues(0);
     assertThat(issue.getType()).isEqualTo(Common.RuleType.BUG);
 
-    issues = searchByRuleKey("xoo:OneVulnerabilityIssuePerModule");
-    assertThat(issues).isNotEmpty();
-    issue = issues.get(0);
+    issues = searchResponse(r -> r.setRules(singletonList("xoo:OneVulnerabilityIssuePerModule")));
+    assertThat(issues.getIssuesList()).isNotEmpty();
+    issue = issues.getIssues(0);
     assertThat(issue.getType()).isEqualTo(Common.RuleType.VULNERABILITY);
 
-    issues = searchByRuleKey("xoo:OneIssuePerLine");
-    assertThat(issues).isNotEmpty();
-    issue = issues.get(0);
+    issues = searchResponse(r -> r.setRules(singletonList("xoo:OneIssuePerLine")));
+    assertThat(issues.getIssuesList()).isNotEmpty();
+    issue = issues.getIssues(0);
     assertThat(issue.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
   }
 
   @Test
   public void search_issues_by_types() throws IOException {
-    assertThat(searchIssues(new SearchRequest().setTypes(singletonList("CODE_SMELL"))).getPaging().getTotal()).isEqualTo(142);
-    assertThat(searchIssues(new SearchRequest().setTypes(singletonList("BUG"))).getPaging().getTotal()).isEqualTo(122);
-    assertThat(searchIssues(new SearchRequest().setTypes(singletonList("VULNERABILITY"))).getPaging().getTotal()).isEqualTo(8);
+    assertThat(searchResponse(r -> r.setTypes(singletonList("CODE_SMELL"))).getPaging().getTotal()).isEqualTo(142);
+    assertThat(searchResponse(r -> r.setTypes(singletonList("BUG"))).getPaging().getTotal()).isEqualTo(122);
+    assertThat(searchResponse(r -> r.setTypes(singletonList("VULNERABILITY"))).getPaging().getTotal()).isEqualTo(8);
   }
 
-  private List<org.sonarqube.ws.Issues.Issue> searchByRuleKey(String... ruleKey) throws IOException {
-    return searchIssues(new SearchRequest().setRules(asList(ruleKey))).getIssuesList();
+  private Date parse(String date) {
+    try {
+      return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(date);
+    } catch (ParseException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
-  private SearchWsResponse searchIssues(SearchRequest request) throws IOException {
-    return newAdminWsClient(ORCHESTRATOR).issuesOld().search(request);
+  private String toDateString(Date future) {
+    return toQueryParam(future, true);
   }
 
+  @SafeVarargs
+  private final AbstractListAssert<?, ? extends List<? extends org.sonarqube.ws.Issues.Issue>, org.sonarqube.ws.Issues.Issue> assertSearch(Consumer<SearchRequest>... consumers) {
+    return assertThat(searchResponse(consumers).getIssuesList());
+  }
+
+  @SafeVarargs
+  private final SearchWsResponse searchResponse(Consumer<SearchRequest>... consumers) {
+    SearchRequest request = new SearchRequest();
+    Arrays.stream(consumers).forEach(c -> c.accept(request));
+    return newAdminWsClient(ORCHESTRATOR).issues().search(request);
+  }
 }

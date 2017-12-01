@@ -26,6 +26,7 @@ import org.sonar.wsclient.issue.Issue;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.ChangelogWsResponse.Changelog;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.issues.ChangelogRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -118,7 +119,7 @@ public class IssueChangelogTest extends AbstractIssueTest {
   }
 
   private static Issues.ChangelogWsResponse changelog(String issueKey) {
-    return adminClient.issuesOld().changelog(issueKey);
+    return adminClient.issues().changelog(new ChangelogRequest().setIssue(issueKey));
   }
 
 }
