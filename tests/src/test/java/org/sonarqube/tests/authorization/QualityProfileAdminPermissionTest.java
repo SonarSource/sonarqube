@@ -25,7 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.client.permissions.AddUserRequest;
-import org.sonarqube.ws.client.qualityprofile.CreateRequest;
+import org.sonarqube.ws.client.qualityprofiles.CreateRequest;
 import util.selenium.Selenese;
 
 import static util.ItUtils.runProjectAnalysis;
@@ -60,10 +60,9 @@ public class QualityProfileAdminPermissionTest {
   }
 
   private void createProfile(String language, String name) {
-    tester.wsClient().qualityProfilesOld().create(CreateRequest.builder()
+    tester.wsClient().qualityprofiles().create(new CreateRequest()
       .setLanguage(language)
-      .setName(name)
-      .build());
+      .setName(name));
   }
 
 }

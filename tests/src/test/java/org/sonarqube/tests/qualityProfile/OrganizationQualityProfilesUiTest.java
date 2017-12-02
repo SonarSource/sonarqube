@@ -35,8 +35,8 @@ import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Qualityprofiles;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
-import org.sonarqube.ws.client.qualityprofile.ChangeParentRequest;
+import org.sonarqube.ws.client.qualityprofiles.AddProjectRequest;
+import org.sonarqube.ws.client.qualityprofiles.ChangeParentRequest;
 import util.selenium.Selenese;
 
 import static com.codeborne.selenide.Selenide.$;
@@ -184,12 +184,11 @@ public class OrganizationQualityProfilesUiTest {
   }
 
   private void inheritProfile(String language, String name, String parentName) {
-    tester.wsClient().qualityProfilesOld().changeParent(ChangeParentRequest.builder()
+    tester.wsClient().qualityprofiles().changeParent(new ChangeParentRequest()
       .setLanguage(language)
-      .setProfileName(name)
-      .setParentName(parentName)
-      .setOrganization(organization.getKey())
-      .build());
+      .setQualityProfile(name)
+      .setParentQualityProfile(parentName)
+      .setOrganization(organization.getKey()));
   }
 
   private void analyzeProject(String path) {
@@ -200,12 +199,11 @@ public class OrganizationQualityProfilesUiTest {
   }
 
   private void addProfileToProject(String language, String profileName, String projectKey) {
-    tester.wsClient().qualityProfilesOld().addProject(AddProjectRequest.builder()
+    tester.wsClient().qualityprofiles().addProject(new AddProjectRequest()
       .setLanguage(language)
       .setQualityProfile(profileName)
-      .setProjectKey(projectKey)
-      .setOrganization(organization.getKey())
-      .build());
+      .setProject(projectKey)
+      .setOrganization(organization.getKey()));
   }
 
   private void deleteProfile(String language, String name) {

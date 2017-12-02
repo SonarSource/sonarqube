@@ -24,20 +24,22 @@ import java.util.function.Predicate;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonarqube.tests.Category6Suite;
-import org.sonarqube.qa.util.TesterSession;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.TesterSession;
+import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Qualityprofiles;
 import org.sonarqube.ws.Qualityprofiles.CreateWsResponse;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
-import org.sonarqube.ws.client.qualityprofile.ChangeParentRequest;
-import org.sonarqube.ws.client.qualityprofile.CopyRequest;
-import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
-import org.sonarqube.ws.client.qualityprofile.SearchRequest;
-import org.sonarqube.ws.client.qualityprofile.SetDefaultRequest;
+import org.sonarqube.ws.client.qualityprofiles.ChangeParentRequest;
+import org.sonarqube.ws.client.qualityprofiles.CopyRequest;
+import org.sonarqube.ws.client.qualityprofiles.DeactivateRuleRequest;
+import org.sonarqube.ws.client.qualityprofiles.DeleteRequest;
+import org.sonarqube.ws.client.qualityprofiles.QualityprofilesService;
+import org.sonarqube.ws.client.qualityprofiles.SearchRequest;
+import org.sonarqube.ws.client.qualityprofiles.SetDefaultRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -55,7 +57,7 @@ public class BuiltInQualityProfilesTest {
   @Test
   public void built_in_profiles_are_available_in_new_organization() {
     Organization org = tester.organizations().generate();
-    SearchWsResponse result = tester.qProfiles().service().search(new SearchRequest().setOrganizationKey(org.getKey()));
+    SearchWsResponse result = tester.qProfiles().service().search(new SearchRequest().setOrganization(org.getKey()));
 
     assertThat(result.getProfilesList())
       .extracting(QualityProfile::getName, QualityProfile::getLanguage, QualityProfile::getIsBuiltIn, QualityProfile::getIsDefault)
@@ -70,7 +72,7 @@ public class BuiltInQualityProfilesTest {
 
   @Test
   public void built_in_profiles_are_available_in_default_organization() {
-    SearchWsResponse result = tester.qProfiles().service().search(new SearchRequest().setOrganizationKey("default-organization"));
+    SearchWsResponse result = tester.qProfiles().service().search(new SearchRequest().setOrganization("default-organization"));
 
     assertThat(result.getProfilesList())
       .extracting(QualityProfile::getOrganization, QualityProfile::getName, QualityProfile::getLanguage, QualityProfile::getIsBuiltIn, QualityProfile::getIsDefault)
@@ -89,9 +91,9 @@ public class BuiltInQualityProfilesTest {
     QualityProfile builtInProfile = getProfile(org, p -> p.getIsBuiltIn() && p.getIsDefault() && "Basic".equals(p.getName()) && "xoo".equals(p.getLanguage()));
 
     CreateWsResponse.QualityProfile profileInOrg = tester.qProfiles().createXooProfile(org);
-    tester.qProfiles().service().setDefault(new SetDefaultRequest(profileInOrg.getKey()));
+    tester.qProfiles().service().setDefault(new SetDefaultRequest().setKey(profileInOrg.getKey()));
 
-    expectBadRequestError(() -> tester.qProfiles().service().delete(builtInProfile.getKey()));
+    expectBadRequestError(() -> tester.qProfiles().service().delete(new DeleteRequest().setKey(builtInProfile.getKey())));
   }
 
   @Test
@@ -99,10 +101,11 @@ public class BuiltInQualityProfilesTest {
     Organization org = tester.organizations().generate();
     QualityProfile builtInProfile = getProfile(org, p -> p.getIsBuiltIn() && p.getIsDefault() && "Basic".equals(p.getName()) && "xoo".equals(p.getLanguage()));
 
-    QualityProfilesService service = tester.qProfiles().service();
+    QualityprofilesService service = tester.qProfiles().service();
     expectBadRequestError(() -> tester.qProfiles().activateRule(builtInProfile.getKey(), RULE_ONE_BUG_PER_LINE));
-    expectBadRequestError(() -> service.deactivateRule(builtInProfile.getKey(), RULE_ONE_BUG_PER_LINE));
-    expectBadRequestError(() -> service.delete(builtInProfile.getKey()));
+    expectBadRequestError(() -> service.deactivateRule(new DeactivateRuleRequest()
+            .setKey(builtInProfile.getKey()).setRule(RULE_ONE_BUG_PER_LINE)));
+    expectBadRequestError(() -> service.delete(new DeleteRequest().setKey(builtInProfile.getKey())));
   }
 
   @Test
@@ -112,7 +115,7 @@ public class BuiltInQualityProfilesTest {
     QualityProfile builtInProfile = getProfile(org, p -> p.getIsBuiltIn() && "Basic".equals(p.getName()) && "xoo".equals(p.getLanguage()));
     TesterSession adminSession = tester.as(administrator.getLogin());
 
-    Qualityprofiles.CopyWsResponse copyResponse = adminSession.qProfiles().service().copy(new CopyRequest(builtInProfile.getKey(), "My copy"));
+    Qualityprofiles.CopyWsResponse copyResponse = adminSession.qProfiles().service().copy(new CopyRequest().setFromKey(builtInProfile.getKey()).setToName("My copy"));
 
     assertThat(copyResponse.getIsDefault()).isFalse();
     assertThat(copyResponse.getKey()).isNotEmpty().isNotEqualTo(builtInProfile.getKey());
@@ -134,9 +137,9 @@ public class BuiltInQualityProfilesTest {
     QualityProfile builtInProfile = getProfile(org, p -> p.getIsBuiltIn() && "Basic".equals(p.getName()) && "xoo".equals(p.getLanguage()));
     TesterSession adminSession = tester.as(administrator.getLogin());
 
-    Qualityprofiles.CopyWsResponse copyResponse = adminSession.qProfiles().service().copy(new CopyRequest(builtInProfile.getKey(), "My copy"));
+    Qualityprofiles.CopyWsResponse copyResponse = adminSession.qProfiles().service().copy(new CopyRequest().setFromKey(builtInProfile.getKey()).setToName("My copy"));
     adminSession.qProfiles().service().changeParent(
-      ChangeParentRequest.builder().setParentKey(builtInProfile.getKey()).setProfileKey(copyResponse.getKey()).build());
+      new ChangeParentRequest().setParentKey(builtInProfile.getKey()).setKey(copyResponse.getKey()));
 
     QualityProfile inheritedQualityPropfile = getProfile(org, p -> p.getKey().equals(copyResponse.getKey()));
 
@@ -145,7 +148,7 @@ public class BuiltInQualityProfilesTest {
 
     // Remove inheritance
     adminSession.qProfiles().service().changeParent(
-      new ChangeParentRequest(ChangeParentRequest.builder().setProfileKey(inheritedQualityPropfile.getKey())));
+      new ChangeParentRequest().setKey(inheritedQualityPropfile.getKey()));
 
     inheritedQualityPropfile = getProfile(org, p -> p.getKey().equals(copyResponse.getKey()));
 
@@ -155,7 +158,7 @@ public class BuiltInQualityProfilesTest {
 
   private QualityProfile getProfile(Organization organization, Predicate<QualityProfile> filter) {
     return tester.qProfiles().service().search(new SearchRequest()
-      .setOrganizationKey(organization.getKey())).getProfilesList()
+      .setOrganization(organization.getKey())).getProfilesList()
       .stream()
       .filter(filter)
       .findAny().orElseThrow(IllegalStateException::new);

@@ -32,7 +32,6 @@ import org.sonarqube.ws.client.projectanalyses.ProjectAnalysesService;
 import org.sonarqube.ws.client.projectbranches.ProjectBranchesService;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
-import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
 import org.sonarqube.ws.client.qualityprofiles.QualityprofilesService;
 import org.sonarqube.ws.client.roots.RootsService;
 import org.sonarqube.ws.client.rules.RulesService;
@@ -56,7 +55,6 @@ class DefaultWsClient implements WsClient {
   private final PermissionsService permissions;
   private final ComponentsService components;
   private final FavoritesService favoritesService;
-  private final QualityProfilesService qualityProfilesOld;
   private final QualityprofilesService qualityprofiles;
   private final IssuesService issues;
   private final UsersService usersService;
@@ -82,7 +80,6 @@ class DefaultWsClient implements WsClient {
     this.permissions = new PermissionsService(wsConnector);
     this.components = new ComponentsService(wsConnector);
     this.favoritesService = new FavoritesService(wsConnector);
-    this.qualityProfilesOld = new QualityProfilesService(wsConnector);
     this.qualityprofiles = new QualityprofilesService(wsConnector);
     this.issues = new IssuesService(wsConnector);
     this.usersService = new UsersService(wsConnector);
@@ -126,11 +123,6 @@ class DefaultWsClient implements WsClient {
   @Override
   public FavoritesService favorites() {
     return favoritesService;
-  }
-
-  @Override
-  public QualityProfilesService qualityProfilesOld() {
-    return qualityProfilesOld;
   }
 
   @Override

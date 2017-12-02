@@ -36,13 +36,13 @@ import org.sonarqube.ws.UserGroups;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.permissions.AddUserRequest;
-import org.sonarqube.ws.client.qualityprofile.AddGroupRequest;
-import org.sonarqube.ws.client.qualityprofile.RemoveGroupRequest;
-import org.sonarqube.ws.client.qualityprofile.RemoveUserRequest;
-import org.sonarqube.ws.client.qualityprofile.SearchGroupsRequest;
-import org.sonarqube.ws.client.qualityprofile.SearchUsersRequest;
-import org.sonarqube.ws.client.qualityprofile.SearchRequest;
-import org.sonarqube.ws.client.qualityprofile.ShowRequest;
+import org.sonarqube.ws.client.qualityprofiles.AddGroupRequest;
+import org.sonarqube.ws.client.qualityprofiles.RemoveGroupRequest;
+import org.sonarqube.ws.client.qualityprofiles.RemoveUserRequest;
+import org.sonarqube.ws.client.qualityprofiles.SearchGroupsRequest;
+import org.sonarqube.ws.client.qualityprofiles.SearchRequest;
+import org.sonarqube.ws.client.qualityprofiles.SearchUsersRequest;
+import org.sonarqube.ws.client.qualityprofiles.ShowRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -66,12 +66,11 @@ public class QualityProfilesEditTest {
     CreateWsResponse.QualityProfile xooProfile = tester.qProfiles().createXooProfile(organization);
     addUserPermission(organization, user1, xooProfile);
 
-    SearchUsersResponse users = tester.qProfiles().service().searchUsers(SearchUsersRequest.builder()
+    SearchUsersResponse users = tester.qProfiles().service().searchUsers(new SearchUsersRequest()
       .setOrganization(organization.getKey())
       .setQualityProfile(xooProfile.getName())
       .setLanguage(xooProfile.getLanguage())
-      .setSelected("all")
-      .build());
+      .setSelected("all"));
 
     assertThat(users.getUsersList())
       .extracting(SearchUsersResponse.User::getLogin, SearchUsersResponse.User::getName, SearchUsersResponse.User::getAvatar, SearchUsersResponse.User::getSelected)
@@ -91,39 +90,35 @@ public class QualityProfilesEditTest {
     CreateWsResponse.QualityProfile xooProfile = tester.qProfiles().createXooProfile(organization);
 
     // No user added
-    assertThat(tester.qProfiles().service().searchUsers(SearchUsersRequest.builder()
+    assertThat(tester.qProfiles().service().searchUsers(new SearchUsersRequest()
       .setOrganization(organization.getKey())
       .setQualityProfile(xooProfile.getName())
       .setLanguage(xooProfile.getLanguage())
-      .setSelected("selected")
-      .build()).getUsersList())
+      .setSelected("selected")).getUsersList())
         .extracting(SearchUsersResponse.User::getLogin)
         .isEmpty();
 
     // Add user 1
     addUserPermission(organization, user1, xooProfile);
-    assertThat(tester.qProfiles().service().searchUsers(SearchUsersRequest.builder()
+    assertThat(tester.qProfiles().service().searchUsers(new SearchUsersRequest()
       .setOrganization(organization.getKey())
       .setQualityProfile(xooProfile.getName())
       .setLanguage(xooProfile.getLanguage())
-      .setSelected("selected")
-      .build()).getUsersList())
+      .setSelected("selected")).getUsersList())
         .extracting(SearchUsersResponse.User::getLogin)
         .containsExactlyInAnyOrder(user1.getLogin());
 
     // Remove user 1
-    tester.qProfiles().service().removeUser(RemoveUserRequest.builder()
+    tester.qProfiles().service().removeUser(new RemoveUserRequest()
       .setOrganization(organization.getKey())
       .setQualityProfile(xooProfile.getName())
       .setLanguage(xooProfile.getLanguage())
-      .setUserLogin(user1.getLogin())
-      .build());
-    assertThat(tester.qProfiles().service().searchUsers(SearchUsersRequest.builder()
+      .setLogin(user1.getLogin()));
+    assertThat(tester.qProfiles().service().searchUsers(new SearchUsersRequest()
       .setOrganization(organization.getKey())
       .setQualityProfile(xooProfile.getName())
       .setLanguage(xooProfile.getLanguage())
-      .setSelected("selected")
-      .build()).getUsersList())
+      .setSelected("selected")).getUsersList())
         .extracting(SearchUsersResponse.User::getLogin)
         .isEmpty();
   }
@@ -138,11 +133,10 @@ public class QualityProfilesEditTest {
     addGroupPermission(organization, group1, xooProfile);
     addGroupPermission(organization, group2, xooProfile);
 
-    SearchGroupsResponse groups = tester.qProfiles().service().searchGroups(SearchGroupsRequest.builder()
+    SearchGroupsResponse groups = tester.qProfiles().service().searchGroups(new SearchGroupsRequest()
       .setOrganization(organization.getKey())
       .setQualityProfile(xooProfile.getName())
-      .setLanguage(xooProfile.getLanguage())
-      .build());
+      .setLanguage(xooProfile.getLanguage()));
 
     assertThat(groups.getGroupsList()).extracting(Group::getName, Group::getDescription, Group::getSelected)
       .containsExactlyInAnyOrder(
@@ -160,39 +154,35 @@ public class QualityProfilesEditTest {
     CreateWsResponse.QualityProfile xooProfile = tester.qProfiles().createXooProfile(organization);
 
     // No group added
-    assertThat(tester.qProfiles().service().searchGroups(SearchGroupsRequest.builder()
+    assertThat(tester.qProfiles().service().searchGroups(new SearchGroupsRequest()
       .setOrganization(organization.getKey())
       .setQualityProfile(xooProfile.getName())
       .setLanguage(xooProfile.getLanguage())
-      .setSelected("selected")
-      .build()).getGroupsList())
+      .setSelected("selected")).getGroupsList())
         .extracting(Group::getName)
         .isEmpty();
 
     // Add group 1
     addGroupPermission(organization, group1, xooProfile);
-    assertThat(tester.qProfiles().service().searchGroups(SearchGroupsRequest.builder()
+    assertThat(tester.qProfiles().service().searchGroups(new SearchGroupsRequest()
       .setOrganization(organization.getKey())
       .setQualityProfile(xooProfile.getName())
       .setLanguage(xooProfile.getLanguage())
-      .setSelected("selected")
-      .build()).getGroupsList())
+      .setSelected("selected")).getGroupsList())
         .extracting(Group::getName)
         .containsExactlyInAnyOrder(group1.getName());
 
     // Remove group 1
-    tester.qProfiles().service().removeGroup(RemoveGroupRequest.builder()
+    tester.qProfiles().service().removeGroup(new RemoveGroupRequest()
       .setOrganization(organization.getKey())
       .setQualityProfile(xooProfile.getName())
       .setLanguage(xooProfile.getLanguage())
-      .setGroup(group1.getName())
-      .build());
-    assertThat(tester.qProfiles().service().searchGroups(SearchGroupsRequest.builder()
+      .setGroup(group1.getName()));
+    assertThat(tester.qProfiles().service().searchGroups(new SearchGroupsRequest()
       .setOrganization(organization.getKey())
       .setQualityProfile(xooProfile.getName())
       .setLanguage(xooProfile.getLanguage())
-      .setSelected("selected")
-      .build()).getGroupsList())
+      .setSelected("selected")).getGroupsList())
         .extracting(Group::getName)
         .isEmpty();
   }
@@ -210,7 +200,7 @@ public class QualityProfilesEditTest {
     CreateWsResponse.QualityProfile xooProfile3 = tester.qProfiles().createXooProfile(organization);
 
     SearchWsResponse result = tester.as(user.getLogin())
-      .qProfiles().service().search(new SearchRequest().setOrganizationKey(organization.getKey()));
+      .qProfiles().service().search(new SearchRequest().setOrganization(organization.getKey()));
     assertThat(result.getActions().getCreate()).isFalse();
     assertThat(result.getProfilesList())
       .extracting(SearchWsResponse.QualityProfile::getKey, qp -> qp.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault(),
@@ -229,7 +219,7 @@ public class QualityProfilesEditTest {
     tester.wsClient().permissions().addUser(new AddUserRequest().setOrganization(organization.getKey()).setLogin(user.getLogin()).setPermission("profileadmin"));
 
     SearchWsResponse result = tester.as(user.getLogin())
-      .qProfiles().service().search(new SearchRequest().setOrganizationKey(organization.getKey()));
+      .qProfiles().service().search(new SearchRequest().setOrganization(organization.getKey()));
     assertThat(result.getActions().getCreate()).isTrue();
     assertThat(result.getProfilesList())
       .extracting(SearchWsResponse.QualityProfile::getKey, qp -> qp.getActions().getEdit(), qp -> qp.getActions().getCopy(), qp -> qp.getActions().getSetAsDefault(),
@@ -263,31 +253,29 @@ public class QualityProfilesEditTest {
       .failIfNotSuccessful();
 
     // Check that the profile has no missing rule from the Sonar way profile
-    assertThat(tester.qProfiles().service().show(new ShowRequest().setKey(xooProfile.getKey()).setCompareToSonarWay(true)).getCompareToSonarWay().getMissingRuleCount())
+    assertThat(tester.qProfiles().service().show(new ShowRequest().setKey(xooProfile.getKey()).setCompareToSonarWay("true")).getCompareToSonarWay().getMissingRuleCount())
       .isZero();
   }
 
   private void addUserPermission(Organization organization, User user, CreateWsResponse.QualityProfile qProfile) {
-    tester.qProfiles().service().addUser(org.sonarqube.ws.client.qualityprofile.AddUserRequest.builder()
+    tester.qProfiles().service().addUser(new org.sonarqube.ws.client.qualityprofiles.AddUserRequest()
       .setOrganization(organization.getKey())
       .setQualityProfile(qProfile.getName())
       .setLanguage(qProfile.getLanguage())
-      .setUserLogin(user.getLogin())
-      .build());
+      .setLogin(user.getLogin()));
   }
 
   private void addGroupPermission(Organization organization, UserGroups.Group group, CreateWsResponse.QualityProfile qProfile) {
-    tester.qProfiles().service().addGroup(AddGroupRequest.builder()
+    tester.qProfiles().service().addGroup(new AddGroupRequest()
       .setOrganization(organization.getKey())
       .setQualityProfile(qProfile.getName())
       .setLanguage(qProfile.getLanguage())
-      .setGroup(group.getName())
-      .build());
+      .setGroup(group.getName()));
   }
 
   private SearchWsResponse.QualityProfile getProfile(Organization organization, Predicate<SearchWsResponse.QualityProfile> filter) {
     return tester.qProfiles().service().search(new SearchRequest()
-      .setOrganizationKey(organization.getKey())).getProfilesList()
+      .setOrganization(organization.getKey())).getProfilesList()
       .stream()
       .filter(filter)
       .findAny().orElseThrow(IllegalStateException::new);

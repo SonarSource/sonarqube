@@ -27,8 +27,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
-import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Qualityprofiles.CreateWsResponse;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
@@ -38,9 +38,9 @@ import org.sonarqube.ws.Qualityprofiles.ShowResponse.QualityProfile;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.qualityprofile.ChangelogRequest;
-import org.sonarqube.ws.client.qualityprofile.SearchRequest;
-import org.sonarqube.ws.client.qualityprofile.ShowRequest;
+import org.sonarqube.ws.client.qualityprofiles.ChangelogRequest;
+import org.sonarqube.ws.client.qualityprofiles.SearchRequest;
+import org.sonarqube.ws.client.qualityprofiles.ShowRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -85,7 +85,7 @@ public class QualityProfilesWsTest {
 
     CompareToSonarWay result = tester.qProfiles().service().show(new ShowRequest()
       .setKey(xooProfile.getKey())
-      .setCompareToSonarWay(true)).getCompareToSonarWay();
+      .setCompareToSonarWay("true")).getCompareToSonarWay();
 
     assertThat(result)
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
@@ -110,7 +110,7 @@ public class QualityProfilesWsTest {
     // Check that the profile has no missing rule from the Sonar way profile
     assertThat(tester.qProfiles().service().show(new ShowRequest()
       .setKey(xooProfile.getKey())
-      .setCompareToSonarWay(true)).getCompareToSonarWay())
+      .setCompareToSonarWay("true")).getCompareToSonarWay())
       .extracting(CompareToSonarWay::getProfile, CompareToSonarWay::getProfileName, CompareToSonarWay::getMissingRuleCount)
       .containsExactly(sonarWay.getKey(), sonarWay.getName(), 0L);
   }
@@ -133,35 +133,32 @@ public class QualityProfilesWsTest {
     Organization org = tester.organizations().generate();
     CreateWsResponse.QualityProfile profile = tester.qProfiles().createXooProfile(org);
 
-    String changelog = tester.wsClient().qualityProfilesOld().changelog(ChangelogRequest.builder()
+    String changelog = tester.wsClient().qualityprofiles().changelog(new ChangelogRequest()
       .setOrganization(org.getKey())
       .setLanguage(profile.getLanguage())
-      .setQualityProfile(profile.getName())
-      .build());
+      .setQualityProfile(profile.getName()));
     JSONAssert.assertEquals(EXPECTED_CHANGELOG_EMPTY, changelog, JSONCompareMode.STRICT);
 
     tester.qProfiles().activateRule(profile, RULE_ONE_BUG_PER_LINE);
     tester.qProfiles().activateRule(profile, RULE_ONE_ISSUE_PER_LINE);
 
-    String changelog2 = tester.wsClient().qualityProfilesOld().changelog(ChangelogRequest.builder()
+    String changelog2 = tester.wsClient().qualityprofiles().changelog(new ChangelogRequest()
       .setOrganization(org.getKey())
       .setLanguage(profile.getLanguage())
-      .setQualityProfile(profile.getName())
-      .build());
+      .setQualityProfile(profile.getName()));
     JSONAssert.assertEquals(EXPECTED_CHANGELOG, changelog2, JSONCompareMode.LENIENT);
 
-    String changelog3 = tester.wsClient().qualityProfilesOld().changelog(ChangelogRequest.builder()
+    String changelog3 = tester.wsClient().qualityprofiles().changelog(new ChangelogRequest()
       .setOrganization(org.getKey())
       .setLanguage(profile.getLanguage())
       .setQualityProfile(profile.getName())
-      .setSince("2999-12-31T23:59:59+0000")
-      .build());
+      .setSince("2999-12-31T23:59:59+0000"));
     JSONAssert.assertEquals(EXPECTED_CHANGELOG_EMPTY, changelog3, JSONCompareMode.STRICT);
   }
 
   private SearchWsResponse.QualityProfile getProfile(Organization organization, Predicate<SearchWsResponse.QualityProfile> filter) {
     return tester.qProfiles().service().search(new SearchRequest()
-      .setOrganizationKey(organization.getKey())).getProfilesList()
+      .setOrganization(organization.getKey())).getProfilesList()
       .stream()
       .filter(filter)
       .findAny().orElseThrow(IllegalStateException::new);

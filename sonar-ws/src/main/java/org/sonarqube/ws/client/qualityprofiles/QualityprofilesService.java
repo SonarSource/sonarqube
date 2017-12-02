@@ -237,8 +237,8 @@ public class QualityprofilesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualityprofiles/copy">Further information about this action online (including a response example)</a>
    * @since 5.2
    */
-  public void copy(CopyRequest request) {
-    call(
+  public CopyWsResponse copy(CopyRequest request) {
+    return call(
       new PostRequest(path("copy"))
         .setParam("fromKey", request.getFromKey())
         .setParam("toName", request.getToName()),
