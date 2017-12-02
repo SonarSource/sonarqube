@@ -35,7 +35,7 @@ import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
 import org.sonarqube.ws.UserGroups;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.permission.AddUserRequest;
+import org.sonarqube.ws.client.permissions.AddUserRequest;
 import org.sonarqube.ws.client.qualityprofile.AddGroupRequest;
 import org.sonarqube.ws.client.qualityprofile.RemoveGroupRequest;
 import org.sonarqube.ws.client.qualityprofile.RemoveUserRequest;
@@ -226,7 +226,7 @@ public class QualityProfilesEditTest {
     Organization organization = tester.organizations().generate();
     User user = tester.users().generateMember(organization);
     CreateWsResponse.QualityProfile xooProfile = tester.qProfiles().createXooProfile(organization);
-    tester.wsClient().permissionsOld().addUser(new AddUserRequest().setOrganization(organization.getKey()).setLogin(user.getLogin()).setPermission("profileadmin"));
+    tester.wsClient().permissions().addUser(new AddUserRequest().setOrganization(organization.getKey()).setLogin(user.getLogin()).setPermission("profileadmin"));
 
     SearchWsResponse result = tester.as(user.getLogin())
       .qProfiles().service().search(new SearchRequest().setOrganizationKey(organization.getKey()));

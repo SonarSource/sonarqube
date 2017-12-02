@@ -53,7 +53,7 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.issues.AssignRequest;
 import org.sonarqube.ws.client.issues.BulkChangeRequest;
 import org.sonarqube.ws.client.issues.SearchRequest;
-import org.sonarqube.ws.client.permission.AddUserRequest;
+import org.sonarqube.ws.client.permissions.AddUserRequest;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
@@ -304,7 +304,7 @@ public class IssueNotificationsTest {
         .setName("userWithUserRole")
         .setEmail("userWithUserRole@nowhere.com"));
     tester.organizations().addMember(organization, userWithUserRole);
-    tester.wsClient().permissionsOld().addUser(
+    tester.wsClient().permissions().addUser(
       new AddUserRequest()
         .setLogin(userWithUserRole.getLogin())
         .setProjectKey(PROJECT_KEY)

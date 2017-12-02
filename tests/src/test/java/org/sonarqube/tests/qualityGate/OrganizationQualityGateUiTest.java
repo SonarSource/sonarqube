@@ -32,7 +32,7 @@ import org.sonarqube.qa.util.pageobjects.ProjectDashboardPage;
 import org.sonarqube.qa.util.pageobjects.QualityGatePage;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Users;
-import org.sonarqube.ws.client.permission.AddUserRequest;
+import org.sonarqube.ws.client.permissions.AddUserRequest;
 import util.issue.IssueRule;
 
 import static com.codeborne.selenide.Selenide.$;
@@ -59,7 +59,7 @@ public class OrganizationQualityGateUiTest {
     organization = tester.organizations().generate();
     gateAdmin = tester.users().generate();
     tester.organizations().addMember(tester.organizations().getDefaultOrganization(), gateAdmin);
-    tester.wsClient().permissionsOld().addUser(new AddUserRequest().setLogin(gateAdmin.getLogin()).setPermission("gateadmin"));
+    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(gateAdmin.getLogin()).setPermission("gateadmin"));
     user = tester.users().generate();
     tester.organizations().addMember(organization, user);
     restoreProfile(orchestrator, getClass().getResource("/issue/with-many-rules.xml"), organization.getKey());

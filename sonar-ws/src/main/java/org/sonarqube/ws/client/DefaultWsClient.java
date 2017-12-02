@@ -54,7 +54,6 @@ class DefaultWsClient implements WsClient {
 
   private final WsConnector wsConnector;
   private final OrganizationsService organizations;
-  private final org.sonarqube.ws.client.permission.PermissionsService permissionsOld;
   private final PermissionsService permissions;
   private final ComponentsService components;
   private final FavoritesService favoritesService;
@@ -83,7 +82,6 @@ class DefaultWsClient implements WsClient {
   DefaultWsClient(WsConnector wsConnector) {
     this.wsConnector = wsConnector;
     this.organizations = new OrganizationsService(wsConnector);
-    this.permissionsOld = new org.sonarqube.ws.client.permission.PermissionsService(wsConnector);
     this.permissions = new PermissionsService(wsConnector);
     this.components = new ComponentsService(wsConnector);
     this.favoritesService = new FavoritesService(wsConnector);
@@ -118,11 +116,6 @@ class DefaultWsClient implements WsClient {
   @Override
   public OrganizationsService organizations() {
     return organizations;
-  }
-
-  @Override
-  public org.sonarqube.ws.client.permission.PermissionsService permissionsOld() {
-    return this.permissionsOld;
   }
 
   @Override

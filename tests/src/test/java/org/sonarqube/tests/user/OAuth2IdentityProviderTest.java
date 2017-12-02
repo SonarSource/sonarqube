@@ -38,7 +38,7 @@ import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.ws.Users.SearchWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.permission.AddUserRequest;
+import org.sonarqube.ws.client.permissions.AddUserRequest;
 import org.sonarqube.ws.client.user.CreateRequest;
 import util.selenium.Selenese;
 
@@ -125,7 +125,7 @@ public class OAuth2IdentityProviderTest {
     enablePlugin();
     tester.users().generate(u -> u.setLogin(USER_LOGIN));
     // Give user global admin permission as we want to go to a page where authentication is required
-    tester.wsClient().permissionsOld().addUser(new AddUserRequest().setLogin(USER_LOGIN).setPermission("admin"));
+    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(USER_LOGIN).setPermission("admin"));
 
     Navigation nav = tester.openBrowser();
     // Try to go to the settings page

@@ -38,12 +38,7 @@ import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.Users.CreateWsResponse;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.components.SearchProjectsRequest;
-import org.sonarqube.ws.client.permission.AddUserToTemplateRequest;
-import org.sonarqube.ws.client.permission.ApplyTemplateRequest;
-import org.sonarqube.ws.client.permission.BulkApplyTemplateRequest;
-import org.sonarqube.ws.client.permission.CreateTemplateRequest;
-import org.sonarqube.ws.client.permission.PermissionsService;
-import org.sonarqube.ws.client.permission.UsersRequest;
+import org.sonarqube.ws.client.permissions.*;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,7 +85,7 @@ public class PermissionTemplateTest {
     CreateWsResponse.User user = tester.users().generateMember(organization);
     CreateWsResponse.User anotherUser = tester.users().generateMember(organization);
     Permissions.PermissionTemplate template = createTemplate(organization).getPermissionTemplate();
-    tester.wsClient().permissionsOld().addUserToTemplate(new AddUserToTemplateRequest()
+    tester.wsClient().permissions().addUserToTemplate(new AddUserToTemplateRequest()
       .setOrganization(organization.getKey())
       .setTemplateId(template.getId())
       .setLogin(user.getLogin())
@@ -99,7 +94,7 @@ public class PermissionTemplateTest {
     Project project2 = createPrivateProject(organization);
     Project untouchedProject = createPrivateProject(organization);
 
-    tester.wsClient().permissionsOld().bulkApplyTemplate(new BulkApplyTemplateRequest()
+    tester.wsClient().permissions().bulkApplyTemplate(new BulkApplyTemplateRequest()
       .setOrganization(organization.getKey())
       .setTemplateId(template.getId())
       .setProjects(Arrays.asList(project1.getKey(), project2.getKey())));
@@ -156,7 +151,7 @@ public class PermissionTemplateTest {
    */
   private void createAndApplyTemplate(Organization organization, Project project, CreateWsResponse.User user) {
     String templateName = "For user";
-    PermissionsService service = tester.wsClient().permissionsOld();
+    PermissionsService service = tester.wsClient().permissions();
     service.createTemplate(new CreateTemplateRequest()
       .setOrganization(organization.getKey())
       .setName(templateName)
@@ -173,7 +168,7 @@ public class PermissionTemplateTest {
   }
 
   private CreateTemplateWsResponse createTemplate(Organization organization) {
-    return tester.wsClient().permissionsOld().createTemplate(new CreateTemplateRequest()
+    return tester.wsClient().permissions().createTemplate(new CreateTemplateRequest()
       .setOrganization(organization.getKey())
       .setName(randomAlphabetic(20)));
   }
@@ -203,7 +198,7 @@ public class PermissionTemplateTest {
       .setOrganization(organization.getKey())
       .setProjectKey(project.getKey())
       .setPermission("user");
-    Permissions.UsersWsResponse response = tester.wsClient().permissionsOld().users(request);
+    Permissions.UsersWsResponse response = tester.wsClient().permissions().users(request);
     Optional<Permissions.User> found = response.getUsersList().stream()
       .filter(u -> user.getLogin().equals(u.getLogin()))
       .findFirst();

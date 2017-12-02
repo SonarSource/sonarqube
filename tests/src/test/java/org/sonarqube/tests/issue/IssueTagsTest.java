@@ -37,9 +37,8 @@ import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarqube.ws.client.issues.SetTagsRequest;
 import org.sonarqube.ws.client.issues.TagsRequest;
 import org.sonarqube.ws.client.organizations.AddMemberRequest;
-import org.sonarqube.ws.client.permission.AddUserRequest;
+import org.sonarqube.ws.client.permissions.AddUserRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
-import util.ItUtils;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -134,7 +133,7 @@ public class IssueTagsTest {
   }
 
   private void grantUserPermission(String projectKey, User member) {
-    tester.wsClient().permissionsOld().addUser(
+    tester.wsClient().permissions().addUser(
       new AddUserRequest()
         .setLogin(member.getLogin())
         .setPermission("user")
