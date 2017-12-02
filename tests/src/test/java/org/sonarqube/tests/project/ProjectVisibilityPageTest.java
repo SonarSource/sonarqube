@@ -29,7 +29,7 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.ProjectsManagementPage;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.client.components.SearchProjectsRequest;
-import org.sonarqube.ws.client.permission.RemoveGroupRequest;
+import org.sonarqube.ws.client.permissions.RemoveGroupRequest;
 import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,7 +56,7 @@ public class ProjectVisibilityPageTest {
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")).setProperties("sonar.projectKey", "sample2"));
     tester.wsClient().projects().updateVisibility(UpdateVisibilityRequest.builder().setProject("sample2").setVisibility("private").build());
     // Remove 'Admin' permission for admin group on project 2 -> No one can access or admin this project, expect System Admin
-    tester.wsClient().permissionsOld().removeGroup(new RemoveGroupRequest().setProjectKey("sample2").setGroupName("sonar-administrators").setPermission("admin"));
+    tester.wsClient().permissions().removeGroup(new RemoveGroupRequest().setProjectKey("sample2").setGroupName("sonar-administrators").setPermission("admin"));
 
     tester.openBrowser().logIn().submitCredentials(adminUser)
       .openProjectsManagement("default-organization")

@@ -30,18 +30,7 @@ import org.sonarqube.ws.Permissions;
 import org.sonarqube.ws.Permissions.Permission;
 import org.sonarqube.ws.Permissions.SearchTemplatesWsResponse;
 import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.permission.AddGroupToTemplateRequest;
-import org.sonarqube.ws.client.permission.AddGroupRequest;
-import org.sonarqube.ws.client.permission.AddProjectCreatorToTemplateRequest;
-import org.sonarqube.ws.client.permission.AddUserToTemplateRequest;
-import org.sonarqube.ws.client.permission.AddUserRequest;
-import org.sonarqube.ws.client.permission.CreateTemplateRequest;
-import org.sonarqube.ws.client.permission.GroupsRequest;
-import org.sonarqube.ws.client.permission.RemoveGroupFromTemplateRequest;
-import org.sonarqube.ws.client.permission.RemoveProjectCreatorFromTemplateRequest;
-import org.sonarqube.ws.client.permission.RemoveUserFromTemplateRequest;
-import org.sonarqube.ws.client.permission.SearchTemplatesRequest;
-import org.sonarqube.ws.client.permission.UsersRequest;
+import org.sonarqube.ws.client.permissions.*;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -78,26 +67,26 @@ public class PermissionSearchTest {
 
   @Test
   public void permission_web_services() {
-    tester.wsClient().permissionsOld().addUser(
+    tester.wsClient().permissions().addUser(
       new AddUserRequest()
         .setPermission("admin")
         .setLogin(LOGIN));
-    tester.wsClient().permissionsOld().addGroup(
+    tester.wsClient().permissions().addGroup(
       new AddGroupRequest()
         .setPermission("admin")
         .setGroupName(GROUP_NAME));
 
-    Permissions.WsSearchGlobalPermissionsResponse searchGlobalPermissionsWsResponse = tester.wsClient().permissionsOld().searchGlobalPermissions();
+    Permissions.WsSearchGlobalPermissionsResponse searchGlobalPermissionsWsResponse = tester.wsClient().permissions().searchGlobalPermissions(new SearchGlobalPermissionsRequest());
     assertThat(searchGlobalPermissionsWsResponse.getPermissionsList().get(0).getKey()).isEqualTo("admin");
     assertThat(searchGlobalPermissionsWsResponse.getPermissionsList().get(0).getUsersCount()).isEqualTo(1);
     // by default, a group has the global admin permission
     assertThat(searchGlobalPermissionsWsResponse.getPermissionsList().get(0).getGroupsCount()).isEqualTo(2);
 
-    Permissions.UsersWsResponse users = tester.wsClient().permissionsOld()
+    Permissions.UsersWsResponse users = tester.wsClient().permissions()
       .users(new UsersRequest().setPermission("admin"));
     assertThat(users.getUsersList()).extracting("login").contains(LOGIN);
 
-    Permissions.WsGroupsResponse groupsResponse = tester.wsClient().permissionsOld()
+    Permissions.WsGroupsResponse groupsResponse = tester.wsClient().permissions()
       .groups(new GroupsRequest()
         .setPermission("admin"));
     assertThat(groupsResponse.getGroupsList()).extracting("name").contains(GROUP_NAME);
@@ -105,61 +94,59 @@ public class PermissionSearchTest {
 
   @Test
   public void template_permission_web_services() {
-    Permissions.CreateTemplateWsResponse createTemplateWsResponse = tester.wsClient().permissionsOld().createTemplate(
+    Permissions.CreateTemplateWsResponse createTemplateWsResponse = tester.wsClient().permissions().createTemplate(
       new CreateTemplateRequest()
         .setName("my-new-template")
         .setDescription("template-used-in-tests"));
     assertThat(createTemplateWsResponse.getPermissionTemplate().getName()).isEqualTo("my-new-template");
 
-    tester.wsClient().permissionsOld().addUserToTemplate(
+    tester.wsClient().permissions().addUserToTemplate(
       new AddUserToTemplateRequest()
         .setPermission("admin")
         .setTemplateName("my-new-template")
         .setLogin(LOGIN));
 
-    tester.wsClient().permissionsOld().addGroupToTemplate(
+    tester.wsClient().permissions().addGroupToTemplate(
       new AddGroupToTemplateRequest()
         .setPermission("admin")
         .setTemplateName("my-new-template")
         .setGroupName(GROUP_NAME));
 
-    tester.wsClient().permissionsOld().addProjectCreatorToTemplate(
-      AddProjectCreatorToTemplateRequest.builder()
+    tester.wsClient().permissions().addProjectCreatorToTemplate(
+      new AddProjectCreatorToTemplateRequest()
         .setPermission("admin")
-        .setTemplateName("my-new-template")
-        .build());
+        .setTemplateName("my-new-template"));
 
-    SearchTemplatesWsResponse searchTemplatesWsResponse = tester.wsClient().permissionsOld().searchTemplates(
+    SearchTemplatesWsResponse searchTemplatesWsResponse = tester.wsClient().permissions().searchTemplates(
       new SearchTemplatesRequest()
-        .setQuery("my-new-template"));
+        .setQ("my-new-template"));
     assertThat(searchTemplatesWsResponse.getPermissionTemplates(0).getName()).isEqualTo("my-new-template");
     assertThat(searchTemplatesWsResponse.getPermissionTemplates(0).getPermissions(0).getKey()).isEqualTo("admin");
     assertThat(searchTemplatesWsResponse.getPermissionTemplates(0).getPermissions(0).getUsersCount()).isEqualTo(1);
     assertThat(searchTemplatesWsResponse.getPermissionTemplates(0).getPermissions(0).getGroupsCount()).isEqualTo(1);
     assertThat(searchTemplatesWsResponse.getPermissionTemplates(0).getPermissions(0).getWithProjectCreator()).isTrue();
 
-    tester.wsClient().permissionsOld().removeGroupFromTemplate(
+    tester.wsClient().permissions().removeGroupFromTemplate(
       new RemoveGroupFromTemplateRequest()
         .setPermission("admin")
         .setTemplateName("my-new-template")
         .setGroupName(GROUP_NAME));
 
-    tester.wsClient().permissionsOld().removeUserFromTemplate(
+    tester.wsClient().permissions().removeUserFromTemplate(
       new RemoveUserFromTemplateRequest()
         .setPermission("admin")
         .setTemplateName("my-new-template")
         .setLogin(LOGIN));
 
-    tester.wsClient().permissionsOld().removeProjectCreatorFromTemplate(
-      RemoveProjectCreatorFromTemplateRequest.builder()
+    tester.wsClient().permissions().removeProjectCreatorFromTemplate(
+      new RemoveProjectCreatorFromTemplateRequest()
         .setPermission("admin")
         .setTemplateName("my-new-template")
-      .build()
     );
 
-    SearchTemplatesWsResponse clearedSearchTemplatesWsResponse = tester.wsClient().permissionsOld().searchTemplates(
+    SearchTemplatesWsResponse clearedSearchTemplatesWsResponse = tester.wsClient().permissions().searchTemplates(
       new SearchTemplatesRequest()
-        .setQuery("my-new-template"));
+        .setQ("my-new-template"));
     assertThat(clearedSearchTemplatesWsResponse.getPermissionTemplates(0).getPermissionsList())
       .extracting(Permission::getUsersCount, Permission::getGroupsCount, Permission::getWithProjectCreator)
       .hasSize(5)

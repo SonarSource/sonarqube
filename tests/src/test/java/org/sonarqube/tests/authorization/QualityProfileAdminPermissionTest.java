@@ -24,7 +24,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.client.permission.AddUserRequest;
+import org.sonarqube.ws.client.permissions.AddUserRequest;
 import org.sonarqube.ws.client.qualityprofile.CreateRequest;
 import util.selenium.Selenese;
 
@@ -49,7 +49,7 @@ public class QualityProfileAdminPermissionTest {
 
     tester.users().generate(u -> u.setLogin("not_profileadm").setPassword("userpwd"));
     tester.users().generate(u -> u.setLogin("profileadm").setPassword("papwd"));
-    tester.wsClient().permissionsOld().addUser(new AddUserRequest().setLogin("profileadm").setPermission("profileadmin"));
+    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin("profileadm").setPermission("profileadmin"));
     createProfile("xoo", "foo");
 
     Selenese.runSelenese(orchestrator,

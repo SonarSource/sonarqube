@@ -27,9 +27,9 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.client.permission.AddGroupRequest;
-import org.sonarqube.ws.client.permission.AddProjectCreatorToTemplateRequest;
-import org.sonarqube.ws.client.permission.RemoveGroupRequest;
+import org.sonarqube.ws.client.permissions.AddGroupRequest;
+import org.sonarqube.ws.client.permissions.AddProjectCreatorToTemplateRequest;
+import org.sonarqube.ws.client.permissions.RemoveGroupRequest;
 import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -112,24 +112,23 @@ public class ExecuteAnalysisPermissionTest {
   @Test
   public void execute_analysis_with_scan_on_default_template() {
     removeGlobalPermission("anyone", "scan");
-    tester.wsClient().permissionsOld().addProjectCreatorToTemplate(AddProjectCreatorToTemplateRequest.builder()
+    tester.wsClient().permissions().addProjectCreatorToTemplate(new AddProjectCreatorToTemplateRequest()
       .setPermission("scan")
-      .setTemplateId("default_template")
-      .build());
+      .setTemplateId("default_template"));
 
     runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.login", USER_LOGIN, "sonar.password", USER_PASSWORD, "sonar.projectKey", "ANOTHER_PROJECT_KEY");
   }
 
   private void addProjectPermission(String groupName, String projectKey, String permission) {
-    tester.wsClient().permissionsOld().addGroup(new AddGroupRequest().setGroupName(groupName).setProjectKey(projectKey).setPermission(permission));
+    tester.wsClient().permissions().addGroup(new AddGroupRequest().setGroupName(groupName).setProjectKey(projectKey).setPermission(permission));
   }
 
   private void addGlobalPermission(String groupName, String permission) {
-    tester.wsClient().permissionsOld().addGroup(new AddGroupRequest().setGroupName(groupName).setPermission(permission));
+    tester.wsClient().permissions().addGroup(new AddGroupRequest().setGroupName(groupName).setPermission(permission));
   }
 
   private void removeGlobalPermission(String groupName, String permission) {
-    tester.wsClient().permissionsOld().removeGroup(new RemoveGroupRequest().setGroupName(groupName).setPermission(permission));
+    tester.wsClient().permissions().removeGroup(new RemoveGroupRequest().setGroupName(groupName).setPermission(permission));
   }
 
   private static void executeLoggedAnalysis() {

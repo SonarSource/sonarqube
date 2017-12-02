@@ -55,7 +55,7 @@ import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.permission.AddUserRequest;
+import org.sonarqube.ws.client.permissions.AddUserRequest;
 import org.sonarqube.ws.client.qualitygates.CreateConditionRequest;
 import org.sonarqube.ws.client.qualitygates.CreateRequest;
 import org.sonarqube.ws.client.qualitygates.ProjectStatusRequest;
@@ -256,7 +256,7 @@ public class QualityGateTest {
     // user is quality gate admin of default organization
     Organization organization = tester.organizations().getDefaultOrganization();
     Users.CreateWsResponse.User user = tester.users().generateMember(organization);
-    tester.wsClient().permissionsOld().addUser(new AddUserRequest().setLogin(user.getLogin()).setPermission("gateadmin").setOrganization(organization.getKey()));
+    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(user.getLogin()).setPermission("gateadmin").setOrganization(organization.getKey()));
     TesterSession qGateAdminTester = tester.as(user.getLogin());
     QualitygatesService qGateService = qGateAdminTester.qGates().service();
     // perform administration operations

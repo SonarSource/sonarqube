@@ -74,12 +74,6 @@ public interface WsClient {
 
   NotificationsService notifications();
 
-  /**
-   * @deprecated since 7.0 use {@link #permissions()} instead
-   */
-  @Deprecated
-  org.sonarqube.ws.client.permission.PermissionsService permissionsOld();
-
   PermissionsService permissions();
 
   /**

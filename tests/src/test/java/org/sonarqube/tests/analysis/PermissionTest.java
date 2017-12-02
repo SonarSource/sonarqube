@@ -31,7 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.UserTokens;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.permission.AddUserRequest;
+import org.sonarqube.ws.client.permissions.AddUserRequest;
 import org.sonarqube.ws.client.usertokens.GenerateRequest;
 import org.sonarqube.ws.client.usertokens.RevokeRequest;
 import org.sonarqube.ws.client.usertokens.UserTokensService;
@@ -147,7 +147,7 @@ public class PermissionTest {
   }
 
   private void addUserPermission(String login, String permission, @Nullable String projectKey) {
-    adminWsClient.permissionsOld().addUser(new AddUserRequest()
+    adminWsClient.permissions().addUser(new AddUserRequest()
       .setLogin(login)
       .setPermission(permission)
       .setProjectKey(projectKey));

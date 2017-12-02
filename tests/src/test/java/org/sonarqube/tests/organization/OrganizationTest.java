@@ -42,8 +42,8 @@ import org.sonarqube.ws.client.organizations.DeleteRequest;
 import org.sonarqube.ws.client.organizations.OrganizationsService;
 import org.sonarqube.ws.client.organizations.SearchRequest;
 import org.sonarqube.ws.client.organizations.UpdateRequest;
-import org.sonarqube.ws.client.permission.AddUserRequest;
-import org.sonarqube.ws.client.permission.PermissionsService;
+import org.sonarqube.ws.client.permissions.AddUserRequest;
+import org.sonarqube.ws.client.permissions.PermissionsService;
 import org.sonarqube.ws.client.roots.SetRootRequest;
 import org.sonarqube.ws.client.roots.UnsetRootRequest;
 
@@ -230,7 +230,7 @@ public class OrganizationTest {
   }
 
   private void addPermissionsToUser(String orgKeyAndName, String login, String permission, String... otherPermissions) {
-    PermissionsService permissionsService = tester.wsClient().permissionsOld();
+    PermissionsService permissionsService = tester.wsClient().permissions();
     permissionsService.addUser(new AddUserRequest().setLogin(login).setOrganization(orgKeyAndName).setPermission(permission));
     for (String otherPermission : otherPermissions) {
       permissionsService.addUser(new AddUserRequest().setLogin(login).setOrganization(orgKeyAndName).setPermission(otherPermission));
