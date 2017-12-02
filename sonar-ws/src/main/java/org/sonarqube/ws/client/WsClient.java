@@ -32,7 +32,6 @@ import org.sonarqube.ws.client.projectanalyses.ProjectAnalysesService;
 import org.sonarqube.ws.client.projectbranches.ProjectBranchesService;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
-import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
 import org.sonarqube.ws.client.qualityprofiles.QualityprofilesService;
 import org.sonarqube.ws.client.roots.RootsService;
 import org.sonarqube.ws.client.rules.RulesService;
@@ -74,12 +73,6 @@ public interface WsClient {
   NotificationsService notifications();
 
   PermissionsService permissions();
-
-  /**
-   * @deprecated since 7.0 use {@link #qualityProfiles()} instead
-   */
-  @Deprecated
-  QualityProfilesService qualityProfilesOld();
 
   QualityprofilesService qualityProfiles();
 

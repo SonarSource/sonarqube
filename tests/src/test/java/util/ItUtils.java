@@ -66,13 +66,14 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Components.Component;
 import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.Measures.Measure;
+import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpConnector;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.components.ShowRequest;
 import org.sonarqube.ws.client.measures.ComponentRequest;
-import org.sonarqube.ws.client.qualityprofile.RestoreRequest;
 import org.sonarqube.ws.client.settings.ResetRequest;
 import org.sonarqube.ws.client.settings.SetRequest;
 
@@ -86,6 +87,8 @@ import static java.util.Locale.ENGLISH;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_ORGANIZATION;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.RestoreActionParameters.PARAM_BACKUP;
 
 public class ItUtils {
   public static final Splitter LINE_SPLITTER = Splitter.on(System.getProperty("line.separator"));
@@ -402,13 +405,14 @@ public class ItUtils {
     } catch (URISyntaxException e) {
       throw new IllegalArgumentException("Cannot find quality profile xml file '" + resource + "' in classpath");
     }
-    newAdminWsClient(orchestrator)
-      .qualityProfilesOld()
-      .restoreProfile(
-        RestoreRequest.builder()
-          .setBackup(new File(uri))
-          .setOrganization(organization)
-          .build());
+
+    PostRequest httpRequest = new PostRequest("api/qualityprofiles/restore")
+      .setParam(PARAM_ORGANIZATION, organization)
+      .setPart(PARAM_BACKUP, new PostRequest.Part(MediaTypes.XML, new File(uri)));
+    HttpConnector.newBuilder()
+      .url(orchestrator.getServer().getUrl())
+      .credentials(ADMIN_LOGIN, ADMIN_PASSWORD)
+      .build().call(httpRequest);
   }
 
   public static String newOrganizationKey() {

@@ -331,9 +331,9 @@ public class OrganizationTest {
   }
 
   private void assertThatBuiltInQualityProfilesExist(Organization org) {
-    org.sonarqube.ws.client.qualityprofile.SearchRequest profilesRequest = new org.sonarqube.ws.client.qualityprofile.SearchRequest()
-      .setOrganizationKey(org.getKey());
-    Qualityprofiles.SearchWsResponse response = tester.wsClient().qualityProfilesOld().search(profilesRequest);
+    org.sonarqube.ws.client.qualityprofiles.SearchRequest profilesRequest = new org.sonarqube.ws.client.qualityprofiles.SearchRequest()
+      .setOrganization(org.getKey());
+    Qualityprofiles.SearchWsResponse response = tester.wsClient().qualityprofiles().search(profilesRequest);
     assertThat(response.getProfilesCount()).isGreaterThan(0);
 
     response.getProfilesList().forEach(p -> {
@@ -354,7 +354,7 @@ public class OrganizationTest {
   }
 
   private void assertThatQualityProfilesDoNotExist(Organization org) {
-    expectNotFoundError(() -> tester.wsClient().qualityProfilesOld().search(
-      new org.sonarqube.ws.client.qualityprofile.SearchRequest().setOrganizationKey(org.getKey())));
+    expectNotFoundError(() -> tester.wsClient().qualityprofiles().search(
+      new org.sonarqube.ws.client.qualityprofiles.SearchRequest().setOrganization(org.getKey())));
   }
 }

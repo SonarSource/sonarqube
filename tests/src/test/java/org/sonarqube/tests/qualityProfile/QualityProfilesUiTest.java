@@ -31,9 +31,9 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
-import org.sonarqube.ws.client.qualityprofile.ChangeParentRequest;
-import org.sonarqube.ws.client.qualityprofile.CreateRequest;
+import org.sonarqube.ws.client.qualityprofiles.AddProjectRequest;
+import org.sonarqube.ws.client.qualityprofiles.ChangeParentRequest;
+import org.sonarqube.ws.client.qualityprofiles.CreateRequest;
 import util.selenium.Selenese;
 import util.user.UserRule;
 
@@ -154,18 +154,16 @@ public class QualityProfilesUiTest {
   }
 
   private void createProfile(String language, String name) {
-    tester.wsClient().qualityProfilesOld().create(CreateRequest.builder()
+    tester.wsClient().qualityprofiles().create(new CreateRequest()
       .setLanguage(language)
-      .setName(name)
-      .build());
+      .setName(name));
   }
 
   private void inheritProfile(String language, String name, String parentName) {
-    tester.wsClient().qualityProfilesOld().changeParent(ChangeParentRequest.builder()
+    tester.wsClient().qualityprofiles().changeParent(new ChangeParentRequest()
       .setLanguage(language)
-      .setProfileName(name)
-      .setParentName(parentName)
-      .build());
+      .setQualityProfile(name)
+      .setParentQualityProfile(parentName));
   }
 
   private static void analyzeProject(String path) {
@@ -173,11 +171,10 @@ public class QualityProfilesUiTest {
   }
 
   private void addProfileToProject(String language, String profileName, String projectKey) {
-    tester.wsClient().qualityProfilesOld().addProject(AddProjectRequest.builder()
+    tester.wsClient().qualityprofiles().addProject(new AddProjectRequest()
       .setLanguage(language)
       .setQualityProfile(profileName)
-      .setProjectKey(projectKey)
-      .build());
+      .setProject(projectKey));
   }
 
   private void deleteProfile(String language, String name) {

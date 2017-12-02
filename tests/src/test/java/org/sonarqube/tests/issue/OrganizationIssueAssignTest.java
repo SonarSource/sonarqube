@@ -38,7 +38,7 @@ import org.sonarqube.ws.client.issues.AssignRequest;
 import org.sonarqube.ws.client.issues.BulkChangeRequest;
 import org.sonarqube.ws.client.issues.SearchRequest;
 import org.sonarqube.ws.client.project.CreateRequest;
-import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
+import org.sonarqube.ws.client.qualityprofiles.AddProjectRequest;
 import util.issue.IssueRule;
 
 import static java.lang.String.format;
@@ -204,13 +204,12 @@ public class OrganizationIssueAssignTest {
   }
 
   private void addQualityProfileToProject(String organization, String projectKey) {
-    tester.wsClient().qualityProfilesOld().addProject(
-      AddProjectRequest.builder()
-        .setProjectKey(projectKey)
+    tester.wsClient().qualityprofiles().addProject(
+      new AddProjectRequest()
+        .setProject(projectKey)
         .setOrganization(organization)
         .setLanguage("xoo")
-        .setQualityProfile("one-issue-per-file-profile")
-        .build());
+        .setQualityProfile("one-issue-per-file-profile"));
   }
 
   private Issues.AssignResponse assignIssueTo(Issue issue, User u) {

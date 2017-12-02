@@ -83,8 +83,8 @@ public class RulesWsTest {
   }
 
   private SearchWsResponse.QualityProfile getProfile(Organization organization, Predicate<SearchWsResponse.QualityProfile> filter) {
-    return tester.qProfiles().service().search(new org.sonarqube.ws.client.qualityprofile.SearchRequest()
-      .setOrganizationKey(organization.getKey())).getProfilesList()
+    return tester.qProfiles().service().search(new org.sonarqube.ws.client.qualityprofiles.SearchRequest()
+      .setOrganization(organization.getKey())).getProfilesList()
       .stream()
       .filter(filter)
       .findAny().orElseThrow(IllegalStateException::new);
