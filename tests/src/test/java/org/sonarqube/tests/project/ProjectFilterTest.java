@@ -291,7 +291,7 @@ public class ProjectFilterTest {
   }
 
   private SearchProjectsWsResponse searchProjects(SearchProjectsRequest request) throws IOException {
-    return tester.wsClient().components().searchProjects(request);
+    return tester.wsClient().componentsOld().searchProjects(request);
   }
 
   private void verifyFilterMatches(String projectKey, String filter) throws IOException {

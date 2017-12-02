@@ -74,7 +74,7 @@ public class UserTester {
   @SafeVarargs
   public final User generateAdministrator(Consumer<CreateRequest.Builder>... populators) {
     User user = generate(populators);
-    session.wsClient().permissions().addUser(new org.sonarqube.ws.client.permission.AddUserRequest().setLogin(user.getLogin()).setPermission("admin"));
+    session.wsClient().permissionsOld().addUser(new org.sonarqube.ws.client.permission.AddUserRequest().setLogin(user.getLogin()).setPermission("admin"));
     session.wsClient().userGroups().addUser(new AddUserRequest().setLogin(user.getLogin()).setName("sonar-administrators"));
     return user;
   }
@@ -83,7 +83,7 @@ public class UserTester {
   public final User generateAdministrator(Organizations.Organization organization, Consumer<CreateRequest.Builder>... populators) {
     String organizationKey = organization.getKey();
     User user = generate(populators);
-    session.wsClient().organizations().addMember(organizationKey, user.getLogin());
+    session.wsClient().organizationsOld().addMember(organizationKey, user.getLogin());
     session.wsClient().userGroups().addUser(new AddUserRequest()
       .setOrganization(organizationKey)
       .setLogin(user.getLogin())
@@ -94,7 +94,7 @@ public class UserTester {
   @SafeVarargs
   public final User generateAdministratorOnDefaultOrganization(Consumer<CreateRequest.Builder>... populators) {
     User user = generate(populators);
-    session.wsClient().organizations().addMember(DEFAULT_ORGANIZATION_KEY, user.getLogin());
+    session.wsClient().organizationsOld().addMember(DEFAULT_ORGANIZATION_KEY, user.getLogin());
     session.wsClient().userGroups().addUser(new AddUserRequest()
       .setOrganization(DEFAULT_ORGANIZATION_KEY)
       .setLogin(user.getLogin())
@@ -105,14 +105,14 @@ public class UserTester {
   @SafeVarargs
   public final User generateMember(Organizations.Organization organization, Consumer<CreateRequest.Builder>... populators) {
     User user = generate(populators);
-    session.wsClient().organizations().addMember(organization.getKey(), user.getLogin());
+    session.wsClient().organizationsOld().addMember(organization.getKey(), user.getLogin());
     return user;
   }
 
   @SafeVarargs
   public final User generateMemberOfDefaultOrganization(Consumer<CreateRequest.Builder>... populators) {
     User user = generate(populators);
-    session.wsClient().organizations().addMember(DEFAULT_ORGANIZATION_KEY, user.getLogin());
+    session.wsClient().organizationsOld().addMember(DEFAULT_ORGANIZATION_KEY, user.getLogin());
     return user;
   }
 

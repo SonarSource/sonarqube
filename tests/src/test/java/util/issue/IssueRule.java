@@ -48,7 +48,7 @@ public class IssueRule extends ExternalResource {
   }
 
   public SearchWsResponse search(SearchRequest request) {
-    return adminWsClient().issues().search(request);
+    return adminWsClient().issuesOld().search(request);
   }
 
   public Issue getRandomIssue() {

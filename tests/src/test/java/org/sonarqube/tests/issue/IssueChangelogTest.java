@@ -118,7 +118,7 @@ public class IssueChangelogTest extends AbstractIssueTest {
   }
 
   private static Issues.ChangelogWsResponse changelog(String issueKey) {
-    return adminClient.issues().changelog(issueKey);
+    return adminClient.issuesOld().changelog(issueKey);
   }
 
 }

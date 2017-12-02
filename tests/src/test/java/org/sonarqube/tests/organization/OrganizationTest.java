@@ -206,7 +206,7 @@ public class OrganizationTest {
       "sonar.organization", organization.getKey(),
       "sonar.login", user.getLogin(),
       "sonar.password", user.getLogin());
-    ComponentsService componentsService = tester.as(user.getLogin()).wsClient().components();
+    ComponentsService componentsService = tester.as(user.getLogin()).wsClient().componentsOld();
     assertThat(searchSampleProject(organization.getKey(), componentsService).getComponentsList()).hasSize(1);
   }
 
@@ -222,7 +222,7 @@ public class OrganizationTest {
       assertThat(e.getResult().getLogs()).contains("Insufficient privileges");
     }
 
-    ComponentsService componentsService = tester.wsClient().components();
+    ComponentsService componentsService = tester.wsClient().componentsOld();
     assertThat(searchSampleProject(organization.getKey(), componentsService).getComponentsCount()).isEqualTo(0);
   }
 
@@ -232,12 +232,12 @@ public class OrganizationTest {
 
     runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.organization", organization.getKey(), "sonar.login", "admin", "sonar.password", "admin");
 
-    ComponentsService componentsService = tester.asAnonymous().wsClient().components();
+    ComponentsService componentsService = tester.asAnonymous().wsClient().componentsOld();
     assertThat(searchSampleProject(organization.getKey(), componentsService).getComponentsList()).hasSize(1);
   }
 
   private void addPermissionsToUser(String orgKeyAndName, String login, String permission, String... otherPermissions) {
-    PermissionsService permissionsService = tester.wsClient().permissions();
+    PermissionsService permissionsService = tester.wsClient().permissionsOld();
     permissionsService.addUser(new AddUserRequest().setLogin(login).setOrganization(orgKeyAndName).setPermission(permission));
     for (String otherPermission : otherPermissions) {
       permissionsService.addUser(new AddUserRequest().setLogin(login).setOrganization(orgKeyAndName).setPermission(otherPermission));
@@ -252,7 +252,7 @@ public class OrganizationTest {
       "sonar.organization", organization.getKey(),
       "sonar.login", "admin",
       "sonar.password", "admin");
-    ComponentsService componentsService = tester.wsClient().components();
+    ComponentsService componentsService = tester.wsClient().componentsOld();
     assertThat(searchSampleProject(organization.getKey(), componentsService).getComponentsList()).hasSize(1);
 
     tester.organizations().service().delete(organization.getKey());
@@ -341,7 +341,7 @@ public class OrganizationTest {
   private void assertThatBuiltInQualityProfilesExist(Organization org) {
     org.sonarqube.ws.client.qualityprofile.SearchRequest profilesRequest = new org.sonarqube.ws.client.qualityprofile.SearchRequest()
       .setOrganizationKey(org.getKey());
-    Qualityprofiles.SearchWsResponse response = tester.wsClient().qualityProfiles().search(profilesRequest);
+    Qualityprofiles.SearchWsResponse response = tester.wsClient().qualityProfilesOld().search(profilesRequest);
     assertThat(response.getProfilesCount()).isGreaterThan(0);
 
     response.getProfilesList().forEach(p -> {
@@ -362,7 +362,7 @@ public class OrganizationTest {
   }
 
   private void assertThatQualityProfilesDoNotExist(Organization org) {
-    expectNotFoundError(() -> tester.wsClient().qualityProfiles().search(
+    expectNotFoundError(() -> tester.wsClient().qualityProfilesOld().search(
       new org.sonarqube.ws.client.qualityprofile.SearchRequest().setOrganizationKey(org.getKey())));
   }
 }

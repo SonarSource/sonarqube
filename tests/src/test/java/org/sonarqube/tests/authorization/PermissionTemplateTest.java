@@ -90,7 +90,7 @@ public class PermissionTemplateTest {
     CreateWsResponse.User user = tester.users().generateMember(organization);
     CreateWsResponse.User anotherUser = tester.users().generateMember(organization);
     Permissions.PermissionTemplate template = createTemplate(organization).getPermissionTemplate();
-    tester.wsClient().permissions().addUserToTemplate(new AddUserToTemplateRequest()
+    tester.wsClient().permissionsOld().addUserToTemplate(new AddUserToTemplateRequest()
       .setOrganization(organization.getKey())
       .setTemplateId(template.getId())
       .setLogin(user.getLogin())
@@ -99,7 +99,7 @@ public class PermissionTemplateTest {
     Project project2 = createPrivateProject(organization);
     Project untouchedProject = createPrivateProject(organization);
 
-    tester.wsClient().permissions().bulkApplyTemplate(new BulkApplyTemplateRequest()
+    tester.wsClient().permissionsOld().bulkApplyTemplate(new BulkApplyTemplateRequest()
       .setOrganization(organization.getKey())
       .setTemplateId(template.getId())
       .setProjects(Arrays.asList(project1.getKey(), project2.getKey())));
@@ -156,7 +156,7 @@ public class PermissionTemplateTest {
    */
   private void createAndApplyTemplate(Organization organization, Project project, CreateWsResponse.User user) {
     String templateName = "For user";
-    PermissionsService service = tester.wsClient().permissions();
+    PermissionsService service = tester.wsClient().permissionsOld();
     service.createTemplate(new CreateTemplateRequest()
       .setOrganization(organization.getKey())
       .setName(templateName)
@@ -173,7 +173,7 @@ public class PermissionTemplateTest {
   }
 
   private CreateTemplateWsResponse createTemplate(Organization organization) {
-    return tester.wsClient().permissions().createTemplate(new CreateTemplateRequest()
+    return tester.wsClient().permissionsOld().createTemplate(new CreateTemplateRequest()
       .setOrganization(organization.getKey())
       .setName(randomAlphabetic(20)));
   }
@@ -193,7 +193,7 @@ public class PermissionTemplateTest {
   private boolean userHasAccessToIndexedProject(CreateWsResponse.User user, Organization organization, Project project) {
     SearchProjectsRequest request = SearchProjectsRequest.builder().setOrganization(organization.getKey()).build();
     WsClient userSession = tester.as(user.getLogin()).wsClient();
-    return userSession.components().searchProjects(request)
+    return userSession.componentsOld().searchProjects(request)
       .getComponentsList().stream()
       .anyMatch(c -> c.getKey().equals(project.getKey()));
   }
@@ -203,7 +203,7 @@ public class PermissionTemplateTest {
       .setOrganization(organization.getKey())
       .setProjectKey(project.getKey())
       .setPermission("user");
-    Permissions.UsersWsResponse response = tester.wsClient().permissions().users(request);
+    Permissions.UsersWsResponse response = tester.wsClient().permissionsOld().users(request);
     Optional<Permissions.User> found = response.getUsersList().stream()
       .filter(u -> user.getLogin().equals(u.getLogin()))
       .findFirst();

@@ -49,7 +49,7 @@ public class QualityProfileAdminPermissionTest {
 
     tester.users().generate(u -> u.setLogin("not_profileadm").setPassword("userpwd"));
     tester.users().generate(u -> u.setLogin("profileadm").setPassword("papwd"));
-    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin("profileadm").setPermission("profileadmin"));
+    tester.wsClient().permissionsOld().addUser(new AddUserRequest().setLogin("profileadm").setPermission("profileadmin"));
     createProfile("xoo", "foo");
 
     Selenese.runSelenese(orchestrator,
@@ -60,7 +60,7 @@ public class QualityProfileAdminPermissionTest {
   }
 
   private void createProfile(String language, String name) {
-    tester.wsClient().qualityProfiles().create(CreateRequest.builder()
+    tester.wsClient().qualityProfilesOld().create(CreateRequest.builder()
       .setLanguage(language)
       .setName(name)
       .build());

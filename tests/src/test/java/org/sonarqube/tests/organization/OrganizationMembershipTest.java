@@ -78,7 +78,7 @@ public class OrganizationMembershipTest {
     User user = tester.users().generate();
     addMembership(organization, user);
 
-    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(user.getLogin()).setPermission("admin").setOrganization(organization.getKey()));
+    tester.wsClient().permissionsOld().addUser(new AddUserRequest().setLogin(user.getLogin()).setPermission("admin").setOrganization(organization.getKey()));
     tester.organizations().assertThatMemberOf(organization, user);
 
     removeMembership(organization, user);
@@ -91,10 +91,10 @@ public class OrganizationMembershipTest {
     User user = tester.users().generate();
     addMembership(organization, user);
 
-    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(user.getLogin()).setPermission("admin").setOrganization(organization.getKey()));
+    tester.wsClient().permissionsOld().addUser(new AddUserRequest().setLogin(user.getLogin()).setPermission("admin").setOrganization(organization.getKey()));
     tester.organizations().assertThatMemberOf(organization, user);
     // Admin is the creator of the organization so he was granted with admin permission
-    tester.wsClient().organizations().removeMember(organization.getKey(), "admin");
+    tester.wsClient().organizationsOld().removeMember(organization.getKey(), "admin");
 
     expectedException.expect(HttpException.class);
     expectedException.expectMessage("The last administrator member cannot be removed");
@@ -125,6 +125,6 @@ public class OrganizationMembershipTest {
   }
 
   private void removeMembership(Organization organization, User user) {
-    tester.wsClient().organizations().removeMember(organization.getKey(), user.getLogin());
+    tester.wsClient().organizationsOld().removeMember(organization.getKey(), user.getLogin());
   }
 }

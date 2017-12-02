@@ -59,7 +59,7 @@ public class OrganizationQualityGateUiTest {
     organization = tester.organizations().generate();
     gateAdmin = tester.users().generate();
     tester.organizations().addMember(tester.organizations().getDefaultOrganization(), gateAdmin);
-    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(gateAdmin.getLogin()).setPermission("gateadmin"));
+    tester.wsClient().permissionsOld().addUser(new AddUserRequest().setLogin(gateAdmin.getLogin()).setPermission("gateadmin"));
     user = tester.users().generate();
     tester.organizations().addMember(organization, user);
     restoreProfile(orchestrator, getClass().getResource("/issue/with-many-rules.xml"), organization.getKey());

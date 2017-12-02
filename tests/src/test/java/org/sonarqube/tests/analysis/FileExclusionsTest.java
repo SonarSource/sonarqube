@@ -134,6 +134,6 @@ public class FileExclusionsTest {
   }
 
   public static List<Component> getComponents(String qualifier) {
-    return newWsClient(orchestrator).components().tree(new TreeRequest().setBaseComponentKey(PROJECT).setQualifiers(singletonList(qualifier))).getComponentsList();
+    return newWsClient(orchestrator).componentsOld().tree(new TreeRequest().setBaseComponentKey(PROJECT).setQualifiers(singletonList(qualifier))).getComponentsList();
   }
 }

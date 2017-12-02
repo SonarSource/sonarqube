@@ -154,14 +154,14 @@ public class QualityProfilesUiTest {
   }
 
   private void createProfile(String language, String name) {
-    tester.wsClient().qualityProfiles().create(CreateRequest.builder()
+    tester.wsClient().qualityProfilesOld().create(CreateRequest.builder()
       .setLanguage(language)
       .setName(name)
       .build());
   }
 
   private void inheritProfile(String language, String name, String parentName) {
-    tester.wsClient().qualityProfiles().changeParent(ChangeParentRequest.builder()
+    tester.wsClient().qualityProfilesOld().changeParent(ChangeParentRequest.builder()
       .setLanguage(language)
       .setProfileName(name)
       .setParentName(parentName)
@@ -173,7 +173,7 @@ public class QualityProfilesUiTest {
   }
 
   private void addProfileToProject(String language, String profileName, String projectKey) {
-    tester.wsClient().qualityProfiles().addProject(AddProjectRequest.builder()
+    tester.wsClient().qualityProfilesOld().addProject(AddProjectRequest.builder()
       .setLanguage(language)
       .setQualityProfile(profileName)
       .setProjectKey(projectKey)

@@ -59,7 +59,7 @@ public class MeasuresWsTest {
   public void component_tree() {
     scanXooSample();
 
-    ComponentTreeWsResponse response = tester.wsClient().measures().componentTree(new ComponentTreeRequest()
+    ComponentTreeWsResponse response = tester.wsClient().measuresOld().componentTree(new ComponentTreeRequest()
       .setComponent("sample")
       .setMetricKeys(singletonList("ncloc"))
       .setAdditionalFields(asList("metrics", "periods")));
@@ -123,7 +123,7 @@ public class MeasuresWsTest {
   }
 
   private void verifyComponentTreeWithChildren(String baseComponentKey, String... childKeys) {
-    ComponentTreeWsResponse response = tester.wsClient().measures().componentTree(new ComponentTreeRequest()
+    ComponentTreeWsResponse response = tester.wsClient().measuresOld().componentTree(new ComponentTreeRequest()
       .setComponent(baseComponentKey)
       .setMetricKeys(singletonList("ncloc"))
       .setStrategy("children"));
@@ -137,7 +137,7 @@ public class MeasuresWsTest {
   public void component() {
     scanXooSample();
 
-    ComponentWsResponse response = tester.wsClient().measures().component(new ComponentRequest()
+    ComponentWsResponse response = tester.wsClient().measuresOld().component(new ComponentRequest()
       .setComponent("sample")
       .setMetricKeys(singletonList("ncloc"))
       .setAdditionalFields(newArrayList("metrics", "periods")));

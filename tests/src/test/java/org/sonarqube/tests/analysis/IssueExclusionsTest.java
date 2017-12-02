@@ -239,7 +239,7 @@ public class IssueExclusionsTest {
     tester.projects().provision(p -> p
       .setKey("com.sonarsource.it.samples:multi-modules-exclusions")
       .setName("Sonar :: Integration Tests :: Multi-modules With Exclusions"));
-    tester.wsClient().qualityProfiles().addProject(AddProjectRequest.builder().setProjectKey("com.sonarsource.it.samples:multi-modules-exclusions")
+    tester.wsClient().qualityProfilesOld().addProject(AddProjectRequest.builder().setProjectKey("com.sonarsource.it.samples:multi-modules-exclusions")
       .setLanguage("xoo").setQualityProfile("with-many-rules").build());
 
     SonarScanner scan = SonarScanner.create(ItUtils.projectDir(PROJECT_DIR))

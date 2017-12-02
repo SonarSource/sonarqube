@@ -58,7 +58,7 @@ public class ProvisioningPermissionTest {
   @BeforeClass
   public static void init() {
     // remove default permission "provisioning" from anyone();
-    tester.wsClient().permissions().removeGroup(new RemoveGroupRequest().setGroupName("anyone").setPermission("provisioning"));
+    tester.wsClient().permissionsOld().removeGroup(new RemoveGroupRequest().setGroupName("anyone").setPermission("provisioning"));
 
     tester.users().generate(u -> u.setLogin(ADMIN_WITH_PROVISIONING).setPassword(PASSWORD));
     addUserPermission(ADMIN_WITH_PROVISIONING, "admin");
@@ -77,7 +77,7 @@ public class ProvisioningPermissionTest {
 
   @AfterClass
   public static void restoreData() throws Exception {
-    tester.wsClient().permissions().addGroup(new AddGroupRequest().setGroupName("anyone").setPermission("provisioning"));
+    tester.wsClient().permissionsOld().addGroup(new AddGroupRequest().setGroupName("anyone").setPermission("provisioning"));
   }
 
   /**
@@ -130,10 +130,10 @@ public class ProvisioningPermissionTest {
   }
 
   private static void addUserPermission(String login, String permission) {
-    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(login).setPermission(permission));
+    tester.wsClient().permissionsOld().addUser(new AddUserRequest().setLogin(login).setPermission(permission));
   }
 
   private static void removeUserPermission(String login, String permission) {
-    tester.wsClient().permissions().removeUser(new RemoveUserRequest().setLogin(login).setPermission(permission));
+    tester.wsClient().permissionsOld().removeUser(new RemoveUserRequest().setLogin(login).setPermission(permission));
   }
 }

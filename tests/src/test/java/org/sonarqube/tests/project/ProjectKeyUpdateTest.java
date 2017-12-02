@@ -71,7 +71,7 @@ public class ProjectKeyUpdateTest {
   public void update_key() {
     analyzeXooSample();
     String newProjectKey = "another_project_key";
-    Components.Component project = tester.wsClient().components().show(new ShowRequest().setKey(PROJECT_KEY)).getComponent();
+    Components.Component project = tester.wsClient().componentsOld().show(new ShowRequest().setKey(PROJECT_KEY)).getComponent();
     assertThat(project.getKey()).isEqualTo(PROJECT_KEY);
 
     tester.wsClient().projects().updateKey(UpdateKeyRequest.builder()
@@ -79,14 +79,14 @@ public class ProjectKeyUpdateTest {
       .setNewKey(newProjectKey)
       .build());
 
-    assertThat(tester.wsClient().components().show(new ShowRequest().setId(project.getId())).getComponent().getKey()).isEqualTo(newProjectKey);
+    assertThat(tester.wsClient().componentsOld().show(new ShowRequest().setId(project.getId())).getComponent().getKey()).isEqualTo(newProjectKey);
   }
 
   @Test
   public void bulk_update_key() {
     analyzeXooSample();
     String newProjectKey = "another_project_key";
-    Components.Component project = tester.wsClient().components().show(new ShowRequest().setKey(PROJECT_KEY)).getComponent();
+    Components.Component project = tester.wsClient().componentsOld().show(new ShowRequest().setKey(PROJECT_KEY)).getComponent();
     assertThat(project.getKey()).isEqualTo(PROJECT_KEY);
 
     Projects.BulkUpdateKeyWsResponse result = tester.wsClient().projects().bulkUpdateKey(BulkUpdateKeyRequest.builder()
@@ -95,7 +95,7 @@ public class ProjectKeyUpdateTest {
       .setTo(newProjectKey)
       .build());
 
-    assertThat(tester.wsClient().components().show(new ShowRequest().setId(project.getId())).getComponent().getKey()).isEqualTo(newProjectKey);
+    assertThat(tester.wsClient().componentsOld().show(new ShowRequest().setId(project.getId())).getComponent().getKey()).isEqualTo(newProjectKey);
     assertThat(result.getKeysCount()).isEqualTo(1);
     assertThat(result.getKeys(0))
       .extracting(Projects.BulkUpdateKeyWsResponse.Key::getKey, Projects.BulkUpdateKeyWsResponse.Key::getNewKey, Projects.BulkUpdateKeyWsResponse.Key::getDuplicate)
@@ -254,7 +254,7 @@ public class ProjectKeyUpdateTest {
    */
   @CheckForNull
   private String keyInComponentSearchProjects(String name) {
-    Components.SearchProjectsWsResponse response = tester.wsClient().components().searchProjects(
+    Components.SearchProjectsWsResponse response = tester.wsClient().componentsOld().searchProjects(
       SearchProjectsRequest.builder().setFilter("query=\"" + name + "\"").build());
     if (response.getComponentsCount() > 0) {
       return response.getComponents(0).getKey();
