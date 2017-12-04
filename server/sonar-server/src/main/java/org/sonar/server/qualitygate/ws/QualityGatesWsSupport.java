@@ -56,14 +56,6 @@ public class QualityGatesWsSupport {
     return checkFound(dbClient.gateConditionDao().selectById(id, dbSession), "No quality gate condition with id '%d'", id);
   }
 
-  /**
-   * @deprecated use {@link #isQualityGateAdmin(OrganizationDto)} instead
-   */
-  @Deprecated
-  boolean isQualityGateAdmin() {
-    return userSession.hasPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
-  }
-
   boolean isQualityGateAdmin(OrganizationDto organization) {
     return userSession.hasPermission(ADMINISTER_QUALITY_GATES, organization);
   }
@@ -76,25 +68,6 @@ public class QualityGatesWsSupport {
       .setRequired(false)
       .setInternal(false)
       .setExampleValue("my-org");
-  }
-
-  /**
-   * @deprecated use {@link #getActions(OrganizationDto, QualityGateDto, QualityGateDto)} instead
-   */
-  @Deprecated
-  Qualitygates.Actions getActions(QualityGateDto qualityGate, @Nullable QualityGateDto defaultQualityGate) {
-    Long defaultId = defaultQualityGate == null ? null : defaultQualityGate.getId();
-    boolean isDefault = qualityGate.getId().equals(defaultId);
-    boolean isBuiltIn = qualityGate.isBuiltIn();
-    boolean isQualityGateAdmin = isQualityGateAdmin();
-    return Qualitygates.Actions.newBuilder()
-      .setCopy(isQualityGateAdmin)
-      .setRename(!isBuiltIn && isQualityGateAdmin)
-      .setManageConditions(!isBuiltIn && isQualityGateAdmin)
-      .setDelete(!isDefault && !isBuiltIn && isQualityGateAdmin)
-      .setSetAsDefault(!isDefault && isQualityGateAdmin)
-      .setAssociateProjects(!isDefault && isQualityGateAdmin)
-      .build();
   }
 
   Qualitygates.Actions getActions(OrganizationDto organization, QualityGateDto qualityGate, @Nullable QualityGateDto defaultQualityGate) {
