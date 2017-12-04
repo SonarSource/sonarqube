@@ -19,28 +19,54 @@
  */
 package org.sonarqube.ws.client;
 
+import javax.annotation.Generated;
+
+import org.sonarqube.ws.client.analysisreports.AnalysisReportsService;
+import org.sonarqube.ws.client.authentication.AuthenticationService;
 import org.sonarqube.ws.client.ce.CeService;
 import org.sonarqube.ws.client.components.ComponentsService;
+import org.sonarqube.ws.client.custommeasures.CustomMeasuresService;
+import org.sonarqube.ws.client.duplications.DuplicationsService;
+import org.sonarqube.ws.client.editions.EditionsService;
+import org.sonarqube.ws.client.emails.EmailsService;
 import org.sonarqube.ws.client.favorites.FavoritesService;
+import org.sonarqube.ws.client.favourites.FavouritesService;
 import org.sonarqube.ws.client.issues.IssuesService;
+import org.sonarqube.ws.client.l10n.L10nService;
+import org.sonarqube.ws.client.languages.LanguagesService;
 import org.sonarqube.ws.client.measures.MeasuresService;
+import org.sonarqube.ws.client.metrics.MetricsService;
+import org.sonarqube.ws.client.navigation.NavigationService;
 import org.sonarqube.ws.client.notifications.NotificationsService;
 import org.sonarqube.ws.client.organizations.OrganizationsService;
 import org.sonarqube.ws.client.permissions.PermissionsService;
-import org.sonarqube.ws.client.project.ProjectsService;
+import org.sonarqube.ws.client.plugins.PluginsService;
+import org.sonarqube.ws.client.profiles.ProfilesService;
 import org.sonarqube.ws.client.projectanalyses.ProjectAnalysesService;
 import org.sonarqube.ws.client.projectbranches.ProjectBranchesService;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
+import org.sonarqube.ws.client.projecttags.ProjectTagsService;
+import org.sonarqube.ws.client.projects.ProjectsService;
+import org.sonarqube.ws.client.properties.PropertiesService;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualityprofiles.QualityprofilesService;
+import org.sonarqube.ws.client.resources.ResourcesService;
 import org.sonarqube.ws.client.roots.RootsService;
 import org.sonarqube.ws.client.rules.RulesService;
+import org.sonarqube.ws.client.server.ServerService;
 import org.sonarqube.ws.client.settings.SettingsService;
+import org.sonarqube.ws.client.sources.SourcesService;
 import org.sonarqube.ws.client.system.SystemService;
-import org.sonarqube.ws.client.user.UsersService;
+import org.sonarqube.ws.client.tests.TestsService;
+import org.sonarqube.ws.client.timemachine.TimemachineService;
+import org.sonarqube.ws.client.updatecenter.UpdatecenterService;
 import org.sonarqube.ws.client.usergroups.UserGroupsService;
+import org.sonarqube.ws.client.userproperties.UserPropertiesService;
 import org.sonarqube.ws.client.usertokens.UserTokensService;
+import org.sonarqube.ws.client.users.UsersService;
 import org.sonarqube.ws.client.webhooks.WebhooksService;
+import org.sonarqube.ws.client.webservices.WebservicesService;
+import org.sonarqube.ws.client.batch.BatchService;
 
 /**
  * Allows to request the web services of SonarQube server. Instance is provided by
@@ -60,69 +86,100 @@ import org.sonarqube.ws.client.webhooks.WebhooksService;
  *
  * @since 5.3
  */
+@Generated("https://github.com/SonarSource/sonar-ws-generator")
 public interface WsClient {
-
-  OrganizationsService organizations();
-
-  ComponentsService components();
-
-  FavoritesService favorites();
-
-  IssuesService issues();
-
-  NotificationsService notifications();
-
-  PermissionsService permissions();
-
-  QualityprofilesService qualityProfiles();
-
-  UsersService users();
-
-  UserGroupsService userGroups();
-
-  UserTokensService userTokens();
-
-  QualitygatesService qualityGates();
-
-  MeasuresService measures();
-
-  SystemService system();
-
-  CeService ce();
-
-  RulesService rules();
 
   WsConnector wsConnector();
 
-  /**
-   * @since 5.5
-   */
-  ProjectsService projects();
+  AnalysisReportsService analysisReports();
 
-  /**
-   * @since 6.1
-   */
-  ProjectLinksService projectLinks();
+  AuthenticationService authentication();
 
-  /**
-   * @since 6.1
-   */
-  SettingsService settings();
+  CeService ce();
 
-  /**
-   * @since 6.2
-   */
-  RootsService roots();
+  ComponentsService components();
 
-  /**
-   * @since 6.2
-   */
-  WebhooksService webhooks();
+  CustomMeasuresService customMeasures();
+
+  DuplicationsService duplications();
+
+  EditionsService editions();
+
+  EmailsService emails();
+
+  FavoritesService favorites();
+
+  FavouritesService favourites();
+
+  IssuesService issues();
+
+  L10nService l10n();
+
+  LanguagesService languages();
+
+  MeasuresService measures();
+
+  MetricsService metrics();
+
+  NavigationService navigation();
+
+  NotificationsService notifications();
+
+  OrganizationsService organizations();
+
+  PermissionsService permissions();
+
+  PluginsService plugins();
+
+  ProfilesService profiles();
 
   ProjectAnalysesService projectAnalyses();
 
-  /**
-   * @since 6.6>
-   */
   ProjectBranchesService projectBranches();
+
+  ProjectLinksService projectLinks();
+
+  ProjectTagsService projectTags();
+
+  ProjectsService projects();
+
+  PropertiesService properties();
+
+  QualitygatesService qualitygates();
+
+  QualityprofilesService qualityprofiles();
+
+  ResourcesService resources();
+
+  RootsService roots();
+
+  RulesService rules();
+
+  ServerService server();
+
+  SettingsService settings();
+
+  SourcesService sources();
+
+  SystemService system();
+
+  TestsService tests();
+
+  TimemachineService timemachine();
+
+  UpdatecenterService updatecenter();
+
+  UserGroupsService userGroups();
+
+  UserPropertiesService userProperties();
+
+  UserTokensService userTokens();
+
+  UsersService users();
+
+  WebhooksService webhooks();
+
+  WebservicesService webservices();
+
+  BatchService batch();
 }

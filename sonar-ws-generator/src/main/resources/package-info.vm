@@ -19,7 +19,11 @@
  */
 @ParametersAreNonnullByDefault
 @Generated("sonar-ws-generator")
+#if ($webService.path.asString)
 package $helper.packageName($webService.path.asString);
+#else
+package $helper.packageName();
+#end
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.annotation.Generated;

@@ -30,25 +30,30 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.HashSet;
 import java.util.Properties;
-import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Arrays.asList;
+import static org.sonarqube.wsgenerator.Helper.PATH_EXCLUSIONS;
 
 public class CodeFormatter {
-
-  private static final Set<String> PATH_EXCLUSIONS = new HashSet<>(asList("api/orchestrator"));
 
   public static void format(String json) {
     JsonObject jsonElement = new Gson().fromJson(json, JsonObject.class);
     JsonArray webServices = (JsonArray) jsonElement.get("webServices");
 
     Helper helper = new Helper();
+
+    VelocityContext globalContext = new VelocityContext();
+    globalContext.put("webServices", webServices);
+    globalContext.put("helper", helper);
+    String defaultWsClientCode = applyTemplate("defaultWsClient.vm", globalContext);
+    writeSourceFile(helper.defaultWsClientFile(), defaultWsClientCode);
+    String wsClientCode = applyTemplate("wsClient.vm", globalContext);
+    writeSourceFile(helper.wsClientFile(), wsClientCode);
+    writeSourceFile(helper.packageInfoFile(), applyTemplate("package-info.vm", globalContext));
 
     for (JsonElement webServiceElement : webServices) {
       JsonObject webService = (JsonObject) webServiceElement;

@@ -17,10 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-@Generated("sonar-ws-generator")
-package org.sonarqube.ws.client;
+package org.sonarqube.ws.client.users;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
 import javax.annotation.Generated;
 
+/**
+ * This is part of the internal API.
+ * This is a POST request.
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/users/deactivate">Further information about this action online (including a response example)</a>
+ * @since 3.7
+ */
+@Generated("sonar-ws-generator")
+public class DeactivateRequest {
+
+  private String login;
+
+  /**
+   * This is a mandatory parameter.
+   * Example value: "myuser"
+   */
+  public DeactivateRequest setLogin(String login) {
+    this.login = login;
+    return this;
+  }
+
+  public String getLogin() {
+    return login;
+  }
+}
