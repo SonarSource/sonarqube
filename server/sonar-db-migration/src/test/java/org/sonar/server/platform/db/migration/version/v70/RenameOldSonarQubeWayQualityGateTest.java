@@ -23,13 +23,12 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.stream.Collectors;
 import org.assertj.core.groups.Tuple;
-import org.hamcrest.Description;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.db.CoreDbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,6 +47,8 @@ public class RenameOldSonarQubeWayQualityGateTest {
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(PopulateQualityGatesIsBuiltInTest.class, "quality_gates.sql");
+  @Rule
+  public LogTester logTester = new LogTester();
 
   private System2 system2 = new TestSystem2().setNow(NOW);
 
@@ -83,33 +84,17 @@ public class RenameOldSonarQubeWayQualityGateTest {
   }
 
   @Test
-  public void should_not_fail_if_a_profile_with_same_name_is_present() throws SQLException {
-    insertQualityGate(SONAR_WAY_OUTDATED_QUALITY_GATE, false);
-    insertQualityGate(SONARQUBE_WAY_QUALITY_GATE, false);
-
-    underTest.execute();
-
-    assertQualityGates(
-      tuple(SONAR_WAY_OUTDATED_QUALITY_GATE, false, new Date(PAST), new Date(PAST)),
-      tuple(SONAR_WAY_OUTDATED_QUALITY_GATE + " " + NOW, false, new Date(PAST), new Date(NOW))
-    );
-  }
-
-  @Test
-  public void should_throw_ISE_if_no_name_is_available() throws SQLException {
+  public void should_log_a_meaningful_info_if_outdated_copy_exists() throws SQLException {
     insertQualityGate(SONARQUBE_WAY_QUALITY_GATE, false);
     insertQualityGate(SONAR_WAY_OUTDATED_QUALITY_GATE, false);
-    insertQualityGate(SONAR_WAY_OUTDATED_QUALITY_GATE + " " + system2.now(), false);
 
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Error during processing of row:");
-    expectedException.expectCause(
-      new CauseMatcher(
-        IllegalStateException.class,
-        "There are already two quality profiles with name [Sonar way (outdated copy),Sonar way (outdated copy) 50000000000]"));
-
-    underTest.execute();
+    try {
+      underTest.execute();
+    } catch (Exception ex) {
+      logTester.logs().contains("There is already a quality profile with name [Sonar way (outdated copy)]");
+    }
   }
+
 
   @Test
   public void should_update_only_SonarQubeWay() throws SQLException {
@@ -156,29 +141,5 @@ public class RenameOldSonarQubeWayQualityGateTest {
       "IS_BUILT_IN", String.valueOf(builtIn),
       "CREATED_AT", new Date(PAST),
       "UPDATED_AT", new Date(PAST));
-  }
-
-  private static class CauseMatcher extends TypeSafeMatcher<Throwable> {
-    private final Class<? extends Throwable> type;
-    private final String expectedMessage;
-
-    public CauseMatcher(Class<? extends Throwable> type, String expectedMessage) {
-      this.type = type;
-      this.expectedMessage = expectedMessage;
-    }
-
-    @Override
-    protected boolean matchesSafely(Throwable item) {
-      return item.getClass().isAssignableFrom(type)
-        && item.getMessage().contains(expectedMessage);
-    }
-
-    @Override
-    public void describeTo(Description description) {
-      description.appendText("expects type ")
-        .appendValue(type)
-        .appendText(" and a message ")
-        .appendValue(expectedMessage);
-    }
   }
 }

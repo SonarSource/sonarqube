@@ -22,14 +22,15 @@ package org.sonar.server.platform.db.migration.version.v70;
 import java.sql.SQLException;
 import java.util.Date;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Database;
 import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
-import static java.lang.String.format;
-
 public class RenameOldSonarQubeWayQualityGate extends DataChange {
 
+  private static final Logger LOG = Loggers.get(RenameOldSonarQubeWayQualityGate.class);
   private static final String SONARQUBE_WAY_QUALITY_GATE = "SonarQube way";
   private static final String SONARQUBE_WAY_QUALITY_GATE_OUTDATED = "Sonar way (outdated copy)";
   private final System2 system2;
@@ -41,38 +42,32 @@ public class RenameOldSonarQubeWayQualityGate extends DataChange {
 
   @Override
   protected void execute(Context context) throws SQLException {
-    MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("SELECT id FROM quality_gates WHERE name = ?")
-      .setString(1, SONARQUBE_WAY_QUALITY_GATE);
-    massUpdate.rowPluralName("quality gates");
-    massUpdate.update("UPDATE quality_gates SET name=?, is_built_in=?, updated_at=? WHERE id=?");
-    massUpdate.execute((row, update) -> {
-      update.setString(1, findNewQualityGateName(context));
-      update.setBoolean(2, false);
-      update.setDate(3, new Date(system2.now()));
-      update.setLong(4, row.getLong(1));
-      return true;
-    });
+    //ensureThatOutdatedCopyQDoesNotExist(context);
+
+    try {
+      MassUpdate massUpdate = context.prepareMassUpdate();
+      massUpdate.select("SELECT id FROM quality_gates WHERE name = ?")
+        .setString(1, SONARQUBE_WAY_QUALITY_GATE);
+      massUpdate.rowPluralName("quality gates");
+      massUpdate.update("UPDATE quality_gates SET name=?, is_built_in=?, updated_at=? WHERE id=?");
+      massUpdate.execute((row, update) -> {
+        update.setString(1, SONARQUBE_WAY_QUALITY_GATE_OUTDATED);
+        update.setBoolean(2, false);
+        update.setDate(3, new Date(system2.now()));
+        update.setLong(4, row.getLong(1));
+        return true;
+      });
+    } catch(Exception ex) {
+      LOG.error("There is already a quality profile with name [{}]", SONARQUBE_WAY_QUALITY_GATE_OUTDATED);
+      throw ex;
+    }
   }
 
-  private String findNewQualityGateName(Context context) throws SQLException {
-    if (isQualityGateNameAvailable(context, SONARQUBE_WAY_QUALITY_GATE_OUTDATED)) {
-      return SONARQUBE_WAY_QUALITY_GATE_OUTDATED;
-    }
-
-    String newName = SONARQUBE_WAY_QUALITY_GATE_OUTDATED + " " + system2.now();
-    if (isQualityGateNameAvailable(context, newName)) {
-      return newName;
-    }
-
-    // Given up if no name available
-    throw new IllegalStateException(format("There are already two quality profiles with name [%s,%s]", SONARQUBE_WAY_QUALITY_GATE_OUTDATED, newName));
-  }
-
-  private static boolean isQualityGateNameAvailable(Context context, String qualityGateName) throws SQLException {
+  private boolean isOutdatedCopyQGExists(Context context) throws SQLException {
     return context.prepareSelect(
-      "SELECT COUNT(id) FROM quality_gates WHERE name = '" + qualityGateName + "'")
+      "SELECT COUNT(id) FROM quality_gates WHERE name = ?")
+      .setString(1, SONARQUBE_WAY_QUALITY_GATE_OUTDATED)
       .get(
-        row -> row.getInt(1) == 0);
+        row -> row.getInt(1) > 0);
   }
 }
