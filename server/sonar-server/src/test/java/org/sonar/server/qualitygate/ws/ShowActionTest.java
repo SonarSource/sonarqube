@@ -26,11 +26,13 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateFinder;
@@ -56,8 +58,8 @@ public class ShowActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = db.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+
   private WsActionTester ws = new WsActionTester(
     new ShowAction(db.getDbClient(), new QualityGateFinder(db.getDbClient()),
       new QualityGatesWsSupport(db.getDbClient(), userSession, defaultOrganizationProvider)));
@@ -72,13 +74,17 @@ public class ShowActionTest {
         tuple("7.0", "'actions' field is added in the response"));
     assertThat(action.params())
       .extracting(Param::key, Param::isRequired)
-      .containsExactlyInAnyOrder(tuple("id", false), tuple("name", false));
+      .containsExactlyInAnyOrder(
+        tuple("id", false),
+        tuple("name", false),
+        tuple("organization", false));
   }
 
   @Test
   public void json_example() {
-    userSession.logIn("admin").addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate("My Quality Gate");
+    OrganizationDto organization = db.organizations().insert();
+    userSession.logIn("admin").addPermission(ADMINISTER_QUALITY_GATES, organization);
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("My Quality Gate"));
     MetricDto blockerViolationsMetric = db.measures().insertMetric(m -> m.setKey("blocker_violations"));
     MetricDto criticalViolationsMetric = db.measures().insertMetric(m -> m.setKey("critical_violations"));
     db.qualityGates().addCondition(qualityGate, blockerViolationsMetric, c -> c.setOperator("GT").setPeriod(null).setErrorThreshold("0").setWarningThreshold(null));
@@ -86,6 +92,7 @@ public class ShowActionTest {
 
     String response = ws.newRequest()
       .setParam("name", qualityGate.getName())
+      .setParam("organization", organization.getKey())
       .execute()
       .getInput();
 
@@ -95,12 +102,15 @@ public class ShowActionTest {
 
   @Test
   public void show() {
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = db.measures().insertMetric();
     QualityGateConditionDto condition1 = db.qualityGates().addCondition(qualityGate, metric, c -> c.setOperator("GT").setPeriod(null));
     QualityGateConditionDto condition2 = db.qualityGates().addCondition(qualityGate, metric, c -> c.setOperator("LT").setPeriod(1));
 
-    ShowWsResponse response = ws.newRequest().setParam("name", qualityGate.getName())
+    ShowWsResponse response = ws.newRequest()
+      .setParam("name", qualityGate.getName())
+      .setParam("organization", organization.getKey())
       .executeProtobuf(ShowWsResponse.class);
 
     assertThat(response.getId()).isEqualTo(qualityGate.getId());
@@ -115,10 +125,26 @@ public class ShowActionTest {
   }
 
   @Test
-  public void show_built_in() {
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setBuiltIn(true));
+  public void default_organization_is_used_when_no_organization_parameter() {
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
+    OrganizationDto otherOrganization = db.organizations().insert();
+    QGateWithOrgDto otherQualityGate = db.qualityGates().insertQualityGate(otherOrganization);
 
-    ShowWsResponse response = ws.newRequest().setParam("name", qualityGate.getName())
+    ShowWsResponse response = ws.newRequest()
+      .setParam("name", qualityGate.getName())
+      .executeProtobuf(ShowWsResponse.class);
+
+    assertThat(response.getId()).isEqualTo(qualityGate.getId());
+  }
+
+  @Test
+  public void show_built_in() {
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setBuiltIn(true));
+
+    ShowWsResponse response = ws.newRequest()
+      .setParam("name", qualityGate.getName())
+      .setParam("organization", organization.getKey())
       .executeProtobuf(ShowWsResponse.class);
 
     assertThat(response.getIsBuiltIn()).isTrue();
@@ -126,9 +152,12 @@ public class ShowActionTest {
 
   @Test
   public void show_by_id() {
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
 
-    ShowWsResponse response = ws.newRequest().setParam("id", qualityGate.getId().toString())
+    ShowWsResponse response = ws.newRequest()
+      .setParam("id", qualityGate.getId().toString())
+      .setParam("organization", organization.getKey())
       .executeProtobuf(ShowWsResponse.class);
 
     assertThat(response.getId()).isEqualTo(qualityGate.getId());
@@ -137,9 +166,12 @@ public class ShowActionTest {
 
   @Test
   public void no_condition() {
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
 
-    ShowWsResponse response = ws.newRequest().setParam("name", qualityGate.getName())
+    ShowWsResponse response = ws.newRequest()
+      .setParam("name", qualityGate.getName())
+      .setParam("organization", organization.getKey())
       .executeProtobuf(ShowWsResponse.class);
 
     assertThat(response.getId()).isEqualTo(qualityGate.getId());
@@ -149,10 +181,13 @@ public class ShowActionTest {
 
   @Test
   public void actions() {
-    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    OrganizationDto organization = db.organizations().insert();
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, organization);
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
 
-    ShowWsResponse response = ws.newRequest().setParam("name", qualityGate.getName())
+    ShowWsResponse response = ws.newRequest()
+      .setParam("name", qualityGate.getName())
+      .setParam("organization", organization.getKey())
       .executeProtobuf(ShowWsResponse.class);
 
     Actions actions = response.getActions();
@@ -166,11 +201,14 @@ public class ShowActionTest {
 
   @Test
   public void actions_on_default() {
-    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    OrganizationDto organization = db.organizations().insert();
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, organization);
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     db.qualityGates().setDefaultQualityGate(qualityGate);
 
-    ShowWsResponse response = ws.newRequest().setParam("name", qualityGate.getName())
+    ShowWsResponse response = ws.newRequest()
+      .setParam("name", qualityGate.getName())
+      .setParam("organization", organization.getKey())
       .executeProtobuf(ShowWsResponse.class);
 
     Actions actions = response.getActions();
@@ -184,10 +222,13 @@ public class ShowActionTest {
 
   @Test
   public void actions_on_built_in() {
-    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setBuiltIn(true));
+    OrganizationDto organization = db.organizations().insert();
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, organization);
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setBuiltIn(true));
 
-    ShowWsResponse response = ws.newRequest().setParam("name", qualityGate.getName())
+    ShowWsResponse response = ws.newRequest()
+      .setParam("name", qualityGate.getName())
+      .setParam("organization", organization.getKey())
       .executeProtobuf(ShowWsResponse.class);
 
     Actions actions = response.getActions();
@@ -201,10 +242,13 @@ public class ShowActionTest {
 
   @Test
   public void actions_when_not_quality_gate_administer() {
-    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setBuiltIn(true));
+    OrganizationDto organization = db.organizations().insert();
+    userSession.logIn("john").addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setBuiltIn(true));
 
-    ShowWsResponse response = ws.newRequest().setParam("name", qualityGate.getName())
+    ShowWsResponse response = ws.newRequest()
+      .setParam("name", qualityGate.getName())
+      .setParam("organization", organization.getKey())
       .executeProtobuf(ShowWsResponse.class);
 
     Actions actions = response.getActions();
@@ -218,15 +262,21 @@ public class ShowActionTest {
 
   @Test
   public void fail_when_no_name_or_id() {
+    OrganizationDto organization = db.organizations().insert();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
+
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Either 'id' or 'name' must be provided");
 
-    ws.newRequest().execute();
+    ws.newRequest()
+      .setParam("organization", organization.getKey())
+      .execute();
   }
 
   @Test
   public void fail_when_both_name_or_id() {
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    OrganizationDto organization = db.organizations().insert();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Either 'id' or 'name' must be provided");
@@ -234,12 +284,14 @@ public class ShowActionTest {
     ws.newRequest()
       .setParam("name", qualityGate.getName())
       .setParam("id", qualityGate.getId().toString())
+      .setParam("organization", organization.getKey())
       .execute();
   }
 
   @Test
   public void fail_when_condition_is_on_disabled_metric() {
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = db.measures().insertMetric();
     db.qualityGates().addCondition(qualityGate, metric);
     db.getDbClient().metricDao().disableCustomByKey(db.getSession(), metric.getKey());
@@ -250,6 +302,49 @@ public class ShowActionTest {
 
     ws.newRequest()
       .setParam("name", qualityGate.getName())
+      .setParam("organization", organization.getKey())
+      .execute();
+  }
+
+  @Test
+  public void fail_when_quality_name_does_not_exist() {
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("No quality gate has been found for name UNKNOWN");
+
+    ws.newRequest()
+      .setParam("name", "UNKNOWN")
+      .setParam("organization", organization.getKey())
+      .execute();
+  }
+
+  @Test
+  public void fail_when_quality_id_does_not_exist() {
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("No quality gate has been found for id 123");
+
+    ws.newRequest()
+      .setParam("id", "123")
+      .setParam("organization", organization.getKey())
+      .execute();
+  }
+
+  @Test
+  public void fail_when_organization_does_not_exist() {
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("No organization with key 'Unknown'");
+
+    ws.newRequest()
+      .setParam("name", qualityGate.getName())
+      .setParam("organization", "Unknown")
       .execute();
   }
 }
