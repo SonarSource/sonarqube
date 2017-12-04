@@ -28,10 +28,10 @@ import org.sonarqube.ws.Users;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.organizations.AddMemberRequest;
-import org.sonarqube.ws.client.user.CreateRequest;
-import org.sonarqube.ws.client.user.SearchRequest;
-import org.sonarqube.ws.client.user.UsersService;
 import org.sonarqube.ws.client.usergroups.AddUserRequest;
+import org.sonarqube.ws.client.users.CreateRequest;
+import org.sonarqube.ws.client.users.SearchRequest;
+import org.sonarqube.ws.client.users.UsersService;
 
 import static java.util.Arrays.stream;
 
@@ -47,7 +47,7 @@ public class UserTester {
   }
 
   void deleteAll() {
-    session.wsClient().users().search(SearchRequest.builder().build()).getUsersList()
+    session.wsClient().users().search(new SearchRequest()).getUsersList()
       .stream()
       .filter(u -> !"admin".equals(u.getLogin()))
       .forEach(u -> {
@@ -57,23 +57,23 @@ public class UserTester {
   }
 
   @SafeVarargs
-  public final User generate(Consumer<CreateRequest.Builder>... populators) {
+  public final User generate(Consumer<CreateRequest>... populators) {
     int id = ID_GENERATOR.getAndIncrement();
     String login = "login" + id;
-    CreateRequest.Builder request = CreateRequest.builder()
+    CreateRequest request = new CreateRequest()
       .setLogin(login)
       .setPassword(login)
       .setName("name" + id)
       .setEmail(id + "@test.com");
     stream(populators).forEach(p -> p.accept(request));
-    return service().create(request.build()).getUser();
+    return service().create(request).getUser();
   }
 
   /**
    * For standalone mode only
    */
   @SafeVarargs
-  public final User generateAdministrator(Consumer<CreateRequest.Builder>... populators) {
+  public final User generateAdministrator(Consumer<CreateRequest>... populators) {
     User user = generate(populators);
     session.wsClient().permissions().addUser(new org.sonarqube.ws.client.permissions.AddUserRequest().setLogin(user.getLogin()).setPermission("admin"));
     session.wsClient().userGroups().addUser(new AddUserRequest().setLogin(user.getLogin()).setName("sonar-administrators"));
@@ -81,7 +81,7 @@ public class UserTester {
   }
 
   @SafeVarargs
-  public final User generateAdministrator(Organizations.Organization organization, Consumer<CreateRequest.Builder>... populators) {
+  public final User generateAdministrator(Organizations.Organization organization, Consumer<CreateRequest>... populators) {
     String organizationKey = organization.getKey();
     User user = generate(populators);
     session.wsClient().organizations().addMember(new AddMemberRequest().setOrganization(organizationKey).setLogin(user.getLogin()));
@@ -93,7 +93,7 @@ public class UserTester {
   }
 
   @SafeVarargs
-  public final User generateAdministratorOnDefaultOrganization(Consumer<CreateRequest.Builder>... populators) {
+  public final User generateAdministratorOnDefaultOrganization(Consumer<CreateRequest>... populators) {
     User user = generate(populators);
     session.wsClient().organizations().addMember(new AddMemberRequest().setOrganization(DEFAULT_ORGANIZATION_KEY).setLogin(user.getLogin()));
     session.wsClient().userGroups().addUser(new AddUserRequest()
@@ -104,14 +104,14 @@ public class UserTester {
   }
 
   @SafeVarargs
-  public final User generateMember(Organizations.Organization organization, Consumer<CreateRequest.Builder>... populators) {
+  public final User generateMember(Organizations.Organization organization, Consumer<CreateRequest>... populators) {
     User user = generate(populators);
     session.wsClient().organizations().addMember(new AddMemberRequest().setOrganization(organization.getKey()).setLogin(user.getLogin()));
     return user;
   }
 
   @SafeVarargs
-  public final User generateMemberOfDefaultOrganization(Consumer<CreateRequest.Builder>... populators) {
+  public final User generateMemberOfDefaultOrganization(Consumer<CreateRequest>... populators) {
     User user = generate(populators);
     session.wsClient().organizations().addMember(new AddMemberRequest().setOrganization(DEFAULT_ORGANIZATION_KEY).setLogin(user.getLogin()));
     return user;
@@ -122,7 +122,7 @@ public class UserTester {
   }
 
   public Optional<Users.SearchWsResponse.User> getByLogin(String login) {
-    List<Users.SearchWsResponse.User> users = session.wsClient().users().search(SearchRequest.builder().setQuery(login).build()).getUsersList();
+    List<Users.SearchWsResponse.User> users = session.wsClient().users().search(new SearchRequest().setQ(login)).getUsersList();
     if (users.size() == 1) {
       return Optional.of(users.get(0));
     }

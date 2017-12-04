@@ -43,7 +43,7 @@ import org.sonarqube.qa.util.pageobjects.SystemInfoPage;
 import org.sonarqube.qa.util.pageobjects.UsersManagementPage;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.user.CreateRequest;
+import org.sonarqube.ws.client.users.CreateRequest;
 import util.user.UserRule;
 import util.user.Users;
 
@@ -324,12 +324,11 @@ public class RealmAuthenticationTest {
 
   @Test
   public void provision_user_before_authentication() {
-    tester.wsClient().users().create(CreateRequest.builder()
+    tester.wsClient().users().create(new CreateRequest()
       .setLogin(USER_LOGIN)
       .setName("Tester Testerovich")
       .setEmail("tester@example.org")
-      .setLocal(false)
-      .build());
+      .setLocal("false"));
     // The user is created in SonarQube but doesn't exist yet in external authentication system
     verifyAuthenticationIsNotOk(USER_LOGIN, "123");
 

@@ -33,6 +33,7 @@ import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.organizations.RemoveMemberRequest;
 import org.sonarqube.ws.client.permissions.AddUserRequest;
+import org.sonarqube.ws.client.users.DeactivateRequest;
 
 public class OrganizationMembershipTest {
 
@@ -108,7 +109,7 @@ public class OrganizationMembershipTest {
     User user = tester.users().generate();
     addMembership(organization, user);
 
-    tester.users().service().deactivate(user.getLogin());
+    tester.users().service().deactivate(new DeactivateRequest().setLogin(user.getLogin()));
     tester.organizations().assertThatNotMemberOf(organization, user);
   }
 

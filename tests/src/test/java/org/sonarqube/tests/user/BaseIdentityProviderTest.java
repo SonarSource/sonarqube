@@ -34,7 +34,7 @@ import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.user.CreateRequest;
+import org.sonarqube.ws.client.users.CreateRequest;
 import util.user.UserRule;
 import util.user.Users;
 
@@ -284,12 +284,11 @@ public class BaseIdentityProviderTest {
     setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
 
     // Provision none local user in database
-    newAdminWsClient(ORCHESTRATOR).users().create(CreateRequest.builder()
+    newAdminWsClient(ORCHESTRATOR).users().create(new CreateRequest()
       .setLogin(USER_LOGIN)
       .setName(USER_NAME)
       .setEmail(USER_EMAIL)
-      .setLocal(false)
-      .build());
+      .setLocal("false"));
     assertThat(userRule.getUserByLogin(USER_LOGIN).get())
       .extracting(Users.User::isLocal, Users.User::getExternalIdentity, Users.User::getExternalProvider)
       .containsOnly(false, USER_LOGIN, "sonarqube");

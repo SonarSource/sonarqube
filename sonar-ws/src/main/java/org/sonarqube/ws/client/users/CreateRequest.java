@@ -36,8 +36,8 @@ public class CreateRequest {
   private String login;
   private String name;
   private String password;
-  private String scmAccount;
-  private String scmAccounts;
+  private List<String> scmAccount;
+  private List<String> scmAccounts;
 
   /**
    * Example value: "myname@email.com"
@@ -110,12 +110,12 @@ public class CreateRequest {
   /**
    * Example value: "scmAccount=firstValue&scmAccount=secondValue&scmAccount=thirdValue"
    */
-  public CreateRequest setScmAccount(String scmAccount) {
+  public CreateRequest setScmAccount(List<String> scmAccount) {
     this.scmAccount = scmAccount;
     return this;
   }
 
-  public String getScmAccount() {
+  public List<String> getScmAccount() {
     return scmAccount;
   }
 
@@ -124,12 +124,12 @@ public class CreateRequest {
    * @deprecated since 6.1
    */
   @Deprecated
-  public CreateRequest setScmAccounts(String scmAccounts) {
+  public CreateRequest setScmAccounts(List<String> scmAccounts) {
     this.scmAccounts = scmAccounts;
     return this;
   }
 
-  public String getScmAccounts() {
+  public List<String> getScmAccounts() {
     return scmAccounts;
   }
 }
