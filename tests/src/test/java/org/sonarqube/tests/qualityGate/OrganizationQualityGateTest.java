@@ -52,7 +52,7 @@ public class OrganizationQualityGateTest {
     Project project = tester.projects().provision(organization);
     Qualitygates.CreateResponse qualityGate = tester.qGates().generate();
     tester.qGates().associateProject(qualityGate, project);
-    tester.wsClient().qualityGates().createCondition(new CreateConditionRequest()
+    tester.wsClient().qualitygates().createCondition(new CreateConditionRequest()
       .setGateId(String.valueOf(qualityGate.getId()))
       .setMetric("new_coverage")
       .setOp("LT")
@@ -82,7 +82,7 @@ public class OrganizationQualityGateTest {
 
     Qualitygates.CreateResponse qualityGate2 = tester.qGates().generate();
     tester.qGates().associateProject(qualityGate2, project);
-    tester.wsClient().qualityGates().createCondition(new CreateConditionRequest()
+    tester.wsClient().qualitygates().createCondition(new CreateConditionRequest()
       .setGateId(String.valueOf(qualityGate2.getId()))
       .setMetric("new_coverage")
       .setOp("LT")

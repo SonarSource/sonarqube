@@ -127,7 +127,7 @@ public class ProjectQualityGatePageTest {
   }
 
   private void associateWithQualityGate(QualityGate qualityGate) {
-    tester.wsClient().qualityGates().select(new SelectRequest().setProjectKey("sample").setGateId(String.valueOf(qualityGate.id())));
+    tester.wsClient().qualitygates().select(new SelectRequest().setProjectKey("sample").setGateId(String.valueOf(qualityGate.id())));
   }
 
   private QualityGateClient qualityGateClient() {

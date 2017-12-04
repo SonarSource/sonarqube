@@ -42,7 +42,7 @@ public class QGateTester {
   }
 
   public QualitygatesService service() {
-    return session.wsClient().qualityGates();
+    return session.wsClient().qualitygates();
   }
 
   void deleteAll() {
@@ -55,7 +55,7 @@ public class QGateTester {
 
   public Qualitygates.CreateResponse generate() {
     int id = ID_GENERATOR.getAndIncrement();
-    return session.wsClient().qualityGates().create(new CreateRequest().setName("QualityGate" + id));
+    return session.wsClient().qualitygates().create(new CreateRequest().setName("QualityGate" + id));
   }
 
   public void associateProject(Qualitygates.CreateResponse qualityGate, Project project){

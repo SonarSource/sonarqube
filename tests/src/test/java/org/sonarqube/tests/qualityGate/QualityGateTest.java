@@ -212,7 +212,7 @@ public class QualityGateTest {
     String taskId = getTaskIdInLocalReport(projectDir("qualitygate/xoo-sample"));
     String analysisId = getAnalysisId(taskId);
 
-    ProjectStatusResponse projectStatusWsResponse = tester.wsClient().qualityGates().projectStatus(new ProjectStatusRequest().setAnalysisId(analysisId));
+    ProjectStatusResponse projectStatusWsResponse = tester.wsClient().qualitygates().projectStatus(new ProjectStatusRequest().setAnalysisId(analysisId));
     ProjectStatusResponse.ProjectStatus projectStatus = projectStatusWsResponse.getProjectStatus();
     assertThat(projectStatus.getStatus()).isEqualTo(ERROR);
     assertThat(projectStatus.getConditionsCount()).isEqualTo(1);
@@ -232,7 +232,7 @@ public class QualityGateTest {
     createCustomIntMetric(customMetricKey);
     try {
       // create quality gate
-      Qualitygates.CreateResponse simple = tester.wsClient().qualityGates().create(new CreateRequest().setName("OnCustomMetric"));
+      Qualitygates.CreateResponse simple = tester.wsClient().qualitygates().create(new CreateRequest().setName("OnCustomMetric"));
       Long qualityGateId = simple.getId();
       qgClient().createCondition(NewCondition.create(qualityGateId).metricKey(customMetricKey).operator("GT").warningThreshold("40"));
 
@@ -240,7 +240,7 @@ public class QualityGateTest {
       deleteCustomMetric(customMetricKey);
 
       // run analysis
-      tester.wsClient().qualityGates().select(new SelectRequest().setProjectKey(projectKey).setGateId(String.valueOf(qualityGateId)));
+      tester.wsClient().qualitygates().select(new SelectRequest().setProjectKey(projectKey).setGateId(String.valueOf(qualityGateId)));
       BuildResult buildResult = executeAnalysis(projectKey);
 
       // verify quality gate

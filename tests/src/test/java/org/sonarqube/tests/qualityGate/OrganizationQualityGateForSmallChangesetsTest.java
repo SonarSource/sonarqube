@@ -61,7 +61,7 @@ public class OrganizationQualityGateForSmallChangesetsTest {
     Project project = tester.projects().provision(organization);
     Qualitygates.CreateResponse qualityGate = tester.qGates().generate();
     tester.qGates().associateProject(qualityGate, project);
-    Qualitygates.CreateConditionResponse condition = tester.wsClient().qualityGates().createCondition(new CreateConditionRequest()
+    Qualitygates.CreateConditionResponse condition = tester.wsClient().qualitygates().createCondition(new CreateConditionRequest()
       .setGateId(String.valueOf(qualityGate.getId()))
       .setMetric("new_coverage")
       .setOp("LT")
@@ -104,7 +104,7 @@ public class OrganizationQualityGateForSmallChangesetsTest {
     assertIgnoredConditions("qualitygate/small-changesets/v2-1019-lines", true);
 
     // small leak => if coverage is OK anyways, we do not have to ignore anything
-    tester.wsClient().qualityGates().updateCondition(new UpdateConditionRequest()
+    tester.wsClient().qualitygates().updateCondition(new UpdateConditionRequest()
       .setId(String.valueOf(condition.getId()))
       .setMetric("new_coverage")
       .setOp("LT")
@@ -126,7 +126,7 @@ public class OrganizationQualityGateForSmallChangesetsTest {
     assertIgnoredConditions("qualitygate/small-changesets/v2-1019-lines", false);
 
     // big leak => use usual behaviour
-    tester.wsClient().qualityGates().updateCondition(new UpdateConditionRequest()
+    tester.wsClient().qualitygates().updateCondition(new UpdateConditionRequest()
       .setId(String.valueOf(condition.getId()))
       .setMetric("new_coverage")
       .setOp("LT")
@@ -150,7 +150,7 @@ public class OrganizationQualityGateForSmallChangesetsTest {
 
   private void assertIgnoredConditions(String projectDir, boolean expected) throws IOException {
     String analysisId = getAnalysisId(getTaskIdInLocalReport(projectDir(projectDir)));
-    boolean ignoredConditions = tester.wsClient().qualityGates()
+    boolean ignoredConditions = tester.wsClient().qualitygates()
       .projectStatus(new ProjectStatusRequest().setAnalysisId(analysisId))
       .getProjectStatus()
       .getIgnoredConditions();

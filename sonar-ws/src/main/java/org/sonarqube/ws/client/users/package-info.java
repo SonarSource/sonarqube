@@ -19,7 +19,7 @@
  */
 @ParametersAreNonnullByDefault
 @Generated("sonar-ws-generator")
-package org.sonarqube.ws.client;
+package org.sonarqube.ws.client.users;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.annotation.Generated;

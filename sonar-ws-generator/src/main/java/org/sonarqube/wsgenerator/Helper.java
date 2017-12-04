@@ -25,13 +25,18 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Arrays.asList;
+
 public class Helper {
 
+  static final Set<String> PATH_EXCLUSIONS = new HashSet<>(asList("api/orchestrator"));
   private static final String OUTPUT_DIR = "target/generated-sources/results";
   private final Map<String, List<String[]>> responseTypes;
 
@@ -43,8 +48,16 @@ public class Helper {
       .collect(Collectors.groupingBy(arr -> arr[0]));
   }
 
+  public boolean isIncluded(String path) {
+    return !PATH_EXCLUSIONS.contains(path);
+  }
+
+  public String packageName() {
+    return "org.sonarqube.ws.client";
+  }
+
   public String packageName(String path) {
-    return "org.sonarqube.ws.client." + rawName(path).toLowerCase();
+    return packageName() + "." + rawName(path).toLowerCase();
   }
 
   private String rawName(String path) {
@@ -58,6 +71,19 @@ public class Helper {
   public String className(String path) {
     String name = rawName(path);
     return capitalizeFirstLetter(name) + "Service";
+  }
+  public String defaultWsClientFieldName(String path) {
+    String name = rawName(path);
+    return lowercaseFirstLetter(name) + "Service";
+  }
+
+  public String defaultWsClientMethodName(String path) {
+    String name = rawName(path);
+    return lowercaseFirstLetter(name);
+  }
+
+  public String webserviceTypeImport(String path) {
+    return "import " + packageName(path) + "." + className(path) + ";";
   }
 
   private String capitalizeFirstLetter(String name) {
@@ -162,6 +188,18 @@ public class Helper {
 
   public String file(String path) {
     return OUTPUT_DIR + "/org/sonarqube/ws/client/" + rawName(path).toLowerCase() + "/" + className(path) + ".java";
+  }
+
+  public String defaultWsClientFile() {
+    return OUTPUT_DIR + "/org/sonarqube/ws/client/DefaultWsClient.java";
+  }
+
+  public String wsClientFile() {
+    return OUTPUT_DIR + "/org/sonarqube/ws/client/WsClient.java";
+  }
+
+  public String packageInfoFile() {
+    return OUTPUT_DIR + "/org/sonarqube/ws/client/package-info.java";
   }
 
   public String packageInfoFile(String path) {

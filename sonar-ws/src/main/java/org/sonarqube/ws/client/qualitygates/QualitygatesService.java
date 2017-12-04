@@ -26,11 +26,12 @@ import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
-import org.sonarqube.ws.Qualitygates.AppResponse;
 import org.sonarqube.ws.Qualitygates.CreateResponse;
 import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
 import org.sonarqube.ws.Qualitygates.GetByProjectResponse;
+import org.sonarqube.ws.Qualitygates.ListWsResponse;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
+import org.sonarqube.ws.Qualitygates.ShowWsResponse;
 import org.sonarqube.ws.Qualitygates.UpdateConditionResponse;
 
 /**
@@ -41,19 +42,6 @@ public class QualitygatesService extends BaseService {
 
   public QualitygatesService(WsConnector wsConnector) {
     super(wsConnector, "api/qualitygates");
-  }
-
-  /**
-   *
-   * This is part of the internal API.
-   * This is a GET request.
-   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/app">Further information about this action online (including a response example)</a>
-   * @since 4.3
-   */
-  public AppResponse app() {
-    return call(
-      new GetRequest(path("app")),
-      AppResponse.parser());
   }
 
   /**
@@ -172,11 +160,10 @@ public class QualitygatesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/list">Further information about this action online (including a response example)</a>
    * @since 4.3
    */
-  public String list() {
+  public ListWsResponse list() {
     return call(
-      new GetRequest(path("list"))
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+      new GetRequest(path("list")),
+      ListWsResponse.parser());
   }
 
   /**
@@ -269,13 +256,12 @@ public class QualitygatesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/show">Further information about this action online (including a response example)</a>
    * @since 4.3
    */
-  public String show(ShowRequest request) {
+  public ShowWsResponse show(ShowRequest request) {
     return call(
       new GetRequest(path("show"))
         .setParam("id", request.getId())
-        .setParam("name", request.getName())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setParam("name", request.getName()),
+      ShowWsResponse.parser());
   }
 
   /**
@@ -284,11 +270,12 @@ public class QualitygatesService extends BaseService {
    * This is a POST request.
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/unset_default">Further information about this action online (including a response example)</a>
    * @since 4.3
+   * @deprecated since 7.0
    */
-  public void unsetDefault(UnsetDefaultRequest request) {
-    call(
+  @Deprecated
+  public String unsetDefault() {
+    return call(
       new PostRequest(path("unset_default"))
-        .setParam("id", request.getId())
         .setMediaType(MediaTypes.JSON)
       ).content();
   }

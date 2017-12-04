@@ -1,0 +1,79 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package org.sonarqube.ws.client;
+
+import javax.annotation.Generated;
+import org.sonarqube.ws.client.ce.CeService;
+import org.sonarqube.ws.client.organization.OrganizationService;
+import org.sonarqube.ws.client.projectanalysis.ProjectAnalysisService;
+import org.sonarqube.ws.client.projectbranches.ProjectBranchesServiceOld;
+import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
+import org.sonarqube.ws.client.qualitygates.QualitygatesService;
+import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
+import org.sonarqube.ws.client.system.SystemServiceOld;
+
+#foreach($webService in $webServices)
+#if ($helper.isIncluded($webService.path.asString))
+$helper.webserviceTypeImport($webService.path.asString)
+#end
+#end
+
+/**
+ * This class is not public anymore since version 5.5. It is
+ * created by {@link WsClientFactory}
+ *
+ * @since 5.3
+ */
+@Generated("sonar-ws-generator")
+class DefaultWsClient implements WsClient {
+
+  private final WsConnector wsConnector;
+
+#foreach($webService in $webServices)
+#if ($helper.isIncluded($webService.path.asString))
+  private final $helper.className($webService.path.asString) $helper.defaultWsClientFieldName($webService.path.asString);
+#end
+#end
+
+  DefaultWsClient(WsConnector wsConnector) {
+    this.wsConnector = wsConnector;
+
+#foreach($webService in $webServices)
+#if ($helper.isIncluded($webService.path.asString))
+    this.$helper.defaultWsClientFieldName($webService.path.asString) = new $helper.className($webService.path.asString)(wsConnector);
+#end
+#end
+  }
+
+  @Override
+  @Deprecated
+  public WsConnector wsConnector() {
+    return wsConnector;
+  }
+#foreach($webService in $webServices)
+#if ($helper.isIncluded($webService.path.asString))
+
+  @Override
+  public $helper.className($webService.path.asString) $helper.defaultWsClientMethodName($webService.path.asString)() {
+    return $helper.defaultWsClientFieldName($webService.path.asString);
+  }
+#end
+#end
+}
