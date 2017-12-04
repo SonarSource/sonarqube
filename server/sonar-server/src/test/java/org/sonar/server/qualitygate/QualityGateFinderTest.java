@@ -99,35 +99,4 @@ public class QualityGateFinderTest {
     underTest.getQualityGate(dbSession, project.getId());
   }
 
-  @Test
-  public void get_by_name_or_id() {
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-
-    assertThat(underTest.getByNameOrId(db.getSession(), qualityGate.getName(), null)).isNotNull();
-    assertThat(underTest.getByNameOrId(db.getSession(), null, qualityGate.getId())).isNotNull();
-  }
-
-  @Test
-  public void fail_get_by_name_or_id_when_name_matches_nothing() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No quality gate has been found for name UNKNOWN");
-
-    underTest.getByNameOrId(db.getSession(), "UNKNOWN", null);
-  }
-
-  @Test
-  public void fail_get_by_name_or_id_when_id_matches_nothing() {
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No quality gate has been found for id 123");
-
-    underTest.getByNameOrId(db.getSession(), null, 123L);
-  }
-
-  @Test
-  public void fail_get_by_name_or_id_when_parameters_are_null() {
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("No parameter has been set to identify a quality gate");
-
-    underTest.getByNameOrId(db.getSession(), null, null);
-  }
 }

@@ -36,6 +36,8 @@ public interface QualityGateMapper {
 
   QGateWithOrgDto selectByUuidAndOrganization(@Param("qualityGateUuid") String qualityGateUuid, @Param("organizationUuid") String organizationUuid);
 
+  QGateWithOrgDto selectByNameAndOrganization(@Param("name") String name, @Param("organizationUuid") String organizationUuid);
+
   QualityGateDto selectBuiltIn();
 
   void delete(long id);
