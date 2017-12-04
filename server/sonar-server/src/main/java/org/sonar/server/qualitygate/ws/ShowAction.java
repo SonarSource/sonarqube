@@ -33,6 +33,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateFinder;
@@ -46,6 +47,7 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
+import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ShowAction implements QualityGatesWsAction {
@@ -78,6 +80,8 @@ public class ShowAction implements QualityGatesWsAction {
     action.createParam(PARAM_NAME)
       .setDescription("Name of the quality gate. Either id or name must be set")
       .setExampleValue("My Quality Gate");
+
+    wsSupport.createOrganizationParam(action);
   }
 
   @Override
@@ -87,12 +91,23 @@ public class ShowAction implements QualityGatesWsAction {
     checkOneOfIdOrNamePresent(id, name);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityGateDto qualityGate = qualityGateFinder.getByNameOrId(dbSession, name, id);
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
+      QualityGateDto qualityGate = getByNameOrId(dbSession, organization, name, id);
       Collection<QualityGateConditionDto> conditions = getConditions(dbSession, qualityGate);
       Map<Integer, MetricDto> metricsById = getMetricsById(dbSession, conditions);
       Optional<QualityGateDto> defaultQualityGate = qualityGateFinder.getDefault(dbSession);
-      writeProtobuf(buildResponse(qualityGate, defaultQualityGate.orElse(null), conditions, metricsById), request, response);
+      writeProtobuf(buildResponse(organization, qualityGate, defaultQualityGate.orElse(null), conditions, metricsById), request, response);
     }
+  }
+
+  private QualityGateDto getByNameOrId(DbSession dbSession, OrganizationDto organization, @Nullable String name, @Nullable Long id) {
+    if (name != null) {
+      return checkFound(dbClient.qualityGateDao().selectByOrganizationAndName(dbSession, organization, name), "No quality gate has been found for name %s", name);
+    }
+    if (id != null) {
+      return qualityGateFinder.getById(dbSession, id);
+    }
+    throw new IllegalArgumentException("No parameter has been set to identify a quality gate");
   }
 
   public Collection<QualityGateConditionDto> getConditions(DbSession dbSession, QualityGateDto qualityGate) {
@@ -106,8 +121,8 @@ public class ShowAction implements QualityGatesWsAction {
       .collect(uniqueIndex(MetricDto::getId));
   }
 
-  private ShowWsResponse buildResponse(QualityGateDto qualityGate, @Nullable QualityGateDto defaultQualityGate, Collection<QualityGateConditionDto> conditions,
-    Map<Integer, MetricDto> metricsById) {
+  private ShowWsResponse buildResponse(OrganizationDto organization, QualityGateDto qualityGate, @Nullable QualityGateDto defaultQualityGate,
+    Collection<QualityGateConditionDto> conditions, Map<Integer, MetricDto> metricsById) {
     return ShowWsResponse.newBuilder()
       .setId(qualityGate.getId())
       .setName(qualityGate.getName())
@@ -115,7 +130,7 @@ public class ShowAction implements QualityGatesWsAction {
       .addAllConditions(conditions.stream()
         .map(toWsCondition(metricsById))
         .collect(toList()))
-      .setActions(wsSupport.getActions(qualityGate, defaultQualityGate))
+      .setActions(wsSupport.getActions(organization, qualityGate, defaultQualityGate))
       .build();
   }
 
