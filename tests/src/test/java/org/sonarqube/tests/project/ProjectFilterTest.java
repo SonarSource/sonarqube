@@ -31,11 +31,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Common;
-import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Components.Component;
 import org.sonarqube.ws.Components.SearchProjectsWsResponse;
+import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.client.components.SearchProjectsRequest;
-import org.sonarqube.ws.client.project.CreateRequest;
+import org.sonarqube.ws.client.projects.CreateRequest;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -88,7 +88,7 @@ public class ProjectFilterTest {
   @Test
   public void provisioned_projects_should_be_included_to_results() throws Exception {
     String projectKey = newProjectKey();
-    tester.wsClient().projects().create(CreateRequest.builder().setKey(projectKey).setName(projectKey).setOrganization(organization.getKey()).build());
+    tester.wsClient().projects().create(new CreateRequest().setProject(projectKey).setName(projectKey).setOrganization(organization.getKey()));
 
     SearchProjectsWsResponse response = searchProjects(new SearchProjectsRequest().setOrganization(organization.getKey()));
 
@@ -107,7 +107,7 @@ public class ProjectFilterTest {
     analyzeProject(projectKey2, "shared/xoo-sample");
     // This project is provisioned, so has no leak period
     String projectKey3 = newProjectKey();
-    tester.wsClient().projects().create(CreateRequest.builder().setKey(projectKey3).setName(projectKey3).setOrganization(organization.getKey()).build());
+    tester.wsClient().projects().create(new CreateRequest().setProject(projectKey3).setName(projectKey3).setOrganization(organization.getKey()));
 
     SearchProjectsWsResponse response = searchProjects(
       new SearchProjectsRequest().setF(singletonList("leakPeriodDate")).setOrganization(organization.getKey()));

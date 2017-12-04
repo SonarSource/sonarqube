@@ -30,7 +30,8 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Projects.CreateWsResponse;
 import org.sonarqube.ws.Projects.SearchWsResponse.Component;
-import org.sonarqube.ws.client.project.SearchRequest;
+import org.sonarqube.ws.client.projects.BulkDeleteRequest;
+import org.sonarqube.ws.client.projects.SearchRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.runProjectAnalysis;
@@ -46,18 +47,18 @@ public class ProjectBulkDeletionTest {
   @Test
   public void delete_projects() {
     Organizations.Organization organization = tester.organizations().generate();
-    CreateWsResponse.Project firstProvisionedProject = tester.projects().provision(organization, p -> p.setKey("first-provisioned-project"));
-    CreateWsResponse.Project secondProvisionedProject = tester.projects().provision(organization, p -> p.setKey("second-provisioned-project"));
+    CreateWsResponse.Project firstProvisionedProject = tester.projects().provision(organization, p -> p.setProject("first-provisioned-project"));
+    CreateWsResponse.Project secondProvisionedProject = tester.projects().provision(organization, p -> p.setProject("second-provisioned-project"));
     CreateWsResponse.Project analyzedProject = tester.projects().provision(organization);
 
     analyzeProject(analyzedProject.getKey(), organization.getKey());
 
-    tester.wsClient().projects().bulkDelete(SearchRequest.builder()
+    tester.wsClient().projects().bulkDelete(new BulkDeleteRequest()
       .setOrganization(organization.getKey())
-      .setQuery("FIRST-PROVISIONED")
-      .setOnProvisionedOnly(true).build());
+      .setQ("FIRST-PROVISIONED")
+      .setOnProvisionedOnly("true"));
 
-    List<Component> projects = tester.wsClient().projects().search(SearchRequest.builder().setOrganization(organization.getKey()).build()).getComponentsList();
+    List<Component> projects = tester.wsClient().projects().search(new SearchRequest().setOrganization(organization.getKey())).getComponentsList();
     assertThat(projects).extracting(Component::getKey)
       .containsExactlyInAnyOrder(analyzedProject.getKey(), secondProvisionedProject.getKey())
       .doesNotContain(firstProvisionedProject.getKey());
@@ -67,13 +68,14 @@ public class ProjectBulkDeletionTest {
   public void delete_more_than_50_projects_at_the_same_time() {
     Organizations.Organization organization = tester.organizations().generate();
     IntStream.range(0, 60).forEach(i -> tester.projects().provision(organization));
-    SearchRequest request = SearchRequest.builder().setOrganization(organization.getKey()).build();
-    assertThat(tester.wsClient().projects().search(request).getPaging().getTotal()).isEqualTo(60);
+    SearchRequest searchRequest = new SearchRequest().setOrganization(organization.getKey());
+    BulkDeleteRequest deleteRequest = new BulkDeleteRequest().setOrganization(organization.getKey());
+    assertThat(tester.wsClient().projects().search(searchRequest).getPaging().getTotal()).isEqualTo(60);
 
-    tester.wsClient().projects().bulkDelete(request);
+    tester.wsClient().projects().bulkDelete(deleteRequest);
 
-    assertThat(tester.wsClient().projects().search(request).getComponentsList()).isEmpty();
-    assertThat(tester.wsClient().projects().search(request).getPaging().getTotal()).isEqualTo(0);
+    assertThat(tester.wsClient().projects().search(searchRequest).getComponentsList()).isEmpty();
+    assertThat(tester.wsClient().projects().search(searchRequest).getPaging().getTotal()).isEqualTo(0);
   }
 
   private void analyzeProject(String projectKey, String organizationKey) {

@@ -31,7 +31,7 @@ import org.sonarqube.ws.client.permissions.AddGroupRequest;
 import org.sonarqube.ws.client.permissions.AddUserRequest;
 import org.sonarqube.ws.client.permissions.RemoveGroupRequest;
 import org.sonarqube.ws.client.permissions.RemoveUserRequest;
-import org.sonarqube.ws.client.project.CreateRequest;
+import org.sonarqube.ws.client.projects.CreateRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -108,7 +108,7 @@ public class ProvisioningPermissionTest {
     final String newName = "New Project";
 
     Project created = tester.as(USER_WITH_PROVISIONING, PASSWORD).wsClient().projects()
-      .create(CreateRequest.builder().setKey(newKey).setName(newName).build())
+      .create(new CreateRequest().setProject(newKey).setName(newName))
       .getProject();
 
     assertThat(created).isNotNull();
@@ -124,7 +124,7 @@ public class ProvisioningPermissionTest {
   public void user_cannot_provision_project_through_ws_if_he_does_not_have_provisioning_permission() {
     ItUtils.expectForbiddenError(() -> {
       tester.as(USER_WITHOUT_PROVISIONING, PASSWORD).wsClient().projects()
-        .create(CreateRequest.builder().setKey("new-project").setName("New Project").build())
+        .create(new CreateRequest().setProject("new-project").setName("New Project"))
         .getProject();
     });
   }

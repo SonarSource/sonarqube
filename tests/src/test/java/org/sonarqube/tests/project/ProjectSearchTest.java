@@ -32,7 +32,7 @@ import org.sonarqube.ws.Projects.CreateWsResponse;
 import org.sonarqube.ws.Projects.SearchWsResponse;
 import org.sonarqube.ws.Projects.SearchWsResponse.Component;
 import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.project.SearchRequest;
+import org.sonarqube.ws.client.projects.SearchRequest;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,10 +59,10 @@ public class ProjectSearchTest {
     analyzeProject(oldProject.getKey(), moreThanOneYearAgo, organization.getKey());
     analyzeProject(recentProject.getKey(), now, organization.getKey());
 
-    SearchWsResponse result = tester.wsClient().projects().search(SearchRequest.builder()
+    SearchWsResponse result = tester.wsClient().projects().search(new SearchRequest()
       .setOrganization(organization.getKey())
       .setQualifiers(singletonList("TRK"))
-      .setAnalyzedBefore(formatDate(oneYearAgo)).build());
+      .setAnalyzedBefore(formatDate(oneYearAgo)));
 
     assertThat(result.getComponentsList()).extracting(Component::getKey).containsExactlyInAnyOrder(oldProject.getKey());
   }
@@ -70,19 +70,18 @@ public class ProjectSearchTest {
   @Test
   public void search_on_key_query_partial_match_case_insensitive() {
     Organizations.Organization organization = tester.organizations().generate();
-    CreateWsResponse.Project lowerCaseProject = tester.projects().provision(organization, p -> p.setKey("project-key"));
-    CreateWsResponse.Project upperCaseProject = tester.projects().provision(organization, p -> p.setKey("PROJECT-KEY"));
-    CreateWsResponse.Project anotherProject = tester.projects().provision(organization, p -> p.setKey("another-project"));
+    CreateWsResponse.Project lowerCaseProject = tester.projects().provision(organization, p -> p.setProject("project-key"));
+    CreateWsResponse.Project upperCaseProject = tester.projects().provision(organization, p -> p.setProject("PROJECT-KEY"));
+    CreateWsResponse.Project anotherProject = tester.projects().provision(organization, p -> p.setProject("another-project"));
 
     analyzeProject(lowerCaseProject.getKey(), organization.getKey());
     analyzeProject(upperCaseProject.getKey(), organization.getKey());
     analyzeProject(anotherProject.getKey(), organization.getKey());
 
-    SearchWsResponse result = tester.wsClient().projects().search(SearchRequest.builder()
+    SearchWsResponse result = tester.wsClient().projects().search(new SearchRequest()
       .setOrganization(organization.getKey())
       .setQualifiers(singletonList("TRK"))
-      .setQuery("JeCt-K")
-      .build());
+      .setQ("JeCt-K"));
 
     assertThat(result.getComponentsList()).extracting(Component::getKey)
       .containsExactlyInAnyOrder(lowerCaseProject.getKey(), upperCaseProject.getKey())
@@ -101,10 +100,10 @@ public class ProjectSearchTest {
     String result = tester.wsClient().wsConnector().call(new GetRequest("api/projects/provisioned")
       .setParam("organization", organization.getKey()))
       .failIfNotSuccessful().content();
-   SearchWsResponse searchResult = tester.wsClient().projects().search(SearchRequest.builder()
+   SearchWsResponse searchResult = tester.wsClient().projects().search(new SearchRequest()
      .setQualifiers(singletonList("TRK"))
      .setOrganization(organization.getKey())
-     .setOnProvisionedOnly(true).build());
+     .setOnProvisionedOnly("true"));
 
     assertThat(result).contains(firstProvisionedProject.getKey(), secondProvisionedProject.getKey()).doesNotContain(analyzedProject.getKey());
     assertThat(searchResult.getComponentsList()).extracting(Component::getKey)

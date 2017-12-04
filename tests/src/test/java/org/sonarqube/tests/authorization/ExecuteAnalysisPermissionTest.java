@@ -30,7 +30,7 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.client.permissions.AddGroupRequest;
 import org.sonarqube.ws.client.permissions.AddProjectCreatorToTemplateRequest;
 import org.sonarqube.ws.client.permissions.RemoveGroupRequest;
-import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
+import org.sonarqube.ws.client.projects.UpdateVisibilityRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -78,7 +78,7 @@ public class ExecuteAnalysisPermissionTest {
         "You're only authorized to execute a local (preview) SonarQube analysis without pushing the results to the SonarQube server. Please contact your SonarQube administrator.");
     }
 
-    tester.wsClient().projects().updateVisibility(UpdateVisibilityRequest.builder().setProject(PROJECT_KEY).setVisibility("private").build());
+    tester.wsClient().projects().updateVisibility(new UpdateVisibilityRequest().setProject(PROJECT_KEY).setVisibility("private"));
     try {
       // Execute anonymous analysis
       executeAnonymousAnalysis();
@@ -95,7 +95,7 @@ public class ExecuteAnalysisPermissionTest {
     executeAnonymousAnalysis();
 
     // make project private
-    tester.wsClient().projects().updateVisibility(UpdateVisibilityRequest.builder().setProject("sample").setVisibility("private").build());
+    tester.wsClient().projects().updateVisibility(new UpdateVisibilityRequest().setProject("sample").setVisibility("private"));
 
     // still no error
     executeAnonymousAnalysis();

@@ -24,10 +24,10 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Projects;
-import org.sonarqube.ws.client.project.CreateRequest;
-import org.sonarqube.ws.client.project.DeleteRequest;
-import org.sonarqube.ws.client.project.ProjectsService;
-import org.sonarqube.ws.client.project.SearchRequest;
+import org.sonarqube.ws.client.projects.CreateRequest;
+import org.sonarqube.ws.client.projects.DeleteRequest;
+import org.sonarqube.ws.client.projects.ProjectsService;
+import org.sonarqube.ws.client.projects.SearchRequest;
 
 import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
@@ -44,24 +44,24 @@ public class ProjectTester {
 
   void deleteAll() {
     ProjectsService service = session.wsClient().projects();
-    service.search(SearchRequest.builder().setQualifiers(singletonList("TRK")).build()).getComponentsList().forEach(p ->
-      service.delete(DeleteRequest.builder().setKey(p.getKey()).build()));
+    service.search(new SearchRequest().setQualifiers(singletonList("TRK"))).getComponentsList().forEach(p ->
+      service.delete(new DeleteRequest().setProject(p.getKey())));
   }
 
   @SafeVarargs
-  public final Projects.CreateWsResponse.Project provision(Consumer<CreateRequest.Builder>... populators) {
+  public final Projects.CreateWsResponse.Project provision(Consumer<CreateRequest>... populators) {
     return provision(null, populators);
   }
 
   @SafeVarargs
-  public final Projects.CreateWsResponse.Project provision(@Nullable Organizations.Organization organization, Consumer<CreateRequest.Builder>... populators) {
+  public final Projects.CreateWsResponse.Project provision(@Nullable Organizations.Organization organization, Consumer<CreateRequest>... populators) {
     int id = ID_GENERATOR.getAndIncrement();
-    CreateRequest.Builder request = CreateRequest.builder()
-      .setKey("key" + id)
+    CreateRequest request = new CreateRequest()
+      .setProject("key" + id)
       .setName("Name " + id)
       .setOrganization(organization != null ? organization.getKey() : null);
     stream(populators).forEach(p -> p.accept(request));
 
-    return session.wsClient().projects().create(request.build()).getProject();
+    return session.wsClient().projects().create(request).getProject();
   }
 }
