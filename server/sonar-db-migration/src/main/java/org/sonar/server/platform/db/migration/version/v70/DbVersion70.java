@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.db.migration.version.v70;
 
-import java.util.UUID;
 import org.sonar.server.platform.db.migration.step.MigrationStepRegistry;
 import org.sonar.server.platform.db.migration.version.DbVersion;
 
@@ -43,6 +42,7 @@ public class DbVersion70 implements DbVersion {
       .add(1912, "Create QUALITY_GATES.UUID", AddUuidToQualityGates.class)
       .add(1913, "Populate QUALITY_GATES.UUID", PopulateUuidOnQualityGates.class)
       .add(1914, "Make QUALITY_GATES.UUID not nullable", MakeUuidNotNullableOnQualityGates.class)
+      .add(1915, "Drop unique index on QUALITY_GATES.NAME", DropUniqueIndexOnQualityGatesName.class)
     ;
   }
 }
