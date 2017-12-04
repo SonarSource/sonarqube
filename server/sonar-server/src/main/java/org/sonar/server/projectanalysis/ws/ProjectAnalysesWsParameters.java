@@ -17,28 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.projectanalysis;
+package org.sonar.server.projectanalysis.ws;
 
-public enum EventCategory {
-  VERSION("Version"), OTHER("Other"), QUALITY_PROFILE("Profile"), QUALITY_GATE("Alert");
+public class ProjectAnalysesWsParameters {
+  public static final String PARAM_ANALYSIS = "analysis";
+  public static final String PARAM_CATEGORY = "category";
+  public static final String PARAM_NAME = "name";
+  public static final String PARAM_EVENT = "event";
+  public static final String PARAM_PROJECT = "project";
+  public static final String PARAM_FROM = "from";
+  public static final String PARAM_TO = "to";
+  public static final String PARAM_BRANCH = "branch";
 
-  private final String label;
-
-  EventCategory(String label) {
-    this.label = label;
-  }
-
-  public String getLabel() {
-    return label;
-  }
-
-  public static EventCategory fromLabel(String label) {
-    for (EventCategory category : values()) {
-      if (category.getLabel().equals(label)) {
-        return category;
-      }
-    }
-
-    throw new IllegalArgumentException("Unknown event category label '" + label + "'");
+  private ProjectAnalysesWsParameters() {
+    // static access only
   }
 }

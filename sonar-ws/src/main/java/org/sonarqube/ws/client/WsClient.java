@@ -29,7 +29,6 @@ import org.sonarqube.ws.client.organizations.OrganizationsService;
 import org.sonarqube.ws.client.permissions.PermissionsService;
 import org.sonarqube.ws.client.project.ProjectsService;
 import org.sonarqube.ws.client.projectanalyses.ProjectAnalysesService;
-import org.sonarqube.ws.client.projectanalysis.ProjectAnalysisService;
 import org.sonarqube.ws.client.projectbranches.ProjectBranchesService;
 import org.sonarqube.ws.client.projectlinks.ProjectLinksService;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
@@ -132,13 +131,6 @@ public interface WsClient {
    * @since 6.2
    */
   WebhooksService webhooks();
-
-  /**
-   * @since 6.3
-   * @deprecated since 7.0 use {@link #projectAnalyses()} instead
-   */
-  @Deprecated
-  ProjectAnalysisService projectAnalysisOld();
 
   ProjectAnalysesService projectAnalyses();
 

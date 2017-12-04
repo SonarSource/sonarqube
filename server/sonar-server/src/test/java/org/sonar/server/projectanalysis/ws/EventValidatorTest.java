@@ -28,7 +28,7 @@ import org.sonar.db.event.EventTesting;
 import org.sonar.db.organization.OrganizationTesting;
 
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
-import static org.sonarqube.ws.client.projectanalysis.EventCategory.QUALITY_GATE;
+import static org.sonar.server.projectanalysis.ws.EventCategory.QUALITY_GATE;
 
 public class EventValidatorTest {
   @Rule
