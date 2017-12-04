@@ -47,7 +47,6 @@ import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.ProjectAnalyses.Analysis;
 import org.sonarqube.ws.ProjectAnalyses.Event;
 import org.sonarqube.ws.ProjectAnalyses.SearchResponse;
-import org.sonarqube.ws.client.projectanalysis.EventCategory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -61,14 +60,14 @@ import static org.sonar.db.event.EventTesting.newEvent;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.WsRequest.Method.POST;
-import static org.sonarqube.ws.client.projectanalysis.EventCategory.OTHER;
-import static org.sonarqube.ws.client.projectanalysis.EventCategory.QUALITY_GATE;
-import static org.sonarqube.ws.client.projectanalysis.EventCategory.VERSION;
-import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_BRANCH;
-import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_CATEGORY;
-import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_FROM;
-import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_PROJECT;
-import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_TO;
+import static org.sonar.server.projectanalysis.ws.EventCategory.OTHER;
+import static org.sonar.server.projectanalysis.ws.EventCategory.QUALITY_GATE;
+import static org.sonar.server.projectanalysis.ws.EventCategory.VERSION;
+import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_BRANCH;
+import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_CATEGORY;
+import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_FROM;
+import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_PROJECT;
+import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_TO;
 
 public class SearchActionTest {
 

@@ -33,7 +33,7 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.sonar.db.component.SnapshotDto.STATUS_UNPROCESSED;
-import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_ANALYSIS;
+import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_ANALYSIS;
 
 public class DeleteAction implements ProjectAnalysesWsAction {
   private final DbClient dbClient;

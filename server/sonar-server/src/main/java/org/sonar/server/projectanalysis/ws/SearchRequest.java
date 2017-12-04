@@ -19,8 +19,6 @@
  */
 package org.sonar.server.projectanalysis.ws;
 
-import org.sonarqube.ws.client.projectanalysis.EventCategory;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 

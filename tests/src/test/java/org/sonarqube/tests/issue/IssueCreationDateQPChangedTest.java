@@ -37,7 +37,7 @@ import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonarqube.ws.ProjectAnalyses;
-import org.sonarqube.ws.client.projectanalysis.SearchRequest;
+import org.sonarqube.ws.client.projectanalyses.SearchRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -358,8 +358,8 @@ public class IssueCreationDateQPChangedTest extends AbstractIssueTest {
     private static Date getAnalysisDate(Function<List<ProjectAnalyses.Analysis>, Optional<ProjectAnalyses.Analysis>> chooseItem) {
       return Optional.of(
         ItUtils.newWsClient(ORCHESTRATOR)
-          .projectAnalysisOld()
-          .search(SearchRequest.builder().setProject(SAMPLE_PROJECT_KEY).build())
+          .projectAnalyses()
+          .search(new SearchRequest().setProject(SAMPLE_PROJECT_KEY))
           .getAnalysesList())
         .flatMap(chooseItem)
         .map(ProjectAnalyses.Analysis::getDate)

@@ -17,27 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client.projectanalysis;
+package org.sonar.server.projectanalysis.ws;
 
-import javax.annotation.CheckForNull;
+public enum EventCategory {
+  VERSION("Version"), OTHER("Other"), QUALITY_PROFILE("Profile"), QUALITY_GATE("Alert");
 
-import static java.util.Objects.requireNonNull;
+  private final String label;
 
-public class UpdateEventRequest {
-  private final String event;
-  private final String name;
-
-  public UpdateEventRequest(String event, String name) {
-    this.event = requireNonNull(event, "Event key is required");
-    this.name = requireNonNull(name, "Name is required");
+  EventCategory(String label) {
+    this.label = label;
   }
 
-  public String getEvent() {
-    return event;
+  public String getLabel() {
+    return label;
   }
 
-  @CheckForNull
-  public String getName() {
-    return name;
+  public static EventCategory fromLabel(String label) {
+    for (EventCategory category : values()) {
+      if (category.getLabel().equals(label)) {
+        return category;
+      }
+    }
+
+    throw new IllegalArgumentException("Unknown event category label '" + label + "'");
   }
 }
