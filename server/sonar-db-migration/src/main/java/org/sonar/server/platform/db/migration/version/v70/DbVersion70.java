@@ -39,6 +39,8 @@ public class DbVersion70 implements DbVersion {
       .add(1909, "Populate QUALITY_GATES.UUID", PopulateUuidOnQualityGates.class)
       .add(1910, "Make QUALITY_GATES.UUID not nullable", MakeUuidNotNullableOnQualityGates.class)
       .add(1911, "Drop unique index on QUALITY_GATES.NAME", DropUniqueIndexOnQualityGatesName.class)
+      .add(1912, "Populate ORG_QUALITY_GATES table", PopulateOrgQualityGates.class)
+      .add(1913, "Populate default quality gate by organizationtable", PopulateDefaultQualityGate.class)
     ;
   }
 

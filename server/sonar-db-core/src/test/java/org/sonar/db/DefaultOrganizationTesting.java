@@ -51,11 +51,6 @@ public class DefaultOrganizationTesting {
       "UPDATED_AT", "1000");
   }
 
-  public String insertInternalProperty() {
-    insertInternalProperty(DEFAULT_ORGANIZATION_UUID);
-    return DEFAULT_ORGANIZATION_UUID;
-  }
-
   public void insertInternalProperty(String defaultOrganizationUuid) {
     db.executeInsert(
       "INTERNAL_PROPERTIES",
