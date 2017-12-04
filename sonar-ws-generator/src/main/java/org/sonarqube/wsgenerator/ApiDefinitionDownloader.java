@@ -22,6 +22,8 @@ package org.sonarqube.wsgenerator;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.http.HttpCall;
 import com.sonar.orchestrator.http.HttpResponse;
+import com.sonar.orchestrator.locator.FileLocation;
+import java.io.File;
 
 public class ApiDefinitionDownloader {
 
@@ -30,13 +32,9 @@ public class ApiDefinitionDownloader {
   }
 
   public static String downloadApiDefinition() {
-    String orchestratorUrl = System.getProperty("orchestrator.configUrl");
-    if (orchestratorUrl == null) {
-      throw new IllegalStateException("Please run with -Dorchestrator.configUrl=file:///path/to/your/orchestrator.properties");
-    }
     Orchestrator orchestrator = Orchestrator
       .builderEnv()
-      .setSonarVersion("DEV")
+      .setZipFile(FileLocation.byWildcardMavenFilename(new File("../sonar-application/target"), "sonarqube-*.zip").getFile())
       .build();
 
     orchestrator.start();
