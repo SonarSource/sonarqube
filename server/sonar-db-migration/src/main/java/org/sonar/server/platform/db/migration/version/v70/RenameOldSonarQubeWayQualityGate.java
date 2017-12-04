@@ -42,8 +42,6 @@ public class RenameOldSonarQubeWayQualityGate extends DataChange {
 
   @Override
   protected void execute(Context context) throws SQLException {
-    //ensureThatOutdatedCopyQDoesNotExist(context);
-
     try {
       MassUpdate massUpdate = context.prepareMassUpdate();
       massUpdate.select("SELECT id FROM quality_gates WHERE name = ?")
@@ -61,13 +59,5 @@ public class RenameOldSonarQubeWayQualityGate extends DataChange {
       LOG.error("There is already a quality profile with name [{}]", SONARQUBE_WAY_QUALITY_GATE_OUTDATED);
       throw ex;
     }
-  }
-
-  private boolean isOutdatedCopyQGExists(Context context) throws SQLException {
-    return context.prepareSelect(
-      "SELECT COUNT(id) FROM quality_gates WHERE name = ?")
-      .setString(1, SONARQUBE_WAY_QUALITY_GATE_OUTDATED)
-      .get(
-        row -> row.getInt(1) > 0);
   }
 }
