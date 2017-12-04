@@ -20,20 +20,19 @@
 package org.sonarqube.tests.user;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.junit.After;
-import org.sonarqube.ws.Users.CreateWsResponse.User;
-import org.sonarqube.qa.util.Tester;
-import org.sonarqube.qa.util.pageobjects.UsersManagementPage;
-import org.sonarqube.tests.Category1Suite;
 import java.util.List;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.pageobjects.UsersManagementPage;
+import org.sonarqube.tests.Category1Suite;
 import org.sonarqube.ws.Users;
-import org.sonarqube.ws.client.user.GroupsRequest;
+import org.sonarqube.ws.Users.CreateWsResponse.User;
+import org.sonarqube.ws.client.users.GroupsRequest;
 import util.user.UserRule;
-
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -95,7 +94,7 @@ public class UsersPageTest {
     tester.groups().generate(null, g -> g.setName(group));
     tester.groups().addMemberToGroups(tester.organizations().getDefaultOrganization(), login, group);
 
-    List<Users.GroupsWsResponse.Group> result = tester.as(adminUser.getLogin()).wsClient().users().groups(GroupsRequest.builder().setLogin(login).build()).getGroupsList();
+    List<Users.GroupsWsResponse.Group> result = tester.as(adminUser.getLogin()).wsClient().users().groups(new GroupsRequest().setLogin(login)).getGroupsList();
     assertThat(result).extracting(Users.GroupsWsResponse.Group::getName).contains(group);
   }
 }

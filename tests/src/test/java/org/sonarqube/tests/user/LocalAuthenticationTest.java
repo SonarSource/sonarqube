@@ -39,7 +39,8 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.user.CreateRequest;
+import org.sonarqube.ws.client.users.CreateRequest;
+import org.sonarqube.ws.client.users.DeactivateRequest;
 import org.sonarqube.ws.client.usertokens.GenerateRequest;
 import org.sonarqube.ws.client.usertokens.RevokeRequest;
 import org.sonarqube.ws.client.usertokens.SearchRequest;
@@ -235,15 +236,14 @@ public class LocalAuthenticationTest {
   @Test
   public void authenticate_on_user_that_was_disabled() {
     User user = tester.users().generate(u -> u.setLogin("test").setPassword("password"));
-    tester.users().service().deactivate(user.getLogin());
+    tester.users().service().deactivate(new DeactivateRequest().setLogin(user.getLogin()));
 
-    tester.users().service().create(CreateRequest.builder()
+    tester.users().service().create(new CreateRequest()
       .setLogin("test")
       .setName("Test")
       .setEmail("test@email.com")
       .setScmAccounts(asList("test1", "test2"))
-      .setPassword("password")
-      .build());
+      .setPassword("password"));
 
     assertThat(checkAuthenticationWithAuthenticateWebService("test", "password")).isTrue();
     assertThat(tester.users().getByLogin("test").get())

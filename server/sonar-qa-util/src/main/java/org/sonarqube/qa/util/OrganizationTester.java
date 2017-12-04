@@ -35,7 +35,7 @@ import org.sonarqube.ws.client.organizations.DeleteRequest;
 import org.sonarqube.ws.client.organizations.OrganizationsService;
 import org.sonarqube.ws.client.organizations.SearchMembersRequest;
 import org.sonarqube.ws.client.organizations.SearchRequest;
-import org.sonarqube.ws.client.user.GroupsRequest;
+import org.sonarqube.ws.client.users.GroupsRequest;
 
 import static java.util.Arrays.stream;
 
@@ -128,12 +128,11 @@ public class OrganizationTester {
   }
 
   private void verifyMembersGroupMembership(String userLogin, @Nullable Organizations.Organization organization, boolean isMember) {
-    List<Users.GroupsWsResponse.Group> groups = session.wsClient().users().groups(GroupsRequest.builder()
+    List<Users.GroupsWsResponse.Group> groups = session.wsClient().users().groups(new GroupsRequest()
       .setLogin(userLogin)
       .setOrganization(organization != null ? organization.getKey() : null)
-      .setQuery("Members")
-      .setSelected("selected")
-      .build())
+      .setQ("Members")
+      .setSelected("selected"))
       .getGroupsList();
     Assertions.assertThat(groups).hasSize(isMember ? 1 : 0);
   }

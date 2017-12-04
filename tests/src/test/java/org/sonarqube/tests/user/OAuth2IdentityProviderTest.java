@@ -39,7 +39,7 @@ import org.sonarqube.ws.Users.SearchWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.permissions.AddUserRequest;
-import org.sonarqube.ws.client.user.CreateRequest;
+import org.sonarqube.ws.client.users.CreateRequest;
 import util.selenium.Selenese;
 
 import static com.codeborne.selenide.Condition.visible;
@@ -197,12 +197,11 @@ public class OAuth2IdentityProviderTest {
     enablePlugin();
 
     // Provision none local user in database
-    tester.wsClient().users().create(CreateRequest.builder()
+    tester.wsClient().users().create(new CreateRequest()
       .setLogin(USER_LOGIN)
       .setName(USER_NAME)
       .setEmail(USER_EMAIL)
-      .setLocal(false)
-      .build());
+      .setLocal("false"));
     User user = tester.users().getByLogin(USER_LOGIN).get();
     assertThat(user.getLocal()).isFalse();
     assertThat(user.getExternalIdentity()).isEqualTo(USER_LOGIN);

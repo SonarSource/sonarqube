@@ -29,11 +29,11 @@ import org.junit.Test;
 import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
-import org.sonarqube.tests.Byteman;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.tests.Byteman;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
-import org.sonarqube.ws.client.user.SearchRequest;
-import org.sonarqube.ws.client.user.UpdateRequest;
+import org.sonarqube.ws.client.users.SearchRequest;
+import org.sonarqube.ws.client.users.UpdateRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -98,7 +98,7 @@ public class UserEsResilienceTest {
     // Renaming is not propagated to index as long as recovery does not
     // run.
     String newName = "renamed";
-    tester.users().service().update(UpdateRequest.builder().setLogin(login).setName(newName).build());
+    tester.users().service().update(new UpdateRequest().setLogin(login).setName(newName));
     assertThat(isReturnedInSearch(newName)).isFalse();
 
     while (!isReturnedInSearch(newName)) {
@@ -129,7 +129,7 @@ public class UserEsResilienceTest {
     // Renaming is not propagated to index as long as recovery does not
     // run.
     String newName = "renamed";
-    expectHttpError(500, () -> tester.users().service().update(UpdateRequest.builder().setLogin(login).setName(newName).build()));
+    expectHttpError(500, () -> tester.users().service().update(new UpdateRequest().setLogin(login).setName(newName)));
     assertThat(isReturnedInSearch(newName)).isFalse();
 
     while (!isReturnedInSearch(newName)) {
@@ -139,7 +139,7 @@ public class UserEsResilienceTest {
   }
 
   private boolean isReturnedInSearch(String name) {
-    return tester.users().service().search(SearchRequest.builder().setQuery(name).build()).getUsersCount() == 1L;
+    return tester.users().service().search(new SearchRequest().setQ(name)).getUsersCount() == 1L;
   }
 
 }

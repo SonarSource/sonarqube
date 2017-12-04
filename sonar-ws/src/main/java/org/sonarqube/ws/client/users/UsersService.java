@@ -66,8 +66,8 @@ public class UsersService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/users/create">Further information about this action online (including a response example)</a>
    * @since 3.7
    */
-  public void create(CreateRequest request) {
-    call(
+  public CreateWsResponse create(CreateRequest request) {
+    return call(
       new PostRequest(path("create"))
         .setParam("email", request.getEmail())
         .setParam("local", request.getLocal())
@@ -75,7 +75,7 @@ public class UsersService extends BaseService {
         .setParam("name", request.getName())
         .setParam("password", request.getPassword())
         .setParam("scmAccount", request.getScmAccount())
-        .setParam("scmAccounts", request.getScmAccounts()),
+        .setParam("scmAccounts", request.getScmAccounts() == null ? null : request.getScmAccounts().stream().collect(Collectors.joining(","))),
       CreateWsResponse.parser());
   }
 

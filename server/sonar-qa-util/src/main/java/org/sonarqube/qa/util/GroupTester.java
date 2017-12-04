@@ -29,9 +29,9 @@ import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.UserGroups;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.Users.GroupsWsResponse.Group;
-import org.sonarqube.ws.client.user.GroupsRequest;
 import org.sonarqube.ws.client.usergroups.AddUserRequest;
 import org.sonarqube.ws.client.usergroups.CreateRequest;
+import org.sonarqube.ws.client.users.GroupsRequest;
 
 import static java.util.Arrays.stream;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,10 +58,9 @@ public class GroupTester {
   }
 
   public List<Group> getGroupsOfUser(@Nullable Organizations.Organization organization, String userLogin) {
-    GroupsRequest request = GroupsRequest.builder()
+    GroupsRequest request = new GroupsRequest()
       .setOrganization(organization != null ? organization.getKey() : null)
-      .setLogin(userLogin)
-      .build();
+      .setLogin(userLogin);
     Users.GroupsWsResponse response = session.users().service().groups(request);
     return response.getGroupsList();
   }
