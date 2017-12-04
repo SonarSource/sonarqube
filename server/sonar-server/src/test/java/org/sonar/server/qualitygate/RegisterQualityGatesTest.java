@@ -31,7 +31,6 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -96,11 +95,9 @@ public class RegisterQualityGatesTest {
     verifyCorrectBuiltInQualityGate();
 
     assertThat(
-      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate [Sonar way] has been created")
-    ).isTrue();
+      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate [Sonar way] has been created")).isTrue();
     assertThat(
-      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate's conditions of [Sonar way] has been updated")
-    ).isTrue();
+      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate's conditions of [Sonar way] has been updated")).isTrue();
   }
 
   @Test
@@ -110,12 +107,11 @@ public class RegisterQualityGatesTest {
     dbSession.commit();
 
     underTest.start();
-    assertThat(qualityGateDao.selectAll(dbSession)).hasSize(1);
+    assertThat(db.countRowsOfTable("quality_gates")).isEqualTo(1);
     verifyCorrectBuiltInQualityGate();
 
     assertThat(
-      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate's conditions of [Sonar way] has been updated")
-    ).isTrue();
+      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate's conditions of [Sonar way] has been updated")).isTrue();
   }
 
   @Test
@@ -132,11 +128,10 @@ public class RegisterQualityGatesTest {
     dbSession.commit();
 
     underTest.start();
-    assertThat(qualityGateDao.selectAll(dbSession)).hasSize(1);
+    assertThat(db.countRowsOfTable("quality_gates")).isEqualTo(1);
     verifyCorrectBuiltInQualityGate();
     assertThat(
-      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate's conditions of [Sonar way] has been updated")
-    ).isTrue();
+      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate's conditions of [Sonar way] has been updated")).isTrue();
   }
 
   @Test
@@ -153,12 +148,11 @@ public class RegisterQualityGatesTest {
     dbSession.commit();
 
     underTest.start();
-    assertThat(qualityGateDao.selectAll(dbSession)).hasSize(1);
+    assertThat(db.countRowsOfTable("quality_gates")).isEqualTo(1);
     verifyCorrectBuiltInQualityGate();
 
     assertThat(
-      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate's conditions of [Sonar way] has been updated")
-    ).isTrue();
+      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate's conditions of [Sonar way] has been updated")).isTrue();
   }
 
   @Test
@@ -170,12 +164,11 @@ public class RegisterQualityGatesTest {
     dbSession.commit();
 
     underTest.start();
-    assertThat(qualityGateDao.selectAll(dbSession)).hasSize(1);
+    assertThat(db.countRowsOfTable("quality_gates")).isEqualTo(1);
     verifyCorrectBuiltInQualityGate();
 
     assertThat(
-      logTester.logs(LoggerLevel.INFO).contains("Quality gate [Sonar way] has been set as built-in")
-    ).isTrue();
+      logTester.logs(LoggerLevel.INFO).contains("Quality gate [Sonar way] has been set as built-in")).isTrue();
   }
 
   @Test
@@ -187,19 +180,16 @@ public class RegisterQualityGatesTest {
     dbSession.commit();
 
     underTest.start();
-    assertThat(qualityGateDao.selectAll(dbSession)).hasSize(1);
+    assertThat(db.countRowsOfTable("quality_gates")).isEqualTo(1);
     verifyCorrectBuiltInQualityGate();
 
     // Log must not be present
     assertThat(
-      logTester.logs(LoggerLevel.INFO).contains("Quality gate [Sonar way] has been set as built-in")
-    ).isFalse();
+      logTester.logs(LoggerLevel.INFO).contains("Quality gate [Sonar way] has been set as built-in")).isFalse();
     assertThat(
-      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate [Sonar way] has been created")
-    ).isFalse();
+      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate [Sonar way] has been created")).isFalse();
     assertThat(
-      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate's conditions of [Sonar way] has been updated")
-    ).isFalse();
+      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate's conditions of [Sonar way] has been updated")).isFalse();
   }
 
   @Test
@@ -215,20 +205,14 @@ public class RegisterQualityGatesTest {
     assertThat(oldQualityGate).isNotNull();
     assertThat(oldQualityGate.isBuiltIn()).isFalse();
 
-    List<QualityGateDto> allBuiltInQualityProfiles = qualityGateDao.selectAll(dbSession)
-      .stream()
-      .filter(QualityGateDto::isBuiltIn)
-      .collect(MoreCollectors.toList());
-    assertThat(allBuiltInQualityProfiles)
-      .extracting("name")
+    assertThat(db.select("select name as \"name\" from quality_gates where is_built_in is true"))
+      .extracting(column -> column.get("name"))
       .containsExactly(BUILT_IN_NAME);
 
     assertThat(
-      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate [Sonar way] has been created")
-    ).isTrue();
+      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate [Sonar way] has been created")).isTrue();
     assertThat(
-      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate's conditions of [Sonar way] has been updated")
-    ).isTrue();
+      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate's conditions of [Sonar way] has been updated")).isTrue();
   }
 
   @Test
@@ -243,8 +227,7 @@ public class RegisterQualityGatesTest {
     assertThat(qualityGateFinder.getDefault(dbSession).get().getId()).isEqualTo(builtin.getId());
 
     assertThat(
-      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate [Sonar way] has been set as default")
-    ).isTrue();
+      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate [Sonar way] has been set as default")).isTrue();
   }
 
   @Test
@@ -256,7 +239,7 @@ public class RegisterQualityGatesTest {
       .setOperator(OPERATOR_GREATER_THAN)
       .setErrorThreshold("1")
       .setWarningThreshold("1");
-    gateConditionDao.insert(conditionDto,dbSession);
+    gateConditionDao.insert(conditionDto, dbSession);
     dbSession.commit();
 
     underTest.start();
@@ -265,8 +248,7 @@ public class RegisterQualityGatesTest {
     verifyCorrectBuiltInQualityGate();
 
     assertThat(
-      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate's conditions of [Sonar way] has been updated")
-    ).isTrue();
+      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate's conditions of [Sonar way] has been updated")).isTrue();
   }
 
   private void insertMetrics() {
