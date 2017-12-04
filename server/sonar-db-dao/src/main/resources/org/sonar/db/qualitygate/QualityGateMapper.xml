@@ -5,12 +5,12 @@
 
   <insert id="insertQualityGate" parameterType="QualityGate" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into quality_gates (uuid, name, is_built_in, created_at, updated_at)
-    values (#{uuid}, #{name}, #{isBuiltIn}, #{createdAt}, #{updatedAt})
+    values (#{uuid, jdbcType=VARCHAR}, #{name, jdbcType=VARCHAR}, #{isBuiltIn, jdbcType=BOOLEAN}, #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP})
   </insert>
 
   <insert id="insertOrgQualityGate" parameterType="Map">
     INSERT INTO org_quality_gates (uuid, organization_uuid, quality_gate_uuid)
-    VALUES (#{uuid}, #{organizationUuid}, #{qualityGateUuid})
+    VALUES (#{uuid, jdbcType=VARCHAR}, #{organizationUuid, jdbcType=VARCHAR}, #{qualityGateUuid, jdbcType=VARCHAR})
   </insert>
 
   <sql id="gateColumns">
@@ -28,7 +28,7 @@
     select
     <include refid="gateColumns"/>
     from quality_gates
-    where name=#{name}
+    where name=#{name, jdbcType=VARCHAR}
   </select>
 
   <select id="selectByUuidAndOrganization" parameterType="Map" resultType="org.sonar.db.qualitygate.QGateWithOrgDto">
@@ -45,8 +45,8 @@
     INNER JOIN
       org_quality_gates oqg ON oqg.quality_gate_uuid = qg.uuid
     WHERE
-      qg.uuid = #{qualityGateUuid} AND
-      oqg.organization_uuid = #{organizationUuid}
+      qg.uuid = #{qualityGateUuid, jdbcType=VARCHAR} AND
+      oqg.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
   </select>
 
 
@@ -54,7 +54,7 @@
     select
     <include refid="gateColumns"/>
     from quality_gates
-    where id=#{id}
+    where id=#{id, jdbcType=BIGINT}
   </select>
 
   <select id="selectBuiltIn" resultType="org.sonar.db.qualitygate.QualityGateDto">
@@ -72,9 +72,9 @@
   <update id="update" parameterType="QualityGate">
     update quality_gates set
     name=#{name},
-    is_built_in=#{isBuiltIn},
-    updated_at=#{updatedAt}
-    where uuid=#{uuid}
+    is_built_in=#{isBuiltIn, jdbcType=BOOLEAN},
+    updated_at=#{updatedAt, jdbcType=TIMESTAMP}
+    where uuid=#{uuid, jdbcType=VARCHAR}
   </update>
 
   <update id="ensureOneBuiltInQualityGate" parameterType="string">
@@ -82,7 +82,7 @@
     SET
       is_built_in=${_false}
     WHERE
-      is_built_in=${_true} AND name &lt;&gt; #{builtInQualityName}
+      is_built_in=${_true} AND name &lt;&gt; #{builtInQualityName, jdbcType=VARCHAR}
   </update>
 
 </mapper>
