@@ -29,15 +29,15 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Components;
+import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Projects;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.components.SearchProjectsRequest;
-import org.sonarqube.ws.client.project.CreateRequest;
-import org.sonarqube.ws.client.project.SearchRequest;
+import org.sonarqube.ws.client.projects.CreateRequest;
+import org.sonarqube.ws.client.projects.SearchRequest;
 import util.ItUtils;
 
 import static java.util.Collections.singletonList;
@@ -92,7 +92,7 @@ public class ProjectProvisioningTest {
   }
 
   private Project createProject(Organizations.Organization organization, String key, String name) {
-    CreateRequest createRequest = CreateRequest.builder().setKey(key).setName(name).setOrganization(organization.getKey()).build();
+    CreateRequest createRequest = new CreateRequest().setProject(key).setName(name).setOrganization(organization.getKey());
     return tester.wsClient().projects().create(createRequest).getProject();
   }
 
@@ -101,7 +101,7 @@ public class ProjectProvisioningTest {
    */
   private boolean isInProjectsSearch(Organizations.Organization organization, String name) {
     Projects.SearchWsResponse response = tester.wsClient().projects().search(
-      SearchRequest.builder().setOrganization(organization.getKey()).setQuery(name).setQualifiers(singletonList("TRK")).build());
+      new SearchRequest().setOrganization(organization.getKey()).setQ(name).setQualifiers(singletonList("TRK")));
     return response.getComponentsCount() > 0;
   }
 

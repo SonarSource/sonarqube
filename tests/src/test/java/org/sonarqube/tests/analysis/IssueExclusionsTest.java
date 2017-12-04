@@ -237,7 +237,7 @@ public class IssueExclusionsTest {
     ItUtils.restoreProfile(orchestrator, getClass().getResource("/exclusions/IssueExclusionsTest/with-many-rules.xml"));
 
     tester.projects().provision(p -> p
-      .setKey("com.sonarsource.it.samples:multi-modules-exclusions")
+      .setProject("com.sonarsource.it.samples:multi-modules-exclusions")
       .setName("Sonar :: Integration Tests :: Multi-modules With Exclusions"));
     tester.wsClient().qualityprofiles().addProject(new AddProjectRequest().setProject("com.sonarsource.it.samples:multi-modules-exclusions")
       .setLanguage("xoo").setQualityProfile("with-many-rules"));

@@ -38,7 +38,7 @@ import org.sonarqube.ws.client.issues.SetTagsRequest;
 import org.sonarqube.ws.client.issues.TagsRequest;
 import org.sonarqube.ws.client.organizations.AddMemberRequest;
 import org.sonarqube.ws.client.permissions.AddUserRequest;
-import org.sonarqube.ws.client.project.CreateRequest;
+import org.sonarqube.ws.client.projects.CreateRequest;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -71,12 +71,11 @@ public class IssueTagsTest {
     restoreProfile(orchestrator, IssueTagsTest.class.getResource("/issue/one-issue-per-line-profile.xml"), organization.getKey());
     String projectKey = newProjectKey();
     tester.wsClient().projects().create(
-      CreateRequest.builder()
-        .setKey(projectKey)
+      new CreateRequest()
+        .setProject(projectKey)
         .setOrganization(organization.getKey())
         .setName(randomAlphabetic(10))
-        .setVisibility("private")
-        .build());
+        .setVisibility("private"));
     analyzeProject(organization.getKey(), projectKey);
 
     String issue = tester.wsClient().issues().search(new SearchRequest()).getIssues(0).getKey();

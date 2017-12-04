@@ -32,8 +32,8 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonarqube.qa.util.Tester;
-import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Components;
+import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Projects;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.Users;
@@ -41,9 +41,10 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.components.SearchProjectsRequest;
-import org.sonarqube.ws.client.project.CreateRequest;
-import org.sonarqube.ws.client.project.DeleteRequest;
-import org.sonarqube.ws.client.project.SearchRequest;
+import org.sonarqube.ws.client.projects.BulkDeleteRequest;
+import org.sonarqube.ws.client.projects.CreateRequest;
+import org.sonarqube.ws.client.projects.DeleteRequest;
+import org.sonarqube.ws.client.projects.SearchRequest;
 import util.ItUtils;
 
 import static java.util.Collections.singletonList;
@@ -161,19 +162,18 @@ public class ProjectDeletionTest {
   }
 
   private void deleteProject(Project project) {
-    tester.wsClient().projects().delete(DeleteRequest.builder().setKey(project.getKey()).build());
+    tester.wsClient().projects().delete(new DeleteRequest().setProject(project.getKey()));
   }
 
   private void bulkDeleteProjects(Organizations.Organization organization, Project... projects) {
-    SearchRequest request = SearchRequest.builder()
+    BulkDeleteRequest request = new BulkDeleteRequest()
       .setOrganization(organization.getKey())
-      .setProjects(Arrays.stream(projects).map(Project::getKey).collect(Collectors.toList()))
-      .build();
+      .setProjects(Arrays.stream(projects).map(Project::getKey).collect(Collectors.toList()));
     tester.wsClient().projects().bulkDelete(request);
   }
 
   private Project createProject(Organizations.Organization organization, String key, String name) {
-    CreateRequest createRequest = CreateRequest.builder().setKey(key).setName(name).setOrganization(organization.getKey()).build();
+    CreateRequest createRequest = new CreateRequest().setProject(key).setName(name).setOrganization(organization.getKey());
     return tester.wsClient().projects().create(createRequest).getProject();
   }
 
@@ -194,7 +194,7 @@ public class ProjectDeletionTest {
    */
   private boolean isInProjectsSearch(Organizations.Organization organization, String name) {
     Projects.SearchWsResponse response = tester.wsClient().projects().search(
-      SearchRequest.builder().setOrganization(organization.getKey()).setQuery(name).setQualifiers(singletonList("TRK")).build());
+      new SearchRequest().setOrganization(organization.getKey()).setQ(name).setQualifiers(singletonList("TRK")));
     return response.getComponentsCount() > 0;
   }
 
@@ -229,6 +229,6 @@ public class ProjectDeletionTest {
   }
 
   private static void executeDeleteRequest(WsClient wsClient, String key) {
-    wsClient.projects().delete(DeleteRequest.builder().setKey(key).build());
+    wsClient.projects().delete(new DeleteRequest().setProject(key));
   }
 }

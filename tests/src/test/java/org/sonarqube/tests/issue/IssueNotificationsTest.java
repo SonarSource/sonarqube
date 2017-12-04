@@ -288,7 +288,7 @@ public class IssueNotificationsTest {
   private void createSampleProject(String visibility) {
     // Create project
     Qualityprofiles.CreateWsResponse.QualityProfile profile = tester.qProfiles().createXooProfile(organization);
-    Project project = tester.projects().provision(organization, p -> p.setKey(PROJECT_KEY)
+    Project project = tester.projects().provision(organization, p -> p.setProject(PROJECT_KEY)
       .setName("Sample")
       .setVisibility(visibility));
     tester.qProfiles()

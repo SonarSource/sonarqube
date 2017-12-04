@@ -37,8 +37,8 @@ import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.issues.AssignRequest;
 import org.sonarqube.ws.client.issues.BulkChangeRequest;
 import org.sonarqube.ws.client.issues.SearchRequest;
-import org.sonarqube.ws.client.project.CreateRequest;
 import org.sonarqube.ws.client.qualityprofiles.AddProjectRequest;
+import org.sonarqube.ws.client.projects.CreateRequest;
 import util.issue.IssueRule;
 
 import static java.lang.String.format;
@@ -185,11 +185,10 @@ public class OrganizationIssueAssignTest {
 
   private void provisionProject(String projectKey, String organization) {
     tester.wsClient().projects().create(
-      CreateRequest.builder()
-        .setKey(projectKey)
+      new CreateRequest()
+        .setProject(projectKey)
         .setName(projectKey)
-        .setOrganization(organization)
-        .build());
+        .setOrganization(organization));
   }
 
   private void analyseProject(String projectKey, String organization) {

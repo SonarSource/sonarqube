@@ -35,7 +35,7 @@ import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.issues.BulkChangeRequest;
 import org.sonarqube.ws.client.issues.ChangelogRequest;
 import org.sonarqube.ws.client.permissions.AddUserRequest;
-import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
+import org.sonarqube.ws.client.projects.UpdateVisibilityRequest;
 import util.ItUtils;
 
 import static java.util.Arrays.asList;
@@ -60,7 +60,7 @@ public class IssuePermissionTest {
     ItUtils.restoreProfile(orchestrator, getClass().getResource("/authorisation/one-issue-per-line-profile.xml"));
 
     orchestrator.getServer().provisionProject("privateProject", "PrivateProject");
-    tester.wsClient().projects().updateVisibility(UpdateVisibilityRequest.builder().setProject("privateProject").setVisibility("private").build());
+    tester.wsClient().projects().updateVisibility(new UpdateVisibilityRequest().setProject("privateProject").setVisibility("private"));
     orchestrator.getServer().associateProjectToQualityProfile("privateProject", "xoo", "one-issue-per-line");
     SonarScanner privateProject = SonarScanner.create(projectDir("shared/xoo-sample"))
       .setProperty("sonar.projectKey", "privateProject")

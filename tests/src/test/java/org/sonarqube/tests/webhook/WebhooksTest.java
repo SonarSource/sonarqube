@@ -21,7 +21,6 @@ package org.sonarqube.tests.webhook;
 
 import com.sonar.orchestrator.Orchestrator;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +35,7 @@ import org.sonarqube.tests.Category3Suite;
 import org.sonarqube.ws.Webhooks;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.project.DeleteRequest;
+import org.sonarqube.ws.client.projects.DeleteRequest;
 import org.sonarqube.ws.client.settings.ResetRequest;
 import org.sonarqube.ws.client.settings.SetRequest;
 import org.sonarqube.ws.client.webhooks.DeliveriesRequest;
@@ -75,7 +74,7 @@ public class WebhooksTest {
     disableGlobalWebhooks();
     try {
       // delete project and related properties/webhook deliveries
-      adminWs.projects().delete(DeleteRequest.builder().setKey(PROJECT_KEY).build());
+      adminWs.projects().delete(new DeleteRequest().setProject(PROJECT_KEY));
     } catch (HttpException e) {
       // ignore because project may not exist
     }
