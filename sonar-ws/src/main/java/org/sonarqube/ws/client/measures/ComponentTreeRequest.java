@@ -38,7 +38,7 @@ public class ComponentTreeRequest {
   private String component;
   private String developerId;
   private String developerKey;
-  private String metricKeys;
+  private List<String> metricKeys;
   private String metricPeriodSort;
   private String metricSort;
   private String metricSortFilter;
@@ -153,12 +153,12 @@ public class ComponentTreeRequest {
    * This is a mandatory parameter.
    * Example value: "ncloc,complexity,violations"
    */
-  public ComponentTreeRequest setMetricKeys(String metricKeys) {
+  public ComponentTreeRequest setMetricKeys(List<String> metricKeys) {
     this.metricKeys = metricKeys;
     return this;
   }
 
-  public String getMetricKeys() {
+  public List<String> getMetricKeys() {
     return metricKeys;
   }
 

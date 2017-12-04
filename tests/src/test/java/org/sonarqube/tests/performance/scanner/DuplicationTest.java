@@ -37,7 +37,7 @@ import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
-import org.sonarqube.ws.client.measure.ComponentRequest;
+import org.sonarqube.ws.client.measures.ComponentRequest;
 
 import static java.lang.Double.parseDouble;
 import static java.util.Arrays.asList;
@@ -80,8 +80,8 @@ public class DuplicationTest extends AbstractPerfTest {
   }
 
   private Map<String, Double> getMeasures(String key) {
-    return newWsClient().measuresOld().component(new ComponentRequest()
-      .setComponentKey(key)
+    return newWsClient().measures().component(new ComponentRequest()
+      .setComponent(key)
       .setMetricKeys(asList("duplicated_lines", "duplicated_blocks", "duplicated_files", "duplicated_lines_density")))
       .getComponent().getMeasuresList()
       .stream()

@@ -21,7 +21,6 @@ package org.sonarqube.tests.measure;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 import org.junit.BeforeClass;
@@ -32,10 +31,11 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Measures.Measure;
 import org.sonarqube.ws.Measures.SearchHistoryResponse;
 import org.sonarqube.ws.Measures.SearchHistoryResponse.HistoryValue;
-import org.sonarqube.ws.client.measure.SearchHistoryRequest;
+import org.sonarqube.ws.client.measures.SearchHistoryRequest;
 import util.ItUtils;
 import util.ItUtils.ComponentNavigation;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -102,12 +102,11 @@ public class TimeMachineTest {
   public void noDataForInterval() {
     Date now = new Date();
 
-    SearchHistoryResponse response = tester.wsClient().measuresOld().searchHistory(SearchHistoryRequest.builder()
+    SearchHistoryResponse response = tester.wsClient().measures().searchHistory(new SearchHistoryRequest()
       .setComponent(PROJECT_KEY)
       .setMetrics(singletonList("lines"))
       .setFrom(formatDate(now))
-      .setTo(formatDate(now))
-      .build());
+      .setTo(formatDate(now)));
 
     assertThat(response.getPaging().getTotal()).isEqualTo(0);
     assertThat(response.getMeasures(0).getHistoryList()).isEmpty();
@@ -134,10 +133,9 @@ public class TimeMachineTest {
   }
 
   private static SearchHistoryResponse searchHistory(String... metrics) {
-    return tester.wsClient().measuresOld().searchHistory(SearchHistoryRequest.builder()
+    return tester.wsClient().measures().searchHistory(new SearchHistoryRequest()
       .setComponent(PROJECT_KEY)
-      .setMetrics(Arrays.asList(metrics))
-      .build());
+      .setMetrics(asList(metrics)));
   }
 
   private static void assertHistory(SearchHistoryResponse response, String metric, String... expectedMeasures) {

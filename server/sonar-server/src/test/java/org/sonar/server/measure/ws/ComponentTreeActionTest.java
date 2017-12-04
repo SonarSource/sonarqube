@@ -79,18 +79,18 @@ import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.NAME_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.WITH_MEASURES_ONLY_METRIC_SORT_FILTER;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_PERIODS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_KEY;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_PERIOD_SORT;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT_FILTER;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEGY;
+import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_PERIODS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_ID;
+import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_KEY;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_PERIOD_SORT;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_SORT;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_SORT_FILTER;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_QUALIFIERS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_STRATEGY;
 
 public class ComponentTreeActionTest {
   @Rule

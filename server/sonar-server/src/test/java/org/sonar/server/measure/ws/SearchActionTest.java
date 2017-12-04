@@ -56,8 +56,8 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_PROJECT_KEYS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PROJECT_KEYS;
 
 public class SearchActionTest {
 

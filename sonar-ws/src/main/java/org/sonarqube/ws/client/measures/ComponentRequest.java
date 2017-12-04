@@ -37,7 +37,7 @@ public class ComponentRequest {
   private String componentId;
   private String developerId;
   private String developerKey;
-  private String metricKeys;
+  private List<String> metricKeys;
 
   /**
    * Example value: "periods,metrics"
@@ -125,12 +125,12 @@ public class ComponentRequest {
    * This is a mandatory parameter.
    * Example value: "ncloc,complexity,violations"
    */
-  public ComponentRequest setMetricKeys(String metricKeys) {
+  public ComponentRequest setMetricKeys(List<String> metricKeys) {
     this.metricKeys = metricKeys;
     return this;
   }
 
-  public String getMetricKeys() {
+  public List<String> getMetricKeys() {
     return metricKeys;
   }
 }

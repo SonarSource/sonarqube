@@ -49,7 +49,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SHOW;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 
 public class ShowAction implements ComponentsWsAction {
   private final UserSession userSession;

@@ -55,8 +55,8 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_PROJECT_KEYS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PROJECT_KEYS;
 
 public class SearchAction implements MeasuresWsAction {
 

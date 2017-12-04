@@ -69,17 +69,17 @@ import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ACTION_COMPONENT;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_METRICS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_PERIODS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_COMPONENT_KEY;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.ACTION_COMPONENT;
+import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_METRICS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_PERIODS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_PARAM_COMPONENT_ID;
+import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_PARAM_COMPONENT_KEY;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_DEVELOPER_ID;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
 
 public class ComponentAction implements MeasuresWsAction {
   private static final Set<String> QUALIFIERS_ELIGIBLE_FOR_BEST_VALUE = ImmutableSortedSet.of(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);

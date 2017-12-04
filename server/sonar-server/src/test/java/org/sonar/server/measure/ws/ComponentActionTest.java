@@ -54,12 +54,12 @@ import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.INT;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_PARAM_COMPONENT_ID;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_DEVELOPER_ID;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
 
 public class ComponentActionTest {
 

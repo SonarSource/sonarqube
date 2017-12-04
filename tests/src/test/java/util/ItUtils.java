@@ -71,7 +71,7 @@ import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.components.ShowRequest;
-import org.sonarqube.ws.client.measure.ComponentRequest;
+import org.sonarqube.ws.client.measures.ComponentRequest;
 import org.sonarqube.ws.client.qualityprofile.RestoreRequest;
 import org.sonarqube.ws.client.settings.ResetRequest;
 import org.sonarqube.ws.client.settings.SetRequest;
@@ -334,7 +334,7 @@ public class ItUtils {
   }
 
   private static Stream<Measure> getStreamMeasures(Orchestrator orchestrator, String componentKey, String... metricKeys) {
-    return newWsClient(orchestrator).measuresOld().component(new ComponentRequest()
+    return newWsClient(orchestrator).measures().component(new ComponentRequest()
       .setComponent(componentKey)
       .setMetricKeys(asList(metricKeys)))
       .getComponent().getMeasuresList()
@@ -343,7 +343,7 @@ public class ItUtils {
 
   @CheckForNull
   public static Measure getMeasureWithVariation(Orchestrator orchestrator, String componentKey, String metricKey) {
-    Measures.ComponentWsResponse response = newWsClient(orchestrator).measuresOld().component(new ComponentRequest()
+    Measures.ComponentWsResponse response = newWsClient(orchestrator).measures().component(new ComponentRequest()
       .setComponent(componentKey)
       .setMetricKeys(singletonList(metricKey))
       .setAdditionalFields(singletonList("periods")));
@@ -353,8 +353,8 @@ public class ItUtils {
 
   @CheckForNull
   public static Map<String, Measure> getMeasuresWithVariationsByMetricKey(Orchestrator orchestrator, String componentKey, String... metricKeys) {
-    return newWsClient(orchestrator).measuresOld().component(new ComponentRequest()
-      .setComponentKey(componentKey)
+    return newWsClient(orchestrator).measures().component(new ComponentRequest()
+      .setComponent(componentKey)
       .setMetricKeys(asList(metricKeys))
       .setAdditionalFields(singletonList("periods"))).getComponent().getMeasuresList()
       .stream()
