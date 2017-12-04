@@ -56,6 +56,11 @@ public class QualityGateDao implements Dao {
     return mapper(dbSession).selectByUuidAndOrganization(qualityGateUuid, organization.getUuid());
   }
 
+  @CheckForNull
+  public QGateWithOrgDto selectByOrganizationAndName(DbSession session, OrganizationDto organization, String name) {
+    return mapper(session).selectByNameAndOrganization(name, organization.getUuid());
+  }
+
   public void delete(QualityGateDto qGate, DbSession session) {
     mapper(session).delete(qGate.getId());
   }
