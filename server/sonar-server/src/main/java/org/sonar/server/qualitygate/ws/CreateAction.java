@@ -78,7 +78,7 @@ public class CreateAction implements QualityGatesWsAction {
 
       userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, organizationDto.getUuid());
 
-      QualityGateDto newQualityGate = qualityGateUpdater.create(dbSession, request.mandatoryParam(PARAM_NAME));
+      QualityGateDto newQualityGate = qualityGateUpdater.create(dbSession, organizationDto, request.mandatoryParam(PARAM_NAME));
       CreateResponse.Builder createResponse = CreateResponse.newBuilder()
         .setId(newQualityGate.getId())
         .setName(newQualityGate.getName());

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -28,9 +29,12 @@ import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.tester.UserSessionRule;
@@ -51,6 +55,7 @@ public class CreateActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
+  private OrganizationDbTester organizationDbTester = new OrganizationDbTester(db);
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
@@ -59,16 +64,45 @@ public class CreateActionTest {
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
-  public void create_quality_gate() {
-    logInAsQualityGateAdmin();
+  public void default_organization_is_used_when_no_parameter() {
+    logInAsQualityGateAdmin(db.getDefaultOrganization());
 
-    CreateResponse response = executeRequest("Default");
+    String qgName = "Default";
+    CreateResponse response = executeRequest(Optional.empty(), qgName);
 
-    assertThat(response.getName()).isEqualTo("Default");
+    assertThat(response.getName()).isEqualTo(qgName);
     assertThat(response.getId()).isNotNull();
     dbSession.commit();
-    QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectByName(dbSession, "Default");
+
+    QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectByOrganizationAndName(dbSession, db.getDefaultOrganization(), qgName);
     assertThat(qualityGateDto).isNotNull();
+  }
+
+  @Test
+  public void create_quality_gate_with_organization() {
+    OrganizationDto organizationDto = organizationDbTester.insert();
+    logInAsQualityGateAdmin(organizationDto);
+
+    String qgName = "Default";
+    CreateResponse response = executeRequest(Optional.of(organizationDto), qgName);
+
+    assertThat(response.getName()).isEqualTo(qgName);
+    assertThat(response.getId()).isNotNull();
+    dbSession.commit();
+
+    QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectByOrganizationAndName(dbSession, organizationDto, qgName);
+    assertThat(qualityGateDto).isNotNull();
+  }
+
+  @Test
+  public void throw_ForbiddenException_if_incorrect_organization() {
+    logInAsQualityGateAdmin(db.getDefaultOrganization());
+    OrganizationDto otherOrganization = organizationDbTester.insert();
+
+    expectedException.expect(ForbiddenException.class);
+    expectedException.expectMessage("Insufficient privileges");
+
+    executeRequest(Optional.of(otherOrganization), "Default");
   }
 
   @Test
@@ -78,11 +112,11 @@ public class CreateActionTest {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    executeRequest("Default");
+    executeRequest(Optional.empty(), "Default");
   }
 
   @Test
-  public void throw_ForbiddenException_if_not_gate_administrator_of_default_organization() {
+  public void throw_ForbiddenException_if_not_gate_administrator_of_own_organization() {
     // as long as organizations don't support Quality gates, the global permission
     // is defined on the default organization
     OrganizationDto org = db.organizations().insert();
@@ -91,7 +125,45 @@ public class CreateActionTest {
     expectedException.expect(ForbiddenException.class);
     expectedException.expectMessage("Insufficient privileges");
 
-    executeRequest("Default");
+    executeRequest(Optional.empty(), "Default");
+  }
+
+  @Test
+  public void throw_ForbiddenException_if_unknown_organization() {
+    OrganizationDto org = new OrganizationDto().setName("Unknown organization").setKey("unknown_key");
+
+    userSession.logIn();
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("No organization with key 'unknown_key'");
+
+    executeRequest(Optional.of(org), "Default");
+  }
+
+  @Test
+  public void throw_BadRequestException_if_name_is_already_used() {
+    OrganizationDto org = db.organizations().insert();
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES, org);
+
+    executeRequest(Optional.of(org), "Default");
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Name has already been taken");
+
+    executeRequest(Optional.of(org), "Default");
+  }
+
+  @Test
+  public void creating_a_qg_with_a_name_used_in_another_organization_should_work() {
+    OrganizationDto org1 = db.organizations().insert();
+    OrganizationDto org2 = db.organizations().insert();
+
+    userSession.logIn()
+      .addPermission(ADMINISTER_QUALITY_GATES, org1)
+      .addPermission(ADMINISTER_QUALITY_GATES, org2);
+
+    executeRequest(Optional.of(org1), "Default");
+    executeRequest(Optional.of(org2), "Default");
   }
 
   @Test
@@ -104,14 +176,20 @@ public class CreateActionTest {
     assertThat(action.params()).hasSize(2);
   }
 
-  private CreateResponse executeRequest(String name) {
-    return ws.newRequest()
-      .setParam("name", name)
-      .executeProtobuf(CreateResponse.class);
+  private CreateResponse executeRequest(Optional<OrganizationDto> organization, String qualitGateName) {
+    if (organization.isPresent()) {
+      return ws.newRequest()
+        .setParam("name", qualitGateName)
+        .setParam("organization", organization.get().getKey())
+        .executeProtobuf(CreateResponse.class);
+    } else {
+      return ws.newRequest()
+        .setParam("name", qualitGateName)
+        .executeProtobuf(CreateResponse.class);
+    }
   }
 
-  private void logInAsQualityGateAdmin() {
-    userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES, db.getDefaultOrganization());
+  private void logInAsQualityGateAdmin(OrganizationDto organizationDto) {
+    userSession.logIn().addPermission(ADMINISTER_QUALITY_GATES, organizationDto);
   }
-
 }
