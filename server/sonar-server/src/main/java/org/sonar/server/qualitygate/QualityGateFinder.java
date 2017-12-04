@@ -26,7 +26,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 
-import static com.hazelcast.util.Preconditions.checkState;
+import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
 import static org.sonar.server.ws.WsUtils.checkFound;
 
