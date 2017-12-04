@@ -31,19 +31,19 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class SearchRequest {
 
-  private String metricKeys;
+  private List<String> metricKeys;
   private List<String> projectKeys;
 
   /**
    * This is a mandatory parameter.
    * Example value: "ncloc,complexity,violations"
    */
-  public SearchRequest setMetricKeys(String metricKeys) {
+  public SearchRequest setMetricKeys(List<String> metricKeys) {
     this.metricKeys = metricKeys;
     return this;
   }
 
-  public String getMetricKeys() {
+  public List<String> getMetricKeys() {
     return metricKeys;
   }
 

@@ -91,12 +91,6 @@ public interface WsClient {
 
   QualitygatesService qualityGates();
 
-  /**
-   * @deprecated since 7.0 use {@link #measures()} instead
-   */
-  @Deprecated
-  org.sonarqube.ws.client.measure.MeasuresService measuresOld();
-
   MeasuresService measures();
 
   SystemService system();

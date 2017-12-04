@@ -98,22 +98,22 @@ import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ACTION_COMPONENT_TREE;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_METRICS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_PERIODS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_KEY;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_PERIOD_SORT;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT_FILTER;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEGY;
+import static org.sonar.server.component.ws.MeasuresWsParameters.ACTION_COMPONENT_TREE;
+import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_METRICS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_PERIODS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_ID;
+import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_KEY;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_DEVELOPER_ID;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_PERIOD_SORT;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_SORT;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_SORT_FILTER;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_QUALIFIERS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_STRATEGY;
 
 /**
  * <p>Navigate through components based on different strategy with specified measures.
@@ -237,7 +237,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setPossibleValues(METRIC_SORT_FILTERS);
 
     createMetricKeysParameter(action)
-      .setDescription("Metric keys. Types %s are not allowed", COMMA_JOINER.join(FORBIDDEN_METRIC_TYPES))
+      .setDescription("Comma-separated list of metric keys. Types %s are not allowed.", COMMA_JOINER.join(FORBIDDEN_METRIC_TYPES))
       .setMaxValuesAllowed(MAX_METRIC_KEYS);
     createAdditionalFieldsParameter(action);
     createDeveloperParameters(action);

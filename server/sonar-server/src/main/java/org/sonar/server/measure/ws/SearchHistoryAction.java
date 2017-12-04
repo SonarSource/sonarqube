@@ -56,12 +56,12 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.SnapshotDto.STATUS_PROCESSED;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ACTION_SEARCH_HISTORY;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_FROM;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRICS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_TO;
+import static org.sonar.server.component.ws.MeasuresWsParameters.ACTION_SEARCH_HISTORY;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_FROM;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRICS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_TO;
 
 public class SearchHistoryAction implements MeasuresWsAction {
 

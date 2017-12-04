@@ -74,7 +74,7 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COM
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STRATEGY;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 
 public class TreeAction implements ComponentsWsAction {
 

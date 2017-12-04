@@ -69,11 +69,11 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_FROM;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRICS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_TO;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_FROM;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRICS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_TO;
 
 public class SearchHistoryActionTest {
 

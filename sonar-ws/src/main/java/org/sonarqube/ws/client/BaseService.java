@@ -52,7 +52,7 @@ public abstract class BaseService {
     return wsConnector.call(request).failIfNotSuccessful();
   }
 
-  public <T extends Message> T convert(WsResponse response, Parser<T> parser) {
+  public static <T extends Message> T convert(WsResponse response, Parser<T> parser) {
     try (InputStream byteStream = response.contentStream()) {
       byte[] bytes = IOUtils.toByteArray(byteStream);
       // HTTP header "Content-Type" is not verified. It may be different than protobuf.

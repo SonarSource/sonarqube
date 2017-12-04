@@ -63,7 +63,6 @@ class DefaultWsClient implements WsClient {
   private final UserGroupsService userGroupsService;
   private final UserTokensService userTokensService;
   private final QualitygatesService qualityGatesService;
-  private final org.sonarqube.ws.client.measure.MeasuresService measuresOld;
   private final MeasuresService measures;
   private final SystemService systemService;
   private final CeService ceService;
@@ -90,7 +89,6 @@ class DefaultWsClient implements WsClient {
     this.userGroupsService = new UserGroupsService(wsConnector);
     this.userTokensService = new UserTokensService(wsConnector);
     this.qualityGatesService = new QualitygatesService(wsConnector);
-    this.measuresOld = new org.sonarqube.ws.client.measure.MeasuresService(wsConnector);
     this.measures = new MeasuresService(wsConnector);
     this.systemService = new SystemService(wsConnector);
     this.ceService = new CeService(wsConnector);
@@ -163,11 +161,6 @@ class DefaultWsClient implements WsClient {
   @Override
   public QualitygatesService qualityGates() {
     return qualityGatesService;
-  }
-
-  @Override
-  public org.sonarqube.ws.client.measure.MeasuresService measuresOld() {
-    return measuresOld;
   }
 
   @Override

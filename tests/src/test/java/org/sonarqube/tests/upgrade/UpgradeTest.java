@@ -31,22 +31,26 @@ import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Collections;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.sonarqube.qa.util.SelenideConfig;
+import org.sonarqube.ws.Measures;
 import org.sonarqube.ws.Measures.Measure;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpConnector;
+import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.measure.ComponentRequest;
+import org.sonarqube.ws.client.measures.ComponentRequest;
 
 import static com.codeborne.selenide.Condition.hasText;
 import static com.codeborne.selenide.Selenide.$;
 import static java.lang.Integer.parseInt;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UpgradeTest {
@@ -73,7 +77,7 @@ public class UpgradeTest {
   private void testDatabaseUpgrade(Version fromVersion) {
     startOldVersionServer(fromVersion, false);
     scanProject();
-    int files = countFiles(PROJECT_KEY);
+    int files = countFilesOld(PROJECT_KEY);
     assertThat(files).isGreaterThan(0);
     stopServer();
 
@@ -83,9 +87,9 @@ public class UpgradeTest {
   }
 
   private void verifyAnalysis(int expectedNumberOfFiles) {
-    assertThat(countFiles(PROJECT_KEY)).isEqualTo(expectedNumberOfFiles);
+    assertThat(countFilesNew(PROJECT_KEY)).isEqualTo(expectedNumberOfFiles);
     scanProject();
-    assertThat(countFiles(PROJECT_KEY)).isEqualTo(expectedNumberOfFiles);
+    assertThat(countFilesNew(PROJECT_KEY)).isEqualTo(expectedNumberOfFiles);
     browseWebapp();
   }
 
@@ -197,8 +201,20 @@ public class UpgradeTest {
     orchestrator.executeBuild(build);
   }
 
-  private int countFiles(String key) {
-    Measure measure = newWsClient(orchestrator).measuresOld().component(new ComponentRequest().setComponentKey(key).setMetricKeys(Collections.singletonList("files")))
+  private int countFilesOld(String key) {
+    PostRequest httpRequest = new PostRequest("api/measures/component")
+      .setParam("componentKey", key)
+      .setParam("metricKeys", singletonList("files"))
+      .setMediaType(MediaTypes.PROTOBUF);
+    WsResponse response = HttpConnector.newBuilder()
+      .url(orchestrator.getServer().getUrl())
+      .build().call(httpRequest);
+    Measure measure = BaseService.convert(response, Measures.ComponentWsResponse.parser()).getComponent().getMeasures(0);
+    return parseInt(measure.getValue());
+  }
+
+  private int countFilesNew(String key) {
+    Measure measure = newWsClient(orchestrator).measures().component(new ComponentRequest().setComponent(key).setMetricKeys(singletonList("files")))
       .getComponent().getMeasures(0);
     return parseInt(measure.getValue());
   }

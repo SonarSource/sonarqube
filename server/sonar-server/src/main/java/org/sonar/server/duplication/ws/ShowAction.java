@@ -38,7 +38,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.component.ComponentFinder.ParamNames.UUID_AND_KEY;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 
 public class ShowAction implements DuplicationsWsAction {
 
