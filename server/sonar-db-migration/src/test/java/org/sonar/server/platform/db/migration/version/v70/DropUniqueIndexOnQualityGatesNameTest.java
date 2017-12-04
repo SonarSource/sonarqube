@@ -19,23 +19,33 @@
  */
 package org.sonar.server.platform.db.migration.version.v70;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+public class DropUniqueIndexOnQualityGatesNameTest {
 
-public class DbVersion70Test {
+  @Rule
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(DropUniqueIndexOnQualityGatesNameTest.class, "quality_gates.sql");
 
-  private DbVersion70 underTest = new DbVersion70();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private DropUniqueIndexOnQualityGatesName underTest = new DropUniqueIndexOnQualityGatesName(dbTester.database());
 
   @Test
-  public void migrationNumber_starts_at_1900() {
-    verifyMinimumMigrationNumber(underTest, 1900);
+  public void unique_index_on_name_is_removed() throws SQLException {
+    underTest.execute();
+
+    dbTester.assertIndexDoesNotExist("quality_gates", "uniq_quality_gates");
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 12);
-  }
+  public void migration_is_reentrant() throws SQLException {
+    underTest.execute();
 
+    underTest.execute();
+  }
 }

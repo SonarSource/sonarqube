@@ -38,6 +38,7 @@ public class DbVersion70 implements DbVersion {
       .add(1908, "Create QUALITY_GATES.UUID", AddUuidToQualityGates.class)
       .add(1909, "Populate QUALITY_GATES.UUID", PopulateUuidOnQualityGates.class)
       .add(1910, "Make QUALITY_GATES.UUID not nullable", MakeUuidNotNullableOnQualityGates.class)
+      .add(1911, "Drop unique index on QUALITY_GATES.NAME", DropUniqueIndexOnQualityGatesName.class)
     ;
   }
 
