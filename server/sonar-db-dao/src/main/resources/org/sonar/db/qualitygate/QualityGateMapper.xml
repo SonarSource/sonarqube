@@ -27,11 +27,13 @@
     VALUES (#{uuid, jdbcType=VARCHAR}, #{organizationUuid, jdbcType=VARCHAR}, #{qualityGateUuid, jdbcType=VARCHAR})
   </insert>
 
-  <select id="selectAll" resultType="QualityGate">
-    select
-    <include refid="gateColumns"/>
-    from quality_gates
-    order by name asc
+  <select id="selectAll" resultType="org.sonar.db.qualitygate.QGateWithOrgDto">
+    SELECT
+      <include refid="qateWithOrgColumns"/>
+    FROM quality_gates qg
+    INNER JOIN
+      org_quality_gates oqg ON oqg.quality_gate_uuid = qg.uuid AND oqg.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    ORDER BY qg.name ASC
   </select>
 
   <select id="selectByName" parameterType="String" resultType="QualityGate">
