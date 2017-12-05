@@ -27,7 +27,6 @@ import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -63,7 +62,7 @@ public class DeselectActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private TestDefaultOrganizationProvider organizationProvider = TestDefaultOrganizationProvider.from(db);
-  private QualityGates qualityGates = new QualityGates(dbClient, userSession, organizationProvider, UuidFactoryFast.getInstance());
+  private QualityGates qualityGates = new QualityGates(dbClient, userSession, organizationProvider);
   private WsActionTester ws;
   private ComponentDto project;
   private QualityGateDto gate;

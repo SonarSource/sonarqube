@@ -19,15 +19,11 @@
  */
 package org.sonar.server.qualitygate;
 
-import com.google.common.collect.ImmutableList;
-import java.util.Collection;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -37,7 +33,6 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
-import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -48,7 +43,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
@@ -85,7 +79,7 @@ public class QualityGatesTest {
     when(componentDao.selectOrFailById(eq(dbSession), anyLong())).thenReturn(
       newPrivateProjectDto(OrganizationTesting.newOrganizationDto(), PROJECT_UUID).setId(1L).setDbKey(PROJECT_KEY));
 
-    underTest = new QualityGates(dbClient, userSession, organizationProvider, UuidFactoryFast.getInstance());
+    underTest = new QualityGates(dbClient, userSession, organizationProvider);
 
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, organizationProvider.get().getUuid());
   }
@@ -105,30 +99,4 @@ public class QualityGatesTest {
     assertThat(propertyCaptor.getValue().getKey()).isEqualTo("sonar.qualitygate");
     assertThat(propertyCaptor.getValue().getValue()).isEqualTo("42");
   }
-
-  @Test
-  public void should_copy_qgate() {
-    String name = "Atlantis";
-    long sourceId = QUALITY_GATE_ID;
-    final long destId = 43L;
-    long metric1Id = 1L;
-    long metric2Id = 2L;
-    QualityGateConditionDto cond1 = new QualityGateConditionDto().setMetricId(metric1Id);
-    QualityGateConditionDto cond2 = new QualityGateConditionDto().setMetricId(metric2Id);
-    Collection<QualityGateConditionDto> conditions = ImmutableList.of(cond1, cond2);
-
-    when(dao.selectById(dbSession, sourceId)).thenReturn(new QualityGateDto().setId(sourceId).setName("SG-1"));
-    Mockito.doAnswer(invocation -> {
-      ((QualityGateDto) invocation.getArguments()[1]).setId(destId);
-      return null;
-    }).when(dao).insert(eq(dbSession), any(QualityGateDto.class));
-    when(conditionDao.selectForQualityGate(eq(dbSession), anyLong())).thenReturn(conditions);
-    QualityGateDto atlantis = underTest.copy(sourceId, name);
-    assertThat(atlantis.getName()).isEqualTo(name);
-    verify(dao).selectByName(dbSession, name);
-    verify(dao).insert(dbSession, atlantis);
-    verify(conditionDao).selectForQualityGate(eq(dbSession), anyLong());
-    verify(conditionDao, times(conditions.size())).insert(any(QualityGateConditionDto.class), eq(dbSession));
-  }
-
 }
