@@ -22,6 +22,7 @@ package org.sonar.server.qualitygate.changeevent;
 import com.google.common.collect.Multimap;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.Logger;
@@ -57,15 +58,15 @@ public class QGChangeEventListenersImpl implements QGChangeEventListeners {
   }
 
   @Override
-  public void broadcastOnIssueChange(QGChangeEventFactory.IssueChangeData issueChangeData, Collection<QGChangeEvent> changeEvents) {
-    if (listeners.length == 0 || issueChangeData.getComponents().isEmpty() || issueChangeData.getIssues().isEmpty() || changeEvents.isEmpty()) {
+  public void broadcastOnIssueChange(List<DefaultIssue> issues, Collection<QGChangeEvent> changeEvents) {
+    if (listeners.length == 0 || issues.isEmpty() || changeEvents.isEmpty()) {
       return;
     }
 
     try {
       Multimap<String, QGChangeEvent> eventsByComponentUuid = changeEvents.stream()
         .collect(MoreCollectors.index(t -> t.getProject().uuid()));
-      Multimap<String, DefaultIssue> issueByComponentUuid = issueChangeData.getIssues().stream()
+      Multimap<String, DefaultIssue> issueByComponentUuid = issues.stream()
         .collect(MoreCollectors.index(DefaultIssue::projectUuid));
 
       issueByComponentUuid.asMap()

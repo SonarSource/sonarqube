@@ -59,15 +59,11 @@ public class LoadQualityGateStep implements ComputationStep {
       qualityGate = getProjectQualityGate();
       if (!qualityGate.isPresent()) {
         // No QG defined for the project, let's retrieve the QG on the organization
-        qualityGate = getOrganizationDefaultQualityGate();
+        qualityGate = Optional.of(getOrganizationDefaultQualityGate());
       }
     }
 
-    if (qualityGate.isPresent()) {
-      qualityGateHolder.setQualityGate(qualityGate.get());
-    } else {
-      qualityGateHolder.setNoQualityGate();
-    }
+    qualityGateHolder.setQualityGate(qualityGate.orElseThrow(() -> new IllegalStateException("Quality gate not present")));
   }
 
   private Optional<QualityGate> getShortLivingBranchQualityGate() {
@@ -100,7 +96,7 @@ public class LoadQualityGateStep implements ComputationStep {
     }
   }
 
-  private Optional<QualityGate> getOrganizationDefaultQualityGate() {
+  private QualityGate getOrganizationDefaultQualityGate() {
     return qualityGateService.findDefaultQualityGate(analysisMetadataHolder.getOrganization());
   }
 

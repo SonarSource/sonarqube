@@ -20,7 +20,7 @@
 package org.sonar.server.computation.task.projectanalysis.formula.counter;
 
 import javax.annotation.Nullable;
-import org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating;
+import org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating;
 
 /**
  * Convenience class wrapping a rating to compute the value and know it is has ever been set.

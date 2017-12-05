@@ -29,7 +29,6 @@ import org.sonar.server.computation.task.projectanalysis.measure.Measure;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepository;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
-import org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating;
 
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST_KEY;
 import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY;
@@ -50,7 +49,6 @@ import static org.sonar.server.computation.task.projectanalysis.measure.Measure.
 public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<MaintainabilityMeasuresVisitor.Counter> {
   private final MeasureRepository measureRepository;
   private final RatingSettings ratingSettings;
-  private final RatingGrid ratingGrid;
 
   private final Metric nclocMetric;
   private final Metric developmentCostMetric;
@@ -64,7 +62,6 @@ public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<Main
     super(CrawlerDepthLimit.FILE, POST_ORDER, CounterFactory.INSTANCE);
     this.measureRepository = measureRepository;
     this.ratingSettings = ratingSettings;
-    this.ratingGrid = ratingSettings.getRatingGrid();
 
     // Input metrics
     this.nclocMetric = metricRepository.getByKey(NCLOC_KEY);
@@ -134,7 +131,7 @@ public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<Main
   }
 
   private void addMaintainabilityRatingMeasure(Component component, double density) {
-    Rating rating = ratingGrid.getRatingForDensity(density);
+    Rating rating = ratingSettings.getDebtRatingGrid().getRatingForDensity(density);
     measureRepository.add(component, maintainabilityRatingMetric, newMeasureBuilder().create(rating.getIndex(), rating.name()));
   }
 
@@ -142,7 +139,7 @@ public class MaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<Main
     long developmentCostValue = path.current().devCosts;
     Optional<Measure> effortMeasure = measureRepository.getRawMeasure(component, maintainabilityRemediationEffortMetric);
     long effort = effortMeasure.isPresent() ? effortMeasure.get().getLongValue() : 0L;
-    long upperGradeCost = ((Double) (ratingGrid.getGradeLowerBound(Rating.B) * developmentCostValue)).longValue();
+    long upperGradeCost = ((Double) (ratingSettings.getDebtRatingGrid().getGradeLowerBound(Rating.B) * developmentCostValue)).longValue();
     long effortToRatingA = upperGradeCost < effort ? (effort - upperGradeCost) : 0L;
     measureRepository.add(component, effortToMaintainabilityRatingAMetric, Measure.newMeasureBuilder().create(effortToRatingA));
   }

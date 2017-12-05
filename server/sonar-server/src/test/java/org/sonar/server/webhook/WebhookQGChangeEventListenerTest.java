@@ -32,6 +32,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
@@ -67,7 +68,7 @@ public class WebhookQGChangeEventListenerTest {
 
   private static final EvaluatedQualityGate EVALUATED_QUALITY_GATE_1 = EvaluatedQualityGate.newBuilder()
     .setQualityGate(new QualityGate(valueOf(ShortLivingBranchQualityGate.ID), ShortLivingBranchQualityGate.NAME, emptySet()))
-    .setStatus(EvaluatedQualityGate.Status.OK)
+    .setStatus(Metric.Level.OK)
     .build();
   private static final Set<QGChangeEventListener.ChangedIssue> CHANGED_ISSUES_ARE_IGNORED = emptySet();
 

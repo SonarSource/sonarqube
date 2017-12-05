@@ -25,13 +25,12 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.measures.Metric.Level;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.qualitygate.EvaluatedQualityGate.newBuilder;
-import static org.sonar.server.qualitygate.EvaluatedQualityGate.Status.OK;
-import static org.sonar.server.qualitygate.EvaluatedQualityGate.Status.WARN;
 
 public class EvaluatedQualityGateTest {
   private static final String QUALITY_GATE_ID = "qg_id";
@@ -45,36 +44,12 @@ public class EvaluatedQualityGateTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   private final Random random = new Random();
-  private final EvaluatedQualityGate.Status randomStatus = EvaluatedQualityGate.Status.values()[random.nextInt(EvaluatedQualityGate.Status.values().length)];
+  private final Level randomStatus = Level.values()[random.nextInt(Level.values().length)];
   private final EvaluatedCondition.EvaluationStatus randomEvaluationStatus = EvaluatedCondition.EvaluationStatus.values()[random
     .nextInt(EvaluatedCondition.EvaluationStatus.values().length)];
   private final String randomValue = random.nextBoolean() ? null : RandomStringUtils.randomAlphanumeric(3);
 
   private EvaluatedQualityGate.Builder builder = newBuilder();
-
-  @Test
-  public void setQualityGate_fails_with_NPE_if_argument_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("qualityGate can't be null");
-
-    builder.setQualityGate(null);
-  }
-
-  @Test
-  public void setStatus_fails_with_NPE_if_argument_is_null() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status can't be null");
-
-    builder.setStatus(null);
-  }
-
-  @Test
-  public void build_fails_with_NPE_if_qualityGate_not_set() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("qualityGate can't be null");
-
-    builder.build();
-  }
 
   @Test
   public void build_fails_with_NPE_if_status_not_set() {
@@ -185,7 +160,7 @@ public class EvaluatedQualityGateTest {
   public void equals_is_based_on_all_fields() {
     EvaluatedQualityGate.Builder builder = this.builder
       .setQualityGate(ONE_CONDITION_QUALITY_GATE)
-      .setStatus(WARN)
+      .setStatus(Level.WARN)
       .addCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.WARN, "foo");
 
     EvaluatedQualityGate underTest = builder.build();
@@ -194,10 +169,10 @@ public class EvaluatedQualityGateTest {
     assertThat(underTest).isNotEqualTo(null);
     assertThat(underTest).isNotEqualTo(new Object());
     assertThat(underTest).isNotEqualTo(builder.setQualityGate(new QualityGate("other_id", QUALITY_GATE_NAME, singleton(CONDITION_1))).build());
-    assertThat(underTest).isNotEqualTo(builder.setQualityGate(ONE_CONDITION_QUALITY_GATE).setStatus(OK).build());
+    assertThat(underTest).isNotEqualTo(builder.setQualityGate(ONE_CONDITION_QUALITY_GATE).setStatus(Level.OK).build());
     assertThat(underTest).isNotEqualTo(newBuilder()
       .setQualityGate(ONE_CONDITION_QUALITY_GATE)
-      .setStatus(WARN)
+      .setStatus(Level.WARN)
       .addCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.OK, "foo")
       .build());
   }
@@ -206,7 +181,7 @@ public class EvaluatedQualityGateTest {
   public void hashcode_is_based_on_all_fields() {
     EvaluatedQualityGate.Builder builder = this.builder
       .setQualityGate(ONE_CONDITION_QUALITY_GATE)
-      .setStatus(WARN)
+      .setStatus(Level.WARN)
       .addCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.WARN, "foo");
 
     EvaluatedQualityGate underTest = builder.build();
@@ -215,10 +190,10 @@ public class EvaluatedQualityGateTest {
     assertThat(underTest.hashCode()).isNotEqualTo(null);
     assertThat(underTest.hashCode()).isNotEqualTo(new Object().hashCode());
     assertThat(underTest.hashCode()).isNotEqualTo(builder.setQualityGate(new QualityGate("other_id", QUALITY_GATE_NAME, singleton(CONDITION_1))).build().hashCode());
-    assertThat(underTest.hashCode()).isNotEqualTo(builder.setQualityGate(ONE_CONDITION_QUALITY_GATE).setStatus(OK).build().hashCode());
+    assertThat(underTest.hashCode()).isNotEqualTo(builder.setQualityGate(ONE_CONDITION_QUALITY_GATE).setStatus(Level.OK).build().hashCode());
     assertThat(underTest.hashCode()).isNotEqualTo(newBuilder()
       .setQualityGate(ONE_CONDITION_QUALITY_GATE)
-      .setStatus(WARN)
+      .setStatus(Level.WARN)
       .addCondition(CONDITION_1, EvaluatedCondition.EvaluationStatus.OK, "foo")
       .build().hashCode());
   }

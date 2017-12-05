@@ -17,10 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualitygate;
+package org.sonar.server.measure.live;
 
-import org.sonar.db.component.ComponentDto;
+import org.sonar.core.platform.Module;
 
-public interface LiveQualityGateFactory {
-  EvaluatedQualityGate buildForShortLivedBranch(ComponentDto componentDto);
+public class LiveMeasureModule extends Module {
+  @Override
+  protected void configureModule() {
+    add(
+      IssueMetricFormulaFactoryImpl.class,
+      LiveMeasureComputerImpl.class,
+      LiveQualityGateComputerImpl.class);
+  }
 }

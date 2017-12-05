@@ -19,15 +19,16 @@
  */
 package org.sonar.server.computation.task.projectanalysis.qualitygate;
 
-import java.util.Collections;
 import org.junit.Test;
+import org.sonar.server.qualitygate.EvaluatedQualityGate;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class QualityGateHolderImplTest {
 
-  public static final QualityGate QUALITY_GATE = new QualityGate(4612, "name", Collections.<Condition>emptyList());
+  private static final QualityGate QUALITY_GATE = new QualityGate(4612, "name", emptyList());
 
   @Test(expected = IllegalStateException.class)
   public void getQualityGate_throws_ISE_if_QualityGate_not_set() {
@@ -56,13 +57,33 @@ public class QualityGateHolderImplTest {
     assertThat(holder.getQualityGate().get()).isSameAs(QUALITY_GATE);
   }
 
-  @Test
-  public void getQualityGate_returns_absent_if_holder_initialized_with_setNoQualityGate() {
+  @Test(expected = IllegalStateException.class)
+  public void getEvaluation_throws_ISE_if_QualityGate_not_set() {
+    new QualityGateHolderImpl().getEvaluation();
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void setEvaluation_throws_NPE_if_argument_is_null() {
+    new QualityGateHolderImpl().setEvaluation(null);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void setEvaluation_throws_ISE_if_called_twice() {
     QualityGateHolderImpl holder = new QualityGateHolderImpl();
 
-    holder.setNoQualityGate();
+    EvaluatedQualityGate evaluation = mock(EvaluatedQualityGate.class);
+    holder.setEvaluation(evaluation);
+    holder.setEvaluation(evaluation);
+  }
 
-    assertThat(holder.getQualityGate()).isAbsent();
+  @Test
+  public void getEvaluation_returns_QualityGate_set_by_setQualityGate() {
+    QualityGateHolderImpl holder = new QualityGateHolderImpl();
+
+    EvaluatedQualityGate evaluation = mock(EvaluatedQualityGate.class);
+    holder.setEvaluation(evaluation);
+
+    assertThat(holder.getEvaluation().get()).isSameAs(evaluation);
   }
 
 }

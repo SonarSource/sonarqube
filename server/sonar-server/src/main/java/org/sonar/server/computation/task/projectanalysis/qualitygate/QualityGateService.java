@@ -30,8 +30,9 @@ public interface QualityGateService {
   Optional<QualityGate> findById(long id);
 
   /**
-   * Retrieve the {@link QualityGate} from the database with the specified uuid, if it exists.
+   * Retrieve the {@link QualityGate} from the database with the specified uuid.
+   * @throws IllegalStateException if database is corrupted and default gate can't be found.
    */
-  Optional<QualityGate> findDefaultQualityGate(Organization organizationDto);
+  QualityGate findDefaultQualityGate(Organization organizationDto);
 
 }

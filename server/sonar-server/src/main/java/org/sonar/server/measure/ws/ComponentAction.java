@@ -216,7 +216,7 @@ public class ComponentAction implements MeasuresWsAction {
 
   private List<LiveMeasureDto> searchMeasures(DbSession dbSession, ComponentDto component, List<MetricDto> metrics) {
     List<Integer> metricIds = Lists.transform(metrics, MetricDto::getId);
-    List<LiveMeasureDto> measures = dbClient.liveMeasureDao().selectByComponentUuids(dbSession, singletonList(component.uuid()), metricIds);
+    List<LiveMeasureDto> measures = dbClient.liveMeasureDao().selectByComponentUuidsAndMetricIds(dbSession, singletonList(component.uuid()), metricIds);
     addBestValuesToMeasures(measures, component, metrics);
     return measures;
   }

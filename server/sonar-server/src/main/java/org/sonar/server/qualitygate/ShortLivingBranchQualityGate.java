@@ -20,6 +20,7 @@
 package org.sonar.server.qualitygate;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.api.measures.CoreMetrics;
@@ -36,6 +37,11 @@ public final class ShortLivingBranchQualityGate {
     new Condition(CoreMetrics.BUGS_KEY, OPERATOR_GREATER_THAN, "0", false),
     new Condition(CoreMetrics.VULNERABILITIES_KEY, OPERATOR_GREATER_THAN, "0", false),
     new Condition(CoreMetrics.CODE_SMELLS_KEY, OPERATOR_GREATER_THAN, "0", false));
+
+  public static final QualityGate GATE = new QualityGate(String.valueOf(ID), NAME, ImmutableSet.of(
+    new org.sonar.server.qualitygate.Condition(CoreMetrics.BUGS_KEY, org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN, "0", null, false),
+    new org.sonar.server.qualitygate.Condition(CoreMetrics.VULNERABILITIES_KEY, org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN, "0", null, false),
+    new org.sonar.server.qualitygate.Condition(CoreMetrics.CODE_SMELLS_KEY, org.sonar.server.qualitygate.Condition.Operator.GREATER_THAN, "0", null, false)));
 
   private ShortLivingBranchQualityGate() {
     // prevents instantiation

@@ -28,9 +28,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -54,20 +53,15 @@ import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.Action;
 import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
+import org.sonar.server.issue.IssueChangePostProcessor;
 import org.sonar.server.issue.IssueStorage;
 import org.sonar.server.issue.RemoveTagsAction;
-import org.sonar.server.issue.SetTypeAction;
-import org.sonar.server.issue.TransitionAction;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.notification.NotificationManager;
-import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
-import org.sonar.server.qualitygate.changeevent.QGChangeEventFactory;
-import org.sonar.server.qualitygate.changeevent.QGChangeEventListeners;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.ImmutableMap.of;
 import static java.lang.String.format;
 import static java.util.function.Function.identity;
@@ -111,20 +105,18 @@ public class BulkChangeAction implements IssuesWsAction {
   private final IssueStorage issueStorage;
   private final NotificationManager notificationService;
   private final List<Action> actions;
-  private final QGChangeEventFactory qgChangeEventFactory;
-  private final QGChangeEventListeners qgChangeEventListeners;
+  private final IssueChangePostProcessor issueChangePostProcessor;
 
   public BulkChangeAction(System2 system2, UserSession userSession, DbClient dbClient, IssueStorage issueStorage,
     NotificationManager notificationService, List<Action> actions,
-    QGChangeEventFactory qgChangeEventFactory, QGChangeEventListeners qgChangeEventListeners) {
+    IssueChangePostProcessor issueChangePostProcessor) {
     this.system2 = system2;
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.issueStorage = issueStorage;
     this.notificationService = notificationService;
     this.actions = actions;
-    this.qgChangeEventFactory = qgChangeEventFactory;
-    this.qgChangeEventListeners = qgChangeEventListeners;
+    this.issueChangePostProcessor = issueChangePostProcessor;
   }
 
   @Override
@@ -187,53 +179,41 @@ public class BulkChangeAction implements IssuesWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Issues.BulkChangeWsResponse wsResponse = Stream.of(request)
-        .map(loadData(dbSession))
-        .map(executeBulkChange())
-        .map(toWsResponse())
-        .collect(MoreCollectors.toOneElement());
-      writeProtobuf(wsResponse, request, response);
+      BulkChangeResult result = executeBulkChange(dbSession, request);
+      writeProtobuf(toWsResponse(result), request, response);
     }
   }
 
-  private Function<Request, BulkChangeData> loadData(DbSession dbSession) {
-    return request -> new BulkChangeData(dbSession, request);
+  private BulkChangeResult executeBulkChange(DbSession dbSession, Request request) {
+    BulkChangeData bulkChangeData = new BulkChangeData(dbSession, request);
+    BulkChangeResult result = new BulkChangeResult(bulkChangeData.issues.size());
+    IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
+
+    List<DefaultIssue> items = bulkChangeData.issues.stream()
+      .filter(bulkChange(issueChangeContext, bulkChangeData, result))
+      .collect(MoreCollectors.toList());
+    issueStorage.save(items);
+
+    refreshLiveMeasures(dbSession, bulkChangeData, result);
+
+    items.forEach(sendNotification(issueChangeContext, bulkChangeData));
+
+    return result;
   }
 
-  private Function<BulkChangeData, BulkChangeResult> executeBulkChange() {
-    return bulkChangeData -> {
-      BulkChangeResult result = new BulkChangeResult(bulkChangeData.issues.size());
-      IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
-
-      List<DefaultIssue> items = bulkChangeData.issues.stream()
-        .filter(bulkChange(issueChangeContext, bulkChangeData, result))
-        .collect(MoreCollectors.toList());
-      issueStorage.save(items);
-      items.forEach(sendNotification(issueChangeContext, bulkChangeData));
-      buildWebhookIssueChange(bulkChangeData.propertiesByActions)
-        .ifPresent(issueChange -> {
-          QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(
-            bulkChangeData.issues.stream().filter(i -> result.success.contains(i.key())).collect(MoreCollectors.toList()),
-            copyOf(bulkChangeData.componentsByUuid.values()));
-          List<QGChangeEvent> qgChangeEvents = qgChangeEventFactory.from(issueChangeData, issueChange, issueChangeContext);
-          qgChangeEventListeners.broadcastOnIssueChange(issueChangeData, qgChangeEvents);
-        });
-      return result;
-    };
-  }
-
-  private static Optional<QGChangeEventFactory.IssueChange> buildWebhookIssueChange(Map<String, Map<String, Object>> propertiesByActions) {
-    RuleType ruleType = Optional.ofNullable(propertiesByActions.get(SetTypeAction.SET_TYPE_KEY))
-      .map(t -> (String) t.get(SetTypeAction.TYPE_PARAMETER))
-      .map(RuleType::valueOf)
-      .orElse(null);
-    String transitionKey = Optional.ofNullable(propertiesByActions.get(TransitionAction.DO_TRANSITION_KEY))
-      .map(t -> (String) t.get(TransitionAction.TRANSITION_PARAMETER))
-      .orElse(null);
-    if (ruleType == null && transitionKey == null) {
-      return Optional.empty();
+  private void refreshLiveMeasures(DbSession dbSession, BulkChangeData data, BulkChangeResult result) {
+    if (!data.shouldRefreshMeasures()) {
+      return;
     }
-    return Optional.of(new QGChangeEventFactory.IssueChange(ruleType, transitionKey));
+    Set<String> touchedComponentUuids = result.success.stream()
+      .map(DefaultIssue::componentUuid)
+      .collect(Collectors.toSet());
+    List<ComponentDto> touchedComponents = touchedComponentUuids.stream()
+      .map(data.componentsByUuid::get)
+      .collect(MoreCollectors.toList(touchedComponentUuids.size()));
+
+    List<DefaultIssue> changedIssues = data.issues.stream().filter(result.success::contains).collect(MoreCollectors.toList());
+    issueChangePostProcessor.process(dbSession, changedIssues, touchedComponents);
   }
 
   private static Predicate<DefaultIssue> bulkChange(IssueChangeContext issueChangeContext, BulkChangeData bulkChangeData, BulkChangeResult result) {
@@ -241,7 +221,7 @@ public class BulkChangeAction implements IssuesWsAction {
       ActionContext actionContext = new ActionContext(issue, issueChangeContext, bulkChangeData.projectsByUuid.get(issue.projectUuid()));
       bulkChangeData.getActionsWithoutComment().forEach(applyAction(actionContext, bulkChangeData, result));
       addCommentIfNeeded(actionContext, bulkChangeData);
-      return result.success.contains(issue.key());
+      return result.success.contains(issue);
     };
   }
 
@@ -277,12 +257,12 @@ public class BulkChangeAction implements IssuesWsAction {
     };
   }
 
-  private static Function<BulkChangeResult, Issues.BulkChangeWsResponse> toWsResponse() {
-    return bulkChangeResult -> Issues.BulkChangeWsResponse.newBuilder()
-      .setTotal(bulkChangeResult.getTotal())
-      .setSuccess(bulkChangeResult.getSuccess())
-      .setIgnored((long) bulkChangeResult.getTotal() - (bulkChangeResult.getSuccess() + bulkChangeResult.getFailures()))
-      .setFailures(bulkChangeResult.getFailures())
+  private static Issues.BulkChangeWsResponse toWsResponse(BulkChangeResult result) {
+    return Issues.BulkChangeWsResponse.newBuilder()
+      .setTotal(result.countTotal())
+      .setSuccess(result.countSuccess())
+      .setIgnored((long) result.countTotal() - (result.countSuccess() + result.countFailures()))
+      .setFailures(result.countFailures())
       .build();
   }
 
@@ -391,11 +371,15 @@ public class BulkChangeAction implements IssuesWsAction {
       long actionsDefined = actions.stream().filter(action -> !action.equals(COMMENT_KEY)).count();
       checkArgument(actionsDefined > 0, "At least one action must be provided");
     }
+
+    private boolean shouldRefreshMeasures() {
+      return availableActions.stream().anyMatch(Action::shouldRefreshMeasures);
+    }
   }
 
   private static class BulkChangeResult {
     private final int total;
-    private Set<String> success = new HashSet<>();
+    private final Set<DefaultIssue> success = new HashSet<>();
     private int failures = 0;
 
     BulkChangeResult(int total) {
@@ -403,22 +387,22 @@ public class BulkChangeAction implements IssuesWsAction {
     }
 
     void increaseSuccess(DefaultIssue issue) {
-      this.success.add(issue.key());
+      this.success.add(issue);
     }
 
     void increaseFailure() {
       this.failures++;
     }
 
-    public int getTotal() {
+    int countTotal() {
       return total;
     }
 
-    public int getSuccess() {
+    int countSuccess() {
       return success.size();
     }
 
-    public int getFailures() {
+    int countFailures() {
       return failures;
     }
   }

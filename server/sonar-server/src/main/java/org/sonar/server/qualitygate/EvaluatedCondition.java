@@ -30,6 +30,7 @@ import static java.util.Objects.requireNonNull;
 public class EvaluatedCondition {
   private final Condition condition;
   private final EvaluationStatus status;
+  @Nullable
   private final String value;
 
   public EvaluatedCondition(Condition condition, EvaluationStatus status, @Nullable String value) {
@@ -74,7 +75,7 @@ public class EvaluatedCondition {
     return "EvaluatedCondition{" +
       "condition=" + condition +
       ", status=" + status +
-      ", value=" + (value == null ? null : '\'' + value + '\'') +
+      ", value=" + (value == null ? null : ('\'' + value + '\'')) +
       '}';
   }
 

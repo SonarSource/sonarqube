@@ -24,6 +24,7 @@ import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.measures.Metric;
 import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.qualitygate.QualityGate;
 
@@ -41,7 +42,7 @@ public class ProjectAnalysisTest {
   private final Branch branch = new Branch(true, "name", Branch.Type.SHORT);
   private final EvaluatedQualityGate qualityGate = EvaluatedQualityGate.newBuilder()
     .setQualityGate(new QualityGate("id", "name", emptySet()))
-    .setStatus(EvaluatedQualityGate.Status.WARN)
+    .setStatus(Metric.Level.WARN)
     .build();
   private final Map<String, String> properties = ImmutableMap.of("a", "b");
   private ProjectAnalysis underTest = new ProjectAnalysis(project, ceTask, analysis, branch, qualityGate, 1L, properties);
@@ -108,7 +109,7 @@ public class ProjectAnalysisTest {
     assertThat(underTest).isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, null, 1L, properties));
     EvaluatedQualityGate otherQualityGate = EvaluatedQualityGate.newBuilder()
       .setQualityGate(new QualityGate("A", "B", emptySet()))
-      .setStatus(EvaluatedQualityGate.Status.WARN)
+      .setStatus(Metric.Level.WARN)
       .build();
     assertThat(underTest).isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, otherQualityGate, 1L, properties));
     assertThat(underTest).isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, qualityGate, null, properties));
@@ -134,7 +135,7 @@ public class ProjectAnalysisTest {
     assertThat(underTest.hashCode()).isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, null, 1L, properties).hashCode());
     EvaluatedQualityGate otherQualityGate = EvaluatedQualityGate.newBuilder()
       .setQualityGate(new QualityGate("A", "B", emptySet()))
-      .setStatus(EvaluatedQualityGate.Status.WARN)
+      .setStatus(Metric.Level.WARN)
       .build();
     assertThat(underTest.hashCode())
       .isNotEqualTo(new ProjectAnalysis(project, ceTask, analysis, branch, otherQualityGate, 1L, properties).hashCode());

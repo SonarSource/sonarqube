@@ -45,6 +45,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener.ChangedIssue;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -69,9 +70,7 @@ public class QGChangeEventListenersImplTest {
   private String component1Uuid = RandomStringUtils.randomAlphabetic(6);
   private ComponentDto component1 = newComponentDto(component1Uuid);
   private DefaultIssue component1Issue = newDefaultIssue(component1Uuid);
-  private QGChangeEventFactory.IssueChangeData oneIssueOnComponent1 = new QGChangeEventFactory.IssueChangeData(
-    singletonList(component1Issue),
-    singletonList(component1));
+  private List<DefaultIssue> oneIssueOnComponent1 = singletonList(component1Issue);
   private QGChangeEvent component1QGChangeEvent = newQGChangeEvent(component1);
 
   private InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
@@ -79,37 +78,15 @@ public class QGChangeEventListenersImplTest {
   private QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(new QGChangeEventListener[] {listener1, listener2, listener3});
 
   @Test
-  public void broadcastOnIssueChange_has_no_effect_when_issueChangeData_is_empty() {
-    QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(emptyList(), emptyList());
-
-    underTest.broadcastOnIssueChange(issueChangeData, singletonList(component1QGChangeEvent));
-
-    verifyZeroInteractions(listener1, listener2, listener3);
-  }
-
-  @Test
-  public void broadcastOnIssueChange_has_no_effect_when_issueChangeData_has_no_issue() {
-    QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(
-      emptyList(), singletonList(newComponentDto(component1Uuid)));
-
-    underTest.broadcastOnIssueChange(issueChangeData, singletonList(component1QGChangeEvent));
-
-    verifyZeroInteractions(listener1, listener2, listener3);
-  }
-
-  @Test
-  public void broadcastOnIssueChange_has_no_effect_when_issueChangeData_has_no_component() {
-    QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(
-      singletonList(newDefaultIssue(component1Uuid)), emptyList());
-
-    underTest.broadcastOnIssueChange(issueChangeData, singletonList(component1QGChangeEvent));
+  public void broadcastOnIssueChange_has_no_effect_when_issues_are_empty() {
+    underTest.broadcastOnIssueChange(emptyList(), singletonList(component1QGChangeEvent));
 
     verifyZeroInteractions(listener1, listener2, listener3);
   }
 
   @Test
   public void broadcastOnIssueChange_has_no_effect_when_no_changeEvent() {
-    underTest.broadcastOnIssueChange(oneIssueOnComponent1, Collections.emptySet());
+    underTest.broadcastOnIssueChange(oneIssueOnComponent1, emptySet());
 
     verifyZeroInteractions(listener1, listener2, listener3);
   }
@@ -225,9 +202,7 @@ public class QGChangeEventListenersImplTest {
       .flatMap(s -> s)
       .collect(Collectors.toList());
 
-    QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(
-      randomizedList(issues),
-      randomizedList(Arrays.asList(component1, component2, component3, component4)));
+    List<DefaultIssue> changedIssues = randomizedList(issues);
     List<QGChangeEvent> qgChangeEvents = Stream.of(
       Stream.of(component1QGChangeEvent),
       Stream.of(component2QGChangeEvent),
@@ -236,7 +211,7 @@ public class QGChangeEventListenersImplTest {
       .flatMap(s -> s)
       .collect(Collectors.toList());
 
-    underTest.broadcastOnIssueChange(issueChangeData, randomizedList(qgChangeEvents));
+    underTest.broadcastOnIssueChange(changedIssues, randomizedList(qgChangeEvents));
 
     listeners.forEach(listener -> {
       verifyListenerCalled(listener, component1QGChangeEvent, component1Issue);

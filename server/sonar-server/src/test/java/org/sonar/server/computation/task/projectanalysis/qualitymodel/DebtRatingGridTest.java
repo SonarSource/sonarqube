@@ -25,16 +25,16 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.A;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.B;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.C;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.D;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.E;
 
-public class RatingGridTest {
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.A;
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.B;
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.C;
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.D;
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.E;
 
-  private RatingGrid ratingGrid;
+public class DebtRatingGridTest {
+
+  private DebtRatingGrid ratingGrid;
 
   @Rule
   public ExpectedException throwable = ExpectedException.none();
@@ -42,7 +42,7 @@ public class RatingGridTest {
   @Before
   public void setUp() {
     double[] gridValues = new double[] {0.1, 0.2, 0.5, 1};
-    ratingGrid = new RatingGrid(gridValues);
+    ratingGrid = new DebtRatingGrid(gridValues);
   }
 
   @Test

@@ -24,6 +24,7 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 
@@ -33,45 +34,22 @@ import static org.sonar.api.CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS;
 import static org.sonar.api.CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_LANGUAGE_KEY;
 import static org.sonar.api.CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_MAN_DAYS_KEY;
 import static org.sonar.api.CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_SIZE_METRIC_KEY;
-import static org.sonar.api.CoreProperties.RATING_GRID;
-import static org.sonar.api.CoreProperties.RATING_GRID_DEF_VALUES;
 
+@ComputeEngineSide
 public class RatingSettings {
 
-  private final Configuration config;
+  private final DebtRatingGrid ratingGrid;
+  private final long defaultDevCost;
   private final Map<String, LanguageSpecificConfiguration> languageSpecificConfigurationByLanguageKey;
 
   public RatingSettings(Configuration config) {
-    this.config = config;
-    this.languageSpecificConfigurationByLanguageKey = buildLanguageSpecificConfigurationByLanguageKey(config);
+    ratingGrid = new DebtRatingGrid(config);
+    defaultDevCost = initDefaultDevelopmentCost(config);
+    languageSpecificConfigurationByLanguageKey = initLanguageSpecificConfigurationByLanguageKey(config);
   }
 
-  private static Map<String, LanguageSpecificConfiguration> buildLanguageSpecificConfigurationByLanguageKey(Configuration config) {
-    ImmutableMap.Builder<String, LanguageSpecificConfiguration> builder = ImmutableMap.builder();
-    String[] languageConfigIndexes = config.getStringArray(LANGUAGE_SPECIFIC_PARAMETERS);
-    for (String languageConfigIndex : languageConfigIndexes) {
-      String languagePropertyKey = LANGUAGE_SPECIFIC_PARAMETERS + "." + languageConfigIndex + "." + LANGUAGE_SPECIFIC_PARAMETERS_LANGUAGE_KEY;
-      String languageKey = config.get(languagePropertyKey)
-        .orElseThrow(() -> MessageException.of("Technical debt configuration is corrupted. At least one language specific parameter has no Language key. " +
-          "Contact your administrator to update this configuration in the global administration section of SonarQube."));
-      builder.put(languageKey, LanguageSpecificConfiguration.create(config, languageConfigIndex));
-    }
-    return builder.build();
-  }
-
-  public RatingGrid getRatingGrid() {
-    try {
-      String[] ratingGrades = config.getStringArray(RATING_GRID);
-      double[] grid = new double[4];
-      for (int i = 0; i < 4; i++) {
-        grid[i] = Double.parseDouble(ratingGrades[i]);
-      }
-      return new RatingGrid(grid);
-    } catch (Exception e) {
-      throw new IllegalArgumentException("The rating grid is incorrect. Expected something similar to '"
-        + RATING_GRID_DEF_VALUES + "' and got '"
-        + config.get(RATING_GRID).get() + "'", e);
-    }
+  public DebtRatingGrid getDebtRatingGrid() {
+    return ratingGrid;
   }
 
   public long getDevCost(@Nullable String languageKey) {
@@ -86,21 +64,34 @@ public class RatingSettings {
       }
     }
 
-    return getDefaultDevelopmentCost();
+    return defaultDevCost;
   }
 
-  private long getDefaultDevelopmentCost() {
+  @CheckForNull
+  private LanguageSpecificConfiguration getSpecificParametersForLanguage(String languageKey) {
+    return languageSpecificConfigurationByLanguageKey.get(languageKey);
+  }
+
+  private static Map<String, LanguageSpecificConfiguration> initLanguageSpecificConfigurationByLanguageKey(Configuration config) {
+    ImmutableMap.Builder<String, LanguageSpecificConfiguration> builder = ImmutableMap.builder();
+    String[] languageConfigIndexes = config.getStringArray(LANGUAGE_SPECIFIC_PARAMETERS);
+    for (String languageConfigIndex : languageConfigIndexes) {
+      String languagePropertyKey = LANGUAGE_SPECIFIC_PARAMETERS + "." + languageConfigIndex + "." + LANGUAGE_SPECIFIC_PARAMETERS_LANGUAGE_KEY;
+      String languageKey = config.get(languagePropertyKey)
+        .orElseThrow(() -> MessageException.of("Technical debt configuration is corrupted. At least one language specific parameter has no Language key. " +
+          "Contact your administrator to update this configuration in the global administration section of SonarQube."));
+      builder.put(languageKey, LanguageSpecificConfiguration.create(config, languageConfigIndex));
+    }
+    return builder.build();
+  }
+
+  private static long initDefaultDevelopmentCost(Configuration config) {
     try {
       return Long.parseLong(config.get(DEVELOPMENT_COST).get());
     } catch (NumberFormatException e) {
       throw new IllegalArgumentException("The value of the development cost property '" + DEVELOPMENT_COST
         + "' is incorrect. Expected long but got '" + config.get(DEVELOPMENT_COST).get() + "'", e);
     }
-  }
-
-  @CheckForNull
-  private LanguageSpecificConfiguration getSpecificParametersForLanguage(String languageKey) {
-    return languageSpecificConfigurationByLanguageKey.get(languageKey);
   }
 
   @Immutable

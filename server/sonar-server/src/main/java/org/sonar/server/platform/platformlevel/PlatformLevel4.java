@@ -69,6 +69,7 @@ import org.sonar.server.health.NodeHealthModule;
 import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
 import org.sonar.server.issue.CommentAction;
+import org.sonar.server.issue.IssueChangePostProcessorImpl;
 import org.sonar.server.issue.RemoveTagsAction;
 import org.sonar.server.issue.SetSeverityAction;
 import org.sonar.server.issue.SetTypeAction;
@@ -88,6 +89,7 @@ import org.sonar.server.issue.ws.IssueWsModule;
 import org.sonar.server.language.ws.LanguageWs;
 import org.sonar.server.measure.custom.ws.CustomMeasuresWsModule;
 import org.sonar.server.measure.index.ProjectsEsModule;
+import org.sonar.server.measure.live.LiveMeasureModule;
 import org.sonar.server.measure.ws.MeasuresWsModule;
 import org.sonar.server.measure.ws.TimeMachineWs;
 import org.sonar.server.metric.CoreCustomMetrics;
@@ -409,6 +411,7 @@ public class PlatformLevel4 extends PlatformLevel {
       ComponentIndexDefinition.class,
       ComponentIndex.class,
       ComponentIndexer.class,
+      LiveMeasureModule.class,
 
       FavoriteModule.class,
 
@@ -444,6 +447,7 @@ public class PlatformLevel4 extends PlatformLevel {
       TransitionAction.class,
       AddTagsAction.class,
       RemoveTagsAction.class,
+      IssueChangePostProcessorImpl.class,
 
       // technical debt
       DebtModelPluginRepository.class,

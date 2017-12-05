@@ -162,7 +162,7 @@ public class SearchAction implements MeasuresWsAction {
     }
 
     private List<LiveMeasureDto> searchMeasures() {
-      return dbClient.liveMeasureDao().selectByComponentUuids(dbSession,
+      return dbClient.liveMeasureDao().selectByComponentUuidsAndMetricIds(dbSession,
         projects.stream().map(ComponentDto::uuid).collect(MoreCollectors.toArrayList(projects.size())),
         metrics.stream().map(MetricDto::getId).collect(MoreCollectors.toArrayList(metrics.size())));
     }
