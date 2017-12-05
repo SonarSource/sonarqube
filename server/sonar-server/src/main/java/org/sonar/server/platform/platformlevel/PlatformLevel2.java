@@ -36,6 +36,7 @@ import org.sonar.server.platform.db.migration.history.MigrationHistoryTable;
 import org.sonar.server.platform.db.migration.history.MigrationHistoryTableImpl;
 import org.sonar.server.platform.db.migration.version.DatabaseVersion;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
+import org.sonar.server.plugins.PluginCompression;
 import org.sonar.server.plugins.ServerPluginJarExploder;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.WebServerExtensionInstaller;
@@ -60,6 +61,7 @@ public class PlatformLevel2 extends PlatformLevel {
       ServerPluginRepository.class,
       ServerPluginJarExploder.class,
       PluginLoader.class,
+      PluginCompression.class,
       PluginClassloaderFactory.class,
       InstalledPluginReferentialFactory.class,
       WebServerExtensionInstaller.class,

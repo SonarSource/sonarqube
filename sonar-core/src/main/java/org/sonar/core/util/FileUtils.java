@@ -160,6 +160,13 @@ public final class FileUtils {
 
     checkIO(!file.exists(), "Unable to delete directory '%s'", path);
   }
+  
+  
+  public static Path getPack200FilePath(Path jarFilePath) {
+    String jarFileName = jarFilePath.getFileName().toString();
+    String filename = jarFileName.substring(0, jarFileName.length() - 3) + "pack.gz";
+    return jarFilePath.resolveSibling(filename);
+  }
 
   /**
    * This visitor is intended to be used to visit direct children of directory <strong>or a symLink to a directory</strong>,
