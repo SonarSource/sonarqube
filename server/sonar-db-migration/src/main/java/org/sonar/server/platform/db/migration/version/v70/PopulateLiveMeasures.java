@@ -60,7 +60,7 @@ public class PopulateLiveMeasures extends DataChange {
       update.setString(3, row.getString(2));
       update.setInt(4, row.getInt(3));
       update.setDouble(5, row.getNullableDouble(4));
-      update.setString(6, row.getString(5));
+      update.setString(6, row.getNullableString(5));
       update.setDouble(7, row.getNullableDouble(6));
       update.setBytes(8, row.getNullableBytes(7));
       update.setLong(9, now);

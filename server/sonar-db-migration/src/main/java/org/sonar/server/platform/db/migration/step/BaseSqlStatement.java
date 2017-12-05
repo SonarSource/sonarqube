@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.db.migration.step;
 
-import java.io.ByteArrayInputStream;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -82,7 +81,7 @@ class BaseSqlStatement<CHILD extends SqlStatement> implements SqlStatement<CHILD
     if (value == null) {
       pstmt.setNull(columnIndex, Types.BINARY);
     } else {
-      pstmt.setBinaryStream(columnIndex, new ByteArrayInputStream(value));
+      pstmt.setBytes(columnIndex, value);
     }
     return (CHILD) this;
   }
