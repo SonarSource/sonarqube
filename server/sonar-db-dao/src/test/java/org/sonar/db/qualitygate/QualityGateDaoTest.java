@@ -133,6 +133,19 @@ public class QualityGateDaoTest {
   }
 
   @Test
+  public void select_by_organization_and_id() {
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto qualityGate1 = db.qualityGates().insertQualityGate(organization);
+    QGateWithOrgDto qualityGate2 = db.qualityGates().insertQualityGate(organization);
+    OrganizationDto otherOrganization = db.organizations().insert();
+    QGateWithOrgDto qualityGate3 = db.qualityGates().insertQualityGate(otherOrganization);
+
+    assertThat(underTest.selectByOrganizationAndId(dbSession, organization, qualityGate1.getId()).getUuid()).isEqualTo(qualityGate1.getUuid());
+    assertThat(underTest.selectByOrganizationAndId(dbSession, otherOrganization, qualityGate3.getId()).getUuid()).isEqualTo(qualityGate3.getUuid());
+    assertThat(underTest.selectByOrganizationAndId(dbSession, organization, 123L)).isNull();
+  }
+
+  @Test
   public void delete() {
     OrganizationDto organization = db.organizations().insert();
     QGateWithOrgDto qualityGate = qualityGateDbTester.insertQualityGate(organization);
