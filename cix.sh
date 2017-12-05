@@ -70,11 +70,11 @@ case "$RUN_ACTIVITY" in
 
   run-upgrade-tests-*)
     DB_ENGINE=$(sed "s/run-upgrade-tests-//g" <<< $RUN_ACTIVITY)
-    if [[ "$GITHUB_BRANCH" == "PULLREQUEST-"* ]] && [[ "$DB_ENGINE" != "postgresql93" ]]; then
-     exit 0
-    else    
+    #if [[ "$GITHUB_BRANCH" == "PULLREQUEST-"* ]] && [[ "$DB_ENGINE" != "postgresql93" ]]; then
+    # exit 0
+    #else
       ./run-upgrade-tests.sh "http://infra.internal.sonarsource.com/jenkins/orch-${DB_ENGINE}.properties"
-    fi
+    #fi
     ;;
 
   *)
