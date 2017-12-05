@@ -265,14 +265,6 @@ public class IssuesModeTest {
 
   @Test
   public void should_fail_if_plugin_access_secured_properties() throws IOException {
-    // Test access from task (ie BatchSettings)
-    SonarScanner runner = configureScannerIssues("shared/xoo-sample", null,
-      "accessSecuredFromTask", "true");
-    BuildResult result = orchestrator.executeBuildQuietly(runner);
-
-    assertThat(result.getLogs()).contains("Access to the secured property 'foo.bar.secured' is not possible in issues mode. "
-      + "The SonarQube plugin which requires this property must be deactivated in issues mode.");
-
     // Test access from sensor (ie ModuleSettings)
     runner = configureScannerIssues("shared/xoo-sample", null,
       "accessSecuredFromSensor", "true");

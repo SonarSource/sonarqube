@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
@@ -17,15 +18,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
 
-import java.util.Arrays;
-import java.util.List;
+public class AccessSecuredPropsPlugin implements Plugin {
 
-public class AccessSecuredPropsPlugin extends SonarPlugin {
-
-  public List getExtensions() {
-    return Arrays.asList(AccessSecuredPropsSensor.class, AccessSecuredPropsTaskExtension.class);
+  @Override
+  public void define(Context context) {
+    context.addExtension(AccessSecuredPropsSensor.class);
   }
 
 }

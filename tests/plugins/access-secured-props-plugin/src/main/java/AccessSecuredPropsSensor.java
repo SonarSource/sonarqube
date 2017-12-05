@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
@@ -19,32 +20,35 @@
  */
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Project;
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.config.Configuration;
 
 @Properties({
-    @Property(
-        key = "accessSecuredFromSensor",
-        name = "Property to decide if sensor should access secured properties",
-        defaultValue = "false")
+  @Property(
+    key = "accessSecuredFromSensor",
+    name = "Property to decide if sensor should access secured properties",
+    defaultValue = "false")
 })
 public class AccessSecuredPropsSensor implements Sensor {
 
-  private Settings settings;
+  private Configuration settings;
 
-  public AccessSecuredPropsSensor(Settings settings) {
+  public AccessSecuredPropsSensor(Configuration settings) {
     this.settings = settings;
   }
 
-  public boolean shouldExecuteOnProject(Project project) {
-    return true;
+  @Override
+  public void describe(SensorDescriptor descriptor) {
+    descriptor.name("AccessSecuredPropsSensor");
   }
 
-  public void analyse(Project project, SensorContext sensorContext) {
-    if ("true".equals(settings.getString("accessSecuredFromSensor"))) {
-      settings.getString("foo.bar.secured");
+  @Override
+  public void execute(SensorContext context) {
+    if ("true".equals(settings.get("accessSecuredFromSensor").orElse("false"))) {
+      settings.get("foo.bar.secured");
     }
+
   }
 }

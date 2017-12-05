@@ -41,11 +41,6 @@ class PluginClassLoaderDef {
   private final Mask mask = new Mask();
   private boolean selfFirstStrategy = false;
 
-  /**
-   * Compatibility with API classloader as defined before version 5.2
-   */
-  private boolean compatibilityMode = false;
-
   private boolean privileged = false;
 
   PluginClassLoaderDef(String basePluginKey) {
@@ -85,14 +80,6 @@ class PluginClassLoaderDef {
     if (!Strings.isNullOrEmpty(mainClass)) {
       mainClassesByPluginKey.put(pluginKey, mainClass);
     }
-  }
-
-  boolean isCompatibilityMode() {
-    return compatibilityMode;
-  }
-
-  void setCompatibilityMode(boolean b) {
-    this.compatibilityMode = b;
   }
 
   boolean isPrivileged() {

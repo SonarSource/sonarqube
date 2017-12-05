@@ -35,7 +35,7 @@ public class ScannerMetricsTest {
 
   @Test
   public void check_number_of_allowed_core_metrics() throws Exception {
-    assertThat(SENSOR_METRICS_WITHOUT_METRIC_PLUGIN).hasSize(34);
+    assertThat(SENSOR_METRICS_WITHOUT_METRIC_PLUGIN).hasSize(33);
   }
 
   @Test

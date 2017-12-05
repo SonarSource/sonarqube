@@ -1,12 +1,10 @@
 package org.sonar.plugins.base;
 
-import java.util.Collections;
-import java.util.List;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
 
-public class BasePlugin extends SonarPlugin {
+public class BasePlugin implements Plugin {
 
-  public List getExtensions() {
-    return Collections.emptyList();
+  public void define(Context context) {
+
   }
 }

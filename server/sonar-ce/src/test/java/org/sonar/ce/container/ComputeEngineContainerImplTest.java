@@ -91,7 +91,7 @@ public class ComputeEngineContainerImplTest {
     assertThat(picoContainer.getComponentAdapters())
       .hasSize(
         CONTAINER_ITSELF
-          + 77 // level 4
+          + 76 // level 4
           + 6 // content of CeConfigurationModule
           + 4 // content of CeQueueModule
           + 4 // content of CeHttpModule
@@ -139,6 +139,7 @@ public class ComputeEngineContainerImplTest {
     File homeDir = tempFolder.newFolder();
     File dataDir = new File(homeDir, "data");
     File tmpDir = new File(homeDir, "tmp");
+    tmpDir.mkdirs();
     properties.setProperty(PATH_HOME, homeDir.getAbsolutePath());
     properties.setProperty(PATH_DATA, dataDir.getAbsolutePath());
     properties.setProperty(PATH_TEMP, tmpDir.getAbsolutePath());
