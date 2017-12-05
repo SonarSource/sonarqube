@@ -29,9 +29,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -41,12 +42,14 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualitygates.QualityGate;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
 
 public class CopyActionTest {
 
@@ -64,8 +67,9 @@ public class CopyActionTest {
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private QualityGateUpdater qualityGateUpdater = new QualityGateUpdater(dbClient, UuidFactoryFast.getInstance());
   private QualityGateFinder qualityGateFinder = new QualityGateFinder(dbClient);
+  private QualityGatesWsSupport wsSupport = new QualityGatesWsSupport(dbClient, userSession, defaultOrganizationProvider);
 
-  private CopyAction underTest = new CopyAction(dbClient, userSession, defaultOrganizationProvider, qualityGateUpdater, qualityGateFinder);
+  private CopyAction underTest = new CopyAction(dbClient, userSession, qualityGateUpdater, qualityGateFinder, wsSupport);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -80,22 +84,27 @@ public class CopyActionTest {
       .extracting(WebService.Param::key, WebService.Param::isRequired)
       .containsExactlyInAnyOrder(
         tuple("id", true),
+        tuple("organization", false),
         tuple("name", true));
   }
 
   @Test
   public void copy() {
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     MetricDto metric = db.measures().insertMetric();
     QualityGateConditionDto condition = db.qualityGates().addCondition(qualityGate, metric);
 
     ws.newRequest()
       .setParam(PARAM_ID, qualityGate.getId().toString())
       .setParam(PARAM_NAME, "new-name")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
-    QualityGateDto actual = db.getDbClient().qualityGateDao().selectByName(dbSession, "new-name");
+    QGateWithOrgDto actual = db.getDbClient().qualityGateDao().selectByOrganizationAndName(dbSession, organization, "new-name");
     assertThat(actual).isNotNull();
     assertThat(actual.isBuiltIn()).isFalse();
     assertThat(actual.getId()).isNotEqualTo(qualityGate.getId());
@@ -107,29 +116,35 @@ public class CopyActionTest {
   }
 
   @Test
-  public void fail_when_missing_administer_quality_gate_permission() {
-    userSession.addPermission(ADMINISTER_QUALITY_PROFILES, defaultOrganizationProvider.get().getUuid());
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
-
-    expectedException.expect(ForbiddenException.class);
+  public void default_organization_is_used_when_no_organization_parameter(){
+    OrganizationDto defaultOrganization = db.getDefaultOrganization();
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, defaultOrganization);
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(defaultOrganization);
 
     ws.newRequest()
       .setParam(PARAM_ID, qualityGate.getId().toString())
       .setParam(PARAM_NAME, "new-name")
       .execute();
+
+    QGateWithOrgDto actual = db.getDbClient().qualityGateDao().selectByOrganizationAndName(dbSession, defaultOrganization, "new-name");
+    assertThat(actual).isNotNull();
+    assertThat(actual.getOrganizationUuid()).isEqualTo(defaultOrganization.getUuid());
   }
 
   @Test
   public void copy_of_builtin_should_not_be_builtin() {
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qualityGateDto -> qualityGateDto.setBuiltIn(true));
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qualityGateDto -> qualityGateDto.setBuiltIn(true));
 
     ws.newRequest()
       .setParam(PARAM_ID, qualityGate.getId().toString())
       .setParam(PARAM_NAME, "new-name")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
 
     QualityGateDto actual = db.getDbClient().qualityGateDao().selectByName(dbSession, "new-name");
+    assertThat(actual).isNotNull();
     assertThat(actual.isBuiltIn()).isFalse();
   }
 
@@ -138,65 +153,147 @@ public class CopyActionTest {
     userSession.addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
 
-    QualityGate result = ws.newRequest()
+    QualityGate response = ws.newRequest()
       .setParam(PARAM_ID, qualityGate.getId().toString())
       .setParam(PARAM_NAME, "new-name")
       .executeProtobuf(QualityGate.class);
 
-    assertThat(result.getId()).isNotEqualTo(qualityGate.getId());
-    assertThat(result.getName()).isEqualTo("new-name");
+    assertThat(response).isNotNull();
+    assertThat(response.getId()).isNotEqualTo(qualityGate.getId());
+    assertThat(response.getName()).isEqualTo("new-name");
+  }
+
+  @Test
+  public void quality_gates_can_have_the_same_name_in_different_organization() {
+    OrganizationDto organization1 = db.organizations().insert();
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization1);
+    QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate(organization1);
+
+    OrganizationDto organization2 = db.organizations().insert();
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization2);
+    QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate(organization2);
+
+    assertThat(qualityGate1.getName()).isNotEqualTo(qualityGate2.getName());
+
+    ws.newRequest()
+      .setParam(PARAM_ORGANIZATION, organization2.getKey())
+      .setParam(PARAM_ID, qualityGate2.getId().toString())
+      .setParam(PARAM_NAME, qualityGate1.getName())
+      .execute();
+
+    QGateWithOrgDto actual = db.getDbClient().qualityGateDao().selectByOrganizationAndName(dbSession, organization2, qualityGate1.getName());
+    assertThat(actual).isNotNull();
+  }
+
+  @Test
+  public void quality_gate_from_external_organization_can_not_be_copied(){
+    OrganizationDto organization1 = db.organizations().insert();
+    QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate(organization1);
+
+    OrganizationDto organization2 = db.organizations().insert();
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization2);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("No quality gate has been found for id %s in organization %s", qualityGate1.getId(), organization2.getName()));
+
+    ws.newRequest()
+      .setParam(PARAM_ORGANIZATION, organization2.getKey())
+      .setParam(PARAM_ID, qualityGate1.getId().toString())
+      .setParam(PARAM_NAME, "new-name")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_missing_administer_quality_gate_permission() {
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addPermission(ADMINISTER_QUALITY_PROFILES, organization);
+
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+
+    expectedException.expect(ForbiddenException.class);
+
+    ws.newRequest()
+      .setParam(PARAM_ID, qualityGate.getId().toString())
+      .setParam(PARAM_NAME, "new-name")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .execute();
   }
 
   @Test
   public void fail_when_id_parameter_is_missing() {
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'id' parameter is missing");
 
     ws.newRequest()
       .setParam(PARAM_NAME, "new-name")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
 
   @Test
   public void fail_when_quality_gate_id_is_not_found() {
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("No quality gate has been found for id 123");
+    expectedException.expectMessage(format(
+      "No quality gate has been found for id 123 in organization %s", organization.getName()));
 
     ws.newRequest()
       .setParam(PARAM_ID, "123")
       .setParam(PARAM_NAME, "new-name")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
 
   @Test
   public void fail_when_name_parameter_is_missing() {
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'name' parameter is missing");
 
     ws.newRequest()
       .setParam(PARAM_ID, qualityGate.getId().toString())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
 
   @Test
-  public void fail_when_name_parameter_match_existing_quality_gate() {
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
-    QualityGateDto existingQualityGate = db.qualityGates().insertQualityGate();
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+  public void fail_when_name_parameter_is_empty() {
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
 
-    expectedException.expect(BadRequestException.class);
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'name' parameter is empty");
+
+    ws.newRequest()
+      .setParam(PARAM_ID, qualityGate.getId().toString())
+      .setParam(PARAM_NAME, "")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .execute();
+  }
+
+  @Test
+  public void fail_when_name_parameter_match_existing_quality_gate_in_the_same_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
+    QualityGateDto existingQualityGate = db.qualityGates().insertQualityGate(organization);
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
+
+    expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Name has already been taken");
 
     ws.newRequest()
       .setParam(PARAM_ID, qualityGate.getId().toString())
       .setParam(PARAM_NAME, existingQualityGate.getName())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
 }
