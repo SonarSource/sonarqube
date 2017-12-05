@@ -30,6 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.event.EventDbTester;
 import org.sonar.db.favorite.FavoriteDbTester;
@@ -156,7 +157,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
     db.start();
     db.truncateTables();
     initDbClient();
-    // TODO : insertBuiltInQualityGateIfTableExists();
+    insertBuiltInQualityGateIfTableExists();
 
     if (!disableDefaultOrganization) {
       insertDefaultOrganization();
@@ -169,6 +170,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
       if (DatabaseUtils.tableExists("quality_gates", dbSession.getConnection())) {
         builtInQualityGate = new QualityGateDto()
           .setName("Sonar way")
+          .setUuid(Uuids.createFast())
           .setBuiltIn(true)
           .setCreatedAt(new Date(system2.now()))
           .setCreatedAt(new Date(system2.now()));
@@ -179,9 +181,12 @@ public class DbTester extends AbstractDbTester<TestDb> {
   }
 
   private void insertDefaultOrganization() {
-    defaultOrganization = OrganizationTesting.newOrganizationDto().setUuid(defaultOrganizationUuid);
+    defaultOrganization = OrganizationTesting.newOrganizationDto()
+      .setUuid(defaultOrganizationUuid)
+      .setDefaultQualityGateUuid(defaultOrganization.getUuid());
     try (DbSession dbSession = db.getMyBatis().openSession(false)) {
       client.organizationDao().insert(dbSession, defaultOrganization, false);
+      client.qualityGateDao().associate(dbSession, Uuids.createFast(), defaultOrganization, builtInQualityGate);
       client.internalPropertiesDao().save(dbSession, "organization.default", defaultOrganization.getUuid());
       dbSession.commit();
     }
