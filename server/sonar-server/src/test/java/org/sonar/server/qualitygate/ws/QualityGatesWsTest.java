@@ -34,7 +34,6 @@ import org.sonar.api.server.ws.WebService.Controller;
 import org.sonar.db.DbClient;
 import org.sonar.db.qualitygate.ProjectQgateAssociation;
 import org.sonar.db.qualitygate.ProjectQgateAssociationQuery;
-import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QgateProjectFinder.Association;
@@ -105,14 +104,6 @@ public class QualityGatesWsTest {
     assertThat(unsetDefault.handler()).isEqualTo(RemovedWebServiceHandler.INSTANCE);
     assertThat(unsetDefault.responseExample()).isEqualTo(RemovedWebServiceHandler.INSTANCE.getResponseExample());
     assertThat(unsetDefault.isInternal()).isFalse();
-  }
-
-  @Test
-  public void copy_nominal() throws Exception {
-    String name = "Copied QG";
-    when(qGates.copy(24L, name)).thenReturn(new QualityGateDto().setId(42L).setName(name));
-    tester.newPostRequest("api/qualitygates", "copy").setParam("id", "24").setParam("name", name).execute()
-      .assertJson("{\"id\":42,\"name\":\"Copied QG\"}");
   }
 
   @Test
