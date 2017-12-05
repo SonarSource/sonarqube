@@ -23,7 +23,9 @@ import java.util.Optional;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -57,8 +59,16 @@ public class QualityGateFinder {
     }
   }
 
+  /**
+   * @deprecated Use {@link #getByOrganizationAndId(DbSession, OrganizationDto, long)}
+   */
+  @Deprecated
   public QualityGateDto getById(DbSession dbSession, long qualityGateId) {
     return checkFound(dbClient.qualityGateDao().selectById(dbSession, qualityGateId), "No quality gate has been found for id %s", qualityGateId);
+  }
+
+  public QGateWithOrgDto getByOrganizationAndId(DbSession dbSession, OrganizationDto organization, long qualityGateId) {
+    return checkFound(dbClient.qualityGateDao().selectByOrganizationAndId(dbSession, organization, qualityGateId), "No quality gate has been found for id %s", qualityGateId);
   }
 
   public Optional<QualityGateDto> getDefault(DbSession dbSession) {
