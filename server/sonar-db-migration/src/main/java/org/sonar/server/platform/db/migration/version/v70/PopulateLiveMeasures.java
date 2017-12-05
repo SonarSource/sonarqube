@@ -46,7 +46,7 @@ public class PopulateLiveMeasures extends DataChange {
       "FROM project_measures pm " +
       "INNER JOIN projects p on p.uuid = pm.component_uuid " +
       "INNER JOIN snapshots s on s.uuid = pm.analysis_uuid " +
-      "WHERE s.islast = ?")
+      "WHERE s.islast = ? and pm.person_id is null")
       .setBoolean(1, true);
 
     massUpdate.update("INSERT INTO live_measures "

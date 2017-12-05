@@ -126,6 +126,19 @@ public class PopulateLiveMeasuresTest {
     measure2.put("VARIATION_VALUE_1", "345");
     measure2.put("MEASURE_DATA", "FFFF");
     db.executeInsert("PROJECT_MEASURES", measure2);
+
+    // measures with person_id not null are purged later
+    // by another migration
+    Map<String, Object> personMeasure = new HashMap<>();
+    personMeasure.put("COMPONENT_UUID", "PRJ1");
+    personMeasure.put("ANALYSIS_UUID", "A2");
+    personMeasure.put("METRIC_ID", "200");
+    personMeasure.put("VALUE", "234");
+    personMeasure.put("TEXT_VALUE", "TEXT_VALUEx");
+    personMeasure.put("VARIATION_VALUE_1", "345");
+    personMeasure.put("MEASURE_DATA", "FFFF");
+    personMeasure.put("PERSON_ID", "99");
+    db.executeInsert("PROJECT_MEASURES", personMeasure);
   }
 
   private List<Map<String, Object>> getLiveMeasures() {
