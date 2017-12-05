@@ -100,7 +100,7 @@ public class CreateActionTest {
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private UserIndex userIndex = new UserIndex(es.client(), System2.INSTANCE);
   private OrganizationCreation organizationCreation = new OrganizationCreationImpl(dbClient, system2, uuidFactory, organizationValidation, settings.asConfig(), userIndexer,
-    mock(BuiltInQProfileRepository.class), new DefaultGroupCreatorImpl(dbClient));
+    mock(BuiltInQProfileRepository.class), new DefaultGroupCreatorImpl(dbClient), );
   private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone().setEnabled(true);
 
   private UserDto user;

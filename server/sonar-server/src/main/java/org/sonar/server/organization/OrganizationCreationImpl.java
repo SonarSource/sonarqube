@@ -46,6 +46,7 @@ import org.sonar.db.qualityprofile.OrgQProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDto;
+import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.BuiltInQProfile;
 import org.sonar.server.qualityprofile.BuiltInQProfileRepository;
 import org.sonar.server.qualityprofile.QProfileName;
@@ -72,11 +73,12 @@ public class OrganizationCreationImpl implements OrganizationCreation {
   private final Configuration config;
   private final BuiltInQProfileRepository builtInQProfileRepository;
   private final DefaultGroupCreator defaultGroupCreator;
+  private final QualityGateFinder qualityGateFinder;
   private final UserIndexer userIndexer;
 
   public OrganizationCreationImpl(DbClient dbClient, System2 system2, UuidFactory uuidFactory,
     OrganizationValidation organizationValidation, Configuration config, UserIndexer userIndexer,
-    BuiltInQProfileRepository builtInQProfileRepository, DefaultGroupCreator defaultGroupCreator) {
+    BuiltInQProfileRepository builtInQProfileRepository, DefaultGroupCreator defaultGroupCreator, QualityGateFinder qualityGateFinder) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.uuidFactory = uuidFactory;
@@ -85,6 +87,7 @@ public class OrganizationCreationImpl implements OrganizationCreation {
     this.userIndexer = userIndexer;
     this.builtInQProfileRepository = builtInQProfileRepository;
     this.defaultGroupCreator = defaultGroupCreator;
+    this.qualityGateFinder = qualityGateFinder;
   }
 
   @Override
@@ -186,10 +189,11 @@ public class OrganizationCreationImpl implements OrganizationCreation {
       .setKey(newOrganization.getKey())
       .setDescription(newOrganization.getDescription())
       .setUrl(newOrganization.getUrl())
-      // TODO .setDefaultQualityGateUuid("" + qualityGateFinder.getBuiltInQualityGate(dbSession).getId())
+      .setDefaultQualityGateUuid(qualityGateFinder.getBuiltInQualityGate(dbSession).getUuid())
       .setAvatarUrl(newOrganization.getAvatar());
     Arrays.stream(extendCreation).forEach(c -> c.accept(res));
     dbClient.organizationDao().insert(dbSession, res, false);
+    dbClient.qualityGateDao().associate(dbSession, uuidFactory.create(), res, qualityGateFinder.getBuiltInQualityGate(dbSession));
     return res;
   }
 
