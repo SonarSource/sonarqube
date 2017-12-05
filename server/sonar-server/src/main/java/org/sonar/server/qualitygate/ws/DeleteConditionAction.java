@@ -24,8 +24,9 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
-import org.sonar.db.qualitygate.QualityGateDto;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
@@ -54,15 +55,17 @@ public class DeleteConditionAction implements QualityGatesWsAction {
       .setRequired(true)
       .setDescription("Condition ID")
       .setExampleValue("2");
+
+    wsSupport.createOrganizationParam(createCondition);
   }
 
   @Override
   public void handle(Request request, Response response) {
     long conditionId = request.mandatoryParamAsLong(PARAM_ID);
     try (DbSession dbSession = dbClient.openSession(false)) {
-
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       QualityGateConditionDto condition = wsSupport.getCondition(dbSession, conditionId);
-      QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectById(dbSession, condition.getQualityGateId());
+      QGateWithOrgDto qualityGateDto = dbClient.qualityGateDao().selectByOrganizationAndId(dbSession, organization, condition.getQualityGateId());
       checkState(qualityGateDto != null, "Condition '%s' is linked to an unknown quality gate '%s'", conditionId, condition.getQualityGateId());
       wsSupport.checkCanEdit(qualityGateDto);
 
