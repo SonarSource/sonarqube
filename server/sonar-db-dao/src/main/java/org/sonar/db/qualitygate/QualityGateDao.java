@@ -24,13 +24,18 @@ import java.util.Date;
 import javax.annotation.CheckForNull;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 
 public class QualityGateDao implements Dao {
 
   public QualityGateDto insert(DbSession session, QualityGateDto newQualityGate) {
-    mapper(session).insert(newQualityGate.setCreatedAt(new Date()));
+    mapper(session).insertQualityGate(newQualityGate.setCreatedAt(new Date()));
 
     return newQualityGate;
+  }
+
+  public void associate(DbSession dbSession, String uuid, OrganizationDto organization, QualityGateDto qualityGate) {
+    mapper(dbSession).insertOrgQualityGate(uuid, organization.getUuid(), qualityGate.getUuid());
   }
 
   public Collection<QualityGateDto> selectAll(DbSession session) {
@@ -47,6 +52,15 @@ public class QualityGateDao implements Dao {
     return mapper(session).selectById(id);
   }
 
+  public QGateWithOrgDto selectByOrganizationAndUuid(DbSession dbSession, OrganizationDto organization, String qualityGateUuid) {
+    return mapper(dbSession).selectByUuidAndOrganization(qualityGateUuid, organization.getUuid());
+  }
+
+  @CheckForNull
+  public QGateWithOrgDto selectByOrganizationAndName(DbSession session, OrganizationDto organization, String name) {
+    return mapper(session).selectByNameAndOrganization(name, organization.getUuid());
+  }
+
   public void delete(QualityGateDto qGate, DbSession session) {
     mapper(session).delete(qGate.getId());
   }
@@ -57,6 +71,10 @@ public class QualityGateDao implements Dao {
 
   public void ensureOneBuiltInQualityGate(DbSession dbSession, String builtInName) {
     mapper(dbSession).ensureOneBuiltInQualityGate(builtInName);
+  }
+
+  public QualityGateDto selectBuiltIn(DbSession dbSession) {
+    return mapper(dbSession).selectBuiltIn();
   }
 
   private static QualityGateMapper mapper(DbSession session) {

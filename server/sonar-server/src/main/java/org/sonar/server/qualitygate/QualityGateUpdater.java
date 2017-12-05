@@ -22,8 +22,10 @@ package org.sonar.server.qualitygate;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.NotFoundException;
@@ -38,15 +40,21 @@ public class QualityGateUpdater {
   public static final String SONAR_QUALITYGATE_PROPERTY = "sonar.qualitygate";
 
   private final DbClient dbClient;
+  private final UuidFactory uuidFactory;
 
-  public QualityGateUpdater(DbClient dbClient) {
+  public QualityGateUpdater(DbClient dbClient, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
+    this.uuidFactory = uuidFactory;
   }
 
-  public QualityGateDto create(DbSession dbSession, String name) {
-    validateQualityGate(dbSession, null, name);
-    QualityGateDto newQualityGate = new QualityGateDto().setName(name).setBuiltIn(false);
+  public QualityGateDto create(DbSession dbSession, OrganizationDto organizationDto, String name) {
+    validateQualityGate(dbSession, organizationDto, name);
+    QualityGateDto newQualityGate = new QualityGateDto()
+      .setName(name)
+      .setBuiltIn(false)
+      .setUuid(uuidFactory.create());
     dbClient.qualityGateDao().insert(dbSession, newQualityGate);
+    dbClient.qualityGateDao().associate(dbSession, uuidFactory.create(), organizationDto, newQualityGate);
     return newQualityGate;
   }
 
@@ -67,20 +75,19 @@ public class QualityGateUpdater {
     }
   }
 
-  private void validateQualityGate(DbSession dbSession, @Nullable Long qGateId, @Nullable String name) {
+  private void validateQualityGate(DbSession dbSession, OrganizationDto organizationDto, @Nullable String name) {
     List<String> errors = new ArrayList<>();
     if (isNullOrEmpty(name)) {
       errors.add(format(Validation.CANT_BE_EMPTY_MESSAGE, "Name"));
     } else {
-      checkQualityGateDoesNotAlreadyExist(dbSession, qGateId, name, errors);
+      checkQualityGateDoesNotAlreadyExist(dbSession, organizationDto, name, errors);
     }
     checkRequest(errors.isEmpty(), errors);
   }
 
-  private void checkQualityGateDoesNotAlreadyExist(DbSession dbSession, @Nullable Long qGateId, String name, List<String> errors) {
-    QualityGateDto existingQgate = dbClient.qualityGateDao().selectByName(dbSession, name);
-    boolean isModifyingCurrentQgate = qGateId != null && existingQgate != null && existingQgate.getId().equals(qGateId);
-    if (!isModifyingCurrentQgate && existingQgate != null) {
+  private void checkQualityGateDoesNotAlreadyExist(DbSession dbSession, OrganizationDto organizationDto, String name, List<String> errors) {
+    QualityGateDto existingQgate = dbClient.qualityGateDao().selectByOrganizationAndName(dbSession, organizationDto, name);
+    if (existingQgate != null) {
       errors.add(format(Validation.IS_ALREADY_USED_MESSAGE, "Name"));
     }
   }

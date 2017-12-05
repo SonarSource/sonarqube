@@ -23,9 +23,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.UuidFactoryFast;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
 
@@ -43,11 +45,13 @@ public class QualityGateUpdaterTest {
 
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private QualityGateUpdater underTest = new QualityGateUpdater(dbClient);
+  private QualityGateUpdater underTest = new QualityGateUpdater(dbClient, UuidFactoryFast.getInstance());
 
   @Test
-  public void create_quality_gate() throws Exception {
-    QualityGateDto result = underTest.create(dbSession, QGATE_NAME);
+  public void create_quality_gate() {
+    OrganizationDto organization = db.organizations().insert();
+
+    QualityGateDto result = underTest.create(dbSession, organization, QGATE_NAME);
 
     assertThat(result).isNotNull();
     assertThat(result.getName()).isEqualTo(QGATE_NAME);
@@ -58,21 +62,21 @@ public class QualityGateUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_when_name_is_empty() throws Exception {
+  public void fail_to_create_when_name_is_empty() {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Name can't be empty");
 
-    underTest.create(dbSession, "");
+    underTest.create(dbSession, db.organizations().insert(), "");
   }
 
   @Test
-  public void fail_to_create_when_name_already_exists() throws Exception {
-    dbClient.qualityGateDao().insert(dbSession, new QualityGateDto().setName(QGATE_NAME));
-    dbSession.commit();
+  public void fail_to_create_when_name_already_exists() {
+    OrganizationDto org = db.organizations().insert();
+    underTest.create(dbSession, org, QGATE_NAME);
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Name has already been taken");
 
-    underTest.create(dbSession, QGATE_NAME);
+    underTest.create(dbSession, org, QGATE_NAME);
   }
 }

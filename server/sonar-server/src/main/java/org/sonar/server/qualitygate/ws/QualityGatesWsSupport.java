@@ -20,9 +20,14 @@
 
 package org.sonar.server.qualitygate.ws;
 
+import java.util.Optional;
 import javax.annotation.Nullable;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -31,7 +36,9 @@ import org.sonarqube.ws.Qualitygates;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
 import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class QualityGatesWsSupport {
 
@@ -49,10 +56,32 @@ public class QualityGatesWsSupport {
     return checkFound(dbClient.gateConditionDao().selectById(id, dbSession), "No quality gate condition with id '%d'", id);
   }
 
+  /**
+   * @deprecated use {@link #isQualityGateAdmin(OrganizationDto)} instead
+   */
+  @Deprecated
   boolean isQualityGateAdmin() {
     return userSession.hasPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
   }
 
+  boolean isQualityGateAdmin(OrganizationDto organization) {
+    return userSession.hasPermission(ADMINISTER_QUALITY_GATES, organization);
+  }
+
+  WebService.NewParam createOrganizationParam(NewAction action) {
+    return action
+      .createParam(PARAM_ORGANIZATION)
+      .setDescription("Organization key. If no organization is provided, the default organization is used.")
+      .setSince("7.0")
+      .setRequired(false)
+      .setInternal(false)
+      .setExampleValue("my-org");
+  }
+
+  /**
+   * @deprecated use {@link #getActions(OrganizationDto, QualityGateDto, QualityGateDto)} instead
+   */
+  @Deprecated
   Qualitygates.Actions getActions(QualityGateDto qualityGate, @Nullable QualityGateDto defaultQualityGate) {
     Long defaultId = defaultQualityGate == null ? null : defaultQualityGate.getId();
     boolean isDefault = qualityGate.getId().equals(defaultId);
@@ -66,6 +95,28 @@ public class QualityGatesWsSupport {
       .setSetAsDefault(!isDefault && isQualityGateAdmin)
       .setAssociateProjects(!isDefault && isQualityGateAdmin)
       .build();
+  }
+
+  Qualitygates.Actions getActions(OrganizationDto organization, QualityGateDto qualityGate, @Nullable QualityGateDto defaultQualityGate) {
+    Long defaultId = defaultQualityGate == null ? null : defaultQualityGate.getId();
+    boolean isDefault = qualityGate.getId().equals(defaultId);
+    boolean isBuiltIn = qualityGate.isBuiltIn();
+    boolean isQualityGateAdmin = isQualityGateAdmin(organization);
+    return Qualitygates.Actions.newBuilder()
+      .setCopy(isQualityGateAdmin)
+      .setRename(!isBuiltIn && isQualityGateAdmin)
+      .setManageConditions(!isBuiltIn && isQualityGateAdmin)
+      .setDelete(!isDefault && !isBuiltIn && isQualityGateAdmin)
+      .setSetAsDefault(!isDefault && isQualityGateAdmin)
+      .setAssociateProjects(!isDefault && isQualityGateAdmin)
+      .build();
+  }
+
+  OrganizationDto getOrganization(DbSession dbSession, Request request) {
+    String organizationKey = Optional.ofNullable(request.param(PARAM_ORGANIZATION))
+      .orElseGet(() -> defaultOrganizationProvider.get().getKey());
+    Optional<OrganizationDto> organizationDto = dbClient.organizationDao().selectByKey(dbSession, organizationKey);
+    return checkFoundWithOptional(organizationDto, "No organization with key '%s'", organizationKey);
   }
 
   void checkCanEdit(QualityGateDto qualityGate) {

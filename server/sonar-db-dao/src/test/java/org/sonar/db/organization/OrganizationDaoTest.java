@@ -68,6 +68,7 @@ public class OrganizationDaoTest {
     .setUrl("the url 1")
     .setAvatarUrl("the avatar url 1")
     .setGuarded(false)
+    .setDefaultQualityGateUuid("1")
     .setUserId(1_000);
   private static final OrganizationDto ORGANIZATION_DTO_2 = new OrganizationDto()
     .setUuid("uuid 2")
@@ -77,6 +78,7 @@ public class OrganizationDaoTest {
     .setUrl("the url 2")
     .setAvatarUrl("the avatar url 2")
     .setGuarded(true)
+    .setDefaultQualityGateUuid("1")
     .setUserId(2_000);
   private static final String PERMISSION_1 = "foo";
   private static final String PERMISSION_2 = "bar";
@@ -930,11 +932,13 @@ public class OrganizationDaoTest {
           "      default_perm_template_view," +
           "      new_project_private," +
           "      guarded," +
+          "      default_quality_gate_uuid," +
           "      created_at," +
           "      updated_at" +
           "    )" +
           "    values" +
           "    (" +
+          "      ?," +
           "      ?," +
           "      ?," +
           "      ?," +
@@ -952,8 +956,9 @@ public class OrganizationDaoTest {
       preparedStatement.setString(5, view);
       preparedStatement.setBoolean(6, false);
       preparedStatement.setBoolean(7, false);
-      preparedStatement.setLong(8, 1000L);
-      preparedStatement.setLong(9, 2000L);
+      preparedStatement.setString(8, "1"); // TODO check ok ?
+      preparedStatement.setLong(9, 1000L);
+      preparedStatement.setLong(10, 2000L);
       preparedStatement.execute();
     } catch (SQLException e) {
       throw new RuntimeException("dirty insert failed", e);
@@ -1008,13 +1013,14 @@ public class OrganizationDaoTest {
     return rows.get(0);
   }
 
-  private static OrganizationDto copyOf(OrganizationDto organizationDto) {
+  private OrganizationDto copyOf(OrganizationDto organizationDto) {
     return new OrganizationDto()
       .setUuid(organizationDto.getUuid())
       .setKey(organizationDto.getKey())
       .setName(organizationDto.getName())
       .setDescription(organizationDto.getDescription())
       .setUrl(organizationDto.getUrl())
+      // TODO : .setDefaultQualityGateUuid(dbClient.qualityGateDao().selectBuiltIn(dbSession).getId().toString())
       .setAvatarUrl(organizationDto.getAvatarUrl());
   }
 

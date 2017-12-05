@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -58,14 +59,16 @@ public class QualityGates {
   private final PropertiesDao propertiesDao;
   private final UserSession userSession;
   private final DefaultOrganizationProvider organizationProvider;
+  private final UuidFactory uuidFactory;
 
-  public QualityGates(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider organizationProvider) {
+  public QualityGates(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider organizationProvider, UuidFactory uuidFactory) {
     this.dbClient = dbClient;
     this.dao = dbClient.qualityGateDao();
     this.conditionDao = dbClient.gateConditionDao();
     this.propertiesDao = dbClient.propertiesDao();
     this.userSession = userSession;
     this.organizationProvider = organizationProvider;
+    this.uuidFactory = uuidFactory;
   }
 
   public QualityGateDto copy(long sourceId, String destinationName) {
@@ -73,7 +76,7 @@ public class QualityGates {
     getNonNullQgate(sourceId);
     try (DbSession dbSession = dbClient.openSession(false)) {
       validateQualityGate(dbSession, null, destinationName);
-      QualityGateDto destinationGate = new QualityGateDto().setName(destinationName).setBuiltIn(false);
+      QualityGateDto destinationGate = new QualityGateDto().setName(destinationName).setBuiltIn(false).setUuid(uuidFactory.create());
       dao.insert(dbSession, destinationGate);
       for (QualityGateConditionDto sourceCondition : conditionDao.selectForQualityGate(dbSession, sourceId)) {
         conditionDao.insert(new QualityGateConditionDto().setQualityGateId(destinationGate.getId())
