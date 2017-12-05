@@ -39,7 +39,6 @@ import org.sonar.server.computation.task.projectanalysis.measure.MeasureReposito
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.period.Period;
 import org.sonar.server.computation.task.projectanalysis.period.PeriodHolderRule;
-import org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating;
 import org.sonar.server.computation.task.projectanalysis.scm.Changeset;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepositoryRule;
 
@@ -60,8 +59,8 @@ import static org.sonar.server.computation.task.projectanalysis.component.Compon
 import static org.sonar.server.computation.task.projectanalysis.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.task.projectanalysis.measure.MeasureAssert.assertThat;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.A;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.D;
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.A;
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.D;
 
 public class NewMaintainabilityMeasuresVisitorTest {
 
@@ -97,7 +96,7 @@ public class NewMaintainabilityMeasuresVisitorTest {
 
   @Before
   public void setUp() throws Exception {
-    when(ratingSettings.getRatingGrid()).thenReturn(new RatingGrid(RATING_GRID));
+    when(ratingSettings.getDebtRatingGrid()).thenReturn(new DebtRatingGrid(RATING_GRID));
     underTest = new VisitorsCrawler(Arrays.asList(new NewMaintainabilityMeasuresVisitor(metricRepository, measureRepository, scmInfoRepository,
       periodsHolder, ratingSettings)));
   }

@@ -107,6 +107,10 @@ public class IssueDao implements Dao {
     return executeLargeInputs(componentUuids, mapper(dbSession)::selectOpenByComponentUuids);
   }
 
+  public Collection<IssueGroupDto> selectGroupsOfComponentTreeOnLeak(DbSession dbSession, ComponentDto baseComponent, long createdAfter) {
+    return mapper(dbSession).selectGroupsOfComponentTreeOnLeak(baseComponent, createdAfter);
+  }
+
   public void insert(DbSession session, IssueDto dto) {
     mapper(session).insert(dto);
   }

@@ -21,20 +21,34 @@ package org.sonar.server.computation.task.projectanalysis.qualitymodel;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.MessageException;
 
-import static java.lang.String.format;
-import static java.util.Arrays.stream;
+import static org.sonar.api.CoreProperties.RATING_GRID;
+import static org.sonar.api.CoreProperties.RATING_GRID_DEF_VALUES;
 
-public class RatingGrid {
+public class DebtRatingGrid {
 
   private final double[] gridValues;
 
-  RatingGrid(double[] gridValues) {
+  public DebtRatingGrid(double[] gridValues) {
     this.gridValues = Arrays.copyOf(gridValues, gridValues.length);
   }
 
-  Rating getRatingForDensity(double density) {
+  public DebtRatingGrid(Configuration config) {
+    try {
+      String[] grades = config.getStringArray(RATING_GRID);
+      gridValues = new double[4];
+      for (int i = 0; i < 4; i++) {
+        gridValues[i] = Double.parseDouble(grades[i]);
+      }
+    } catch (Exception e) {
+      throw new IllegalArgumentException("The rating grid is incorrect. Expected something similar to '"
+        + RATING_GRID_DEF_VALUES + "' and got '" + config.get(RATING_GRID).orElse("") + "'", e);
+    }
+  }
+
+  public Rating getRatingForDensity(double density) {
     for (Rating rating : Rating.values()) {
       double lowerBound = getGradeLowerBound(rating);
       if (density >= lowerBound) {
@@ -44,7 +58,7 @@ public class RatingGrid {
     throw MessageException.of("The rating density value should be between 0 and " + Double.MAX_VALUE + " and got " + density);
   }
 
-  double getGradeLowerBound(Rating rating) {
+  public double getGradeLowerBound(Rating rating) {
     if (rating.getIndex() > 1) {
       return gridValues[rating.getIndex() - 2];
     }
@@ -54,32 +68,6 @@ public class RatingGrid {
   @VisibleForTesting
   double[] getGridValues() {
     return gridValues;
-  }
-
-  public enum Rating {
-    E(5),
-    D(4),
-    C(3),
-    B(2),
-    A(1);
-
-    private final int index;
-
-    Rating(int index) {
-      this.index = index;
-    }
-
-    public int getIndex() {
-      return index;
-    }
-
-    public static Rating valueOf(int index) {
-      return stream(Rating.values()).filter(r -> r.getIndex() == index).findFirst().orElseThrow(() -> new IllegalArgumentException(format("Unknown value '%s'", index)));
-    }
-
-    public static boolean isValidRating(String value) {
-      return stream(Rating.values()).anyMatch(r -> r.name().equals(value));
-    }
   }
 
 }

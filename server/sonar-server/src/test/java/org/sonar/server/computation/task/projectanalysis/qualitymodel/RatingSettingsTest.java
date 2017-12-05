@@ -19,14 +19,15 @@
  */
 package org.sonar.server.computation.task.projectanalysis.qualitymodel;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.MessageException;
+import org.sonar.core.config.CorePropertyDefinitions;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.CoreProperties.DEVELOPMENT_COST;
@@ -36,22 +37,17 @@ import static org.sonar.api.CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_MAN_DAYS
 
 public class RatingSettingsTest {
 
-  private MapSettings settings;
+  private MapSettings settings = new MapSettings(new PropertyDefinitions(CorePropertyDefinitions.all()));
 
   @Rule
-  public ExpectedException throwable = ExpectedException.none();
-
-  @Before
-  public void setUp() {
-    settings = new MapSettings();
-  }
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void load_rating_grid() {
     settings.setProperty(CoreProperties.RATING_GRID, "1,3.4,8,50");
     RatingSettings configurationLoader = new RatingSettings(settings.asConfig());
 
-    double[] grid = configurationLoader.getRatingGrid().getGridValues();
+    double[] grid = configurationLoader.getDebtRatingGrid().getGridValues();
     assertThat(grid).hasSize(4);
     assertThat(grid[0]).isEqualTo(1.0);
     assertThat(grid[1]).isEqualTo(3.4);
@@ -89,12 +85,10 @@ public class RatingSettingsTest {
 
   @Test
   public void fail_on_invalid_rating_grid_configuration() {
-    RatingSettings configurationLoader = new RatingSettings(settings.asConfig());
-
-    throwable.expect(IllegalArgumentException.class);
+    expectedException.expect(IllegalArgumentException.class);
     settings.setProperty(CoreProperties.RATING_GRID, "a b c");
 
-    configurationLoader.getRatingGrid();
+    new RatingSettings(settings.asConfig());
   }
 
   @Test
@@ -117,8 +111,8 @@ public class RatingSettingsTest {
     settings.setProperty(LANGUAGE_SPECIFIC_PARAMETERS, "0");
     settings.setProperty(LANGUAGE_SPECIFIC_PARAMETERS + "." + "0" + "." + LANGUAGE_SPECIFIC_PARAMETERS_MAN_DAYS_KEY, "40");
 
-    throwable.expect(MessageException.class);
-    throwable.expectMessage("Technical debt configuration is corrupted. At least one language specific parameter has no Language key. " +
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Technical debt configuration is corrupted. At least one language specific parameter has no Language key. " +
       "Contact your administrator to update this configuration in the global administration section of SonarQube.");
 
     new RatingSettings(settings.asConfig());

@@ -98,7 +98,7 @@ public class AddCommentAction implements IssuesWsAction {
       IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
       DefaultIssue defaultIssue = issueDto.toDefaultIssue();
       issueFieldsSetter.addComment(defaultIssue, wsRequest.getText(), context);
-      SearchResponseData preloadedSearchResponseData = issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, defaultIssue, context, wsRequest.getText());
+      SearchResponseData preloadedSearchResponseData = issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, defaultIssue, context, wsRequest.getText(), false);
       responseWriter.write(defaultIssue.key(), preloadedSearchResponseData, request, response);
     }
   }

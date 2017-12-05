@@ -51,6 +51,7 @@ import org.sonar.server.issue.ServerIssueStorage;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
+import org.sonar.server.measure.live.LiveMeasureComputer;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -98,9 +99,10 @@ public class SetTypeActionTest {
 
   private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), dbClient, new IssueIteratorFactory(dbClient));
   private IssueChangeTrigger issueChangeTrigger = mock(IssueChangeTrigger.class);
+  private LiveMeasureComputer liveMeasureComputer = mock(LiveMeasureComputer.class);
   private WsActionTester tester = new WsActionTester(new SetTypeAction(userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
-      new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), mock(NotificationManager.class)),
+      new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), mock(NotificationManager.class), liveMeasureComputer),
     responseWriter, system2, issueChangeTrigger));
 
   @Test

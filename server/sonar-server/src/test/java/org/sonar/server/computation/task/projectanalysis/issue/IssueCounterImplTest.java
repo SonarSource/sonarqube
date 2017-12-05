@@ -70,7 +70,7 @@ import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.server.computation.task.projectanalysis.component.ReportComponent.builder;
 import static org.sonar.server.computation.task.projectanalysis.metric.Metric.MetricType.INT;
 
-public class IssueCounterTest {
+public class IssueCounterImplTest {
 
   static final Component FILE1 = builder(Component.Type.FILE, 1).build();
   static final Component FILE2 = builder(Component.Type.FILE, 2).build();

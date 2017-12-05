@@ -411,8 +411,8 @@ public class PurgeDaoTest {
 
     underTest.deleteProject(dbSession, project1.uuid());
 
-    assertThat(dbClient.liveMeasureDao().selectByComponentUuids(dbSession, asList(project1.uuid(), module1.uuid()), asList(metric.getId()))).isEmpty();
-    assertThat(dbClient.liveMeasureDao().selectByComponentUuids(dbSession, asList(project2.uuid(), module2.uuid()), asList(metric.getId()))).hasSize(2);
+    assertThat(dbClient.liveMeasureDao().selectByComponentUuidsAndMetricIds(dbSession, asList(project1.uuid(), module1.uuid()), asList(metric.getId()))).isEmpty();
+    assertThat(dbClient.liveMeasureDao().selectByComponentUuidsAndMetricIds(dbSession, asList(project2.uuid(), module2.uuid()), asList(metric.getId()))).hasSize(2);
   }
 
   private void verifyNoEffect(ComponentDto firstRoot, ComponentDto... otherRoots) {

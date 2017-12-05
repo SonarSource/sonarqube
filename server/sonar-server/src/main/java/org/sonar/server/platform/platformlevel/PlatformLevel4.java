@@ -89,6 +89,9 @@ import org.sonar.server.issue.ws.IssueWsModule;
 import org.sonar.server.language.ws.LanguageWs;
 import org.sonar.server.measure.custom.ws.CustomMeasuresWsModule;
 import org.sonar.server.measure.index.ProjectsEsModule;
+import org.sonar.server.measure.live.IssueMetricFormulaFactoryImpl;
+import org.sonar.server.measure.live.LiveMeasureComputerImpl;
+import org.sonar.server.measure.live.MeasureMatrixLoader;
 import org.sonar.server.measure.ws.MeasuresWsModule;
 import org.sonar.server.measure.ws.TimeMachineWs;
 import org.sonar.server.metric.CoreCustomMetrics;
@@ -410,6 +413,9 @@ public class PlatformLevel4 extends PlatformLevel {
       ComponentIndexDefinition.class,
       ComponentIndex.class,
       ComponentIndexer.class,
+      IssueMetricFormulaFactoryImpl.class,
+      LiveMeasureComputerImpl.class,
+      MeasureMatrixLoader.class,
 
       FavoriteModule.class,
 

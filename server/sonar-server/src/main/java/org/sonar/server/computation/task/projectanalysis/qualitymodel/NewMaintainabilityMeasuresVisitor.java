@@ -64,7 +64,6 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
   private final MeasureRepository measureRepository;
   private final PeriodHolder periodHolder;
   private final RatingSettings ratingSettings;
-  private final RatingGrid ratingGrid;
 
   private final Metric newDebtMetric;
   private final Metric nclocDataMetric;
@@ -73,13 +72,12 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
   private final Metric newMaintainabilityRatingMetric;
 
   public NewMaintainabilityMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, ScmInfoRepository scmInfoRepository,
-                                           PeriodHolder periodHolder, RatingSettings ratingSettings) {
+    PeriodHolder periodHolder, RatingSettings ratingSettings) {
     super(CrawlerDepthLimit.FILE, POST_ORDER, CounterFactory.INSTANCE);
     this.measureRepository = measureRepository;
     this.scmInfoRepository = scmInfoRepository;
     this.periodHolder = periodHolder;
     this.ratingSettings = ratingSettings;
-    this.ratingGrid = ratingSettings.getRatingGrid();
 
     // computed by NewDebtAggregator which is executed by IntegrateIssuesVisitor
     this.newDebtMetric = metricRepository.getByKey(NEW_TECHNICAL_DEBT_KEY);
@@ -121,7 +119,7 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
     }
     double density = computeDensity(path.current());
     double newDebtRatio = 100.0 * density;
-    double newMaintainability = ratingGrid.getRatingForDensity(density).getIndex();
+    double newMaintainability = ratingSettings.getDebtRatingGrid().getRatingForDensity(density).getIndex();
     measureRepository.add(component, this.newDebtRatioMetric, newMeasureBuilder().setVariation(newDebtRatio).createNoValue());
     measureRepository.add(component, this.newMaintainabilityRatingMetric, newMeasureBuilder().setVariation(newMaintainability).createNoValue());
   }

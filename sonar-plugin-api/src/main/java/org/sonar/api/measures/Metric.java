@@ -20,6 +20,8 @@
 package org.sonar.api.measures;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -70,6 +72,20 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
    * The metric direction has no meaning
    */
   public static final int DIRECTION_NONE = 0;
+
+  /**
+   * Round a measure value by applying the scale defined on the metric.
+   * Example: scale(0.1234) returns 0.12 if metric scale is 2
+   *
+   * @since 7.0
+   */
+  public double scale(double value) {
+    if (decimalScale == null) {
+      return value;
+    }
+    BigDecimal bd = BigDecimal.valueOf(value);
+    return bd.setScale(decimalScale, RoundingMode.HALF_UP).doubleValue();
+  }
 
   public enum ValueType {
     INT(Integer.class),

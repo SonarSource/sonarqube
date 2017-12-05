@@ -79,6 +79,7 @@ public class MetricTest {
       .setDecimalScale(3)
       .create();
     assertThat(metric.getDecimalScale()).isEqualTo(3);
+    assertThat(metric.scale(0.12345)).isEqualTo(0.123);
   }
 
   @Test
@@ -97,6 +98,7 @@ public class MetricTest {
       .setDecimalScale(3)
       .create();
     assertThat(metric.getDecimalScale()).isEqualTo(3);
+    assertThat(metric.scale(0.1234)).isEqualTo(0.123);
   }
 
   @Test
@@ -104,6 +106,7 @@ public class MetricTest {
     Metric metric = new Metric.Builder("foo", "Foo", Metric.ValueType.FLOAT)
       .create();
     assertThat(metric.getDecimalScale()).isEqualTo(1);
+    assertThat(metric.scale(0.1234)).isEqualTo(0.1);
   }
 
   @Test
@@ -111,5 +114,6 @@ public class MetricTest {
     Metric metric = new Metric.Builder("foo", "Foo", Metric.ValueType.INT)
       .create();
     assertThat(metric.getDecimalScale()).isNull();
+    assertThat(metric.scale(42.0)).isEqualTo(42.0);
   }
 }

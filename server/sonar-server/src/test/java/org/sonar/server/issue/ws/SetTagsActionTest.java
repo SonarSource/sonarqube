@@ -50,6 +50,7 @@ import org.sonar.server.issue.ServerIssueStorage;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
+import org.sonar.server.measure.live.LiveMeasureComputer;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -87,10 +88,11 @@ public class SetTagsActionTest {
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
   private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), dbClient, new IssueIteratorFactory(dbClient));
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
+  private LiveMeasureComputer liveMeasureComputer = mock(LiveMeasureComputer.class);
 
   private WsActionTester ws = new WsActionTester(new SetTagsAction(userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
-      new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), mock(NotificationManager.class)),
+      new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), mock(NotificationManager.class), liveMeasureComputer),
     responseWriter));
 
   @Test

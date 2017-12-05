@@ -45,6 +45,7 @@ import org.sonar.server.issue.ServerIssueStorage;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
+import org.sonar.server.measure.live.LiveMeasureComputer;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -82,10 +83,11 @@ public class AssignActionTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()));
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
+  private LiveMeasureComputer liveMeasureComputer = mock(LiveMeasureComputer.class);
   private AssignAction underTest = new AssignAction(system2, userSession, db.getDbClient(), new IssueFinder(db.getDbClient(), userSession), new IssueFieldsSetter(),
     new IssueUpdater(db.getDbClient(),
       new ServerIssueStorage(system2, new DefaultRuleFinder(db.getDbClient(), defaultOrganizationProvider), db.getDbClient(), issueIndexer),
-      mock(NotificationManager.class)),
+      mock(NotificationManager.class), liveMeasureComputer),
     responseWriter);
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
   private WsActionTester ws = new WsActionTester(underTest);

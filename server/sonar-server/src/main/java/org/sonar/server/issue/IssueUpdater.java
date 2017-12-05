@@ -32,6 +32,7 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.issue.ws.SearchResponseData;
+import org.sonar.server.measure.live.LiveMeasureComputer;
 import org.sonar.server.notification.NotificationManager;
 
 import static java.util.Collections.singleton;
@@ -42,22 +43,30 @@ public class IssueUpdater {
   private final DbClient dbClient;
   private final IssueStorage issueStorage;
   private final NotificationManager notificationService;
+  private final LiveMeasureComputer liveMeasureComputer;
 
-  public IssueUpdater(DbClient dbClient, IssueStorage issueStorage, NotificationManager notificationService) {
+  public IssueUpdater(DbClient dbClient, IssueStorage issueStorage, NotificationManager notificationService,
+    LiveMeasureComputer liveMeasureComputer) {
     this.dbClient = dbClient;
     this.issueStorage = issueStorage;
     this.notificationService = notificationService;
+    this.liveMeasureComputer = liveMeasureComputer;
   }
 
   /**
    * Same as {@link #saveIssue(DbSession, DefaultIssue, IssueChangeContext, String)} but populates the specified
    * {@link SearchResponseData} with the DTOs (rule and components) retrieved from DB to save the issue.
    */
-  public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession session, DefaultIssue issue, IssueChangeContext context, @Nullable String comment) {
+  public SearchResponseData saveIssueAndPreloadSearchResponseData(DbSession session, DefaultIssue issue, IssueChangeContext context,
+    @Nullable String comment, boolean refreshMeasures) {
     Optional<RuleDefinitionDto> rule = getRuleByKey(session, issue.getRuleKey());
     ComponentDto project = dbClient.componentDao().selectOrFailByUuid(session, issue.projectUuid());
     ComponentDto component = dbClient.componentDao().selectOrFailByUuid(session, issue.componentUuid());
     IssueDto issueDto = saveIssue(session, issue, context, comment, rule, project, component);
+
+    if (refreshMeasures) {
+      liveMeasureComputer.refresh(session, component);
+    }
 
     SearchResponseData preloadedSearchResponseData = new SearchResponseData(issueDto);
     rule.ifPresent(r -> preloadedSearchResponseData.setRules(singletonList(r)));

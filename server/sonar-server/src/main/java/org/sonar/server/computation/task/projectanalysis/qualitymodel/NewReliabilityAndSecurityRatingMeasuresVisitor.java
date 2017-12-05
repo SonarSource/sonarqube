@@ -47,12 +47,12 @@ import static org.sonar.api.utils.DateUtils.truncateToSeconds;
 import static org.sonar.server.computation.task.projectanalysis.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.server.computation.task.projectanalysis.component.CrawlerDepthLimit.LEAVES;
 import static org.sonar.server.computation.task.projectanalysis.measure.Measure.newMeasureBuilder;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.A;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.B;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.C;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.D;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.E;
+
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.A;
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.B;
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.C;
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.D;
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.E;
 
 /**
  * Compute following measures :

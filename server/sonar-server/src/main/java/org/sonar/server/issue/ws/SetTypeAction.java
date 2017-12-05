@@ -115,7 +115,7 @@ public class SetTypeAction implements IssuesWsAction {
 
     IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
     if (issueFieldsSetter.setType(issue, ruleType, context)) {
-      SearchResponseData searchResponseData = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, null);
+      SearchResponseData searchResponseData = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, null, true);
       issueChangeTrigger.onChange(
         new IssueChangeTrigger.IssueChangeData(
           searchResponseData.getIssues().stream().map(IssueDto::toDefaultIssue).collect(MoreCollectors.toList(searchResponseData.getIssues().size())),

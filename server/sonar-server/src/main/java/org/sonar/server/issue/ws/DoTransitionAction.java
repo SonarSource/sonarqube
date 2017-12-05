@@ -107,7 +107,7 @@ public class DoTransitionAction implements IssuesWsAction {
     IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
     transitionService.checkTransitionPermission(transitionKey, defaultIssue);
     if (transitionService.doTransition(defaultIssue, context, transitionKey)) {
-      SearchResponseData searchResponseData = issueUpdater.saveIssueAndPreloadSearchResponseData(session, defaultIssue, context, null);
+      SearchResponseData searchResponseData = issueUpdater.saveIssueAndPreloadSearchResponseData(session, defaultIssue, context, null, true);
       issueChangeTrigger.onChange(
         new IssueChangeTrigger.IssueChangeData(
           searchResponseData.getIssues().stream().map(IssueDto::toDefaultIssue).collect(MoreCollectors.toList(searchResponseData.getIssues().size())),
