@@ -26,12 +26,12 @@ import ReliabilityBox from './ReliabilityBox';
 import SecurityBox from './SecurityBox';
 import MaintainabilityBox from './MaintainabilityBox';
 import Activity from './Activity';
+import { SubComponent } from '../types';
+import { PORTFOLIO_METRICS, SUB_COMPONENTS_METRICS, convertMeasures } from '../utils';
 import { getMeasures } from '../../../api/measures';
 import { getChildren } from '../../../api/components';
-import { PORTFOLIO_METRICS, SUB_COMPONENTS_METRICS, convertMeasures } from '../utils';
-import { SubComponent } from '../types';
-import '../styles.css';
 import { translate } from '../../../helpers/l10n';
+import '../styles.css';
 
 interface Props {
   component: { key: string; name: string };
@@ -75,7 +75,7 @@ export default class App extends React.PureComponent<Props, State> {
     this.setState({ loading: true });
     Promise.all([
       getMeasures(this.props.component.key, PORTFOLIO_METRICS),
-      getChildren(this.props.component.key, SUB_COMPONENTS_METRICS, { ps: 20 })
+      getChildren(this.props.component.key, SUB_COMPONENTS_METRICS, { ps: 20, s: 'qualifier' })
     ]).then(
       ([measures, subComponents]) => {
         if (this.mounted) {
@@ -98,10 +98,9 @@ export default class App extends React.PureComponent<Props, State> {
     );
   }
 
-  isEmpty = () => this.state.measures == undefined || this.state.measures['ncloc'] == undefined;
+  isEmpty = () => !this.state.measures || !this.state.measures['ncloc'];
 
-  isNotComputed = () =>
-    this.state.measures && this.state.measures['reliability_rating'] == undefined;
+  isNotComputed = () => this.state.measures && !this.state.measures['reliability_rating'];
 
   renderSpinner() {
     return (
@@ -151,8 +150,8 @@ export default class App extends React.PureComponent<Props, State> {
           <MaintainabilityBox component={component.key} measures={measures!} />
         </div>
 
-        {subComponents != undefined &&
-        totalSubComponents != undefined && (
+        {subComponents !== undefined &&
+        totalSubComponents !== undefined && (
           <WorstProjects
             component={component.key}
             subComponents={subComponents}

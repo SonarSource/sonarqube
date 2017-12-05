@@ -101,6 +101,6 @@ it('fetches measures and children components', () => {
       'sqale_rating',
       'alert_status'
     ],
-    { ps: 20 }
+    { ps: 20, s: 'qualifier' }
   );
 });
