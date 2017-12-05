@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
@@ -17,23 +18,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.config.Settings;
+import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.config.Configuration;
 
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class EncryptionVerifier implements BatchExtension {
-  private Settings settings;
+@ScannerSide
+public class EncryptionVerifier {
+  private Configuration settings;
 
-  public EncryptionVerifier(Settings settings) {
+  public EncryptionVerifier(Configuration settings) {
     this.settings = settings;
   }
 
   public void start() {
     if (settings.hasKey("encryptedProperty")) {
       System.out.println("Start EncryptionVerifier");
-  
-      String decryptedValue = settings.getString("encryptedProperty");
+
+      String decryptedValue = settings.get("encryptedProperty").get();
       if (!"this is a secret".equals(decryptedValue)) {
         throw new IllegalStateException("The property 'encryptedProperty' can not be decrypted");
       }

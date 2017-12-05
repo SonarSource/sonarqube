@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
@@ -19,10 +20,15 @@
  */
 import java.util.Arrays;
 import java.util.List;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
 
-public class SettingsPlugin extends SonarPlugin {
+public class SettingsPlugin implements Plugin {
   public List getExtensions() {
     return Arrays.asList(ServerExtensionWithProperties.class, PropertyTypes.class);
+  }
+
+  @Override
+  public void define(Context context) {
+    context.addExtensions(ServerExtensionWithProperties.class, PropertyTypes.class);
   }
 }

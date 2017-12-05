@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
@@ -17,17 +18,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import java.util.Arrays;
-import java.util.List;
+import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
-import org.sonar.api.SonarPlugin;
 
 @Properties({
   @Property(key = "sonar.newKey", deprecatedKey = "sonar.deprecatedKey", name = "New Key", category = "general")
 })
-public class PropertyRelocationPlugin extends SonarPlugin {
-  public List getExtensions() {
-    return Arrays.asList(CheckProperties.class);
+public class PropertyRelocationPlugin implements Plugin {
+  @Override
+  public void define(Context context) {
+    context.addExtension(CheckProperties.class);
   }
 }

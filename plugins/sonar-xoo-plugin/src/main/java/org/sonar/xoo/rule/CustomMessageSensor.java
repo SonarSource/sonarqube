@@ -19,12 +19,14 @@
  */
 package org.sonar.xoo.rule;
 
+import java.util.Optional;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.issue.NewIssue;
-import org.sonar.api.config.Settings;
+import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.config.Configuration;
 import org.sonar.api.rule.RuleKey;
 
 public class CustomMessageSensor extends AbstractXooRuleSensor {
@@ -33,9 +35,9 @@ public class CustomMessageSensor extends AbstractXooRuleSensor {
 
   private static final String MESSAGE_PROPERTY = "sonar.customMessage.message";
 
-  private final Settings settings;
+  private final Configuration settings;
 
-  public CustomMessageSensor(Settings settings, FileSystem fs, ActiveRules activeRules) {
+  public CustomMessageSensor(Configuration settings, FileSystem fs, ActiveRules activeRules) {
     super(fs, activeRules);
     this.settings = settings;
   }
@@ -48,11 +50,19 @@ public class CustomMessageSensor extends AbstractXooRuleSensor {
   @Override
   protected void processFile(InputFile inputFile, SensorContext context, RuleKey ruleKey, String languageKey) {
     NewIssue newIssue = context.newIssue();
+
+    NewIssueLocation loc = newIssue.newLocation()
+      .on(inputFile);
+
+    Optional<String> msg = settings.get(MESSAGE_PROPERTY);
+    if (msg.isPresent()) {
+      loc.message(msg.get());
+    }
+
     newIssue
       .forRule(ruleKey)
-      .at(newIssue.newLocation()
-        .on(inputFile)
-        .message(settings.getString(MESSAGE_PROPERTY)))
-      .save();
+      .at(loc);
+
+    newIssue.save();
   }
 }

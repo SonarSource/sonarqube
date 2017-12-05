@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
@@ -19,11 +20,17 @@
  */
 import java.util.Arrays;
 import java.util.List;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
 import org.sonarqube.ws.client.WsClientFactories;
 
-public class WsPlugin extends SonarPlugin {
+public class WsPlugin implements Plugin {
   public List getExtensions() {
     return Arrays.asList(LocalCallWebService.class, WsClientFactories.getLocal());
+  }
+
+  @Override
+  public void define(Context context) {
+    context.addExtensions(LocalCallWebService.class, WsClientFactories.getLocal());
+
   }
 }

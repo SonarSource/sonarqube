@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
@@ -17,24 +18,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import org.sonar.api.BatchExtension;
-import org.sonar.api.config.Settings;
+import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.config.Configuration;
 
 /**
  * As many instances as projects (maven modules)
  */
-public class ProjectService implements BatchExtension {
+@ScannerSide
+public class ProjectService {
 
   private BatchService batchService;
-  private Settings settings;
+  private Configuration settings;
 
-  public ProjectService(BatchService batchService, Settings settings) {
+  public ProjectService(BatchService batchService, Configuration settings) {
     this.batchService = batchService;
     this.settings = settings;
   }
 
   public void start() {
-    if (!settings.getBoolean("extension.lifecycle")) {
+    if (!settings.getBoolean("extension.lifecycle").orElse(false)) {
       return;
     }
     System.out.println("Start ProjectService");
@@ -46,7 +48,7 @@ public class ProjectService implements BatchExtension {
   }
 
   public void stop() {
-    if (!settings.getBoolean("extension.lifecycle")) {
+    if (!settings.getBoolean("extension.lifecycle").orElse(false)) {
       return;
     }
     System.out.println("Stop ProjectService");

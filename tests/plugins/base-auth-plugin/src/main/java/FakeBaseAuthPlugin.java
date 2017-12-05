@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
@@ -17,16 +18,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import java.util.ArrayList;
-import java.util.List;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
 
-public final class FakeBaseAuthPlugin extends SonarPlugin {
+public final class FakeBaseAuthPlugin implements Plugin {
 
-  public List getExtensions() {
-    List extensions = new ArrayList();
-    extensions.add(FakeBaseIdProvider.class);
-    return extensions;
+  @Override
+  public void define(Context context) {
+    context.addExtension(FakeBaseIdProvider.class);
   }
 
 }

@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
@@ -17,20 +18,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import java.util.Arrays;
-import java.util.List;
+import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
-import org.sonar.api.SonarPlugin;
 
 @Properties(@Property(
   key = "enableIssueFilters",
   name = "Enable Issue Filters",
   defaultValue = "false",
   type = PropertyType.BOOLEAN))
-public class IssueFilterPlugin extends SonarPlugin {
-  public List getExtensions() {
-    return Arrays.asList(IssueFilterBeforeLine5.class, ModuleIssueFilter.class);
+public class IssueFilterPlugin implements Plugin {
+  @Override
+  public void define(Context context) {
+    context.addExtensions(IssueFilterBeforeLine5.class, ModuleIssueFilter.class);
   }
 }

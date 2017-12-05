@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
@@ -17,13 +18,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
 
-import java.util.Arrays;
-import java.util.List;
-
-public class ProjectBuilderPlugin extends SonarPlugin {
-  public List getExtensions() {
-    return Arrays.asList(CreateSubProjects.class, RenameProject.class);
+public class ProjectBuilderPlugin implements Plugin {
+  @Override
+  public void define(Context context) {
+    context.addExtensions(CreateSubProjects.class, RenameProject.class);
   }
 }

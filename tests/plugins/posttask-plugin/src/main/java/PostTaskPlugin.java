@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
@@ -17,13 +18,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
 
-public class PostTaskPlugin extends SonarPlugin {
-  public List getExtensions() {
-    return Arrays.asList(PostProjectAnalysisTaskImpl.class,
+public class PostTaskPlugin implements Plugin {
+  @Override
+  public void define(Context context) {
+    context.addExtensions(PostProjectAnalysisTaskImpl.class,
       LogScannerContextPostTask.class, AddScannerContextSensor.class);
   }
 }

@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
@@ -17,16 +18,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import java.util.ArrayList;
-import java.util.List;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
 
-public final class WaitAtPlaformLevel4Plugin extends SonarPlugin {
-
-  public List getExtensions() {
-    List extensions = new ArrayList();
-    extensions.add(WaitAtPlatformLevel4.class);
-    return extensions;
+public final class WaitAtPlaformLevel4Plugin implements Plugin {
+  @Override
+  public void define(Context context) {
+    context.addExtension(WaitAtPlatformLevel4.class);
   }
 
 }

@@ -28,8 +28,8 @@ import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.batch.Initializer;
+import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Project;
 
 @Properties({
   @Property(
@@ -43,24 +43,21 @@ public class DumpSettingsInitializer extends Initializer {
 
   public static final String SONAR_SHOW_SETTINGS = "sonar.showSettings";
   private Settings settings;
+  private InputModule module;
 
-  public DumpSettingsInitializer(Settings settings) {
+  public DumpSettingsInitializer(Settings settings, InputModule module) {
     this.settings = settings;
+    this.module = module;
   }
 
   @Override
-  public boolean shouldExecuteOnProject(Project project) {
-    return true;
-  }
-
-  @Override
-  public void execute(Project project) {
+  public void execute() {
     Set<String> settingsToDump = new HashSet<>(Arrays.asList(settings.getStringArray(SONAR_SHOW_SETTINGS)));
     if (!settingsToDump.isEmpty()) {
-      TreeMap<String, String> treemap = new TreeMap<String, String>(settings.getProperties());
+      TreeMap<String, String> treemap = new TreeMap<>(settings.getProperties());
       for (Entry<String, String> prop : treemap.entrySet()) {
         if (settingsToDump.contains(prop.getKey())) {
-          System.out.println("  o " + project.getKey() + ":" + prop.getKey() + " = " + prop.getValue());
+          System.out.println("  o " + module.key() + ":" + prop.getKey() + " = " + prop.getValue());
         }
       }
     }

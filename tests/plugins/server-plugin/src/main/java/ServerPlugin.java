@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
@@ -20,12 +21,10 @@
 
 import ce.CePauseStep;
 import ce.PauseMetric;
-import java.util.Arrays;
-import java.util.List;
+import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyField;
-import org.sonar.api.SonarPlugin;
 
 import static org.sonar.api.PropertyType.BOOLEAN;
 import static org.sonar.api.PropertyType.FLOAT;
@@ -65,9 +64,9 @@ import static org.sonar.api.PropertyType.USER_LOGIN;
     @PropertyField(key = "url", name = "URL"),
     @PropertyField(key = "port", name = "Port", type = INTEGER)}),
 })
-public class ServerPlugin extends SonarPlugin {
-  public List getExtensions() {
-    return Arrays.asList(
-      StartupCrash.class, ServerStartupLock.class, TempFolderExtension.class, PauseMetric.class, CePauseStep.class);
+public class ServerPlugin implements Plugin {
+  @Override
+  public void define(Context context) {
+    context.addExtensions(StartupCrash.class, ServerStartupLock.class, TempFolderExtension.class, PauseMetric.class, CePauseStep.class);
   }
 }

@@ -17,22 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.InstantiationStrategy;
-import org.sonar.api.config.Settings;
+import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.config.Configuration;
 
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
-public class BatchService implements BatchExtension {
+@ScannerSide
+public class BatchService {
   private boolean started=false;
   private int projectServices=0;
-  private Settings settings;
+  private Configuration settings;
   
-  public BatchService(Settings settings) {
+  public BatchService(Configuration settings) {
     this.settings = settings;
   }
 
   public void start() {
-    if (!settings.getBoolean("extension.lifecycle")) {
+    if (!settings.getBoolean("extension.lifecycle").orElse(false)) {
       return;
     }
     System.out.println("Start BatchService");
@@ -50,7 +51,7 @@ public class BatchService implements BatchExtension {
   }
 
   public void stop() {
-    if (!settings.getBoolean("extension.lifecycle")) {
+    if (!settings.getBoolean("extension.lifecycle").orElse(false)) {
       return;
     }
     System.out.println("Stop BatchService");

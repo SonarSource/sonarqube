@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
@@ -17,18 +18,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import org.sonar.api.BatchExtension;
-import org.sonar.api.config.Settings;
+import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.config.Configuration;
 
-public class CheckProperties implements BatchExtension {
-  private Settings settings;
+@ScannerSide
+public class CheckProperties {
+  private Configuration settings;
 
-  public CheckProperties(Settings settings) {
+  public CheckProperties(Configuration settings) {
     this.settings = settings;
   }
 
   public void start() {
-    if (settings.getBoolean("sonar.newKey") != true) {
+    if (!settings.getBoolean("sonar.newKey").orElse(false)) {
       throw new IllegalStateException("Property not found: sonar.newKey");
     }
   }

@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
@@ -17,13 +18,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import java.util.Collections;
-import java.util.List;
+import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyField;
 import org.sonar.api.PropertyType;
-import org.sonar.api.SonarPlugin;
 
 @Properties({
   @Property(
@@ -107,8 +106,9 @@ import org.sonar.api.SonarPlugin;
     project = true,
     category = "DEV",
     propertySetKey = "sonar.test.jira.servers")})
-public class PropertySetsPlugin extends SonarPlugin {
-  public List getExtensions() {
-    return Collections.emptyList();
+public class PropertySetsPlugin implements Plugin {
+  @Override
+  public void define(Context context) {
+    // nothing to do
   }
 }

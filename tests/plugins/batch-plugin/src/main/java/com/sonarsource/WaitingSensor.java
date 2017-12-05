@@ -19,30 +19,22 @@
  */
 package com.sonarsource;
 
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.config.Settings;
-import org.sonar.api.resources.Project;
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
 
 public class WaitingSensor implements Sensor {
-  private Settings settings;
-
-  public WaitingSensor(Settings settings) {
-    this.settings = settings;
+  @Override
+  public void describe(SensorDescriptor descriptor) {
+    descriptor.onlyWhenConfiguration(c -> c.getBoolean("sonar.it.enableWaitingSensor").orElse(false));
   }
 
   @Override
-  public boolean shouldExecuteOnProject(Project project) {
-    return settings.getBoolean("sonar.it.enableWaitingSensor");
-  }
-
-  @Override
-  public void analyse(Project module, SensorContext context) {
+  public void execute(SensorContext context) {
     try {
       Thread.sleep(10_000);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
   }
-
 }

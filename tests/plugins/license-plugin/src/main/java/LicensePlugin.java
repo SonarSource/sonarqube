@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
@@ -17,27 +18,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import java.util.Collections;
-import java.util.List;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
-import org.sonar.api.SonarPlugin;
 
 @Properties({
-    @Property(
-        key = "untyped.license.secured",
-        name = "Property without license type",
-        category = CoreProperties.CATEGORY_GENERAL),
-    @Property(
-        key = "typed.license.secured",
-        name = "Typed property",
-        category = CoreProperties.CATEGORY_GENERAL,
-        type = PropertyType.LICENSE)
+  @Property(
+    key = "untyped.license.secured",
+    name = "Property without license type",
+    category = CoreProperties.CATEGORY_GENERAL),
+  @Property(
+    key = "typed.license.secured",
+    name = "Typed property",
+    category = CoreProperties.CATEGORY_GENERAL,
+    type = PropertyType.LICENSE)
 })
-public class LicensePlugin extends SonarPlugin {
-  public List getExtensions() {
-    return Collections.emptyList();
+public class LicensePlugin implements Plugin {
+  @Override
+  public void define(Context context) {
+    // nothing to do
   }
 }

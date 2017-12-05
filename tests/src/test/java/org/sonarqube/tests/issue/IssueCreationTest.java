@@ -40,11 +40,8 @@ public class IssueCreationTest extends AbstractIssueTest {
     ORCHESTRATOR.resetData();
   }
 
-  /**
-   * See SONAR-4785
-   */
   @Test
-  public void use_rule_name_if_issue_has_no_message() {
+  public void set_custom_issue_message() {
     ORCHESTRATOR.getServer().provisionProject(SAMPLE_PROJECT_KEY, SAMPLE_PROJECT_KEY);
     ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/IssueCreationTest/with-custom-message.xml"));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "with-custom-message");
