@@ -28,6 +28,7 @@ import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -92,12 +93,22 @@ public class QualityGatesWsSupport {
     return checkFoundWithOptional(organizationDto, "No organization with key '%s'", organizationKey);
   }
 
+  /**
+   * @deprecated use {@link #checkCanEdit(QGateWithOrgDto)} instead
+   */
+  @Deprecated
   void checkCanEdit(QualityGateDto qualityGate) {
-    checkNotBuiltInt(qualityGate);
+    checkNotBuiltIn(qualityGate);
     userSession.checkPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
   }
 
-  private static void checkNotBuiltInt(QualityGateDto qualityGate) {
+  void checkCanEdit(QGateWithOrgDto qualityGate) {
+    checkNotBuiltIn(qualityGate);
+    userSession.checkPermission(ADMINISTER_QUALITY_GATES, qualityGate.getOrganizationUuid());
+  }
+
+  private static void checkNotBuiltIn(QualityGateDto qualityGate) {
     checkArgument(!qualityGate.isBuiltIn(), "Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName());
   }
+
 }

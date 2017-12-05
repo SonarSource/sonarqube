@@ -65,6 +65,17 @@
       qg.name = #{name, jdbcType=VARCHAR}
   </select>
 
+  <select id="selectByIdAndOrganization" parameterType="Map" resultType="org.sonar.db.qualitygate.QGateWithOrgDto">
+    SELECT
+    <include refid="qateWithOrgColumns"/>
+    FROM
+      quality_gates qg
+    INNER JOIN
+      org_quality_gates oqg ON oqg.quality_gate_uuid = qg.uuid AND oqg.organization_uuid = #{organizationUuid, jdbcType=VARCHAR}
+    WHERE
+      qg.id = #{id, jdbcType=BIGINT}
+  </select>
+
   <select id="selectById" parameterType="long" resultType="QualityGate">
     select
     <include refid="gateColumns"/>
