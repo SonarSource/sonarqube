@@ -176,6 +176,8 @@ export default class CreateProfileForm extends React.PureComponent<Props, State>
                   </p>
                 </div>
               ))}
+              {/* drop me when we stop supporting ie11 */}
+              <input type="hidden" name="hello-ie11" value="" />
             </div>
           )}
 
