@@ -19,14 +19,12 @@
  */
 package org.sonar.server.computation.task.projectanalysis.qualitygate;
 
-import org.sonar.server.computation.task.projectanalysis.component.Component;
+import org.sonar.server.qualitygate.EvaluatedQualityGate;
 
 public interface MutableQualityGateHolder extends QualityGateHolder {
   /**
    * Sets the quality gate.
-   * Settings a quality gate more than once is not allowed and it can never be set to {@code null}.
-   *
-   * @param qualityGate a {@link Component}, can not be {@code null}
+   * Setting a quality gate more than once is not allowed and it can never be set to {@code null}.
    *
    * @throws NullPointerException if {@code qualityGate} is {@code null}
    * @throws IllegalStateException if the holder has already been initialized
@@ -34,9 +32,11 @@ public interface MutableQualityGateHolder extends QualityGateHolder {
   void setQualityGate(QualityGate qualityGate);
 
   /**
-   * Sets that there is no quality gate for the project of the currently processed {@link ReportQueue.Item}.
+   * Sets the evaluation of quality gate.
+   * Setting more than once is not allowed and it can never be set to {@code null}.
    *
+   * @throws NullPointerException if {@code qualityGate} is {@code null}
    * @throws IllegalStateException if the holder has already been initialized
    */
-  void setNoQualityGate();
+  void setEvaluation(EvaluatedQualityGate evaluation);
 }

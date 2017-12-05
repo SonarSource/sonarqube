@@ -42,7 +42,7 @@ public class LiveMeasureDao implements Dao {
     this.system2 = system2;
   }
 
-  public List<LiveMeasureDto> selectByComponentUuids(DbSession dbSession, Collection<String> largeComponentUuids, Collection<Integer> metricIds) {
+  public List<LiveMeasureDto> selectByComponentUuidsAndMetricIds(DbSession dbSession, Collection<String> largeComponentUuids, Collection<Integer> metricIds) {
     if (largeComponentUuids.isEmpty() || metricIds.isEmpty()) {
       return Collections.emptyList();
     }
@@ -90,6 +90,9 @@ public class LiveMeasureDao implements Dao {
     }
   }
 
+  /**
+   * Delete the rows that do NOT have the specified marker
+   */
   public void deleteByProjectUuidExcludingMarker(DbSession dbSession, String projectUuid, String marker) {
     mapper(dbSession).deleteByProjectUuidExcludingMarker(projectUuid, marker);
   }

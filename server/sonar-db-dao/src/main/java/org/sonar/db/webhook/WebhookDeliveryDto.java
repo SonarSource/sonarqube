@@ -39,12 +39,11 @@ public class WebhookDeliveryDto extends WebhookDeliveryLiteDto<WebhookDeliveryDt
     return this;
   }
 
-  @CheckForNull
   public String getPayload() {
     return payload;
   }
 
-  public WebhookDeliveryDto setPayload(@Nullable String s) {
+  public WebhookDeliveryDto setPayload(String s) {
     this.payload = s;
     return this;
   }

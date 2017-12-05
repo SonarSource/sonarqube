@@ -30,17 +30,14 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
-import org.sonar.server.qualitygate.changeevent.IssueChangeTrigger;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.collect.ImmutableList.copyOf;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_SET_TYPE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
@@ -55,10 +52,9 @@ public class SetTypeAction implements IssuesWsAction {
   private final IssueUpdater issueUpdater;
   private final OperationResponseWriter responseWriter;
   private final System2 system2;
-  private final IssueChangeTrigger issueChangeTrigger;
 
   public SetTypeAction(UserSession userSession, DbClient dbClient, IssueFinder issueFinder, IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater,
-    OperationResponseWriter responseWriter, System2 system2, IssueChangeTrigger issueChangeTrigger) {
+    OperationResponseWriter responseWriter, System2 system2) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.issueFinder = issueFinder;
@@ -66,7 +62,6 @@ public class SetTypeAction implements IssuesWsAction {
     this.issueUpdater = issueUpdater;
     this.responseWriter = responseWriter;
     this.system2 = system2;
-    this.issueChangeTrigger = issueChangeTrigger;
   }
 
   @Override
@@ -115,14 +110,7 @@ public class SetTypeAction implements IssuesWsAction {
 
     IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
     if (issueFieldsSetter.setType(issue, ruleType, context)) {
-      SearchResponseData searchResponseData = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, null);
-      issueChangeTrigger.onChange(
-        new IssueChangeTrigger.IssueChangeData(
-          searchResponseData.getIssues().stream().map(IssueDto::toDefaultIssue).collect(MoreCollectors.toList(searchResponseData.getIssues().size())),
-          copyOf(searchResponseData.getComponents())),
-        new IssueChangeTrigger.IssueChange(ruleType),
-        context);
-      return searchResponseData;
+      return issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, null, true);
     }
     return new SearchResponseData(issueDto);
   }

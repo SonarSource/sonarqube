@@ -66,11 +66,11 @@ public class ReliabilityMeasureTest {
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "with-many-rules");
     orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
-    assertMeasures(PROJECT, 61, 305, 4);
-    assertMeasures(MODULE, 37, 185, 4);
-    assertMeasures(SUB_MODULE, 16, 80, 4);
-    assertMeasures(DIRECTORY, 16, 80, 4);
-    assertMeasures(FILE, 16, 80, 4);
+    assertMeasures(PROJECT, 53, 265, 4);
+    assertMeasures(MODULE, 31, 155, 4);
+    assertMeasures(SUB_MODULE, 15, 75, 4);
+    assertMeasures(DIRECTORY, 15, 75, 4);
+    assertMeasures(FILE, 15, 75, 4);
   }
 
   @Test

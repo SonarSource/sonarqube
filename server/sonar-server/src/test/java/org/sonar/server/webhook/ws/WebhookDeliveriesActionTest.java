@@ -82,7 +82,7 @@ public class WebhookDeliveriesActionTest {
   }
 
   @Test
-  public void search_by_component_and_return_no_records() throws Exception {
+  public void search_by_component_and_return_no_records() {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     Webhooks.DeliveriesWsResponse response = ws.newRequest()
@@ -93,7 +93,7 @@ public class WebhookDeliveriesActionTest {
   }
 
   @Test
-  public void search_by_task_and_return_no_records() throws Exception {
+  public void search_by_task_and_return_no_records() {
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
 
     Webhooks.DeliveriesWsResponse response = ws.newRequest()
@@ -104,7 +104,7 @@ public class WebhookDeliveriesActionTest {
   }
 
   @Test
-  public void search_by_component_and_return_records_of_example() throws Exception {
+  public void search_by_component_and_return_records_of_example() {
     WebhookDeliveryDto dto = newWebhookDeliveryDto()
       .setUuid("d1")
       .setComponentUuid(project.uuid())
@@ -128,7 +128,7 @@ public class WebhookDeliveriesActionTest {
   }
 
   @Test
-  public void search_by_task_and_return_records() throws Exception {
+  public void search_by_task_and_return_records() {
     WebhookDeliveryDto dto1 = newWebhookDeliveryDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1");
     WebhookDeliveryDto dto2 = newWebhookDeliveryDto().setComponentUuid(project.uuid()).setCeTaskUuid("t1");
     WebhookDeliveryDto dto3 = newWebhookDeliveryDto().setComponentUuid(project.uuid()).setCeTaskUuid("t2");
@@ -146,7 +146,7 @@ public class WebhookDeliveriesActionTest {
   }
 
   @Test
-  public void search_by_component_and_throw_ForbiddenException_if_not_admin_of_project() throws Exception {
+  public void search_by_component_and_throw_ForbiddenException_if_not_admin_of_project() {
     WebhookDeliveryDto dto = newWebhookDeliveryDto()
       .setComponentUuid(project.uuid());
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
@@ -162,7 +162,7 @@ public class WebhookDeliveriesActionTest {
   }
 
   @Test
-  public void search_by_task_and_throw_ForbiddenException_if_not_admin_of_project() throws Exception {
+  public void search_by_task_and_throw_ForbiddenException_if_not_admin_of_project() {
     WebhookDeliveryDto dto = newWebhookDeliveryDto()
       .setComponentUuid(project.uuid());
     dbClient.webhookDeliveryDao().insert(db.getSession(), dto);
@@ -178,7 +178,7 @@ public class WebhookDeliveriesActionTest {
   }
 
   @Test
-  public void throw_IAE_if_both_component_and_task_parameters_are_set() throws Exception {
+  public void throw_IAE_if_both_component_and_task_parameters_are_set() {
     userSession.logIn();
 
     expectedException.expect(IllegalArgumentException.class);

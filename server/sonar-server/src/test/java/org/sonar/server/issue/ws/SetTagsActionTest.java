@@ -47,6 +47,7 @@ import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.ServerIssueStorage;
+import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
@@ -87,10 +88,11 @@ public class SetTagsActionTest {
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
   private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), dbClient, new IssueIteratorFactory(dbClient));
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
+  private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
 
   private WsActionTester ws = new WsActionTester(new SetTagsAction(userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
-      new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), mock(NotificationManager.class)),
+      new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), mock(NotificationManager.class), issueChangePostProcessor),
     responseWriter));
 
   @Test
@@ -104,6 +106,7 @@ public class SetTagsActionTest {
     verifyContentOfPreloadedSearchResponseData(issueDto);
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(db.getSession(), issueDto.getKey()).get();
     assertThat(issueReloaded.getTags()).containsOnly("bug", "todo");
+    assertThat(issueChangePostProcessor.wasCalled()).isFalse();
   }
 
   @Test
@@ -115,6 +118,7 @@ public class SetTagsActionTest {
 
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(db.getSession(), issueDto.getKey()).get();
     assertThat(issueReloaded.getTags()).isEmpty();
+    assertThat(issueChangePostProcessor.wasCalled()).isFalse();
   }
 
   @Test

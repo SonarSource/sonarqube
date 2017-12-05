@@ -93,12 +93,11 @@ public class TestIndexer implements ProjectIndexer {
     switch (cause) {
       case PROJECT_CREATION:
         // no tests at that time
-        return emptyList();
-
+      case MEASURE_CHANGE:
       case PROJECT_KEY_UPDATE:
       case PROJECT_TAGS_UPDATE:
       case PERMISSION_CHANGE:
-        // project key, tags and permissions are not part of tests/test
+        // Measures, project key, tags and permissions are not part of tests/test
         return emptyList();
 
       case PROJECT_DELETION:

@@ -48,15 +48,15 @@ public class IssueMeasureTest extends AbstractIssueTest {
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(MULTI_MODULE_SAMPLE_PROJECT_KEY, "xoo", "with-many-rules");
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-multi-modules-sample");
 
-    assertThat(search(IssueQuery.create().componentRoots(MULTI_MODULE_SAMPLE_PROJECT_KEY)).paging().total()).isEqualTo(136);
+    assertThat(search(IssueQuery.create().componentRoots(MULTI_MODULE_SAMPLE_PROJECT_KEY)).paging().total()).isEqualTo(128);
 
     Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(ORCHESTRATOR, MULTI_MODULE_SAMPLE_PROJECT_KEY, "violations", "info_violations", "minor_violations",
       "major_violations",
       "blocker_violations", "critical_violations");
-    assertThat(measures.get("violations")).isEqualTo(136);
+    assertThat(measures.get("violations")).isEqualTo(128);
     assertThat(measures.get("info_violations")).isEqualTo(2);
     assertThat(measures.get("minor_violations")).isEqualTo(61);
-    assertThat(measures.get("major_violations")).isEqualTo(65);
+    assertThat(measures.get("major_violations")).isEqualTo(57);
     assertThat(measures.get("blocker_violations")).isEqualTo(4);
     assertThat(measures.get("critical_violations")).isEqualTo(4);
   }

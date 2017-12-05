@@ -47,7 +47,7 @@ public class MetricDao implements Dao {
     return mapper(session).selectByKey(key);
   }
 
-  public List<MetricDto> selectByKeys(final DbSession session, List<String> keys) {
+  public List<MetricDto> selectByKeys(final DbSession session, Collection<String> keys) {
     return executeLargeInputs(keys, mapper(session)::selectByKeys);
   }
 

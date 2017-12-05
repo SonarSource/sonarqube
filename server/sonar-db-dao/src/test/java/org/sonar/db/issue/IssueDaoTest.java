@@ -21,6 +21,7 @@ package org.sonar.db.issue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.apache.ibatis.session.ResultContext;
@@ -30,6 +31,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
@@ -232,6 +234,59 @@ public class IssueDaoTest {
     assertThat(fp.getStatus()).isNotNull();
     assertThat(fp.getBranchName()).isEqualTo("feature/foo");
     assertThat(fp.getIssueCreationDate()).isNotNull();
+  }
+
+  @Test
+  public void test_selectGroupsOfComponentTreeOnLeak_on_component_without_issues() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+
+    Collection<IssueGroupDto> groups = underTest.selectIssueGroupsByBaseComponent(db.getSession(), file, 1_000L);
+
+    assertThat(groups).isEmpty();
+  }
+
+  @Test
+  public void selectGroupsOfComponentTreeOnLeak_on_file() {
+    ComponentDto project = db.components().insertPublicProject();
+    ComponentDto file = db.components().insertComponent(ComponentTesting.newFileDto(project));
+    RuleDefinitionDto rule = db.rules().insert();
+    IssueDto fpBug = db.issues().insert(rule, project, file,
+      i -> i.setStatus("RESOLVED").setResolution("FALSE-POSITIVE").setSeverity("MAJOR").setType(RuleType.BUG).setIssueCreationTime(1_500L));
+    IssueDto criticalBug1 = db.issues().insert(rule, project, file,
+      i -> i.setStatus("OPEN").setResolution(null).setSeverity("CRITICAL").setType(RuleType.BUG).setIssueCreationTime(1_600L));
+    IssueDto criticalBug2 = db.issues().insert(rule, project, file,
+      i -> i.setStatus("OPEN").setResolution(null).setSeverity("CRITICAL").setType(RuleType.BUG).setIssueCreationTime(1_700L));
+    // closed issues are ignored
+    IssueDto closed = db.issues().insert(rule, project, file,
+      i -> i.setStatus("CLOSED").setResolution("REMOVED").setSeverity("CRITICAL").setType(RuleType.BUG).setIssueCreationTime(1_700L));
+
+    Collection<IssueGroupDto> result = underTest.selectIssueGroupsByBaseComponent(db.getSession(), file, 1_000L);
+
+    assertThat(result.stream().mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
+
+    assertThat(result.stream().filter(g -> g.getRuleType()==RuleType.BUG.getDbConstant()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
+    assertThat(result.stream().filter(g -> g.getRuleType()==RuleType.CODE_SMELL.getDbConstant()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
+    assertThat(result.stream().filter(g -> g.getRuleType()==RuleType.VULNERABILITY.getDbConstant()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
+
+    assertThat(result.stream().filter(g -> g.getSeverity().equals("CRITICAL")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(2);
+    assertThat(result.stream().filter(g -> g.getSeverity().equals("MAJOR")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(1);
+    assertThat(result.stream().filter(g -> g.getSeverity().equals("MINOR")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
+
+    assertThat(result.stream().filter(g -> g.getStatus().equals("OPEN")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(2);
+    assertThat(result.stream().filter(g -> g.getStatus().equals("RESOLVED")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(1);
+    assertThat(result.stream().filter(g -> g.getStatus().equals("CLOSED")).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
+
+    assertThat(result.stream().filter(g -> "FALSE-POSITIVE" .equals(g.getResolution())).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(1);
+    assertThat(result.stream().filter(g -> g.getResolution()== null).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(2);
+
+    assertThat(result.stream().filter(g -> g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
+    assertThat(result.stream().filter(g -> !g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
+
+    // test leak
+    result = underTest.selectIssueGroupsByBaseComponent(db.getSession(), file, 999_999_999L);
+    assertThat(result.stream().filter(g -> g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(0);
+    assertThat(result.stream().filter(g -> !g.isInLeak()).mapToLong(IssueGroupDto::getCount).sum()).isEqualTo(3);
   }
 
   private static IssueDto newIssueDto(String key) {

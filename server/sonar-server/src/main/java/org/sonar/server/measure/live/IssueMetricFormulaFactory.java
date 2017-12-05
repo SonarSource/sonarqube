@@ -17,10 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualitygate;
+package org.sonar.server.measure.live;
 
-import org.sonar.db.component.ComponentDto;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.sonar.api.measures.Metric;
+import org.sonar.api.server.ServerSide;
 
-public interface LiveQualityGateFactory {
-  EvaluatedQualityGate buildForShortLivedBranch(ComponentDto componentDto);
+@ServerSide
+public interface IssueMetricFormulaFactory {
+  List<IssueMetricFormula> getFormulas();
+
+  Set<Metric> getFormulaMetrics();
+
+  static Set<Metric> extractMetrics(List<IssueMetricFormula> formulas) {
+    return formulas.stream()
+      .flatMap(f -> Stream.concat(Stream.of(f.getMetric()), f.getDependentMetrics().stream()))
+      .collect(Collectors.toSet());
+  }
 }

@@ -25,11 +25,6 @@ import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
-/**
- * PLUGINS MUST NOT BE USED THIS CLASS, EXCEPT FOR UNIT TESTING.
- *
- * @since 3.6
- */
 public class IssueChangeContext implements Serializable {
 
   private final String login;

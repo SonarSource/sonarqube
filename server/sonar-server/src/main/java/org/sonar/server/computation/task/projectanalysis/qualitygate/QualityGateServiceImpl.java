@@ -57,13 +57,13 @@ public class QualityGateServiceImpl implements QualityGateService {
   }
 
   @Override
-  public Optional<QualityGate> findDefaultQualityGate(Organization organization) {
+  public QualityGate findDefaultQualityGate(Organization organization) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization.toDto(), organization.getDefaultQualityGateUuid());
       if (qualityGateDto == null) {
-        return Optional.empty();
+        throw new IllegalStateException("The default Quality gate is missing on organization " + organization.getKey());
       }
-      return Optional.of(toQualityGate(dbSession, qualityGateDto));
+      return toQualityGate(dbSession, qualityGateDto);
     }
   }
 

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.ws;
 
-import java.util.Date;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,8 +29,6 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.utils.System2;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
@@ -49,6 +46,7 @@ import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.ServerIssueStorage;
+import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -58,7 +56,6 @@ import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualitygate.changeevent.IssueChangeTrigger;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -108,15 +105,14 @@ public class DoTransitionActionTest {
   private TransitionService transitionService = new TransitionService(userSession, workflow);
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
   private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), dbClient, new IssueIteratorFactory(dbClient));
+  private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private IssueUpdater issueUpdater = new IssueUpdater(dbClient,
-    new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), mock(NotificationManager.class));
+    new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), mock(NotificationManager.class), issueChangePostProcessor);
   private ComponentDto project;
   private ComponentDto file;
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
-  private IssueChangeTrigger issueChangeTrigger = mock(IssueChangeTrigger.class);
 
-  private WsAction underTest = new DoTransitionAction(dbClient, userSession, new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter, system2,
-    issueChangeTrigger);
+  private WsAction underTest = new DoTransitionAction(dbClient, userSession, new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter, system2);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Before
@@ -127,7 +123,7 @@ public class DoTransitionActionTest {
   }
 
   @Test
-  public void do_transition() throws Exception {
+  public void do_transition() {
     long now = 999_776_888L;
     when(system2.now()).thenReturn(now);
     IssueDto issueDto = issueDbTester.insertIssue(newIssue().setStatus(STATUS_OPEN).setResolution(null));
@@ -139,23 +135,11 @@ public class DoTransitionActionTest {
     verifyContentOfPreloadedSearchResponseData(issueDto);
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
     assertThat(issueReloaded.getStatus()).isEqualTo(STATUS_CONFIRMED);
-
-    ArgumentCaptor<IssueChangeTrigger.IssueChangeData> issueChangeDataCaptor = ArgumentCaptor.forClass(IssueChangeTrigger.IssueChangeData.class);
-    verify(issueChangeTrigger).onChange(
-      issueChangeDataCaptor.capture(),
-      eq(new IssueChangeTrigger.IssueChange(null, "confirm")),
-      eq(IssueChangeContext.createUser(new Date(now), userSession.getLogin())));
-    IssueChangeTrigger.IssueChangeData issueChangeData = issueChangeDataCaptor.getValue();
-    assertThat(issueChangeData.getIssues())
-      .extracting(DefaultIssue::key)
-      .containsOnly(issueDto.getKey());
-    assertThat(issueChangeData.getComponents())
-      .extracting(ComponentDto::uuid)
-      .containsOnly(issueDto.getComponentUuid(), issueDto.getProjectUuid());
+    assertThat(issueChangePostProcessor.calledComponents()).containsExactlyInAnyOrder(file);
   }
 
   @Test
-  public void fail_if_issue_does_not_exist() throws Exception {
+  public void fail_if_issue_does_not_exist() {
     userSession.logIn("john");
 
     expectedException.expect(NotFoundException.class);
@@ -163,7 +147,7 @@ public class DoTransitionActionTest {
   }
 
   @Test
-  public void fail_if_no_issue_param() throws Exception {
+  public void fail_if_no_issue_param() {
     userSession.logIn("john");
 
     expectedException.expect(IllegalArgumentException.class);
@@ -171,7 +155,7 @@ public class DoTransitionActionTest {
   }
 
   @Test
-  public void fail_if_no_transition_param() throws Exception {
+  public void fail_if_no_transition_param() {
     IssueDto issueDto = issueDbTester.insertIssue(newIssue().setStatus(STATUS_OPEN).setResolution(null));
     userSession.logIn("john").addProjectPermission(USER, project, file);
 
@@ -180,7 +164,7 @@ public class DoTransitionActionTest {
   }
 
   @Test
-  public void fail_if_not_enough_permission_to_access_issue() throws Exception {
+  public void fail_if_not_enough_permission_to_access_issue() {
     IssueDto issueDto = issueDbTester.insertIssue(newIssue().setStatus(STATUS_OPEN).setResolution(null));
     userSession.logIn("john").addProjectPermission(CODEVIEWER, project, file);
 
@@ -189,7 +173,7 @@ public class DoTransitionActionTest {
   }
 
   @Test
-  public void fail_if_not_enough_permission_to_apply_transition() throws Exception {
+  public void fail_if_not_enough_permission_to_apply_transition() {
     IssueDto issueDto = issueDbTester.insertIssue(newIssue().setStatus(STATUS_OPEN).setResolution(null));
     userSession.logIn("john").addProjectPermission(USER, project, file);
 
@@ -199,7 +183,7 @@ public class DoTransitionActionTest {
   }
 
   @Test
-  public void fail_if_not_authenticated() throws Exception {
+  public void fail_if_not_authenticated() {
     expectedException.expect(UnauthorizedException.class);
     call("ISSUE_KEY", "confirm");
   }

@@ -45,6 +45,7 @@ import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.ServerIssueStorage;
+import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
@@ -94,7 +95,8 @@ public class AddCommentActionTest {
 
   private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), dbClient, new IssueIteratorFactory(dbClient));
   private ServerIssueStorage serverIssueStorage = new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer);
-  private IssueUpdater issueUpdater = new IssueUpdater(dbClient, serverIssueStorage, mock(NotificationManager.class));
+  private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
+  private IssueUpdater issueUpdater = new IssueUpdater(dbClient, serverIssueStorage, mock(NotificationManager.class), issueChangePostProcessor);
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
 
@@ -107,7 +109,7 @@ public class AddCommentActionTest {
   }
 
   @Test
-  public void add_comment() throws Exception {
+  public void add_comment() {
     IssueDto issueDto = issueDbTester.insertIssue();
     loginWithBrowsePermission(issueDto, USER);
 
@@ -128,10 +130,11 @@ public class AddCommentActionTest {
 
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
     assertThat(issueReloaded.getIssueUpdateTime()).isEqualTo(NOW);
+    assertThat(issueChangePostProcessor.wasCalled()).isFalse();
   }
 
   @Test
-  public void fail_when_missing_issue_key() throws Exception {
+  public void fail_when_missing_issue_key() {
     userSession.logIn("john");
 
     expectedException.expect(IllegalArgumentException.class);
@@ -139,7 +142,7 @@ public class AddCommentActionTest {
   }
 
   @Test
-  public void fail_when_issue_does_not_exist() throws Exception {
+  public void fail_when_issue_does_not_exist() {
     userSession.logIn("john");
 
     expectedException.expect(NotFoundException.class);
@@ -147,7 +150,7 @@ public class AddCommentActionTest {
   }
 
   @Test
-  public void fail_when_missing_comment_text() throws Exception {
+  public void fail_when_missing_comment_text() {
     userSession.logIn("john");
 
     expectedException.expect(IllegalArgumentException.class);
@@ -155,7 +158,7 @@ public class AddCommentActionTest {
   }
 
   @Test
-  public void fail_when_empty_comment_text() throws Exception {
+  public void fail_when_empty_comment_text() {
     IssueDto issueDto = issueDbTester.insertIssue();
     loginWithBrowsePermission(issueDto, USER);
 
@@ -164,13 +167,13 @@ public class AddCommentActionTest {
   }
 
   @Test
-  public void fail_when_not_authenticated() throws Exception {
+  public void fail_when_not_authenticated() {
     expectedException.expect(UnauthorizedException.class);
     call("ABCD", "please fix it");
   }
 
   @Test
-  public void fail_when_not_enough_permission() throws Exception {
+  public void fail_when_not_enough_permission() {
     IssueDto issueDto = issueDbTester.insertIssue();
     loginWithBrowsePermission(issueDto, CODEVIEWER);
 

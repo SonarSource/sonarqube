@@ -89,6 +89,11 @@ public class AssignAction extends Action {
     return isAssigneeMemberOfIssueOrganization(assignee, properties, context) && issueFieldsSetter.assign(context.issue(), assignee, context.issueChangeContext());
   }
 
+  @Override
+  public boolean shouldRefreshMeasures() {
+    return false;
+  }
+
   private static boolean isAssigneeMemberOfIssueOrganization(@Nullable UserDto assignee, Map<String, Object> properties, Context context) {
     return assignee == null || ((Set<String>) properties.get(ASSIGNEE_ORGANIZATIONS)).contains(context.project().getOrganizationUuid());
   }

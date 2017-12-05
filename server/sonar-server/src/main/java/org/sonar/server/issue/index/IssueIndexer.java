@@ -108,10 +108,11 @@ public class IssueIndexer implements ProjectIndexer, NeedAuthorizationIndexer {
     switch (cause) {
       case PROJECT_CREATION:
         // nothing to do, issues do not exist at project creation
+      case MEASURE_CHANGE:
       case PROJECT_KEY_UPDATE:
       case PROJECT_TAGS_UPDATE:
       case PERMISSION_CHANGE:
-        // nothing to do, permissions, project key and tags are not used in type issues/issue
+        // nothing to do. Measures, permissions, project key and tags are not used in type issues/issue
         return emptyList();
 
       case PROJECT_DELETION:

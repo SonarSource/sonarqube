@@ -65,7 +65,7 @@ public class ComputeEngineContainerImplTest {
   private ComputeEngineContainerImpl underTest;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     underTest = new ComputeEngineContainerImpl();
     underTest.setComputeEngineStatus(mock(ComputeEngineStatus.class));
   }
@@ -91,7 +91,8 @@ public class ComputeEngineContainerImplTest {
     assertThat(picoContainer.getComponentAdapters())
       .hasSize(
         CONTAINER_ITSELF
-          + 77 // level 4
+          + 78 // level 4
+          + 21 // content of QualityGateModule
           + 6 // content of CeConfigurationModule
           + 4 // content of CeQueueModule
           + 4 // content of CeHttpModule

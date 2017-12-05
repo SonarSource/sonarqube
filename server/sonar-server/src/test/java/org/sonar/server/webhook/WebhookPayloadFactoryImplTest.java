@@ -24,6 +24,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
 import org.sonar.server.qualitygate.Condition;
@@ -59,7 +60,7 @@ public class WebhookPayloadFactoryImplTest {
     Condition condition = new Condition("coverage", Condition.Operator.GREATER_THAN, "70.0", "75.0", true);
     EvaluatedQualityGate gate = EvaluatedQualityGate.newBuilder()
       .setQualityGate(new QualityGate("G1", "Gate One", singleton(condition)))
-      .setStatus(EvaluatedQualityGate.Status.WARN)
+      .setStatus(Metric.Level.WARN)
       .addCondition(condition, EvaluatedCondition.EvaluationStatus.WARN, "74.0")
       .build();
     ProjectAnalysis analysis = newAnalysis(task, gate, null, 1_500_000_000_000L, emptyMap());
@@ -105,7 +106,7 @@ public class WebhookPayloadFactoryImplTest {
     Condition condition = new Condition("coverage", Condition.Operator.GREATER_THAN, "70.0", "75.0", false);
     EvaluatedQualityGate gate = EvaluatedQualityGate.newBuilder()
       .setQualityGate(new QualityGate("G1", "Gate One", singleton(condition)))
-      .setStatus(EvaluatedQualityGate.Status.WARN)
+      .setStatus(Metric.Level.WARN)
       .addCondition(condition, EvaluatedCondition.EvaluationStatus.NO_VALUE, null)
       .build();
     ProjectAnalysis analysis = newAnalysis(task, gate, null, 1_500_000_000_000L, emptyMap());
@@ -146,7 +147,7 @@ public class WebhookPayloadFactoryImplTest {
     CeTask task = new CeTask("#1", CeTask.Status.SUCCESS);
     EvaluatedQualityGate gate = EvaluatedQualityGate.newBuilder()
       .setQualityGate(new QualityGate("G1", "Gate One", emptySet()))
-      .setStatus(EvaluatedQualityGate.Status.WARN)
+      .setStatus(Metric.Level.WARN)
       .build();
     Map<String, String> scannerProperties = ImmutableMap.of(
       "sonar.analysis.revision", "ab45d24",
