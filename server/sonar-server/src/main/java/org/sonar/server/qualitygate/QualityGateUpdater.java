@@ -27,12 +27,14 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.util.Validation;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
+import static org.sonar.server.util.Validation.IS_ALREADY_USED_MESSAGE;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class QualityGateUpdater {
@@ -48,7 +50,7 @@ public class QualityGateUpdater {
   }
 
   public QualityGateDto create(DbSession dbSession, OrganizationDto organizationDto, String name) {
-    validateQualityGate(dbSession, organizationDto, name);
+    validateQualityGateCreation(dbSession, organizationDto, name);
     QualityGateDto newQualityGate = new QualityGateDto()
       .setName(name)
       .setBuiltIn(false)
@@ -57,6 +59,30 @@ public class QualityGateUpdater {
     dbClient.qualityGateDao().associate(dbSession, uuidFactory.create(), organizationDto, newQualityGate);
     return newQualityGate;
   }
+
+  public QualityGateDto copy(DbSession dbSession, QualityGateDto qualityGateDto, String destinationName) {
+
+    validateQualityGateUpdate(dbSession, qualityGateDto.getId(), destinationName);
+
+    QualityGateDto destinationGate = new QualityGateDto().setName(destinationName).setBuiltIn(false).setUuid(uuidFactory.create());
+    dbClient.qualityGateDao().insert(dbSession, destinationGate);
+
+    for (QualityGateConditionDto sourceCondition : dbClient.gateConditionDao().selectForQualityGate(dbSession, qualityGateDto.getId())) {
+      dbClient.gateConditionDao().insert(new QualityGateConditionDto().setQualityGateId(destinationGate.getId())
+          .setMetricId(sourceCondition.getMetricId()).setOperator(sourceCondition.getOperator())
+          .setWarningThreshold(sourceCondition.getWarningThreshold()).setErrorThreshold(sourceCondition.getErrorThreshold()).setPeriod(sourceCondition.getPeriod()),
+        dbSession);
+    }
+
+    return destinationGate;
+  }
+
+  private void validateQualityGateUpdate(DbSession dbSession, Long qualityGateId, String name) {
+    List<String> errors = new ArrayList<>();
+    checkQualityGateDoesNotAlreadyExist(dbSession, qualityGateId, name, errors);
+    checkRequest(errors.isEmpty(), errors);
+  }
+
 
   public void setDefault(DbSession dbSession, @Nullable QualityGateDto qualityGateDto) {
     if (qualityGateDto == null) {
@@ -75,7 +101,7 @@ public class QualityGateUpdater {
     }
   }
 
-  private void validateQualityGate(DbSession dbSession, OrganizationDto organizationDto, @Nullable String name) {
+  private void validateQualityGateCreation(DbSession dbSession, OrganizationDto organizationDto, @Nullable String name) {
     List<String> errors = new ArrayList<>();
     if (isNullOrEmpty(name)) {
       errors.add(format(Validation.CANT_BE_EMPTY_MESSAGE, "Name"));
@@ -88,7 +114,7 @@ public class QualityGateUpdater {
   private void checkQualityGateDoesNotAlreadyExist(DbSession dbSession, OrganizationDto organizationDto, String name, List<String> errors) {
     QualityGateDto existingQgate = dbClient.qualityGateDao().selectByOrganizationAndName(dbSession, organizationDto, name);
     if (existingQgate != null) {
-      errors.add(format(Validation.IS_ALREADY_USED_MESSAGE, "Name"));
+      errors.add(format(IS_ALREADY_USED_MESSAGE, "Name"));
     }
   }
 }

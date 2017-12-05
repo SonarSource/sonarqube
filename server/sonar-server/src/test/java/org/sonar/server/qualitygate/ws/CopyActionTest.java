@@ -35,7 +35,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualitygate.QualityGates;
+import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
@@ -57,10 +57,13 @@ public class CopyActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
-  private CopyAction underTest = new CopyAction(new QualityGates(dbClient, userSession, defaultOrganizationProvider, UuidFactoryFast.getInstance()));
+  private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
+  private QualityGateUpdater qualityGateUpdater = new QualityGateUpdater(dbClient, UuidFactoryFast.getInstance());
+  private QualityGatesWsSupport wsSupport = new QualityGatesWsSupport(dbClient, userSession, defaultOrganizationProvider);
+
+  private CopyAction underTest = new CopyAction(dbClient, userSession, defaultOrganizationProvider, qualityGateUpdater);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -145,7 +148,7 @@ public class CopyActionTest {
     userSession.addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
 
     expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage("There is no quality gate with id=123");
+    expectedException.expectMessage("No quality gate has been found for id 123");
 
     ws.newRequest()
       .setParam(PARAM_ID, "123")
