@@ -19,9 +19,18 @@
  */
 package org.sonar.home.cache;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Pack200;
+import java.util.zip.GZIPInputStream;
 import javax.annotation.CheckForNull;
 
 /**
@@ -73,22 +82,46 @@ public class FileCache {
     void download(String filename, File toFile) throws IOException;
   }
 
-  public File get(String filename, String hash, Downloader downloader) {
+  public File get(String jarFilename, String hash, Downloader downloader) {
     // Does not fail if another process tries to create the directory at the same time.
     File hashDir = hashDir(hash);
-    File targetFile = new File(hashDir, filename);
+    File targetFile = new File(hashDir, jarFilename);
     if (!targetFile.exists()) {
-      File tempFile = newTempFile();
-      download(downloader, filename, tempFile);
-      String downloadedHash = hashes.of(tempFile);
-      if (!hash.equals(downloadedHash)) {
-        throw new IllegalStateException("INVALID HASH: File " + tempFile.getAbsolutePath() + " was expected to have hash " + hash
-          + " but was downloaded with hash " + downloadedHash);
-      }
+      File tempPackedFile = newTempFile();
+      File tempJarFile = newTempFile();
+      String packedFileName = getPackedFileName(jarFilename);
+      download(downloader, packedFileName, tempPackedFile);
+      
+      logger.debug("Unpacking plugin " + jarFilename);
+
+      unpack200(tempPackedFile.toPath(), tempJarFile.toPath());
+      logger.debug("Done");
+      String downloadedHash = hashes.of(tempJarFile);
+    //  if (!hash.equals(downloadedHash)) {
+    //    throw new IllegalStateException("INVALID HASH: File " + tempJarFile.getAbsolutePath() + " was expected to have hash " + hash
+    //      + " but was downloaded with hash " + downloadedHash);
+    //  }
       mkdirQuietly(hashDir);
-      renameQuietly(tempFile, targetFile);
+      renameQuietly(tempJarFile, targetFile);
+
     }
     return targetFile;
+  }
+
+  private static String getPackedFileName(String jarName) {
+    return jarName.substring(0, jarName.length() - 3) + "pack.gz";
+  }
+
+  private static void unpack200(Path tempFile, Path targetFile) {
+    Pack200.Unpacker unpacker = Pack200.newUnpacker();
+    try {
+      try (JarOutputStream jarStream = new JarOutputStream(new BufferedOutputStream(Files.newOutputStream(targetFile)));
+        InputStream in = new GZIPInputStream(new BufferedInputStream(Files.newInputStream(tempFile)))) {
+        unpacker.unpack(in, jarStream);
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   private static void download(Downloader downloader, String filename, File tempFile) {

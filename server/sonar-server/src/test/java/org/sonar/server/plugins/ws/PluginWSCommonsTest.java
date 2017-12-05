@@ -23,6 +23,7 @@ import java.io.File;
 import org.junit.Test;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.RemotePluginFile;
 import org.sonar.db.plugin.PluginDto;
 import org.sonar.server.ws.WsTester;
 import org.sonar.updatecenter.common.Plugin;
@@ -47,7 +48,7 @@ public class PluginWSCommonsTest {
 
   @Test
   public void verify_properties_written_by_writePluginMetadata() {
-    underTest.writePluginInfo(jsonWriter, gitPluginInfo(), null, null);
+    underTest.writePluginInfo(jsonWriter, gitPluginInfo(), null, null, null);
 
     jsonWriter.close();
     assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo("{" +
@@ -65,7 +66,8 @@ public class PluginWSCommonsTest {
 
   @Test
   public void verify_properties_written_by_writePluginMetadata_with_dto() {
-    underTest.writePluginInfo(jsonWriter, gitPluginInfo(), null, new PluginDto().setFileHash("abcdef123456").setUpdatedAt(123456L));
+    PluginDto pluginDto = new PluginDto().setFileHash("abcdef123456").setUpdatedAt(123456L);
+    underTest.writePluginInfo(jsonWriter, gitPluginInfo(), null, pluginDto, null);
 
     jsonWriter.close();
     assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo("{" +
@@ -86,8 +88,34 @@ public class PluginWSCommonsTest {
   }
 
   @Test
+  public void verify_properties_written_by_writeMetadata_with_compressed_plugin() {
+    PluginDto pluginDto = new PluginDto().setFileHash("abcdef123456").setUpdatedAt(123456L);
+    RemotePluginFile compressedPlugin = new RemotePluginFile("compressed.pack.gz", "hash");
+    underTest.writePluginInfo(jsonWriter, gitPluginInfo(), null, pluginDto, compressedPlugin);
+
+    jsonWriter.close();
+    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo("{" +
+      "  \"key\": \"scmgit\"," +
+      "  \"name\": \"Git\"," +
+      "  \"description\": \"Git SCM Provider.\"," +
+      "  \"version\": \"1.0\"," +
+      "  \"license\": \"GNU LGPL 3\"," +
+      "  \"organizationName\": \"SonarSource\"," +
+      "  \"compressedFilename\": \"compressed.pack.gz\"," +
+      "  \"compressedHash\": \"hash\"," +
+      "  \"organizationUrl\": \"http://www.sonarsource.com\"," +
+      "  \"homepageUrl\": \"https://redirect.sonarsource.com/plugins/scmgit.html\"," +
+      "  \"issueTrackerUrl\": \"http://jira.sonarsource.com/browse/SONARSCGIT\"," +
+      "  \"filename\": \"sonar-scm-git-plugin-1.0.jar\"," +
+      "  \"hash\": \"abcdef123456\"," +
+      "  \"sonarLintSupported\": true," +
+      "  \"updatedAt\": 123456" +
+      "}");
+  }
+
+  @Test
   public void verify_properties_written_by_writeMetadata() {
-    underTest.writePluginInfo(jsonWriter, gitPluginInfo(), "cat_1", null);
+    underTest.writePluginInfo(jsonWriter, gitPluginInfo(), "cat_1", null, null);
 
     jsonWriter.close();
     assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo("{" +
