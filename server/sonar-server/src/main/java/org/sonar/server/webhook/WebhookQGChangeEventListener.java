@@ -22,6 +22,7 @@ package org.sonar.server.webhook;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.AnalysisPropertyDto;
@@ -30,6 +31,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener;
+import org.sonar.server.webhook.Branch.Type;
 
 public class WebhookQGChangeEventListener implements QGChangeEventListener {
   private final WebHooks webhooks;
@@ -61,17 +63,18 @@ public class WebhookQGChangeEventListener implements QGChangeEventListener {
   }
 
   private WebhookPayload buildWebHookPayload(DbSession dbSession, QGChangeEvent event) {
-    ComponentDto branch = event.getProject();
-    BranchDto shortBranch = event.getBranch();
+    ComponentDto project = event.getProject();
+    BranchDto branch = event.getBranch();
     SnapshotDto analysis = event.getAnalysis();
     Map<String, String> analysisProperties = dbClient.analysisPropertiesDao().selectBySnapshotUuid(dbSession, analysis.getUuid())
       .stream()
       .collect(Collectors.toMap(AnalysisPropertyDto::getKey, AnalysisPropertyDto::getValue));
+    String projectUuid = StringUtils.defaultString(project.getMainBranchProjectUuid(), project.projectUuid());
     ProjectAnalysis projectAnalysis = new ProjectAnalysis(
-      new Project(branch.getMainBranchProjectUuid(), branch.getKey(), branch.name()),
+      new Project(projectUuid, project.getKey(), project.name()),
       null,
       new Analysis(analysis.getUuid(), analysis.getCreatedAt()),
-      new Branch(false, shortBranch.getKey(), Branch.Type.SHORT),
+      new Branch(branch.isMain(), branch.getKey(), Type.valueOf(branch.getBranchType().name())),
       event.getQualityGateSupplier().get().orElse(null),
       null,
       analysisProperties);

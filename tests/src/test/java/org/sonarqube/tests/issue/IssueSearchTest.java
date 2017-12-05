@@ -55,7 +55,7 @@ public class IssueSearchTest extends AbstractIssueTest {
   private static final String PROJECT_KEY2 = "com.sonarsource.it.samples:multi-modules-sample2";
 
   private static int DEFAULT_PAGINATED_RESULTS = 100;
-  private static int TOTAL_NB_ISSUES = 272;
+  private static int TOTAL_NB_ISSUES = 256;
 
   @BeforeClass
   public static void prepareData() {
@@ -92,15 +92,15 @@ public class IssueSearchTest extends AbstractIssueTest {
   @Test
   public void search_issues_by_component_roots() {
     assertSearch(r -> r.setComponentRoots("com.sonarsource.it.samples:multi-modules-sample")).hasSize(DEFAULT_PAGINATED_RESULTS);
-    assertSearch(r -> r.setComponentRoots("com.sonarsource.it.samples:multi-modules-sample:module_a")).hasSize(82);
-    assertSearch(r -> r.setComponentRoots("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1")).hasSize(36);
+    assertSearch(r -> r.setComponentRoots("com.sonarsource.it.samples:multi-modules-sample:module_a")).hasSize(76);
+    assertSearch(r -> r.setComponentRoots("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1")).hasSize(35);
 
     assertThat(search(IssueQuery.create().componentRoots("unknown")).list()).isEmpty();
   }
 
   @Test
   public void search_issues_by_components() {
-    assertSearch(r -> r.setComponents("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo")).hasSize(34);
+    assertSearch(r -> r.setComponents("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo")).hasSize(33);
     assertSearch(r -> r.setComponents("unknown")).isEmpty();
   }
 
@@ -261,7 +261,7 @@ public class IssueSearchTest extends AbstractIssueTest {
   @Test
   public void search_issues_by_types() throws IOException {
     assertThat(searchResponse(r -> r.setTypes(singletonList("CODE_SMELL"))).getPaging().getTotal()).isEqualTo(142);
-    assertThat(searchResponse(r -> r.setTypes(singletonList("BUG"))).getPaging().getTotal()).isEqualTo(122);
+    assertThat(searchResponse(r -> r.setTypes(singletonList("BUG"))).getPaging().getTotal()).isEqualTo(106);
     assertThat(searchResponse(r -> r.setTypes(singletonList("VULNERABILITY"))).getPaging().getTotal()).isEqualTo(8);
   }
 

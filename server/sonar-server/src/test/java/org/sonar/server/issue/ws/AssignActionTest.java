@@ -42,6 +42,7 @@ import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.ServerIssueStorage;
+import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
@@ -82,16 +83,17 @@ public class AssignActionTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private IssueIndexer issueIndexer = new IssueIndexer(es.client(), db.getDbClient(), new IssueIteratorFactory(db.getDbClient()));
   private OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
+  private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private AssignAction underTest = new AssignAction(system2, userSession, db.getDbClient(), new IssueFinder(db.getDbClient(), userSession), new IssueFieldsSetter(),
     new IssueUpdater(db.getDbClient(),
       new ServerIssueStorage(system2, new DefaultRuleFinder(db.getDbClient(), defaultOrganizationProvider), db.getDbClient(), issueIndexer),
-      mock(NotificationManager.class)),
+      mock(NotificationManager.class), issueChangePostProcessor),
     responseWriter);
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
-  public void assign_to_someone() throws Exception {
+  public void assign_to_someone() {
     IssueDto issue = newIssueWithBrowsePermission();
     insertUser("arthur");
 
@@ -103,10 +105,11 @@ public class AssignActionTest {
     checkIssueAssignee(issue.getKey(), "arthur");
     verify(responseWriter).write(eq(issue.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
     verifyContentOfPreloadedSearchResponseData(issue);
+    assertThat(issueChangePostProcessor.wasCalled()).isFalse();
   }
 
   @Test
-  public void assign_to_me() throws Exception {
+  public void assign_to_me() {
     IssueDto issue = newIssueWithBrowsePermission();
 
     ws.newRequest()
@@ -117,10 +120,11 @@ public class AssignActionTest {
     checkIssueAssignee(issue.getKey(), CURRENT_USER_LOGIN);
     verify(responseWriter).write(eq(issue.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
     verifyContentOfPreloadedSearchResponseData(issue);
+    assertThat(issueChangePostProcessor.wasCalled()).isFalse();
   }
 
   @Test
-  public void assign_to_me_using_deprecated_me_param() throws Exception {
+  public void assign_to_me_using_deprecated_me_param() {
     IssueDto issue = newIssueWithBrowsePermission();
 
     ws.newRequest()
@@ -134,7 +138,7 @@ public class AssignActionTest {
   }
 
   @Test
-  public void unassign() throws Exception {
+  public void unassign() {
     IssueDto issue = newIssueWithBrowsePermission();
 
     ws.newRequest()
@@ -144,10 +148,11 @@ public class AssignActionTest {
     checkIssueAssignee(issue.getKey(), null);
     verify(responseWriter).write(eq(issue.getKey()), preloadedSearchResponseDataCaptor.capture(), any(Request.class), any(Response.class));
     verifyContentOfPreloadedSearchResponseData(issue);
+    assertThat(issueChangePostProcessor.wasCalled()).isFalse();
   }
 
   @Test
-  public void unassign_with_empty_assignee_param() throws Exception {
+  public void unassign_with_empty_assignee_param() {
     IssueDto issue = newIssueWithBrowsePermission();
 
     ws.newRequest()
@@ -161,7 +166,7 @@ public class AssignActionTest {
   }
 
   @Test
-  public void nothing_to_do_when_new_assignee_is_same_as_old_one() throws Exception {
+  public void nothing_to_do_when_new_assignee_is_same_as_old_one() {
     IssueDto issue = newIssueWithBrowsePermission();
     insertUser(PREVIOUS_ASSIGNEE);
 
@@ -177,7 +182,7 @@ public class AssignActionTest {
   }
 
   @Test
-  public void fail_when_assignee_does_not_exist() throws Exception {
+  public void fail_when_assignee_does_not_exist() {
     IssueDto issue = newIssueWithBrowsePermission();
 
     expectedException.expect(NotFoundException.class);
@@ -189,7 +194,7 @@ public class AssignActionTest {
   }
 
   @Test
-  public void fail_when_assignee_is_disabled() throws Exception {
+  public void fail_when_assignee_is_disabled() {
     IssueDto issue = newIssueWithBrowsePermission();
     db.users().insertUser(user -> user.setActive(false));
 
@@ -202,7 +207,7 @@ public class AssignActionTest {
   }
 
   @Test
-  public void fail_when_not_authenticated() throws Exception {
+  public void fail_when_not_authenticated() {
     IssueDto issue = newIssue();
     userSession.anonymous();
 
@@ -215,7 +220,7 @@ public class AssignActionTest {
   }
 
   @Test
-  public void fail_when_missing_browse_permission() throws Exception {
+  public void fail_when_missing_browse_permission() {
     IssueDto issue = newIssue();
     setUserWithPermission(issue, CODEVIEWER);
 
@@ -228,7 +233,7 @@ public class AssignActionTest {
   }
 
   @Test
-  public void fail_when_assignee_is_not_member_of_organization_of_project_issue() throws Exception {
+  public void fail_when_assignee_is_not_member_of_organization_of_project_issue() {
     OrganizationDto org = db.organizations().insert(organizationDto -> organizationDto.setKey("Organization key"));
     IssueDto issueDto = db.issues().insertIssue(org);
     setUserWithBrowsePermission(issueDto);

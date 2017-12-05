@@ -99,7 +99,7 @@ public class GetByProjectAction implements QualityGatesWsAction {
         throw insufficientPrivilegesException();
       }
 
-      QualityGateData data = qualityGateFinder.getQualityGate(dbSession, organization, project.getId());
+      QualityGateData data = qualityGateFinder.getQualityGate(dbSession, organization, project);
 
       writeProtobuf(buildResponse(data), request, response);
     }

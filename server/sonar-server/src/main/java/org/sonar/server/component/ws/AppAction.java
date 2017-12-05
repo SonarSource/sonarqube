@@ -190,7 +190,7 @@ public class AppAction implements ComponentsWsAction {
     List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, METRIC_KEYS);
     Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDto::getId);
     List<LiveMeasureDto> measures = dbClient.liveMeasureDao()
-      .selectByComponentUuids(dbSession, Collections.singletonList(component.uuid()), metricsById.keySet());
+      .selectByComponentUuidsAndMetricIds(dbSession, Collections.singletonList(component.uuid()), metricsById.keySet());
     return Maps.uniqueIndex(measures, m -> metricsById.get(m.getMetricId()).getKey());
   }
 

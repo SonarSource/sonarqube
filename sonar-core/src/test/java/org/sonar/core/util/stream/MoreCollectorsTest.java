@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -101,7 +102,7 @@ public class MoreCollectorsTest {
 
   @Test
   public void toSet_with_size_builds_an_ImmutableSet() {
-    Set<Integer> res = Arrays.asList(1, 2, 3, 4, 5).stream().collect(toSet(30));
+    Set<Integer> res = Stream.of(1, 2, 3, 4, 5).collect(toSet(30));
     assertThat(res).isInstanceOf(ImmutableSet.class)
       .containsExactly(1, 2, 3, 4, 5);
   }
@@ -109,6 +110,20 @@ public class MoreCollectorsTest {
   @Test
   public void toSet_with_size_parallel_stream() {
     assertThat(HUGE_SET.parallelStream().collect(toSet(HUGE_SET.size()))).isEqualTo(HUGE_SET);
+  }
+
+  @Test
+  public void toEnumSet() {
+    Set<MyEnum> res = Stream.of(MyEnum.ONE, MyEnum.ONE, MyEnum.TWO).collect(MoreCollectors.toEnumSet(MyEnum.class));
+    assertThat(res).isInstanceOf(EnumSet.class)
+      .containsExactly(MyEnum.ONE, MyEnum.TWO);
+  }
+
+  @Test
+  public void toEnumSet_with_empty_stream() {
+    Set<MyEnum> res = Stream.<MyEnum>empty().collect(MoreCollectors.toEnumSet(MyEnum.class));
+    assertThat(res).isInstanceOf(EnumSet.class)
+      .isEmpty();
   }
 
   @Test
@@ -515,5 +530,9 @@ public class MoreCollectorsTest {
     public String getText() {
       return text;
     }
+  }
+
+  private enum MyEnum {
+    ONE, TWO, THREE
   }
 }

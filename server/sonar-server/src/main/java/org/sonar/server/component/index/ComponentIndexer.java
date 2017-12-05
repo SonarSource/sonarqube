@@ -84,9 +84,10 @@ public class ComponentIndexer implements ProjectIndexer, NeedAuthorizationIndexe
   @Override
   public Collection<EsQueueDto> prepareForRecovery(DbSession dbSession, Collection<String> projectUuids, Cause cause) {
     switch (cause) {
+      case MEASURE_CHANGE:
       case PROJECT_TAGS_UPDATE:
       case PERMISSION_CHANGE:
-        // tags and permissions are not part of type components/component
+        // measures, tags and permissions are not part of type components/component
         return emptyList();
 
       case PROJECT_CREATION:

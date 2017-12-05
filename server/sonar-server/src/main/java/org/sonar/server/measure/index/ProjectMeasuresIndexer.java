@@ -78,8 +78,8 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
   }
 
   @Override
-  public void indexOnAnalysis(String branchUuid) {
-    doIndex(Size.REGULAR, branchUuid);
+  public void indexOnAnalysis(String projectUuid) {
+    doIndex(Size.REGULAR, projectUuid);
   }
 
   @Override
@@ -88,7 +88,7 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
       case PERMISSION_CHANGE:
         // nothing to do, permissions are not used in type projectmeasures/projectmeasure
         return Collections.emptyList();
-
+      case MEASURE_CHANGE:
       case PROJECT_KEY_UPDATE:
         // project must be re-indexed because key is used in this index
       case PROJECT_CREATION:
@@ -104,6 +104,17 @@ public class ProjectMeasuresIndexer implements ProjectIndexer, NeedAuthorization
         // defensive case
         throw new IllegalStateException("Unsupported cause: " + cause);
     }
+  }
+
+  public IndexingResult commitAndIndex(DbSession dbSession, Collection<String> projectUuids) {
+    List<EsQueueDto> items = projectUuids.stream()
+      .map(projectUuid -> EsQueueDto.create(INDEX_TYPE_PROJECT_MEASURES.format(), projectUuid, null, projectUuid))
+      .collect(MoreCollectors.toArrayList(projectUuids.size()));
+    dbClient.esQueueDao().insert(dbSession, items);
+
+    dbSession.commit();
+
+    return index(dbSession, items);
   }
 
   @Override

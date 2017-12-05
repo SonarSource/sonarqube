@@ -34,7 +34,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating;
+import org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating;
 import org.sonar.server.exceptions.NotFoundException;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -44,7 +44,7 @@ import static java.util.Arrays.stream;
 import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.api.measures.Metric.ValueType.valueOf;
 import static org.sonar.db.qualitygate.QualityGateConditionDto.isOperatorAllowed;
-import static org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid.Rating.E;
+import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.E;
 import static org.sonar.server.qualitygate.ValidRatingMetrics.isCoreRatingMetric;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 

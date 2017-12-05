@@ -39,7 +39,7 @@ import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid;
+import org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toMap;
@@ -57,7 +57,7 @@ public class RegisterQualityGates implements Startable {
 
   private static final String BUILTIN_QUALITY_GATE_NAME = "Sonar way";
   private static final int LEAK_PERIOD = 1;
-  private static final String A_RATING = Integer.toString(RatingGrid.Rating.A.getIndex());
+  private static final String A_RATING = Integer.toString(Rating.A.getIndex());
 
   private static final List<QualityGateCondition> QUALITY_GATE_CONDITIONS = asList(
     new QualityGateCondition().setMetricKey(NEW_SECURITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setPeriod(LEAK_PERIOD).setErrorThreshold(A_RATING),

@@ -49,7 +49,7 @@ public class QualityGateFinderTest {
     ComponentDto project = db.components().insertPrivateProject();
     QualityGateDto dbQualityGate = db.qualityGates().createDefaultQualityGate(db.getDefaultOrganization(), qg -> qg.setName("Sonar way"));
 
-    QualityGateFinder.QualityGateData result = underTest.getQualityGate(dbSession, db.getDefaultOrganization(), project.getId());
+    QualityGateFinder.QualityGateData result = underTest.getQualityGate(dbSession, db.getDefaultOrganization(), project);
 
     assertThat(result).isNotNull();
     assertThat(result.getQualityGate().getId()).isEqualTo(dbQualityGate.getId());
@@ -63,7 +63,7 @@ public class QualityGateFinderTest {
     QualityGateDto dbQualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization(), qg -> qg.setName("My team QG"));
     db.qualityGates().associateProjectToQualityGate(project, dbQualityGate);
 
-    QualityGateFinder.QualityGateData result = underTest.getQualityGate(dbSession, db.getDefaultOrganization(), project.getId());
+    QualityGateFinder.QualityGateData result = underTest.getQualityGate(dbSession, db.getDefaultOrganization(), project);
 
     assertThat(result).isNotNull();
     assertThat(result.getQualityGate().getId()).isEqualTo(dbQualityGate.getId());
@@ -80,7 +80,7 @@ public class QualityGateFinderTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage(format("Unable to find the quality gate [%s] for organization [%s]", dbQualityGate.getUuid(), db.getDefaultOrganization().getUuid()));
 
-    underTest.getQualityGate(dbSession, db.getDefaultOrganization(), project.getId());
+    underTest.getQualityGate(dbSession, db.getDefaultOrganization(), project);
   }
 
   @Test
@@ -91,7 +91,7 @@ public class QualityGateFinderTest {
     db.getDbClient().qualityGateDao().delete(dbQualityGate, dbSession);
 
     expectedException.expect(NotFoundException.class);
-    underTest.getQualityGate(dbSession, db.getDefaultOrganization(), project.getId());
+    underTest.getQualityGate(dbSession, db.getDefaultOrganization(), project);
   }
 
   @Test

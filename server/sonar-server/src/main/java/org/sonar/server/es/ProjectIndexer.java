@@ -40,7 +40,8 @@ public interface ProjectIndexer extends ResilientIndexer {
     PROJECT_DELETION,
     PROJECT_KEY_UPDATE,
     PROJECT_TAGS_UPDATE,
-    PERMISSION_CHANGE
+    PERMISSION_CHANGE,
+    MEASURE_CHANGE
   }
 
   /**

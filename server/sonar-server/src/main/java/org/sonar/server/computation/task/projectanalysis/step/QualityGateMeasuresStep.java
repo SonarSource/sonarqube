@@ -20,7 +20,6 @@
 package org.sonar.server.computation.task.projectanalysis.step;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Ordering;
@@ -28,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -177,7 +177,7 @@ public class QualityGateMeasuresStep implements ComputationStep {
     boolean ignoredConditions = false;
     for (Map.Entry<Metric, Collection<Condition>> entry : conditionsPerMetric.asMap().entrySet()) {
       Metric metric = entry.getKey();
-      Optional<Measure> measure = measureRepository.getRawMeasure(project, metric);
+      com.google.common.base.Optional<Measure> measure = measureRepository.getRawMeasure(project, metric);
       if (!measure.isPresent()) {
         continue;
       }

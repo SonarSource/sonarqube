@@ -35,6 +35,7 @@ import org.sonar.api.ce.posttask.PostProjectAnalysisTaskTester;
 import org.sonar.api.ce.posttask.Project;
 import org.sonar.api.ce.posttask.QualityGate;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.measures.Metric;
 import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.server.qualitygate.Condition;
 import org.sonar.server.qualitygate.EvaluatedCondition;
@@ -153,7 +154,7 @@ public class WebhookPostTaskTest {
         condition.isOnLeakPeriod());
       webQualityGate = EvaluatedQualityGate.newBuilder()
         .setQualityGate(new org.sonar.server.qualitygate.QualityGate(qualityGate.getId(), qualityGate.getName(), Collections.singleton(qgCondition)))
-        .setStatus(EvaluatedQualityGate.Status.valueOf(qualityGate.getStatus().name()))
+        .setStatus(Metric.Level.valueOf(qualityGate.getStatus().name()))
         .addCondition(qgCondition, EvaluatedCondition.EvaluationStatus.valueOf(condition.getStatus().name()), condition.getValue())
         .build();
     }

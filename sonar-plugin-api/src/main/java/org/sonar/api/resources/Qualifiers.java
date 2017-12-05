@@ -19,7 +19,11 @@
  */
 package org.sonar.api.resources;
 
+import java.util.List;
 import java.util.Objects;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
 
 /**
  * The qualifier determines the exact type of a resource.
@@ -69,6 +73,15 @@ public final class Qualifiers {
 
   // ugly, should be replaced by "natures"
   public static final String UNIT_TEST_FILE = "UTS";
+
+  /**
+   * List of qualifiers, ordered from bottom to up regarding position
+   * in tree of components
+   *
+   * @since 7.0
+   */
+  public static final List<String> ORDERED_BOTTOM_UP = unmodifiableList(asList(
+    FILE, UNIT_TEST_FILE, DIRECTORY, MODULE, PROJECT, APP, SUBVIEW, VIEW));
 
   private Qualifiers() {
     // only static methods

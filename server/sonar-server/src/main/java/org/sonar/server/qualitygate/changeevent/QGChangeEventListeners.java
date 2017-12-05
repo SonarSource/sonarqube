@@ -20,8 +20,10 @@
 package org.sonar.server.qualitygate.changeevent;
 
 import java.util.Collection;
+import java.util.List;
+import org.sonar.core.issue.DefaultIssue;
 
 public interface QGChangeEventListeners {
 
-  void broadcastOnIssueChange(QGChangeEventFactory.IssueChangeData issueChangeData, Collection<QGChangeEvent> qgChangeEvents);
+  void broadcastOnIssueChange(List<DefaultIssue> changedIssues, Collection<QGChangeEvent> qgChangeEvents);
 }

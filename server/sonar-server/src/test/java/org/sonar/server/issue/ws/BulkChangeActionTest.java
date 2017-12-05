@@ -20,9 +20,6 @@
 package org.sonar.server.issue.ws;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -37,8 +34,6 @@ import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -53,6 +48,7 @@ import org.sonar.server.issue.Action;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueStorage;
 import org.sonar.server.issue.ServerIssueStorage;
+import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -63,9 +59,6 @@ import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
-import org.sonar.server.qualitygate.changeevent.QGChangeEventFactory;
-import org.sonar.server.qualitygate.changeevent.QGChangeEventListeners;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -79,12 +72,8 @@ import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.STATUS_CLOSED;
@@ -92,7 +81,6 @@ import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.api.rules.RuleType.BUG;
-import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
@@ -125,8 +113,7 @@ public class BulkChangeActionTest {
   private IssueStorage issueStorage = new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient,
     new IssueIndexer(es.client(), dbClient, new IssueIteratorFactory(dbClient)));
   private NotificationManager notificationManager = mock(NotificationManager.class);
-  private QGChangeEventFactory qgChangeEventFactory = mock(QGChangeEventFactory.class);
-  private QGChangeEventListeners qgChangeEventListeners = mock(QGChangeEventListeners.class);
+  private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private List<Action> actions = new ArrayList<>();
 
   private RuleDto rule;
@@ -135,8 +122,7 @@ public class BulkChangeActionTest {
   private ComponentDto file;
   private UserDto user;
 
-  private WsActionTester tester = new WsActionTester(
-    new BulkChangeAction(system2, userSession, dbClient, issueStorage, notificationManager, actions, qgChangeEventFactory, qgChangeEventListeners));
+  private WsActionTester tester = new WsActionTester(new BulkChangeAction(system2, userSession, dbClient, issueStorage, notificationManager, actions, issueChangePostProcessor));
 
   @Before
   public void setUp() {
@@ -154,7 +140,6 @@ public class BulkChangeActionTest {
   public void set_type() {
     setUserProjectPermissions(USER, ISSUE_ADMIN);
     IssueDto issueDto = db.issues().insertIssue(newUnresolvedIssue().setType(BUG));
-    List<QGChangeEvent> qgChangeEvents = mockQGChangeEvents(CODE_SMELL, null);
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(singletonList(issueDto.getKey()))
@@ -166,8 +151,7 @@ public class BulkChangeActionTest {
     assertThat(reloaded.getType()).isEqualTo(RuleType.CODE_SMELL.getDbConstant());
     assertThat(reloaded.getUpdatedAt()).isEqualTo(NOW);
 
-    QGChangeEventFactory.IssueChangeData issueChangeData = verifyIssueChangeData(CODE_SMELL, null, new String[] {file.uuid()}, issueDto);
-    verifyBroadcastOnIssueChange(issueChangeData, qgChangeEvents);
+    verifyPostProcessorCalled(file);
   }
 
   @Test
@@ -185,7 +169,7 @@ public class BulkChangeActionTest {
     assertThat(reloaded.getSeverity()).isEqualTo(MINOR);
     assertThat(reloaded.getUpdatedAt()).isEqualTo(NOW);
 
-    verifyZeroInteractions(qgChangeEventFactory);
+    verifyPostProcessorCalled(file);
   }
 
   @Test
@@ -203,7 +187,8 @@ public class BulkChangeActionTest {
     assertThat(reloaded.getTags()).containsOnly("tag1", "tag2", "tag3");
     assertThat(reloaded.getUpdatedAt()).isEqualTo(NOW);
 
-    verifyZeroInteractions(qgChangeEventFactory);
+    // no need to refresh measures
+    verifyPostProcessorNotCalled();
   }
 
   @Test
@@ -221,14 +206,14 @@ public class BulkChangeActionTest {
     assertThat(reloaded.getAssignee()).isNull();
     assertThat(reloaded.getUpdatedAt()).isEqualTo(NOW);
 
-    verifyZeroInteractions(qgChangeEventFactory);
+    // no need to refresh measures
+    verifyPostProcessorNotCalled();
   }
 
   @Test
   public void bulk_change_with_comment() {
     setUserProjectPermissions(USER);
     IssueDto issueDto = db.issues().insertIssue(newUnresolvedIssue().setType(BUG));
-    List<QGChangeEvent> qgChangeEvents = mockQGChangeEvents(null, "confirm");
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(singletonList(issueDto.getKey()))
@@ -241,8 +226,7 @@ public class BulkChangeActionTest {
     assertThat(issueComment.getUserLogin()).isEqualTo("john");
     assertThat(issueComment.getChangeData()).isEqualTo("type was badly defined");
 
-    QGChangeEventFactory.IssueChangeData issueChangeData = verifyIssueChangeData(null, "confirm", new String[] {file.uuid()}, issueDto);
-    verifyBroadcastOnIssueChange(issueChangeData, qgChangeEvents);
+    verifyPostProcessorCalled(file);
   }
 
   @Test
@@ -254,7 +238,6 @@ public class BulkChangeActionTest {
     IssueDto issue1 = db.issues().insertIssue(newUnresolvedIssue().setAssignee(user.getLogin())).setType(BUG).setSeverity(MINOR);
     IssueDto issue2 = db.issues().insertIssue(newUnresolvedIssue().setAssignee(userToAssign.getLogin())).setType(BUG).setSeverity(MAJOR);
     IssueDto issue3 = db.issues().insertIssue(newUnresolvedIssue().setAssignee(null)).setType(VULNERABILITY).setSeverity(MAJOR);
-    List<QGChangeEvent> qgChangeEvents = mockQGChangeEvents(VULNERABILITY, null);
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(asList(issue1.getKey(), issue2.getKey(), issue3.getKey()))
@@ -271,15 +254,13 @@ public class BulkChangeActionTest {
         tuple(issue2.getKey(), userToAssign.getLogin(), VULNERABILITY.getDbConstant(), MINOR, NOW),
         tuple(issue3.getKey(), userToAssign.getLogin(), VULNERABILITY.getDbConstant(), MINOR, NOW));
 
-    QGChangeEventFactory.IssueChangeData issueChangeData = verifyIssueChangeData(VULNERABILITY, null, new String[] {file.uuid()}, issue1, issue2, issue3);
-    verifyBroadcastOnIssueChange(issueChangeData, qgChangeEvents);
+    verifyPostProcessorCalled(file);
   }
 
   @Test
   public void send_notification() {
     setUserProjectPermissions(USER);
     IssueDto issueDto = db.issues().insertIssue(newUnresolvedIssue().setType(BUG));
-    List<QGChangeEvent> qgChangeEvents = mockQGChangeEvents(null, "confirm");
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(singletonList(issueDto.getKey()))
@@ -298,9 +279,6 @@ public class BulkChangeActionTest {
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("ruleName")).isEqualTo(rule.getName());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("changeAuthor")).isEqualTo(user.getLogin());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("branch")).isNull();
-
-    QGChangeEventFactory.IssueChangeData issueChangeData = verifyIssueChangeData(null, "confirm", new String[] {file.uuid()}, issueDto);
-    verifyBroadcastOnIssueChange(issueChangeData, qgChangeEvents);
   }
 
   @Test
@@ -311,7 +289,6 @@ public class BulkChangeActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project, b -> b.setKey(branchName));
     ComponentDto fileOnBranch = db.components().insertComponent(newFileDto(branch));
     IssueDto issueDto = db.issues().insertIssue(newUnresolvedIssue(rule, fileOnBranch, branch).setType(BUG));
-    List<QGChangeEvent> qgChangeEvents = mockQGChangeEvents(null, "confirm");
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(singletonList(issueDto.getKey()))
@@ -331,8 +308,7 @@ public class BulkChangeActionTest {
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("changeAuthor")).isEqualTo(user.getLogin());
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("branch")).isEqualTo(branchName);
 
-    QGChangeEventFactory.IssueChangeData issueChangeData = verifyIssueChangeData(null, "confirm", new String[] {fileOnBranch.uuid()}, issueDto);
-    verifyBroadcastOnIssueChange(issueChangeData, qgChangeEvents);
+    verifyPostProcessorCalled(fileOnBranch);
   }
 
   @Test
@@ -342,7 +318,6 @@ public class BulkChangeActionTest {
     IssueDto issue2 = db.issues().insertIssue(newUnresolvedIssue().setType(BUG));
     IssueDto issue3 = db.issues().insertIssue(newUnresolvedIssue().setType(VULNERABILITY));
     ArgumentCaptor<IssueChangeNotification> issueChangeNotificationCaptor = ArgumentCaptor.forClass(IssueChangeNotification.class);
-    List<QGChangeEvent> qgChangeEvents = mockQGChangeEvents(BUG, null);
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(asList(issue1.getKey(), issue2.getKey(), issue3.getKey()))
@@ -355,18 +330,17 @@ public class BulkChangeActionTest {
     assertThat(issueChangeNotificationCaptor.getAllValues()).hasSize(1);
     assertThat(issueChangeNotificationCaptor.getValue().getFieldValue("key")).isEqualTo(issue3.getKey());
 
-    QGChangeEventFactory.IssueChangeData issueChangeData = verifyIssueChangeData(BUG, null, new String[] {file.uuid()}, issue3);
-    verifyBroadcastOnIssueChange(issueChangeData, qgChangeEvents);
+    verifyPostProcessorCalled(file);
   }
 
   @Test
-  public void ignore_issues_when_condition_does_not_match() {
+  public void ignore_the_issues_that_do_not_match_conditions() {
     setUserProjectPermissions(USER, ISSUE_ADMIN);
+    ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     IssueDto issue1 = db.issues().insertIssue(newUnresolvedIssue().setType(BUG));
     // These 2 issues will be ignored as they are resolved, changing type is not possible
     IssueDto issue2 = db.issues().insertIssue(newResolvedIssue().setType(BUG));
-    IssueDto issue3 = db.issues().insertIssue(newResolvedIssue().setType(BUG));
-    List<QGChangeEvent> qgChangeEvents = mockQGChangeEvents(VULNERABILITY, null);
+    IssueDto issue3 = db.issues().insertIssue(newResolvedIssue().setType(BUG).setComponent(file2));
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(asList(issue1.getKey(), issue2.getKey(), issue3.getKey()))
@@ -381,18 +355,18 @@ public class BulkChangeActionTest {
         tuple(issue3.getKey(), BUG.getDbConstant(), issue2.getUpdatedAt()),
         tuple(issue2.getKey(), BUG.getDbConstant(), issue3.getUpdatedAt()));
 
-    QGChangeEventFactory.IssueChangeData issueChangeData = verifyIssueChangeData(VULNERABILITY, null, new String[] {file.uuid()}, issue1);
-    verifyBroadcastOnIssueChange(issueChangeData, qgChangeEvents);
+    // file2 is not refreshed
+    verifyPostProcessorCalled(file);
   }
 
   @Test
   public void ignore_issues_when_there_is_nothing_to_do() {
     setUserProjectPermissions(USER, ISSUE_ADMIN);
+    ComponentDto file2 = db.components().insertComponent(newFileDto(project));
     IssueDto issue1 = db.issues().insertIssue(newUnresolvedIssue().setType(BUG).setSeverity(MINOR));
     // These 2 issues will be ignored as there's nothing to do
     IssueDto issue2 = db.issues().insertIssue(newUnresolvedIssue().setType(VULNERABILITY));
-    IssueDto issue3 = db.issues().insertIssue(newUnresolvedIssue().setType(VULNERABILITY));
-    List<QGChangeEvent> qgChangeEvents = mockQGChangeEvents(VULNERABILITY, null);
+    IssueDto issue3 = db.issues().insertIssue(newUnresolvedIssue().setType(VULNERABILITY).setComponent(file2));
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(asList(issue1.getKey(), issue2.getKey(), issue3.getKey()))
@@ -407,8 +381,8 @@ public class BulkChangeActionTest {
         tuple(issue2.getKey(), VULNERABILITY.getDbConstant(), issue2.getUpdatedAt()),
         tuple(issue3.getKey(), VULNERABILITY.getDbConstant(), issue3.getUpdatedAt()));
 
-    QGChangeEventFactory.IssueChangeData issueChangeData = verifyIssueChangeData(VULNERABILITY, null, new String[] {file.uuid()}, issue1);
-    verifyBroadcastOnIssueChange(issueChangeData, qgChangeEvents);
+    // file2 is not refreshed
+    verifyPostProcessorCalled(file);
   }
 
   @Test
@@ -418,7 +392,6 @@ public class BulkChangeActionTest {
     // These 2 issues will be ignored as there's nothing to do
     IssueDto issue2 = db.issues().insertIssue(newUnresolvedIssue().setType(VULNERABILITY));
     IssueDto issue3 = db.issues().insertIssue(newUnresolvedIssue().setType(VULNERABILITY));
-    List<QGChangeEvent> qgChangeEvents = mockQGChangeEvents(VULNERABILITY, null);
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(asList(issue1.getKey(), issue2.getKey(), issue3.getKey()))
@@ -431,8 +404,7 @@ public class BulkChangeActionTest {
     assertThat(dbClient.issueChangeDao().selectByTypeAndIssueKeys(db.getSession(), singletonList(issue2.getKey()), TYPE_COMMENT)).isEmpty();
     assertThat(dbClient.issueChangeDao().selectByTypeAndIssueKeys(db.getSession(), singletonList(issue3.getKey()), TYPE_COMMENT)).isEmpty();
 
-    QGChangeEventFactory.IssueChangeData issueChangeData = verifyIssueChangeData(VULNERABILITY, null, new String[] {file.uuid()}, issue1);
-    verifyBroadcastOnIssueChange(issueChangeData, qgChangeEvents);
+    verifyPostProcessorCalled(file);
   }
 
   @Test
@@ -444,7 +416,6 @@ public class BulkChangeActionTest {
     // User has not browse permission on these 2 issues
     IssueDto notAuthorizedIssue1 = db.issues().insertIssue(newUnresolvedIssue(rule, anotherFile, anotherProject).setType(BUG));
     IssueDto notAuthorizedIssue2 = db.issues().insertIssue(newUnresolvedIssue(rule, anotherFile, anotherProject).setType(BUG));
-    List<QGChangeEvent> qgChangeEvents = mockQGChangeEvents(VULNERABILITY, null);
 
     BulkChangeWsResponse response = call(builder()
       .setIssues(asList(authorizedIssue.getKey(), notAuthorizedIssue1.getKey(), notAuthorizedIssue2.getKey()))
@@ -459,8 +430,7 @@ public class BulkChangeActionTest {
         tuple(notAuthorizedIssue1.getKey(), BUG.getDbConstant(), notAuthorizedIssue1.getUpdatedAt()),
         tuple(notAuthorizedIssue2.getKey(), BUG.getDbConstant(), notAuthorizedIssue2.getUpdatedAt()));
 
-    QGChangeEventFactory.IssueChangeData issueChangeData = verifyIssueChangeData(VULNERABILITY, null, new String[] {file.uuid()}, authorizedIssue);
-    verifyBroadcastOnIssueChange(issueChangeData, qgChangeEvents);
+    verifyPostProcessorCalled(file);
   }
 
   @Test
@@ -487,6 +457,7 @@ public class BulkChangeActionTest {
         tuple(authorizedIssue1.getKey(), VULNERABILITY.getDbConstant(), NOW),
         tuple(notAuthorizedIssue1.getKey(), BUG.getDbConstant(), notAuthorizedIssue1.getUpdatedAt()),
         tuple(notAuthorizedIssue2.getKey(), BUG.getDbConstant(), notAuthorizedIssue2.getUpdatedAt()));
+    verifyPostProcessorCalled(file);
   }
 
   @Test
@@ -513,12 +484,15 @@ public class BulkChangeActionTest {
         tuple(authorizedIssue1.getKey(), MINOR, NOW),
         tuple(notAuthorizedIssue1.getKey(), MAJOR, notAuthorizedIssue1.getUpdatedAt()),
         tuple(notAuthorizedIssue2.getKey(), MAJOR, notAuthorizedIssue2.getUpdatedAt()));
+
+    verifyPostProcessorCalled(file);
   }
 
   @Test
   public void fail_when_only_comment_action() {
     setUserProjectPermissions(USER);
     IssueDto issueDto = db.issues().insertIssue(newUnresolvedIssue().setType(BUG));
+
     expectedException.expectMessage("At least one action must be provided");
     expectedException.expect(IllegalArgumentException.class);
 
@@ -531,6 +505,7 @@ public class BulkChangeActionTest {
   @Test
   public void fail_when_number_of_issues_is_more_than_500() {
     userSession.logIn("john");
+
     expectedException.expectMessage("Number of issues is limited to 500");
     expectedException.expect(IllegalArgumentException.class);
 
@@ -555,60 +530,6 @@ public class BulkChangeActionTest {
     assertThat(action.isInternal()).isFalse();
     assertThat(action.params()).hasSize(10);
     assertThat(action.responseExample()).isNotNull();
-  }
-
-  private void verifyIssueChangeWebhookCalled(@Nullable RuleType expectedRuleType, @Nullable String transitionKey,
-    String[] componentUUids,
-    IssueDto... issueDtos) {
-    QGChangeEventFactory.IssueChange issueChange = new QGChangeEventFactory.IssueChange(expectedRuleType, transitionKey);
-    IssueChangeContext user = IssueChangeContext.createUser(new Date(NOW), userSession.getLogin());
-    List<QGChangeEvent> changeEvents = Collections.singletonList(mock(QGChangeEvent.class));
-    when(qgChangeEventFactory.from(any(QGChangeEventFactory.IssueChangeData.class), eq(issueChange), eq(user))).thenReturn(changeEvents);
-
-    ArgumentCaptor<QGChangeEventFactory.IssueChangeData> issueChangeDataCaptor = ArgumentCaptor.forClass(QGChangeEventFactory.IssueChangeData.class);
-    verify(qgChangeEventFactory).from(issueChangeDataCaptor.capture(), eq(issueChange), eq(user));
-
-    QGChangeEventFactory.IssueChangeData issueChangeData = issueChangeDataCaptor.getValue();
-    assertThat(issueChangeData.getIssues())
-      .extracting(DefaultIssue::key)
-      .containsOnly(Arrays.stream(issueDtos).map(IssueDto::getKey).toArray(String[]::new));
-    assertThat(issueChangeData.getComponents())
-      .extracting(ComponentDto::uuid)
-      .containsOnly(componentUUids);
-
-    verify(qgChangeEventListeners).broadcastOnIssueChange(same(issueChangeData), same(changeEvents));
-  }
-
-  private List<QGChangeEvent> mockQGChangeEvents(@Nullable RuleType expectedRuleType, @Nullable String transitionKey) {
-    QGChangeEventFactory.IssueChange issueChange = new QGChangeEventFactory.IssueChange(expectedRuleType, transitionKey);
-    IssueChangeContext user = IssueChangeContext.createUser(new Date(NOW), userSession.getLogin());
-    List<QGChangeEvent> changeEvents = Collections.singletonList(mock(QGChangeEvent.class));
-    when(qgChangeEventFactory.from(any(QGChangeEventFactory.IssueChangeData.class), eq(issueChange), eq(user))).thenReturn(changeEvents);
-
-    return changeEvents;
-  }
-
-  private QGChangeEventFactory.IssueChangeData verifyIssueChangeData(@Nullable RuleType expectedRuleType, @Nullable String transitionKey,
-    String[] componentUUids,
-    IssueDto... issueDtos) {
-    QGChangeEventFactory.IssueChange issueChange = new QGChangeEventFactory.IssueChange(expectedRuleType, transitionKey);
-    IssueChangeContext user = IssueChangeContext.createUser(new Date(NOW), userSession.getLogin());
-
-    ArgumentCaptor<QGChangeEventFactory.IssueChangeData> issueChangeDataCaptor = ArgumentCaptor.forClass(QGChangeEventFactory.IssueChangeData.class);
-    verify(qgChangeEventFactory).from(issueChangeDataCaptor.capture(), eq(issueChange), eq(user));
-
-    QGChangeEventFactory.IssueChangeData issueChangeData = issueChangeDataCaptor.getValue();
-    assertThat(issueChangeData.getIssues())
-      .extracting(DefaultIssue::key)
-      .containsOnly(Arrays.stream(issueDtos).map(IssueDto::getKey).toArray(String[]::new));
-    assertThat(issueChangeData.getComponents())
-      .extracting(ComponentDto::uuid)
-      .containsOnly(componentUUids);
-    return issueChangeData;
-  }
-
-  private void verifyBroadcastOnIssueChange(QGChangeEventFactory.IssueChangeData issueChangeData, List<QGChangeEvent> changeEvents) {
-    verify(qgChangeEventListeners).broadcastOnIssueChange(same(issueChangeData), same(changeEvents));
   }
 
   private BulkChangeWsResponse call(BulkChangeRequest bulkChangeRequest) {
@@ -650,6 +571,14 @@ public class BulkChangeActionTest {
 
   private List<IssueDto> getIssueByKeys(String... issueKeys) {
     return db.getDbClient().issueDao().selectByKeys(db.getSession(), asList(issueKeys));
+  }
+
+  private void verifyPostProcessorCalled(ComponentDto... components) {
+    assertThat(issueChangePostProcessor.calledComponents()).containsExactlyInAnyOrder(components);
+  }
+
+  private void verifyPostProcessorNotCalled() {
+    assertThat(issueChangePostProcessor.wasCalled()).isFalse();
   }
 
   private IssueDto newUnresolvedIssue(RuleDto rule, ComponentDto file, ComponentDto project) {

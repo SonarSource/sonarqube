@@ -19,8 +19,6 @@
  */
 package org.sonar.server.issue.ws;
 
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -32,9 +30,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -49,15 +45,13 @@ import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.ServerIssueStorage;
+import org.sonar.server.issue.TestIssueChangePostProcessor;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
-import org.sonar.server.qualitygate.changeevent.QGChangeEventFactory;
-import org.sonar.server.qualitygate.changeevent.QGChangeEventListeners;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -100,12 +94,12 @@ public class SetTypeActionTest {
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
 
   private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), dbClient, new IssueIteratorFactory(dbClient));
-  private QGChangeEventFactory qgChangeEventFactory = mock(QGChangeEventFactory.class);
-  private QGChangeEventListeners qgChangeEventListeners = mock(QGChangeEventListeners.class);
+  private TestIssueChangePostProcessor issueChangePostProcessor = new TestIssueChangePostProcessor();
   private WsActionTester tester = new WsActionTester(new SetTypeAction(userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
-      new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), mock(NotificationManager.class)),
-    responseWriter, system2, qgChangeEventFactory, qgChangeEventListeners));
+      new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), mock(NotificationManager.class),
+      issueChangePostProcessor),
+    responseWriter, system2));
 
   @Test
   public void set_type() {
@@ -113,11 +107,6 @@ public class SetTypeActionTest {
     when(system2.now()).thenReturn(now);
     IssueDto issueDto = issueDbTester.insertIssue(newIssue().setType(CODE_SMELL));
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
-    QGChangeEventFactory.IssueChange issueChange = new QGChangeEventFactory.IssueChange(BUG, null);
-    IssueChangeContext changeContext = IssueChangeContext.createUser(new Date(now), userSession.getLogin());
-    List<QGChangeEvent> qgChangeEvents = Collections.singletonList(mock(QGChangeEvent.class));
-    when(qgChangeEventFactory.from(any(QGChangeEventFactory.IssueChangeData.class), eq(issueChange), eq(changeContext)))
-      .thenReturn(qgChangeEvents);
 
     call(issueDto.getKey(), BUG.name());
 
@@ -126,16 +115,9 @@ public class SetTypeActionTest {
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
     assertThat(issueReloaded.getType()).isEqualTo(BUG.getDbConstant());
 
-    ArgumentCaptor<QGChangeEventFactory.IssueChangeData> issueChangeDataCaptor = ArgumentCaptor.forClass(QGChangeEventFactory.IssueChangeData.class);
-    verify(qgChangeEventFactory).from(issueChangeDataCaptor.capture(), eq(issueChange), eq(changeContext));
-    QGChangeEventFactory.IssueChangeData issueChangeData = issueChangeDataCaptor.getValue();
-    assertThat(issueChangeData.getIssues())
-      .extracting(DefaultIssue::key)
-      .containsOnly(issueDto.getKey());
-    assertThat(issueChangeData.getComponents())
+    assertThat(issueChangePostProcessor.calledComponents())
       .extracting(ComponentDto::uuid)
-      .containsOnly(issueDto.getComponentUuid(), issueDto.getProjectUuid());
-    verify(qgChangeEventListeners).broadcastOnIssueChange(issueChangeData, qgChangeEvents);
+      .containsExactlyInAnyOrder(issueDto.getComponentUuid());
   }
 
   @Test

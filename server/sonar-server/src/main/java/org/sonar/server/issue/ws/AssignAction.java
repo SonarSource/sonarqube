@@ -67,7 +67,7 @@ public class AssignAction implements IssuesWsAction {
   private final OperationResponseWriter responseWriter;
 
   public AssignAction(System2 system2, UserSession userSession, DbClient dbClient, IssueFinder issueFinder, IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater,
-                      OperationResponseWriter responseWriter) {
+    OperationResponseWriter responseWriter) {
     this.system2 = system2;
     this.userSession = userSession;
     this.dbClient = dbClient;
@@ -121,7 +121,7 @@ public class AssignAction implements IssuesWsAction {
       }
       IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
       if (issueFieldsSetter.assign(issue, user, context)) {
-        return issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, issue, context, null);
+        return issueUpdater.saveIssueAndPreloadSearchResponseData(dbSession, issue, context, null, false);
       }
       return new SearchResponseData(issueDto);
     }

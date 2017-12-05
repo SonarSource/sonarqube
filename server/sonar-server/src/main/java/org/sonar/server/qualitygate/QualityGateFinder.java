@@ -22,6 +22,7 @@ package org.sonar.server.qualitygate;
 import java.util.Optional;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
@@ -44,16 +45,15 @@ public class QualityGateFinder {
    *
    * It will first try to get the quality gate explicitly defined on a project, if none it will try to return default quality gate ofI the organization
    */
-  public QualityGateData getQualityGate(DbSession dbSession, OrganizationDto organization, long componentId) {
-    Optional<Long> qualityGateId = dbClient.projectQgateAssociationDao().selectQGateIdByComponentId(dbSession, componentId);
+  public QualityGateData getQualityGate(DbSession dbSession, OrganizationDto organization, ComponentDto component) {
+    Optional<Long> qualityGateId = dbClient.projectQgateAssociationDao().selectQGateIdByComponentId(dbSession, component.getId());
     if (qualityGateId.isPresent()) {
       QualityGateDto qualityGate = checkFound(dbClient.qualityGateDao().selectById(dbSession, qualityGateId.get()), "No quality gate has been found for id %s", qualityGateId);
       return new QualityGateData(qualityGate, false);
-    } else {
-      QualityGateDto defaultQualityGate = dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, organization.getDefaultQualityGateUuid());
-      checkState(defaultQualityGate != null, "Unable to find the quality gate [%s] for organization [%s]", organization.getDefaultQualityGateUuid(), organization.getUuid());
-      return new QualityGateData(defaultQualityGate, true);
     }
+    QualityGateDto defaultQualityGate = dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, organization.getDefaultQualityGateUuid());
+    checkState(defaultQualityGate != null, "Unable to find the quality gate [%s] for organization [%s]", organization.getDefaultQualityGateUuid(), organization.getUuid());
+    return new QualityGateData(defaultQualityGate, true);
   }
 
   public QGateWithOrgDto getByOrganizationAndId(DbSession dbSession, OrganizationDto organization, long qualityGateId) {
