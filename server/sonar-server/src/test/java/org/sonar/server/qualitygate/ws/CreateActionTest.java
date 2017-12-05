@@ -19,7 +19,13 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
+
 import java.util.Optional;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,8 +37,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDbTester;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -40,9 +46,6 @@ import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualitygates.CreateResponse;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 
 public class CreateActionTest {
 
@@ -92,6 +95,33 @@ public class CreateActionTest {
 
     QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectByOrganizationAndName(dbSession, organizationDto, qgName);
     assertThat(qualityGateDto).isNotNull();
+  }
+
+  @Test
+  public void creating_a_qg_with_a_name_used_in_another_organization_should_work() {
+    OrganizationDto anOrganization = db.organizations().insert();
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(anOrganization);
+    OrganizationDto anotherOrganization = db.organizations().insert();
+
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, anotherOrganization);
+
+    CreateResponse response = ws.newRequest()
+      .setParam(PARAM_NAME, qualityGate.getName())
+      .setParam(PARAM_ORGANIZATION, anotherOrganization.getKey())
+      .executeProtobuf(CreateResponse.class);
+
+    assertThat(response.getName()).isEqualTo(qualityGate.getName());
+    assertThat(response.getId()).isNotEqualTo(qualityGate.getId());
+  }
+
+  @Test
+  public void test_ws_definition() {
+    WebService.Action action = ws.getDef();
+    assertThat(action).isNotNull();
+    assertThat(action.isInternal()).isFalse();
+    assertThat(action.isPost()).isTrue();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
+    assertThat(action.params()).hasSize(2);
   }
 
   @Test
@@ -147,33 +177,37 @@ public class CreateActionTest {
 
     executeRequest(Optional.of(org), "Default");
 
-    expectedException.expect(BadRequestException.class);
+    expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Name has already been taken");
 
     executeRequest(Optional.of(org), "Default");
   }
 
   @Test
-  public void creating_a_qg_with_a_name_used_in_another_organization_should_work() {
-    OrganizationDto org1 = db.organizations().insert();
-    OrganizationDto org2 = db.organizations().insert();
+  public void fail_when_name_parameter_is_empty() {
+    OrganizationDto org = db.organizations().insert();
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, org);
 
-    userSession.logIn()
-      .addPermission(ADMINISTER_QUALITY_GATES, org1)
-      .addPermission(ADMINISTER_QUALITY_GATES, org2);
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'name' parameter is empty");
 
-    executeRequest(Optional.of(org1), "Default");
-    executeRequest(Optional.of(org2), "Default");
+    ws.newRequest()
+      .setParam(PARAM_NAME, "")
+      .setParam(PARAM_ORGANIZATION, org.getKey())
+      .execute();
   }
 
   @Test
-  public void test_ws_definition() {
-    WebService.Action action = ws.getDef();
-    assertThat(action).isNotNull();
-    assertThat(action.isInternal()).isFalse();
-    assertThat(action.isPost()).isTrue();
-    assertThat(action.responseExampleAsString()).isNotEmpty();
-    assertThat(action.params()).hasSize(2);
+  public void fail_when_name_parameter_is_missing() {
+    OrganizationDto org = db.organizations().insert();
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, org);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'name' parameter is missing");
+
+    ws.newRequest()
+      .setParam(PARAM_ORGANIZATION, org.getKey())
+      .execute();
   }
 
   private CreateResponse executeRequest(Optional<OrganizationDto> organization, String qualitGateName) {

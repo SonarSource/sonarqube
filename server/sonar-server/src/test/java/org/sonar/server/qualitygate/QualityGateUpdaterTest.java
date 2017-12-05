@@ -19,6 +19,8 @@
  */
 package org.sonar.server.qualitygate;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -29,9 +31,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.exceptions.BadRequestException;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class QualityGateUpdaterTest {
 
@@ -62,19 +61,11 @@ public class QualityGateUpdaterTest {
   }
 
   @Test
-  public void fail_to_create_when_name_is_empty() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Name can't be empty");
-
-    underTest.create(dbSession, db.organizations().insert(), "");
-  }
-
-  @Test
   public void fail_to_create_when_name_already_exists() {
     OrganizationDto org = db.organizations().insert();
     underTest.create(dbSession, org, QGATE_NAME);
 
-    expectedException.expect(BadRequestException.class);
+    expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Name has already been taken");
 
     underTest.create(dbSession, org, QGATE_NAME);

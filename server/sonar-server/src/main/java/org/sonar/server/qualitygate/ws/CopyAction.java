@@ -24,12 +24,13 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWs.parseId;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
@@ -41,17 +42,17 @@ public class CopyAction implements QualityGatesWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final DefaultOrganizationProvider organizationProvider;
   private final QualityGateUpdater qualityGateUpdater;
   private final QualityGateFinder qualityGateFinder;
+  private final QualityGatesWsSupport wsSupport;
 
-  public CopyAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider organizationProvider,
-    QualityGateUpdater qualityGateUpdater, QualityGateFinder qualityGateFinder) {
+  public CopyAction(DbClient dbClient, UserSession userSession, QualityGateUpdater qualityGateUpdater,
+    QualityGateFinder qualityGateFinder, QualityGatesWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.organizationProvider = organizationProvider;
     this.qualityGateUpdater = qualityGateUpdater;
     this.qualityGateFinder = qualityGateFinder;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -72,6 +73,8 @@ public class CopyAction implements QualityGatesWsAction {
       .setDescription("The name of the quality gate to create")
       .setRequired(true)
       .setExampleValue("My Quality Gate");
+
+    wsSupport.createOrganizationParam(action);
   }
 
   @Override
@@ -79,23 +82,20 @@ public class CopyAction implements QualityGatesWsAction {
     Long id = parseId(request, PARAM_ID);
     String destinationName = request.mandatoryParam(PARAM_NAME);
 
-    userSession.checkPermission(ADMINISTER_QUALITY_GATES, organizationProvider.get().getUuid());
+    checkArgument(!destinationName.isEmpty(), "The 'name' parameter is empty");
 
-    QualityGateDto qualityGateDto = doCopy(id, destinationName);
-
-    writeProtobuf(newBuilder()
-      .setId(qualityGateDto.getId())
-      .setName(qualityGateDto.getName())
-      .build(), request, response);
-  }
-
-  private QualityGateDto doCopy(Long id, String destinationName) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityGateDto qualityGateDto = qualityGateFinder.getById(dbSession, id);
-      QualityGateDto result = qualityGateUpdater.copy(dbSession, qualityGateDto, destinationName);
+
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
+      userSession.checkPermission(ADMINISTER_QUALITY_GATES, organization);
+      QualityGateDto qualityGate = qualityGateFinder.getByOrganizationAndId(dbSession, organization, id);
+      QualityGateDto copy = qualityGateUpdater.copy(dbSession, organization, qualityGate, destinationName);
       dbSession.commit();
-      return result;
+
+      writeProtobuf(newBuilder()
+        .setId(copy.getId())
+        .setName(copy.getName())
+        .build(), request, response);
     }
   }
-
 }
