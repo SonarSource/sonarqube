@@ -31,6 +31,7 @@ import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates.CreateResponse;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_CREATE;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -78,7 +79,10 @@ public class CreateAction implements QualityGatesWsAction {
 
       userSession.checkPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, organizationDto.getUuid());
 
-      QualityGateDto newQualityGate = qualityGateUpdater.create(dbSession, organizationDto, request.mandatoryParam(PARAM_NAME));
+      String name = request.mandatoryParam(PARAM_NAME);
+      checkArgument(!name.isEmpty(), "The 'name' parameter is empty");
+
+      QualityGateDto newQualityGate = qualityGateUpdater.create(dbSession, organizationDto, name);
       CreateResponse.Builder createResponse = CreateResponse.newBuilder()
         .setId(newQualityGate.getId())
         .setName(newQualityGate.getName());

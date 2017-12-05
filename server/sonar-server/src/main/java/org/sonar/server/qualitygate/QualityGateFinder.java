@@ -68,7 +68,8 @@ public class QualityGateFinder {
   }
 
   public QGateWithOrgDto getByOrganizationAndId(DbSession dbSession, OrganizationDto organization, long qualityGateId) {
-    return checkFound(dbClient.qualityGateDao().selectByOrganizationAndId(dbSession, organization, qualityGateId), "No quality gate has been found for id %s", qualityGateId);
+    return checkFound(dbClient.qualityGateDao().selectByOrganizationAndId(dbSession, organization, qualityGateId),
+      "No quality gate has been found for id %s in organization %s", qualityGateId, organization.getName());
   }
 
   public Optional<QualityGateDto> getDefault(DbSession dbSession) {
