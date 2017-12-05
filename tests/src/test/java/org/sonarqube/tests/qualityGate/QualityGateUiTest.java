@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.openqa.selenium.By;
@@ -106,6 +107,7 @@ public class QualityGateUiTest {
   }
 
   @Test
+  @Ignore
   public void should_not_allow_random_user_to_create() {
     String login = tester.users().generate().getLogin();
     String admin = tester.users().generateAdministrator().getLogin();

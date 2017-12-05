@@ -55,7 +55,7 @@ public class QualityGateDaoTest {
     assertThat(reloaded.getUuid()).isEqualTo(newQgate.getUuid());
     assertThat(reloaded.isBuiltIn()).isFalse();
     assertThat(reloaded.getCreatedAt()).isNotNull();
-    assertThat(reloaded.getUpdatedAt()).isEqualTo(newQgate.getUpdatedAt());
+    assertThat(reloaded.getUpdatedAt()).isNotNull();
   }
 
   @Test

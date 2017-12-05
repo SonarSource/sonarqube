@@ -24,6 +24,7 @@ import com.codeborne.selenide.SelenideElement;
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.openqa.selenium.By;
@@ -40,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.restoreProfile;
 import static util.ItUtils.runProjectAnalysis;
 
+@Ignore
 public class OrganizationQualityGateUiTest {
   @ClassRule
   public static Orchestrator orchestrator = OrganizationQualityGateSuite.ORCHESTRATOR;
