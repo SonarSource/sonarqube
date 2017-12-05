@@ -71,7 +71,6 @@ public class QualityGatesWsTest {
     tester = new WsTester(new QualityGatesWs(
       new SearchAction(projectFinder),
       new CreateAction(null, null, null, null),
-      new CopyAction(qGates),
       new SetAsDefaultAction(qGates),
       selectAction,
       new DeselectAction(qGates, mock(DbClient.class), mock(ComponentFinder.class))));
@@ -84,15 +83,6 @@ public class QualityGatesWsTest {
     assertThat(controller.path()).isEqualTo("api/qualitygates");
     assertThat(controller.description()).isNotEmpty();
     assertThat(controller.actions()).hasSize(7);
-
-    Action copy = controller.action("copy");
-    assertThat(copy).isNotNull();
-    assertThat(copy.handler()).isNotNull();
-    assertThat(copy.since()).isEqualTo("4.3");
-    assertThat(copy.isPost()).isTrue();
-    assertThat(copy.param("id")).isNotNull();
-    assertThat(copy.param("name")).isNotNull();
-    assertThat(copy.isInternal()).isFalse();
 
     Action setDefault = controller.action("set_as_default");
     assertThat(setDefault).isNotNull();
