@@ -22,19 +22,32 @@ package org.sonar.server.qualitygate.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.qualitygate.QualityGates;
+import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.qualitygate.QualityGateUpdater;
+import org.sonar.server.user.UserSession;
 
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.server.qualitygate.ws.QualityGatesWs.parseId;
+import static org.sonar.server.qualitygate.ws.QualityGatesWs.writeQualityGate;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
+import static org.sonar.server.ws.WsUtils.checkFound;
 
 public class CopyAction implements QualityGatesWsAction {
 
-  private final QualityGates qualityGates;
+  private final DbClient dbClient;
+  private final UserSession userSession;
+  private final DefaultOrganizationProvider organizationProvider;
+  private final QualityGateUpdater qualityGateUpdater;
 
-  public CopyAction(QualityGates qualityGates) {
-    this.qualityGates = qualityGates;
+  public CopyAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider organizationProvider, QualityGateUpdater qualityGateUpdater) {
+    this.dbClient = dbClient;
+    this.userSession = userSession;
+    this.organizationProvider = organizationProvider;
+    this.qualityGateUpdater = qualityGateUpdater;
   }
 
   @Override
@@ -59,9 +72,20 @@ public class CopyAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    QualityGateDto newQualityGate = qualityGates.copy(QualityGatesWs.parseId(request, PARAM_ID), request.mandatoryParam(PARAM_NAME));
-    JsonWriter writer = response.newJsonWriter();
-    QualityGatesWs.writeQualityGate(newQualityGate, writer).close();
+    Long id = parseId(request, PARAM_ID);
+    String destinationName = request.mandatoryParam(PARAM_NAME);
+
+    userSession.checkPermission(ADMINISTER_QUALITY_GATES, organizationProvider.get().getUuid());
+
+    QualityGateDto result;
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectById(dbSession, id);
+      checkFound(qualityGateDto, "No quality gate has been found for id %s", (long) id);
+      result = qualityGateUpdater.copy(dbSession, qualityGateDto, destinationName);
+      dbSession.commit();
+    }
+
+    writeQualityGate(result, response.newJsonWriter()).close();
   }
 
 }
