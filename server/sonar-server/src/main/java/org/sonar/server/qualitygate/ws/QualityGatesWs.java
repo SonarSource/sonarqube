@@ -22,17 +22,13 @@ package org.sonar.server.qualitygate.ws;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
-import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.ws.RemovedWebServiceHandler;
 
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.CONTROLLER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERROR;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
-import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PERIOD;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_WARNING;
@@ -110,13 +106,6 @@ public class QualityGatesWs implements WebService {
     } catch (NumberFormatException badFormat) {
       throw BadRequestException.create(paramName + " must be a valid long value");
     }
-  }
-
-  static JsonWriter writeQualityGate(QualityGateDto qualityGate, JsonWriter writer) {
-    return writer.beginObject()
-      .prop(PARAM_ID, qualityGate.getId())
-      .prop(PARAM_NAME, qualityGate.getName())
-      .endObject();
   }
 
 }
