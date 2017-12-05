@@ -35,9 +35,11 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
+import org.sonarqube.ws.Qualitygates.QualityGate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
@@ -61,8 +63,9 @@ public class CopyActionTest {
   private DbSession dbSession = db.getSession();
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private QualityGateUpdater qualityGateUpdater = new QualityGateUpdater(dbClient, UuidFactoryFast.getInstance());
+  private QualityGateFinder qualityGateFinder = new QualityGateFinder(dbClient);
 
-  private CopyAction underTest = new CopyAction(dbClient, userSession, defaultOrganizationProvider, qualityGateUpdater);
+  private CopyAction underTest = new CopyAction(dbClient, userSession, defaultOrganizationProvider, qualityGateUpdater, qualityGateFinder);
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
@@ -128,6 +131,20 @@ public class CopyActionTest {
 
     QualityGateDto actual = db.getDbClient().qualityGateDao().selectByName(dbSession, "new-name");
     assertThat(actual.isBuiltIn()).isFalse();
+  }
+
+  @Test
+  public void response_contains_quality_gate() {
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+
+    QualityGate result = ws.newRequest()
+      .setParam(PARAM_ID, qualityGate.getId().toString())
+      .setParam(PARAM_NAME, "new-name")
+      .executeProtobuf(QualityGate.class);
+
+    assertThat(result.getId()).isNotEqualTo(qualityGate.getId());
+    assertThat(result.getName()).isEqualTo("new-name");
   }
 
   @Test

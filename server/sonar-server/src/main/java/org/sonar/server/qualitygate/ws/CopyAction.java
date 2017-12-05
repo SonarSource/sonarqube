@@ -26,15 +26,16 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWs.parseId;
-import static org.sonar.server.qualitygate.ws.QualityGatesWs.writeQualityGate;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
-import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.Qualitygates.QualityGate.newBuilder;
 
 public class CopyAction implements QualityGatesWsAction {
 
@@ -42,12 +43,15 @@ public class CopyAction implements QualityGatesWsAction {
   private final UserSession userSession;
   private final DefaultOrganizationProvider organizationProvider;
   private final QualityGateUpdater qualityGateUpdater;
+  private final QualityGateFinder qualityGateFinder;
 
-  public CopyAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider organizationProvider, QualityGateUpdater qualityGateUpdater) {
+  public CopyAction(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider organizationProvider,
+    QualityGateUpdater qualityGateUpdater, QualityGateFinder qualityGateFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.organizationProvider = organizationProvider;
     this.qualityGateUpdater = qualityGateUpdater;
+    this.qualityGateFinder = qualityGateFinder;
   }
 
   @Override
@@ -77,15 +81,21 @@ public class CopyAction implements QualityGatesWsAction {
 
     userSession.checkPermission(ADMINISTER_QUALITY_GATES, organizationProvider.get().getUuid());
 
-    QualityGateDto result;
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectById(dbSession, id);
-      checkFound(qualityGateDto, "No quality gate has been found for id %s", (long) id);
-      result = qualityGateUpdater.copy(dbSession, qualityGateDto, destinationName);
-      dbSession.commit();
-    }
+    QualityGateDto qualityGateDto = doCopy(id, destinationName);
 
-    writeQualityGate(result, response.newJsonWriter()).close();
+    writeProtobuf(newBuilder()
+      .setId(qualityGateDto.getId())
+      .setName(qualityGateDto.getName())
+      .build(), request, response);
+  }
+
+  private QualityGateDto doCopy(Long id, String destinationName) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      QualityGateDto qualityGateDto = qualityGateFinder.getById(dbSession, id);
+      QualityGateDto result = qualityGateUpdater.copy(dbSession, qualityGateDto, destinationName);
+      dbSession.commit();
+      return result;
+    }
   }
 
 }
