@@ -61,7 +61,6 @@ public class CopyActionTest {
   private DbSession dbSession = db.getSession();
   private TestDefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private QualityGateUpdater qualityGateUpdater = new QualityGateUpdater(dbClient, UuidFactoryFast.getInstance());
-  private QualityGatesWsSupport wsSupport = new QualityGatesWsSupport(dbClient, userSession, defaultOrganizationProvider);
 
   private CopyAction underTest = new CopyAction(dbClient, userSession, defaultOrganizationProvider, qualityGateUpdater);
   private WsActionTester ws = new WsActionTester(underTest);
