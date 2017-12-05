@@ -51,8 +51,6 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
  */
 public class QualityGates {
 
-  public static final String SONAR_QUALITYGATE_PROPERTY = "sonar.qualitygate";
-
   private final DbClient dbClient;
   private final QualityGateDao dao;
   private final QualityGateConditionDao conditionDao;
@@ -87,39 +85,6 @@ public class QualityGates {
       dbSession.commit();
       return destinationGate;
     }
-  }
-
-  /**
-   * Use {@link QualityGateUpdater#setDefault(DbSession, QualityGateDto)}
-   * @deprecated
-   */
-  @Deprecated
-  public void setDefault(DbSession dbSession, @Nullable Long idToUseAsDefault) {
-    checkIsQualityGateAdministrator();
-    if (idToUseAsDefault == null) {
-      propertiesDao.deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY, dbSession);
-    } else {
-      QualityGateDto newDefault = getNonNullQgate(dbSession, idToUseAsDefault);
-      propertiesDao.saveProperty(dbSession, new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setValue(newDefault.getId().toString()));
-    }
-  }
-
-  /**
-   * Use {@link QualityGateUpdater#setDefault(DbSession, QualityGateDto)}
-   * @deprecated
-   */
-  @Deprecated
-  public void setDefault(@Nullable Long idToUseAsDefault) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      setDefault(dbSession, idToUseAsDefault);
-      dbSession.commit();
-    }
-  }
-
-  public void dissociateProject(DbSession dbSession, ComponentDto project) {
-    checkProjectAdmin(project);
-    propertiesDao.deleteProjectProperty(SONAR_QUALITYGATE_PROPERTY, project.getId(), dbSession);
-    dbSession.commit();
   }
 
   private QualityGateDto getNonNullQgate(long id) {
