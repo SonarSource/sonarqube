@@ -50,6 +50,7 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.Qualitygates;
+import org.sonarqube.ws.Qualitygates.CreateResponse;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.GetRequest;
@@ -57,7 +58,6 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.permissions.AddUserRequest;
 import org.sonarqube.ws.client.qualitygates.CreateConditionRequest;
-import org.sonarqube.ws.client.qualitygates.CreateRequest;
 import org.sonarqube.ws.client.qualitygates.ProjectStatusRequest;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualitygates.SelectRequest;
@@ -105,8 +105,8 @@ public class QualityGateTest {
 
   @Test
   public void status_ok_if_empty_gate() throws Exception {
-    QualityGate empty = qgClient().create("Empty");
-    qgClient().setDefault(empty.id());
+    Qualitygates.CreateResponse empty = tester.qGates().generate();
+    qgClient().setDefault(empty.getId());
 
     String projectKey = newProjectKey();
     BuildResult buildResult = executeAnalysis(projectKey);
@@ -118,9 +118,9 @@ public class QualityGateTest {
 
   @Test
   public void test_status_ok() throws IOException {
-    QualityGate simple = qgClient().create("SimpleWithHighThreshold");
-    qgClient().setDefault(simple.id());
-    qgClient().createCondition(NewCondition.create(simple.id()).metricKey("ncloc").operator("GT").warningThreshold("40"));
+    Qualitygates.CreateResponse simple = tester.qGates().generate();
+    qgClient().setDefault(simple.getId());
+    qgClient().createCondition(NewCondition.create(simple.getId()).metricKey("ncloc").operator("GT").warningThreshold("40"));
 
     String projectKey = newProjectKey();
     BuildResult buildResult = executeAnalysis(projectKey);
@@ -132,9 +132,9 @@ public class QualityGateTest {
 
   @Test
   public void test_status_warning() throws IOException {
-    QualityGate simple = qgClient().create("SimpleWithLowThreshold");
-    qgClient().setDefault(simple.id());
-    qgClient().createCondition(NewCondition.create(simple.id()).metricKey("ncloc").operator("GT").warningThreshold("10"));
+    Qualitygates.CreateResponse simple = tester.qGates().generate();
+    qgClient().setDefault(simple.getId());
+    qgClient().createCondition(NewCondition.create(simple.getId()).metricKey("ncloc").operator("GT").warningThreshold("10"));
 
     String projectKey = newProjectKey();
     BuildResult buildResult = executeAnalysis(projectKey);
@@ -146,9 +146,9 @@ public class QualityGateTest {
 
   @Test
   public void test_status_error() throws IOException {
-    QualityGate simple = qgClient().create("SimpleWithLowThreshold");
-    qgClient().setDefault(simple.id());
-    qgClient().createCondition(NewCondition.create(simple.id()).metricKey("ncloc").operator("GT").errorThreshold("10"));
+    Qualitygates.CreateResponse simple = tester.qGates().generate();
+    qgClient().setDefault(simple.getId());
+    qgClient().createCondition(NewCondition.create(simple.getId()).metricKey("ncloc").operator("GT").errorThreshold("10"));
 
     String projectKey = newProjectKey();
     BuildResult buildResult = executeAnalysis(projectKey);
@@ -160,15 +160,15 @@ public class QualityGateTest {
 
   @Test
   public void use_server_settings_instead_of_default_gate() throws IOException {
-    QualityGate alert = qgClient().create("AlertWithLowThreshold");
-    qgClient().createCondition(NewCondition.create(alert.id()).metricKey("ncloc").operator("GT").warningThreshold("10"));
-    QualityGate error = qgClient().create("ErrorWithLowThreshold");
-    qgClient().createCondition(NewCondition.create(error.id()).metricKey("ncloc").operator("GT").errorThreshold("10"));
+    Qualitygates.CreateResponse alert = tester.qGates().generate();
+    qgClient().createCondition(NewCondition.create(alert.getId()).metricKey("ncloc").operator("GT").warningThreshold("10"));
+    Qualitygates.CreateResponse error = tester.qGates().generate();
+    qgClient().createCondition(NewCondition.create(error.getId()).metricKey("ncloc").operator("GT").errorThreshold("10"));
 
-    qgClient().setDefault(alert.id());
+    qgClient().setDefault(alert.getId());
     String projectKey = newProjectKey();
     orchestrator.getServer().provisionProject(projectKey, projectKey);
-    associateQualityGateToProject(error.id(), projectKey);
+    associateQualityGateToProject(error.getId(), projectKey);
 
     BuildResult buildResult = executeAnalysis(projectKey);
 
@@ -179,10 +179,10 @@ public class QualityGateTest {
 
   @Test
   public void conditions_on_multiple_metric_types() throws IOException {
-    QualityGate allTypes = qgClient().create("AllMetricTypes");
-    qgClient().createCondition(NewCondition.create(allTypes.id()).metricKey("ncloc").operator("GT").warningThreshold("10"));
-    qgClient().createCondition(NewCondition.create(allTypes.id()).metricKey("duplicated_lines_density").operator("GT").warningThreshold("20"));
-    qgClient().setDefault(allTypes.id());
+    Qualitygates.CreateResponse allTypes = tester.qGates().generate();
+    qgClient().createCondition(NewCondition.create(allTypes.getId()).metricKey("ncloc").operator("GT").warningThreshold("10"));
+    qgClient().createCondition(NewCondition.create(allTypes.getId()).metricKey("duplicated_lines_density").operator("GT").warningThreshold("20"));
+    qgClient().setDefault(allTypes.getId());
 
     String projectKey = newProjectKey();
     BuildResult buildResult = executeAnalysis(projectKey, "sonar.cpd.xoo.minimumLines", "2", "sonar.cpd.xoo.minimumTokens", "5");
@@ -200,9 +200,9 @@ public class QualityGateTest {
 
   @Test
   public void ad_hoc_build_break_strategy() throws IOException {
-    QualityGate simple = qgClient().create("SimpleWithLowThresholdForBuildBreakStrategy");
-    qgClient().setDefault(simple.id());
-    qgClient().createCondition(NewCondition.create(simple.id()).metricKey("ncloc").operator("GT").errorThreshold("7"));
+    Qualitygates.CreateResponse simple = tester.qGates().generate();
+    qgClient().setDefault(simple.getId());
+    qgClient().createCondition(NewCondition.create(simple.getId()).metricKey("ncloc").operator("GT").errorThreshold("7"));
 
     String projectKey = newProjectKey();
     BuildResult buildResult = executeAnalysis(projectKey);
@@ -232,7 +232,7 @@ public class QualityGateTest {
     createCustomIntMetric(customMetricKey);
     try {
       // create quality gate
-      Qualitygates.CreateResponse simple = tester.wsClient().qualitygates().create(new CreateRequest().setName("OnCustomMetric"));
+      Qualitygates.CreateResponse simple = tester.qGates().generate();
       Long qualityGateId = simple.getId();
       qgClient().createCondition(NewCondition.create(qualityGateId).metricKey(customMetricKey).operator("GT").warningThreshold("40"));
 
@@ -260,7 +260,7 @@ public class QualityGateTest {
     TesterSession qGateAdminTester = tester.as(user.getLogin());
     QualitygatesService qGateService = qGateAdminTester.qGates().service();
     // perform administration operations
-    Qualitygates.CreateResponse qualityGate = qGateAdminTester.qGates().generate();
+    CreateResponse qualityGate = qGateAdminTester.qGates().generate();
     Qualitygates.CreateConditionResponse condition = qGateService.createCondition(new CreateConditionRequest()
       .setGateId(String.valueOf(qualityGate.getId())).setMetric("coverage").setOp("LT").setError("90"));
     qGateService.updateCondition(new UpdateConditionRequest()
