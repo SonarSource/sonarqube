@@ -19,7 +19,7 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -30,20 +30,20 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.qualitygate.QualityGates;
 
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.qualitygate.QualityGateUpdater.SONAR_QUALITYGATE_PROPERTY;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class DeselectAction implements QualityGatesWsAction {
 
-  private final QualityGates qualityGates;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
+  private final QualityGatesWsSupport wsSupport;
 
-  public DeselectAction(QualityGates qualityGates, DbClient dbClient, ComponentFinder componentFinder) {
-    this.qualityGates = qualityGates;
+  public DeselectAction(DbClient dbClient, ComponentFinder componentFinder, QualityGatesWsSupport wsSupport) {
+    this.wsSupport = wsSupport;
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
   }
@@ -52,7 +52,11 @@ public class DeselectAction implements QualityGatesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("deselect")
       .setDescription("Remove the association of a project from a quality gate.<br>" +
-        "Requires the 'Administer Quality Gates' permission.")
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "<li>'Administer Quality Gates'</li>" +
+        "<li>'Administer' rights on the project</li>" +
+        "</ul>")
       .setPost(true)
       .setSince("4.3")
       .setHandler(this)
@@ -73,26 +77,32 @@ public class DeselectAction implements QualityGatesWsAction {
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto project = getProject(dbSession, request.param(PARAM_PROJECT_ID), request.param(PARAM_PROJECT_KEY));
-      qualityGates.dissociateProject(dbSession, project);
+      dissociateProject(dbSession, project);
       response.noContent();
     }
   }
 
+  private void dissociateProject(DbSession dbSession, ComponentDto project) {
+    wsSupport.checkCanAdminProject(project);
+    dbClient.propertiesDao().deleteProjectProperty(SONAR_QUALITYGATE_PROPERTY, project.getId(), dbSession);
+    dbSession.commit();
+  }
+
   private ComponentDto getProject(DbSession dbSession, @Nullable String projectId, @Nullable String projectKey) {
     return selectProjectById(dbSession, projectId)
-        .or(() -> componentFinder.getByUuidOrKey(dbSession, projectId, projectKey, ComponentFinder.ParamNames.PROJECT_ID_AND_KEY));
+      .orElseGet(() -> componentFinder.getByUuidOrKey(dbSession, projectId, projectKey, ComponentFinder.ParamNames.PROJECT_ID_AND_KEY));
   }
 
   private Optional<ComponentDto> selectProjectById(DbSession dbSession, @Nullable String projectId) {
     if (projectId == null) {
-      return Optional.absent();
+      return Optional.empty();
     }
 
     try {
       long dbId = Long.parseLong(projectId);
-      return dbClient.componentDao().selectById(dbSession, dbId);
+      return Optional.ofNullable(dbClient.componentDao().selectById(dbSession, dbId).orNull());
     } catch (NumberFormatException e) {
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 
