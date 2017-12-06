@@ -29,8 +29,11 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.exceptions.NotFoundException;
 
+import static java.lang.String.format;
 import static org.sonar.server.qualitygate.QualityGateUpdater.SONAR_QUALITYGATE_PROPERTY;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
@@ -71,26 +74,33 @@ public class DeselectAction implements QualityGatesWsAction {
       .setDescription("Project key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001)
       .setSince("6.1");
+
+    wsSupport.createOrganizationParam(action);
   }
 
   @Override
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto project = getProject(dbSession, request.param(PARAM_PROJECT_ID), request.param(PARAM_PROJECT_KEY));
-      dissociateProject(dbSession, project);
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
+      ComponentDto project = getProject(dbSession, organization, request.param(PARAM_PROJECT_ID), request.param(PARAM_PROJECT_KEY));
+      dissociateProject(dbSession, organization, project);
       response.noContent();
     }
   }
 
-  private void dissociateProject(DbSession dbSession, ComponentDto project) {
-    wsSupport.checkCanAdminProject(project);
+  private void dissociateProject(DbSession dbSession, OrganizationDto organization, ComponentDto project) {
+    wsSupport.checkCanAdminProject(organization, project);
     dbClient.propertiesDao().deleteProjectProperty(SONAR_QUALITYGATE_PROPERTY, project.getId(), dbSession);
     dbSession.commit();
   }
 
-  private ComponentDto getProject(DbSession dbSession, @Nullable String projectId, @Nullable String projectKey) {
-    return selectProjectById(dbSession, projectId)
+  private ComponentDto getProject(DbSession dbSession, OrganizationDto organization, @Nullable String projectId, @Nullable String projectKey) {
+    ComponentDto project = selectProjectById(dbSession, projectId)
       .orElseGet(() -> componentFinder.getByUuidOrKey(dbSession, projectId, projectKey, ComponentFinder.ParamNames.PROJECT_ID_AND_KEY));
+    if (project.getOrganizationUuid().equals(organization.getUuid())) {
+      return project;
+    }
+    throw new NotFoundException(format("Project '%s' doesn't exist in organization '%s'", project.getKey(), organization.getKey()));
   }
 
   private Optional<ComponentDto> selectProjectById(DbSession dbSession, @Nullable String projectId) {
