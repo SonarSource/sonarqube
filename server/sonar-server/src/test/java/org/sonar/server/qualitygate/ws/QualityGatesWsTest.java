@@ -31,14 +31,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Controller;
-import org.sonar.db.DbClient;
 import org.sonar.db.qualitygate.ProjectQgateAssociation;
 import org.sonar.db.qualitygate.ProjectQgateAssociationQuery;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QgateProjectFinder.Association;
 import org.sonar.server.qualitygate.QualityGates;
-import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.RemovedWebServiceHandler;
 import org.sonar.server.ws.WsTester;
 
@@ -65,13 +62,10 @@ public class QualityGatesWsTest {
 
   @Before
   public void setUp() {
-    SelectAction selectAction = new SelectAction(mock(DbClient.class), mock(UserSessionRule.class), mock(ComponentFinder.class));
-
     tester = new WsTester(new QualityGatesWs(
       new SearchAction(projectFinder),
       new CreateAction(null, null, null, null),
-      new SetAsDefaultAction(qGates),
-      selectAction));
+      new SetAsDefaultAction(qGates)));
   }
 
   @Test
