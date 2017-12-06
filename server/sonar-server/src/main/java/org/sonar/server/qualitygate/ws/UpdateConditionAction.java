@@ -24,15 +24,15 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
-import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateConditionsUpdater;
 import org.sonarqube.ws.Qualitygates.UpdateConditionResponse;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.qualitygate.ws.QualityGatesWs.addConditionParams;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_UPDATE_CONDITION;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERROR;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
@@ -40,6 +40,7 @@ import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_MET
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PERIOD;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_WARNING;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class UpdateConditionAction implements QualityGatesWsAction {
 
@@ -69,6 +70,7 @@ public class UpdateConditionAction implements QualityGatesWsAction {
       .setExampleValue("10");
 
     addConditionParams(createCondition);
+    wsSupport.createOrganizationParam(createCondition);
   }
 
   @Override
@@ -81,8 +83,9 @@ public class UpdateConditionAction implements QualityGatesWsAction {
     Integer period = request.paramAsInt(PARAM_PERIOD);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       QualityGateConditionDto condition = wsSupport.getCondition(dbSession, id);
-      QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectById(dbSession, condition.getQualityGateId());
+      QGateWithOrgDto qualityGateDto = dbClient.qualityGateDao().selectByOrganizationAndId(dbSession, organization, condition.getQualityGateId());
       checkState(qualityGateDto != null, "Condition '%s' is linked to an unknown quality gate '%s'", id, condition.getQualityGateId());
       wsSupport.checkCanEdit(qualityGateDto);
       QualityGateConditionDto updatedCondition = qualityGateConditionsUpdater.updateCondition(dbSession, condition, metric, operator, warning, error, period);
