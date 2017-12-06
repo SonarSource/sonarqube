@@ -110,8 +110,8 @@ public class QualityGatesWsSupport {
     userSession.checkPermission(ADMINISTER_QUALITY_GATES, qualityGate.getOrganizationUuid());
   }
 
-  void checkCanAdminProject(ComponentDto project) {
-    if (userSession.hasPermission(ADMINISTER_QUALITY_GATES, project.getOrganizationUuid())
+  void checkCanAdminProject(OrganizationDto organization, ComponentDto project) {
+    if (userSession.hasPermission(ADMINISTER_QUALITY_GATES, organization)
       || userSession.hasComponentPermission(ADMIN, project)) {
       return;
     }
