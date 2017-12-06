@@ -19,40 +19,42 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.permission.OrganizationPermission;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
-import org.sonar.server.user.UserSession;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.qualitygate.QualityGateFinder;
 
+import static java.lang.String.format;
 import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
-import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
-import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_SELECT;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class SelectAction implements QualityGatesWsAction {
   private final DbClient dbClient;
-  private final UserSession userSession;
   private final ComponentFinder componentFinder;
+  private final QualityGatesWsSupport wsSupport;
+  private final QualityGateFinder qualityGateFinder;
 
-  public SelectAction(DbClient dbClient, UserSession userSession, ComponentFinder componentFinder) {
+  public SelectAction(DbClient dbClient, ComponentFinder componentFinder, QualityGatesWsSupport wsSupport, QualityGateFinder qualityGateFinder) {
     this.dbClient = dbClient;
-    this.userSession = userSession;
     this.componentFinder = componentFinder;
+    this.wsSupport = wsSupport;
+    this.qualityGateFinder = qualityGateFinder;
   }
 
   @Override
@@ -61,7 +63,7 @@ public class SelectAction implements QualityGatesWsAction {
       .setDescription("Associate a project to a quality gate.<br>" +
         "The '%s' or '%s' must be provided.<br>" +
         "Project id as a numeric value is deprecated since 6.1. Please use the id similar to '%s'.<br>" +
-          "Requires the 'Administer Quality Gates' permission.",
+        "Requires the 'Administer Quality Gates' permission.",
         PARAM_PROJECT_ID, PARAM_PROJECT_KEY,
         Uuids.UUID_EXAMPLE_02)
       .setPost(true)
@@ -81,6 +83,8 @@ public class SelectAction implements QualityGatesWsAction {
       .setDescription("Project key")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001)
       .setSince("6.1");
+
+    wsSupport.createOrganizationParam(action);
   }
 
   @Override
@@ -90,45 +94,41 @@ public class SelectAction implements QualityGatesWsAction {
     String projectKey = request.param(PARAM_PROJECT_KEY);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      checkQualityGate(dbSession, gateId);
-      ComponentDto project = getProject(dbSession, projectId, projectKey);
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
+      QGateWithOrgDto qualityGate = qualityGateFinder.getByOrganizationAndId(dbSession, organization, gateId);
+      ComponentDto project = getProject(dbSession, organization, projectId, projectKey);
+      wsSupport.checkCanAdminProject(organization, project);
 
       dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
         .setKey(SONAR_QUALITYGATE_PROPERTY)
         .setResourceId(project.getId())
-        .setValue(String.valueOf(gateId)));
+        .setValue(String.valueOf(qualityGate.getId())));
 
       dbSession.commit();
     }
     response.noContent();
   }
 
-  private ComponentDto getProject(DbSession dbSession, @Nullable String projectId, @Nullable String projectKey) {
+  private ComponentDto getProject(DbSession dbSession, OrganizationDto organization, @Nullable String projectId, @Nullable String projectKey) {
     ComponentDto project = selectProjectById(dbSession, projectId)
-      .or(() -> componentFinder.getByUuidOrKey(dbSession, projectId, projectKey, ParamNames.PROJECT_ID_AND_KEY));
-
-    if (!userSession.hasPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, project.getOrganizationUuid()) &&
-      !userSession.hasComponentPermission(UserRole.ADMIN, project)) {
-      throw insufficientPrivilegesException();
+      .orElseGet(() -> componentFinder.getByUuidOrKey(dbSession, projectId, projectKey, ParamNames.PROJECT_ID_AND_KEY));
+    if (project.getOrganizationUuid().equals(organization.getUuid())) {
+      return project;
     }
-
-    return project;
+    throw new NotFoundException(format("Project '%s' doesn't exist in organization '%s'", project.getKey(), organization.getKey()));
   }
 
   private Optional<ComponentDto> selectProjectById(DbSession dbSession, @Nullable String projectId) {
     if (projectId == null) {
-      return Optional.absent();
+      return Optional.empty();
     }
 
     try {
       long dbId = Long.parseLong(projectId);
-      return dbClient.componentDao().selectById(dbSession, dbId);
+      return Optional.ofNullable(dbClient.componentDao().selectById(dbSession, dbId).orNull());
     } catch (NumberFormatException e) {
-      return Optional.absent();
+      return Optional.empty();
     }
   }
 
-  private void checkQualityGate(DbSession dbSession, long id) {
-    checkFound(dbClient.qualityGateDao().selectById(dbSession, id), "There is no quality gate with id=" + id);
-  }
 }
