@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.db.CoreDbTester;
 import org.sonar.server.platform.db.migration.step.DataChange;
 
@@ -33,8 +34,6 @@ public class DeletePersonAndFileMeasuresTest {
   private static final AtomicInteger GENERATOR = new AtomicInteger();
   @Rule
   public CoreDbTester db = CoreDbTester.createForSchema(DeletePersonAndFileMeasuresTest.class, "initial.sql");
-
-  private DataChange underTest = new DeletePersonAndFileMeasures(db.database());
 
   @Test
   public void delete_file_and_person_measures() throws SQLException {
@@ -59,17 +58,40 @@ public class DeletePersonAndFileMeasuresTest {
     long m11 = insertPersonMeasure("P1", "S2");
     long m12 = insertPersonMeasure("F1", "S2");
 
-    underTest.execute();
+    run(false);
 
     assertThat(db.countRowsOfTable("PROJECTS")).isEqualTo(4);
     assertThat(db.countRowsOfTable("SNAPSHOTS")).isEqualTo(2);
     assertThatMeasuresAreExactly(m1, m2, m7, m8);
 
     // migration is re-entrant
-    underTest.execute();
+    run(false);
     assertThat(db.countRowsOfTable("PROJECTS")).isEqualTo(4);
     assertThat(db.countRowsOfTable("SNAPSHOTS")).isEqualTo(2);
     assertThatMeasuresAreExactly(m1, m2, m7, m8);
+  }
+
+  @Test
+  public void migration_is_disabled_on_sonarcloud() throws SQLException {
+    insertComponent("F1", "FIL", "FIL");
+    insertSnapshot("S1", "P1", false);
+    insertMeasure("F1", "S1");
+    insertPersonMeasure("F1", "S1");
+
+    run(true);
+
+    assertThat(db.countRowsOfTable("PROJECTS")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("SNAPSHOTS")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("PROJECT_MEASURES")).isEqualTo(2);
+  }
+
+  private void run(boolean sonarCloud) throws SQLException {
+    MapSettings settings = new MapSettings();
+    if (sonarCloud) {
+      settings.setProperty("sonar.sonarcloud.enabled", true);
+    }
+    DataChange underTest = new DeletePersonAndFileMeasures(db.database(), settings.asConfig());
+    underTest.execute();
   }
 
   private void assertThatMeasuresAreExactly(long... expectedMeasureIds) {

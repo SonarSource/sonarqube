@@ -20,6 +20,7 @@
 package org.sonar.server.platform.db.migration.version.v70;
 
 import java.sql.SQLException;
+import org.sonar.api.config.Configuration;
 import org.sonar.db.Database;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -30,12 +31,21 @@ import org.sonar.server.platform.db.migration.step.DataChange;
 import org.sonar.server.platform.db.migration.step.MassUpdate;
 
 public class DeletePersonAndFileMeasures extends DataChange {
-  public DeletePersonAndFileMeasures(Database db) {
+
+  private final Configuration configuration;
+
+  public DeletePersonAndFileMeasures(Database db, Configuration configuration) {
     super(db);
+    this.configuration = configuration;
   }
 
   @Override
   protected void execute(Context context) throws SQLException {
+    if (configuration.getBoolean("sonar.sonarcloud.enabled").orElse(false)) {
+      // clean-up will be done in background so that interruption of service
+      // is reduced during upgrade
+      return;
+    }
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("select uuid from snapshots");
     massUpdate.rowPluralName("snapshots");
