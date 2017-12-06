@@ -84,7 +84,7 @@
     <log4j.version>2.8.2</log4j.version>
     <tomcat.version>8.5.23</tomcat.version>
     <elasticsearch.version>5.6.3</elasticsearch.version>
-    <orchestrator.version>3.15.2.1322</orchestrator.version>
+    <orchestrator.version>3.16.0.1329</orchestrator.version>
     <okhttp.version>3.7.0</okhttp.version>
     <jackson.version>2.6.6</jackson.version>
     <jjwt.version>0.9.0</jjwt.version>
