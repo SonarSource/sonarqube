@@ -27,6 +27,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
@@ -36,8 +37,10 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
@@ -105,6 +108,14 @@ public class QualityGatesWsSupport {
   void checkCanEdit(QGateWithOrgDto qualityGate) {
     checkNotBuiltIn(qualityGate);
     userSession.checkPermission(ADMINISTER_QUALITY_GATES, qualityGate.getOrganizationUuid());
+  }
+
+  void checkCanAdminProject(ComponentDto project) {
+    if (userSession.hasPermission(ADMINISTER_QUALITY_GATES, project.getOrganizationUuid())
+      || userSession.hasComponentPermission(ADMIN, project)) {
+      return;
+    }
+    throw insufficientPrivilegesException();
   }
 
   private static void checkNotBuiltIn(QualityGateDto qualityGate) {

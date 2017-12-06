@@ -71,8 +71,7 @@ public class QualityGatesWsTest {
       new SearchAction(projectFinder),
       new CreateAction(null, null, null, null),
       new SetAsDefaultAction(qGates),
-      selectAction,
-      new DeselectAction(qGates, mock(DbClient.class), mock(ComponentFinder.class))));
+      selectAction));
   }
 
   @Test
@@ -81,7 +80,7 @@ public class QualityGatesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualitygates");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(7);
+    assertThat(controller.actions()).hasSize(6);
 
     Action setDefault = controller.action("set_as_default");
     assertThat(setDefault).isNotNull();
