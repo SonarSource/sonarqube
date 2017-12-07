@@ -86,8 +86,8 @@ public class DestroyActionTest {
     userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
 
-    QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate();
-    db.qualityGates().setDefaultQualityGate(defaultQualityGate);
+    QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(organization);
+    db.qualityGates().setDefaultQualityGate(organization, defaultQualityGate);
 
     ws.newRequest()
       .setParam(PARAM_ID, valueOf(qualityGate.getId()))
@@ -160,7 +160,7 @@ public class DestroyActionTest {
     OrganizationDto organization = db.organizations().insert();
     userSession.addPermission(ADMINISTER_QUALITY_GATES, organization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    db.qualityGates().setDefaultQualityGate(qualityGate);
+    db.qualityGates().setDefaultQualityGate(organization, qualityGate);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The default quality gate cannot be removed");

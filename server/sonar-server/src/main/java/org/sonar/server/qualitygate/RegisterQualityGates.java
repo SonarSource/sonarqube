@@ -68,19 +68,15 @@ public class RegisterQualityGates implements Startable {
 
   private final DbClient dbClient;
   private final QualityGateConditionsUpdater qualityGateConditionsUpdater;
-  private final QualityGateFinder qualityGateFinder;
-  private final QualityGateUpdater qualityGateUpdater;
   private final QualityGateDao qualityGateDao;
   private final QualityGateConditionDao qualityGateConditionDao;
   private final UuidFactory uuidFactory;
   private final System2 system2;
 
-  public RegisterQualityGates(DbClient dbClient, QualityGateUpdater qualityGateUpdater,
-    QualityGateConditionsUpdater qualityGateConditionsUpdater, QualityGateFinder qualityGateFinder, UuidFactory uuidFactory, System2 system2) {
+  public RegisterQualityGates(DbClient dbClient,
+    QualityGateConditionsUpdater qualityGateConditionsUpdater, UuidFactory uuidFactory, System2 system2) {
     this.dbClient = dbClient;
     this.qualityGateConditionsUpdater = qualityGateConditionsUpdater;
-    this.qualityGateUpdater = qualityGateUpdater;
-    this.qualityGateFinder = qualityGateFinder;
     this.qualityGateDao = dbClient.qualityGateDao();
     this.qualityGateConditionDao = dbClient.gateConditionDao();
     this.uuidFactory = uuidFactory;

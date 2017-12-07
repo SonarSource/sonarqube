@@ -31,7 +31,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.TestComponentFinder;
@@ -86,7 +85,7 @@ public class GetByProjectActionTest {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("My team QG"));
-    associateProjectToQualityGate(project.getId(), qualityGate.getId());
+    db.qualityGates().associateProjectToQualityGate(project, qualityGate);
     logInAsProjectUser(project);
 
     String result = ws.newRequest()
@@ -119,8 +118,8 @@ public class GetByProjectActionTest {
   public void default_quality_gate() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
-    QGateWithOrgDto dbQualityGate = db.qualityGates().insertQualityGate(organization);
-    setDefaultQualityGate(dbQualityGate.getId());
+    QualityGateDto dbQualityGate = db.qualityGates().insertQualityGate(organization);
+    db.qualityGates().setDefaultQualityGate(organization, dbQualityGate);
     logInAsProjectUser(project);
 
     GetByProjectResponse result = ws.newRequest()
@@ -139,9 +138,9 @@ public class GetByProjectActionTest {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
     QGateWithOrgDto defaultDbQualityGate = db.qualityGates().insertQualityGate(organization);
-    setDefaultQualityGate(defaultDbQualityGate.getId());
+    db.qualityGates().setDefaultQualityGate(organization, defaultDbQualityGate);
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    associateProjectToQualityGate(project.getId(), qualityGate.getId());
+    db.qualityGates().associateProjectToQualityGate(project, qualityGate);
     logInAsProjectUser(project);
 
     GetByProjectResponse result = ws.newRequest()
@@ -158,8 +157,9 @@ public class GetByProjectActionTest {
   public void get_by_project_key() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    associateProjectToQualityGate(project.getId(), qualityGate.getId());
+
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization(), qg -> qg.setName("My team QG"));
+    db.qualityGates().associateProjectToQualityGate(project, qualityGate);
     logInAsProjectUser(project);
 
     GetByProjectResponse result = ws.newRequest()
@@ -174,9 +174,9 @@ public class GetByProjectActionTest {
   public void get_with_project_admin_permission() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    db.qualityGates().setDefaultQualityGate(organization, qualityGate);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    associateProjectToQualityGate(project.getId(), qualityGate.getId());
 
     GetByProjectResponse result = ws.newRequest()
       .setParam("project", project.getKey())
@@ -190,9 +190,9 @@ public class GetByProjectActionTest {
   public void get_with_project_user_permission() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    db.qualityGates().setDefaultQualityGate(organization, qualityGate);
     userSession.logIn().addProjectPermission(UserRole.USER, project);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    associateProjectToQualityGate(project.getId(), qualityGate.getId());
 
     GetByProjectResponse result = ws.newRequest()
       .setParam("project", project.getKey())
@@ -207,8 +207,8 @@ public class GetByProjectActionTest {
     OrganizationDto organization = db.getDefaultOrganization();
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
     ComponentDto project = db.components().insertPrivateProject(organization);
+    db.qualityGates().setDefaultQualityGate(organization, qualityGate);
     userSession.logIn().addProjectPermission(UserRole.USER, project);
-    associateProjectToQualityGate(project.getId(), qualityGate.getId());
 
     GetByProjectResponse result = ws.newRequest()
       .setParam("project", project.getKey())
@@ -218,29 +218,11 @@ public class GetByProjectActionTest {
   }
 
   @Test
-  public void fail_when_project_does_not_not_belong_to_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    OrganizationDto otherOrganization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(otherOrganization);
-    userSession.logIn().addProjectPermission(UserRole.USER, project);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    associateProjectToQualityGate(project.getId(), qualityGate.getId());
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Project '%s' doesn't exist in organization '%s'", project.getKey(), organization.getKey()));
-
-    ws.newRequest()
-      .setParam("project", project.getKey())
-      .setParam("organization", organization.getKey())
-      .execute();
-  }
-
-  @Test
   public void fail_when_insufficient_permission() {
     OrganizationDto organization = db.organizations().insert();
+    QualityGateDto dbQualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
+    db.qualityGates().setDefaultQualityGate(db.getDefaultOrganization(), dbQualityGate);
     ComponentDto project = db.components().insertPrivateProject(organization);
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    associateProjectToQualityGate(project.getId(), qualityGate.getId());
     userSession.logIn();
 
     expectedException.expect(ForbiddenException.class);
@@ -289,21 +271,6 @@ public class GetByProjectActionTest {
       .setParam("project", branch.getDbKey())
       .setParam("organization", organization.getKey())
       .execute();
-  }
-
-  private void associateProjectToQualityGate(long componentId, long qualityGateId) {
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
-      .setKey("sonar.qualitygate")
-      .setResourceId(componentId)
-      .setValue(String.valueOf(qualityGateId)));
-    db.commit();
-  }
-
-  private void setDefaultQualityGate(long qualityGateId) {
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
-      .setKey("sonar.qualitygate")
-      .setValue(String.valueOf(qualityGateId)));
-    db.commit();
   }
 
   private void logInAsProjectUser(ComponentDto project) {

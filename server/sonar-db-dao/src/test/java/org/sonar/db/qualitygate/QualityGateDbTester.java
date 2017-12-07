@@ -46,10 +46,6 @@ public class QualityGateDbTester {
     this.dbSession = db.getSession();
   }
 
-  public QualityGateDto insertQualityGate(String name) {
-    return insertQualityGate(qualityGate -> qualityGate.setName(name));
-  }
-
   public QualityGateDto insertBuiltInQualityGate() {
     QualityGateDto builtin = dbClient.qualityGateDao().insert(dbSession, new QualityGateDto()
       .setName("Sonar way")
@@ -58,11 +54,6 @@ public class QualityGateDbTester {
       .setCreatedAt(new Date()));
     dbSession.commit();
     return builtin;
-  }
-
-  @SafeVarargs
-  public final QualityGateDto insertQualityGate(Consumer<QualityGateDto>... dtoPopulators) {
-    return insertQualityGate(db.getDefaultOrganization(), dtoPopulators);
   }
 
   @SafeVarargs
@@ -86,17 +77,21 @@ public class QualityGateDbTester {
     db.commit();
   }
 
-  public QualityGateDto createDefaultQualityGate(String qualityGateName) {
-    QualityGateDto defaultQGate = insertQualityGate(qualityGateName);
-    setDefaultQualityGate(defaultQGate);
+  public void associateQualityGateToOrganization(QualityGateDto qualityGate, OrganizationDto organization) {
+    dbClient.qualityGateDao().associate(dbSession, Uuids.createFast(), organization, qualityGate);
+    dbSession.commit();
+  }
+
+  @SafeVarargs
+  public final QualityGateDto createDefaultQualityGate(OrganizationDto organization, Consumer<QualityGateDto>... dtoPopulators) {
+    QualityGateDto defaultQGate = insertQualityGate(organization, dtoPopulators);
+    setDefaultQualityGate(organization, defaultQGate);
     return defaultQGate;
   }
 
-  public void setDefaultQualityGate(QualityGateDto qualityGate) {
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
-      .setKey("sonar.qualitygate")
-      .setValue(String.valueOf(qualityGate.getId())));
-    db.commit();
+  public void setDefaultQualityGate(OrganizationDto organization, QualityGateDto qualityGate) {
+    dbClient.organizationDao().update(dbSession, organization.setDefaultQualityGateUuid(qualityGate.getUuid()));
+    dbSession.commit();
   }
 
   @SafeVarargs

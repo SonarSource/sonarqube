@@ -338,7 +338,7 @@ public class ComponentDaoTest {
     ComponentDto enabledProject = db.components().insertPrivateProject();
     ComponentDto disabledProject = db.components().insertPrivateProject(p -> p.setEnabled(false));
 
-    Optional<ComponentDto> result = underTest.selectById(dbSession, disabledProject.getId());
+    java.util.Optional<ComponentDto> result = underTest.selectById(dbSession, disabledProject.getId());
     assertThat(result).isPresent();
     assertThat(result.get().isEnabled()).isFalse();
   }
@@ -357,7 +357,7 @@ public class ComponentDaoTest {
     ComponentDto project = db.components().insertPrivateProject();
 
     assertThat(underTest.selectById(dbSession, project.getId())).isPresent();
-    assertThat(underTest.selectById(dbSession, 0L)).isAbsent();
+    assertThat(underTest.selectById(dbSession, 0L)).isNotPresent();
   }
 
   @Test

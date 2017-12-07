@@ -83,7 +83,7 @@ public class ListActionTest {
     userSession.logIn("admin").addPermission(ADMINISTER_QUALITY_GATES, organization);
     QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(organization, qualityGate -> qualityGate.setName("Sonar way").setBuiltIn(true));
     db.qualityGates().insertQualityGate(organization, qualityGate -> qualityGate.setName("Sonar way - Without Coverage").setBuiltIn(false));
-    db.qualityGates().setDefaultQualityGate(defaultQualityGate);
+    db.qualityGates().setDefaultQualityGate(organization, defaultQualityGate);
 
     String response = ws.newRequest()
       .setParam("organization", organization.getKey())
@@ -99,7 +99,7 @@ public class ListActionTest {
     OrganizationDto organization = db.organizations().insert();
     QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(organization);
     QualityGateDto otherQualityGate = db.qualityGates().insertQualityGate(organization);
-    db.qualityGates().setDefaultQualityGate(defaultQualityGate);
+    db.qualityGates().setDefaultQualityGate(organization, defaultQualityGate);
 
     ListWsResponse response = ws.newRequest()
       .setParam("organization", organization.getKey())
@@ -146,7 +146,7 @@ public class ListActionTest {
   public void test_deprecated_default_field() {
     OrganizationDto organization = db.organizations().insert();
     QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(organization);
-    db.qualityGates().setDefaultQualityGate(defaultQualityGate);
+    db.qualityGates().setDefaultQualityGate(organization, defaultQualityGate);
 
     ListWsResponse response = ws.newRequest()
       .setParam("organization", organization.getKey())
@@ -176,7 +176,7 @@ public class ListActionTest {
     QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("Default").setBuiltIn(false));
     QualityGateDto builtInQualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("Sonar way").setBuiltIn(true));
     QualityGateDto otherQualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("Sonar way - Without Coverage").setBuiltIn(false));
-    db.qualityGates().setDefaultQualityGate(defaultQualityGate);
+    db.qualityGates().setDefaultQualityGate(organization, defaultQualityGate);
 
     ListWsResponse response = ws.newRequest()
       .setParam("organization", organization.getKey())
@@ -201,7 +201,7 @@ public class ListActionTest {
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_PROFILES, organization);
     QualityGateDto defaultQualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("Sonar way").setBuiltIn(true));
     QualityGateDto otherQualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("Sonar way - Without Coverage").setBuiltIn(false));
-    db.qualityGates().setDefaultQualityGate(defaultQualityGate);
+    db.qualityGates().setDefaultQualityGate(organization, defaultQualityGate);
 
     ListWsResponse response = ws.newRequest()
       .setParam("organization", organization.getKey())

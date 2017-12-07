@@ -144,7 +144,7 @@ public class ComponentAction implements NavigationWsAction {
       json.beginObject();
       writeComponent(json, session, component, org, analysis.orElse(null));
       writeProfiles(json, session, component);
-      writeQualityGate(json, session, component);
+      writeQualityGate(json, session, org, component);
       if (userSession.hasComponentPermission(ADMIN, component) ||
         userSession.hasPermission(ADMINISTER_QUALITY_PROFILES, org) ||
         userSession.hasPermission(ADMINISTER_QUALITY_GATES, org)) {
@@ -206,8 +206,8 @@ public class ComponentAction implements NavigationWsAction {
     json.endArray();
   }
 
-  private void writeQualityGate(JsonWriter json, DbSession session, ComponentDto component) {
-    Optional<QualityGateFinder.QualityGateData> qualityGateData = qualityGateFinder.getQualityGate(session, component.getId());
+  private void writeQualityGate(JsonWriter json, DbSession session, OrganizationDto organization, ComponentDto component) {
+    Optional<QualityGateFinder.QualityGateData> qualityGateData = qualityGateFinder.getQualityGate(session, organization, component.getId());
     if (!qualityGateData.isPresent()) {
       return;
     }

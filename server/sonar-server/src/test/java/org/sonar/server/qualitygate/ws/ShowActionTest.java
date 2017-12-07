@@ -204,7 +204,7 @@ public class ShowActionTest {
     OrganizationDto organization = db.organizations().insert();
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, organization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    db.qualityGates().setDefaultQualityGate(qualityGate);
+    db.qualityGates().setDefaultQualityGate(organization, qualityGate);
 
     ShowWsResponse response = ws.newRequest()
       .setParam("name", qualityGate.getName())

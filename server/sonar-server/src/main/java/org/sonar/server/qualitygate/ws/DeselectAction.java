@@ -32,7 +32,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 
-import static org.sonar.server.qualitygate.QualityGateUpdater.SONAR_QUALITYGATE_PROPERTY;
+import static org.sonar.server.qualitygate.QualityGateFinder.SONAR_QUALITYGATE_PROPERTY;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -106,7 +106,7 @@ public class DeselectAction implements QualityGatesWsAction {
 
     try {
       long dbId = Long.parseLong(projectId);
-      return Optional.ofNullable(dbClient.componentDao().selectById(dbSession, dbId).orNull());
+      return Optional.ofNullable(dbClient.componentDao().selectById(dbSession, dbId).orElse(null));
     } catch (NumberFormatException e) {
       return Optional.empty();
     }

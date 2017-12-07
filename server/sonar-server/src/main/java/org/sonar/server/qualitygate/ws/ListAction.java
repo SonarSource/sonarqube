@@ -70,7 +70,7 @@ public class ListAction implements QualityGatesWsAction {
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      Optional<QualityGateDto> defaultQualityGate = finder.getDefault(dbSession);
+      Optional<QualityGateDto> defaultQualityGate = finder.getDefault(dbSession, organization);
       Collection<QualityGateDto> qualityGates = dbClient.qualityGateDao().selectAll(dbSession, organization);
       writeProtobuf(buildResponse(organization, qualityGates, defaultQualityGate.orElse(null)), request, response);
     }
