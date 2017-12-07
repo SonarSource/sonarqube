@@ -40,6 +40,8 @@ public interface QualityGateMapper {
 
   QGateWithOrgDto selectByIdAndOrganization(@Param("id") long id, @Param("organizationUuid") String organizationUuid);
 
+  QGateWithOrgDto selectDefault(@Param("organizationUuid") String organizationUuid);
+
   QualityGateDto selectBuiltIn();
 
   void delete(long id);

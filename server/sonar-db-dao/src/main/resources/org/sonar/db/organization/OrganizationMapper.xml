@@ -215,6 +215,15 @@
       uuid = #{organizationUuid, jdbcType=VARCHAR}
   </update>
 
+  <update id="updateDefaultQualityGate">
+    update organizations
+    set
+      default_quality_gate_uuid = #{defaultQualityGateUuid, jdbcType=INTEGER},
+      updated_at = #{now, jdbcType=BIGINT}
+    where
+      uuid = #{organizationUuid, jdbcType=VARCHAR}
+  </update>
+
   <update id="updateNewProjectPrivate">
     update organizations
     set

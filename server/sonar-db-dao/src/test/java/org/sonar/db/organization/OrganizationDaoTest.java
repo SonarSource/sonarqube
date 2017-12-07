@@ -41,6 +41,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.Oracle;
+import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupTesting;
 import org.sonar.db.user.UserDto;
@@ -665,6 +666,19 @@ public class OrganizationDaoTest {
   }
 
   @Test
+  public void setDefaultQualityGate() {
+    when(system2.now()).thenReturn(DATE_3);
+    OrganizationDto organization = dbTester.organizations().insert();
+    QGateWithOrgDto qualityGate = dbTester.qualityGates().insertQualityGate(organization);
+
+    underTest.setDefaultQualityGate(dbSession, organization, qualityGate);
+    dbTester.commit();
+
+    assertThat(dbClient.qualityGateDao().selectDefault(dbSession, organization).getUuid()).isEqualTo(qualityGate.getUuid());
+    verifyOrganizationUpdatedAt(organization.getUuid(), DATE_3);
+  }
+
+  @Test
   public void update_fails_with_NPE_if_OrganizationDto_is_null() {
     expectDtoCanNotBeNull();
 
@@ -1007,7 +1021,8 @@ public class OrganizationDaoTest {
       " guarded as \"guarded\", user_id as \"userId\"," +
       " created_at as \"createdAt\", updated_at as \"updatedAt\"," +
       " default_perm_template_project as \"projectDefaultPermTemplate\"," +
-      " default_perm_template_view as \"viewDefaultPermTemplate\"" +
+      " default_perm_template_view as \"viewDefaultPermTemplate\"," +
+      " default_quality_gate_uuid as \"defaultQualityGateUuid\" " +
       " from organizations");
     assertThat(rows).hasSize(1);
     return rows.get(0);

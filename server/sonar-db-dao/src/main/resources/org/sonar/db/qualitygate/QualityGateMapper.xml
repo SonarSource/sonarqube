@@ -91,6 +91,14 @@
       is_built_in = ${_true}
   </select>
 
+  <select id="selectDefault" resultType="org.sonar.db.qualitygate.QGateWithOrgDto">
+    SELECT
+    <include refid="qateWithOrgColumns"/>
+    FROM quality_gates qg
+    INNER JOIN org_quality_gates oqg ON oqg.quality_gate_uuid = qg.uuid
+    INNER JOIN organizations o ON o.default_quality_gate_uuid = qg.uuid AND o.uuid=#{organizationUuid, jdbcType=VARCHAR}
+  </select>
+
   <update id="delete" parameterType="long">
     delete from quality_gates where id=#{id}
   </update>
