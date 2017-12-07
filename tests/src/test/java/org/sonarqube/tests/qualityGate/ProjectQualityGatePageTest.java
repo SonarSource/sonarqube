@@ -32,6 +32,7 @@ import org.sonar.wsclient.qualitygate.QualityGateClient;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.Navigation;
 import org.sonarqube.qa.util.pageobjects.ProjectQualityGatePage;
+import org.sonarqube.ws.Qualitygates;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.qualitygates.SelectRequest;
 
@@ -64,56 +65,48 @@ public class ProjectQualityGatePageTest {
 
   @Test
   public void should_display_default() {
-    QualityGate customQualityGate = createCustomQualityGate("should_display_default");
-    qualityGateClient().setDefault(customQualityGate.id());
+    Qualitygates.CreateResponse customQualityGate = tester.qGates().generate();
+    qualityGateClient().setDefault(customQualityGate.getId());
 
-    try {
-      ProjectQualityGatePage page = openPage();
-      SelenideElement selectedQualityGate = page.getSelectedQualityGate();
-      selectedQualityGate.should(Condition.text("Default"));
-      selectedQualityGate.should(Condition.text(customQualityGate.name()));
-    } finally {
-      qualityGateClient().destroy(customQualityGate.id());
-    }
+    ProjectQualityGatePage page = openPage();
+    SelenideElement selectedQualityGate = page.getSelectedQualityGate();
+    selectedQualityGate.should(Condition.text("Default"));
+    selectedQualityGate.should(Condition.text(customQualityGate.getName()));
   }
 
   @Test
   public void should_display_custom() {
-    QualityGate customQualityGate = createCustomQualityGate("should_display_custom");
+    Qualitygates.CreateResponse customQualityGate = tester.qGates().generate();
     associateWithQualityGate(customQualityGate);
 
     ProjectQualityGatePage page = openPage();
     SelenideElement selectedQualityGate = page.getSelectedQualityGate();
     selectedQualityGate.shouldNot(Condition.text("Default"));
-    selectedQualityGate.should(Condition.text(customQualityGate.name()));
+    selectedQualityGate.should(Condition.text(customQualityGate.getName()));
   }
 
   @Test
   public void should_set_custom() {
-    QualityGate customQualityGate = createCustomQualityGate("should_set_custom");
+    Qualitygates.CreateResponse customQualityGate = tester.qGates().generate();
 
     ProjectQualityGatePage page = openPage();
-    page.setQualityGate(customQualityGate.name());
+    page.setQualityGate(customQualityGate.getName());
 
     SelenideElement selectedQualityGate = page.getSelectedQualityGate();
-    selectedQualityGate.should(Condition.text(customQualityGate.name()));
+    selectedQualityGate.should(Condition.text(customQualityGate.getName()));
   }
 
   @Test
   public void should_set_default() {
-    QualityGate customQualityGate = createCustomQualityGate("should_set_default");
-    qualityGateClient().setDefault(customQualityGate.id());
+    Qualitygates.CreateResponse customQualityGate = tester.qGates().generate();
+    qualityGateClient().setDefault(customQualityGate.getId());
 
-    try {
-      ProjectQualityGatePage page = openPage();
-      page.setQualityGate(customQualityGate.name());
+    ProjectQualityGatePage page = openPage();
+    page.setQualityGate(customQualityGate.getName());
 
-      SelenideElement selectedQualityGate = page.getSelectedQualityGate();
-      selectedQualityGate.should(Condition.text("Default"));
-      selectedQualityGate.should(Condition.text(customQualityGate.name()));
-    } finally {
-      qualityGateClient().destroy(customQualityGate.id());
-    }
+    SelenideElement selectedQualityGate = page.getSelectedQualityGate();
+    selectedQualityGate.should(Condition.text("Default"));
+    selectedQualityGate.should(Condition.text(customQualityGate.getName()));
   }
 
   private ProjectQualityGatePage openPage() {
@@ -122,12 +115,8 @@ public class ProjectQualityGatePageTest {
     return navigation.openProjectQualityGate("sample");
   }
 
-  private QualityGate createCustomQualityGate(String name) {
-    return qualityGateClient().create(name);
-  }
-
-  private void associateWithQualityGate(QualityGate qualityGate) {
-    tester.wsClient().qualitygates().select(new SelectRequest().setProjectKey("sample").setGateId(String.valueOf(qualityGate.id())));
+  private void associateWithQualityGate(Qualitygates.CreateResponse qualityGate) {
+    tester.wsClient().qualitygates().select(new SelectRequest().setProjectKey("sample").setGateId(String.valueOf(qualityGate.getId())));
   }
 
   private QualityGateClient qualityGateClient() {
