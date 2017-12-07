@@ -26,6 +26,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.Pagination;
+import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.user.GroupDto;
 
 import static java.util.Objects.requireNonNull;
@@ -107,6 +108,10 @@ public class OrganizationDao implements Dao {
     checkUuid(uuid);
     Integer defaultGroupId = requireNonNull(defaultGroup, "Default group cannot be null").getId();
     getMapper(dbSession).updateDefaultGroupId(uuid, requireNonNull(defaultGroupId, "Default group id cannot be null"), system2.now());
+  }
+
+  public void setDefaultQualityGate(DbSession dbSession, OrganizationDto organization, QGateWithOrgDto qualityGate) {
+    getMapper(dbSession).updateDefaultQualityGate(organization.getUuid(), qualityGate.getUuid(), system2.now());
   }
 
   public boolean getNewProjectPrivate(DbSession dbSession, OrganizationDto organization) {
