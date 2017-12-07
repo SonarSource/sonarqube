@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import java.util.Optional;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -100,24 +99,20 @@ public class GetByProjectAction implements QualityGatesWsAction {
         throw insufficientPrivilegesException();
       }
 
-      Optional<QualityGateData> data = qualityGateFinder.getQualityGate(dbSession, project.getId());
+      QualityGateData data = qualityGateFinder.getQualityGate(dbSession, organization, project.getId());
 
       writeProtobuf(buildResponse(data), request, response);
     }
   }
 
-  private static GetByProjectResponse buildResponse(Optional<QualityGateData> data) {
-    if (!data.isPresent()) {
-      return GetByProjectResponse.getDefaultInstance();
-    }
-
-    QualityGateDto qualityGate = data.get().getQualityGate();
+  private static GetByProjectResponse buildResponse(QualityGateData data) {
+    QualityGateDto qualityGate = data.getQualityGate();
     GetByProjectResponse.Builder response = GetByProjectResponse.newBuilder();
 
     response.getQualityGateBuilder()
       .setId(qualityGate.getId())
       .setName(qualityGate.getName())
-      .setDefault(data.get().isDefault());
+      .setDefault(data.isDefault());
 
     return response.build();
   }

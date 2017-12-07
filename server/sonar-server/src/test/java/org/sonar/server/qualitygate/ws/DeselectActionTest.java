@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
-import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
+import static org.sonar.server.qualitygate.QualityGateFinder.SONAR_QUALITYGATE_PROPERTY;
 
 public class DeselectActionTest {
 
@@ -314,5 +314,4 @@ public class DeselectActionTest {
   private void assertSelected(String qGateId, long projectId) {
     assertThat(dbClient.propertiesDao().selectProjectProperty(projectId, SONAR_QUALITYGATE_PROPERTY).getValue()).isEqualTo(qGateId);
   }
-
 }

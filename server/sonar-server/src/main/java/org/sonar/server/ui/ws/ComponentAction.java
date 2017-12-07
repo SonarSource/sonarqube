@@ -144,7 +144,7 @@ public class ComponentAction implements NavigationWsAction {
       json.beginObject();
       writeComponent(json, session, component, org, analysis.orElse(null));
       writeProfiles(json, session, component);
-      writeQualityGate(json, session, component);
+      writeQualityGate(json, session, org, component);
       if (userSession.hasComponentPermission(ADMIN, component) ||
         userSession.hasPermission(ADMINISTER_QUALITY_PROFILES, org) ||
         userSession.hasPermission(ADMINISTER_QUALITY_GATES, org)) {
@@ -206,16 +206,13 @@ public class ComponentAction implements NavigationWsAction {
     json.endArray();
   }
 
-  private void writeQualityGate(JsonWriter json, DbSession session, ComponentDto component) {
-    Optional<QualityGateFinder.QualityGateData> qualityGateData = qualityGateFinder.getQualityGate(session, component.getId());
-    if (!qualityGateData.isPresent()) {
-      return;
-    }
-    QualityGateDto qualityGateDto = qualityGateData.get().getQualityGate();
+  private void writeQualityGate(JsonWriter json, DbSession session, OrganizationDto organization, ComponentDto component) {
+    QualityGateFinder.QualityGateData qualityGateData = qualityGateFinder.getQualityGate(session, organization, component.getId());
+    QualityGateDto qualityGateDto = qualityGateData.getQualityGate();
     json.name("qualityGate").beginObject()
       .prop("key", qualityGateDto.getId())
       .prop("name", qualityGateDto.getName())
-      .prop("isDefault", qualityGateData.get().isDefault())
+      .prop("isDefault", qualityGateData.isDefault())
       .endObject();
   }
 
