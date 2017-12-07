@@ -385,6 +385,7 @@
     inner join users u on u.id=ur.user_id
     where
     ur.role=#{permission,jdbcType=VARCHAR}
+    and ur.resource_id is null
 
     union
 
@@ -394,6 +395,7 @@
     inner join users u on u.id=gu.user_id
     where
     gr.role = #{permission,jdbcType=VARCHAR} and
+    gr.resource_id is null and
     gr.group_id is not null
   </select>
 
