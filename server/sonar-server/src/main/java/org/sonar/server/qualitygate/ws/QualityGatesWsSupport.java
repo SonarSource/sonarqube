@@ -98,15 +98,6 @@ public class QualityGatesWsSupport {
     return checkFoundWithOptional(organizationDto, "No organization with key '%s'", organizationKey);
   }
 
-  /**
-   * @deprecated use {@link #checkCanEdit(QGateWithOrgDto)} instead
-   */
-  @Deprecated
-  void checkCanEdit(QualityGateDto qualityGate) {
-    checkNotBuiltIn(qualityGate);
-    userSession.checkPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
-  }
-
   void checkCanEdit(QGateWithOrgDto qualityGate) {
     checkNotBuiltIn(qualityGate);
     userSession.checkPermission(ADMINISTER_QUALITY_GATES, qualityGate.getOrganizationUuid());
@@ -120,7 +111,7 @@ public class QualityGatesWsSupport {
     throw insufficientPrivilegesException();
   }
 
-  void checkProjectBelongsToOrganization(OrganizationDto organization, ComponentDto project){
+  void checkProjectBelongsToOrganization(OrganizationDto organization, ComponentDto project) {
     if (project.getOrganizationUuid().equals(organization.getUuid())) {
       return;
     }
