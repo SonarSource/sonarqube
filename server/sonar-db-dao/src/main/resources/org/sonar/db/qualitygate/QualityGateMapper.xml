@@ -99,8 +99,12 @@
     INNER JOIN organizations o ON o.default_quality_gate_uuid = qg.uuid AND o.uuid=#{organizationUuid, jdbcType=VARCHAR}
   </select>
 
-  <update id="delete" parameterType="long">
-    delete from quality_gates where id=#{id}
+  <update id="delete" parameterType="String">
+    delete from quality_gates where uuid=#{uuid}
+  </update>
+
+  <update id="deleteOrgQualityGatesByQualityGateUuid" parameterType="String">
+    delete from org_quality_gates where quality_gate_uuid=#{uuid}
   </update>
 
   <update id="update" parameterType="QualityGate">

@@ -72,7 +72,8 @@ public class QualityGateDao implements Dao {
   }
 
   public void delete(QualityGateDto qGate, DbSession session) {
-    mapper(session).delete(qGate.getId());
+    mapper(session).delete(qGate.getUuid());
+    mapper(session).deleteOrgQualityGatesByQualityGateUuid(qGate.getUuid());
   }
 
   public void update(QualityGateDto qGate, DbSession session) {

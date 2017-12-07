@@ -25,6 +25,8 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateFinder;
 
@@ -55,20 +57,21 @@ public class DestroyAction implements QualityGatesWsAction {
       .setDescription("ID of the quality gate to delete")
       .setRequired(true)
       .setExampleValue("1");
+
+    wsSupport.createOrganizationParam(action);
   }
 
   @Override
   public void handle(Request request, Response response) {
     long qualityGateId = request.mandatoryParamAsLong(QualityGatesWsParameters.PARAM_ID);
     try (DbSession dbSession = dbClient.openSession(false)) {
-
-      QualityGateDto qualityGate = finder.getById(dbSession, qualityGateId);
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
+      QGateWithOrgDto qualityGate = finder.getByOrganizationAndId(dbSession, organization, qualityGateId);
       Optional<QualityGateDto> defaultQualityGate = finder.getDefault(dbSession);
       checkArgument(!defaultQualityGate.isPresent() || !defaultQualityGate.get().getId().equals(qualityGate.getId()), "The default quality gate cannot be removed");
       wsSupport.checkCanEdit(qualityGate);
 
       dbClient.qualityGateDao().delete(qualityGate, dbSession);
-
       dbSession.commit();
       response.noContent();
     }
