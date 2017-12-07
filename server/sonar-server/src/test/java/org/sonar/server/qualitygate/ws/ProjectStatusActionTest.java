@@ -21,7 +21,6 @@ package org.sonar.server.qualitygate.ws;
 
 import java.io.IOException;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -54,10 +53,10 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
-import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ANALYSIS_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class ProjectStatusActionTest {
   private static final String ANALYSIS_ID = "task-uuid";
@@ -69,36 +68,24 @@ public class ProjectStatusActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private WsActionTester ws;
-  private DbClient dbClient;
-  private DbSession dbSession;
-  private MetricDto gateDetailsMetric;
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
 
-  @Before
-  public void setUp() {
-    dbClient = db.getDbClient();
-    dbSession = db.getSession();
-
-    gateDetailsMetric = dbClient.metricDao().insert(dbSession, newMetricDto()
-      .setEnabled(true)
-      .setKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY));
-
-    ws = new WsActionTester(new ProjectStatusAction(dbClient, TestComponentFinder.from(db), userSession));
-  }
+  private WsActionTester ws = new WsActionTester(new ProjectStatusAction(dbClient, TestComponentFinder.from(db), userSession));
 
   @Test
-  public void test_definition() throws Exception {
+  public void test_definition() {
     WebService.Action def = ws.getDef();
     assertThat(def.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("analysisId", "projectKey", "projectId");
     assertThat(def.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactly(
-      tuple("6.4", "The field 'ignoredConditions' is added to the response")
-    );
+      tuple("6.4", "The field 'ignoredConditions' is added to the response"));
   }
 
   @Test
   public void test_json_example() throws IOException {
     ComponentDto project = db.components().insertPrivateProject(db.organizations().insert());
     userSession.addProjectPermission(UserRole.USER, project);
+    MetricDto gateDetailsMetric = insertGateDetailMetric();
 
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setPeriodMode("last_version")
@@ -129,6 +116,7 @@ public class ProjectStatusActionTest {
       .setPeriodMode("last_version")
       .setPeriodParam("2016-12-07")
       .setPeriodDate(1_500L));
+    MetricDto gateDetailsMetric = insertGateDetailMetric();
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(gateDetailsMetric, project, pastAnalysis)
         .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionTest/measure_data.json"))));
@@ -152,6 +140,7 @@ public class ProjectStatusActionTest {
       .setPeriodMode("last_version")
       .setPeriodParam("2015-12-07")
       .setPeriodDate(956789123987L));
+    MetricDto gateDetailsMetric = insertGateDetailMetric();
     dbClient.liveMeasureDao().insert(dbSession,
       newLiveMeasure(project, gateDetailsMetric)
         .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionTest/measure_data.json"))));
@@ -172,6 +161,7 @@ public class ProjectStatusActionTest {
       .setPeriodMode("last_version")
       .setPeriodParam("2015-12-07")
       .setPeriodDate(956789123987L));
+    MetricDto gateDetailsMetric = insertGateDetailMetric();
     dbClient.liveMeasureDao().insert(dbSession,
       newLiveMeasure(project, gateDetailsMetric)
         .setData(IOUtils.toString(getClass().getResource("ProjectStatusActionTest/measure_data.json"))));
@@ -192,7 +182,9 @@ public class ProjectStatusActionTest {
     dbSession.commit();
     userSession.addProjectPermission(UserRole.USER, project);
 
-    ProjectStatusResponse result = callByAnalysisId(snapshot.getUuid());
+    ProjectStatusResponse result = ws.newRequest()
+      .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
+      .executeProtobuf(ProjectStatusResponse.class);
 
     assertThat(result.getProjectStatus().getStatus()).isEqualTo(Status.NONE);
     assertThat(result.getProjectStatus().getConditionsCount()).isEqualTo(0);
@@ -203,7 +195,9 @@ public class ProjectStatusActionTest {
     ComponentDto project = db.components().insertPrivateProject(db.organizations().insert());
     userSession.addProjectPermission(UserRole.USER, project);
 
-    ProjectStatusResponse result = callByProjectId(project.uuid());
+    ProjectStatusResponse result = ws.newRequest()
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .executeProtobuf(ProjectStatusResponse.class);
 
     assertThat(result.getProjectStatus().getStatus()).isEqualTo(Status.NONE);
     assertThat(result.getProjectStatus().getConditionsCount()).isEqualTo(0);
@@ -216,7 +210,9 @@ public class ProjectStatusActionTest {
     dbSession.commit();
     userSession.addProjectPermission(UserRole.ADMIN, project);
 
-    callByAnalysisId(snapshot.getUuid());
+    ws.newRequest()
+      .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
+      .executeProtobuf(ProjectStatusResponse.class);
   }
 
   @Test
@@ -226,7 +222,9 @@ public class ProjectStatusActionTest {
     dbSession.commit();
     userSession.addProjectPermission(UserRole.USER, project);
 
-    callByAnalysisId(snapshot.getUuid());
+    ws.newRequest()
+      .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
+      .executeProtobuf(ProjectStatusResponse.class);
   }
 
   @Test
@@ -236,7 +234,9 @@ public class ProjectStatusActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Analysis with id 'task-uuid' is not found");
 
-    callByAnalysisId(ANALYSIS_ID);
+    ws.newRequest()
+      .setParam(PARAM_ANALYSIS_ID, ANALYSIS_ID)
+      .executeProtobuf(ProjectStatusResponse.class);
   }
 
   @Test
@@ -248,7 +248,9 @@ public class ProjectStatusActionTest {
 
     expectedException.expect(ForbiddenException.class);
 
-    callByAnalysisId(snapshot.getUuid());
+    ws.newRequest()
+      .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
+      .executeProtobuf(ProjectStatusResponse.class);
   }
 
   @Test
@@ -291,7 +293,7 @@ public class ProjectStatusActionTest {
   }
 
   @Test
-  public void fail_when_using_branch_uuid() throws Exception {
+  public void fail_when_using_branch_uuid() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertMainBranch(organization);
     userSession.logIn().addProjectPermission(UserRole.ADMIN, project);
@@ -306,19 +308,14 @@ public class ProjectStatusActionTest {
       .execute();
   }
 
-  private ProjectStatusResponse callByAnalysisId(String taskId) {
-    return ws.newRequest()
-      .setParam(PARAM_ANALYSIS_ID, taskId)
-      .executeProtobuf(ProjectStatusResponse.class);
-  }
-
-  private ProjectStatusResponse callByProjectId(String projectUuid) {
-    return ws.newRequest()
-      .setParam(PARAM_PROJECT_ID, projectUuid)
-      .executeProtobuf(ProjectStatusResponse.class);
-  }
-
   private void logInAsSystemAdministrator() {
     userSession.logIn().setSystemAdministrator();
   }
+
+  private MetricDto insertGateDetailMetric() {
+    return dbClient.metricDao().insert(dbSession, newMetricDto()
+      .setEnabled(true)
+      .setKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY));
+  }
+
 }
