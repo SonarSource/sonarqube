@@ -105,7 +105,7 @@ public class ShowAction implements QualityGatesWsAction {
       return checkFound(dbClient.qualityGateDao().selectByOrganizationAndName(dbSession, organization, name), "No quality gate has been found for name %s", name);
     }
     if (id != null) {
-      return qualityGateFinder.getById(dbSession, id);
+      return qualityGateFinder.getByOrganizationAndId(dbSession, organization, id);
     }
     throw new IllegalArgumentException("No parameter has been set to identify a quality gate");
   }
