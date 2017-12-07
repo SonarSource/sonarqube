@@ -24,13 +24,16 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
-import org.sonarqube.ws.Qualitygates;
-import org.sonarqube.ws.client.GetRequest;
-import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.qualitygates.CreateRequest;
+import org.sonarqube.ws.client.qualitygates.DestroyRequest;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualitygates.SelectRequest;
+import org.sonarqube.ws.client.qualitygates.SetAsDefaultRequest;
+
+import static org.sonarqube.ws.Qualitygates.CreateResponse;
+import static org.sonarqube.ws.Qualitygates.ListWsResponse;
 
 public class QGateTester {
   private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
@@ -46,19 +49,23 @@ public class QGateTester {
   }
 
   void deleteAll() {
-    String json = session.wsClient().wsConnector().call(new GetRequest("api/qualitygates/list")).failIfNotSuccessful().content();
-    ListResponse response = ListResponse.parse(json);
-    response.getQualityGates().stream()
-      .filter(qualityGate -> !qualityGate.getId().equals(response.getDefault()))
-      .forEach(qualityGate -> session.wsClient().wsConnector().call(new PostRequest("api/qualitygates/destroy").setParam("id", qualityGate.getId())).failIfNotSuccessful());
+    List<ListWsResponse.QualityGate> builtInQualityGates = session.wsClient().qualitygates().list().getQualitygatesList().stream()
+      .filter(ListWsResponse.QualityGate::getIsBuiltIn)
+      .collect(Collectors.toList());
+    if (builtInQualityGates.size() == 1) {
+      session.wsClient().qualitygates().setAsDefault(new SetAsDefaultRequest().setId(Long.toString(builtInQualityGates.get(0).getId())));
+    }
+    session.wsClient().qualitygates().list().getQualitygatesList().stream()
+      .filter(qualityGate -> !qualityGate.getIsDefault())
+      .forEach(qualityGate -> session.wsClient().qualitygates().destroy(new DestroyRequest().setId(Long.toString(qualityGate.getId()))));
   }
 
-  public Qualitygates.CreateResponse generate() {
+  public CreateResponse generate() {
     int id = ID_GENERATOR.getAndIncrement();
     return session.wsClient().qualitygates().create(new CreateRequest().setName("QualityGate" + id));
   }
 
-  public void associateProject(Qualitygates.CreateResponse qualityGate, Project project){
+  public void associateProject(CreateResponse qualityGate, Project project) {
     service().select(new SelectRequest().setGateId(String.valueOf(qualityGate.getId())).setProjectKey(project.getKey()));
   }
 
