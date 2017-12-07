@@ -52,15 +52,7 @@ const routes = [
         path: 'organizations',
         getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
           import('./organizations/UserOrganizations').then(i => callback(null, i.default));
-        },
-        childRoutes: [
-          {
-            path: 'create',
-            getComponent(_: RouterState, callback: (err: any, component: RouteComponent) => any) {
-              import('./organizations/CreateOrganizationForm').then(i => callback(null, i.default));
-            }
-          }
-        ]
+        }
       }
     ]
   }
