@@ -44,6 +44,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.permission.template.PermissionTemplateGroupDto;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.qualityprofile.RulesProfileDto;
 import org.sonar.db.user.GroupDto;
@@ -52,7 +53,6 @@ import org.sonar.db.user.UserMembershipDto;
 import org.sonar.db.user.UserMembershipQuery;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.BuiltInQProfile;
 import org.sonar.server.qualityprofile.BuiltInQProfileRepositoryRule;
 import org.sonar.server.qualityprofile.QProfileName;
@@ -166,6 +166,8 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void create_fails_with_ISE_if_BuiltInQProfileRepository_has_not_been_initialized() throws OrganizationCreation.KeyConflictException {
+    insertBuiltInQualityGate();
+
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("initialize must be called first");
 
@@ -184,6 +186,7 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void create_creates_unguarded_organization_with_properties_from_NewOrganization_arg() throws OrganizationCreation.KeyConflictException {
+    insertBuiltInQualityGate();
     builtInQProfileRepositoryRule.initialize();
 
     underTest.create(dbSession, someUser, FULL_POPULATED_NEW_ORGANIZATION);
@@ -203,6 +206,7 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void create_creates_owners_group_with_all_permissions_for_new_organization_and_add_current_user_to_it() throws OrganizationCreation.KeyConflictException {
+    insertBuiltInQualityGate();
     UserDto user = db.users().insertUser();
     builtInQProfileRepositoryRule.initialize();
 
@@ -213,6 +217,7 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void create_creates_members_group_and_add_current_user_to_it() throws OrganizationCreation.KeyConflictException {
+    insertBuiltInQualityGate();
     UserDto user = db.users().insertUser();
     builtInQProfileRepositoryRule.initialize();
 
@@ -223,6 +228,7 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void create_does_not_require_description_url_and_avatar_to_be_non_null() throws OrganizationCreation.KeyConflictException {
+    insertBuiltInQualityGate();
     builtInQProfileRepositoryRule.initialize();
 
     underTest.create(dbSession, someUser, newOrganizationBuilder()
@@ -242,6 +248,7 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void create_creates_default_template_for_new_organization() throws OrganizationCreation.KeyConflictException {
+    insertBuiltInQualityGate();
     builtInQProfileRepositoryRule.initialize();
 
     underTest.create(dbSession, someUser, FULL_POPULATED_NEW_ORGANIZATION);
@@ -264,6 +271,7 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void create_add_current_user_as_member_of_organization() throws OrganizationCreation.KeyConflictException {
+    insertBuiltInQualityGate();
     UserDto user = db.users().insertUser();
     builtInQProfileRepositoryRule.initialize();
     userIndexer.commitAndIndex(db.getSession(), someUser);
@@ -276,6 +284,7 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void create_associates_to_built_in_quality_profiles() throws OrganizationCreation.KeyConflictException {
+    insertBuiltInQualityGate();
     BuiltInQProfile builtIn1 = builtInQProfileRepositoryRule.add(newLanguage("foo"), "qp1", true);
     BuiltInQProfile builtIn2 = builtInQProfileRepositoryRule.add(newLanguage("foo"), "qp2");
     builtInQProfileRepositoryRule.initialize();
@@ -300,6 +309,17 @@ public class OrganizationCreationImplTest {
       .setName(builtIn.getName());
     dbClient.qualityProfileDao().insert(db.getSession(), dto);
     db.commit();
+  }
+
+  @Test
+  public void create_associates_to_built_in_quality_gate() throws OrganizationCreation.KeyConflictException {
+    QualityGateDto builtInQualityGate = insertBuiltInQualityGate();
+    builtInQProfileRepositoryRule.initialize();
+
+    underTest.create(dbSession, someUser, FULL_POPULATED_NEW_ORGANIZATION);
+
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, FULL_POPULATED_NEW_ORGANIZATION.getKey()).get();
+    assertThat(dbClient.qualityGateDao().selectDefault(dbSession, organization).getUuid()).isEqualTo(builtInQualityGate.getUuid());
   }
 
   @Test
@@ -333,6 +353,7 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void createForUser_creates_guarded_organization_with_key_name_and_description_generated_from_user_login_and_name_and_associated_to_user() {
+    insertBuiltInQualityGate();
     UserDto user = db.users().insertUser(A_LOGIN);
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
     enableCreatePersonalOrg(true);
@@ -369,6 +390,7 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void createForUser_gives_all_permissions_for_new_organization_to_current_user() throws OrganizationCreation.KeyConflictException {
+    insertBuiltInQualityGate();
     UserDto user = db.users().insertUser(dto -> dto.setLogin(A_LOGIN).setName(A_NAME));
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
     enableCreatePersonalOrg(true);
@@ -383,6 +405,7 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void createForUser_creates_members_group_and_add_current_user_to_it() throws OrganizationCreation.KeyConflictException {
+    insertBuiltInQualityGate();
     UserDto user = db.users().insertUser(dto -> dto.setLogin(A_LOGIN).setName(A_NAME));
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
     enableCreatePersonalOrg(true);
@@ -395,6 +418,7 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void createForUser_creates_default_template_for_new_organization() throws OrganizationCreation.KeyConflictException {
+    insertBuiltInQualityGate();
     UserDto user = db.users().insertUser(dto -> dto.setLogin(A_LOGIN).setName(A_NAME));
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
     enableCreatePersonalOrg(true);
@@ -422,6 +446,7 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void createForUser_add_current_user_as_member_of_organization() throws OrganizationCreation.KeyConflictException {
+    insertBuiltInQualityGate();
     UserDto user = db.users().insertUser(dto -> dto.setLogin(A_LOGIN).setName(A_NAME));
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
     enableCreatePersonalOrg(true);
@@ -435,6 +460,7 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void createForUser_does_not_fail_if_name_is_too_long_for_an_organization_name() {
+    insertBuiltInQualityGate();
     String nameTooLong = STRING_64_CHARS + "b";
     UserDto user = db.users().insertUser(dto -> dto.setName(nameTooLong).setLogin(A_LOGIN));
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
@@ -450,6 +476,7 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void createForUser_does_not_fail_if_name_is_empty_and_login_is_too_long_for_an_organization_name() {
+    insertBuiltInQualityGate();
     String login = STRING_64_CHARS + "b";
     UserDto user = db.users().insertUser(dto -> dto.setName("").setLogin(login));
     when(organizationValidation.generateKeyFrom(login)).thenReturn(SLUG_OF_A_LOGIN);
@@ -465,6 +492,7 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void createForUser_does_not_fail_if_name_is_null_and_login_is_too_long_for_an_organization_name() {
+    insertBuiltInQualityGate();
     String login = STRING_64_CHARS + "b";
     UserDto user = db.users().insertUser(dto -> dto.setName(null).setLogin(login));
     when(organizationValidation.generateKeyFrom(login)).thenReturn(SLUG_OF_A_LOGIN);
@@ -480,6 +508,7 @@ public class OrganizationCreationImplTest {
 
   @Test
   public void createForUser_associates_to_built_in_quality_profiles() throws OrganizationCreation.KeyConflictException {
+    insertBuiltInQualityGate();
     UserDto user = db.users().insertUser(A_LOGIN);
     when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
     enableCreatePersonalOrg(true);
@@ -496,6 +525,20 @@ public class OrganizationCreationImplTest {
     List<QProfileDto> profiles = dbClient.qualityProfileDao().selectOrderedByOrganizationUuid(dbSession, organization);
     assertThat(profiles).extracting(p -> new QProfileName(p.getLanguage(), p.getName())).containsExactlyInAnyOrder(
       builtIn1.getQProfileName(), builtIn2.getQProfileName());
+  }
+
+  @Test
+  public void createForUser_associates_to_built_in_quality_gate() {
+    QualityGateDto builtInQualityGate = insertBuiltInQualityGate();
+    UserDto user = db.users().insertUser(A_LOGIN);
+    when(organizationValidation.generateKeyFrom(A_LOGIN)).thenReturn(SLUG_OF_A_LOGIN);
+    enableCreatePersonalOrg(true);
+    builtInQProfileRepositoryRule.initialize();
+
+    underTest.createForUser(dbSession, user);
+
+    OrganizationDto organization = dbClient.organizationDao().selectByKey(dbSession, SLUG_OF_A_LOGIN).get();
+    assertThat(dbClient.qualityGateDao().selectDefault(dbSession, organization).getUuid()).isEqualTo(builtInQualityGate.getUuid());
   }
 
   private void enableCreatePersonalOrg(boolean flag) {
@@ -541,6 +584,10 @@ public class OrganizationCreationImplTest {
     assertThat(members)
       .extracting(UserMembershipDto::getLogin)
       .containsOnly(user.getLogin());
+  }
+
+  private QualityGateDto insertBuiltInQualityGate(){
+    return db.qualityGates().insertBuiltInQualityGate();
   }
 
 }
