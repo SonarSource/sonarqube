@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -92,7 +93,11 @@ public class ScannerPluginInstaller implements PluginInstaller {
   @VisibleForTesting
   File download(final InstalledPlugin remote) {
     try {
-      return fileCache.get(remote.filename, remote.hash, new FileDownloader(remote.key));
+      if (remote.compressedFilename != null) {
+        return fileCache.getCompressed(remote.compressedFilename, remote.compressedHash, new FileDownloader(remote.key));
+      } else {
+        return fileCache.get(remote.filename, remote.hash, new FileDownloader(remote.key));
+      }
     } catch (Exception e) {
       throw new IllegalStateException("Fail to download plugin: " + remote.key, e);
     }
@@ -125,6 +130,10 @@ public class ScannerPluginInstaller implements PluginInstaller {
     String hash;
     String filename;
     long updatedAt;
+    @Nullable
+    String compressedHash;
+    @Nullable
+    String compressedFilename;
   }
 
   private class FileDownloader implements FileCache.Downloader {

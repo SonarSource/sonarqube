@@ -22,7 +22,6 @@ package org.sonar.home.cache;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.io.FileUtils;
-import org.assertj.core.util.Files;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -32,6 +31,7 @@ import org.junit.rules.TemporaryFolder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class FileCacheTest {
@@ -77,7 +77,7 @@ public class FileCacheTest {
     thrown.expectMessage("Fail to download");
     cache.get("sonar-foo-plugin-1.5.jar", "ABCDE", downloader);
   }
-  
+
   @Test
   public void fail_create_hash_dir() throws IOException {
     File file = tempFolder.newFile();
@@ -85,11 +85,11 @@ public class FileCacheTest {
     thrown.expectMessage("Unable to create user cache");
     cache = new FileCache(file, fileHashes, mock(Logger.class));
   }
-  
+
   @Test
   public void fail_to_create_hash_dir() throws IOException {
     when(fileHashes.of(any(File.class))).thenReturn("ABCDE");
-    
+
     File hashDir = new File(cache.getDir(), "ABCDE");
     hashDir.createNewFile();
     thrown.expect(IllegalStateException.class);
@@ -111,6 +111,60 @@ public class FileCacheTest {
     assertThat(cachedFile.getName()).isEqualTo("sonar-foo-plugin-1.5.jar");
     assertThat(cachedFile.getParentFile().getParentFile()).isEqualTo(cache.getDir());
     assertThat(FileUtils.readFileToString(cachedFile)).isEqualTo("body");
+  }
+
+  @Test
+  public void download_and_add_to_cache_compressed_file() throws IOException {
+    when(fileHashes.of(any(File.class))).thenReturn("ABCDE");
+
+    FileCache.Downloader downloader = new FileCache.Downloader() {
+      public void download(String filename, File toFile) throws IOException {
+        FileUtils.copyFile(compressedFile(), toFile);
+      }
+    };
+    File cachedFile = cache.getCompressed("sonar-foo-plugin-1.5.pack.gz", "ABCDE", downloader);
+    assertThat(cachedFile).isNotNull().exists().isFile();
+
+    assertThat(cachedFile.getName()).isEqualTo("sonar-foo-plugin-1.5.jar");
+    assertThat(cachedFile.getParentFile().list()).containsOnly("sonar-foo-plugin-1.5.jar", "sonar-foo-plugin-1.5.pack.gz");
+    assertThat(cachedFile.getParentFile().getParentFile()).isEqualTo(cache.getDir());
+  }
+
+  @Test
+  public void dont_download_compressed_file_if_jar_exists() throws IOException {
+    when(fileHashes.of(any(File.class))).thenReturn("ABCDE");
+    FileCache.Downloader downloader = mock(FileCache.Downloader.class);
+
+    File hashDir = new File(cache.getDir(), "ABCDE");
+    hashDir.mkdirs();
+    File jar = new File(new File(cache.getDir(), "ABCDE"), "sonar-foo-plugin-1.5.jar");
+    jar.createNewFile();
+    File cachedFile = cache.getCompressed("sonar-foo-plugin-1.5.pack.gz", "ABCDE", downloader);
+    assertThat(cachedFile).isNotNull().exists().isFile();
+
+    assertThat(cachedFile.getName()).isEqualTo("sonar-foo-plugin-1.5.jar");
+    assertThat(cachedFile.getParentFile().list()).containsOnly("sonar-foo-plugin-1.5.jar");
+    assertThat(cachedFile.getParentFile().getParentFile()).isEqualTo(cache.getDir());
+
+    verifyZeroInteractions(downloader);
+  }
+
+  @Test
+  public void dont_download_compressed_file_if_it_exists() throws IOException {
+    when(fileHashes.of(any(File.class))).thenReturn("ABCDE");
+    FileCache.Downloader downloader = mock(FileCache.Downloader.class);
+
+    File hashDir = new File(cache.getDir(), "ABCDE");
+    hashDir.mkdirs();
+    FileUtils.copyFile(compressedFile(), new File(hashDir, "sonar-foo-plugin-1.5.pack.gz"));
+    File cachedFile = cache.getCompressed("sonar-foo-plugin-1.5.pack.gz", "ABCDE", downloader);
+    assertThat(cachedFile).isNotNull().exists().isFile();
+
+    assertThat(cachedFile.getName()).isEqualTo("sonar-foo-plugin-1.5.jar");
+    assertThat(cachedFile.getParentFile().list()).containsOnly("sonar-foo-plugin-1.5.jar", "sonar-foo-plugin-1.5.pack.gz");
+    assertThat(cachedFile.getParentFile().getParentFile()).isEqualTo(cache.getDir());
+
+    verifyZeroInteractions(downloader);
   }
 
   @Test
@@ -148,5 +202,9 @@ public class FileCacheTest {
     assertThat(cachedFile.getName()).isEqualTo("sonar-foo-plugin-1.5.jar");
     assertThat(cachedFile.getParentFile().getParentFile()).isEqualTo(cache.getDir());
     assertThat(FileUtils.readFileToString(cachedFile)).contains("downloaded by");
+  }
+
+  private File compressedFile() {
+    return new File("src/test/resources/test.pack.gz");
   }
 }
