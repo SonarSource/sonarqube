@@ -64,49 +64,22 @@ exports[`renders 1`] = `
   <td
     className="thin nowrap"
   >
-    <div
-      className="dropdown"
-    >
-      <button
-        className="dropdown-toggle"
-        data-toggle="dropdown"
-      >
-        actions
-         
-        <i
-          className="icon-dropdown"
-        />
-      </button>
-      <ul
-        className="dropdown-menu dropdown-menu-right"
-      >
-        <li>
-          <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to={
-              Object {
-                "pathname": "/project_roles",
-                "query": Object {
-                  "id": "project",
-                },
-              }
-            }
-          >
-            edit_permissions
-          </Link>
-        </li>
-        <li>
-          <a
-            className="js-apply-template"
-            href="#"
-            onClick={[Function]}
-          >
-            projects_role.apply_template
-          </a>
-        </li>
-      </ul>
-    </div>
+    <ProjectRowActions
+      currentUser={
+        Object {
+          "login": "foo",
+        }
+      }
+      onApplyTemplate={[Function]}
+      project={
+        Object {
+          "key": "project",
+          "name": "Project",
+          "qualifier": "TRK",
+          "visibility": "private",
+        }
+      }
+    />
   </td>
 </tr>
 `;
@@ -173,49 +146,23 @@ exports[`renders 2`] = `
   <td
     className="thin nowrap"
   >
-    <div
-      className="dropdown"
-    >
-      <button
-        className="dropdown-toggle"
-        data-toggle="dropdown"
-      >
-        actions
-         
-        <i
-          className="icon-dropdown"
-        />
-      </button>
-      <ul
-        className="dropdown-menu dropdown-menu-right"
-      >
-        <li>
-          <Link
-            onlyActiveOnIndex={false}
-            style={Object {}}
-            to={
-              Object {
-                "pathname": "/project_roles",
-                "query": Object {
-                  "id": "project",
-                },
-              }
-            }
-          >
-            edit_permissions
-          </Link>
-        </li>
-        <li>
-          <a
-            className="js-apply-template"
-            href="#"
-            onClick={[Function]}
-          >
-            projects_role.apply_template
-          </a>
-        </li>
-      </ul>
-    </div>
+    <ProjectRowActions
+      currentUser={
+        Object {
+          "login": "foo",
+        }
+      }
+      onApplyTemplate={[Function]}
+      project={
+        Object {
+          "key": "project",
+          "lastAnalysisDate": "2017-04-08T00:00:00.000Z",
+          "name": "Project",
+          "qualifier": "TRK",
+          "visibility": "private",
+        }
+      }
+    />
   </td>
 </tr>
 `;

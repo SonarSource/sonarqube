@@ -1,0 +1,131 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`restores access 1`] = `
+<div
+  className="dropdown"
+>
+  <button
+    className="dropdown-toggle"
+    data-toggle="dropdown"
+    onClick={[Function]}
+  >
+    actions
+     
+    <i
+      className="icon-dropdown"
+    />
+  </button>
+  <ul
+    className="dropdown-menu dropdown-menu-right"
+  >
+    <li>
+      <a
+        className="js-apply-template"
+        href="#"
+        onClick={[Function]}
+      >
+        projects_role.apply_template
+      </a>
+    </li>
+  </ul>
+</div>
+`;
+
+exports[`restores access 2`] = `
+<div
+  className="dropdown"
+>
+  <button
+    className="dropdown-toggle"
+    data-toggle="dropdown"
+    onClick={[Function]}
+  >
+    actions
+     
+    <i
+      className="icon-dropdown"
+    />
+  </button>
+  <ul
+    className="dropdown-menu dropdown-menu-right"
+  >
+    <li>
+      <a
+        className="js-restore-access"
+        href="#"
+        onClick={[Function]}
+      >
+        global_permissions.restore_access
+      </a>
+    </li>
+    <li>
+      <a
+        className="js-apply-template"
+        href="#"
+        onClick={[Function]}
+      >
+        projects_role.apply_template
+      </a>
+    </li>
+  </ul>
+</div>
+`;
+
+exports[`restores access 3`] = `
+<div
+  className="dropdown"
+>
+  <button
+    className="dropdown-toggle"
+    data-toggle="dropdown"
+    onClick={[Function]}
+  >
+    actions
+     
+    <i
+      className="icon-dropdown"
+    />
+  </button>
+  <ul
+    className="dropdown-menu dropdown-menu-right"
+  >
+    <li>
+      <a
+        className="js-restore-access"
+        href="#"
+        onClick={[Function]}
+      >
+        global_permissions.restore_access
+      </a>
+    </li>
+    <li>
+      <a
+        className="js-apply-template"
+        href="#"
+        onClick={[Function]}
+      >
+        projects_role.apply_template
+      </a>
+    </li>
+  </ul>
+  <BulkApplyTemplateModal
+    currentUser={
+      Object {
+        "login": "admin",
+      }
+    }
+    onClose={[Function]}
+    onRestoreAccess={[Function]}
+    project={
+      Object {
+        "id": "",
+        "key": "project",
+        "name": "Project",
+        "organization": "org",
+        "qualifier": "TRK",
+        "visibility": "private",
+      }
+    }
+  />
+</div>
+`;

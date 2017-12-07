@@ -9,23 +9,28 @@ exports[`renders list of projects 1`] = `
     <tr>
       <th />
       <th>
-        Name
+        name
       </th>
       <th />
       <th>
-        Key
+        key
       </th>
       <th
         className="thin nowrap text-right"
       >
-        Last Analysis
+        last_analysis
       </th>
       <th />
     </tr>
   </thead>
   <tbody>
     <ProjectRow
-      onApplyTemplateClick={[Function]}
+      currentUser={
+        Object {
+          "login": "foo",
+        }
+      }
+      onApplyTemplate={[Function]}
       onProjectCheck={[Function]}
       project={
         Object {
@@ -38,7 +43,12 @@ exports[`renders list of projects 1`] = `
       selected={true}
     />
     <ProjectRow
-      onApplyTemplateClick={[Function]}
+      currentUser={
+        Object {
+          "login": "foo",
+        }
+      }
+      onApplyTemplate={[Function]}
       onProjectCheck={[Function]}
       project={
         Object {

@@ -138,6 +138,7 @@ it('changes default project visibility', () => {
 function mountRender(props?: { [P in keyof Props]?: Props[P] }) {
   return mount(
     <App
+      currentUser={{ login: 'foo' }}
       hasProvisionPermission={true}
       onVisibilityChange={jest.fn()}
       organization={organization}
