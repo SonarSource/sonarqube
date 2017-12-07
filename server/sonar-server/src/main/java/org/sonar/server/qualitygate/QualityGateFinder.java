@@ -72,6 +72,7 @@ public class QualityGateFinder {
       "No quality gate has been found for id %s in organization %s", qualityGateId, organization.getName());
   }
 
+  // TODO As there is always a default quality gate, this method should not return an optional
   public Optional<QualityGateDto> getDefault(DbSession dbSession) {
     Optional<Long> defaultQualityGateId = getDefaultId(dbSession);
 
