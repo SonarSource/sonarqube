@@ -27,6 +27,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociation;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
@@ -52,21 +53,19 @@ public class QgateProjectFinder {
     this.associationDao = dbClient.projectQgateAssociationDao();
   }
 
-  public Association find(ProjectQgateAssociationQuery query) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      getQualityGateId(dbSession, query.gateId());
-      List<ProjectQgateAssociationDto> projects = associationDao.selectProjects(dbSession, query);
-      List<ProjectQgateAssociationDto> authorizedProjects = keepAuthorizedProjects(dbSession, projects);
+  public Association find(DbSession dbSession, OrganizationDto organization, ProjectQgateAssociationQuery query) {
+    getQualityGateId(dbSession, organization, query.gateId());
+    List<ProjectQgateAssociationDto> projects = associationDao.selectProjects(dbSession, query);
+    List<ProjectQgateAssociationDto> authorizedProjects = keepAuthorizedProjects(dbSession, projects);
 
-      Paging paging = forPageIndex(query.pageIndex())
-        .withPageSize(query.pageSize())
-        .andTotal(authorizedProjects.size());
-      return new Association(toProjectAssociations(getPaginatedProjects(authorizedProjects, paging)), paging.hasNextPage());
-    }
+    Paging paging = forPageIndex(query.pageIndex())
+      .withPageSize(query.pageSize())
+      .andTotal(authorizedProjects.size());
+    return new Association(toProjectAssociations(getPaginatedProjects(authorizedProjects, paging)), paging.hasNextPage());
   }
 
-  private Long getQualityGateId(DbSession dbSession, String gateId) {
-    return checkFound(qualitygateDao.selectById(dbSession, Long.valueOf(gateId)), "Quality gate '" + gateId + "' does not exists.").getId();
+  private Long getQualityGateId(DbSession dbSession, OrganizationDto organization, String gateId) {
+    return checkFound(qualitygateDao.selectByOrganizationAndId(dbSession, organization, Long.valueOf(gateId)), "Quality gate '" + gateId + "' does not exists.").getId();
   }
 
   private static List<ProjectQgateAssociationDto> getPaginatedProjects(List<ProjectQgateAssociationDto> projects, Paging paging) {
