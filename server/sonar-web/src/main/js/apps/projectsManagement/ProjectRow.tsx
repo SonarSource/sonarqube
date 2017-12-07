@@ -19,17 +19,17 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import ProjectRowActions from './ProjectRowActions';
 import { Project } from './utils';
 import { Visibility } from '../../app/types';
 import PrivateBadge from '../../components/common/PrivateBadge';
 import Checkbox from '../../components/controls/Checkbox';
 import QualifierIcon from '../../components/shared/QualifierIcon';
-import { translate } from '../../helpers/l10n';
-import { getComponentPermissionsUrl } from '../../helpers/urls';
 import DateTooltipFormatter from '../../components/intl/DateTooltipFormatter';
 
 interface Props {
-  onApplyTemplateClick: (project: Project) => void;
+  currentUser: { login: string };
+  onApplyTemplate: (project: Project) => void;
   onProjectCheck: (project: Project, checked: boolean) => void;
   project: Project;
   selected: boolean;
@@ -38,12 +38,6 @@ interface Props {
 export default class ProjectRow extends React.PureComponent<Props> {
   handleProjectCheck = (checked: boolean) => {
     this.props.onProjectCheck(this.props.project, checked);
-  };
-
-  handleApplyTemplateClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    event.currentTarget.blur();
-    this.props.onApplyTemplateClick(this.props.project);
   };
 
   render() {
@@ -82,23 +76,11 @@ export default class ProjectRow extends React.PureComponent<Props> {
         </td>
 
         <td className="thin nowrap">
-          <div className="dropdown">
-            <button className="dropdown-toggle" data-toggle="dropdown">
-              {translate('actions')} <i className="icon-dropdown" />
-            </button>
-            <ul className="dropdown-menu dropdown-menu-right">
-              <li>
-                <Link to={getComponentPermissionsUrl(project.key)}>
-                  {translate('edit_permissions')}
-                </Link>
-              </li>
-              <li>
-                <a className="js-apply-template" href="#" onClick={this.handleApplyTemplateClick}>
-                  {translate('projects_role.apply_template')}
-                </a>
-              </li>
-            </ul>
-          </div>
+          <ProjectRowActions
+            currentUser={this.props.currentUser}
+            onApplyTemplate={this.props.onApplyTemplate}
+            project={project}
+          />
         </td>
       </tr>
     );

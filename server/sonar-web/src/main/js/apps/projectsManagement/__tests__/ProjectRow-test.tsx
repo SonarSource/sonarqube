@@ -21,7 +21,6 @@ import * as React from 'react';
 import { shallow } from 'enzyme';
 import ProjectRow from '../ProjectRow';
 import { Visibility } from '../../../app/types';
-import { click } from '../../../helpers/testUtils';
 
 const project = {
   key: 'project',
@@ -44,17 +43,11 @@ it('checks project', () => {
   expect(onProjectCheck).toBeCalledWith(project, false);
 });
 
-it('applies permission template', () => {
-  const onApplyTemplateClick = jest.fn();
-  const wrapper = shallowRender({ onApplyTemplateClick });
-  click(wrapper.find('.js-apply-template'));
-  expect(onApplyTemplateClick).toBeCalledWith(project);
-});
-
 function shallowRender(props?: any) {
   return shallow(
     <ProjectRow
-      onApplyTemplateClick={jest.fn()}
+      currentUser={{ login: 'foo' }}
+      onApplyTemplate={jest.fn()}
       onProjectCheck={jest.fn()}
       project={project}
       selected={true}

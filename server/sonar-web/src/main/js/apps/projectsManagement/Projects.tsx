@@ -23,8 +23,10 @@ import ProjectRow from './ProjectRow';
 import { Project } from './utils';
 import ApplyTemplateView from '../permissions/project/views/ApplyTemplateView';
 import { Organization } from '../../app/types';
+import { translate } from '../../helpers/l10n';
 
 interface Props {
+  currentUser: { login: string };
   onProjectDeselected: (project: string) => void;
   onProjectSelected: (project: string) => void;
   organization: Organization;
@@ -42,7 +44,7 @@ export default class Projects extends React.PureComponent<Props> {
     }
   };
 
-  onApplyTemplateClick = (project: Project) => {
+  handleApplyTemplate = (project: Project) => {
     new ApplyTemplateView({ project, organization: this.props.organization }).render();
   };
 
@@ -54,18 +56,19 @@ export default class Projects extends React.PureComponent<Props> {
         <thead>
           <tr>
             <th />
-            <th>Name</th>
+            <th>{translate('name')}</th>
             <th />
-            <th>Key</th>
-            <th className="thin nowrap text-right">Last Analysis</th>
+            <th>{translate('key')}</th>
+            <th className="thin nowrap text-right">{translate('last_analysis')}</th>
             <th />
           </tr>
         </thead>
         <tbody>
           {this.props.projects.map(project => (
             <ProjectRow
+              currentUser={this.props.currentUser}
               key={project.key}
-              onApplyTemplateClick={this.onApplyTemplateClick}
+              onApplyTemplate={this.handleApplyTemplate}
               onProjectCheck={this.onProjectCheck}
               project={project}
               selected={this.props.selection.includes(project.key)}

@@ -22,7 +22,7 @@ import { connect } from 'react-redux';
 import App from './App';
 import { Organization } from '../../app/types';
 import { onFail } from '../../store/rootActions';
-import { getAppState, getOrganizationByKey } from '../../store/rootReducer';
+import { getAppState, getOrganizationByKey, getCurrentUser } from '../../store/rootReducer';
 import { receiveOrganizations } from '../../store/organizations/duck';
 import { changeProjectVisibility } from '../../api/organizations';
 import { fetchOrganization } from '../../apps/organizations/actions';
@@ -32,6 +32,7 @@ interface Props {
     defaultOrganization: string;
     qualifiers: string[];
   };
+  currentUser: { login: string };
   fetchOrganization: (organization: string) => void;
   onVisibilityChange: (organization: Organization, visibility: string) => void;
   onRequestFail: (error: any) => void;
@@ -64,6 +65,7 @@ class AppContainer extends React.PureComponent<Props> {
 
     return (
       <App
+        currentUser={this.props.currentUser}
         hasProvisionPermission={organization.canProvisionProjects}
         onVisibilityChange={this.handleVisibilityChange}
         organization={organization}
@@ -75,6 +77,7 @@ class AppContainer extends React.PureComponent<Props> {
 
 const mapStateToProps = (state: any, ownProps: Props) => ({
   appState: getAppState(state),
+  currentUser: getCurrentUser(state),
   organization:
     ownProps.organization || getOrganizationByKey(state, getAppState(state).defaultOrganization)
 });

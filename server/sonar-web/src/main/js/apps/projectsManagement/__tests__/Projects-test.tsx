@@ -59,13 +59,14 @@ it('opens modal to apply permission template', () => {
   wrapper
     .find('ProjectRow')
     .first()
-    .prop<Function>('onApplyTemplateClick')(projects[0]);
+    .prop<Function>('onApplyTemplate')(projects[0]);
   expect(ApplyTemplateView).toBeCalledWith({ organization, project: projects[0] });
 });
 
 function shallowRender(props?: any) {
   return shallow(
     <Projects
+      currentUser={{ login: 'foo' }}
       onProjectDeselected={jest.fn()}
       onProjectSelected={jest.fn()}
       organization={organization}

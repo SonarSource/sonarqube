@@ -31,6 +31,7 @@ import { Organization } from '../../app/types';
 import { translate } from '../../helpers/l10n';
 
 export interface Props {
+  currentUser: { login: string };
   hasProvisionPermission?: boolean;
   onVisibilityChange: (visibility: string) => void;
   organization: Organization;
@@ -191,6 +192,7 @@ export default class App extends React.PureComponent<Props, State> {
         />
 
         <Projects
+          currentUser={this.props.currentUser}
           ready={this.state.ready}
           projects={this.state.projects}
           selection={this.state.selection}
