@@ -22,11 +22,14 @@ package org.sonar.server.qualitygate;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.server.qualitygate.QualityGateFinder.SONAR_QUALITYGATE_PROPERTY;
 import static org.sonar.server.util.Validation.IS_ALREADY_USED_MESSAGE;
 
 public class QualityGateUpdater {
@@ -71,6 +74,17 @@ public class QualityGateUpdater {
   public void setDefault(DbSession dbSession, OrganizationDto organizationDto, QualityGateDto qualityGateDto) {
     organizationDto.setDefaultQualityGateUuid(qualityGateDto.getUuid());
     dbClient.qualityGateDao().update(qualityGateDto, dbSession);
+  }
+
+  public void dissociateProject(DbSession dbSession, ComponentDto project) {
+    dbClient.propertiesDao().deleteProjectProperty(SONAR_QUALITYGATE_PROPERTY, project.getId(), dbSession);
+  }
+
+  public void associateProject(DbSession dbSession, ComponentDto project, QualityGateDto qualityGate) {
+    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
+      .setKey(SONAR_QUALITYGATE_PROPERTY)
+      .setResourceId(project.getId())
+      .setValue(String.valueOf(qualityGate.getId())));
   }
 
   private void checkQualityGateDoesNotAlreadyExist(DbSession dbSession, OrganizationDto organizationDto, String name) {

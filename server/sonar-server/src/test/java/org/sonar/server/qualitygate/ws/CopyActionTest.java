@@ -151,7 +151,7 @@ public class CopyActionTest {
   @Test
   public void response_contains_quality_gate() {
     userSession.addPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
 
     QualityGate response = ws.newRequest()
       .setParam(PARAM_ID, qualityGate.getId().toString())

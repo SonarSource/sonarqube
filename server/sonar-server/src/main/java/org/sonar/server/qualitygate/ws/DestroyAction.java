@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -67,8 +66,8 @@ public class DestroyAction implements QualityGatesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
       QGateWithOrgDto qualityGate = finder.getByOrganizationAndId(dbSession, organization, qualityGateId);
-      Optional<QualityGateDto> defaultQualityGate = finder.getDefault(dbSession);
-      checkArgument(!defaultQualityGate.isPresent() || !defaultQualityGate.get().getId().equals(qualityGate.getId()), "The default quality gate cannot be removed");
+      QualityGateDto defaultQualityGate = finder.getDefault(dbSession, organization);
+      checkArgument(!defaultQualityGate.getId().equals(qualityGate.getId()), "The default quality gate cannot be removed");
       wsSupport.checkCanEdit(qualityGate);
 
       dbClient.qualityGateDao().delete(qualityGate, dbSession);

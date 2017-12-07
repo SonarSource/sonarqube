@@ -42,7 +42,6 @@ public class QualityGateModule extends Module {
   @Override
   protected void configureModule() {
     add(
-      QualityGates.class,
       QualityGateUpdater.class,
       QualityGateConditionsUpdater.class,
       QgateProjectFinder.class,
