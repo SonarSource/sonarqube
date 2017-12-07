@@ -27,11 +27,17 @@
   border: none !important;
 }
 
-.navbar-help {
+.navbar-help,
+.navbar-plus {
+  display: inline-block;
   height: var(--globalNavHeight);
   padding: calc(var(--globalNavHeight) - var(--globalNavContentHeight)) 12px !important;
   border-bottom: none !important;
   color: #fff !important;
+}
+
+.navbar-plus {
+  margin-right: calc(-1 * var(--gridSize));
 }
 
 .global-navbar-menu {
@@ -56,7 +62,8 @@
 .navbar-brand:focus,
 .global-navbar-menu > li > a.active,
 .global-navbar-menu > li > a:hover,
-.global-navbar-menu > li > a:focus {
+.global-navbar-menu > li > a:focus,
+.global-navbar-menu > .dropdown.open > a {
   background-color: #020202;
 }
 
