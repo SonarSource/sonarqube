@@ -32,11 +32,13 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
@@ -116,6 +118,13 @@ public class QualityGatesWsSupport {
       return;
     }
     throw insufficientPrivilegesException();
+  }
+
+  void checkProjectBelongsToOrganization(OrganizationDto organization, ComponentDto project){
+    if (project.getOrganizationUuid().equals(organization.getUuid())) {
+      return;
+    }
+    throw new NotFoundException(format("Project '%s' doesn't exist in organization '%s'", project.getKey(), organization.getKey()));
   }
 
   private static void checkNotBuiltIn(QualityGateDto qualityGate) {
