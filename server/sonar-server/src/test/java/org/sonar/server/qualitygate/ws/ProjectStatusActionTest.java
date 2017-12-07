@@ -33,7 +33,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
@@ -41,6 +40,7 @@ import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
@@ -54,6 +54,7 @@ import static org.sonar.db.measure.MeasureTesting.newLiveMeasure;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ANALYSIS_ID;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ORGANIZATION;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 import static org.sonar.test.JsonAssert.assertJson;
@@ -71,19 +72,27 @@ public class ProjectStatusActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
 
-  private WsActionTester ws = new WsActionTester(new ProjectStatusAction(dbClient, TestComponentFinder.from(db), userSession));
+  private WsActionTester ws = new WsActionTester(new ProjectStatusAction(dbClient, TestComponentFinder.from(db), userSession,
+    new QualityGatesWsSupport(db.getDbClient(), userSession, TestDefaultOrganizationProvider.from(db))));
 
   @Test
   public void test_definition() {
-    WebService.Action def = ws.getDef();
-    assertThat(def.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("analysisId", "projectKey", "projectId");
-    assertThat(def.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactly(
+    WebService.Action action = ws.getDef();
+    assertThat(action.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactly(
       tuple("6.4", "The field 'ignoredConditions' is added to the response"));
+    assertThat(action.params())
+      .extracting(WebService.Param::key, WebService.Param::isRequired)
+      .containsExactlyInAnyOrder(
+        tuple("analysisId", false),
+        tuple("projectKey", false),
+        tuple("projectId", false),
+        tuple("organization", false));
   }
 
   @Test
   public void test_json_example() throws IOException {
-    ComponentDto project = db.components().insertPrivateProject(db.organizations().insert());
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
     userSession.addProjectPermission(UserRole.USER, project);
     MetricDto gateDetailsMetric = insertGateDetailMetric();
 
@@ -98,6 +107,7 @@ public class ProjectStatusActionTest {
 
     String response = ws.newRequest()
       .setParam("analysisId", snapshot.getUuid())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("project_status-example.json"));
@@ -105,7 +115,8 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_past_status_when_project_is_referenced_by_past_analysis_id() throws IOException {
-    ComponentDto project = db.components().insertPrivateProject(db.organizations().insert());
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
     SnapshotDto pastAnalysis = dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setLast(false)
       .setPeriodMode("last_version")
@@ -128,6 +139,7 @@ public class ProjectStatusActionTest {
 
     String response = ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, pastAnalysis.getUuid())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("project_status-example.json"));
@@ -135,7 +147,8 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_live_status_when_project_is_referenced_by_its_id() throws IOException {
-    ComponentDto project = db.components().insertPrivateProject(db.organizations().insert());
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
     dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setPeriodMode("last_version")
       .setPeriodParam("2015-12-07")
@@ -149,6 +162,7 @@ public class ProjectStatusActionTest {
 
     String response = ws.newRequest()
       .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("project_status-example.json"));
@@ -156,7 +170,8 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_live_status_when_project_is_referenced_by_its_key() throws IOException {
-    ComponentDto project = db.components().insertComponent(ComponentTesting.newPrivateProjectDto(db.organizations().insert()).setDbKey("project-key"));
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
     dbClient.snapshotDao().insert(dbSession, newAnalysis(project)
       .setPeriodMode("last_version")
       .setPeriodParam("2015-12-07")
@@ -169,7 +184,8 @@ public class ProjectStatusActionTest {
     userSession.addProjectPermission(UserRole.USER, project);
 
     String response = ws.newRequest()
-      .setParam(PARAM_PROJECT_KEY, "project-key")
+      .setParam(PARAM_PROJECT_KEY, project.getKey())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("project_status-example.json"));
@@ -177,13 +193,15 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_undefined_status_if_specified_analysis_is_not_found() {
-    ComponentDto project = db.components().insertPrivateProject(db.organizations().insert());
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
     userSession.addProjectPermission(UserRole.USER, project);
 
     ProjectStatusResponse result = ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .executeProtobuf(ProjectStatusResponse.class);
 
     assertThat(result.getProjectStatus().getStatus()).isEqualTo(Status.NONE);
@@ -192,11 +210,13 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_undefined_status_if_project_is_not_analyzed() {
-    ComponentDto project = db.components().insertPrivateProject(db.organizations().insert());
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
     userSession.addProjectPermission(UserRole.USER, project);
 
     ProjectStatusResponse result = ws.newRequest()
       .setParam(PARAM_PROJECT_ID, project.uuid())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .executeProtobuf(ProjectStatusResponse.class);
 
     assertThat(result.getProjectStatus().getStatus()).isEqualTo(Status.NONE);
@@ -205,30 +225,66 @@ public class ProjectStatusActionTest {
 
   @Test
   public void project_administrator_is_allowed_to_get_project_status() {
-    ComponentDto project = db.components().insertPrivateProject(db.organizations().insert());
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
     userSession.addProjectPermission(UserRole.ADMIN, project);
 
     ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .executeProtobuf(ProjectStatusResponse.class);
   }
 
   @Test
   public void project_user_is_allowed_to_get_project_status() {
-    ComponentDto project = db.components().insertPrivateProject(db.organizations().insert());
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
     userSession.addProjectPermission(UserRole.USER, project);
 
     ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .executeProtobuf(ProjectStatusResponse.class);
+  }
+
+  @Test
+  public void default_organization_is_used_when_no_organization_parameter() {
+    OrganizationDto organization = db.getDefaultOrganization();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    userSession.logIn().addProjectPermission(UserRole.USER, project);
+
+    ProjectStatusResponse result = ws.newRequest()
+      .setParam(PARAM_PROJECT_ID, project.uuid())
+      .executeProtobuf(ProjectStatusResponse.class);
+
+    assertThat(result.getProjectStatus().getStatus()).isEqualTo(Status.NONE);
+  }
+
+  @Test
+  public void fail_when_project_does_not_not_belong_to_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto otherOrganization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(otherOrganization);
+    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
+    dbSession.commit();
+    userSession.addProjectPermission(UserRole.ADMIN, project);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(String.format("Project '%s' doesn't exist in organization '%s'", project.getKey(), organization.getKey()));
+
+    ws.newRequest()
+      .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .executeProtobuf(ProjectStatusResponse.class);
   }
 
   @Test
   public void fail_if_no_snapshot_id_found() {
+    OrganizationDto organization = db.organizations().insert();
     logInAsSystemAdministrator();
 
     expectedException.expect(NotFoundException.class);
@@ -236,12 +292,14 @@ public class ProjectStatusActionTest {
 
     ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, ANALYSIS_ID)
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .executeProtobuf(ProjectStatusResponse.class);
   }
 
   @Test
   public void fail_if_insufficient_privileges() {
-    ComponentDto project = db.components().insertPrivateProject(db.organizations().insert());
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
     dbSession.commit();
     userSession.logIn();
@@ -250,11 +308,14 @@ public class ProjectStatusActionTest {
 
     ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .executeProtobuf(ProjectStatusResponse.class);
   }
 
   @Test
   public void fail_if_project_id_and_ce_task_id_provided() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
     logInAsSystemAdministrator();
 
     expectedException.expect(BadRequestException.class);
@@ -263,6 +324,7 @@ public class ProjectStatusActionTest {
     ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, "analysis-id")
       .setParam(PARAM_PROJECT_ID, "project-uuid")
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute().getInput();
   }
 
@@ -273,7 +335,9 @@ public class ProjectStatusActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Either 'analysisId', 'projectId' or 'projectKey' must be provided");
 
-    ws.newRequest().execute().getInput();
+    ws.newRequest()
+      .execute()
+      .getInput();
   }
 
   @Test
@@ -289,6 +353,7 @@ public class ProjectStatusActionTest {
 
     ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, branch.getDbKey())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
 
@@ -305,6 +370,7 @@ public class ProjectStatusActionTest {
 
     ws.newRequest()
       .setParam("projectId", branch.uuid())
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
 
