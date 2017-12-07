@@ -254,13 +254,12 @@ public class ScannerTest {
     int cachedFiles = FileUtils.listFiles(cache, new String[]{"jar"}, true).size();
     assertThat(cachedFiles).isGreaterThan(5);
     assertThat(result.getLogs()).contains("User cache: " + cache.getAbsolutePath());
-    assertThat(result.getLogs()).contains("Download sonar-xoo-plugin-");
 
     result = scan("shared/xoo-sample",
       "sonar.userHome", userHome.getAbsolutePath());
-    assertThat(cachedFiles).isEqualTo(cachedFiles);
+    int cachedFiles2 = FileUtils.listFiles(cache, new String[]{"jar"}, true).size();
+    assertThat(cachedFiles).isEqualTo(cachedFiles2);
     assertThat(result.getLogs()).contains("User cache: " + cache.getAbsolutePath());
-    assertThat(result.getLogs()).doesNotContain("Download sonar-xoo-plugin-");
   }
 
   @Test
