@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import java.util.Optional;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -26,6 +27,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateFinder;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class DestroyAction implements QualityGatesWsAction {
 
@@ -60,6 +63,8 @@ public class DestroyAction implements QualityGatesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
 
       QualityGateDto qualityGate = finder.getById(dbSession, qualityGateId);
+      Optional<QualityGateDto> defaultQualityGate = finder.getDefault(dbSession);
+      checkArgument(!defaultQualityGate.isPresent() || !defaultQualityGate.get().getId().equals(qualityGate.getId()), "The default quality gate cannot be removed");
       wsSupport.checkCanEdit(qualityGate);
 
       dbClient.qualityGateDao().delete(qualityGate, dbSession);

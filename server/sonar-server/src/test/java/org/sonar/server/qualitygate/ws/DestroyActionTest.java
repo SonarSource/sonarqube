@@ -88,45 +88,6 @@ public class DestroyActionTest {
   }
 
   @Test
-  public void fail_when_invalid_id() {
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, db.getDefaultOrganization());
-
-    String invalidId = "invalid-id";
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage(format("The 'id' parameter cannot be parsed as a long value: %s", invalidId));
-
-    ws.newRequest()
-      .setParam(PARAM_ID, valueOf(invalidId))
-      .execute();
-  }
-
-  @Test
-  public void should_fail_when_missing_id() {
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, db.getDefaultOrganization());
-
-    expectedException.expect(IllegalArgumentException.class);
-
-    ws.newRequest()
-      .setParam(PARAM_ID, valueOf(EMPTY))
-      .execute();
-  }
-
-  @Test
-  public void delete_quality_gate_even_if_default() {
-    userSession.addPermission(ADMINISTER_QUALITY_GATES, db.getDefaultOrganization());
-    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("To Delete"));
-    db.qualityGates().setDefaultQualityGate(qualityGate);
-    Long qualityGateId = qualityGate.getId();
-
-    ws.newRequest()
-      .setParam(PARAM_ID, valueOf(qualityGateId))
-      .execute();
-
-    assertThat(db.getDbClient().qualityGateDao().selectById(dbSession, qualityGateId)).isNull();
-  }
-
-  @Test
   public void delete_quality_gate_if_non_default_when_a_default_exist() {
     userSession.addPermission(ADMINISTER_QUALITY_GATES, db.getDefaultOrganization());
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("To Delete"));
@@ -157,6 +118,46 @@ public class DestroyActionTest {
       .execute();
 
     assertThat(db.getDbClient().qualityGateDao().selectById(dbSession, qualityGateId)).isNotNull();
+  }
+
+  @Test
+  public void fail_when_invalid_id() {
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, db.getDefaultOrganization());
+
+    String invalidId = "invalid-id";
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(format("The 'id' parameter cannot be parsed as a long value: %s", invalidId));
+
+    ws.newRequest()
+      .setParam(PARAM_ID, valueOf(invalidId))
+      .execute();
+  }
+
+  @Test
+  public void fail_when_missing_id() {
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, db.getDefaultOrganization());
+
+    expectedException.expect(IllegalArgumentException.class);
+
+    ws.newRequest()
+      .setParam(PARAM_ID, valueOf(EMPTY))
+      .execute();
+  }
+
+  @Test
+  public void fail_to_delete_default_quality_gate() {
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, db.getDefaultOrganization());
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setName("To Delete"));
+    db.qualityGates().setDefaultQualityGate(qualityGate);
+    Long qualityGateId = qualityGate.getId();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The default quality gate cannot be removed");
+
+    ws.newRequest()
+      .setParam(PARAM_ID, valueOf(qualityGateId))
+      .execute();
   }
 
   @Test
