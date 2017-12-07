@@ -19,14 +19,12 @@
  */
 package org.sonar.server.qualitygate;
 
-import javax.annotation.Nullable;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.property.PropertiesDao;
-import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.NotFoundException;
@@ -55,33 +53,6 @@ public class QualityGates {
     this.propertiesDao = dbClient.propertiesDao();
     this.userSession = userSession;
     this.organizationProvider = organizationProvider;
-  }
-
-  /**
-   * Use {@link QualityGateUpdater#setDefault(DbSession, QualityGateDto)}
-   * @deprecated
-   */
-  @Deprecated
-  public void setDefault(DbSession dbSession, @Nullable Long idToUseAsDefault) {
-    checkIsQualityGateAdministrator();
-    if (idToUseAsDefault == null) {
-      propertiesDao.deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY, dbSession);
-    } else {
-      QualityGateDto newDefault = getNonNullQgate(dbSession, idToUseAsDefault);
-      propertiesDao.saveProperty(dbSession, new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setValue(newDefault.getId().toString()));
-    }
-  }
-
-  /**
-   * Use {@link QualityGateUpdater#setDefault(DbSession, QualityGateDto)}
-   * @deprecated
-   */
-  @Deprecated
-  public void setDefault(@Nullable Long idToUseAsDefault) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      setDefault(dbSession, idToUseAsDefault);
-      dbSession.commit();
-    }
   }
 
   public void dissociateProject(DbSession dbSession, ComponentDto project) {
