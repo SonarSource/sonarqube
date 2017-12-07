@@ -98,12 +98,6 @@ public class RegisterQualityGates implements Startable {
         builtin = createQualityGate(dbSession, BUILTIN_QUALITY_GATE_NAME);
       }
 
-      // Set builtin as default if there is no default
-      if (!qualityGateFinder.getDefault(dbSession).isPresent()) {
-        LOGGER.info("Built-in quality gate [{}] has been set as default", BUILTIN_QUALITY_GATE_NAME);
-        qualityGateUpdater.setDefault(dbSession, builtin);
-      }
-
       // Set builtin if missing
       if (!builtin.isBuiltIn()) {
         builtin.setBuiltIn(true);
