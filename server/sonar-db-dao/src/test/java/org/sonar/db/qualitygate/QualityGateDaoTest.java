@@ -28,6 +28,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class QualityGateDaoTest {
@@ -168,7 +169,9 @@ public class QualityGateDaoTest {
     dbSession.commit();
 
     assertThat(underTest.selectByOrganizationAndUuid(dbSession, organization, qualityGate.getUuid())).isNull();
+    assertThat(db.countSql(dbSession, format("select count(*) from org_quality_gates where quality_gate_uuid='%s'", qualityGate.getUuid()))).isZero();
     assertThat(underTest.selectByOrganizationAndUuid(dbSession, organization, otherQualityGate.getUuid())).isNotNull();
+    assertThat(db.countSql(dbSession, format("select count(*) from org_quality_gates where quality_gate_uuid='%s'", otherQualityGate.getUuid()))).isEqualTo(1);
   }
 
   @Test
