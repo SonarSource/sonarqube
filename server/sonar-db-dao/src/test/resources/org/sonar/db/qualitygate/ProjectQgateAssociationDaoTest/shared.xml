@@ -118,12 +118,6 @@
             id="8"
             private="[false]"/>
 
-  <properties id="1"
-              prop_key="sonar.qualitygate"
-              resource_id="[null]"
-              is_empty="[false]"
-              text_value="43"
-              created_at="1555000"/>
   <properties id="2"
               prop_key="sonar.qualitygate"
               resource_id="1"
