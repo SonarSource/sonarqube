@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
@@ -56,6 +57,7 @@ public class OrganizationQualityGateForSmallChangesetsTest {
   public Tester tester = new Tester(orchestrator);
 
   @Test
+  @Ignore("To be reactivated when SONAR-10134 is fixed")
   public void do_not_fail_quality_gate_with_poor_LEAK_coverage_and_a_max_of_19_lines_of_NEW_code() throws Exception {
     Organizations.Organization organization = tester.organizations().generate();
     Project project = tester.projects().provision(organization);
