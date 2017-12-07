@@ -37,6 +37,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
 import org.sonar.server.exceptions.BadRequestException;
@@ -45,14 +46,14 @@ import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
-import static org.sonar.server.ws.WsUtils.checkRequest;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_PROJECT_STATUS;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ANALYSIS_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class ProjectStatusAction implements QualityGatesWsAction {
   private static final String QG_STATUSES_ONE_LINE = Arrays.stream(ProjectStatusResponse.Status.values())
@@ -63,11 +64,13 @@ public class ProjectStatusAction implements QualityGatesWsAction {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
+  private final QualityGatesWsSupport wsSupport;
 
-  public ProjectStatusAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession) {
+  public ProjectStatusAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, QualityGatesWsSupport wsSupport) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
+    this.wsSupport = wsSupport;
   }
 
   @Override
@@ -102,6 +105,8 @@ public class ProjectStatusAction implements QualityGatesWsAction {
       .setSince("5.4")
       .setDescription("Project key")
       .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
+
+    wsSupport.createOrganizationParam(action);
   }
 
   @Override
@@ -114,20 +119,23 @@ public class ProjectStatusAction implements QualityGatesWsAction {
         ^ !isNullOrEmpty(projectId)
         ^ !isNullOrEmpty(projectKey),
       MSG_ONE_PARAMETER_ONLY);
-    ProjectStatusResponse projectStatusResponse = doHandle(analysisId, projectId, projectKey);
-    writeProtobuf(projectStatusResponse, request, response);
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
+      ProjectStatusResponse projectStatusResponse = doHandle(dbSession, organization, analysisId, projectId, projectKey);
+      writeProtobuf(projectStatusResponse, request, response);
+    }
   }
 
-  private ProjectStatusResponse doHandle(@Nullable String analysisId, @Nullable String projectId, @Nullable String projectKey) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      ProjectAndSnapshot projectAndSnapshot = getProjectAndSnapshot(dbSession, analysisId, projectId, projectKey);
-      checkPermission(projectAndSnapshot.project);
-      Optional<String> measureData = loadQualityGateDetails(dbSession, projectAndSnapshot, analysisId != null);
+  private ProjectStatusResponse doHandle(DbSession dbSession, OrganizationDto organization, @Nullable String analysisId, @Nullable String projectId, @Nullable String projectKey) {
+    ProjectAndSnapshot projectAndSnapshot = getProjectAndSnapshot(dbSession, analysisId, projectId, projectKey);
+    wsSupport.checkProjectBelongsToOrganization(organization, projectAndSnapshot.project);
+    checkPermission(projectAndSnapshot.project);
+    Optional<String> measureData = loadQualityGateDetails(dbSession, projectAndSnapshot, analysisId != null);
 
-      return ProjectStatusResponse.newBuilder()
-        .setProjectStatus(new QualityGateDetailsFormatter(measureData, projectAndSnapshot.snapshotDto).format())
-        .build();
-    }
+    return ProjectStatusResponse.newBuilder()
+      .setProjectStatus(new QualityGateDetailsFormatter(measureData, projectAndSnapshot.snapshotDto).format())
+      .build();
   }
 
   private ProjectAndSnapshot getProjectAndSnapshot(DbSession dbSession, @Nullable String analysisId, @Nullable String projectId, @Nullable String projectKey) {
