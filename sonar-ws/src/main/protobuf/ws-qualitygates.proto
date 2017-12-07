@@ -136,6 +136,18 @@ message ShowWsResponse {
   }
 }
 
+// GET api/qualitygates/search
+message SearchResponse {
+  optional bool more = 1;
+  repeated Result results = 2;
+
+  message Result {
+    optional int64 id = 1;
+    optional string name = 2;
+    optional bool selected = 3;
+  }
+}
+
 // GET api/qualitygates/list
 message ListWsResponse {
   repeated QualityGate qualitygates = 1;
