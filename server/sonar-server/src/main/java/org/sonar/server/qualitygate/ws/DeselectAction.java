@@ -31,9 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.NotFoundException;
 
-import static java.lang.String.format;
 import static org.sonar.server.qualitygate.QualityGateUpdater.SONAR_QUALITYGATE_PROPERTY;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
@@ -97,10 +95,8 @@ public class DeselectAction implements QualityGatesWsAction {
   private ComponentDto getProject(DbSession dbSession, OrganizationDto organization, @Nullable String projectId, @Nullable String projectKey) {
     ComponentDto project = selectProjectById(dbSession, projectId)
       .orElseGet(() -> componentFinder.getByUuidOrKey(dbSession, projectId, projectKey, ComponentFinder.ParamNames.PROJECT_ID_AND_KEY));
-    if (project.getOrganizationUuid().equals(organization.getUuid())) {
-      return project;
-    }
-    throw new NotFoundException(format("Project '%s' doesn't exist in organization '%s'", project.getKey(), organization.getKey()));
+    wsSupport.checkProjectBelongsToOrganization(organization, project);
+    return project;
   }
 
   private Optional<ComponentDto> selectProjectById(DbSession dbSession, @Nullable String projectId) {
