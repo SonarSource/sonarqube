@@ -81,6 +81,24 @@ public class ScannerPluginInstallerTest {
   }
 
   @Test
+  public void should_download_compressed_plugin() throws Exception {
+    File pluginJar = temp.newFile();
+    when(fileCache.getCompressed(eq("checkstyle-plugin.pack.gz"), eq("hash"), any(FileCache.Downloader.class))).thenReturn(pluginJar);
+
+    ScannerPluginInstaller underTest = new ScannerPluginInstaller(wsClient, fileCache, pluginPredicate);
+
+    InstalledPlugin remote = new InstalledPlugin();
+    remote.key = "checkstyle";
+    remote.filename = "checkstyle-plugin.jar";
+    remote.hash = "fakemd5_1";
+    remote.compressedFilename = "checkstyle-plugin.pack.gz";
+    remote.compressedHash = "hash";
+    File file = underTest.download(remote);
+
+    assertThat(file).isEqualTo(pluginJar);
+  }
+
+  @Test
   public void should_fail_to_get_plugin_index() {
     WsTestUtil.mockException(wsClient, "/api/plugins/installed", new IllegalStateException());
     thrown.expect(IllegalStateException.class);
