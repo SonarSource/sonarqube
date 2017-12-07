@@ -1021,11 +1021,8 @@ public class AuthorizationDaoTest {
     UserDto user3 = db.users().insertUser();
     db.users().insertMember(administratorGroup2, user3);
 
-    ComponentDto project = db.components().insertPrivateProject();
-
     UserDto user4 = db.users().insertUser();
     db.users().insertPermissionOnUser(organization1, user4, ADMINISTER_QUALITY_PROFILES);
-    db.users().insertProjectPermissionOnUser(user4, "admin", project);
     db.users().insertUser();
 
     List<String> logins = underTest.selectGlobalAdministratorLogins(dbSession);
