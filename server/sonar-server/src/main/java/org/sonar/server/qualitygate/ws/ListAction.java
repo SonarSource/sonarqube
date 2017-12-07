@@ -21,7 +21,6 @@ package org.sonar.server.qualitygate.ws;
 
 import com.google.common.io.Resources;
 import java.util.Collection;
-import java.util.Optional;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -70,9 +69,9 @@ public class ListAction implements QualityGatesWsAction {
   public void handle(Request request, Response response) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      Optional<QualityGateDto> defaultQualityGate = finder.getDefault(dbSession);
+      QualityGateDto defaultQualityGate = finder.getDefault(dbSession, organization);
       Collection<QualityGateDto> qualityGates = dbClient.qualityGateDao().selectAll(dbSession, organization);
-      writeProtobuf(buildResponse(organization, qualityGates, defaultQualityGate.orElse(null)), request, response);
+      writeProtobuf(buildResponse(organization, qualityGates, defaultQualityGate), request, response);
     }
   }
 

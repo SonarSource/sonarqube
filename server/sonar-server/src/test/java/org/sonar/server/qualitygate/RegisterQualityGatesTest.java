@@ -75,7 +75,7 @@ public class RegisterQualityGatesTest {
   private QualityGateUpdater qualityGateUpdater = new QualityGateUpdater(dbClient, UuidFactoryFast.getInstance());
   private QualityGateFinder qualityGateFinder = new QualityGateFinder(dbClient);
 
-  private RegisterQualityGates underTest = new RegisterQualityGates(dbClient, qualityGateUpdater, qualityGateConditionsUpdater, qualityGateFinder,
+  private RegisterQualityGates underTest = new RegisterQualityGates(dbClient, qualityGateConditionsUpdater,
     UuidFactoryFast.getInstance(), System2.INSTANCE);
   private QualityGateDto builtInQG;
 
@@ -215,11 +215,8 @@ public class RegisterQualityGatesTest {
 
     underTest.start();
 
-    assertThat(qualityGateFinder.getDefault(dbSession)).isPresent();
-    assertThat(qualityGateFinder.getDefault(dbSession).get().getId()).isEqualTo(builtInQG.getId());
-
-    assertThat(
-      logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate [Sonar way] has been set as default")).isTrue();
+    assertThat(qualityGateFinder.getBuiltInQualityGate(dbSession)).isNotNull();
+    assertThat(qualityGateFinder.getBuiltInQualityGate(dbSession).getId()).isEqualTo(builtInQG.getId());
   }
 
   @Test

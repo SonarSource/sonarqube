@@ -27,29 +27,23 @@ import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.qualitygate.QualityGateFinder;
-import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.qualitygate.ws.QualityGatesWs.parseId;
 import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.Qualitygates.QualityGate.newBuilder;
 
 public class SetAsDefaultAction implements QualityGatesWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
-  private final QualityGateUpdater qualityGateUpdater;
   private final QualityGateFinder qualityGateFinder;
   private final QualityGatesWsSupport wsSupport;
 
-  public SetAsDefaultAction(DbClient dbClient, UserSession userSession, QualityGateUpdater qualityGateUpdater,
+  public SetAsDefaultAction(DbClient dbClient, UserSession userSession,
     QualityGateFinder qualityGateFinder, QualityGatesWsSupport qualityGatesWsSupport) {
     this.dbClient = dbClient;
     this.userSession = userSession;
-    this.qualityGateUpdater = qualityGateUpdater;
     this.qualityGateFinder = qualityGateFinder;
     this.wsSupport = qualityGatesWsSupport;
   }
