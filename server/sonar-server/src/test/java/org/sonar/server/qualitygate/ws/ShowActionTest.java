@@ -347,4 +347,34 @@ public class ShowActionTest {
       .setParam("organization", "Unknown")
       .execute();
   }
+
+  @Test
+  public void fail_when_quality_gate_belongs_to_another_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto otherOrganization = db.organizations().insert();
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(otherOrganization);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("No quality gate has been found for name %s", qualityGate.getName()));
+
+    ws.newRequest()
+      .setParam("name", qualityGate.getName())
+      .setParam("organization", organization.getKey())
+      .execute();
+  }
+
+  @Test
+  public void fail_when_quality_gate_belongs_to_another_organization_using_id_parameter() {
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto otherOrganization = db.organizations().insert();
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(otherOrganization);
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage(format("No quality gate has been found for id %s in organization %s", qualityGate.getId(), organization.getName()));
+
+    ws.newRequest()
+      .setParam("id", qualityGate.getId().toString())
+      .setParam("organization", organization.getKey())
+      .execute();
+  }
 }
