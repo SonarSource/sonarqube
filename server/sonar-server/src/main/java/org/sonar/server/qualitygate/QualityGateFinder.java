@@ -49,7 +49,8 @@ public class QualityGateFinder {
   public Optional<QualityGateData> getQualityGate(DbSession dbSession, long componentId) {
     Optional<Long> qualityGateId = dbClient.projectQgateAssociationDao().selectQGateIdByComponentId(dbSession, componentId);
     if (qualityGateId.isPresent()) {
-      return Optional.of(new QualityGateData(getById(dbSession, qualityGateId.get()), false));
+      QualityGateDto qualityGate = checkFound(dbClient.qualityGateDao().selectById(dbSession, qualityGateId.get()), "No quality gate has been found for id %s", qualityGateId);
+      return Optional.of(new QualityGateData(qualityGate, false));
     } else {
       Optional<QualityGateDto> defaultQualityGate = getDefault(dbSession);
       if (!defaultQualityGate.isPresent()) {
@@ -57,14 +58,6 @@ public class QualityGateFinder {
       }
       return Optional.of(new QualityGateData(defaultQualityGate.get(), true));
     }
-  }
-
-  /**
-   * @deprecated Use {@link #getByOrganizationAndId(DbSession, OrganizationDto, long)}
-   */
-  @Deprecated
-  public QualityGateDto getById(DbSession dbSession, long qualityGateId) {
-    return checkFound(dbClient.qualityGateDao().selectById(dbSession, qualityGateId), "No quality gate has been found for id %s", qualityGateId);
   }
 
   public QGateWithOrgDto getByOrganizationAndId(DbSession dbSession, OrganizationDto organization, long qualityGateId) {
