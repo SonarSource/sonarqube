@@ -22,14 +22,36 @@ package org.sonar.server.qualitygate.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.qualitygate.QualityGates;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.qualitygate.QualityGateFinder;
+import org.sonar.server.qualitygate.QualityGateUpdater;
+import org.sonar.server.user.UserSession;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
+import static org.sonar.server.qualitygate.ws.QualityGatesWs.parseId;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.Qualitygates.QualityGate.newBuilder;
 
 public class SetAsDefaultAction implements QualityGatesWsAction {
 
-  private final QualityGates qualityGates;
+  private final DbClient dbClient;
+  private final UserSession userSession;
+  private final QualityGateUpdater qualityGateUpdater;
+  private final QualityGateFinder qualityGateFinder;
+  private final QualityGatesWsSupport wsSupport;
 
-  public SetAsDefaultAction(QualityGates qualityGates) {
-    this.qualityGates = qualityGates;
+  public SetAsDefaultAction(DbClient dbClient, UserSession userSession, QualityGateUpdater qualityGateUpdater,
+    QualityGateFinder qualityGateFinder, QualityGatesWsSupport qualityGatesWsSupport) {
+    this.dbClient = dbClient;
+    this.userSession = userSession;
+    this.qualityGateUpdater = qualityGateUpdater;
+    this.qualityGateFinder = qualityGateFinder;
+    this.wsSupport = qualityGatesWsSupport;
   }
 
   @Override
@@ -45,11 +67,23 @@ public class SetAsDefaultAction implements QualityGatesWsAction {
       .setDescription("ID of the quality gate to set as default")
       .setRequired(true)
       .setExampleValue("1");
+
+    wsSupport.createOrganizationParam(action);
   }
 
   @Override
   public void handle(Request request, Response response) {
-    qualityGates.setDefault(QualityGatesWs.parseId(request, QualityGatesWsParameters.PARAM_ID));
+    Long id = parseId(request, PARAM_ID);
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
+      userSession.checkPermission(ADMINISTER_QUALITY_GATES, organization);
+      QualityGateDto qualityGate = qualityGateFinder.getByOrganizationAndId(dbSession, organization, id);
+      organization.setDefaultQualityGateUuid(qualityGate.getUuid());
+      dbClient.organizationDao().update(dbSession, organization);
+      dbSession.commit();
+    }
+
     response.noContent();
   }
 

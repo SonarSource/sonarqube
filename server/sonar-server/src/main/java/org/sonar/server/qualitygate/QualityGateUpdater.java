@@ -19,22 +19,17 @@
  */
 package org.sonar.server.qualitygate;
 
-import javax.annotation.Nullable;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.property.PropertyDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.util.Validation.IS_ALREADY_USED_MESSAGE;
-import static org.sonar.server.ws.WsUtils.checkFound;
 
 public class QualityGateUpdater {
-
-  public static final String SONAR_QUALITYGATE_PROPERTY = "sonar.qualitygate";
 
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
@@ -73,15 +68,9 @@ public class QualityGateUpdater {
     checkQualityGateDoesNotAlreadyExist(dbSession, organizationDto, name);
   }
 
-  public void setDefault(DbSession dbSession, @Nullable QualityGateDto qualityGateDto) {
-    if (qualityGateDto == null) {
-      dbClient.propertiesDao().deleteGlobalProperty(SONAR_QUALITYGATE_PROPERTY, dbSession);
-    } else {
-      long qualityGateId = qualityGateDto.getId();
-      checkFound(dbClient.qualityGateDao().selectById(dbSession, qualityGateId), "There is no quality gate with id=" + qualityGateId);
-      dbClient.propertiesDao().saveProperty(dbSession,
-        new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY).setValue(qualityGateDto.getId().toString()));
-    }
+  public void setDefault(DbSession dbSession, OrganizationDto organizationDto, QualityGateDto qualityGateDto) {
+    organizationDto.setDefaultQualityGateUuid(qualityGateDto.getUuid());
+    dbClient.qualityGateDao().update(qualityGateDto, dbSession);
   }
 
   private void checkQualityGateDoesNotAlreadyExist(DbSession dbSession, OrganizationDto organizationDto, String name) {

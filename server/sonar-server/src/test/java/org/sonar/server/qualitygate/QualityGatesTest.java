@@ -83,20 +83,4 @@ public class QualityGatesTest {
 
     userSession.logIn().addPermission(OrganizationPermission.ADMINISTER_QUALITY_GATES, organizationProvider.get().getUuid());
   }
-
-  @Test
-  public void should_select_default_qgate() {
-    long defaultId = QUALITY_GATE_ID;
-    String defaultName = "Default Name";
-    when(dao.selectById(dbSession, defaultId)).thenReturn(new QualityGateDto().setId(defaultId).setName(defaultName));
-
-    underTest.setDefault(defaultId);
-
-    verify(dao).selectById(dbSession, defaultId);
-    ArgumentCaptor<PropertyDto> propertyCaptor = ArgumentCaptor.forClass(PropertyDto.class);
-    verify(propertiesDao).saveProperty(any(DbSession.class), propertyCaptor.capture());
-
-    assertThat(propertyCaptor.getValue().getKey()).isEqualTo("sonar.qualitygate");
-    assertThat(propertyCaptor.getValue().getValue()).isEqualTo("42");
-  }
 }
