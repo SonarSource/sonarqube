@@ -103,8 +103,20 @@
     delete from quality_gates where uuid=#{uuid}
   </update>
 
+  <update id="deleteByUuids" parameterType="map">
+    delete from quality_gates
+    where uuid in
+    <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
+  </update>
+
   <update id="deleteOrgQualityGatesByQualityGateUuid" parameterType="String">
     delete from org_quality_gates where quality_gate_uuid=#{uuid}
+  </update>
+
+  <update id="deleteOrgQualityGatesByQualityGateUuids" parameterType="map">
+    delete from org_quality_gates
+    where quality_gate_uuid in
+    <foreach collection="uuids" open="(" close=")" item="uuid" separator=",">#{uuid, jdbcType=VARCHAR}</foreach>
   </update>
 
   <update id="update" parameterType="QualityGate">
