@@ -78,7 +78,7 @@ public class QualityGateConditionsUpdaterTest {
 
   @Before
   public void setUp() throws Exception {
-    qualityGateDto = qualityGateDbTester.insertQualityGate();
+    qualityGateDto = qualityGateDbTester.insertQualityGate(db.getDefaultOrganization());
     dbClient.metricDao().insert(dbSession, coverageMetricDto, ratingMetricDto);
     dbSession.commit();
   }

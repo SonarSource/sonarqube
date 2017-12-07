@@ -7,6 +7,7 @@
     org.kee as "key",
     org.name as "name",
     org.description as "description",
+    org.default_quality_gate_uuid as "defaultQualityGateUuid",
     org.url as "url",
     org.avatar_url as "avatarUrl",
     org.guarded as "guarded",
@@ -190,6 +191,7 @@
       name = #{organization.name, jdbcType=VARCHAR},
       description = #{organization.description, jdbcType=VARCHAR},
       url = #{organization.url, jdbcType=VARCHAR},
+      default_quality_gate_uuid = #{organization.defaultQualityGateUuid, jdbcType=VARCHAR},
       avatar_url = #{organization.avatarUrl, jdbcType=VARCHAR},
       updated_at = #{organization.updatedAt, jdbcType=BIGINT}
     where

@@ -51,7 +51,7 @@ import static org.sonar.db.component.ComponentTesting.newPublicProjectDto;
 import static org.sonar.db.qualitygate.ProjectQgateAssociationQuery.IN;
 import static org.sonar.db.qualitygate.ProjectQgateAssociationQuery.OUT;
 import static org.sonar.db.qualitygate.ProjectQgateAssociationQuery.builder;
-import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
+import static org.sonar.server.qualitygate.QualityGateFinder.SONAR_QUALITYGATE_PROPERTY;
 
 public class QgateProjectFinderTest {
 

@@ -85,6 +85,8 @@ public class ShowActionTest {
     OrganizationDto organization = db.organizations().insert();
     userSession.logIn("admin").addPermission(ADMINISTER_QUALITY_GATES, organization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("My Quality Gate"));
+    QGateWithOrgDto qualityGate2 = db.qualityGates().insertQualityGate(organization, qg -> qg.setName("My Quality Gate 2"));
+    db.qualityGates().setDefaultQualityGate(organization, qualityGate2);
     MetricDto blockerViolationsMetric = db.measures().insertMetric(m -> m.setKey("blocker_violations"));
     MetricDto criticalViolationsMetric = db.measures().insertMetric(m -> m.setKey("critical_violations"));
     db.qualityGates().addCondition(qualityGate, blockerViolationsMetric, c -> c.setOperator("GT").setPeriod(null).setErrorThreshold("0").setWarningThreshold(null));
@@ -104,6 +106,7 @@ public class ShowActionTest {
   public void show() {
     OrganizationDto organization = db.organizations().insert();
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    db.qualityGates().setDefaultQualityGate(organization, qualityGate);
     MetricDto metric = db.measures().insertMetric();
     QualityGateConditionDto condition1 = db.qualityGates().addCondition(qualityGate, metric, c -> c.setOperator("GT").setPeriod(null));
     QualityGateConditionDto condition2 = db.qualityGates().addCondition(qualityGate, metric, c -> c.setOperator("LT").setPeriod(1));
@@ -129,6 +132,7 @@ public class ShowActionTest {
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
     OrganizationDto otherOrganization = db.organizations().insert();
     QGateWithOrgDto otherQualityGate = db.qualityGates().insertQualityGate(otherOrganization);
+    db.qualityGates().setDefaultQualityGate(db.getDefaultOrganization(), qualityGate);
 
     ShowWsResponse response = ws.newRequest()
       .setParam("name", qualityGate.getName())
@@ -141,6 +145,7 @@ public class ShowActionTest {
   public void show_built_in() {
     OrganizationDto organization = db.organizations().insert();
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setBuiltIn(true));
+    db.qualityGates().setDefaultQualityGate(organization, qualityGate);
 
     ShowWsResponse response = ws.newRequest()
       .setParam("name", qualityGate.getName())
@@ -154,6 +159,7 @@ public class ShowActionTest {
   public void show_by_id() {
     OrganizationDto organization = db.organizations().insert();
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    db.qualityGates().setDefaultQualityGate(organization, qualityGate);
 
     ShowWsResponse response = ws.newRequest()
       .setParam("id", qualityGate.getId().toString())
@@ -168,6 +174,7 @@ public class ShowActionTest {
   public void no_condition() {
     OrganizationDto organization = db.organizations().insert();
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    db.qualityGates().setDefaultQualityGate(organization, qualityGate);
 
     ShowWsResponse response = ws.newRequest()
       .setParam("name", qualityGate.getName())
@@ -184,6 +191,8 @@ public class ShowActionTest {
     OrganizationDto organization = db.organizations().insert();
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, organization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    QGateWithOrgDto qualityGate2 = db.qualityGates().insertQualityGate(organization);
+    db.qualityGates().setDefaultQualityGate(organization, qualityGate2);
 
     ShowWsResponse response = ws.newRequest()
       .setParam("name", qualityGate.getName())
@@ -204,7 +213,7 @@ public class ShowActionTest {
     OrganizationDto organization = db.organizations().insert();
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, organization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
-    db.qualityGates().setDefaultQualityGate(qualityGate);
+    db.qualityGates().setDefaultQualityGate(organization, qualityGate);
 
     ShowWsResponse response = ws.newRequest()
       .setParam("name", qualityGate.getName())
@@ -225,6 +234,8 @@ public class ShowActionTest {
     OrganizationDto organization = db.organizations().insert();
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_GATES, organization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setBuiltIn(true));
+    QGateWithOrgDto qualityGate2 = db.qualityGates().insertQualityGate(organization, qg -> qg.setBuiltIn(false));
+    db.qualityGates().setDefaultQualityGate(organization, qualityGate2);
 
     ShowWsResponse response = ws.newRequest()
       .setParam("name", qualityGate.getName())
@@ -245,6 +256,7 @@ public class ShowActionTest {
     OrganizationDto organization = db.organizations().insert();
     userSession.logIn("john").addPermission(ADMINISTER_QUALITY_PROFILES, organization);
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization, qg -> qg.setBuiltIn(true));
+    db.qualityGates().setDefaultQualityGate(organization, qualityGate);
 
     ShowWsResponse response = ws.newRequest()
       .setParam("name", qualityGate.getName())
@@ -292,6 +304,7 @@ public class ShowActionTest {
   public void fail_when_condition_is_on_disabled_metric() {
     OrganizationDto organization = db.organizations().insert();
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    db.qualityGates().setDefaultQualityGate(organization, qualityGate);
     MetricDto metric = db.measures().insertMetric();
     db.qualityGates().addCondition(qualityGate, metric);
     db.getDbClient().metricDao().disableCustomByKey(db.getSession(), metric.getKey());

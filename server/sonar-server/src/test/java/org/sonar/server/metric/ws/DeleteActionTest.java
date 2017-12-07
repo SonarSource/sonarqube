@@ -110,9 +110,9 @@ public class DeleteActionTest {
     loggedAsSystemAdministrator();
     MetricDto customMetric = insertCustomMetric("custom-key");
     MetricDto nonCustomMetric = insertMetric(newMetricDto().setEnabled(true).setUserManaged(false).setKey("non-custom"));
-    QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate();
+    QualityGateDto qualityGate1 = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
     db.qualityGates().addCondition(qualityGate1, customMetric);
-    QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate();
+    QualityGateDto qualityGate2 = db.qualityGates().insertQualityGate(db.getDefaultOrganization());
     db.qualityGates().addCondition(qualityGate2, customMetric);
     db.qualityGates().addCondition(qualityGate2, nonCustomMetric);
 
