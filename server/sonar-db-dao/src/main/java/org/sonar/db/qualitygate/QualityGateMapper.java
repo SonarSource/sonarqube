@@ -44,7 +44,9 @@ public interface QualityGateMapper {
 
   QualityGateDto selectBuiltIn();
 
-  void delete(long id);
+  void delete(String uuid);
+
+  void deleteOrgQualityGatesByQualityGateUuid(String uuid);
 
   void update(QualityGateDto qGate);
 
