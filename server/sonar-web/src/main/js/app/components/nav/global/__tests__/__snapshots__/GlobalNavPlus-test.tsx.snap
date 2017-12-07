@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render 1`] = `
+<li
+  className="dropdown"
+>
+  <a
+    className="navbar-plus"
+    href="#"
+    onClick={[Function]}
+  >
+    <PlusIcon />
+  </a>
+  <ul
+    className="dropdown-menu dropdown-menu-right"
+  >
+    <li>
+      <a
+        className="js-new-project"
+        href="#"
+        onClick={[Function]}
+      >
+        my_account.analyze_new_project
+      </a>
+    </li>
+    <li
+      className="divider"
+    />
+    <li>
+      <a
+        className="js-new-organization"
+        href="#"
+        onClick={[Function]}
+      >
+        my_account.create_new_organization
+      </a>
+    </li>
+  </ul>
+</li>
+`;

@@ -17,44 +17,49 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { debounce } from 'lodash';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
+import * as PropTypes from 'prop-types';
+import { createOrganization } from '../../organizations/actions';
+import { Organization } from '../../../app/types';
 import Modal from '../../../components/controls/Modal';
 import { translate } from '../../../helpers/l10n';
-import { createOrganization } from '../../organizations/actions';
 
-/*::
-type State = {
-  loading: boolean,
-  avatar: string,
-  avatarImage: string,
-  description: string,
-  key: string,
-  name: string,
-  url: string
-};
-*/
+interface DispatchProps {
+  createOrganization: (fields: Partial<Organization>) => Promise<{ key: string }>;
+}
 
-class CreateOrganizationForm extends React.PureComponent {
-  /*:: mounted: boolean; */
-  /*:: state: State; */
-  /*:: props: {
-    createOrganization: (fields: {}) => Promise<*>,
-    router: { push: string => void }
+interface Props extends DispatchProps {
+  onClose: () => void;
+  onCreate: (organization: { key: string }) => void;
+}
+
+interface State {
+  avatar: string;
+  avatarImage: string;
+  description: string;
+  key: string;
+  loading: boolean;
+  name: string;
+  url: string;
+}
+
+class CreateOrganizationForm extends React.PureComponent<Props, State> {
+  mounted: boolean;
+
+  static contextTypes = {
+    router: PropTypes.object
   };
-*/
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.state = {
-      loading: false,
       avatar: '',
       avatarImage: '',
       description: '',
       key: '',
+      loading: false,
       name: '',
       url: ''
     };
@@ -69,36 +74,37 @@ class CreateOrganizationForm extends React.PureComponent {
     this.mounted = false;
   }
 
-  closeForm = () => {
-    this.props.router.push('/account/organizations');
-  };
-
   stopProcessing = () => {
     if (this.mounted) {
       this.setState({ loading: false });
     }
   };
 
-  stopProcessingAndClose = () => {
-    if (this.mounted) {
-      this.setState({ loading: false });
-    }
-    this.closeForm();
-  };
-
-  handleAvatarInputChange = (e /*: Object */) => {
-    const { value } = e.target;
+  handleAvatarInputChange = (event: React.SyntheticEvent<HTMLInputElement>) => {
+    const { value } = event.currentTarget;
     this.setState({ avatar: value });
     this.changeAvatarImage(value);
   };
 
-  changeAvatarImage = (value /*: string */) => {
+  changeAvatarImage = (value: string) => {
     this.setState({ avatarImage: value });
   };
 
-  handleSubmit = (e /*: Object */) => {
-    e.preventDefault();
-    const organization /*: Object */ = { name: this.state.name };
+  handleNameChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
+    this.setState({ name: event.currentTarget.value });
+
+  handleKeyChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
+    this.setState({ key: event.currentTarget.value });
+
+  handleDescriptionChange = (event: React.SyntheticEvent<HTMLTextAreaElement>) =>
+    this.setState({ description: event.currentTarget.value });
+
+  handleUrlChange = (event: React.SyntheticEvent<HTMLInputElement>) =>
+    this.setState({ url: event.currentTarget.value });
+
+  handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const organization = { name: this.state.name };
     if (this.state.avatar) {
       Object.assign(organization, { avatar: this.state.avatar });
     }
@@ -112,14 +118,12 @@ class CreateOrganizationForm extends React.PureComponent {
       Object.assign(organization, { url: this.state.url });
     }
     this.setState({ loading: true });
-    this.props
-      .createOrganization(organization)
-      .then(this.stopProcessingAndClose, this.stopProcessing);
+    this.props.createOrganization(organization).then(this.props.onCreate, this.stopProcessing);
   };
 
   render() {
     return (
-      <Modal contentLabel="modal form" onRequestClose={this.closeForm}>
+      <Modal contentLabel="modal form" onRequestClose={this.props.onClose}>
         <header className="modal-head">
           <h2>{translate('my_account.create_organization')}</h2>
         </header>
@@ -137,11 +141,11 @@ class CreateOrganizationForm extends React.PureComponent {
                 name="name"
                 required={true}
                 type="text"
-                minLength="2"
-                maxLength="64"
+                minLength={2}
+                maxLength={64}
                 value={this.state.name}
                 disabled={this.state.loading}
-                onChange={e => this.setState({ name: e.target.value })}
+                onChange={this.handleNameChange}
               />
               <div className="modal-field-description">
                 {translate('organization.name.description')}
@@ -153,11 +157,11 @@ class CreateOrganizationForm extends React.PureComponent {
                 id="organization-key"
                 name="key"
                 type="text"
-                minLength="2"
-                maxLength="64"
+                minLength={2}
+                maxLength={64}
                 value={this.state.key}
                 disabled={this.state.loading}
-                onChange={e => this.setState({ key: e.target.value })}
+                onChange={this.handleKeyChange}
               />
               <div className="modal-field-description">
                 {translate('organization.key.description')}
@@ -169,7 +173,7 @@ class CreateOrganizationForm extends React.PureComponent {
                 id="organization-avatar"
                 name="avatar"
                 type="text"
-                maxLength="256"
+                maxLength={256}
                 value={this.state.avatar}
                 disabled={this.state.loading}
                 onChange={this.handleAvatarInputChange}
@@ -192,11 +196,11 @@ class CreateOrganizationForm extends React.PureComponent {
               <textarea
                 id="organization-description"
                 name="description"
-                rows="3"
-                maxLength="256"
+                rows={3}
+                maxLength={256}
                 value={this.state.description}
                 disabled={this.state.loading}
-                onChange={e => this.setState({ description: e.target.value })}
+                onChange={this.handleDescriptionChange}
               />
               <div className="modal-field-description">
                 {translate('organization.description.description')}
@@ -208,10 +212,10 @@ class CreateOrganizationForm extends React.PureComponent {
                 id="organization-url"
                 name="url"
                 type="text"
-                maxLength="256"
+                maxLength={256}
                 value={this.state.url}
                 disabled={this.state.loading}
-                onChange={e => this.setState({ url: e.target.value })}
+                onChange={this.handleUrlChange}
               />
               <div className="modal-field-description">
                 {translate('organization.url.description')}
@@ -225,7 +229,7 @@ class CreateOrganizationForm extends React.PureComponent {
               <button disabled={this.state.loading} type="submit">
                 {translate('create')}
               </button>
-              <button type="reset" className="button-link" onClick={this.closeForm}>
+              <button className="button-link" onClick={this.props.onClose} type="reset">
                 {translate('cancel')}
               </button>
             </div>
@@ -236,8 +240,6 @@ class CreateOrganizationForm extends React.PureComponent {
   }
 }
 
-const mapStateToProps = null;
+const mapDispatchToProps: DispatchProps = { createOrganization: createOrganization as any };
 
-const mapDispatchToProps = { createOrganization };
-
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(CreateOrganizationForm));
+export default connect(null, mapDispatchToProps)(CreateOrganizationForm);
