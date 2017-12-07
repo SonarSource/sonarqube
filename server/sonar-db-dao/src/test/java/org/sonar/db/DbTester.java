@@ -30,6 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.event.EventDbTester;
 import org.sonar.db.favorite.FavoriteDbTester;
@@ -156,7 +157,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
     db.start();
     db.truncateTables();
     initDbClient();
-    // TODO : insertBuiltInQualityGateIfTableExists();
+    insertBuiltInQualityGateIfTableExists();
 
     if (!disableDefaultOrganization) {
       insertDefaultOrganization();
@@ -168,6 +169,7 @@ public class DbTester extends AbstractDbTester<TestDb> {
     try (DbSession dbSession = db.getMyBatis().openSession(false)) {
       if (DatabaseUtils.tableExists("quality_gates", dbSession.getConnection())) {
         builtInQualityGate = new QualityGateDto()
+          .setUuid(Uuids.createFast())
           .setName("Sonar way")
           .setBuiltIn(true)
           .setCreatedAt(new Date(system2.now()))
