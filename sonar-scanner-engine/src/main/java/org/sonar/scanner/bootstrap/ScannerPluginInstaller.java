@@ -67,7 +67,7 @@ public class ScannerPluginInstaller implements PluginInstaller {
   private Map<String, ScannerPlugin> loadPlugins(InstalledPlugin[] remotePlugins) {
     Map<String, ScannerPlugin> infosByKey = new HashMap<>(remotePlugins.length);
 
-    Profiler profiler = Profiler.create(LOG).startDebug("Load plugins");
+    Profiler profiler = Profiler.create(LOG).startInfo("Load/download plugins");
 
     for (InstalledPlugin installedPlugin : remotePlugins) {
       if (pluginPredicate.apply(installedPlugin.key)) {
@@ -76,8 +76,7 @@ public class ScannerPluginInstaller implements PluginInstaller {
         infosByKey.put(info.getKey(), new ScannerPlugin(installedPlugin.key, installedPlugin.updatedAt, info));
       }
     }
-
-    profiler.stopDebug();
+    profiler.stopInfo();
     return infosByKey;
   }
 
@@ -139,9 +138,9 @@ public class ScannerPluginInstaller implements PluginInstaller {
     public void download(String filename, File toFile) throws IOException {
       String url = format("/deploy/plugins/%s/%s", key, filename);
       if (LOG.isDebugEnabled()) {
-        LOG.debug("Download plugin {} to {}", filename, toFile);
+        LOG.debug("Download plugin '{}' to '{}'", filename, toFile);
       } else {
-        LOG.info("Download {}", filename);
+        LOG.debug("Download '{}'", filename);
       }
 
       WsResponse response = wsClient.call(new GetRequest(url));
