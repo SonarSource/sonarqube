@@ -19,6 +19,7 @@
  */
 package org.sonar.db.qualitygate;
 
+import java.util.Collection;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -46,7 +47,11 @@ public interface QualityGateMapper {
 
   void delete(String uuid);
 
+  void deleteByUuids(@Param("uuids") Collection<String> uuids);
+
   void deleteOrgQualityGatesByQualityGateUuid(String uuid);
+
+  void deleteOrgQualityGatesByQualityGateUuids(@Param("uuids") Collection<String> uuids);
 
   void update(QualityGateDto qGate);
 
