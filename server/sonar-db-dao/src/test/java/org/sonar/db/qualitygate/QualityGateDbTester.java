@@ -20,6 +20,7 @@
 package org.sonar.db.qualitygate;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.function.Consumer;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -47,6 +48,16 @@ public class QualityGateDbTester {
 
   public QualityGateDto insertQualityGate(String name) {
     return insertQualityGate(qualityGate -> qualityGate.setName(name));
+  }
+
+  public QualityGateDto insertBuiltInQualityGate() {
+    QualityGateDto builtin = dbClient.qualityGateDao().insert(dbSession, new QualityGateDto()
+      .setName("Sonar way")
+      .setUuid(Uuids.createFast())
+      .setBuiltIn(true)
+      .setCreatedAt(new Date()));
+    dbSession.commit();
+    return builtin;
   }
 
   @SafeVarargs
