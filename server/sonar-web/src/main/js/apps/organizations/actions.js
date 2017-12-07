@@ -72,6 +72,7 @@ export const createOrganization = (fields /*: Object */) => (dispatch /*: Functi
     dispatch(
       addGlobalSuccessMessage(translateWithParameters('organization.created', organization.name))
     );
+    return organization;
   };
 
   return api.createOrganization(fields).then(onFulfilled, onRejected(dispatch));
