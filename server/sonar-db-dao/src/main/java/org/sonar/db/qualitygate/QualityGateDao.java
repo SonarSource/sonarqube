@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 
@@ -74,6 +75,14 @@ public class QualityGateDao implements Dao {
   public void delete(QualityGateDto qGate, DbSession session) {
     mapper(session).delete(qGate.getUuid());
     mapper(session).deleteOrgQualityGatesByQualityGateUuid(qGate.getUuid());
+  }
+
+  public void deleteByUuids(DbSession session, Collection<String> uuids) {
+    QualityGateMapper mapper = mapper(session);
+    DatabaseUtils.executeLargeUpdates(uuids, partitionUuids -> {
+      mapper.deleteByUuids(partitionUuids);
+      mapper.deleteOrgQualityGatesByQualityGateUuids(partitionUuids);
+    });
   }
 
   public void update(QualityGateDto qGate, DbSession session) {

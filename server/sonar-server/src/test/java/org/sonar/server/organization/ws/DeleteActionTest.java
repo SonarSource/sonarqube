@@ -35,6 +35,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
+import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -346,6 +347,25 @@ public class DeleteActionTest {
     assertThat(db.select("select uuid as \"profileKey\" from org_qprofiles"))
       .extracting(row -> (String) row.get("profileKey"))
       .containsOnly(profileInOtherOrg.getKee());
+  }
+
+  @Test
+  public void delete_quality_gates() {
+    OrganizationDto org = db.organizations().insert();
+    OrganizationDto otherOrg = db.organizations().insert();
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(org);
+    QGateWithOrgDto qualityGateInOtherOrg = db.qualityGates().insertQualityGate(otherOrg);
+    logInAsAdministrator(org);
+
+    sendRequest(org);
+
+    verifyOrganizationDoesNotExist(org);
+    assertThat(db.select("select uuid as \"uuid\" from quality_gates"))
+      .extracting(row -> (String) row.get("uuid"))
+      .containsOnly(qualityGateInOtherOrg.getUuid());
+    assertThat(db.select("select organization_uuid as \"organizationUuid\" from org_quality_gates"))
+      .extracting(row -> (String) row.get("organizationUuid"))
+      .containsOnly(otherOrg.getUuid());
   }
 
   private void verifyOrganizationDoesNotExist(OrganizationDto organization) {
