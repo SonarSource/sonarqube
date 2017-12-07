@@ -19,6 +19,7 @@
  */
 package org.sonar.db.qualitygate;
 
+import java.util.Collections;
 import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
@@ -29,6 +30,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class QualityGateDaoTest {
@@ -172,6 +174,27 @@ public class QualityGateDaoTest {
     assertThat(db.countSql(dbSession, format("select count(*) from org_quality_gates where quality_gate_uuid='%s'", qualityGate.getUuid()))).isZero();
     assertThat(underTest.selectByOrganizationAndUuid(dbSession, organization, otherQualityGate.getUuid())).isNotNull();
     assertThat(db.countSql(dbSession, format("select count(*) from org_quality_gates where quality_gate_uuid='%s'", otherQualityGate.getUuid()))).isEqualTo(1);
+  }
+
+  @Test
+  public void delete_by_uuids() {
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto qualityGate1 = qualityGateDbTester.insertQualityGate(organization);
+    QGateWithOrgDto qualityGate2 = qualityGateDbTester.insertQualityGate(organization);
+
+    underTest.deleteByUuids(dbSession, asList(qualityGate1.getUuid(), qualityGate2.getUuid()));
+    dbSession.commit();
+
+    assertThat(db.countRowsOfTable(dbSession, "quality_gates")).isZero();
+    assertThat(db.countRowsOfTable(dbSession, "org_quality_gates")).isZero();
+  }
+
+  @Test
+  public void delete_by_uuids_does_nothing_on_empty_list() {
+    underTest.deleteByUuids(dbSession, Collections.emptyList());
+    dbSession.commit();
+
+    assertThat(db.countRowsOfTable(dbSession, "quality_gates")).isZero();
   }
 
   @Test
