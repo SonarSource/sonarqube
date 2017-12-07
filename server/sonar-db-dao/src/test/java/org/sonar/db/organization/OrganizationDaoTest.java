@@ -1020,7 +1020,7 @@ public class OrganizationDaoTest {
       .setName(organizationDto.getName())
       .setDescription(organizationDto.getDescription())
       .setUrl(organizationDto.getUrl())
-      // TODO : .setDefaultQualityGateUuid(dbClient.qualityGateDao().selectBuiltIn(dbSession).getId().toString())
+      .setDefaultQualityGateUuid(organizationDto.getDefaultQualityGateUuid())
       .setAvatarUrl(organizationDto.getAvatarUrl());
   }
 
