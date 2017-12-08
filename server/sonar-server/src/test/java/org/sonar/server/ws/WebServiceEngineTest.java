@@ -200,6 +200,16 @@ public class WebServiceEngineTest {
   }
 
   @Test
+  public void required_parameter_is_not_set_but_not_called_as_mandatory() {
+    ValidatingRequest request = new TestRequest().setPath("/api/system/test-required-parameter");
+
+    DumbResponse response = new DumbResponse();
+    underTest.execute(request, response);
+
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"The 'required-parameter' parameter is missing\"}]}");
+  }
+
+  @Test
   public void optional_parameter_is_not_set() {
     ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/print").setParam("message", "Hello World");
     DumbResponse response = new DumbResponse();
@@ -380,6 +390,13 @@ public class WebServiceEngineTest {
         } catch (IOException e) {
           throw new IllegalStateException(e);
         }
+      });
+
+      // parameter "required-parameter" is required
+      NewAction helloWorld = createNewDefaultAction(newController, "test-required-parameter");
+      helloWorld.createParam("required-parameter").setDescription("required message").setRequired(true);
+      helloWorld.setHandler((request, response) -> {
+        String param = request.param("required-parameter");
       });
 
       createNewDefaultAction(newController, "fail_with_client_abort_exception")

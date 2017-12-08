@@ -69,14 +69,17 @@ public abstract class ValidatingRequest extends Request {
   @CheckForNull
   public String param(String key) {
     WebService.Param definition = action.param(key);
-    String valueOrDefault = defaultString(readParam(key, definition), definition.defaultValue());
-    String value = valueOrDefault == null ? null : CharMatcher.WHITESPACE.trimFrom(valueOrDefault);
+
+    String rawValue = readParam(key, definition);
+    String rawValueOrDefault = defaultString(rawValue, definition.defaultValue());
+    String value = rawValueOrDefault == null ? null : CharMatcher.WHITESPACE.trimFrom(rawValueOrDefault);
+    validateRequiredValue(key, definition, rawValue);
     if (value == null) {
       return null;
     }
     validatePossibleValues(key, value, definition);
-    validateMaximumLength(key, definition, valueOrDefault);
-    validateMinimumLength(key, definition, valueOrDefault);
+    validateMaximumLength(key, definition, rawValueOrDefault);
+    validateMinimumLength(key, definition, rawValueOrDefault);
     validateMaximumValue(key, definition, value);
     return value;
   }
@@ -200,6 +203,13 @@ public abstract class ValidatingRequest extends Request {
     }
     int valueAsInt = validateAsNumeric(key, value);
     checkArgument(valueAsInt <= maximumValue, "'%s' value (%s) must be less than %s", key, valueAsInt, maximumValue);
+  }
+
+  private static void validateRequiredValue(String key, WebService.Param definition, String value) {
+    boolean required = definition.isRequired();
+    if (required) {
+      checkArgument(value != null, format(MSG_PARAMETER_MISSING, key));
+    }
   }
 
   private static int validateAsNumeric(String key, String value) {
