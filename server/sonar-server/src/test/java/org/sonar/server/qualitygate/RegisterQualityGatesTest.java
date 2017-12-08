@@ -77,10 +77,12 @@ public class RegisterQualityGatesTest {
 
   private RegisterQualityGates underTest = new RegisterQualityGates(dbClient, qualityGateUpdater, qualityGateConditionsUpdater, qualityGateFinder,
     UuidFactoryFast.getInstance(), System2.INSTANCE);
+  private QualityGateDto builtInQG;
 
   @Before
   public void setup() {
     insertMetrics();
+    builtInQG = qualityGateFinder.getBuiltInQualityGate(dbSession);
   }
 
   @After
@@ -90,6 +92,9 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void register_default_gate() {
+    dbClient.qualityGateDao().delete(builtInQG, dbSession);
+    dbSession.commit();
+
     underTest.start();
 
     verifyCorrectBuiltInQualityGate();
@@ -102,8 +107,6 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void upgrade_empty_quality_gate() {
-    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(true).setUuid(Uuids.createFast());
-    qualityGateDao.insert(dbSession, builtin);
     dbSession.commit();
 
     underTest.start();
@@ -116,13 +119,10 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void upgrade_should_remove_deleted_condition() {
-    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(true).setUuid(Uuids.createFast());
-    qualityGateDao.insert(dbSession, builtin);
-
-    createBuiltInConditions(builtin);
+    createBuiltInConditions(builtInQG);
 
     // Add another condition
-    qualityGateConditionsUpdater.createCondition(dbSession, builtin,
+    qualityGateConditionsUpdater.createCondition(dbSession, builtInQG,
       NEW_SECURITY_REMEDIATION_EFFORT_KEY, OPERATOR_GREATER_THAN, null, "5", LEAK_PERIOD);
 
     dbSession.commit();
@@ -136,10 +136,7 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void upgrade_should_add_missing_condition() {
-    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(true).setUuid(Uuids.createFast());
-    qualityGateDao.insert(dbSession, builtin);
-
-    List<QualityGateConditionDto> builtInConditions = createBuiltInConditions(builtin);
+    List<QualityGateConditionDto> builtInConditions = createBuiltInConditions(builtInQG);
 
     // Remove a condition
     QualityGateConditionDto conditionToBeDeleted = builtInConditions.get(new Random().nextInt(builtInConditions.size()));
@@ -157,9 +154,9 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void should_set_SonarWay_as_builtin_when_not_set() {
+    dbClient.qualityGateDao().delete(builtInQG, dbSession);
     QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(false).setUuid(Uuids.createFast());
     qualityGateDao.insert(dbSession, builtin);
-
     createBuiltInConditions(builtin);
     dbSession.commit();
 
@@ -173,10 +170,7 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void should_not_update_builtin_quality_gate_if_already_uptodate() {
-    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(true).setUuid(Uuids.createFast());
-    qualityGateDao.insert(dbSession, builtin);
-
-    createBuiltInConditions(builtin);
+    createBuiltInConditions(builtInQG);
     dbSession.commit();
 
     underTest.start();
@@ -194,6 +188,7 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void ensure_only_one_built_in_quality_gate() {
+    dbClient.qualityGateDao().delete(builtInQG, dbSession);
     String qualityGateName = "IncorrectQualityGate";
     QualityGateDto builtin = new QualityGateDto().setName(qualityGateName).setBuiltIn(true).setUuid(Uuids.createFast());
     qualityGateDao.insert(dbSession, builtin);
@@ -217,14 +212,11 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void ensure_only_that_builtin_is_set_as_default_when_no_default_quality_gate() {
-    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(true).setUuid(Uuids.createFast());
-    qualityGateDao.insert(dbSession, builtin);
-    dbSession.commit();
 
     underTest.start();
 
     assertThat(qualityGateFinder.getDefault(dbSession)).isPresent();
-    assertThat(qualityGateFinder.getDefault(dbSession).get().getId()).isEqualTo(builtin.getId());
+    assertThat(qualityGateFinder.getDefault(dbSession).get().getId()).isEqualTo(builtInQG.getId());
 
     assertThat(
       logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate [Sonar way] has been set as default")).isTrue();
@@ -232,8 +224,6 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void builtin_quality_gate_with_incorrect_metricId_should_not_throw_an_exception() {
-    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(true).setUuid(Uuids.createFast());
-    qualityGateDao.insert(dbSession, builtin);
     QualityGateConditionDto conditionDto = new QualityGateConditionDto()
       .setMetricId(-1) // This Id does not exist
       .setOperator(OPERATOR_GREATER_THAN)
@@ -283,18 +273,18 @@ public class RegisterQualityGatesTest {
         tuple(newDuplication.getId().longValue(), OPERATOR_GREATER_THAN, null, "3", 1));
   }
 
-  private List<QualityGateConditionDto> createBuiltInConditions(QualityGateDto builtin) {
+  private List<QualityGateConditionDto> createBuiltInConditions(QualityGateDto qg) {
     List<QualityGateConditionDto> conditions = new ArrayList<>();
 
-    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, builtin,
+    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
       NEW_SECURITY_RATING_KEY, OPERATOR_GREATER_THAN, null, "1", LEAK_PERIOD));
-    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, builtin,
+    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
       NEW_RELIABILITY_RATING_KEY, OPERATOR_GREATER_THAN, null, "1", LEAK_PERIOD));
-    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, builtin,
+    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
       NEW_MAINTAINABILITY_RATING_KEY, OPERATOR_GREATER_THAN, null, "1", LEAK_PERIOD));
-    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, builtin,
+    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
       NEW_COVERAGE_KEY, OPERATOR_LESS_THAN, null, "80", LEAK_PERIOD));
-    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, builtin,
+    conditions.add(qualityGateConditionsUpdater.createCondition(dbSession, qg,
       NEW_DUPLICATED_LINES_DENSITY_KEY, OPERATOR_GREATER_THAN, null, "3", LEAK_PERIOD));
 
     return conditions;
