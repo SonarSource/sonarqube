@@ -30,6 +30,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.db.organization.OrganizationDto;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.rule.RuleUpdate.RuleUpdateUseCase.CUSTOM_RULE;
 import static org.sonar.server.rule.RuleUpdate.RuleUpdateUseCase.PLUGIN_RULE;
 
@@ -223,9 +224,7 @@ public class RuleUpdate {
   }
 
   private void checkCustomRule() {
-    if (useCase != CUSTOM_RULE) {
-      throw new IllegalStateException("Not a custom rule");
-    }
+    checkArgument(useCase == CUSTOM_RULE, "Not a custom rule");
   }
 
   public OrganizationDto getOrganization() {
