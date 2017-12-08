@@ -48,6 +48,7 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
+import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileFactoryImpl;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
@@ -88,7 +89,7 @@ public class DeleteActionTest {
   private QProfileFactory qProfileFactory = new QProfileFactoryImpl(dbClient, mock(UuidFactory.class), System2.INSTANCE, mock(ActiveRuleIndexer.class));
   private UserIndex userIndex = new UserIndex(es.client(), System2.INSTANCE);
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
-
+  private QualityGateFinder qualityGateFinder = new QualityGateFinder(dbClient);
   private WsActionTester wsTester = new WsActionTester(new DeleteAction(userSession, dbClient, defaultOrganizationProvider, componentCleanerService, organizationFlags, userIndexer, qProfileFactory));
 
   @Test
@@ -362,7 +363,7 @@ public class DeleteActionTest {
     verifyOrganizationDoesNotExist(org);
     assertThat(db.select("select uuid as \"uuid\" from quality_gates"))
       .extracting(row -> (String) row.get("uuid"))
-      .containsOnly(qualityGateInOtherOrg.getUuid());
+      .containsOnly(qualityGateInOtherOrg.getUuid(), qualityGateFinder.getBuiltInQualityGate(db.getSession()).getUuid());
     assertThat(db.select("select organization_uuid as \"organizationUuid\" from org_quality_gates"))
       .extracting(row -> (String) row.get("organizationUuid"))
       .containsOnly(otherOrg.getUuid());
