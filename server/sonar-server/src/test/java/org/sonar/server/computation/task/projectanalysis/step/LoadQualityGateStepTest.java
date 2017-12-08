@@ -19,8 +19,8 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import com.google.common.base.Optional;
 import java.util.Collections;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,9 +36,8 @@ import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class LoadQualityGateStepTest {
@@ -73,14 +72,12 @@ public class LoadQualityGateStepTest {
   @Test
   public void execute_sets_default_QualityGate_when_project_has_no_settings() {
     when(settingsRepository.getConfiguration()).thenReturn(new MapSettings().asConfig());
+    QualityGate qualityGate = mock(QualityGate.class);
+    when(qualityGateService.findDefaultQualityGate(any())).thenReturn(Optional.of(qualityGate));
 
     underTest.execute();
 
-    verifyNoQualityGate();
-
-    // verify only project is processed
-    verify(settingsRepository).getConfiguration();
-    verifyNoMoreInteractions(settingsRepository);
+    assertThat(mutableQualityGateHolder.getQualityGate().get()).isSameAs(qualityGate);
   }
 
   @Test
@@ -94,9 +91,9 @@ public class LoadQualityGateStepTest {
   }
 
   @Test
-  public void execute_sets_default_QualityGate_if_it_can_not_be_found_by_service() {
-    when(settingsRepository.getConfiguration()).thenReturn(new MapSettings().setProperty("sonar.qualitygate", 10).asConfig());
-    when(qualityGateService.findById(10)).thenReturn(Optional.absent());
+  public void execute_sets_default_QualityGate_if_no_default_quality_gate_on_organization() {
+    when(settingsRepository.getConfiguration()).thenReturn(new MapSettings().asConfig());
+    when(qualityGateService.findDefaultQualityGate(any())).thenReturn(Optional.empty());
 
     underTest.execute();
 
@@ -105,7 +102,7 @@ public class LoadQualityGateStepTest {
 
   @Test
   public void execute_sets_QualityGate_if_it_can_be_found_by_service() {
-    QualityGate qualityGate = new QualityGate(465, "name", Collections.emptyList());
+    QualityGate qualityGate = new QualityGate(10, "name", Collections.emptyList());
 
     when(settingsRepository.getConfiguration()).thenReturn(new MapSettings().setProperty("sonar.qualitygate", 10).asConfig());
     when(qualityGateService.findById(10)).thenReturn(Optional.of(qualityGate));

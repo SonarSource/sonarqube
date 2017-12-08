@@ -19,10 +19,8 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
-import com.google.common.base.Optional;
+import java.util.Optional;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.ConfigurationRepository;
 import org.sonar.server.computation.task.projectanalysis.qualitygate.MutableQualityGateHolder;
@@ -38,9 +36,7 @@ import static org.apache.commons.lang.StringUtils.isBlank;
  * {@link MutableQualityGateHolder}.
  */
 public class LoadQualityGateStep implements ComputationStep {
-  private static final Logger LOGGER = Loggers.get(LoadQualityGateStep.class);
-
-  private static final String PROPERTY_QUALITY_GATE = "sonar.qualitygate";
+  private static final String PROPERTY_PROJECT_QUALITY_GATE = "sonar.qualitygate";
 
   private final ConfigurationRepository configRepository;
   private final QualityGateService qualityGateService;
@@ -57,37 +53,55 @@ public class LoadQualityGateStep implements ComputationStep {
 
   @Override
   public void execute() {
+    Optional<QualityGate> qualityGate = getShortLivingBranchQualityGate();
+    if (!qualityGate.isPresent()) {
+      // Not on a short living branch, let's retrieve the QG of the project
+      qualityGate = getProjectQualityGate();
+      if (!qualityGate.isPresent()) {
+        // No QG defined for the project, let's retrieve the QG on the organization
+        qualityGate = getOrganizationDefaultQualityGate();
+      }
+    }
+
+    if (qualityGate.isPresent()) {
+      qualityGateHolder.setQualityGate(qualityGate.get());
+    } else {
+      qualityGateHolder.setNoQualityGate();
+    }
+  }
+
+  private Optional<QualityGate> getShortLivingBranchQualityGate() {
     if (analysisMetadataHolder.isShortLivingBranch()) {
       Optional<QualityGate> qualityGate = qualityGateService.findById(ShortLivingBranchQualityGate.ID);
       if (qualityGate.isPresent()) {
-        qualityGateHolder.setQualityGate(qualityGate.get());
+        return qualityGate;
       } else {
         throw new IllegalStateException("Failed to retrieve hardcoded short living branch Quality Gate");
       }
-      return;
+    } else {
+      return Optional.empty();
     }
+  }
+
+  private Optional<QualityGate> getProjectQualityGate() {
     Configuration config = configRepository.getConfiguration();
-    String qualityGateSetting = config.get(PROPERTY_QUALITY_GATE).orElse(null);
+    String qualityGateSetting = config.get(PROPERTY_PROJECT_QUALITY_GATE).orElse(null);
 
     if (isBlank(qualityGateSetting)) {
-      LOGGER.debug("No quality gate is configured");
-      qualityGateHolder.setNoQualityGate();
-      return;
+      return Optional.empty();
     }
 
     try {
       long qualityGateId = Long.parseLong(qualityGateSetting);
-      Optional<QualityGate> qualityGate = qualityGateService.findById(qualityGateId);
-      if (qualityGate.isPresent()) {
-        qualityGateHolder.setQualityGate(qualityGate.get());
-      } else {
-        qualityGateHolder.setNoQualityGate();
-      }
+      return qualityGateService.findById(qualityGateId);
     } catch (NumberFormatException e) {
       throw new IllegalStateException(
-        String.format("Unsupported value (%s) in property %s", qualityGateSetting, PROPERTY_QUALITY_GATE),
-        e);
+        String.format("Unsupported value (%s) in property %s", qualityGateSetting, PROPERTY_PROJECT_QUALITY_GATE), e);
     }
+  }
+
+  private Optional<QualityGate> getOrganizationDefaultQualityGate() {
+    return qualityGateService.findDefaultQualityGate(analysisMetadataHolder.getOrganization());
   }
 
   @Override

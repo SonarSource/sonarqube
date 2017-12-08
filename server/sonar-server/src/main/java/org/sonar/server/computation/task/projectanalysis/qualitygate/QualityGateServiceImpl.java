@@ -19,13 +19,14 @@
  */
 package org.sonar.server.computation.task.projectanalysis.qualitygate;
 
-import com.google.common.base.Optional;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.computation.task.projectanalysis.analysis.Organization;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepository;
 import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
 
@@ -49,7 +50,18 @@ public class QualityGateServiceImpl implements QualityGateService {
     try (DbSession dbSession = dbClient.openSession(false)) {
       QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectById(dbSession, id);
       if (qualityGateDto == null) {
-        return Optional.absent();
+        return Optional.empty();
+      }
+      return Optional.of(toQualityGate(dbSession, qualityGateDto));
+    }
+  }
+
+  @Override
+  public Optional<QualityGate> findDefaultQualityGate(Organization organization) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      QualityGateDto qualityGateDto = dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization.toDto(), organization.getDefaultQualityGateUuid());
+      if (qualityGateDto == null) {
+        return Optional.empty();
       }
       return Optional.of(toQualityGate(dbSession, qualityGateDto));
     }
