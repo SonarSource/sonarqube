@@ -83,7 +83,7 @@ public class TemplateGroupsAction implements PermissionsWsAction {
         "When this parameter is not set, only group having at least one permission are returned.")
       .setExampleValue("eri");
 
-    createProjectPermissionParameter(action);
+    createProjectPermissionParameter(action, false);
     createTemplateParameters(action);
   }
 

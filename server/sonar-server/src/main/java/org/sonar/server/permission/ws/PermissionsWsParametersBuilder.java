@@ -49,7 +49,7 @@ public class PermissionsWsParametersBuilder {
     "</ul>",
     GlobalPermissions.ALL_ON_ONE_LINE,
     ProjectPermissions.ALL_ON_ONE_LINE);
-  private static final String PROJECT_PERMISSION_PARAM_DESCRIPTION = format("Permission" +
+  public static final String PROJECT_PERMISSION_PARAM_DESCRIPTION = format("Permission" +
     "<ul>" +
     "<li>Possible values for project permissions %s</li>" +
     "</ul>",
@@ -65,11 +65,15 @@ public class PermissionsWsParametersBuilder {
       .setRequired(true);
   }
 
-  public static NewParam createProjectPermissionParameter(NewAction action) {
+  public static NewParam createProjectPermissionParameter(NewAction action, boolean required) {
     return action.createParam(PARAM_PERMISSION)
       .setDescription(PROJECT_PERMISSION_PARAM_DESCRIPTION)
       .setPossibleValues(ProjectPermissions.ALL)
-      .setRequired(true);
+      .setRequired(required);
+  }
+
+  public static NewParam createProjectPermissionParameter(NewAction action) {
+    return createProjectPermissionParameter(action, true);
   }
 
   public static void createGroupNameParameter(NewAction action) {
