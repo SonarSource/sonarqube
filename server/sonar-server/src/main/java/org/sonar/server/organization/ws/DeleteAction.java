@@ -139,7 +139,10 @@ public class DeleteAction implements OrganizationsWsAction {
 
   private void deleteQualityGates(DbSession dbSession, OrganizationDto organization) {
     Collection<QualityGateDto> qualityGates = dbClient.qualityGateDao().selectAll(dbSession, organization);
-    dbClient.qualityGateDao().deleteByUuids(dbSession, qualityGates.stream().map(QualityGateDto::getUuid).collect(MoreCollectors.toList()));
+    dbClient.qualityGateDao().deleteByUuids(dbSession, qualityGates.stream()
+      .filter(q -> !q.isBuiltIn())
+      .map(QualityGateDto::getUuid)
+      .collect(MoreCollectors.toList()));
   }
 
   private void deleteOrganization(DbSession dbSession, OrganizationDto organization) {
