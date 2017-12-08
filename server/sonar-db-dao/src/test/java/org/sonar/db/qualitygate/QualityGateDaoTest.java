@@ -107,7 +107,7 @@ public class QualityGateDaoTest {
   public void testSelectById() {
     insertQualityGates();
     assertThat(underTest.selectById(dbSession, underTest.selectByName(dbSession, "Very strict").getId()).getName()).isEqualTo("Very strict");
-    assertThat(underTest.selectById(dbSession, 42L)).isNull();
+    assertThat(underTest.selectById(dbSession, -1L)).isNull();
   }
 
   @Test
@@ -185,16 +185,18 @@ public class QualityGateDaoTest {
     underTest.deleteByUuids(dbSession, asList(qualityGate1.getUuid(), qualityGate2.getUuid()));
     dbSession.commit();
 
-    assertThat(db.countRowsOfTable(dbSession, "quality_gates")).isZero();
-    assertThat(db.countRowsOfTable(dbSession, "org_quality_gates")).isZero();
+    assertThat(underTest.selectAll(dbSession, organization).stream())
+      .extracting(QualityGateDto::getUuid)
+      .doesNotContain(qualityGate1.getUuid(), qualityGate2.getUuid());
   }
 
   @Test
   public void delete_by_uuids_does_nothing_on_empty_list() {
+    int nbOfQualityGates = db.countRowsOfTable(dbSession, "quality_gates");
     underTest.deleteByUuids(dbSession, Collections.emptyList());
     dbSession.commit();
 
-    assertThat(db.countRowsOfTable(dbSession, "quality_gates")).isZero();
+    assertThat(db.countRowsOfTable(dbSession, "quality_gates")).isEqualTo(nbOfQualityGates);
   }
 
   @Test
