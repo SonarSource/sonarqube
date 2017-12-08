@@ -40,6 +40,7 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.organization.TestOrganizationFlags;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
@@ -445,6 +446,17 @@ public class ServerUserSessionTest {
 
     assertThat(underTest.keepAuthorizedComponents(UserRole.ADMIN, Arrays.asList(privateProject, publicProject)))
       .containsExactly(privateProject, publicProject);
+  }
+
+  @Test
+  public void keepAuthorizedComponents_on_branches() {
+    user = db.users().insertUser();
+    db.users().insertProjectPermissionOnUser(user, UserRole.ADMIN, privateProject);
+    ComponentDto privateBranchProject = db.components().insertProjectBranch(privateProject);
+    UserSession underTest = newUserSession(user);
+
+    assertThat(underTest.keepAuthorizedComponents(UserRole.ADMIN, asList(privateProject, privateBranchProject)))
+      .containsExactlyInAnyOrder(privateProject, privateBranchProject);
   }
 
   @Test
