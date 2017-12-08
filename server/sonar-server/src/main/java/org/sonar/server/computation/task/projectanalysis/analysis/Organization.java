@@ -29,11 +29,13 @@ public class Organization {
   private final String uuid;
   private final String key;
   private final String name;
+  private final String defaultQualityGateUuid;
 
-  private Organization(String uuid, String key, String name) {
+  private Organization(String uuid, String key, String name, String defaultQualityGateUuid) {
     this.uuid = requireNonNull(uuid, "uuid can't be null");
     this.key = requireNonNull(key, "key can't be null");
     this.name = requireNonNull(name, "name can't be null");
+    this.defaultQualityGateUuid = requireNonNull(defaultQualityGateUuid, "defaultQualityGateUuid can't be null");
   }
 
   public String getUuid() {
@@ -46,6 +48,10 @@ public class Organization {
 
   public String getName() {
     return name;
+  }
+
+  public String getDefaultQualityGateUuid() {
+    return defaultQualityGateUuid;
   }
 
   @Override
@@ -71,11 +77,20 @@ public class Organization {
       "uuid='" + uuid + '\'' +
       ", key='" + key + '\'' +
       ", name='" + name + '\'' +
+      ", defaultQualityGateUuid='" + defaultQualityGateUuid + '\'' +
       '}';
   }
 
+  public OrganizationDto toDto() {
+    return new OrganizationDto()
+      .setName(name)
+      .setKey(key)
+      .setUuid(uuid)
+      .setDefaultQualityGateUuid(defaultQualityGateUuid);
+  }
+
   public static Organization from(OrganizationDto organizationDto) {
-    return new Organization(organizationDto.getUuid(), organizationDto.getKey(), organizationDto.getName());
+    return new Organization(organizationDto.getUuid(), organizationDto.getKey(), organizationDto.getName(), organizationDto.getDefaultQualityGateUuid());
   }
 
 }

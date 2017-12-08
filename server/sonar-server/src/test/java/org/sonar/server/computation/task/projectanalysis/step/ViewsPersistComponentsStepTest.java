@@ -78,6 +78,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   private static final String PROJECT_VIEW_1_NAME = "PV1_NAME";
   private static final String PROJECT_VIEW_1_UUID = "PV1_UUID";
   private static final String ORGANIZATION_UUID = "org1";
+  private static final String QUALITY_GATE_UUID = "qg1";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -87,7 +88,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
   public MutableDbIdsRepositoryRule dbIdsRepository = MutableDbIdsRepositoryRule.create(treeRootHolder);
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
-    .setOrganizationUuid(ORGANIZATION_UUID);
+    .setOrganizationUuid(ORGANIZATION_UUID, QUALITY_GATE_UUID);
 
   private System2 system2 = mock(System2.class);
   private DbClient dbClient = dbTester.getDbClient();
