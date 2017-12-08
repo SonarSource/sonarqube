@@ -57,6 +57,7 @@ public class QGateTester {
     }
     session.wsClient().qualitygates().list().getQualitygatesList().stream()
       .filter(qualityGate -> !qualityGate.getIsDefault())
+      .filter(qualityGate -> !qualityGate.getIsBuiltIn())
       .forEach(qualityGate -> session.wsClient().qualitygates().destroy(new DestroyRequest().setId(Long.toString(qualityGate.getId()))));
   }
 
