@@ -62,7 +62,7 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   public void setOrganization_throws_ISE_if_called_twice() {
-    Organization organization = Organization.from(new OrganizationDto().setUuid("uuid").setKey("key").setName("name"));
+    Organization organization = Organization.from(new OrganizationDto().setUuid("uuid").setKey("key").setName("name").setDefaultQualityGateUuid("anyuuidr"));
     underTest.setOrganization(organization);
 
     expectedException.expect(IllegalStateException.class);

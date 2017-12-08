@@ -74,7 +74,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
-    .setOrganizationUuid("org-1");
+    .setOrganizationUuid("org-1","qg-uuid-1");
 
   private DbSession session = db.getSession();
   private DbClient dbClient = db.getDbClient();

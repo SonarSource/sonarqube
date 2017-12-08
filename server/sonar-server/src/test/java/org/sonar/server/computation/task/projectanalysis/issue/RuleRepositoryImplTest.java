@@ -51,12 +51,13 @@ public class RuleRepositoryImplTest {
   private static final RuleKey AC_RULE_KEY = RuleKey.of("a", "c");
   private static final int AC_RULE_ID = 684;
   private static final String ORGANIZATION_UUID = "org-1";
+  public static final String QUALITY_GATE_UUID = "QUALITY_GATE_UUID";
 
   @org.junit.Rule
   public ExpectedException expectedException = ExpectedException.none();
   @org.junit.Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule()
-      .setOrganizationUuid(ORGANIZATION_UUID);
+      .setOrganizationUuid(ORGANIZATION_UUID, QUALITY_GATE_UUID);
 
   private DbClient dbClient = mock(DbClient.class);
   private DbSession dbSession = mock(DbSession.class);

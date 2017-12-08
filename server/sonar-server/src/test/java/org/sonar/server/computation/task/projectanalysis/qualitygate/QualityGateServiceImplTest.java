@@ -19,9 +19,9 @@
  */
 package org.sonar.server.computation.task.projectanalysis.qualitygate;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Random;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Before;
@@ -40,7 +40,6 @@ import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -73,7 +72,7 @@ public class QualityGateServiceImplTest {
 
   @Test
   public void findById_returns_absent_when_QualityGateDto_does_not_exist() {
-    assertThat(underTest.findById(SOME_ID)).isAbsent();
+    assertThat(underTest.findById(SOME_ID)).isNotPresent();
   }
 
   @Test
@@ -94,8 +93,8 @@ public class QualityGateServiceImplTest {
     when(qualityGateDao.selectById(any(DbSession.class), eq(SOME_ID))).thenReturn(QUALITY_GATE_DTO);
     when(qualityGateConditionDao.selectForQualityGate(any(DbSession.class), eq(SOME_ID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
     // metrics are always supposed to be there
-    when(metricRepository.getOptionalById(METRIC_ID_1)).thenReturn(java.util.Optional.of(METRIC_1));
-    when(metricRepository.getOptionalById(METRIC_ID_2)).thenReturn(java.util.Optional.of(METRIC_2));
+    when(metricRepository.getOptionalById(METRIC_ID_1)).thenReturn(Optional.of(METRIC_1));
+    when(metricRepository.getOptionalById(METRIC_ID_2)).thenReturn(Optional.of(METRIC_2));
 
     Optional<QualityGate> res = underTest.findById(SOME_ID);
 
@@ -112,8 +111,8 @@ public class QualityGateServiceImplTest {
     when(qualityGateDao.selectById(any(DbSession.class), eq(SOME_ID))).thenReturn(QUALITY_GATE_DTO);
     when(qualityGateConditionDao.selectForQualityGate(any(DbSession.class), eq(SOME_ID))).thenReturn(ImmutableList.of(CONDITION_1, CONDITION_2));
     // metrics are always supposed to be there
-    when(metricRepository.getOptionalById(METRIC_ID_1)).thenReturn(java.util.Optional.empty());
-    when(metricRepository.getOptionalById(METRIC_ID_2)).thenReturn(java.util.Optional.of(METRIC_2));
+    when(metricRepository.getOptionalById(METRIC_ID_1)).thenReturn(Optional.empty());
+    when(metricRepository.getOptionalById(METRIC_ID_2)).thenReturn(Optional.of(METRIC_2));
 
     Optional<QualityGate> res = underTest.findById(SOME_ID);
 
