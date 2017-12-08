@@ -151,14 +151,10 @@
       <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
         #{analysisUuid}
       </foreach>
-      and (person_id is not null
-      <if test="metricIds.size()>0">
-        or metric_id in
-        <foreach collection="metricIds" open="(" item="metricId" separator="," close=")">
-          #{metricId}
-        </foreach>
-      </if>
-      )
+      and metric_id in
+      <foreach collection="metricIds" open="(" item="metricId" separator="," close=")">
+        #{metricId,jdbcType=INTEGER}
+      </foreach>
     </where>
   </delete>
 
@@ -332,5 +328,8 @@
     delete from project_branches where uuid=#{uuid,jdbcType=VARCHAR}
   </delete>
 
+  <delete id="deleteLiveMeasuresByProjectUuid">
+    delete from live_measures where project_uuid = #{projectUuid,jdbcType=VARCHAR}
+  </delete>
 </mapper>
 

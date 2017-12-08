@@ -39,10 +39,10 @@ import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPER
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkFound;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.ACTION_SELECT;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_GATE_ID;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_ID;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_KEY;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_SELECT;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_GATE_ID;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_ID;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 
 public class SelectAction implements QualityGatesWsAction {
   private final DbClient dbClient;

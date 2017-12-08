@@ -29,7 +29,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
@@ -113,9 +112,8 @@ public class ShowActionTest {
     ComponentDto project = db.components().insertMainBranch();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     ComponentDto branch = db.components().insertProjectBranch(project);
-    SnapshotDto analysis = db.components().insertSnapshot(newAnalysis(branch));
     ComponentDto file = db.components().insertComponent(newFileDto(branch));
-    db.measures().insertMeasure(file, analysis, dataMetric, m -> m.setData(format("<duplications>\n" +
+    db.measures().insertLiveMeasure(file, dataMetric, m -> m.setData(format("<duplications>\n" +
       "  <g>\n" +
       "    <b s=\"31\" l=\"5\" r=\"%s\"/>\n" +
       "    <b s=\"20\" l=\"5\" r=\"%s\"/>\n" +
@@ -224,14 +222,13 @@ public class ShowActionTest {
     ComponentDto project = db.components().insertPrivateProject();
     userSessionRule.addProjectPermission(UserRole.CODEVIEWER, project);
     ComponentDto file = db.components().insertComponent(newFileDto(project).setDbKey("foo.js"));
-    SnapshotDto snapshot = db.components().insertSnapshot(newAnalysis(project));
     String xml = "<duplications>\n" +
       "  <g>\n" +
       "    <b s=\"31\" l=\"5\" r=\"foo.js\"/>\n" +
       "    <b s=\"20\" l=\"5\" r=\"foo.js\"/>\n" +
       "  </g>\n" +
       "</duplications>\n";
-    db.measures().insertMeasure(file, snapshot, dataMetric, m -> m.setData(xml));
+    db.measures().insertLiveMeasure(file, dataMetric, m -> m.setData(xml));
 
     TestRequest request = requestFactory.apply(file);
     TestResponse result = request.execute();

@@ -20,29 +20,21 @@
 package org.sonar.server.measure.ws;
 
 import com.google.common.base.Joiner;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.annotation.Nullable;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.measures.Metric;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
-import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -57,19 +49,15 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.db.component.ComponentTesting.newApplication;
+import static org.sonar.api.measures.Metric.ValueType.FLOAT;
+import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
-import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonar.db.component.SnapshotTesting.newAnalysis;
-import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
-import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_PROJECT_KEYS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PROJECT_KEYS;
 
 public class SearchActionTest {
 
@@ -77,25 +65,41 @@ public class SearchActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
-  public UserSessionRule userSession = UserSessionRule.standalone();
+  public UserSessionRule userSession = UserSessionRule.standalone().logIn();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
-  private UserDto user;
-  private WsActionTester ws = new WsActionTester(new SearchAction(userSession, dbClient));
-
-  @Before
-  public void setUp() throws Exception {
-    user = db.users().insertUser("john");
-    userSession.logIn(user);
-  }
+  private WsActionTester ws = new WsActionTester(new SearchAction(userSession, db.getDbClient()));
 
   @Test
   public void json_example() {
-    List<String> projectKeys = insertJsonExampleData();
+    OrganizationDto organization = db.organizations().insert();
+
+    ComponentDto project1 = db.components().insertPrivateProject(organization, p -> p.setDbKey("MY_PROJECT_1").setName("Project 1"));
+    ComponentDto project2 = db.components().insertPrivateProject(organization, p -> p.setDbKey("MY_PROJECT_2").setName("Project 2"));
+    ComponentDto project3 = db.components().insertPrivateProject(organization, p -> p.setDbKey("MY_PROJECT_3").setName("Project 3"));
+
+    userSession.addProjectPermission(UserRole.USER, project1);
+    userSession.addProjectPermission(UserRole.USER, project2);
+    userSession.addProjectPermission(UserRole.USER, project3);
+
+    MetricDto complexity = db.measures().insertMetric(m -> m.setKey("complexity").setValueType(INT.name()));
+    db.measures().insertLiveMeasure(project1, complexity, m -> m.setValue(12.0d));
+    db.measures().insertLiveMeasure(project2, complexity, m -> m.setValue(35.0d).setVariation(0.0d));
+    db.measures().insertLiveMeasure(project3, complexity, m -> m.setValue(42.0d));
+
+    MetricDto ncloc = db.measures().insertMetric(m -> m.setKey("ncloc").setValueType(INT.name()));
+    db.measures().insertLiveMeasure(project1, ncloc, m -> m.setValue(114.0d));
+    db.measures().insertLiveMeasure(project2, ncloc, m -> m.setValue(217.0d).setVariation(0.0d));
+    db.measures().insertLiveMeasure(project3, ncloc, m -> m.setValue(1984.0d));
+
+    MetricDto newViolations = db.measures().insertMetric(m -> m.setKey("new_violations").setValueType(INT.name()));
+    db.measures().insertLiveMeasure(project1, newViolations, m -> m.setVariation(25.0d));
+    db.measures().insertLiveMeasure(project2, newViolations, m -> m.setVariation(25.0d));
+    db.measures().insertLiveMeasure(project3, newViolations, m -> m.setVariation(255.0d));
+
+    List<String> projectKeys = Arrays.asList(project1.getDbKey(), project2.getDbKey(), project3.getDbKey());
 
     String result = ws.newRequest()
       .setParam(PARAM_PROJECT_KEYS, Joiner.on(",").join(projectKeys))
@@ -108,40 +112,34 @@ public class SearchActionTest {
 
   @Test
   public void return_measures() throws Exception {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    SnapshotDto projectSnapshot = db.components().insertProjectAndSnapshot(project);
-    setBrowsePermissionOnUser(project);
-    MetricDto coverage = insertCoverageMetric();
-    dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, project, projectSnapshot).setValue(15.5d));
-    db.commit();
+    ComponentDto project = db.components().insertPrivateProject(db.getDefaultOrganization());
+    userSession.addProjectPermission(UserRole.USER, project);
+    MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
+    db.measures().insertLiveMeasure(project, coverage, m -> m.setValue(15.5d));
 
-    SearchWsResponse result = call(singletonList(project.getDbKey()), singletonList("coverage"));
+    SearchWsResponse result = call(singletonList(project.getDbKey()), singletonList(coverage.getKey()));
 
     List<Measure> measures = result.getMeasuresList();
     assertThat(measures).hasSize(1);
     Measure measure = measures.get(0);
-    assertThat(measure.getMetric()).isEqualTo("coverage");
+    assertThat(measure.getMetric()).isEqualTo(coverage.getKey());
     assertThat(measure.getValue()).isEqualTo("15.5");
   }
 
   @Test
   public void return_measures_on_leak_period() throws Exception {
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(db.organizations().insert());
-    SnapshotDto projectSnapshot = db.components().insertProjectAndSnapshot(project);
-    setBrowsePermissionOnUser(project);
-    MetricDto coverage = insertCoverageMetric();
-    dbClient.measureDao().insert(dbSession,
-      newMeasureDto(coverage, project, projectSnapshot)
-        .setValue(15.5d)
-        .setVariation(10d));
-    db.commit();
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    userSession.addProjectPermission(UserRole.USER, project);
+    MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
+    db.measures().insertLiveMeasure(project, coverage, m -> m.setValue(15.5d).setVariation(10d));
 
-    SearchWsResponse result = call(singletonList(project.getDbKey()), singletonList("coverage"));
+    SearchWsResponse result = call(singletonList(project.getDbKey()), singletonList(coverage.getKey()));
 
     List<Measure> measures = result.getMeasuresList();
     assertThat(measures).hasSize(1);
     Measure measure = measures.get(0);
-    assertThat(measure.getMetric()).isEqualTo("coverage");
+    assertThat(measure.getMetric()).isEqualTo(coverage.getKey());
     assertThat(measure.getValue()).isEqualTo("15.5");
     assertThat(measure.getPeriods().getPeriodsValueList())
       .extracting(Measures.PeriodValue::getIndex, Measures.PeriodValue::getValue)
@@ -150,130 +148,121 @@ public class SearchActionTest {
 
   @Test
   public void sort_by_metric_key_then_project_name() throws Exception {
-    MetricDto coverage = insertCoverageMetric();
-    MetricDto complexity = insertComplexityMetric();
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(organizationDto).setName("C");
-    SnapshotDto projectSnapshot1 = db.components().insertProjectAndSnapshot(project1);
-    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(organizationDto).setName("A");
-    SnapshotDto projectSnapshot2 = db.components().insertProjectAndSnapshot(project2);
-    ComponentDto project3 = ComponentTesting.newPrivateProjectDto(organizationDto).setName("B");
-    SnapshotDto projectSnapshot3 = db.components().insertProjectAndSnapshot(project3);
-    setBrowsePermissionOnUser(project1, project2, project3);
-    dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, project1, projectSnapshot1).setValue(5.5d));
-    dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, project2, projectSnapshot2).setValue(6.5d));
-    dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, project3, projectSnapshot3).setValue(7.5d));
-    dbClient.measureDao().insert(dbSession, newMeasureDto(complexity, project1, projectSnapshot1).setValue(10d));
-    dbClient.measureDao().insert(dbSession, newMeasureDto(complexity, project2, projectSnapshot2).setValue(15d));
-    dbClient.measureDao().insert(dbSession, newMeasureDto(complexity, project3, projectSnapshot3).setValue(20d));
-    db.commit();
+    MetricDto coverage = db.measures().insertMetric(m -> m.setKey("coverage").setValueType(FLOAT.name()));
+    MetricDto complexity = db.measures().insertMetric(m -> m.setKey("complexity").setValueType(INT.name()));
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project1 = db.components().insertPrivateProject(organization, p -> p.setName("C"));
+    ComponentDto project2 = db.components().insertPrivateProject(organization, p -> p.setName("A"));
+    ComponentDto project3 = db.components().insertPrivateProject(organization, p -> p.setName("B"));
+    userSession.addProjectPermission(UserRole.USER, project1);
+    userSession.addProjectPermission(UserRole.USER, project2);
+    userSession.addProjectPermission(UserRole.USER, project3);
+    db.measures().insertLiveMeasure(project1, coverage, m -> m.setValue(5.5d));
+    db.measures().insertLiveMeasure(project2, coverage, m -> m.setValue(6.5d));
+    db.measures().insertLiveMeasure(project3, coverage, m -> m.setValue(7.5d));
+    db.measures().insertLiveMeasure(project1, complexity, m -> m.setValue(10d));
+    db.measures().insertLiveMeasure(project2, complexity, m -> m.setValue(15d));
+    db.measures().insertLiveMeasure(project3, complexity, m -> m.setValue(20d));
 
-    SearchWsResponse result = call(asList(project1.getDbKey(), project2.getDbKey(), project3.getDbKey()), asList("coverage", "complexity"));
+    SearchWsResponse result = call(asList(project1.getDbKey(), project2.getDbKey(), project3.getDbKey()), asList(coverage.getKey(), complexity.getKey()));
 
     assertThat(result.getMeasuresList()).extracting(Measure::getMetric, Measure::getComponent)
       .containsExactly(
-        tuple("complexity", project2.getDbKey()), tuple("complexity", project3.getDbKey()), tuple("complexity", project1.getDbKey()),
-        tuple("coverage", project2.getDbKey()), tuple("coverage", project3.getDbKey()), tuple("coverage", project1.getDbKey()));
+        tuple(complexity.getKey(), project2.getDbKey()), tuple(complexity.getKey(), project3.getDbKey()), tuple(complexity.getKey(), project1.getDbKey()),
+        tuple(coverage.getKey(), project2.getDbKey()), tuple(coverage.getKey(), project3.getDbKey()), tuple(coverage.getKey(), project1.getDbKey()));
   }
 
   @Test
   public void return_measures_on_view() throws Exception {
-    ComponentDto view = newView(db.getDefaultOrganization());
-    SnapshotDto viewSnapshot = db.components().insertProjectAndSnapshot(view);
-    MetricDto coverage = insertCoverageMetric();
-    dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, view, viewSnapshot).setValue(15.5d));
-    db.commit();
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto view = db.components().insertPrivatePortfolio(organization);
+    userSession.addProjectPermission(UserRole.USER, view);
+    MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
+    db.measures().insertLiveMeasure(view, coverage, m -> m.setValue(15.5d));
 
-    SearchWsResponse result = call(singletonList(view.getDbKey()), singletonList("coverage"));
+    SearchWsResponse result = call(singletonList(view.getDbKey()), singletonList(coverage.getKey()));
 
     List<Measure> measures = result.getMeasuresList();
     assertThat(measures).hasSize(1);
     Measure measure = measures.get(0);
-    assertThat(measure.getMetric()).isEqualTo("coverage");
+    assertThat(measure.getMetric()).isEqualTo(coverage.getKey());
     assertThat(measure.getValue()).isEqualTo("15.5");
   }
 
 
   @Test
   public void return_measures_on_application() throws Exception {
-    ComponentDto application = newApplication(db.getDefaultOrganization());
-    SnapshotDto viewSnapshot = db.components().insertProjectAndSnapshot(application);
-    MetricDto coverage = insertCoverageMetric();
-    dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, application, viewSnapshot).setValue(15.5d));
-    db.commit();
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto application = db.components().insertPrivateApplication(organization);
+    userSession.addProjectPermission(UserRole.USER, application);
+    MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
+    db.measures().insertLiveMeasure(application, coverage, m -> m.setValue(15.5d));
 
-    SearchWsResponse result = call(singletonList(application.getDbKey()), singletonList("coverage"));
+    SearchWsResponse result = call(singletonList(application.getDbKey()), singletonList(coverage.getKey()));
 
     List<Measure> measures = result.getMeasuresList();
     assertThat(measures).hasSize(1);
     Measure measure = measures.get(0);
-    assertThat(measure.getMetric()).isEqualTo("coverage");
+    assertThat(measure.getMetric()).isEqualTo(coverage.getKey());
     assertThat(measure.getValue()).isEqualTo("15.5");
   }
 
   @Test
   public void return_measures_on_sub_view() throws Exception {
-    ComponentDto view = newView(db.getDefaultOrganization());
-    SnapshotDto viewSnapshot = db.components().insertProjectAndSnapshot(view);
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto view = db.components().insertPrivatePortfolio(organization);
     ComponentDto subView = db.components().insertComponent(newSubView(view));
-    MetricDto coverage = insertCoverageMetric();
-    dbClient.measureDao().insert(dbSession, newMeasureDto(coverage, subView, viewSnapshot).setValue(15.5d));
-    db.commit();
+    userSession.addProjectPermission(UserRole.USER, subView);
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
+    db.measures().insertLiveMeasure(subView, metric, m -> m.setValue(15.5d));
 
-    SearchWsResponse result = call(singletonList(subView.getDbKey()), singletonList("coverage"));
+    SearchWsResponse result = call(singletonList(subView.getDbKey()), singletonList(metric.getKey()));
 
     List<Measure> measures = result.getMeasuresList();
     assertThat(measures).hasSize(1);
     Measure measure = measures.get(0);
-    assertThat(measure.getMetric()).isEqualTo("coverage");
+    assertThat(measure.getMetric()).isEqualTo(metric.getKey());
     assertThat(measure.getValue()).isEqualTo("15.5");
   }
 
   @Test
   public void only_returns_authorized_projects() {
-    MetricDto metricDto = insertComplexityMetric();
-    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    SnapshotDto projectSnapshot1 = db.components().insertProjectAndSnapshot(project1);
-    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    SnapshotDto projectSnapshot2 = db.components().insertProjectAndSnapshot(project2);
-    dbClient.measureDao().insert(dbSession,
-      newMeasureDto(metricDto, project1, projectSnapshot1).setValue(15.5d),
-      newMeasureDto(metricDto, project2, projectSnapshot2).setValue(42.0d));
-    db.commit();
-    setBrowsePermissionOnUser(project1);
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
+    ComponentDto project1 = db.components().insertPrivateProject(db.getDefaultOrganization());
+    ComponentDto project2 = db.components().insertPrivateProject(db.getDefaultOrganization());
+    db.measures().insertLiveMeasure(project1, metric, m -> m.setValue(15.5d));
+    db.measures().insertLiveMeasure(project2, metric, m -> m.setValue(42.0d));
+    Arrays.stream(new ComponentDto[]{project1}).forEach(p -> userSession.addProjectPermission(UserRole.USER, p));
 
-    SearchWsResponse result = call(asList(project1.getDbKey(), project2.getDbKey()), singletonList("complexity"));
+    SearchWsResponse result = call(asList(project1.getDbKey(), project2.getDbKey()), singletonList(metric.getKey()));
 
     assertThat(result.getMeasuresList()).extracting(Measure::getComponent).containsOnly(project1.getDbKey());
   }
 
   @Test
   public void do_not_verify_permissions_if_user_is_root() {
-    MetricDto metricDto = insertComplexityMetric();
-    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization());
-    SnapshotDto projectSnapshot1 = db.components().insertProjectAndSnapshot(project1);
-    dbClient.measureDao().insert(dbSession, newMeasureDto(metricDto, project1, projectSnapshot1).setValue(15.5d));
-    db.commit();
+    MetricDto metric = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
+    ComponentDto project1 = db.components().insertPrivateProject(db.getDefaultOrganization());
+    db.measures().insertLiveMeasure(project1, metric, m -> m.setValue(15.5d));
 
     userSession.setNonRoot();
-    SearchWsResponse result = call(asList(project1.getDbKey()), singletonList("complexity"));
+    SearchWsResponse result = call(singletonList(project1.getDbKey()), singletonList(metric.getKey()));
     assertThat(result.getMeasuresCount()).isEqualTo(0);
 
     userSession.setRoot();
-    result = call(asList(project1.getDbKey()), singletonList("complexity"));
+    result = call(singletonList(project1.getDbKey()), singletonList(metric.getKey()));
     assertThat(result.getMeasuresCount()).isEqualTo(1);
   }
 
   @Test
   public void does_not_return_branch_when_using_db_key() {
-    MetricDto coverage = insertCoverageMetric();
+    MetricDto coverage = db.measures().insertMetric(m -> m.setValueType(FLOAT.name()));
     ComponentDto project = db.components().insertMainBranch();
     ComponentDto branch = db.components().insertProjectBranch(project);
-    SnapshotDto analysis = db.components().insertSnapshot(branch);
-    db.measures().insertMeasure(branch, analysis, coverage, m -> m.setValue(10d));
-    setBrowsePermissionOnUser(project);
+    db.measures().insertLiveMeasure(branch, coverage, m -> m.setValue(10d));
+    userSession.addProjectPermission(UserRole.USER, project);
 
-    SearchWsResponse result = call(asList(branch.getDbKey()), singletonList(coverage.getKey()));
+    SearchWsResponse result = call(singletonList(branch.getDbKey()), singletonList(coverage.getKey()));
 
     assertThat(result.getMeasuresList()).isEmpty();
   }
@@ -281,7 +270,7 @@ public class SearchActionTest {
   @Test
   public void fail_if_no_metric() {
     ComponentDto project = db.components().insertPrivateProject();
-    setBrowsePermissionOnUser(project);
+    userSession.addProjectPermission(UserRole.USER, project);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'metricKeys' parameter is missing");
@@ -292,7 +281,7 @@ public class SearchActionTest {
   @Test
   public void fail_if_empty_metric() {
     ComponentDto project = db.components().insertPrivateProject();
-    setBrowsePermissionOnUser(project);
+    userSession.addProjectPermission(UserRole.USER, project);
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Metric keys must be provided");
@@ -303,33 +292,33 @@ public class SearchActionTest {
   @Test
   public void fail_if_unknown_metric() {
     ComponentDto project = db.components().insertPrivateProject();
-    setBrowsePermissionOnUser(project);
-    insertComplexityMetric();
+    userSession.addProjectPermission(UserRole.USER, project);
+    MetricDto metric = db.measures().insertMetric();
 
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("The following metrics are not found: ncloc, violations");
 
-    call(singletonList(project.getDbKey()), newArrayList("violations", "complexity", "ncloc"));
+    call(singletonList(project.getDbKey()), newArrayList("violations", metric.getKey(), "ncloc"));
   }
 
   @Test
   public void fail_if_no_project() {
-    insertComplexityMetric();
+    MetricDto metric = db.measures().insertMetric();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Project keys must be provided");
 
-    call(null, singletonList("complexity"));
+    call(null, singletonList(metric.getKey()));
   }
 
   @Test
   public void fail_if_empty_project_key() {
-    insertComplexityMetric();
+    MetricDto metric = db.measures().insertMetric();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Project keys must be provided");
 
-    call(emptyList(), singletonList("complexity"));
+    call(emptyList(), singletonList(metric.getKey()));
   }
 
   @Test
@@ -338,12 +327,12 @@ public class SearchActionTest {
       .mapToObj(i -> db.components().insertPrivateProject())
       .map(ComponentDto::getDbKey)
       .collect(Collectors.toList());
-    insertComplexityMetric();
+    MetricDto metric = db.measures().insertMetric();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("101 projects provided, more than maximum authorized (100)");
 
-    call(keys, singletonList("complexity"));
+    call(keys, singletonList(metric.getKey()));
   }
 
   @Test
@@ -352,48 +341,48 @@ public class SearchActionTest {
       .mapToObj(i -> db.components().insertPrivateProject())
       .map(ComponentDto::getDbKey)
       .collect(Collectors.toList());
-    insertComplexityMetric();
+    MetricDto metric = db.measures().insertMetric();
 
-    call(keys, singletonList("complexity"));
+    call(keys, singletonList(metric.getKey()));
   }
 
   @Test
   public void fail_if_module() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto module = db.components().insertComponent(newModuleDto(project));
-    setBrowsePermissionOnUser(project);
-    insertComplexityMetric();
+    userSession.addProjectPermission(UserRole.USER, project);
+    MetricDto metric = db.measures().insertMetric();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Only component of qualifiers [TRK, APP, VW, SVW] are allowed");
 
-    call(singletonList(module.getDbKey()), singletonList("complexity"));
+    call(singletonList(module.getDbKey()), singletonList(metric.getKey()));
   }
 
   @Test
   public void fail_if_directory() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto dir = db.components().insertComponent(newDirectory(project, "dir"));
-    setBrowsePermissionOnUser(project);
-    insertComplexityMetric();
+    userSession.addProjectPermission(UserRole.USER, project);
+    MetricDto metric = db.measures().insertMetric();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Only component of qualifiers [TRK, APP, VW, SVW] are allowed");
 
-    call(singletonList(dir.getDbKey()), singletonList("complexity"));
+    call(singletonList(dir.getDbKey()), singletonList(metric.getKey()));
   }
 
   @Test
   public void fail_if_file() {
     ComponentDto project = db.components().insertPrivateProject();
     ComponentDto file = db.components().insertComponent(newFileDto(project));
-    setBrowsePermissionOnUser(project);
-    insertComplexityMetric();
+    userSession.addProjectPermission(UserRole.USER, project);
+    MetricDto metric = db.measures().insertMetric();
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Only component of qualifiers [TRK, APP, VW, SVW] are allowed");
 
-    call(singletonList(file.getDbKey()), singletonList("complexity"));
+    call(singletonList(file.getDbKey()), singletonList(metric.getKey()));
   }
 
   @Test
@@ -417,133 +406,5 @@ public class SearchActionTest {
       request.setParam(PARAM_METRIC_KEYS, String.join(",", metrics));
     }
     return request.executeProtobuf(SearchWsResponse.class);
-  }
-
-  private static MetricDto newMetricDtoWithoutOptimization() {
-    return newMetricDto()
-      .setWorstValue(null)
-      .setBestValue(null)
-      .setOptimizedBestValue(false)
-      .setUserManaged(false);
-  }
-
-  private MetricDto insertNewViolationsMetric() {
-    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDtoWithoutOptimization()
-      .setKey("new_violations")
-      .setShortName("New issues")
-      .setDescription("New Issues")
-      .setDomain("Issues")
-      .setValueType("INT")
-      .setDirection(-1)
-      .setQualitative(true)
-      .setHidden(false)
-      .setUserManaged(false)
-      .setOptimizedBestValue(true)
-      .setBestValue(0.0d));
-    db.commit();
-    return metric;
-  }
-
-  private MetricDto insertNclocMetric() {
-    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDtoWithoutOptimization()
-      .setKey("ncloc")
-      .setShortName("Lines of code")
-      .setDescription("Non Commenting Lines of Code")
-      .setDomain("Size")
-      .setValueType("INT")
-      .setDirection(-1)
-      .setQualitative(false)
-      .setHidden(false)
-      .setUserManaged(false));
-    db.commit();
-    return metric;
-  }
-
-  private MetricDto insertComplexityMetric() {
-    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDtoWithoutOptimization()
-      .setKey("complexity")
-      .setShortName("Complexity")
-      .setDescription("Cyclomatic complexity")
-      .setDomain("Complexity")
-      .setValueType("INT")
-      .setDirection(-1)
-      .setQualitative(false)
-      .setHidden(false)
-      .setUserManaged(false));
-    db.commit();
-    return metric;
-  }
-
-  private MetricDto insertCoverageMetric() {
-    MetricDto metric = dbClient.metricDao().insert(dbSession, newMetricDtoWithoutOptimization()
-      .setKey("coverage")
-      .setShortName("Coverage")
-      .setDescription("Code Coverage")
-      .setDomain("Coverage")
-      .setValueType(Metric.ValueType.FLOAT.name())
-      .setDirection(1)
-      .setQualitative(false)
-      .setHidden(false)
-      .setUserManaged(false));
-    db.commit();
-    return metric;
-  }
-
-  private List<String> insertJsonExampleData() {
-    List<String> projectKeys = new ArrayList<>();
-    OrganizationDto organizationDto = db.organizations().insert();
-    ComponentDto project1 = ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("MY_PROJECT_1").setName("Project 1");
-    ComponentDto project2 = ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("MY_PROJECT_2").setName("Project 2");
-    ComponentDto project3 = ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("MY_PROJECT_3").setName("Project 3");
-    projectKeys.addAll(asList(project1.getDbKey(), project2.getDbKey(), project3.getDbKey()));
-    db.components().insertComponents(project1, project2, project3);
-    SnapshotDto projectSnapshot1 = dbClient.snapshotDao().insert(dbSession, newAnalysis(project1)
-      .setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
-      .setPeriodMode("previous_version")
-      .setPeriodParam("1.0-SNAPSHOT"));
-    SnapshotDto projectSnapshot2 = dbClient.snapshotDao().insert(dbSession, newAnalysis(project2)
-      .setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
-      .setPeriodMode("previous_version")
-      .setPeriodParam("1.0-SNAPSHOT"));
-    SnapshotDto projectSnapshot3 = dbClient.snapshotDao().insert(dbSession, newAnalysis(project3)
-      .setPeriodDate(parseDateTime("2016-01-11T10:49:50+0100").getTime())
-      .setPeriodMode("previous_version")
-      .setPeriodParam("1.0-SNAPSHOT"));
-
-    MetricDto complexity = insertComplexityMetric();
-    dbClient.measureDao().insert(dbSession,
-      newMeasureDto(complexity, project1, projectSnapshot1)
-        .setValue(12.0d),
-      newMeasureDto(complexity, project2, projectSnapshot2)
-        .setValue(35.0d)
-        .setVariation(0.0d),
-      newMeasureDto(complexity, project3, projectSnapshot3)
-        .setValue(42.0d));
-
-    MetricDto ncloc = insertNclocMetric();
-    dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, project1, projectSnapshot1)
-        .setValue(114.0d),
-      newMeasureDto(ncloc, project2, projectSnapshot2)
-        .setValue(217.0d)
-        .setVariation(0.0d),
-      newMeasureDto(ncloc, project3, projectSnapshot3)
-        .setValue(1984.0d));
-
-    MetricDto newViolations = insertNewViolationsMetric();
-    dbClient.measureDao().insert(dbSession,
-      newMeasureDto(newViolations, project1, projectSnapshot1)
-        .setVariation(25.0d),
-      newMeasureDto(newViolations, project2, projectSnapshot2)
-        .setVariation(25.0d),
-      newMeasureDto(newViolations, project3, projectSnapshot3)
-        .setVariation(255.0d));
-    db.commit();
-    setBrowsePermissionOnUser(project1, project2, project3);
-    return projectKeys;
-  }
-
-  private void setBrowsePermissionOnUser(ComponentDto... projects) {
-    Arrays.stream(projects).forEach(p -> userSession.addProjectPermission(UserRole.USER, p));
   }
 }

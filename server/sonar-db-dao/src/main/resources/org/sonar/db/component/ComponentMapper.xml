@@ -24,7 +24,6 @@
     p.path as path,
     p.enabled as enabled,
     p.copy_component_uuid as copyComponentUuid,
-    p.developer_uuid as developerUuid,
     p.private as isPrivate,
     p.created_at as createdAt
   </sql>
@@ -512,7 +511,6 @@
       root_uuid,
       path,
       copy_component_uuid,
-      developer_uuid,
       enabled,
       created_at,
       b_changed,
@@ -548,7 +546,6 @@
     #{rootUuid,jdbcType=VARCHAR},
     #{path,jdbcType=VARCHAR},
     #{copyComponentUuid,jdbcType=VARCHAR},
-    #{developerUuid,jdbcType=VARCHAR},
     #{enabled,jdbcType=BOOLEAN},
     #{createdAt,jdbcType=TIMESTAMP},
     ${_false},

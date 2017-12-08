@@ -34,9 +34,9 @@ import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.ce.TaskRequest;
-import org.sonarqube.ws.client.organization.UpdateProjectVisibilityWsRequest;
-import org.sonarqube.ws.client.project.CreateRequest;
-import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
+import org.sonarqube.ws.client.organizations.UpdateProjectVisibilityRequest;
+import org.sonarqube.ws.client.projects.CreateRequest;
+import org.sonarqube.ws.client.projects.UpdateVisibilityRequest;
 import util.ItUtils;
 
 import static java.lang.String.format;
@@ -127,10 +127,9 @@ public class BillingTest {
   public void does_not_fail_to_update_default_projects_visibility_to_private() {
     tester.settings().setGlobalSettings("sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
 
-    tester.wsClient().organizations().updateProjectVisibility(UpdateProjectVisibilityWsRequest.builder()
+    tester.wsClient().organizations().updateProjectVisibility(new UpdateProjectVisibilityRequest()
       .setOrganization(organization.getKey())
-      .setProjectVisibility("private")
-      .build());
+      .setProjectVisibility("private"));
 
     assertWsResponseAsAdmin(new GetRequest("api/navigation/organization").setParam("organization", organization.getKey()),
       "\"projectVisibility\":\"private\"");
@@ -143,7 +142,7 @@ public class BillingTest {
     expectHttpError(400,
       format("Organization %s cannot use private project", organization.getKey()),
       () -> tester.wsClient().organizations()
-        .updateProjectVisibility(UpdateProjectVisibilityWsRequest.builder().setOrganization(organization.getKey()).setProjectVisibility("private").build()));
+        .updateProjectVisibility(new UpdateProjectVisibilityRequest().setOrganization(organization.getKey()).setProjectVisibility("private")));
   }
 
   @Test
@@ -151,7 +150,7 @@ public class BillingTest {
     String projectKey = createPublicProject();
     tester.settings().setGlobalSettings("sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
 
-    tester.wsClient().projects().updateVisibility(UpdateVisibilityRequest.builder().setProject(projectKey).setVisibility("private").build());
+    tester.wsClient().projects().updateVisibility(new UpdateVisibilityRequest().setProject(projectKey).setVisibility("private"));
 
     assertWsResponseAsAdmin(new GetRequest("api/navigation/component").setParam("componentKey", projectKey), "\"visibility\":\"private\"");
   }
@@ -163,7 +162,7 @@ public class BillingTest {
 
     expectHttpError(400,
       format("Organization %s cannot use private project", organization.getKey()),
-      () -> tester.wsClient().projects().updateVisibility(UpdateVisibilityRequest.builder().setProject(projectKey).setVisibility("private").build()));
+      () -> tester.wsClient().projects().updateVisibility(new UpdateVisibilityRequest().setProject(projectKey).setVisibility("private")));
   }
 
   @Test
@@ -171,7 +170,7 @@ public class BillingTest {
     String projectKey = newProjectKey();
     tester.settings().setGlobalSettings("sonar.billing.preventUpdatingProjectsVisibilityToPrivate", "false");
 
-    tester.wsClient().projects().create(CreateRequest.builder().setKey(projectKey).setName(projectKey).setOrganization(organization.getKey()).setVisibility("public").build());
+    tester.wsClient().projects().create(new CreateRequest().setProject(projectKey).setName(projectKey).setOrganization(organization.getKey()).setVisibility("public"));
 
     assertWsResponseAsAdmin(new GetRequest("api/navigation/component").setParam("componentKey", projectKey), "\"visibility\":\"public\"");
   }
@@ -184,7 +183,7 @@ public class BillingTest {
     expectHttpError(400,
       format("Organization %s cannot use private project", organization.getKey()),
       () -> tester.wsClient().projects()
-        .create(CreateRequest.builder().setKey(projectKey).setName(projectKey).setOrganization(organization.getKey()).setVisibility("private").build()));
+        .create(new CreateRequest().setProject(projectKey).setName(projectKey).setOrganization(organization.getKey()).setVisibility("private")));
   }
 
   @Test

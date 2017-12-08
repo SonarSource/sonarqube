@@ -39,7 +39,6 @@ import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -76,11 +75,11 @@ public class QualityProfileProviderTest {
 
   @Test
   public void testProvide() {
-    when(loader.load(eq("project"), isNull(String.class))).thenReturn(response);
+    when(loader.load("project", null)).thenReturn(response);
     ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props);
     assertResponse(qps);
 
-    verify(loader).load(eq("project"), isNull(String.class));
+    verify(loader).load("project", null);
     verifyNoMoreInteractions(loader);
   }
 
@@ -88,6 +87,7 @@ public class QualityProfileProviderTest {
   public void testProjectDoesntExist() {
     when(projectRepo.exists()).thenReturn(false);
     when(loader.loadDefault(anyString())).thenReturn(response);
+    when(props.property(ModuleQProfiles.SONAR_PROFILE_PROP)).thenReturn("profile");
     ModuleQProfiles qps = qualityProfileProvider.provide(key, loader, projectRepo, props);
     assertResponse(qps);
 
@@ -127,7 +127,6 @@ public class QualityProfileProviderTest {
   }
 
   private void assertResponse(ModuleQProfiles qps) {
-    assertThat(qps.findAll()).hasSize(1);
     assertThat(qps.findAll()).extracting("key").containsExactly("profile");
 
   }

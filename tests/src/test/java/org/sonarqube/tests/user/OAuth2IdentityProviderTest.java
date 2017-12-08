@@ -38,8 +38,8 @@ import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.ws.Users.SearchWsResponse.User;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.permission.AddUserWsRequest;
-import org.sonarqube.ws.client.user.CreateRequest;
+import org.sonarqube.ws.client.permissions.AddUserRequest;
+import org.sonarqube.ws.client.users.CreateRequest;
 import util.selenium.Selenese;
 
 import static com.codeborne.selenide.Condition.visible;
@@ -125,7 +125,7 @@ public class OAuth2IdentityProviderTest {
     enablePlugin();
     tester.users().generate(u -> u.setLogin(USER_LOGIN));
     // Give user global admin permission as we want to go to a page where authentication is required
-    tester.wsClient().permissions().addUser(new AddUserWsRequest().setLogin(USER_LOGIN).setPermission("admin"));
+    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(USER_LOGIN).setPermission("admin"));
 
     Navigation nav = tester.openBrowser();
     // Try to go to the settings page
@@ -197,12 +197,11 @@ public class OAuth2IdentityProviderTest {
     enablePlugin();
 
     // Provision none local user in database
-    tester.wsClient().users().create(CreateRequest.builder()
+    tester.wsClient().users().create(new CreateRequest()
       .setLogin(USER_LOGIN)
       .setName(USER_NAME)
       .setEmail(USER_EMAIL)
-      .setLocal(false)
-      .build());
+      .setLocal("false"));
     User user = tester.users().getByLogin(USER_LOGIN).get();
     assertThat(user.getLocal()).isFalse();
     assertThat(user.getExternalIdentity()).isEqualTo(USER_LOGIN);

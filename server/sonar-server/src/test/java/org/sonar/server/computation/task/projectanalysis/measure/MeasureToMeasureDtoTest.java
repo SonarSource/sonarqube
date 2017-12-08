@@ -26,12 +26,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.Developer;
-import org.sonar.server.computation.task.projectanalysis.component.DumbDeveloper;
-import org.sonar.server.computation.task.projectanalysis.component.MutableDbIdsRepositoryRule;
+import org.sonar.server.computation.task.projectanalysis.component.MutableTreeRootHolderRule;
 import org.sonar.server.computation.task.projectanalysis.component.ReportComponent;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricImpl;
@@ -41,7 +40,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(DataProviderRunner.class)
 public class MeasureToMeasureDtoTest {
   private static final MetricImpl SOME_METRIC = new MetricImpl(42, "metric_key", "metric_name", Metric.MetricType.STRING);
-  private static final int SOME_COMPONENT_ID = 951;
   private static final String SOME_DATA = "some_data";
   private static final String SOME_STRING = "some_string";
   private static final double SOME_VARIATIONS = 1d;
@@ -55,16 +53,15 @@ public class MeasureToMeasureDtoTest {
   private static final Component SOME_COMPONENT = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("uuid_1").build();
 
   @Rule
-  public MutableDbIdsRepositoryRule dbIdsRepository = MutableDbIdsRepositoryRule.create(SOME_COMPONENT);
-
-  @Rule
   public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
 
-  MeasureToMeasureDto underTest = new MeasureToMeasureDto(dbIdsRepository, analysisMetadataHolder);
+  @Rule
+  public MutableTreeRootHolderRule treeRootHolder = new MutableTreeRootHolderRule();
+
+  private MeasureToMeasureDto underTest = new MeasureToMeasureDto(analysisMetadataHolder, treeRootHolder);
 
   @Before
   public void setUp() throws Exception {
-    dbIdsRepository.setComponentId(SOME_COMPONENT, SOME_COMPONENT_ID);
     analysisMetadataHolder.setUuid(ANALYSIS_UUID);
   }
 
@@ -130,22 +127,6 @@ public class MeasureToMeasureDtoTest {
     MeasureDto measureDto = underTest.toMeasureDto(measure, metric, SOME_COMPONENT);
 
     assertThat(measureDto.getComponentUuid()).isEqualTo(SOME_COMPONENT.getUuid());
-    // assertThat(measureDto.getSnapshotId()).isEqualTo(SOME_SNAPSHOT_ID);
-  }
-
-  @Test
-  @UseDataProvider("all_types_Measures")
-  public void toMeasureDto_does_no_set_developerId_if_not_set_in_Measure(Measure measure, Metric metric) {
-    assertThat(underTest.toMeasureDto(measure, metric, SOME_COMPONENT).getDeveloperId()).isNull();
-  }
-
-  @Test
-  public void toMeasureDto_sets_developerId_if_set_in_Measure() {
-    Developer developer = new DumbDeveloper("DEV1");
-    dbIdsRepository.setDeveloperId(developer, 42);
-    Measure measure = Measure.newMeasureBuilder().forDeveloper(developer).createNoValue();
-
-    assertThat(underTest.toMeasureDto(measure, SOME_BOOLEAN_METRIC, SOME_COMPONENT).getDeveloperId()).isEqualTo(42);
   }
 
   @Test
@@ -199,5 +180,17 @@ public class MeasureToMeasureDtoTest {
 
     assertThat(trueMeasureDto.getValue()).isNull();
     assertThat(trueMeasureDto.getData()).isEqualTo(Measure.Level.OK.name());
+  }
+
+  @Test
+  public void toLiveMeasureDto() {
+    treeRootHolder.setRoot(SOME_COMPONENT);
+
+    LiveMeasureDto liveMeasureDto = underTest.toLiveMeasureDto(
+      Measure.newMeasureBuilder().create(Measure.Level.OK),
+      SOME_LEVEL_METRIC,
+      SOME_COMPONENT);
+
+    assertThat(liveMeasureDto.getTextValue()).isEqualTo(Measure.Level.OK.name());
   }
 }

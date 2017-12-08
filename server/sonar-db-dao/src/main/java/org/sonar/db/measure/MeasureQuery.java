@@ -44,19 +44,15 @@ public class MeasureQuery {
   @CheckForNull
   private final Collection<String> metricKeys;
 
-  @CheckForNull
-  private final Long personId;
-
   private MeasureQuery(Builder builder) {
-    this(builder.analysisUuid, builder.projectUuids, builder.componentUuids, builder.metricIds, builder.metricKeys, builder.personId);
+    this(builder.analysisUuid, builder.projectUuids, builder.componentUuids, builder.metricIds, builder.metricKeys);
   }
 
   private MeasureQuery(@Nullable String analysisUuid,
     @Nullable Collection<String> projectUuids,
     @Nullable Collection<String> componentUuids,
     @Nullable Collection<Integer> metricIds,
-    @Nullable Collection<String> metricKeys,
-    @Nullable Long personId) {
+    @Nullable Collection<String> metricKeys) {
     checkArgument(metricIds == null || metricKeys == null, "Metric IDs and keys must not be set both");
     checkArgument(projectUuids != null || componentUuids != null, "At least one filter on component UUID is expected");
     checkArgument(componentUuids == null || componentUuids.size() == 1 || (projectUuids != null && projectUuids.size() == 1),
@@ -67,7 +63,6 @@ public class MeasureQuery {
     this.componentUuids = componentUuids;
     this.metricIds = metricIds;
     this.metricKeys = metricKeys;
-    this.personId = personId;
   }
 
   public String getAnalysisUuid() {
@@ -104,11 +99,6 @@ public class MeasureQuery {
     return metricKeys;
   }
 
-  @CheckForNull
-  public Long getPersonId() {
-    return personId;
-  }
-
   public boolean returnsEmpty() {
     return (projectUuids != null && projectUuids.isEmpty())
       || (componentUuids != null && componentUuids.isEmpty())
@@ -141,13 +131,12 @@ public class MeasureQuery {
       Objects.equals(projectUuids, that.projectUuids) &&
       Objects.equals(componentUuids, that.componentUuids) &&
       Objects.equals(metricIds, that.metricIds) &&
-      Objects.equals(metricKeys, that.metricKeys) &&
-      Objects.equals(personId, that.personId);
+      Objects.equals(metricKeys, that.metricKeys);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(analysisUuid, componentUuids, metricIds, metricKeys, personId);
+    return Objects.hash(analysisUuid, componentUuids, metricIds, metricKeys);
   }
 
   public static Builder builder() {
@@ -155,11 +144,11 @@ public class MeasureQuery {
   }
 
   static MeasureQuery copyWithSubsetOfProjectUuids(MeasureQuery query, Collection<String> projectUuids) {
-    return new MeasureQuery(query.analysisUuid, projectUuids, query.componentUuids, query.metricIds, query.metricKeys, query.personId);
+    return new MeasureQuery(query.analysisUuid, projectUuids, query.componentUuids, query.metricIds, query.metricKeys);
   }
 
   static MeasureQuery copyWithSubsetOfComponentUuids(MeasureQuery query, Collection<String> componentUuids) {
-    return new MeasureQuery(query.analysisUuid, query.projectUuids, componentUuids, query.metricIds, query.metricKeys, query.personId);
+    return new MeasureQuery(query.analysisUuid, query.projectUuids, componentUuids, query.metricIds, query.metricKeys);
   }
 
   public static final class Builder {
@@ -168,7 +157,6 @@ public class MeasureQuery {
     private Collection<String> componentUuids;
     private Collection<Integer> metricIds;
     private Collection<String> metricKeys;
-    private Long personId;
 
     private Builder() {
       // see MeasureQuery#builder()
@@ -227,11 +215,6 @@ public class MeasureQuery {
 
     public Builder setMetricKey(String s) {
       this.metricKeys = singleton(s);
-      return this;
-    }
-
-    public Builder setPersonId(@Nullable Long l) {
-      this.personId = l;
       return this;
     }
 

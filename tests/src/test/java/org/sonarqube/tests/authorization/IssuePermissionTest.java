@@ -32,12 +32,14 @@ import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.user.UserParameters;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Issues;
-import org.sonarqube.ws.client.issue.BulkChangeRequest;
-import org.sonarqube.ws.client.permission.AddUserWsRequest;
-import org.sonarqube.ws.client.project.UpdateVisibilityRequest;
+import org.sonarqube.ws.client.issues.BulkChangeRequest;
+import org.sonarqube.ws.client.issues.ChangelogRequest;
+import org.sonarqube.ws.client.permissions.AddUserRequest;
+import org.sonarqube.ws.client.projects.UpdateVisibilityRequest;
 import util.ItUtils;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newUserWsClient;
@@ -58,7 +60,7 @@ public class IssuePermissionTest {
     ItUtils.restoreProfile(orchestrator, getClass().getResource("/authorisation/one-issue-per-line-profile.xml"));
 
     orchestrator.getServer().provisionProject("privateProject", "PrivateProject");
-    tester.wsClient().projects().updateVisibility(UpdateVisibilityRequest.builder().setProject("privateProject").setVisibility("private").build());
+    tester.wsClient().projects().updateVisibility(new UpdateVisibilityRequest().setProject("privateProject").setVisibility("private"));
     orchestrator.getServer().associateProjectToQualityProfile("privateProject", "xoo", "one-issue-per-line");
     SonarScanner privateProject = SonarScanner.create(projectDir("shared/xoo-sample"))
       .setProperty("sonar.projectKey", "privateProject")
@@ -257,21 +259,20 @@ public class IssuePermissionTest {
 
   private Issues.BulkChangeWsResponse makeBlockerAndFalsePositive(String user, Issue issueOnPrivateProject, Issue issueOnPublicProject) {
     return newUserWsClient(orchestrator, user, "password").issues()
-      .bulkChange(BulkChangeRequest.builder().setIssues(asList(issueOnPrivateProject.key(), issueOnPublicProject.key()))
-        .setSetSeverity("BLOCKER")
-        .setDoTransition("falsepositive")
-        .build());
+      .bulkChange(new BulkChangeRequest().setIssues(asList(issueOnPrivateProject.key(), issueOnPublicProject.key()))
+        .setSetSeverity(singletonList("BLOCKER"))
+        .setDoTransition("falsepositive"));
   }
 
   private void addUserPermission(String login, String projectKey, String permission) {
     tester.wsClient().permissions().addUser(
-      new AddUserWsRequest()
+      new AddUserRequest()
         .setLogin(login)
         .setProjectKey(projectKey)
         .setPermission(permission));
   }
 
   private static Issues.ChangelogWsResponse changelog(String issueKey, String login, String password) {
-    return newUserWsClient(orchestrator, login, password).issues().changelog(issueKey);
+    return newUserWsClient(orchestrator, login, password).issues().changelog(new ChangelogRequest().setIssue(issueKey));
   }
 }

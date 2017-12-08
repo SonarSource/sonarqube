@@ -37,11 +37,13 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
+import static java.lang.String.format;
+import static java.lang.String.valueOf;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ID;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
 
 public class DeleteConditionActionTest {
 
@@ -54,7 +56,8 @@ public class DeleteConditionActionTest {
 
   private TestDefaultOrganizationProvider organizationProvider = TestDefaultOrganizationProvider.from(db);
 
-  private WsActionTester ws = new WsActionTester(new DeleteConditionAction(userSession, db.getDbClient(), new QualityGatesWsSupport(db.getDbClient(), organizationProvider)));
+  private WsActionTester ws = new WsActionTester(
+    new DeleteConditionAction(db.getDbClient(), new QualityGatesWsSupport(db.getDbClient(), userSession, organizationProvider)));
 
   @Test
   public void definition() {
@@ -94,6 +97,21 @@ public class DeleteConditionActionTest {
   }
 
   @Test
+  public void fail_if_built_in_quality_gate() {
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, db.getDefaultOrganization());
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(qg -> qg.setBuiltIn(true));
+    MetricDto metric = db.measures().insertMetric();
+    QualityGateConditionDto qualityGateCondition = db.qualityGates().addCondition(qualityGate, metric);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage(format("Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName()));
+
+    ws.newRequest()
+      .setParam(PARAM_ID, valueOf(qualityGateCondition.getId()))
+      .execute();
+  }
+
+  @Test
   public void fail_if_not_quality_gate_administrator() {
     userSession.addPermission(ADMINISTER, db.getDefaultOrganization());
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate();
@@ -119,9 +137,22 @@ public class DeleteConditionActionTest {
     call(unknownConditionId);
   }
 
+  @Test
+  public void fail_when_condition_match_unknown_quality_gate() {
+    userSession.addPermission(ADMINISTER_QUALITY_GATES, db.getDefaultOrganization());
+    QualityGateConditionDto condition = new QualityGateConditionDto().setQualityGateId(123L);
+    db.getDbClient().gateConditionDao().insert(condition, db.getSession());
+    db.commit();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage(format("Condition '%s' is linked to an unknown quality gate '%s'", condition.getId(), 123L));
+
+    call(condition.getId());
+  }
+
   private TestResponse call(long qualityGateConditionId) {
     return ws.newRequest()
-      .setParam(PARAM_ID, String.valueOf(qualityGateConditionId))
+      .setParam(PARAM_ID, valueOf(qualityGateConditionId))
       .execute();
   }
 

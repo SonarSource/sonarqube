@@ -50,6 +50,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.measure.custom.CustomMeasureDto;
+import org.sonar.db.metric.MetricDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.rule.RuleDefinitionDto;
 
@@ -86,7 +87,7 @@ public class PurgeDaoTest {
   private PurgeDao underTest = dbTester.getDbClient().purgeDao();
 
   @Test
-  public void shouldDeleteAbortedBuilds() {
+  public void purge_failed_ce_tasks() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteAbortedBuilds.xml");
 
     underTest.purge(dbSession, newConfigurationWith30Days(), PurgeListener.EMPTY, new PurgeProfiler());
@@ -96,7 +97,7 @@ public class PurgeDaoTest {
   }
 
   @Test
-  public void should_purge_project() {
+  public void purge_history_of_project() {
     dbTester.prepareDbUnit(getClass(), "shouldPurgeProject.xml");
     underTest.purge(dbSession, newConfigurationWith30Days(), PurgeListener.EMPTY, new PurgeProfiler());
     dbSession.commit();
@@ -104,7 +105,7 @@ public class PurgeDaoTest {
   }
 
   @Test
-  public void should_purge_inactive_short_living_branches() {
+  public void purge_inactive_short_living_branches() {
     when(system2.now()).thenReturn(new Date().getTime());
     RuleDefinitionDto rule = dbTester.rules().insert();
     ComponentDto project = dbTester.components().insertMainBranch();
@@ -392,6 +393,26 @@ public class PurgeDaoTest {
     verifyNoEffect(componentDbTester.insertPublicProject());
     verifyNoEffect(componentDbTester.insertView());
     verifyNoEffect(componentDbTester.insertView(), componentDbTester.insertPrivateProject(), componentDbTester.insertPublicProject());
+  }
+
+  @Test
+  public void delete_live_measures_when_deleting_project() {
+    MetricDto metric = dbTester.measures().insertMetric();
+
+    ComponentDto project1 = dbTester.components().insertPublicProject();
+    ComponentDto module1 = dbTester.components().insertComponent(ComponentTesting.newModuleDto(project1));
+    dbTester.measures().insertLiveMeasure(project1, metric);
+    dbTester.measures().insertLiveMeasure(module1, metric);
+
+    ComponentDto project2 = dbTester.components().insertPublicProject();
+    ComponentDto module2 = dbTester.components().insertComponent(ComponentTesting.newModuleDto(project2));
+    dbTester.measures().insertLiveMeasure(project2, metric);
+    dbTester.measures().insertLiveMeasure(module2, metric);
+
+    underTest.deleteProject(dbSession, project1.uuid());
+
+    assertThat(dbClient.liveMeasureDao().selectByComponentUuids(dbSession, asList(project1.uuid(), module1.uuid()), asList(metric.getId()))).isEmpty();
+    assertThat(dbClient.liveMeasureDao().selectByComponentUuids(dbSession, asList(project2.uuid(), module2.uuid()), asList(metric.getId()))).hasSize(2);
   }
 
   private void verifyNoEffect(ComponentDto firstRoot, ComponentDto... otherRoots) {

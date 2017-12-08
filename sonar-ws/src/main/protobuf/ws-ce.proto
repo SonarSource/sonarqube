@@ -1,0 +1,103 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2016 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+syntax = "proto2";
+
+package sonarqube.ws.ce;
+
+import "ws-commons.proto";
+
+option java_package = "org.sonarqube.ws";
+option java_outer_classname = "Ce";
+option optimize_for = SPEED;
+
+// POST api/ce/submit
+message SubmitResponse {
+  optional string taskId = 1;
+  optional string projectId = 2;
+}
+
+// GET api/ce/task
+message TaskResponse {
+  optional Task task = 1;
+}
+
+// GET api/ce/activity
+message ActivityResponse {
+  // paging has been deprecated in 5.5
+  optional sonarqube.ws.commons.Paging unusedPaging = 1;
+  repeated Task tasks = 2;
+}
+
+// GET api/ce/activity_status
+message ActivityStatusWsResponse {
+  optional int32 pending = 1;
+  optional int32 failing = 2;
+  optional int32 inProgress = 3;
+}
+
+// GET api/ce/component
+message ComponentResponse {
+  repeated Task queue = 1;
+  optional Task current = 2;
+}
+
+// GET api/ce/task_types
+message TaskTypesWsResponse {
+  repeated string taskTypes = 1;
+}
+
+// GET api/ce/worker_count
+message WorkerCountResponse {
+  optional int32 value = 1;
+  optional bool canSetWorkerCount = 2;
+}
+
+message Task {
+  optional string id = 1;
+  optional string type = 2;
+  optional string componentId = 3;
+  optional string componentKey = 4;
+  optional string componentName = 5;
+  optional string componentQualifier = 6;
+  optional string analysisId = 7;
+  optional TaskStatus status = 8;
+  optional string submittedAt = 9;
+  optional string submitterLogin = 10;
+  optional string startedAt = 11;
+  optional string executedAt = 12;
+  optional bool isLastExecuted = 13;
+  optional int64 executionTimeMs = 14;
+  optional bool logs = 15;
+  optional string errorMessage = 16;
+  optional string errorStacktrace = 17;
+  optional string scannerContext = 18;
+  optional bool hasScannerContext = 19;
+  optional string organization = 20;
+  optional string branch = 21;
+  optional sonarqube.ws.commons.BranchType branchType = 22;
+  optional string errorType = 23;
+}
+
+enum TaskStatus {
+  PENDING = 0;
+  IN_PROGRESS = 1;
+  SUCCESS = 2;
+  FAILED = 3;
+  CANCELED = 4;
+}

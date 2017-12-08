@@ -4,12 +4,12 @@
 <mapper namespace="org.sonar.db.qualitygate.QualityGateMapper">
 
   <insert id="insert" parameterType="QualityGate" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    insert into quality_gates (name, created_at, updated_at)
-    values (#{name}, #{createdAt}, #{updatedAt})
+    insert into quality_gates (name, is_built_in, created_at, updated_at)
+    values (#{name}, #{isBuiltIn}, #{createdAt}, #{updatedAt})
   </insert>
 
   <sql id="gateColumns">
-    id, name, created_at as createdAt, updated_at as updatedAt
+    id, name, is_built_in as isBuiltIn, created_at as createdAt, updated_at as updatedAt
   </sql>
 
   <select id="selectAll" resultType="QualityGate">
@@ -40,8 +40,17 @@
   <update id="update" parameterType="QualityGate">
     update quality_gates set
     name=#{name},
+    is_built_in=#{isBuiltIn},
     updated_at=#{updatedAt}
     where id=#{id}
+  </update>
+
+  <update id="ensureOneBuiltInQualityGate" parameterType="string">
+    UPDATE quality_gates
+    SET
+      is_built_in=${_false}
+    WHERE
+      is_built_in=${_true} AND name &lt;&gt; #{builtInQualityName}
   </update>
 
 </mapper>

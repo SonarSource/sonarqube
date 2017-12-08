@@ -19,24 +19,22 @@
  */
 package org.sonar.duplications.statement;
 
-import static org.hamcrest.Matchers.is;
+import java.util.Arrays;
+import java.util.List;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.sonar.duplications.statement.matcher.AnyTokenMatcher;
+import org.sonar.duplications.statement.matcher.TokenMatcher;
+import org.sonar.duplications.token.Token;
+import org.sonar.duplications.token.TokenQueue;
+
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-
-import org.mockito.Matchers;
-
-import java.util.Arrays;
-import java.util.List;
-
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.sonar.duplications.statement.matcher.AnyTokenMatcher;
-import org.sonar.duplications.statement.matcher.TokenMatcher;
-import org.sonar.duplications.token.Token;
-import org.sonar.duplications.token.TokenQueue;
 
 public class StatementChannelTest {
 

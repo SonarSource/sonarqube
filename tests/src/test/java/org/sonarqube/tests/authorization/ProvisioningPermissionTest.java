@@ -27,11 +27,11 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
-import org.sonarqube.ws.client.permission.AddGroupWsRequest;
-import org.sonarqube.ws.client.permission.AddUserWsRequest;
-import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
-import org.sonarqube.ws.client.permission.RemoveUserWsRequest;
-import org.sonarqube.ws.client.project.CreateRequest;
+import org.sonarqube.ws.client.permissions.AddGroupRequest;
+import org.sonarqube.ws.client.permissions.AddUserRequest;
+import org.sonarqube.ws.client.permissions.RemoveGroupRequest;
+import org.sonarqube.ws.client.permissions.RemoveUserRequest;
+import org.sonarqube.ws.client.projects.CreateRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,7 +58,7 @@ public class ProvisioningPermissionTest {
   @BeforeClass
   public static void init() {
     // remove default permission "provisioning" from anyone();
-    tester.wsClient().permissions().removeGroup(new RemoveGroupWsRequest().setGroupName("anyone").setPermission("provisioning"));
+    tester.wsClient().permissions().removeGroup(new RemoveGroupRequest().setGroupName("anyone").setPermission("provisioning"));
 
     tester.users().generate(u -> u.setLogin(ADMIN_WITH_PROVISIONING).setPassword(PASSWORD));
     addUserPermission(ADMIN_WITH_PROVISIONING, "admin");
@@ -77,7 +77,7 @@ public class ProvisioningPermissionTest {
 
   @AfterClass
   public static void restoreData() throws Exception {
-    tester.wsClient().permissions().addGroup(new AddGroupWsRequest().setGroupName("anyone").setPermission("provisioning"));
+    tester.wsClient().permissions().addGroup(new AddGroupRequest().setGroupName("anyone").setPermission("provisioning"));
   }
 
   /**
@@ -108,7 +108,7 @@ public class ProvisioningPermissionTest {
     final String newName = "New Project";
 
     Project created = tester.as(USER_WITH_PROVISIONING, PASSWORD).wsClient().projects()
-      .create(CreateRequest.builder().setKey(newKey).setName(newName).build())
+      .create(new CreateRequest().setProject(newKey).setName(newName))
       .getProject();
 
     assertThat(created).isNotNull();
@@ -124,16 +124,16 @@ public class ProvisioningPermissionTest {
   public void user_cannot_provision_project_through_ws_if_he_does_not_have_provisioning_permission() {
     ItUtils.expectForbiddenError(() -> {
       tester.as(USER_WITHOUT_PROVISIONING, PASSWORD).wsClient().projects()
-        .create(CreateRequest.builder().setKey("new-project").setName("New Project").build())
+        .create(new CreateRequest().setProject("new-project").setName("New Project"))
         .getProject();
     });
   }
 
   private static void addUserPermission(String login, String permission) {
-    tester.wsClient().permissions().addUser(new AddUserWsRequest().setLogin(login).setPermission(permission));
+    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(login).setPermission(permission));
   }
 
   private static void removeUserPermission(String login, String permission) {
-    tester.wsClient().permissions().removeUser(new RemoveUserWsRequest().setLogin(login).setPermission(permission));
+    tester.wsClient().permissions().removeUser(new RemoveUserRequest().setLogin(login).setPermission(permission));
   }
 }

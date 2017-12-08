@@ -35,7 +35,6 @@ import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.lang.String.format;
@@ -62,8 +61,8 @@ public class ComponentTreeSort {
     // static method only
   }
 
-  public static List<ComponentDto> sortComponents(List<ComponentDto> components, ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
-    Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
+  public static List<ComponentDto> sortComponents(List<ComponentDto> components, ComponentTreeRequest wsRequest, List<MetricDto> metrics,
+                                                  Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
     List<String> sortParameters = wsRequest.getSort();
     if (sortParameters == null || sortParameters.isEmpty()) {
       return components;
@@ -112,8 +111,8 @@ public class ComponentTreeSort {
     return ordering.nullsLast().onResultOf(function);
   }
 
-  private static Ordering<ComponentDto> metricValueOrdering(ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
-    Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
+  private static Ordering<ComponentDto> metricValueOrdering(ComponentTreeRequest wsRequest, List<MetricDto> metrics,
+                                                            Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
     if (wsRequest.getMetricSort() == null) {
       return componentNameOrdering(wsRequest.getAsc());
     }
@@ -133,8 +132,8 @@ public class ComponentTreeSort {
     throw new IllegalStateException("Unrecognized metric value type: " + metric.getValueType());
   }
 
-  private static Ordering<ComponentDto> metricPeriodOrdering(ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
-    Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
+  private static Ordering<ComponentDto> metricPeriodOrdering(ComponentTreeRequest wsRequest, List<MetricDto> metrics,
+                                                             Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
     if (wsRequest.getMetricSort() == null || wsRequest.getMetricPeriodSort() == null) {
       return componentNameOrdering(wsRequest.getAsc());
     }
@@ -160,8 +159,8 @@ public class ComponentTreeSort {
     return ordering.nullsLast().onResultOf(new ComponentDtoToNumericalMeasureValue(metric, measuresByComponentUuidAndMetric));
   }
 
-  private static Ordering<ComponentDto> numericalMetricPeriodOrdering(ComponentTreeWsRequest request, @Nullable MetricDto metric,
-    Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
+  private static Ordering<ComponentDto> numericalMetricPeriodOrdering(ComponentTreeRequest request, @Nullable MetricDto metric,
+                                                                      Table<String, MetricDto, ComponentTreeData.Measure> measuresByComponentUuidAndMetric) {
     Ordering<Double> ordering = Ordering.natural();
 
     if (!request.getAsc()) {

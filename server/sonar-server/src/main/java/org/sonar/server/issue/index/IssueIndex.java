@@ -596,18 +596,22 @@ public class IssueIndex {
         .subAggregation(facetTopAggregation));
   }
 
-  public List<String> listTags(OrganizationDto organization, @Nullable String textQuery, int size) {
+  public List<String> listTags(@Nullable OrganizationDto organization, @Nullable String textQuery, int size) {
     int maxPageSize = 500;
     checkArgument(size <= maxPageSize, "Page size must be lower than or equals to " + maxPageSize);
     if (size <= 0) {
       return emptyList();
     }
 
+    BoolQueryBuilder esQuery = boolQuery()
+      .filter(createAuthorizationFilter(true));
+    if (organization != null) {
+      esQuery.filter(termQuery(FIELD_ISSUE_ORGANIZATION_UUID, organization.getUuid()));
+    }
+
     SearchRequestBuilder requestBuilder = client
       .prepareSearch(INDEX_TYPE_ISSUE)
-      .setQuery(boolQuery()
-        .filter(createAuthorizationFilter(true))
-        .filter(termQuery(FIELD_ISSUE_ORGANIZATION_UUID, organization.getUuid())))
+      .setQuery(esQuery)
       .setSize(0);
 
     TermsAggregationBuilder termsAggregation = AggregationBuilders.terms(AGGREGATION_NAME_FOR_TAGS)

@@ -22,15 +22,21 @@ package org.sonar.server.qualitygate.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.qualitygate.QualityGates;
-import org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.server.qualitygate.QualityGateFinder;
 
 public class DestroyAction implements QualityGatesWsAction {
 
-  private final QualityGates qualityGates;
+  private final DbClient dbClient;
+  private final QualityGatesWsSupport wsSupport;
+  private final QualityGateFinder finder;
 
-  public DestroyAction(QualityGates qualityGates) {
-    this.qualityGates = qualityGates;
+  public DestroyAction(DbClient dbClient, QualityGatesWsSupport wsSupport, QualityGateFinder finder) {
+    this.dbClient = dbClient;
+    this.wsSupport = wsSupport;
+    this.finder = finder;
   }
 
   @Override
@@ -50,8 +56,17 @@ public class DestroyAction implements QualityGatesWsAction {
 
   @Override
   public void handle(Request request, Response response) {
-    qualityGates.delete(QualityGatesWs.parseId(request, QualityGatesWsParameters.PARAM_ID));
-    response.noContent();
+    long qualityGateId = request.mandatoryParamAsLong(QualityGatesWsParameters.PARAM_ID);
+    try (DbSession dbSession = dbClient.openSession(false)) {
+
+      QualityGateDto qualityGate = finder.getById(dbSession, qualityGateId);
+      wsSupport.checkCanEdit(qualityGate);
+
+      dbClient.qualityGateDao().delete(qualityGate, dbSession);
+
+      dbSession.commit();
+      response.noContent();
+    }
   }
 
 }

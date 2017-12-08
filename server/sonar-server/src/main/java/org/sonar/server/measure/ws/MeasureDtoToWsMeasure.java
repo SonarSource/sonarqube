@@ -20,6 +20,7 @@
 package org.sonar.server.measure.ws;
 
 import javax.annotation.Nullable;
+import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.Measures;
@@ -38,6 +39,12 @@ class MeasureDtoToWsMeasure {
     Double value = measureDto.getValue();
     Double variation = measureDto.getVariation();
     updateMeasureBuilder(measureBuilder, metricDto, value == null ? Double.NaN : value, measureDto.getData(), variation == null ? Double.NaN : variation);
+  }
+
+  static void updateMeasureBuilder(Measure.Builder measureBuilder, MetricDto metricDto, LiveMeasureDto measureDto) {
+    Double value = measureDto.getValue();
+    Double variation = measureDto.getVariation();
+    updateMeasureBuilder(measureBuilder, metricDto, value == null ? Double.NaN : value, measureDto.getDataAsString(), variation == null ? Double.NaN : variation);
   }
 
   static void updateMeasureBuilder(Measure.Builder measureBuilder, MetricDto metric, double doubleValue, @Nullable String stringValue, double variation) {

@@ -21,6 +21,7 @@ package org.sonar.process;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.LoggingEvent;
+import ch.qos.logback.core.joran.spi.JoranException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.rules.ExternalResource;
@@ -47,6 +48,11 @@ public class LoggingRule extends ExternalResource {
   protected void after() {
     TestLogbackAppender.events.clear();
     setLevel(Level.INFO);
+    try {
+      new LogbackHelper().resetFromXml("/logback-test.xml");
+    } catch (JoranException e) {
+      e.printStackTrace();
+    }
   }
 
   public LoggingRule setLevel(Level level) {
@@ -58,6 +64,7 @@ public class LoggingRule extends ExternalResource {
 
   public List<String> getLogs() {
     return TestLogbackAppender.events.stream()
+      .filter(e -> e.getLoggerName().equals(loggerClass.getName()))
       .map(LoggingEvent::getFormattedMessage)
       .collect(Collectors.toList());
   }
@@ -72,12 +79,14 @@ public class LoggingRule extends ExternalResource {
 
   public boolean hasLog(Level level, String message) {
     return TestLogbackAppender.events.stream()
+      .filter(e -> e.getLoggerName().equals(loggerClass.getName()))
       .filter(e -> e.getLevel().levelStr.equals(level.name()))
       .anyMatch(e -> e.getFormattedMessage().equals(message));
   }
 
   public boolean hasLog(String message) {
     return TestLogbackAppender.events.stream()
+      .filter(e -> e.getLoggerName().equals(loggerClass.getName()))
       .anyMatch(e -> e.getFormattedMessage().equals(message));
   }
 }

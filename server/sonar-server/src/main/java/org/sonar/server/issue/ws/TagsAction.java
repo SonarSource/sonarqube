@@ -23,24 +23,24 @@ import com.google.common.io.Resources;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.ws.WsUtils;
+import org.sonarqube.ws.Issues;
 
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_ORGANIZATION;
 
 /**
@@ -52,21 +52,11 @@ public class TagsAction implements IssuesWsAction {
   private final IssueIndex issueIndex;
   private final RuleIndex ruleIndex;
   private final DbClient dbClient;
-  private final DefaultOrganizationProvider defaultOrganizationProvider;
 
-  public TagsAction(IssueIndex issueIndex, RuleIndex ruleIndex, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider) {
+  public TagsAction(IssueIndex issueIndex, RuleIndex ruleIndex, DbClient dbClient) {
     this.issueIndex = issueIndex;
     this.ruleIndex = ruleIndex;
     this.dbClient = dbClient;
-    this.defaultOrganizationProvider = defaultOrganizationProvider;
-  }
-
-  private static void writeResponse(Response response, List<String> tags) {
-    try (JsonWriter json = response.newJsonWriter()) {
-      json.beginObject().name("tags").beginArray();
-      tags.forEach(json::value);
-      json.endArray().endObject();
-    }
   }
 
   @Override
@@ -92,10 +82,13 @@ public class TagsAction implements IssuesWsAction {
     int pageSize = request.mandatoryParamAsInt("ps");
     OrganizationDto organization = getOrganization(request.param(PARAM_ORGANIZATION));
     List<String> tags = listTags(organization, query, pageSize == 0 ? Integer.MAX_VALUE : pageSize);
-    writeResponse(response, tags);
+
+    Issues.TagsResponse.Builder tagsResponseBuilder = Issues.TagsResponse.newBuilder();
+    tags.forEach(tagsResponseBuilder::addTags);
+    writeProtobuf(tagsResponseBuilder.build(), request, response);
   }
 
-  private List<String> listTags(OrganizationDto organization, @Nullable String textQuery, int pageSize) {
+  private List<String> listTags(@Nullable OrganizationDto organization, @Nullable String textQuery, int pageSize) {
     Collection<String> issueTags = issueIndex.listTags(organization, textQuery, pageSize);
     Collection<String> ruleTags = ruleIndex.listTags(organization, textQuery, pageSize);
 
@@ -106,13 +99,11 @@ public class TagsAction implements IssuesWsAction {
     return resultAsList.size() > pageSize && pageSize > 0 ? resultAsList.subList(0, pageSize) : resultAsList;
   }
 
+  @CheckForNull
   private OrganizationDto getOrganization(@Nullable String organizationKey) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String organizationOrDefaultKey = Optional.ofNullable(organizationKey)
-        .orElseGet(defaultOrganizationProvider.get()::getKey);
-      return WsUtils.checkFoundWithOptional(
-        dbClient.organizationDao().selectByKey(dbSession, organizationOrDefaultKey),
-        "No organization with key '%s'", organizationOrDefaultKey);
+      return organizationKey == null ? null
+        : checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, organizationKey), "No organization with key '%s'", organizationKey);
     }
   }
 

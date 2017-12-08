@@ -38,11 +38,11 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.notification.NotificationCenter;
 import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.notification.NotificationUpdater;
+import org.sonar.server.notification.ws.RemoveAction.RemoveRequest;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.client.notification.RemoveRequest;
 
 import static java.lang.String.format;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
@@ -51,10 +51,10 @@ import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBAL_NOTIFICATION;
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_CHANNEL;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_LOGIN;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_PROJECT;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_TYPE;
+import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_CHANNEL;
+import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_LOGIN;
+import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_PROJECT;
+import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_TYPE;
 
 public class RemoveActionTest {
   private static final String NOTIF_MY_NEW_ISSUES = "Dispatcher1";
@@ -79,7 +79,7 @@ public class RemoveActionTest {
   private RemoveAction underTest;
 
   private WsActionTester ws;
-  private RemoveRequest.Builder request = RemoveRequest.builder().setType(NOTIF_MY_NEW_ISSUES);
+  private RemoveRequest request = new RemoveRequest().setType(NOTIF_MY_NEW_ISSUES);
 
   private UserDto user;
 
@@ -280,14 +280,12 @@ public class RemoveActionTest {
     call(request.setProject(branch.getDbKey()));
   }
 
-  private TestResponse call(RemoveRequest.Builder wsRequestBuilder) {
-    RemoveRequest wsRequest = wsRequestBuilder.build();
-
+  private TestResponse call(RemoveRequest remove) {
     TestRequest request = ws.newRequest();
-    request.setParam(PARAM_TYPE, wsRequest.getType());
-    setNullable(wsRequest.getChannel(), channel -> request.setParam(PARAM_CHANNEL, channel));
-    setNullable(wsRequest.getProject(), project -> request.setParam(PARAM_PROJECT, project));
-    setNullable(wsRequest.getLogin(), login -> request.setParam(PARAM_LOGIN, login));
+    request.setParam(PARAM_TYPE, remove.getType());
+    setNullable(remove.getChannel(), channel -> request.setParam(PARAM_CHANNEL, channel));
+    setNullable(remove.getProject(), project -> request.setParam(PARAM_PROJECT, project));
+    setNullable(remove.getLogin(), login -> request.setParam(PARAM_LOGIN, login));
     return request.execute();
   }
 

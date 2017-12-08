@@ -31,7 +31,7 @@ import org.sonar.server.issue.IssueQueryFactory;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
+import org.sonar.server.issue.SearchRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -89,7 +89,7 @@ public class ComponentTagsActionTest {
       .put("bug", 32L)
       .put("cert", 2L)
       .build();
-    ArgumentCaptor<SearchWsRequest> captor = ArgumentCaptor.forClass(SearchWsRequest.class);
+    ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
     when(issueQueryFactory.create(captor.capture())).thenReturn(mock(IssueQuery.class));
     when(service.countTags(any(IssueQuery.class), eq(5))).thenReturn(tags);
 
@@ -113,7 +113,7 @@ public class ComponentTagsActionTest {
       .put("bug", 32L)
       .put("cert", 2L)
       .build();
-    ArgumentCaptor<SearchWsRequest> captor = ArgumentCaptor.forClass(SearchWsRequest.class);
+    ArgumentCaptor<SearchRequest> captor = ArgumentCaptor.forClass(SearchRequest.class);
     when(issueQueryFactory.create(captor.capture())).thenReturn(mock(IssueQuery.class));
     when(service.countTags(any(IssueQuery.class), eq(5))).thenReturn(tags);
 

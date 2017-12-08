@@ -21,7 +21,7 @@ package org.sonar.server.usertoken.ws;
 
 import org.sonar.api.server.ws.WebService;
 
-import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.CONTROLLER;
+import static org.sonar.server.usertoken.ws.UserTokensWsParameters.CONTROLLER;
 
 public class UserTokensWs implements WebService {
   private final UserTokensWsAction[] actions;

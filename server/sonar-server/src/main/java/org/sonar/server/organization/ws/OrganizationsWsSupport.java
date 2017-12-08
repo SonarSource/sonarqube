@@ -24,7 +24,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.organization.OrganizationValidation;
-import org.sonarqube.ws.Organizations;
+import org.sonarqube.ws.Organizations.Organization;
 
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.organization.OrganizationValidation.DESCRIPTION_MAX_LENGTH;
@@ -107,19 +107,18 @@ public class OrganizationsWsSupport {
       .setExampleValue("https://www.foo.com/foo.png");
   }
 
-  Organizations.Organization toOrganization(OrganizationDto dto) {
-    return toOrganization(Organizations.Organization.newBuilder(), dto);
+  Organization.Builder toOrganization(OrganizationDto dto) {
+    return toOrganization(Organization.newBuilder(), dto);
   }
 
-  Organizations.Organization toOrganization(Organizations.Organization.Builder builder, OrganizationDto dto) {
+  Organization.Builder toOrganization(Organization.Builder builder, OrganizationDto dto) {
     builder
-      .clear()
       .setName(dto.getName())
       .setKey(dto.getKey())
       .setGuarded(dto.isGuarded());
     setNullable(dto.getDescription(), builder::setDescription);
     setNullable(dto.getUrl(), builder::setUrl);
     setNullable(dto.getAvatarUrl(), builder::setAvatar);
-    return builder.build();
+    return builder;
   }
 }

@@ -51,7 +51,7 @@ import org.sonar.server.issue.IssueQueryFactory;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.SearchWsResponse;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
+import org.sonar.server.issue.SearchRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.concat;
@@ -319,7 +319,7 @@ public class SearchAction implements IssuesWsAction {
     writeProtobuf(searchWsResponse, request, response);
   }
 
-  private SearchWsResponse doHandle(SearchWsRequest request, Request wsRequest) {
+  private SearchWsResponse doHandle(SearchRequest request, Request wsRequest) {
     // prepare the Elasticsearch request
     SearchOptions options = createSearchOptionsFromRequest(request);
     EnumSet<SearchAdditionalField> additionalFields = SearchAdditionalField.getFromRequest(request);
@@ -366,7 +366,7 @@ public class SearchAction implements IssuesWsAction {
     return searchResponseFormat.formatSearch(additionalFields, data, paging, facets);
   }
 
-  private static SearchOptions createSearchOptionsFromRequest(SearchWsRequest request) {
+  private static SearchOptions createSearchOptionsFromRequest(SearchRequest request) {
     SearchOptions options = new SearchOptions();
     options.setPage(request.getPage(), request.getPageSize());
     options.addFacets(request.getFacets());
@@ -388,7 +388,7 @@ public class SearchAction implements IssuesWsAction {
     return new Facets(orderedFacets, system2.getDefaultTimeZone());
   }
 
-  private void completeFacets(Facets facets, SearchWsRequest request, Request wsRequest) {
+  private void completeFacets(Facets facets, SearchRequest request, Request wsRequest) {
     addMandatoryValuesToFacet(facets, PARAM_SEVERITIES, Severity.ALL);
     addMandatoryValuesToFacet(facets, PARAM_STATUSES, Issue.STATUSES);
     addMandatoryValuesToFacet(facets, PARAM_RESOLUTIONS, concat(singletonList(""), Issue.RESOLUTIONS));
@@ -457,7 +457,7 @@ public class SearchAction implements IssuesWsAction {
     collector.addAll(SearchAdditionalField.USERS, facets.getBucketKeys(PARAM_ASSIGNEES));
   }
 
-  private static void collectRequestParams(SearchResponseLoader.Collector collector, SearchWsRequest request) {
+  private static void collectRequestParams(SearchResponseLoader.Collector collector, SearchRequest request) {
     collector.addProjectUuids(request.getProjectUuids());
     collector.addComponentUuids(request.getFileUuids());
     collector.addComponentUuids(request.getModuleUuids());
@@ -465,8 +465,8 @@ public class SearchAction implements IssuesWsAction {
     collector.addAll(SearchAdditionalField.USERS, request.getAssignees());
   }
 
-  private static SearchWsRequest toSearchWsRequest(Request request) {
-    return new SearchWsRequest()
+  private static SearchRequest toSearchWsRequest(Request request) {
+    return new SearchRequest()
       .setAdditionalFields(request.paramAsStrings(PARAM_ADDITIONAL_FIELDS))
       .setAsc(request.paramAsBoolean(PARAM_ASC))
       .setAssigned(request.paramAsBoolean(PARAM_ASSIGNED))

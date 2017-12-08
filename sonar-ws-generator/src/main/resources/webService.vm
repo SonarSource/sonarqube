@@ -1,0 +1,92 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2017 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+package $helper.packageName($webService.path.asString);
+
+import java.util.stream.Collectors;
+import javax.annotation.Generated;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.client.BaseService;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.PostRequest;
+import org.sonarqube.ws.client.WsConnector;
+#foreach($action in $webService.actions)
+#if ($helper.responseTypeImport($webService.path.asString, $action.key.asString))
+$helper.responseTypeImport($webService.path.asString, $action.key.asString)
+#end
+#end
+
+/**
+ * @see <a href="$helper.apiDocUrl($webService.path.asString)">Further information about this web service online</a>
+ */
+@Generated("sonar-ws-generator")
+public class $helper.className($webService.path.asString) extends BaseService {
+
+  public $helper.className($webService.path.asString)(WsConnector wsConnector) {
+    super(wsConnector, "$webService.path.asString");
+  }
+#foreach($action in $webService.actions)
+
+  /**
+   *
+#if ($action.internal)
+   * This is part of the internal API.
+#end
+#if ($action.post.asBoolean)
+   * This is a POST request.
+#else
+   * This is a GET request.
+#end
+#if ($action.hasResponseExample)
+   * @see <a href="$helper.apiDocUrl($webService.path.asString, $action.key.asString)">Further information about this action online (including a response example)</a>
+#else
+   * @see <a href="$helper.apiDocUrl($webService.path.asString, $action.key.asString)">Further information about this action online</a>
+#end
+#if ($action.since.asString)
+   * @since $action.since.asString
+#end
+#if ($action.deprecatedSince)
+   * @deprecated since $action.deprecatedSince.asString
+#end
+   */
+#if ($action.deprecatedSince)
+  @Deprecated
+#end
+  public#if ($action.hasResponseExample.asBoolean) $helper.responseType($webService.path.asString, $action.key.asString)#else void#end $helper.methodName($webService.path.asString, $action.key.asString)(#if ($action.params && $action.params.size() > 0)$helper.requestType($webService.path.asString, $action.key.asString) request#end) {
+   #if ($action.hasResponseExample.asBoolean) return#end call(
+#if ($action.post.asBoolean)
+      new PostRequest(path("$action.key.asString"))#else
+      new GetRequest(path("$action.key.asString"))#end
+#foreach($param in $action.params)
+#if ($helper.setterParameterType($param.key.asString, $param.description) == "List<String>")
+
+        .setParam("$param.key.asString", request.${helper.parameterGetter($param.key.asString)}() == null ? null : request.${helper.parameterGetter($param.key.asString)}().stream().collect(Collectors.joining(",")))#else
+
+        .setParam("$param.key.asString", request.${helper.parameterGetter($param.key.asString)}())#end
+#end
+#if ($helper.responseType($webService.path.asString, $action.key.asString) == "String")
+
+        .setMediaType(MediaTypes.JSON)
+      ).content();
+#else,
+      ${helper.responseType($webService.path.asString, $action.key.asString)}.parser());
+#end
+  }
+#end
+}

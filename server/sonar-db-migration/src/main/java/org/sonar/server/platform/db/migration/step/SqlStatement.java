@@ -26,6 +26,8 @@ import javax.annotation.Nullable;
 public interface SqlStatement<CHILD extends SqlStatement> extends AutoCloseable {
   CHILD setBoolean(int columnIndex, @Nullable Boolean value) throws SQLException;
 
+  CHILD setBytes(int columnIndex, @Nullable byte[] value) throws SQLException;
+
   CHILD setDate(int columnIndex, @Nullable Date value) throws SQLException;
 
   CHILD setDouble(int columnIndex, @Nullable Double value) throws SQLException;

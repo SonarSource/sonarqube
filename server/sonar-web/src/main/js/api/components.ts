@@ -154,12 +154,6 @@ export function getMyProjects(data: RequestData): Promise<any> {
   return getJSON(url, data);
 }
 
-export interface Paging {
-  pageIndex: number;
-  pageSize: number;
-  total: number;
-}
-
 export interface Component {
   organization: string;
   id: string;

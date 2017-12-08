@@ -20,25 +20,23 @@
 package org.sonar.server.computation.task.projectanalysis.measure;
 
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
+import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.server.computation.task.projectanalysis.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
-import org.sonar.server.computation.task.projectanalysis.component.DbIdsRepository;
-import org.sonar.server.computation.task.projectanalysis.component.Developer;
+import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolder;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 
 public class MeasureToMeasureDto {
 
-  private final DbIdsRepository dbIdsRepository;
   private final AnalysisMetadataHolder analysisMetadataHolder;
+  private final TreeRootHolder treeRootHolder;
 
-  public MeasureToMeasureDto(DbIdsRepository dbIdsRepository, AnalysisMetadataHolder analysisMetadataHolder) {
-    this.dbIdsRepository = dbIdsRepository;
+  public MeasureToMeasureDto(AnalysisMetadataHolder analysisMetadataHolder, TreeRootHolder treeRootHolder) {
     this.analysisMetadataHolder = analysisMetadataHolder;
+    this.treeRootHolder = treeRootHolder;
   }
 
-  @Nonnull
   public MeasureDto toMeasureDto(Measure measure, Metric metric, Component component) {
     MeasureDto out = new MeasureDto();
     out.setMetricId(metric.getId());
@@ -50,9 +48,18 @@ public class MeasureToMeasureDto {
     if (measure.hasQualityGateStatus()) {
       setAlert(out, measure.getQualityGateStatus());
     }
-    Developer developer = measure.getDeveloper();
-    if (developer != null) {
-      out.setDeveloperId(dbIdsRepository.getDeveloperId(developer));
+    out.setValue(valueAsDouble(measure));
+    out.setData(data(measure));
+    return out;
+  }
+
+  public LiveMeasureDto toLiveMeasureDto(Measure measure, Metric metric, Component component) {
+    LiveMeasureDto out = new LiveMeasureDto();
+    out.setMetricId(metric.getId());
+    out.setComponentUuid(component.getUuid());
+    out.setProjectUuid(treeRootHolder.getRoot().getUuid());
+    if (measure.hasVariation()) {
+      out.setVariation(measure.getVariation());
     }
     out.setValue(valueAsDouble(measure));
     out.setData(data(measure));

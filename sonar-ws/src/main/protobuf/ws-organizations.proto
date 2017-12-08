@@ -1,0 +1,71 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2016 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+syntax = "proto2";
+
+package sonarqube.ws.organizations;
+
+import "ws-commons.proto";
+
+option java_package = "org.sonarqube.ws";
+option java_outer_classname = "Organizations";
+option optimize_for = SPEED;
+
+// WS api/organizations/create
+message CreateWsResponse {
+  optional Organization organization = 1;
+}
+
+// WS api/organizations/update
+message UpdateWsResponse {
+  optional Organization organization = 1;
+}
+
+// WS api/organizations/search
+message SearchWsResponse {
+  repeated Organization organizations = 1;
+  optional sonarqube.ws.commons.Paging paging = 2;
+}
+
+// WS api/organizations/search_members
+message SearchMembersWsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated User users = 2;
+}
+
+// WS api/organizations/add_member
+message AddMemberWsResponse {
+  optional User user = 1;
+}
+
+message Organization {
+  optional string key = 1;
+  optional string name = 2;
+  optional string description = 3;
+  optional string url = 4;
+  optional string avatar = 5;
+  optional bool guarded = 6;
+  optional bool isAdmin = 7;
+}
+
+message User {
+  optional string login = 1;
+  optional string name = 2;
+  optional string avatar = 3;
+  optional int32 groupCount = 4;
+}

@@ -36,13 +36,16 @@ import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.UserGroups.Group;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
-import org.sonarqube.ws.client.component.ComponentsService;
-import org.sonarqube.ws.client.organization.CreateWsRequest;
-import org.sonarqube.ws.client.organization.OrganizationService;
-import org.sonarqube.ws.client.organization.SearchWsRequest;
-import org.sonarqube.ws.client.organization.UpdateWsRequest;
-import org.sonarqube.ws.client.permission.AddUserWsRequest;
-import org.sonarqube.ws.client.permission.PermissionsService;
+import org.sonarqube.ws.client.organizations.AddMemberRequest;
+import org.sonarqube.ws.client.organizations.CreateRequest;
+import org.sonarqube.ws.client.organizations.DeleteRequest;
+import org.sonarqube.ws.client.organizations.OrganizationsService;
+import org.sonarqube.ws.client.organizations.SearchRequest;
+import org.sonarqube.ws.client.organizations.UpdateRequest;
+import org.sonarqube.ws.client.permissions.AddUserRequest;
+import org.sonarqube.ws.client.permissions.PermissionsService;
+import org.sonarqube.ws.client.roots.SetRootRequest;
+import org.sonarqube.ws.client.roots.UnsetRootRequest;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,7 +78,7 @@ public class OrganizationTest {
 
   @Test
   public void default_organization_should_exist() {
-    Organization defaultOrg = tester.organizations().service().search(SearchWsRequest.builder().build())
+    Organization defaultOrg = tester.organizations().service().search(new SearchRequest())
       .getOrganizationsList()
       .stream()
       .filter(Organization::getGuarded)
@@ -87,19 +90,18 @@ public class OrganizationTest {
 
   @Test
   public void default_organization_can_not_be_deleted() {
-    expectBadRequestError(() -> tester.organizations().service().delete(DEFAULT_ORGANIZATION_KEY));
+    expectBadRequestError(() -> tester.organizations().service().delete(new DeleteRequest().setOrganization(DEFAULT_ORGANIZATION_KEY)));
   }
 
   @Test
   public void create_update_and_delete_organizations() {
-    OrganizationService service = tester.organizations().service();
+    OrganizationsService service = tester.organizations().service();
 
     Organization org = tester.organizations().generate(o -> o
       .setName(NAME)
       .setDescription(DESCRIPTION)
       .setUrl(URL)
-      .setAvatar(AVATAR_URL)
-      .build());
+      .setAvatar(AVATAR_URL));
     assertThat(org.getName()).isEqualTo(NAME);
     assertThat(org.getDescription()).isEqualTo(DESCRIPTION);
     assertThat(org.getUrl()).isEqualTo(URL);
@@ -109,35 +111,32 @@ public class OrganizationTest {
     assertThatBuiltInQualityProfilesExist(org);
 
     // update by key
-    service.update(new UpdateWsRequest.Builder()
+    service.update(new UpdateRequest()
       .setKey(org.getKey())
       .setName("new name")
       .setDescription("new description")
       .setUrl("new url")
-      .setAvatar("new avatar url")
-      .build());
+      .setAvatar("new avatar url"));
     verifyOrganization(org, "new name", "new description", "new url", "new avatar url");
 
     // remove optional fields
-    service.update(new UpdateWsRequest.Builder()
+    service.update(new UpdateRequest()
       .setKey(org.getKey())
       .setName("new name 2")
       .setDescription("")
       .setUrl("")
-      .setAvatar("")
-      .build());
+      .setAvatar(""));
     verifyOrganization(org, "new name 2", null, null, null);
 
     // delete organization
-    service.delete(org.getKey());
+    service.delete(new DeleteRequest().setOrganization(org.getKey()));
     assertThatOrganizationDoesNotExit(org);
     assertThatQualityProfilesDoNotExist(org);
 
     // create again
-    service.create(new CreateWsRequest.Builder()
+    service.create(new CreateRequest()
       .setName(NAME)
-      .setKey(org.getKey())
-      .build())
+      .setKey(org.getKey()))
       .getOrganization();
     verifyOrganization(org, NAME, null, null, null);
   }
@@ -147,9 +146,8 @@ public class OrganizationTest {
     // create organization without key
     String name = "Foo  Company to keyize";
     String expectedKey = "foo-company-to-keyize";
-    Organization createdOrganization = tester.organizations().service().create(new CreateWsRequest.Builder()
-      .setName(name)
-      .build())
+    Organization createdOrganization = tester.organizations().service().create(new CreateRequest()
+      .setName(name))
       .getOrganization();
     assertThat(createdOrganization.getKey()).isEqualTo(expectedKey);
     verifyOrganization(createdOrganization, name, null, null, null);
@@ -161,8 +159,8 @@ public class OrganizationTest {
     OrganizationTester anonymousTester = tester.asAnonymous().organizations();
 
     expectForbiddenError(() -> anonymousTester.generate());
-    expectUnauthorizedError(() -> anonymousTester.service().update(new UpdateWsRequest.Builder().setKey(org.getKey()).setName("new name").build()));
-    expectUnauthorizedError(() -> anonymousTester.service().delete(org.getKey()));
+    expectUnauthorizedError(() -> anonymousTester.service().update(new UpdateRequest().setKey(org.getKey()).setName("new name")));
+    expectUnauthorizedError(() -> anonymousTester.service().delete(new DeleteRequest().setOrganization(org.getKey())));
   }
 
   @Test
@@ -172,8 +170,8 @@ public class OrganizationTest {
     OrganizationTester userTester = tester.as(user.getLogin()).organizations();
 
     expectForbiddenError(() -> userTester.generate());
-    expectForbiddenError(() -> userTester.service().update(new UpdateWsRequest.Builder().setKey(org.getKey()).setName("new name").build()));
-    expectForbiddenError(() -> userTester.service().delete(org.getKey()));
+    expectForbiddenError(() -> userTester.service().update(new UpdateRequest().setKey(org.getKey()).setName("new name")));
+    expectForbiddenError(() -> userTester.service().delete(new DeleteRequest().setOrganization(org.getKey())));
   }
 
   @Test
@@ -181,13 +179,13 @@ public class OrganizationTest {
     User user = tester.users().generate();
     OrganizationTester asUser = tester.as(user.getLogin()).organizations();
 
-    tester.wsClient().roots().setRoot(user.getLogin());
+    tester.wsClient().roots().setRoot(new SetRootRequest().setLogin(user.getLogin()));
     Organization org = asUser.generate();
 
     // delete org, attempt recreate when no root anymore and ensure it can't anymore
-    asUser.service().delete(org.getKey());
+    asUser.service().delete(new DeleteRequest().setOrganization(org.getKey()));
 
-    tester.wsClient().roots().unsetRoot(user.getLogin());
+    tester.wsClient().roots().unsetRoot(new UnsetRootRequest().setLogin(user.getLogin()));
     expectForbiddenError(() -> asUser.generate());
   }
 
@@ -197,15 +195,14 @@ public class OrganizationTest {
     User user = tester.users().generate();
     Group group = tester.groups().generate(organization);
     // users.removeGroups("sonar-users");
-    tester.organizations().service().addMember(organization.getKey(), user.getLogin());
+    tester.organizations().service().addMember(new AddMemberRequest().setOrganization(organization.getKey()).setLogin(user.getLogin()));
     addPermissionsToUser(organization.getKey(), user.getLogin(), "provisioning", "scan");
 
     runProjectAnalysis(orchestrator, "shared/xoo-sample",
       "sonar.organization", organization.getKey(),
       "sonar.login", user.getLogin(),
       "sonar.password", user.getLogin());
-    ComponentsService componentsService = tester.as(user.getLogin()).wsClient().components();
-    assertThat(searchSampleProject(organization.getKey(), componentsService).getComponentsList()).hasSize(1);
+    assertThat(searchSampleProject(organization.getKey()).getComponentsList()).hasSize(1);
   }
 
   @Test
@@ -220,8 +217,7 @@ public class OrganizationTest {
       assertThat(e.getResult().getLogs()).contains("Insufficient privileges");
     }
 
-    ComponentsService componentsService = tester.wsClient().components();
-    assertThat(searchSampleProject(organization.getKey(), componentsService).getComponentsCount()).isEqualTo(0);
+    assertThat(searchSampleProject(organization.getKey()).getComponentsCount()).isEqualTo(0);
   }
 
   @Test
@@ -230,15 +226,14 @@ public class OrganizationTest {
 
     runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.organization", organization.getKey(), "sonar.login", "admin", "sonar.password", "admin");
 
-    ComponentsService componentsService = tester.asAnonymous().wsClient().components();
-    assertThat(searchSampleProject(organization.getKey(), componentsService).getComponentsList()).hasSize(1);
+    assertThat(searchSampleProject(organization.getKey()).getComponentsList()).hasSize(1);
   }
 
   private void addPermissionsToUser(String orgKeyAndName, String login, String permission, String... otherPermissions) {
     PermissionsService permissionsService = tester.wsClient().permissions();
-    permissionsService.addUser(new AddUserWsRequest().setLogin(login).setOrganization(orgKeyAndName).setPermission(permission));
+    permissionsService.addUser(new AddUserRequest().setLogin(login).setOrganization(orgKeyAndName).setPermission(permission));
     for (String otherPermission : otherPermissions) {
-      permissionsService.addUser(new AddUserWsRequest().setLogin(login).setOrganization(orgKeyAndName).setPermission(otherPermission));
+      permissionsService.addUser(new AddUserRequest().setLogin(login).setOrganization(orgKeyAndName).setPermission(otherPermission));
     }
   }
 
@@ -250,12 +245,11 @@ public class OrganizationTest {
       "sonar.organization", organization.getKey(),
       "sonar.login", "admin",
       "sonar.password", "admin");
-    ComponentsService componentsService = tester.wsClient().components();
-    assertThat(searchSampleProject(organization.getKey(), componentsService).getComponentsList()).hasSize(1);
+    assertThat(searchSampleProject(organization.getKey()).getComponentsList()).hasSize(1);
 
-    tester.organizations().service().delete(organization.getKey());
+    tester.organizations().service().delete(new DeleteRequest().setOrganization(organization.getKey()));
 
-    expectNotFoundError(() -> searchSampleProject(organization.getKey(), componentsService));
+    expectNotFoundError(() -> searchSampleProject(organization.getKey()));
     assertThatOrganizationDoesNotExit(organization);
   }
 
@@ -263,7 +257,7 @@ public class OrganizationTest {
   public void return_groups_belonging_to_a_user_on_an_organization() throws Exception {
     Organization organization = tester.organizations().generate();
     User user = tester.users().generate();
-    tester.organizations().service().addMember(organization.getKey(), user.getLogin());
+    tester.organizations().service().addMember(new AddMemberRequest().setOrganization(organization.getKey()).setLogin(user.getLogin()));
 
     Group group = tester.groups().generate(organization);
     tester.groups().addMemberToGroups(organization, user.getLogin(), group.getName());
@@ -292,28 +286,28 @@ public class OrganizationTest {
     assertThat(organization.getKey()).isNotEmpty();
     assertThat(organization.getGuarded()).isFalse();
 
-    List<Organization> reloadedOrgs = tester.organizations().service().search(SearchWsRequest.builder().build()).getOrganizationsList();
+    List<Organization> reloadedOrgs = tester.organizations().service().search(new SearchRequest()).getOrganizationsList();
     assertThat(reloadedOrgs)
       .filteredOn(o -> o.getKey().equals(organization.getKey()))
       .hasSize(1);
   }
 
-  private Components.SearchWsResponse searchSampleProject(String organizationKey, ComponentsService componentsService) {
-    return componentsService
-      .search(new org.sonarqube.ws.client.component.SearchWsRequest()
+  private Components.SearchWsResponse searchSampleProject(String organizationKey) {
+    return tester.wsClient().components()
+      .search(new org.sonarqube.ws.client.components.SearchRequest()
         .setOrganization(organizationKey)
         .setQualifiers(singletonList("TRK"))
-        .setQuery("sample"));
+        .setQ("sample"));
   }
 
   private void assertThatOrganizationDoesNotExit(Organization org) {
-    SearchWsRequest request = new SearchWsRequest.Builder().setOrganizations(org.getKey()).build();
+    SearchRequest request = new SearchRequest().setOrganizations(singletonList(org.getKey()));
     assertThat(tester.organizations().service().search(request).getOrganizationsList()).isEmpty();
   }
 
   private void verifyOrganization(Organization createdOrganization, String name, String description, String url,
-                                  String avatarUrl) {
-    SearchWsRequest request = new SearchWsRequest.Builder().setOrganizations(createdOrganization.getKey()).build();
+    String avatarUrl) {
+    SearchRequest request = new SearchRequest().setOrganizations(singletonList(createdOrganization.getKey()));
     List<Organization> result = tester.organizations().service().search(request).getOrganizationsList();
     assertThat(result).hasSize(1);
     Organization searchedOrganization = result.get(0);
@@ -337,9 +331,9 @@ public class OrganizationTest {
   }
 
   private void assertThatBuiltInQualityProfilesExist(Organization org) {
-    org.sonarqube.ws.client.qualityprofile.SearchWsRequest profilesRequest = new org.sonarqube.ws.client.qualityprofile.SearchWsRequest()
-      .setOrganizationKey(org.getKey());
-    Qualityprofiles.SearchWsResponse response = tester.wsClient().qualityProfiles().search(profilesRequest);
+    org.sonarqube.ws.client.qualityprofiles.SearchRequest profilesRequest = new org.sonarqube.ws.client.qualityprofiles.SearchRequest()
+      .setOrganization(org.getKey());
+    Qualityprofiles.SearchWsResponse response = tester.wsClient().qualityprofiles().search(profilesRequest);
     assertThat(response.getProfilesCount()).isGreaterThan(0);
 
     response.getProfilesList().forEach(p -> {
@@ -351,7 +345,8 @@ public class OrganizationTest {
       } else {
         assertThat(p.getActiveRuleCount()).isGreaterThan(0);
         // that allows to check the Elasticsearch index of active rules
-        Rules.SearchResponse activeRulesResponse = tester.wsClient().rules().search(new org.sonarqube.ws.client.rule.SearchWsRequest().setActivation(true).setQProfile(p.getKey()));
+        Rules.SearchResponse activeRulesResponse = tester.wsClient().rules()
+          .search(new org.sonarqube.ws.client.rules.SearchRequest().setActivation("true").setQprofile(p.getKey()));
         assertThat(activeRulesResponse.getTotal()).as("profile " + p.getName()).isEqualTo(p.getActiveRuleCount());
         assertThat(activeRulesResponse.getRulesCount()).isEqualTo((int) p.getActiveRuleCount());
       }
@@ -359,7 +354,7 @@ public class OrganizationTest {
   }
 
   private void assertThatQualityProfilesDoNotExist(Organization org) {
-    expectNotFoundError(() -> tester.wsClient().qualityProfiles().search(
-      new org.sonarqube.ws.client.qualityprofile.SearchWsRequest().setOrganizationKey(org.getKey())));
+    expectNotFoundError(() -> tester.wsClient().qualityprofiles().search(
+      new org.sonarqube.ws.client.qualityprofiles.SearchRequest().setOrganization(org.getKey())));
   }
 }

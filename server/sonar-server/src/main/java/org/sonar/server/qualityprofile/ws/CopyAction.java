@@ -63,6 +63,7 @@ public class CopyAction implements QProfileWsAction {
       .setSince("5.2")
       .setDescription("Copy a quality profile.<br> " +
         "Requires to be logged in and the 'Administer Quality Profiles' permission.")
+      .setResponseExample(getClass().getResource("copy-example.json"))
       .setPost(true)
       .setHandler(this);
 

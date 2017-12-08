@@ -21,7 +21,6 @@ package org.sonarqube.tests.issue;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
-import org.sonarqube.tests.Category6Suite;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -30,14 +29,19 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.ws.Organizations.Organization;
+import org.sonarqube.ws.Projects.CreateWsResponse;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
-import org.sonarqube.ws.client.permission.AddUserWsRequest;
-import org.sonarqube.ws.client.project.CreateRequest;
-import util.ItUtils;
+import org.sonarqube.ws.client.issues.SearchRequest;
+import org.sonarqube.ws.client.issues.SetTagsRequest;
+import org.sonarqube.ws.client.issues.TagsRequest;
+import org.sonarqube.ws.client.organizations.AddMemberRequest;
+import org.sonarqube.ws.client.permissions.AddUserRequest;
+import org.sonarqube.ws.client.projects.CreateRequest;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newProjectKey;
@@ -67,20 +71,19 @@ public class IssueTagsTest {
     restoreProfile(orchestrator, IssueTagsTest.class.getResource("/issue/one-issue-per-line-profile.xml"), organization.getKey());
     String projectKey = newProjectKey();
     tester.wsClient().projects().create(
-      CreateRequest.builder()
-        .setKey(projectKey)
+      new CreateRequest()
+        .setProject(projectKey)
         .setOrganization(organization.getKey())
         .setName(randomAlphabetic(10))
-        .setVisibility("private")
-        .build());
-    analyzeProject(projectKey);
+        .setVisibility("private"));
+    analyzeProject(organization.getKey(), projectKey);
 
-    String issue = tester.wsClient().issues().search(new SearchWsRequest()).getIssues(0).getKey();
-    tester.wsClient().issues().setTags(issue, "bla", "blubb");
+    String issue = tester.wsClient().issues().search(new SearchRequest()).getIssues(0).getKey();
+    tester.wsClient().issues().setTags(new SetTagsRequest().setIssue(issue).setTags(asList("bla", "blubb")));
 
     String[] publicTags = {"bad-practice", "convention", "pitfall"};
     String[] privateTags = {"bad-practice", "bla", "blubb", "convention", "pitfall"};
-    String defaultOrganization = null;
+    String defaultOrganization = tester.organizations().getDefaultOrganization().getKey();
 
     // anonymous must not see custom tags of private project
     {
@@ -106,13 +109,31 @@ public class IssueTagsTest {
     }
   }
 
+  @Test
+  public void tags_across_organizations() {
+    Organization organization = tester.organizations().generate();
+    Organization anotherOrganization = tester.organizations().generate();
+    restoreProfile(orchestrator, IssueTagsTest.class.getResource("/issue/one-issue-per-line-profile.xml"), organization.getKey());
+    restoreProfile(orchestrator, IssueTagsTest.class.getResource("/issue/one-issue-per-line-profile.xml"), anotherOrganization.getKey());
+    CreateWsResponse.Project project = tester.projects().provision(organization);
+    CreateWsResponse.Project anotherProject = tester.projects().provision(anotherOrganization);
+    analyzeProject(organization.getKey(), project.getKey());
+    analyzeProject(anotherOrganization.getKey(), anotherProject.getKey());
+    String issue = tester.wsClient().issues().search(new SearchRequest().setProjects(singletonList(project.getKey()))).getIssues(0).getKey();
+    String anotherIssue = tester.wsClient().issues().search(new SearchRequest().setProjects(singletonList(anotherProject.getKey()))).getIssues(0).getKey();
+    tester.wsClient().issues().setTags(new SetTagsRequest().setIssue(issue).setTags(singletonList("first-tag")));
+    tester.wsClient().issues().setTags(new SetTagsRequest().setIssue(anotherIssue).setTags(singletonList("another-tag")));
+
+    assertThat(tester.wsClient().issues().tags(new TagsRequest().setOrganization(null)).getTagsList()).contains("first-tag", "another-tag");
+  }
+
   private void addMemberToOrganization(User member) {
-    tester.organizations().service().addMember(organization.getKey(), member.getLogin());
+    tester.organizations().service().addMember(new AddMemberRequest().setOrganization(organization.getKey()).setLogin(member.getLogin()));
   }
 
   private void grantUserPermission(String projectKey, User member) {
     tester.wsClient().permissions().addUser(
-      new AddUserWsRequest()
+      new AddUserRequest()
         .setLogin(member.getLogin())
         .setPermission("user")
         .setProjectKey(projectKey));
@@ -120,20 +141,18 @@ public class IssueTagsTest {
 
   private void assertTags(@Nullable String userLogin, @Nullable String organization, String... expectedTags) {
     assertThat(
-      (List<String>) ItUtils.jsonToMap(
-        tester.as(userLogin)
-          .wsClient()
-          .issues()
-          .getTags(organization)
-          .content())
-        .get("tags")).containsExactly(
-          expectedTags);
+      tester.as(userLogin)
+        .wsClient()
+        .issues()
+        .tags(new TagsRequest().setOrganization(organization))
+        .getTagsList())
+      .containsExactly(expectedTags);
   }
 
-  private void analyzeProject(String projectKey) {
+  private void analyzeProject(String organizationKey, String projectKey) {
     List<String> keyValueProperties = new ArrayList<>(asList(
       "sonar.projectKey", projectKey,
-      "sonar.organization", organization.getKey(),
+      "sonar.organization", organizationKey,
       "sonar.profile", "one-issue-per-line-profile",
       "sonar.login", "admin", "sonar.password", "admin",
       "sonar.scm.disabled", "false"));

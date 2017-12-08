@@ -39,8 +39,12 @@ import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.permission.BulkApplyTemplateWsRequest;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import static java.util.Collections.singleton;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.api.utils.DateUtils.parseDateOrDateTime;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
@@ -137,7 +141,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
     response.noContent();
   }
 
-  private void doHandle(BulkApplyTemplateWsRequest request) {
+  private void doHandle(BulkApplyTemplateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
         request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
@@ -150,8 +154,8 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
     }
   }
 
-  private static BulkApplyTemplateWsRequest toBulkApplyTemplateWsRequest(Request request) {
-    return new BulkApplyTemplateWsRequest()
+  private static BulkApplyTemplateRequest toBulkApplyTemplateWsRequest(Request request) {
+    return new BulkApplyTemplateRequest()
       .setOrganization(request.param(PARAM_ORGANIZATION))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
       .setTemplateName(request.param(PARAM_TEMPLATE_NAME))
@@ -163,7 +167,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
       .setProjects(request.paramAsStrings(PARAM_PROJECTS));
   }
 
-  private static ComponentQuery buildDbQuery(BulkApplyTemplateWsRequest request) {
+  private static ComponentQuery buildDbQuery(BulkApplyTemplateRequest request) {
     Collection<String> qualifiers = request.getQualifiers();
     ComponentQuery.Builder query = ComponentQuery.builder()
       .setQualifiers(qualifiers.toArray(new String[qualifiers.size()]));
@@ -181,4 +185,103 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
     return query.build();
   }
 
+  private static class BulkApplyTemplateRequest {
+    private String templateId;
+    private String organization;
+    private String templateName;
+    private String query;
+    private Collection<String> qualifiers = singleton(Qualifiers.PROJECT);
+    private String visibility;
+    private String analyzedBefore;
+    private boolean onProvisionedOnly = false;
+    private Collection<String> projects;
+
+    @CheckForNull
+    public String getTemplateId() {
+      return templateId;
+    }
+
+    public BulkApplyTemplateRequest setTemplateId(@Nullable String templateId) {
+      this.templateId = templateId;
+      return this;
+    }
+
+    @CheckForNull
+    public String getOrganization() {
+      return organization;
+    }
+
+    public BulkApplyTemplateRequest setOrganization(@Nullable String s) {
+      this.organization = s;
+      return this;
+    }
+
+    @CheckForNull
+    public String getTemplateName() {
+      return templateName;
+    }
+
+    public BulkApplyTemplateRequest setTemplateName(@Nullable String templateName) {
+      this.templateName = templateName;
+      return this;
+    }
+
+    @CheckForNull
+    public String getQuery() {
+      return query;
+    }
+
+    public BulkApplyTemplateRequest setQuery(@Nullable String query) {
+      this.query = query;
+      return this;
+    }
+
+    public Collection<String> getQualifiers() {
+      return qualifiers;
+    }
+
+    public BulkApplyTemplateRequest setQualifiers(Collection<String> qualifiers) {
+      this.qualifiers = requireNonNull(qualifiers);
+      return this;
+    }
+
+    @CheckForNull
+    public String getVisibility() {
+      return visibility;
+    }
+
+    public BulkApplyTemplateRequest setVisibility(@Nullable String visibility) {
+      this.visibility = visibility;
+      return this;
+    }
+
+    @CheckForNull
+    public String getAnalyzedBefore() {
+      return analyzedBefore;
+    }
+
+    public BulkApplyTemplateRequest setAnalyzedBefore(@Nullable String analyzedBefore) {
+      this.analyzedBefore = analyzedBefore;
+      return this;
+    }
+
+    public boolean isOnProvisionedOnly() {
+      return onProvisionedOnly;
+    }
+
+    public BulkApplyTemplateRequest setOnProvisionedOnly(boolean onProvisionedOnly) {
+      this.onProvisionedOnly = onProvisionedOnly;
+      return this;
+    }
+
+    @CheckForNull
+    public Collection<String> getProjects() {
+      return projects;
+    }
+
+    public BulkApplyTemplateRequest setProjects(@Nullable Collection<String> projects) {
+      this.projects = projects;
+      return this;
+    }
+  }
 }

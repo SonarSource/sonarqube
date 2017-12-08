@@ -34,11 +34,12 @@ import static org.apache.commons.io.FileUtils.forceMkdir;
 @ServerSide
 @ComputeEngineSide
 public class ServerPluginJarExploder extends PluginJarExploder {
-
   private final ServerFileSystem fs;
+  private final PluginCompression pluginCompression;
 
-  public ServerPluginJarExploder(ServerFileSystem fs) {
+  public ServerPluginJarExploder(ServerFileSystem fs, PluginCompression pluginCompression) {
     this.fs = fs;
+    this.pluginCompression = pluginCompression;
   }
 
   /**
@@ -55,7 +56,9 @@ public class ServerPluginJarExploder extends PluginJarExploder {
 
       File jarSource = pluginInfo.getNonNullJarFile();
       File jarTarget = new File(toDir, jarSource.getName());
+
       FileUtils.copyFile(jarSource, jarTarget);
+      pluginCompression.compressJar(pluginInfo.getKey(), jarTarget.toPath());
       ZipUtils.unzip(jarSource, toDir, newLibFilter());
       return explodeFromUnzippedDir(pluginInfo.getKey(), jarTarget, toDir);
     } catch (Exception e) {

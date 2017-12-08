@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import org.sonar.api.server.ws.Change;
-import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
@@ -35,7 +34,9 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Components.ShowWsResponse;
-import org.sonarqube.ws.client.component.ShowWsRequest;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
@@ -48,7 +49,7 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SHOW;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 
 public class ShowAction implements ComponentsWsAction {
   private final UserSession userSession;
@@ -99,14 +100,14 @@ public class ShowAction implements ComponentsWsAction {
   }
 
   @Override
-  public void handle(Request request, Response response) throws Exception {
-    ShowWsRequest showWsRequest = toShowWsRequest(request);
-    ShowWsResponse showWsResponse = doHandle(showWsRequest);
+  public void handle(org.sonar.api.server.ws.Request request, Response response) throws Exception {
+    Request showRequest = toShowWsRequest(request);
+    ShowWsResponse showWsResponse = doHandle(showRequest);
 
     writeProtobuf(showWsResponse, request, response);
   }
 
-  private ShowWsResponse doHandle(ShowWsRequest request) {
+  private ShowWsResponse doHandle(Request request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = loadComponent(dbSession, request);
       Optional<SnapshotDto> lastAnalysis = dbClient.snapshotDao().selectLastAnalysisByComponentUuid(dbSession, component.projectUuid());
@@ -116,7 +117,7 @@ public class ShowAction implements ComponentsWsAction {
     }
   }
 
-  private ComponentDto loadComponent(DbSession dbSession, ShowWsRequest request) {
+  private ComponentDto loadComponent(DbSession dbSession, Request request) {
     String componentId = request.getId();
     String componentKey = request.getKey();
     String branch = request.getBranch();
@@ -139,10 +140,46 @@ public class ShowAction implements ComponentsWsAction {
     return response.build();
   }
 
-  private static ShowWsRequest toShowWsRequest(Request request) {
-    return new ShowWsRequest()
+  private static Request toShowWsRequest(org.sonar.api.server.ws.Request request) {
+    return new Request()
       .setId(request.param(PARAM_COMPONENT_ID))
       .setKey(request.param(PARAM_COMPONENT))
       .setBranch(request.param(PARAM_BRANCH));
+  }
+
+  private static class Request {
+    private String id;
+    private String key;
+    private String branch;
+
+    @CheckForNull
+    public String getId() {
+      return id;
+    }
+
+    public Request setId(@Nullable String id) {
+      this.id = id;
+      return this;
+    }
+
+    @CheckForNull
+    public String getKey() {
+      return key;
+    }
+
+    public Request setKey(@Nullable String key) {
+      this.key = key;
+      return this;
+    }
+
+    @CheckForNull
+    public String getBranch() {
+      return branch;
+    }
+
+    public Request setBranch(@Nullable String branch) {
+      this.branch = branch;
+      return this;
+    }
   }
 }

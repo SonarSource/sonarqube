@@ -34,12 +34,14 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.rules.ExternalResource;
 
+import static java.util.Collections.synchronizedList;
+
 /**
  * This web server listens to requests sent by webhooks
  */
 class ExternalServer extends ExternalResource {
   private final Server jetty;
-  private final List<PayloadRequest> payloads = new ArrayList<>();
+  private final List<PayloadRequest> payloads = synchronizedList(new ArrayList<>());
 
   ExternalServer() {
     jetty = new Server(0);

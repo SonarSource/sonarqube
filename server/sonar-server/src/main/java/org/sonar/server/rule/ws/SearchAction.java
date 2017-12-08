@@ -58,7 +58,6 @@ import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules.SearchResponse;
-import org.sonarqube.ws.client.rule.SearchWsRequest;
 
 import static java.lang.String.format;
 import static org.sonar.api.server.ws.WebService.Param.ASCENDING;
@@ -80,24 +79,24 @@ import static org.sonar.server.rule.index.RuleIndex.FACET_SEVERITIES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_STATUSES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TAGS;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TYPES;
+import static org.sonar.server.rule.ws.RulesWsParameters.OPTIONAL_FIELDS;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_AVAILABLE_SINCE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INHERITANCE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_TEMPLATE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ORGANIZATION;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_REPOSITORIES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_RULE_KEY;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_SEVERITIES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_STATUSES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TAGS;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TEMPLATE_KEY;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TYPES;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.OPTIONAL_FIELDS;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVATION;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_AVAILABLE_SINCE;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_INHERITANCE;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_IS_TEMPLATE;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ORGANIZATION;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_REPOSITORIES;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_RULE_KEY;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_SEVERITIES;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_STATUSES;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TAGS;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TEMPLATE_KEY;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TYPES;
 
 public class SearchAction implements RulesWsAction {
   public static final String ACTION = "search";
@@ -156,7 +155,7 @@ public class SearchAction implements RulesWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      SearchWsRequest searchWsRequest = toSearchWsRequest(request);
+      SearchRequest searchWsRequest = toSearchWsRequest(request);
       SearchOptions context = buildSearchOptions(searchWsRequest);
       RuleQuery query = ruleQueryFactory.createRuleQuery(dbSession, request);
       SearchResult searchResult = doSearch(dbSession, query, context);
@@ -165,7 +164,7 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
-  private SearchResponse buildResponse(DbSession dbSession, SearchWsRequest request, SearchOptions context, SearchResult result, RuleQuery query) {
+  private SearchResponse buildResponse(DbSession dbSession, SearchRequest request, SearchOptions context, SearchResult result, RuleQuery query) {
     SearchResponse.Builder responseBuilder = SearchResponse.newBuilder();
     writeStatistics(responseBuilder, result, context);
     doContextResponse(dbSession, request, result, responseBuilder, query);
@@ -321,7 +320,7 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
-  private static SearchOptions buildSearchOptions(SearchWsRequest request) {
+  private static SearchOptions buildSearchOptions(SearchRequest request) {
     SearchOptions context = loadCommonContext(request);
     SearchOptions searchOptions = new SearchOptions()
       .setLimit(context.getLimit())
@@ -334,16 +333,16 @@ public class SearchAction implements RulesWsAction {
     return searchOptions;
   }
 
-  private static SearchOptions loadCommonContext(SearchWsRequest request) {
-    int pageSize = request.getPageSize();
-    SearchOptions context = new SearchOptions().addFields(request.getFields());
+  private static SearchOptions loadCommonContext(SearchRequest request) {
+    int pageSize = Integer.parseInt(request.getPs());
+    SearchOptions context = new SearchOptions().addFields(request.getF());
     if (request.getFacets() != null) {
       context.addFacets(request.getFacets());
     }
     if (pageSize < 1) {
-      context.setPage(request.getPage(), 0).setLimit(MAX_LIMIT);
+      context.setPage(Integer.parseInt(request.getP()), 0).setLimit(MAX_LIMIT);
     } else {
-      context.setPage(request.getPage(), pageSize);
+      context.setPage(Integer.parseInt(request.getP()), pageSize);
     }
     return context;
   }
@@ -376,7 +375,7 @@ public class SearchAction implements RulesWsAction {
       .setTotal(result.getTotal());
   }
 
-  private void doContextResponse(DbSession dbSession, SearchWsRequest request, SearchResult result, SearchResponse.Builder response, RuleQuery query) {
+  private void doContextResponse(DbSession dbSession, SearchRequest request, SearchResult result, SearchResponse.Builder response, RuleQuery query) {
     SearchOptions contextForResponse = loadCommonContext(request);
     writeRules(response, result, contextForResponse);
     if (contextForResponse.getFields().contains("actives")) {
@@ -384,7 +383,7 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
-  private static void writeFacets(SearchResponse.Builder response, SearchWsRequest request, SearchOptions context, SearchResult results) {
+  private static void writeFacets(SearchResponse.Builder response, SearchRequest request, SearchOptions context, SearchResult results) {
     addMandatoryFacetValues(results, FACET_LANGUAGES, request.getLanguages());
     addMandatoryFacetValues(results, FACET_REPOSITORIES, request.getRepositories());
     addMandatoryFacetValues(results, FACET_STATUSES, ALL_STATUSES_EXCEPT_REMOVED);
@@ -447,28 +446,19 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
-  private static SearchWsRequest toSearchWsRequest(Request request) {
-    return new SearchWsRequest()
-      .setActivation(request.paramAsBoolean(PARAM_ACTIVATION))
+  private static SearchRequest toSearchWsRequest(Request request) {
+    request.mandatoryParamAsBoolean(ASCENDING);
+    return new SearchRequest()
       .setActiveSeverities(request.paramAsStrings(PARAM_ACTIVE_SEVERITIES))
-      .setAsc(request.mandatoryParamAsBoolean(ASCENDING))
-      .setAvailableSince(request.param(PARAM_AVAILABLE_SINCE))
-      .setFields(request.paramAsStrings(FIELDS))
+      .setF(request.paramAsStrings(FIELDS))
       .setFacets(request.paramAsStrings(FACETS))
-      .setInheritance(request.paramAsStrings(PARAM_INHERITANCE))
-      .setIsTemplate(request.paramAsBoolean(PARAM_IS_TEMPLATE))
       .setLanguages(request.paramAsStrings(PARAM_LANGUAGES))
-      .setPage(request.mandatoryParamAsInt(PAGE))
-      .setPageSize(request.mandatoryParamAsInt(PAGE_SIZE))
-      .setQuery(request.param(TEXT_QUERY))
-      .setQProfile(request.param(PARAM_QPROFILE))
+      .setP("" + request.mandatoryParamAsInt(PAGE))
+      .setPs("" + request.mandatoryParamAsInt(PAGE_SIZE))
       .setRepositories(request.paramAsStrings(PARAM_REPOSITORIES))
-      .setRuleKey(request.param(PARAM_RULE_KEY))
-      .setSort(request.param(SORT))
       .setSeverities(request.paramAsStrings(PARAM_SEVERITIES))
       .setStatuses(request.paramAsStrings(PARAM_STATUSES))
       .setTags(request.paramAsStrings(PARAM_TAGS))
-      .setTemplateKey(request.param(PARAM_TEMPLATE_KEY))
       .setTypes(request.paramAsStrings(PARAM_TYPES));
   }
 
@@ -539,4 +529,117 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
+  private static class SearchRequest {
+
+    private List<String> activeSeverities;
+    private List<String> f;
+    private List<String> facets;
+    private List<String> languages;
+    private String p;
+    private String ps;
+    private List<String> repositories;
+    private List<String> severities;
+    private List<String> statuses;
+    private List<String> tags;
+    private List<String> types;
+
+    private SearchRequest setActiveSeverities(List<String> activeSeverities) {
+      this.activeSeverities = activeSeverities;
+      return this;
+    }
+
+    private List<String> getActiveSeverities() {
+      return activeSeverities;
+    }
+
+    private SearchRequest setF(List<String> f) {
+      this.f = f;
+      return this;
+    }
+
+    private List<String> getF() {
+      return f;
+    }
+
+    private SearchRequest setFacets(List<String> facets) {
+      this.facets = facets;
+      return this;
+    }
+
+    private List<String> getFacets() {
+      return facets;
+    }
+
+    private SearchRequest setLanguages(List<String> languages) {
+      this.languages = languages;
+      return this;
+    }
+
+    private List<String> getLanguages() {
+      return languages;
+    }
+
+    private SearchRequest setP(String p) {
+      this.p = p;
+      return this;
+    }
+
+    private String getP() {
+      return p;
+    }
+
+    private SearchRequest setPs(String ps) {
+      this.ps = ps;
+      return this;
+    }
+
+    private String getPs() {
+      return ps;
+    }
+
+    private SearchRequest setRepositories(List<String> repositories) {
+      this.repositories = repositories;
+      return this;
+    }
+
+    private List<String> getRepositories() {
+      return repositories;
+    }
+
+    private SearchRequest setSeverities(List<String> severities) {
+      this.severities = severities;
+      return this;
+    }
+
+    private List<String> getSeverities() {
+      return severities;
+    }
+
+    private SearchRequest setStatuses(List<String> statuses) {
+      this.statuses = statuses;
+      return this;
+    }
+
+    private List<String> getStatuses() {
+      return statuses;
+    }
+
+    private SearchRequest setTags(List<String> tags) {
+      this.tags = tags;
+      return this;
+    }
+
+    private List<String> getTags() {
+      return tags;
+    }
+
+    private SearchRequest setTypes(List<String> types) {
+      this.types = types;
+      return this;
+    }
+
+    private List<String> getTypes() {
+      return types;
+    }
+  }
 }

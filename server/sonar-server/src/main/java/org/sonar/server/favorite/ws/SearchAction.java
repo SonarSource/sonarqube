@@ -38,15 +38,15 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Favorites.Favorite;
 import org.sonarqube.ws.Favorites.SearchResponse;
-import org.sonarqube.ws.client.favorite.SearchRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.favorite.FavoritesWsParameters.ACTION_SEARCH;
-import static org.sonarqube.ws.client.favorite.SearchRequest.MAX_PAGE_SIZE;
+import static org.sonar.server.favorite.ws.FavoritesWsParameters.ACTION_SEARCH;
 
 public class SearchAction implements FavoritesWsAction {
+  private static final int MAX_PAGE_SIZE = 500;
+
   private final FavoriteFinder favoriteFinder;
   private final DbClient dbClient;
   private final UserSession userSession;
@@ -79,15 +79,15 @@ public class SearchAction implements FavoritesWsAction {
 
   private static SearchRequest toWsRequest(Request request) {
     return new SearchRequest()
-      .setPage(request.mandatoryParamAsInt(Param.PAGE))
-      .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
+      .setP(request.mandatoryParam(Param.PAGE))
+      .setPs(request.mandatoryParam(Param.PAGE_SIZE));
   }
 
   private SearchResults toSearchResults(SearchRequest request) {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
       List<ComponentDto> authorizedFavorites = getAuthorizedFavorites();
-      Paging paging = Paging.forPageIndex(request.getPage()).withPageSize(request.getPageSize()).andTotal(authorizedFavorites.size());
+      Paging paging = Paging.forPageIndex(Integer.parseInt(request.getP())).withPageSize(Integer.parseInt(request.getPs())).andTotal(authorizedFavorites.size());
       List<ComponentDto> displayedFavorites = authorizedFavorites.stream()
         .skip(paging.offset())
         .limit(paging.pageSize())
@@ -159,4 +159,27 @@ public class SearchAction implements FavoritesWsAction {
     return builder.build();
   }
 
+  private static class SearchRequest {
+
+    private String p;
+    private String ps;
+
+    public SearchRequest setP(String p) {
+      this.p = p;
+      return this;
+    }
+
+    public String getP() {
+      return p;
+    }
+
+    public SearchRequest setPs(String ps) {
+      this.ps = ps;
+      return this;
+    }
+
+    public String getPs() {
+      return ps;
+    }
+  }
 }

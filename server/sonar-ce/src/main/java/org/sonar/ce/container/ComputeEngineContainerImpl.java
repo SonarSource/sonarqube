@@ -46,6 +46,7 @@ import org.sonar.ce.CeHttpModule;
 import org.sonar.ce.CeQueueModule;
 import org.sonar.ce.CeTaskCommonsModule;
 import org.sonar.ce.StandaloneCeDistributedInformation;
+import org.sonar.ce.async.SynchronousAsyncExecution;
 import org.sonar.ce.cleaning.CeCleaningModule;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.log.CeProcessLogging;
@@ -153,6 +154,7 @@ import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.OkHttpClientProvider;
 import org.sonar.server.view.index.ViewIndex;
 import org.sonar.server.view.index.ViewIndexer;
+import org.sonar.server.webhook.WebhookModule;
 import org.sonarqube.ws.Rules;
 
 import static java.util.Objects.requireNonNull;
@@ -309,7 +311,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       ServerIdManager.class,
       UriReader.class,
       ServerImpl.class,
-      DefaultOrganizationProviderImpl.class);
+      DefaultOrganizationProviderImpl.class,
+      SynchronousAsyncExecution.class);
   }
 
   private static void populateLevel4(ComponentContainer container, Props props) {
@@ -421,6 +424,9 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
       InternalPropertiesImpl.class,
       ProjectConfigurationFactory.class,
+
+      // webhooks
+      WebhookModule.class,
 
       // cleaning
       CeCleaningModule.class);

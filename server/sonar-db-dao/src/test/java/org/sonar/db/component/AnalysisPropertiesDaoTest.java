@@ -157,7 +157,7 @@ public class AnalysisPropertiesDaoTest {
     assertThat(dbTester.countRowsOfTable(dbSession, "ANALYSIS_PROPERTIES")).isEqualTo(propertyDtos.size());
 
     List<AnalysisPropertyDto> result = underTest.selectBySnapshotUuid(dbSession, snapshotUuid);
-    assertThat(result).containsExactlyInAnyOrder((AnalysisPropertyDto[]) propertyDtos.toArray());
+    assertThat(result).containsExactlyInAnyOrder(propertyDtos.toArray(new AnalysisPropertyDto[0]));
   }
 
   private AnalysisPropertyDto insertAnalysisPropertyDto(int valueLength) {

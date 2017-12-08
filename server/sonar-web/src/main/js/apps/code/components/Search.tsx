@@ -22,7 +22,7 @@ import * as PropTypes from 'prop-types';
 import * as classNames from 'classnames';
 import Components from './Components';
 import { getTree } from '../../../api/components';
-import { parseError } from '../utils';
+import { parseError } from '../../../helpers/request';
 import { getProjectUrl } from '../../../helpers/urls';
 import { Component } from '../types';
 import SearchBox from '../../../components/controls/SearchBox';

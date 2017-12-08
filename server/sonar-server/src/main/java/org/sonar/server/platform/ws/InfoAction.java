@@ -19,11 +19,16 @@
  */
 package org.sonar.server.platform.ws;
 
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.user.UserSession;
+
+import static org.sonarqube.ws.MediaTypes.JSON;
 
 /**
  * Implementation of the {@code info} action for the System WebService.
@@ -53,11 +58,13 @@ public class InfoAction implements SystemWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkIsSystemAdministrator();
-    try (JsonWriter json = response.newJsonWriter()) {
-      json.beginObject();
-      systemInfoWriter.write(json);
-      json.endObject();
-    }
+    StringWriter stringWriter = new StringWriter();
+    JsonWriter json = JsonWriter.of(stringWriter);
+    json.beginObject();
+    systemInfoWriter.write(json);
+    json.endObject();
+    response.stream().setMediaType(JSON);
+    IOUtils.write(stringWriter.toString(), response.stream().output(), StandardCharsets.UTF_8);
   }
 
 }

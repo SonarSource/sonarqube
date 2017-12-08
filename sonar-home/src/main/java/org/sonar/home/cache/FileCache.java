@@ -19,9 +19,16 @@
  */
 package org.sonar.home.cache;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Pack200;
+import java.util.zip.GZIPInputStream;
 import javax.annotation.CheckForNull;
 
 /**
@@ -34,7 +41,7 @@ public class FileCache {
   /** Maximum loop count when creating temp directories. */
   private static final int TEMP_DIR_ATTEMPTS = 10_000;
 
-  private final File dir;
+  private final File cacheDir;
   private final File tmpDir;
   private final FileHashes hashes;
   private final Logger logger;
@@ -42,7 +49,7 @@ public class FileCache {
   FileCache(File dir, FileHashes fileHashes, Logger logger) {
     this.hashes = fileHashes;
     this.logger = logger;
-    this.dir = createDir(dir, "user cache: ");
+    this.cacheDir = createDir(dir, "user cache: ");
     logger.info(String.format("User cache: %s", dir.getAbsolutePath()));
     this.tmpDir = createDir(new File(dir, "_tmp"), "temp dir");
   }
@@ -52,7 +59,7 @@ public class FileCache {
   }
 
   public File getDir() {
-    return dir;
+    return cacheDir;
   }
 
   /**
@@ -61,7 +68,7 @@ public class FileCache {
    */
   @CheckForNull
   public File get(String filename, String hash) {
-    File cachedFile = new File(new File(dir, hash), filename);
+    File cachedFile = new File(new File(cacheDir, hash), filename);
     if (cachedFile.exists()) {
       return cachedFile;
     }
@@ -78,17 +85,54 @@ public class FileCache {
     File hashDir = hashDir(hash);
     File targetFile = new File(hashDir, filename);
     if (!targetFile.exists()) {
-      File tempFile = newTempFile();
-      download(downloader, filename, tempFile);
-      String downloadedHash = hashes.of(tempFile);
-      if (!hash.equals(downloadedHash)) {
-        throw new IllegalStateException("INVALID HASH: File " + tempFile.getAbsolutePath() + " was expected to have hash " + hash
-          + " but was downloaded with hash " + downloadedHash);
-      }
-      mkdirQuietly(hashDir);
-      renameQuietly(tempFile, targetFile);
+      cacheMiss(targetFile, hash, downloader);
     }
     return targetFile;
+  }
+
+  private void cacheMiss(File targetFile, String expectedHash, Downloader downloader) {
+    File tempFile = newTempFile();
+    download(downloader, targetFile.getName(), tempFile);
+    String downloadedHash = hashes.of(tempFile);
+    if (!expectedHash.equals(downloadedHash)) {
+      throw new IllegalStateException("INVALID HASH: File " + tempFile.getAbsolutePath() + " was expected to have hash " + expectedHash
+        + " but was downloaded with hash " + downloadedHash);
+    }
+    mkdirQuietly(targetFile.getParentFile());
+    renameQuietly(tempFile, targetFile);
+  }
+
+  public File getCompressed(String filename, String hash, Downloader downloader) {
+    File hashDir = hashDir(hash);
+    File compressedFile = new File(hashDir, filename);
+    File jarFile = new File(compressedFile.getParentFile(), getUnpackedFileName(compressedFile.getName()));
+
+    if (!jarFile.exists()) {
+      if (!compressedFile.exists()) {
+        cacheMiss(compressedFile, hash, downloader);
+      }
+      File tempFile = newTempFile();
+      unpack200(compressedFile.toPath(), tempFile.toPath());
+      renameQuietly(tempFile, jarFile);
+    }
+    return jarFile;
+  }
+
+  private static String getUnpackedFileName(String packedName) {
+    return packedName.substring(0, packedName.length() - 7) + "jar";
+  }
+
+  private void unpack200(Path compressedFile, Path jarFile) {
+    logger.debug("Unpacking plugin " + compressedFile);
+    Pack200.Unpacker unpacker = Pack200.newUnpacker();
+    try {
+      try (JarOutputStream jarStream = new JarOutputStream(new BufferedOutputStream(Files.newOutputStream(jarFile)));
+        InputStream in = new GZIPInputStream(new BufferedInputStream(Files.newInputStream(compressedFile)))) {
+        unpacker.unpack(in, jarStream);
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   private static void download(Downloader downloader, String filename, File tempFile) {
@@ -114,7 +158,7 @@ public class FileCache {
   }
 
   private File hashDir(String hash) {
-    return new File(dir, hash);
+    return new File(cacheDir, hash);
   }
 
   private static void mkdirQuietly(File hashDir) {

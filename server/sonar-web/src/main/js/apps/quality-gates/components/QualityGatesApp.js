@@ -23,10 +23,7 @@ import Helmet from 'react-helmet';
 import ListHeader from './ListHeader';
 import List from './List';
 import ScreenPositionHelper from '../../../components/common/ScreenPositionHelper';
-import {
-  fetchQualityGatesAppDetails,
-  fetchQualityGates as fetchQualityGatesAPI
-} from '../../../api/quality-gates';
+import { fetchQualityGates } from '../../../api/quality-gates';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 import '../styles.css';
@@ -53,31 +50,27 @@ export default class QualityGatesApp extends Component {
     }
   }
 
-  fetchQualityGates() {
-    Promise.all([
-      fetchQualityGatesAppDetails(),
-      fetchQualityGatesAPI()
-    ]).then(([details, qualityGates]) => {
+  fetchQualityGates = () =>
+    fetchQualityGates().then(({ actions, qualitygates: qualityGates }) => {
       const { organization, updateStore } = this.props;
-      updateStore({ ...details, qualityGates });
-      if (qualityGates && qualityGates.length === 1 && !details.edit) {
+      updateStore({ actions, qualityGates });
+      if (qualityGates && qualityGates.length === 1 && !actions.create) {
         this.context.router.replace(
           getQualityGateUrl(qualityGates[0].id, organization && organization.key)
         );
       }
     });
-  }
 
-  handleAdd(qualityGate) {
+  handleAdd = qualityGate => {
     const { addQualityGate, organization } = this.props;
     const { router } = this.context;
 
     addQualityGate(qualityGate);
     router.push(getQualityGateUrl(qualityGate.id, organization && organization.key));
-  }
+  };
 
   render() {
-    const { children, qualityGates, edit, organization } = this.props;
+    const { children, qualityGates, actions, organization } = this.props;
     const defaultTitle = translate('quality_gates.page');
     return (
       <div id="quality-gates-page" className="layout-page">
@@ -88,7 +81,7 @@ export default class QualityGatesApp extends Component {
             <div className="layout-page-side" style={{ top }}>
               <div className="layout-page-side-inner">
                 <div className="layout-page-filters">
-                  <ListHeader canEdit={edit} onAdd={this.handleAdd.bind(this)} />
+                  <ListHeader canCreate={actions && actions.create} onAdd={this.handleAdd} />
                   {qualityGates && <List organization={organization} qualityGates={qualityGates} />}
                 </div>
               </div>

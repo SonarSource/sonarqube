@@ -22,18 +22,18 @@ package org.sonar.server.measure.ws;
 import com.google.common.collect.Table;
 import java.util.function.Predicate;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.metric.MetricDto;
-import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 
 import static org.sonar.server.measure.ws.ComponentTreeData.Measure;
 
 class HasMeasure implements Predicate<ComponentDto> {
   private final Predicate<ComponentDto> predicate;
 
-  HasMeasure(Table<String, MetricDto, ComponentTreeData.Measure> table, MetricDto metric, ComponentTreeWsRequest request) {
-    Integer periodIndex = request.getMetricPeriodSort();
-    this.predicate = periodIndex == null
+  HasMeasure(Table<String, MetricDto, ComponentTreeData.Measure> table, MetricDto metric, @Nullable Integer metricPeriodSort) {
+    this.predicate = metricPeriodSort == null
       ? new HasAbsoluteValue(table, metric)
       : new HasValueOnPeriod(table, metric);
   }

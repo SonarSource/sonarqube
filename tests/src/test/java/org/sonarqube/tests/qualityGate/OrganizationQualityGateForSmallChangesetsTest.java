@@ -31,12 +31,11 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Organizations;
-import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.Qualitygates;
-import org.sonarqube.ws.Qualitygates.CreateWsResponse;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
@@ -60,9 +59,9 @@ public class OrganizationQualityGateForSmallChangesetsTest {
   public void do_not_fail_quality_gate_with_poor_LEAK_coverage_and_a_max_of_19_lines_of_NEW_code() throws Exception {
     Organizations.Organization organization = tester.organizations().generate();
     Project project = tester.projects().provision(organization);
-    CreateWsResponse qualityGate = tester.qGates().generate();
+    Qualitygates.CreateResponse qualityGate = tester.qGates().generate();
     tester.qGates().associateProject(qualityGate, project);
-    Qualitygates.CreateConditionWsResponse condition = tester.wsClient().qualityGates().createCondition(new CreateConditionRequest()
+    Qualitygates.CreateConditionResponse condition = tester.wsClient().qualitygates().createCondition(new CreateConditionRequest()
       .setGateId(String.valueOf(qualityGate.getId()))
       .setMetric("new_coverage")
       .setOp("LT")
@@ -105,7 +104,7 @@ public class OrganizationQualityGateForSmallChangesetsTest {
     assertIgnoredConditions("qualitygate/small-changesets/v2-1019-lines", true);
 
     // small leak => if coverage is OK anyways, we do not have to ignore anything
-    tester.wsClient().qualityGates().updateCondition(new UpdateConditionRequest()
+    tester.wsClient().qualitygates().updateCondition(new UpdateConditionRequest()
       .setId(String.valueOf(condition.getId()))
       .setMetric("new_coverage")
       .setOp("LT")
@@ -127,7 +126,7 @@ public class OrganizationQualityGateForSmallChangesetsTest {
     assertIgnoredConditions("qualitygate/small-changesets/v2-1019-lines", false);
 
     // big leak => use usual behaviour
-    tester.wsClient().qualityGates().updateCondition(new UpdateConditionRequest()
+    tester.wsClient().qualitygates().updateCondition(new UpdateConditionRequest()
       .setId(String.valueOf(condition.getId()))
       .setMetric("new_coverage")
       .setOp("LT")
@@ -151,7 +150,7 @@ public class OrganizationQualityGateForSmallChangesetsTest {
 
   private void assertIgnoredConditions(String projectDir, boolean expected) throws IOException {
     String analysisId = getAnalysisId(getTaskIdInLocalReport(projectDir(projectDir)));
-    boolean ignoredConditions = tester.wsClient().qualityGates()
+    boolean ignoredConditions = tester.wsClient().qualitygates()
       .projectStatus(new ProjectStatusRequest().setAnalysisId(analysisId))
       .getProjectStatus()
       .getIgnoredConditions();

@@ -21,6 +21,7 @@ package org.sonarqube.tests.webhook;
 
 import com.sonar.orchestrator.Orchestrator;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,10 +35,11 @@ import org.sonarqube.tests.Category3Suite;
 import org.sonarqube.ws.Webhooks;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.project.DeleteRequest;
-import org.sonarqube.ws.client.setting.ResetRequest;
-import org.sonarqube.ws.client.setting.SetRequest;
-import org.sonarqube.ws.client.webhook.DeliveriesRequest;
+import org.sonarqube.ws.client.projects.DeleteRequest;
+import org.sonarqube.ws.client.settings.ResetRequest;
+import org.sonarqube.ws.client.settings.SetRequest;
+import org.sonarqube.ws.client.webhooks.DeliveriesRequest;
+import org.sonarqube.ws.client.webhooks.DeliveryRequest;
 import util.ItUtils;
 
 import static java.util.Objects.requireNonNull;
@@ -72,14 +74,14 @@ public class WebhooksTest {
     disableGlobalWebhooks();
     try {
       // delete project and related properties/webhook deliveries
-      adminWs.projects().delete(DeleteRequest.builder().setKey(PROJECT_KEY).build());
+      adminWs.projects().delete(new DeleteRequest().setProject(PROJECT_KEY));
     } catch (HttpException e) {
       // ignore because project may not exist
     }
   }
 
   @Test
-  public void call_multiple_global_and_project_webhooks_when_analysis_is_done() {
+  public void call_multiple_global_and_project_webhooks_when_analysis_is_done() throws InterruptedException {
     orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_NAME);
     enableGlobalWebhooks(
       new Webhook("Jenkins", externalServer.urlFor("/jenkins")),
@@ -90,6 +92,7 @@ public class WebhooksTest {
     analyseProject();
 
     // the same payload has been sent to three servers
+    waitUntilAllWebHooksCalled(3);
     assertThat(externalServer.getPayloadRequests()).hasSize(3);
     PayloadRequest request = externalServer.getPayloadRequests().get(0);
     for (int i = 1; i < 3; i++) {
@@ -109,7 +112,7 @@ public class WebhooksTest {
     assertThat(project.get("name")).isEqualTo(PROJECT_NAME);
     assertThat(project.get("url")).isEqualTo(orchestrator.getServer().getUrl() + "/dashboard?id=" + PROJECT_KEY);
     Map<String, Object> gate = (Map<String, Object>) payload.get("qualityGate");
-    assertThat(gate.get("name")).isEqualTo("SonarQube way");
+    assertThat(gate.get("name")).isEqualTo("Sonar way");
     assertThat(gate.get("status")).isEqualTo("OK");
     assertThat(gate.get("conditions")).isNotNull();
 
@@ -159,7 +162,7 @@ public class WebhooksTest {
    * Restrict calls to ten webhooks per type (global or project)
    */
   @Test
-  public void do_not_become_a_denial_of_service_attacker() {
+  public void do_not_become_a_denial_of_service_attacker() throws InterruptedException {
     orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_NAME);
 
     List<Webhook> globalWebhooks = range(0, 15).mapToObj(i -> new Webhook("G" + i, externalServer.urlFor("/global"))).collect(Collectors.toList());
@@ -170,6 +173,7 @@ public class WebhooksTest {
     analyseProject();
 
     // only the first ten global webhooks and ten project webhooks are called
+    waitUntilAllWebHooksCalled(10 + 10);
     assertThat(externalServer.getPayloadRequests()).hasSize(10 + 10);
     assertThat(externalServer.getPayloadRequestsOnPath("/global")).hasSize(10);
     assertThat(externalServer.getPayloadRequestsOnPath("/project")).hasSize(10);
@@ -218,7 +222,7 @@ public class WebhooksTest {
   }
 
   private List<Webhooks.Delivery> getPersistedDeliveries() {
-    DeliveriesRequest deliveriesReq = DeliveriesRequest.builder().setComponentKey(PROJECT_KEY).build();
+    DeliveriesRequest deliveriesReq = new DeliveriesRequest().setComponentKey(PROJECT_KEY);
     return adminWs.webhooks().deliveries(deliveriesReq).getDeliveriesList();
   }
 
@@ -228,7 +232,7 @@ public class WebhooksTest {
   }
 
   private Webhooks.Delivery getDetailOfPersistedDelivery(Webhooks.Delivery delivery) {
-    Webhooks.Delivery detail = adminWs.webhooks().delivery(delivery.getId()).getDelivery();
+    Webhooks.Delivery detail = adminWs.webhooks().delivery(new DeliveryRequest().setDeliveryId(delivery.getId())).getDelivery();
     return requireNonNull(detail);
   }
 
@@ -269,10 +273,10 @@ public class WebhooksTest {
 
   private void setProperty(@Nullable String componentKey, String key, @Nullable String value) {
     if (value == null) {
-      ResetRequest req = ResetRequest.builder().setKeys(key).setComponent(componentKey).build();
+      ResetRequest req = new ResetRequest().setKeys(Collections.singletonList(key)).setComponent(componentKey);
       adminWs.settings().reset(req);
     } else {
-      SetRequest req = SetRequest.builder().setKey(key).setValue(value).setComponent(componentKey).build();
+      SetRequest req = new SetRequest().setKey(key).setValue(value).setComponent(componentKey);
       adminWs.settings().set(req);
     }
   }
@@ -284,6 +288,18 @@ public class WebhooksTest {
     Webhook(@Nullable String name, @Nullable String url) {
       this.name = name;
       this.url = url;
+    }
+  }
+
+  /**
+   * Wait up to 30 seconds
+   */
+  private static void waitUntilAllWebHooksCalled(int expectedNumberOfRequests) throws InterruptedException {
+    for (int i = 0; i < 60; i++) {
+      if (externalServer.getPayloadRequests().size() == expectedNumberOfRequests) {
+        break;
+      }
+      Thread.sleep(500);
     }
   }
 

@@ -25,20 +25,22 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.RemotePluginFile;
 import org.sonar.db.DbTester;
+import org.sonar.server.plugins.PluginCompression;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.WsActionTester;
 import org.sonar.updatecenter.common.Plugin;
 import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
@@ -54,7 +56,6 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 @RunWith(DataProviderRunner.class)
 public class InstalledActionTest {
-  private static final String DUMMY_CONTROLLER_KEY = "dummy";
   private static final String JSON_EMPTY_PLUGIN_LIST = "{" +
     "  \"plugins\":" + "[]" +
     "}";
@@ -67,22 +68,14 @@ public class InstalledActionTest {
 
   private ServerPluginRepository pluginRepository = mock(ServerPluginRepository.class);
   private UpdateCenterMatrixFactory updateCenterMatrixFactory = mock(UpdateCenterMatrixFactory.class, RETURNS_DEEP_STUBS);
-  private Request request = mock(Request.class);
-  private WsTester.TestResponse response = new WsTester.TestResponse();
-  private InstalledAction underTest = new InstalledAction(pluginRepository, new PluginWSCommons(), updateCenterMatrixFactory, db.getDbClient());
+  private PluginCompression pluginCompression = mock(PluginCompression.class);
+  private InstalledAction underTest = new InstalledAction(pluginRepository, pluginCompression, new PluginWSCommons(), updateCenterMatrixFactory, db.getDbClient());
+  private WsActionTester tester = new WsActionTester(underTest);
 
   @Test
   public void action_installed_is_defined() {
-    WsTester wsTester = new WsTester();
-    WebService.NewController newController = wsTester.context().createController(DUMMY_CONTROLLER_KEY);
+    Action action = tester.getDef();
 
-    underTest.define(newController);
-    newController.done();
-
-    WebService.Controller controller = wsTester.controller(DUMMY_CONTROLLER_KEY);
-    assertThat(controller.actions()).extracting("key").containsExactly("installed");
-
-    WebService.Action action = controller.actions().iterator().next();
     assertThat(action.isPost()).isFalse();
     assertThat(action.description()).isNotEmpty();
     assertThat(action.responseExample()).isNotNull();
@@ -90,18 +83,18 @@ public class InstalledActionTest {
 
   @Test
   public void empty_array_is_returned_when_there_is_not_plugin_installed() throws Exception {
-    underTest.handle(request, response);
+    String response = tester.newRequest().execute().getInput();
 
-    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
+    assertJson(response).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
   }
 
   @Test
   public void empty_array_when_update_center_is_unavailable() throws Exception {
     when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.<UpdateCenter>absent());
 
-    underTest.handle(request, response);
+    String response = tester.newRequest().execute().getInput();
 
-    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
+    assertJson(response).withStrictArrayOrder().isSimilarTo(JSON_EMPTY_PLUGIN_LIST);
   }
 
   @Test
@@ -113,9 +106,9 @@ public class InstalledActionTest {
       p -> p.setFileHash("abcdA"),
       p -> p.setUpdatedAt(111111L));
 
-    underTest.handle(request, response);
+    String response = tester.newRequest().execute().getInput();
 
-    assertThat(response.outputAsString()).doesNotContain("name").doesNotContain("key");
+    assertThat(response).doesNotContain("name").doesNotContain("key");
   }
 
   @Test
@@ -139,10 +132,10 @@ public class InstalledActionTest {
       p -> p.setFileHash("abcdplugKey"),
       p -> p.setUpdatedAt(111111L));
 
-    underTest.handle(request, response);
+    String response = tester.newRequest().execute().getInput();
 
     verifyZeroInteractions(updateCenterMatrixFactory);
-    assertJson(response.outputAsString()).isSimilarTo(
+    assertJson(response).isSimilarTo(
       "{" +
         "  \"plugins\":" +
         "  [" +
@@ -152,6 +145,60 @@ public class InstalledActionTest {
         "      \"description\": \"desc_it\"," +
         "      \"version\": \"1.0\"," +
         "      \"license\": \"license_hey\"," +
+        "      \"organizationName\": \"org_name\"," +
+        "      \"organizationUrl\": \"org_url\",\n" +
+        "      \"editionBundled\": false," +
+        "      \"homepageUrl\": \"homepage_url\"," +
+        "      \"issueTrackerUrl\": \"issueTracker_url\"," +
+        "      \"implementationBuild\": \"sou_rev_sha1\"," +
+        "      \"sonarLintSupported\": true," +
+        "      \"filename\": \"some.jar\"," +
+        "      \"hash\": \"abcdplugKey\"," +
+        "      \"updatedAt\": 111111" +
+        "    }" +
+        "  ]" +
+        "}");
+  }
+
+  @Test
+  public void add_compressed_plugin_info() throws Exception {
+    RemotePluginFile compressedInfo = new RemotePluginFile("compressed.pack.gz", "hash");
+    when(pluginCompression.getPlugins()).thenReturn(Collections.singletonMap("plugKey", compressedInfo));
+
+    String jarFilename = getClass().getSimpleName() + "/" + "some.jar";
+    when(pluginRepository.getPluginInfos()).thenReturn(of(
+      new PluginInfo("plugKey")
+        .setName("plugName")
+        .setDescription("desc_it")
+        .setVersion(Version.create("1.0"))
+        .setLicense("license_hey")
+        .setOrganizationName("org_name")
+        .setOrganizationUrl("org_url")
+        .setHomepageUrl("homepage_url")
+        .setIssueTrackerUrl("issueTracker_url")
+        .setImplementationBuild("sou_rev_sha1")
+        .setSonarLintSupported(true)
+        .setJarFile(new File(getClass().getResource(jarFilename).toURI()))));
+    db.pluginDbTester().insertPlugin(
+      p -> p.setKee("plugKey"),
+      p -> p.setFileHash("abcdplugKey"),
+      p -> p.setUpdatedAt(111111L));
+
+    String response = tester.newRequest().execute().getInput();
+
+    verifyZeroInteractions(updateCenterMatrixFactory);
+    assertJson(response).isSimilarTo(
+      "{" +
+        "  \"plugins\":" +
+        "  [" +
+        "    {" +
+        "      \"key\": \"plugKey\"," +
+        "      \"name\": \"plugName\"," +
+        "      \"description\": \"desc_it\"," +
+        "      \"version\": \"1.0\"," +
+        "      \"license\": \"license_hey\"," +
+        "      \"compressedFilename\": \"compressed.pack.gz\"," +
+        "      \"compressedHash\": \"hash\"," +
         "      \"organizationName\": \"org_name\"," +
         "      \"organizationUrl\": \"org_url\",\n" +
         "      \"editionBundled\": false," +
@@ -194,11 +241,11 @@ public class InstalledActionTest {
       p -> p.setFileHash("abcdplugKey"),
       p -> p.setUpdatedAt(111111L));
 
-    when(request.paramAsStrings(Param.FIELDS)).thenReturn(singletonList("category"));
+    String response = tester.newRequest()
+      .setParam(Param.FIELDS, "category")
+      .execute().getInput();
 
-    underTest.handle(request, response);
-
-    assertJson(response.outputAsString()).isSimilarTo(
+    assertJson(response).isSimilarTo(
       "{" +
         "  \"plugins\":" +
         "  [" +
@@ -246,9 +293,9 @@ public class InstalledActionTest {
       p -> p.setFileHash("abcdD"),
       p -> p.setUpdatedAt(444444L));
 
-    underTest.handle(request, response);
+    String resp = tester.newRequest().execute().getInput();
 
-    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(
+    assertJson(resp).withStrictArrayOrder().isSimilarTo(
       "{" +
         "  \"plugins\":" +
         "  [" +
@@ -283,17 +330,16 @@ public class InstalledActionTest {
     UpdateCenter updateCenter = mock(UpdateCenter.class);
     when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.of(updateCenter));
     when(updateCenter.findAllCompatiblePlugins()).thenReturn(
-        singletonList(
-            Plugin.factory(pluginKey)
-                .setOrganization("foo")
-                .setLicense("bar")
-                .setCategory("cat_1")));
+      singletonList(
+        Plugin.factory(pluginKey)
+          .setOrganization("foo")
+          .setLicense("bar")
+          .setCategory("cat_1")));
 
-
-    underTest.handle(request, response);
+    String response = tester.newRequest().execute().getInput();
 
     verifyZeroInteractions(updateCenterMatrixFactory);
-    assertJson(response.outputAsString())
+    assertJson(response)
       .isSimilarTo("{" +
         "  \"plugins\":" +
         "  [" +
@@ -334,16 +380,16 @@ public class InstalledActionTest {
       p -> p.setFileHash("abcdA"),
       p -> p.setUpdatedAt(111111L));
 
-    underTest.handle(request, response);
+    String response = tester.newRequest().execute().getInput();
 
-    assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(
+    assertJson(response).withStrictArrayOrder().isSimilarTo(
       "{" +
         "  \"plugins\":" +
         "  [" +
         "    {\"key\": \"A\"}" +
         "  ]" +
         "}");
-    assertThat(response.outputAsString()).containsOnlyOnce("name2");
+    assertThat(response).containsOnlyOnce("name2");
   }
 
   private PluginInfo plugin(String key, String name) {

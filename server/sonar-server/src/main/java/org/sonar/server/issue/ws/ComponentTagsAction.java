@@ -29,7 +29,7 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQueryFactory;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
+import org.sonar.server.issue.SearchRequest;
 
 import static java.util.Collections.singletonList;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
@@ -77,12 +77,12 @@ public class ComponentTagsAction implements IssuesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    SearchWsRequest searchWsRequest = new SearchWsRequest()
+    SearchRequest searchRequest = new SearchRequest()
       .setComponentUuids(singletonList(request.mandatoryParam(PARAM_COMPONENT_UUID)))
       .setResolved(false)
       .setCreatedAfter(request.param(PARAM_CREATED_AFTER));
 
-    IssueQuery query = queryService.create(searchWsRequest);
+    IssueQuery query = queryService.create(searchRequest);
     int pageSize = request.mandatoryParamAsInt(PAGE_SIZE);
     try (JsonWriter json = response.newJsonWriter()) {
       json.beginObject().name("tags").beginArray();

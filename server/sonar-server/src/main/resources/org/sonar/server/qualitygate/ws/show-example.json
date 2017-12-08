@@ -1,0 +1,28 @@
+{
+  "id": 5,
+  "name": "My Quality Gate",
+  "conditions": [
+    {
+      "id": 2,
+      "metric": "blocker_violations",
+      "op": "GT",
+      "error": "0"
+    },
+    {
+      "id": 3,
+      "metric": "critical_violations",
+      "period": 1,
+      "op": "LT",
+      "warning": "0"
+    }
+  ],
+  "isBuiltIn": false,
+  "actions": {
+    "rename": true,
+    "setAsDefault": true,
+    "copy": true,
+    "associateProjects": true,
+    "delete": true,
+    "manageConditions": true
+  }
+}

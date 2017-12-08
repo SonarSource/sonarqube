@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 import { translate } from '../../../helpers/l10n';
 
 export default class DetailsHeader extends React.PureComponent {
@@ -42,40 +43,48 @@ export default class DetailsHeader extends React.PureComponent {
   };
 
   render() {
-    const { qualityGate, edit } = this.props;
-
+    const { qualityGate } = this.props;
+    const actions = qualityGate.actions || {};
     return (
       <div className="layout-page-header-panel layout-page-main-header issues-main-header">
         <div className="layout-page-header-panel-inner layout-page-main-header-inner">
           <div className="layout-page-main-inner">
-            <h2 className="pull-left">{qualityGate.name}</h2>
-            {edit && (
-              <div className="pull-right">
+            <h2 className="pull-left">
+              {qualityGate.name}
+              {qualityGate.isBuiltIn && <BuiltInQualityGateBadge className="spacer-left" />}
+            </h2>
+
+            <div className="pull-right">
+              {actions.rename && (
                 <button id="quality-gate-rename" onClick={this.handleRenameClick}>
                   {translate('rename')}
                 </button>
+              )}
+              {actions.copy && (
                 <button
                   className="little-spacer-left"
                   id="quality-gate-copy"
                   onClick={this.handleCopyClick}>
                   {translate('copy')}
                 </button>
+              )}
+              {actions.setAsDefault && (
                 <button
                   className="little-spacer-left"
                   id="quality-gate-toggle-default"
                   onClick={this.handleSetAsDefaultClick}>
-                  {qualityGate.isDefault
-                    ? translate('unset_as_default')
-                    : translate('set_as_default')}
+                  {translate('set_as_default')}
                 </button>
+              )}
+              {actions.delete && (
                 <button
                   id="quality-gate-delete"
                   className="little-spacer-left button-red"
                   onClick={this.handleDeleteClick}>
                   {translate('delete')}
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -24,7 +24,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
+import org.sonarqube.ws.client.issues.SearchRequest;
 import util.ItUtils;
 
 import static java.util.Collections.singletonList;
@@ -87,8 +87,8 @@ public class CommonRulesTest extends AbstractIssueTest {
 
   private List<Issue> findIssues(String componentKey, String ruleKey) {
     return adminWsClient.issues().search(
-      new SearchWsRequest()
-        .setComponents(singletonList(componentKey))
+      new SearchRequest()
+        .setComponentKeys(singletonList(componentKey))
         .setRules(singletonList(ruleKey)))
       .getIssuesList();
   }

@@ -35,11 +35,12 @@ import org.sonarqube.tests.Category1Suite;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.setting.ValuesRequest;
+import org.sonarqube.ws.client.settings.ValuesRequest;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static junit.framework.TestCase.fail;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -79,10 +80,9 @@ public class EmailsTest {
   public void update_email_settings() throws Exception {
     updateEmailSettings("localhost", "42", "noreply@email.com", "The Devil", "[EMAIL]", "ssl", "john", "123456");
 
-    Settings.ValuesWsResponse response = tester.settings().service().values(ValuesRequest.builder()
-      .setKeys("email.smtp_host.secured", "email.smtp_port.secured", "email.smtp_secure_connection.secured", "email.smtp_username.secured", "email.smtp_password.secured",
-        "email.from", "email.fromName", "email.prefix")
-      .build());
+    Settings.ValuesWsResponse response = tester.settings().service().values(new ValuesRequest()
+      .setKeys(asList("email.smtp_host.secured", "email.smtp_port.secured", "email.smtp_secure_connection.secured", "email.smtp_username.secured", "email.smtp_password.secured",
+        "email.from", "email.fromName", "email.prefix")));
 
     assertThat(response.getSettingsList()).extracting(Settings.Setting::getKey, Settings.Setting::getValue)
       .containsOnly(

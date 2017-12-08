@@ -34,7 +34,7 @@ import org.sonar.server.organization.TestDefaultOrganizationProvider;
 import org.sonar.server.qualitygate.QualityGateUpdater;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.Qualitygates.CreateWsResponse;
+import org.sonarqube.ws.Qualitygates.CreateResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
@@ -60,7 +60,7 @@ public class CreateActionTest {
   public void create_quality_gate() throws Exception {
     logInAsQualityGateAdmin();
 
-    CreateWsResponse response = executeRequest("Default");
+    CreateResponse response = executeRequest("Default");
 
     assertThat(response.getName()).isEqualTo("Default");
     assertThat(response.getId()).isNotNull();
@@ -98,14 +98,14 @@ public class CreateActionTest {
     assertThat(action).isNotNull();
     assertThat(action.isInternal()).isFalse();
     assertThat(action.isPost()).isTrue();
-    assertThat(action.responseExampleAsString()).isNull();
+    assertThat(action.responseExampleAsString()).isNotEmpty();
     assertThat(action.params()).hasSize(1);
   }
 
-  private CreateWsResponse executeRequest(String name) {
+  private CreateResponse executeRequest(String name) {
     return ws.newRequest()
       .setParam("name", name)
-      .executeProtobuf(CreateWsResponse.class);
+      .executeProtobuf(CreateResponse.class);
   }
 
   private void logInAsQualityGateAdmin() {

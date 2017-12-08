@@ -32,6 +32,8 @@ import org.sonarqube.qa.util.pageobjects.projects.ProjectsPage;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.favorites.AddRequest;
+import org.sonarqube.ws.client.favorites.RemoveRequest;
 
 import static com.codeborne.selenide.Selenide.clearBrowserLocalStorage;
 import static com.codeborne.selenide.WebDriverRunner.url;
@@ -110,12 +112,12 @@ public class ProjectsPageTest {
 
     // favorite one project
     WsClient administratorWsClient = tester.as(administrator.getLogin()).wsClient();
-    administratorWsClient.favorites().add(PROJECT_KEY);
+    administratorWsClient.favorites().add(new AddRequest().setComponent(PROJECT_KEY));
     page = nav.openProjects();
     page.shouldHaveTotal(1).shouldDisplayFavoriteProjects();
 
     // un-favorite this project
-    administratorWsClient.favorites().remove(PROJECT_KEY);
+    administratorWsClient.favorites().remove(new RemoveRequest().setComponent(PROJECT_KEY));
     page = nav.openProjects();
     page.shouldHaveTotal(2).shouldDisplayAllProjects();
 

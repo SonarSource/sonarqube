@@ -35,10 +35,11 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.permission.AddUserWsRequest;
-import org.sonarqube.ws.client.user.CreateRequest;
-import org.sonarqube.ws.client.user.SearchRequest;
-import org.sonarqube.ws.client.user.UsersService;
+import org.sonarqube.ws.client.permissions.AddUserRequest;
+import org.sonarqube.ws.client.roots.SetRootRequest;
+import org.sonarqube.ws.client.users.CreateRequest;
+import org.sonarqube.ws.client.users.SearchRequest;
+import org.sonarqube.ws.client.users.UsersService;
 import util.selenium.Consumer;
 
 import static java.util.Arrays.asList;
@@ -108,28 +109,28 @@ public class UserRule extends ExternalResource implements GroupManagement {
   }
 
   public Users.CreateWsResponse.User createUser(String login, String name, @Nullable String email, String password) {
-    CreateRequest.Builder request = CreateRequest.builder()
+    CreateRequest request = new CreateRequest()
       .setLogin(login)
       .setName(name)
       .setEmail(email)
       .setPassword(password);
-    return adminWsClient().users().create(request.build()).getUser();
+    return adminWsClient().users().create(request).getUser();
   }
 
   /**
    * Create user with randomly generated values. By default password is the login.
    */
   @SafeVarargs
-  public final org.sonarqube.ws.Users.CreateWsResponse.User generate(Consumer<CreateRequest.Builder>... populators) {
+  public final org.sonarqube.ws.Users.CreateWsResponse.User generate(Consumer<CreateRequest>... populators) {
     int id = ID_GENERATOR.getAndIncrement();
     String login = "login" + id;
-    CreateRequest.Builder request = CreateRequest.builder()
+    CreateRequest request = new CreateRequest()
       .setLogin(login)
       .setName("name" + id)
       .setEmail(id + "@test.com")
       .setPassword(login);
     stream(populators).forEach(p -> p.accept(request));
-    return adminWsClient().users().create(request.build()).getUser();
+    return adminWsClient().users().create(request).getUser();
   }
 
   public void createUser(String login, String password) {
@@ -146,13 +147,13 @@ public class UserRule extends ExternalResource implements GroupManagement {
 
   public String createAdminUser(String login, String password) {
     createUser(login, password);
-    adminWsClient.permissions().addUser(new AddUserWsRequest().setLogin(login).setPermission("admin"));
-    adminWsClient.userGroups().addUser(org.sonarqube.ws.client.usergroup.AddUserWsRequest.builder().setLogin(login).setName("sonar-administrators").build());
+    adminWsClient.permissions().addUser(new AddUserRequest().setLogin(login).setPermission("admin"));
+    adminWsClient.userGroups().addUser(new org.sonarqube.ws.client.usergroups.AddUserRequest().setLogin(login).setName("sonar-administrators"));
     return login;
   }
 
   public void setRoot(String login) {
-    adminWsClient().roots().setRoot(login);
+    adminWsClient().roots().setRoot(new SetRootRequest().setLogin(login));
   }
 
   public Optional<util.user.Users.User> getUserByLogin(String login) {
@@ -180,7 +181,7 @@ public class UserRule extends ExternalResource implements GroupManagement {
 
   public void deactivateAllUsers() {
     UsersService service = newAdminWsClient(orchestrator).users();
-    List<String> logins = service.search(SearchRequest.builder().build()).getUsersList()
+    List<String> logins = service.search(new SearchRequest()).getUsersList()
       .stream()
       .filter(u -> !u.getLogin().equals("admin"))
       .map(u -> u.getLogin())

@@ -51,6 +51,9 @@ export default function OrganizationCard(props /*: Props */) {
 
       <h3 className="account-project-name">
         <OrganizationLink organization={organization}>{organization.name}</OrganizationLink>
+        {organization.isAdmin && (
+          <span className="outline-badge spacer-left">{translate('admin')}</span>
+        )}
       </h3>
 
       {!!organization.description && (

@@ -20,15 +20,15 @@
 package org.sonarqube.tests.ui;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category4Suite;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.tests.Category4Suite;
 import org.sonarqube.ws.Projects;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
-import org.sonarqube.ws.client.project.CreateRequest;
+import org.sonarqube.ws.client.projects.CreateRequest;
 import util.ItUtils;
 import util.selenium.Selenese;
 
@@ -107,9 +107,8 @@ public class UiExtensionsTest {
 
   private Projects.CreateWsResponse.Project createSampleProject() {
     String projectKey = ItUtils.newProjectKey();
-    return tester.wsClient().projects().create(CreateRequest.builder()
-      .setKey(projectKey)
-      .setName("Name of " + projectKey)
-      .build()).getProject();
+    return tester.wsClient().projects().create(new CreateRequest()
+      .setProject(projectKey)
+      .setName("Name of " + projectKey)).getProject();
   }
 }

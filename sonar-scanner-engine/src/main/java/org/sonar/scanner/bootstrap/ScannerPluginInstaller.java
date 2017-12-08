@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -67,7 +68,7 @@ public class ScannerPluginInstaller implements PluginInstaller {
   private Map<String, ScannerPlugin> loadPlugins(InstalledPlugin[] remotePlugins) {
     Map<String, ScannerPlugin> infosByKey = new HashMap<>(remotePlugins.length);
 
-    Profiler profiler = Profiler.create(LOG).startDebug("Load plugins");
+    Profiler profiler = Profiler.create(LOG).startInfo("Load/download plugins");
 
     for (InstalledPlugin installedPlugin : remotePlugins) {
       if (pluginPredicate.apply(installedPlugin.key)) {
@@ -76,8 +77,7 @@ public class ScannerPluginInstaller implements PluginInstaller {
         infosByKey.put(info.getKey(), new ScannerPlugin(installedPlugin.key, installedPlugin.updatedAt, info));
       }
     }
-
-    profiler.stopDebug();
+    profiler.stopInfo();
     return infosByKey;
   }
 
@@ -93,7 +93,11 @@ public class ScannerPluginInstaller implements PluginInstaller {
   @VisibleForTesting
   File download(final InstalledPlugin remote) {
     try {
-      return fileCache.get(remote.filename, remote.hash, new FileDownloader(remote.key));
+      if (remote.compressedFilename != null) {
+        return fileCache.getCompressed(remote.compressedFilename, remote.compressedHash, new FileDownloader(remote.key));
+      } else {
+        return fileCache.get(remote.filename, remote.hash, new FileDownloader(remote.key));
+      }
     } catch (Exception e) {
       throw new IllegalStateException("Fail to download plugin: " + remote.key, e);
     }
@@ -126,6 +130,10 @@ public class ScannerPluginInstaller implements PluginInstaller {
     String hash;
     String filename;
     long updatedAt;
+    @Nullable
+    String compressedHash;
+    @Nullable
+    String compressedFilename;
   }
 
   private class FileDownloader implements FileCache.Downloader {
@@ -139,9 +147,9 @@ public class ScannerPluginInstaller implements PluginInstaller {
     public void download(String filename, File toFile) throws IOException {
       String url = format("/deploy/plugins/%s/%s", key, filename);
       if (LOG.isDebugEnabled()) {
-        LOG.debug("Download plugin {} to {}", filename, toFile);
+        LOG.debug("Download plugin '{}' to '{}'", filename, toFile);
       } else {
-        LOG.info("Download {}", filename);
+        LOG.debug("Download '{}'", filename);
       }
 
       WsResponse response = wsClient.call(new GetRequest(url));

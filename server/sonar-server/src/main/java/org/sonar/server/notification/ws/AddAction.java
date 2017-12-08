@@ -39,7 +39,6 @@ import org.sonar.server.notification.NotificationUpdater;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
-import org.sonarqube.ws.client.notification.AddRequest;
 
 import static java.util.Optional.empty;
 import static org.sonar.core.util.Protobuf.setNullable;
@@ -48,11 +47,11 @@ import static org.sonar.server.notification.NotificationDispatcherMetadata.GLOBA
 import static org.sonar.server.notification.NotificationDispatcherMetadata.PER_PROJECT_NOTIFICATION;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkRequest;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.ACTION_ADD;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_CHANNEL;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_LOGIN;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_PROJECT;
-import static org.sonarqube.ws.client.notification.NotificationsWsParameters.PARAM_TYPE;
+import static org.sonar.server.notification.ws.NotificationsWsParameters.ACTION_ADD;
+import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_CHANNEL;
+import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_LOGIN;
+import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_PROJECT;
+import static org.sonar.server.notification.ws.NotificationsWsParameters.PARAM_TYPE;
 
 public class AddAction implements NotificationsWsAction {
   private final NotificationCenter notificationCenter;
@@ -152,25 +151,68 @@ public class AddAction implements NotificationsWsAction {
   }
 
   private AddRequest toWsRequest(Request request) {
-    AddRequest.Builder requestBuilder = AddRequest.builder()
+    AddRequest add = new AddRequest()
       .setType(request.mandatoryParam(PARAM_TYPE))
       .setChannel(request.mandatoryParam(PARAM_CHANNEL));
-    setNullable(request.param(PARAM_PROJECT), requestBuilder::setProject);
-    setNullable(request.param(PARAM_LOGIN), requestBuilder::setLogin);
-    AddRequest wsRequest = requestBuilder.build();
+    setNullable(request.param(PARAM_PROJECT), add::setProject);
+    setNullable(request.param(PARAM_LOGIN), add::setLogin);
 
-    if (wsRequest.getProject() == null) {
-      checkRequest(globalDispatchers.contains(wsRequest.getType()), "Value of parameter '%s' (%s) must be one of: %s",
+    if (add.getProject() == null) {
+      checkRequest(globalDispatchers.contains(add.getType()), "Value of parameter '%s' (%s) must be one of: %s",
         PARAM_TYPE,
-        wsRequest.getType(),
+        add.getType(),
         globalDispatchers);
     } else {
-      checkRequest(projectDispatchers.contains(wsRequest.getType()), "Value of parameter '%s' (%s) must be one of: %s",
+      checkRequest(projectDispatchers.contains(add.getType()), "Value of parameter '%s' (%s) must be one of: %s",
         PARAM_TYPE,
-        wsRequest.getType(),
+        add.getType(),
         projectDispatchers);
     }
 
-    return wsRequest;
+    return add;
+  }
+
+  private static class AddRequest {
+
+    private String channel;
+    private String login;
+    private String project;
+    private String type;
+
+    public AddRequest setChannel(String channel) {
+      this.channel = channel;
+      return this;
+    }
+
+    public String getChannel() {
+      return channel;
+    }
+
+    public AddRequest setLogin(String login) {
+      this.login = login;
+      return this;
+    }
+
+    public String getLogin() {
+      return login;
+    }
+
+    public AddRequest setProject(String project) {
+      this.project = project;
+      return this;
+    }
+
+    public String getProject() {
+      return project;
+    }
+
+    public AddRequest setType(String type) {
+      this.type = type;
+      return this;
+    }
+
+    public String getType() {
+      return type;
+    }
   }
 }

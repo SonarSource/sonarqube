@@ -20,11 +20,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Helmet from 'react-helmet';
-import {
-  fetchQualityGate,
-  setQualityGateAsDefault,
-  unsetQualityGateAsDefault
-} from '../../../api/quality-gates';
+import { fetchQualityGate, setQualityGateAsDefault } from '../../../api/quality-gates';
 import DetailsHeader from './DetailsHeader';
 import DetailsContent from './DetailsContent';
 import RenameView from '../views/rename-view';
@@ -33,7 +29,12 @@ import DeleteView from '../views/delete-view';
 import { getQualityGatesUrl, getQualityGateUrl } from '../../../helpers/urls';
 
 export default class Details extends React.PureComponent {
+  static contextTypes = {
+    router: PropTypes.object.isRequired
+  };
+
   componentDidMount() {
+    this.props.fetchMetrics();
     this.fetchDetails();
   }
 
@@ -43,26 +44,25 @@ export default class Details extends React.PureComponent {
     }
   }
 
-  fetchDetails() {
-    const { id } = this.props.params;
-    fetchQualityGate(id).then(qualityGate => this.props.onShow(qualityGate));
-  }
+  fetchDetails = () =>
+    fetchQualityGate(this.props.params.id).then(
+      qualityGate => this.props.onShow(qualityGate),
+      () => {}
+    );
 
-  handleRenameClick() {
+  handleRenameClick = () => {
     const { qualityGate, onRename } = this.props;
-
     new RenameView({
       qualityGate,
       onRename: (qualityGate, newName) => {
         onRename(qualityGate, newName);
       }
     }).render();
-  }
+  };
 
-  handleCopyClick() {
+  handleCopyClick = () => {
     const { qualityGate, onCopy, organization } = this.props;
     const { router } = this.context;
-
     new CopyView({
       qualityGate,
       onCopy: newQualityGate => {
@@ -70,19 +70,16 @@ export default class Details extends React.PureComponent {
         router.push(getQualityGateUrl(newQualityGate.id, organization && organization.key));
       }
     }).render();
-  }
+  };
 
-  handleSetAsDefaultClick() {
-    const { qualityGate, onSetAsDefault, onUnsetAsDefault } = this.props;
-
-    if (qualityGate.isDefault) {
-      unsetQualityGateAsDefault(qualityGate.id).then(() => onUnsetAsDefault(qualityGate));
-    } else {
-      setQualityGateAsDefault(qualityGate.id).then(() => onSetAsDefault(qualityGate));
+  handleSetAsDefaultClick = () => {
+    const { qualityGate, onSetAsDefault } = this.props;
+    if (!qualityGate.isDefault) {
+      setQualityGateAsDefault(qualityGate.id).then(() => onSetAsDefault(qualityGate), () => {});
     }
-  }
+  };
 
-  handleDeleteClick() {
+  handleDeleteClick = () => {
     const { qualityGate, onDelete, organization } = this.props;
     const { router } = this.context;
     new DeleteView({
@@ -92,10 +89,10 @@ export default class Details extends React.PureComponent {
         router.replace(getQualityGatesUrl(organization && organization.key));
       }
     }).render();
-  }
+  };
 
   render() {
-    const { qualityGate, edit, metrics } = this.props;
+    const { qualityGate, metrics } = this.props;
     const { onAddCondition, onDeleteCondition, onSaveCondition } = this.props;
 
     if (!qualityGate) {
@@ -107,17 +104,15 @@ export default class Details extends React.PureComponent {
         <Helmet title={qualityGate.name} />
         <DetailsHeader
           qualityGate={qualityGate}
-          edit={edit}
-          onRename={this.handleRenameClick.bind(this)}
-          onCopy={this.handleCopyClick.bind(this)}
-          onSetAsDefault={this.handleSetAsDefaultClick.bind(this)}
-          onDelete={this.handleDeleteClick.bind(this)}
+          onRename={this.handleRenameClick}
+          onCopy={this.handleCopyClick}
+          onSetAsDefault={this.handleSetAsDefaultClick}
+          onDelete={this.handleDeleteClick}
           organization={this.props.organization}
         />
 
         <DetailsContent
           gate={qualityGate}
-          canEdit={edit}
           metrics={metrics}
           onAddCondition={onAddCondition}
           onSaveCondition={onSaveCondition}
@@ -127,7 +122,3 @@ export default class Details extends React.PureComponent {
     );
   }
 }
-
-Details.contextTypes = {
-  router: PropTypes.object.isRequired
-};

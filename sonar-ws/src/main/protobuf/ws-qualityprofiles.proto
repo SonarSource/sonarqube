@@ -1,0 +1,171 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2016 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+syntax = "proto2";
+
+package sonarqube.ws.qualityprofiles;
+
+import "ws-commons.proto";
+
+option java_package = "org.sonarqube.ws";
+option java_outer_classname = "Qualityprofiles";
+option optimize_for = SPEED;
+
+// WS api/qualityprofiles/search
+message SearchWsResponse {
+  repeated QualityProfile profiles = 1;
+  optional Actions actions = 2;
+
+  message QualityProfile {
+    optional string key = 1;
+    optional string name = 2;
+    optional string language = 3;
+    optional string languageName = 4;
+    optional bool isInherited = 5;
+    optional string parentKey = 6;
+    optional string parentName = 7;
+    optional bool isDefault = 8;
+    optional int64 activeRuleCount = 9;
+    optional int64 activeDeprecatedRuleCount = 12;
+    optional int64 projectCount = 10;
+    optional string rulesUpdatedAt = 11;
+    optional string lastUsed = 13;
+    optional string userUpdatedAt = 14;
+    optional string organization = 15;
+    optional bool isBuiltIn = 16;
+    optional Actions actions = 17;
+
+    message Actions {
+        optional bool edit = 1;
+        optional bool setAsDefault = 2;
+        optional bool copy = 3;
+        optional bool associateProjects = 4;
+        optional bool delete = 5;
+      }
+  }
+
+  message Actions {
+    optional bool create = 1;
+  }
+}
+
+// WS api/qualityprofiles/create
+message CreateWsResponse {
+  optional QualityProfile profile = 1;
+
+  message QualityProfile {
+    optional string key = 1;
+    optional string name = 2;
+    optional string language = 3;
+    optional string languageName = 4;
+    optional bool isInherited = 5;
+    optional bool isDefault = 6;
+    optional Infos infos = 7;
+    optional Warnings warnings = 8;
+    optional string organization = 9;
+
+    message Infos {
+      repeated string infos = 1;
+    }
+
+    message Warnings {
+      repeated string warnings = 1;
+    }
+  }
+}
+
+// WS api/qualityprofiles/inheritance
+message InheritanceWsResponse {
+  optional QualityProfile profile = 1;
+  repeated QualityProfile ancestors = 2;
+  repeated QualityProfile children = 3;
+
+  message QualityProfile {
+    optional string key = 1;
+    optional string name = 2;
+    optional string parent = 3;
+    optional int64 activeRuleCount = 4;
+    optional int64 overridingRuleCount = 5;
+    optional bool isBuiltIn = 6;
+  }
+}
+
+// WS api/qualityprofiles/copy
+message CopyWsResponse {
+  optional string key = 1;
+  optional string name = 2;
+  optional string language = 3;
+  optional string languageName = 4;
+  optional bool isDefault = 5;
+  optional bool isInherited = 6;
+  optional string parentKey = 7;
+}
+
+// WS api/qualityprofiles/show
+message ShowResponse {
+  optional QualityProfile profile = 1;
+  optional CompareToSonarWay compareToSonarWay = 2;
+
+  message QualityProfile {
+    optional string key = 1;
+    optional string name = 2;
+    optional string language = 3;
+    optional string languageName = 4;
+    optional bool isInherited = 5;
+    optional bool isDefault = 6;
+    optional int64 activeRuleCount = 7;
+    optional int64 activeDeprecatedRuleCount = 8;
+    optional int64 projectCount = 9;
+    optional string rulesUpdatedAt = 10;
+    optional string lastUsed = 11;
+    optional string userUpdatedAt = 12;
+    optional string organization = 13;
+    optional bool isBuiltIn = 14;
+  }
+
+  message CompareToSonarWay {
+    optional string profile = 1;
+    optional string profileName = 2;
+    optional int64 missingRuleCount = 3;
+  }
+}
+
+// WS api/qualityprofiles/search_users
+message SearchUsersResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated User users = 2;
+
+  message User {
+    optional string login = 1;
+    optional string name = 2;
+    optional string avatar = 3;
+    optional bool selected = 4;
+  }
+}
+
+// WS api/qualityprofiles/search_groups
+message SearchGroupsResponse {
+  optional sonarqube.ws.commons.Paging paging = 1;
+  repeated Group groups = 2;
+
+  message Group {
+    optional string name = 1;
+    optional string description = 2;
+    optional bool selected = 3;
+  }
+}

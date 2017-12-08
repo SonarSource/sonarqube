@@ -21,7 +21,6 @@
 package org.sonarqube.tests.issue;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category6Suite;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Before;
@@ -29,16 +28,17 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.pageobjects.issues.IssuesPage;
+import org.sonarqube.tests.Category6Suite;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
-import org.sonarqube.ws.client.issue.AssignRequest;
-import org.sonarqube.ws.client.issue.BulkChangeRequest;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
-import org.sonarqube.ws.client.project.CreateRequest;
-import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
-import org.sonarqube.qa.util.pageobjects.issues.IssuesPage;
+import org.sonarqube.ws.client.issues.AssignRequest;
+import org.sonarqube.ws.client.issues.BulkChangeRequest;
+import org.sonarqube.ws.client.issues.SearchRequest;
+import org.sonarqube.ws.client.qualityprofiles.AddProjectRequest;
+import org.sonarqube.ws.client.projects.CreateRequest;
 import util.issue.IssueRule;
 
 import static java.lang.String.format;
@@ -125,15 +125,15 @@ public class OrganizationIssueAssignTest {
     tester.organizations().addMember(org1, user);
     provisionAndAnalyseProject(SAMPLE_PROJECT_KEY, org1.getKey());
     provisionAndAnalyseProject("sample2", org2.getKey());
-    List<String> issues = issueRule.search(new org.sonarqube.ws.client.issue.SearchWsRequest()).getIssuesList().stream().map(Issue::getKey).collect(Collectors.toList());
+    List<String> issues = issueRule.search(new SearchRequest()).getIssuesList().stream().map(Issue::getKey).collect(Collectors.toList());
 
     Issues.BulkChangeWsResponse response = tester.wsClient().issues()
-      .bulkChange(BulkChangeRequest.builder().setIssues(issues).setAssign(user.getLogin()).build());
+      .bulkChange(new BulkChangeRequest().setIssues(issues).setAssign(singletonList(user.getLogin())));
 
     assertThat(response.getIgnored()).isGreaterThan(0);
-    assertThat(issueRule.search(new SearchWsRequest().setProjectKeys(singletonList("sample"))).getIssuesList()).extracting(Issue::getAssignee)
+    assertThat(issueRule.search(new SearchRequest().setProjects(singletonList("sample"))).getIssuesList()).extracting(Issue::getAssignee)
       .containsOnly(user.getLogin());
-    assertThat(issueRule.search(new SearchWsRequest().setProjectKeys(singletonList("sample2"))).getIssuesList()).extracting(Issue::hasAssignee)
+    assertThat(issueRule.search(new SearchRequest().setProjects(singletonList("sample2"))).getIssuesList()).extracting(Issue::hasAssignee)
       .containsOnly(false);
   }
 
@@ -185,11 +185,10 @@ public class OrganizationIssueAssignTest {
 
   private void provisionProject(String projectKey, String organization) {
     tester.wsClient().projects().create(
-      CreateRequest.builder()
-        .setKey(projectKey)
+      new CreateRequest()
+        .setProject(projectKey)
         .setName(projectKey)
-        .setOrganization(organization)
-        .build());
+        .setOrganization(organization));
   }
 
   private void analyseProject(String projectKey, String organization) {
@@ -204,16 +203,15 @@ public class OrganizationIssueAssignTest {
   }
 
   private void addQualityProfileToProject(String organization, String projectKey) {
-    tester.wsClient().qualityProfiles().addProject(
-      AddProjectRequest.builder()
-        .setProjectKey(projectKey)
+    tester.wsClient().qualityprofiles().addProject(
+      new AddProjectRequest()
+        .setProject(projectKey)
         .setOrganization(organization)
         .setLanguage("xoo")
-        .setQualityProfile("one-issue-per-file-profile")
-        .build());
+        .setQualityProfile("one-issue-per-file-profile"));
   }
 
-  private Issues.Operation assignIssueTo(Issue issue, User u) {
-    return tester.wsClient().issues().assign(new AssignRequest(issue.getKey(), u.getLogin()));
+  private Issues.AssignResponse assignIssueTo(Issue issue, User u) {
+    return tester.wsClient().issues().assign(new AssignRequest().setIssue(issue.getKey()).setAssignee(u.getLogin()));
   }
 }

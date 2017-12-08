@@ -13,8 +13,8 @@
   <description>Protocol Buffers specification of Web Services</description>
 
   <properties>
-    <sonar.exclusions>target/generated-sources/**/*</sonar.exclusions>
-    <sonar.test.exclusions>target/generated-test-sources/**/*</sonar.test.exclusions>
+    <sonar.exclusions>target/generated-sources/**/*,src/main/java/org/sonarqube/ws/client/*/*.java</sonar.exclusions>
+    <sonar.test.exclusions>target/generated-test-sources/**/*,src/test/java/org/sonarqube/ws/client/*/*.java</sonar.test.exclusions>
   </properties>
 
   <dependencies>
@@ -39,10 +39,6 @@
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.sonarsource.sonarqube</groupId>
-      <artifactId>sonar-ws-generated</artifactId>
-    </dependency>    
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-plugin-api</artifactId>

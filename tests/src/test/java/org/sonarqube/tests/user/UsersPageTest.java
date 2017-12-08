@@ -20,26 +20,26 @@
 package org.sonarqube.tests.user;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarqube.tests.Category1Suite;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.qa.util.Tester;
+import org.sonarqube.qa.util.pageobjects.UsersManagementPage;
+import org.sonarqube.tests.Category1Suite;
 import org.sonarqube.ws.Users;
-import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.user.GroupsRequest;
-import util.selenium.Selenese;
+import org.sonarqube.ws.Users.CreateWsResponse.User;
+import org.sonarqube.ws.client.users.GroupsRequest;
 import util.user.UserRule;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.newAdminWsClient;
 
 public class UsersPageTest {
 
-  private static final String ADMIN_USER_LOGIN = "admin-user";
+  private User adminUser;
 
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
@@ -47,38 +47,54 @@ public class UsersPageTest {
   @Rule
   public UserRule userRule = UserRule.from(orchestrator);
 
-  private WsClient adminClient = newAdminWsClient(orchestrator);
+  @Rule
+  public Tester tester = new Tester(orchestrator).disableOrganizations();
 
   @Before
-  public void initAdminUser() throws Exception {
-    userRule.createAdminUser(ADMIN_USER_LOGIN, ADMIN_USER_LOGIN);
+  public void initUsers() throws Exception {
+    adminUser = tester.users().generateAdministrator(u -> u.setLogin("admin-user").setPassword("admin-user"));
+    tester.users().generate(u -> u.setLogin("random-user").setPassword("random-user"));
   }
 
   @After
-  public void deleteAdminUser() {
+  public void resetUsers() {
     userRule.resetUsers();
   }
 
   @Test
   public void generate_and_revoke_user_token()  {
-    Selenese.runSelenese(orchestrator, "/user/UsersPageTest/generate_and_revoke_user_token.html");
+    UsersManagementPage page = tester.openBrowser().logIn().submitCredentials(adminUser.getLogin()).openUsersManagement();
+    tester.wsClient().users().skipOnboardingTutorial();
+
+    page
+      .hasUsersCount(3)
+      .getUser(adminUser.getLogin())
+      .hasTokensCount(0)
+      .generateToken("token-test")
+      .hasTokensCount(1)
+      .revokeToken("token-test")
+      .hasTokensCount(0);
   }
 
   @Test
   public void admin_should_change_his_own_password()  {
-    Selenese.runSelenese(orchestrator, "/user/UsersPageTest/admin_should_change_its_own_password.html");
+    UsersManagementPage page = tester.openBrowser().logIn().submitCredentials(adminUser.getLogin()).openUsersManagement();
+    tester.wsClient().users().skipOnboardingTutorial();
+    page
+      .hasUsersCount(3)
+      .getUser(adminUser.getLogin())
+      .changePassword(adminUser.getLogin(), "newpassword");
   }
 
   @Test
   public void return_groups_belonging_to_a_user()  {
     String login = randomAlphabetic(10);
     String group = randomAlphabetic(10);
-    userRule.createUser(login, login);
-    userRule.createGroup(group);
-    userRule.associateGroupsToUser(login, group);
+    tester.users().generate(u -> u.setLogin(login).setPassword(login));
+    tester.groups().generate(null, g -> g.setName(group));
+    tester.groups().addMemberToGroups(tester.organizations().getDefaultOrganization(), login, group);
 
-    List<Users.GroupsWsResponse.Group> result = adminClient.users().groups(GroupsRequest.builder().setLogin(login).build()).getGroupsList();
-
+    List<Users.GroupsWsResponse.Group> result = tester.as(adminUser.getLogin()).wsClient().users().groups(new GroupsRequest().setLogin(login)).getGroupsList();
     assertThat(result).extracting(Users.GroupsWsResponse.Group::getName).contains(group);
   }
 }

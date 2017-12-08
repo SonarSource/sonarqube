@@ -30,6 +30,7 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.ProjectBranches;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
+import org.sonarqube.ws.client.projectbranches.ListRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -47,7 +48,7 @@ public class BranchTest {
   public void list_branches_contains_main_branch() {
     runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
-    ProjectBranches.ListWsResponse result = tester.wsClient().projectBranches().list("sample");
+    ProjectBranches.ListWsResponse result = tester.wsClient().projectBranches().list(new ListRequest().setProject("sample"));
 
     assertThat(result.getBranchesList())
       .extracting(ProjectBranches.Branch::getName, ProjectBranches.Branch::getType, ProjectBranches.Branch::getIsMain)

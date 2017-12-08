@@ -21,6 +21,7 @@ package org.sonar.server.user.ws;
 
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -43,9 +44,9 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.usergroups.DefaultGroupFinder;
 import org.sonarqube.ws.Users.GroupsWsResponse;
 import org.sonarqube.ws.Users.GroupsWsResponse.Group;
-import org.sonarqube.ws.client.user.GroupsRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.api.server.ws.WebService.Param.PAGE;
 import static org.sonar.api.server.ws.WebService.Param.PAGE_SIZE;
 import static org.sonar.api.server.ws.WebService.Param.SELECTED;
@@ -179,4 +180,103 @@ public class GroupsAction implements UsersWsAction {
     return groupBuilder.build();
   }
 
+  private static class GroupsRequest {
+
+    private final String login;
+    private final String organization;
+    private final String query;
+    private final String selected;
+    private final Integer page;
+    private final Integer pageSize;
+
+    private GroupsRequest(Builder builder) {
+      this.login = builder.login;
+      this.organization = builder.organization;
+      this.query = builder.query;
+      this.selected = builder.selected;
+      this.page = builder.page;
+      this.pageSize = builder.pageSize;
+    }
+
+    public String getLogin() {
+      return login;
+    }
+
+    @CheckForNull
+    public String getOrganization() {
+      return organization;
+    }
+
+    @CheckForNull
+    public String getQuery() {
+      return query;
+    }
+
+    @CheckForNull
+    public String getSelected() {
+      return selected;
+    }
+
+    @CheckForNull
+    public Integer getPage() {
+      return page;
+    }
+
+    @CheckForNull
+    public Integer getPageSize() {
+      return pageSize;
+    }
+
+    public static Builder builder() {
+      return new Builder();
+    }
+  }
+
+  private static class Builder {
+    private String login;
+    private String organization;
+    private String query;
+    private String selected;
+    private Integer page;
+    private Integer pageSize;
+
+    private Builder() {
+      // enforce factory method use
+    }
+
+    public Builder setLogin(String login) {
+      this.login = login;
+      return this;
+    }
+
+    public Builder setOrganization(@Nullable String organization) {
+      this.organization = organization;
+      return this;
+    }
+
+    public Builder setQuery(@Nullable String query) {
+      this.query = query;
+      return this;
+    }
+
+    public Builder setSelected(@Nullable String selected) {
+      this.selected = selected;
+      return this;
+    }
+
+    public Builder setPage(@Nullable Integer page) {
+      this.page = page;
+      return this;
+    }
+
+    public Builder setPageSize(@Nullable Integer pageSize) {
+      this.pageSize = pageSize;
+      return this;
+    }
+
+    public GroupsRequest build() {
+      checkArgument(!isNullOrEmpty(login), "Login is mandatory and must not be empty");
+      return new GroupsRequest(this);
+    }
+  }
 }

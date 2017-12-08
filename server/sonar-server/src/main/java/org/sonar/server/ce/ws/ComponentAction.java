@@ -35,13 +35,14 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.KeyExamples;
-import org.sonarqube.ws.Ce.ProjectResponse;
+import org.sonarqube.ws.Ce;
+import org.sonarqube.ws.Ce.ComponentResponse;
 
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
 
 public class ComponentAction implements CeWsAction {
 
@@ -93,7 +94,7 @@ public class ComponentAction implements CeWsAction {
         .setOnlyCurrents(true);
       List<CeActivityDto> activityDtos = dbClient.ceActivityDao().selectByQuery(dbSession, activityQuery, forPage(1).andSize(1));
 
-      ProjectResponse.Builder wsResponseBuilder = ProjectResponse.newBuilder();
+      Ce.ComponentResponse.Builder wsResponseBuilder = ComponentResponse.newBuilder();
       wsResponseBuilder.addAllQueue(formatter.formatQueue(dbSession, queueDtos));
       if (activityDtos.size() == 1) {
         wsResponseBuilder.setCurrent(formatter.formatActivity(dbSession, activityDtos.get(0), null));

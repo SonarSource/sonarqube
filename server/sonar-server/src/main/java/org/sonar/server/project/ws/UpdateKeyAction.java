@@ -30,8 +30,11 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
 import org.sonar.server.component.ComponentService;
-import org.sonarqube.ws.client.project.UpdateKeyWsRequest;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.ACTION_UPDATE_KEY;
 import static org.sonarqube.ws.client.project.ProjectsWsParameters.PARAM_FROM;
@@ -97,18 +100,78 @@ public class UpdateKeyAction implements ProjectsWsAction {
     response.noContent();
   }
 
-  private void doHandle(UpdateKeyWsRequest request) {
+  private void doHandle(UpdateKeyRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto projectOrModule = componentFinder.getByUuidOrKey(dbSession, request.getId(), request.getKey(), ParamNames.PROJECT_ID_AND_FROM);
       componentService.updateKey(dbSession, projectOrModule, request.getNewKey());
     }
   }
 
-  private static UpdateKeyWsRequest toWsRequest(Request request) {
-    return UpdateKeyWsRequest.builder()
+  private static UpdateKeyRequest toWsRequest(Request request) {
+    return UpdateKeyRequest.builder()
       .setId(request.param(PARAM_PROJECT_ID))
       .setKey(request.param(PARAM_FROM))
       .setNewKey(request.mandatoryParam(PARAM_TO))
       .build();
+  }
+
+  private static class UpdateKeyRequest {
+    private final String id;
+    private final String key;
+    private final String newKey;
+
+    public UpdateKeyRequest(Builder builder) {
+      this.id = builder.id;
+      this.key = builder.key;
+      this.newKey = builder.newKey;
+    }
+
+    @CheckForNull
+    public String getId() {
+      return id;
+    }
+
+    @CheckForNull
+    public String getKey() {
+      return key;
+    }
+
+    public String getNewKey() {
+      return newKey;
+    }
+
+    public static Builder builder() {
+      return new Builder();
+    }
+  }
+
+  private static class Builder {
+    private String id;
+    private String key;
+    private String newKey;
+
+    private Builder() {
+      // enforce method constructor
+    }
+
+    public Builder setId(@Nullable String id) {
+      this.id = id;
+      return this;
+    }
+
+    public Builder setKey(@Nullable String key) {
+      this.key = key;
+      return this;
+    }
+
+    public Builder setNewKey(String newKey) {
+      this.newKey = newKey;
+      return this;
+    }
+
+    public UpdateKeyRequest build() {
+      checkArgument(newKey != null && !newKey.isEmpty(), "The new key must not be empty");
+      return new UpdateKeyRequest(this);
+    }
   }
 }

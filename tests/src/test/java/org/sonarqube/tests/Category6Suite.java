@@ -35,6 +35,7 @@ import org.sonarqube.tests.qualityProfile.BuiltInQualityProfilesTest;
 import org.sonarqube.tests.qualityProfile.CustomQualityProfilesTest;
 import org.sonarqube.tests.qualityProfile.QualityProfilesEditTest;
 import org.sonarqube.tests.qualityProfile.QualityProfilesWsTest;
+import org.sonarqube.tests.rule.RulesMarkdownTest;
 import org.sonarqube.tests.rule.RulesWsTest;
 import org.sonarqube.tests.user.OrganizationIdentityProviderTest;
 
@@ -59,6 +60,7 @@ import static util.ItUtils.xooPlugin;
   CustomQualityProfilesTest.class,
   IssueTagsTest.class,
   RulesWsTest.class,
+  RulesMarkdownTest.class,
   PermissionTemplateTest.class,
   ReportFailureNotificationTest.class,
   IssueNotificationsTest.class

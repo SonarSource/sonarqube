@@ -53,12 +53,12 @@ import org.sonar.server.issue.TransitionService;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
-import org.sonar.server.issue.webhook.IssueChangeWebhook;
 import org.sonar.server.issue.workflow.FunctionExecutor;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.qualitygate.changeevent.IssueChangeTrigger;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -113,10 +113,10 @@ public class DoTransitionActionTest {
   private ComponentDto project;
   private ComponentDto file;
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
-  private IssueChangeWebhook issueChangeWebhook = mock(IssueChangeWebhook.class);
+  private IssueChangeTrigger issueChangeTrigger = mock(IssueChangeTrigger.class);
 
   private WsAction underTest = new DoTransitionAction(dbClient, userSession, new IssueFinder(dbClient, userSession), issueUpdater, transitionService, responseWriter, system2,
-    issueChangeWebhook);
+    issueChangeTrigger);
   private WsActionTester tester = new WsActionTester(underTest);
 
   @Before
@@ -140,12 +140,12 @@ public class DoTransitionActionTest {
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
     assertThat(issueReloaded.getStatus()).isEqualTo(STATUS_CONFIRMED);
 
-    ArgumentCaptor<IssueChangeWebhook.IssueChangeData> issueChangeDataCaptor = ArgumentCaptor.forClass(IssueChangeWebhook.IssueChangeData.class);
-    verify(issueChangeWebhook).onChange(
+    ArgumentCaptor<IssueChangeTrigger.IssueChangeData> issueChangeDataCaptor = ArgumentCaptor.forClass(IssueChangeTrigger.IssueChangeData.class);
+    verify(issueChangeTrigger).onChange(
       issueChangeDataCaptor.capture(),
-      eq(new IssueChangeWebhook.IssueChange(null, "confirm")),
+      eq(new IssueChangeTrigger.IssueChange(null, "confirm")),
       eq(IssueChangeContext.createUser(new Date(now), userSession.getLogin())));
-    IssueChangeWebhook.IssueChangeData issueChangeData = issueChangeDataCaptor.getValue();
+    IssueChangeTrigger.IssueChangeData issueChangeData = issueChangeDataCaptor.getValue();
     assertThat(issueChangeData.getIssues())
       .extracting(DefaultIssue::key)
       .containsOnly(issueDto.getKey());

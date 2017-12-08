@@ -31,7 +31,6 @@ import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.project.Visibility;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.project.SearchWsRequest;
 
 import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
@@ -127,7 +126,7 @@ public class BulkDeleteAction implements ProjectsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    SearchWsRequest searchRequest = toSearchWsRequest(request);
+    SearchRequest searchRequest = toSearchWsRequest(request);
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationDto organization = support.getOrganization(dbSession, searchRequest.getOrganization());
@@ -140,8 +139,8 @@ public class BulkDeleteAction implements ProjectsWsAction {
     response.noContent();
   }
 
-  private static SearchWsRequest toSearchWsRequest(Request request) {
-    return SearchWsRequest.builder()
+  private static SearchRequest toSearchWsRequest(Request request) {
+    return SearchRequest.builder()
       .setOrganization(request.param(PARAM_ORGANIZATION))
       .setQualifiers(request.mandatoryParamAsStrings(PARAM_QUALIFIERS))
       .setQuery(request.param(Param.TEXT_QUERY))

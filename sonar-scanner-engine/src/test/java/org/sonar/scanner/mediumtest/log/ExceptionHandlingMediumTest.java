@@ -21,8 +21,8 @@ package org.sonar.scanner.mediumtest.log;
 
 import java.util.Collections;
 import java.util.Map;
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.Description;
-import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -64,7 +64,7 @@ public class ExceptionHandlingMediumTest {
     loader.withCause = false;
     thrown.expect(MessageException.class);
     thrown.expectMessage("Error loading settings");
-    thrown.expectCause(Matchers.nullValue(Throwable.class));
+    thrown.expectCause(CoreMatchers.nullValue(Throwable.class));
 
     batch.start();
   }

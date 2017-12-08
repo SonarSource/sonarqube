@@ -43,6 +43,9 @@ message Metadata {
   BranchType branch_type = 10;
   string merge_branch_name = 11;
 
+  string relative_path_from_scm_root = 12;
+  string scm_revision_id = 13;
+
   message QProfile {
     string key = 1;
     string name = 2;
@@ -91,6 +94,8 @@ message ComponentLink {
 
 message Component {
   int32 ref = 1;
+
+  // Path relative to module base directory
   string path = 2;
   string name = 3;
   ComponentType type = 4;
@@ -108,6 +113,9 @@ message Component {
   // Only available on PROJECT and MODULE types
   string description = 12;
   FileStatus status = 13;
+
+  // Path relative to project base directory
+  string project_relative_path = 14;
   
 	enum ComponentType {
 	  UNSET = 0;

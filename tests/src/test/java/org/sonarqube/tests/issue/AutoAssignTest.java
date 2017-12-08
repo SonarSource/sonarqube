@@ -19,7 +19,6 @@
  */
 package org.sonarqube.tests.issue;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -33,11 +32,12 @@ import org.sonar.wsclient.issue.IssueQuery;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.user.CreateRequest;
-import org.sonarqube.ws.client.user.SearchRequest;
+import org.sonarqube.ws.client.users.CreateRequest;
+import org.sonarqube.ws.client.users.SearchRequest;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static util.ItUtils.newAdminWsClient;
@@ -180,18 +180,17 @@ public class AutoAssignTest extends AbstractIssueTest {
 
   private static void createUser(String login, String name, String email, String... scmAccounts) {
     newAdminWsClient(ORCHESTRATOR).users().create(
-      CreateRequest.builder()
+      new CreateRequest()
         .setLogin(login)
         .setName(name)
         .setEmail(email)
         .setPassword("xxxxxxx")
-        .setScmAccounts(Arrays.asList(scmAccounts))
-        .build());
+        .setScmAccounts(asList(scmAccounts)));
   }
 
   private static void deleteAllUsers() {
     WsClient wsClient = newAdminWsClient(ORCHESTRATOR);
-    Users.SearchWsResponse searchResponse = wsClient.users().search(SearchRequest.builder().build());
+    Users.SearchWsResponse searchResponse = wsClient.users().search(new SearchRequest());
     searchResponse.getUsersList().forEach(user -> {
       wsClient.wsConnector().call(new PostRequest("api/users/deactivate").setParam("login", user.getLogin()));
     });

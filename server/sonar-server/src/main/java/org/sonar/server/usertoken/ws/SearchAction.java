@@ -29,13 +29,12 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.UserTokenDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.UserTokens.SearchWsResponse;
-import org.sonarqube.ws.client.usertoken.SearchWsRequest;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.ACTION_SEARCH;
-import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_LOGIN;
+import static org.sonar.server.usertoken.ws.UserTokensWsParameters.ACTION_SEARCH;
+import static org.sonar.server.usertoken.ws.UserTokensWsParameters.PARAM_LOGIN;
 
 public class SearchAction implements UserTokensWsAction {
   private final DbClient dbClient;
@@ -63,27 +62,22 @@ public class SearchAction implements UserTokensWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    SearchWsResponse searchWsResponse = doHandle(toSearchWsRequest(request));
+    String login = request.param(PARAM_LOGIN);
+    if (login == null) {
+      login = userSession.getLogin();
+    }
+    SearchWsResponse searchWsResponse = doHandle(login);
     writeProtobuf(searchWsResponse, request, response);
   }
 
-  private SearchWsResponse doHandle(SearchWsRequest request) {
-    TokenPermissionsValidator.validate(userSession, request.getLogin());
+  private SearchWsResponse doHandle(String login) {
+    TokenPermissionsValidator.validate(userSession, login);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      String login = request.getLogin();
       checkLoginExists(dbSession, login);
       List<UserTokenDto> userTokens = dbClient.userTokenDao().selectByLogin(dbSession, login);
       return buildResponse(login, userTokens);
     }
-  }
-
-  private SearchWsRequest toSearchWsRequest(Request request) {
-    SearchWsRequest searchWsRequest = new SearchWsRequest().setLogin(request.param(PARAM_LOGIN));
-    if (searchWsRequest.getLogin() == null) {
-      searchWsRequest.setLogin(userSession.getLogin());
-    }
-    return searchWsRequest;
   }
 
   private static SearchWsResponse buildResponse(String login, List<UserTokenDto> userTokensDto) {

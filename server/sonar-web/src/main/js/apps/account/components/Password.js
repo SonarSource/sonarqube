@@ -27,44 +27,44 @@ export default class Password extends Component {
     errors: null
   };
 
-  handleSuccessfulChange() {
-    this.refs.oldPassword.value = '';
-    this.refs.password.value = '';
-    this.refs.passwordConfirmation.value = '';
+  handleSuccessfulChange = () => {
+    this.oldPassword.value = '';
+    this.password.value = '';
+    this.passwordConfirmation.value = '';
     this.setState({ success: true, errors: null });
-  }
+  };
 
-  handleFailedChange(e) {
+  handleFailedChange = e => {
     e.response.json().then(r => {
-      this.refs.oldPassword.focus();
+      this.oldPassword.focus();
       this.setErrors(r.errors.map(e => e.msg));
     });
-  }
+  };
 
-  setErrors(errors) {
+  setErrors = errors => {
     this.setState({
       success: false,
       errors
     });
-  }
+  };
 
-  handleChangePassword(e) {
+  handleChangePassword = e => {
     e.preventDefault();
 
     const { user } = this.props;
-    const oldPassword = this.refs.oldPassword.value;
-    const password = this.refs.password.value;
-    const passwordConfirmation = this.refs.passwordConfirmation.value;
+    const previousPassword = this.oldPassword.value;
+    const password = this.password.value;
+    const passwordConfirmation = this.passwordConfirmation.value;
 
     if (password !== passwordConfirmation) {
-      this.refs.password.focus();
+      this.password.focus();
       this.setErrors([translate('user.password_doesnt_match_confirmation')]);
     } else {
-      changePassword(user.login, password, oldPassword)
-        .then(this.handleSuccessfulChange.bind(this))
-        .catch(this.handleFailedChange.bind(this));
+      changePassword({ login: user.login, password, previousPassword })
+        .then(this.handleSuccessfulChange)
+        .catch(this.handleFailedChange);
     }
-  }
+  };
 
   render() {
     const { success, errors } = this.state;
@@ -73,7 +73,7 @@ export default class Password extends Component {
       <section>
         <h2 className="spacer-bottom">{translate('my_profile.password.title')}</h2>
 
-        <form onSubmit={this.handleChangePassword.bind(this)}>
+        <form onSubmit={this.handleChangePassword}>
           {success && (
             <div className="alert alert-success">{translate('my_profile.password.changed')}</div>
           )}
@@ -91,7 +91,7 @@ export default class Password extends Component {
               <em className="mandatory">*</em>
             </label>
             <input
-              ref="oldPassword"
+              ref={elem => (this.oldPassword = elem)}
               autoComplete="off"
               id="old_password"
               name="old_password"
@@ -105,7 +105,7 @@ export default class Password extends Component {
               <em className="mandatory">*</em>
             </label>
             <input
-              ref="password"
+              ref={elem => (this.password = elem)}
               autoComplete="off"
               id="password"
               name="password"
@@ -119,7 +119,7 @@ export default class Password extends Component {
               <em className="mandatory">*</em>
             </label>
             <input
-              ref="passwordConfirmation"
+              ref={elem => (this.passwordConfirmation = elem)}
               autoComplete="off"
               id="password_confirmation"
               name="password_confirmation"

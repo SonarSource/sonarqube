@@ -20,16 +20,13 @@
 package org.sonarqube.tests.qualityGate;
 
 import com.codeborne.selenide.Condition;
-import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import com.sonar.orchestrator.Orchestrator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.openqa.selenium.Keys;
 import org.sonar.wsclient.qualitygate.QualityGate;
 import org.sonar.wsclient.qualitygate.QualityGateClient;
 import org.sonarqube.qa.util.Tester;
@@ -76,7 +73,6 @@ public class ProjectQualityGatePageTest {
       selectedQualityGate.should(Condition.text("Default"));
       selectedQualityGate.should(Condition.text(customQualityGate.name()));
     } finally {
-      qualityGateClient().unsetDefault();
       qualityGateClient().destroy(customQualityGate.id());
     }
   }
@@ -90,14 +86,6 @@ public class ProjectQualityGatePageTest {
     SelenideElement selectedQualityGate = page.getSelectedQualityGate();
     selectedQualityGate.shouldNot(Condition.text("Default"));
     selectedQualityGate.should(Condition.text(customQualityGate.name()));
-  }
-
-  @Test
-  public void should_display_none() {
-    qualityGateClient().unsetDefault();
-
-    ProjectQualityGatePage page = openPage();
-    page.assertNotSelected();
   }
 
   @Test
@@ -124,22 +112,8 @@ public class ProjectQualityGatePageTest {
       selectedQualityGate.should(Condition.text("Default"));
       selectedQualityGate.should(Condition.text(customQualityGate.name()));
     } finally {
-      qualityGateClient().unsetDefault();
       qualityGateClient().destroy(customQualityGate.id());
     }
-  }
-
-  @Test
-  @Ignore
-  public void should_set_none() {
-    qualityGateClient().unsetDefault();
-    QualityGate customQualityGate = createCustomQualityGate("should_set_none");
-    associateWithQualityGate(customQualityGate);
-
-    ProjectQualityGatePage page = openPage();
-    Selenide.$(".Select-input input").sendKeys(Keys.UP, Keys.UP, Keys.UP, Keys.ENTER);
-
-    page.assertNotSelected();
   }
 
   private ProjectQualityGatePage openPage() {
@@ -153,7 +127,7 @@ public class ProjectQualityGatePageTest {
   }
 
   private void associateWithQualityGate(QualityGate qualityGate) {
-    tester.wsClient().qualityGates().select(new SelectRequest().setProjectKey("sample").setGateId(String.valueOf(qualityGate.id())));
+    tester.wsClient().qualitygates().select(new SelectRequest().setProjectKey("sample").setGateId(String.valueOf(qualityGate.id())));
   }
 
   private QualityGateClient qualityGateClient() {

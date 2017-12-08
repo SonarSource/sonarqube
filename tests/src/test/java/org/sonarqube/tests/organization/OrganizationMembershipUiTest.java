@@ -30,6 +30,7 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.organization.MembersPage;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
+import org.sonarqube.ws.client.roots.SetRootRequest;
 
 public class OrganizationMembershipUiTest {
 
@@ -45,7 +46,7 @@ public class OrganizationMembershipUiTest {
   public void setUp() {
     tester.settings().setGlobalSetting("sonar.organizations.anyoneCanCreate", "true");
     root = tester.users().generate();
-    tester.wsClient().roots().setRoot(root.getLogin());
+    tester.wsClient().roots().setRoot(new SetRootRequest().setLogin(root.getLogin()));
   }
 
   @After

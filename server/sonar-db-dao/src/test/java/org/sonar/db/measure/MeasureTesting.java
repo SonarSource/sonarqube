@@ -50,10 +50,29 @@ public class MeasureTesting {
       .setMetricId(cursor++)
       .setComponentUuid(String.valueOf(cursor++))
       .setAnalysisUuid(String.valueOf(cursor++))
-      .setDeveloperId(null)
       .setData(String.valueOf(cursor++))
       .setAlertStatus(String.valueOf(cursor++))
       .setAlertText(String.valueOf(cursor++))
-      .setValue((double)cursor++);
+      .setValue((double) cursor++);
+  }
+
+  public static LiveMeasureDto newLiveMeasure() {
+    return new LiveMeasureDto()
+      .setMetricId(cursor++)
+      .setComponentUuid(String.valueOf(cursor++))
+      .setProjectUuid(String.valueOf(cursor++))
+      .setData(String.valueOf(cursor++))
+      .setValue((double) cursor++)
+      .setVariation((double) cursor++);
+  }
+
+  public static LiveMeasureDto newLiveMeasure(ComponentDto component, MetricDto metric) {
+    return new LiveMeasureDto()
+      .setMetricId(metric.getId())
+      .setComponentUuid(component.uuid())
+      .setProjectUuid(component.projectUuid())
+      .setData(String.valueOf(cursor++))
+      .setValue((double) cursor++)
+      .setVariation((double) cursor++);
   }
 }

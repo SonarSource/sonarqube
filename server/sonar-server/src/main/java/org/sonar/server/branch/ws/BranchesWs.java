@@ -23,9 +23,9 @@ import java.util.Arrays;
 import org.sonar.api.server.ws.WebService;
 
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.CONTROLLER;
-import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_BRANCH;
-import static org.sonarqube.ws.client.projectbranches.ProjectBranchesParameters.PARAM_PROJECT;
+import static org.sonar.server.branch.ws.ProjectBranchesParameters.CONTROLLER;
+import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_BRANCH;
+import static org.sonar.server.branch.ws.ProjectBranchesParameters.PARAM_PROJECT;
 
 public class BranchesWs implements WebService {
   private final BranchWsAction[] actions;

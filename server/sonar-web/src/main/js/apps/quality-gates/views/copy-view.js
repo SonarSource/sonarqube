@@ -20,7 +20,7 @@
 import ModalForm from '../../../components/common/modal-form';
 import Template from '../templates/quality-gate-form.hbs';
 import { copyQualityGate } from '../../../api/quality-gates';
-import { parseError } from '../../code/utils';
+import { parseError } from '../../../helpers/request';
 
 export default ModalForm.extend({
   template: Template,

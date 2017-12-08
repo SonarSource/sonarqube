@@ -55,6 +55,10 @@ public class QualityGateDao implements Dao {
     mapper(session).update(qGate.setUpdatedAt(new Date()));
   }
 
+  public void ensureOneBuiltInQualityGate(DbSession dbSession, String builtInName) {
+    mapper(dbSession).ensureOneBuiltInQualityGate(builtInName);
+  }
+
   private static QualityGateMapper mapper(DbSession session) {
     return session.getMapper(QualityGateMapper.class);
   }

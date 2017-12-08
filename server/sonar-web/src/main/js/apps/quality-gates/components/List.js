@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import { Link } from 'react-router';
+import BuiltInQualityGateBadge from './BuiltInQualityGateBadge';
 import { translate } from '../../../helpers/l10n';
 import { getQualityGateUrl } from '../../../helpers/urls';
 
@@ -35,10 +36,13 @@ export default function List({ organization, qualityGates }) {
           <table>
             <tbody>
               <tr>
-                <td className="text-top">{qualityGate.name}</td>
-                <td className="text-top thin nowrap spacer-left">
+                <td>{qualityGate.name}</td>
+                <td className="thin nowrap spacer-left text-right">
                   {qualityGate.isDefault && (
-                    <span className="badge pull-right">{translate('default')}</span>
+                    <span className="text-middle badge">{translate('default')}</span>
+                  )}
+                  {qualityGate.isBuiltIn && (
+                    <BuiltInQualityGateBadge className="little-spacer-left" tooltip={false} />
                   )}
                 </td>
               </tr>

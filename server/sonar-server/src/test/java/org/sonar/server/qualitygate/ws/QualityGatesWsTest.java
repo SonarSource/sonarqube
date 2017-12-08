@@ -20,7 +20,6 @@
 package org.sonar.server.qualitygate.ws;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,22 +27,23 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.server.ws.WebService.Controller;
 import org.sonar.db.DbClient;
 import org.sonar.db.qualitygate.ProjectQgateAssociation;
 import org.sonar.db.qualitygate.ProjectQgateAssociationQuery;
-import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QgateProjectFinder.Association;
 import org.sonar.server.qualitygate.QualityGates;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.RemovedWebServiceHandler;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -59,9 +59,6 @@ public class QualityGatesWsTest {
   @Mock
   private QgateProjectFinder projectFinder;
 
-  @Mock
-  private AppAction appHandler;
-
   WsTester tester;
 
   @Before
@@ -69,19 +66,12 @@ public class QualityGatesWsTest {
     SelectAction selectAction = new SelectAction(mock(DbClient.class), mock(UserSessionRule.class), mock(ComponentFinder.class));
 
     tester = new WsTester(new QualityGatesWs(
-      new ListAction(qGates),
-      new ShowAction(qGates),
       new SearchAction(projectFinder),
       new CreateAction(null, null, null, null),
       new CopyAction(qGates),
-      new DestroyAction(qGates), new RenameAction(qGates),
-      new SetAsDefaultAction(qGates), new UnsetDefaultAction(qGates),
-      new CreateConditionAction(null, null, null, null),
-      new UpdateConditionAction(null, null, null, null),
-      new DeleteConditionAction(null, null, null),
+      new SetAsDefaultAction(qGates),
       selectAction,
-      new DeselectAction(qGates, mock(DbClient.class), mock(ComponentFinder.class)),
-      new AppAction(null, null, null)));
+      new DeselectAction(qGates, mock(DbClient.class), mock(ComponentFinder.class))));
   }
 
   @Test
@@ -90,30 +80,7 @@ public class QualityGatesWsTest {
     assertThat(controller).isNotNull();
     assertThat(controller.path()).isEqualTo("api/qualitygates");
     assertThat(controller.description()).isNotEmpty();
-    assertThat(controller.actions()).hasSize(15);
-
-    Action list = controller.action("list");
-    assertThat(list).isNotNull();
-    assertThat(list.handler()).isNotNull();
-    assertThat(list.since()).isEqualTo("4.3");
-    assertThat(list.isPost()).isFalse();
-    assertThat(list.isInternal()).isFalse();
-
-    Action show = controller.action("show");
-    assertThat(show).isNotNull();
-    assertThat(show.handler()).isNotNull();
-    assertThat(show.since()).isEqualTo("4.3");
-    assertThat(show.isPost()).isFalse();
-    assertThat(show.param("id")).isNotNull();
-    assertThat(show.isInternal()).isFalse();
-
-    Action create = controller.action("create");
-    assertThat(create).isNotNull();
-    assertThat(create.handler()).isNotNull();
-    assertThat(create.since()).isEqualTo("4.3");
-    assertThat(create.isPost()).isTrue();
-    assertThat(create.param("name")).isNotNull();
-    assertThat(create.isInternal()).isFalse();
+    assertThat(controller.actions()).hasSize(7);
 
     Action copy = controller.action("copy");
     assertThat(copy).isNotNull();
@@ -123,23 +90,6 @@ public class QualityGatesWsTest {
     assertThat(copy.param("id")).isNotNull();
     assertThat(copy.param("name")).isNotNull();
     assertThat(copy.isInternal()).isFalse();
-
-    Action destroy = controller.action("destroy");
-    assertThat(destroy).isNotNull();
-    assertThat(destroy.handler()).isNotNull();
-    assertThat(destroy.since()).isEqualTo("4.3");
-    assertThat(destroy.isPost()).isTrue();
-    assertThat(destroy.param("id")).isNotNull();
-    assertThat(destroy.isInternal()).isFalse();
-
-    Action rename = controller.action("rename");
-    assertThat(rename).isNotNull();
-    assertThat(rename.handler()).isNotNull();
-    assertThat(rename.since()).isEqualTo("4.3");
-    assertThat(rename.isPost()).isTrue();
-    assertThat(rename.param("id")).isNotNull();
-    assertThat(rename.param("name")).isNotNull();
-    assertThat(rename.isInternal()).isFalse();
 
     Action setDefault = controller.action("set_as_default");
     assertThat(setDefault).isNotNull();
@@ -153,37 +103,15 @@ public class QualityGatesWsTest {
     assertThat(unsetDefault).isNotNull();
     assertThat(unsetDefault.handler()).isNotNull();
     assertThat(unsetDefault.since()).isEqualTo("4.3");
+    assertThat(unsetDefault.deprecatedSince()).isEqualTo("7.0");
+    assertThat(unsetDefault.changelog())
+      .extracting(Change::getVersion, Change::getDescription)
+      .containsOnly(
+        tuple("7.0", "Unset a quality gate is no more authorized"));
     assertThat(unsetDefault.isPost()).isTrue();
+    assertThat(unsetDefault.handler()).isEqualTo(RemovedWebServiceHandler.INSTANCE);
+    assertThat(unsetDefault.responseExample()).isEqualTo(RemovedWebServiceHandler.INSTANCE.getResponseExample());
     assertThat(unsetDefault.isInternal()).isFalse();
-
-    Action createCondition = controller.action("create_condition");
-    assertThat(createCondition).isNotNull();
-    assertThat(createCondition.handler()).isNotNull();
-    assertThat(createCondition.since()).isEqualTo("4.3");
-    assertThat(createCondition.isPost()).isTrue();
-    assertThat(createCondition.param("gateId")).isNotNull();
-    assertThat(createCondition.param("metric")).isNotNull();
-    assertThat(createCondition.param("op")).isNotNull();
-    assertThat(createCondition.param("warning")).isNotNull();
-    assertThat(createCondition.param("error")).isNotNull();
-    assertThat(createCondition.param("period")).isNotNull();
-    assertThat(createCondition.isInternal()).isFalse();
-
-    Action updateCondition = controller.action("update_condition");
-    assertThat(updateCondition).isNotNull();
-    assertThat(updateCondition.handler()).isNotNull();
-    assertThat(updateCondition.since()).isEqualTo("4.3");
-    assertThat(updateCondition.isPost()).isTrue();
-    assertThat(updateCondition.param("id")).isNotNull();
-    assertThat(updateCondition.param("metric")).isNotNull();
-    assertThat(updateCondition.param("op")).isNotNull();
-    assertThat(updateCondition.param("warning")).isNotNull();
-    assertThat(updateCondition.param("error")).isNotNull();
-    assertThat(updateCondition.param("period")).isNotNull();
-    assertThat(updateCondition.isInternal()).isFalse();
-
-    Action appInit = controller.action("app");
-    assertThat(appInit.isInternal()).isTrue();
   }
 
   @Test
@@ -192,117 +120,6 @@ public class QualityGatesWsTest {
     when(qGates.copy(24L, name)).thenReturn(new QualityGateDto().setId(42L).setName(name));
     tester.newPostRequest("api/qualitygates", "copy").setParam("id", "24").setParam("name", name).execute()
       .assertJson("{\"id\":42,\"name\":\"Copied QG\"}");
-  }
-
-  @Test
-  public void rename_nominal() throws Exception {
-    Long id = 42L;
-    String name = "New QG";
-    when(qGates.rename(id, name)).thenReturn(new QualityGateDto().setId(id).setName(name));
-    tester.newPostRequest("api/qualitygates", "rename").setParam("id", id.toString()).setParam("name", name).execute()
-      .assertJson("{\"id\":42,\"name\":\"New QG\"}");
-    ;
-  }
-
-  @Test
-  public void set_as_default_nominal() throws Exception {
-    Long id = 42L;
-    tester.newPostRequest("api/qualitygates", "set_as_default").setParam("id", id.toString()).execute()
-      .assertNoContent();
-    verify(qGates).setDefault(id);
-  }
-
-  @Test
-  public void unset_default_nominal() throws Exception {
-    tester.newPostRequest("api/qualitygates", "unset_default").execute()
-      .assertNoContent();
-    verify(qGates).setDefault(null);
-  }
-
-  @Test
-  public void destroy_nominal() throws Exception {
-    Long id = 42L;
-    tester.newPostRequest("api/qualitygates", "destroy").setParam("id", id.toString()).execute()
-      .assertNoContent();
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void destroy_without_id() throws Exception {
-    tester.newPostRequest("api/qualitygates", "destroy").execute();
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void destroy_with_invalid_id() throws Exception {
-    tester.newPostRequest("api/qualitygates", "destroy").setParam("id", "polop").execute();
-  }
-
-  @Test
-  public void list_nominal() throws Exception {
-    when(qGates.list()).thenReturn(Lists.newArrayList(
-      new QualityGateDto().setId(42L).setName("Golden"),
-      new QualityGateDto().setId(43L).setName("Star"),
-      new QualityGateDto().setId(666L).setName("Ninth")));
-    tester.newGetRequest("api/qualitygates", "list").execute().assertJson(
-      "{\"qualitygates\":[{\"id\":42,\"name\":\"Golden\"},{\"id\":43,\"name\":\"Star\"},{\"id\":666,\"name\":\"Ninth\"}]}");
-  }
-
-  @Test
-  public void list_with_default() throws Exception {
-    QualityGateDto defaultQgate = new QualityGateDto().setId(42L).setName("Golden");
-    when(qGates.list()).thenReturn(Lists.newArrayList(
-      defaultQgate,
-      new QualityGateDto().setId(43L).setName("Star"),
-      new QualityGateDto().setId(666L).setName("Ninth")));
-    when(qGates.getDefault()).thenReturn(defaultQgate);
-    tester.newGetRequest("api/qualitygates", "list").execute().assertJson(
-      "{\"qualitygates\":[{\"id\":42,\"name\":\"Golden\"},{\"id\":43,\"name\":\"Star\"},{\"id\":666,\"name\":\"Ninth\"}],\"default\":42}");
-  }
-
-  @Test
-  public void show_empty() throws Exception {
-    long gateId = 12345L;
-    when(qGates.get(gateId)).thenReturn(new QualityGateDto().setId(gateId).setName("Golden"));
-    tester.newGetRequest("api/qualitygates", "show").setParam("id", Long.toString(gateId)).execute().assertJson(
-      "{\"id\":12345,\"name\":\"Golden\"}");
-  }
-
-  @Test
-  public void show_by_id_nominal() throws Exception {
-    long gateId = 12345L;
-    when(qGates.get(gateId)).thenReturn(new QualityGateDto().setId(gateId).setName("Golden"));
-    when(qGates.listConditions(gateId)).thenReturn(ImmutableList.of(
-      new QualityGateConditionDto().setId(1L).setMetricKey("ncloc").setOperator("GT").setErrorThreshold("10000"),
-      new QualityGateConditionDto().setId(2L).setMetricKey("new_coverage").setOperator("LT").setWarningThreshold("90").setPeriod(3)));
-    tester.newGetRequest("api/qualitygates", "show").setParam("id", Long.toString(gateId)).execute().assertJson(
-      "{\"id\":12345,\"name\":\"Golden\",\"conditions\":["
-        + "{\"id\":1,\"metric\":\"ncloc\",\"op\":\"GT\",\"error\":\"10000\"},"
-        + "{\"id\":2,\"metric\":\"new_coverage\",\"op\":\"LT\",\"warning\":\"90\",\"period\":3}"
-        + "]}");
-  }
-
-  @Test
-  public void show_by_name_nominal() throws Exception {
-    long qGateId = 12345L;
-    String gateName = "Golden";
-    when(qGates.get(gateName)).thenReturn(new QualityGateDto().setId(qGateId).setName(gateName));
-    when(qGates.listConditions(qGateId)).thenReturn(ImmutableList.of(
-      new QualityGateConditionDto().setId(1L).setMetricKey("ncloc").setOperator("GT").setErrorThreshold("10000"),
-      new QualityGateConditionDto().setId(2L).setMetricKey("new_coverage").setOperator("LT").setWarningThreshold("90").setPeriod(3)));
-    tester.newGetRequest("api/qualitygates", "show").setParam("name", gateName).execute().assertJson(
-      "{\"id\":12345,\"name\":\"Golden\",\"conditions\":["
-        + "{\"id\":1,\"metric\":\"ncloc\",\"op\":\"GT\",\"error\":\"10000\"},"
-        + "{\"id\":2,\"metric\":\"new_coverage\",\"op\":\"LT\",\"warning\":\"90\",\"period\":3}"
-        + "]}");
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void show_without_parameters() throws Exception {
-    tester.newGetRequest("api/qualitygates", "show").execute();
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void show_with_both_parameters() throws Exception {
-    tester.newGetRequest("api/qualitygates", "show").setParam("id", "12345").setParam("name", "Polop").execute();
   }
 
   @Test

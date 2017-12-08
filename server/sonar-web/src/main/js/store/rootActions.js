@@ -25,7 +25,7 @@ import { getAllMetrics } from '../api/metrics';
 import { receiveLanguages } from './languages/actions';
 import { receiveMetrics } from './metrics/actions';
 import { addGlobalErrorMessage } from './globalMessages/duck';
-import { parseError } from '../apps/code/utils';
+import { parseError } from '../helpers/request';
 import { setAppState } from './appState/duck';
 import { receiveOrganizations } from './organizations/duck';
 
@@ -45,7 +45,7 @@ export const fetchMetrics = () => dispatch =>
   getAllMetrics().then(metrics => dispatch(receiveMetrics(metrics)), onFail(dispatch));
 
 export const fetchOrganizations = (organizations /*: Array<string> | void */) => dispatch =>
-  getOrganizations(organizations).then(
+  getOrganizations({ organizations: organizations && organizations.join() }).then(
     r => dispatch(receiveOrganizations(r.organizations)),
     onFail(dispatch)
   );

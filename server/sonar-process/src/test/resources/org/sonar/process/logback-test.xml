@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<configuration debug="true">
+<configuration debug="false">
+  <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator"/>
 
-  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
       <pattern>%d{HH:mm:ss.SSS} %-5level - %msg%n</pattern>
     </encoder>
@@ -13,8 +14,13 @@
     </encoder>
   </appender>
 
-  <root level="INFO">
-    <appender-ref ref="STDOUD" />
+  <root>
+    <level value="INFO"/>
+    <appender-ref ref="CONSOLE" />
     <appender-ref ref="TESTING" />
   </root>
+
+  <logger name="ch.qos.logback">
+    <level value="WARN"/>
+  </logger>
 </configuration>

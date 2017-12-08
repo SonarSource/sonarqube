@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import { some } from 'lodash';
 import { QualityGate } from '../../api/quality-gates';
 import Select from '../../components/controls/Select';
 import { translate } from '../../helpers/l10n';
@@ -96,11 +95,6 @@ export default class Form extends React.PureComponent<Props, State> {
       isDefault: gate.isDefault
     }));
 
-    const hasDefault = some(allGates, gate => gate.isDefault);
-    if (!hasDefault) {
-      options.unshift({ value: '', label: translate('none') });
-    }
-
     return (
       <Select
         clearable={false}
@@ -108,7 +102,6 @@ export default class Form extends React.PureComponent<Props, State> {
         onChange={this.handleChange}
         optionRenderer={this.renderGateName}
         options={options}
-        placeholder={translate('none')}
         style={{ width: 300 }}
         value={gate && String(gate.id)}
         valueRenderer={this.renderGateName}

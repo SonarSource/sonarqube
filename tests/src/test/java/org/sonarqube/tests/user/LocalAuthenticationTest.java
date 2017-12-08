@@ -39,11 +39,12 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.user.CreateRequest;
-import org.sonarqube.ws.client.usertoken.GenerateWsRequest;
-import org.sonarqube.ws.client.usertoken.RevokeWsRequest;
-import org.sonarqube.ws.client.usertoken.SearchWsRequest;
-import org.sonarqube.ws.client.usertoken.UserTokensService;
+import org.sonarqube.ws.client.users.CreateRequest;
+import org.sonarqube.ws.client.users.DeactivateRequest;
+import org.sonarqube.ws.client.usertokens.GenerateRequest;
+import org.sonarqube.ws.client.usertokens.RevokeRequest;
+import org.sonarqube.ws.client.usertokens.SearchRequest;
+import org.sonarqube.ws.client.usertokens.UserTokensService;
 import util.selenium.Selenese;
 
 import static java.lang.String.format;
@@ -106,7 +107,7 @@ public class LocalAuthenticationTest {
     User user = tester.users().generate();
     String tokenName = "Validate token based authentication";
     UserTokensService tokensService = tester.wsClient().userTokens();
-    UserTokens.GenerateWsResponse generateWsResponse = tokensService.generate(new GenerateWsRequest()
+    UserTokens.GenerateWsResponse generateWsResponse = tokensService.generate(new GenerateRequest()
       .setLogin(user.getLogin())
       .setName(tokenName));
     WsClient wsClient = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
@@ -117,10 +118,10 @@ public class LocalAuthenticationTest {
 
     assertThat(response.content()).isEqualTo("{\"valid\":true}");
 
-    UserTokens.SearchWsResponse searchResponse = tokensService.search(new SearchWsRequest().setLogin(user.getLogin()));
+    UserTokens.SearchWsResponse searchResponse = tokensService.search(new SearchRequest().setLogin(user.getLogin()));
     assertThat(searchResponse.getUserTokensCount()).isEqualTo(1);
-    tokensService.revoke(new RevokeWsRequest().setLogin(user.getLogin()).setName(tokenName));
-    searchResponse = tokensService.search(new SearchWsRequest().setLogin(user.getLogin()));
+    tokensService.revoke(new RevokeRequest().setLogin(user.getLogin()).setName(tokenName));
+    searchResponse = tokensService.search(new SearchRequest().setLogin(user.getLogin()));
     assertThat(searchResponse.getUserTokensCount()).isEqualTo(0);
   }
 
@@ -235,15 +236,14 @@ public class LocalAuthenticationTest {
   @Test
   public void authenticate_on_user_that_was_disabled() {
     User user = tester.users().generate(u -> u.setLogin("test").setPassword("password"));
-    tester.users().service().deactivate(user.getLogin());
+    tester.users().service().deactivate(new DeactivateRequest().setLogin(user.getLogin()));
 
-    tester.users().service().create(CreateRequest.builder()
+    tester.users().service().create(new CreateRequest()
       .setLogin("test")
       .setName("Test")
       .setEmail("test@email.com")
       .setScmAccounts(asList("test1", "test2"))
-      .setPassword("password")
-      .build());
+      .setPassword("password"));
 
     assertThat(checkAuthenticationWithAuthenticateWebService("test", "password")).isTrue();
     assertThat(tester.users().getByLogin("test").get())

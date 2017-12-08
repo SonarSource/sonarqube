@@ -22,7 +22,7 @@ import { RouterState, IndexRouteProps } from 'react-router';
 const routes = [
   {
     getIndexRoute(_: RouterState, callback: (err: any, route: IndexRouteProps) => any) {
-      import('./components/UsersAppContainer').then(i => callback(null, { component: i.default }));
+      import('./UsersAppContainer').then(i => callback(null, { component: i.default }));
     }
   }
 ];

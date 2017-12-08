@@ -28,7 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.tests.Category4Suite;
-import org.sonarqube.ws.client.qualityprofile.AddProjectRequest;
+import org.sonarqube.ws.client.qualityprofiles.AddProjectRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -237,10 +237,10 @@ public class IssueExclusionsTest {
     ItUtils.restoreProfile(orchestrator, getClass().getResource("/exclusions/IssueExclusionsTest/with-many-rules.xml"));
 
     tester.projects().provision(p -> p
-      .setKey("com.sonarsource.it.samples:multi-modules-exclusions")
+      .setProject("com.sonarsource.it.samples:multi-modules-exclusions")
       .setName("Sonar :: Integration Tests :: Multi-modules With Exclusions"));
-    tester.wsClient().qualityProfiles().addProject(AddProjectRequest.builder().setProjectKey("com.sonarsource.it.samples:multi-modules-exclusions")
-      .setLanguage("xoo").setQualityProfile("with-many-rules").build());
+    tester.wsClient().qualityprofiles().addProject(new AddProjectRequest().setProject("com.sonarsource.it.samples:multi-modules-exclusions")
+      .setLanguage("xoo").setQualityProfile("with-many-rules"));
 
     SonarScanner scan = SonarScanner.create(ItUtils.projectDir(PROJECT_DIR))
       .setProperty("sonar.cpd.exclusions", "**/*")

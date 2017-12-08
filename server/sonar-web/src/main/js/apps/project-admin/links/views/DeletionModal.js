@@ -20,7 +20,7 @@
 import ModalForm from '../../../../components/common/modal-form';
 import Template from './DeletionModalTemplate.hbs';
 import { deleteLink } from '../../../../api/projectLinks';
-import { parseError } from '../../../code/utils';
+import { parseError } from '../../../../helpers/request';
 
 export default ModalForm.extend({
   template: Template,

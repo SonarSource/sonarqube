@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.measures.MetricFinder;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
@@ -47,7 +46,6 @@ import org.sonar.server.ws.WsActionTester;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.Mockito.mock;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
 
@@ -63,7 +61,7 @@ public class DeselectActionTest {
   private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private TestDefaultOrganizationProvider organizationProvider = TestDefaultOrganizationProvider.from(db);
-  private QualityGates qualityGates = new QualityGates(dbClient, mock(MetricFinder.class), userSession, organizationProvider);
+  private QualityGates qualityGates = new QualityGates(dbClient, userSession, organizationProvider);
   private WsActionTester ws;
   private ComponentDto project;
   private QualityGateDto gate;
@@ -87,8 +85,7 @@ public class DeselectActionTest {
     assertThat(def.isPost()).isTrue();
     assertThat(def.since()).isEqualTo("4.3");
     assertThat(def.changelog()).extracting(Change::getVersion, Change::getDescription).containsExactly(
-      tuple("6.6", "The parameter 'gateId' was removed")
-    );
+      tuple("6.6", "The parameter 'gateId' was removed"));
 
     assertThat(def.params()).extracting(WebService.Param::key)
       .containsExactlyInAnyOrder("projectId", "projectKey");

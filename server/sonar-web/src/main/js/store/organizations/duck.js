@@ -30,6 +30,7 @@ export type Organization = {
   canProvisionProjects?: boolean,
   canUpdateProjectsVisibilityToPrivate?: boolean,
   description?: string,
+  isAdmin: bool,
   key: string,
   name: string,
   pages?: Array<{ key: string, name: string }>,

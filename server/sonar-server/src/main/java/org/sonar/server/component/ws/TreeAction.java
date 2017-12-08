@@ -32,10 +32,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Change;
-import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
@@ -52,7 +52,6 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.TreeWsResponse;
-import org.sonarqube.ws.client.component.TreeWsRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
@@ -75,7 +74,7 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COM
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STRATEGY;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 
 public class TreeAction implements ComponentsWsAction {
 
@@ -144,10 +143,10 @@ public class TreeAction implements ComponentsWsAction {
       .setExampleValue(NAME_SORT + ", " + PATH_SORT);
 
     action.createParam(Param.TEXT_QUERY)
-      .setDescription(format("Limit search to: <ul>" +
+      .setDescription("Limit search to: <ul>" +
         "<li>component names that contain the supplied string</li>" +
         "<li>component keys that are exactly the same as the supplied string</li>" +
-        "</ul>"))
+        "</ul>")
       .setMinimumLength(QUERY_MINIMUM_LENGTH)
       .setExampleValue("FILE_NAM");
 
@@ -165,31 +164,31 @@ public class TreeAction implements ComponentsWsAction {
   }
 
   @Override
-  public void handle(Request request, Response response) throws Exception {
+  public void handle(org.sonar.api.server.ws.Request request, Response response) throws Exception {
     TreeWsResponse treeWsResponse = doHandle(toTreeWsRequest(request));
     writeProtobuf(treeWsResponse, request, response);
   }
 
-  private TreeWsResponse doHandle(TreeWsRequest treeWsRequest) {
+  private TreeWsResponse doHandle(Request treeRequest) {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      ComponentDto baseComponent = loadComponent(dbSession, treeWsRequest);
+      ComponentDto baseComponent = loadComponent(dbSession, treeRequest);
       checkPermissions(baseComponent);
       OrganizationDto organizationDto = componentFinder.getOrganization(dbSession, baseComponent);
 
-      ComponentTreeQuery query = toComponentTreeQuery(treeWsRequest, baseComponent);
+      ComponentTreeQuery query = toComponentTreeQuery(treeRequest, baseComponent);
       List<ComponentDto> components = dbClient.componentDao().selectDescendants(dbSession, query);
       int total = components.size();
-      components = sortComponents(components, treeWsRequest);
-      components = paginateComponents(components, treeWsRequest);
+      components = sortComponents(components, treeRequest);
+      components = paginateComponents(components, treeRequest);
 
       Map<String, ComponentDto> referenceComponentsByUuid = searchReferenceComponentsByUuid(dbSession, components);
 
       return buildResponse(baseComponent, organizationDto, components, referenceComponentsByUuid,
-        Paging.forPageIndex(treeWsRequest.getPage()).withPageSize(treeWsRequest.getPageSize()).andTotal(total));
+        Paging.forPageIndex(treeRequest.getPage()).withPageSize(treeRequest.getPageSize()).andTotal(total));
     }
   }
 
-  private ComponentDto loadComponent(DbSession dbSession, TreeWsRequest request) {
+  private ComponentDto loadComponent(DbSession dbSession, Request request) {
     String componentId = request.getBaseComponentId();
     String componentKey = request.getBaseComponentKey();
     String branch = request.getBranch();
@@ -234,7 +233,7 @@ public class TreeAction implements ComponentsWsAction {
   }
 
   private static Components.Component.Builder toWsComponent(ComponentDto component, OrganizationDto organizationDto,
-                                                            Map<String, ComponentDto> referenceComponentsByUuid) {
+    Map<String, ComponentDto> referenceComponentsByUuid) {
     Components.Component.Builder wsComponent = componentDtoToWsComponent(component, organizationDto, Optional.empty());
 
     ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyResourceUuid());
@@ -246,7 +245,7 @@ public class TreeAction implements ComponentsWsAction {
     return wsComponent;
   }
 
-  private ComponentTreeQuery toComponentTreeQuery(TreeWsRequest request, ComponentDto baseComponent) {
+  private ComponentTreeQuery toComponentTreeQuery(Request request, ComponentDto baseComponent) {
     List<String> childrenQualifiers = childrenQualifiers(request, baseComponent.qualifier());
 
     ComponentTreeQuery.Builder query = ComponentTreeQuery.builder()
@@ -263,7 +262,7 @@ public class TreeAction implements ComponentsWsAction {
   }
 
   @CheckForNull
-  private List<String> childrenQualifiers(TreeWsRequest request, String baseQualifier) {
+  private List<String> childrenQualifiers(Request request, String baseQualifier) {
     List<String> requestQualifiers = request.getQualifiers();
     List<String> childrenQualifiers = null;
     if (LEAVES_STRATEGY.equals(request.getStrategy())) {
@@ -283,8 +282,8 @@ public class TreeAction implements ComponentsWsAction {
     return new ArrayList<>(qualifiersIntersection);
   }
 
-  private static TreeWsRequest toTreeWsRequest(Request request) {
-    return new TreeWsRequest()
+  private static Request toTreeWsRequest(org.sonar.api.server.ws.Request request) {
+    return new Request()
       .setBaseComponentId(request.param(PARAM_COMPONENT_ID))
       .setBaseComponentKey(request.param(PARAM_COMPONENT))
       .setBranch(request.param(PARAM_BRANCH))
@@ -297,12 +296,12 @@ public class TreeAction implements ComponentsWsAction {
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
   }
 
-  private static List<ComponentDto> paginateComponents(List<ComponentDto> components, TreeWsRequest wsRequest) {
+  private static List<ComponentDto> paginateComponents(List<ComponentDto> components, Request wsRequest) {
     return components.stream().skip(offset(wsRequest.getPage(), wsRequest.getPageSize()))
       .limit(wsRequest.getPageSize()).collect(toList());
   }
 
-  public static List<ComponentDto> sortComponents(List<ComponentDto> components, TreeWsRequest wsRequest) {
+  private static List<ComponentDto> sortComponents(List<ComponentDto> components, Request wsRequest) {
     List<String> sortParameters = wsRequest.getSort();
     if (sortParameters == null || sortParameters.isEmpty()) {
       return components;
@@ -332,6 +331,145 @@ public class TreeAction implements ComponentsWsAction {
       ordering = ordering.reverse();
     }
     return ordering.nullsLast().onResultOf(function);
+  }
+
+  private static class Request {
+    private String baseComponentId;
+    private String baseComponentKey;
+    private String component;
+    private String branch;
+    private String strategy;
+    private List<String> qualifiers;
+    private String query;
+    private List<String> sort;
+    private Boolean asc;
+    private Integer page;
+    private Integer pageSize;
+
+    /**
+     * @deprecated since 6.4, please use {@link #getComponent()} instead
+     */
+    @Deprecated
+    @CheckForNull
+    private String getBaseComponentId() {
+      return baseComponentId;
+    }
+
+    /**
+     * @deprecated since 6.4, please use {@link #setComponent(String)} instead
+     */
+    @Deprecated
+    private Request setBaseComponentId(@Nullable String baseComponentId) {
+      this.baseComponentId = baseComponentId;
+      return this;
+    }
+
+    /**
+     * @deprecated since 6.4, please use {@link #getComponent()} instead
+     */
+    @Deprecated
+    @CheckForNull
+    private String getBaseComponentKey() {
+      return baseComponentKey;
+    }
+
+    /**
+     * @deprecated since 6.4, please use {@link #setComponent(String)} instead
+     */
+    @Deprecated
+    private Request setBaseComponentKey(@Nullable String baseComponentKey) {
+      this.baseComponentKey = baseComponentKey;
+      return this;
+    }
+
+    public Request setComponent(@Nullable String component) {
+      this.component = component;
+      return this;
+    }
+
+    @CheckForNull
+    private String getComponent() {
+      return component;
+    }
+
+    @CheckForNull
+    private String getBranch() {
+      return branch;
+    }
+
+    private Request setBranch(@Nullable String branch) {
+      this.branch = branch;
+      return this;
+    }
+
+    @CheckForNull
+    private String getStrategy() {
+      return strategy;
+    }
+
+    private Request setStrategy(@Nullable String strategy) {
+      this.strategy = strategy;
+      return this;
+    }
+
+    @CheckForNull
+    private List<String> getQualifiers() {
+      return qualifiers;
+    }
+
+    private Request setQualifiers(@Nullable List<String> qualifiers) {
+      this.qualifiers = qualifiers;
+      return this;
+    }
+
+    @CheckForNull
+    private String getQuery() {
+      return query;
+    }
+
+    private Request setQuery(@Nullable String query) {
+      this.query = query;
+      return this;
+    }
+
+    @CheckForNull
+    private List<String> getSort() {
+      return sort;
+    }
+
+    private Request setSort(@Nullable List<String> sort) {
+      this.sort = sort;
+      return this;
+    }
+
+    private Boolean getAsc() {
+      return asc;
+    }
+
+    private Request setAsc(@Nullable Boolean asc) {
+      this.asc = asc;
+      return this;
+    }
+
+    @CheckForNull
+    private Integer getPage() {
+      return page;
+    }
+
+    private Request setPage(@Nullable Integer page) {
+      this.page = page;
+      return this;
+    }
+
+    @CheckForNull
+    private Integer getPageSize() {
+      return pageSize;
+    }
+
+    private Request setPageSize(@Nullable Integer pageSize) {
+      this.pageSize = pageSize;
+      return this;
+    }
   }
 
 }

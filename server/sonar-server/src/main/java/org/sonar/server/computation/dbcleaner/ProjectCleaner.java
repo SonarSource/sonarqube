@@ -54,11 +54,11 @@ public class ProjectCleaner {
     this.purgeListener = purgeListener;
   }
 
-  public ProjectCleaner purge(DbSession session, IdUuidPair idUuidPair, Configuration projectConfig, Collection<String> disabledComponentUuids) {
+  public ProjectCleaner purge(DbSession session, IdUuidPair rootId, Configuration projectConfig, Collection<String> disabledComponentUuids) {
     long start = System.currentTimeMillis();
     profiler.reset();
 
-    PurgeConfiguration configuration = newDefaultPurgeConfiguration(projectConfig, idUuidPair, disabledComponentUuids);
+    PurgeConfiguration configuration = newDefaultPurgeConfiguration(projectConfig, rootId, disabledComponentUuids);
 
     periodCleaner.clean(session, configuration.rootProjectIdUuid().getUuid(), projectConfig);
     purgeDao.purge(session, configuration, purgeListener, profiler);

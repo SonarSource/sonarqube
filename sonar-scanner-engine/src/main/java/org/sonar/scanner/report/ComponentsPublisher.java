@@ -19,6 +19,7 @@
  */
 package org.sonar.scanner.report;
 
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
@@ -122,6 +123,11 @@ public class ComponentsPublisher implements ReportPublisherStep {
     String path = getPath(component);
     if (path != null) {
       builder.setPath(path);
+
+      String projectRelativePath = getProjectRelativePath(component);
+      if (projectRelativePath != null) {
+        builder.setProjectRelativePath(projectRelativePath);
+      }
     }
 
     for (InputComponent child : children) {
@@ -187,7 +193,26 @@ public class ComponentsPublisher implements ReportPublisherStep {
       InputModule module = (InputModule) component;
       return moduleHierarchy.relativePath(module);
     }
-    throw new IllegalStateException("Unkown component: " + component.getClass());
+    throw new IllegalStateException("Unknown component: " + component.getClass());
+  }
+
+  @CheckForNull
+  private String getProjectRelativePath(DefaultInputComponent component) {
+    if (component instanceof InputFile) {
+      DefaultInputFile inputFile = (DefaultInputFile) component;
+      return inputFile.getProjectRelativePath();
+    }
+
+    Path projectBaseDir = moduleHierarchy.root().getBaseDir();
+    if (component instanceof InputDir) {
+      InputDir inputDir = (InputDir) component;
+      return projectBaseDir.relativize(inputDir.path()).toString();
+    }
+    if (component instanceof InputModule) {
+      DefaultInputModule module = (DefaultInputModule) component;
+      return projectBaseDir.relativize(module.getBaseDir()).toString();
+    }
+    throw new IllegalStateException("Unknown component: " + component.getClass());
   }
 
   private String getVersion(DefaultInputModule module) {

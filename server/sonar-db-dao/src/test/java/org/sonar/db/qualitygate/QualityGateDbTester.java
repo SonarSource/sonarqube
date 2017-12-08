@@ -19,6 +19,8 @@
  */
 package org.sonar.db.qualitygate;
 
+import java.util.Arrays;
+import java.util.function.Consumer;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -41,12 +43,17 @@ public class QualityGateDbTester {
     this.dbSession = db.getSession();
   }
 
-  public QualityGateDto insertQualityGate() {
-    return insertQualityGate(randomAlphanumeric(30));
+  public QualityGateDto insertQualityGate(String name) {
+    return insertQualityGate(qualityGate -> qualityGate.setName(name));
   }
 
-  public QualityGateDto insertQualityGate(String name) {
-    QualityGateDto updatedUser = dbClient.qualityGateDao().insert(dbSession, new QualityGateDto().setName(name));
+  @SafeVarargs
+  public final QualityGateDto insertQualityGate(Consumer<QualityGateDto>... dtoPopulators) {
+    QualityGateDto qualityGate = new QualityGateDto()
+      .setName(randomAlphanumeric(30))
+      .setBuiltIn(false);
+    Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(qualityGate));
+    QualityGateDto updatedUser = dbClient.qualityGateDao().insert(dbSession, qualityGate);
     db.commit();
     return updatedUser;
   }
@@ -72,12 +79,14 @@ public class QualityGateDbTester {
     db.commit();
   }
 
-  public QualityGateConditionDto addCondition(QualityGateDto qualityGate, MetricDto metric) {
+  @SafeVarargs
+  public final QualityGateConditionDto addCondition(QualityGateDto qualityGate, MetricDto metric, Consumer<QualityGateConditionDto>... dtoPopulators) {
     QualityGateConditionDto condition = new QualityGateConditionDto().setQualityGateId(qualityGate.getId())
       .setMetricId(metric.getId())
       .setOperator("GT")
       .setWarningThreshold(randomNumeric(10))
       .setErrorThreshold(randomNumeric(10));
+    Arrays.stream(dtoPopulators).forEach(dtoPopulator -> dtoPopulator.accept(condition));
     dbClient.gateConditionDao().insert(condition, dbSession);
     db.commit();
     return condition;

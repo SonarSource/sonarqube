@@ -31,8 +31,11 @@ import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.permission.AddProjectCreatorToTemplateWsRequest;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
@@ -55,8 +58,8 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
     this.system = system;
   }
 
-  private static AddProjectCreatorToTemplateWsRequest toWsRequest(Request request) {
-    AddProjectCreatorToTemplateWsRequest wsRequest = AddProjectCreatorToTemplateWsRequest.builder()
+  private static AddProjectCreatorToTemplateRequest toWsRequest(Request request) {
+    AddProjectCreatorToTemplateRequest wsRequest = AddProjectCreatorToTemplateRequest.builder()
       .setPermission(request.mandatoryParam(PARAM_PERMISSION))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
       .setOrganization(request.param(PARAM_ORGANIZATION))
@@ -85,7 +88,7 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
     response.noContent();
   }
 
-  private void doHandle(AddProjectCreatorToTemplateWsRequest request) {
+  private void doHandle(AddProjectCreatorToTemplateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, WsTemplateRef.newTemplateRef(
         request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
@@ -101,7 +104,7 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
     }
   }
 
-  private void addTemplatePermission(DbSession dbSession, AddProjectCreatorToTemplateWsRequest request, PermissionTemplateDto template) {
+  private void addTemplatePermission(DbSession dbSession, AddProjectCreatorToTemplateRequest request, PermissionTemplateDto template) {
     long now = system.now();
     dbClient.permissionTemplateCharacteristicDao().insert(dbSession, new PermissionTemplateCharacteristicDto()
       .setPermission(request.getPermission())
@@ -118,5 +121,77 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
       .setWithProjectCreator(true);
     dbClient.permissionTemplateCharacteristicDao().update(dbSession, targetTemplatePermission);
     dbSession.commit();
+  }
+
+  private static class AddProjectCreatorToTemplateRequest {
+    private final String templateId;
+    private final String organization;
+    private final String templateName;
+    private final String permission;
+
+    private AddProjectCreatorToTemplateRequest(Builder builder) {
+      this.templateId = builder.templateId;
+      this.organization = builder.organization;
+      this.templateName = builder.templateName;
+      this.permission = requireNonNull(builder.permission);
+    }
+
+    @CheckForNull
+    public String getTemplateId() {
+      return templateId;
+    }
+
+    @CheckForNull
+    public String getOrganization() {
+      return organization;
+    }
+
+    @CheckForNull
+    public String getTemplateName() {
+      return templateName;
+    }
+
+    public String getPermission() {
+      return permission;
+    }
+
+    public static Builder builder() {
+      return new Builder();
+    }
+  }
+
+  private static class Builder {
+    private String templateId;
+    private String organization;
+    private String templateName;
+    private String permission;
+
+    private Builder() {
+      // enforce method constructor
+    }
+
+    public Builder setTemplateId(@Nullable String templateId) {
+      this.templateId = templateId;
+      return this;
+    }
+
+    public Builder setOrganization(@Nullable String s) {
+      this.organization = s;
+      return this;
+    }
+
+    public Builder setTemplateName(@Nullable String templateName) {
+      this.templateName = templateName;
+      return this;
+    }
+
+    public Builder setPermission(@Nullable String permission) {
+      this.permission = permission;
+      return this;
+    }
+
+    public AddProjectCreatorToTemplateRequest build() {
+      return new AddProjectCreatorToTemplateRequest(this);
+    }
   }
 }

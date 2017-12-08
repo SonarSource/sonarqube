@@ -66,14 +66,14 @@ public class QualityGateUiTest {
   @Test
   public void display_alerts_correctly_in_history_page() {
     Project project = tester.projects().provision();
-    Qualitygates.CreateWsResponse qGate = tester.qGates().generate();
+    Qualitygates.CreateResponse qGate = tester.qGates().generate();
     tester.qGates().associateProject(qGate, project);
 
     String firstAnalysisDate = DateFormatUtils.ISO_DATE_FORMAT.format(addDays(new Date(), -2));
     String secondAnalysisDate = DateFormatUtils.ISO_DATE_FORMAT.format(addDays(new Date(), -1));
 
     // with this configuration, project should have an Orange alert
-    Qualitygates.CreateConditionWsResponse lowThresholds = tester.qGates().service()
+    Qualitygates.CreateConditionResponse lowThresholds = tester.qGates().service()
       .createCondition(new CreateConditionRequest().setGateId(String.valueOf(qGate.getId())).setMetric("lines").setOp("GT").setWarning("5").setError("50"));
     scanSampleWithDate(project, firstAnalysisDate);
     // with this configuration, project should have a Green alert
@@ -113,7 +113,7 @@ public class QualityGateUiTest {
       .logIn().submitCredentials(login)
       .openQualityGates()
       .canNotCreateQG()
-      .displayQualityGateDetail("SonarQube way");
+      .displayQualityGateDetail("Sonar way");
     tester.openBrowser()
       .logIn().submitCredentials(admin)
       .openQualityGates()

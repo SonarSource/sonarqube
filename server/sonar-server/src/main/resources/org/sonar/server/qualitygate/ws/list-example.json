@@ -1,0 +1,36 @@
+{
+  "qualitygates": [
+    {
+      "id": 8,
+      "name": "Sonar way",
+      "isDefault": true,
+      "isBuiltIn": true,
+      "actions": {
+        "rename": false,
+        "setAsDefault": false,
+        "copy": true,
+        "associateProjects": false,
+        "delete": false,
+        "manageConditions": false
+      }
+    },
+    {
+      "id": 9,
+      "name": "Sonar way - Without Coverage",
+      "isDefault": false,
+      "isBuiltIn": false,
+      "actions": {
+        "rename": true,
+        "setAsDefault": true,
+        "copy": true,
+        "associateProjects": true,
+        "delete": true,
+        "manageConditions": true
+      }
+    }
+  ],
+  "default": 8,
+  "actions": {
+    "create": true
+  }
+}

@@ -43,6 +43,8 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.measure.ws.SearchHistoryAction.Builder;
+import org.sonar.server.measure.ws.SearchHistoryAction.SearchHistoryRequest;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
@@ -50,7 +52,6 @@ import org.sonarqube.ws.Common.Paging;
 import org.sonarqube.ws.Measures.SearchHistoryResponse;
 import org.sonarqube.ws.Measures.SearchHistoryResponse.HistoryMeasure;
 import org.sonarqube.ws.Measures.SearchHistoryResponse.HistoryValue;
-import org.sonarqube.ws.client.measure.SearchHistoryRequest;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Double.parseDouble;
@@ -68,11 +69,11 @@ import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_FROM;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRICS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_TO;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_COMPONENT;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_FROM;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRICS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_TO;
 
 public class SearchHistoryActionTest {
 
@@ -94,7 +95,7 @@ public class SearchHistoryActionTest {
   private MetricDto complexityMetric;
   private MetricDto nclocMetric;
   private MetricDto newViolationMetric;
-  private SearchHistoryRequest.Builder wsRequest;
+  private Builder wsRequest;
 
   @Before
   public void setUp() {
@@ -261,20 +262,6 @@ public class SearchHistoryActionTest {
 
     // one analysis in setUp method
     assertThat(result.getPaging().getTotal()).isEqualTo(1);
-  }
-
-  @Test
-  public void do_not_return_developer_measures() {
-    wsRequest.setMetrics(singletonList(complexityMetric.getKey()));
-    dbClient.measureDao().insert(dbSession, newMeasureDto(complexityMetric, project, analysis).setDeveloperId(42L));
-    db.commit();
-
-    SearchHistoryResponse result = call();
-
-    assertThat(result.getMeasuresCount()).isEqualTo(1);
-    assertThat(result.getMeasures(0).getHistoryCount()).isEqualTo(1);
-    assertThat(result.getMeasures(0).getHistory(0).hasDate()).isTrue();
-    assertThat(result.getMeasures(0).getHistory(0).hasValue()).isFalse();
   }
 
   @Test

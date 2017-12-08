@@ -52,7 +52,6 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.util.LanguageParamUtils;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse;
 import org.sonarqube.ws.Qualityprofiles.SearchWsResponse.QualityProfile;
-import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -97,11 +96,14 @@ public class SearchAction implements QProfileWsAction {
       .setSince("5.2")
       .setDescription("Search quality profiles")
       .setHandler(this)
-      .setChangelog(new Change("6.5", format("The parameters '%s', '%s' and '%s' can be combined without any constraint", PARAM_DEFAULTS, PARAM_PROJECT, PARAM_LANGUAGE)))
+      .setChangelog(
+        new Change("6.5", format("The parameters '%s', '%s' and '%s' can be combined without any constraint", PARAM_DEFAULTS, PARAM_PROJECT, PARAM_LANGUAGE)),
+        new Change("6.6", "Add available actions 'edit', 'copy' and 'setAsDefault' and global action 'create'"),
+        new Change("7.0", "Add available actions 'delete' and 'associateProjects'")
+      )
       .setResponseExample(getClass().getResource("search-example.json"));
 
-    QProfileWsSupport.createOrganizationParam(action
-      )
+    QProfileWsSupport.createOrganizationParam(action)
       .setSince("6.4");
 
     action
@@ -132,8 +134,8 @@ public class SearchAction implements QProfileWsAction {
     writeProtobuf(searchWsResponse, request, response);
   }
 
-  private static SearchWsRequest toSearchWsRequest(Request request) {
-    return new SearchWsRequest()
+  private static SearchRequest toSearchWsRequest(Request request) {
+    return new SearchRequest()
       .setOrganizationKey(request.param(PARAM_ORGANIZATION))
       .setProjectKey(request.param(PARAM_PROJECT))
       .setQualityProfile(request.param(PARAM_QUALITY_PROFILE))
@@ -141,12 +143,12 @@ public class SearchAction implements QProfileWsAction {
       .setLanguage(request.param(PARAM_LANGUAGE));
   }
 
-  private SearchWsResponse doHandle(SearchWsRequest request) {
+  private SearchWsResponse doHandle(SearchRequest request) {
     SearchData data = load(request);
     return buildResponse(data);
   }
 
-  private SearchData load(SearchWsRequest request) {
+  private SearchData load(SearchRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
 
       OrganizationDto organization = wsSupport.getOrganizationByKey(dbSession, request.getOrganizationKey());
@@ -166,13 +168,12 @@ public class SearchAction implements QProfileWsAction {
           dbClient.activeRuleDao().countActiveRulesByQuery(dbSession, builder.setProfiles(profiles).setRuleStatus(DEPRECATED).build()))
         .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByOrganizationAndProfiles(dbSession, organization, profiles))
         .setDefaultProfileKeys(defaultProfiles)
-        .setEditableProfileKeys(editableProfiles)
-        .setGlobalQProfileAdmin(userSession.hasPermission(ADMINISTER_QUALITY_PROFILES, organization));
+        .setEditableProfileKeys(editableProfiles);
     }
   }
 
   @CheckForNull
-  private ComponentDto findProject(DbSession dbSession, OrganizationDto organization, SearchWsRequest request) {
+  private ComponentDto findProject(DbSession dbSession, OrganizationDto organization, SearchRequest request) {
     if (request.getProjectKey() == null) {
       return null;
     }
@@ -198,15 +199,14 @@ public class SearchAction implements QProfileWsAction {
     UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
     checkState(user != null, "User with login '%s' is not found'", login);
 
-    return
-      Stream.concat(
-        dbClient.qProfileEditUsersDao().selectQProfileUuidsByOrganizationAndUser(dbSession, organization, user).stream(),
-        dbClient.qProfileEditGroupsDao().selectQProfileUuidsByOrganizationAndGroups(dbSession, organization, userSession.getGroups()).stream())
-        .collect(toList());
+    return Stream.concat(
+      dbClient.qProfileEditUsersDao().selectQProfileUuidsByOrganizationAndUser(dbSession, organization, user).stream(),
+      dbClient.qProfileEditGroupsDao().selectQProfileUuidsByOrganizationAndGroups(dbSession, organization, userSession.getGroups()).stream())
+      .collect(toList());
   }
 
-  private List<QProfileDto> searchProfiles(DbSession dbSession, SearchWsRequest request, OrganizationDto organization, List<QProfileDto> defaultProfiles,
-                                           @Nullable ComponentDto project) {
+  private List<QProfileDto> searchProfiles(DbSession dbSession, SearchRequest request, OrganizationDto organization, List<QProfileDto> defaultProfiles,
+    @Nullable ComponentDto project) {
     Collection<QProfileDto> profiles = selectAllProfiles(dbSession, organization);
 
     return profiles.stream()
@@ -223,15 +223,15 @@ public class SearchAction implements QProfileWsAction {
     return p -> languages.get(p.getLanguage()) != null;
   }
 
-  private static Predicate<QProfileDto> byName(SearchWsRequest request) {
+  private static Predicate<QProfileDto> byName(SearchRequest request) {
     return p -> request.getQualityProfile() == null || Objects.equals(p.getName(), request.getQualityProfile());
   }
 
-  private static Predicate<QProfileDto> byLanguage(SearchWsRequest request) {
+  private static Predicate<QProfileDto> byLanguage(SearchRequest request) {
     return p -> request.getLanguage() == null || Objects.equals(p.getLanguage(), request.getLanguage());
   }
 
-  private static Predicate<QProfileDto> byDefault(SearchWsRequest request, List<QProfileDto> defaultProfiles) {
+  private static Predicate<QProfileDto> byDefault(SearchRequest request, List<QProfileDto> defaultProfiles) {
     Set<String> defaultProfileUuids = defaultProfiles.stream().map(QProfileDto::getKee).collect(Collectors.toSet());
     return p -> !request.getDefaults() || defaultProfileUuids.contains(p.getKee());
   }
@@ -257,10 +257,10 @@ public class SearchAction implements QProfileWsAction {
   private SearchWsResponse buildResponse(SearchData data) {
     List<QProfileDto> profiles = data.getProfiles();
     Map<String, QProfileDto> profilesByKey = profiles.stream().collect(Collectors.toMap(QProfileDto::getKee, identity()));
+    boolean isGlobalQProfileAdmin = userSession.hasPermission(ADMINISTER_QUALITY_PROFILES, data.getOrganization());
 
     SearchWsResponse.Builder response = SearchWsResponse.newBuilder();
-    response.setActions(SearchWsResponse.Actions.newBuilder().setCreate(data.isGlobalQProfileAdmin()));
-
+    response.setActions(SearchWsResponse.Actions.newBuilder().setCreate(isGlobalQProfileAdmin));
     for (QProfileDto profile : profiles) {
       QualityProfile.Builder profileBuilder = response.addProfilesBuilder();
 
@@ -285,11 +285,12 @@ public class SearchAction implements QProfileWsAction {
       profileBuilder.setIsBuiltIn(profile.isBuiltIn());
 
       profileBuilder.setActions(SearchWsResponse.QualityProfile.Actions.newBuilder()
-        .setEdit(data.isEditable(profile))
-        .setSetAsDefault(data.isGlobalQProfileAdmin())
-        .setCopy(data.isGlobalQProfileAdmin()));
+        .setEdit(!profile.isBuiltIn() && (isGlobalQProfileAdmin || data.isEditable(profile)))
+        .setSetAsDefault(!isDefault && isGlobalQProfileAdmin)
+        .setCopy(isGlobalQProfileAdmin)
+        .setDelete(!isDefault && !profile.isBuiltIn() && (isGlobalQProfileAdmin || data.isEditable(profile)))
+        .setAssociateProjects(!isDefault && (isGlobalQProfileAdmin || data.isEditable(profile))));
     }
-
     return response.build();
   }
 
@@ -319,4 +320,59 @@ public class SearchAction implements QProfileWsAction {
     }
   }
 
+  private static class SearchRequest {
+    private String organizationKey;
+    private boolean defaults;
+    private String language;
+    private String qualityProfile;
+    private String projectKey;
+
+    public String getOrganizationKey() {
+      return organizationKey;
+    }
+
+    public SearchRequest setOrganizationKey(String organizationKey) {
+      this.organizationKey = organizationKey;
+      return this;
+    }
+
+    public boolean getDefaults() {
+      return defaults;
+    }
+
+    public SearchRequest setDefaults(boolean defaults) {
+      this.defaults = defaults;
+      return this;
+    }
+
+    @CheckForNull
+    public String getLanguage() {
+      return language;
+    }
+
+    public SearchRequest setLanguage(@Nullable String language) {
+      this.language = language;
+      return this;
+    }
+
+    @CheckForNull
+    public String getQualityProfile() {
+      return qualityProfile;
+    }
+
+    public SearchRequest setQualityProfile(@Nullable String qualityProfile) {
+      this.qualityProfile = qualityProfile;
+      return this;
+    }
+
+    @CheckForNull
+    public String getProjectKey() {
+      return projectKey;
+    }
+
+    public SearchRequest setProjectKey(@Nullable String projectKey) {
+      this.projectKey = projectKey;
+      return this;
+    }
+  }
 }

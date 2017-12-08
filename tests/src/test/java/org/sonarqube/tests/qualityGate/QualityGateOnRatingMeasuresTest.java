@@ -47,7 +47,7 @@ public class QualityGateOnRatingMeasuresTest {
   @Test
   public void generate_warning_qgate_on_rating_metric() throws Exception {
     Project project = tester.projects().provision();
-    Qualitygates.CreateWsResponse qualityGate = tester.qGates().generate();
+    Qualitygates.CreateResponse qualityGate = tester.qGates().generate();
     tester.qGates().associateProject(qualityGate, project);
     tester.qGates().service().createCondition(new CreateConditionRequest()
       .setGateId(String.valueOf(qualityGate.getId()))
@@ -65,10 +65,10 @@ public class QualityGateOnRatingMeasuresTest {
   @Test
   public void generate_error_qgate_on_rating_metric_on_leak_period() throws Exception {
     Project project = tester.projects().provision();
-    Qualitygates.CreateWsResponse qualityGate = tester.qGates().generate();
+    Qualitygates.CreateResponse qualityGate = tester.qGates().generate();
     tester.qGates().associateProject(qualityGate, project);
     tester.settings().setGlobalSetting("sonar.leak.period", "previous_version");
-    tester.wsClient().qualityGates().createCondition(new CreateConditionRequest()
+    tester.wsClient().qualitygates().createCondition(new CreateConditionRequest()
       .setGateId(String.valueOf(qualityGate.getId()))
       .setMetric("new_security_rating")
       .setOp("GT")

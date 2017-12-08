@@ -35,8 +35,8 @@ import org.sonar.server.user.UserSession;
 import static org.sonar.api.PropertyType.LICENSE;
 import static org.sonar.api.web.UserRole.ADMIN;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_BRANCH;
 
 @ServerSide
 public class SettingsWsSupport {

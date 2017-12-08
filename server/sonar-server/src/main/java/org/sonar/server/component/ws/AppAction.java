@@ -19,12 +19,10 @@
  */
 package org.sonar.server.component.ws;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
@@ -37,8 +35,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.measure.MeasureQuery;
+import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
@@ -46,6 +43,8 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES_DENSITY;
@@ -60,18 +59,18 @@ import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_COMPONENT;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BRANCH;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_BRANCH;
 
 public class AppAction implements ComponentsWsAction {
 
   private static final String PARAM_COMPONENT_ID = "componentId";
   private static final String PARAM_COMPONENT = "component";
-  private static final List<String> METRIC_KEYS = ImmutableList.of(
+  private static final List<String> METRIC_KEYS = unmodifiableList(asList(
     LINES_KEY,
     VIOLATIONS_KEY,
     COVERAGE_KEY,
     DUPLICATED_LINES_DENSITY_KEY,
-    TESTS_KEY);
+    TESTS_KEY));
 
   private final DbClient dbClient;
 
@@ -121,7 +120,7 @@ public class AppAction implements ComponentsWsAction {
 
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
-      Map<String, MeasureDto> measuresByMetricKey = measuresByMetricKey(component, session);
+      Map<String, LiveMeasureDto> measuresByMetricKey = loadMeasuresGroupedByMetricKey(component, session);
       appendComponent(json, component, userSession, session);
       appendPermissions(json, userSession);
       appendMeasures(json, measuresByMetricKey);
@@ -177,7 +176,7 @@ public class AppAction implements ComponentsWsAction {
     json.prop("canMarkAsFavorite", userSession.isLoggedIn());
   }
 
-  private static void appendMeasures(JsonWriter json, Map<String, MeasureDto> measuresByMetricKey) {
+  private static void appendMeasures(JsonWriter json, Map<String, LiveMeasureDto> measuresByMetricKey) {
     json.name("measures").beginObject();
     json.prop("lines", formatMeasure(measuresByMetricKey, LINES));
     json.prop("coverage", formatMeasure(measuresByMetricKey, COVERAGE));
@@ -187,12 +186,11 @@ public class AppAction implements ComponentsWsAction {
     json.endObject();
   }
 
-  private Map<String, MeasureDto> measuresByMetricKey(ComponentDto component, DbSession session) {
-    MeasureQuery query = MeasureQuery.builder().setComponentUuid(component.uuid()).setMetricKeys(METRIC_KEYS).build();
-    List<MeasureDto> measures = dbClient.measureDao().selectByQuery(session, query);
-    Set<Integer> metricIds = measures.stream().map(MeasureDto::getMetricId).collect(Collectors.toSet());
-    List<MetricDto> metrics = dbClient.metricDao().selectByIds(session, metricIds);
+  private Map<String, LiveMeasureDto> loadMeasuresGroupedByMetricKey(ComponentDto component, DbSession dbSession) {
+    List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, METRIC_KEYS);
     Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDto::getId);
+    List<LiveMeasureDto> measures = dbClient.liveMeasureDao()
+      .selectByComponentUuids(dbSession, Collections.singletonList(component.uuid()), metricsById.keySet());
     return Maps.uniqueIndex(measures, m -> metricsById.get(m.getMetricId()).getKey());
   }
 
@@ -205,12 +203,12 @@ public class AppAction implements ComponentsWsAction {
   }
 
   @CheckForNull
-  private static String formatMeasure(Map<String, MeasureDto> measuresByMetricKey, Metric metric) {
-    MeasureDto measure = measuresByMetricKey.get(metric.getKey());
+  private static String formatMeasure(Map<String, LiveMeasureDto> measuresByMetricKey, Metric metric) {
+    LiveMeasureDto measure = measuresByMetricKey.get(metric.getKey());
     return formatMeasure(measure, metric);
   }
 
-  private static String formatMeasure(@Nullable MeasureDto measure, Metric metric) {
+  private static String formatMeasure(@Nullable LiveMeasureDto measure, Metric metric) {
     if (measure == null) {
       return null;
     }
@@ -222,7 +220,7 @@ public class AppAction implements ComponentsWsAction {
   }
 
   @CheckForNull
-  private static Double getDoubleValue(MeasureDto measure, Metric metric) {
+  private static Double getDoubleValue(LiveMeasureDto measure, Metric metric) {
     Double value = measure.getValue();
     if (BooleanUtils.isTrue(metric.isOptimizedBestValue()) && value == null) {
       value = metric.getBestValue();

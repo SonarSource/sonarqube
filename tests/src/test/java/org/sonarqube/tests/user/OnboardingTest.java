@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Users.CreateWsResponse.User;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.users.DeactivateRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -125,7 +126,7 @@ public class OnboardingTest {
     tester.as(user.getLogin()).wsClient().users().skipOnboardingTutorial();
     verifyTutorial(user, false);
 
-    tester.wsClient().users().deactivate(user.getLogin());
+    tester.wsClient().users().deactivate(new DeactivateRequest().setLogin(user.getLogin()));
     User reactivatedUser = tester.users().generate(u -> u.setLogin(user.getLogin()).setName(user.getName()).setPassword(user.getLogin()));
 
     verifyTutorial(reactivatedUser, true);

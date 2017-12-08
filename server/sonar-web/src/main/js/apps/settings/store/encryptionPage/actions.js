@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as api from '../../../../api/settings';
-import { parseError } from '../../../code/utils';
+import { parseError } from '../../../../helpers/request';
 import {
   addGlobalErrorMessage,
   closeAllGlobalMessages

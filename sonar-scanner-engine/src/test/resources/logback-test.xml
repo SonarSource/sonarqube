@@ -33,6 +33,9 @@
   <logger name="PERSISTIT">
     <level value="WARN"/>
   </logger>
+  <logger name="ch.qos.logback">
+    <level value="WARN"/>
+  </logger>
 
   <root>
     <level value="INFO"/>

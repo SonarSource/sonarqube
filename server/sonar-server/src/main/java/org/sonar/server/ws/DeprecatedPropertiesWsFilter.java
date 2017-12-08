@@ -42,14 +42,11 @@ import org.sonar.server.property.ws.IndexAction;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.sonar.server.property.ws.PropertiesWs.CONTROLLER_PROPERTIES;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_RESET;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_SET;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.CONTROLLER_SETTINGS;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEY;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEYS;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUE;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUES;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEY;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEYS;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_VALUE;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_VALUES;
 
 /**
  * This filter is used to execute deprecated api/properties WS, that were using REST
@@ -230,14 +227,14 @@ public class DeprecatedPropertiesWsFilter extends ServletFilter {
         additionalMultiParams.putAll(PARAM_VALUES, values);
       }
       addParameterIfPresent(PARAM_COMPONENT, component);
-      redirectedPath = CONTROLLER_SETTINGS + SEPARATOR + ACTION_SET;
+      redirectedPath = "api/settings/set";
       redirectedMethod = "POST";
     }
 
     private void redirectToReset(Optional<String> key, Optional<String> component) {
       addParameterIfPresent(PARAM_KEYS, key);
       addParameterIfPresent(PARAM_COMPONENT, component);
-      redirectedPath = CONTROLLER_SETTINGS + SEPARATOR + ACTION_RESET;
+      redirectedPath = "api/settings/reset";
       redirectedMethod = "POST";
     }
 

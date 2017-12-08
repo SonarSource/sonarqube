@@ -28,7 +28,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Ce.WorkerCountResponse;
 
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.ce.CeWsParameters.ACTION_WORKER_COUNT;
+import static org.sonar.server.ce.ws.CeWsParameters.ACTION_WORKER_COUNT;
 
 public class WorkerCountAction implements CeWsAction {
 

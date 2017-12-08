@@ -19,23 +19,19 @@
  */
 package org.sonar.server.computation.task.projectanalysis.measure;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Maps.filterKeys;
-import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
-
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSetMultimap;
+import com.google.common.collect.SetMultimap;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-
 import org.junit.rules.ExternalResource;
 import org.sonar.server.computation.task.projectanalysis.component.Component;
 import org.sonar.server.computation.task.projectanalysis.component.ComponentProvider;
@@ -48,11 +44,12 @@ import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolde
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.ImmutableSetMultimap;
-import com.google.common.collect.SetMultimap;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.collect.Maps.filterKeys;
+import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 
 /**
  * An implementation of MeasureRepository as a JUnit rule which provides add methods for raw measures and extra add
@@ -192,13 +189,6 @@ public class MeasureRepositoryRule extends ExternalResource implements MeasureRe
     return Optional.fromNullable(baseMeasures.get(new InternalKey(component, metric)));
   }
 
-  @Override
-  public int loadAsRawMeasures(Collection<Component> components, Collection<Metric> metrics) {
-    this.loadedAsRawComponents = components;
-    this.loadedAsRawMetrics = metrics;
-    return 0;
-  }
-  
   public Collection<Component> getComponentsLoadedAsRaw() {
     return loadedAsRawComponents;
   }

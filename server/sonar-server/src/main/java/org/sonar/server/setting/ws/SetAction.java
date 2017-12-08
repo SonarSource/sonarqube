@@ -54,19 +54,18 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.platform.SettingsChangeNotifier;
 import org.sonar.server.setting.ws.SettingValidations.SettingData;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.setting.SetRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.checkRequest;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_SET;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_BRANCH;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_FIELD_VALUES;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEY;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUE;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_VALUES;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_FIELD_VALUES;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEY;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_VALUE;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_VALUES;
 
 public class SetAction implements SettingsWsAction {
   private static final Collector<CharSequence, ?, String> COMMA_JOINER = Collectors.joining(",");
@@ -96,7 +95,7 @@ public class SetAction implements SettingsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction(ACTION_SET)
+    WebService.NewAction action = context.createAction("set")
       .setDescription("Update a setting value.<br>" +
         "Either '%s' or '%s' must be provided.<br> " +
         "Requires one of the following permissions: " +
@@ -283,14 +282,17 @@ public class SetAction implements SettingsWsAction {
   }
 
   private static SetRequest toWsRequest(Request request) {
-    return SetRequest.builder()
+    SetRequest set = new SetRequest()
       .setKey(request.mandatoryParam(PARAM_KEY))
       .setValue(request.param(PARAM_VALUE))
       .setValues(request.multiParam(PARAM_VALUES))
       .setFieldValues(request.multiParam(PARAM_FIELD_VALUES))
       .setComponent(request.param(PARAM_COMPONENT))
-      .setBranch(request.param(PARAM_BRANCH))
-      .build();
+      .setBranch(request.param(PARAM_BRANCH));
+    checkArgument(isNotEmpty(set.getKey()), "Setting key is mandatory and must not be empty");
+    checkArgument(set.getValues() != null, "Setting values must not be null");
+    checkArgument(set.getFieldValues() != null, "Setting fields values must not be null");
+    return set;
   }
 
   private static Map<String, String> readOneFieldValues(String json, String key) {
@@ -338,6 +340,70 @@ public class SetAction implements SettingsWsAction {
     private KeyValue(String key, String value) {
       this.key = key;
       this.value = value;
+    }
+  }
+
+  private static class SetRequest {
+
+    private String branch;
+    private String component;
+    private List<String> fieldValues;
+    private String key;
+    private String value;
+    private List<String> values;
+
+    public SetRequest setBranch(String branch) {
+      this.branch = branch;
+      return this;
+    }
+
+    public String getBranch() {
+      return branch;
+    }
+
+    public SetRequest setComponent(String component) {
+      this.component = component;
+      return this;
+    }
+
+    public String getComponent() {
+      return component;
+    }
+
+    public SetRequest setFieldValues(List<String> fieldValues) {
+      this.fieldValues = fieldValues;
+      return this;
+    }
+
+    public List<String> getFieldValues() {
+      return fieldValues;
+    }
+
+    public SetRequest setKey(String key) {
+      this.key = key;
+      return this;
+    }
+
+    public String getKey() {
+      return key;
+    }
+
+    public SetRequest setValue(String value) {
+      this.value = value;
+      return this;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    public SetRequest setValues(List<String> values) {
+      this.values = values;
+      return this;
+    }
+
+    public List<String> getValues() {
+      return values;
     }
   }
 }

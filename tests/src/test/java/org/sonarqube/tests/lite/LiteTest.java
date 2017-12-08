@@ -28,12 +28,12 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Measures;
-import org.sonarqube.ws.client.component.TreeWsRequest;
-import org.sonarqube.ws.client.issue.IssuesService;
-import org.sonarqube.ws.client.issue.SearchWsRequest;
-import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
-import org.sonarqube.ws.client.measure.ComponentWsRequest;
-import org.sonarqube.ws.client.measure.MeasuresService;
+import org.sonarqube.ws.client.components.TreeRequest;
+import org.sonarqube.ws.client.issues.IssuesService;
+import org.sonarqube.ws.client.issues.SearchRequest;
+import org.sonarqube.ws.client.measures.ComponentTreeRequest;
+import org.sonarqube.ws.client.measures.ComponentRequest;
+import org.sonarqube.ws.client.measures.MeasuresService;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -64,19 +64,19 @@ public class LiteTest {
   public void call_issues_ws() {
     // all issues
     IssuesService issuesService = tester.wsClient().issues();
-    Issues.SearchWsResponse response = issuesService.search(new SearchWsRequest());
+    Issues.SearchWsResponse response = issuesService.search(new SearchRequest());
     assertThat(response.getIssuesCount()).isGreaterThan(0);
 
     // project issues
-    response = issuesService.search(new SearchWsRequest().setProjectKeys(singletonList(PROJECT_KEY)));
+    response = issuesService.search(new SearchRequest().setProjects(singletonList(PROJECT_KEY)));
     assertThat(response.getIssuesCount()).isGreaterThan(0);
   }
 
   @Test
   public void call_components_ws() {
     // files in project
-    Components.TreeWsResponse tree = tester.wsClient().components().tree(new TreeWsRequest()
-      .setBaseComponentKey(PROJECT_KEY)
+    Components.TreeWsResponse tree = tester.wsClient().components().tree(new TreeRequest()
+      .setComponent(PROJECT_KEY)
       .setQualifiers(singletonList("FIL")));
     assertThat(tree.getComponentsCount()).isEqualTo(4);
     tree.getComponentsList().forEach(c -> {
@@ -89,14 +89,14 @@ public class LiteTest {
   public void call_measures_ws() {
     // project measures
     MeasuresService measuresService = tester.wsClient().measures();
-    Measures.ComponentWsResponse component = measuresService.component(new ComponentWsRequest()
-      .setComponentKey(PROJECT_KEY)
+    Measures.ComponentWsResponse component = measuresService.component(new ComponentRequest()
+      .setComponent(PROJECT_KEY)
       .setMetricKeys(asList("lines", "ncloc", "files")));
     assertThat(component.getComponent().getMeasuresCount()).isEqualTo(3);
 
     // file measures
-    Measures.ComponentTreeWsResponse tree = measuresService.componentTree(new ComponentTreeWsRequest()
-      .setBaseComponentKey(PROJECT_KEY)
+    Measures.ComponentTreeWsResponse tree = measuresService.componentTree(new ComponentTreeRequest()
+      .setComponent(PROJECT_KEY)
       .setQualifiers(singletonList("FIL"))
       .setMetricKeys(asList("lines", "ncloc")));
     assertThat(tree.getComponentsCount()).isEqualTo(4);

@@ -16,4 +16,12 @@
     <appender-ref ref="CONSOLE"/>
   </root>
 
+  <logger name="ch.qos.logback">
+    <level value="WARN"/>
+  </logger>
+
+  <logger name="okhttp3.mockwebserver">
+    <level value="WARN"/>
+  </logger>
+
 </configuration>

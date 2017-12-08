@@ -19,46 +19,70 @@
  */
 package org.sonarqube.ws.client.projectlinks;
 
-import org.sonarqube.ws.ProjectLinks.CreateWsResponse;
-import org.sonarqube.ws.ProjectLinks.SearchWsResponse;
+import java.util.stream.Collectors;
+import javax.annotation.Generated;
+import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
+import org.sonarqube.ws.ProjectLinks.CreateWsResponse;
+import org.sonarqube.ws.ProjectLinks.SearchWsResponse;
 
-import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.ACTION_CREATE;
-import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.ACTION_DELETE;
-import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.ACTION_SEARCH;
-import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_ID;
-import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_NAME;
-import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_PROJECT_ID;
-import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_PROJECT_KEY;
-import static org.sonarqube.ws.client.projectlinks.ProjectLinksWsParameters.PARAM_URL;
-
+/**
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_links">Further information about this web service online</a>
+ */
+@Generated("sonar-ws-generator")
 public class ProjectLinksService extends BaseService {
 
   public ProjectLinksService(WsConnector wsConnector) {
     super(wsConnector, "api/project_links");
   }
 
-  public SearchWsResponse search(SearchWsRequest request) {
-    return call(new GetRequest(path(ACTION_SEARCH))
-      .setParam(PARAM_PROJECT_KEY, request.getProjectKey())
-      .setParam(PARAM_PROJECT_ID, request.getProjectId()),
-      SearchWsResponse.parser());
-  }
-
-  public CreateWsResponse create(CreateWsRequest request) {
-    return call(new PostRequest(path(ACTION_CREATE))
-      .setParam(PARAM_PROJECT_KEY, request.getProjectKey())
-      .setParam(PARAM_PROJECT_ID, request.getProjectId())
-      .setParam(PARAM_NAME, request.getName())
-      .setParam(PARAM_URL, request.getUrl()),
+  /**
+   *
+   * This is part of the internal API.
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_links/create">Further information about this action online (including a response example)</a>
+   * @since 6.1
+   */
+  public CreateWsResponse create(CreateRequest request) {
+    return call(
+      new PostRequest(path("create"))
+        .setParam("name", request.getName())
+        .setParam("projectId", request.getProjectId())
+        .setParam("projectKey", request.getProjectKey())
+        .setParam("url", request.getUrl()),
       CreateWsResponse.parser());
   }
 
-  public void delete(DeleteWsRequest request) {
-    call(new PostRequest(path(ACTION_DELETE))
-      .setParam(PARAM_ID, request.getId()));
+  /**
+   *
+   * This is part of the internal API.
+   * This is a POST request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_links/delete">Further information about this action online (including a response example)</a>
+   * @since 6.1
+   */
+  public void delete(DeleteRequest request) {
+    call(
+      new PostRequest(path("delete"))
+        .setParam("id", request.getId())
+        .setMediaType(MediaTypes.JSON)
+      ).content();
+  }
+
+  /**
+   *
+   * This is part of the internal API.
+   * This is a GET request.
+   * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/project_links/search">Further information about this action online (including a response example)</a>
+   * @since 6.1
+   */
+  public SearchWsResponse search(SearchRequest request) {
+    return call(
+      new GetRequest(path("search"))
+        .setParam("projectId", request.getProjectId())
+        .setParam("projectKey", request.getProjectKey()),
+      SearchWsResponse.parser());
   }
 }

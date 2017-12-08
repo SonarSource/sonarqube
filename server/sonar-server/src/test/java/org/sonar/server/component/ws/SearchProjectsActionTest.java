@@ -41,11 +41,12 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.server.component.ws.SearchProjectsAction.RequestBuilder;
+import org.sonar.server.component.ws.SearchProjectsAction.SearchProjectsRequest;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.measure.index.ProjectMeasuresIndex;
 import org.sonar.server.measure.index.ProjectMeasuresIndexDefinition;
@@ -59,7 +60,6 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Components.Component;
 import org.sonarqube.ws.Components.SearchProjectsWsResponse;
-import org.sonarqube.ws.client.component.SearchProjectsRequest;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -134,7 +134,7 @@ public class SearchProjectsActionTest {
   private WsActionTester ws = new WsActionTester(
     new SearchProjectsAction(dbClient, index, userSession));
 
-  private SearchProjectsRequest.Builder request = SearchProjectsRequest.builder();
+  private RequestBuilder request = SearchProjectsRequest.builder();
 
   @Test
   public void verify_definition() {
@@ -315,9 +315,9 @@ public class SearchProjectsActionTest {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
     MetricDto qualityGateStatus = db.measures().insertMetric(c -> c.setKey(QUALITY_GATE_STATUS).setValueType(LEVEL.name()));
-    ComponentDto project1 = insertProject(organizationDto, new Measure(qualityGateStatus, c -> c.setData("OK")));
-    ComponentDto project2 = insertProject(organizationDto, new Measure(qualityGateStatus, c -> c.setData("OK")));
-    ComponentDto project3 = insertProject(organizationDto, new Measure(qualityGateStatus, c -> c.setData("ERROR")));
+    ComponentDto project1 = insertProject(organizationDto, new Measure(qualityGateStatus, c -> c.setValue(null).setData("OK")));
+    ComponentDto project2 = insertProject(organizationDto, new Measure(qualityGateStatus, c -> c.setValue(null).setData("OK")));
+    ComponentDto project3 = insertProject(organizationDto, new Measure(qualityGateStatus, c -> c.setValue(null).setData("ERROR")));
 
     SearchProjectsWsResponse result = call(request.setFilter("alert_status = OK"));
 
@@ -331,10 +331,10 @@ public class SearchProjectsActionTest {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
     MetricDto languagesDistribution = db.measures().insertMetric(c -> c.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY).setValueType(DATA.name()));
-    ComponentDto project1 = insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setData("<null>=2;java=6;xoo=18")));
-    ComponentDto project2 = insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setData("java=3;xoo=9")));
-    ComponentDto project3 = insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setData("xoo=1")));
-    ComponentDto project4 = insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setData("<null>=1;java=5;xoo=13")));
+    ComponentDto project1 = insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setValue(null).setData("<null>=2;java=6;xoo=18")));
+    ComponentDto project2 = insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setValue(null).setData("java=3;xoo=9")));
+    ComponentDto project3 = insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setValue(null).setData("xoo=1")));
+    ComponentDto project4 = insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setValue(null).setData("<null>=1;java=5;xoo=13")));
 
     SearchProjectsWsResponse result = call(request.setFilter("languages IN (java, js, <null>)"));
 
@@ -627,10 +627,10 @@ public class SearchProjectsActionTest {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
     MetricDto languagesDistribution = db.measures().insertMetric(c -> c.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY).setValueType(DATA.name()));
-    insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setData("<null>=2;java=6;xoo=18")));
-    insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setData("java=5;xoo=19")));
-    insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setData("xoo=1")));
-    insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setData("<null>=1;java=3;xoo=8")));
+    insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setValue(null).setData("<null>=2;java=6;xoo=18")));
+    insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setValue(null).setData("java=5;xoo=19")));
+    insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setValue(null).setData("xoo=1")));
+    insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setValue(null).setData("<null>=1;java=3;xoo=8")));
 
     SearchProjectsWsResponse result = call(request.setFacets(singletonList(FILTER_LANGUAGES)));
 
@@ -650,8 +650,8 @@ public class SearchProjectsActionTest {
     userSession.logIn();
     OrganizationDto organizationDto = db.organizations().insert();
     MetricDto languagesDistribution = db.measures().insertMetric(c -> c.setKey(NCLOC_LANGUAGE_DISTRIBUTION_KEY).setValueType(DATA.name()));
-    insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setData("<null>=2;java=6")));
-    insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setData("java=5")));
+    insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setValue(null).setData("<null>=2;java=6")));
+    insertProject(organizationDto, new Measure(languagesDistribution, c -> c.setValue(null).setData("java=5")));
 
     SearchProjectsWsResponse result = call(request.setFilter("languages = xoo").setFacets(singletonList(FILTER_LANGUAGES)));
 
@@ -963,10 +963,10 @@ public class SearchProjectsActionTest {
     userSession.logIn();
     OrganizationDto organization = db.organizations().insert();
     MetricDto qualityGateStatus = db.measures().insertMetric(c -> c.setKey(QUALITY_GATE_STATUS).setValueType(LEVEL.name()));
-    ComponentDto project1 = insertProject(organization, c -> c.setName("Sonar Java"), new Measure(qualityGateStatus, c -> c.setData("ERROR")));
-    ComponentDto project2 = insertProject(organization, c -> c.setName("Sonar Groovy"), new Measure(qualityGateStatus, c -> c.setData("WARN")));
-    ComponentDto project3 = insertProject(organization, c -> c.setName("Sonar Markdown"), new Measure(qualityGateStatus, c -> c.setData("OK")));
-    ComponentDto project4 = insertProject(organization, c -> c.setName("Sonar Qube"), new Measure(qualityGateStatus, c -> c.setData("OK")));
+    ComponentDto project1 = insertProject(organization, c -> c.setName("Sonar Java"), new Measure(qualityGateStatus, c -> c.setValue(null).setData("ERROR")));
+    ComponentDto project2 = insertProject(organization, c -> c.setName("Sonar Groovy"), new Measure(qualityGateStatus, c -> c.setValue(null).setData("WARN")));
+    ComponentDto project3 = insertProject(organization, c -> c.setName("Sonar Markdown"), new Measure(qualityGateStatus, c -> c.setValue(null).setData("OK")));
+    ComponentDto project4 = insertProject(organization, c -> c.setName("Sonar Qube"), new Measure(qualityGateStatus, c -> c.setValue(null).setData("OK")));
 
     assertThat(call(request.setSort(QUALITY_GATE_STATUS).setAsc(true)).getComponentsList()).extracting(Component::getKey)
       .containsExactly(project3.getDbKey(), project4.getDbKey(), project2.getDbKey(), project1.getDbKey());
@@ -1111,7 +1111,7 @@ public class SearchProjectsActionTest {
     call(request.setPageSize(501));
   }
 
-  private SearchProjectsWsResponse call(SearchProjectsRequest.Builder requestBuilder) {
+  private SearchProjectsWsResponse call(RequestBuilder requestBuilder) {
     SearchProjectsRequest wsRequest = requestBuilder.build();
     TestRequest httpRequest = ws.newRequest();
     ofNullable(wsRequest.getOrganization()).ifPresent(organization -> httpRequest.setParam(PARAM_ORGANIZATION, organization));
@@ -1137,8 +1137,7 @@ public class SearchProjectsActionTest {
 
   private ComponentDto insertProject(OrganizationDto organizationDto, Consumer<ComponentDto> projectConsumer, Measure... measures) {
     ComponentDto project = db.components().insertPublicProject(organizationDto, projectConsumer);
-    SnapshotDto analysis = db.components().insertSnapshot(project);
-    Arrays.stream(measures).forEach(m -> db.measures().insertMeasure(project, analysis, m.metric, m.consumer));
+    Arrays.stream(measures).forEach(m -> db.measures().insertLiveMeasure(project, m.metric, m.consumer));
     authorizationIndexerTester.allowOnlyAnyone(project);
     projectMeasuresIndexer.indexOnAnalysis(project.uuid());
     return project;
@@ -1146,9 +1145,9 @@ public class SearchProjectsActionTest {
 
   private static class Measure {
     private final MetricDto metric;
-    private final Consumer<MeasureDto> consumer;
+    private final Consumer<LiveMeasureDto> consumer;
 
-    public Measure(MetricDto metric, Consumer<MeasureDto> consumer) {
+    public Measure(MetricDto metric, Consumer<LiveMeasureDto> consumer) {
       this.metric = metric;
       this.consumer = consumer;
     }

@@ -69,8 +69,8 @@ import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_SEVERITY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_KEY;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_TARGET_SEVERITY;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
 
 public class QProfilesWsMediumTest {
 

@@ -34,12 +34,11 @@ import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.measure.MeasureDto;
+import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Measures.Measure;
 import org.sonarqube.ws.Measures.SearchWsResponse;
-import org.sonarqube.ws.client.measure.SearchRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Comparator.comparing;
@@ -56,11 +55,12 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_002;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_PROJECT_KEYS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_KEYS;
+import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_PROJECT_KEYS;
 
 public class SearchAction implements MeasuresWsAction {
 
+  private static final int MAX_NB_PROJECTS = 100;
   private static final Set<String> ALLOWED_QUALIFIERS = ImmutableSet.of(PROJECT, APP, VIEW, SUBVIEW);
 
   private final UserSession userSession;
@@ -78,7 +78,7 @@ public class SearchAction implements MeasuresWsAction {
       .setDescription("Search for project measures ordered by project names.<br>" +
         "At most %d projects can be provided.<br>" +
         "Returns the projects with the 'Browse' permission.",
-        SearchRequest.MAX_NB_PROJECTS)
+        MAX_NB_PROJECTS)
       .setSince("6.2")
       .setResponseExample(getClass().getResource("search-example.json"))
       .setHandler(this);
@@ -105,7 +105,7 @@ public class SearchAction implements MeasuresWsAction {
     private SearchRequest request;
     private List<ComponentDto> projects;
     private List<MetricDto> metrics;
-    private List<MeasureDto> measures;
+    private List<LiveMeasureDto> measures;
 
     ResponseBuilder(Request httpRequest, DbSession dbSession) {
       this.dbSession = dbSession;
@@ -161,10 +161,10 @@ public class SearchAction implements MeasuresWsAction {
         .collect(toList());
     }
 
-    private List<MeasureDto> searchMeasures() {
-      return dbClient.measureDao().selectByComponentsAndMetrics(dbSession,
-        projects.stream().map(ComponentDto::uuid).collect(toList()),
-        metrics.stream().map(MetricDto::getId).collect(toList()));
+    private List<LiveMeasureDto> searchMeasures() {
+      return dbClient.liveMeasureDao().selectByComponentUuids(dbSession,
+        projects.stream().map(ComponentDto::uuid).collect(MoreCollectors.toArrayList(projects.size())),
+        metrics.stream().map(MetricDto::getId).collect(MoreCollectors.toArrayList(metrics.size())));
     }
 
     private SearchWsResponse buildResponse() {
@@ -179,7 +179,7 @@ public class SearchAction implements MeasuresWsAction {
       Map<String, String> componentNamesByKey = projects.stream().collect(toMap(ComponentDto::getDbKey, ComponentDto::name));
       Map<Integer, MetricDto> metricsById = metrics.stream().collect(toMap(MetricDto::getId, identity()));
 
-      Function<MeasureDto, MetricDto> dbMeasureToDbMetric = dbMeasure -> metricsById.get(dbMeasure.getMetricId());
+      Function<LiveMeasureDto, MetricDto> dbMeasureToDbMetric = dbMeasure -> metricsById.get(dbMeasure.getMetricId());
       Function<Measure, String> byMetricKey = Measure::getMetric;
       Function<Measure, String> byComponentName = wsMeasure -> componentNamesByKey.get(wsMeasure.getComponent());
 
@@ -194,6 +194,58 @@ public class SearchAction implements MeasuresWsAction {
         })
         .sorted(comparing(byMetricKey).thenComparing(byComponentName))
         .collect(toList());
+    }
+  }
+
+  private static class SearchRequest {
+
+    private final List<String> metricKeys;
+    private final List<String> projectKeys;
+
+    public SearchRequest(Builder builder) {
+      metricKeys = builder.metricKeys;
+      projectKeys = builder.projectKeys;
+    }
+
+    public List<String> getMetricKeys() {
+      return metricKeys;
+    }
+
+    public List<String> getProjectKeys() {
+      return projectKeys;
+    }
+
+    public static Builder builder() {
+      return new Builder();
+    }
+
+  }
+
+  private static class Builder {
+    private List<String> metricKeys;
+    private List<String> projectKeys;
+
+    private Builder() {
+      // enforce method constructor
+    }
+
+    public Builder setMetricKeys(List<String> metricKeys) {
+      this.metricKeys = metricKeys;
+      return this;
+    }
+
+    public Builder setProjectKeys(List<String> projectKeys) {
+      this.projectKeys = projectKeys;
+      return this;
+    }
+
+    public SearchAction.SearchRequest build() {
+      checkArgument(metricKeys != null && !metricKeys.isEmpty(), "Metric keys must be provided");
+      checkArgument(projectKeys != null && !projectKeys.isEmpty(), "Project keys must be provided");
+      int nbComponents = projectKeys.size();
+      checkArgument(nbComponents <= MAX_NB_PROJECTS,
+              "%s projects provided, more than maximum authorized (%s)", nbComponents, MAX_NB_PROJECTS);
+      return new SearchAction.SearchRequest(this);
     }
   }
 }

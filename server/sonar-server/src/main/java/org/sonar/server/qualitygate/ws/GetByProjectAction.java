@@ -33,12 +33,12 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.qualitygate.QualityGateFinder.QualityGateData;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.Qualitygates.GetByProjectWsResponse;
+import org.sonarqube.ws.Qualitygates.GetByProjectResponse;
 
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.ACTION_GET_BY_PROJECT;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.ACTION_GET_BY_PROJECT;
 
 public class GetByProjectAction implements QualityGatesWsAction {
   private static final String PARAM_PROJECT = "project";
@@ -97,16 +97,16 @@ public class GetByProjectAction implements QualityGatesWsAction {
     }
   }
 
-  private static GetByProjectWsResponse buildResponse(Optional<QualityGateData> data) {
+  private static GetByProjectResponse buildResponse(Optional<QualityGateData> data) {
     if (!data.isPresent()) {
-      return GetByProjectWsResponse.getDefaultInstance();
+      return GetByProjectResponse.getDefaultInstance();
     }
 
     QualityGateDto qualityGate = data.get().getQualityGate();
-    GetByProjectWsResponse.Builder response = GetByProjectWsResponse.newBuilder();
+    GetByProjectResponse.Builder response = GetByProjectResponse.newBuilder();
 
     response.getQualityGateBuilder()
-      .setId(String.valueOf(qualityGate.getId()))
+      .setId(qualityGate.getId())
       .setName(qualityGate.getName())
       .setDefault(data.get().isDefault());
 

@@ -53,7 +53,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Components.Component;
 import org.sonarqube.ws.Components.SearchWsResponse;
-import org.sonarqube.ws.client.component.SearchWsRequest;
+import org.sonar.server.component.ws.SearchAction.SearchRequest;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
@@ -140,7 +140,7 @@ public class SearchActionTest {
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("project-_%-key"),
       ComponentTesting.newPrivateProjectDto(db.getDefaultOrganization()).setDbKey("project-key-without-escaped-characters"));
 
-    SearchWsResponse response = call(new SearchWsRequest().setQuery("project-_%-key").setQualifiers(singletonList(PROJECT)));
+    SearchWsResponse response = call(new SearchRequest().setQuery("project-_%-key").setQualifiers(singletonList(PROJECT)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly("project-_%-key");
   }
@@ -153,7 +153,7 @@ public class SearchActionTest {
     db.components().insertComponents(project, file1, file2);
     setBrowsePermissionOnUserAndIndex(project);
 
-    SearchWsResponse response = call(new SearchWsRequest().setQuery(file1.getDbKey()).setQualifiers(singletonList(FILE)));
+    SearchWsResponse response = call(new SearchRequest().setQuery(file1.getDbKey()).setQualifiers(singletonList(FILE)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly(file1.getDbKey());
   }
@@ -167,7 +167,7 @@ public class SearchActionTest {
     }
     insertProjectsAuthorizedForUser(componentDtoList.toArray(new ComponentDto[] {}));
 
-    SearchWsResponse response = call(new SearchWsRequest().setOrganization(organizationDto.getKey()).setPage(2).setPageSize(3).setQualifiers(singletonList(PROJECT)));
+    SearchWsResponse response = call(new SearchRequest().setOrganization(organizationDto.getKey()).setPage(2).setPageSize(3).setQualifiers(singletonList(PROJECT)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey).containsExactly("project-key-4", "project-key-5", "project-key-6");
   }
@@ -179,7 +179,7 @@ public class SearchActionTest {
       ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("java-project").setLanguage("java"),
       ComponentTesting.newPrivateProjectDto(organizationDto).setDbKey("cpp-project").setLanguage("cpp"));
 
-    SearchWsResponse response = call(new SearchWsRequest().setOrganization(organizationDto.getKey()).setLanguage("java").setQualifiers(singletonList(PROJECT)));
+    SearchWsResponse response = call(new SearchRequest().setOrganization(organizationDto.getKey()).setLanguage("java").setQualifiers(singletonList(PROJECT)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey).containsOnly("java-project");
   }
@@ -194,7 +194,7 @@ public class SearchActionTest {
     db.components().insertComponents(project1, file1, file2, project2, file3);
     setBrowsePermissionOnUserAndIndex(project1);
 
-    SearchWsResponse response = call(new SearchWsRequest().setQualifiers(singletonList(FILE)));
+    SearchWsResponse response = call(new SearchRequest().setQualifiers(singletonList(FILE)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey)
       .containsExactlyInAnyOrder(file1.getDbKey(), file2.getDbKey());
@@ -211,7 +211,7 @@ public class SearchActionTest {
     db.components().insertComponents(project, module, file1, file2, file3);
     setBrowsePermissionOnUserAndIndex(project);
 
-    SearchWsResponse response = call(new SearchWsRequest().setQualifiers(asList(PROJECT, MODULE, FILE)));
+    SearchWsResponse response = call(new SearchRequest().setQualifiers(asList(PROJECT, MODULE, FILE)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey, Component::getProject)
       .containsOnly(tuple(project.getDbKey(), project.getDbKey()),
@@ -227,7 +227,7 @@ public class SearchActionTest {
     ComponentDto branch = db.components().insertProjectBranch(project);
     setBrowsePermissionOnUserAndIndex(project, branch);
 
-    SearchWsResponse response = call(new SearchWsRequest().setQualifiers(asList(PROJECT, MODULE, FILE)));
+    SearchWsResponse response = call(new SearchRequest().setQualifiers(asList(PROJECT, MODULE, FILE)));
 
     assertThat(response.getComponentsList()).extracting(Component::getKey)
       .containsOnly(project.getDbKey());
@@ -238,7 +238,7 @@ public class SearchActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Value of parameter 'qualifiers' (Unknown-Qualifier) must be one of: [BRC, DIR, FIL, TRK]");
 
-    call(new SearchWsRequest().setQualifiers(singletonList("Unknown-Qualifier")));
+    call(new SearchRequest().setQualifiers(singletonList("Unknown-Qualifier")));
   }
 
   @Test
@@ -246,7 +246,7 @@ public class SearchActionTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("The 'qualifiers' parameter is missing");
 
-    call(new SearchWsRequest());
+    call(new SearchRequest());
   }
 
   @Test
@@ -279,7 +279,7 @@ public class SearchActionTest {
     Arrays.stream(projects).forEach(project -> authorizationIndexerTester.allowOnlyUser(project, user));
   }
 
-  private SearchWsResponse call(SearchWsRequest wsRequest) {
+  private SearchWsResponse call(SearchRequest wsRequest) {
     TestRequest request = ws.newRequest();
     setNullable(wsRequest.getOrganization(), p -> request.setParam(PARAM_ORGANIZATION, p));
     setNullable(wsRequest.getLanguage(), p -> request.setParam(PARAM_LANGUAGE, p));

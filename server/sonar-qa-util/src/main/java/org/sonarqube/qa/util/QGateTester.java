@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
-import org.sonarqube.ws.Qualitygates.CreateWsResponse;
+import org.sonarqube.ws.Qualitygates;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.qualitygates.CreateRequest;
@@ -42,7 +42,7 @@ public class QGateTester {
   }
 
   public QualitygatesService service() {
-    return session.wsClient().qualityGates();
+    return session.wsClient().qualitygates();
   }
 
   void deleteAll() {
@@ -53,12 +53,12 @@ public class QGateTester {
       .forEach(qualityGate -> session.wsClient().wsConnector().call(new PostRequest("api/qualitygates/destroy").setParam("id", qualityGate.getId())).failIfNotSuccessful());
   }
 
-  public CreateWsResponse generate() {
+  public Qualitygates.CreateResponse generate() {
     int id = ID_GENERATOR.getAndIncrement();
-    return session.wsClient().qualityGates().create(new CreateRequest().setName("QualityGate" + id));
+    return session.wsClient().qualitygates().create(new CreateRequest().setName("QualityGate" + id));
   }
 
-  public void associateProject(CreateWsResponse qualityGate, Project project){
+  public void associateProject(Qualitygates.CreateResponse qualityGate, Project project){
     service().select(new SelectRequest().setGateId(String.valueOf(qualityGate.getId())).setProjectKey(project.getKey()));
   }
 

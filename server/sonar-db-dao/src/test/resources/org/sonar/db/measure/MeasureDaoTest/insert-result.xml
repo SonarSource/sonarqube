@@ -4,7 +4,7 @@
       analysis_uuid="u2"
       metric_id="3"
       component_uuid="FILE1"
-      person_id="23"
+      person_id="[null]"
       value="2.0"
       text_value="measure-value"
       measure_data="[null]"

@@ -30,9 +30,21 @@ import static org.sonar.core.util.stream.MoreCollectors.toSet;
 public class OrganizationQuery {
   private static final OrganizationQuery NO_QUERY = newOrganizationQueryBuilder().build();
   private final Set<String> keys;
+  private final Integer userId;
 
   private OrganizationQuery(Builder builder) {
     this.keys = builder.keys;
+    this.userId = builder.member;
+  }
+
+  @CheckForNull
+  public Set<String> getKeys() {
+    return keys;
+  }
+
+  @CheckForNull
+  public Integer getMember() {
+    return userId;
   }
 
   public static OrganizationQuery returnAll() {
@@ -43,13 +55,9 @@ public class OrganizationQuery {
     return new Builder();
   }
 
-  @CheckForNull
-  public Set<String> getKeys() {
-    return keys;
-  }
-
   public static class Builder {
     private Set<String> keys;
+    private Integer member;
 
     private Builder() {
       // use static factory method
@@ -61,6 +69,11 @@ public class OrganizationQuery {
           .filter(Objects::nonNull)
           .collect(toSet(keys.size()));
       }
+      return this;
+    }
+
+    public Builder setMember(@Nullable Integer userId) {
+      this.member = userId;
       return this;
     }
 

@@ -29,8 +29,11 @@ import org.sonar.server.permission.UserId;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.permission.RemoveUserFromTemplateWsRequest;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPermission;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectPermissionParameter;
@@ -53,8 +56,8 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
     this.userSession = userSession;
   }
 
-  private static RemoveUserFromTemplateWsRequest toRemoveUserFromTemplateWsRequest(Request request) {
-    return new RemoveUserFromTemplateWsRequest()
+  private static RemoveUserFromTemplateRequest toRemoveUserFromTemplateWsRequest(Request request) {
+    return new RemoveUserFromTemplateRequest()
       .setPermission(request.mandatoryParam(PARAM_PERMISSION))
       .setLogin(request.mandatoryParam(PARAM_USER_LOGIN))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
@@ -83,7 +86,7 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
     response.noContent();
   }
 
-  private void doHandle(RemoveUserFromTemplateWsRequest request) {
+  private void doHandle(RemoveUserFromTemplateRequest request) {
     String permission = request.getPermission();
     String userLogin = request.getLogin();
 
@@ -97,6 +100,62 @@ public class RemoveUserFromTemplateAction implements PermissionsWsAction {
 
       dbClient.permissionTemplateDao().deleteUserPermission(dbSession, template.getId(), user.getId(), permission);
       dbSession.commit();
+    }
+  }
+
+  private static class RemoveUserFromTemplateRequest {
+    private String login;
+    private String permission;
+    private String templateId;
+    private String organization;
+    private String templateName;
+
+    public String getLogin() {
+      return login;
+    }
+
+    public RemoveUserFromTemplateRequest setLogin(String login) {
+      this.login = requireNonNull(login);
+      return this;
+    }
+
+    public String getPermission() {
+      return permission;
+    }
+
+    public RemoveUserFromTemplateRequest setPermission(String permission) {
+      this.permission = requireNonNull(permission);
+      return this;
+    }
+
+    @CheckForNull
+    public String getTemplateId() {
+      return templateId;
+    }
+
+    public RemoveUserFromTemplateRequest setTemplateId(@Nullable String templateId) {
+      this.templateId = templateId;
+      return this;
+    }
+
+    @CheckForNull
+    public String getOrganization() {
+      return organization;
+    }
+
+    public RemoveUserFromTemplateRequest setOrganization(@Nullable String s) {
+      this.organization = s;
+      return this;
+    }
+
+    @CheckForNull
+    public String getTemplateName() {
+      return templateName;
+    }
+
+    public RemoveUserFromTemplateRequest setTemplateName(@Nullable String templateName) {
+      this.templateName = templateName;
+      return this;
     }
   }
 }

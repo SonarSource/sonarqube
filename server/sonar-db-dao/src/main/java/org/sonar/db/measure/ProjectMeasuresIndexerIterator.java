@@ -69,24 +69,23 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     CoreMetrics.NEW_LINES_KEY,
     CoreMetrics.NEW_RELIABILITY_RATING_KEY);
 
-  private static final String SQL_PROJECTS = "SELECT p.organization_uuid, p.uuid, p.kee, p.name, s.uuid, s.created_at, p.tags " +
+  private static final String SQL_PROJECTS = "SELECT p.organization_uuid, p.uuid, p.kee, p.name, s.created_at, p.tags " +
     "FROM projects p " +
     "LEFT OUTER JOIN snapshots s ON s.component_uuid=p.uuid AND s.islast=? " +
     "WHERE p.enabled=? AND p.scope=? AND p.qualifier=? and p.main_branch_project_uuid is null ";
 
   private static final String PROJECT_FILTER = " AND p.uuid=?";
 
-  private static final String SQL_MEASURES = "SELECT m.name, pm.value, pm.variation_value_1, pm.text_value FROM project_measures pm " +
+  private static final String SQL_MEASURES = "SELECT m.name, pm.value, pm.variation, pm.text_value FROM live_measures pm " +
     "INNER JOIN metrics m ON m.id = pm.metric_id " +
-    "WHERE pm.component_uuid = ? AND pm.analysis_uuid = ? " +
+    "WHERE pm.component_uuid = ? " +
     "AND m.name IN ({metricNames}) " +
-    "AND (pm.value IS NOT NULL OR pm.variation_value_1 IS NOT NULL OR pm.text_value IS NOT NULL) " +
-    "AND pm.person_id IS NULL " +
+    "AND (pm.value IS NOT NULL OR pm.variation IS NOT NULL OR pm.text_value IS NOT NULL) " +
     "AND m.enabled = ? ";
   private static final boolean ENABLED = true;
   private static final int FIELD_METRIC_NAME = 1;
   private static final int FIELD_MEASURE_VALUE = 2;
-  private static final int FIELD_MEASURE_VARIATION_VALUE_1 = 3;
+  private static final int FIELD_MEASURE_VARIATION = 3;
   private static final int FIELD_MEASURE_TEXT_VALUE = 4;
 
   private final PreparedStatement measuresStatement;
@@ -116,10 +115,9 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
         String uuid = rs.getString(2);
         String key = rs.getString(3);
         String name = rs.getString(4);
-        String analysisUuid = DatabaseUtils.getString(rs, 5);
-        Long analysisDate = DatabaseUtils.getLong(rs, 6);
-        List<String> tags = readDbTags(DatabaseUtils.getString(rs, 7));
-        Project project = new Project(orgUuid, uuid, key, name, tags, analysisUuid, analysisDate);
+        Long analysisDate = DatabaseUtils.getLong(rs, 5);
+        List<String> tags = readDbTags(DatabaseUtils.getString(rs, 6));
+        Project project = new Project(orgUuid, uuid, key, name, tags, analysisDate);
         projects.add(project);
       }
       return projects;
@@ -165,20 +163,16 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
       return null;
     }
     Project project = projects.next();
-    Measures measures = selectMeasures(project.getUuid(), project.getAnalysisUuid());
+    Measures measures = selectMeasures(project.getUuid());
     return new ProjectMeasures(project, measures);
   }
 
-  private Measures selectMeasures(String projectUuid, @Nullable String analysisUuid) {
+  private Measures selectMeasures(String projectUuid) {
     Measures measures = new Measures();
-    if (analysisUuid == null) {
-      return measures;
-    }
     ResultSet rs = null;
     try {
       AtomicInteger index = new AtomicInteger(1);
       measuresStatement.setString(index.getAndIncrement(), projectUuid);
-      measuresStatement.setString(index.getAndIncrement(), analysisUuid);
       METRIC_KEYS.forEach(DatabaseUtils.setStrings(measuresStatement, index::getAndIncrement));
       measuresStatement.setBoolean(index.getAndIncrement(), ENABLED);
       rs = measuresStatement.executeQuery();
@@ -187,7 +181,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
       }
       return measures;
     } catch (Exception e) {
-      throw new IllegalStateException(String.format("Fail to execute request to select measures of project %s, analysis %s", projectUuid, analysisUuid), e);
+      throw new IllegalStateException(String.format("Fail to execute request to select measures of project %s", projectUuid), e);
     } finally {
       DatabaseUtils.closeQuietly(rs);
     }
@@ -195,7 +189,7 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
 
   private static void readMeasure(ResultSet rs, Measures measures) throws SQLException {
     String metricKey = rs.getString(FIELD_METRIC_NAME);
-    OptionalDouble value = metricKey.startsWith("new_") ? getDouble(rs, FIELD_MEASURE_VARIATION_VALUE_1) : getDouble(rs, FIELD_MEASURE_VALUE);
+    OptionalDouble value = metricKey.startsWith("new_") ? getDouble(rs, FIELD_MEASURE_VARIATION) : getDouble(rs, FIELD_MEASURE_VALUE);
     if (value.isPresent()) {
       measures.addNumericMeasure(metricKey, value.getAsDouble());
       return;
@@ -239,17 +233,15 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
     private final String uuid;
     private final String key;
     private final String name;
-    private final String analysisUuid;
     private final Long analysisDate;
     private final List<String> tags;
 
-    public Project(String organizationUuid, String uuid, String key, String name, List<String> tags, @Nullable String analysisUuid, @Nullable Long analysisDate) {
+    public Project(String organizationUuid, String uuid, String key, String name, List<String> tags, @Nullable Long analysisDate) {
       this.organizationUuid = organizationUuid;
       this.uuid = uuid;
       this.key = key;
       this.name = name;
       this.tags = tags;
-      this.analysisUuid = analysisUuid;
       this.analysisDate = analysisDate;
     }
 
@@ -271,11 +263,6 @@ public class ProjectMeasuresIndexerIterator extends CloseableIterator<ProjectMea
 
     public List<String> getTags() {
       return tags;
-    }
-
-    @CheckForNull
-    public String getAnalysisUuid() {
-      return analysisUuid;
     }
 
     @CheckForNull

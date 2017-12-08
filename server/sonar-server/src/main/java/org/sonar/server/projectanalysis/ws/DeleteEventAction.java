@@ -32,14 +32,13 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.event.EventDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.projectanalysis.DeleteEventRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.String.format;
 import static org.sonar.server.projectanalysis.ws.EventValidator.checkModifiable;
-import static org.sonarqube.ws.client.projectanalysis.EventCategory.OTHER;
-import static org.sonarqube.ws.client.projectanalysis.EventCategory.VERSION;
-import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_EVENT;
+import static org.sonar.server.projectanalysis.ws.EventCategory.OTHER;
+import static org.sonar.server.projectanalysis.ws.EventCategory.VERSION;
+import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_EVENT;
 
 public class DeleteEventAction implements ProjectAnalysesWsAction {
   private final DbClient dbClient;
@@ -73,18 +72,14 @@ public class DeleteEventAction implements ProjectAnalysesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    DeleteEventRequest deleteEventRequest = toDeleteEventRequest(request);
-    doHandle(deleteEventRequest);
-    response.noContent();
-  }
-
-  private void doHandle(DeleteEventRequest request) {
+    String eventP = request.mandatoryParam(PARAM_EVENT);
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Stream.of(getEvent(dbSession, request.getEvent()))
-        .peek(checkPermissions())
-        .peek(checkModifiable())
-        .forEach(event -> deleteEvent(dbSession, event));
+      Stream.of(getEvent(dbSession, eventP))
+              .peek(checkPermissions())
+              .peek(checkModifiable())
+              .forEach(event -> deleteEvent(dbSession, event));
     }
+    response.noContent();
   }
 
   private EventDto getEvent(DbSession dbSession, String event) {
@@ -106,9 +101,5 @@ public class DeleteEventAction implements ProjectAnalysesWsAction {
 
   private Consumer<EventDto> checkPermissions() {
     return event -> userSession.checkComponentUuidPermission(UserRole.ADMIN, event.getComponentUuid());
-  }
-
-  private static DeleteEventRequest toDeleteEventRequest(Request httpRequest) {
-    return new DeleteEventRequest(httpRequest.mandatoryParam(PARAM_EVENT));
   }
 }

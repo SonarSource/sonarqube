@@ -19,6 +19,7 @@
  */
 package org.sonarqube.qa.util;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -28,11 +29,13 @@ import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.HttpException;
 import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.organization.CreateWsRequest;
-import org.sonarqube.ws.client.organization.OrganizationService;
-import org.sonarqube.ws.client.organization.SearchMembersWsRequest;
-import org.sonarqube.ws.client.organization.SearchWsRequest;
-import org.sonarqube.ws.client.user.GroupsRequest;
+import org.sonarqube.ws.client.organizations.AddMemberRequest;
+import org.sonarqube.ws.client.organizations.CreateRequest;
+import org.sonarqube.ws.client.organizations.DeleteRequest;
+import org.sonarqube.ws.client.organizations.OrganizationsService;
+import org.sonarqube.ws.client.organizations.SearchMembersRequest;
+import org.sonarqube.ws.client.organizations.SearchRequest;
+import org.sonarqube.ws.client.users.GroupsRequest;
 
 import static java.util.Arrays.stream;
 
@@ -51,38 +54,38 @@ public class OrganizationTester {
   }
 
   void deleteNonGuardedOrganizations() {
-    service().search(SearchWsRequest.builder().build()).getOrganizationsList()
+    service().search(new SearchRequest()).getOrganizationsList()
       .stream()
       .filter(o -> !o.getKey().equals("default-organization"))
-      .forEach(organization -> service().delete(organization.getKey()));
+      .forEach(organization -> service().delete(new DeleteRequest().setOrganization(organization.getKey())));
   }
 
   @SafeVarargs
-  public final Organizations.Organization generate(Consumer<CreateWsRequest.Builder>... populators) {
+  public final Organizations.Organization generate(Consumer<CreateRequest>... populators) {
     int id = ID_GENERATOR.getAndIncrement();
-    CreateWsRequest.Builder request = new CreateWsRequest.Builder()
+    CreateRequest request = new CreateRequest()
       .setKey("org" + id)
       .setName("Org " + id)
       .setDescription("Description " + id)
       .setUrl("http://test" + id);
     stream(populators).forEach(p -> p.accept(request));
-    return service().create(request.build()).getOrganization();
+    return service().create(request).getOrganization();
   }
 
   public OrganizationTester addMember(Organizations.Organization organization, Users.CreateWsResponse.User user) {
-    service().addMember(organization.getKey(), user.getLogin());
+    service().addMember(new AddMemberRequest().setOrganization(organization.getKey()).setLogin(user.getLogin()));
     return this;
   }
 
   public Organizations.Organization getDefaultOrganization() {
-    return service().search(SearchWsRequest.builder().build()).getOrganizationsList()
+    return service().search(new SearchRequest()).getOrganizationsList()
       .stream()
       .filter(o -> o.getKey().equals("default-organization"))
       .findFirst().orElseThrow(() -> new IllegalStateException("Can't find default organization"));
   }
 
   public OrganizationTester assertThatOrganizationDoesNotExist(String organizationKey) {
-    SearchWsRequest request = new SearchWsRequest.Builder().setOrganizations(organizationKey).build();
+    SearchRequest request = new SearchRequest().setOrganizations(Collections.singletonList(organizationKey));
     Organizations.SearchWsResponse searchWsResponse = service().search(request);
     Assertions.assertThat(searchWsResponse.getOrganizationsList()).isEmpty();
     return this;
@@ -116,8 +119,8 @@ public class OrganizationTester {
   }
 
   private void verifyOrganizationMembership(@Nullable Organizations.Organization organization, String userLogin, boolean isMember) {
-    List<Organizations.User> users = service().searchMembers(new SearchMembersWsRequest()
-      .setQuery(userLogin)
+    List<Organizations.User> users = service().searchMembers(new SearchMembersRequest()
+      .setQ(userLogin)
       .setSelected("selected")
       .setOrganization(organization != null ? organization.getKey() : null))
       .getUsersList();
@@ -125,17 +128,16 @@ public class OrganizationTester {
   }
 
   private void verifyMembersGroupMembership(String userLogin, @Nullable Organizations.Organization organization, boolean isMember) {
-    List<Users.GroupsWsResponse.Group> groups = session.wsClient().users().groups(GroupsRequest.builder()
+    List<Users.GroupsWsResponse.Group> groups = session.wsClient().users().groups(new GroupsRequest()
       .setLogin(userLogin)
       .setOrganization(organization != null ? organization.getKey() : null)
-      .setQuery("Members")
-      .setSelected("selected")
-      .build())
+      .setQ("Members")
+      .setSelected("selected"))
       .getGroupsList();
     Assertions.assertThat(groups).hasSize(isMember ? 1 : 0);
   }
 
-  public OrganizationService service() {
+  public OrganizationsService service() {
     return session.wsClient().organizations();
   }
 }

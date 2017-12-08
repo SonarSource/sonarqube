@@ -25,7 +25,6 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -35,7 +34,6 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.ProjectMeasuresIndexerIterator.ProjectMeasures;
 import org.sonar.db.metric.MetricDto;
-import org.sonar.db.metric.MetricTesting;
 import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,7 +46,6 @@ import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.measures.Metric.ValueType.STRING;
-import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
 
@@ -64,12 +61,13 @@ public class ProjectMeasuresIndexerIteratorTest {
 
   @Test
   public void return_project_measure() {
-    MetricDto metric1 = insertIntMetric("ncloc");
-    MetricDto metric2 = insertIntMetric("coverage");
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization()).setDbKey("Project-Key").setName("Project Name").setTagsString("platform,java");
-    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
-    insertMeasure(project, analysis, metric1, 10d);
-    insertMeasure(project, analysis, metric2, 20d);
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPrivateProject(organization, p -> p.setDbKey("Project-Key").setName("Project Name").setTagsString("platform,java"));
+    SnapshotDto analysis = dbTester.components().insertSnapshot(project);
+    MetricDto metric1 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));
+    MetricDto metric2 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("coverage"));
+    dbTester.measures().insertLiveMeasure(project, metric1, m -> m.setValue(10d));
+    dbTester.measures().insertLiveMeasure(project, metric2, m -> m.setValue(20d));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
@@ -81,15 +79,15 @@ public class ProjectMeasuresIndexerIteratorTest {
     assertThat(doc.getProject().getName()).isEqualTo("Project Name");
     assertThat(doc.getProject().getTags()).containsExactly("platform", "java");
     assertThat(doc.getProject().getAnalysisDate()).isNotNull().isEqualTo(analysis.getCreatedAt());
-    assertThat(doc.getMeasures().getNumericMeasures()).containsOnly(entry("ncloc", 10d), entry("coverage", 20d));
+    assertThat(doc.getMeasures().getNumericMeasures()).containsOnly(entry(metric1.getKey(), 10d), entry(metric2.getKey(), 20d));
   }
 
   @Test
   public void return_project_measure_having_leak() throws Exception {
-    MetricDto metric = insertIntMetric("new_lines");
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
-    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
-    insertMeasureOnLeak(project, analysis, metric, 10d);
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPrivateProject(organization, p -> p.setDbKey("Project-Key").setName("Project Name").setTagsString("platform,java"));
+    MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("new_lines"));
+    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setVariation(10d));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
@@ -98,34 +96,40 @@ public class ProjectMeasuresIndexerIteratorTest {
 
   @Test
   public void return_quality_gate_status_measure() throws Exception {
-    MetricDto metric = insertMetric("alert_status", LEVEL);
-    insertProjectAndMeasure("project1", metric, WARN.name());
-    insertProjectAndMeasure("project2", metric, OK.name());
-    insertProjectAndMeasure("project3", metric, ERROR.name());
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project1 = dbTester.components().insertPrivateProject(organization);
+    ComponentDto project2 = dbTester.components().insertPrivateProject(organization);
+    ComponentDto project3 = dbTester.components().insertPrivateProject(organization);
+    MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(LEVEL.name()).setKey("alert_status"));
+    dbTester.measures().insertLiveMeasure(project1, metric, m -> m.setValue(null).setData(WARN.name()));
+    dbTester.measures().insertLiveMeasure(project2, metric, m -> m.setValue(null).setData(OK.name()));
+    dbTester.measures().insertLiveMeasure(project3, metric, m -> m.setValue(null).setData(ERROR.name()));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
-    assertThat(docsById.get("project1").getMeasures().getQualityGateStatus()).isEqualTo("WARN");
-    assertThat(docsById.get("project2").getMeasures().getQualityGateStatus()).isEqualTo("OK");
-    assertThat(docsById.get("project3").getMeasures().getQualityGateStatus()).isEqualTo("ERROR");
+    assertThat(docsById.get(project1.uuid()).getMeasures().getQualityGateStatus()).isEqualTo("WARN");
+    assertThat(docsById.get(project2.uuid()).getMeasures().getQualityGateStatus()).isEqualTo("OK");
+    assertThat(docsById.get(project3.uuid()).getMeasures().getQualityGateStatus()).isEqualTo("ERROR");
   }
 
   @Test
   public void does_not_fail_when_quality_gate_has_no_value() throws Exception {
-    MetricDto metric = insertMetric("alert_status", LEVEL);
-    insertProjectAndMeasure("project", metric, null);
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(LEVEL.name()).setKey("alert_status"));
+    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setValue(null).setVariation(null).setData((String) null));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
-    assertThat(docsById.get("project").getMeasures().getNumericMeasures()).isEmpty();
+    assertThat(docsById.get(project.uuid()).getMeasures().getNumericMeasures()).isEmpty();
   }
 
   @Test
   public void return_language_distribution_measure() throws Exception {
-    MetricDto metric = insertMetric("ncloc_language_distribution", DATA);
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
-    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
-    insertMeasure(project, analysis, metric, "<null>=2;java=6;xoo=18");
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(DATA.name()).setKey("ncloc_language_distribution"));
+    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setValue(null).setData("<null>=2;java=6;xoo=18"));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
@@ -135,14 +139,14 @@ public class ProjectMeasuresIndexerIteratorTest {
 
   @Test
   public void does_not_return_none_numeric_metrics() throws Exception {
-    MetricDto dataMetric = insertMetric("data", DATA);
-    MetricDto distribMetric = insertMetric("distrib", DISTRIB);
-    MetricDto stringMetric = insertMetric("string", STRING);
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
-    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
-    insertMeasure(project, analysis, dataMetric, "dat");
-    insertMeasure(project, analysis, distribMetric, "dis");
-    insertMeasure(project, analysis, stringMetric, "str");
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    MetricDto dataMetric = dbTester.measures().insertMetric(m -> m.setValueType(DATA.name()).setKey("data"));
+    MetricDto distribMetric = dbTester.measures().insertMetric(m -> m.setValueType(DISTRIB.name()).setKey("distrib"));
+    MetricDto stringMetric = dbTester.measures().insertMetric(m -> m.setValueType(STRING.name()).setKey("string"));
+    dbTester.measures().insertLiveMeasure(project, dataMetric, m -> m.setData("dat"));
+    dbTester.measures().insertLiveMeasure(project, distribMetric, m -> m.setData("dis"));
+    dbTester.measures().insertLiveMeasure(project, stringMetric, m -> m.setData("str"));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
@@ -151,10 +155,10 @@ public class ProjectMeasuresIndexerIteratorTest {
 
   @Test
   public void does_not_return_disabled_metrics() throws Exception {
-    MetricDto disabledMetric = insertMetric("disabled", false, false, INT);
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
-    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
-    insertMeasure(project, analysis, disabledMetric, 10d);
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    MetricDto disabledMetric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setEnabled(false).setHidden(false).setKey("disabled"));
+    dbTester.measures().insertLiveMeasure(project, disabledMetric, m -> m.setValue(10d));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
@@ -163,29 +167,28 @@ public class ProjectMeasuresIndexerIteratorTest {
 
   @Test
   public void ignore_measure_that_does_not_have_value() throws Exception {
-    MetricDto metric1 = insertIntMetric("coverage");
-    MetricDto metric2 = insertIntMetric("ncloc");
-    MetricDto leakMetric = insertIntMetric("new_lines");
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
-    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
+    OrganizationDto organization = dbTester.organizations().insert();
+    MetricDto metric1 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("coverage"));
+    MetricDto metric2 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));
+    MetricDto leakMetric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("new_lines"));
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
 
-    MeasureDto withValue = insertMeasure(project, analysis, metric1, 10d);
-    MeasureDto withLeakValue = insertMeasure(project, analysis, leakMetric, null, 20d);
-    MeasureDto withoutValue = insertMeasure(project, analysis, metric2, null, null);
+    dbTester.measures().insertLiveMeasure(project, metric1, m -> m.setValue(10d));
+    dbTester.measures().insertLiveMeasure(project, leakMetric, m -> m.setValue(null).setVariation(20d));
+    dbTester.measures().insertLiveMeasure(project, metric2, m -> m.setValue(null).setVariation(null));
 
     Map<String, Double> numericMeasures = createResultSetAndReturnDocsById().get(project.uuid()).getMeasures().getNumericMeasures();
-    assertThat(numericMeasures).containsOnly(entry("coverage", 10d), entry("new_lines", 20d));
+    assertThat(numericMeasures).containsOnly(entry(metric1.getKey(), 10d), entry(leakMetric.getKey(), 20d));
   }
 
   @Test
   public void ignore_numeric_measure_that_has_text_value_but_not_numeric_value() throws Exception {
-    MetricDto metric1 = insertIntMetric("coverage");
-    MetricDto metric2 = insertIntMetric("ncloc");
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
-    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
-
-    MeasureDto withNumericValue = insertMeasure(project, analysis, metric1, 10d);
-    MeasureDto withTextValue = insertMeasure(project, analysis, metric2, "foo");
+    OrganizationDto organization = dbTester.organizations().insert();
+    MetricDto metric1 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("coverage"));
+    MetricDto metric2 = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    dbTester.measures().insertLiveMeasure(project, metric1, m -> m.setValue(10d).setData((String) null));
+    dbTester.measures().insertLiveMeasure(project, metric2, m -> m.setValue(null).setData("foo"));
 
     Map<String, Double> numericMeasures = createResultSetAndReturnDocsById().get(project.uuid()).getMeasures().getNumericMeasures();
     assertThat(numericMeasures).containsOnly(entry("coverage", 10d));
@@ -193,9 +196,13 @@ public class ProjectMeasuresIndexerIteratorTest {
 
   @Test
   public void return_many_project_measures() {
-    dbTester.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization()));
-    dbTester.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization()));
-    dbTester.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization()));
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project1 = dbTester.components().insertPrivateProject(organization);
+    ComponentDto project2 = dbTester.components().insertPrivateProject(organization);
+    ComponentDto project3 = dbTester.components().insertPrivateProject(organization);
+    dbTester.components().insertSnapshot(project1);
+    dbTester.components().insertSnapshot(project2);
+    dbTester.components().insertSnapshot(project3);
 
     assertThat(createResultSetAndReturnDocsById()).hasSize(3);
   }
@@ -215,42 +222,47 @@ public class ProjectMeasuresIndexerIteratorTest {
 
   @Test
   public void does_not_return_non_active_projects() throws Exception {
+    OrganizationDto organization = dbTester.organizations().insert();
     // Disabled project
-    dbTester.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization()).setEnabled(false));
+    dbTester.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organization).setEnabled(false));
     // Disabled project with analysis
-    ComponentDto project = dbTester.components().insertComponent(ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization()).setEnabled(false));
+    ComponentDto project = dbTester.components().insertComponent(ComponentTesting.newPrivateProjectDto(organization).setEnabled(false));
     dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
 
     // A view
-    dbTester.components().insertProjectAndSnapshot(newView(dbTester.getDefaultOrganization()));
+    dbTester.components().insertProjectAndSnapshot(newView(organization));
 
     dbSession.commit();
 
-    assertResultSetIsEmpty();
+    assertThat(createResultSetAndReturnDocsById()).isEmpty();
   }
 
   @Test
   public void return_only_docs_from_given_project() throws Exception {
-    OrganizationDto organizationDto = dbTester.organizations().insert();
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(organizationDto);
-    SnapshotDto analysis = dbTester.components().insertProjectAndSnapshot(project);
-    dbTester.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organizationDto));
-    dbTester.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(organizationDto));
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project1 = dbTester.components().insertPrivateProject(organization);
+    ComponentDto project2 = dbTester.components().insertPrivateProject(organization);
+    ComponentDto project3 = dbTester.components().insertPrivateProject(organization);
+    SnapshotDto analysis1 = dbTester.components().insertSnapshot(project1);
+    SnapshotDto analysis2 = dbTester.components().insertSnapshot(project2);
+    SnapshotDto analysis3 = dbTester.components().insertSnapshot(project3);
 
-    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById(project.uuid());
+    Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById(project1.uuid());
 
     assertThat(docsById).hasSize(1);
-    ProjectMeasures doc = docsById.get(project.uuid());
+    ProjectMeasures doc = docsById.get(project1.uuid());
     assertThat(doc).isNotNull();
-    assertThat(doc.getProject().getUuid()).isEqualTo(project.uuid());
-    assertThat(doc.getProject().getKey()).isNotNull().isEqualTo(project.getDbKey());
-    assertThat(doc.getProject().getName()).isNotNull().isEqualTo(project.name());
-    assertThat(doc.getProject().getAnalysisDate()).isNotNull().isEqualTo(analysis.getCreatedAt());
+    assertThat(doc.getProject().getUuid()).isEqualTo(project1.uuid());
+    assertThat(doc.getProject().getKey()).isNotNull().isEqualTo(project1.getDbKey());
+    assertThat(doc.getProject().getName()).isNotNull().isEqualTo(project1.name());
+    assertThat(doc.getProject().getAnalysisDate()).isNotNull().isEqualTo(analysis1.getCreatedAt());
   }
 
   @Test
   public void return_nothing_on_unknown_project() throws Exception {
-    dbTester.components().insertProjectAndSnapshot(ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization()));
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    dbTester.components().insertSnapshot(project);
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById("UNKNOWN");
 
@@ -259,14 +271,13 @@ public class ProjectMeasuresIndexerIteratorTest {
 
   @Test
   public void non_main_branches_are_not_indexed() {
-    MetricDto metric = insertIntMetric("ncloc");
-    ComponentDto project = ComponentTesting.newPrivateProjectDto(dbTester.getDefaultOrganization());
-    SnapshotDto projectAnalysis = dbTester.components().insertProjectAndSnapshot(project);
-    insertMeasure(project, projectAnalysis, metric, 10d);
+    OrganizationDto organization = dbTester.organizations().insert();
+    ComponentDto project = dbTester.components().insertPrivateProject(organization);
+    MetricDto metric = dbTester.measures().insertMetric(m -> m.setValueType(INT.name()).setKey("ncloc"));
+    dbTester.measures().insertLiveMeasure(project, metric, m -> m.setValue(10d));
 
     ComponentDto branch = dbTester.components().insertProjectBranch(project, b -> b.setKey("feature/foo"));
-    SnapshotDto branchAnalysis = dbTester.components().insertSnapshot(branch);
-    insertMeasure(branch, branchAnalysis, metric, 20d);
+    dbTester.measures().insertLiveMeasure(branch, metric, m -> m.setValue(20d));
 
     Map<String, ProjectMeasures> docsById = createResultSetAndReturnDocsById();
 
@@ -284,56 +295,4 @@ public class ProjectMeasuresIndexerIteratorTest {
     it.close();
     return docsById;
   }
-
-  private void assertResultSetIsEmpty() {
-    assertThat(createResultSetAndReturnDocsById()).isEmpty();
-  }
-
-  private MetricDto insertIntMetric(String metricKey) {
-    return insertMetric(metricKey, true, false, INT);
-  }
-
-  private MetricDto insertMetric(String metricKey, Metric.ValueType type) {
-    return insertMetric(metricKey, true, false, type);
-  }
-
-  private MetricDto insertMetric(String metricKey, boolean enabled, boolean hidden, Metric.ValueType type) {
-    MetricDto metric = dbClient.metricDao().insert(dbSession,
-      MetricTesting.newMetricDto()
-        .setKey(metricKey)
-        .setEnabled(enabled)
-        .setHidden(hidden)
-        .setValueType(type.name()));
-    dbSession.commit();
-    return metric;
-  }
-
-  private MeasureDto insertProjectAndMeasure(String projectUuid, MetricDto metric, String value) {
-    ComponentDto project = newPrivateProjectDto(dbTester.getDefaultOrganization(), projectUuid);
-    SnapshotDto analysis1 = dbTester.components().insertProjectAndSnapshot(project);
-    return insertMeasure(project, analysis1, metric, value);
-  }
-
-  private MeasureDto insertMeasure(ComponentDto project, SnapshotDto analysis, MetricDto metric, double value) {
-    return insertMeasure(project, analysis, metric, value, null);
-  }
-
-  private MeasureDto insertMeasureOnLeak(ComponentDto project, SnapshotDto analysis, MetricDto metric, double value) {
-    return insertMeasure(project, analysis, metric, null, value);
-  }
-
-  private MeasureDto insertMeasure(ComponentDto project, SnapshotDto analysis, MetricDto metric, String value) {
-    return insertMeasure(MeasureTesting.newMeasureDto(metric, project, analysis).setData(value));
-  }
-
-  private MeasureDto insertMeasure(ComponentDto project, SnapshotDto analysis, MetricDto metric, @Nullable Double value, @Nullable Double leakValue) {
-    return insertMeasure(MeasureTesting.newMeasureDto(metric, project, analysis).setValue(value).setVariation(leakValue));
-  }
-
-  private MeasureDto insertMeasure(MeasureDto measure) {
-    dbClient.measureDao().insert(dbSession, measure);
-    dbSession.commit();
-    return measure;
-  }
-
 }

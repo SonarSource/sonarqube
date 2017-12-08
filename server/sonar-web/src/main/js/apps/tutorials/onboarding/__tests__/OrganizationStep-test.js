@@ -22,16 +22,18 @@ import React from 'react';
 import { mount } from 'enzyme';
 import OrganizationStep from '../OrganizationStep';
 import { click } from '../../../../helpers/testUtils';
-import { getMyOrganizations } from '../../../../api/organizations';
+import { getOrganizations } from '../../../../api/organizations';
 
 jest.mock('../../../../api/organizations', () => ({
-  getMyOrganizations: jest.fn(() => Promise.resolve(['user', 'another']))
+  getOrganizations: jest.fn(() =>
+    Promise.resolve({ organizations: [{ key: 'user' }, { key: 'another' }] })
+  )
 }));
 
 const currentUser = { isLoggedIn: true, login: 'user' };
 
 beforeEach(() => {
-  getMyOrganizations.mockClear();
+  getOrganizations.mockClear();
 });
 
 // FIXME

@@ -36,7 +36,7 @@ import org.junit.rules.Timeout;
 import org.sonarqube.qa.util.LogsTailer;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Users;
-import org.sonarqube.ws.client.user.SearchRequest;
+import org.sonarqube.ws.client.users.SearchRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.pluginArtifact;
@@ -64,7 +64,7 @@ public class StartupIndexationTest {
          LogsTailer.Watch sonarQubeIsUpWatcher = sonarQube.logsTailer.watch("SonarQube is up")) {
       sonarQube.resume();
       sonarQubeIsUpWatcher.waitForLog(20, TimeUnit.SECONDS);
-      SearchRequest searchRequest = SearchRequest.builder().setQuery("admin").build();
+      SearchRequest searchRequest = new SearchRequest().setQ("admin");
       Users.SearchWsResponse searchWsResponse = sonarQube.tester.wsClient().users().search(searchRequest);
       assertThat(searchWsResponse.getUsersCount()).isEqualTo(1);
       assertThat(searchWsResponse.getUsers(0).getName()).isEqualTo("Administrator");

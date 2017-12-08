@@ -31,11 +31,9 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Change;
-import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.web.UserRole;
 import org.sonar.ce.taskprocessor.CeTaskProcessor;
 import org.sonar.core.util.Uuids;
@@ -50,7 +48,6 @@ import org.sonar.db.component.ComponentQuery;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Ce;
 import org.sonarqube.ws.Ce.ActivityResponse;
-import org.sonarqube.ws.client.ce.ActivityRequest;
 
 import static java.lang.Boolean.parseBoolean;
 import static java.lang.Integer.parseInt;
@@ -64,13 +61,13 @@ import static org.sonar.db.Pagination.forPage;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_QUERY;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MAX_EXECUTED_AT;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_ONLY_CURRENTS;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_STATUS;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_TYPE;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_ID;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_COMPONENT_QUERY;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MAX_EXECUTED_AT;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_ONLY_CURRENTS;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_STATUS;
+import static org.sonar.server.ce.ws.CeWsParameters.PARAM_TYPE;
 
 public class ActivityAction implements CeWsAction {
   private static final int MAX_PAGE_SIZE = 1000;
@@ -146,10 +143,10 @@ public class ActivityAction implements CeWsAction {
       .setPossibleValues(taskTypes);
     action.createParam(PARAM_MIN_SUBMITTED_AT)
       .setDescription("Minimum date of task submission (inclusive)")
-      .setExampleValue(DateUtils.formatDateTime(new Date()));
+      .setExampleValue("2017-10-19T13:00:00+0200");
     action.createParam(PARAM_MAX_EXECUTED_AT)
       .setDescription("Maximum date of end of task processing (inclusive)")
-      .setExampleValue(DateUtils.formatDateTime(new Date()));
+      .setExampleValue("2017-10-19T13:00:00+0200");
     action.createParam(Param.PAGE)
       .setDescription("Deprecated parameter")
       .setDeprecatedSince("5.5")
@@ -158,12 +155,12 @@ public class ActivityAction implements CeWsAction {
   }
 
   @Override
-  public void handle(Request wsRequest, Response wsResponse) throws Exception {
+  public void handle(org.sonar.api.server.ws.Request wsRequest, Response wsResponse) throws Exception {
     ActivityResponse activityResponse = doHandle(toSearchWsRequest(wsRequest));
     writeProtobuf(activityResponse, wsRequest, wsResponse);
   }
 
-  private ActivityResponse doHandle(ActivityRequest request) {
+  private ActivityResponse doHandle(Request request) {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       ComponentDto component = loadComponent(dbSession, request);
@@ -188,7 +185,7 @@ public class ActivityAction implements CeWsAction {
   }
 
   @CheckForNull
-  private ComponentDto loadComponent(DbSession dbSession, ActivityRequest request) {
+  private ComponentDto loadComponent(DbSession dbSession, Request request) {
     String componentId = request.getComponentId();
     if (componentId == null) {
       return null;
@@ -207,7 +204,7 @@ public class ActivityAction implements CeWsAction {
     }
   }
 
-  private Optional<Ce.Task> searchTaskByUuid(DbSession dbSession, ActivityRequest request) {
+  private Optional<Ce.Task> searchTaskByUuid(DbSession dbSession, Request request) {
     String textQuery = request.getQ();
     if (textQuery == null) {
       return Optional.absent();
@@ -222,7 +219,7 @@ public class ActivityAction implements CeWsAction {
     return activity.map(ceActivityDto -> Optional.of(formatter.formatActivity(dbSession, ceActivityDto, null))).orElseGet(Optional::absent);
   }
 
-  private CeTaskQuery buildQuery(DbSession dbSession, ActivityRequest request, @Nullable ComponentDto component) {
+  private CeTaskQuery buildQuery(DbSession dbSession, Request request, @Nullable ComponentDto component) {
     CeTaskQuery query = new CeTaskQuery();
     query.setType(request.getType());
     query.setOnlyCurrents(parseBoolean(request.getOnlyCurrents()));
@@ -253,12 +250,12 @@ public class ActivityAction implements CeWsAction {
     return dbClient.componentDao().selectByQuery(dbSession, componentDtoQuery, 0, CeTaskQuery.MAX_COMPONENT_UUIDS);
   }
 
-  private List<Ce.Task> loadQueuedTasks(DbSession dbSession, ActivityRequest request, CeTaskQuery query) {
+  private List<Ce.Task> loadQueuedTasks(DbSession dbSession, Request request, CeTaskQuery query) {
     List<CeQueueDto> dtos = dbClient.ceQueueDao().selectByQueryInDescOrder(dbSession, query, parseInt(request.getPs()));
     return formatter.formatQueue(dbSession, dtos);
   }
 
-  private List<Ce.Task> loadPastTasks(DbSession dbSession, ActivityRequest request, CeTaskQuery query) {
+  private List<Ce.Task> loadPastTasks(DbSession dbSession, Request request, CeTaskQuery query) {
     List<CeActivityDto> dtos = dbClient.ceActivityDao().selectByQuery(dbSession, query, forPage(1).andSize(parseInt(request.getPs())));
     return formatter.formatActivity(dbSession, dtos);
   }
@@ -283,8 +280,8 @@ public class ActivityAction implements CeWsAction {
     return wsResponseBuilder.build();
   }
 
-  private static ActivityRequest toSearchWsRequest(Request request) {
-    ActivityRequest activityWsRequest = new ActivityRequest()
+  private static Request toSearchWsRequest(org.sonar.api.server.ws.Request request) {
+    Request activityWsRequest = new Request()
       .setComponentId(request.param(PARAM_COMPONENT_ID))
       .setQ(defaultString(request.param(Param.TEXT_QUERY), request.param(PARAM_COMPONENT_QUERY)))
       .setStatus(request.paramAsStrings(PARAM_STATUS))
@@ -297,5 +294,131 @@ public class ActivityAction implements CeWsAction {
     checkRequest(activityWsRequest.getComponentId() == null || activityWsRequest.getQ() == null, "%s and %s must not be set at the same time",
       PARAM_COMPONENT_ID, PARAM_COMPONENT_QUERY);
     return activityWsRequest;
+  }
+
+  private static class Request {
+
+    private String componentId;
+    private String maxExecutedAt;
+    private String minSubmittedAt;
+    private String onlyCurrents;
+    private String ps;
+    private String q;
+    private List<String> status;
+    private String type;
+
+    /**
+     * Example value: "AU-TpxcA-iU5OvuD2FL0"
+     */
+    private Request setComponentId(String componentId) {
+      this.componentId = componentId;
+      return this;
+    }
+
+    private String getComponentId() {
+      return componentId;
+    }
+
+    /**
+     * Example value: "2017-10-19T13:00:00+0200"
+     */
+    private Request setMaxExecutedAt(String maxExecutedAt) {
+      this.maxExecutedAt = maxExecutedAt;
+      return this;
+    }
+
+    private String getMaxExecutedAt() {
+      return maxExecutedAt;
+    }
+
+    /**
+     * Example value: "2017-10-19T13:00:00+0200"
+     */
+    private Request setMinSubmittedAt(String minSubmittedAt) {
+      this.minSubmittedAt = minSubmittedAt;
+      return this;
+    }
+
+    private String getMinSubmittedAt() {
+      return minSubmittedAt;
+    }
+
+    /**
+     * Possible values:
+     * <ul>
+     *   <li>"true"</li>
+     *   <li>"false"</li>
+     *   <li>"yes"</li>
+     *   <li>"no"</li>
+     * </ul>
+     */
+    private Request setOnlyCurrents(String onlyCurrents) {
+      this.onlyCurrents = onlyCurrents;
+      return this;
+    }
+
+    private String getOnlyCurrents() {
+      return onlyCurrents;
+    }
+
+    /**
+     * Example value: "20"
+     */
+    private Request setPs(String ps) {
+      this.ps = ps;
+      return this;
+    }
+
+    private String getPs() {
+      return ps;
+    }
+
+    /**
+     * Example value: "Apache"
+     */
+    private Request setQ(String q) {
+      this.q = q;
+      return this;
+    }
+
+    private String getQ() {
+      return q;
+    }
+
+    /**
+     * Example value: "IN_PROGRESS,SUCCESS"
+     * Possible values:
+     * <ul>
+     *   <li>"SUCCESS"</li>
+     *   <li>"FAILED"</li>
+     *   <li>"CANCELED"</li>
+     *   <li>"PENDING"</li>
+     *   <li>"IN_PROGRESS"</li>
+     * </ul>
+     */
+    private Request setStatus(List<String> status) {
+      this.status = status;
+      return this;
+    }
+
+    private List<String> getStatus() {
+      return status;
+    }
+
+    /**
+     * Example value: "REPORT"
+     * Possible values:
+     * <ul>
+     *   <li>"REPORT"</li>
+     * </ul>
+     */
+    private Request setType(String type) {
+      this.type = type;
+      return this;
+    }
+
+    private String getType() {
+      return type;
+    }
   }
 }

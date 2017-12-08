@@ -19,14 +19,29 @@
  */
 package org.sonar.server.qualitygate;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.picocontainer.Startable;
+import org.sonar.api.utils.System2;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.loadedtemplate.LoadedTemplateDao;
-import org.sonar.db.loadedtemplate.LoadedTemplateDto;
+import org.sonar.db.metric.MetricDto;
+import org.sonar.db.qualitygate.QualityGateConditionDao;
+import org.sonar.db.qualitygate.QualityGateConditionDto;
+import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.computation.task.projectanalysis.qualitymodel.RatingGrid;
 
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toMap;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_DUPLICATED_LINES_DENSITY_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
@@ -37,32 +52,96 @@ import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_LESS_THA
 
 public class RegisterQualityGates implements Startable {
 
-  private static final String BUILTIN_QUALITY_GATE = "SonarQube way";
+  private static final Logger LOGGER = Loggers.get(RegisterQualityGates.class);
+
+  private static final String BUILTIN_QUALITY_GATE_NAME = "Sonar way";
   private static final int LEAK_PERIOD = 1;
+  private static final String A_RATING = Integer.toString(RatingGrid.Rating.A.getIndex());
+
+  private static final List<QualityGateCondition> QUALITY_GATE_CONDITIONS = asList(
+    new QualityGateCondition().setMetricKey(NEW_SECURITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setPeriod(LEAK_PERIOD).setErrorThreshold(A_RATING),
+    new QualityGateCondition().setMetricKey(NEW_RELIABILITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setPeriod(LEAK_PERIOD).setErrorThreshold(A_RATING),
+    new QualityGateCondition().setMetricKey(NEW_MAINTAINABILITY_RATING_KEY).setOperator(OPERATOR_GREATER_THAN).setPeriod(LEAK_PERIOD).setErrorThreshold(A_RATING),
+    new QualityGateCondition().setMetricKey(NEW_COVERAGE_KEY).setOperator(OPERATOR_LESS_THAN).setPeriod(LEAK_PERIOD).setErrorThreshold("80"),
+    new QualityGateCondition().setMetricKey(NEW_DUPLICATED_LINES_DENSITY_KEY).setOperator(OPERATOR_GREATER_THAN).setPeriod(LEAK_PERIOD).setErrorThreshold("3"));
 
   private final DbClient dbClient;
-  private final QualityGateUpdater qualityGateUpdater;
   private final QualityGateConditionsUpdater qualityGateConditionsUpdater;
-  private final LoadedTemplateDao loadedTemplateDao;
-  private final QualityGates qualityGates;
+  private final QualityGateFinder qualityGateFinder;
+  private final QualityGateUpdater qualityGateUpdater;
+  private final QualityGateDao qualityGateDao;
+  private final QualityGateConditionDao qualityGateConditionDao;
+  private final System2 system2;
 
-  public RegisterQualityGates(DbClient dbClient, QualityGateUpdater qualityGateUpdater, QualityGateConditionsUpdater qualityGateConditionsUpdater,
-    LoadedTemplateDao loadedTemplateDao, QualityGates qualityGates) {
+  public RegisterQualityGates(DbClient dbClient, QualityGateUpdater qualityGateUpdater,
+    QualityGateConditionsUpdater qualityGateConditionsUpdater, QualityGateFinder qualityGateFinder, System2 system2) {
     this.dbClient = dbClient;
-    this.qualityGateUpdater = qualityGateUpdater;
     this.qualityGateConditionsUpdater = qualityGateConditionsUpdater;
-    this.loadedTemplateDao = loadedTemplateDao;
-    this.qualityGates = qualityGates;
+    this.qualityGateUpdater = qualityGateUpdater;
+    this.qualityGateFinder = qualityGateFinder;
+    this.qualityGateDao = dbClient.qualityGateDao();
+    this.qualityGateConditionDao = dbClient.gateConditionDao();
+    this.system2 = system2;
   }
 
   @Override
   public void start() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      if (shouldRegisterBuiltinQualityGate(dbSession)) {
-        createBuiltinQualityGate(dbSession);
-        registerBuiltinQualityGate(dbSession);
-        dbSession.commit();
+      QualityGateDto builtin = qualityGateDao.selectByName(dbSession, BUILTIN_QUALITY_GATE_NAME);
+
+      // Create builtin if not present
+      if (builtin == null) {
+        LOGGER.info("Built-in quality gate [{}] has been created", BUILTIN_QUALITY_GATE_NAME);
+        builtin = createQualityGate(dbSession, BUILTIN_QUALITY_GATE_NAME);
       }
+
+      // Set builtin as default if there is no default
+      if (!qualityGateFinder.getDefault(dbSession).isPresent()) {
+        LOGGER.info("Built-in quality gate [{}] has been set as default", BUILTIN_QUALITY_GATE_NAME);
+        qualityGateUpdater.setDefault(dbSession, builtin);
+      }
+
+      // Set builtin if missing
+      if (!builtin.isBuiltIn()) {
+        builtin.setBuiltIn(true);
+        dbClient.qualityGateDao().update(builtin, dbSession);
+        LOGGER.info("Quality gate [{}] has been set as built-in", BUILTIN_QUALITY_GATE_NAME);
+      }
+
+      updateQualityConditionsIfRequired(dbSession, builtin);
+
+      qualityGateDao.ensureOneBuiltInQualityGate(dbSession, BUILTIN_QUALITY_GATE_NAME);
+
+      dbSession.commit();
+    }
+  }
+
+  private void updateQualityConditionsIfRequired(DbSession dbSession, QualityGateDto builtin) {
+    Map<Long, String> idToKeyMetric = dbClient.metricDao().selectAll(dbSession).stream()
+      .collect(toMap(metricDto -> metricDto.getId().longValue(), MetricDto::getKey));
+
+    List<QualityGateCondition> qualityGateConditions = qualityGateConditionDao.selectForQualityGate(dbSession, builtin.getId())
+      .stream()
+      .map(dto -> QualityGateCondition.from(dto, idToKeyMetric))
+      .collect(MoreCollectors.toList());
+
+    // Find all conditions that are not present in QUALITY_GATE_CONDITIONS
+    // Those conditions must be deleted
+    List<QualityGateCondition> qgConditionsToBeDeleted = new ArrayList<>(qualityGateConditions);
+    qgConditionsToBeDeleted.removeAll(QUALITY_GATE_CONDITIONS);
+    qgConditionsToBeDeleted.stream()
+      .forEach(qgc -> qualityGateConditionDao.delete(qgc.toQualityGateDto(builtin.getId()), dbSession));
+
+    // Find all conditions that are not present in qualityGateConditions
+    // Those conditions must be created
+    List<QualityGateCondition> qgConditionsToBeCreated = new ArrayList<>(QUALITY_GATE_CONDITIONS);
+    qgConditionsToBeCreated.removeAll(qualityGateConditions);
+    qgConditionsToBeCreated.stream()
+      .forEach(qgc -> qualityGateConditionsUpdater.createCondition(dbSession, builtin, qgc.getMetricKey(), qgc.getOperator(), qgc.getWarningThreshold(),
+        qgc.getErrorThreshold(), qgc.getPeriod()));
+
+    if (!qgConditionsToBeCreated.isEmpty() || !qgConditionsToBeDeleted.isEmpty()) {
+      LOGGER.info("Built-in quality gate's conditions of [{}] has been updated", BUILTIN_QUALITY_GATE_NAME);
     }
   }
 
@@ -71,27 +150,121 @@ public class RegisterQualityGates implements Startable {
     // do nothing
   }
 
-  private boolean shouldRegisterBuiltinQualityGate(DbSession dbSession) {
-    return loadedTemplateDao.countByTypeAndKey(LoadedTemplateDto.QUALITY_GATE_TYPE, BUILTIN_QUALITY_GATE, dbSession) == 0;
+  private QualityGateDto createQualityGate(DbSession dbSession, String name) {
+    QualityGateDto qualityGate = new QualityGateDto()
+      .setName(name)
+      .setBuiltIn(true)
+      .setCreatedAt(new Date(system2.now()));
+    return dbClient.qualityGateDao().insert(dbSession, qualityGate);
   }
 
-  private void createBuiltinQualityGate(DbSession dbSession) {
-    String ratingAValue = Integer.toString(RatingGrid.Rating.A.getIndex());
-    QualityGateDto builtin = qualityGateUpdater.create(dbSession, BUILTIN_QUALITY_GATE);
-    qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(),
-      NEW_SECURITY_RATING_KEY, OPERATOR_GREATER_THAN, null, ratingAValue, LEAK_PERIOD);
-    qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(),
-      NEW_RELIABILITY_RATING_KEY, OPERATOR_GREATER_THAN, null, ratingAValue, LEAK_PERIOD);
-    qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(),
-      NEW_MAINTAINABILITY_RATING_KEY, OPERATOR_GREATER_THAN, null, ratingAValue, LEAK_PERIOD);
-    qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(),
-      NEW_COVERAGE_KEY, OPERATOR_LESS_THAN, null, "80", LEAK_PERIOD);
-    qualityGateConditionsUpdater.createCondition(dbSession, builtin.getId(),
-      NEW_DUPLICATED_LINES_DENSITY_KEY, OPERATOR_GREATER_THAN, null, "3", LEAK_PERIOD);
-    qualityGates.setDefault(dbSession, builtin.getId());
-  }
+  private static class QualityGateCondition {
+    private Long id;
+    private String metricKey;
+    private Integer period;
+    private String operator;
+    private String warningThreshold;
+    private String errorThreshold;
 
-  private void registerBuiltinQualityGate(DbSession dbSession) {
-    loadedTemplateDao.insert(new LoadedTemplateDto(BUILTIN_QUALITY_GATE, LoadedTemplateDto.QUALITY_GATE_TYPE), dbSession);
+    public static QualityGateCondition from(QualityGateConditionDto qualityGateConditionDto, Map<Long, String> mapping) {
+      return new QualityGateCondition()
+        .setId(qualityGateConditionDto.getId())
+        .setMetricKey(mapping.get(qualityGateConditionDto.getMetricId()))
+        .setOperator(qualityGateConditionDto.getOperator())
+        .setPeriod(qualityGateConditionDto.getPeriod())
+        .setErrorThreshold(qualityGateConditionDto.getErrorThreshold())
+        .setWarningThreshold(qualityGateConditionDto.getWarningThreshold());
+    }
+
+    @CheckForNull
+    public Long getId() {
+      return id;
+    }
+
+    public QualityGateCondition setId(Long id) {
+      this.id = id;
+      return this;
+    }
+
+    public String getMetricKey() {
+      return metricKey;
+    }
+
+    public QualityGateCondition setMetricKey(String metricKey) {
+      this.metricKey = metricKey;
+      return this;
+    }
+
+    public Integer getPeriod() {
+      return period;
+    }
+
+    public QualityGateCondition setPeriod(Integer period) {
+      this.period = period;
+      return this;
+    }
+
+    public String getOperator() {
+      return operator;
+    }
+
+    public QualityGateCondition setOperator(String operator) {
+      this.operator = operator;
+      return this;
+    }
+
+    @CheckForNull
+    public String getWarningThreshold() {
+      return warningThreshold;
+    }
+
+    public QualityGateCondition setWarningThreshold(@Nullable String warningThreshold) {
+      this.warningThreshold = warningThreshold;
+      return this;
+    }
+
+    @CheckForNull
+    public String getErrorThreshold() {
+      return errorThreshold;
+    }
+
+    public QualityGateCondition setErrorThreshold(@Nullable String errorThreshold) {
+      this.errorThreshold = errorThreshold;
+      return this;
+    }
+
+    public QualityGateConditionDto toQualityGateDto(long qualityGateId) {
+      return new QualityGateConditionDto()
+        .setId(id)
+        .setMetricKey(metricKey)
+        .setOperator(operator)
+        .setPeriod(period)
+        .setErrorThreshold(errorThreshold)
+        .setWarningThreshold(warningThreshold)
+        .setQualityGateId(qualityGateId);
+    }
+
+    // id does not belongs to equals to be able to be compared with builtin
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+      QualityGateCondition that = (QualityGateCondition) o;
+      return Objects.equals(metricKey, that.metricKey) &&
+        Objects.equals(period, that.period) &&
+        Objects.equals(operator, that.operator) &&
+        Objects.equals(warningThreshold, that.warningThreshold) &&
+        Objects.equals(errorThreshold, that.errorThreshold);
+    }
+
+    // id does not belongs to hashcode to be able to be compared with builtin
+    @Override
+    public int hashCode() {
+      return Objects.hash(metricKey, period, operator, warningThreshold, errorThreshold);
+    }
   }
 }

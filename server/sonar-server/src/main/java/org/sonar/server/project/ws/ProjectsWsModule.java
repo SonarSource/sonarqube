@@ -36,7 +36,6 @@ public class ProjectsWsModule extends Module {
       GhostsAction.class,
       ProvisionedAction.class,
       SearchMyProjectsAction.class,
-      SearchMyProjectsDataLoader.class,
       SearchAction.class,
       UpdateVisibilityAction.class);
   }

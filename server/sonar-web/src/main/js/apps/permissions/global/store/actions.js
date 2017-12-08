@@ -19,7 +19,7 @@
  */
 // @flow
 import * as api from '../../../../api/permissions';
-import { parseError } from '../../../code/utils';
+import { parseError } from '../../../../helpers/request';
 import {
   raiseError,
   REQUEST_HOLDERS,

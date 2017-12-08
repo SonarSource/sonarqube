@@ -31,7 +31,9 @@ import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.ws.PermissionWsSupport;
 import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.client.permission.ApplyTemplateWsRequest;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createProjectParameters;
@@ -58,8 +60,8 @@ public class ApplyTemplateAction implements PermissionsWsAction {
     this.wsSupport = wsSupport;
   }
 
-  private static ApplyTemplateWsRequest toApplyTemplateWsRequest(Request request) {
-    return new ApplyTemplateWsRequest()
+  private static ApplyTemplateRequest toApplyTemplateWsRequest(Request request) {
+    return new ApplyTemplateRequest()
       .setProjectId(request.param(PARAM_PROJECT_ID))
       .setProjectKey(request.param(PARAM_PROJECT_KEY))
       .setTemplateId(request.param(PARAM_TEMPLATE_ID))
@@ -88,7 +90,7 @@ public class ApplyTemplateAction implements PermissionsWsAction {
     response.noContent();
   }
 
-  private void doHandle(ApplyTemplateWsRequest request) {
+  private void doHandle(ApplyTemplateRequest request) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       PermissionTemplateDto template = wsSupport.findTemplate(dbSession, newTemplateRef(
         request.getTemplateId(), request.getOrganization(), request.getTemplateName()));
@@ -97,6 +99,63 @@ public class ApplyTemplateAction implements PermissionsWsAction {
       checkGlobalAdmin(userSession, template.getOrganizationUuid());
 
       permissionTemplateService.applyAndCommit(dbSession, template, Collections.singletonList(project));
+    }
+  }
+
+  private static class ApplyTemplateRequest {
+    private String projectId;
+    private String projectKey;
+    private String templateId;
+    private String organization;
+    private String templateName;
+
+    @CheckForNull
+    public String getProjectId() {
+      return projectId;
+    }
+
+    public ApplyTemplateRequest setProjectId(@Nullable String projectId) {
+      this.projectId = projectId;
+      return this;
+    }
+
+    @CheckForNull
+    public String getProjectKey() {
+      return projectKey;
+    }
+
+    public ApplyTemplateRequest setProjectKey(@Nullable String projectKey) {
+      this.projectKey = projectKey;
+      return this;
+    }
+
+    @CheckForNull
+    public String getTemplateId() {
+      return templateId;
+    }
+
+    public ApplyTemplateRequest setTemplateId(@Nullable String templateId) {
+      this.templateId = templateId;
+      return this;
+    }
+
+    @CheckForNull
+    public String getOrganization() {
+      return organization;
+    }
+
+    public ApplyTemplateRequest setOrganization(@Nullable String s) {
+      this.organization = s;
+      return this;
+    }
+    @CheckForNull
+    public String getTemplateName() {
+      return templateName;
+    }
+
+    public ApplyTemplateRequest setTemplateName(@Nullable String templateName) {
+      this.templateName = templateName;
+      return this;
     }
   }
 }

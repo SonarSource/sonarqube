@@ -64,8 +64,7 @@ public final class MeasuresFilters {
         }
         for (Measure measure : measures) {
           if (measure.getClass().equals(Measure.class) &&
-            measure.getMetricKey().equals(metricKey) &&
-            measure.getPersonId() == null) {
+            measure.getMetricKey().equals(metricKey)) {
             return measure;
           }
         }
@@ -107,7 +106,7 @@ public final class MeasuresFilters {
 
       private boolean apply(Measure measure) {
         return measure instanceof RuleMeasure && metric.equals(measure.getMetric())
-          && measure.getPersonId() == null && ((RuleMeasure) measure).ruleKey() != null;
+          && ((RuleMeasure) measure).ruleKey() != null;
       }
 
       @Override
@@ -157,7 +156,6 @@ public final class MeasuresFilters {
     private boolean apply(Measure measure) {
       return measure instanceof RuleMeasure
         && filterOnMetricKey().equals(measure.getMetricKey())
-        && measure.getPersonId() == null
         && doApply((RuleMeasure) measure);
     }
 

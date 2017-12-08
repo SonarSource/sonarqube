@@ -4,6 +4,9 @@
 
 .overview-quality-gate-condition:hover .application-quality-gate-project {
   padding: 9px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: inherit;
 }
 
 .application-quality-gate-project-conditions {

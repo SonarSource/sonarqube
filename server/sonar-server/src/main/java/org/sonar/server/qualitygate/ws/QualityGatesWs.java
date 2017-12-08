@@ -19,21 +19,23 @@
  */
 package org.sonar.server.qualitygate.ws;
 
+import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.ws.RemovedWebServiceHandler;
 
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.CONTROLLER_QUALITY_GATES;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ERROR;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ID;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_METRIC;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_NAME;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_OPERATOR;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PERIOD;
-import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_WARNING;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.CONTROLLER_QUALITY_GATES;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ERROR;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_ID;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_METRIC;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_NAME;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_OPERATOR;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_PERIOD;
+import static org.sonar.server.qualitygate.ws.QualityGatesWsParameters.PARAM_WARNING;
 
 public class QualityGatesWs implements WebService {
 
@@ -53,6 +55,18 @@ public class QualityGatesWs implements WebService {
     for (QualityGatesWsAction action : actions) {
       action.define(controller);
     }
+
+    // unset_default is no more authorized
+    controller.createAction("unset_default")
+      .setDescription("This webservice is no more available : a default quality gate is mandatory.")
+      .setSince("4.3")
+      .setDeprecatedSince("7.0")
+      .setPost(true)
+      .setHandler(RemovedWebServiceHandler.INSTANCE)
+      .setResponseExample(RemovedWebServiceHandler.INSTANCE.getResponseExample())
+      .setChangelog(
+        new Change("7.0", "Unset a quality gate is no more authorized")
+      );
 
     controller.done();
   }
@@ -103,24 +117,6 @@ public class QualityGatesWs implements WebService {
       .prop(PARAM_ID, qualityGate.getId())
       .prop(PARAM_NAME, qualityGate.getName())
       .endObject();
-  }
-
-  static JsonWriter writeQualityGateCondition(QualityGateConditionDto condition, JsonWriter writer) {
-    writer.beginObject()
-      .prop(PARAM_ID, condition.getId())
-      .prop(PARAM_METRIC, condition.getMetricKey())
-      .prop(PARAM_OPERATOR, condition.getOperator());
-    if (condition.getWarningThreshold() != null) {
-      writer.prop(PARAM_WARNING, condition.getWarningThreshold());
-    }
-    if (condition.getErrorThreshold() != null) {
-      writer.prop(PARAM_ERROR, condition.getErrorThreshold());
-    }
-    if (condition.getPeriod() != null) {
-      writer.prop(PARAM_PERIOD, condition.getPeriod());
-    }
-    writer.endObject();
-    return writer;
   }
 
 }

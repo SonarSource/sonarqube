@@ -26,9 +26,9 @@ import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
 import org.sonarqube.qa.util.pageobjects.ProjectsManagementPage;
 import org.sonarqube.ws.Permissions;
-import org.sonarqube.ws.client.permission.AddUserToTemplateWsRequest;
-import org.sonarqube.ws.client.permission.CreateTemplateWsRequest;
-import org.sonarqube.ws.client.permission.UsersWsRequest;
+import org.sonarqube.ws.client.permissions.AddUserToTemplateRequest;
+import org.sonarqube.ws.client.permissions.CreateTemplateRequest;
+import org.sonarqube.ws.client.permissions.UsersRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,9 +48,9 @@ public class PermissionTemplatePageTest {
     String userLogin = tester.users().generateMemberOfDefaultOrganization().getLogin();
     String adminLogin = tester.users().generateAdministratorOnDefaultOrganization().getLogin();
 
-    tester.wsClient().permissions().createTemplate(new CreateTemplateWsRequest().setName("foo-template"));
+    tester.wsClient().permissions().createTemplate(new CreateTemplateRequest().setName("foo-template"));
     tester.wsClient().permissions().addUserToTemplate(
-      new AddUserToTemplateWsRequest()
+      new AddUserToTemplateRequest()
         .setPermission("admin")
         .setTemplateName("foo-template")
         .setLogin(userLogin));
@@ -58,7 +58,7 @@ public class PermissionTemplatePageTest {
     ProjectsManagementPage page = tester.openBrowser().logIn().submitCredentials(adminLogin).openProjectsManagement();
     page.shouldHaveProject(project);
     page.bulkApplyPermissionTemplate("foo-template");
-    Permissions.UsersWsResponse usersResponse = tester.wsClient().permissions().users(new UsersWsRequest()
+    Permissions.UsersWsResponse usersResponse = tester.wsClient().permissions().users(new UsersRequest()
       .setProjectKey(project)
       .setPermission("admin")
     );

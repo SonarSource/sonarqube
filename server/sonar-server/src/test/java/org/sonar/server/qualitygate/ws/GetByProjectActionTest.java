@@ -44,7 +44,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.Qualitygates;
-import org.sonarqube.ws.Qualitygates.GetByProjectWsResponse;
+import org.sonarqube.ws.Qualitygates.GetByProjectResponse;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -118,7 +118,7 @@ public class GetByProjectActionTest {
     setDefaultQualityGate(dbQualityGate.getId());
     logInAsProjectUser(project);
 
-    GetByProjectWsResponse result = callByKey(project.getKey());
+    GetByProjectResponse result = callByKey(project.getKey());
 
     Qualitygates.QualityGate qualityGate = result.getQualityGate();
     assertThat(Long.valueOf(qualityGate.getId())).isEqualTo(dbQualityGate.getId());
@@ -135,7 +135,7 @@ public class GetByProjectActionTest {
     associateProjectToQualityGate(project.getId(), dbQualityGate.getId());
     logInAsProjectUser(project);
 
-    GetByProjectWsResponse result = callByKey(project.getKey());
+    GetByProjectResponse result = callByKey(project.getKey());
 
     Qualitygates.QualityGate qualityGate = result.getQualityGate();
     assertThat(qualityGate.getName()).isEqualTo(dbQualityGate.getName());
@@ -149,7 +149,7 @@ public class GetByProjectActionTest {
     associateProjectToQualityGate(project.getId(), dbQualityGate.getId());
     logInAsProjectUser(project);
 
-    GetByProjectWsResponse result = callByKey(project.getDbKey());
+    GetByProjectResponse result = callByKey(project.getDbKey());
 
     assertThat(result.getQualityGate().getName()).isEqualTo(dbQualityGate.getName());
   }
@@ -161,7 +161,7 @@ public class GetByProjectActionTest {
     QualityGateDto dbQualityGate = insertQualityGate("Sonar way");
     setDefaultQualityGate(dbQualityGate.getId());
 
-    GetByProjectWsResponse result = callByKey(project.getKey());
+    GetByProjectResponse result = callByKey(project.getKey());
 
     assertThat(result.getQualityGate().getName()).isEqualTo(dbQualityGate.getName());
   }
@@ -173,7 +173,7 @@ public class GetByProjectActionTest {
     QualityGateDto dbQualityGate = insertQualityGate("Sonar way");
     setDefaultQualityGate(dbQualityGate.getId());
 
-    GetByProjectWsResponse result = callByKey(project.getKey());
+    GetByProjectResponse result = callByKey(project.getKey());
 
     assertThat(result.getQualityGate().getName()).isEqualTo(dbQualityGate.getName());
   }
@@ -217,16 +217,16 @@ public class GetByProjectActionTest {
     call(branch.getDbKey());
   }
 
-  private GetByProjectWsResponse callByKey(String projectKey) {
+  private GetByProjectResponse callByKey(String projectKey) {
     return call(projectKey);
   }
 
-  private GetByProjectWsResponse call(@Nullable String projectKey) {
+  private GetByProjectResponse call(@Nullable String projectKey) {
     TestRequest request = ws.newRequest();
     if (projectKey != null) {
       request.setParam("project", projectKey);
     }
-    return request.executeProtobuf(GetByProjectWsResponse.class);
+    return request.executeProtobuf(GetByProjectResponse.class);
   }
 
   private QualityGateDto insertQualityGate(String name) {

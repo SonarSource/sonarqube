@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.scm;
 
+import java.nio.file.Paths;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,19 +31,30 @@ public class ScmProviderTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
+  private final ScmProvider provider = new ScmProvider() {
+
+    @Override
+    public String key() {
+      return "foo";
+    }
+  };
+
   @Test
-  public void testDefaultImplementation() {
-    ScmProvider provider = new ScmProvider() {
-
-      @Override
-      public String key() {
-        return "foo";
-      }
-    };
-
+  public void default_implementation_does_not_support_blame() {
     assertThat(provider.supports(null)).isFalse();
     thrown.expect(UnsupportedOperationException.class);
     provider.blameCommand();
   }
 
+  @Test
+  public void default_implementation_does_not_support_relativePathFromScmRoot() {
+    thrown.expect(UnsupportedOperationException.class);
+    provider.relativePathFromScmRoot(Paths.get("foo"));
+  }
+
+  @Test
+  public void default_implementation_does_not_support_revisionId() {
+    thrown.expect(UnsupportedOperationException.class);
+    provider.revisionId(Paths.get("foo"));
+  }
 }

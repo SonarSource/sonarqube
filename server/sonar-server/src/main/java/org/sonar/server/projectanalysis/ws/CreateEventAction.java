@@ -42,8 +42,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.ProjectAnalyses.CreateEventResponse;
 import org.sonarqube.ws.ProjectAnalyses.Event;
-import org.sonarqube.ws.client.projectanalysis.CreateEventRequest;
-import org.sonarqube.ws.client.projectanalysis.EventCategory;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -51,13 +49,13 @@ import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.db.event.EventValidator.MAX_NAME_LENGTH;
+import static org.sonar.server.projectanalysis.ws.EventCategory.OTHER;
+import static org.sonar.server.projectanalysis.ws.EventCategory.VERSION;
+import static org.sonar.server.projectanalysis.ws.EventCategory.fromLabel;
+import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_ANALYSIS;
+import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_CATEGORY;
+import static org.sonar.server.projectanalysis.ws.ProjectAnalysesWsParameters.PARAM_NAME;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.projectanalysis.EventCategory.OTHER;
-import static org.sonarqube.ws.client.projectanalysis.EventCategory.VERSION;
-import static org.sonarqube.ws.client.projectanalysis.EventCategory.fromLabel;
-import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_ANALYSIS;
-import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_CATEGORY;
-import static org.sonarqube.ws.client.projectanalysis.ProjectAnalysesWsParameters.PARAM_NAME;
 
 public class CreateEventAction implements ProjectAnalysesWsAction {
   private static final Set<String> ALLOWED_QUALIFIERS = ImmutableSet.of(Qualifiers.PROJECT, Qualifiers.APP);
@@ -217,6 +215,67 @@ public class CreateEventAction implements ProjectAnalysesWsAction {
         };
       default:
         throw new IllegalStateException("Event category not handled: " + request.getCategory());
+    }
+  }
+
+  private static class CreateEventRequest {
+    private final String analysis;
+    private final EventCategory category;
+    private final String name;
+
+    private CreateEventRequest(Builder builder) {
+      analysis = builder.analysis;
+      category = builder.category;
+      name = builder.name;
+    }
+
+    public String getAnalysis() {
+      return analysis;
+    }
+
+    public EventCategory getCategory() {
+      return category;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public static Builder builder() {
+      return new Builder();
+    }
+  }
+
+  private static class Builder {
+    private String analysis;
+    private EventCategory category = EventCategory.OTHER;
+    private String name;
+
+    private Builder() {
+      // enforce static factory method
+    }
+
+    public Builder setAnalysis(String analysis) {
+      this.analysis = analysis;
+      return this;
+    }
+
+    public Builder setCategory(EventCategory category) {
+      this.category = category;
+      return this;
+    }
+
+    public Builder setName(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public CreateEventRequest build() {
+      checkArgument(analysis != null, "Analysis key is required");
+      checkArgument(category != null, "Category is required");
+      checkArgument(name != null, "Name is required");
+
+      return new CreateEventRequest(this);
     }
   }
 }

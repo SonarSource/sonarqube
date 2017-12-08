@@ -26,7 +26,7 @@ import {
 import { receiveValues } from './values/actions';
 import { receiveDefinitions } from './definitions/actions';
 import { startLoading, stopLoading } from './settingsPage/loading/actions';
-import { parseError } from '../../code/utils';
+import { parseError } from '../../../helpers/request';
 import { addGlobalErrorMessage, closeAllGlobalMessages } from '../../../store/globalMessages/duck';
 import { passValidation, failValidation } from './settingsPage/validationMessages/actions';
 import { cancelChange } from './settingsPage/changedValues/actions';

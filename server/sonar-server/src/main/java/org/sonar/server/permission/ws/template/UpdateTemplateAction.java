@@ -20,6 +20,7 @@
 package org.sonar.server.permission.ws.template;
 
 import java.util.Date;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -33,10 +34,10 @@ import org.sonar.server.permission.ws.PermissionsWsAction;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Permissions.PermissionTemplate;
 import org.sonarqube.ws.Permissions.UpdateTemplateWsResponse;
-import org.sonarqube.ws.client.permission.UpdateTemplateWsRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.String.format;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdmin;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateProjectPattern;
@@ -65,8 +66,8 @@ public class UpdateTemplateAction implements PermissionsWsAction {
     this.wsSupport = wsSupport;
   }
 
-  private static UpdateTemplateWsRequest toUpdateTemplateWsRequest(Request request) {
-    return new UpdateTemplateWsRequest()
+  private static UpdateTemplateRequest toUpdateTemplateWsRequest(Request request) {
+    return new UpdateTemplateRequest()
       .setId(request.mandatoryParam(PARAM_ID))
       .setName(request.param(PARAM_NAME))
       .setDescription(request.param(PARAM_DESCRIPTION))
@@ -104,7 +105,7 @@ public class UpdateTemplateAction implements PermissionsWsAction {
     writeProtobuf(updateTemplateWsResponse, request, response);
   }
 
-  private UpdateTemplateWsResponse doHandle(UpdateTemplateWsRequest request) {
+  private UpdateTemplateWsResponse doHandle(UpdateTemplateRequest request) {
     String uuid = request.getId();
     String nameParam = request.getName();
     String descriptionParam = request.getDescription();
@@ -148,5 +149,51 @@ public class UpdateTemplateAction implements PermissionsWsAction {
     PermissionTemplateDto permissionTemplateWithSameName = dbClient.permissionTemplateDao().selectByName(dbSession, organizationUuid, name);
     checkRequest(permissionTemplateWithSameName == null || permissionTemplateWithSameName.getId() == id,
       format(MSG_TEMPLATE_WITH_SAME_NAME, name));
+  }
+
+  private static class UpdateTemplateRequest {
+    private String id;
+    private String description;
+    private String name;
+    private String projectKeyPattern;
+
+    public String getId() {
+      return id;
+    }
+
+    public UpdateTemplateRequest setId(String id) {
+      this.id = requireNonNull(id);
+      return this;
+    }
+
+    @CheckForNull
+    public String getDescription() {
+      return description;
+    }
+
+    public UpdateTemplateRequest setDescription(@Nullable String description) {
+      this.description = description;
+      return this;
+    }
+
+    @CheckForNull
+    public String getName() {
+      return name;
+    }
+
+    public UpdateTemplateRequest setName(@Nullable String name) {
+      this.name = name;
+      return this;
+    }
+
+    @CheckForNull
+    public String getProjectKeyPattern() {
+      return projectKeyPattern;
+    }
+
+    public UpdateTemplateRequest setProjectKeyPattern(@Nullable String projectKeyPattern) {
+      this.projectKeyPattern = projectKeyPattern;
+      return this;
+    }
   }
 }

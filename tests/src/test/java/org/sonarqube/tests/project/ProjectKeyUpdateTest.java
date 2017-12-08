@@ -39,11 +39,10 @@ import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Projects;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
-import org.sonarqube.ws.client.component.SearchProjectsRequest;
-import org.sonarqube.ws.client.component.ShowWsRequest;
-import org.sonarqube.ws.client.project.BulkUpdateKeyWsRequest;
-import org.sonarqube.ws.client.project.CreateRequest;
-import org.sonarqube.ws.client.project.UpdateKeyWsRequest;
+import org.sonarqube.ws.client.components.SearchProjectsRequest;
+import org.sonarqube.ws.client.components.ShowRequest;
+import org.sonarqube.ws.client.projects.UpdateKeyRequest;
+import org.sonarqube.ws.client.projects.CreateRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,35 +70,14 @@ public class ProjectKeyUpdateTest {
   public void update_key() {
     analyzeXooSample();
     String newProjectKey = "another_project_key";
-    Components.Component project = tester.wsClient().components().show(new ShowWsRequest().setKey(PROJECT_KEY)).getComponent();
+    Components.Component project = tester.wsClient().components().show(new ShowRequest().setComponent(PROJECT_KEY)).getComponent();
     assertThat(project.getKey()).isEqualTo(PROJECT_KEY);
 
-    tester.wsClient().projects().updateKey(UpdateKeyWsRequest.builder()
-      .setKey(PROJECT_KEY)
-      .setNewKey(newProjectKey)
-      .build());
-
-    assertThat(tester.wsClient().components().show(new ShowWsRequest().setId(project.getId())).getComponent().getKey()).isEqualTo(newProjectKey);
-  }
-
-  @Test
-  public void bulk_update_key() {
-    analyzeXooSample();
-    String newProjectKey = "another_project_key";
-    Components.Component project = tester.wsClient().components().show(new ShowWsRequest().setKey(PROJECT_KEY)).getComponent();
-    assertThat(project.getKey()).isEqualTo(PROJECT_KEY);
-
-    Projects.BulkUpdateKeyWsResponse result = tester.wsClient().projects().bulkUpdateKey(BulkUpdateKeyWsRequest.builder()
-      .setKey(PROJECT_KEY)
+    tester.wsClient().projects().updateKey(new UpdateKeyRequest()
       .setFrom(PROJECT_KEY)
-      .setTo(newProjectKey)
-      .build());
+      .setTo(newProjectKey));
 
-    assertThat(tester.wsClient().components().show(new ShowWsRequest().setId(project.getId())).getComponent().getKey()).isEqualTo(newProjectKey);
-    assertThat(result.getKeysCount()).isEqualTo(1);
-    assertThat(result.getKeys(0))
-      .extracting(Projects.BulkUpdateKeyWsResponse.Key::getKey, Projects.BulkUpdateKeyWsResponse.Key::getNewKey, Projects.BulkUpdateKeyWsResponse.Key::getDuplicate)
-      .containsOnlyOnce(PROJECT_KEY, newProjectKey, false);
+    assertThat(tester.wsClient().components().show(new ShowRequest().setComponentId(project.getId())).getComponent().getKey()).isEqualTo(newProjectKey);
   }
 
   @Test
@@ -229,15 +207,15 @@ public class ProjectKeyUpdateTest {
   }
 
   private void updateKey(Projects.CreateWsResponse.Project project, String newKey) {
-    tester.wsClient().projects().updateKey(UpdateKeyWsRequest.builder().setKey(project.getKey()).setNewKey(newKey).build());
+    tester.wsClient().projects().updateKey(new UpdateKeyRequest().setFrom(project.getKey()).setTo(newKey));
   }
 
   private void updateKey(String initialKey, String newKey) {
-    tester.wsClient().projects().updateKey(UpdateKeyWsRequest.builder().setKey(initialKey).setNewKey(newKey).build());
+    tester.wsClient().projects().updateKey(new UpdateKeyRequest().setFrom(initialKey).setTo(newKey));
   }
 
   private Projects.CreateWsResponse.Project createProject(Organizations.Organization organization, String key, String name) {
-    CreateRequest createRequest = CreateRequest.builder().setKey(key).setName(name).setOrganization(organization.getKey()).build();
+    CreateRequest createRequest = new CreateRequest().setProject(key).setName(name).setOrganization(organization.getKey());
     return tester.wsClient().projects().create(createRequest).getProject();
   }
 
@@ -255,7 +233,7 @@ public class ProjectKeyUpdateTest {
   @CheckForNull
   private String keyInComponentSearchProjects(String name) {
     Components.SearchProjectsWsResponse response = tester.wsClient().components().searchProjects(
-      SearchProjectsRequest.builder().setFilter("query=\"" + name + "\"").build());
+      new SearchProjectsRequest().setFilter("query=\"" + name + "\""));
     if (response.getComponentsCount() > 0) {
       return response.getComponents(0).getKey();
     }

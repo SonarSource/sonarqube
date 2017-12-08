@@ -39,7 +39,7 @@ import org.sonar.db.es.EsQueueDao;
 import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
-import org.sonar.db.loadedtemplate.LoadedTemplateDao;
+import org.sonar.db.measure.LiveMeasureDao;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.metric.MetricDao;
@@ -93,6 +93,7 @@ public class DaoModule extends Module {
     ComponentDao.class,
     ComponentKeyUpdaterDao.class,
     ComponentLinkDao.class,
+    LiveMeasureDao.class,
     CustomMeasureDao.class,
     DefaultQProfileDao.class,
     DuplicationDao.class,
@@ -105,7 +106,6 @@ public class DaoModule extends Module {
     InternalPropertiesDao.class,
     IssueChangeDao.class,
     IssueDao.class,
-    LoadedTemplateDao.class,
     MeasureDao.class,
     MetricDao.class,
     NotificationQueueDao.class,
@@ -132,8 +132,7 @@ public class DaoModule extends Module {
     UserGroupDao.class,
     UserPermissionDao.class,
     UserTokenDao.class,
-    WebhookDeliveryDao.class)
-  );
+    WebhookDeliveryDao.class));
 
   @Override
   protected void configureModule() {

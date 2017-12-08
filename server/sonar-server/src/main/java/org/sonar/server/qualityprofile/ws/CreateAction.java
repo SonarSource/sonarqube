@@ -37,8 +37,10 @@ import org.sonar.server.qualityprofile.QProfileResult;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualityprofiles.CreateWsResponse;
-import org.sonarqube.ws.client.qualityprofile.CreateRequest;
 
+import javax.annotation.Nullable;
+
+import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_PROFILES;
 import static org.sonar.server.qualityprofile.ws.QProfileWsSupport.createOrganizationParam;
 import static org.sonar.server.util.LanguageParamUtils.getLanguageKeys;
@@ -139,7 +141,7 @@ public class CreateAction implements QProfileWsAction {
   }
 
   private static CreateRequest toRequest(Request request, OrganizationDto organization) {
-    CreateRequest.Builder builder = CreateRequest.builder()
+    Builder builder = CreateRequest.builder()
       .setOrganizationKey(organization.getKey())
       .setLanguage(request.mandatoryParam(PARAM_LANGUAGE))
       .setName(request.mandatoryParam(PARAM_NAME));
@@ -167,5 +169,66 @@ public class CreateAction implements QProfileWsAction {
 
   private static String getBackupParamName(String importerKey) {
     return String.format(PARAM_BACKUP_FORMAT, importerKey);
+  }
+
+  private static class CreateRequest {
+
+    private final String name;
+    private final String language;
+    private final String organizationKey;
+
+    private CreateRequest(Builder builder) {
+      this.name = builder.name;
+      this.language = builder.language;
+      this.organizationKey = builder.organizationKey;
+    }
+
+    public String getLanguage() {
+      return language;
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public String getOrganizationKey() {
+      return organizationKey;
+    }
+
+    public static Builder builder() {
+      return new Builder();
+    }
+  }
+
+  private static class Builder {
+    private String language;
+    private String name;
+    private String organizationKey;
+
+    private Builder() {
+      // enforce factory method use
+    }
+
+    public Builder setLanguage(@Nullable String language) {
+      this.language = language;
+      return this;
+    }
+
+    public Builder setName(@Nullable String profileName) {
+      this.name = profileName;
+      return this;
+    }
+
+    public Builder setOrganizationKey(@Nullable String organizationKey) {
+      this.organizationKey = organizationKey;
+      return this;
+    }
+
+    public CreateRequest build() {
+      checkArgument(language != null && !language.isEmpty(), "Language is mandatory and must not be empty.");
+      checkArgument(name != null && !name.isEmpty(), "Profile name is mandatory and must not be empty.");
+      checkArgument(organizationKey == null || !organizationKey.isEmpty(), "Organization key may be either null or not empty. Empty organization key is invalid.");
+      return new CreateRequest(this);
+    }
   }
 }

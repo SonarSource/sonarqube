@@ -19,7 +19,7 @@
  */
 import ModalForm from '../../../../components/common/modal-form';
 import Template from './CreationModalTemplate.hbs';
-import { parseError } from '../../../code/utils';
+import { parseError } from '../../../../helpers/request';
 
 export default ModalForm.extend({
   template: Template,

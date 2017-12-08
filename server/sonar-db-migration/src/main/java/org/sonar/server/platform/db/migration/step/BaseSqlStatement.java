@@ -77,6 +77,16 @@ class BaseSqlStatement<CHILD extends SqlStatement> implements SqlStatement<CHILD
   }
 
   @Override
+  public CHILD setBytes(int columnIndex, @Nullable byte[] value) throws SQLException {
+    if (value == null) {
+      pstmt.setNull(columnIndex, Types.BINARY);
+    } else {
+      pstmt.setBytes(columnIndex, value);
+    }
+    return (CHILD) this;
+  }
+
+  @Override
   public CHILD setDouble(int columnIndex, @Nullable Double value) throws SQLException {
     if (value == null) {
       pstmt.setNull(columnIndex, Types.DECIMAL);

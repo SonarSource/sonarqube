@@ -22,6 +22,7 @@ package org.sonar.server.platform.db.migration.step;
 import java.sql.Connection;
 import java.sql.SQLException;
 import org.sonar.db.Database;
+import org.sonar.db.dialect.Dialect;
 
 public abstract class DataChange implements MigrationStep {
 
@@ -29,6 +30,10 @@ public abstract class DataChange implements MigrationStep {
 
   public DataChange(Database db) {
     this.db = db;
+  }
+
+  protected final Dialect getDialect() {
+    return db.getDialect();
   }
 
   @Override

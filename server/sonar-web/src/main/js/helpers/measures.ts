@@ -164,7 +164,7 @@ function intVariationFormatter(value: number): string {
 
 function shortIntFormatter(value: number): string {
   if (value >= 1e9) {
-    return numberFormatter(value / 1e9) + translate('short_number_suffix.b');
+    return numberFormatter(value / 1e9) + translate('short_number_suffix.g');
   } else if (value >= 1e6) {
     return numberFormatter(value / 1e6) + translate('short_number_suffix.m');
   } else if (value >= 1e4) {

@@ -31,10 +31,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.UserTokens;
 import org.sonarqube.ws.client.WsClient;
-import org.sonarqube.ws.client.permission.AddUserWsRequest;
-import org.sonarqube.ws.client.usertoken.GenerateWsRequest;
-import org.sonarqube.ws.client.usertoken.RevokeWsRequest;
-import org.sonarqube.ws.client.usertoken.UserTokensService;
+import org.sonarqube.ws.client.permissions.AddUserRequest;
+import org.sonarqube.ws.client.usertokens.GenerateRequest;
+import org.sonarqube.ws.client.usertokens.RevokeRequest;
+import org.sonarqube.ws.client.usertokens.UserTokensService;
 import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,7 +79,7 @@ public class PermissionTest {
     createUserWithProvisioningAndScanPermissions();
 
     String tokenName = "For test";
-    UserTokens.GenerateWsResponse generateWsResponse = userTokensWsClient.generate(new GenerateWsRequest()
+    UserTokens.GenerateWsResponse generateWsResponse = userTokensWsClient.generate(new GenerateRequest()
       .setLogin(A_LOGIN)
       .setName(tokenName));
     SonarScanner sampleProject = SonarScanner.create(projectDir("shared/xoo-sample"));
@@ -90,7 +90,7 @@ public class PermissionTest {
     BuildResult buildResult = orchestrator.executeBuild(sampleProject);
 
     assertThat(buildResult.isSuccess()).isTrue();
-    userTokensWsClient.revoke(new RevokeWsRequest().setLogin(A_LOGIN).setName(tokenName));
+    userTokensWsClient.revoke(new RevokeRequest().setLogin(A_LOGIN).setName(tokenName));
   }
 
   @Test
@@ -147,7 +147,7 @@ public class PermissionTest {
   }
 
   private void addUserPermission(String login, String permission, @Nullable String projectKey) {
-    adminWsClient.permissions().addUser(new AddUserWsRequest()
+    adminWsClient.permissions().addUser(new AddUserRequest()
       .setLogin(login)
       .setPermission(permission)
       .setProjectKey(projectKey));

@@ -51,10 +51,10 @@ import org.sonar.server.issue.ServerIssueStorage;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.index.IssueIteratorFactory;
-import org.sonar.server.issue.webhook.IssueChangeWebhook;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
+import org.sonar.server.qualitygate.changeevent.IssueChangeTrigger;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -97,11 +97,11 @@ public class SetTypeActionTest {
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
 
   private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), dbClient, new IssueIteratorFactory(dbClient));
-  private IssueChangeWebhook issueChangeWebhook = mock(IssueChangeWebhook.class);
+  private IssueChangeTrigger issueChangeTrigger = mock(IssueChangeTrigger.class);
   private WsActionTester tester = new WsActionTester(new SetTypeAction(userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
       new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), mock(NotificationManager.class)),
-    responseWriter, system2, issueChangeWebhook));
+    responseWriter, system2, issueChangeTrigger));
 
   @Test
   public void set_type() throws Exception {
@@ -117,12 +117,12 @@ public class SetTypeActionTest {
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
     assertThat(issueReloaded.getType()).isEqualTo(BUG.getDbConstant());
 
-    ArgumentCaptor<IssueChangeWebhook.IssueChangeData> issueChangeDataCaptor = ArgumentCaptor.forClass(IssueChangeWebhook.IssueChangeData.class);
-    verify(issueChangeWebhook).onChange(
+    ArgumentCaptor<IssueChangeTrigger.IssueChangeData> issueChangeDataCaptor = ArgumentCaptor.forClass(IssueChangeTrigger.IssueChangeData.class);
+    verify(issueChangeTrigger).onChange(
       issueChangeDataCaptor.capture(),
-      eq(new IssueChangeWebhook.IssueChange(BUG, null)),
+      eq(new IssueChangeTrigger.IssueChange(BUG, null)),
       eq(IssueChangeContext.createUser(new Date(now), userSession.getLogin())));
-    IssueChangeWebhook.IssueChangeData issueChangeData = issueChangeDataCaptor.getValue();
+    IssueChangeTrigger.IssueChangeData issueChangeData = issueChangeDataCaptor.getValue();
     assertThat(issueChangeData.getIssues())
       .extracting(DefaultIssue::key)
       .containsOnly(issueDto.getKey());

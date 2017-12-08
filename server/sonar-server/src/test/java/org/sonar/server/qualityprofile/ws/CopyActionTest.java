@@ -84,12 +84,33 @@ public class CopyActionTest {
 
     assertThat(definition.key()).isEqualTo("copy");
     assertThat(definition.isInternal()).isFalse();
+    assertThat(definition.responseExampleAsString()).isNotEmpty();
     assertThat(definition.since()).isEqualTo("5.2");
     assertThat(definition.isPost()).isTrue();
 
     assertThat(definition.params()).extracting(WebService.Param::key).containsOnly("fromKey", "toName");
     assertThat(definition.param("fromKey").isRequired()).isTrue();
     assertThat(definition.param("toName").isRequired()).isTrue();
+  }
+
+  @Test
+  public void example() {
+    OrganizationDto organization = db.organizations().insert();
+    logInAsQProfileAdministrator(organization);
+    QProfileDto parent = db.qualityProfiles().insert(organization, p -> p.setKee("AU-TpxcA-iU5OvuD2FL2"));
+    QProfileDto profile = db.qualityProfiles().insert(organization, p -> p.setKee("old")
+      .setLanguage("Java")
+      .setParentKee(parent.getKee()));
+    String profileUuid = profile.getRulesProfileUuid();
+
+    String response = tester.newRequest()
+      .setMethod("POST")
+      .setParam("fromKey", profile.getKee())
+      .setParam("toName", "My New Profile")
+      .execute()
+      .getInput();
+
+    assertJson(response).ignoreFields("key").isSimilarTo(getClass().getResource("copy-example.json"));
   }
 
   @Test
@@ -113,8 +134,7 @@ public class CopyActionTest {
       "  \"isDefault\": false," +
       "  \"isInherited\": false" +
       "}");
-    QProfileDto loadedProfile = db.getDbClient().qualityProfileDao().selectByNameAndLanguage(db.getSession(), organization, "target-name", sourceProfile.getLanguage()
-    );
+    QProfileDto loadedProfile = db.getDbClient().qualityProfileDao().selectByNameAndLanguage(db.getSession(), organization, "target-name", sourceProfile.getLanguage());
     assertThat(loadedProfile.getKee()).isEqualTo(generatedUuid);
     assertThat(loadedProfile.getParentKee()).isNull();
 
@@ -177,8 +197,7 @@ public class CopyActionTest {
       "  \"isDefault\": false," +
       "  \"isInherited\": true" +
       "}");
-    QProfileDto loadedProfile = db.getDbClient().qualityProfileDao().selectByNameAndLanguage(db.getSession(), organization, "target-name", sourceProfile.getLanguage()
-    );
+    QProfileDto loadedProfile = db.getDbClient().qualityProfileDao().selectByNameAndLanguage(db.getSession(), organization, "target-name", sourceProfile.getLanguage());
     assertThat(loadedProfile.getKee()).isEqualTo(generatedUuid);
     assertThat(loadedProfile.getParentKee()).isEqualTo(parentProfile.getKee());
 

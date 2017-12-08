@@ -52,22 +52,22 @@ import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.INHERITED;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.OVERRIDES;
 import static org.sonar.server.rule.ws.SearchAction.defineRuleSearchParameters;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVATION;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_AVAILABLE_SINCE;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_INHERITANCE;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_IS_TEMPLATE;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ORGANIZATION;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_REPOSITORIES;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_RULE_KEY;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_SEVERITIES;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_STATUSES;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TAGS;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TEMPLATE_KEY;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TYPES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVATION;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_AVAILABLE_SINCE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_COMPARE_TO_PROFILE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_INHERITANCE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_IS_TEMPLATE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_LANGUAGES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_ORGANIZATION;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_QPROFILE;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_REPOSITORIES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_RULE_KEY;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_SEVERITIES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_STATUSES;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TAGS;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TEMPLATE_KEY;
+import static org.sonar.server.rule.ws.RulesWsParameters.PARAM_TYPES;
 
 public class RuleQueryFactoryTest {
 

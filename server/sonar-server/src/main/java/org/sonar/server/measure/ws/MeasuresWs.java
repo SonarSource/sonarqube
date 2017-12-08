@@ -20,7 +20,7 @@
 package org.sonar.server.measure.ws;
 
 import org.sonar.api.server.ws.WebService;
-import org.sonarqube.ws.client.measure.MeasuresWsParameters;
+import org.sonar.server.component.ws.MeasuresWsParameters;
 
 public class MeasuresWs implements WebService {
   private final MeasuresWsAction[] actions;

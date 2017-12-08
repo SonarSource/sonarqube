@@ -42,7 +42,6 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Settings;
 import org.sonarqube.ws.Settings.ValuesWsResponse;
-import org.sonarqube.ws.client.setting.ValuesRequest;
 
 import static java.lang.String.format;
 import static java.util.stream.Stream.concat;
@@ -51,13 +50,12 @@ import static org.sonar.api.CoreProperties.SERVER_ID;
 import static org.sonar.api.CoreProperties.SERVER_STARTTIME;
 import static org.sonar.api.PropertyType.PROPERTY_SET;
 import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_BRANCH;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_COMPONENT;
+import static org.sonar.server.setting.ws.SettingsWsParameters.PARAM_KEYS;
 import static org.sonar.server.ws.KeyExamples.KEY_BRANCH_EXAMPLE_001;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.ACTION_VALUES;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_BRANCH;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_COMPONENT;
-import static org.sonarqube.ws.client.setting.SettingsWsParameters.PARAM_KEYS;
 
 public class ValuesAction implements SettingsWsAction {
 
@@ -84,7 +82,7 @@ public class ValuesAction implements SettingsWsAction {
 
   @Override
   public void define(WebService.NewController context) {
-    WebService.NewAction action = context.createAction(ACTION_VALUES)
+    WebService.NewAction action = context.createAction("values")
       .setDescription("List settings values.<br>" +
         "If no value has been set for a setting, then the default value is returned.<br>" +
         "Requires 'Browse' permission when a component is specified<br/>",
@@ -129,18 +127,18 @@ public class ValuesAction implements SettingsWsAction {
   }
 
   private static ValuesRequest toWsRequest(Request request) {
-    ValuesRequest.Builder builder = ValuesRequest.builder()
+    ValuesRequest result = new ValuesRequest()
       .setComponent(request.param(PARAM_COMPONENT))
       .setBranch(request.param(PARAM_BRANCH));
     if (request.hasParam(PARAM_KEYS)) {
-      builder.setKeys(request.paramAsStrings(PARAM_KEYS));
+      result.setKeys(request.paramAsStrings(PARAM_KEYS));
     }
-    return builder.build();
+    return result;
   }
 
   private Set<String> loadKeys(ValuesRequest valuesRequest) {
     List<String> keys = valuesRequest.getKeys();
-    return keys.isEmpty() ? concat(propertyDefinitions.getAll().stream().map(PropertyDefinition::key), SERVER_SETTING_KEYS.stream()).collect(Collectors.toSet())
+    return keys == null || keys.isEmpty() ? concat(propertyDefinitions.getAll().stream().map(PropertyDefinition::key), SERVER_SETTING_KEYS.stream()).collect(Collectors.toSet())
       : ImmutableSet.copyOf(keys);
   }
 
@@ -291,4 +289,37 @@ public class ValuesAction implements SettingsWsAction {
     }
   }
 
+  private static class ValuesRequest {
+
+    private String branch;
+    private String component;
+    private List<String> keys;
+
+    public ValuesRequest setBranch(String branch) {
+      this.branch = branch;
+      return this;
+    }
+
+    public String getBranch() {
+      return branch;
+    }
+
+    public ValuesRequest setComponent(String component) {
+      this.component = component;
+      return this;
+    }
+
+    public String getComponent() {
+      return component;
+    }
+
+    public ValuesRequest setKeys(List<String> keys) {
+      this.keys = keys;
+      return this;
+    }
+
+    public List<String> getKeys() {
+      return keys;
+    }
+  }
 }

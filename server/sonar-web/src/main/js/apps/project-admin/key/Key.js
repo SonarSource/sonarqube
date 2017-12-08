@@ -32,7 +32,7 @@ import {
   closeAllGlobalMessages,
   addGlobalSuccessMessage
 } from '../../../store/globalMessages/duck';
-import { parseError } from '../../code/utils';
+import { parseError } from '../../../helpers/request';
 import { reloadUpdateKeyPage } from './utils';
 import RecentHistory from '../../../app/components/RecentHistory';
 import { getProjectAdminProjectModules } from '../../../store/rootReducer';

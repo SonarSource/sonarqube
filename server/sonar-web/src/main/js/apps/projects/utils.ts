@@ -270,7 +270,7 @@ function fetchProjectOrganizations(projects: Array<{ organization: string }>) {
   }
 
   const organizations = uniq(projects.map(project => project.organization));
-  return getOrganizations(organizations).then(r => r.organizations);
+  return getOrganizations({ organizations: organizations.join() }).then(r => r.organizations);
 }
 
 function mapFacetValues(values: Array<{ val: string; count: number }>) {

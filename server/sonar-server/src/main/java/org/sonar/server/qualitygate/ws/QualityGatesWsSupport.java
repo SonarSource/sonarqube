@@ -20,32 +20,60 @@
 
 package org.sonar.server.qualitygate.ws;
 
+import javax.annotation.Nullable;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
-import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.user.UserSession;
+import org.sonarqube.ws.Qualitygates;
 
-import static java.lang.String.format;
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.db.permission.OrganizationPermission.ADMINISTER_QUALITY_GATES;
 import static org.sonar.server.ws.WsUtils.checkFound;
 
 public class QualityGatesWsSupport {
-  private final DbClient dbClient;
-  private final DefaultOrganizationProvider organizationProvider;
 
-  public QualityGatesWsSupport(DbClient dbClient, DefaultOrganizationProvider organizationProvider) {
+  private final DbClient dbClient;
+  private final UserSession userSession;
+  private final DefaultOrganizationProvider defaultOrganizationProvider;
+
+  public QualityGatesWsSupport(DbClient dbClient, UserSession userSession, DefaultOrganizationProvider defaultOrganizationProvider) {
     this.dbClient = dbClient;
-    this.organizationProvider = organizationProvider;
+    this.userSession = userSession;
+    this.defaultOrganizationProvider = defaultOrganizationProvider;
   }
 
   QualityGateConditionDto getCondition(DbSession dbSession, long id) {
     return checkFound(dbClient.gateConditionDao().selectById(id, dbSession), "No quality gate condition with id '%d'", id);
   }
 
-  OrganizationDto getOrganization(DbSession dbSession) {
-    String organizationKey = organizationProvider.get().getKey();
-    return dbClient.organizationDao().selectByKey(dbSession, organizationKey)
-      .orElseThrow(() -> new NotFoundException(format("No organization with key '%s'", organizationKey)));
+  boolean isQualityGateAdmin() {
+    return userSession.hasPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
+  }
+
+  Qualitygates.Actions getActions(QualityGateDto qualityGate, @Nullable QualityGateDto defaultQualityGate) {
+    Long defaultId = defaultQualityGate == null ? null : defaultQualityGate.getId();
+    boolean isDefault = qualityGate.getId().equals(defaultId);
+    boolean isBuiltIn = qualityGate.isBuiltIn();
+    boolean isQualityGateAdmin = isQualityGateAdmin();
+    return Qualitygates.Actions.newBuilder()
+      .setCopy(isQualityGateAdmin)
+      .setRename(!isBuiltIn && isQualityGateAdmin)
+      .setManageConditions(!isBuiltIn && isQualityGateAdmin)
+      .setDelete(!isDefault && !isBuiltIn && isQualityGateAdmin)
+      .setSetAsDefault(!isDefault && isQualityGateAdmin)
+      .setAssociateProjects(!isDefault && isQualityGateAdmin)
+      .build();
+  }
+
+  void checkCanEdit(QualityGateDto qualityGate) {
+    checkNotBuiltInt(qualityGate);
+    userSession.checkPermission(ADMINISTER_QUALITY_GATES, defaultOrganizationProvider.get().getUuid());
+  }
+
+  private static void checkNotBuiltInt(QualityGateDto qualityGate) {
+    checkArgument(!qualityGate.isBuiltIn(), "Operation forbidden for built-in Quality Gate '%s'", qualityGate.getName());
   }
 }
