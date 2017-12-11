@@ -31,7 +31,7 @@ import org.sonar.api.config.Settings;
 public interface PostJobContext {
 
   /**
-   * @deprecated since 6.5 use {@link PostJobContext#config()}
+   * @deprecated since 6.5 use {@link #config()}
    */
   @Deprecated
   Settings settings();

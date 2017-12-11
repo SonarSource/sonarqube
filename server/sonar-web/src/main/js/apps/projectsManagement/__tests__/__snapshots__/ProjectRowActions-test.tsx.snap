@@ -1,0 +1,75 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`restores access 1`] = `
+<ActionsDropdown
+  key="dropdown"
+  onToggleClick={[Function]}
+>
+  <ActionsDropdownItem
+    className="js-apply-template"
+    onClick={[Function]}
+  >
+    projects_role.apply_template
+  </ActionsDropdownItem>
+</ActionsDropdown>
+`;
+
+exports[`restores access 2`] = `
+<ActionsDropdown
+  key="dropdown"
+  onToggleClick={[Function]}
+>
+  <ActionsDropdownItem
+    className="js-restore-access"
+    onClick={[Function]}
+  >
+    global_permissions.restore_access
+  </ActionsDropdownItem>
+  <ActionsDropdownItem
+    className="js-apply-template"
+    onClick={[Function]}
+  >
+    projects_role.apply_template
+  </ActionsDropdownItem>
+</ActionsDropdown>
+`;
+
+exports[`restores access 3`] = `
+<ActionsDropdown
+  key="dropdown"
+  onToggleClick={[Function]}
+>
+  <ActionsDropdownItem
+    className="js-restore-access"
+    onClick={[Function]}
+  >
+    global_permissions.restore_access
+  </ActionsDropdownItem>
+  <ActionsDropdownItem
+    className="js-apply-template"
+    onClick={[Function]}
+  >
+    projects_role.apply_template
+  </ActionsDropdownItem>
+  <RestoreAccessModal
+    currentUser={
+      Object {
+        "login": "admin",
+      }
+    }
+    key="restore-access-modal"
+    onClose={[Function]}
+    onRestoreAccess={[Function]}
+    project={
+      Object {
+        "id": "",
+        "key": "project",
+        "name": "Project",
+        "organization": "org",
+        "qualifier": "TRK",
+        "visibility": "private",
+      }
+    }
+  />
+</ActionsDropdown>
+`;

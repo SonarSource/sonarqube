@@ -24,7 +24,6 @@ import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
-import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
@@ -48,7 +47,7 @@ import org.sonar.api.utils.Version;
 public interface SensorContext {
 
   /**
-   * @deprecated since 6.5 use {@link PostJobContext#config()}
+   * @deprecated since 6.5 use {@link #config()}
    */
   @Deprecated
   Settings settings();

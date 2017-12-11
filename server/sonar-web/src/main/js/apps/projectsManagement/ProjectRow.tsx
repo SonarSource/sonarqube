@@ -19,18 +19,17 @@
  */
 import * as React from 'react';
 import { Link } from 'react-router';
+import ProjectRowActions from './ProjectRowActions';
 import { Project } from './utils';
 import { Visibility } from '../../app/types';
 import PrivateBadge from '../../components/common/PrivateBadge';
 import Checkbox from '../../components/controls/Checkbox';
 import QualifierIcon from '../../components/shared/QualifierIcon';
-import { translate } from '../../helpers/l10n';
-import { getComponentPermissionsUrl } from '../../helpers/urls';
 import DateTooltipFormatter from '../../components/intl/DateTooltipFormatter';
-import ActionsDropdown, { ActionsDropdownItem } from '../../components/controls/ActionsDropdown';
 
 interface Props {
-  onApplyTemplateClick: (project: Project) => void;
+  currentUser: { login: string };
+  onApplyTemplate: (project: Project) => void;
   onProjectCheck: (project: Project, checked: boolean) => void;
   project: Project;
   selected: boolean;
@@ -39,10 +38,6 @@ interface Props {
 export default class ProjectRow extends React.PureComponent<Props> {
   handleProjectCheck = (checked: boolean) => {
     this.props.onProjectCheck(this.props.project, checked);
-  };
-
-  handleApplyTemplateClick = () => {
-    this.props.onApplyTemplateClick(this.props.project);
   };
 
   render() {
@@ -81,16 +76,11 @@ export default class ProjectRow extends React.PureComponent<Props> {
         </td>
 
         <td className="thin nowrap">
-          <ActionsDropdown>
-            <ActionsDropdownItem to={getComponentPermissionsUrl(project.key)}>
-              {translate('edit_permissions')}
-            </ActionsDropdownItem>
-            <ActionsDropdownItem
-              className="js-apply-template"
-              onClick={this.handleApplyTemplateClick}>
-              {translate('projects_role.apply_template')}
-            </ActionsDropdownItem>
-          </ActionsDropdown>
+          <ProjectRowActions
+            currentUser={this.props.currentUser}
+            onApplyTemplate={this.props.onApplyTemplate}
+            project={project}
+          />
         </td>
       </tr>
     );

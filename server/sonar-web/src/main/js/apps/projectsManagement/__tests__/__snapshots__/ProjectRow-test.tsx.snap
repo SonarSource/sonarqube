@@ -64,26 +64,22 @@ exports[`renders 1`] = `
   <td
     className="thin nowrap"
   >
-    <ActionsDropdown>
-      <ActionsDropdownItem
-        to={
-          Object {
-            "pathname": "/project_roles",
-            "query": Object {
-              "id": "project",
-            },
-          }
+    <ProjectRowActions
+      currentUser={
+        Object {
+          "login": "foo",
         }
-      >
-        edit_permissions
-      </ActionsDropdownItem>
-      <ActionsDropdownItem
-        className="js-apply-template"
-        onClick={[Function]}
-      >
-        projects_role.apply_template
-      </ActionsDropdownItem>
-    </ActionsDropdown>
+      }
+      onApplyTemplate={[Function]}
+      project={
+        Object {
+          "key": "project",
+          "name": "Project",
+          "qualifier": "TRK",
+          "visibility": "private",
+        }
+      }
+    />
   </td>
 </tr>
 `;
@@ -150,26 +146,23 @@ exports[`renders 2`] = `
   <td
     className="thin nowrap"
   >
-    <ActionsDropdown>
-      <ActionsDropdownItem
-        to={
-          Object {
-            "pathname": "/project_roles",
-            "query": Object {
-              "id": "project",
-            },
-          }
+    <ProjectRowActions
+      currentUser={
+        Object {
+          "login": "foo",
         }
-      >
-        edit_permissions
-      </ActionsDropdownItem>
-      <ActionsDropdownItem
-        className="js-apply-template"
-        onClick={[Function]}
-      >
-        projects_role.apply_template
-      </ActionsDropdownItem>
-    </ActionsDropdown>
+      }
+      onApplyTemplate={[Function]}
+      project={
+        Object {
+          "key": "project",
+          "lastAnalysisDate": "2017-04-08T00:00:00.000Z",
+          "name": "Project",
+          "qualifier": "TRK",
+          "visibility": "private",
+        }
+      }
+    />
   </td>
 </tr>
 `;

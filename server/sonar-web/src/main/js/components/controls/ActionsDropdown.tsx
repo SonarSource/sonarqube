@@ -28,6 +28,8 @@ interface Props {
   children: React.ReactNode;
   menuClassName?: string;
   menuPosition?: 'left' | 'right';
+  // TODO: replace with `onOpen` & `onClose`
+  onToggleClick?: () => void;
   small?: boolean;
   toggleClassName?: string;
 }
@@ -39,7 +41,8 @@ export default function ActionsDropdown({ menuPosition = 'right', ...props }: Pr
         className={classNames('dropdown-toggle', props.toggleClassName, {
           'button-small': props.small
         })}
-        data-toggle="dropdown">
+        data-toggle="dropdown"
+        onClick={props.onToggleClick}>
         <SettingsIcon className="text-text-bottom" />
         <i className="icon-dropdown little-spacer-left" />
       </button>
