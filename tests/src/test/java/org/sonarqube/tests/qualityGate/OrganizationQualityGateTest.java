@@ -23,7 +23,6 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import java.util.Map;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.qa.util.Tester;
@@ -48,7 +47,6 @@ public class OrganizationQualityGateTest {
   public Tester tester = new Tester(orchestrator);
 
   @Test
-  @Ignore("To be reactivated when SONAR-10134 is fixed")
   public void always_display_current_quality_gate_in_effect() throws Exception {
     Organization organization = tester.organizations().generate();
     Project project = tester.projects().provision(organization);
