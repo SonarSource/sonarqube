@@ -62,11 +62,8 @@ public class QualityGateFinder {
       "No quality gate has been found for id %s in organization %s", qualityGateId, organization.getName());
   }
 
-  // TODO As there is always a default quality gate, this method should not return an optional
-  public Optional<QualityGateDto> getDefault(DbSession dbSession, OrganizationDto organization) {
-    QualityGateDto defaultQualityGate = dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, organization.getDefaultQualityGateUuid());
-
-    return Optional.ofNullable(defaultQualityGate);
+  public QualityGateDto getDefault(DbSession dbSession, OrganizationDto organization) {
+    return dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, organization.getDefaultQualityGateUuid());
   }
 
   public QualityGateDto getBuiltInQualityGate(DbSession dbSession) {

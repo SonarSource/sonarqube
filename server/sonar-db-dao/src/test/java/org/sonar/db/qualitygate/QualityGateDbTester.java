@@ -77,11 +77,6 @@ public class QualityGateDbTester {
     db.commit();
   }
 
-  public void associateQualityGateToOrganization(QualityGateDto qualityGate, OrganizationDto organization) {
-    dbClient.qualityGateDao().associate(dbSession, Uuids.createFast(), organization, qualityGate);
-    dbSession.commit();
-  }
-
   @SafeVarargs
   public final QualityGateDto createDefaultQualityGate(OrganizationDto organization, Consumer<QualityGateDto>... dtoPopulators) {
     QualityGateDto defaultQGate = insertQualityGate(organization, dtoPopulators);
