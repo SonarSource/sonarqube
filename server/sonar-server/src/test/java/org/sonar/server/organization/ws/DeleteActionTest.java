@@ -364,6 +364,9 @@ public class DeleteActionTest {
     assertThat(db.select("select uuid as \"uuid\" from quality_gates"))
       .extracting(row -> (String) row.get("uuid"))
       .containsOnly(qualityGateInOtherOrg.getUuid(), qualityGateFinder.getBuiltInQualityGate(db.getSession()).getUuid());
+
+    // Built-in quality gate must not be destroyed
+    assertThat(qualityGateFinder.getBuiltInQualityGate(db.getSession())).isNotNull();
     assertThat(db.select("select organization_uuid as \"organizationUuid\" from org_quality_gates"))
       .extracting(row -> (String) row.get("organizationUuid"))
       .containsOnly(otherOrg.getUuid());
