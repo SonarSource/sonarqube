@@ -34,12 +34,14 @@ import org.sonar.server.issue.ws.AvatarResolver;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Users.CurrentWsResponse;
+import org.sonarqube.ws.Users.CurrentWsResponse.Homepage;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Collections.singletonList;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PROJECT;
 import static org.sonarqube.ws.Users.CurrentWsResponse.Permissions;
 import static org.sonarqube.ws.Users.CurrentWsResponse.newBuilder;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CURRENT;
@@ -96,6 +98,7 @@ public class CurrentAction implements UsersWsAction {
       .addAllGroups(groups)
       .addAllScmAccounts(user.getScmAccountsAsList())
       .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
+      .setHomepage(Homepage.newBuilder().setType(PROJECT).setValue("project-key").build())
       .setShowOnboardingTutorial(!user.isOnboarded());
     setNullable(emptyToNull(user.getEmail()), builder::setEmail);
     setNullable(emptyToNull(user.getEmail()), u -> builder.setAvatar(avatarResolver.create(user)));
