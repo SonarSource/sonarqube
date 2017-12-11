@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<li
+  className="dropdown"
+>
+  <a
+    className="dropdown-toggle"
+    href="#"
+    id="organization-navigation-admin"
+    onClick={[Function]}
+  >
+    layout.settings
+    <DropdownIcon
+      className="little-spacer-left"
+    />
+  </a>
+  <ul
+    className="dropdown-menu"
+  >
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/groups"
+      >
+        user_groups.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/permissions"
+      >
+        permissions.page
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/permission_templates"
+      >
+        permission_templates
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/projects_management"
+      >
+        projects_management
+      </Link>
+    </li>
+    <li>
+      <Link
+        activeClassName="active"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/organizations/foo/edit"
+      >
+        edit
+      </Link>
+    </li>
+  </ul>
+</li>
+`;

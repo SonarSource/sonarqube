@@ -1,0 +1,69 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="navbar-context-header"
+>
+  <h1
+    className="display-inline-block"
+  >
+    <OrganizationAvatar
+      organization={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "projectVisibility": "public",
+        }
+      }
+    />
+    <span
+      className="spacer-left"
+    >
+      Foo
+    </span>
+  </h1>
+</div>
+`;
+
+exports[`renders dropdown 1`] = `
+<div
+  className="organization-switch dropdown"
+>
+  <a
+    className="dropdown-toggle"
+    href="#"
+    onClick={[Function]}
+  >
+    Foo
+    <DropdownIcon
+      className="little-spacer-left"
+    />
+  </a>
+  <ul
+    className="dropdown-menu"
+  >
+    <OrganizationListItem
+      key="org1"
+      organization={
+        Object {
+          "isAdmin": true,
+          "key": "org1",
+          "name": "org1",
+          "projectVisibility": "public",
+        }
+      }
+    />
+    <OrganizationListItem
+      key="org2"
+      organization={
+        Object {
+          "isAdmin": false,
+          "key": "org2",
+          "name": "org2",
+          "projectVisibility": "public",
+        }
+      }
+    />
+  </ul>
+</div>
+`;
