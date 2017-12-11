@@ -1,0 +1,201 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<NavBarTabs
+  className="navbar-context-tabs"
+>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/organizations/foo/projects"
+    >
+      projects.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/organizations/foo/issues",
+          "query": Object {
+            "resolved": "false",
+          },
+        }
+      }
+    >
+      issues.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/organizations/foo/quality_profiles"
+    >
+      quality_profiles.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/organizations/foo/rules"
+    >
+      coding_rules.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/organizations/foo/quality_gates",
+        }
+      }
+    >
+      quality_gates.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/organizations/foo/members"
+    >
+      organization.members.page
+    </Link>
+  </li>
+  <OrganizationNavigationExtensions
+    location={
+      Object {
+        "pathname": "",
+      }
+    }
+    organization={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+        "projectVisibility": "public",
+      }
+    }
+  />
+</NavBarTabs>
+`;
+
+exports[`renders for admin 1`] = `
+<NavBarTabs
+  className="navbar-context-tabs"
+>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/organizations/foo/projects"
+    >
+      projects.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/organizations/foo/issues",
+          "query": Object {
+            "resolved": "false",
+          },
+        }
+      }
+    >
+      issues.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/organizations/foo/quality_profiles"
+    >
+      quality_profiles.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/organizations/foo/rules"
+    >
+      coding_rules.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to={
+        Object {
+          "pathname": "/organizations/foo/quality_gates",
+        }
+      }
+    >
+      quality_gates.page
+    </Link>
+  </li>
+  <li>
+    <Link
+      activeClassName="active"
+      onlyActiveOnIndex={false}
+      style={Object {}}
+      to="/organizations/foo/members"
+    >
+      organization.members.page
+    </Link>
+  </li>
+  <OrganizationNavigationExtensions
+    location={
+      Object {
+        "pathname": "",
+      }
+    }
+    organization={
+      Object {
+        "canAdmin": true,
+        "key": "foo",
+        "name": "Foo",
+        "projectVisibility": "public",
+      }
+    }
+  />
+  <OrganizationNavigationAdministration
+    location={
+      Object {
+        "pathname": "",
+      }
+    }
+    organization={
+      Object {
+        "canAdmin": true,
+        "key": "foo",
+        "name": "Foo",
+        "projectVisibility": "public",
+      }
+    }
+  />
+</NavBarTabs>
+`;

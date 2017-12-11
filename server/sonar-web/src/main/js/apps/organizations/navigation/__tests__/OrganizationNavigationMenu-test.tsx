@@ -1,7 +1,7 @@
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,15 +19,31 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import OrganizationNavigation from '../OrganizationNavigation';
+import OrganizationNavigationMenu from '../OrganizationNavigationMenu';
 import { Visibility } from '../../../../app/types';
 
-it('render', () => {
+it('renders', () => {
   expect(
     shallow(
-      <OrganizationNavigation
-        location={{ pathname: '/organizations/foo' }}
+      <OrganizationNavigationMenu
+        location={{ pathname: '' }}
         organization={{
+          key: 'foo',
+          name: 'Foo',
+          projectVisibility: Visibility.Public
+        }}
+      />
+    )
+  ).toMatchSnapshot();
+});
+
+it('renders for admin', () => {
+  expect(
+    shallow(
+      <OrganizationNavigationMenu
+        location={{ pathname: '' }}
+        organization={{
+          canAdmin: true,
           key: 'foo',
           name: 'Foo',
           projectVisibility: Visibility.Public
