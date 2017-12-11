@@ -107,10 +107,21 @@ message CurrentWsResponse {
   optional Permissions permissions = 10;
   optional bool showOnboardingTutorial = 11;
   optional string avatar = 12;
+  optional Homepage homepage = 13;
 
   message Permissions {
     repeated string global = 1;
   }
+
+  enum HomepageType {
+    PROJECT = 1;
+    ORGANIZATION = 2;
+    MY_PROJECTS = 3;
+    MY_ISSUES = 4;
+  }
+
+  message Homepage {
+    optional HomepageType type = 1;
+    optional string value = 2;
+  }
 }
-
-
