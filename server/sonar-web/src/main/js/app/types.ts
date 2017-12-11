@@ -115,6 +115,7 @@ export interface Organization {
   canProvisionProjects?: boolean;
   canUpdateProjectsVisibilityToPrivate?: boolean;
   description?: string;
+  isAdmin?: boolean;
   isDefault?: boolean;
   key: string;
   name: string;
