@@ -29,6 +29,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -66,7 +67,7 @@ public class LiveMeasureComputerImplTest {
 
   @Test
   public void compute_and_insert_measures_if_they_dont_exist_yet() {
-    db.components().insertSnapshot(project);
+    markProjectAsAnalyzed(project);
 
     run(asList(file1, file2), newIncrementalFormula(), newStringConstantFormula("foo"));
 
@@ -84,7 +85,7 @@ public class LiveMeasureComputerImplTest {
 
   @Test
   public void compute_and_update_measures_if_they_already_exist() {
-    db.components().insertSnapshot(project);
+    markProjectAsAnalyzed(project);
     db.measures().insertLiveMeasure(project, intMetric, m -> m.setValue(42.0));
     db.measures().insertLiveMeasure(dir, intMetric, m -> m.setValue(42.0));
     db.measures().insertLiveMeasure(file1, intMetric, m -> m.setValue(42.0));
@@ -104,7 +105,7 @@ public class LiveMeasureComputerImplTest {
 
   @Test
   public void variation_is_refreshed_when_value_is_changed() {
-    db.components().insertSnapshot(project);
+    markProjectAsAnalyzed(project);
     // value is:
     // 42 on last analysis
     // 42-12=30 on beginning of leak period
@@ -119,7 +120,7 @@ public class LiveMeasureComputerImplTest {
 
   @Test
   public void refresh_leak_measures() {
-    db.components().insertSnapshot(project, s -> s.setPeriodDate(1_500_000_000L));
+    markProjectAsAnalyzed(project);
     db.measures().insertLiveMeasure(project, intMetric, m -> m.setVariation(42.0).setValue(null));
     db.measures().insertLiveMeasure(dir, intMetric, m -> m.setVariation(42.0).setValue(null));
     db.measures().insertLiveMeasure(file1, intMetric, m -> m.setVariation(42.0).setValue(null));
@@ -149,6 +150,26 @@ public class LiveMeasureComputerImplTest {
     assertThat(db.countRowsOfTable(db.getSession(), "live_measures")).isEqualTo(0);
   }
 
+  @Test
+  public void refresh_multiple_projects_at_the_same_time() {
+    markProjectAsAnalyzed(project);
+    ComponentDto project2 = db.components().insertPrivateProject();
+    ComponentDto fileInProject2 = db.components().insertComponent(ComponentTesting.newFileDto(project2));
+    markProjectAsAnalyzed(project2);
+
+    run(asList(file1, fileInProject2), newQualifierBasedFormula());
+
+    // generated values depend on position of qualifier in Qualifiers.ORDERED_BOTTOM_UP (see formula)
+    assertThatIntMeasureHasValue(file1, 0);
+    assertThatIntMeasureHasValue(dir, 2);
+    assertThatIntMeasureHasValue(project, 4);
+    assertThatIntMeasureHasValue(fileInProject2, 0);
+    assertThatIntMeasureHasValue(project2, 4);
+
+    // no other measures generated
+    assertThat(db.countRowsOfTable(db.getSession(), "live_measures")).isEqualTo(5);
+  }
+
   private void run(ComponentDto component, IssueMetricFormula... formulas) {
     run(Collections.singletonList(component), formulas);
   }
@@ -159,6 +180,11 @@ public class LiveMeasureComputerImplTest {
 
     LiveMeasureComputerImpl underTest = new LiveMeasureComputerImpl(db.getDbClient(), matrixLoader, settings.asConfig(), formulaFactory);
     underTest.refresh(db.getSession(), components);
+  }
+
+  private void markProjectAsAnalyzed(ComponentDto p) {
+    assertThat(p.qualifier()).isEqualTo(Qualifiers.PROJECT);
+    db.components().insertSnapshot(p, s -> s.setPeriodDate(1_490_000_000L));
   }
 
   private LiveMeasureDto assertThatIntMeasureHasValue(ComponentDto component, double expectedValue) {
@@ -217,6 +243,13 @@ public class LiveMeasureComputerImplTest {
     AtomicInteger counter = new AtomicInteger();
     return new IssueMetricFormula(metric, true, (ctx, issues) -> {
       ctx.setValue((double)counter.incrementAndGet());
+    });
+  }
+
+  private IssueMetricFormula newQualifierBasedFormula() {
+    Metric metric = new Metric.Builder(intMetric.getKey(), intMetric.getShortName(), Metric.ValueType.valueOf(intMetric.getValueType())).create();
+    return new IssueMetricFormula(metric, false, (ctx, issues) -> {
+      ctx.setValue(Qualifiers.ORDERED_BOTTOM_UP.indexOf(ctx.getComponent().qualifier()));
     });
   }
 }

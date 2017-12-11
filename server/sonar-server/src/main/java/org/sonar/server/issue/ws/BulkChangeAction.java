@@ -28,9 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -182,38 +180,30 @@ public class BulkChangeAction implements IssuesWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn();
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Issues.BulkChangeWsResponse wsResponse = Stream.of(request)
-        .map(loadData(dbSession))
-        .map(executeBulkChange())
-        .map(toWsResponse())
-        .collect(MoreCollectors.toOneElement());
-      writeProtobuf(wsResponse, request, response);
+      BulkChangeResult result = executeBulkChange(dbSession, request);
+      writeProtobuf(toWsResponse(result), request, response);
     }
   }
 
-  private Function<Request, BulkChangeData> loadData(DbSession dbSession) {
-    return request -> new BulkChangeData(dbSession, request);
-  }
+  private BulkChangeResult executeBulkChange(DbSession dbSession, Request request) {
+    BulkChangeData data = new BulkChangeData(dbSession, request);
+    BulkChangeResult result = new BulkChangeResult(data.issues.size());
+    IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
 
-  private Function<BulkChangeData, BulkChangeResult> executeBulkChange() {
-    return bulkChangeData -> {
-      BulkChangeResult result = new BulkChangeResult(bulkChangeData.issues.size());
-      IssueChangeContext issueChangeContext = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
+    List<DefaultIssue> items = data.issues.stream()
+      .filter(bulkChange(issueChangeContext, data, result))
+      .collect(MoreCollectors.toList());
+    issueStorage.save(items);
 
-      List<DefaultIssue> items = bulkChangeData.issues.stream()
-        .filter(bulkChange(issueChangeContext, bulkChangeData, result))
-        .collect(MoreCollectors.toList());
-      issueStorage.save(items);
-      items.forEach(sendNotification(issueChangeContext, bulkChangeData));
-      buildWebhookIssueChange(bulkChangeData.propertiesByActions)
-        .ifPresent(issueChange -> issueChangeTrigger.onChange(
-          new IssueChangeTrigger.IssueChangeData(
-            bulkChangeData.issues.stream().filter(i -> result.success.contains(i.key())).collect(MoreCollectors.toList()),
-            copyOf(bulkChangeData.componentsByUuid.values())),
-          issueChange,
-          issueChangeContext));
-      return result;
-    };
+    items.forEach(sendNotification(issueChangeContext, data));
+    buildWebhookIssueChange(data.propertiesByActions)
+      .ifPresent(issueChange -> issueChangeTrigger.onChange(
+        new IssueChangeTrigger.IssueChangeData(
+          data.issues.stream().filter(i -> result.success.contains(i.key())).collect(MoreCollectors.toList()),
+          copyOf(data.componentsByUuid.values())),
+        issueChange,
+        issueChangeContext));
+    return result;
   }
 
   private static Optional<IssueChangeTrigger.IssueChange> buildWebhookIssueChange(Map<String, Map<String, Object>> propertiesByActions) {
@@ -271,12 +261,12 @@ public class BulkChangeAction implements IssuesWsAction {
     };
   }
 
-  private static Function<BulkChangeResult, Issues.BulkChangeWsResponse> toWsResponse() {
-    return bulkChangeResult -> Issues.BulkChangeWsResponse.newBuilder()
-      .setTotal(bulkChangeResult.getTotal())
-      .setSuccess(bulkChangeResult.getSuccess())
-      .setIgnored((long) bulkChangeResult.getTotal() - (bulkChangeResult.getSuccess() + bulkChangeResult.getFailures()))
-      .setFailures(bulkChangeResult.getFailures())
+  private static Issues.BulkChangeWsResponse toWsResponse(BulkChangeResult result) {
+    return Issues.BulkChangeWsResponse.newBuilder()
+      .setTotal(result.getTotal())
+      .setSuccess(result.getSuccess())
+      .setIgnored((long) result.getTotal() - (result.getSuccess() + result.getFailures()))
+      .setFailures(result.getFailures())
       .build();
   }
 

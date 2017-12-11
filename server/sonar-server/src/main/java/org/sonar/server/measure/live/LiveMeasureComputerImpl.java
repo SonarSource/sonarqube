@@ -20,8 +20,11 @@
 package org.sonar.server.measure.live;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
+import java.util.stream.Collectors;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.Metric;
 import org.sonar.db.DbClient;
@@ -48,12 +51,19 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
   }
 
   @Override
-  public void refresh(DbSession dbSession, Collection<ComponentDto> componentsOfSameProject) {
-    if (componentsOfSameProject.isEmpty()) {
+  public void refresh(DbSession dbSession, Collection<ComponentDto> components) {
+    if (components.isEmpty()) {
       return;
     }
 
-    String projectUuid = componentsOfSameProject.iterator().next().projectUuid();
+    Map<String, List<ComponentDto>> componentsByProjectUuid = components.stream().collect(Collectors.groupingBy(ComponentDto::projectUuid));
+    for (List<ComponentDto> groupedComponents : componentsByProjectUuid.values()) {
+      refreshComponentsOnSameProject(dbSession, groupedComponents);
+    }
+  }
+
+  private void refreshComponentsOnSameProject(DbSession dbSession, List<ComponentDto> components) {
+    String projectUuid = components.iterator().next().projectUuid();
     Optional<SnapshotDto> lastAnalysis = dbClient.snapshotDao().selectLastAnalysisByRootComponentUuid(dbSession, projectUuid);
     if (!lastAnalysis.isPresent()) {
       // project has been deleted at the same time ?
@@ -61,7 +71,7 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     }
     Optional<Long> beginningOfLeakPeriod = lastAnalysis.map(SnapshotDto::getPeriodDate);
 
-    MeasureMatrix matrix = matrixLoader.load(dbSession, componentsOfSameProject, formulaFactory.getFormulaMetrics());
+    MeasureMatrix matrix = matrixLoader.load(dbSession, components, formulaFactory.getFormulaMetrics());
     DebtRatingGrid debtRatingGrid = new DebtRatingGrid(config);
 
     matrix.getBottomUpComponents().forEach(c -> {
@@ -83,7 +93,6 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
     // persist the measures that have been created or updated
     // TODO test concurrency (CE deletes or updates the row)
     matrix.getChanged().forEach(m -> dbClient.liveMeasureDao().insertOrUpdate(dbSession, m, null));
-
     dbSession.commit();
   }
 
