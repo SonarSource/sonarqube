@@ -100,21 +100,6 @@ public class GetByProjectActionTest {
   }
 
   @Test
-  public void empty_response() {
-    OrganizationDto organization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(organization);
-    db.qualityGates().insertQualityGate(organization);
-    logInAsProjectUser(project);
-
-    String result = ws.newRequest()
-      .setParam("project", project.getKey())
-      .setParam("organization", organization.getKey())
-      .execute().getInput();
-
-    assertThat(result).isEqualToIgnoringWhitespace("{}");
-  }
-
-  @Test
   public void default_quality_gate() {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);

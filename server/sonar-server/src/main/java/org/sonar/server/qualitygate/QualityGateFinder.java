@@ -52,7 +52,7 @@ public class QualityGateFinder {
       return new QualityGateData(qualityGate, false);
     } else {
       QualityGateDto defaultQualityGate = dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, organization.getDefaultQualityGateUuid());
-      checkState(defaultQualityGate == null, format("Unable to find the quality gate [%s] for organization [%s]", organization.getUuid(), organization.getUuid()));
+      checkState(defaultQualityGate != null, format("Unable to find the quality gate [%s] for organization [%s]", organization.getDefaultQualityGateUuid(), organization.getUuid()));
       return new QualityGateData(defaultQualityGate, true);
     }
   }

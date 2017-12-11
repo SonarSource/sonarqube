@@ -71,22 +71,14 @@ public class QualityGateFinderTest {
   }
 
   @Test
-  public void return_nothing_when_no_default_qgate_and_no_qgate_defined_for_project() {
-    ComponentDto project = db.components().insertPrivateProject();
-
-    QualityGateFinder.QualityGateData result = underTest.getQualityGate(dbSession, db.getDefaultOrganization(), project.getId());
-
-    assertThat(result).isNotNull();
-  }
-
-  @Test
   public void fail_when_default_qgate_defined_in_properties_does_not_exists() {
     ComponentDto project = db.components().insertPrivateProject();
     QualityGateDto dbQualityGate = db.qualityGates().createDefaultQualityGate(db.getDefaultOrganization(), qg -> qg.setName("Sonar way"));
     db.getDbClient().qualityGateDao().delete(dbQualityGate, dbSession);
+    db.commit();
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage(format("Unable to find the quality gate [%s] for organization [%s]", db.getDefaultOrganization(), dbQualityGate.getUuid()));
+    expectedException.expectMessage(format("Unable to find the quality gate [%s] for organization [%s]", dbQualityGate.getUuid(), db.getDefaultOrganization().getUuid()));
 
     underTest.getQualityGate(dbSession, db.getDefaultOrganization(), project.getId());
   }
