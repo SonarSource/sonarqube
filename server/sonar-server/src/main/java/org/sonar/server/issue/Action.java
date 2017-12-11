@@ -75,6 +75,8 @@ public abstract class Action {
 
   public abstract boolean execute(Map<String, Object> properties, Context context);
 
+  public abstract boolean shouldRefreshMeasures();
+
   public interface Context {
     DefaultIssue issue();
 

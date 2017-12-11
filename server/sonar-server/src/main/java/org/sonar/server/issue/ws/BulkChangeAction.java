@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -57,6 +58,7 @@ import org.sonar.server.issue.RemoveTagsAction;
 import org.sonar.server.issue.SetTypeAction;
 import org.sonar.server.issue.TransitionAction;
 import org.sonar.server.issue.notification.IssueChangeNotification;
+import org.sonar.server.measure.live.LiveMeasureComputer;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.qualitygate.changeevent.IssueChangeTrigger;
 import org.sonar.server.user.UserSession;
@@ -108,9 +110,10 @@ public class BulkChangeAction implements IssuesWsAction {
   private final NotificationManager notificationService;
   private final List<Action> actions;
   private final IssueChangeTrigger issueChangeTrigger;
+  private final LiveMeasureComputer liveMeasureComputer;
 
   public BulkChangeAction(System2 system2, UserSession userSession, DbClient dbClient, IssueStorage issueStorage, NotificationManager notificationService, List<Action> actions,
-    IssueChangeTrigger issueChangeTrigger) {
+    IssueChangeTrigger issueChangeTrigger, LiveMeasureComputer liveMeasureComputer) {
     this.system2 = system2;
     this.userSession = userSession;
     this.dbClient = dbClient;
@@ -118,6 +121,7 @@ public class BulkChangeAction implements IssuesWsAction {
     this.notificationService = notificationService;
     this.actions = actions;
     this.issueChangeTrigger = issueChangeTrigger;
+    this.liveMeasureComputer = liveMeasureComputer;
   }
 
   @Override
@@ -194,16 +198,30 @@ public class BulkChangeAction implements IssuesWsAction {
       .filter(bulkChange(issueChangeContext, data, result))
       .collect(MoreCollectors.toList());
     issueStorage.save(items);
+    refreshLiveMeasures(dbSession, data, result);
 
     items.forEach(sendNotification(issueChangeContext, data));
     buildWebhookIssueChange(data.propertiesByActions)
       .ifPresent(issueChange -> issueChangeTrigger.onChange(
         new IssueChangeTrigger.IssueChangeData(
-          data.issues.stream().filter(i -> result.success.contains(i.key())).collect(MoreCollectors.toList()),
+          data.issues.stream().filter(result.success::contains).collect(MoreCollectors.toList()),
           copyOf(data.componentsByUuid.values())),
         issueChange,
         issueChangeContext));
     return result;
+  }
+
+  private void refreshLiveMeasures(DbSession dbSession, BulkChangeData data, BulkChangeResult result) {
+    if (!data.shouldRefreshMeasures()) {
+      return;
+    }
+    Set<String> touchedComponentUuids = result.success.stream()
+      .map(DefaultIssue::componentUuid)
+      .collect(Collectors.toSet());
+    List<ComponentDto> touchedComponents = touchedComponentUuids.stream()
+      .map(data.componentsByUuid::get)
+      .collect(Collectors.toList());
+    liveMeasureComputer.refresh(dbSession, touchedComponents);
   }
 
   private static Optional<IssueChangeTrigger.IssueChange> buildWebhookIssueChange(Map<String, Map<String, Object>> propertiesByActions) {
@@ -225,7 +243,7 @@ public class BulkChangeAction implements IssuesWsAction {
       ActionContext actionContext = new ActionContext(issue, issueChangeContext, bulkChangeData.projectsByUuid.get(issue.projectUuid()));
       bulkChangeData.getActionsWithoutComment().forEach(applyAction(actionContext, bulkChangeData, result));
       addCommentIfNeeded(actionContext, bulkChangeData);
-      return result.success.contains(issue.key());
+      return result.success.contains(issue);
     };
   }
 
@@ -263,10 +281,10 @@ public class BulkChangeAction implements IssuesWsAction {
 
   private static Issues.BulkChangeWsResponse toWsResponse(BulkChangeResult result) {
     return Issues.BulkChangeWsResponse.newBuilder()
-      .setTotal(result.getTotal())
-      .setSuccess(result.getSuccess())
-      .setIgnored((long) result.getTotal() - (result.getSuccess() + result.getFailures()))
-      .setFailures(result.getFailures())
+      .setTotal(result.countTotal())
+      .setSuccess(result.countSuccess())
+      .setIgnored((long) result.countTotal() - (result.countSuccess() + result.countFailures()))
+      .setFailures(result.countFailures())
       .build();
   }
 
@@ -375,11 +393,15 @@ public class BulkChangeAction implements IssuesWsAction {
       long actionsDefined = actions.stream().filter(action -> !action.equals(COMMENT_KEY)).count();
       checkArgument(actionsDefined > 0, "At least one action must be provided");
     }
+
+    private boolean shouldRefreshMeasures() {
+      return availableActions.stream().anyMatch(Action::shouldRefreshMeasures);
+    }
   }
 
   private static class BulkChangeResult {
     private final int total;
-    private Set<String> success = new HashSet<>();
+    private final Set<DefaultIssue> success = new HashSet<>();
     private int failures = 0;
 
     BulkChangeResult(int total) {
@@ -387,22 +409,22 @@ public class BulkChangeAction implements IssuesWsAction {
     }
 
     void increaseSuccess(DefaultIssue issue) {
-      this.success.add(issue.key());
+      this.success.add(issue);
     }
 
     void increaseFailure() {
       this.failures++;
     }
 
-    public int getTotal() {
+    public int countTotal() {
       return total;
     }
 
-    public int getSuccess() {
+    public int countSuccess() {
       return success.size();
     }
 
-    public int getFailures() {
+    public int countFailures() {
       return failures;
     }
   }

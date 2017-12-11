@@ -61,6 +61,11 @@ public class SetTypeAction extends Action {
     return issueUpdater.setType(context.issue(), RuleType.valueOf(type), context.issueChangeContext());
   }
 
+  @Override
+  public boolean shouldRefreshMeasures() {
+    return true;
+  }
+
   private static String verifyTypeParameter(Map<String, Object> properties) {
     String type = (String) properties.get(TYPE_PARAMETER);
     checkArgument(!isNullOrEmpty(type), "Missing parameter : '%s'", TYPE_PARAMETER);

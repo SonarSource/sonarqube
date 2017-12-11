@@ -51,6 +51,11 @@ public class CommentAction extends Action {
     return true;
   }
 
+  @Override
+  public boolean shouldRefreshMeasures() {
+    return false;
+  }
+
   private static String comment(Map<String, Object> properties) {
     String param = (String) properties.get(COMMENT_PROPERTY);
     if (Strings.isNullOrEmpty(param)) {

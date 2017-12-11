@@ -21,49 +21,52 @@ package org.sonar.server.issue;
 
 import java.util.Collection;
 import java.util.Map;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.user.UserSession;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class ActionTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void key_should_not_be_empty() {
-    try {
-      new Action("") {
-        @Override
-        public boolean verify(Map<String, Object> properties, Collection<DefaultIssue> issues, UserSession userSession) {
-          return false;
-        }
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Action key must be set");
 
-        @Override
-        public boolean execute(Map<String, Object> properties, Context context) {
-          return false;
-        }
-      };
-    } catch (Exception e) {
-      assertThat(e).hasMessage("Action key must be set").isInstanceOf(IllegalArgumentException.class);
-    }
+    new FakeAction("");
   }
 
   @Test
   public void key_should_not_be_null() {
-    try {
-      new Action(null) {
-        @Override
-        public boolean verify(Map<String, Object> properties, Collection<DefaultIssue> issues, UserSession userSession) {
-          return false;
-        }
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Action key must be set");
 
-        @Override
-        public boolean execute(Map<String, Object> properties, Context context) {
-          return false;
-        }
-      };
-    } catch (Exception e) {
-      assertThat(e).hasMessage("Action key must be set").isInstanceOf(IllegalArgumentException.class);
+    new FakeAction(null);
+  }
+
+  private static class FakeAction extends Action {
+
+    FakeAction(String key) {
+      super(key);
+    }
+
+    @Override
+    public boolean verify(Map<String, Object> properties, Collection<DefaultIssue> issues, UserSession userSession) {
+      return false;
+    }
+
+    @Override
+    public boolean execute(Map<String, Object> properties, Context context) {
+      return false;
+    }
+
+    @Override
+    public boolean shouldRefreshMeasures() {
+      return false;
     }
   }
 }
