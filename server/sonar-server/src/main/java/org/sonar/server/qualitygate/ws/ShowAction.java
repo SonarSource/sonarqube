@@ -120,7 +120,7 @@ public class ShowAction implements QualityGatesWsAction {
       .collect(uniqueIndex(MetricDto::getId));
   }
 
-  private ShowWsResponse buildResponse(OrganizationDto organization, QualityGateDto qualityGate, Object defaultQualityGate,
+  private ShowWsResponse buildResponse(OrganizationDto organization, QualityGateDto qualityGate, QualityGateDto defaultQualityGate,
     Collection<QualityGateConditionDto> conditions, Map<Integer, MetricDto> metricsById) {
     return ShowWsResponse.newBuilder()
       .setId(qualityGate.getId())

@@ -76,7 +76,7 @@ public class QualityGatesWsSupport {
       .setExampleValue("my-org");
   }
 
-  Qualitygates.Actions getActions(OrganizationDto organization, QualityGateDto qualityGate, @Nullable Object defaultQualityGate) {
+  Qualitygates.Actions getActions(OrganizationDto organization, QualityGateDto qualityGate, @Nullable QualityGateDto defaultQualityGate) {
     Long defaultId = defaultQualityGate == null ? null : defaultQualityGate.getId();
     boolean isDefault = qualityGate.getId().equals(defaultId);
     boolean isBuiltIn = qualityGate.isBuiltIn();
