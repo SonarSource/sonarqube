@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualitygate;
 
-import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,6 +29,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.NotFoundException;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class QualityGateFinderTest {
@@ -48,13 +48,12 @@ public class QualityGateFinderTest {
   public void return_default_quality_gate_for_project() {
     ComponentDto project = db.components().insertPrivateProject();
     QualityGateDto dbQualityGate = db.qualityGates().createDefaultQualityGate(db.getDefaultOrganization(), qg -> qg.setName("Sonar way"));
-    //db.qualityGates().associateQualityGateToOrganization(dbQualityGate, db.getDefaultOrganization());
 
-    Optional<QualityGateFinder.QualityGateData> result = underTest.getQualityGate(dbSession, db.getDefaultOrganization(), project.getId());
+    QualityGateFinder.QualityGateData result = underTest.getQualityGate(dbSession, db.getDefaultOrganization(), project.getId());
 
-    assertThat(result).isPresent();
-    assertThat(result.get().getQualityGate().getId()).isEqualTo(dbQualityGate.getId());
-    assertThat(result.get().isDefault()).isTrue();
+    assertThat(result).isNotNull();
+    assertThat(result.getQualityGate().getId()).isEqualTo(dbQualityGate.getId());
+    assertThat(result.isDefault()).isTrue();
   }
 
   @Test
@@ -64,20 +63,20 @@ public class QualityGateFinderTest {
     QualityGateDto dbQualityGate = db.qualityGates().insertQualityGate(db.getDefaultOrganization(), qg -> qg.setName("My team QG"));
     db.qualityGates().associateProjectToQualityGate(project, dbQualityGate);
 
-    Optional<QualityGateFinder.QualityGateData> result = underTest.getQualityGate(dbSession, db.getDefaultOrganization(), project.getId());
+    QualityGateFinder.QualityGateData result = underTest.getQualityGate(dbSession, db.getDefaultOrganization(), project.getId());
 
-    assertThat(result).isPresent();
-    assertThat(result.get().getQualityGate().getId()).isEqualTo(dbQualityGate.getId());
-    assertThat(result.get().isDefault()).isFalse();
+    assertThat(result).isNotNull();
+    assertThat(result.getQualityGate().getId()).isEqualTo(dbQualityGate.getId());
+    assertThat(result.isDefault()).isFalse();
   }
 
   @Test
   public void return_nothing_when_no_default_qgate_and_no_qgate_defined_for_project() {
     ComponentDto project = db.components().insertPrivateProject();
 
-    Optional<QualityGateFinder.QualityGateData> result = underTest.getQualityGate(dbSession, db.getDefaultOrganization(), project.getId());
+    QualityGateFinder.QualityGateData result = underTest.getQualityGate(dbSession, db.getDefaultOrganization(), project.getId());
 
-    assertThat(result).isNotPresent();
+    assertThat(result).isNotNull();
   }
 
   @Test
@@ -86,7 +85,10 @@ public class QualityGateFinderTest {
     QualityGateDto dbQualityGate = db.qualityGates().createDefaultQualityGate(db.getDefaultOrganization(), qg -> qg.setName("Sonar way"));
     db.getDbClient().qualityGateDao().delete(dbQualityGate, dbSession);
 
-    assertThat(underTest.getQualityGate(dbSession, db.getDefaultOrganization(), project.getId())).isEmpty();
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage(format("Unable to find the quality gate [%s] for organization [%s]", db.getDefaultOrganization(), dbQualityGate.getUuid()));
+
+    underTest.getQualityGate(dbSession, db.getDefaultOrganization(), project.getId());
   }
 
   @Test

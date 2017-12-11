@@ -27,6 +27,7 @@ import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.db.qualitygate.QualityGateDto;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.lang.String.format;
 import static org.sonar.server.ws.WsUtils.checkFound;
 
 public class QualityGateFinder {
@@ -43,19 +44,16 @@ public class QualityGateFinder {
    * Return effective quality gate of a project.
    *
    * It will first try to get the quality gate explicitly defined on a project, if none it will try to return default quality gate.
-   * As it's possible to have no default quality gate, this method can return {@link Optional#empty()}
    */
-  public Optional<QualityGateData> getQualityGate(DbSession dbSession, OrganizationDto organization, long componentId) {
+  public QualityGateData getQualityGate(DbSession dbSession, OrganizationDto organization, long componentId) {
     Optional<Long> qualityGateId = dbClient.projectQgateAssociationDao().selectQGateIdByComponentId(dbSession, componentId);
     if (qualityGateId.isPresent()) {
       QualityGateDto qualityGate = checkFound(dbClient.qualityGateDao().selectById(dbSession, qualityGateId.get()), "No quality gate has been found for id %s", qualityGateId);
-      return Optional.of(new QualityGateData(qualityGate, false));
+      return new QualityGateData(qualityGate, false);
     } else {
       QualityGateDto defaultQualityGate = dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, organization.getDefaultQualityGateUuid());
-      if (defaultQualityGate == null) {
-        return Optional.empty();
-      }
-      return Optional.of(new QualityGateData(defaultQualityGate, true));
+      checkState(defaultQualityGate == null, format("Unable to find the quality gate [%s] for organization [%s]", organization.getUuid(), organization.getUuid()));
+      return new QualityGateData(defaultQualityGate, true);
     }
   }
 
