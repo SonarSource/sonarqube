@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`should not render the users organizations when they are not activated 1`] = `
+exports[`should not render user organizations when they are not activated 1`] = `
 <li
   className="dropdown js-user-authenticated open"
 >
@@ -134,7 +134,7 @@ exports[`should render the right interface for logged in user 1`] = `
 </li>
 `;
 
-exports[`should render the users organizations 1`] = `
+exports[`should render user organizations 1`] = `
 <li
   className="dropdown js-user-authenticated open"
 >
@@ -309,78 +309,5 @@ exports[`should render the users organizations 1`] = `
       </a>
     </li>
   </ul>
-</li>
-`;
-
-exports[`should update the component correctly when the user changes to anonymous 1`] = `
-<li
-  className="dropdown js-user-authenticated open"
->
-  <a
-    className="dropdown-toggle navbar-avatar"
-    href="#"
-    onClick={[Function]}
-  >
-    <Connect(Avatar)
-      hash="abcd1234"
-      name="foo"
-      size={32}
-    />
-  </a>
-  <ul
-    className="dropdown-menu dropdown-menu-right"
-  >
-    <li
-      className="dropdown-item"
-    >
-      <div
-        className="text-ellipsis text-muted"
-        title="foo"
-      >
-        <strong>
-          foo
-        </strong>
-      </div>
-      <div
-        className="little-spacer-top text-ellipsis text-muted"
-        title="foo@bar.baz"
-      >
-        foo@bar.baz
-      </div>
-    </li>
-    <li
-      className="divider"
-    />
-    <li>
-      <Link
-        onClick={[Function]}
-        onlyActiveOnIndex={false}
-        style={Object {}}
-        to="/account"
-      >
-        my_account.page
-      </Link>
-    </li>
-    <li>
-      <a
-        href="#"
-        onClick={[Function]}
-      >
-        layout.logout
-      </a>
-    </li>
-  </ul>
-</li>
-`;
-
-exports[`should update the component correctly when the user changes to anonymous 2`] = `
-<li>
-  <a
-    className="navbar-login"
-    href="#"
-    onClick={[Function]}
-  >
-    layout.login
-  </a>
 </li>
 `;
