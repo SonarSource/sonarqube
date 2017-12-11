@@ -21,7 +21,6 @@ package org.sonar.db;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -30,7 +29,6 @@ import org.apache.commons.lang.StringUtils;
 import org.picocontainer.containers.TransientPicoContainer;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.SequenceUuidFactory;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.event.EventDbTester;
 import org.sonar.db.favorite.FavoriteDbTester;
@@ -157,27 +155,10 @@ public class DbTester extends AbstractDbTester<TestDb> {
     db.start();
     db.truncateTables();
     initDbClient();
-    insertBuiltInQualityGateIfTableExists();
-
     if (!disableDefaultOrganization) {
       insertDefaultOrganization();
     }
     started = true;
-  }
-
-  private void insertBuiltInQualityGateIfTableExists() {
-    try (DbSession dbSession = db.getMyBatis().openSession(false)) {
-      if (DatabaseUtils.tableExists("quality_gates", dbSession.getConnection())) {
-        builtInQualityGate = new QualityGateDto()
-          .setUuid(Uuids.createFast())
-          .setName("Sonar way")
-          .setBuiltIn(true)
-          .setCreatedAt(new Date(system2.now()))
-          .setCreatedAt(new Date(system2.now()));
-        client.qualityGateDao().insert(dbSession, builtInQualityGate);
-        dbSession.commit();
-      }
-    }
   }
 
   private void insertDefaultOrganization() {

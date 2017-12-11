@@ -37,6 +37,7 @@ public class OrganizationTesting {
       .setName(randomAlphanumeric(64))
       .setDescription(randomAlphanumeric(256))
       .setAvatarUrl(randomAlphanumeric(256))
+      // Default quality gate should be set explicitly when needed in tests
       .setDefaultQualityGateUuid("_NOT_SET_")
       .setUrl(randomAlphanumeric(256));
   }

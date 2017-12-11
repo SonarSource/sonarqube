@@ -356,6 +356,7 @@ public class DeleteActionTest {
     OrganizationDto otherOrg = db.organizations().insert();
     QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(org);
     QGateWithOrgDto qualityGateInOtherOrg = db.qualityGates().insertQualityGate(otherOrg);
+    db.qualityGates().insertBuiltInQualityGate();
     logInAsAdministrator(org);
 
     sendRequest(org);
