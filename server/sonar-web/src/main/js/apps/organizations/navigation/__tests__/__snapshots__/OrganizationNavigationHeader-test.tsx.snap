@@ -1,0 +1,120 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="navbar-context-header"
+>
+  <h1
+    className="display-inline-block"
+  >
+    <OrganizationAvatar
+      organization={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "projectVisibility": "public",
+        }
+      }
+    />
+    <span
+      className="spacer-left"
+    >
+      Foo
+    </span>
+  </h1>
+</div>
+`;
+
+exports[`renders dropdown 1`] = `
+<div
+  className="organization-switch dropdown"
+>
+  <a
+    className="dropdown-toggle"
+    href="#"
+    onClick={[Function]}
+  >
+    Foo
+    <DropdownIcon
+      className="little-spacer-left"
+    />
+  </a>
+  <ul
+    className="dropdown-menu"
+  >
+    <li
+      key="org1"
+    >
+      <OrganizationLink
+        className="dropdown-item-flex"
+        organization={
+          Object {
+            "isAdmin": true,
+            "key": "org1",
+            "name": "org1",
+            "projectVisibility": "public",
+          }
+        }
+      >
+        <div>
+          <OrganizationAvatar
+            organization={
+              Object {
+                "isAdmin": true,
+                "key": "org1",
+                "name": "org1",
+                "projectVisibility": "public",
+              }
+            }
+            small={true}
+          />
+          <span
+            className="spacer-left"
+          >
+            org1
+          </span>
+        </div>
+        <span
+          className="outline-badge spacer-left"
+        >
+          admin
+        </span>
+      </OrganizationLink>
+    </li>
+    <li
+      key="org2"
+    >
+      <OrganizationLink
+        className="dropdown-item-flex"
+        organization={
+          Object {
+            "isAdmin": false,
+            "key": "org2",
+            "name": "org2",
+            "projectVisibility": "public",
+          }
+        }
+      >
+        <div>
+          <OrganizationAvatar
+            organization={
+              Object {
+                "isAdmin": false,
+                "key": "org2",
+                "name": "org2",
+                "projectVisibility": "public",
+              }
+            }
+            small={true}
+          />
+          <span
+            className="spacer-left"
+          >
+            org2
+          </span>
+        </div>
+      </OrganizationLink>
+    </li>
+  </ul>
+</div>
+`;

@@ -1,7 +1,7 @@
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -19,20 +19,38 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import OrganizationNavigation from '../OrganizationNavigation';
+import OrganizationNavigationHeader from '../OrganizationNavigationHeader';
 import { Visibility } from '../../../../app/types';
 
-it('render', () => {
+it('renders', () => {
   expect(
     shallow(
-      <OrganizationNavigation
-        location={{ pathname: '/organizations/foo' }}
+      <OrganizationNavigationHeader
         organization={{
           key: 'foo',
           name: 'Foo',
           projectVisibility: Visibility.Public
         }}
+        organizations={[]}
       />
     )
   ).toMatchSnapshot();
+});
+
+it('renders dropdown', () => {
+  const organizations = [
+    { isAdmin: true, key: 'org1', name: 'org1', projectVisibility: Visibility.Public },
+    { isAdmin: false, key: 'org2', name: 'org2', projectVisibility: Visibility.Public }
+  ];
+  const wrapper = shallow(
+    <OrganizationNavigationHeader
+      organization={{
+        key: 'foo',
+        name: 'Foo',
+        projectVisibility: Visibility.Public
+      }}
+      organizations={organizations}
+    />
+  );
+  expect(wrapper.find('Dropdown').dive()).toMatchSnapshot();
 });

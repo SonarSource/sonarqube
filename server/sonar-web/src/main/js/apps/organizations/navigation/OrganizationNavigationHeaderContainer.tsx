@@ -17,22 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import * as React from 'react';
-import { shallow } from 'enzyme';
-import OrganizationNavigation from '../OrganizationNavigation';
-import { Visibility } from '../../../../app/types';
+import { connect } from 'react-redux';
+import OrganizationNavigationHeader from './OrganizationNavigationHeader';
+import { Organization } from '../../../app/types';
+import { getMyOrganizations } from '../../../store/rootReducer';
 
-it('render', () => {
-  expect(
-    shallow(
-      <OrganizationNavigation
-        location={{ pathname: '/organizations/foo' }}
-        organization={{
-          key: 'foo',
-          name: 'Foo',
-          projectVisibility: Visibility.Public
-        }}
-      />
-    )
-  ).toMatchSnapshot();
+interface StateProps {
+  organizations: Organization[];
+}
+
+const mapStateToProps = (state: any): StateProps => ({
+  organizations: getMyOrganizations(state)
 });
+
+export default connect(mapStateToProps)(OrganizationNavigationHeader);
