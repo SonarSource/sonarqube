@@ -22,7 +22,6 @@ package org.sonar.server.qualitygate.ws;
 import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import javax.annotation.Nullable;
@@ -95,8 +94,8 @@ public class ShowAction implements QualityGatesWsAction {
       QualityGateDto qualityGate = getByNameOrId(dbSession, organization, name, id);
       Collection<QualityGateConditionDto> conditions = getConditions(dbSession, qualityGate);
       Map<Integer, MetricDto> metricsById = getMetricsById(dbSession, conditions);
-      Optional<QualityGateDto> defaultQualityGate = qualityGateFinder.getDefault(dbSession, organization);
-      writeProtobuf(buildResponse(organization, qualityGate, defaultQualityGate.orElse(null), conditions, metricsById), request, response);
+      QualityGateDto defaultQualityGate = qualityGateFinder.getDefault(dbSession, organization);
+      writeProtobuf(buildResponse(organization, qualityGate, defaultQualityGate, conditions, metricsById), request, response);
     }
   }
 
@@ -121,7 +120,7 @@ public class ShowAction implements QualityGatesWsAction {
       .collect(uniqueIndex(MetricDto::getId));
   }
 
-  private ShowWsResponse buildResponse(OrganizationDto organization, QualityGateDto qualityGate, QualityGateDto defaultQualityGate,
+  private ShowWsResponse buildResponse(OrganizationDto organization, QualityGateDto qualityGate, Object defaultQualityGate,
     Collection<QualityGateConditionDto> conditions, Map<Integer, MetricDto> metricsById) {
     return ShowWsResponse.newBuilder()
       .setId(qualityGate.getId())
