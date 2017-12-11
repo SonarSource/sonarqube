@@ -81,15 +81,15 @@ public class ComponentDao implements Dao {
   }
 
   public ComponentDto selectOrFailById(DbSession session, long id) {
-    java.util.Optional<ComponentDto> componentDto = selectById(session, id);
+    Optional<ComponentDto> componentDto = selectById(session, id);
     if (!componentDto.isPresent()) {
       throw new RowNotFoundException(String.format("Component id does not exist: %d", id));
     }
     return componentDto.get();
   }
 
-  public java.util.Optional<ComponentDto> selectById(DbSession session, long id) {
-    return java.util.Optional.ofNullable(mapper(session).selectById(id));
+  public Optional<ComponentDto> selectById(DbSession session, long id) {
+    return Optional.fromNullable(mapper(session).selectById(id));
   }
 
   public Optional<ComponentDto> selectByUuid(DbSession session, String uuid) {

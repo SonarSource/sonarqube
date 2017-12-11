@@ -125,7 +125,7 @@ public class IndexAction implements ProjectsWsAction {
   private Optional<ComponentDto> getProjectByKeyOrId(DbSession dbSession, String component) {
     try {
       Long componentId = Long.parseLong(component);
-      return ofNullable(dbClient.componentDao().selectById(dbSession, componentId).orElse(null));
+      return ofNullable(dbClient.componentDao().selectById(dbSession, componentId).orNull());
     } catch (NumberFormatException e) {
       return ofNullable(dbClient.componentDao().selectByKey(dbSession, component).orNull());
     }

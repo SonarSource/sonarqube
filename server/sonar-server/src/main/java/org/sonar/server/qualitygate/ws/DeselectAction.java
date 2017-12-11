@@ -106,7 +106,7 @@ public class DeselectAction implements QualityGatesWsAction {
 
     try {
       long dbId = Long.parseLong(projectId);
-      return Optional.ofNullable(dbClient.componentDao().selectById(dbSession, dbId).orElse(null));
+      return Optional.ofNullable(dbClient.componentDao().selectById(dbSession, dbId).orNull());
     } catch (NumberFormatException e) {
       return Optional.empty();
     }

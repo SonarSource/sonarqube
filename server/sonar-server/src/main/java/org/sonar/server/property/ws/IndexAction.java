@@ -121,7 +121,7 @@ public class IndexAction implements WsAction {
   private Optional<ComponentDto> loadComponent(DbSession dbSession, String component) {
     try {
       Long componentId = Long.parseLong(component);
-      return Optional.ofNullable(dbClient.componentDao().selectById(dbSession, componentId).orElse(null));
+      return Optional.ofNullable(dbClient.componentDao().selectById(dbSession, componentId).orNull());
     } catch (NumberFormatException e) {
       return Optional.ofNullable(dbClient.componentDao().selectByKey(dbSession, component).orNull());
     }
