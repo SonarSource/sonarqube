@@ -33,7 +33,6 @@ import OrganizationAvatar from '../../../../components/common/OrganizationAvatar
 interface Props {
   appState: { organizationsEnabled: boolean };
   currentUser: CurrentUser;
-  fetchMyOrganizations: () => Promise<void>;
   organizations: Organization[];
 }
 
@@ -91,22 +90,13 @@ export default class GlobalNavUser extends React.PureComponent<Props, State> {
   };
 
   openDropdown = () => {
-    this.fetchMyOrganizations().then(() => {
-      window.addEventListener('click', this.handleClickOutside, true);
-      this.setState({ open: true });
-    });
+    window.addEventListener('click', this.handleClickOutside, true);
+    this.setState({ open: true });
   };
 
   closeDropdown = () => {
     window.removeEventListener('click', this.handleClickOutside);
     this.setState({ open: false });
-  };
-
-  fetchMyOrganizations = () => {
-    if (this.props.appState.organizationsEnabled) {
-      return this.props.fetchMyOrganizations();
-    }
-    return Promise.resolve();
   };
 
   renderAuthenticated() {
@@ -163,7 +153,7 @@ export default class GlobalNavUser extends React.PureComponent<Props, State> {
                       <OrganizationAvatar organization={organization} small={true} />
                       <span className="spacer-left">{organization.name}</span>
                     </div>
-                    {organization.canAdmin && (
+                    {organization.isAdmin && (
                       <span className="outline-badge spacer-left">{translate('admin')}</span>
                     )}
                   </OrganizationLink>

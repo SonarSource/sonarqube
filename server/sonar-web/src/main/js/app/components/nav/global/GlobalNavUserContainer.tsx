@@ -20,7 +20,6 @@
 import { connect } from 'react-redux';
 import GlobalNavUser from './GlobalNavUser';
 import { Organization } from '../../../types';
-import { fetchMyOrganizations } from '../../../../apps/account/organizations/actions';
 import { getMyOrganizations } from '../../../../store/rootReducer';
 
 interface StateProps {
@@ -31,12 +30,4 @@ const mapStateToProps = (state: any): StateProps => ({
   organizations: getMyOrganizations(state)
 });
 
-interface DispatchProps {
-  fetchMyOrganizations: () => Promise<void>;
-}
-
-const mapDispatchToProps = {
-  fetchMyOrganizations: fetchMyOrganizations as any
-} as DispatchProps;
-
-export default connect(mapStateToProps, mapDispatchToProps)(GlobalNavUser);
+export default connect(mapStateToProps)(GlobalNavUser);
