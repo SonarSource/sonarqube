@@ -60,7 +60,8 @@ public class QualityGateDbTester {
     QualityGateDto builtinQG = dbClient.qualityGateDao().selectBuiltIn(dbSession);
     dbClient.organizationDao().update(dbSession, organizationDto.setDefaultQualityGateUuid(builtinQG.getUuid()));
     if (dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organizationDto, builtinQG.getUuid()) == null) {
-      associateQualityGateToOrganization(builtinQG, organizationDto);
+      dbClient.qualityGateDao().associate(dbSession, Uuids.createFast(), organizationDto, builtinQG);
+      dbSession.commit();
     }
     dbSession.commit();
   }
@@ -84,11 +85,6 @@ public class QualityGateDbTester {
       .setResourceId(component.getId())
       .setValue(String.valueOf(qualityGate.getId())));
     db.commit();
-  }
-
-  public void associateQualityGateToOrganization(QualityGateDto qualityGate, OrganizationDto organization) {
-    dbClient.qualityGateDao().associate(dbSession, Uuids.createFast(), organization, qualityGate);
-    dbSession.commit();
   }
 
   @SafeVarargs

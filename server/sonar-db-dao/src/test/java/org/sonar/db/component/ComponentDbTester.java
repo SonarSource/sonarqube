@@ -115,6 +115,11 @@ public class ComponentDbTester {
     return insertComponentImpl(newPublicProjectDto(organizationDto, uuid), false, noExtraConfiguration());
   }
 
+  @SafeVarargs
+  public final ComponentDto insertPrivateProject(OrganizationDto organizationDto, String uuid, Consumer<ComponentDto>... dtoPopulators) {
+    return insertComponentImpl(newPrivateProjectDto(organizationDto, uuid), true, dtoPopulators);
+  }
+
   /**
    * @deprecated since 6.6
    * @see #insertPublicPortfolio(OrganizationDto, Consumer[])
