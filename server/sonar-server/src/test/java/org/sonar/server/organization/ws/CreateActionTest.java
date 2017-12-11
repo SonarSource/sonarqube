@@ -155,6 +155,7 @@ public class CreateActionTest {
   public void verify_response_example() throws URISyntaxException, IOException {
     logInAsSystemAdministrator();
     mockForSuccessfulInsert(Uuids.UUID_EXAMPLE_01, SOME_DATE);
+    dbTester.qualityGates().insertBuiltInQualityGate();
 
     String response = executeJsonRequest("Foo Company", "foo-company", "The Foo company produces quality software for Bar.", "https://www.foo.com", "https://www.foo.com/foo.png");
 
@@ -196,6 +197,7 @@ public class CreateActionTest {
   public void request_succeeds_if_user_is_system_administrator_and_logged_in_users_cannot_create_organizations() {
     logInAsSystemAdministrator();
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    dbTester.qualityGates().insertBuiltInQualityGate();
 
     verifyResponseAndDb(executeRequest("foo"), SOME_UUID, "foo", "foo", SOME_DATE);
   }
@@ -205,6 +207,7 @@ public class CreateActionTest {
     logInAsSystemAdministrator();
     settings.setProperty(ORGANIZATIONS_ANYONE_CAN_CREATE, true);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    dbTester.qualityGates().insertBuiltInQualityGate();
 
     verifyResponseAndDb(executeRequest("foo"), SOME_UUID, "foo", "foo", SOME_DATE);
   }
@@ -214,6 +217,7 @@ public class CreateActionTest {
     userSession.logIn(user);
     settings.setProperty(ORGANIZATIONS_ANYONE_CAN_CREATE, true);
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    dbTester.qualityGates().insertBuiltInQualityGate();
 
     verifyResponseAndDb(executeRequest("foo"), SOME_UUID, "foo", "foo", SOME_DATE);
   }
@@ -242,6 +246,7 @@ public class CreateActionTest {
   public void request_succeeds_if_name_is_two_chars_long() {
     logInAsSystemAdministrator();
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    dbTester.qualityGates().insertBuiltInQualityGate();
 
     verifyResponseAndDb(executeRequest("ab"), SOME_UUID, "ab", "ab", SOME_DATE);
   }
@@ -260,6 +265,7 @@ public class CreateActionTest {
   public void request_succeeds_if_name_is_64_char_long() {
     logInAsSystemAdministrator();
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    dbTester.qualityGates().insertBuiltInQualityGate();
 
     String name = STRING_65_CHARS_LONG.substring(0, 64);
 
@@ -292,6 +298,7 @@ public class CreateActionTest {
   public void request_succeeds_if_key_is_2_chars_long() {
     logInAsSystemAdministrator();
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    dbTester.qualityGates().insertBuiltInQualityGate();
 
     verifyResponseAndDb(executeRequest("foo", "ab"), SOME_UUID, "foo", "ab", SOME_DATE);
   }
@@ -300,6 +307,7 @@ public class CreateActionTest {
   public void requests_succeeds_if_key_is_32_chars_long() {
     logInAsSystemAdministrator();
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    dbTester.qualityGates().insertBuiltInQualityGate();
 
     String key = STRING_65_CHARS_LONG.substring(0, 32);
 
@@ -370,6 +378,7 @@ public class CreateActionTest {
   public void request_succeeds_if_description_url_and_avatar_are_not_specified() {
     logInAsSystemAdministrator();
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    dbTester.qualityGates().insertBuiltInQualityGate();
 
     CreateWsResponse response = executeRequest("foo", "bar", null, null, null);
     verifyResponseAndDb(response, SOME_UUID, "foo", "bar", null, null, null, SOME_DATE);
@@ -379,6 +388,7 @@ public class CreateActionTest {
   public void request_succeeds_if_description_url_and_avatar_are_specified() {
     logInAsSystemAdministrator();
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    dbTester.qualityGates().insertBuiltInQualityGate();
 
     CreateWsResponse response = executeRequest("foo", "bar", "moo", "doo", "boo");
     verifyResponseAndDb(response, SOME_UUID, "foo", "bar", "moo", "doo", "boo", SOME_DATE);
@@ -388,6 +398,7 @@ public class CreateActionTest {
   public void request_succeeds_to_generate_key_from_name_more_then_32_chars_long() {
     logInAsSystemAdministrator();
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    dbTester.qualityGates().insertBuiltInQualityGate();
 
     String name = STRING_65_CHARS_LONG.substring(0, 33);
 
@@ -399,6 +410,7 @@ public class CreateActionTest {
   public void request_generates_key_ignoring_multiple_following_spaces() {
     logInAsSystemAdministrator();
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
+    dbTester.qualityGates().insertBuiltInQualityGate();
 
     String name = "ab   cd";
 
@@ -421,6 +433,7 @@ public class CreateActionTest {
     logInAsSystemAdministrator();
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     String description = STRING_257_CHARS_LONG.substring(0, 256);
+    dbTester.qualityGates().insertBuiltInQualityGate();
 
     CreateWsResponse response = executeRequest("foo", "bar", description, null, null);
     verifyResponseAndDb(response, SOME_UUID, "foo", "bar", description, null, null, SOME_DATE);
@@ -441,6 +454,7 @@ public class CreateActionTest {
     logInAsSystemAdministrator();
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     String url = STRING_257_CHARS_LONG.substring(0, 256);
+    dbTester.qualityGates().insertBuiltInQualityGate();
 
     CreateWsResponse response = executeRequest("foo", "bar", null, url, null);
     verifyResponseAndDb(response, SOME_UUID, "foo", "bar", null, url, null, SOME_DATE);
@@ -461,6 +475,7 @@ public class CreateActionTest {
     logInAsSystemAdministrator();
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     String avatar = STRING_257_CHARS_LONG.substring(0, 256);
+    dbTester.qualityGates().insertBuiltInQualityGate();
 
     CreateWsResponse response = executeRequest("foo", "bar", null, null, avatar);
     verifyResponseAndDb(response, SOME_UUID, "foo", "bar", null, null, avatar, SOME_DATE);
@@ -471,6 +486,7 @@ public class CreateActionTest {
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     UserDto user = dbTester.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
+    dbTester.qualityGates().insertBuiltInQualityGate();
 
     executeRequest("orgFoo");
 
@@ -499,6 +515,7 @@ public class CreateActionTest {
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     UserDto user = dbTester.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
+    dbTester.qualityGates().insertBuiltInQualityGate();
 
     executeRequest("orgFoo");
 
@@ -526,6 +543,7 @@ public class CreateActionTest {
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     UserDto user = dbTester.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
+    dbTester.qualityGates().insertBuiltInQualityGate();
 
     executeRequest("orgFoo");
 
@@ -550,6 +568,7 @@ public class CreateActionTest {
     mockForSuccessfulInsert(SOME_UUID, SOME_DATE);
     UserDto user = dbTester.users().insertUser();
     userSession.logIn(user).setSystemAdministrator();
+    dbTester.qualityGates().insertBuiltInQualityGate();
 
     executeRequest("orgFoo");
 
