@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`render 1`] = `
+<ContextNavBar
+  height={72}
+  id="context-navigation"
+>
+  <Connect(OrganizationNavigationHeader)
+    organization={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+        "projectVisibility": "public",
+      }
+    }
+  />
+  <OrganizationNavigationMeta
+    organization={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+        "projectVisibility": "public",
+      }
+    }
+  />
+  <OrganizationNavigationMenu
+    location={
+      Object {
+        "pathname": "/organizations/foo",
+      }
+    }
+    organization={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+        "projectVisibility": "public",
+      }
+    }
+  />
+</ContextNavBar>
+`;

@@ -17,45 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
 import OrganizationNavigation from '../OrganizationNavigation';
 
-jest.mock('../../../issues/utils', () => ({
-  isMySet: () => false
-}));
-
-it('regular user', () => {
-  const organization = { key: 'foo', name: 'Foo', canAdmin: false, canDelete: false };
+it('render', () => {
   expect(
     shallow(
       <OrganizationNavigation
         location={{ pathname: '/organizations/foo' }}
-        organization={organization}
-      />
-    )
-  ).toMatchSnapshot();
-});
-
-it('admin', () => {
-  const organization = { key: 'foo', name: 'Foo', canAdmin: true, canDelete: true };
-  expect(
-    shallow(
-      <OrganizationNavigation
-        location={{ pathname: '/organizations/foo' }}
-        organization={organization}
-      />
-    )
-  ).toMatchSnapshot();
-});
-
-it('undeletable org', () => {
-  const organization = { key: 'foo', name: 'Foo', canAdmin: true, canDelete: false };
-  expect(
-    shallow(
-      <OrganizationNavigation
-        location={{ pathname: '/organizations/foo' }}
-        organization={organization}
+        organization={{
+          key: 'foo',
+          name: 'Foo',
+          projectVisibility: 'public'
+        }}
       />
     )
   ).toMatchSnapshot();
