@@ -20,10 +20,9 @@
 package org.sonar.server.qualitygate;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -72,33 +71,18 @@ public class RegisterQualityGatesTest {
   private QualityGateConditionDao gateConditionDao = dbClient.gateConditionDao();
   private MetricDao metricDao = dbClient.metricDao();
   private QualityGateConditionsUpdater qualityGateConditionsUpdater = new QualityGateConditionsUpdater(dbClient);
-  private QualityGateUpdater qualityGateUpdater = new QualityGateUpdater(dbClient, UuidFactoryFast.getInstance());
   private QualityGateFinder qualityGateFinder = new QualityGateFinder(dbClient);
 
   private RegisterQualityGates underTest = new RegisterQualityGates(dbClient, qualityGateConditionsUpdater,
     UuidFactoryFast.getInstance(), System2.INSTANCE);
-  private QualityGateDto builtInQG;
-
-  @Before
-  public void setup() {
-    insertMetrics();
-    builtInQG = qualityGateFinder.getBuiltInQualityGate(dbSession);
-  }
-
-  @After
-  public void after() {
-    underTest.stop();
-  }
 
   @Test
   public void register_default_gate() {
-    dbClient.qualityGateDao().delete(builtInQG, dbSession);
-    dbSession.commit();
+    insertMetrics();
 
     underTest.start();
 
     verifyCorrectBuiltInQualityGate();
-
     assertThat(
       logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate [Sonar way] has been created")).isTrue();
     assertThat(
@@ -107,27 +91,28 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void upgrade_empty_quality_gate() {
-    dbSession.commit();
+    insertMetrics();
 
     underTest.start();
+
     assertThat(db.countRowsOfTable("quality_gates")).isEqualTo(1);
     verifyCorrectBuiltInQualityGate();
-
     assertThat(
       logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate's conditions of [Sonar way] has been updated")).isTrue();
   }
 
   @Test
   public void upgrade_should_remove_deleted_condition() {
-    createBuiltInConditions(builtInQG);
-
+    insertMetrics();
+    QualityGateDto builtInQualityGate = db.qualityGates().insertBuiltInQualityGate();
+    createBuiltInConditions(builtInQualityGate);
     // Add another condition
-    qualityGateConditionsUpdater.createCondition(dbSession, builtInQG,
+    qualityGateConditionsUpdater.createCondition(dbSession, builtInQualityGate,
       NEW_SECURITY_REMEDIATION_EFFORT_KEY, OPERATOR_GREATER_THAN, null, "5", LEAK_PERIOD);
-
     dbSession.commit();
 
     underTest.start();
+
     assertThat(db.countRowsOfTable("quality_gates")).isEqualTo(1);
     verifyCorrectBuiltInQualityGate();
     assertThat(
@@ -136,47 +121,53 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void upgrade_should_add_missing_condition() {
-    List<QualityGateConditionDto> builtInConditions = createBuiltInConditions(builtInQG);
-
+    insertMetrics();
+    QualityGateDto builtInQualityGate = db.qualityGates().insertBuiltInQualityGate();
+    List<QualityGateConditionDto> builtInConditions = createBuiltInConditions(builtInQualityGate);
     // Remove a condition
     QualityGateConditionDto conditionToBeDeleted = builtInConditions.get(new Random().nextInt(builtInConditions.size()));
     gateConditionDao.delete(conditionToBeDeleted, dbSession);
-
     dbSession.commit();
 
     underTest.start();
+
     assertThat(db.countRowsOfTable("quality_gates")).isEqualTo(1);
     verifyCorrectBuiltInQualityGate();
-
     assertThat(
       logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate's conditions of [Sonar way] has been updated")).isTrue();
   }
 
   @Test
   public void should_set_SonarWay_as_builtin_when_not_set() {
-    dbClient.qualityGateDao().delete(builtInQG, dbSession);
-    QualityGateDto builtin = new QualityGateDto().setName(BUILT_IN_NAME).setBuiltIn(false).setUuid(Uuids.createFast());
-    qualityGateDao.insert(dbSession, builtin);
-    createBuiltInConditions(builtin);
+    insertMetrics();
+    QualityGateDto qualityGate = dbClient.qualityGateDao().insert(dbSession, new QualityGateDto()
+      .setName("Sonar way")
+      .setUuid(Uuids.createFast())
+      .setBuiltIn(false)
+      .setCreatedAt(new Date()));
+    dbSession.commit();
+    createBuiltInConditions(qualityGate);
     dbSession.commit();
 
     underTest.start();
+
     assertThat(db.countRowsOfTable("quality_gates")).isEqualTo(1);
     verifyCorrectBuiltInQualityGate();
-
     assertThat(
       logTester.logs(LoggerLevel.INFO).contains("Quality gate [Sonar way] has been set as built-in")).isTrue();
   }
 
   @Test
   public void should_not_update_builtin_quality_gate_if_already_uptodate() {
-    createBuiltInConditions(builtInQG);
+    insertMetrics();
+    QualityGateDto builtInQualityGate = db.qualityGates().insertBuiltInQualityGate();
+    createBuiltInConditions(builtInQualityGate);
     dbSession.commit();
 
     underTest.start();
+
     assertThat(db.countRowsOfTable("quality_gates")).isEqualTo(1);
     verifyCorrectBuiltInQualityGate();
-
     // Log must not be present
     assertThat(
       logTester.logs(LoggerLevel.INFO).contains("Quality gate [Sonar way] has been set as built-in")).isFalse();
@@ -188,7 +179,7 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void ensure_only_one_built_in_quality_gate() {
-    dbClient.qualityGateDao().delete(builtInQG, dbSession);
+    insertMetrics();
     String qualityGateName = "IncorrectQualityGate";
     QualityGateDto builtin = new QualityGateDto().setName(qualityGateName).setBuiltIn(true).setUuid(Uuids.createFast());
     qualityGateDao.insert(dbSession, builtin);
@@ -199,11 +190,9 @@ public class RegisterQualityGatesTest {
     QualityGateDto oldQualityGate = qualityGateDao.selectByName(dbSession, qualityGateName);
     assertThat(oldQualityGate).isNotNull();
     assertThat(oldQualityGate.isBuiltIn()).isFalse();
-
     assertThat(db.select("select name as \"name\" from quality_gates where is_built_in is true"))
       .extracting(column -> column.get("name"))
       .containsExactly(BUILT_IN_NAME);
-
     assertThat(
       logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate [Sonar way] has been created")).isTrue();
     assertThat(
@@ -212,15 +201,18 @@ public class RegisterQualityGatesTest {
 
   @Test
   public void ensure_only_that_builtin_is_set_as_default_when_no_default_quality_gate() {
+    insertMetrics();
+    QualityGateDto builtInQualityGate = db.qualityGates().insertBuiltInQualityGate();
 
     underTest.start();
 
     assertThat(qualityGateFinder.getBuiltInQualityGate(dbSession)).isNotNull();
-    assertThat(qualityGateFinder.getBuiltInQualityGate(dbSession).getId()).isEqualTo(builtInQG.getId());
+    assertThat(qualityGateFinder.getBuiltInQualityGate(dbSession).getId()).isEqualTo(builtInQualityGate.getId());
   }
 
   @Test
   public void builtin_quality_gate_with_incorrect_metricId_should_not_throw_an_exception() {
+    insertMetrics();
     QualityGateConditionDto conditionDto = new QualityGateConditionDto()
       .setMetricId(-1) // This Id does not exist
       .setOperator(OPERATOR_GREATER_THAN)
@@ -233,7 +225,6 @@ public class RegisterQualityGatesTest {
 
     // No exception thrown
     verifyCorrectBuiltInQualityGate();
-
     assertThat(
       logTester.logs(LoggerLevel.INFO).contains("Built-in quality gate's conditions of [Sonar way] has been updated")).isTrue();
   }
