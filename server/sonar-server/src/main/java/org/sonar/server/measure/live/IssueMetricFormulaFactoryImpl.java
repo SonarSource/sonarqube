@@ -87,11 +87,12 @@ public class IssueMetricFormulaFactoryImpl implements IssueMetricFormulaFactory 
       (context, issues) -> context.setValue(issues.sumEffortOfUnresolved(RuleType.VULNERABILITY, false))),
 
     new IssueMetricFormula(CoreMetrics.SQALE_DEBT_RATIO, false,
-      (context, issues) -> context.setValue(100.0 * debtDensity(context)),
+      (context, issues) -> context.setValue(100.0 * debtDensity(context, CoreMetrics.TECHNICAL_DEBT, CoreMetrics.DEVELOPMENT_COST)),
       asList(CoreMetrics.TECHNICAL_DEBT, CoreMetrics.DEVELOPMENT_COST)),
 
     new IssueMetricFormula(CoreMetrics.SQALE_RATING, false,
-      (context, issues) -> context.setValue(context.getDebtRatingGrid().getRatingForDensity(debtDensity(context))),
+      (context, issues) -> context
+        .setValue(context.getDebtRatingGrid().getRatingForDensity(debtDensity(context, CoreMetrics.TECHNICAL_DEBT, CoreMetrics.DEVELOPMENT_COST))),
       asList(CoreMetrics.TECHNICAL_DEBT, CoreMetrics.DEVELOPMENT_COST)),
 
     new IssueMetricFormula(CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A, false,
@@ -149,13 +150,22 @@ public class IssueMetricFormulaFactoryImpl implements IssueMetricFormulaFactory 
       (context, issues) -> {
         String highestSeverity = issues.getHighestSeverityOfUnresolved(RuleType.VULNERABILITY, true).orElse(Severity.INFO);
         context.setValue(RATING_BY_SEVERITY.get(highestSeverity));
-      }));
+      }),
+
+    new IssueMetricFormula(CoreMetrics.NEW_SQALE_DEBT_RATIO, true,
+      (context, issues) -> context.setValue(100.0 * debtDensity(context, CoreMetrics.NEW_TECHNICAL_DEBT, CoreMetrics.NEW_DEVELOPMENT_COST)),
+      asList(CoreMetrics.NEW_TECHNICAL_DEBT, CoreMetrics.NEW_DEVELOPMENT_COST)),
+
+    new IssueMetricFormula(CoreMetrics.NEW_MAINTAINABILITY_RATING, true,
+      (context, issues) -> context.setValue(context.getDebtRatingGrid().getRatingForDensity(
+        debtDensity(context, CoreMetrics.NEW_TECHNICAL_DEBT, CoreMetrics.NEW_DEVELOPMENT_COST))),
+      asList(CoreMetrics.NEW_TECHNICAL_DEBT, CoreMetrics.NEW_DEVELOPMENT_COST)));
 
   private static final Set<Metric> FORMULA_METRICS = IssueMetricFormulaFactory.extractMetrics(FORMULAS);
 
-  private static double debtDensity(IssueMetricFormula.Context context) {
-    double debt = Math.max(context.getValue(CoreMetrics.TECHNICAL_DEBT).orElse(0.0), 0.0);
-    OptionalDouble devCost = context.getValue(CoreMetrics.DEVELOPMENT_COST);
+  private static double debtDensity(IssueMetricFormula.Context context, Metric<Long> technicalDebtMetric, Metric<String> developmentCostMetric) {
+    double debt = Math.max(context.getValue(technicalDebtMetric).orElse(0.0), 0.0);
+    OptionalDouble devCost = context.getValue(developmentCostMetric);
     if (devCost.isPresent() && Double.doubleToRawLongBits(devCost.getAsDouble()) > 0L) {
       return debt / devCost.getAsDouble();
     }

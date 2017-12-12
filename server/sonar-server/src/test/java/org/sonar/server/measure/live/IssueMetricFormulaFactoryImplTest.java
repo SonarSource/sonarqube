@@ -592,6 +592,77 @@ public class IssueMetricFormulaFactoryImplTest {
       .assertThatLeakValueIs(CoreMetrics.NEW_SECURITY_RATING, Rating.B);
   }
 
+  @Test
+  public void test_new_sqale_debt_ratio_and_new_maintainability_rating() {
+    withNoIssues()
+      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
+
+    // technical_debt not computed
+    with(CoreMetrics.NEW_DEVELOPMENT_COST, 0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
+    with(CoreMetrics.NEW_DEVELOPMENT_COST, 20)
+      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
+
+    // development_cost not computed
+    with(CoreMetrics.NEW_TECHNICAL_DEBT, 0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
+    with(CoreMetrics.NEW_TECHNICAL_DEBT, 20)
+      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
+
+    // input measures are available
+    with(CoreMetrics.NEW_TECHNICAL_DEBT, 20.0)
+      .and(CoreMetrics.NEW_DEVELOPMENT_COST, 0.0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
+
+    with(CoreMetrics.NEW_TECHNICAL_DEBT, 20.0)
+      .and(CoreMetrics.NEW_DEVELOPMENT_COST, 160.0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 12.5)
+      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.C);
+
+    with(CoreMetrics.NEW_TECHNICAL_DEBT, 20.0)
+      .and(CoreMetrics.NEW_DEVELOPMENT_COST, 10.0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 200.0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.E);
+
+    // B is 5% --> min debt is exactly 200*0.05=10
+    with(CoreMetrics.NEW_DEVELOPMENT_COST, 200.0)
+      .and(CoreMetrics.NEW_TECHNICAL_DEBT, 10.0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 5.0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.B);
+
+    with(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0)
+      .and(CoreMetrics.NEW_DEVELOPMENT_COST, 0.0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
+
+    with(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0)
+      .and(CoreMetrics.NEW_DEVELOPMENT_COST, 80.0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0);
+
+    with(CoreMetrics.NEW_TECHNICAL_DEBT, -20.0)
+      .and(CoreMetrics.NEW_DEVELOPMENT_COST, 0.0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
+
+    // bug, debt can't be negative
+    with(CoreMetrics.NEW_TECHNICAL_DEBT, -20.0)
+      .and(CoreMetrics.NEW_DEVELOPMENT_COST, 80.0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
+
+    // bug, cost can't be negative
+    with(CoreMetrics.NEW_TECHNICAL_DEBT, 20.0)
+      .and(CoreMetrics.NEW_DEVELOPMENT_COST, -80.0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 0.0)
+      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
+  }
+
   private Verifier with(IssueGroupDto... groups) {
     return new Verifier(groups);
   }
