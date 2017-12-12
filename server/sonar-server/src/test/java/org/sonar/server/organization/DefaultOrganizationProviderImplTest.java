@@ -32,10 +32,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 import static org.sonar.server.property.InternalProperties.DEFAULT_ORGANIZATION;
 
 public class DefaultOrganizationProviderImplTest {
-  private static final OrganizationDto ORGANIZATION_DTO_1 = new OrganizationDto()
+  private static final OrganizationDto ORGANIZATION_DTO_1 = newOrganizationDto()
     .setUuid("uuid1")
     .setName("the name of 1")
     .setKey("the key 1");
