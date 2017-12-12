@@ -166,36 +166,35 @@ export default class ComponentNavBranchesMenu extends React.PureComponent<Props,
       return <div className="menu-message note">{translate('no_results')}</div>;
     }
 
-    const menu: JSX.Element[] = [];
-    branches.forEach((branch, index) => {
+    const items = branches.map((branch, index) => {
       const isOrphan = isShortLivingBranch(branch) && branch.isOrphan;
       const previous = index > 0 ? branches[index - 1] : null;
       const isPreviousOrphan = isShortLivingBranch(previous) ? previous.isOrphan : false;
-      if (isLongLivingBranch(branch) || (isOrphan && !isPreviousOrphan)) {
-        menu.push(<li key={`divider-${branch.name}`} className="divider" />);
-      }
-      if (isOrphan && !isPreviousOrphan) {
-        menu.push(
-          <li className="dropdown-header" key="orphans">
-            {translate('branches.orphan_branches')}
-            <Tooltip overlay={translate('branches.orphan_branches.tooltip')}>
-              <i className="icon-help spacer-left" />
-            </Tooltip>
-          </li>
-        );
-      }
-      menu.push(
-        <ComponentNavBranchesMenuItem
-          branch={branch}
-          component={this.props.component}
-          key={branch.name}
-          onSelect={this.handleSelect}
-          selected={branch.name === selected}
-        />
+      const showDivider = isLongLivingBranch(branch) || (isOrphan && !isPreviousOrphan);
+      const showOrphanHeader = isOrphan && !isPreviousOrphan;
+      return (
+        <React.Fragment key={branch.name}>
+          {showDivider && <li className="divider" />}
+          {showOrphanHeader && (
+            <li className="dropdown-header">
+              {translate('branches.orphan_branches')}
+              <Tooltip overlay={translate('branches.orphan_branches.tooltip')}>
+                <i className="icon-help spacer-left" />
+              </Tooltip>
+            </li>
+          )}
+          <ComponentNavBranchesMenuItem
+            branch={branch}
+            component={this.props.component}
+            key={branch.name}
+            onSelect={this.handleSelect}
+            selected={branch.name === selected}
+          />
+        </React.Fragment>
       );
     });
 
-    return <ul className="menu menu-vertically-limited">{menu}</ul>;
+    return <ul className="menu menu-vertically-limited">{items}</ul>;
   };
 
   render() {

@@ -164,7 +164,6 @@ export default class ProfileRules extends React.PureComponent<Props, State> {
             </thead>
             <tbody>
               <ProfileRulesRowTotal
-                key="all"
                 count={this.state.activatedTotal}
                 organization={organization}
                 qprofile={profile.key}

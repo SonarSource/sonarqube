@@ -73,95 +73,96 @@ export default class ComparisonResults extends React.PureComponent<Props> {
     if (this.props.inLeft.length === 0) {
       return null;
     }
-    const header = (
-      <tr key="left-header">
-        <td>
-          <h6>
-            {translateWithParameters(
-              'quality_profiles.x_rules_only_in',
-              this.props.inLeft.length
-            )}{' '}
-            {this.props.left.name}
-          </h6>
-        </td>
-        <td>&nbsp;</td>
-      </tr>
+    return (
+      <React.Fragment>
+        <tr>
+          <td>
+            <h6>
+              {translateWithParameters(
+                'quality_profiles.x_rules_only_in',
+                this.props.inLeft.length
+              )}{' '}
+              {this.props.left.name}
+            </h6>
+          </td>
+          <td>&nbsp;</td>
+        </tr>
+        {this.props.inLeft.map(rule => (
+          <tr key={`left-${rule.key}`} className="js-comparison-in-left">
+            <td>{this.renderRule(rule, rule.severity)}</td>
+            <td>&nbsp;</td>
+          </tr>
+        ))}
+      </React.Fragment>
     );
-    const rows = this.props.inLeft.map(rule => (
-      <tr key={`left-${rule.key}`} className="js-comparison-in-left">
-        <td>{this.renderRule(rule, rule.severity)}</td>
-        <td>&nbsp;</td>
-      </tr>
-    ));
-    return [header, ...rows];
   }
 
   renderRight() {
     if (this.props.inRight.length === 0) {
       return null;
     }
-    const header = (
-      <tr key="right-header">
-        <td>&nbsp;</td>
-        <td>
-          <h6>
-            {translateWithParameters(
-              'quality_profiles.x_rules_only_in',
-              this.props.inRight.length
-            )}{' '}
-            {this.props.right.name}
-          </h6>
-        </td>
-      </tr>
+    return (
+      <React.Fragment>
+        <tr>
+          <td>&nbsp;</td>
+          <td>
+            <h6>
+              {translateWithParameters(
+                'quality_profiles.x_rules_only_in',
+                this.props.inRight.length
+              )}{' '}
+              {this.props.right.name}
+            </h6>
+          </td>
+        </tr>
+        {this.props.inRight.map(rule => (
+          <tr key={`right-${rule.key}`} className="js-comparison-in-right">
+            <td>&nbsp;</td>
+            <td>{this.renderRule(rule, rule.severity)}</td>
+          </tr>
+        ))}
+      </React.Fragment>
     );
-    const rows = this.props.inRight.map(rule => (
-      <tr key={`right-${rule.key}`} className="js-comparison-in-right">
-        <td>&nbsp;</td>
-        <td>{this.renderRule(rule, rule.severity)}</td>
-      </tr>
-    ));
-    return [header, ...rows];
   }
 
   renderModified() {
     if (this.props.modified.length === 0) {
       return null;
     }
-    const header = (
-      <tr key="modified-header">
-        <td colSpan={2} className="text-center">
-          <h6>
-            {translateWithParameters(
-              'quality_profiles.x_rules_have_different_configuration',
-              this.props.modified.length
-            )}
-          </h6>
-        </td>
-      </tr>
+    return (
+      <React.Fragment>
+        <tr>
+          <td colSpan={2} className="text-center">
+            <h6>
+              {translateWithParameters(
+                'quality_profiles.x_rules_have_different_configuration',
+                this.props.modified.length
+              )}
+            </h6>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <h6>{this.props.left.name}</h6>
+          </td>
+          <td>
+            <h6>{this.props.right.name}</h6>
+          </td>
+        </tr>
+        {this.props.modified.map(rule => (
+          <tr key={`modified-${rule.key}`} className="js-comparison-modified">
+            <td>
+              {this.renderRule(rule, rule.left.severity)}
+              {this.renderParameters(rule.left.params)}
+            </td>
+            <td>
+              {this.renderRule(rule, rule.right.severity)}
+              {this.renderParameters(rule.right.params)}
+            </td>
+          </tr>
+        ))}
+      </React.Fragment>
     );
-    const secondHeader = (
-      <tr key="modified-second-header">
-        <td>
-          <h6>{this.props.left.name}</h6>
-        </td>
-        <td>
-          <h6>{this.props.right.name}</h6>
-        </td>
-      </tr>
-    );
-    const rows = this.props.modified.map(rule => (
-      <tr key={`modified-${rule.key}`} className="js-comparison-modified">
-        <td>
-          {this.renderRule(rule, rule.left.severity)}
-          {this.renderParameters(rule.left.params)}
-        </td>
-        <td>
-          {this.renderRule(rule, rule.right.severity)}
-          {this.renderParameters(rule.right.params)}
-        </td>
-      </tr>
-    ));
-    return [header, secondHeader, ...rows];
   }
 
   render() {

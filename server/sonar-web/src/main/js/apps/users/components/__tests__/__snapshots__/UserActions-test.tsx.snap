@@ -1,23 +1,24 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should render correctly 1`] = `
-<ActionsDropdown
-  key="actions"
-  menuClassName="dropdown-menu-right"
->
-  <ActionsDropdownItem
-    className="js-user-update"
-    onClick={[Function]}
+<React.Fragment>
+  <ActionsDropdown
+    menuClassName="dropdown-menu-right"
   >
-    update_details
-  </ActionsDropdownItem>
-  <ActionsDropdownDivider />
-  <ActionsDropdownItem
-    className="js-user-deactivate"
-    destructive={true}
-    onClick={[Function]}
-  >
-    users.deactivate
-  </ActionsDropdownItem>
-</ActionsDropdown>
+    <ActionsDropdownItem
+      className="js-user-update"
+      onClick={[Function]}
+    >
+      update_details
+    </ActionsDropdownItem>
+    <ActionsDropdownDivider />
+    <ActionsDropdownItem
+      className="js-user-deactivate"
+      destructive={true}
+      onClick={[Function]}
+    >
+      users.deactivate
+    </ActionsDropdownItem>
+  </ActionsDropdown>
+</React.Fragment>
 `;

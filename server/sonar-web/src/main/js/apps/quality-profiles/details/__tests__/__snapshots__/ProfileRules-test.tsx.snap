@@ -28,7 +28,6 @@ exports[`should render the quality profiles rules with sonarway comparison 1`] =
       <tbody>
         <ProfileRulesRowTotal
           count={68}
-          key="all"
           organization="foo"
           qprofile="foo"
           total={243}

@@ -49,7 +49,7 @@ export default class UserActions extends React.PureComponent<Props, State> {
   renderActions = () => {
     const { user } = this.props;
     return (
-      <ActionsDropdown key="actions" menuClassName="dropdown-menu-right">
+      <ActionsDropdown menuClassName="dropdown-menu-right">
         <ActionsDropdownItem className="js-user-update" onClick={this.handleOpenUpdateForm}>
           {translate('update_details')}
         </ActionsDropdownItem>
@@ -75,39 +75,23 @@ export default class UserActions extends React.PureComponent<Props, State> {
     const { openForm } = this.state;
     const { isCurrentUser, onUpdateUsers, user } = this.props;
 
-    if (openForm === 'deactivate') {
-      return [
-        this.renderActions(),
-        <DeactivateForm
-          key="form"
-          onClose={this.handleCloseForm}
-          onUpdateUsers={onUpdateUsers}
-          user={user}
-        />
-      ];
-    }
-    if (openForm === 'password') {
-      return [
-        this.renderActions(),
-        <PasswordForm
-          isCurrentUser={isCurrentUser}
-          key="form"
-          onClose={this.handleCloseForm}
-          user={user}
-        />
-      ];
-    }
-    if (openForm === 'update') {
-      return [
-        this.renderActions(),
-        <UserForm
-          key="form"
-          onClose={this.handleCloseForm}
-          onUpdateUsers={onUpdateUsers}
-          user={user}
-        />
-      ];
-    }
-    return this.renderActions();
+    return (
+      <React.Fragment>
+        {this.renderActions()}
+        {openForm === 'deactivate' && (
+          <DeactivateForm
+            onClose={this.handleCloseForm}
+            onUpdateUsers={onUpdateUsers}
+            user={user}
+          />
+        )}
+        {openForm === 'password' && (
+          <PasswordForm isCurrentUser={isCurrentUser} onClose={this.handleCloseForm} user={user} />
+        )}
+        {openForm === 'update' && (
+          <UserForm onClose={this.handleCloseForm} onUpdateUsers={onUpdateUsers} user={user} />
+        )}
+      </React.Fragment>
+    );
   }
 }

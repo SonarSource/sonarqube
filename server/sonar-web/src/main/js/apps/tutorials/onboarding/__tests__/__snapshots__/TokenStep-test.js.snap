@@ -24,9 +24,6 @@ exports[`generates token 1`] = `
   >
     <div
       className="boxed-group onboarding-step is-open"
-      onClick={undefined}
-      role={undefined}
-      tabIndex={undefined}
     >
       <div
         className="onboarding-step-number"
@@ -129,9 +126,6 @@ exports[`generates token 2`] = `
   >
     <div
       className="boxed-group onboarding-step is-open"
-      onClick={undefined}
-      role={undefined}
-      tabIndex={undefined}
     >
       <div
         className="onboarding-step-number"
@@ -231,9 +225,6 @@ exports[`generates token 3`] = `
   >
     <div
       className="boxed-group onboarding-step is-open"
-      onClick={undefined}
-      role={undefined}
-      tabIndex={undefined}
     >
       <div
         className="onboarding-step-number"
@@ -332,9 +323,6 @@ exports[`revokes token 1`] = `
   >
     <div
       className="boxed-group onboarding-step is-open"
-      onClick={undefined}
-      role={undefined}
-      tabIndex={undefined}
     >
       <div
         className="onboarding-step-number"
@@ -433,9 +421,6 @@ exports[`revokes token 2`] = `
   >
     <div
       className="boxed-group onboarding-step is-open"
-      onClick={undefined}
-      role={undefined}
-      tabIndex={undefined}
     >
       <div
         className="onboarding-step-number"
@@ -515,9 +500,6 @@ exports[`revokes token 3`] = `
   >
     <div
       className="boxed-group onboarding-step is-open"
-      onClick={undefined}
-      role={undefined}
-      tabIndex={undefined}
     >
       <div
         className="onboarding-step-number"

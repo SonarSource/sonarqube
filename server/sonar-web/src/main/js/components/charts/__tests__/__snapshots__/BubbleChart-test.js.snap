@@ -2,18 +2,13 @@
 
 exports[`should display bubbles 1`] = `
 <Bubble
-  color={undefined}
   key="0"
-  link={undefined}
-  onClick={undefined}
   r={45}
-  tooltip={undefined}
   x={-10}
   y={52.3015873015873}
 >
   <circle
     className="bubble-chart-bubble"
-    onClick={undefined}
     r={45}
     style={
       Object {
@@ -28,18 +23,13 @@ exports[`should display bubbles 1`] = `
 
 exports[`should display bubbles 2`] = `
 <Bubble
-  color={undefined}
   key="1"
-  link={undefined}
-  onClick={undefined}
   r={33.57142857142857}
-  tooltip={undefined}
   x={-75}
   y={33.57142857142857}
 >
   <circle
     className="bubble-chart-bubble"
-    onClick={undefined}
     r={33.57142857142857}
     style={
       Object {
@@ -54,12 +44,9 @@ exports[`should display bubbles 2`] = `
 
 exports[`should render bubble links 1`] = `
 <Bubble
-  color={undefined}
   key="0"
   link="foo"
-  onClick={undefined}
   r={45}
-  tooltip={undefined}
   x={-10}
   y={52.3015873015873}
 >
@@ -74,7 +61,6 @@ exports[`should render bubble links 1`] = `
     >
       <circle
         className="bubble-chart-bubble"
-        onClick={undefined}
         r={45}
         style={
           Object {
@@ -91,12 +77,9 @@ exports[`should render bubble links 1`] = `
 
 exports[`should render bubble links 2`] = `
 <Bubble
-  color={undefined}
   key="1"
   link="bar"
-  onClick={undefined}
   r={33.57142857142857}
-  tooltip={undefined}
   x={-75}
   y={33.57142857142857}
 >
@@ -111,7 +94,6 @@ exports[`should render bubble links 2`] = `
     >
       <circle
         className="bubble-chart-bubble"
-        onClick={undefined}
         r={33.57142857142857}
         style={
           Object {
@@ -128,12 +110,10 @@ exports[`should render bubble links 2`] = `
 
 exports[`should render bubbles with click handlers 1`] = `
 <Bubble
-  color={undefined}
   key="0"
   link="foo"
   onClick={[Function]}
   r={45}
-  tooltip={undefined}
   x={-10}
   y={52.3015873015873}
 >
@@ -154,12 +134,10 @@ exports[`should render bubbles with click handlers 1`] = `
 
 exports[`should render bubbles with click handlers 2`] = `
 <Bubble
-  color={undefined}
   key="1"
   link="bar"
   onClick={[Function]}
   r={33.57142857142857}
-  tooltip={undefined}
   x={-75}
   y={33.57142857142857}
 >

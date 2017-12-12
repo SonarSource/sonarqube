@@ -98,7 +98,7 @@ export default class ProjectRowActions extends React.PureComponent<Props, State>
     const { hasAccess } = this.state;
 
     return (
-      <ActionsDropdown key="dropdown" onToggleClick={this.handleDropdownClick}>
+      <ActionsDropdown onToggleClick={this.handleDropdownClick}>
         {hasAccess === true && (
           <ActionsDropdownItem to={getComponentPermissionsUrl(this.props.project.key)}>
             {translate('edit_permissions')}
@@ -120,7 +120,6 @@ export default class ProjectRowActions extends React.PureComponent<Props, State>
         {this.state.restoreAccessModal && (
           <RestoreAccessModal
             currentUser={this.props.currentUser}
-            key="restore-access-modal"
             onClose={this.handleRestoreAccessClose}
             onRestoreAccess={this.handleRestoreAccessDone}
             project={this.props.project}
