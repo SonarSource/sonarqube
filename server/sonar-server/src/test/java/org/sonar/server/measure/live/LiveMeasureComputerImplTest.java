@@ -201,6 +201,19 @@ public class LiveMeasureComputerImplTest {
     assertThat(db.countRowsOfTable(db.getSession(), "live_measures")).isEqualTo(5);
   }
 
+  @Test
+  public void exception_describes_context_when_a_formula_fails() {
+    markProjectAsAnalyzed(project);
+    Metric metric = new Metric.Builder(intMetric.getKey(), intMetric.getShortName(), Metric.ValueType.valueOf(intMetric.getValueType())).create();
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Fail to compute " + metric.getKey() + " on " + file1.getDbKey());
+
+    run(file1, new IssueMetricFormula(metric, false, (context, issueCounter) -> {
+      throw new NullPointerException("BOOM");
+    }));
+  }
+
   private void run(ComponentDto component, IssueMetricFormula... formulas) {
     run(Collections.singletonList(component), formulas);
   }

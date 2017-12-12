@@ -80,7 +80,7 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
         if (beginningOfLeakPeriod.isPresent() || !formula.isOnLeak()) {
           context.change(c, formula);
           try {
-          formula.compute(context, issueCounter);
+            formula.compute(context, issueCounter);
           } catch (RuntimeException e) {
             throw new IllegalStateException("Fail to compute " + formula.getMetric().getKey() + " on " + context.getComponent().getDbKey(), e);
           }
