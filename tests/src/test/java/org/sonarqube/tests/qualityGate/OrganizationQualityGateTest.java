@@ -47,12 +47,13 @@ public class OrganizationQualityGateTest {
   public Tester tester = new Tester(orchestrator);
 
   @Test
-  public void always_display_current_quality_gate_in_effect() throws Exception {
+  public void always_display_current_quality_gate_in_effect() {
     Organization organization = tester.organizations().generate();
     Project project = tester.projects().provision(organization);
-    Qualitygates.CreateResponse qualityGate = tester.qGates().generate();
-    tester.qGates().associateProject(qualityGate, project);
+    Qualitygates.CreateResponse qualityGate = tester.qGates().generate(organization);
+    tester.qGates().associateProject(organization, qualityGate, project);
     tester.wsClient().qualitygates().createCondition(new CreateConditionRequest()
+      .setOrganization(organization.getKey())
       .setGateId(String.valueOf(qualityGate.getId()))
       .setMetric("new_coverage")
       .setOp("LT")
@@ -80,9 +81,10 @@ public class OrganizationQualityGateTest {
     Map currentQualityGate2 = (Map) ItUtils.jsonToMap(response2.content()).get("qualityGate");
     assertThat((long) (double) (Double) currentQualityGate2.get("key")).isEqualTo(qualityGate.getId());
 
-    Qualitygates.CreateResponse qualityGate2 = tester.qGates().generate();
-    tester.qGates().associateProject(qualityGate2, project);
+    Qualitygates.CreateResponse qualityGate2 = tester.qGates().generate(organization);
+    tester.qGates().associateProject(organization, qualityGate2, project);
     tester.wsClient().qualitygates().createCondition(new CreateConditionRequest()
+      .setOrganization(organization.getKey())
       .setGateId(String.valueOf(qualityGate2.getId()))
       .setMetric("new_coverage")
       .setOp("LT")
