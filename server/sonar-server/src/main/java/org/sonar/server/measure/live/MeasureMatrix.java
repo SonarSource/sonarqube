@@ -97,12 +97,18 @@ class MeasureMatrix {
 
   void setValue(ComponentDto component, Metric metric, Rating value) {
     changeCell(component, metric, m -> {
-      if (m.getValue() != null && Double.compare(m.getValue(), (double) value.getIndex()) == 0) {
+      Double initialValue = m.getValue();
+      if (initialValue != null && Double.compare(initialValue, (double) value.getIndex()) == 0) {
         return false;
       }
       m.setData(value.name());
       m.setValue((double) value.getIndex());
-      // TODO variation on ratings
+
+      Double initialVariation = m.getVariation();
+      if (initialValue != null && initialVariation != null) {
+        double leakInitialValue = initialValue - initialVariation;
+        m.setVariation(value.getIndex() - leakInitialValue);
+      }
       return true;
     });
   }

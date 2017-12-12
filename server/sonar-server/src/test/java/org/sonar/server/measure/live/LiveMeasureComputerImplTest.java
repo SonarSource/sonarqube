@@ -105,7 +105,7 @@ public class LiveMeasureComputerImplTest {
   }
 
   @Test
-  public void variation_is_refreshed_when_value_is_changed() {
+  public void variation_is_refreshed_when_int_value_is_changed() {
     markProjectAsAnalyzed(project);
     // value is:
     // 42 on last analysis
@@ -117,6 +117,36 @@ public class LiveMeasureComputerImplTest {
 
     LiveMeasureDto measure = assertThatIntMeasureHasValue(project, 44.0);
     assertThat(measure.getVariation()).isEqualTo(14.0);
+  }
+
+  @Test
+  public void variation_is_refreshed_when_rating_value_is_changed() {
+    markProjectAsAnalyzed(project);
+    // value is:
+    // B on last analysis
+    // D on beginning of leak period --> variation is -2
+    db.measures().insertLiveMeasure(project, ratingMetric, m -> m.setValue((double)Rating.B.getIndex()).setData("B").setVariation(-2.0));
+
+    // new value is C, so variation on leak period is D to C = -1
+    run(file1, newRatingConstantFormula(Rating.C));
+
+    LiveMeasureDto measure = assertThatRatingMeasureHasValue(project, Rating.C);
+    assertThat(measure.getVariation()).isEqualTo(-1.0);
+  }
+
+  @Test
+  public void variation_does_not_change_if_rating_value_does_not_change() {
+    markProjectAsAnalyzed(project);
+    // value is:
+    // B on last analysis
+    // D on beginning of leak period --> variation is -2
+    db.measures().insertLiveMeasure(project, ratingMetric, m -> m.setValue((double)Rating.B.getIndex()).setData("B").setVariation(-2.0));
+
+    // new value is still B, so variation on leak period is still -2
+    run(file1, newRatingConstantFormula(Rating.B));
+
+    LiveMeasureDto measure = assertThatRatingMeasureHasValue(project, Rating.B);
+    assertThat(measure.getVariation()).isEqualTo(-2.0);
   }
 
   @Test
@@ -197,13 +227,14 @@ public class LiveMeasureComputerImplTest {
     return measure;
   }
 
-  private void assertThatRatingMeasureHasValue(ComponentDto component, Rating expectedRating) {
+  private LiveMeasureDto assertThatRatingMeasureHasValue(ComponentDto component, Rating expectedRating) {
     LiveMeasureDto measure = db.getDbClient().liveMeasureDao().selectMeasure(db.getSession(), component.uuid(), ratingMetric.getKey()).get();
     assertThat(measure.getComponentUuid()).isEqualTo(component.uuid());
     assertThat(measure.getProjectUuid()).isEqualTo(component.projectUuid());
     assertThat(measure.getMetricId()).isEqualTo(ratingMetric.getId());
     assertThat(measure.getValue()).isEqualTo(expectedRating.getIndex());
     assertThat(measure.getDataAsString()).isEqualTo(expectedRating.name());
+    return measure;
   }
 
   private void assertThatIntMeasureHasLeakValue(ComponentDto component, double expectedValue) {
