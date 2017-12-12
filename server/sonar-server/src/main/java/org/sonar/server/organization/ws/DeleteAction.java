@@ -143,6 +143,7 @@ public class DeleteAction implements OrganizationsWsAction {
       .filter(q -> !q.isBuiltIn())
       .map(QualityGateDto::getUuid)
       .collect(MoreCollectors.toList()));
+    dbClient.qualityGateDao().deleteOrgQualityGatesByOrganization(dbSession, organization);
   }
 
   private void deleteOrganization(DbSession dbSession, OrganizationDto organization) {
