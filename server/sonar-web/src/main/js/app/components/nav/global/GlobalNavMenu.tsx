@@ -17,31 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import { Link } from 'react-router';
-import { isLoggedIn } from '../../../../app/types';
+import { isLoggedIn, CurrentUser, AppState, Extension } from '../../../../app/types';
 import { translate } from '../../../../helpers/l10n';
-import { getQualityGatesUrl } from '../../../../helpers/urls';
+import { getQualityGatesUrl, getBaseUrl } from '../../../../helpers/urls';
 import { isMySet } from '../../../../apps/issues/utils';
 
-export default class GlobalNavMenu extends React.PureComponent {
-  static propTypes = {
-    appState: PropTypes.object.isRequired,
-    currentUser: PropTypes.object.isRequired,
-    location: PropTypes.shape({
-      pathname: PropTypes.string.isRequired
-    }).isRequired,
-    onSonarCloud: PropTypes.bool
-  };
+interface Props {
+  appState: AppState;
+  currentUser: CurrentUser;
+  location: { pathname: string };
+  onSonarCloud: boolean;
+}
 
-  static defaultProps = {
-    globalDashboards: [],
-    globalPages: []
-  };
-
-  activeLink(url) {
-    return window.location.pathname.indexOf(window.baseUrl + url) === 0 ? 'active' : null;
+export default class GlobalNavMenu extends React.PureComponent<Props> {
+  activeLink(url: string) {
+    return window.location.pathname.indexOf(getBaseUrl() + url) === 0 ? 'active' : undefined;
   }
 
   renderProjects() {
@@ -144,7 +136,7 @@ export default class GlobalNavMenu extends React.PureComponent {
     );
   }
 
-  renderGlobalPageLink = ({ key, name }) => {
+  renderGlobalPageLink = ({ key, name }: Extension) => {
     return (
       <li key={key}>
         <Link to={`/extension/${key}`}>{name}</Link>
@@ -153,7 +145,7 @@ export default class GlobalNavMenu extends React.PureComponent {
   };
 
   renderMore() {
-    const { globalPages } = this.props.appState;
+    const { globalPages = [] } = this.props.appState;
     const withoutPortfolios = globalPages.filter(page => page.key !== 'governance/portfolios');
     if (withoutPortfolios.length === 0) {
       return null;

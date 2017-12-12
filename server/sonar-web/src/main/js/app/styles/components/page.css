@@ -142,16 +142,8 @@
 .page-footer a:hover,
 .page-footer a:active,
 .page-footer a:focus {
+  border-bottom-color: var(--lightBlue);
   color: var(--blue);
-}
-
-.page-footer a:hover {
-  border-bottom-color: var(--lightBlue);
-}
-
-.page-footer a:active,
-.page-footer a:focus {
-  border-bottom-color: var(--lightBlue);
 }
 
 .page-footer-with-sidebar {
@@ -160,6 +152,16 @@
 
 .page-footer-with-sidebar div {
   max-width: 980px;
+}
+
+.page-footer-menu-item {
+  display: inline-block;
+}
+
+.page-footer-menu-item + .page-footer-menu-item::before {
+  content: '-';
+  padding: 0 calc(0.5 * var(--gridSize));
+  user-select: none;
 }
 
 .page-with-sidebar {

@@ -56,7 +56,7 @@ export default function OrganizationNavigationAdministration({ location, organiz
             href="#"
             onClick={onToggleClick}>
             {translate('layout.settings')}
-            <DropdownIcon />
+            <DropdownIcon className="little-spacer-left" />
           </a>
           <ul className="dropdown-menu">
             {extensions.map(extension => (

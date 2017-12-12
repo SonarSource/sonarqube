@@ -11,7 +11,9 @@ exports[`renders 1`] = `
     onClick={[Function]}
   >
     layout.settings
-    <DropdownIcon />
+    <DropdownIcon
+      className="little-spacer-left"
+    />
   </a>
   <ul
     className="dropdown-menu"
