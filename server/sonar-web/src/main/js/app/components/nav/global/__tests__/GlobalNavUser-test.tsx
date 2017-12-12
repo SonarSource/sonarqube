@@ -42,7 +42,7 @@ it('should render the right interface for logged in user', () => {
     <GlobalNavUser appState={appState} currentUser={currentUser} organizations={[]} />
   );
   wrapper.setState({ open: true });
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('Dropdown').dive()).toMatchSnapshot();
 });
 
 it('should render user organizations', () => {
@@ -50,7 +50,7 @@ it('should render user organizations', () => {
     <GlobalNavUser appState={appState} currentUser={currentUser} organizations={organizations} />
   );
   wrapper.setState({ open: true });
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('Dropdown').dive()).toMatchSnapshot();
 });
 
 it('should not render user organizations when they are not activated', () => {
@@ -62,5 +62,5 @@ it('should not render user organizations when they are not activated', () => {
     />
   );
   wrapper.setState({ open: true });
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('Dropdown').dive()).toMatchSnapshot();
 });

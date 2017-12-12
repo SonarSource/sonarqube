@@ -17,22 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { sortBy } from 'lodash';
 import OrganizationCard from './OrganizationCard';
-/*:: import type { Organization } from '../../../store/organizations/duck'; */
+import { Organization } from '../../../app/types';
 
-/*::
-type Props = {
-  organizations: Array<Organization>
-};
-*/
+interface Props {
+  organizations: Organization[];
+}
 
-export default function OrganizationsList(props /*: Props */) {
+export default function OrganizationsList({ organizations }: Props) {
   return (
     <ul className="account-projects-list">
-      {sortBy(props.organizations, organization =>
+      {sortBy(organizations, organization =>
         organization.name.toLocaleLowerCase()
       ).map(organization => (
         <li key={organization.key}>

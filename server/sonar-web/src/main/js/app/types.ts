@@ -150,3 +150,13 @@ export interface LoggedInUser extends CurrentUser {
 export function isLoggedIn(user: CurrentUser): user is LoggedInUser {
   return user.isLoggedIn;
 }
+
+export interface AppState {
+  adminPages?: Extension[];
+  authenticationError: boolean;
+  authorizationError: boolean;
+  canAdmin?: boolean;
+  globalPages?: Extension[];
+  organizationsEnabled: boolean;
+  qualifiers: string[];
+}

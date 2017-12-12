@@ -1,0 +1,41 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<li>
+  <OrganizationLink
+    className="dropdown-item-flex"
+    organization={
+      Object {
+        "isAdmin": true,
+        "key": "org",
+        "name": "org",
+        "projectVisibility": "public",
+      }
+    }
+  >
+    <div>
+      <OrganizationAvatar
+        organization={
+          Object {
+            "isAdmin": true,
+            "key": "org",
+            "name": "org",
+            "projectVisibility": "public",
+          }
+        }
+        small={true}
+      />
+      <span
+        className="spacer-left"
+      >
+        org
+      </span>
+    </div>
+    <span
+      className="outline-badge spacer-left"
+    >
+      admin
+    </span>
+  </OrganizationLink>
+</li>
+`;
