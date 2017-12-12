@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.client.qualitygates.CreateRequest;
 import org.sonarqube.ws.client.qualitygates.DestroyRequest;
+import org.sonarqube.ws.client.qualitygates.ListRequest;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualitygates.SelectRequest;
 import org.sonarqube.ws.client.qualitygates.SetAsDefaultRequest;
@@ -49,13 +50,13 @@ public class QGateTester {
   }
 
   void deleteAll() {
-    List<ListWsResponse.QualityGate> builtInQualityGates = session.wsClient().qualitygates().list().getQualitygatesList().stream()
+    List<ListWsResponse.QualityGate> builtInQualityGates = session.wsClient().qualitygates().list(new ListRequest()).getQualitygatesList().stream()
       .filter(ListWsResponse.QualityGate::getIsBuiltIn)
       .collect(Collectors.toList());
     if (builtInQualityGates.size() == 1) {
       session.wsClient().qualitygates().setAsDefault(new SetAsDefaultRequest().setId(Long.toString(builtInQualityGates.get(0).getId())));
     }
-    session.wsClient().qualitygates().list().getQualitygatesList().stream()
+    session.wsClient().qualitygates().list(new ListRequest()).getQualitygatesList().stream()
       .filter(qualityGate -> !qualityGate.getIsDefault())
       .filter(qualityGate -> !qualityGate.getIsBuiltIn())
       .forEach(qualityGate -> session.wsClient().qualitygates().destroy(new DestroyRequest().setId(Long.toString(qualityGate.getId()))));

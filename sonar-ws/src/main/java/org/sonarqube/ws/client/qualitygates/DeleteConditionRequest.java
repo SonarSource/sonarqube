@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**
@@ -32,6 +31,7 @@ import javax.annotation.Generated;
 public class DeleteConditionRequest {
 
   private String id;
+  private String organization;
 
   /**
    * This is a mandatory parameter.
@@ -44,5 +44,17 @@ public class DeleteConditionRequest {
 
   public String getId() {
     return id;
+  }
+
+  /**
+   * Example value: "my-org"
+   */
+  public DeleteConditionRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public String getOrganization() {
+    return organization;
   }
 }

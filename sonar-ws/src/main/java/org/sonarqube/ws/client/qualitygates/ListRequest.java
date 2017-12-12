@@ -24,46 +24,18 @@ import javax.annotation.Generated;
 /**
  * This is part of the internal API.
  * This is a POST request.
- * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/rename">Further information about this action online (including a response example)</a>
+ * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/list">Further information about this action online (including a response example)</a>
  * @since 4.3
  */
 @Generated("sonar-ws-generator")
-public class RenameRequest {
+public class ListRequest {
 
-  private String id;
-  private String name;
   private String organization;
-
-  /**
-   * This is a mandatory parameter.
-   * Example value: "1"
-   */
-  public RenameRequest setId(String id) {
-    this.id = id;
-    return this;
-  }
-
-  public String getId() {
-    return id;
-  }
-
-  /**
-   * This is a mandatory parameter.
-   * Example value: "My Quality Gate"
-   */
-  public RenameRequest setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  public String getName() {
-    return name;
-  }
 
   /**
    * Example value: "my-org"
    */
-  public RenameRequest setOrganization(String organization) {
+  public ListRequest setOrganization(String organization) {
     this.organization = organization;
     return this;
   }
