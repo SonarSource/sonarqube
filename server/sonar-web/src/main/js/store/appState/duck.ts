@@ -18,15 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import { Extension } from '../../app/types';
-
-interface AppState {
-  adminPages?: Extension[];
-  authenticationError: boolean;
-  authorizationError: boolean;
-  organizationsEnabled: boolean;
-  qualifiers?: string[];
-}
+import { Extension, AppState } from '../../app/types';
 
 interface SetAppStateAction {
   type: 'SET_APP_STATE';
@@ -62,7 +54,8 @@ export function requireAuthorization(): RequireAuthorizationAction {
 const defaultValue: AppState = {
   authenticationError: false,
   authorizationError: false,
-  organizationsEnabled: false
+  organizationsEnabled: false,
+  qualifiers: []
 };
 
 export default function(state: AppState = defaultValue, action: Action): AppState {

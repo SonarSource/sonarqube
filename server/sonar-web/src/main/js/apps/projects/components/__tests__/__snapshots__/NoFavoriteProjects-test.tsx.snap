@@ -7,22 +7,61 @@ exports[`renders 1`] = `
   <h3>
     projects.no_favorite_projects
   </h3>
-  <p
-    className="big-spacer-top"
-  >
-    projects.no_favorite_projects.engagement
-  </p>
-  <p
-    className="big-spacer-top"
-  >
-    <Link
-      className="button"
-      onlyActiveOnIndex={false}
-      style={Object {}}
-      to="/projects/all"
+  <div>
+    <p
+      className="big-spacer-top"
     >
-      projects.explore_projects
-    </Link>
-  </p>
+      projects.no_favorite_projects.engagement
+    </p>
+    <p
+      className="big-spacer-top"
+    >
+      <Link
+        className="button"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/projects/all"
+      >
+        projects.explore_projects
+      </Link>
+    </p>
+  </div>
+</div>
+`;
+
+exports[`renders for SonarCloud 1`] = `
+<div
+  className="projects-empty-list"
+>
+  <h3>
+    projects.no_favorite_projects
+  </h3>
+  <div
+    className="spacer-top"
+  >
+    <p>
+      projects.no_favorite_projects.how_to_add_projects
+    </p>
+    <div
+      className="huge-spacer-top"
+    >
+      <a
+        className="button"
+        href="#"
+        onClick={[Function]}
+      >
+        my_account.analyze_new_project
+      </a>
+      <Dropdown />
+      <Link
+        className="button big-spacer-left"
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/explore/projects"
+      >
+        projects.no_favorite_projects.favorite_public_projects
+      </Link>
+    </div>
+  </div>
 </div>
 `;

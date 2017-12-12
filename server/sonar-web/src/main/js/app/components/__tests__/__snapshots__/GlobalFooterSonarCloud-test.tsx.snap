@@ -1,0 +1,78 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should render correctly 1`] = `
+<div
+  className="page-footer page-container"
+  id="footer"
+>
+  <div>
+    © 2008-2017, SonarCloud.io by
+     
+    <a
+      href="http://www.sonarsource.com"
+      title="SonarSource SA"
+    >
+      SonarSource SA
+    </a>
+    . All rights reserved.
+  </div>
+  <ul
+    className="page-footer-menu"
+  >
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="https://about.sonarcloud.io/news/"
+      >
+        footer.news
+      </a>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="https://about.sonarcloud.io/terms.pdf"
+      >
+        footer.terms
+      </a>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="https://twitter.com/sonarqube"
+      >
+        footer.twitter
+      </a>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="https://about.sonarcloud.io/get-started/"
+      >
+        footer.get_started
+      </a>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="https://about.sonarcloud.io/contact/"
+      >
+        footer.help
+      </a>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="https://about.sonarcloud.io/"
+      >
+        footer.about
+      </a>
+    </li>
+  </ul>
+</div>
+`;

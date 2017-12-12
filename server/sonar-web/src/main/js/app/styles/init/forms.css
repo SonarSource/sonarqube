@@ -118,7 +118,7 @@ input[type='button'] {
   display: inline-block;
   vertical-align: baseline;
   height: var(--controlHeight);
-  line-height: 22px;
+  line-height: calc(var(--controlHeight) - 2px);
   padding: 0 12px;
   border: 1px solid var(--darkBlue);
   border-radius: 2px;
@@ -182,6 +182,10 @@ input[type='button']:disabled:focus {
   background: #ebebeb;
   cursor: not-allowed;
   box-shadow: none;
+}
+
+.button svg {
+  padding-top: calc((var(--controlHeight) - 16px - 2px) / 2);
 }
 
 .button-red,

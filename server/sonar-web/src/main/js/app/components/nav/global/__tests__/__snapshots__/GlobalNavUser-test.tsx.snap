@@ -2,7 +2,7 @@
 
 exports[`should not render user organizations when they are not activated 1`] = `
 <li
-  className="dropdown js-user-authenticated open"
+  className="dropdown js-user-authenticated"
 >
   <a
     className="dropdown-toggle navbar-avatar"
@@ -41,7 +41,6 @@ exports[`should not render user organizations when they are not activated 1`] = 
     />
     <li>
       <Link
-        onClick={[Function]}
         onlyActiveOnIndex={false}
         style={Object {}}
         to="/account"
@@ -75,7 +74,7 @@ exports[`should render the right interface for anonymous user 1`] = `
 
 exports[`should render the right interface for logged in user 1`] = `
 <li
-  className="dropdown js-user-authenticated open"
+  className="dropdown js-user-authenticated"
 >
   <a
     className="dropdown-toggle navbar-avatar"
@@ -114,7 +113,6 @@ exports[`should render the right interface for logged in user 1`] = `
     />
     <li>
       <Link
-        onClick={[Function]}
         onlyActiveOnIndex={false}
         style={Object {}}
         to="/account"
@@ -136,7 +134,7 @@ exports[`should render the right interface for logged in user 1`] = `
 
 exports[`should render user organizations 1`] = `
 <li
-  className="dropdown js-user-authenticated open"
+  className="dropdown js-user-authenticated"
 >
   <a
     className="dropdown-toggle navbar-avatar"
@@ -175,7 +173,6 @@ exports[`should render user organizations 1`] = `
     />
     <li>
       <Link
-        onClick={[Function]}
         onlyActiveOnIndex={false}
         style={Object {}}
         to="/account"
@@ -189,7 +186,6 @@ exports[`should render user organizations 1`] = `
     />
     <li>
       <Link
-        onClick={[Function]}
         onlyActiveOnIndex={false}
         style={Object {}}
         to="/account/organizations"
@@ -197,105 +193,36 @@ exports[`should render user organizations 1`] = `
         my_organizations
       </Link>
     </li>
-    <li
+    <OrganizationListItem
       key="bar"
-    >
-      <OrganizationLink
-        className="dropdown-item-flex"
-        onClick={[Function]}
-        organization={
-          Object {
-            "key": "bar",
-            "name": "bar",
-            "projectVisibility": "public",
-          }
+      organization={
+        Object {
+          "key": "bar",
+          "name": "bar",
+          "projectVisibility": "public",
         }
-      >
-        <div>
-          <OrganizationAvatar
-            organization={
-              Object {
-                "key": "bar",
-                "name": "bar",
-                "projectVisibility": "public",
-              }
-            }
-            small={true}
-          />
-          <span
-            className="spacer-left"
-          >
-            bar
-          </span>
-        </div>
-      </OrganizationLink>
-    </li>
-    <li
+      }
+    />
+    <OrganizationListItem
       key="foo"
-    >
-      <OrganizationLink
-        className="dropdown-item-flex"
-        onClick={[Function]}
-        organization={
-          Object {
-            "key": "foo",
-            "name": "Foo",
-            "projectVisibility": "public",
-          }
+      organization={
+        Object {
+          "key": "foo",
+          "name": "Foo",
+          "projectVisibility": "public",
         }
-      >
-        <div>
-          <OrganizationAvatar
-            organization={
-              Object {
-                "key": "foo",
-                "name": "Foo",
-                "projectVisibility": "public",
-              }
-            }
-            small={true}
-          />
-          <span
-            className="spacer-left"
-          >
-            Foo
-          </span>
-        </div>
-      </OrganizationLink>
-    </li>
-    <li
+      }
+    />
+    <OrganizationListItem
       key="myorg"
-    >
-      <OrganizationLink
-        className="dropdown-item-flex"
-        onClick={[Function]}
-        organization={
-          Object {
-            "key": "myorg",
-            "name": "MyOrg",
-            "projectVisibility": "public",
-          }
+      organization={
+        Object {
+          "key": "myorg",
+          "name": "MyOrg",
+          "projectVisibility": "public",
         }
-      >
-        <div>
-          <OrganizationAvatar
-            organization={
-              Object {
-                "key": "myorg",
-                "name": "MyOrg",
-                "projectVisibility": "public",
-              }
-            }
-            small={true}
-          />
-          <span
-            className="spacer-left"
-          >
-            MyOrg
-          </span>
-        </div>
-      </OrganizationLink>
-    </li>
+      }
+    />
     <li
       className="divider"
       role="separator"

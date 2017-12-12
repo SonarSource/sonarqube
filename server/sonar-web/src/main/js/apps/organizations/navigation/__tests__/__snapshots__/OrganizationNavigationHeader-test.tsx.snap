@@ -42,79 +42,28 @@ exports[`renders dropdown 1`] = `
   <ul
     className="dropdown-menu"
   >
-    <li
+    <OrganizationListItem
       key="org1"
-    >
-      <OrganizationLink
-        className="dropdown-item-flex"
-        organization={
-          Object {
-            "isAdmin": true,
-            "key": "org1",
-            "name": "org1",
-            "projectVisibility": "public",
-          }
+      organization={
+        Object {
+          "isAdmin": true,
+          "key": "org1",
+          "name": "org1",
+          "projectVisibility": "public",
         }
-      >
-        <div>
-          <OrganizationAvatar
-            organization={
-              Object {
-                "isAdmin": true,
-                "key": "org1",
-                "name": "org1",
-                "projectVisibility": "public",
-              }
-            }
-            small={true}
-          />
-          <span
-            className="spacer-left"
-          >
-            org1
-          </span>
-        </div>
-        <span
-          className="outline-badge spacer-left"
-        >
-          admin
-        </span>
-      </OrganizationLink>
-    </li>
-    <li
+      }
+    />
+    <OrganizationListItem
       key="org2"
-    >
-      <OrganizationLink
-        className="dropdown-item-flex"
-        organization={
-          Object {
-            "isAdmin": false,
-            "key": "org2",
-            "name": "org2",
-            "projectVisibility": "public",
-          }
+      organization={
+        Object {
+          "isAdmin": false,
+          "key": "org2",
+          "name": "org2",
+          "projectVisibility": "public",
         }
-      >
-        <div>
-          <OrganizationAvatar
-            organization={
-              Object {
-                "isAdmin": false,
-                "key": "org2",
-                "name": "org2",
-                "projectVisibility": "public",
-              }
-            }
-            small={true}
-          />
-          <span
-            className="spacer-left"
-          >
-            org2
-          </span>
-        </div>
-      </OrganizationLink>
-    </li>
+      }
+    />
   </ul>
 </div>
 `;
