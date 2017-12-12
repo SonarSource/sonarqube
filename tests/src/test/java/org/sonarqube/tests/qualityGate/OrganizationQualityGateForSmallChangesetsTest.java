@@ -59,9 +59,10 @@ public class OrganizationQualityGateForSmallChangesetsTest {
   public void do_not_fail_quality_gate_with_poor_LEAK_coverage_and_a_max_of_19_lines_of_NEW_code() throws Exception {
     Organizations.Organization organization = tester.organizations().generate();
     Project project = tester.projects().provision(organization);
-    Qualitygates.CreateResponse qualityGate = tester.qGates().generate();
-    tester.qGates().associateProject(qualityGate, project);
+    Qualitygates.CreateResponse qualityGate = tester.qGates().generate(organization);
+    tester.qGates().associateProject(organization, qualityGate, project);
     Qualitygates.CreateConditionResponse condition = tester.wsClient().qualitygates().createCondition(new CreateConditionRequest()
+      .setOrganization(organization.getKey())
       .setGateId(String.valueOf(qualityGate.getId()))
       .setMetric("new_coverage")
       .setOp("LT")
@@ -86,7 +87,7 @@ public class OrganizationQualityGateForSmallChangesetsTest {
       .setDebugLogs(true);
     orchestrator.executeBuild(analysis);
     assertThat(getMeasure(orchestrator, project.getKey(), "alert_status").getValue()).isEqualTo("OK");
-    assertIgnoredConditions("qualitygate/small-changesets/v1-1000-lines", false);
+    assertIgnoredConditions(organization,"qualitygate/small-changesets/v1-1000-lines", false);
 
     // small leak => ignore coverage warning or error
     SonarScanner analysis2 = SonarScanner
@@ -101,10 +102,11 @@ public class OrganizationQualityGateForSmallChangesetsTest {
       .setDebugLogs(true);
     orchestrator.executeBuild(analysis2);
     assertThat(getMeasure(orchestrator, project.getKey(), "alert_status").getValue()).isEqualTo("OK");
-    assertIgnoredConditions("qualitygate/small-changesets/v2-1019-lines", true);
+    assertIgnoredConditions(organization, "qualitygate/small-changesets/v2-1019-lines", true);
 
     // small leak => if coverage is OK anyways, we do not have to ignore anything
     tester.wsClient().qualitygates().updateCondition(new UpdateConditionRequest()
+      .setOrganization(organization.getKey())
       .setId(String.valueOf(condition.getId()))
       .setMetric("new_coverage")
       .setOp("LT")
@@ -123,10 +125,11 @@ public class OrganizationQualityGateForSmallChangesetsTest {
       .setDebugLogs(true);
     orchestrator.executeBuild(analysis3);
     assertThat(getMeasure(orchestrator, project.getKey(), "alert_status").getValue()).isEqualTo("OK");
-    assertIgnoredConditions("qualitygate/small-changesets/v2-1019-lines", false);
+    assertIgnoredConditions(organization, "qualitygate/small-changesets/v2-1019-lines", false);
 
     // big leak => use usual behaviour
     tester.wsClient().qualitygates().updateCondition(new UpdateConditionRequest()
+      .setOrganization(organization.getKey())
       .setId(String.valueOf(condition.getId()))
       .setMetric("new_coverage")
       .setOp("LT")
@@ -145,13 +148,13 @@ public class OrganizationQualityGateForSmallChangesetsTest {
       .setDebugLogs(true);
     orchestrator.executeBuild(analysis4);
     assertThat(getMeasure(orchestrator, project.getKey(), "alert_status").getValue()).isEqualTo("ERROR");
-    assertIgnoredConditions("qualitygate/small-changesets/v2-1020-lines", false);
+    assertIgnoredConditions(organization, "qualitygate/small-changesets/v2-1020-lines", false);
   }
 
-  private void assertIgnoredConditions(String projectDir, boolean expected) throws IOException {
+  private void assertIgnoredConditions(Organizations.Organization organization, String projectDir, boolean expected) throws IOException {
     String analysisId = getAnalysisId(getTaskIdInLocalReport(projectDir(projectDir)));
     boolean ignoredConditions = tester.wsClient().qualitygates()
-      .projectStatus(new ProjectStatusRequest().setAnalysisId(analysisId))
+      .projectStatus(new ProjectStatusRequest().setOrganization(organization.getKey()).setAnalysisId(analysisId))
       .getProjectStatus()
       .getIgnoredConditions();
     assertThat(ignoredConditions).isEqualTo(expected);
