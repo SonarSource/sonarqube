@@ -251,6 +251,56 @@ public class TrackerTest {
     assertThat(tracking.getUnmatchedBases()).isEmpty();
   }
 
+  // SONAR-10194
+  @Test
+  public void no_match_if_only_same_rulekey() {
+    FakeInput baseInput = FakeInput.createForSourceLines(
+      "package aa;",
+      "",
+      "/**",
+      " * Hello world",
+      " *",
+      " */",
+      "public class App {",
+      "",
+      "    public static void main(String[] args) {",
+      "",
+      "        int magicNumber = 42;",
+      "",
+      "        String s = new String(\"Very long line that does not meet our maximum 120 character line length criteria and should be wrapped to avoid SonarQube issues.\");\r\n"
+        +
+        "    }",
+      "}");
+    Issue base1 = baseInput.createIssueOnLine(11, RuleKey.of("squid", "S109"), "Assign this magic number 42 to a well-named constant, and use the constant instead.");
+    Issue base2 = baseInput.createIssueOnLine(13, RuleKey.of("squid", "S00103"), "Split this 163 characters long line (which is greater than 120 authorized).");
+
+    FakeInput rawInput = FakeInput.createForSourceLines(
+      "package aa;",
+      "",
+      "/**",
+      " * Hello world",
+      " *",
+      " */",
+      "public class App {",
+      "",
+      "    public static void main(String[] args) {",
+      "        ",
+      "        System.out.println(\"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque vel diam purus. Curabitur ut nisi lacus....\");",
+      "        ",
+      "        int a = 0;",
+      "        ",
+      "        int x = a + 123;",
+      "    }",
+      "}");
+    Issue raw1 = rawInput.createIssueOnLine(11, RuleKey.of("squid", "S00103"), "Split this 139 characters long line (which is greater than 120 authorized).");
+    Issue raw2 = rawInput.createIssueOnLine(15, RuleKey.of("squid", "S109"), "Assign this magic number 123 to a well-named constant, and use the constant instead.");
+
+    Tracking<Issue, Issue> tracking = tracker.track(rawInput, baseInput);
+    assertThat(tracking.baseFor(raw1)).isNull();
+    assertThat(tracking.baseFor(raw2)).isNull();
+    assertThat(tracking.getUnmatchedBases()).hasSize(2);
+  }
+
   /**
    * SONAR-3072
    */
