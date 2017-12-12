@@ -2,7 +2,6 @@
 
 exports[`restores access 1`] = `
 <ActionsDropdown
-  key="dropdown"
   onToggleClick={[Function]}
 >
   <ActionsDropdownItem
@@ -16,7 +15,6 @@ exports[`restores access 1`] = `
 
 exports[`restores access 2`] = `
 <ActionsDropdown
-  key="dropdown"
   onToggleClick={[Function]}
 >
   <ActionsDropdownItem
@@ -36,7 +34,6 @@ exports[`restores access 2`] = `
 
 exports[`restores access 3`] = `
 <ActionsDropdown
-  key="dropdown"
   onToggleClick={[Function]}
 >
   <ActionsDropdownItem
@@ -57,7 +54,6 @@ exports[`restores access 3`] = `
         "login": "admin",
       }
     }
-    key="restore-access-modal"
     onClose={[Function]}
     onRestoreAccess={[Function]}
     project={

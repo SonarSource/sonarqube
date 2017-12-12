@@ -7,16 +7,12 @@ exports[`renders meta for long-living branch 1`] = `
   <ul
     className="list-inline"
   >
-    <li
-      key="analysisDate"
-    >
+    <li>
       <DateTimeFormatter
         date="2017-01-02T00:00:00.000Z"
       />
     </li>
-    <li
-      key="version"
-    >
+    <li>
       <Tooltip
         mouseEnterDelay={0.5}
         overlay="version 0.0.1"
@@ -42,9 +38,7 @@ exports[`renders status of short-living branch 1`] = `
   <ul
     className="list-inline"
   >
-    <li
-      key="analysisDate"
-    >
+    <li>
       <DateTimeFormatter
         date="2017-01-02T00:00:00.000Z"
       />

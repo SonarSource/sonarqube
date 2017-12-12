@@ -24,60 +24,56 @@ exports[`should render \`leak\` view correctly 1`] = `
       }
     }
   />
-  <NewReliabilityFilter
-    key="new_reliability"
-    onQueryChange={[Function]}
-    query={
-      Object {
-        "view": "leak",
+  <React.Fragment>
+    <NewReliabilityFilter
+      onQueryChange={[Function]}
+      query={
+        Object {
+          "view": "leak",
+        }
       }
-    }
-  />
-  <NewSecurityFilter
-    key="new_security"
-    onQueryChange={[Function]}
-    query={
-      Object {
-        "view": "leak",
+    />
+    <NewSecurityFilter
+      onQueryChange={[Function]}
+      query={
+        Object {
+          "view": "leak",
+        }
       }
-    }
-  />
-  <NewMaintainabilityFilter
-    key="new_maintainability"
-    onQueryChange={[Function]}
-    query={
-      Object {
-        "view": "leak",
+    />
+    <NewMaintainabilityFilter
+      onQueryChange={[Function]}
+      query={
+        Object {
+          "view": "leak",
+        }
       }
-    }
-  />
-  <NewCoverageFilter
-    key="new_coverage"
-    onQueryChange={[Function]}
-    query={
-      Object {
-        "view": "leak",
+    />
+    <NewCoverageFilter
+      onQueryChange={[Function]}
+      query={
+        Object {
+          "view": "leak",
+        }
       }
-    }
-  />
-  <NewDuplicationsFilter
-    key="new_duplications"
-    onQueryChange={[Function]}
-    query={
-      Object {
-        "view": "leak",
+    />
+    <NewDuplicationsFilter
+      onQueryChange={[Function]}
+      query={
+        Object {
+          "view": "leak",
+        }
       }
-    }
-  />
-  <NewLinesFilter
-    key="new_lines"
-    onQueryChange={[Function]}
-    query={
-      Object {
-        "view": "leak",
+    />
+    <NewLinesFilter
+      onQueryChange={[Function]}
+      query={
+        Object {
+          "view": "leak",
+        }
       }
-    }
-  />
+    />
+  </React.Fragment>
   <Connect(LanguagesFilter)
     onQueryChange={[Function]}
     query={
@@ -118,61 +114,57 @@ exports[`should render correctly 1`] = `
       }
     }
   />
-  <ReliabilityFilter
-    key="reliability"
-    onQueryChange={[Function]}
-    query={
-      Object {
-        "size": "3",
+  <React.Fragment>
+    <ReliabilityFilter
+      onQueryChange={[Function]}
+      query={
+        Object {
+          "size": "3",
+        }
       }
-    }
-  />
-  <SecurityFilter
-    key="security"
-    onQueryChange={[Function]}
-    query={
-      Object {
-        "size": "3",
+    />
+    <SecurityFilter
+      onQueryChange={[Function]}
+      query={
+        Object {
+          "size": "3",
+        }
       }
-    }
-  />
-  <MaintainabilityFilter
-    key="maintainability"
-    onQueryChange={[Function]}
-    query={
-      Object {
-        "size": "3",
+    />
+    <MaintainabilityFilter
+      onQueryChange={[Function]}
+      query={
+        Object {
+          "size": "3",
+        }
       }
-    }
-  />
-  <CoverageFilter
-    key="coverage"
-    onQueryChange={[Function]}
-    query={
-      Object {
-        "size": "3",
+    />
+    <CoverageFilter
+      onQueryChange={[Function]}
+      query={
+        Object {
+          "size": "3",
+        }
       }
-    }
-  />
-  <DuplicationsFilter
-    key="duplications"
-    onQueryChange={[Function]}
-    query={
-      Object {
-        "size": "3",
+    />
+    <DuplicationsFilter
+      onQueryChange={[Function]}
+      query={
+        Object {
+          "size": "3",
+        }
       }
-    }
-  />
-  <SizeFilter
-    key="size"
-    onQueryChange={[Function]}
-    query={
-      Object {
-        "size": "3",
+    />
+    <SizeFilter
+      onQueryChange={[Function]}
+      query={
+        Object {
+          "size": "3",
+        }
       }
-    }
-    value="3"
-  />
+      value="3"
+    />
+  </React.Fragment>
   <Connect(LanguagesFilter)
     onQueryChange={[Function]}
     query={

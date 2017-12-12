@@ -81,77 +81,70 @@ export default function PageSidebar(props: Props) {
         <h3>{translate('filters')}</h3>
       </div>
       <QualityGateFilter {...facetProps} facet={facets && facets.gate} value={query.gate} />
-      {!isLeakView && [
-        <ReliabilityFilter
-          key="reliability"
-          {...facetProps}
-          facet={facets && facets.reliability}
-          value={query.reliability}
-        />,
-        <SecurityFilter
-          key="security"
-          {...facetProps}
-          facet={facets && facets.security}
-          value={query.security}
-        />,
-        <MaintainabilityFilter
-          key="maintainability"
-          {...facetProps}
-          facet={facets && facets.maintainability}
-          value={query.maintainability}
-        />,
-        <CoverageFilter
-          key="coverage"
-          {...facetProps}
-          facet={facets && facets.coverage}
-          value={query.coverage}
-        />,
-        <DuplicationsFilter
-          key="duplications"
-          {...facetProps}
-          facet={facets && facets.duplications}
-          value={query.duplications}
-        />,
-        <SizeFilter key="size" {...facetProps} facet={facets && facets.size} value={query.size} />
-      ]}
-      {isLeakView && [
-        <NewReliabilityFilter
-          key="new_reliability"
-          {...facetProps}
-          facet={facets && facets.new_reliability}
-          value={query.new_reliability}
-        />,
-        <NewSecurityFilter
-          key="new_security"
-          {...facetProps}
-          facet={facets && facets.new_security}
-          value={query.new_security}
-        />,
-        <NewMaintainabilityFilter
-          key="new_maintainability"
-          {...facetProps}
-          facet={facets && facets.new_maintainability}
-          value={query.new_maintainability}
-        />,
-        <NewCoverageFilter
-          key="new_coverage"
-          {...facetProps}
-          facet={facets && facets.new_coverage}
-          value={query.new_coverage}
-        />,
-        <NewDuplicationsFilter
-          key="new_duplications"
-          {...facetProps}
-          facet={facets && facets.new_duplications}
-          value={query.new_duplications}
-        />,
-        <NewLinesFilter
-          key="new_lines"
-          {...facetProps}
-          facet={facets && facets.new_lines}
-          value={query.new_lines}
-        />
-      ]}
+      {!isLeakView && (
+        <React.Fragment>
+          <ReliabilityFilter
+            {...facetProps}
+            facet={facets && facets.reliability}
+            value={query.reliability}
+          />
+          <SecurityFilter
+            {...facetProps}
+            facet={facets && facets.security}
+            value={query.security}
+          />
+          <MaintainabilityFilter
+            {...facetProps}
+            facet={facets && facets.maintainability}
+            value={query.maintainability}
+          />
+          <CoverageFilter
+            {...facetProps}
+            facet={facets && facets.coverage}
+            value={query.coverage}
+          />
+          <DuplicationsFilter
+            {...facetProps}
+            facet={facets && facets.duplications}
+            value={query.duplications}
+          />
+          <SizeFilter {...facetProps} facet={facets && facets.size} value={query.size} />
+        </React.Fragment>
+      )}
+      {isLeakView && (
+        <React.Fragment>
+          <NewReliabilityFilter
+            {...facetProps}
+            facet={facets && facets.new_reliability}
+            value={query.new_reliability}
+          />
+          <NewSecurityFilter
+            {...facetProps}
+            facet={facets && facets.new_security}
+            value={query.new_security}
+          />
+          <NewMaintainabilityFilter
+            {...facetProps}
+            facet={facets && facets.new_maintainability}
+            value={query.new_maintainability}
+          />
+          <NewCoverageFilter
+            {...facetProps}
+            facet={facets && facets.new_coverage}
+            value={query.new_coverage}
+          />
+          <NewDuplicationsFilter
+            {...facetProps}
+            facet={facets && facets.new_duplications}
+            value={query.new_duplications}
+          />
+          <NewLinesFilter
+            {...facetProps}
+            facet={facets && facets.new_lines}
+            value={query.new_lines}
+          />
+        </React.Fragment>
+      )}
       <LanguagesFilterContainer
         {...facetProps}
         facet={facets && facets.languages}

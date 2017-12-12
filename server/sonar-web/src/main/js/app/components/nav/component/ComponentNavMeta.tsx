@@ -31,34 +31,29 @@ interface Props {
 }
 
 export default function ComponentNavMeta(props: Props) {
-  const metaList = [];
   const shortBranch = props.branch && isShortLivingBranch(props.branch);
-
-  if (props.component.analysisDate) {
-    metaList.push(
-      <li key="analysisDate">
-        <DateTimeFormatter date={props.component.analysisDate} />
-      </li>
-    );
-  }
-
-  if (props.component.version && !shortBranch) {
-    metaList.push(
-      <li key="version">
-        <Tooltip
-          overlay={`${translate('version')} ${props.component.version}`}
-          mouseEnterDelay={0.5}>
-          <span className="text-limited">
-            {translate('version')} {props.component.version}
-          </span>
-        </Tooltip>
-      </li>
-    );
-  }
+  const showVersion = props.component.version && !shortBranch;
 
   return (
     <div className="navbar-context-meta">
-      <ul className="list-inline">{metaList}</ul>
+      <ul className="list-inline">
+        {props.component.analysisDate && (
+          <li>
+            <DateTimeFormatter date={props.component.analysisDate} />
+          </li>
+        )}
+        {showVersion && (
+          <li>
+            <Tooltip
+              overlay={`${translate('version')} ${props.component.version}`}
+              mouseEnterDelay={0.5}>
+              <span className="text-limited">
+                {translate('version')} {props.component.version}
+              </span>
+            </Tooltip>
+          </li>
+        )}
+      </ul>
       {shortBranch && (
         <div className="navbar-context-meta-branch">
           <BranchStatus branch={props.branch!} />
