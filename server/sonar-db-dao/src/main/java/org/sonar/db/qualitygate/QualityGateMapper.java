@@ -51,7 +51,7 @@ public interface QualityGateMapper {
 
   void deleteOrgQualityGatesByQualityGateUuid(String uuid);
 
-  void deleteOrgQualityGatesByQualityGateUuids(@Param("uuids") Collection<String> uuids);
+  void deleteOrgQualityGatesByOrganization(@Param("organizationUuid") String organizationUuid);
 
   void update(QualityGateDto qGate);
 

@@ -200,6 +200,21 @@ public class QualityGateDaoTest {
   }
 
   @Test
+  public void deleteOrgQualityGatesByOrganization() {
+    OrganizationDto organization = db.organizations().insert();
+    qualityGateDbTester.insertQualityGate(organization);
+    OrganizationDto otherOrganization = db.organizations().insert();
+    qualityGateDbTester.insertQualityGate(otherOrganization);
+
+    underTest.deleteOrgQualityGatesByOrganization(dbSession, organization);
+    dbSession.commit();
+
+    assertThat(db.select("select organization_uuid as \"organizationUuid\" from org_quality_gates"))
+      .extracting(row -> (String) row.get("organizationUuid"))
+      .containsOnly(otherOrganization.getUuid());
+  }
+
+  @Test
   public void update() {
     OrganizationDto organization = db.organizations().insert();
     QGateWithOrgDto qualityGate = qualityGateDbTester.insertQualityGate(organization, qg -> qg.setName("old name"));

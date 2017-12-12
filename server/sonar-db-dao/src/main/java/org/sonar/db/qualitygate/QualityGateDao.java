@@ -79,10 +79,11 @@ public class QualityGateDao implements Dao {
 
   public void deleteByUuids(DbSession session, Collection<String> uuids) {
     QualityGateMapper mapper = mapper(session);
-    DatabaseUtils.executeLargeUpdates(uuids, partitionUuids -> {
-      mapper.deleteByUuids(partitionUuids);
-      mapper.deleteOrgQualityGatesByQualityGateUuids(partitionUuids);
-    });
+    DatabaseUtils.executeLargeUpdates(uuids, mapper::deleteByUuids);
+  }
+
+  public void deleteOrgQualityGatesByOrganization(DbSession session, OrganizationDto organization) {
+    mapper(session).deleteOrgQualityGatesByOrganization(organization.getUuid());
   }
 
   public void update(QualityGateDto qGate, DbSession session) {
