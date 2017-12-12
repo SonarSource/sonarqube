@@ -20,8 +20,6 @@
 package org.sonar.server.organization.ws;
 
 import com.google.common.base.Joiner;
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -55,15 +53,7 @@ import static org.sonar.server.organization.ws.SearchAction.PARAM_MEMBER;
 import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
-  private static final OrganizationDto ORGANIZATION_DTO = new OrganizationDto()
-    .setUuid("a uuid")
-    .setKey("the_key")
-    .setName("the name")
-    .setDescription("the description")
-    .setUrl("the url")
-    .setAvatarUrl("the avatar url")
-    .setCreatedAt(1_999_000L)
-    .setUpdatedAt(1_888_000L);
+
   private static final long SOME_DATE = 1_999_999L;
 
   private System2 system2 = mock(System2.class);
@@ -116,9 +106,9 @@ public class SearchActionTest {
   }
 
   @Test
-  public void json_example() throws URISyntaxException, IOException {
+  public void json_example() {
     when(system2.now()).thenReturn(SOME_DATE, SOME_DATE + 1000);
-    OrganizationDto barOrganization = db.organizations().insert(new OrganizationDto()
+    OrganizationDto barOrganization = db.organizations().insert(organization -> organization
       .setUuid(Uuids.UUID_EXAMPLE_02)
       .setKey("bar-company")
       .setName("Bar Company")
@@ -126,10 +116,13 @@ public class SearchActionTest {
       .setUrl("https://www.bar.com")
       .setAvatarUrl("https://www.bar.com/logo.png")
       .setGuarded(false));
-    OrganizationDto fooOrganization = db.organizations().insert(new OrganizationDto()
+    OrganizationDto fooOrganization = db.organizations().insert(organization -> organization
       .setUuid(Uuids.UUID_EXAMPLE_01)
       .setKey("foo-company")
       .setName("Foo Company")
+      .setDescription(null)
+      .setUrl(null)
+      .setAvatarUrl(null)
       .setGuarded(true));
     UserDto user = db.users().insertUser();
     db.organizations().addMember(barOrganization, user);
@@ -179,7 +172,7 @@ public class SearchActionTest {
   @Test
   public void request_returns_empty_on_table_with_single_row_when_not_requesting_the_first_page() {
     when(system2.now()).thenReturn(SOME_DATE);
-    db.organizations().insert(ORGANIZATION_DTO);
+    db.organizations().insert();
 
     assertThat(executeRequestAndReturnList(2, null)).isEmpty();
     assertThat(executeRequestAndReturnList(2, 1)).isEmpty();
@@ -191,11 +184,11 @@ public class SearchActionTest {
   @Test
   public void request_returns_rows_ordered_by_createdAt_descending_applying_requested_paging() {
     when(system2.now()).thenReturn(SOME_DATE, SOME_DATE + 1_000, SOME_DATE + 2_000, SOME_DATE + 3_000, SOME_DATE + 5_000);
-    db.organizations().insert(ORGANIZATION_DTO.setUuid("uuid3").setKey("key-3"));
-    db.organizations().insert(ORGANIZATION_DTO.setUuid("uuid1").setKey("key-1"));
-    db.organizations().insert(ORGANIZATION_DTO.setUuid("uuid2").setKey("key-2"));
-    db.organizations().insert(ORGANIZATION_DTO.setUuid("uuid5").setKey("key-5"));
-    db.organizations().insert(ORGANIZATION_DTO.setUuid("uuid4").setKey("key-4"));
+    db.organizations().insert(organization -> organization.setKey("key-3"));
+    db.organizations().insert(organization -> organization.setKey("key-1"));
+    db.organizations().insert(organization -> organization.setKey("key-2"));
+    db.organizations().insert(organization -> organization.setKey("key-5"));
+    db.organizations().insert(organization -> organization.setKey("key-4"));
 
     assertThat(executeRequestAndReturnList(1, 1))
       .extracting(Organization::getKey)
@@ -231,11 +224,11 @@ public class SearchActionTest {
   @Test
   public void request_returns_only_specified_keys_ordered_by_createdAt_when_filtering_keys() {
     when(system2.now()).thenReturn(SOME_DATE, SOME_DATE + 1_000, SOME_DATE + 2_000, SOME_DATE + 3_000, SOME_DATE + 5_000);
-    db.organizations().insert(ORGANIZATION_DTO.setUuid("uuid3").setKey("key-3"));
-    db.organizations().insert(ORGANIZATION_DTO.setUuid("uuid1").setKey("key-1"));
-    db.organizations().insert(ORGANIZATION_DTO.setUuid("uuid2").setKey("key-2"));
-    db.organizations().insert(ORGANIZATION_DTO.setUuid("uuid5").setKey("key-5"));
-    db.organizations().insert(ORGANIZATION_DTO.setUuid("uuid4").setKey("key-4"));
+    db.organizations().insert(organization -> organization.setKey("key-3"));
+    db.organizations().insert(organization -> organization.setKey("key-1"));
+    db.organizations().insert(organization -> organization.setKey("key-2"));
+    db.organizations().insert(organization -> organization.setKey("key-5"));
+    db.organizations().insert(organization -> organization.setKey("key-4"));
 
     assertThat(executeRequestAndReturnList(1, 10, "key-3", "key-1", "key-5"))
       .extracting(Organization::getKey)
@@ -249,11 +242,11 @@ public class SearchActionTest {
   @Test
   public void result_is_paginated() {
     when(system2.now()).thenReturn(SOME_DATE, SOME_DATE + 1_000, SOME_DATE + 2_000, SOME_DATE + 3_000, SOME_DATE + 5_000);
-    db.organizations().insert(ORGANIZATION_DTO.setUuid("uuid3").setKey("key-3"));
-    db.organizations().insert(ORGANIZATION_DTO.setUuid("uuid1").setKey("key-1"));
-    db.organizations().insert(ORGANIZATION_DTO.setUuid("uuid2").setKey("key-2"));
-    db.organizations().insert(ORGANIZATION_DTO.setUuid("uuid5").setKey("key-5"));
-    db.organizations().insert(ORGANIZATION_DTO.setUuid("uuid4").setKey("key-4"));
+    db.organizations().insert(organization -> organization.setKey("key-3"));
+    db.organizations().insert(organization -> organization.setKey("key-1"));
+    db.organizations().insert(organization -> organization.setKey("key-2"));
+    db.organizations().insert(organization -> organization.setKey("key-5"));
+    db.organizations().insert(organizationo -> organizationo.setKey("key-4"));
 
     SearchWsResponse response = call(1, 1, "key-1", "key-3", "key-5");
     assertThat(response.getOrganizationsList()).extracting(Organization::getKey).containsOnly("key-5");
@@ -275,11 +268,11 @@ public class SearchActionTest {
   @Test
   public void request_returns_empty_when_filtering_on_non_existing_key() {
     when(system2.now()).thenReturn(SOME_DATE);
-    db.organizations().insert(ORGANIZATION_DTO);
+    OrganizationDto organization = db.organizations().insert();
 
-    assertThat(executeRequestAndReturnList(1, 10, ORGANIZATION_DTO.getKey()))
+    assertThat(executeRequestAndReturnList(1, 10, organization.getKey()))
       .extracting(Organization::getKey)
-      .containsExactly(ORGANIZATION_DTO.getKey());
+      .containsExactly(organization.getKey());
   }
 
   @Test

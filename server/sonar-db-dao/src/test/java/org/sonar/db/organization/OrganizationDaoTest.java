@@ -55,6 +55,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.Pagination.forPage;
 import static org.sonar.db.organization.OrganizationQuery.newOrganizationQueryBuilder;
 import static org.sonar.db.organization.OrganizationQuery.returnAll;
+import static org.sonar.db.organization.OrganizationTesting.newOrganizationDto;
 
 public class OrganizationDaoTest {
   private static final long SOME_DATE = 1_200_999L;
@@ -729,7 +730,7 @@ public class OrganizationDaoTest {
     insertOrganization(ORGANIZATION_DTO_1);
 
     when(system2.now()).thenReturn(DATE_3);
-    underTest.update(dbSession, new OrganizationDto()
+    underTest.update(dbSession, newOrganizationDto()
       .setUuid(ORGANIZATION_DTO_1.getUuid())
       .setKey("new key")
       .setName("new name")
