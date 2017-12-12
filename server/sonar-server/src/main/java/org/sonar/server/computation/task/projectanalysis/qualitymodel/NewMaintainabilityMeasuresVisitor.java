@@ -42,6 +42,7 @@ import org.sonar.server.computation.task.projectanalysis.scm.ScmInfo;
 import org.sonar.server.computation.task.projectanalysis.scm.ScmInfoRepository;
 
 import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_DEVELOPMENT_COST_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_MAINTAINABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SQALE_DEBT_RATIO_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_TECHNICAL_DEBT_KEY;
@@ -68,6 +69,7 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
   private final Metric newDebtMetric;
   private final Metric nclocDataMetric;
 
+  private final Metric newDevelopmentCostMetric;
   private final Metric newDebtRatioMetric;
   private final Metric newMaintainabilityRatingMetric;
 
@@ -85,6 +87,7 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
     this.nclocDataMetric = metricRepository.getByKey(NCLOC_DATA_KEY);
 
     // output metrics
+    this.newDevelopmentCostMetric = metricRepository.getByKey(NEW_DEVELOPMENT_COST_KEY);
     this.newDebtRatioMetric = metricRepository.getByKey(NEW_SQALE_DEBT_RATIO_KEY);
     this.newMaintainabilityRatingMetric = metricRepository.getByKey(NEW_MAINTAINABILITY_RATING_KEY);
   }
@@ -120,6 +123,8 @@ public class NewMaintainabilityMeasuresVisitor extends PathAwareVisitorAdapter<N
     double density = computeDensity(path.current());
     double newDebtRatio = 100.0 * density;
     double newMaintainability = ratingSettings.getDebtRatingGrid().getRatingForDensity(density).getIndex();
+    long newDevelopmentCost = path.current().getDevCost().getValue();
+    measureRepository.add(component, this.newDevelopmentCostMetric, newMeasureBuilder().setVariation(newDevelopmentCost).createNoValue());
     measureRepository.add(component, this.newDebtRatioMetric, newMeasureBuilder().setVariation(newDebtRatio).createNoValue());
     measureRepository.add(component, this.newMaintainabilityRatingMetric, newMeasureBuilder().setVariation(newMaintainability).createNoValue());
   }
