@@ -47,6 +47,7 @@ public class DbVersion70 implements DbVersion {
       .add(1917, "Populate ORG_QUALITY_GATES table", PopulateOrgQualityGates.class)
       .add(1918, "Populate default quality gate on organization", PopulateDefaultQualityGate.class)
       .add(1919, "Associate existing quality gates to default organization", AssociateQualityGatesToDefaultOrganization.class)
+      .add(1920, "Delete 'sonar.qualitygate' setting at global level", DeleteGlobalSonarQualityGateSetting.class)
     ;
   }
 }
