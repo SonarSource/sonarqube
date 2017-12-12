@@ -267,3 +267,8 @@
   margin-left: -250px;
   text-align: center;
 }
+
+.projects-empty-list {
+  padding: calc(4 * var(--gridSize)) 0;
+  text-align: center;
+}

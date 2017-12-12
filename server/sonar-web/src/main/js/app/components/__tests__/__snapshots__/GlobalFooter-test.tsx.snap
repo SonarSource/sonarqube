@@ -1,0 +1,242 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display the sq version 1`] = `
+<div
+  className="page-footer page-container"
+  id="footer"
+>
+  <GlobalFooterBranding />
+  <ul
+    className="page-footer-menu"
+  >
+    <li
+      className="page-footer-menu-item"
+    >
+      footer.version_x.6.4-SNAPSHOT
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="http://www.gnu.org/licenses/lgpl-3.0.txt"
+      >
+        footer.license
+      </a>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="http://www.sonarqube.org"
+      >
+        footer.community
+      </a>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="https://redirect.sonarsource.com/doc/home.html"
+      >
+        footer.documentation
+      </a>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="https://redirect.sonarsource.com/doc/community.html"
+      >
+        footer.support
+      </a>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="https://redirect.sonarsource.com/doc/plugin-library.html"
+      >
+        footer.plugins
+      </a>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <Link
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/web_api"
+      >
+        footer.web_api
+      </Link>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <Link
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/about"
+      >
+        footer.about
+      </Link>
+    </li>
+  </ul>
+</div>
+`;
+
+exports[`should not render the only logged in information 1`] = `
+<div
+  className="page-footer page-container"
+  id="footer"
+>
+  <GlobalFooterBranding />
+  <ul
+    className="page-footer-menu"
+  >
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="http://www.gnu.org/licenses/lgpl-3.0.txt"
+      >
+        footer.license
+      </a>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="http://www.sonarqube.org"
+      >
+        footer.community
+      </a>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="https://redirect.sonarsource.com/doc/home.html"
+      >
+        footer.documentation
+      </a>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="https://redirect.sonarsource.com/doc/community.html"
+      >
+        footer.support
+      </a>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="https://redirect.sonarsource.com/doc/plugin-library.html"
+      >
+        footer.plugins
+      </a>
+    </li>
+  </ul>
+</div>
+`;
+
+exports[`should render SonarCloud footer 1`] = `<GlobalFooterSonarCloud />`;
+
+exports[`should render the only logged in information 1`] = `
+<div
+  className="page-footer page-container"
+  id="footer"
+>
+  <GlobalFooterBranding />
+  <ul
+    className="page-footer-menu"
+  >
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="http://www.gnu.org/licenses/lgpl-3.0.txt"
+      >
+        footer.license
+      </a>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="http://www.sonarqube.org"
+      >
+        footer.community
+      </a>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="https://redirect.sonarsource.com/doc/home.html"
+      >
+        footer.documentation
+      </a>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="https://redirect.sonarsource.com/doc/community.html"
+      >
+        footer.support
+      </a>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <a
+        href="https://redirect.sonarsource.com/doc/plugin-library.html"
+      >
+        footer.plugins
+      </a>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <Link
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/web_api"
+      >
+        footer.web_api
+      </Link>
+    </li>
+    <li
+      className="page-footer-menu-item"
+    >
+      <Link
+        onlyActiveOnIndex={false}
+        style={Object {}}
+        to="/about"
+      >
+        footer.about
+      </Link>
+    </li>
+  </ul>
+</div>
+`;
+
+exports[`should show the db warning message 1`] = `
+<div
+  className="alert alert-danger"
+>
+  <p
+    className="big"
+    id="evaluation_warning"
+  >
+    footer.production_database_warning
+  </p>
+  <p>
+    footer.production_database_explanation
+  </p>
+</div>
+`;

@@ -17,61 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
+import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 import OrganizationLink from '../../../components/ui/OrganizationLink';
-/*:: import type { Organization } from '../../../store/organizations/duck'; */
 import { translate } from '../../../helpers/l10n';
+import { Organization } from '../../../app/types';
 
-/*::
-type Props = {
-  organization: Organization
-};
-*/
+interface Props {
+  organization: Organization;
+}
 
-export default function OrganizationCard(props /*: Props */) {
-  const { organization } = props;
-
+export default function OrganizationCard({ organization }: Props) {
   return (
     <div className="account-project-card clearfix">
-      <aside className="account-project-side">
-        {!!organization.avatar && (
-          <div className="spacer-bottom">
-            <img src={organization.avatar} height={30} alt={organization.name} />
-          </div>
-        )}
-        {!!organization.url && (
-          <div className="text-limited text-top spacer-bottom">
-            <a className="small" href={organization.url} title={organization.url} rel="nofollow">
-              {organization.url}
-            </a>
-          </div>
-        )}
+      <aside className="account-project-side note">
+        <strong>{translate('organization.key')}:</strong> {organization.key}
       </aside>
 
       <h3 className="account-project-name">
-        <OrganizationLink organization={organization}>{organization.name}</OrganizationLink>
+        <OrganizationAvatar organization={organization} />
+        <OrganizationLink className="spacer-left text-middle" organization={organization}>
+          {organization.name}
+        </OrganizationLink>
         {organization.isAdmin && (
           <span className="outline-badge spacer-left">{translate('admin')}</span>
         )}
       </h3>
 
       {!!organization.description && (
-        <div className="account-project-description">{organization.description}</div>
+        <div className="markdown spacer-top">{organization.description}</div>
       )}
 
-      <div className="account-project-key">
-        <span className="little-spacer-right">
-          {translate('key')}
-          {':'}
-        </span>
-        <input
-          onClick={event => event.currentTarget.select()}
-          readOnly={true}
-          type="text"
-          value={organization.key}
-        />
-      </div>
+      {!!organization.url && (
+        <div className="markdown spacer-top">
+          <a href={organization.url} title={organization.url} rel="nofollow">
+            {organization.url}
+          </a>
+        </div>
+      )}
     </div>
   );
 }
