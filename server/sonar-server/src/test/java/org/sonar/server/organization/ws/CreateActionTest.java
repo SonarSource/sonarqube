@@ -352,7 +352,7 @@ public class CreateActionTest {
   @Test
   public void request_fails_if_key_is_specified_and_already_exists_in_DB() {
     logInAsSystemAdministrator();
-    OrganizationDto org = insertOrganization("the-key");
+    OrganizationDto org = dbTester.organizations().insert(o -> o.setKey("the-key"));
 
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Key '" + org.getKey() + "' is already used. Specify another one.");
@@ -364,7 +364,7 @@ public class CreateActionTest {
   public void request_fails_if_key_computed_from_name_already_exists_in_DB() {
     logInAsSystemAdministrator();
     String key = STRING_65_CHARS_LONG.substring(0, 32);
-    insertOrganization(key);
+    dbTester.organizations().insert(o -> o.setKey(key));
 
     String name = STRING_65_CHARS_LONG.substring(0, 64);
 
@@ -660,18 +660,6 @@ public class CreateActionTest {
     assertThat(dto.getAvatarUrl()).isEqualTo(avatar);
     assertThat(dto.getCreatedAt()).isEqualTo(createdAt);
     assertThat(dto.getUpdatedAt()).isEqualTo(createdAt);
-  }
-
-  private OrganizationDto insertOrganization(String key) {
-    OrganizationDto dto = new OrganizationDto()
-      .setUuid(key + "_uuid")
-      .setKey(key)
-      .setName(key + "_name")
-      .setCreatedAt((long) key.hashCode())
-      .setUpdatedAt((long) key.hashCode());
-    dbClient.organizationDao().insert(dbTester.getSession(), dto, false);
-    dbTester.commit();
-    return dto;
   }
 
   private void logInAsSystemAdministrator() {
