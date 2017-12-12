@@ -84,7 +84,9 @@ class BlockRecognizer<RAW extends Trackable, BASE extends Trackable> {
     for (Integer baseLine : basesByLine.keySet()) {
       for (Integer rawLine : rawsByLine.keySet()) {
         int weight = lengthOfMaximalBlock(baseInput.getLineHashSequence(), baseLine, rawInput.getLineHashSequence(), rawLine);
-        possibleLinePairs.add(new LinePair(baseLine, rawLine, weight));
+        if (weight > 0) {
+          possibleLinePairs.add(new LinePair(baseLine, rawLine, weight));
+        }
       }
     }
     Collections.sort(possibleLinePairs, LinePairComparator.INSTANCE);
