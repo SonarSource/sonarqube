@@ -24,7 +24,10 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
+import org.sonarqube.ws.Organizations;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.client.qualitygates.CreateRequest;
 import org.sonarqube.ws.client.qualitygates.DestroyRequest;
@@ -33,6 +36,7 @@ import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 import org.sonarqube.ws.client.qualitygates.SelectRequest;
 import org.sonarqube.ws.client.qualitygates.SetAsDefaultRequest;
 
+import static java.util.Arrays.stream;
 import static org.sonarqube.ws.Qualitygates.CreateResponse;
 import static org.sonarqube.ws.Qualitygates.ListWsResponse;
 
@@ -63,12 +67,28 @@ public class QGateTester {
   }
 
   public CreateResponse generate() {
+    return generate(null);
+  }
+
+  @SafeVarargs
+  public final CreateResponse generate(@Nullable Organizations.Organization organization, Consumer<CreateRequest>... populators) {
     int id = ID_GENERATOR.getAndIncrement();
-    return session.wsClient().qualitygates().create(new CreateRequest().setName("QualityGate" + id));
+    CreateRequest request = new CreateRequest()
+      .setName("QualityGate " + id)
+      .setOrganization(organization != null ? organization.getKey() : null);
+    stream(populators).forEach(p -> p.accept(request));
+    return session.wsClient().qualitygates().create(request);
   }
 
   public void associateProject(CreateResponse qualityGate, Project project) {
-    service().select(new SelectRequest().setGateId(String.valueOf(qualityGate.getId())).setProjectKey(project.getKey()));
+    associateProject(null, qualityGate, project);
+  }
+
+  public void associateProject(@Nullable Organizations.Organization organization, CreateResponse qualityGate, Project project) {
+    service().select(new SelectRequest()
+      .setOrganization(organization != null ? organization.getKey() : null)
+      .setGateId(String.valueOf(qualityGate.getId()))
+      .setProjectKey(project.getKey()));
   }
 
   public static class ListResponse {
