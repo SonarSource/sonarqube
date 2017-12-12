@@ -36,6 +36,7 @@ import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.permission.template.PermissionTemplateDto;
 import org.sonar.db.qualitygate.QGateWithOrgDto;
+import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.db.qualityprofile.QProfileDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
@@ -352,25 +353,27 @@ public class DeleteActionTest {
 
   @Test
   public void delete_quality_gates() {
-    OrganizationDto org = db.organizations().insert();
-    OrganizationDto otherOrg = db.organizations().insert();
-    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(org);
-    QGateWithOrgDto qualityGateInOtherOrg = db.qualityGates().insertQualityGate(otherOrg);
-    db.qualityGates().insertBuiltInQualityGate();
-    logInAsAdministrator(org);
+    QualityGateDto builtInQualityGate = db.qualityGates().insertBuiltInQualityGate();
+    OrganizationDto organization = db.organizations().insert();
+    db.qualityGates().associateQualityGateToOrganization(builtInQualityGate, organization);
+    OrganizationDto otherOrganization = db.organizations().insert();
+    db.qualityGates().associateQualityGateToOrganization(builtInQualityGate, otherOrganization);
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    QGateWithOrgDto qualityGateInOtherOrg = db.qualityGates().insertQualityGate(otherOrganization);
+    logInAsAdministrator(organization);
 
-    sendRequest(org);
+    sendRequest(organization);
 
-    verifyOrganizationDoesNotExist(org);
+    verifyOrganizationDoesNotExist(organization);
     assertThat(db.select("select uuid as \"uuid\" from quality_gates"))
       .extracting(row -> (String) row.get("uuid"))
-      .containsOnly(qualityGateInOtherOrg.getUuid(), qualityGateFinder.getBuiltInQualityGate(db.getSession()).getUuid());
-
-    // Built-in quality gate must not be destroyed
-    assertThat(qualityGateFinder.getBuiltInQualityGate(db.getSession())).isNotNull();
+      .containsExactlyInAnyOrder(qualityGateInOtherOrg.getUuid(), builtInQualityGate.getUuid());
     assertThat(db.select("select organization_uuid as \"organizationUuid\" from org_quality_gates"))
       .extracting(row -> (String) row.get("organizationUuid"))
-      .containsOnly(otherOrg.getUuid());
+      .containsOnly(otherOrganization.getUuid());
+
+    // Check built-in quality gate is still available in other organization
+    assertThat(db.getDbClient().qualityGateDao().selectByOrganizationAndName(db.getSession(), otherOrganization, "Sonar way")).isNotNull();
   }
 
   private void verifyOrganizationDoesNotExist(OrganizationDto organization) {

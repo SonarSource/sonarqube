@@ -56,16 +56,6 @@ public class QualityGateDbTester {
     return builtin;
   }
 
-  public void setBuiltInAsDefaultOn(OrganizationDto organizationDto) {
-    QualityGateDto builtinQG = dbClient.qualityGateDao().selectBuiltIn(dbSession);
-    dbClient.organizationDao().update(dbSession, organizationDto.setDefaultQualityGateUuid(builtinQG.getUuid()));
-    if (dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organizationDto, builtinQG.getUuid()) == null) {
-      dbClient.qualityGateDao().associate(dbSession, Uuids.createFast(), organizationDto, builtinQG);
-      dbSession.commit();
-    }
-    dbSession.commit();
-  }
-
   @SafeVarargs
   public final QGateWithOrgDto insertQualityGate(OrganizationDto organization, Consumer<QualityGateDto>... dtoPopulators) {
     QualityGateDto qualityGate = new QualityGateDto()
@@ -84,6 +74,11 @@ public class QualityGateDbTester {
       .setKey("sonar.qualitygate")
       .setResourceId(component.getId())
       .setValue(String.valueOf(qualityGate.getId())));
+    db.commit();
+  }
+
+  public void associateQualityGateToOrganization(QualityGateDto qualityGate, OrganizationDto organization) {
+    dbClient.qualityGateDao().associate(dbSession, Uuids.createFast(), organization, qualityGate);
     db.commit();
   }
 
