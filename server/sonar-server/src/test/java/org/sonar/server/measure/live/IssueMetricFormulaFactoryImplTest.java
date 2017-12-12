@@ -685,10 +685,9 @@ public class IssueMetricFormulaFactoryImplTest {
     private final Set<Metric> dependentMetrics;
     private Double doubleValue;
     private Rating ratingValue;
-    private String stringValue;
     private final Map<Metric, Double> doubleMeasures;
 
-    public TestContext(Collection<Metric> dependentMetrics, Map<Metric, Double> doubleMeasures) {
+    private TestContext(Collection<Metric> dependentMetrics, Map<Metric, Double> doubleMeasures) {
       this.dependentMetrics = new HashSet<>(dependentMetrics);
       this.doubleMeasures = doubleMeasures;
     }
@@ -722,11 +721,6 @@ public class IssueMetricFormulaFactoryImplTest {
     @Override
     public void setValue(Rating value) {
       this.ratingValue = value;
-    }
-
-    @Override
-    public void setValue(String value) {
-      this.stringValue = value;
     }
   }
 }

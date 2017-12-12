@@ -34,8 +34,6 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.computation.task.projectanalysis.qualitymodel.DebtRatingGrid;
 import org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating;
 
-import static com.google.common.base.Preconditions.checkState;
-
 public class LiveMeasureComputerImpl implements LiveMeasureComputer {
 
   private final DbClient dbClient;
@@ -143,12 +141,6 @@ public class LiveMeasureComputerImpl implements LiveMeasureComputer {
       } else {
         matrix.setValue(currentComponent, currentFormula.getMetric(), value);
       }
-    }
-
-    @Override
-    public void setValue(String value) {
-      checkState(!currentFormula.isOnLeak(), "String value can't be set on leak measure %s", currentFormula.getMetric().getKey());
-      matrix.setValue(currentComponent, currentFormula.getMetric(), value);
     }
   }
 }

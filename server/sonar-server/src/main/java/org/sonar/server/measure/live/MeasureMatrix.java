@@ -95,16 +95,6 @@ class MeasureMatrix {
     });
   }
 
-  void setValue(ComponentDto component, Metric metric, String value) {
-    changeCell(component, metric, m -> {
-      if (Objects.equals(m.getDataAsString(), value)) {
-        return false;
-      }
-      m.setData(value);
-      return true;
-    });
-  }
-
   void setValue(ComponentDto component, Metric metric, Rating value) {
     changeCell(component, metric, m -> {
       if (m.getValue() != null && Double.compare(m.getValue(), (double) value.getIndex()) == 0) {

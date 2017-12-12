@@ -78,7 +78,5 @@ public class IssueMetricFormula {
     void setValue(double value);
 
     void setValue(Rating value);
-
-    void setValue(String value);
   }
 }

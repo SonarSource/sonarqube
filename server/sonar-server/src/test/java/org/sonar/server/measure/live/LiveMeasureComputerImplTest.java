@@ -36,6 +36,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +50,7 @@ public class LiveMeasureComputerImplTest {
 
   private final MapSettings settings = new MapSettings(new PropertyDefinitions(CorePropertyDefinitions.all()));
   private MetricDto intMetric;
-  private MetricDto stringMetric;
+  private MetricDto ratingMetric;
   private ComponentDto project;
   private ComponentDto dir;
   private ComponentDto file1;
@@ -58,7 +59,7 @@ public class LiveMeasureComputerImplTest {
   @Before
   public void setUp() throws Exception {
     intMetric = db.measures().insertMetric(m -> m.setValueType(Metric.ValueType.INT.name()));
-    stringMetric = db.measures().insertMetric(m -> m.setValueType(Metric.ValueType.STRING.name()));
+    ratingMetric = db.measures().insertMetric(m -> m.setValueType(Metric.ValueType.RATING.name()));
     project = db.components().insertPrivateProject();
     dir = db.components().insertComponent(ComponentTesting.newDirectory(project, "src/main/java"));
     file1 = db.components().insertComponent(ComponentTesting.newFileDto(project, dir));
@@ -69,18 +70,18 @@ public class LiveMeasureComputerImplTest {
   public void compute_and_insert_measures_if_they_dont_exist_yet() {
     markProjectAsAnalyzed(project);
 
-    run(asList(file1, file2), newIncrementalFormula(), newStringConstantFormula("foo"));
+    run(asList(file1, file2), newIncrementalFormula(), newRatingConstantFormula(Rating.C));
 
     // 2 measures per component have been created
     assertThat(db.countRowsOfTable(db.getSession(), "live_measures")).isEqualTo(8);
     assertThatIntMeasureHasValue(file1, 1);
-    assertThatStringMeasureHasValue(file1, "foo");
+    assertThatRatingMeasureHasValue(file1, Rating.C);
     assertThatIntMeasureHasValue(file2, 2);
-    assertThatStringMeasureHasValue(file2, "foo");
+    assertThatRatingMeasureHasValue(file2, Rating.C);
     assertThatIntMeasureHasValue(dir, 3);
-    assertThatStringMeasureHasValue(dir, "foo");
+    assertThatRatingMeasureHasValue(dir, Rating.C);
     assertThatIntMeasureHasValue(project, 4);
-    assertThatStringMeasureHasValue(project, "foo");
+    assertThatRatingMeasureHasValue(project, Rating.C);
   }
 
   @Test
@@ -196,24 +197,22 @@ public class LiveMeasureComputerImplTest {
     return measure;
   }
 
-  private LiveMeasureDto assertThatStringMeasureHasValue(ComponentDto component, String expectedValue) {
-    LiveMeasureDto measure = db.getDbClient().liveMeasureDao().selectMeasure(db.getSession(), component.uuid(), stringMetric.getKey()).get();
+  private void assertThatRatingMeasureHasValue(ComponentDto component, Rating expectedRating) {
+    LiveMeasureDto measure = db.getDbClient().liveMeasureDao().selectMeasure(db.getSession(), component.uuid(), ratingMetric.getKey()).get();
     assertThat(measure.getComponentUuid()).isEqualTo(component.uuid());
     assertThat(measure.getProjectUuid()).isEqualTo(component.projectUuid());
-    assertThat(measure.getMetricId()).isEqualTo(stringMetric.getId());
-    assertThat(measure.getValue()).isNull();
-    assertThat(measure.getDataAsString()).isEqualTo(expectedValue);
-    return measure;
+    assertThat(measure.getMetricId()).isEqualTo(ratingMetric.getId());
+    assertThat(measure.getValue()).isEqualTo(expectedRating.getIndex());
+    assertThat(measure.getDataAsString()).isEqualTo(expectedRating.name());
   }
 
-  private LiveMeasureDto assertThatIntMeasureHasLeakValue(ComponentDto component, double expectedValue) {
+  private void assertThatIntMeasureHasLeakValue(ComponentDto component, double expectedValue) {
     LiveMeasureDto measure = db.getDbClient().liveMeasureDao().selectMeasure(db.getSession(), component.uuid(), intMetric.getKey()).get();
     assertThat(measure.getComponentUuid()).isEqualTo(component.uuid());
     assertThat(measure.getProjectUuid()).isEqualTo(component.projectUuid());
     assertThat(measure.getMetricId()).isEqualTo(intMetric.getId());
     assertThat(measure.getValue()).isNull();
     assertThat(measure.getVariation()).isEqualTo(expectedValue);
-    return measure;
   }
 
   private IssueMetricFormula newIncrementalFormula() {
@@ -231,8 +230,8 @@ public class LiveMeasureComputerImplTest {
     });
   }
 
-  private IssueMetricFormula newStringConstantFormula(String constant) {
-    Metric metric = new Metric.Builder(stringMetric.getKey(), stringMetric.getShortName(), Metric.ValueType.valueOf(stringMetric.getValueType())).create();
+  private IssueMetricFormula newRatingConstantFormula(Rating constant) {
+    Metric metric = new Metric.Builder(ratingMetric.getKey(), ratingMetric.getShortName(), Metric.ValueType.valueOf(ratingMetric.getValueType())).create();
     return new IssueMetricFormula(metric, false, (ctx, issues) -> {
       ctx.setValue(constant);
     });
