@@ -19,20 +19,20 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
-import java.util.stream.Collectors;
 import javax.annotation.Generated;
 import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
+import org.sonarqube.ws.Qualitygates.CreateResponse;
+import org.sonarqube.ws.Qualitygates.GetByProjectResponse;
+import org.sonarqube.ws.Qualitygates.ListWsResponse;
+import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
+import org.sonarqube.ws.Qualitygates.SearchResponse;
+import org.sonarqube.ws.Qualitygates.ShowWsResponse;
+import org.sonarqube.ws.Qualitygates.UpdateConditionResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsConnector;
-import org.sonarqube.ws.Qualitygates.CreateResponse;
-import org.sonarqube.ws.Qualitygates.CreateConditionResponse;
-import org.sonarqube.ws.Qualitygates.GetByProjectResponse;
-import org.sonarqube.ws.Qualitygates.ListWsResponse;
-import org.sonarqube.ws.Qualitygates.ProjectStatusResponse;
-import org.sonarqube.ws.Qualitygates.ShowWsResponse;
-import org.sonarqube.ws.Qualitygates.UpdateConditionResponse;
 
 /**
  * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates">Further information about this web service online</a>
@@ -56,6 +56,7 @@ public class QualitygatesService extends BaseService {
       new PostRequest(path("copy"))
         .setParam("id", request.getId())
         .setParam("name", request.getName())
+        .setParam("organization", request.getOrganization())
         .setMediaType(MediaTypes.JSON)
       ).content();
   }
@@ -70,7 +71,8 @@ public class QualitygatesService extends BaseService {
   public CreateResponse create(CreateRequest request) {
     return call(
       new PostRequest(path("create"))
-        .setParam("name", request.getName()),
+        .setParam("name", request.getName())
+        .setParam("organization", request.getOrganization()),
       CreateResponse.parser());
   }
 
@@ -88,6 +90,7 @@ public class QualitygatesService extends BaseService {
         .setParam("gateId", request.getGateId())
         .setParam("metric", request.getMetric())
         .setParam("op", request.getOp())
+        .setParam("organization", request.getOrganization())
         .setParam("period", request.getPeriod())
         .setParam("warning", request.getWarning()),
       CreateConditionResponse.parser());
@@ -104,6 +107,7 @@ public class QualitygatesService extends BaseService {
     call(
       new PostRequest(path("delete_condition"))
         .setParam("id", request.getId())
+        .setParam("organization", request.getOrganization())
         .setMediaType(MediaTypes.JSON)
       ).content();
   }
@@ -118,6 +122,7 @@ public class QualitygatesService extends BaseService {
   public void deselect(DeselectRequest request) {
     call(
       new PostRequest(path("deselect"))
+        .setParam("organization", request.getOrganization())
         .setParam("projectId", request.getProjectId())
         .setParam("projectKey", request.getProjectKey())
         .setMediaType(MediaTypes.JSON)
@@ -135,6 +140,7 @@ public class QualitygatesService extends BaseService {
     call(
       new PostRequest(path("destroy"))
         .setParam("id", request.getId())
+        .setParam("organization", request.getOrganization())
         .setMediaType(MediaTypes.JSON)
       ).content();
   }
@@ -149,6 +155,7 @@ public class QualitygatesService extends BaseService {
   public GetByProjectResponse getByProject(GetByProjectRequest request) {
     return call(
       new GetRequest(path("get_by_project"))
+        .setParam("organization", request.getOrganization())
         .setParam("project", request.getProject()),
       GetByProjectResponse.parser());
   }
@@ -160,9 +167,10 @@ public class QualitygatesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/list">Further information about this action online (including a response example)</a>
    * @since 4.3
    */
-  public ListWsResponse list() {
+  public ListWsResponse list(ListRequest request) {
     return call(
-      new GetRequest(path("list")),
+      new GetRequest(path("list"))
+        .setParam("organization", request.getOrganization()),
       ListWsResponse.parser());
   }
 
@@ -177,6 +185,7 @@ public class QualitygatesService extends BaseService {
     return call(
       new GetRequest(path("project_status"))
         .setParam("analysisId", request.getAnalysisId())
+        .setParam("organization", request.getOrganization())
         .setParam("projectId", request.getProjectId())
         .setParam("projectKey", request.getProjectKey()),
       ProjectStatusResponse.parser());
@@ -194,6 +203,7 @@ public class QualitygatesService extends BaseService {
       new PostRequest(path("rename"))
         .setParam("id", request.getId())
         .setParam("name", request.getName())
+        .setParam("organization", request.getOrganization())
         .setMediaType(MediaTypes.JSON)
       ).content();
   }
@@ -205,16 +215,16 @@ public class QualitygatesService extends BaseService {
    * @see <a href="https://next.sonarqube.com/sonarqube/web_api/api/qualitygates/search">Further information about this action online (including a response example)</a>
    * @since 4.3
    */
-  public String search(SearchRequest request) {
+  public SearchResponse search(SearchRequest request) {
     return call(
       new GetRequest(path("search"))
         .setParam("gateId", request.getGateId())
+        .setParam("organization", request.getOrganization())
         .setParam("page", request.getPage())
         .setParam("pageSize", request.getPageSize())
         .setParam("query", request.getQuery())
-        .setParam("selected", request.getSelected())
-        .setMediaType(MediaTypes.JSON)
-      ).content();
+        .setParam("selected", request.getSelected()),
+      SearchResponse.parser());
   }
 
   /**
@@ -228,6 +238,7 @@ public class QualitygatesService extends BaseService {
     call(
       new PostRequest(path("select"))
         .setParam("gateId", request.getGateId())
+        .setParam("organization", request.getOrganization())
         .setParam("projectId", request.getProjectId())
         .setParam("projectKey", request.getProjectKey())
         .setMediaType(MediaTypes.JSON)
@@ -245,6 +256,7 @@ public class QualitygatesService extends BaseService {
     call(
       new PostRequest(path("set_as_default"))
         .setParam("id", request.getId())
+        .setParam("organization", request.getOrganization())
         .setMediaType(MediaTypes.JSON)
       ).content();
   }
@@ -260,7 +272,8 @@ public class QualitygatesService extends BaseService {
     return call(
       new GetRequest(path("show"))
         .setParam("id", request.getId())
-        .setParam("name", request.getName()),
+        .setParam("name", request.getName())
+        .setParam("organization", request.getOrganization()),
       ShowWsResponse.parser());
   }
 
@@ -294,6 +307,7 @@ public class QualitygatesService extends BaseService {
         .setParam("id", request.getId())
         .setParam("metric", request.getMetric())
         .setParam("op", request.getOp())
+        .setParam("organization", request.getOrganization())
         .setParam("period", request.getPeriod())
         .setParam("warning", request.getWarning()),
       UpdateConditionResponse.parser());

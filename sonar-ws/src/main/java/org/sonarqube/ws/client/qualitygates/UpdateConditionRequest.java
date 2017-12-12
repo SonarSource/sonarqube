@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**
@@ -35,6 +34,7 @@ public class UpdateConditionRequest {
   private String id;
   private String metric;
   private String op;
+  private String organization;
   private String period;
   private String warning;
 
@@ -93,6 +93,18 @@ public class UpdateConditionRequest {
 
   public String getOp() {
     return op;
+  }
+
+  /**
+   * Example value: "my-org"
+   */
+  public UpdateConditionRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public String getOrganization() {
+    return organization;
   }
 
   /**

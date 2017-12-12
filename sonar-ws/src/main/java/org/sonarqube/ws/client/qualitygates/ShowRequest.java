@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**
@@ -33,6 +32,7 @@ public class ShowRequest {
 
   private String id;
   private String name;
+  private String organization;
 
   /**
    * Example value: "1"
@@ -56,5 +56,17 @@ public class ShowRequest {
 
   public String getName() {
     return name;
+  }
+
+  /**
+   * Example value: "my-org"
+   */
+  public ShowRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public String getOrganization() {
+    return organization;
   }
 }
