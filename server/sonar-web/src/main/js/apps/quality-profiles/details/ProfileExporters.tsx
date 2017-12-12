@@ -36,7 +36,7 @@ export default class ProfileExporters extends React.PureComponent<Props> {
     const parameters = {
       exporterKey: exporter.key,
       language: profile.language,
-      name: profile.name
+      qualityProfile: profile.name
     };
     if (organization) {
       Object.assign(parameters, { organization });
