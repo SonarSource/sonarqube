@@ -19,8 +19,19 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import NoFavoriteProjects from '../NoFavoriteProjects';
+import { NoFavoriteProjects } from '../NoFavoriteProjects';
+import { Visibility } from '../../../../app/types';
 
 it('renders', () => {
-  expect(shallow(<NoFavoriteProjects onSonarCloud={false} />)).toMatchSnapshot();
+  expect(shallow(<NoFavoriteProjects onSonarCloud={false} organizations={[]} />)).toMatchSnapshot();
+});
+
+it('renders for SonarCloud', () => {
+  const organizations = [
+    { isAdmin: true, key: 'org1', name: 'org1', projectVisibility: Visibility.Public },
+    { isAdmin: false, key: 'org2', name: 'org2', projectVisibility: Visibility.Public }
+  ];
+  expect(
+    shallow(<NoFavoriteProjects onSonarCloud={true} organizations={organizations} />)
+  ).toMatchSnapshot();
 });

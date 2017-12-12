@@ -17,20 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import { getAppState, getGlobalSettingValue } from '../../store/rootReducer';
-import GlobalFooter from './GlobalFooter';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import GlobalFooterSonarCloud from '../GlobalFooterSonarCloud';
 
-interface StateProps {
-  onSonarCloud?: { value: string };
-  productionDatabase: boolean;
-  sonarqubeVersion?: string;
-}
-
-const mapStateToProps = (state: any): StateProps => ({
-  sonarqubeVersion: getAppState(state).version,
-  productionDatabase: getAppState(state).productionDatabase,
-  onSonarCloud: getGlobalSettingValue(state, 'sonar.sonarcloud.enabled')
+it('should render correctly', () => {
+  expect(shallow(<GlobalFooterSonarCloud />)).toMatchSnapshot();
 });
-
-export default connect(mapStateToProps)(GlobalFooter);
