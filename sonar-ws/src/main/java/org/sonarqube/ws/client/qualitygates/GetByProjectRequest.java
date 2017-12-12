@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**
@@ -31,7 +30,20 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class GetByProjectRequest {
 
+  private String organization;
   private String project;
+
+  /**
+   * Example value: "my-org"
+   */
+  public GetByProjectRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public String getOrganization() {
+    return organization;
+  }
 
   /**
    * This is a mandatory parameter.

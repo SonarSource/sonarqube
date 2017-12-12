@@ -55,11 +55,14 @@ public class OrganizationQualityGateUiTest {
   private Users.CreateWsResponse.User gateAdmin;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     organization = tester.organizations().generate();
     gateAdmin = tester.users().generate();
-    tester.organizations().addMember(tester.organizations().getDefaultOrganization(), gateAdmin);
-    tester.wsClient().permissions().addUser(new AddUserRequest().setLogin(gateAdmin.getLogin()).setPermission("gateadmin"));
+    tester.organizations().addMember(organization, gateAdmin);
+    tester.wsClient().permissions().addUser(new AddUserRequest()
+      .setOrganization(organization.getKey())
+      .setLogin(gateAdmin.getLogin())
+      .setPermission("gateadmin"));
     user = tester.users().generate();
     tester.organizations().addMember(organization, user);
     restoreProfile(orchestrator, getClass().getResource("/issue/with-many-rules.xml"), organization.getKey());

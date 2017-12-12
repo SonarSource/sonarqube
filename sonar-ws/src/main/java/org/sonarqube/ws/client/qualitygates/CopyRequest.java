@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**
@@ -33,6 +32,7 @@ public class CopyRequest {
 
   private String id;
   private String name;
+  private String organization;
 
   /**
    * This is a mandatory parameter.
@@ -58,5 +58,17 @@ public class CopyRequest {
 
   public String getName() {
     return name;
+  }
+
+  /**
+   * Example value: "my-org"
+   */
+  public CopyRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public String getOrganization() {
+    return organization;
   }
 }

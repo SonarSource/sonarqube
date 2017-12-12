@@ -56,7 +56,7 @@ public class QualityGateUiTest {
     .disableOrganizations();
 
   @Before
-  public void initPeriod() throws Exception {
+  public void initPeriod() {
     tester.settings().setGlobalSettings("sonar.leak.period", "previous_version");
   }
 

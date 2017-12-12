@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**
@@ -31,8 +30,21 @@ import javax.annotation.Generated;
 @Generated("sonar-ws-generator")
 public class DeselectRequest {
 
+  private String organization;
   private String projectId;
   private String projectKey;
+
+  /**
+   * Example value: "my-org"
+   */
+  public DeselectRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public String getOrganization() {
+    return organization;
+  }
 
   /**
    * Example value: "AU-Tpxb--iU5OvuD2FLy"

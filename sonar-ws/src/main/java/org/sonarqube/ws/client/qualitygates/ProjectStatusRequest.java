@@ -19,7 +19,6 @@
  */
 package org.sonarqube.ws.client.qualitygates;
 
-import java.util.List;
 import javax.annotation.Generated;
 
 /**
@@ -32,6 +31,7 @@ import javax.annotation.Generated;
 public class ProjectStatusRequest {
 
   private String analysisId;
+  private String organization;
   private String projectId;
   private String projectKey;
 
@@ -45,6 +45,18 @@ public class ProjectStatusRequest {
 
   public String getAnalysisId() {
     return analysisId;
+  }
+
+  /**
+   * Example value: "my-org"
+   */
+  public ProjectStatusRequest setOrganization(String organization) {
+    this.organization = organization;
+    return this;
+  }
+
+  public String getOrganization() {
+    return organization;
   }
 
   /**
