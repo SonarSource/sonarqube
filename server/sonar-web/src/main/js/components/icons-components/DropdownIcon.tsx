@@ -24,13 +24,13 @@ export default function DropdownIcon({ className, fill = 'currentColor', size = 
   return (
     <svg
       className={className}
-      width={size}
+      width={size / 16 * 7}
       height={size}
-      viewBox="0 0 16 16"
+      viewBox="0 0 7 16"
       version="1.1"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       xmlSpace="preserve">
-      <g transform="matrix(0.0273438,0,0,0.0273438,4.5,2.65625)">
+      <g transform="matrix(0.0273438,0,0,0.0273438,-6.4e-06,2.65625)">
         <path
           style={{ fill }}
           d="M256,176C256,180.333 254.417,184.083 251.25,187.25L139.25,299.25C136.083,302.417 132.333,304 128,304C123.667,304 119.917,302.417 116.75,299.25L4.75,187.25C1.583,184.083 0,180.333 0,176C0,171.667 1.583,167.917 4.75,164.75C7.917,161.583 11.667,160 16,160L240,160C244.333,160 248.083,161.583 251.25,164.75C254.417,167.917 256,171.667 256,176Z"

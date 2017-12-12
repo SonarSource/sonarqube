@@ -32,7 +32,6 @@ exports[`should show administration menu if the user has the rights 1`] = `
   </li>
   <li>
     <Link
-      className={null}
       onlyActiveOnIndex={false}
       style={Object {}}
       to="/coding_rules"
@@ -109,7 +108,6 @@ exports[`should work with extensions 1`] = `
   </li>
   <li>
     <Link
-      className={null}
       onlyActiveOnIndex={false}
       style={Object {}}
       to="/coding_rules"

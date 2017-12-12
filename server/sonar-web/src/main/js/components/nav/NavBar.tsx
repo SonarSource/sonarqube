@@ -26,6 +26,7 @@ interface Props {
   className?: string;
   height: number;
   notif?: React.ReactNode;
+  [prop: string]: any;
 }
 
 export default function NavBar({ children, className, height, notif, ...other }: Props) {

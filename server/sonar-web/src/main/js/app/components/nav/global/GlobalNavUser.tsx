@@ -25,10 +25,10 @@ import { Link } from 'react-router';
 import * as theme from '../../../theme';
 import { CurrentUser, LoggedInUser, isLoggedIn, Organization } from '../../../types';
 import Avatar from '../../../../components/ui/Avatar';
-import OrganizationLink from '../../../../components/ui/OrganizationLink';
+import OrganizationListItem from '../../../../components/ui/OrganizationListItem';
 import { translate } from '../../../../helpers/l10n';
 import { getBaseUrl } from '../../../../helpers/urls';
-import OrganizationAvatar from '../../../../components/common/OrganizationAvatar';
+import Dropdown from '../../../../components/controls/Dropdown';
 
 interface Props {
   appState: { organizationsEnabled: boolean };
@@ -36,30 +36,9 @@ interface Props {
   organizations: Organization[];
 }
 
-interface State {
-  open: boolean;
-}
-
-export default class GlobalNavUser extends React.PureComponent<Props, State> {
-  node?: HTMLElement | null;
-
+export default class GlobalNavUser extends React.PureComponent<Props> {
   static contextTypes = {
     router: PropTypes.object
-  };
-
-  constructor(props: Props) {
-    super(props);
-    this.state = { open: false };
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('click', this.handleClickOutside);
-  }
-
-  handleClickOutside = (event: MouseEvent) => {
-    if (!this.node || !this.node.contains(event.target as Node)) {
-      this.closeDropdown();
-    }
   };
 
   handleLogin = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
@@ -76,27 +55,7 @@ export default class GlobalNavUser extends React.PureComponent<Props, State> {
 
   handleLogout = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
-    this.closeDropdown();
     this.context.router.push('/sessions/logout');
-  };
-
-  toggleDropdown = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    if (this.state.open) {
-      this.closeDropdown();
-    } else {
-      this.openDropdown();
-    }
-  };
-
-  openDropdown = () => {
-    window.addEventListener('click', this.handleClickOutside, true);
-    this.setState({ open: true });
-  };
-
-  closeDropdown = () => {
-    window.removeEventListener('click', this.handleClickOutside);
-    this.setState({ open: false });
   };
 
   renderAuthenticated() {
@@ -104,70 +63,53 @@ export default class GlobalNavUser extends React.PureComponent<Props, State> {
     const currentUser = this.props.currentUser as LoggedInUser;
     const hasOrganizations = this.props.appState.organizationsEnabled && organizations.length > 0;
     return (
-      <li
-        className={classNames('dropdown js-user-authenticated', { open: this.state.open })}
-        ref={node => (this.node = node)}>
-        <a className="dropdown-toggle navbar-avatar" href="#" onClick={this.toggleDropdown}>
-          <Avatar
-            hash={currentUser.avatar}
-            name={currentUser.name}
-            size={theme.globalNavContentHeightRaw}
-          />
-        </a>
-        {this.state.open && (
-          <ul className="dropdown-menu dropdown-menu-right">
-            <li className="dropdown-item">
-              <div className="text-ellipsis text-muted" title={currentUser.name}>
-                <strong>{currentUser.name}</strong>
-              </div>
-              {currentUser.email != null && (
-                <div
-                  className="little-spacer-top text-ellipsis text-muted"
-                  title={currentUser.email}>
-                  {currentUser.email}
+      <Dropdown>
+        {({ onToggleClick, open }) => (
+          <li className={classNames('dropdown', 'js-user-authenticated', { open })}>
+            <a className="dropdown-toggle navbar-avatar" href="#" onClick={onToggleClick}>
+              <Avatar
+                hash={currentUser.avatar}
+                name={currentUser.name}
+                size={theme.globalNavContentHeightRaw}
+              />
+            </a>
+            <ul className="dropdown-menu dropdown-menu-right">
+              <li className="dropdown-item">
+                <div className="text-ellipsis text-muted" title={currentUser.name}>
+                  <strong>{currentUser.name}</strong>
                 </div>
-              )}
-            </li>
-            <li className="divider" />
-            <li>
-              <Link to="/account" onClick={this.closeDropdown}>
-                {translate('my_account.page')}
-              </Link>
-            </li>
-            {hasOrganizations && <li role="separator" className="divider" />}
-            {hasOrganizations && (
-              <li>
-                <Link to="/account/organizations" onClick={this.closeDropdown}>
-                  {translate('my_organizations')}
-                </Link>
+                {currentUser.email != null && (
+                  <div
+                    className="little-spacer-top text-ellipsis text-muted"
+                    title={currentUser.email}>
+                    {currentUser.email}
+                  </div>
+                )}
               </li>
-            )}
-            {hasOrganizations &&
-              sortBy(organizations, org => org.name.toLowerCase()).map(organization => (
-                <li key={organization.key}>
-                  <OrganizationLink
-                    className="dropdown-item-flex"
-                    organization={organization}
-                    onClick={this.closeDropdown}>
-                    <div>
-                      <OrganizationAvatar organization={organization} small={true} />
-                      <span className="spacer-left">{organization.name}</span>
-                    </div>
-                    {organization.isAdmin && (
-                      <span className="outline-badge spacer-left">{translate('admin')}</span>
-                    )}
-                  </OrganizationLink>
+              <li className="divider" />
+              <li>
+                <Link to="/account">{translate('my_account.page')}</Link>
+              </li>
+              {hasOrganizations && <li role="separator" className="divider" />}
+              {hasOrganizations && (
+                <li>
+                  <Link to="/account/organizations">{translate('my_organizations')}</Link>
                 </li>
-              ))}
-            {hasOrganizations && <li role="separator" className="divider" />}
-            <li>
-              <a onClick={this.handleLogout} href="#">
-                {translate('layout.logout')}
-              </a>
-            </li>
-          </ul>
+              )}
+              {hasOrganizations &&
+                sortBy(organizations, org => org.name.toLowerCase()).map(organization => (
+                  <OrganizationListItem key={organization.key} organization={organization} />
+                ))}
+              {hasOrganizations && <li role="separator" className="divider" />}
+              <li>
+                <a onClick={this.handleLogout} href="#">
+                  {translate('layout.logout')}
+                </a>
+              </li>
+            </ul>
+          </li>
         )}
-      </li>
+      </Dropdown>
     );
   }
 

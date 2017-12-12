@@ -47,6 +47,6 @@ exports[`renders different types of "no projects" 3`] = `
 <div
   className="projects-list"
 >
-  <NoFavoriteProjects />
+  <Connect(NoFavoriteProjects) />
 </div>
 `;

@@ -24,8 +24,7 @@ import { Organization } from '../../../app/types';
 import OrganizationAvatar from '../../../components/common/OrganizationAvatar';
 import Dropdown from '../../../components/controls/Dropdown';
 import DropdownIcon from '../../../components/icons-components/DropdownIcon';
-import OrganizationLink from '../../../components/ui/OrganizationLink';
-import { translate } from '../../../helpers/l10n';
+import OrganizationListItem from '../../../components/ui/OrganizationListItem';
 
 interface Props {
   organization: Organization;
@@ -49,17 +48,7 @@ export default function OrganizationNavigationHeader({ organization, organizatio
                 </a>
                 <ul className="dropdown-menu">
                   {sortBy(other, org => org.name.toLowerCase()).map(organization => (
-                    <li key={organization.key}>
-                      <OrganizationLink className="dropdown-item-flex" organization={organization}>
-                        <div>
-                          <OrganizationAvatar organization={organization} small={true} />
-                          <span className="spacer-left">{organization.name}</span>
-                        </div>
-                        {organization.isAdmin && (
-                          <span className="outline-badge spacer-left">{translate('admin')}</span>
-                        )}
-                      </OrganizationLink>
-                    </li>
+                    <OrganizationListItem key={organization.key} organization={organization} />
                   ))}
                 </ul>
               </div>
