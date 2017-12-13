@@ -256,5 +256,31 @@
     and (p.uuid_path like #{baseComponent.uuidPathLikeIncludingSelf,jdbcType=VARCHAR} escape '/' or p.uuid = #{baseComponent.uuid,jdbcType=VARCHAR})
     group by i.issue_type, i.severity, i.resolution, i.status, inLeak
   </select>
+
+  <select id="selectGroupsOfComponentTreeOnLeak" resultType="org.sonar.db.issue.IssueGroupDto" parameterType="map" databaseId="oracle">
+    select i2.issue_type as ruleType, i2.severity as severity, i2.resolution as resolution, i2.status as status, sum(i2.effort) as effort, count(i2.issue_type) as "count", i2.inLeak as inLeak
+    from (
+      select i.issue_type, i.severity, i.resolution, i.status, i.effort, case when i.issue_creation_date &gt; #{createdAfter,jdbcType=BIGINT} then 1 else 0 end as inLeak
+      from issues i
+      inner join projects p on p.uuid = i.component_uuid and p.project_uuid = i.project_uuid
+      where i.status !='CLOSED'
+      and i.project_uuid = #{baseComponent.projectUuid,jdbcType=VARCHAR}
+      and (p.uuid_path like #{baseComponent.uuidPathLikeIncludingSelf,jdbcType=VARCHAR} escape '/' or p.uuid = #{baseComponent.uuid,jdbcType=VARCHAR})
+    ) i2
+    group by i2.issue_type, i2.severity, i2.resolution, i2.status, i2.inLeak
+  </select>
+
+  <select id="selectGroupsOfComponentTreeOnLeak" resultType="org.sonar.db.issue.IssueGroupDto" parameterType="map" databaseId="mssql">
+    select i2.issue_type as ruleType, i2.severity as severity, i2.resolution as resolution, i2.status as status, sum(i2.effort) as effort, count(i2.issue_type) as "count", i2.inLeak as inLeak
+    from (
+    select i.issue_type, i.severity, i.resolution, i.status, i.effort, case when i.issue_creation_date &gt; #{createdAfter,jdbcType=BIGINT} then 1 else 0 end as inLeak
+    from issues i
+    inner join projects p on p.uuid = i.component_uuid and p.project_uuid = i.project_uuid
+    where i.status !='CLOSED'
+    and i.project_uuid = #{baseComponent.projectUuid,jdbcType=VARCHAR}
+    and (p.uuid_path like #{baseComponent.uuidPathLikeIncludingSelf,jdbcType=VARCHAR} escape '/' or p.uuid = #{baseComponent.uuid,jdbcType=VARCHAR})
+    ) i2
+    group by i2.issue_type, i2.severity, i2.resolution, i2.status, i2.inLeak
+  </select>
 </mapper>
 
