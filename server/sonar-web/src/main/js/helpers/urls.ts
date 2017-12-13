@@ -21,7 +21,7 @@ import { stringify } from 'querystring';
 import { omitBy, isNil } from 'lodash';
 import { isShortLivingBranch } from './branches';
 import { getProfilePath } from '../apps/quality-profiles/utils';
-import { Branch } from '../app/types';
+import { Branch, HomePage } from '../app/types';
 
 interface Query {
   [x: string]: string | undefined;
@@ -166,4 +166,24 @@ export function getMarkdownHelpUrl(): string {
 
 export function getCodeUrl(project: string, branch?: string, selected?: string) {
   return { pathname: '/code', query: { id: project, branch, selected } };
+}
+
+export function getOrganizationUrl(organization: string) {
+  return `/organizations/${organization}`;
+}
+
+export function getHomePageUrl(homepage: HomePage) {
+  switch (homepage.type) {
+    case 'project':
+      return getProjectUrl(homepage.key!);
+    case 'organization':
+      return getOrganizationUrl(homepage.key!);
+    case 'my-projects':
+      return '/projects';
+    case 'my-issues':
+      return { pathname: '/issues', query: { resolved: 'false' } };
+  }
+
+  // should never happen, but just in case...
+  return '/projects';
 }

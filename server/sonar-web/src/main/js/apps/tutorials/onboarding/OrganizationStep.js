@@ -71,7 +71,7 @@ export default class OrganizationStep extends React.PureComponent {
     getOrganizations({ member: true }).then(
       ({ organizations }) => {
         if (this.mounted) {
-          const organizationKeys = organizations.map(o => o.key);
+          const organizationKeys = organizations.filter(o => o.isAdmin).map(o => o.key);
           // best guess: if there is only one organization, then it is personal
           // otherwise, we can't guess, let's display them all as just "existing organizations"
           const personalOrganization =

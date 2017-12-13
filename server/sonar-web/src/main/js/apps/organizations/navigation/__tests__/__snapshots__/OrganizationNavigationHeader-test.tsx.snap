@@ -1,28 +1,24 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders 1`] = `
-<div
+<header
   className="navbar-context-header"
 >
-  <h1
-    className="display-inline-block"
-  >
-    <OrganizationAvatar
-      organization={
-        Object {
-          "key": "foo",
-          "name": "Foo",
-          "projectVisibility": "public",
-        }
+  <OrganizationAvatar
+    organization={
+      Object {
+        "key": "foo",
+        "name": "Foo",
+        "projectVisibility": "public",
       }
-    />
-    <span
-      className="spacer-left"
-    >
-      Foo
-    </span>
-  </h1>
-</div>
+    }
+  />
+  <span
+    className="spacer-left"
+  >
+    Foo
+  </span>
+</header>
 `;
 
 exports[`renders dropdown 1`] = `

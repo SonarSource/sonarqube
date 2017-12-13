@@ -19,14 +19,16 @@
  */
 // @flow
 import React from 'react';
-import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import IssuesCounter from './IssuesCounter';
 import ReloadButton from './ReloadButton';
 /*:: import type { Paging } from '../utils'; */
+import DeferredSpinner from '../../../components/common/DeferredSpinner';
+import HomePageSelect from '../../../components/controls/HomePageSelect';
 import { translate } from '../../../helpers/l10n';
 
 /*::
 type Props = {|
+  canSetHome: bool,
   loading: boolean,
   onReload: () => void,
   paging: ?Paging,
@@ -70,6 +72,10 @@ export default class PageActions extends React.PureComponent {
             <IssuesCounter className="spacer-left" current={selectedIndex} total={paging.total} />
           )}
         </div>
+
+        {this.props.canSetHome && (
+          <HomePageSelect className="huge-spacer-left" currentPage={{ type: 'my-issues' }} />
+        )}
       </div>
     );
   }

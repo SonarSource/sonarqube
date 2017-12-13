@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import ComponentNavMeta from '../ComponentNavMeta';
+import { ComponentNavMeta } from '../ComponentNavMeta';
 import { BranchType, ShortLivingBranch, LongLivingBranch } from '../../../../types';
 
 const component = {
@@ -40,7 +40,11 @@ it('renders status of short-living branch', () => {
     status: { bugs: 0, codeSmells: 2, vulnerabilities: 3 },
     type: BranchType.SHORT
   };
-  expect(shallow(<ComponentNavMeta branch={branch} component={component} />)).toMatchSnapshot();
+  expect(
+    shallow(
+      <ComponentNavMeta branch={branch} component={component} currentUser={{ isLoggedIn: false }} />
+    )
+  ).toMatchSnapshot();
 });
 
 it('renders meta for long-living branch', () => {
@@ -50,5 +54,9 @@ it('renders meta for long-living branch', () => {
     status: { qualityGateStatus: 'OK' },
     type: BranchType.LONG
   };
-  expect(shallow(<ComponentNavMeta branch={branch} component={component} />)).toMatchSnapshot();
+  expect(
+    shallow(
+      <ComponentNavMeta branch={branch} component={component} currentUser={{ isLoggedIn: false }} />
+    )
+  ).toMatchSnapshot();
 });

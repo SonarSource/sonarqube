@@ -22,9 +22,9 @@ import * as React from 'react';
 import { mount, shallow } from 'enzyme';
 import ComponentNav from '../ComponentNav';
 
-jest.mock('../ComponentNavFavorite', () => ({
+jest.mock('../ComponentNavMeta', () => ({
   // eslint-disable-next-line
-  default: function ComponentNavFavorite() {
+  default: function ComponentNavMeta() {
     return null;
   }
 }));

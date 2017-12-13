@@ -263,9 +263,11 @@ export default class AllProjects extends React.PureComponent<Props, State> {
         <div className="layout-page-main-inner">
           <PageHeader
             currentUser={this.props.currentUser}
+            isFavorite={this.props.isFavorite}
             loading={this.state.loading}
             onPerspectiveChange={this.handlePerspectiveChange}
             onQueryChange={this.updateLocationQuery}
+            onSonarCloud={this.props.onSonarCloud}
             onSortChange={this.handleSortChange}
             organization={this.props.organization}
             projects={this.state.projects}

@@ -165,7 +165,11 @@ export default class Onboarding extends React.PureComponent {
                   {translate('tutorials.skip')}
                 </a>
               )}
-              <p className="note">{translate('tutorials.find_it_back_in_help')}</p>
+              <p className="note">
+                {translate(
+                  sonarCloud ? 'tutorials.find_it_back_in_plus' : 'tutorials.find_it_back_in_help'
+                )}
+              </p>
             </div>
             <div className="page-description">
               {translateWithParameters(

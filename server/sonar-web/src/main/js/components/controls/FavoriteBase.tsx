@@ -19,7 +19,9 @@
  */
 import * as React from 'react';
 import * as classNames from 'classnames';
+import Tooltip from './Tooltip';
 import FavoriteIcon from '../icons-components/FavoriteIcon';
+import { translate } from '../../helpers/l10n';
 
 interface Props {
   addFavorite: () => Promise<void>;
@@ -80,13 +82,18 @@ export default class FavoriteBase extends React.PureComponent<Props, State> {
   }
 
   render() {
+    const tooltip = this.state.favorite
+      ? translate('favorite.current')
+      : translate('favorite.check');
     return (
-      <a
-        className={classNames('link-no-underline', this.props.className)}
-        href="#"
-        onClick={this.toggleFavorite}>
-        <FavoriteIcon favorite={this.state.favorite} />
-      </a>
+      <Tooltip overlay={tooltip}>
+        <a
+          className={classNames('display-inline-block', 'link-no-underline', this.props.className)}
+          href="#"
+          onClick={this.toggleFavorite}>
+          <FavoriteIcon favorite={this.state.favorite} />
+        </a>
+      </Tooltip>
     );
   }
 }

@@ -18,7 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ComponentNavFavorite from './ComponentNavFavorite';
 import ComponentNavBranch from './ComponentNavBranch';
 import ComponentNavBreadcrumbs from './ComponentNavBreadcrumbs';
 import ComponentNavMeta from './ComponentNavMeta';
@@ -112,14 +111,7 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
         id="context-navigation"
         height={notifComponent ? theme.contextNavHeightRaw + 20 : theme.contextNavHeightRaw}
         notif={notifComponent}>
-        <ComponentNavBreadcrumbs
-          component={this.props.component}
-          breadcrumbs={this.props.component.breadcrumbs}
-        />
-        <ComponentNavFavorite
-          component={this.props.component.key}
-          favorite={this.props.component.isFavorite}
-        />
+        <ComponentNavBreadcrumbs component={this.props.component} />
         {this.props.currentBranch && (
           <ComponentNavBranch
             branches={this.props.branches}

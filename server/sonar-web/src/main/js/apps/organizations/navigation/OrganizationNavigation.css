@@ -22,9 +22,9 @@
 }
 
 .organization-switch .dropdown-toggle {
-  display: block;
+  display: flex;
+  align-items: center;
   height: calc(4 * var(--gridSize));
-  line-height: calc(4 * var(--gridSize) - 2px);
   padding: 0 var(--gridSize);
   border: 1px solid transparent;
   border-radius: 2px;

@@ -1,27 +1,8 @@
-.navbar-context-favorite {
-  display: inline-block;
-  vertical-align: top;
-  padding-top: var(--gridSize);
-  padding-left: calc(1.5 * var(--gridSize));
-}
-
-.navbar-context-title-qualifier {
-  display: inline-block;
-  line-height: 16px;
-  padding-top: 5px;
-  box-sizing: border-box;
-}
-
 .navbar-context-branches {
   display: inline-block;
   vertical-align: top;
   padding: var(--gridSize) 0;
   margin-left: calc(2 * var(--gridSize));
-  line-height: 16px;
-}
-
-.navbar-context-meta-branch {
-  margin-top: 3px;
   line-height: 16px;
 }
 
