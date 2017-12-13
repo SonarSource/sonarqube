@@ -206,7 +206,9 @@ export default class SettingsNav extends React.PureComponent<Props> {
         id="context-navigation"
         height={notifComponent ? theme.contextNavHeightRaw + 20 : theme.contextNavHeightRaw}
         notif={notifComponent}>
-        <h1 className="navbar-context-header">{translate('layout.settings')}</h1>
+        <header className="navbar-context-header">
+          <h1>{translate('layout.settings')}</h1>
+        </header>
 
         <NavBarTabs>
           {this.renderConfigurationTab()}

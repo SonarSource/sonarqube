@@ -19,7 +19,7 @@
  */
 import { getJSON, post, postJSON, RequestData } from '../helpers/request';
 import throwGlobalError from '../app/utils/throwGlobalError';
-import { CurrentUser, Paging } from '../app/types';
+import { Paging, HomePage, CurrentUser } from '../app/types';
 
 export interface IdentityProvider {
   backgroundColor: string;
@@ -101,4 +101,8 @@ export function deactivateUser(data: { login: string }): Promise<User> {
 
 export function skipOnboarding(): Promise<void | Response> {
   return post('/api/users/skip_onboarding_tutorial').catch(throwGlobalError);
+}
+
+export function setHomePage(homepage: HomePage): Promise<void | Response> {
+  return post('/api/users/set_homepage', homepage).catch(throwGlobalError);
 }

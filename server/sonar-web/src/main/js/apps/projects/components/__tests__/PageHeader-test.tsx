@@ -71,9 +71,11 @@ function shallowRender(props?: {}) {
   return shallow(
     <PageHeader
       currentUser={{ isLoggedIn: false }}
+      isFavorite={false}
       loading={false}
       onPerspectiveChange={jest.fn()}
       onQueryChange={jest.fn()}
+      onSonarCloud={false}
       onSortChange={jest.fn()}
       projects={[]}
       query={{ search: 'test' }}

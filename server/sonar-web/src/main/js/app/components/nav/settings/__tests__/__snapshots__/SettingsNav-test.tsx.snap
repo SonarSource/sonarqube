@@ -5,11 +5,13 @@ exports[`should work with extensions 1`] = `
   height={72}
   id="context-navigation"
 >
-  <h1
+  <header
     className="navbar-context-header"
   >
-    layout.settings
-  </h1>
+    <h1>
+      layout.settings
+    </h1>
+  </header>
   <NavBarTabs>
     <li
       className="dropdown"

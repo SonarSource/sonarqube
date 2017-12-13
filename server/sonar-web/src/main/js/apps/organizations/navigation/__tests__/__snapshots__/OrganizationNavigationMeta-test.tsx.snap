@@ -14,5 +14,17 @@ exports[`renders 1`] = `
      
     foo
   </div>
+  <div
+    className="navbar-context-meta-secondary"
+  >
+    <Connect(HomePageSelect)
+      currentPage={
+        Object {
+          "key": "foo",
+          "type": "organization",
+        }
+      }
+    />
+  </div>
 </div>
 `;

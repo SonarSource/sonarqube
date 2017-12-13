@@ -81,7 +81,7 @@
   left: 0;
 }
 
-.navbar-search-item-icons > .icon-star,
+.navbar-search-item-icons > .icon-outline,
 .navbar-search-item-icons > .icon-clock {
   z-index: 6;
   top: -4px;

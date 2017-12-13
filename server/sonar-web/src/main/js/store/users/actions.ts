@@ -17,23 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getCurrentUser } from '../../api/users';
+import { Dispatch } from 'redux';
+import * as api from '../../api/users';
+import { CurrentUser, HomePage } from '../../app/types';
 
 export const RECEIVE_CURRENT_USER = 'RECEIVE_CURRENT_USER';
 export const RECEIVE_USER = 'RECEIVE_USER';
 export const SKIP_ONBOARDING = 'SKIP_ONBOARDING';
+export const SET_HOMEPAGE = 'SET_HOMEPAGE';
 
-export const receiveCurrentUser = user => ({
+export const receiveCurrentUser = (user: CurrentUser) => ({
   type: RECEIVE_CURRENT_USER,
   user
 });
 
-export const receiveUser = user => ({
+export const receiveUser = (user: any) => ({
   type: RECEIVE_USER,
   user
 });
 
 export const skipOnboarding = () => ({ type: SKIP_ONBOARDING });
 
-export const fetchCurrentUser = () => dispatch =>
-  getCurrentUser().then(user => dispatch(receiveCurrentUser(user)));
+export const fetchCurrentUser = () => (dispatch: Dispatch<any>) => {
+  return api.getCurrentUser().then(user => dispatch(receiveCurrentUser(user)));
+};
+
+export const setHomePage = (homepage: HomePage) => (dispatch: Dispatch<any>) => {
+  api.setHomePage(homepage).then(
+    () => {
+      dispatch({ type: SET_HOMEPAGE, homepage });
+    },
+    () => {}
+  );
+};
