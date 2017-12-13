@@ -18,52 +18,62 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
+import { connect } from 'react-redux';
+import { Branch, Component, CurrentUser, isLoggedIn } from '../../../types';
 import BranchStatus from '../../../../components/common/BranchStatus';
-import { Branch, Component } from '../../../types';
 import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
+import Favorite from '../../../../components/controls/Favorite';
+import HomePageSelect from '../../../../components/controls/HomePageSelect';
 import Tooltip from '../../../../components/controls/Tooltip';
 import { isShortLivingBranch } from '../../../../helpers/branches';
 import { translate } from '../../../../helpers/l10n';
+import { getCurrentUser } from '../../../../store/rootReducer';
 
-interface Props {
+interface StateProps {
+  currentUser: CurrentUser;
+}
+
+interface Props extends StateProps {
   branch?: Branch;
   component: Component;
 }
 
-export default function ComponentNavMeta(props: Props) {
-  const metaList = [];
-  const shortBranch = props.branch && isShortLivingBranch(props.branch);
-
-  if (props.component.analysisDate) {
-    metaList.push(
-      <li key="analysisDate">
-        <DateTimeFormatter date={props.component.analysisDate} />
-      </li>
-    );
-  }
-
-  if (props.component.version && !shortBranch) {
-    metaList.push(
-      <li key="version">
-        <Tooltip
-          overlay={`${translate('version')} ${props.component.version}`}
-          mouseEnterDelay={0.5}>
-          <span className="text-limited">
-            {translate('version')} {props.component.version}
-          </span>
-        </Tooltip>
-      </li>
-    );
-  }
+export function ComponentNavMeta({ branch, component, currentUser }: Props) {
+  const shortBranch = branch && isShortLivingBranch(branch);
+  const mainBranch = !branch || branch.isMain;
 
   return (
     <div className="navbar-context-meta">
-      <ul className="list-inline">{metaList}</ul>
-      {shortBranch && (
-        <div className="navbar-context-meta-branch">
-          <BranchStatus branch={props.branch!} />
+      {component.analysisDate && (
+        <div className="spacer-left">
+          <DateTimeFormatter date={component.analysisDate} />
         </div>
       )}
+      {component.version &&
+        !shortBranch && (
+          <Tooltip overlay={`${translate('version')} ${component.version}`} mouseEnterDelay={0.5}>
+            <div className="spacer-left text-limited">
+              {translate('version')} {component.version}
+            </div>
+          </Tooltip>
+        )}
+      {isLoggedIn(currentUser) &&
+        mainBranch && (
+          <div className="navbar-context-meta-secondary">
+            <Favorite component={component.key} favorite={Boolean(component.isFavorite)} />
+            <HomePageSelect
+              className="spacer-left"
+              currentPage={{ type: 'project', key: component.key }}
+            />
+          </div>
+        )}
+      {shortBranch && <BranchStatus branch={branch!} />}
     </div>
   );
 }
+
+const mapStateToProps = (state: any): StateProps => ({
+  currentUser: getCurrentUser(state)
+});
+
+export default connect(mapStateToProps)(ComponentNavMeta);

@@ -23,18 +23,18 @@ import { IconProps } from './types';
 import * as theme from '../../app/theme';
 
 export interface Props extends IconProps {
-  favorite: boolean;
+  filled?: boolean;
 }
 
-export default function FavoriteIcon({
+export default function HomeIcon({
   className,
-  favorite,
   fill = theme.orange,
+  filled = false,
   size = 16
 }: Props) {
   return (
     <svg
-      className={classNames('icon-outline', { 'is-filled': favorite }, className)}
+      className={classNames(className, 'icon-outline', { 'is-filled': filled })}
       style={{ color: fill }}
       width={size}
       height={size}
@@ -42,8 +42,8 @@ export default function FavoriteIcon({
       version="1.1"
       xmlnsXlink="http://www.w3.org/1999/xlink"
       xmlSpace="preserve">
-      <g transform="matrix(0.988024,0,0,0.988024,0.0957953,0.717719)">
-        <path d="M15.428,5.777C15.428,5.908 15.35,6.051 15.195,6.205L11.954,9.366L12.722,13.83C12.728,13.872 12.731,13.932 12.731,14.009C12.731,14.134 12.7,14.24 12.637,14.326C12.575,14.412 12.484,14.455 12.365,14.455C12.252,14.455 12.133,14.42 12.008,14.348L7.999,12.241L3.99,14.348C3.859,14.42 3.74,14.455 3.633,14.455C3.508,14.455 3.414,14.412 3.352,14.326C3.289,14.24 3.258,14.134 3.258,14.009C3.258,13.973 3.264,13.914 3.276,13.83L4.044,9.366L0.794,6.205C0.645,6.045 0.57,5.902 0.57,5.777C0.57,5.557 0.737,5.42 1.07,5.366L5.552,4.714L7.561,0.652C7.674,0.408 7.82,0.286 7.999,0.286C8.177,0.286 8.323,0.408 8.436,0.652L10.445,4.714L14.927,5.366C15.261,5.42 15.427,5.557 15.427,5.777L15.428,5.777Z" />
+      <g transform="matrix(0.870918,0,0,0.870918,0.978227,0.978227)">
+        <path d="M15.9,7.8L8.2,0.1C8.1,0 7.9,0 7.8,0.1L0.1,7.8C0,7.9 0,8.1 0.1,8.2C0.2,8.3 0.2,8.3 0.3,8.3L2.2,8.3L2.2,15.8C2.2,15.9 2.2,15.9 2.3,16C2.3,16 2.4,16.1 2.5,16.1L6.2,16.1C6.3,16.1 6.5,16 6.5,15.8L6.5,10.5L9.7,10.5L9.7,15.8C9.7,15.9 9.8,16.1 10,16.1L13.7,16.1C13.8,16.1 14,16 14,15.8L14,8.2L15.9,8.2C16,8.2 16,8.2 16.1,8.1C16,8 16.1,7.9 15.9,7.8Z" />
       </g>
     </svg>
   );

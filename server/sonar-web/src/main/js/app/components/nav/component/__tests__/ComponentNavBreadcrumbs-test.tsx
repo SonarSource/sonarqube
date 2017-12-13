@@ -17,35 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import { Unconnected } from '../ComponentNavBreadcrumbs';
+import { ComponentNavBreadcrumbs } from '../ComponentNavBreadcrumbs';
 
 it('should not render breadcrumbs with one element', () => {
   const component = {
+    breadcrumbs: [{ key: 'my-project', name: 'My Project', qualifier: 'TRK' }],
     key: 'my-project',
     name: 'My Project',
+    organization: 'org',
     qualifier: 'TRK',
     visibility: 'public'
   };
-  const breadcrumbs = [component];
-  const result = shallow(<Unconnected breadcrumbs={breadcrumbs} component={component} />);
+  const result = shallow(
+    <ComponentNavBreadcrumbs component={component} shouldOrganizationBeDisplayed={false} />
+  );
   expect(result).toMatchSnapshot();
 });
 
 it('should render organization', () => {
   const component = {
+    breadcrumbs: [{ key: 'my-project', name: 'My Project', qualifier: 'TRK' }],
     key: 'my-project',
     name: 'My Project',
     organization: 'foo',
     qualifier: 'TRK',
     visibility: 'public'
   };
-  const breadcrumbs = [component];
-  const organization = { key: 'foo', name: 'The Foo Organization' };
+  const organization = { key: 'foo', name: 'The Foo Organization', projectVisibility: 'public' };
   const result = shallow(
-    <Unconnected
-      breadcrumbs={breadcrumbs}
+    <ComponentNavBreadcrumbs
       component={component}
       organization={organization}
       shouldOrganizationBeDisplayed={true}
@@ -56,12 +58,15 @@ it('should render organization', () => {
 
 it('renders private badge', () => {
   const component = {
+    breadcrumbs: [{ key: 'my-project', name: 'My Project', qualifier: 'TRK' }],
     key: 'my-project',
     name: 'My Project',
+    organization: 'org',
     qualifier: 'TRK',
     visibility: 'private'
   };
-  const breadcrumbs = [component];
-  const result = shallow(<Unconnected breadcrumbs={breadcrumbs} component={component} />);
+  const result = shallow(
+    <ComponentNavBreadcrumbs component={component} shouldOrganizationBeDisplayed={false} />
+  );
   expect(result.find('PrivateBadge')).toHaveLength(1);
 });

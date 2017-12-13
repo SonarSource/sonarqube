@@ -4,34 +4,26 @@ exports[`renders meta for long-living branch 1`] = `
 <div
   className="navbar-context-meta"
 >
-  <ul
-    className="list-inline"
+  <div
+    className="spacer-left"
   >
-    <li
-      key="analysisDate"
+    <DateTimeFormatter
+      date="2017-01-02T00:00:00.000Z"
+    />
+  </div>
+  <Tooltip
+    mouseEnterDelay={0.5}
+    overlay="version 0.0.1"
+    placement="bottom"
+  >
+    <div
+      className="spacer-left text-limited"
     >
-      <DateTimeFormatter
-        date="2017-01-02T00:00:00.000Z"
-      />
-    </li>
-    <li
-      key="version"
-    >
-      <Tooltip
-        mouseEnterDelay={0.5}
-        overlay="version 0.0.1"
-        placement="bottom"
-      >
-        <span
-          className="text-limited"
-        >
-          version
-           
-          0.0.1
-        </span>
-      </Tooltip>
-    </li>
-  </ul>
+      version
+       
+      0.0.1
+    </div>
+  </Tooltip>
 </div>
 `;
 
@@ -39,35 +31,27 @@ exports[`renders status of short-living branch 1`] = `
 <div
   className="navbar-context-meta"
 >
-  <ul
-    className="list-inline"
-  >
-    <li
-      key="analysisDate"
-    >
-      <DateTimeFormatter
-        date="2017-01-02T00:00:00.000Z"
-      />
-    </li>
-  </ul>
   <div
-    className="navbar-context-meta-branch"
+    className="spacer-left"
   >
-    <BranchStatus
-      branch={
-        Object {
-          "isMain": false,
-          "mergeBranch": "master",
-          "name": "feature",
-          "status": Object {
-            "bugs": 0,
-            "codeSmells": 2,
-            "vulnerabilities": 3,
-          },
-          "type": "SHORT",
-        }
-      }
+    <DateTimeFormatter
+      date="2017-01-02T00:00:00.000Z"
     />
   </div>
+  <BranchStatus
+    branch={
+      Object {
+        "isMain": false,
+        "mergeBranch": "master",
+        "name": "feature",
+        "status": Object {
+          "bugs": 0,
+          "codeSmells": 2,
+          "vulnerabilities": 3,
+        },
+        "type": "SHORT",
+      }
+    }
+  />
 </div>
 `;

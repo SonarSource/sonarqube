@@ -35,29 +35,27 @@ export default function OrganizationNavigationHeader({ organization, organizatio
   const other = organizations.filter(o => o.key !== organization.key);
 
   return (
-    <div className="navbar-context-header">
-      <h1 className="display-inline-block">
-        <OrganizationAvatar organization={organization} />
-        {other.length ? (
-          <Dropdown>
-            {({ onToggleClick, open }) => (
-              <div className={classNames('organization-switch', 'dropdown', { open })}>
-                <a className="dropdown-toggle" href="#" onClick={onToggleClick}>
-                  {organization.name}
-                  <DropdownIcon className="little-spacer-left" />
-                </a>
-                <ul className="dropdown-menu">
-                  {sortBy(other, org => org.name.toLowerCase()).map(organization => (
-                    <OrganizationListItem key={organization.key} organization={organization} />
-                  ))}
-                </ul>
-              </div>
-            )}
-          </Dropdown>
-        ) : (
-          <span className="spacer-left">{organization.name}</span>
-        )}
-      </h1>
+    <header className="navbar-context-header">
+      <OrganizationAvatar organization={organization} />
+      {other.length ? (
+        <Dropdown>
+          {({ onToggleClick, open }) => (
+            <div className={classNames('organization-switch', 'dropdown', { open })}>
+              <a className="dropdown-toggle" href="#" onClick={onToggleClick}>
+                {organization.name}
+                <DropdownIcon className="little-spacer-left" />
+              </a>
+              <ul className="dropdown-menu">
+                {sortBy(other, org => org.name.toLowerCase()).map(organization => (
+                  <OrganizationListItem key={organization.key} organization={organization} />
+                ))}
+              </ul>
+            </div>
+          )}
+        </Dropdown>
+      ) : (
+        <span className="spacer-left">{organization.name}</span>
+      )}
       {organization.description != null && (
         <div className="navbar-context-description">
           <p className="text-limited text-top" title={organization.description}>
@@ -65,6 +63,6 @@ export default function OrganizationNavigationHeader({ organization, organizatio
           </p>
         </div>
       )}
-    </div>
+    </header>
   );
 }
