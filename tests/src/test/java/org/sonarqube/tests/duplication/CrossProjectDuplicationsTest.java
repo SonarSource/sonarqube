@@ -68,6 +68,7 @@ public class CrossProjectDuplicationsTest {
   public static void analyzeProjects() {
     ItUtils.restoreProfile(orchestrator, CrossProjectDuplicationsTest.class.getResource("/duplication/xoo-duplication-profile.xml"));
 
+    tester.settings().setGlobalSettings("sonar.cpd.xoo.minimumTokens", "50");
     analyzeProject(ORIGIN_PROJECT, ORIGIN_PATH);
     analyzeProject(DUPLICATE_PROJECT, DUPLICATE_PATH);
     analyzeProjectWithBranch(DUPLICATE_PROJECT, DUPLICATE_PATH, BRANCH);

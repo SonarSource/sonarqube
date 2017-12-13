@@ -172,7 +172,7 @@ public class ProjectsPageTest {
   public void should_sort_by_facet() {
     ProjectsPage page = tester.openBrowser().openProjects();
     page.sortProjects("Duplications");
-    page.getProjectByIdx(0).shouldHaveMeasure("duplicated_lines_density", "63.7%");
+    page.getProjectByIdx(0).shouldHaveMeasure("duplicated_lines_density", "30.0%");
     page.invertSorting();
     page.getProjectByIdx(0).shouldHaveMeasure("duplicated_lines_density", "0.0%");
   }

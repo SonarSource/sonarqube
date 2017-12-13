@@ -61,8 +61,8 @@ public class DuplicationsTest {
   @BeforeClass
   public static void analyzeProjects() {
     ItUtils.restoreProfile(orchestrator, DuplicationsTest.class.getResource("/duplication/xoo-duplication-profile.xml"));
-    analyzeProject(DUPLICATIONS);
-    analyzeProject(DUPLICATIONS_WITH_EXCLUSIONS, "sonar.cpd.exclusions", "**/File*");
+    analyzeProject(DUPLICATIONS, "sonar.cpd.xoo.minimumTokens", "50");
+    analyzeProject(DUPLICATIONS_WITH_EXCLUSIONS, "sonar.cpd.exclusions", "**/File*", "sonar.cpd.xoo.minimumTokens", "50");
 
     // Set minimum tokens to a big value in order to not get duplications
     tester.settings().setGlobalSettings("sonar.cpd.xoo.minimumTokens", "1000");

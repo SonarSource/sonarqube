@@ -49,6 +49,8 @@ public class CrossProjectDuplicationsOnRemoveFileTest {
 
   @Test
   public void duplications_show_ws_does_not_contain_key_of_deleted_file() throws Exception {
+    tester.settings().setGlobalSettings("sonar.cpd.xoo.minimumTokens", "25");
+
     // analyze projects
     ItUtils.restoreProfile(orchestrator, CrossProjectDuplicationsOnRemoveFileTest.class.getResource("/duplication/xoo-duplication-profile.xml"));
     analyzeProject(ORIGIN_PROJECT, "duplications/cross-project/origin");

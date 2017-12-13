@@ -124,11 +124,14 @@ public class CrossModuleDuplicationsTest {
     for (int i = 0; i < additionalProperties.length; i += 2) {
       builder.put(additionalProperties[i], additionalProperties[i + 1]);
     }
+    builder.put("sonar.cpd.xoo.minimumTokens", "25");
     SonarScanner scan = sonarRunner.setDebugLogs(true).setProperties(builder.build());
-    orchestrator.executeBuild(scan); }
+    orchestrator.executeBuild(scan);
+  }
 
   private static void verifyDuplicationMeasures(String componentKey, int duplicatedBlocks, int duplicatedLines, int duplicatedFiles, double duplicatedLinesDensity) {
-    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(orchestrator, componentKey, "duplicated_lines", "duplicated_blocks", "duplicated_files", "duplicated_lines_density");
+    Map<String, Double> measures = getMeasuresAsDoubleByMetricKey(orchestrator, componentKey, "duplicated_lines", "duplicated_blocks", "duplicated_files",
+      "duplicated_lines_density");
     assertThat(measures.get("duplicated_blocks").intValue()).isEqualTo(duplicatedBlocks);
     assertThat(measures.get("duplicated_lines").intValue()).isEqualTo(duplicatedLines);
     assertThat(measures.get("duplicated_files").intValue()).isEqualTo(duplicatedFiles);
