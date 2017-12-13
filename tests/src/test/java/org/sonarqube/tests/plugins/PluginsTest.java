@@ -35,17 +35,12 @@ import org.junit.rules.ErrorCollector;
 import org.sonarqube.tests.plugins.checks.AbapCheck;
 import org.sonarqube.tests.plugins.checks.CCheck;
 import org.sonarqube.tests.plugins.checks.Check;
-import org.sonarqube.tests.plugins.checks.CobolCheck;
 import org.sonarqube.tests.plugins.checks.CppCheck;
-import org.sonarqube.tests.plugins.checks.FlexCheck;
 import org.sonarqube.tests.plugins.checks.GroovyCheck;
 import org.sonarqube.tests.plugins.checks.JavaCheck;
 import org.sonarqube.tests.plugins.checks.JavascriptCheck;
 import org.sonarqube.tests.plugins.checks.PhpCheck;
-import org.sonarqube.tests.plugins.checks.PliCheck;
 import org.sonarqube.tests.plugins.checks.PlsqlCheck;
-import org.sonarqube.tests.plugins.checks.PythonCheck;
-import org.sonarqube.tests.plugins.checks.RpgCheck;
 import org.sonarqube.tests.plugins.checks.SwiftCheck;
 import org.sonarqube.tests.plugins.checks.Validation;
 import org.sonarqube.tests.plugins.checks.WebCheck;
@@ -62,18 +57,23 @@ public class PluginsTest {
   private static final List<Check> CHECKS = Arrays.asList(
     new AbapCheck(),
     new CCheck(), new CppCheck(),
-    new CobolCheck(),
+    // FIXME needs to be compatible with SQ API 5.6+
+    //new CobolCheck(),
     // FIXME css plugin is temporary disabled as for the moment incompatible with the web plugin
     // new CssCheck(),
-    new FlexCheck(),
+    // FIXME needs to be compatible with SQ API 5.6+
+    // new FlexCheck(),
     new GroovyCheck(),
     new JavaCheck(),
     new JavascriptCheck(),
     new PhpCheck(),
-    new PliCheck(),
+    // FIXME needs to be compatible with SQ API 5.6+
+    //new PliCheck(),
     new PlsqlCheck(),
-    new PythonCheck(),
-    new RpgCheck(),
+    // FIXME needs to be compatible with SQ API 5.6+
+    //new PythonCheck(),
+    // FIXME needs to be compatible with SQ API 5.6+
+    //new RpgCheck(),
     new SwiftCheck(),
     // SONAR-7618 Visual Basic 2.2 not compatible with CE not loading @ServerSide
     // new VbCheck(),
@@ -89,22 +89,29 @@ public class PluginsTest {
     builder.addPlugin(MavenLocation.of("com.sonarsource.license", "sonar-dev-license-plugin", "3.2.0.1163"));
 
     // FIXME JSON plugin is temporarily disabled as for the moment the github repo doesn't exist anymore installPlugin(builder, "JSON");;
-    installPlugin(builder, "Sonargraph");
+    // FIXME needs to be compatible with SQ API 5.6+
+    // installPlugin(builder, "Sonargraph");
     installPlugin(builder, "abap");
     // FIXME AEM Rules plugin is disabled because it is no more compatible with SonarQube 6.4 (ClassNotFoundException: com.google.common.base.Functions) installPlugin(builder, "aemrules");
-    installPlugin(builder, "android");
+    // FIXME needs to be compatible with SQ API 5.6+
+    // installPlugin(builder, "android");
     installPlugin(builder, "authbitbucket");
     installPlugin(builder, "authgithub");
-    installPlugin(builder, "checkstyle");
-    installPlugin(builder, "clover");
-    installPlugin(builder, "cobol");
-    installPlugin(builder, "codecrackercsharp");
+    // FIXME needs to be compatible with SQ API 5.6+
+    // installPlugin(builder, "checkstyle");
+    // FIXME needs to be compatible with SQ API 5.6+
+    // installPlugin(builder, "clover");
+    // FIXME needs to be compatible with SQ API 5.6+
+    //installPlugin(builder, "cobol");
+    // FIXME needs to be compatible with SQ API 5.6+
+    // installPlugin(builder, "codecrackercsharp");
     installPlugin(builder, "cpp");
     installPlugin(builder, "csharp");
     // FIXME css plugin is temporarily disabled as for the moment incompatible with the web plugin installPlugin(builder, "css");
     // FIXME erlang plugin is temporarily disabled because it is not compatible with SQ 6.4 until usage of Colorizer API is removed
     // FIXME findbugs plugin is temporarily disabled because it is not compatible with SQ 6.4 until usage of Colorizer API is removed
-    installPlugin(builder, "flex");
+    // FIXME needs to be compatible with SQ API 5.6+
+    // installPlugin(builder, "flex");
     installPlugin(builder, "github");
     installPlugin(builder, "googleanalytics");
     installPlugin(builder, "groovy");
@@ -123,32 +130,45 @@ public class PluginsTest {
     installPlugin(builder, "l10nru");
     installPlugin(builder, "l10nzh");
     installPlugin(builder, "ldap");
-    installPlugin(builder, "lua");
+    // FIXME needs to be compatible with SQ API 5.6+
+    // installPlugin(builder, "lua");
     installPlugin(builder, "php");
     installPlugin(builder, "pitest");
-    installPlugin(builder, "pli");
+    // FIXME needs to be compatible with SQ API 5.6+
+    // installPlugin(builder, "pli");
     installPlugin(builder, "plsql");
-    installPlugin(builder, "pmd");
+    // FIXME needs to be compatible with SQ API 5.6+
+    // installPlugin(builder, "pmd");
     // FIXME puppet plugin is temporarily disabled because it is not compatible with SQ 6.4 until usage of Colorizer API is removed
-    installPlugin(builder, "python");
+    // FIXME needs to be compatible with SQ API 5.6+
+    // installPlugin(builder, "python");
     installPlugin(builder, "rci");
-    installPlugin(builder, "rpg");
-    installPlugin(builder, "scmclearcase");
-    installPlugin(builder, "scmcvs");
+    // FIXME needs to be compatible with SQ API 5.6+
+    //installPlugin(builder, "rpg");
+    // FIXME needs to be compatible with SQ API 5.6+
+    // installPlugin(builder, "scmclearcase");
+    // FIXME needs to be compatible with SQ API 5.6+
+    // installPlugin(builder, "scmcvs");
     installPlugin(builder, "scmgit");
-    installPlugin(builder, "scmjazzrtc");
-    installPlugin(builder, "scmmercurial");
-    installPlugin(builder, "scmperforce");
+    // FIXME needs to be compatible with SQ API 5.6+
+    // installPlugin(builder, "scmjazzrtc");
+    // FIXME needs to be compatible with SQ API 5.6+
+    // installPlugin(builder, "scmmercurial");
+    // FIXME needs to be compatible with SQ API 5.6+
+    // installPlugin(builder, "scmperforce");
     installPlugin(builder, "scmsvn");
-    installPlugin(builder, "scmtfvc");
+    // FIXME needs to be compatible with SQ API 5.6+
+    // installPlugin(builder, "scmtfvc");
     installPlugin(builder, "softvis3d");
-    installPlugin(builder, "sonargraphintegration");
+    // FIXME needs to be compatible with SQ API 5.6+
+    // installPlugin(builder, "sonargraphintegration");
     installPlugin(builder, "status");
     installPlugin(builder, "swift");
     // SONAR-7618 Visual Basic 2.2 not compatible with CE not loading @ServerSide installPlugin(builder, "vb");
     installPlugin(builder, "vbnet");
     installPlugin(builder, "web");
-    installPlugin(builder, "xanitizer");
+    // FIXME needs to be compatible with SQ API 5.6+
+    // installPlugin(builder, "xanitizer");
     installPlugin(builder, "xml");
 
     activateLicenses(builder);
