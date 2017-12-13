@@ -19,16 +19,16 @@
  */
 package org.sonar.server.user.ws;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.toList;
 
-public class UsersWsModuleTest {
-  @Test
-  public void verify_count_of_added_components() {
-    ComponentContainer container = new ComponentContainer();
-    new UsersWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(2 + 13);
+public enum HomepageTypes {
+
+  PROJECT, ORGANIZATION, MY_PROJECTS, MY_ISSUES;
+
+  public static List<String> keys() {
+    return stream(values()).map(Enum::toString).collect(toList());
   }
 }
