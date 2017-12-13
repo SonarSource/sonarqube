@@ -12,5 +12,9 @@
   "groups": ["Jedi", "Rebel"],
   "permissions": {
     "global": ["profileadmin", "scan"]
+  },
+  "homepage": {
+    "type": "project",
+    "key": "project-key"
   }
 }

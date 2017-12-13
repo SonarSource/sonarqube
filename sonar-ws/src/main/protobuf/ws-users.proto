@@ -107,9 +107,15 @@ message CurrentWsResponse {
   optional Permissions permissions = 10;
   optional bool showOnboardingTutorial = 11;
   optional string avatar = 12;
+  optional Homepage homepage = 13;
 
   message Permissions {
     repeated string global = 1;
+  }
+
+  message Homepage {
+    optional string type = 1;
+    optional string key = 2;
   }
 }
 
