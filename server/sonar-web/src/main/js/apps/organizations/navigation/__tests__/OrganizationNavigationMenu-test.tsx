@@ -1,7 +1,7 @@
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,39 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as React from 'react';
 import { shallow } from 'enzyme';
-import React from 'react';
-import GlobalFooter from '../GlobalFooter';
+import OrganizationNavigationMenu from '../OrganizationNavigationMenu';
 
-it('should render the only logged in information', () => {
-  expect(shallow(<GlobalFooter productionDatabase={true} />)).toMatchSnapshot();
-});
-
-it('should not render the only logged in information', () => {
+it('renders', () => {
   expect(
     shallow(
-      <GlobalFooter
-        hideLoggedInInfo={true}
-        productionDatabase={true}
-        onSonarCloud={{ value: 'false' }}
-        sonarqubeVersion="6.4-SNAPSHOT"
+      <OrganizationNavigationMenu
+        location={{ pathname: '' }}
+        organization={{
+          key: 'foo',
+          name: 'Foo',
+          projectVisibility: 'public'
+        }}
       />
     )
   ).toMatchSnapshot();
 });
 
-it('should show the db warning message', () => {
-  expect(shallow(<GlobalFooter productionDatabase={false} />).find('.alert')).toMatchSnapshot();
-});
-
-it('should display the sq version', () => {
+it('renders for admin', () => {
   expect(
-    shallow(<GlobalFooter productionDatabase={true} sonarqubeVersion="6.4-SNAPSHOT" />)
-  ).toMatchSnapshot();
-});
-
-it('should render SonarCloud footer', () => {
-  expect(
-    shallow(<GlobalFooter productionDatabase={true} onSonarCloud={{ value: 'true' }} />)
+    shallow(
+      <OrganizationNavigationMenu
+        location={{ pathname: '' }}
+        organization={{
+          canAdmin: true,
+          key: 'foo',
+          name: 'Foo',
+          projectVisibility: 'public'
+        }}
+      />
+    )
   ).toMatchSnapshot();
 });

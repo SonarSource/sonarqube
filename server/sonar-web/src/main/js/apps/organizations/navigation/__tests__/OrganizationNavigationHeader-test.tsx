@@ -1,6 +1,6 @@
 /*
  * SonarQube
- * Copyright (C) 2009-2016 SonarSource SA
+ * Copyright (C) 2009-2017 SonarSource SA
  * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -19,18 +19,37 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { NoFavoriteProjects } from '../NoFavoriteProjects';
+import OrganizationNavigationHeader from '../OrganizationNavigationHeader';
 
 it('renders', () => {
-  expect(shallow(<NoFavoriteProjects onSonarCloud={false} organizations={[]} />)).toMatchSnapshot();
+  expect(
+    shallow(
+      <OrganizationNavigationHeader
+        organization={{
+          key: 'foo',
+          name: 'Foo',
+          projectVisibility: 'public'
+        }}
+        organizations={[]}
+      />
+    )
+  ).toMatchSnapshot();
 });
 
-it('renders for SonarCloud', () => {
+it('renders dropdown', () => {
   const organizations = [
     { isAdmin: true, key: 'org1', name: 'org1', projectVisibility: 'public' },
     { isAdmin: false, key: 'org2', name: 'org2', projectVisibility: 'public' }
   ];
-  expect(
-    shallow(<NoFavoriteProjects onSonarCloud={true} organizations={organizations} />)
-  ).toMatchSnapshot();
+  const wrapper = shallow(
+    <OrganizationNavigationHeader
+      organization={{
+        key: 'foo',
+        name: 'Foo',
+        projectVisibility: 'public'
+      }}
+      organizations={organizations}
+    />
+  );
+  expect(wrapper.find('Dropdown').dive()).toMatchSnapshot();
 });

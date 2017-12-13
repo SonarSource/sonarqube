@@ -17,10 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { shallow } from 'enzyme';
-import React from 'react';
-import GlobalFooterSonarCloud from '../GlobalFooterSonarCloud';
+import * as React from 'react';
+import { IconProps } from './types';
 
-it('should render correctly', () => {
-  expect(shallow(<GlobalFooterSonarCloud />)).toMatchSnapshot();
-});
+export default function PlusIcon({ className, fill = 'currentColor', size = 16 }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 16 16"
+      version="1.1"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+      xmlSpace="preserve">
+      <path style={{ fill }} d="M1,7L7,7L7,1L9,1L9,7L15,7L15,9L9,9L9,15L7,15L7,9L1,9L1,7Z" />
+    </svg>
+  );
+}

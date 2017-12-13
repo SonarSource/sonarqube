@@ -18,26 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import * as classNames from 'classnames';
-import './NavBar.css';
+import OrganizationNavigationHeaderContainer from './OrganizationNavigationHeaderContainer';
+import OrganizationNavigationMeta from './OrganizationNavigationMeta';
+import OrganizationNavigationMenu from './OrganizationNavigationMenu';
+import * as theme from '../../../app/theme';
+import ContextNavBar from '../../../components/nav/ContextNavBar';
+import { Organization } from '../../../app/types';
+import './OrganizationNavigation.css';
 
 interface Props {
-  children?: any;
-  className?: string;
-  height: number;
-  notif?: React.ReactNode;
-  [prop: string]: any;
+  location: { pathname: string };
+  organization: Organization;
 }
 
-export default function NavBar({ children, className, height, notif, ...other }: Props) {
+export default function OrganizationNavigation({ organization, location }: Props) {
   return (
-    <nav {...other} className={classNames('navbar', className)} style={{ height }}>
-      <div
-        className={classNames('navbar-inner', { 'navbar-inner-with-notif': notif != null })}
-        style={{ height }}>
-        <div className="navbar-limited clearfix">{children}</div>
-        {notif}
-      </div>
-    </nav>
+    <ContextNavBar id="context-navigation" height={theme.contextNavHeightRaw}>
+      <OrganizationNavigationHeaderContainer organization={organization} />
+      <OrganizationNavigationMeta organization={organization} />
+      <OrganizationNavigationMenu location={location} organization={organization} />
+    </ContextNavBar>
   );
 }

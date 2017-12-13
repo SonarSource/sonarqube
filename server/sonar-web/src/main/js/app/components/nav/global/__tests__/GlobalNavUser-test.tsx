@@ -32,104 +32,35 @@ const appState = { organizationsEnabled: true };
 it('should render the right interface for anonymous user', () => {
   const currentUser = { isLoggedIn: false };
   const wrapper = shallow(
-    <GlobalNavUser
-      appState={appState}
-      currentUser={currentUser}
-      fetchMyOrganizations={jest.fn()}
-      organizations={[]}
-    />
+    <GlobalNavUser appState={appState} currentUser={currentUser} organizations={[]} />
   );
   expect(wrapper).toMatchSnapshot();
 });
 
 it('should render the right interface for logged in user', () => {
   const wrapper = shallow(
-    <GlobalNavUser
-      appState={appState}
-      currentUser={currentUser}
-      fetchMyOrganizations={jest.fn()}
-      organizations={[]}
-    />
+    <GlobalNavUser appState={appState} currentUser={currentUser} organizations={[]} />
   );
   wrapper.setState({ open: true });
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('Dropdown').dive()).toMatchSnapshot();
 });
 
-it('should render the users organizations', () => {
+it('should render user organizations', () => {
   const wrapper = shallow(
-    <GlobalNavUser
-      appState={appState}
-      currentUser={currentUser}
-      fetchMyOrganizations={jest.fn()}
-      organizations={organizations}
-    />
+    <GlobalNavUser appState={appState} currentUser={currentUser} organizations={organizations} />
   );
   wrapper.setState({ open: true });
-  expect(wrapper).toMatchSnapshot();
+  expect(wrapper.find('Dropdown').dive()).toMatchSnapshot();
 });
 
-it('should not render the users organizations when they are not activated', () => {
+it('should not render user organizations when they are not activated', () => {
   const wrapper = shallow(
     <GlobalNavUser
       appState={{ organizationsEnabled: false }}
       currentUser={currentUser}
-      fetchMyOrganizations={jest.fn()}
       organizations={organizations}
     />
   );
   wrapper.setState({ open: true });
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should update the component correctly when the user changes to anonymous', () => {
-  const fetchMyOrganizations = jest.fn();
-  const wrapper = shallow(
-    <GlobalNavUser
-      appState={appState}
-      currentUser={currentUser}
-      fetchMyOrganizations={fetchMyOrganizations}
-      organizations={[]}
-    />
-  );
-  wrapper.setState({ open: true });
-  expect(wrapper).toMatchSnapshot();
-  wrapper.setProps({ currentUser: { isLoggedIn: false } });
-  expect(fetchMyOrganizations.mock.calls.length).toBe(0);
-  expect(wrapper).toMatchSnapshot();
-});
-
-it('should lazyload the organizations when opening the dropdown', () => {
-  const fetchMyOrganizations = jest.fn(() => Promise.resolve());
-  const wrapper = shallow(
-    <GlobalNavUser
-      appState={appState}
-      currentUser={currentUser}
-      fetchMyOrganizations={fetchMyOrganizations}
-      organizations={organizations}
-    />
-  );
-  expect(fetchMyOrganizations.mock.calls.length).toBe(0);
-  (wrapper.instance() as GlobalNavUser).openDropdown();
-  expect(fetchMyOrganizations.mock.calls.length).toBe(1);
-  (wrapper.instance() as GlobalNavUser).openDropdown();
-  expect(fetchMyOrganizations.mock.calls.length).toBe(2);
-});
-
-it('should update the organizations when the user changes', () => {
-  const fetchMyOrganizations = jest.fn(() => Promise.resolve());
-  const wrapper = shallow(
-    <GlobalNavUser
-      appState={appState}
-      currentUser={currentUser}
-      fetchMyOrganizations={fetchMyOrganizations}
-      organizations={organizations}
-    />
-  );
-  (wrapper.instance() as GlobalNavUser).openDropdown();
-  expect(fetchMyOrganizations.mock.calls.length).toBe(1);
-  wrapper.setProps({
-    currentUser: { isLoggedIn: true, name: 'test', email: 'test@sonarsource.com' }
-  });
-  (wrapper.instance() as GlobalNavUser).openDropdown();
-  expect(fetchMyOrganizations.mock.calls.length).toBe(2);
+  expect(wrapper.find('Dropdown').dive()).toMatchSnapshot();
 });

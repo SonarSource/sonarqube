@@ -17,51 +17,51 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { connect } from 'react-redux';
 import GlobalNavBranding from './GlobalNavBranding';
 import GlobalNavMenu from './GlobalNavMenu';
 import GlobalNavExplore from './GlobalNavExplore';
 import GlobalNavUserContainer from './GlobalNavUserContainer';
+import GlobalNavPlus from './GlobalNavPlus';
 import Search from '../../search/Search';
 import GlobalHelp from '../../help/GlobalHelp';
 import * as theme from '../../../theme';
+import { isLoggedIn, CurrentUser, AppState } from '../../../types';
+import OnboardingModal from '../../../../apps/tutorials/onboarding/OnboardingModal';
 import NavBar from '../../../../components/nav/NavBar';
 import Tooltip from '../../../../components/controls/Tooltip';
 import HelpIcon from '../../../../components/icons-components/HelpIcon';
-import OnboardingModal from '../../../../apps/tutorials/onboarding/OnboardingModal';
+import { translate } from '../../../../helpers/l10n';
 import { getCurrentUser, getAppState, getGlobalSettingValue } from '../../../../store/rootReducer';
 import { skipOnboarding } from '../../../../store/users/actions';
-import { translate } from '../../../../helpers/l10n';
 import './GlobalNav.css';
 
-/*::
-type Props = {
-  appState: { organizationsEnabled: boolean },
-  currentUser: { isLoggedIn: boolean, showOnboardingTutorial: boolean },
-  location: { pathname: string },
-  skipOnboarding: () => void,
-  onSonarCloud: boolean
-};
-*/
+interface StateProps {
+  appState: AppState;
+  currentUser: CurrentUser;
+  onSonarCloud: boolean;
+}
 
-/*::
-type State = {
-  helpOpen: boolean,
-  onboardingTutorialOpen: boolean,
-  onboardingTutorialTooltip: boolean
-};
-*/
+interface DispatchProps {
+  skipOnboarding: () => void;
+}
 
-class GlobalNav extends React.PureComponent {
-  /*:: interval: ?number; */
-  /*:: props: Props; */
-  state /*: State */ = {
-    helpOpen: false,
-    onboardingTutorialOpen: false,
-    onboardingTutorialTooltip: false
-  };
+interface Props extends StateProps, DispatchProps {
+  closeOnboardingTutorial: () => void;
+  isOnboardingTutorialOpen: boolean;
+  location: { pathname: string };
+  openOnboardingTutorial: () => void;
+}
+
+interface State {
+  helpOpen: boolean;
+  onboardingTutorialTooltip: boolean;
+}
+
+class GlobalNav extends React.PureComponent<Props, State> {
+  interval?: number;
+  state: State = { helpOpen: false, onboardingTutorialTooltip: false };
 
   componentDidMount() {
     window.addEventListener('keypress', this.onKeyPress);
@@ -77,9 +77,9 @@ class GlobalNav extends React.PureComponent {
     window.removeEventListener('keypress', this.onKeyPress);
   }
 
-  onKeyPress = e => {
-    const tagName = e.target.tagName;
-    const code = e.keyCode || e.which;
+  onKeyPress = (event: KeyboardEvent) => {
+    const { tagName } = event.target as HTMLElement;
+    const code = event.keyCode || event.which;
     const isInput = tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
     const isTriggerKey = code === 63;
     if (!isInput && isTriggerKey) {
@@ -87,7 +87,7 @@ class GlobalNav extends React.PureComponent {
     }
   };
 
-  handleHelpClick = event => {
+  handleHelpClick = (event: React.SyntheticEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     this.openHelp();
   };
@@ -96,12 +96,16 @@ class GlobalNav extends React.PureComponent {
 
   closeHelp = () => this.setState({ helpOpen: false });
 
-  openOnboardingTutorial = () => this.setState({ helpOpen: false, onboardingTutorialOpen: true });
+  openOnboardingTutorial = () => {
+    this.setState({ helpOpen: false });
+    this.props.openOnboardingTutorial();
+  };
 
   closeOnboardingTutorial = () => {
-    this.setState({ onboardingTutorialOpen: false, onboardingTutorialTooltip: true });
+    this.setState({ onboardingTutorialTooltip: true });
     this.props.skipOnboarding();
-    this.interval = setInterval(() => {
+    this.props.closeOnboardingTutorial();
+    this.interval = window.setInterval(() => {
       this.setState({ onboardingTutorialTooltip: false });
     }, 3000);
   };
@@ -130,6 +134,10 @@ class GlobalNav extends React.PureComponent {
             </a>
           </li>
           <Search appState={this.props.appState} currentUser={this.props.currentUser} />
+          {isLoggedIn(this.props.currentUser) &&
+            this.props.onSonarCloud && (
+              <GlobalNavPlus openOnboardingTutorial={this.openOnboardingTutorial} />
+            )}
           <GlobalNavUserContainer {...this.props} />
         </ul>
 
@@ -142,7 +150,7 @@ class GlobalNav extends React.PureComponent {
           />
         )}
 
-        {this.state.onboardingTutorialOpen && (
+        {this.props.isOnboardingTutorialOpen && (
           <OnboardingModal onFinish={this.closeOnboardingTutorial} />
         )}
       </NavBar>
@@ -150,7 +158,7 @@ class GlobalNav extends React.PureComponent {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: any): StateProps => {
   const sonarCloudSetting = getGlobalSettingValue(state, 'sonar.sonarcloud.enabled');
 
   return {
@@ -160,6 +168,6 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = { skipOnboarding };
+const mapDispatchToProps: DispatchProps = { skipOnboarding };
 
 export default connect(mapStateToProps, mapDispatchToProps)(GlobalNav);

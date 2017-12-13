@@ -1,7 +1,7 @@
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,20 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import { getAppState, getGlobalSettingValue } from '../../store/rootReducer';
-import GlobalFooter from './GlobalFooter';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import OrganizationNavigationMeta from '../OrganizationNavigationMeta';
 
-interface StateProps {
-  onSonarCloud?: { value: string };
-  productionDatabase: boolean;
-  sonarqubeVersion?: string;
-}
-
-const mapStateToProps = (state: any): StateProps => ({
-  sonarqubeVersion: getAppState(state).version,
-  productionDatabase: getAppState(state).productionDatabase,
-  onSonarCloud: getGlobalSettingValue(state, 'sonar.sonarcloud.enabled')
+it('renders', () => {
+  expect(
+    shallow(
+      <OrganizationNavigationMeta
+        organization={{
+          key: 'foo',
+          name: 'Foo',
+          projectVisibility: 'public'
+        }}
+      />
+    )
+  ).toMatchSnapshot();
 });
-
-export default connect(mapStateToProps)(GlobalFooter);

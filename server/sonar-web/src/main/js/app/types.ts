@@ -115,6 +115,7 @@ export interface Organization {
   canProvisionProjects?: boolean;
   canUpdateProjectsVisibilityToPrivate?: boolean;
   description?: string;
+  isAdmin?: boolean;
   isDefault?: boolean;
   key: string;
   name: string;
@@ -148,4 +149,14 @@ export interface LoggedInUser extends CurrentUser {
 
 export function isLoggedIn(user: CurrentUser): user is LoggedInUser {
   return user.isLoggedIn;
+}
+
+export interface AppState {
+  adminPages?: Extension[];
+  authenticationError: boolean;
+  authorizationError: boolean;
+  canAdmin?: boolean;
+  globalPages?: Extension[];
+  organizationsEnabled: boolean;
+  qualifiers: string[];
 }

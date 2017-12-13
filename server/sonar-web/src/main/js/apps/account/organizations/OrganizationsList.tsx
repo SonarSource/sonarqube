@@ -17,20 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
-import { getAppState, getGlobalSettingValue } from '../../store/rootReducer';
-import GlobalFooter from './GlobalFooter';
+import * as React from 'react';
+import { sortBy } from 'lodash';
+import OrganizationCard from './OrganizationCard';
+import { Organization } from '../../../app/types';
 
-interface StateProps {
-  onSonarCloud?: { value: string };
-  productionDatabase: boolean;
-  sonarqubeVersion?: string;
+interface Props {
+  organizations: Organization[];
 }
 
-const mapStateToProps = (state: any): StateProps => ({
-  sonarqubeVersion: getAppState(state).version,
-  productionDatabase: getAppState(state).productionDatabase,
-  onSonarCloud: getGlobalSettingValue(state, 'sonar.sonarcloud.enabled')
-});
-
-export default connect(mapStateToProps)(GlobalFooter);
+export default function OrganizationsList({ organizations }: Props) {
+  return (
+    <ul className="account-projects-list">
+      {sortBy(organizations, organization =>
+        organization.name.toLocaleLowerCase()
+      ).map(organization => (
+        <li key={organization.key}>
+          <OrganizationCard organization={organization} />
+        </li>
+      ))}
+    </ul>
+  );
+}

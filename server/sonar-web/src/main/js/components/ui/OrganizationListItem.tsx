@@ -17,25 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import GlobalNav from './nav/global/GlobalNav';
-import GlobalFooterContainer from './GlobalFooterContainer';
-import GlobalMessagesContainer from './GlobalMessagesContainer';
+import * as React from 'react';
+import { Organization } from '../../app/types';
+import OrganizationLink from './OrganizationLink';
+import OrganizationAvatar from '../common/OrganizationAvatar';
+import { translate } from '../../helpers/l10n';
 
-export default function GlobalContainer(props /*: Object */) {
-  // it is important to pass `location` down to `GlobalNav` to trigger render on url change
+interface Props {
+  organization: Organization;
+}
 
+export default function OrganizationListItem({ organization }: Props) {
   return (
-    <div className="global-container">
-      <div className="page-wrapper" id="container">
-        <div className="page-container">
-          <GlobalNav location={props.location} />
-          <GlobalMessagesContainer />
-          {props.children}
+    <li>
+      <OrganizationLink className="dropdown-item-flex" organization={organization}>
+        <div>
+          <OrganizationAvatar organization={organization} small={true} />
+          <span className="spacer-left">{organization.name}</span>
         </div>
-      </div>
-      <GlobalFooterContainer />
-    </div>
+        {organization.isAdmin && (
+          <span className="outline-badge spacer-left">{translate('admin')}</span>
+        )}
+      </OrganizationLink>
+    </li>
   );
 }

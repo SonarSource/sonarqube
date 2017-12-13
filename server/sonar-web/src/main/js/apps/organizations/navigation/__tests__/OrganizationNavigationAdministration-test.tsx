@@ -1,7 +1,7 @@
 /*
  * SonarQube
  * Copyright (C) 2009-2017 SonarSource SA
- * mailto:info AT sonarsource DOT com
+ * mailto:contact AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,28 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
-import { sortBy } from 'lodash';
-import OrganizationCard from './OrganizationCard';
-/*:: import type { Organization } from '../../../store/organizations/duck'; */
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import OrganizationNavigationAdministration from '../OrganizationNavigationAdministration';
 
-/*::
-type Props = {
-  organizations: Array<Organization>
-};
-*/
-
-export default function OrganizationsList(props /*: Props */) {
-  return (
-    <ul className="account-projects-list">
-      {sortBy(props.organizations, organization =>
-        organization.name.toLocaleLowerCase()
-      ).map(organization => (
-        <li key={organization.key}>
-          <OrganizationCard organization={organization} />
-        </li>
-      ))}
-    </ul>
+it('renders', () => {
+  const wrapper = shallow(
+    <OrganizationNavigationAdministration
+      location={{ pathname: '' }}
+      organization={{
+        key: 'foo',
+        name: 'Foo',
+        projectVisibility: 'public'
+      }}
+    />
   );
-}
+  expect(wrapper.find('Dropdown').dive()).toMatchSnapshot();
+});

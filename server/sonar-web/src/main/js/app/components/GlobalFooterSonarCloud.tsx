@@ -17,8 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-// @flow
-import React from 'react';
+import * as React from 'react';
 import { translate } from '../../helpers/l10n';
 
 export default function GlobalFooterSonarCloud() {
@@ -32,19 +31,26 @@ export default function GlobalFooterSonarCloud() {
         . All rights reserved.
       </div>
 
-      <div>
-        <a href="https://about.sonarcloud.io/news/">{translate('footer.news')}</a>
-        {' - '}
-        <a href="https://about.sonarcloud.io/terms.pdf">{translate('footer.terms')}</a>
-        {' - '}
-        <a href="https://twitter.com/sonarqube">{translate('footer.twitter')}</a>
-        {' - '}
-        <a href="https://about.sonarcloud.io/get-started/">{translate('footer.get_started')}</a>
-        {' - '}
-        <a href="https://about.sonarcloud.io/contact/">{translate('footer.help')}</a>
-        {' - '}
-        <a href="https://about.sonarcloud.io/">{translate('footer.about')}</a>
-      </div>
+      <ul className="page-footer-menu">
+        <li className="page-footer-menu-item">
+          <a href="https://about.sonarcloud.io/news/">{translate('footer.news')}</a>
+        </li>
+        <li className="page-footer-menu-item">
+          <a href="https://about.sonarcloud.io/terms.pdf">{translate('footer.terms')}</a>
+        </li>
+        <li className="page-footer-menu-item">
+          <a href="https://twitter.com/sonarqube">{translate('footer.twitter')}</a>
+        </li>
+        <li className="page-footer-menu-item">
+          <a href="https://about.sonarcloud.io/get-started/">{translate('footer.get_started')}</a>
+        </li>
+        <li className="page-footer-menu-item">
+          <a href="https://about.sonarcloud.io/contact/">{translate('footer.help')}</a>
+        </li>
+        <li className="page-footer-menu-item">
+          <a href="https://about.sonarcloud.io/">{translate('footer.about')}</a>
+        </li>
+      </ul>
     </div>
   );
 }
