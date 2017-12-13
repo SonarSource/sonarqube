@@ -169,7 +169,7 @@ exports[`guides for sonarcloud 1`] = `
         <p
           className="note"
         >
-          tutorials.find_it_back_in_help
+          tutorials.find_it_back_in_plus
         </p>
       </div>
       <div
@@ -249,7 +249,7 @@ exports[`guides for sonarcloud 2`] = `
         <p
           className="note"
         >
-          tutorials.find_it_back_in_help
+          tutorials.find_it_back_in_plus
         </p>
       </div>
       <div
@@ -330,7 +330,7 @@ exports[`guides for sonarcloud 3`] = `
         <p
           className="note"
         >
-          tutorials.find_it_back_in_help
+          tutorials.find_it_back_in_plus
         </p>
       </div>
       <div

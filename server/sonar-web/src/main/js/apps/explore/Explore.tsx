@@ -32,9 +32,9 @@ export default function Explore(props: Props) {
   return (
     <div id="explore">
       <ContextNavBar id="explore-navigation" height={theme.contextNavHeightRaw}>
-        <div className="navbar-context-header">
-          <h1 className="display-inline-block">{translate('explore')}</h1>
-        </div>
+        <header className="navbar-context-header">
+          <h1>{translate('explore')}</h1>
+        </header>
 
         <NavBarTabs>
           <li>

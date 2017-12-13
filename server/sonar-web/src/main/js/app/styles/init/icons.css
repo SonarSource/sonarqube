@@ -476,11 +476,11 @@ a:hover > .icon-radio {
   background-image: url('data:image/svg+xml,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill-rule%3D%22evenodd%22%20clip-rule%3D%22evenodd%22%20stroke-linejoin%3D%22round%22%20stroke-miterlimit%3D%221.414%22%3E%3Cpath%20d%3D%22M15.428%205.777c0%20.13-.078.274-.233.428l-3.24%203.16.767%204.465c.006.042.01.102.01.18%200%20.124-.032.23-.095.316-.062.086-.153.13-.272.13-.113%200-.232-.036-.357-.108l-4.01-2.107L3.99%2014.35c-.13.072-.25.107-.357.107-.125%200-.22-.043-.28-.13-.064-.085-.095-.19-.095-.316%200-.037.006-.096.018-.18l.768-4.464-3.25-3.16C.644%206.045.57%205.9.57%205.775c0-.22.167-.356.5-.41l4.482-.652L7.562.652c.112-.244.258-.366.437-.366.177%200%20.323.122.436.366l2.01%204.062%204.48.652c.335.054.5.19.5.41h.002z%22%20fill%3D%22%23CDCDCD%22%20fill-rule%3D%22nonzero%22%2F%3E%3C%2Fsvg%3E');
 }
 
-.icon-star {
+.icon-outline {
   transition: all 0.2s ease !important;
 }
 
-.icon-star path {
+.icon-outline path {
   stroke: var(--secondFontColor);
   stroke-width: 1.41421356;
   stroke-opacity: 1;
@@ -488,9 +488,9 @@ a:hover > .icon-radio {
   transition: all 0.2s ease;
 }
 
-.icon-star-favorite path {
-  fill: #ff9900;
-  stroke-opacity: 0;
+.icon-outline.is-filled path {
+  fill: currentColor;
+  stroke: currentColor;
   fill-opacity: 1;
 }
 

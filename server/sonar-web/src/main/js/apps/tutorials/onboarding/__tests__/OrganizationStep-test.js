@@ -26,7 +26,9 @@ import { getOrganizations } from '../../../../api/organizations';
 
 jest.mock('../../../../api/organizations', () => ({
   getOrganizations: jest.fn(() =>
-    Promise.resolve({ organizations: [{ key: 'user' }, { key: 'another' }] })
+    Promise.resolve({
+      organizations: [{ isAdmin: true, key: 'user' }, { isAdmin: true, key: 'another' }]
+    })
   )
 }));
 

@@ -28,15 +28,6 @@ exports[`renders 1`] = `
   }
 >
   <ComponentNavBreadcrumbs
-    breadcrumbs={
-      Array [
-        Object {
-          "key": "component",
-          "name": "component",
-          "qualifier": "TRK",
-        },
-      ]
-    }
     component={
       Object {
         "breadcrumbs": Array [
@@ -52,9 +43,6 @@ exports[`renders 1`] = `
         "qualifier": "TRK",
       }
     }
-  />
-  <ComponentNavFavorite
-    component="component"
   />
   <ComponentNavMeta
     component={

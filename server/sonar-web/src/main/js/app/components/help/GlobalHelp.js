@@ -88,7 +88,7 @@ export default class GlobalHelp extends React.PureComponent {
 
   renderMenu = () => (
     <ul className="side-tabs-menu">
-      {(this.props.currentUser.isLoggedIn
+      {(this.props.currentUser.isLoggedIn && !this.props.onSonarCloud
         ? ['shortcuts', 'tutorials', 'links']
         : ['shortcuts', 'links']
       ).map(this.renderMenuItem)}
