@@ -80,6 +80,7 @@ export interface Component {
   qualifier: string;
   refKey?: string;
   version?: string;
+  visibility?: string;
 }
 
 interface ComponentConfiguration {
@@ -140,9 +141,19 @@ export interface CurrentUser {
   showOnboardingTutorial?: boolean;
 }
 
+export interface HomePage {
+  key?: string;
+  type: string;
+}
+
+export function isSameHomePage(a: HomePage, b: HomePage) {
+  return a.type === b.type && a.key === b.key;
+}
+
 export interface LoggedInUser extends CurrentUser {
   avatar?: string;
   email?: string;
+  homepage?: HomePage;
   isLoggedIn: true;
   name: string;
 }
