@@ -92,14 +92,16 @@ export default class HoldersList extends React.PureComponent<Props> {
     ));
 
     return (
-      <table className="data zebra permissions-table">
-        {this.renderTableHeader()}
-        <tbody>
-          {users.length === 0 && groups.length === 0 && this.renderEmpty()}
-          {users}
-          {groups}
-        </tbody>
-      </table>
+      <div className="boxed-group boxed-group-inner">
+        <table className="data zebra permissions-table">
+          {this.renderTableHeader()}
+          <tbody>
+            {users.length === 0 && groups.length === 0 && this.renderEmpty()}
+            {users}
+            {groups}
+          </tbody>
+        </table>
+      </div>
     );
   }
 }

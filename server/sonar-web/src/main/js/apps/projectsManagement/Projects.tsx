@@ -50,32 +50,34 @@ export default class Projects extends React.PureComponent<Props> {
 
   render() {
     return (
-      <table
-        className={classNames('data', 'zebra', { 'new-loading': !this.props.ready })}
-        id="projects-management-page-projects">
-        <thead>
-          <tr>
-            <th />
-            <th>{translate('name')}</th>
-            <th />
-            <th>{translate('key')}</th>
-            <th className="thin nowrap text-right">{translate('last_analysis')}</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {this.props.projects.map(project => (
-            <ProjectRow
-              currentUser={this.props.currentUser}
-              key={project.key}
-              onApplyTemplate={this.handleApplyTemplate}
-              onProjectCheck={this.onProjectCheck}
-              project={project}
-              selected={this.props.selection.includes(project.key)}
-            />
-          ))}
-        </tbody>
-      </table>
+      <div className="boxed-group boxed-group-inner">
+        <table
+          className={classNames('data', 'zebra', { 'new-loading': !this.props.ready })}
+          id="projects-management-page-projects">
+          <thead>
+            <tr>
+              <th />
+              <th>{translate('name')}</th>
+              <th />
+              <th>{translate('key')}</th>
+              <th className="thin nowrap text-right">{translate('last_analysis')}</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {this.props.projects.map(project => (
+              <ProjectRow
+                currentUser={this.props.currentUser}
+                key={project.key}
+                onApplyTemplate={this.handleApplyTemplate}
+                onProjectCheck={this.onProjectCheck}
+                project={project}
+                selected={this.props.selection.includes(project.key)}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
     );
   }
 }

@@ -79,7 +79,7 @@ export default class PluginsList extends React.PureComponent<Props> {
 
   render() {
     return (
-      <div id="marketplace-plugins">
+      <div className="boxed-group boxed-group-inner" id="marketplace-plugins">
         <ul>
           {this.props.plugins.map(plugin => (
             <li key={plugin.key} className="panel panel-vertical">

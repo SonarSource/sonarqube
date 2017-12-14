@@ -26,7 +26,7 @@
 
 html,
 body {
-  background-color: #fff;
+  background-color: var(--barBackgroundColor);
 }
 
 body {

@@ -18,8 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import ComponentNavBranch from './ComponentNavBranch';
-import ComponentNavBreadcrumbs from './ComponentNavBreadcrumbs';
+import ComponentNavHeader from './ComponentNavHeader';
 import ComponentNavMeta from './ComponentNavMeta';
 import ComponentNavMenu from './ComponentNavMenu';
 import ComponentNavBgTaskNotif from './ComponentNavBgTaskNotif';
@@ -111,16 +110,13 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
         id="context-navigation"
         height={notifComponent ? theme.contextNavHeightRaw + 20 : theme.contextNavHeightRaw}
         notif={notifComponent}>
-        <ComponentNavBreadcrumbs component={this.props.component} />
-        {this.props.currentBranch && (
-          <ComponentNavBranch
-            branches={this.props.branches}
-            component={this.props.component}
-            currentBranch={this.props.currentBranch}
-            // to close dropdown on any location change
-            location={this.props.location}
-          />
-        )}
+        <ComponentNavHeader
+          branches={this.props.branches}
+          component={this.props.component}
+          currentBranch={this.props.currentBranch}
+          // to close dropdown on any location change
+          location={this.props.location}
+        />
         <ComponentNavMeta branch={this.props.currentBranch} component={this.props.component} />
         <ComponentNavMenu
           branch={this.props.currentBranch}

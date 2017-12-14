@@ -62,13 +62,15 @@ export interface Extension {
   name: string;
 }
 
+export interface Breadcrumb {
+  key: string;
+  name: string;
+  qualifier: string;
+}
+
 export interface Component {
   analysisDate?: string;
-  breadcrumbs: Array<{
-    key: string;
-    name: string;
-    qualifier: string;
-  }>;
+  breadcrumbs: Breadcrumb[];
   configuration?: ComponentConfiguration;
   description?: string;
   extensions?: Extension[];
@@ -141,13 +143,20 @@ export interface CurrentUser {
   showOnboardingTutorial?: boolean;
 }
 
+export enum HomePageType {
+  Project = 'PROJECT',
+  Organization = 'ORGANIZATION',
+  MyProjects = 'MY_PROJECTS',
+  MyIssues = 'MY_ISSUES'
+}
+
 export interface HomePage {
-  key?: string;
-  type: string;
+  parameter?: string;
+  type: HomePageType;
 }
 
 export function isSameHomePage(a: HomePage, b: HomePage) {
-  return a.type === b.type && a.key === b.key;
+  return a.type === b.type && a.parameter === b.parameter;
 }
 
 export interface LoggedInUser extends CurrentUser {

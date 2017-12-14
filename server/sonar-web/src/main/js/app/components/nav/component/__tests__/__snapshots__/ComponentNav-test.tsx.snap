@@ -27,7 +27,8 @@ exports[`renders 1`] = `
     />
   }
 >
-  <ComponentNavBreadcrumbs
+  <ComponentNavHeader
+    branches={Array []}
     component={
       Object {
         "breadcrumbs": Array [
@@ -43,6 +44,7 @@ exports[`renders 1`] = `
         "qualifier": "TRK",
       }
     }
+    location={Object {}}
   />
   <ComponentNavMeta
     component={

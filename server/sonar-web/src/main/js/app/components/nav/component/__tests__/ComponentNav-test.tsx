@@ -29,9 +29,9 @@ jest.mock('../ComponentNavMeta', () => ({
   }
 }));
 
-jest.mock('../ComponentNavBreadcrumbs', () => ({
+jest.mock('../ComponentNavHeader', () => ({
   // eslint-disable-next-line
-  default: function ComponentNavBreadcrumbs() {
+  default: function ComponentNavHeader() {
     return null;
   }
 }));

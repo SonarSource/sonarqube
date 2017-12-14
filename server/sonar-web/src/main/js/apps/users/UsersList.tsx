@@ -38,31 +38,33 @@ export default function UsersList({
   users
 }: Props) {
   return (
-    <table id="users-list" className="data zebra">
-      <thead>
-        <tr>
-          <th />
-          <th className="nowrap" />
-          <th className="nowrap">{translate('my_profile.scm_accounts')}</th>
-          {!organizationsEnabled && <th className="nowrap">{translate('my_profile.groups')}</th>}
-          <th className="nowrap">{translate('users.tokens')}</th>
-          <th className="nowrap">&nbsp;</th>
-        </tr>
-      </thead>
-      <tbody>
-        {users.map(user => (
-          <UserListItem
-            identityProvider={identityProviders.find(
-              provider => user.externalProvider === provider.key
-            )}
-            isCurrentUser={currentUser.isLoggedIn && currentUser.login === user.login}
-            key={user.login}
-            onUpdateUsers={onUpdateUsers}
-            organizationsEnabled={organizationsEnabled}
-            user={user}
-          />
-        ))}
-      </tbody>
-    </table>
+    <div className="boxed-group boxed-group-inner">
+      <table id="users-list" className="data zebra">
+        <thead>
+          <tr>
+            <th />
+            <th className="nowrap" />
+            <th className="nowrap">{translate('my_profile.scm_accounts')}</th>
+            {!organizationsEnabled && <th className="nowrap">{translate('my_profile.groups')}</th>}
+            <th className="nowrap">{translate('users.tokens')}</th>
+            <th className="nowrap">&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map(user => (
+            <UserListItem
+              identityProvider={identityProviders.find(
+                provider => user.externalProvider === provider.key
+              )}
+              isCurrentUser={currentUser.isLoggedIn && currentUser.login === user.login}
+              key={user.login}
+              onUpdateUsers={onUpdateUsers}
+              organizationsEnabled={organizationsEnabled}
+              user={user}
+            />
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

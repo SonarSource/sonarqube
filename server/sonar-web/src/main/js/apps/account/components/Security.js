@@ -31,11 +31,7 @@ function Security(props) {
   return (
     <div className="account-body account-container">
       <Helmet title={translate('my_account.security')} />
-
       <Tokens user={user} />
-
-      {user.local && <hr className="account-separator" />}
-
       {user.local && <Password user={user} />}
     </div>
   );

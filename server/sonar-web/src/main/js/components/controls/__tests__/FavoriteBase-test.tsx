@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import FavoriteBase from '../FavoriteBase';
+import FavoriteBase, { Props } from '../FavoriteBase';
 import { click } from '../../../helpers/testUtils';
 
 it('should render favorite', () => {
@@ -46,8 +46,14 @@ it('should remove favorite', () => {
   expect(removeFavorite).toBeCalled();
 });
 
-function renderFavoriteBase(props?: any) {
+function renderFavoriteBase(props: Partial<Props> = {}) {
   return shallow(
-    <FavoriteBase favorite={true} addFavorite={jest.fn()} removeFavorite={jest.fn()} {...props} />
+    <FavoriteBase
+      favorite={true}
+      addFavorite={jest.fn()}
+      qualifier="TRK"
+      removeFavorite={jest.fn()}
+      {...props}
+    />
   );
 }
