@@ -28,6 +28,14 @@
   </properties>
 
   <dependencies>
+   <!-- This is just to force Maven to download it in local repository -->
+    <dependency>
+      <groupId>com.sonarsource.license</groupId>
+      <artifactId>sonar-dev-license-plugin</artifactId>
+      <!-- Should be the same version than in Orchestrator builder in your test suite -->
+      <version>3.2.0.1163</version>
+      <scope>runtime</scope>
+    </dependency>
     <dependency>
       <!-- required for selenide -->
       <groupId>com.google.guava</groupId>
