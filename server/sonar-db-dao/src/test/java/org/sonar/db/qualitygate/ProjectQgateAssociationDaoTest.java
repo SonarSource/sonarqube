@@ -131,6 +131,26 @@ public class ProjectQgateAssociationDaoTest {
   }
 
   @Test
+  public void return_only_projects_from_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto otherOrganization = db.organizations().insert();
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    QGateWithOrgDto otherQualityGate = db.qualityGates().insertQualityGate(otherOrganization);
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    ComponentDto otherProject = db.components().insertPrivateProject(otherOrganization);
+    db.qualityGates().associateProjectToQualityGate(project, qualityGate);
+    db.qualityGates().associateProjectToQualityGate(otherProject, otherQualityGate);
+
+    List<ProjectQgateAssociationDto> result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
+      .qualityGate(qualityGate)
+      .build());
+
+    assertThat(result)
+      .extracting(ProjectQgateAssociationDto::getId)
+      .containsExactlyInAnyOrder(project.getId());
+  }
+
+  @Test
   public void select_qgate_id_is_absent() {
     ComponentDto project = db.components().insertPrivateProject();
 

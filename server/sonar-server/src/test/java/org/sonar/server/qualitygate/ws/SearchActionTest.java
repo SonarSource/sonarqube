@@ -316,7 +316,7 @@ public class SearchActionTest {
     OrganizationDto organization = db.organizations().insert();
     QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
     for (int i = 0; i < 20; i++) {
-      ComponentDto project = db.components().insertPublicProject();
+      ComponentDto project = db.components().insertPublicProject(organization);
       db.qualityGates().associateProjectToQualityGate(project, qualityGate);
     }
 
@@ -331,6 +331,28 @@ public class SearchActionTest {
 
     assertThat(response.getMore()).isTrue();
     assertThat(response.getResultsCount()).isEqualTo(10);
+  }
+
+  @Test
+  public void return_only_projects_from_organization() {
+    OrganizationDto organization = db.organizations().insert();
+    OrganizationDto otherOrganization = db.organizations().insert();
+    QualityGateDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    QualityGateDto otherQualityGate = db.qualityGates().insertQualityGate(otherOrganization);
+    ComponentDto project = db.components().insertPublicProject(organization);
+    ComponentDto otherProject = db.components().insertPublicProject(otherOrganization);
+    db.qualityGates().associateProjectToQualityGate(project, qualityGate);
+    db.qualityGates().associateProjectToQualityGate(otherProject, otherQualityGate);
+
+    SearchResponse response = ws.newRequest()
+      .setParam(PARAM_GATE_ID, valueOf(qualityGate.getId()))
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .setParam(PARAM_SELECTED, ALL.value())
+      .executeProtobuf(SearchResponse.class);
+
+    assertThat(response.getResultsList())
+      .extracting(Result::getName)
+      .containsExactlyInAnyOrder(project.name());
   }
 
   @Test
