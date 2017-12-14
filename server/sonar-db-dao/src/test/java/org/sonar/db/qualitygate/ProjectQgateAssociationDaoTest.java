@@ -23,67 +23,111 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.property.PropertyDto;
+import org.sonar.db.organization.OrganizationDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class ProjectQgateAssociationDaoTest {
 
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create();
 
-  private DbClient dbClient = db.getDbClient();
   private DbSession dbSession = db.getSession();
   private ProjectQgateAssociationDao underTest = db.getDbClient().projectQgateAssociationDao();
 
   @Test
   public void select_all_projects_by_query() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto qualityGate1 = db.qualityGates().insertQualityGate(organization);
+    QGateWithOrgDto qualityGate2 = db.qualityGates().insertQualityGate(organization);
+    ComponentDto project1 = db.components().insertPrivateProject(organization);
+    ComponentDto project2 = db.components().insertPrivateProject(organization);
+    ComponentDto project3 = db.components().insertPrivateProject(organization);
+    db.qualityGates().associateProjectToQualityGate(project1, qualityGate1);
+    db.qualityGates().associateProjectToQualityGate(project2, qualityGate1);
+    db.qualityGates().associateProjectToQualityGate(project3, qualityGate2);
 
-    ProjectQgateAssociationQuery query = ProjectQgateAssociationQuery.builder().gateId(42L).build();
-    List<ProjectQgateAssociationDto> result = underTest.selectProjects(dbSession, query);
-    assertThat(result).hasSize(5);
+    List<ProjectQgateAssociationDto> result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
+      .qualityGate(qualityGate1)
+      .build());
+
+    assertThat(result)
+      .extracting(ProjectQgateAssociationDto::getId, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateId)
+      .containsExactlyInAnyOrder(
+        tuple(project1.getId(), project1.name(), qualityGate1.getId().toString()),
+        tuple(project2.getId(), project2.name(), qualityGate1.getId().toString()),
+        tuple(project3.getId(), project3.name(), null));
   }
 
   @Test
   public void select_projects_by_query() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    ComponentDto project1 = db.components().insertPrivateProject(organization);
+    ComponentDto project2 = db.components().insertPrivateProject(organization);
+    ComponentDto project3 = db.components().insertPrivateProject(organization);
+    db.qualityGates().associateProjectToQualityGate(project1, qualityGate);
+    db.qualityGates().associateProjectToQualityGate(project2, qualityGate);
 
-    assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder().gateId(42L).membership(ProjectQgateAssociationQuery.IN).build())).hasSize(3);
-    assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder().gateId(42L).membership(ProjectQgateAssociationQuery.OUT).build())).hasSize(2);
+    assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
+      .qualityGate(qualityGate)
+      .membership(ProjectQgateAssociationQuery.IN)
+      .build()))
+        .extracting(ProjectQgateAssociationDto::getId, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateId)
+        .containsExactlyInAnyOrder(
+          tuple(project1.getId(), project1.name(), qualityGate.getId().toString()),
+          tuple(project2.getId(), project2.name(), qualityGate.getId().toString()));
+
+    assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
+      .qualityGate(qualityGate)
+      .membership(ProjectQgateAssociationQuery.OUT)
+      .build()))
+        .extracting(ProjectQgateAssociationDto::getId, ProjectQgateAssociationDto::getName, ProjectQgateAssociationDto::getGateId)
+        .containsExactlyInAnyOrder(tuple(project3.getId(), project3.name(), null));
   }
 
   @Test
   public void search_by_project_name() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    ComponentDto project1 = db.components().insertPrivateProject(organization, p -> p.setName("Project One"));
+    ComponentDto project2 = db.components().insertPrivateProject(organization, p -> p.setName("Project Two"));
+    ComponentDto project3 = db.components().insertPrivateProject(organization, p -> p.setName("Project Three"));
+    db.qualityGates().associateProjectToQualityGate(project1, qualityGate);
+    db.qualityGates().associateProjectToQualityGate(project2, qualityGate);
 
-    List<ProjectQgateAssociationDto> result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder().gateId(42L).projectSearch("one").build());
-    assertThat(result).hasSize(1);
+    assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
+      .qualityGate(qualityGate)
+      .projectSearch("one")
+      .build()))
+        .extracting(ProjectQgateAssociationDto::getId)
+        .containsExactlyInAnyOrder(project1.getId());
 
-    assertThat(result.get(0).getName()).isEqualTo("Project One");
-
-    result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder().gateId(42L).projectSearch("one").build());
-    assertThat(result).hasSize(1);
-    result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder().gateId(42L).projectSearch("project").build());
-    assertThat(result).hasSize(5);
+    assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
+      .qualityGate(qualityGate)
+      .projectSearch("project")
+      .build()))
+        .extracting(ProjectQgateAssociationDto::getId)
+        .containsExactlyInAnyOrder(project1.getId(), project2.getId(), project3.getId());
   }
 
   @Test
-  public void should_be_sorted_by_project_name() {
-    db.prepareDbUnit(getClass(), "shared.xml");
+  public void sorted_by_project_name() {
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto qualityGate = db.qualityGates().insertQualityGate(organization);
+    ComponentDto project1 = db.components().insertPrivateProject(organization, p -> p.setName("Project One"));
+    ComponentDto project2 = db.components().insertPrivateProject(organization, p -> p.setName("Project Two"));
+    ComponentDto project3 = db.components().insertPrivateProject(organization, p -> p.setName("Project Three"));
 
-    List<ProjectQgateAssociationDto> result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder().gateId(42L).build());
-    assertThat(result).hasSize(5);
-    assertThat(result.get(0).getName()).isEqualTo("Project Five");
-    assertThat(result.get(1).getName()).isEqualTo("Project Four");
-    assertThat(result.get(2).getName()).isEqualTo("Project One");
-    assertThat(result.get(3).getName()).isEqualTo("Project Three");
-    assertThat(result.get(4).getName()).isEqualTo("Project Two");
+    assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder()
+      .qualityGate(qualityGate)
+      .build()))
+        .extracting(ProjectQgateAssociationDto::getId)
+        .containsExactly(project1.getId(), project3.getId(), project2.getId());
   }
 
   @Test
@@ -97,19 +141,17 @@ public class ProjectQgateAssociationDaoTest {
 
   @Test
   public void select_qgate_id() {
-    associateProjectToQualityGate(10L, 1L);
-    associateProjectToQualityGate(11L, 2L);
+    OrganizationDto organization = db.organizations().insert();
+    QGateWithOrgDto qualityGate1 = db.qualityGates().insertQualityGate(organization);
+    QGateWithOrgDto qualityGate2 = db.qualityGates().insertQualityGate(organization);
+    ComponentDto project1 = db.components().insertPrivateProject(organization);
+    ComponentDto project2 = db.components().insertPrivateProject(organization);
+    db.qualityGates().associateProjectToQualityGate(project1, qualityGate1);
+    db.qualityGates().associateProjectToQualityGate(project2, qualityGate2);
 
-    Optional<Long> result = underTest.selectQGateIdByComponentId(dbSession, 10L);
+    Optional<Long> result = underTest.selectQGateIdByComponentId(dbSession, project1.getId());
 
-    assertThat(result).contains(1L);
+    assertThat(result).contains(qualityGate1.getId());
   }
 
-  private void associateProjectToQualityGate(long componentId, long qualityGateId) {
-    dbClient.propertiesDao().saveProperty(dbSession, new PropertyDto()
-      .setKey("sonar.qualitygate")
-      .setResourceId(componentId)
-      .setValue(String.valueOf(qualityGateId)));
-    db.commit();
-  }
 }
