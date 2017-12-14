@@ -19,22 +19,50 @@
  */
 package org.sonar.server.user.ws;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.UserDto;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.user.UserSession;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.MY_ISSUES;
+import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.MY_PROJECTS;
+import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.ORGANIZATION;
+import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PROJECT;
 
 public class SetHomepageAction implements UsersWsAction {
 
-  private static final String PARAM_TYPE = "type";
-  private static final String PARAM_VALUE = "value";
-  private static final String ACTION = "set_homepage";
+  static final String PARAM_TYPE = "type";
+  static final String PARAM_VALUE = "value";
+  static final String ACTION = "set_homepage";
 
+  private final UserSession userSession;
+  private final DbClient dbClient;
+  private final ComponentFinder componentFinder;
+
+  public SetHomepageAction(UserSession userSession, DbClient dbClient, ComponentFinder componentFinder) {
+    this.userSession = userSession;
+    this.dbClient = dbClient;
+    this.componentFinder = componentFinder;
+  }
 
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION)
       .setPost(true)
-      .setDescription("Set Homepage of current user.<br> Requires authentication.")
+      .setInternal(true)
+      .setDescription("Set homepage of current user.<br> Requires authentication.")
       .setSince("7.0")
       .setHandler(this);
 
@@ -44,16 +72,60 @@ public class SetHomepageAction implements UsersWsAction {
       .setPossibleValues(HomepageTypes.keys());
 
     action.createParam(PARAM_VALUE)
-      .setDescription("Additional information to filter the page (project or organization key)")
-      .setExampleValue("my-project-key");
+      .setDescription("Additional information to identify the page (project or organization key)")
+      .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    userSession.checkLoggedIn();
 
-    // WIP : Not implemented yet.
+    String type = request.mandatoryParam(PARAM_TYPE);
+    String value = request.param(PARAM_VALUE);
+
+    checkRequest(type, value);
+
+    String login = userSession.getLogin();
+
+    try (DbSession dbSession = dbClient.openSession(false)) {
+
+      UserDto user = dbClient.userDao().selectActiveUserByLogin(dbSession, login);
+      checkState(user != null, "User login '%s' cannot be found", login);
+
+      user.setHomepageType(type);
+      user.setHomepageValue(findHomepageValue(dbSession, type, value));
+
+      dbClient.userDao().update(dbSession, user);
+      dbSession.commit();
+    }
+
     response.noContent();
+  }
+
+  @CheckForNull
+  private String findHomepageValue(DbSession dbSession, String type, String value) {
+
+    if (PROJECT.toString().equals(type)) {
+      return componentFinder.getByKey(dbSession, value).uuid();
+    }
+
+    if (ORGANIZATION.toString().equals(type)) {
+      return checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, value), "No organizationDto with key '%s'", value).getUuid();
+    }
+
+    return null;
+  }
+
+  private static void checkRequest(String type, @Nullable String value) {
+
+    if (PROJECT.toString().equals(type) || ORGANIZATION.toString().equals(type)) {
+      checkArgument(isNotBlank(value), "Type %s requires a value", type);
+    }
+
+    if (MY_PROJECTS.toString().equals(type) || MY_ISSUES.toString().equals(type)) {
+      checkArgument(isBlank(value), "Parameter value must not be provided when type is %s", type);
+    }
 
   }
 }
