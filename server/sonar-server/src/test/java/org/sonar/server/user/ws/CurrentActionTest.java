@@ -26,6 +26,7 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.ws.AvatarResolverImpl;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -42,6 +43,7 @@ import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.MY_PROJECTS;
 
 public class CurrentActionTest {
   @Rule
@@ -65,16 +67,23 @@ public class CurrentActionTest {
       .setExternalIdentity("obiwan")
       .setExternalIdentityProvider("sonarqube")
       .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket"))
-      .setOnboarded(false));
+      .setOnboarded(false)
+      .setHomepageType("MY_PROJECTS"));
     userSessionRule.logIn("obiwan.kenobi");
 
     CurrentWsResponse response = call();
 
     assertThat(response)
-      .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::getEmail, CurrentWsResponse::getAvatar, CurrentWsResponse::getLocal,
+      .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::getEmail, CurrentWsResponse::getAvatar,
+        CurrentWsResponse::getLocal,
         CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getScmAccountsList, CurrentWsResponse::getShowOnboardingTutorial)
       .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com", "f5aa64437a1821ffe8b563099d506aef", true, "obiwan", "sonarqube",
         newArrayList("obiwan:github", "obiwan:bitbucket"), true);
+
+    assertThat(response.getHomepage()).isNotNull();
+    assertThat(response.getHomepage()).extracting(CurrentWsResponse.Homepage::getType)
+      .containsExactly(MY_PROJECTS);
+
   }
 
   @Test
@@ -185,9 +194,13 @@ public class CurrentActionTest {
       .setExternalIdentity("obiwan.kenobi")
       .setExternalIdentityProvider("sonarqube")
       .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket"))
-      .setOnboarded(true));
+      .setOnboarded(true)
+      .setHomepageType("PROJECT")
+      .setHomepageValue("UUID-of-the-death-star"));
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Jedi")), obiwan);
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Rebel")), obiwan);
+
+    db.components().insertPublicProject(u->u.setUuid("UUID-of-the-death-star"), u->u.setDbKey("death-star-key"));
 
     String response = ws.newRequest().execute().getInput();
 
@@ -210,5 +223,28 @@ public class CurrentActionTest {
   private CurrentWsResponse call() {
     return ws.newRequest().executeProtobuf(CurrentWsResponse.class);
   }
+
+  @Test
+  public void fail_with_ISE_when_user_homepage_project_does_not_exist_in_db() {
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageValue("not-existing-project-uuid"));
+    userSessionRule.logIn(user.getLogin());
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Unknown component 'not-existing-project-uuid' for homepageValue");
+
+    call();
+  }
+
+  @Test
+  public void fail_with_ISE_when_user_homepage_organization_does_not_exist_in_db() {
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("ORGANIZATION").setHomepageValue("not-existing-organization-uuid"));
+    userSessionRule.logIn(user.getLogin());
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Unknown organization 'not-existing-organization-uuid' for homepageValue");
+
+    call();
+  }
+
 
 }
