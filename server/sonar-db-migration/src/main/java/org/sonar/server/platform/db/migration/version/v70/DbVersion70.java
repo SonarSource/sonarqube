@@ -49,6 +49,7 @@ public class DbVersion70 implements DbVersion {
       .add(1919, "Associate existing quality gates to default organization", AssociateQualityGatesToDefaultOrganization.class)
       .add(1920, "Delete 'sonar.qualitygate' setting at global level", DeleteGlobalSonarQualityGateSetting.class)
       .add(1921, "Make ORGANIZATIONS.DEFAULT_QUALITY_GATE_UUID not nullable", SetDefaultQualityGateUuidAsNotNullableInOrganizations.class)
+      .add(1922, "Add users.homepage_type and users.homepage_value", AddHomepageToUsers.class)
     ;
   }
 }
