@@ -99,7 +99,7 @@ public class CurrentAction implements UsersWsAction {
       .addAllGroups(groups)
       .addAllScmAccounts(user.getScmAccountsAsList())
       .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
-      .setHomepage(homepageFinder.findFor(user))
+      .setHomepage(homepageFinder.findFor(dbSession, user))
       .setShowOnboardingTutorial(!user.isOnboarded());
     setNullable(emptyToNull(user.getEmail()), builder::setEmail);
     setNullable(emptyToNull(user.getEmail()), u -> builder.setAvatar(avatarResolver.create(user)));

@@ -42,6 +42,7 @@ import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.MY_PROJECTS;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PROJECT;
 
 public class CurrentActionTest {
@@ -54,7 +55,7 @@ public class CurrentActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private WsActionTester ws = new WsActionTester(new CurrentAction(userSessionRule, dbClient, defaultOrganizationProvider, new AvatarResolverImpl(), new HomepageFinder()));
+  private WsActionTester ws = new WsActionTester(new CurrentAction(userSessionRule, dbClient, defaultOrganizationProvider, new AvatarResolverImpl(), new HomepageFinder(dbClient)));
 
   @Test
   public void return_user_info() {
@@ -74,14 +75,15 @@ public class CurrentActionTest {
     CurrentWsResponse response = call();
 
     assertThat(response)
-      .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::getEmail, CurrentWsResponse::getAvatar, CurrentWsResponse::getLocal,
+      .extracting(CurrentWsResponse::getIsLoggedIn, CurrentWsResponse::getLogin, CurrentWsResponse::getName, CurrentWsResponse::getEmail, CurrentWsResponse::getAvatar,
+        CurrentWsResponse::getLocal,
         CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getScmAccountsList, CurrentWsResponse::getShowOnboardingTutorial)
       .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com", "f5aa64437a1821ffe8b563099d506aef", true, "obiwan", "sonarqube",
         newArrayList("obiwan:github", "obiwan:bitbucket"), true);
 
     assertThat(response.getHomepage()).isNotNull();
-    assertThat(response.getHomepage()).extracting(CurrentWsResponse.Homepage::getType, CurrentWsResponse.Homepage::getValue)
-      .containsExactly(PROJECT, "death-star");
+    assertThat(response.getHomepage()).extracting(CurrentWsResponse.Homepage::getType)
+      .containsExactly(MY_PROJECTS);
 
   }
 
@@ -194,8 +196,7 @@ public class CurrentActionTest {
       .setExternalIdentityProvider("sonarqube")
       .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket"))
       .setOnboarded(true)
-      .setHomepageType("PROJECT")
-      .setHomepageKey("project-key"));
+      .setHomepageType("MY_PROJECTS"));
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Jedi")), obiwan);
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Rebel")), obiwan);
 

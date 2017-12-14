@@ -14,7 +14,6 @@
     "global": ["profileadmin", "scan"]
   },
   "homepage": {
-    "type": "PROJECT",
-    "value": "project-key"
+    "type": "MY_PROJECTS"
   }
 }
