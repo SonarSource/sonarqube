@@ -48,6 +48,8 @@ public class UserDto {
   private String salt;
   private Long createdAt;
   private Long updatedAt;
+  private String homepageType;
+  private String homepageKey;
   private boolean local = true;
   private boolean root = false;
   private boolean onboarded = false;
@@ -199,6 +201,25 @@ public class UserDto {
 
   UserDto setUpdatedAt(long updatedAt) {
     this.updatedAt = updatedAt;
+    return this;
+  }
+
+  public String getHomepageType() {
+    return homepageType;
+  }
+
+  public UserDto setHomepageType(String homepageType) {
+    this.homepageType = homepageType;
+    return this;
+  }
+
+  @CheckForNull
+  public String getHomepageKey() {
+    return homepageKey;
+  }
+
+  public UserDto setHomepageKey(String homepageKey) {
+    this.homepageKey = homepageKey;
     return this;
   }
 

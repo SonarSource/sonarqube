@@ -42,6 +42,7 @@ import static org.sonar.db.permission.OrganizationPermission.PROVISION_PROJECTS;
 import static org.sonar.db.permission.OrganizationPermission.SCAN;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PROJECT;
 
 public class CurrentActionTest {
   @Rule
@@ -53,7 +54,7 @@ public class CurrentActionTest {
 
   private DbClient dbClient = db.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private WsActionTester ws = new WsActionTester(new CurrentAction(userSessionRule, dbClient, defaultOrganizationProvider, new AvatarResolverImpl()));
+  private WsActionTester ws = new WsActionTester(new CurrentAction(userSessionRule, dbClient, defaultOrganizationProvider, new AvatarResolverImpl(), new HomepageFinder()));
 
   @Test
   public void return_user_info() {
@@ -65,7 +66,9 @@ public class CurrentActionTest {
       .setExternalIdentity("obiwan")
       .setExternalIdentityProvider("sonarqube")
       .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket"))
-      .setOnboarded(false));
+      .setOnboarded(false)
+      .setHomepageType("PROJECT")
+      .setHomepageKey("death-star"));
     userSessionRule.logIn("obiwan.kenobi");
 
     CurrentWsResponse response = call();
@@ -75,6 +78,11 @@ public class CurrentActionTest {
         CurrentWsResponse::getExternalIdentity, CurrentWsResponse::getExternalProvider, CurrentWsResponse::getScmAccountsList, CurrentWsResponse::getShowOnboardingTutorial)
       .containsExactly(true, "obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com", "f5aa64437a1821ffe8b563099d506aef", true, "obiwan", "sonarqube",
         newArrayList("obiwan:github", "obiwan:bitbucket"), true);
+
+    assertThat(response.getHomepage()).isNotNull();
+    assertThat(response.getHomepage()).extracting(CurrentWsResponse.Homepage::getType, CurrentWsResponse.Homepage::getValue)
+      .containsExactly(PROJECT, "death-star");
+
   }
 
   @Test
@@ -185,7 +193,9 @@ public class CurrentActionTest {
       .setExternalIdentity("obiwan.kenobi")
       .setExternalIdentityProvider("sonarqube")
       .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket"))
-      .setOnboarded(true));
+      .setOnboarded(true)
+      .setHomepageType("PROJECT")
+      .setHomepageKey("project-key"));
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Jedi")), obiwan);
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Rebel")), obiwan);
 

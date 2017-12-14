@@ -21,7 +21,6 @@ package org.sonar.server.user.ws;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -34,14 +33,13 @@ import org.sonar.server.issue.ws.AvatarResolver;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Users.CurrentWsResponse;
-import org.sonarqube.ws.Users.CurrentWsResponse.Homepage;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.toList;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PROJECT;
 import static org.sonarqube.ws.Users.CurrentWsResponse.Permissions;
 import static org.sonarqube.ws.Users.CurrentWsResponse.newBuilder;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CURRENT;
@@ -51,12 +49,15 @@ public class CurrentAction implements UsersWsAction {
   private final DbClient dbClient;
   private final DefaultOrganizationProvider defaultOrganizationProvider;
   private final AvatarResolver avatarResolver;
+  private final HomepageFinder homepageFinder;
 
-  public CurrentAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider, AvatarResolver avatarResolver) {
+  public CurrentAction(UserSession userSession, DbClient dbClient, DefaultOrganizationProvider defaultOrganizationProvider,
+    AvatarResolver avatarResolver, HomepageFinder homepageFinder) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.defaultOrganizationProvider = defaultOrganizationProvider;
     this.avatarResolver = avatarResolver;
+    this.homepageFinder = homepageFinder;
   }
 
   @Override
@@ -98,7 +99,7 @@ public class CurrentAction implements UsersWsAction {
       .addAllGroups(groups)
       .addAllScmAccounts(user.getScmAccountsAsList())
       .setPermissions(Permissions.newBuilder().addAllGlobal(getGlobalPermissions()).build())
-      .setHomepage(Homepage.newBuilder().setType(PROJECT).setValue("project-key").build())
+      .setHomepage(homepageFinder.findFor(user))
       .setShowOnboardingTutorial(!user.isOnboarded());
     setNullable(emptyToNull(user.getEmail()), builder::setEmail);
     setNullable(emptyToNull(user.getEmail()), u -> builder.setAvatar(avatarResolver.create(user)));
@@ -107,11 +108,13 @@ public class CurrentAction implements UsersWsAction {
     return builder.build();
   }
 
+
   private List<String> getGlobalPermissions() {
     String defaultOrganizationUuid = defaultOrganizationProvider.get().getUuid();
     return OrganizationPermission.all()
       .filter(permission -> userSession.hasPermission(permission, defaultOrganizationUuid))
       .map(OrganizationPermission::getKey)
-      .collect(Collectors.toList());
+      .collect(toList());
   }
+
 }

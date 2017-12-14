@@ -18,7 +18,9 @@
     u.is_root as "root",
     u.onboarded as "onboarded",
     u.created_at as "createdAt",
-    u.updated_at as "updatedAt"
+    u.updated_at as "updatedAt",
+    u.homepage_type as "homepageType",
+    u.homepage_key as "homepageKey"
   </sql>
 
   <select id="selectByLogin" parameterType="String" resultType="User">
@@ -159,7 +161,9 @@
       is_root,
       onboarded,
       created_at,
-      updated_at
+      updated_at,
+      homepage_type,
+      homepage_key
     ) values (
       #{user.login,jdbcType=VARCHAR},
       #{user.name,jdbcType=VARCHAR},
@@ -174,7 +178,9 @@
       #{user.root,jdbcType=BOOLEAN},
       #{user.onboarded,jdbcType=BOOLEAN},
       #{now,jdbcType=BIGINT},
-      #{now,jdbcType=BIGINT}
+      #{now,jdbcType=BIGINT},
+      #{user.homepageType,jdbcType=VARCHAR},
+      #{user.homepageKey,jdbcType=VARCHAR}
     )
   </insert>
 
@@ -190,7 +196,9 @@
       onboarded = #{user.onboarded, jdbcType=BOOLEAN},
       salt = #{user.salt, jdbcType=VARCHAR},
       crypted_password = #{user.cryptedPassword, jdbcType=BIGINT},
-      updated_at = #{now, jdbcType=BIGINT}
+      updated_at = #{now, jdbcType=BIGINT},
+      homepage_type = #{user.homepageType, jdbcType=VARCHAR},
+      homepage_key = #{user.homepageKey, jdbcType=VARCHAR}
     where
       login = #{user.login, jdbcType=VARCHAR}
   </update>
