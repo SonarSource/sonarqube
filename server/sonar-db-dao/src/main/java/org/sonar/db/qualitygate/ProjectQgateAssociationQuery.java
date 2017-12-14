@@ -54,7 +54,7 @@ public class ProjectQgateAssociationQuery {
   private final int pageIndex;
 
   private ProjectQgateAssociationQuery(Builder builder) {
-    this.gateId = builder.gateId;
+    this.gateId = Long.toString(builder.gateId);
     this.membership = builder.membership;
     this.projectSearch = builder.projectSearch;
     if (this.projectSearch == null) {
@@ -97,7 +97,7 @@ public class ProjectQgateAssociationQuery {
   }
 
   public static class Builder {
-    private String gateId;
+    private long gateId;
     private String membership;
     private String projectSearch;
 
@@ -107,7 +107,7 @@ public class ProjectQgateAssociationQuery {
     private Builder() {
     }
 
-    public Builder gateId(String gateId) {
+    public Builder gateId(long gateId) {
       this.gateId = gateId;
       return this;
     }
@@ -155,7 +155,6 @@ public class ProjectQgateAssociationQuery {
     }
 
     public ProjectQgateAssociationQuery build() {
-      Preconditions.checkNotNull(gateId, "Gate ID cannot be null.");
       initMembership();
       initPageIndex();
       initPageSize();

@@ -19,11 +19,8 @@
  */
 package org.sonar.db.qualitygate;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.List;
 import java.util.Optional;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -32,6 +29,8 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.property.PropertyDto;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProjectQgateAssociationDaoTest {
 
@@ -46,7 +45,7 @@ public class ProjectQgateAssociationDaoTest {
   public void select_all_projects_by_query() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    ProjectQgateAssociationQuery query = ProjectQgateAssociationQuery.builder().gateId("42").build();
+    ProjectQgateAssociationQuery query = ProjectQgateAssociationQuery.builder().gateId(42L).build();
     List<ProjectQgateAssociationDto> result = underTest.selectProjects(dbSession, query);
     assertThat(result).hasSize(5);
   }
@@ -55,22 +54,22 @@ public class ProjectQgateAssociationDaoTest {
   public void select_projects_by_query() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder().gateId("42").membership(ProjectQgateAssociationQuery.IN).build())).hasSize(3);
-    assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder().gateId("42").membership(ProjectQgateAssociationQuery.OUT).build())).hasSize(2);
+    assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder().gateId(42L).membership(ProjectQgateAssociationQuery.IN).build())).hasSize(3);
+    assertThat(underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder().gateId(42L).membership(ProjectQgateAssociationQuery.OUT).build())).hasSize(2);
   }
 
   @Test
   public void search_by_project_name() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    List<ProjectQgateAssociationDto> result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder().gateId("42").projectSearch("one").build());
+    List<ProjectQgateAssociationDto> result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder().gateId(42L).projectSearch("one").build());
     assertThat(result).hasSize(1);
 
     assertThat(result.get(0).getName()).isEqualTo("Project One");
 
-    result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder().gateId("42").projectSearch("one").build());
+    result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder().gateId(42L).projectSearch("one").build());
     assertThat(result).hasSize(1);
-    result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder().gateId("42").projectSearch("project").build());
+    result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder().gateId(42L).projectSearch("project").build());
     assertThat(result).hasSize(5);
   }
 
@@ -78,7 +77,7 @@ public class ProjectQgateAssociationDaoTest {
   public void should_be_sorted_by_project_name() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    List<ProjectQgateAssociationDto> result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder().gateId("42").build());
+    List<ProjectQgateAssociationDto> result = underTest.selectProjects(dbSession, ProjectQgateAssociationQuery.builder().gateId(42L).build());
     assertThat(result).hasSize(5);
     assertThat(result.get(0).getName()).isEqualTo("Project Five");
     assertThat(result.get(1).getName()).isEqualTo("Project Four");

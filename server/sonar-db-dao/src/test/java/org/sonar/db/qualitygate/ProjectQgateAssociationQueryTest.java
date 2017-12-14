@@ -29,23 +29,12 @@ public class ProjectQgateAssociationQueryTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void fail_on_null_login() {
-    expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("Gate ID cannot be null");
-
-    ProjectQgateAssociationQuery.Builder builder = ProjectQgateAssociationQuery.builder()
-      .gateId(null);
-
-    builder.build();
-  }
-
-  @Test
   public void fail_on_invalid_membership() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Membership is not valid (got unknown). Available values are [all, selected, deselected]");
 
     ProjectQgateAssociationQuery.Builder builder = ProjectQgateAssociationQuery.builder();
-    builder.gateId("nelson");
+    builder.gateId(42L);
     builder.membership("unknown");
 
     builder.build();
