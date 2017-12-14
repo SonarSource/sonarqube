@@ -101,7 +101,7 @@ class Key extends React.PureComponent {
         )}
 
         {hasModules && (
-          <div>
+          <div className="boxed-group boxed-group-inner">
             <div className="big-spacer-bottom">
               <ul className="tabs">
                 <li>

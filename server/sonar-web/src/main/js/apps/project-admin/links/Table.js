@@ -54,10 +54,12 @@ export default class Table extends React.PureComponent {
     ));
 
     return (
-      <table id="project-links" className="data zebra">
-        {this.renderHeader()}
-        <tbody>{linkRows}</tbody>
-      </table>
+      <div className="boxed-group boxed-group-inner">
+        <table id="project-links" className="data zebra">
+          {this.renderHeader()}
+          <tbody>{linkRows}</tbody>
+        </table>
+      </div>
     );
   }
 }

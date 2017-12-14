@@ -20,7 +20,8 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { Component, Organization } from '../../../types';
+import ComponentNavBranch from './ComponentNavBranch';
+import { Component, Organization, Branch, Breadcrumb } from '../../../types';
 import QualifierIcon from '../../../../components/shared/QualifierIcon';
 import { getOrganizationByKey, areThereCustomOrganizations } from '../../../../store/rootReducer';
 import OrganizationAvatar from '../../../../components/common/OrganizationAvatar';
@@ -36,46 +37,16 @@ interface StateProps {
 }
 
 interface OwnProps {
+  branches: Branch[];
   component: Component;
+  currentBranch?: Branch;
+  location?: any;
 }
 
 interface Props extends StateProps, OwnProps {}
 
-export function ComponentNavBreadcrumbs(props: Props) {
+export function ComponentNavHeader(props: Props) {
   const { component, organization, shouldOrganizationBeDisplayed } = props;
-  const { breadcrumbs } = component;
-
-  const lastItem = breadcrumbs[breadcrumbs.length - 1];
-
-  const items: JSX.Element[] = [];
-  breadcrumbs.forEach((item, index) => {
-    const isPath = item.qualifier === 'DIR';
-    const itemName = isPath ? collapsePath(item.name, 15) : limitComponentName(item.name);
-
-    if (index === 0) {
-      items.push(
-        <QualifierIcon
-          className="spacer-right"
-          key={`qualifier-${item.key}`}
-          qualifier={lastItem.qualifier}
-        />
-      );
-    }
-
-    items.push(
-      <Link
-        className="link-base-color link-no-underline"
-        key={`name-${item.key}`}
-        title={item.name}
-        to={getProjectUrl(item.key)}>
-        {itemName}
-      </Link>
-    );
-
-    if (index < breadcrumbs.length - 1) {
-      items.push(<span className="slash-separator" key={`separator-${item.key}`} />);
-    }
-  });
 
   return (
     <header className="navbar-context-header">
@@ -84,22 +55,53 @@ export function ComponentNavBreadcrumbs(props: Props) {
         organization={organization && shouldOrganizationBeDisplayed ? organization : undefined}
       />
       {organization &&
-        shouldOrganizationBeDisplayed && <OrganizationAvatar organization={organization} />}
-      {organization &&
         shouldOrganizationBeDisplayed && (
-          <OrganizationLink
-            organization={organization}
-            className="link-base-color link-no-underline spacer-left">
-            {organization.name}
-          </OrganizationLink>
+          <>
+            <OrganizationAvatar organization={organization} />
+            <OrganizationLink
+              organization={organization}
+              className="link-base-color link-no-underline spacer-left">
+              {organization.name}
+            </OrganizationLink>
+            <span className="slash-separator" />
+          </>
         )}
-      {organization && shouldOrganizationBeDisplayed && <span className="slash-separator" />}
-      {items}
+      {renderBreadcrumbs(component.breadcrumbs)}
       {component.visibility === 'private' && (
         <PrivateBadge className="spacer-left" qualifier={component.qualifier} />
       )}
+      {props.currentBranch && (
+        <ComponentNavBranch
+          branches={props.branches}
+          component={component}
+          currentBranch={props.currentBranch}
+          // to close dropdown on any location change
+          location={props.location}
+        />
+      )}
     </header>
   );
+}
+
+function renderBreadcrumbs(breadcrumbs: Breadcrumb[]) {
+  const lastItem = breadcrumbs[breadcrumbs.length - 1];
+  return breadcrumbs.map((item, index) => {
+    const isPath = item.qualifier === 'DIR';
+    const itemName = isPath ? collapsePath(item.name, 15) : limitComponentName(item.name);
+
+    return (
+      <React.Fragment key={item.key}>
+        {index === 0 && <QualifierIcon className="spacer-right" qualifier={lastItem.qualifier} />}
+        <Link
+          className="link-base-color link-no-underline"
+          title={item.name}
+          to={getProjectUrl(item.key)}>
+          {itemName}
+        </Link>
+        {index < breadcrumbs.length - 1 && <span className="slash-separator" />}
+      </React.Fragment>
+    );
+  });
 }
 
 const mapStateToProps = (state: any, ownProps: OwnProps): StateProps => ({
@@ -108,4 +110,4 @@ const mapStateToProps = (state: any, ownProps: OwnProps): StateProps => ({
   shouldOrganizationBeDisplayed: areThereCustomOrganizations(state)
 });
 
-export default connect(mapStateToProps)(ComponentNavBreadcrumbs);
+export default connect(mapStateToProps)(ComponentNavHeader);

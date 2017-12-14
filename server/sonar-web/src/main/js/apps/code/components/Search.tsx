@@ -182,12 +182,14 @@ export default class Search extends React.PureComponent<Props, State> {
         {loading && <i className="spinner spacer-left" />}
 
         {results != null && (
-          <Components
-            branch={this.props.branch}
-            components={results}
-            rootComponent={component}
-            selected={selected}
-          />
+          <div className="boxed-group boxed-group-inner spacer-top">
+            <Components
+              branch={this.props.branch}
+              components={results}
+              rootComponent={component}
+              selected={selected}
+            />
+          </div>
         )}
       </div>
     );

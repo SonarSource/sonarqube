@@ -37,6 +37,8 @@ export default class QualityGatesApp extends Component {
 
   componentDidMount() {
     this.fetchQualityGates();
+    // $FlowFixMe
+    document.body.classList.add('white-page');
     const footer = document.getElementById('footer');
     if (footer) {
       footer.classList.add('page-footer-with-sidebar');
@@ -44,6 +46,8 @@ export default class QualityGatesApp extends Component {
   }
 
   componentWillUnmount() {
+    // $FlowFixMe
+    document.body.classList.remove('white-page');
     const footer = document.getElementById('footer');
     if (footer) {
       footer.classList.remove('page-footer-with-sidebar');

@@ -21,32 +21,16 @@ import * as React from 'react';
 import { Link } from 'react-router';
 import { translate } from '../../helpers/l10n';
 
-export default class ComponentContainerNotFound extends React.PureComponent {
-  componentDidMount() {
-    const html = document.querySelector('html');
-    if (html) {
-      html.classList.add('dashboard-page');
-    }
-  }
-
-  componentWillUnmount() {
-    const html = document.querySelector('html');
-    if (html) {
-      html.classList.remove('dashboard-page');
-    }
-  }
-
-  render() {
-    return (
-      <div id="bd" className="page-wrapper-simple">
-        <div id="nonav" className="page-simple">
-          <h2 className="big-spacer-bottom">{translate('dashboard.project_not_found')}</h2>
-          <p className="spacer-bottom">{translate('dashboard.project_not_found.2')}</p>
-          <p>
-            <Link to="/">Go back to the homepage</Link>
-          </p>
-        </div>
+export default function ComponentContainerNotFound() {
+  return (
+    <div id="bd" className="page-wrapper-simple">
+      <div id="nonav" className="page-simple">
+        <h2 className="big-spacer-bottom">{translate('dashboard.project_not_found')}</h2>
+        <p className="spacer-bottom">{translate('dashboard.project_not_found.2')}</p>
+        <p>
+          <Link to="/">Go back to the homepage</Link>
+        </p>
       </div>
-    );
-  }
+    </div>
+  );
 }

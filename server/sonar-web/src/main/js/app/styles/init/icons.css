@@ -485,6 +485,7 @@ a:hover > .icon-radio {
   stroke-width: 1.41421356;
   stroke-opacity: 1;
   fill-opacity: 0;
+  vector-effect: non-scaling-stroke;
   transition: all 0.2s ease;
 }
 

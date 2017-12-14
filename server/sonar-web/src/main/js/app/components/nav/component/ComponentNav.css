@@ -1,9 +1,9 @@
 .navbar-context-branches {
-  display: inline-block;
-  vertical-align: top;
-  padding: var(--gridSize) 0;
+  display: inline-flex;
+  justify-content: center;
+  line-height: calc(2 * var(--gridSize));
   margin-left: calc(2 * var(--gridSize));
-  line-height: 16px;
+  font-size: var(--baseFontSize);
 }
 
 .navbar-context-meta-branch-menu-item {

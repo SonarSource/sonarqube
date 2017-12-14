@@ -44,16 +44,18 @@ export default function Table(props: Props) {
   ));
 
   return (
-    <table className="data zebra">
-      <thead>
-        <tr>
-          <th className="thin nowrap">{translate('language')}</th>
-          <th className="thin nowrap">{translate('quality_profile')}</th>
-          {/* keep one empty cell for the spinner */}
-          <th>&nbsp;</th>
-        </tr>
-      </thead>
-      <tbody>{profileRows}</tbody>
-    </table>
+    <div className="boxed-group boxed-group-inner">
+      <table className="data zebra">
+        <thead>
+          <tr>
+            <th className="thin nowrap">{translate('language')}</th>
+            <th className="thin nowrap">{translate('quality_profile')}</th>
+            {/* keep one empty cell for the spinner */}
+            <th>&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>{profileRows}</tbody>
+      </table>
+    </div>
   );
 }
