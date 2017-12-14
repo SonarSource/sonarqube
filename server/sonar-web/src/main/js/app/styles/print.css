@@ -31,11 +31,10 @@
     display: none !important;
   }
 
-  .dashboard-page,
-  .dashboard-page body {
-    background-color: #fff;
+  html,
+  body {
+    background-color: #fff !important;
   }
-
   .widget thead,
   .widget tfoot {
     display: table-row-group;

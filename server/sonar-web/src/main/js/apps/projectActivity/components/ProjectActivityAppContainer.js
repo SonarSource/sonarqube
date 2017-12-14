@@ -94,8 +94,6 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
 
   componentDidMount() {
     this.mounted = true;
-    const elem = document.querySelector('html');
-    elem && elem.classList.add('dashboard-page');
     if (this.shouldRedirect()) {
       const newQuery = { ...this.state.query, graph: getGraph() };
       if (isCustomGraph(newQuery.graph)) {
@@ -129,8 +127,6 @@ export default class ProjectActivityAppContainer extends React.PureComponent {
 
   componentWillUnmount() {
     this.mounted = false;
-    const elem = document.querySelector('html');
-    elem && elem.classList.remove('dashboard-page');
   }
 
   addCustomEvent = (analysis /*: string */, name /*: string */, category /*: ?string */) =>

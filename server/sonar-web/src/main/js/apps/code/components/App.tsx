@@ -200,7 +200,9 @@ export default class App extends React.PureComponent<Props, State> {
 
     const shouldShowBreadcrumbs = breadcrumbs.length > 1;
 
-    const componentsClassName = classNames('spacer-top', { 'new-loading': loading });
+    const componentsClassName = classNames('boxed-group', 'boxed-group-inner', 'spacer-top', {
+      'new-loading': loading
+    });
 
     return (
       <div className="page page-limited">

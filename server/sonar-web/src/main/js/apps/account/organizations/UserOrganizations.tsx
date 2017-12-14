@@ -87,29 +87,22 @@ class UserOrganizations extends React.PureComponent<Props, State> {
       <div className="account-body account-container">
         <Helmet title={translate('my_account.organizations')} />
 
-        <header className="page-header">
-          <h2 className="page-title">{translate('my_account.organizations')}</h2>
+        <div className="boxed-group">
           {canCreateOrganizations && (
-            <div className="page-actions">
-              <button onClick={this.handleCreateClick}>{translate('create')}</button>
+            <div className="clearfix">
+              <div className="boxed-group-actions">
+                <button onClick={this.handleCreateClick}>{translate('create')}</button>
+              </div>
             </div>
           )}
-          {this.props.organizations.length > 0 ? (
-            <div className="page-description">
-              {translate('my_account.organizations.description')}
-            </div>
-          ) : (
-            <div className="page-description">
-              {translate('my_account.organizations.no_results')}
-            </div>
-          )}
-        </header>
-
-        {this.state.loading ? (
-          <i className="spinner" />
-        ) : (
-          <OrganizationsList organizations={this.props.organizations} />
-        )}
+          <div className="boxed-group-inner">
+            {this.state.loading ? (
+              <i className="spinner" />
+            ) : (
+              <OrganizationsList organizations={this.props.organizations} />
+            )}
+          </div>
+        </div>
 
         {this.state.createOrganization && (
           <CreateOrganizationForm

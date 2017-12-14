@@ -45,29 +45,31 @@ function Profile(props /*: Props */) {
 
   return (
     <div className="account-body account-container">
-      <div className="spacer-bottom">
-        {translate('login')}: <strong id="login">{user.login}</strong>
-      </div>
+      <div className="boxed-group boxed-group-inner">
+        <div className="spacer-bottom">
+          {translate('login')}: <strong id="login">{user.login}</strong>
+        </div>
 
-      {!user.local &&
-        user.externalProvider !== 'sonarqube' && (
-          <div id="identity-provider" className="spacer-bottom">
-            <UserExternalIdentity user={user} />
+        {!user.local &&
+          user.externalProvider !== 'sonarqube' && (
+            <div id="identity-provider" className="spacer-bottom">
+              <UserExternalIdentity user={user} />
+            </div>
+          )}
+
+        {!!user.email && (
+          <div className="spacer-bottom">
+            {translate('my_profile.email')}: <strong id="email">{user.email}</strong>
           </div>
         )}
 
-      {!!user.email && (
-        <div className="spacer-bottom">
-          {translate('my_profile.email')}: <strong id="email">{user.email}</strong>
-        </div>
-      )}
+        {!customOrganizations && <hr className="account-separator" />}
+        {!customOrganizations && <UserGroups groups={user.groups} />}
 
-      {!customOrganizations && <hr className="account-separator" />}
-      {!customOrganizations && <UserGroups groups={user.groups} />}
+        <hr />
 
-      <hr className="account-separator" />
-
-      <UserScmAccounts user={user} scmAccounts={user.scmAccounts} />
+        <UserScmAccounts user={user} scmAccounts={user.scmAccounts} />
+      </div>
     </div>
   );
 }

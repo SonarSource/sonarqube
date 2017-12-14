@@ -48,6 +48,7 @@ export default function ProjectCardOverall({ organization, project }: Props) {
             className="spacer-right"
             component={project.key}
             favorite={project.isFavorite}
+            qualifier="TRK"
           />
         )}
         <h2 className="project-card-name">

@@ -44,10 +44,12 @@ export default class List extends React.PureComponent {
     ));
 
     return (
-      <table id="permission-templates" className="data zebra permissions-table">
-        <ListHeader organization={this.props.organization} permissions={this.props.permissions} />
-        <tbody>{permissionTemplates}</tbody>
-      </table>
+      <div className="boxed-group boxed-group-inner">
+        <table id="permission-templates" className="data zebra permissions-table">
+          <ListHeader organization={this.props.organization} permissions={this.props.permissions} />
+          <tbody>{permissionTemplates}</tbody>
+        </table>
+      </div>
     );
   }
 }

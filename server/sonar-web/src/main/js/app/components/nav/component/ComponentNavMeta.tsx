@@ -60,14 +60,22 @@ export function ComponentNavMeta({ branch, component, currentUser }: Props) {
       {isLoggedIn(currentUser) &&
         mainBranch && (
           <div className="navbar-context-meta-secondary">
-            <Favorite component={component.key} favorite={Boolean(component.isFavorite)} />
+            <Favorite
+              component={component.key}
+              favorite={Boolean(component.isFavorite)}
+              qualifier={component.qualifier}
+            />
             <HomePageSelect
               className="spacer-left"
               currentPage={{ type: 'project', key: component.key }}
             />
           </div>
         )}
-      {shortBranch && <BranchStatus branch={branch!} />}
+      {shortBranch && (
+        <div className="navbar-context-meta-secondary">
+          <BranchStatus branch={branch!} />
+        </div>
+      )}
     </div>
   );
 }

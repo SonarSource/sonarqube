@@ -44,6 +44,9 @@ class CodingRulesAppContainer extends React.PureComponent {
 */
 
   componentDidMount() {
+    // $FlowFixMe
+    document.body.classList.add('white-page');
+
     if (this.props.appState.organizationsEnabled && !this.props.params.organizationKey) {
       // redirect to organization-level rules page
       this.props.router.replace(
@@ -62,6 +65,9 @@ class CodingRulesAppContainer extends React.PureComponent {
   }
 
   componentWillUnmount() {
+    // $FlowFixMe
+    document.body.classList.remove('white-page');
+
     if (this.stop) {
       this.stop();
     }

@@ -74,6 +74,8 @@ export default class App extends React.PureComponent {
 
   componentDidMount() {
     this.mounted = true;
+    // $FlowFixMe
+    document.body.classList.add('white-page');
     this.props.fetchMetrics();
     this.fetchMeasures(this.props);
     key.setScope('measures-files');
@@ -95,6 +97,8 @@ export default class App extends React.PureComponent {
 
   componentWillUnmount() {
     this.mounted = false;
+    // $FlowFixMe
+    document.body.classList.remove('white-page');
     key.deleteScope('measures-files');
     const footer = document.getElementById('footer');
     if (footer) {

@@ -62,13 +62,15 @@ export interface Extension {
   name: string;
 }
 
+export interface Breadcrumb {
+  key: string;
+  name: string;
+  qualifier: string;
+}
+
 export interface Component {
   analysisDate?: string;
-  breadcrumbs: Array<{
-    key: string;
-    name: string;
-    qualifier: string;
-  }>;
+  breadcrumbs: Breadcrumb[];
   configuration?: ComponentConfiguration;
   description?: string;
   extensions?: Extension[];

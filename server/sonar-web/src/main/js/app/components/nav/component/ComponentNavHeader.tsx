@@ -20,7 +20,8 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import { Component, Organization } from '../../../types';
+import ComponentNavBranch from './ComponentNavBranch';
+import { Component, Organization, Branch, Breadcrumb } from '../../../types';
 import QualifierIcon from '../../../../components/shared/QualifierIcon';
 import { getOrganizationByKey, areThereCustomOrganizations } from '../../../../store/rootReducer';
 import OrganizationAvatar from '../../../../components/common/OrganizationAvatar';
@@ -36,18 +37,54 @@ interface StateProps {
 }
 
 interface OwnProps {
+  branches: Branch[];
   component: Component;
+  currentBranch?: Branch;
+  location?: any;
 }
 
 interface Props extends StateProps, OwnProps {}
 
-export function ComponentNavBreadcrumbs(props: Props) {
+export function ComponentNavHeader(props: Props) {
   const { component, organization, shouldOrganizationBeDisplayed } = props;
-  const { breadcrumbs } = component;
 
-  const lastItem = breadcrumbs[breadcrumbs.length - 1];
+  return (
+    <header className="navbar-context-header">
+      <OrganizationHelmet
+        title={component.name}
+        organization={organization && shouldOrganizationBeDisplayed ? organization : undefined}
+      />
+      {organization &&
+        shouldOrganizationBeDisplayed && <OrganizationAvatar organization={organization} />}
+      {organization &&
+        shouldOrganizationBeDisplayed && (
+          <OrganizationLink
+            organization={organization}
+            className="link-base-color link-no-underline spacer-left">
+            {organization.name}
+          </OrganizationLink>
+        )}
+      {organization && shouldOrganizationBeDisplayed && <span className="slash-separator" />}
+      {renderBreadcrumbs(component.breadcrumbs)}
+      {component.visibility === 'private' && (
+        <PrivateBadge className="spacer-left" qualifier={component.qualifier} />
+      )}
+      {props.currentBranch && (
+        <ComponentNavBranch
+          branches={props.branches}
+          component={component}
+          currentBranch={props.currentBranch}
+          // to close dropdown on any location change
+          location={props.location}
+        />
+      )}
+    </header>
+  );
+}
 
+function renderBreadcrumbs(breadcrumbs: Breadcrumb[]) {
   const items: JSX.Element[] = [];
+  const lastItem = breadcrumbs[breadcrumbs.length - 1];
   breadcrumbs.forEach((item, index) => {
     const isPath = item.qualifier === 'DIR';
     const itemName = isPath ? collapsePath(item.name, 15) : limitComponentName(item.name);
@@ -76,30 +113,7 @@ export function ComponentNavBreadcrumbs(props: Props) {
       items.push(<span className="slash-separator" key={`separator-${item.key}`} />);
     }
   });
-
-  return (
-    <header className="navbar-context-header">
-      <OrganizationHelmet
-        title={component.name}
-        organization={organization && shouldOrganizationBeDisplayed ? organization : undefined}
-      />
-      {organization &&
-        shouldOrganizationBeDisplayed && <OrganizationAvatar organization={organization} />}
-      {organization &&
-        shouldOrganizationBeDisplayed && (
-          <OrganizationLink
-            organization={organization}
-            className="link-base-color link-no-underline spacer-left">
-            {organization.name}
-          </OrganizationLink>
-        )}
-      {organization && shouldOrganizationBeDisplayed && <span className="slash-separator" />}
-      {items}
-      {component.visibility === 'private' && (
-        <PrivateBadge className="spacer-left" qualifier={component.qualifier} />
-      )}
-    </header>
-  );
+  return items;
 }
 
 const mapStateToProps = (state: any, ownProps: OwnProps): StateProps => ({
@@ -108,4 +122,4 @@ const mapStateToProps = (state: any, ownProps: OwnProps): StateProps => ({
   shouldOrganizationBeDisplayed: areThereCustomOrganizations(state)
 });
 
-export default connect(mapStateToProps)(ComponentNavBreadcrumbs);
+export default connect(mapStateToProps)(ComponentNavHeader);
