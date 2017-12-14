@@ -34,6 +34,7 @@ import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociation;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociationQuery;
+import org.sonar.db.qualitygate.QGateWithOrgDto;
 import org.sonar.server.qualitygate.QualityGateFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Qualitygates;
@@ -98,9 +99,10 @@ public class SearchAction implements QualityGatesWsAction {
     try (DbSession dbSession = dbClient.openSession(false)) {
 
       OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      Association associations = find(dbSession, organization,
+      QGateWithOrgDto qualityGate = qualityGateFinder.getByOrganizationAndId(dbSession, organization, request.mandatoryParamAsLong(PARAM_GATE_ID));
+      Association associations = find(dbSession,
         ProjectQgateAssociationQuery.builder()
-          .gateId(request.mandatoryParamAsLong(PARAM_GATE_ID))
+          .qualityGate(qualityGate)
           .membership(request.param(PARAM_QUERY) == null ? request.param(SELECTED) : ANY)
           .projectSearch(request.param(PARAM_QUERY))
           .pageIndex(request.paramAsInt(PARAM_PAGE))
@@ -121,8 +123,7 @@ public class SearchAction implements QualityGatesWsAction {
     }
   }
 
-  private SearchAction.Association find(DbSession dbSession, OrganizationDto organization, ProjectQgateAssociationQuery query) {
-    qualityGateFinder.getByOrganizationAndId(dbSession, organization, Long.parseLong(query.gateId()));
+  private SearchAction.Association find(DbSession dbSession, ProjectQgateAssociationQuery query) {
     List<ProjectQgateAssociationDto> projects = dbClient.projectQgateAssociationDao().selectProjects(dbSession, query);
     List<ProjectQgateAssociationDto> authorizedProjects = keepAuthorizedProjects(dbSession, projects);
 

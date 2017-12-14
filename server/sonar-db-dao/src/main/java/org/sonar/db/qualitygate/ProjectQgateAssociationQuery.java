@@ -54,7 +54,7 @@ public class ProjectQgateAssociationQuery {
   private final int pageIndex;
 
   private ProjectQgateAssociationQuery(Builder builder) {
-    this.gateId = Long.toString(builder.gateId);
+    this.gateId = Long.toString(builder.qualityGate.getId());
     this.membership = builder.membership;
     this.projectSearch = builder.projectSearch;
     if (this.projectSearch == null) {
@@ -97,7 +97,7 @@ public class ProjectQgateAssociationQuery {
   }
 
   public static class Builder {
-    private long gateId;
+    private QGateWithOrgDto qualityGate;
     private String membership;
     private String projectSearch;
 
@@ -107,8 +107,8 @@ public class ProjectQgateAssociationQuery {
     private Builder() {
     }
 
-    public Builder gateId(long gateId) {
-      this.gateId = gateId;
+    public Builder qualityGate(QGateWithOrgDto qualityGate) {
+      this.qualityGate = qualityGate;
       return this;
     }
 
