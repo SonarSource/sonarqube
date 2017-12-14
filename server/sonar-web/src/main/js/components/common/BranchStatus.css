@@ -1,5 +1,8 @@
 .branch-status {
+  display: flex;
+  align-items: center;
   min-width: 64px;
+  line-height: calc(2 * var(--gridSize));
   text-align: right;
 }
 

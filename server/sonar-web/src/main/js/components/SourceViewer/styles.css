@@ -20,7 +20,7 @@
 .source-viewer {
   width: 100%;
   min-height: 200px;
-  border: 1px solid var(--barBorderColor);
+  border: 1px solid var(--gray80);
   box-sizing: border-box;
   background-color: #fff;
   overflow-x: auto;

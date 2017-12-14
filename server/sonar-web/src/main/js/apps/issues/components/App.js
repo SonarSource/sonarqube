@@ -151,6 +151,9 @@ export default class App extends React.PureComponent {
       return;
     }
 
+    // $FlowFixMe
+    document.body.classList.add('white-page');
+
     const footer = document.getElementById('footer');
     if (footer) {
       footer.classList.add('page-footer-with-sidebar');
@@ -205,6 +208,9 @@ export default class App extends React.PureComponent {
 
   componentWillUnmount() {
     this.detachShortcuts();
+
+    // $FlowFixMe
+    document.body.classList.remove('white-page');
 
     const footer = document.getElementById('footer');
     if (footer) {

@@ -68,10 +68,6 @@ export default class OverviewApp extends React.PureComponent {
 
   componentDidMount() {
     this.mounted = true;
-    const domElement = document.querySelector('html');
-    if (domElement) {
-      domElement.classList.add('dashboard-page');
-    }
     this.loadMeasures().then(this.loadHistory);
   }
 
@@ -86,10 +82,6 @@ export default class OverviewApp extends React.PureComponent {
 
   componentWillUnmount() {
     this.mounted = false;
-    const domElement = document.querySelector('html');
-    if (domElement) {
-      domElement.classList.remove('dashboard-page');
-    }
   }
 
   loadMeasures() {

@@ -21,12 +21,17 @@ import * as React from 'react';
 import { sortBy } from 'lodash';
 import OrganizationCard from './OrganizationCard';
 import { Organization } from '../../../app/types';
+import { translate } from '../../../helpers/l10n';
 
 interface Props {
   organizations: Organization[];
 }
 
 export default function OrganizationsList({ organizations }: Props) {
+  if (organizations.length === 0) {
+    return <div>{translate('my_account.organizations.no_results')}</div>;
+  }
+
   return (
     <ul className="account-projects-list">
       {sortBy(organizations, organization =>

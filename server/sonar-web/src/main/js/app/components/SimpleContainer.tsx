@@ -27,35 +27,19 @@ interface Props {
   hideLoggedInInfo?: boolean;
 }
 
-export default class SimpleContainer extends React.PureComponent<Props> {
-  componentDidMount() {
-    const html = document.querySelector('html');
-    if (html) {
-      html.classList.add('dashboard-page');
-    }
-  }
+export default function SimpleContainer(props: Props) {
+  return (
+    <div className="global-container">
+      <div className="page-wrapper" id="container">
+        <NavBar className="navbar-global" height={theme.globalNavHeightRaw} />
 
-  componentWillUnmount() {
-    const html = document.querySelector('html');
-    if (html) {
-      html.classList.remove('dashboard-page');
-    }
-  }
-
-  render() {
-    return (
-      <div className="global-container">
-        <div className="page-wrapper" id="container">
-          <NavBar className="navbar-global" height={theme.globalNavHeightRaw} />
-
-          <div id="bd" className="page-wrapper-simple">
-            <div id="nonav" className="page-simple">
-              {this.props.children}
-            </div>
+        <div id="bd" className="page-wrapper-simple">
+          <div id="nonav" className="page-simple">
+            {props.children}
           </div>
         </div>
-        <GlobalFooterContainer hideLoggedInInfo={this.props.hideLoggedInInfo} />
       </div>
-    );
-  }
+      <GlobalFooterContainer hideLoggedInInfo={props.hideLoggedInInfo} />
+    </div>
+  );
 }

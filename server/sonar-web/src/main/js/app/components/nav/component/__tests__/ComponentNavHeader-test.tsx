@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { shallow } from 'enzyme';
-import { ComponentNavBreadcrumbs } from '../ComponentNavBreadcrumbs';
+import { ComponentNavHeader } from '../ComponentNavHeader';
 
 it('should not render breadcrumbs with one element', () => {
   const component = {
@@ -31,7 +31,7 @@ it('should not render breadcrumbs with one element', () => {
     visibility: 'public'
   };
   const result = shallow(
-    <ComponentNavBreadcrumbs component={component} shouldOrganizationBeDisplayed={false} />
+    <ComponentNavHeader branches={[]} component={component} shouldOrganizationBeDisplayed={false} />
   );
   expect(result).toMatchSnapshot();
 });
@@ -47,7 +47,8 @@ it('should render organization', () => {
   };
   const organization = { key: 'foo', name: 'The Foo Organization', projectVisibility: 'public' };
   const result = shallow(
-    <ComponentNavBreadcrumbs
+    <ComponentNavHeader
+      branches={[]}
       component={component}
       organization={organization}
       shouldOrganizationBeDisplayed={true}
@@ -66,7 +67,7 @@ it('renders private badge', () => {
     visibility: 'private'
   };
   const result = shallow(
-    <ComponentNavBreadcrumbs component={component} shouldOrganizationBeDisplayed={false} />
+    <ComponentNavHeader branches={[]} component={component} shouldOrganizationBeDisplayed={false} />
   );
   expect(result.find('PrivateBadge')).toHaveLength(1);
 });

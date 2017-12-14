@@ -26,10 +26,7 @@
 }
 
 .web-api-domain-actions {
-}
-
-.web-api-action {
-  padding-top: 30px;
+  margin-top: calc(2 * var(--gridSize));
 }
 
 .web-api-action-title {

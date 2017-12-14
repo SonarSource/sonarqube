@@ -1,69 +1,73 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`should match snapshot 1`] = `
-<section>
-  <h2
-    className="spacer-bottom"
-  >
+<section
+  className="boxed-group"
+>
+  <h2>
     my_profile.overall_notifications.title
   </h2>
-  <table
-    className="form"
+  <div
+    className="boxed-group-inner"
   >
-    <thead>
-      <tr>
-        <th />
-        <th
-          className="text-center"
-          key="channel1"
-        >
-          <h4>
-            notification.channel.channel1
-          </h4>
-        </th>
-        <th
-          className="text-center"
-          key="channel2"
-        >
-          <h4>
-            notification.channel.channel2
-          </h4>
-        </th>
-      </tr>
-    </thead>
-    <NotificationsList
-      channels={
-        Array [
-          "channel1",
-          "channel2",
-        ]
-      }
-      checkboxId={[Function]}
-      notifications={
-        Array [
-          Object {
-            "channel": "channel1",
-            "type": "type1",
-          },
-          Object {
-            "channel": "channel1",
-            "type": "type2",
-          },
-          Object {
-            "channel": "channel2",
-            "type": "type2",
-          },
-        ]
-      }
-      onAdd={[Function]}
-      onRemove={[Function]}
-      types={
-        Array [
-          "type1",
-          "type2",
-        ]
-      }
-    />
-  </table>
+    <table
+      className="form"
+    >
+      <thead>
+        <tr>
+          <th />
+          <th
+            className="text-center"
+            key="channel1"
+          >
+            <h4>
+              notification.channel.channel1
+            </h4>
+          </th>
+          <th
+            className="text-center"
+            key="channel2"
+          >
+            <h4>
+              notification.channel.channel2
+            </h4>
+          </th>
+        </tr>
+      </thead>
+      <NotificationsList
+        channels={
+          Array [
+            "channel1",
+            "channel2",
+          ]
+        }
+        checkboxId={[Function]}
+        notifications={
+          Array [
+            Object {
+              "channel": "channel1",
+              "type": "type1",
+            },
+            Object {
+              "channel": "channel1",
+              "type": "type2",
+            },
+            Object {
+              "channel": "channel2",
+              "type": "type2",
+            },
+          ]
+        }
+        onAdd={[Function]}
+        onRemove={[Function]}
+        types={
+          Array [
+            "type1",
+            "type2",
+          ]
+        }
+      />
+    </table>
+  </div>
 </section>
 `;

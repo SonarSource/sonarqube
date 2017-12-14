@@ -76,11 +76,15 @@ class AboutApp extends React.PureComponent {
       window.location = 'https://about.sonarcloud.io';
     } else {
       this.loadData();
+      // $FlowFixMe
+      document.body.classList.add('white-page');
     }
   }
 
   componentWillUnmount() {
     this.mounted = false;
+    // $FlowFixMe
+    document.body.classList.remove('white-page');
   }
 
   loadProjects() {

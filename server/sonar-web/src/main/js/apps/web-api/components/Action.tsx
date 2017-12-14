@@ -120,7 +120,7 @@ export default class Action extends React.PureComponent<Props, State> {
       );
     }
 
-    return <hr />;
+    return null;
   }
 
   render() {
@@ -130,8 +130,8 @@ export default class Action extends React.PureComponent<Props, State> {
     const actionKey = getActionKey(domain.path, action.key);
 
     return (
-      <div id={actionKey} className="web-api-action">
-        <header className="web-api-action-header">
+      <div id={actionKey} className="boxed-group">
+        <header className="web-api-action-header boxed-group-header">
           <Link
             to={{ pathname: '/web_api/' + actionKey }}
             className="spacer-right link-no-underline">
@@ -161,26 +161,28 @@ export default class Action extends React.PureComponent<Props, State> {
           )}
         </header>
 
-        <div
-          className="web-api-action-description markdown"
-          dangerouslySetInnerHTML={{ __html: action.description }}
-        />
+        <div className="boxed-group-inner">
+          <div
+            className="web-api-action-description markdown"
+            dangerouslySetInnerHTML={{ __html: action.description }}
+          />
 
-        {this.renderTabs()}
+          {this.renderTabs()}
 
-        {showParams &&
-          action.params && (
-            <Params
-              params={action.params}
-              showDeprecated={this.props.showDeprecated}
-              showInternal={this.props.showInternal}
-            />
-          )}
+          {showParams &&
+            action.params && (
+              <Params
+                params={action.params}
+                showDeprecated={this.props.showDeprecated}
+                showInternal={this.props.showInternal}
+              />
+            )}
 
-        {showResponse &&
-          action.hasResponseExample && <ResponseExample domain={domain} action={action} />}
+          {showResponse &&
+            action.hasResponseExample && <ResponseExample domain={domain} action={action} />}
 
-        {showChangelog && <ActionChangelog changelog={action.changelog} />}
+          {showChangelog && <ActionChangelog changelog={action.changelog} />}
+        </div>
       </div>
     );
   }

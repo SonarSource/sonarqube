@@ -46,30 +46,32 @@ type Props = {
 
 function GlobalNotifications(props /*: Props */) {
   return (
-    <section>
-      <h2 className="spacer-bottom">{translate('my_profile.overall_notifications.title')}</h2>
+    <section className="boxed-group">
+      <h2>{translate('my_profile.overall_notifications.title')}</h2>
 
-      <table className="form">
-        <thead>
-          <tr>
-            <th />
-            {props.channels.map(channel => (
-              <th key={channel} className="text-center">
-                <h4>{translate('notification.channel', channel)}</h4>
-              </th>
-            ))}
-          </tr>
-        </thead>
+      <div className="boxed-group-inner">
+        <table className="form">
+          <thead>
+            <tr>
+              <th />
+              {props.channels.map(channel => (
+                <th key={channel} className="text-center">
+                  <h4>{translate('notification.channel', channel)}</h4>
+                </th>
+              ))}
+            </tr>
+          </thead>
 
-        <NotificationsList
-          notifications={props.notifications}
-          channels={props.channels}
-          types={props.types}
-          checkboxId={(d, c) => `global-notification-${d}-${c}`}
-          onAdd={props.addNotification}
-          onRemove={props.removeNotification}
-        />
-      </table>
+          <NotificationsList
+            notifications={props.notifications}
+            channels={props.channels}
+            types={props.types}
+            checkboxId={(d, c) => `global-notification-${d}-${c}`}
+            onAdd={props.addNotification}
+            onRemove={props.removeNotification}
+          />
+        </table>
+      </div>
     </section>
   );
 }

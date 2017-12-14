@@ -91,11 +91,11 @@ exports[`should display the response example 1`] = `
 
 exports[`should render correctly 1`] = `
 <div
-  className="web-api-action"
+  className="boxed-group"
   id="foo/foo"
 >
   <header
-    className="web-api-action-header"
+    className="web-api-action-header boxed-group-header"
   >
     <Link
       className="spacer-right link-no-underline"
@@ -118,43 +118,47 @@ exports[`should render correctly 1`] = `
     </h3>
   </header>
   <div
-    className="web-api-action-description markdown"
-    dangerouslySetInnerHTML={
-      Object {
-        "__html": "Foo Desc",
-      }
-    }
-  />
-  <ul
-    className="web-api-action-actions tabs"
+    className="boxed-group-inner"
   >
-    <li>
-      <a
-        className=""
-        href="#"
-        onClick={[Function]}
-      >
-        api_documentation.parameters
-      </a>
-    </li>
-    <li>
-      <a
-        className=""
-        href="#"
-        onClick={[Function]}
-      >
-        api_documentation.response_example
-      </a>
-    </li>
-    <li>
-      <a
-        className=""
-        href="#"
-        onClick={[Function]}
-      >
-        api_documentation.changelog
-      </a>
-    </li>
-  </ul>
+    <div
+      className="web-api-action-description markdown"
+      dangerouslySetInnerHTML={
+        Object {
+          "__html": "Foo Desc",
+        }
+      }
+    />
+    <ul
+      className="web-api-action-actions tabs"
+    >
+      <li>
+        <a
+          className=""
+          href="#"
+          onClick={[Function]}
+        >
+          api_documentation.parameters
+        </a>
+      </li>
+      <li>
+        <a
+          className=""
+          href="#"
+          onClick={[Function]}
+        >
+          api_documentation.response_example
+        </a>
+      </li>
+      <li>
+        <a
+          className=""
+          href="#"
+          onClick={[Function]}
+        >
+          api_documentation.changelog
+        </a>
+      </li>
+    </ul>
+  </div>
 </div>
 `;
