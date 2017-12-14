@@ -321,7 +321,9 @@ public class UserDaoTest {
       .setExternalIdentityProvider("github")
       .setLocal(true)
       .setCreatedAt(date)
-      .setUpdatedAt(date);
+      .setUpdatedAt(date)
+      .setHomepageType("project")
+      .setHomepageValue("OB1");
     underTest.insert(db.getSession(), userDto);
     db.getSession().commit();
 
@@ -340,6 +342,8 @@ public class UserDaoTest {
     assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
     assertThat(user.isLocal()).isTrue();
     assertThat(user.isRoot()).isFalse();
+    assertThat(user.getHomepageType()).isEqualTo("project");
+    assertThat(user.getHomepageValue()).isEqualTo("OB1");
   }
 
   @Test
@@ -364,7 +368,9 @@ public class UserDaoTest {
       .setCryptedPassword("abcde")
       .setExternalIdentity("johngithub")
       .setExternalIdentityProvider("github")
-      .setLocal(false);
+      .setLocal(false)
+      .setHomepageType("project")
+      .setHomepageValue("OB1");
     underTest.update(db.getSession(), userUpdate);
 
     UserDto reloaded = underTest.selectByLogin(db.getSession(), user.getLogin());
@@ -382,6 +388,8 @@ public class UserDaoTest {
     assertThat(reloaded.getExternalIdentityProvider()).isEqualTo("github");
     assertThat(reloaded.isLocal()).isFalse();
     assertThat(reloaded.isRoot()).isFalse();
+    assertThat(reloaded.getHomepageType()).isEqualTo("project");
+    assertThat(reloaded.getHomepageValue()).isEqualTo("OB1");
   }
 
   @Test
@@ -403,6 +411,8 @@ public class UserDaoTest {
     assertThat(userReloaded.getExternalIdentityProvider()).isNull();
     assertThat(userReloaded.isRoot()).isFalse();
     assertThat(userReloaded.getUpdatedAt()).isEqualTo(NOW);
+    assertThat(userReloaded.getHomepageType()).isNull();
+    assertThat(userReloaded.getHomepageValue()).isNull();
     assertThat(underTest.selectUserById(session, otherUser.getId())).isNotNull();
   }
 
@@ -420,7 +430,9 @@ public class UserDaoTest {
       .setActive(true)
       .setScmAccounts("\nma\nmarius33\n")
       .setSalt("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365")
-      .setCryptedPassword("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg"));
+      .setCryptedPassword("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg")
+      .setHomepageType("project")
+      .setHomepageValue("OB1"));
     UserDto user2 = db.users().insertUser();
     underTest.setRoot(session, user2.getLogin(), true);
 
@@ -436,6 +448,8 @@ public class UserDaoTest {
     assertThat(dto.isRoot()).isFalse();
     assertThat(dto.getCreatedAt()).isEqualTo(user1.getCreatedAt());
     assertThat(dto.getUpdatedAt()).isEqualTo(user1.getUpdatedAt());
+    assertThat(dto.getHomepageType()).isEqualTo("project");
+    assertThat(dto.getHomepageValue()).isEqualTo("OB1");
 
     dto = underTest.selectOrFailByLogin(session, user2.getLogin());
     assertThat(dto.isRoot()).isTrue();
