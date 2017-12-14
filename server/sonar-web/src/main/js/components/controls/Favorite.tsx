@@ -25,13 +25,13 @@ interface Props {
   className?: string;
   component: string;
   favorite: boolean;
+  qualifier: string;
 }
 
-export default function Favorite({ favorite, component, ...other }: Props) {
+export default function Favorite({ component, ...other }: Props) {
   return (
     <FavoriteBase
       {...other}
-      favorite={favorite}
       addFavorite={() => addFavorite(component)}
       removeFavorite={() => removeFavorite(component)}
     />

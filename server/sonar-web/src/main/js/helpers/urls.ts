@@ -21,7 +21,7 @@ import { stringify } from 'querystring';
 import { omitBy, isNil } from 'lodash';
 import { isShortLivingBranch } from './branches';
 import { getProfilePath } from '../apps/quality-profiles/utils';
-import { Branch, HomePage } from '../app/types';
+import { Branch, HomePage, HomePageType } from '../app/types';
 
 interface Query {
   [x: string]: string | undefined;
@@ -174,13 +174,13 @@ export function getOrganizationUrl(organization: string) {
 
 export function getHomePageUrl(homepage: HomePage) {
   switch (homepage.type) {
-    case 'project':
-      return getProjectUrl(homepage.key!);
-    case 'organization':
-      return getOrganizationUrl(homepage.key!);
-    case 'my-projects':
+    case HomePageType.Project:
+      return getProjectUrl(homepage.parameter!);
+    case HomePageType.Organization:
+      return getOrganizationUrl(homepage.parameter!);
+    case HomePageType.MyProjects:
       return '/projects';
-    case 'my-issues':
+    case HomePageType.MyIssues:
       return { pathname: '/issues', query: { resolved: 'false' } };
   }
 

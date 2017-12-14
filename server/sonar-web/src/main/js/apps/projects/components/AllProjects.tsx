@@ -70,11 +70,6 @@ export default class AllProjects extends React.PureComponent<Props, State> {
   componentDidMount() {
     this.mounted = true;
 
-    const html = document.querySelector('html');
-    if (html) {
-      html.classList.add('dashboard-page');
-    }
-
     if (this.props.isFavorite && !isLoggedIn(this.props.currentUser)) {
       handleRequiredAuthentication();
       return;
@@ -94,11 +89,6 @@ export default class AllProjects extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
-
-    const html = document.querySelector('html');
-    if (html) {
-      html.classList.remove('dashboard-page');
-    }
 
     const footer = document.getElementById('footer');
     if (footer) {

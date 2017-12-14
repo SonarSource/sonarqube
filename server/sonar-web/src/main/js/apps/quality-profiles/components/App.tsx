@@ -43,13 +43,6 @@ export default class App extends React.PureComponent<Props, State> {
   mounted: boolean;
   state: State = { loading: true };
 
-  componentWillMount() {
-    const html = document.querySelector('html');
-    if (html) {
-      html.classList.add('dashboard-page');
-    }
-  }
-
   componentDidMount() {
     this.mounted = true;
     this.loadData();
@@ -57,10 +50,6 @@ export default class App extends React.PureComponent<Props, State> {
 
   componentWillUnmount() {
     this.mounted = false;
-    const html = document.querySelector('html');
-    if (html) {
-      html.classList.remove('dashboard-page');
-    }
   }
 
   fetchProfiles() {

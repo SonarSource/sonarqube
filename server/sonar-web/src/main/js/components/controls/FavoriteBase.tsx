@@ -23,10 +23,11 @@ import Tooltip from './Tooltip';
 import FavoriteIcon from '../icons-components/FavoriteIcon';
 import { translate } from '../../helpers/l10n';
 
-interface Props {
+export interface Props {
   addFavorite: () => Promise<void>;
   className?: string;
   favorite: boolean;
+  qualifier: string;
   removeFavorite: () => Promise<void>;
 }
 
@@ -83,10 +84,10 @@ export default class FavoriteBase extends React.PureComponent<Props, State> {
 
   render() {
     const tooltip = this.state.favorite
-      ? translate('favorite.current')
-      : translate('favorite.check');
+      ? translate('favorite.current', this.props.qualifier)
+      : translate('favorite.check', this.props.qualifier);
     return (
-      <Tooltip overlay={tooltip}>
+      <Tooltip overlay={tooltip} placement="left">
         <a
           className={classNames('display-inline-block', 'link-no-underline', this.props.className)}
           href="#"

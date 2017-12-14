@@ -22,5 +22,5 @@ import { shallow } from 'enzyme';
 import Favorite from '../Favorite';
 
 it('renders', () => {
-  expect(shallow(<Favorite component="foo" favorite={true} />)).toMatchSnapshot();
+  expect(shallow(<Favorite component="foo" favorite={true} qualifier="TRK" />)).toMatchSnapshot();
 });

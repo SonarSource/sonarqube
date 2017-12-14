@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Branch, Component, CurrentUser, isLoggedIn } from '../../../types';
+import { Branch, Component, CurrentUser, isLoggedIn, HomePageType } from '../../../types';
 import BranchStatus from '../../../../components/common/BranchStatus';
 import DateTimeFormatter from '../../../../components/intl/DateTimeFormatter';
 import Favorite from '../../../../components/controls/Favorite';
@@ -60,14 +60,22 @@ export function ComponentNavMeta({ branch, component, currentUser }: Props) {
       {isLoggedIn(currentUser) &&
         mainBranch && (
           <div className="navbar-context-meta-secondary">
-            <Favorite component={component.key} favorite={Boolean(component.isFavorite)} />
+            <Favorite
+              component={component.key}
+              favorite={Boolean(component.isFavorite)}
+              qualifier={component.qualifier}
+            />
             <HomePageSelect
               className="spacer-left"
-              currentPage={{ type: 'project', key: component.key }}
+              currentPage={{ type: HomePageType.Project, parameter: component.key }}
             />
           </div>
         )}
-      {shortBranch && <BranchStatus branch={branch!} />}
+      {shortBranch && (
+        <div className="navbar-context-meta-secondary">
+          <BranchStatus branch={branch!} />
+        </div>
+      )}
     </div>
   );
 }

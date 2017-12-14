@@ -70,10 +70,10 @@ export default class Password extends Component {
     const { success, errors } = this.state;
 
     return (
-      <section>
+      <section className="boxed-group">
         <h2 className="spacer-bottom">{translate('my_profile.password.title')}</h2>
 
-        <form onSubmit={this.handleChangePassword}>
+        <form className="boxed-group-inner" onSubmit={this.handleChangePassword}>
           {success && (
             <div className="alert alert-success">{translate('my_profile.password.changed')}</div>
           )}

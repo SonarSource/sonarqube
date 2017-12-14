@@ -10,14 +10,11 @@ exports[`should match snapshot 1`] = `
     title="my_account.notifications"
   />
   <p
-    className="big-spacer-bottom"
+    className="alert alert-info"
   >
     notification.dispatcher.information
   </p>
   <Connect(GlobalNotifications) />
-  <hr
-    className="account-separator"
-  />
   <Connect(Projects) />
 </div>
 `;

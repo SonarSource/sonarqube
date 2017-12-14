@@ -22,6 +22,7 @@ import React from 'react';
 import IssuesCounter from './IssuesCounter';
 import ReloadButton from './ReloadButton';
 /*:: import type { Paging } from '../utils'; */
+import { HomePageType } from '../../../app/types';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import { translate } from '../../../helpers/l10n';
@@ -74,7 +75,10 @@ export default class PageActions extends React.PureComponent {
         </div>
 
         {this.props.canSetHome && (
-          <HomePageSelect className="huge-spacer-left" currentPage={{ type: 'my-issues' }} />
+          <HomePageSelect
+            className="huge-spacer-left"
+            currentPage={{ type: HomePageType.MyIssues }}
+          />
         )}
       </div>
     );

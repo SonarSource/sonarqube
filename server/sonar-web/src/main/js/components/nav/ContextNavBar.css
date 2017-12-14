@@ -1,6 +1,6 @@
 .navbar-context,
 .navbar-context .navbar-inner {
-  background-color: var(--barBackgroundColor);
+  background-color: #fff;
   z-index: 420;
 }
 
@@ -14,7 +14,7 @@
 }
 
 .navbar-context-header {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   height: calc(4 * var(--gridSize));
   font-size: var(--bigFontSize);
@@ -48,6 +48,7 @@
   top: 36px;
   right: 0;
   padding: 0 20px;
+  white-space: nowrap;
 }
 
 .navbar-context-description {

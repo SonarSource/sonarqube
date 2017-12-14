@@ -119,26 +119,30 @@ export default class App extends React.PureComponent<Props, State> {
           {this.renderBranchLifeTime()}
         </header>
 
-        <table className="data zebra zebra-hover">
-          <thead>
-            <tr>
-              <th>{translate('branch')}</th>
-              <th className="thin nowrap text-right">{translate('status')}</th>
-              <th className="thin nowrap text-right">{translate('branches.last_analysis_date')}</th>
-              <th className="thin nowrap text-right">{translate('actions')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortBranchesAsTree(branches).map(branch => (
-              <BranchRow
-                branch={branch}
-                component={component.key}
-                key={branch.name}
-                onChange={onBranchesChange}
-              />
-            ))}
-          </tbody>
-        </table>
+        <div className="boxed-group boxed-group-inner">
+          <table className="data zebra zebra-hover">
+            <thead>
+              <tr>
+                <th>{translate('branch')}</th>
+                <th className="thin nowrap text-right">{translate('status')}</th>
+                <th className="thin nowrap text-right">
+                  {translate('branches.last_analysis_date')}
+                </th>
+                <th className="thin nowrap text-right">{translate('actions')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortBranchesAsTree(branches).map(branch => (
+                <BranchRow
+                  branch={branch}
+                  component={component.key}
+                  key={branch.name}
+                  onChange={onBranchesChange}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   }
