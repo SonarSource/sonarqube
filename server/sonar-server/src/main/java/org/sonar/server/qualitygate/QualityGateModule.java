@@ -44,7 +44,6 @@ public class QualityGateModule extends Module {
     add(
       QualityGateUpdater.class,
       QualityGateConditionsUpdater.class,
-      QgateProjectFinder.class,
       QualityGateFinder.class,
       // WS
       QualityGatesWsSupport.class,
