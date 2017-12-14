@@ -21,6 +21,7 @@ package org.sonarqube.tests.qualityGate;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
+import java.util.List;
 import java.util.Map;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -29,13 +30,18 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.Organizations.Organization;
 import org.sonarqube.ws.Projects.CreateWsResponse.Project;
 import org.sonarqube.ws.Qualitygates;
+import org.sonarqube.ws.Qualitygates.ListWsResponse.QualityGate;
+import org.sonarqube.ws.Qualitygates.SearchResponse.Result;
 import org.sonarqube.ws.Users;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.qualitygates.CreateConditionRequest;
+import org.sonarqube.ws.client.qualitygates.ListRequest;
+import org.sonarqube.ws.client.qualitygates.SearchRequest;
 import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static util.ItUtils.projectDir;
 
 public class OrganizationQualityGateTest {
@@ -66,7 +72,7 @@ public class OrganizationQualityGateTest {
 
     WsResponse response = tester.wsClient().wsConnector().call(new GetRequest("api/navigation/component").setParam("componentKey", project.getKey()));
     Map currentQualityGate = (Map) ItUtils.jsonToMap(response.content()).get("qualityGate");
-    assertThat((long) (double) (Double) currentQualityGate.get("key")).isEqualTo(qualityGate.getId());
+    assertThat((long) (double) (Double)  currentQualityGate.get("key")).isEqualTo(qualityGate.getId());
 
     orchestrator.executeBuild(
       SonarScanner.create(projectDir("shared/xoo-sample"))
@@ -79,7 +85,7 @@ public class OrganizationQualityGateTest {
 
     WsResponse response2 = tester.wsClient().wsConnector().call(new GetRequest("api/navigation/component").setParam("componentKey", project.getKey()));
     Map currentQualityGate2 = (Map) ItUtils.jsonToMap(response2.content()).get("qualityGate");
-    assertThat((long) (double) (Double) currentQualityGate2.get("key")).isEqualTo(qualityGate.getId());
+    assertThat((long) (double) (Double)  currentQualityGate2.get("key")).isEqualTo(qualityGate.getId());
 
     Qualitygates.CreateResponse qualityGate2 = tester.qGates().generate(organization);
     tester.qGates().associateProject(organization, qualityGate2, project);
@@ -94,6 +100,43 @@ public class OrganizationQualityGateTest {
 
     WsResponse response3 = tester.wsClient().wsConnector().call(new GetRequest("api/navigation/component").setParam("componentKey", project.getKey()));
     Map currentQualityGate3 = (Map) ItUtils.jsonToMap(response3.content()).get("qualityGate");
-    assertThat((long) (double) (Double) currentQualityGate3.get("key")).isEqualTo(qualityGate2.getId());
+    assertThat((long) (double) (Double)  currentQualityGate3.get("key")).isEqualTo(qualityGate2.getId());
+  }
+
+  @Test
+  public void search_projects_only_return_projects_from_quality_gate_organization() throws Exception {
+    Organization organization = tester.organizations().generate();
+    Project project = tester.projects().provision(organization);
+    Organization otherOrganization = tester.organizations().generate();
+    Project otherProject = tester.projects().provision(otherOrganization);
+    Qualitygates.CreateResponse qualityGate = tester.qGates().generate(organization);
+
+    List<Result> projects = tester.qGates().service()
+      .search(new SearchRequest()
+        .setOrganization(organization.getKey())
+        .setGateId(Long.toString(qualityGate.getId()))
+        .setSelected("all"))
+      .getResultsList();
+
+    assertThat(projects).extracting(Result::getName)
+      .containsExactlyInAnyOrder(project.getName())
+      .doesNotContain(otherProject.getName());
+  }
+
+  @Test
+  public void list_quality_gates_from_organization() throws Exception {
+    Organization organization = tester.organizations().generate();
+    Organization otherOrganization = tester.organizations().generate();
+    Qualitygates.CreateResponse qualityGate = tester.qGates().generate(organization);
+    Qualitygates.CreateResponse otherQualityGate = tester.qGates().generate(otherOrganization);
+
+    List<QualityGate> qualityGates = tester.qGates().service()
+      .list(new ListRequest()
+        .setOrganization(organization.getKey()))
+      .getQualitygatesList();
+
+    assertThat(qualityGates).extracting(QualityGate::getName, QualityGate::getIsBuiltIn)
+      .contains(tuple(qualityGate.getName(), false), tuple("Sonar way", true))
+      .doesNotContain(tuple(otherQualityGate.getName(), false));
   }
 }
