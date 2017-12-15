@@ -38,6 +38,8 @@ public class UsersWsModule extends Module {
       UserJsonWriter.class,
       SkipOnboardingTutorialAction.class,
       SetHomepageAction.class,
-      HomepageFinder.class);
+      HomepageFinder.class,
+      HomepageUpdater.class
+    );
   }
 }

@@ -22,13 +22,25 @@ package org.sonar.server.user.ws;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.server.user.UserSession;
+
+import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.ORGANIZATION;
+import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PROJECT;
 
 public class SetHomepageAction implements UsersWsAction {
 
-  private static final String PARAM_TYPE = "type";
-  private static final String PARAM_VALUE = "value";
-  private static final String ACTION = "set_homepage";
+  static final String PARAM_TYPE = "type";
+  static final String PARAM_VALUE = "value";
+  static final String ACTION = "set_homepage";
 
+  private final UserSession userSession;
+  private final HomepageUpdater homepageUpdater;
+
+  public SetHomepageAction(UserSession userSession, HomepageUpdater homepageUpdater) {
+    this.userSession = userSession;
+    this.homepageUpdater = homepageUpdater;
+  }
 
   @Override
   public void define(WebService.NewController controller) {
@@ -51,9 +63,21 @@ public class SetHomepageAction implements UsersWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    userSession.checkLoggedIn();
 
-    // WIP : Not implemented yet.
+    final String type = request.param(PARAM_TYPE);
+    final String value = request.param(PARAM_VALUE);
+
+    if (PROJECT.toString().equals(type) && isBlank(value)) {
+      throw new IllegalArgumentException("type PROJECT requires a mandatory project key");
+    }
+
+    if (ORGANIZATION.toString().equals(type) && isBlank(value)) {
+      throw new IllegalArgumentException("type ORGANIZATION requires a mandatory project key");
+    }
+
+    homepageUpdater.update(userSession.getLogin(), type, value);
+
     response.noContent();
-
   }
 }
