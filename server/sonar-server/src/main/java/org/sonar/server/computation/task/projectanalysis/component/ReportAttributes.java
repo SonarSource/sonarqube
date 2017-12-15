@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.component;
 
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -33,11 +34,14 @@ public class ReportAttributes {
   private final String version;
   @CheckForNull
   private final String path;
+  @CheckForNull
+  private final String scmPath;
 
   private ReportAttributes(Builder builder) {
     this.ref = builder.ref;
     this.version = builder.version;
     this.path = builder.path;
+    this.scmPath = builder.scmPath;
   }
 
   public static Builder newBuilder(int ref) {
@@ -50,6 +54,8 @@ public class ReportAttributes {
     private String version;
     @CheckForNull
     private String path;
+    @CheckForNull
+    private String scmPath;
 
     private Builder(int ref) {
       this.ref = ref;
@@ -62,6 +68,11 @@ public class ReportAttributes {
 
     public Builder setPath(@Nullable String path) {
       this.path = path;
+      return this;
+    }
+
+    public Builder setScmPath(@Nullable String scmPath) {
+      this.scmPath = scmPath;
       return this;
     }
 
@@ -93,12 +104,23 @@ public class ReportAttributes {
     return path;
   }
 
+  /**
+   * The path of the component relative the SCM root the project is part of.
+   * <p>
+   * Can be {@link Optional#empty() empty} if project is not version controlled,
+   * otherwise should be non {@link Optional#isPresent() non empty} for all components.
+   */
+  public Optional<String> getScmPath() {
+    return Optional.ofNullable(scmPath);
+  }
+
   @Override
   public String toString() {
     return "ReportAttributes{" +
       "ref=" + ref +
       ", version='" + version + '\'' +
       ", path='" + path + '\'' +
+      ", scmPath='" + scmPath + '\'' +
       '}';
   }
 }

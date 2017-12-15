@@ -78,19 +78,21 @@ public class ComponentTreeBuilder {
     this.baseAnalysis = baseAnalysis;
   }
 
-  public Component buildProject(ScannerReport.Component project) {
-    return buildComponent(project, project);
+  public Component buildProject(ScannerReport.Component project, String scmBasePath) {
+    return buildComponent(project, project, trimToNull(scmBasePath));
   }
 
-  private List<Component> buildChildren(ScannerReport.Component component, ScannerReport.Component parentModule) {
+  private List<Component> buildChildren(ScannerReport.Component component, ScannerReport.Component parentModule,
+    String projectScmPath) {
     return component.getChildRefList()
       .stream()
       .map(scannerComponentSupplier::apply)
-      .map(c -> buildComponent(c, parentModule))
+      .map(c -> buildComponent(c, parentModule, projectScmPath))
       .collect(Collectors.toList());
   }
 
-  private ComponentImpl buildComponent(ScannerReport.Component component, ScannerReport.Component closestModule) {
+  private ComponentImpl buildComponent(ScannerReport.Component component, ScannerReport.Component closestModule,
+    @Nullable String scmBasePath) {
     switch (component.getType()) {
       case PROJECT:
         String projectKey = keyGenerator.generateKey(component, null);
@@ -103,10 +105,10 @@ public class ComponentTreeBuilder {
           .setName(nameOfProject(component))
           .setStatus(convertStatus(component.getStatus()))
           .setDescription(trimToNull(component.getDescription()))
-          .setReportAttributes(createAttributesBuilder(component)
+          .setReportAttributes(createAttributesBuilder(component, scmBasePath)
             .setVersion(createProjectVersion(component))
             .build())
-          .addChildren(buildChildren(component, component))
+          .addChildren(buildChildren(component, component, scmBasePath))
           .build();
 
       case MODULE:
@@ -119,8 +121,8 @@ public class ComponentTreeBuilder {
           .setName(nameOfOthers(component, modulePublicKey))
           .setStatus(convertStatus(component.getStatus()))
           .setDescription(trimToNull(component.getDescription()))
-          .setReportAttributes(createAttributesBuilder(component).build())
-          .addChildren(buildChildren(component, component))
+          .setReportAttributes(createAttributesBuilder(component, scmBasePath).build())
+          .addChildren(buildChildren(component, component, scmBasePath))
           .build();
 
       case DIRECTORY:
@@ -134,9 +136,9 @@ public class ComponentTreeBuilder {
           .setName(nameOfOthers(component, publicKey))
           .setStatus(convertStatus(component.getStatus()))
           .setDescription(trimToNull(component.getDescription()))
-          .setReportAttributes(createAttributesBuilder(component).build())
+          .setReportAttributes(createAttributesBuilder(component, scmBasePath).build())
           .setFileAttributes(createFileAttributes(component))
-          .addChildren(buildChildren(component, closestModule))
+          .addChildren(buildChildren(component, closestModule, scmBasePath))
           .build();
 
       default:
@@ -145,7 +147,7 @@ public class ComponentTreeBuilder {
   }
 
   private static Component.Status convertStatus(FileStatus status) {
-    switch(status) {
+    switch (status) {
       case ADDED:
         return Component.Status.ADDED;
       case SAME:
@@ -184,10 +186,22 @@ public class ComponentTreeBuilder {
     return DEFAULT_PROJECT_VERSION;
   }
 
-  private static ReportAttributes.Builder createAttributesBuilder(ScannerReport.Component component) {
+  private static ReportAttributes.Builder createAttributesBuilder(ScannerReport.Component component, @Nullable String scmBasePath) {
     return ReportAttributes.newBuilder(component.getRef())
       .setVersion(trimToNull(component.getVersion()))
-      .setPath(trimToNull(component.getPath()));
+      .setPath(trimToNull(component.getPath()))
+      .setScmPath(computeScmPath(scmBasePath, component.getProjectRelativePath()));
+  }
+
+  @CheckForNull
+  private static String computeScmPath(@Nullable String scmBasePath, String scmRelativePath) {
+    if (scmRelativePath.isEmpty()) {
+      return null;
+    }
+    if (scmBasePath == null) {
+      return scmRelativePath;
+    }
+    return scmBasePath + '/' + scmRelativePath;
   }
 
   @CheckForNull

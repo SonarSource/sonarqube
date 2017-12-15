@@ -36,6 +36,7 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.task.projectanalysis.analysis.Project;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.sonar.scanner.protocol.output.ScannerReport.Component.newBuilder;
@@ -54,6 +55,7 @@ public class ComponentTreeBuilderTest {
     + ComponentKeys.createEffectiveKey(module.getKey(), component != null ? component.getPath() : null);
   private static final Function<String, String> UUID_SUPPLIER = (componentKey) -> componentKey + "_uuid";
   private static final EnumSet<ScannerReport.Component.ComponentType> REPORT_TYPES = EnumSet.of(PROJECT, MODULE, DIRECTORY, FILE);
+  private static final String NO_SCM_BASE_PATH = "";
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -81,7 +83,7 @@ public class ComponentTreeBuilderTest {
   }
 
   @Test
-  public void by_default_project_is_loaded_from_report() {
+  public void by_default_project_fields_are_loaded_from_report() {
     String nameInReport = "the name";
     String descriptionInReport = "the desc";
     Component root = call(newBuilder()
@@ -151,6 +153,114 @@ public class ComponentTreeBuilderTest {
       .build());
 
     assertThat(root.getDescription()).isNull();
+  }
+
+  @Test
+  public void project_scmPath_is_empty_if_scmBasePath_is_empty() {
+    Component root = call(newBuilder()
+      .setType(PROJECT)
+      .build(), NO_SCM_BASE_PATH);
+
+    assertThat(root.getReportAttributes().getScmPath()).isEmpty();
+  }
+
+  @Test
+  public void any_component_with_projectRelativePath_has_this_value_as_scmPath_if_scmBasePath_is_empty() {
+    String[] projectRelativePaths = {
+      randomAlphabetic(4),
+      randomAlphabetic(5),
+      randomAlphabetic(6),
+      randomAlphabetic(7)
+    };
+    ScannerReport.Component project = newBuilder()
+      .setType(PROJECT)
+      .setKey(projectInDb.getKey())
+      .setRef(1)
+      .addChildRef(2)
+      .setProjectRelativePath(projectRelativePaths[0])
+      .build();
+    scannerComponentProvider.add(newBuilder()
+      .setRef(2)
+      .setType(MODULE)
+      .setKey("M")
+      .setProjectRelativePath(projectRelativePaths[1])
+      .addChildRef(3));
+    scannerComponentProvider.add(newBuilder()
+      .setRef(3)
+      .setType(DIRECTORY)
+      .setPath("src/js")
+      .setProjectRelativePath(projectRelativePaths[2])
+      .addChildRef(4));
+    scannerComponentProvider.add(newBuilder()
+      .setRef(4)
+      .setType(FILE)
+      .setPath("src/js/Foo.js")
+      .setProjectRelativePath(projectRelativePaths[3])
+      .setLines(1));
+
+    Component root = call(project, NO_SCM_BASE_PATH);
+
+    assertThat(root.getReportAttributes().getScmPath())
+      .contains(projectRelativePaths[0]);
+    Component module = root.getChildren().iterator().next();
+    assertThat(module.getReportAttributes().getScmPath())
+      .contains(projectRelativePaths[1]);
+    Component directory = module.getChildren().iterator().next();
+    assertThat(directory.getReportAttributes().getScmPath())
+      .contains(projectRelativePaths[2]);
+    Component file = directory.getChildren().iterator().next();
+    assertThat(file.getReportAttributes().getScmPath())
+      .contains(projectRelativePaths[3]);
+  }
+
+  @Test
+  public void any_component_with_projectRelativePath_has_this_value_appended_to_scmBasePath_and_a_slash_as_scmPath_if_scmBasePath_is_not_empty() {
+    String[] projectRelativePaths = {
+      randomAlphabetic(4),
+      randomAlphabetic(5),
+      randomAlphabetic(6),
+      randomAlphabetic(7)
+    };
+    ScannerReport.Component project = newBuilder()
+      .setType(PROJECT)
+      .setKey(projectInDb.getKey())
+      .setRef(1)
+      .addChildRef(2)
+      .setProjectRelativePath(projectRelativePaths[0])
+      .build();
+    scannerComponentProvider.add(newBuilder()
+      .setRef(2)
+      .setType(MODULE)
+      .setKey("M")
+      .setProjectRelativePath(projectRelativePaths[1])
+      .addChildRef(3));
+    scannerComponentProvider.add(newBuilder()
+      .setRef(3)
+      .setType(DIRECTORY)
+      .setPath("src/js")
+      .setProjectRelativePath(projectRelativePaths[2])
+      .addChildRef(4));
+    scannerComponentProvider.add(newBuilder()
+      .setRef(4)
+      .setType(FILE)
+      .setPath("src/js/Foo.js")
+      .setProjectRelativePath(projectRelativePaths[3])
+      .setLines(1));
+    String scmBasePath = randomAlphabetic(10);
+
+    Component root = call(project, scmBasePath);
+
+    assertThat(root.getReportAttributes().getScmPath())
+      .contains(scmBasePath + "/" + projectRelativePaths[0]);
+    Component module = root.getChildren().iterator().next();
+    assertThat(module.getReportAttributes().getScmPath())
+      .contains(scmBasePath + "/" + projectRelativePaths[1]);
+    Component directory = module.getChildren().iterator().next();
+    assertThat(directory.getReportAttributes().getScmPath())
+      .contains(scmBasePath + "/" + projectRelativePaths[2]);
+    Component file = directory.getChildren().iterator().next();
+    assertThat(file.getReportAttributes().getScmPath())
+      .contains(scmBasePath + "/" + projectRelativePaths[3]);
   }
 
   @Test
@@ -732,11 +842,19 @@ public class ComponentTreeBuilderTest {
   }
 
   private Component call(ScannerReport.Component project) {
-    return newUnderTest(null).buildProject(project);
+    return call(project, NO_SCM_BASE_PATH);
+  }
+
+  private Component call(ScannerReport.Component project, String scmBasePath) {
+    return newUnderTest(null).buildProject(project, scmBasePath);
   }
 
   private Component call(ScannerReport.Component project, @Nullable SnapshotDto baseAnalysis) {
-    return newUnderTest(baseAnalysis).buildProject(project);
+    return call(project, baseAnalysis, NO_SCM_BASE_PATH);
+  }
+
+  private Component call(ScannerReport.Component project, @Nullable SnapshotDto baseAnalysis, String scmBasePath) {
+    return newUnderTest(baseAnalysis).buildProject(project, scmBasePath);
   }
 
   private ComponentTreeBuilder newUnderTest(@Nullable SnapshotDto baseAnalysis) {
