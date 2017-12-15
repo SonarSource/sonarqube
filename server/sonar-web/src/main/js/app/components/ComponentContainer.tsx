@@ -108,7 +108,7 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
   }
 
   fetchBranches = (component: Component) => {
-    const project = component.breadcrumbs.find((c: Component) => c.qualifier === 'TRK');
+    const project = component.breadcrumbs.find(({ qualifier }) => qualifier === 'TRK');
     return project ? getBranches(project.key) : Promise.resolve([]);
   };
 
