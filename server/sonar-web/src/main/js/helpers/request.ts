@@ -167,7 +167,7 @@ export function parseJSON(response: Response): Promise<any> {
   return response.json();
 }
 
-/** 
+/**
  * Parse response of failed request
  */
 export function parseError(error: { response: Response }): Promise<string> {

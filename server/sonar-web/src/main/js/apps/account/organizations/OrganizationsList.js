@@ -32,13 +32,13 @@ type Props = {
 export default function OrganizationsList(props /*: Props */) {
   return (
     <ul className="account-projects-list">
-      {sortBy(props.organizations, organization =>
-        organization.name.toLocaleLowerCase()
-      ).map(organization => (
-        <li key={organization.key}>
-          <OrganizationCard organization={organization} />
-        </li>
-      ))}
+      {sortBy(props.organizations, organization => organization.name.toLocaleLowerCase()).map(
+        organization => (
+          <li key={organization.key}>
+            <OrganizationCard organization={organization} />
+          </li>
+        )
+      )}
     </ul>
   );
 }

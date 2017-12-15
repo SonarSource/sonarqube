@@ -185,7 +185,8 @@ const startReactApp = () => {
 
                   <Route
                     getComponent={() =>
-                      import('../components/ComponentContainer').then(i => i.default)}>
+                      import('../components/ComponentContainer').then(i => i.default)
+                    }>
                     <Route path="code" childRoutes={codeRoutes} />
                     <Route path="component_measures" childRoutes={componentMeasuresRoutes} />
                     <Route path="dashboard" childRoutes={overviewRoutes} />
