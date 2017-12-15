@@ -68,17 +68,17 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
   }
 
   loadStatus = () => {
-    getTasksForComponent(
-      this.props.component.key
-    ).then((r: { queue: PendingTask[]; current: Task }) => {
-      if (this.mounted) {
-        this.setState({
-          currentTask: r.current,
-          isInProgress: r.queue.some(task => task.status === STATUSES.IN_PROGRESS),
-          isPending: r.queue.some(task => task.status === STATUSES.PENDING)
-        });
+    getTasksForComponent(this.props.component.key).then(
+      (r: { queue: PendingTask[]; current: Task }) => {
+        if (this.mounted) {
+          this.setState({
+            currentTask: r.current,
+            isInProgress: r.queue.some(task => task.status === STATUSES.IN_PROGRESS),
+            isPending: r.queue.some(task => task.status === STATUSES.PENDING)
+          });
+        }
       }
-    });
+    );
   };
 
   populateRecentHistory = () => {

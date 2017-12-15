@@ -76,7 +76,7 @@ export default class UserActions extends React.PureComponent<Props, State> {
     const { isCurrentUser, onUpdateUsers, user } = this.props;
 
     return (
-      <React.Fragment>
+      <>
         {this.renderActions()}
         {openForm === 'deactivate' && (
           <DeactivateForm
@@ -91,7 +91,7 @@ export default class UserActions extends React.PureComponent<Props, State> {
         {openForm === 'update' && (
           <UserForm onClose={this.handleCloseForm} onUpdateUsers={onUpdateUsers} user={user} />
         )}
-      </React.Fragment>
+      </>
     );
   }
 }

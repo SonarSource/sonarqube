@@ -41,18 +41,17 @@ class LoginFormContainer extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     this.mounted = true;
-    Promise.all([
-      getIdentityProviders(),
-      tryGetGlobalNavigation()
-    ]).then(([identityProvidersResponse, appState]) => {
-      if (this.mounted) {
-        this.setState({
-          onSonarCloud:
-            appState.settings && appState.settings['sonar.sonarcloud.enabled'] === 'true',
-          identityProviders: identityProvidersResponse.identityProviders
-        });
+    Promise.all([getIdentityProviders(), tryGetGlobalNavigation()]).then(
+      ([identityProvidersResponse, appState]) => {
+        if (this.mounted) {
+          this.setState({
+            onSonarCloud:
+              appState.settings && appState.settings['sonar.sonarcloud.enabled'] === 'true',
+            identityProviders: identityProvidersResponse.identityProviders
+          });
+        }
       }
-    });
+    );
   }
 
   componentWillUnmount() {

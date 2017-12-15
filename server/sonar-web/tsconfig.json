@@ -6,6 +6,7 @@
     "noUnusedParameters": true,
     "noImplicitAny": true,
     "strict": true,
+    "strictFunctionTypes": false,
     "target": "es5",
     "jsx": "react",
     "lib": ["es2017", "dom"],

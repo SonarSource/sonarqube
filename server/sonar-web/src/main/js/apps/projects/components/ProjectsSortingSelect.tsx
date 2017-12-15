@@ -42,14 +42,13 @@ export default class ProjectsSortingSelect extends React.PureComponent<Props> {
 
   getOptions = () => {
     const sortMetrics = this.props.view === 'leak' ? SORTING_LEAK_METRICS : SORTING_METRICS;
-    return sortBy(
-      sortMetrics,
-      option => (option.value === this.props.defaultOption ? 0 : 1)
-    ).map(option => ({
-      value: option.value,
-      label: translate('projects.sorting', option.value),
-      class: option.class
-    }));
+    return sortBy(sortMetrics, option => (option.value === this.props.defaultOption ? 0 : 1)).map(
+      option => ({
+        value: option.value,
+        label: translate('projects.sorting', option.value),
+        class: option.class
+      })
+    );
   };
 
   handleDescToggle = () => {

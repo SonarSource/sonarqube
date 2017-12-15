@@ -86,14 +86,12 @@ function getLastUpdates(updates: undefined | Update[]): Update[] {
   if (!updates) {
     return [];
   }
-  const lastUpdate = [
-    'COMPATIBLE',
-    'REQUIRES_SYSTEM_UPGRADE',
-    'DEPS_REQUIRE_SYSTEM_UPGRADE'
-  ].map(status => {
-    const index = findLastIndex(updates, update => update.status === status);
-    return index > -1 ? updates[index] : undefined;
-  });
+  const lastUpdate = ['COMPATIBLE', 'REQUIRES_SYSTEM_UPGRADE', 'DEPS_REQUIRE_SYSTEM_UPGRADE'].map(
+    status => {
+      const index = findLastIndex(updates, update => update.status === status);
+      return index > -1 ? updates[index] : undefined;
+    }
+  );
   return lastUpdate.filter(Boolean) as Update[];
 }
 

@@ -89,26 +89,26 @@ export class ComponentContainer extends React.PureComponent<Props, State> {
       }
     };
 
-    Promise.all([
-      getComponentNavigation(id, branch),
-      getComponentData(id, branch)
-    ]).then(([nav, data]) => {
-      const component = this.addQualifier({ ...nav, ...data });
+    Promise.all([getComponentNavigation(id, branch), getComponentData(id, branch)]).then(
+      ([nav, data]) => {
+        const component = this.addQualifier({ ...nav, ...data });
 
-      if (this.props.organizationsEnabled) {
-        this.props.fetchOrganizations([component.organization]);
-      }
-
-      this.fetchBranches(component).then(branches => {
-        if (this.mounted) {
-          this.setState({ loading: false, branches, component });
+        if (this.props.organizationsEnabled) {
+          this.props.fetchOrganizations([component.organization]);
         }
-      }, onError);
-    }, onError);
+
+        this.fetchBranches(component).then(branches => {
+          if (this.mounted) {
+            this.setState({ loading: false, branches, component });
+          }
+        }, onError);
+      },
+      onError
+    );
   }
 
   fetchBranches = (component: Component) => {
-    const project = component.breadcrumbs.find((c: Component) => c.qualifier === 'TRK');
+    const project = component.breadcrumbs.find(({ qualifier }) => qualifier === 'TRK');
     return project ? getBranches(project.key) : Promise.resolve([]);
   };
 

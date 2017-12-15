@@ -122,9 +122,9 @@ export default class Event extends React.PureComponent {
             removeEventButtonText={
               'project_activity.' + (isVersion ? 'remove_version' : 'remove_custom_event')
             }
-            removeEventQuestion={`project_activity.${isVersion
-              ? 'remove_version'
-              : 'remove_custom_event'}.question`}
+            removeEventQuestion={`project_activity.${
+              isVersion ? 'remove_version' : 'remove_custom_event'
+            }.question`}
           />
         )}
       </div>
