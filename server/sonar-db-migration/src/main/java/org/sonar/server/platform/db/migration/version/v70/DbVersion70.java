@@ -37,6 +37,7 @@ public class DbVersion70 implements DbVersion {
       .add(1907, "Populate table live_measures", PopulateLiveMeasures.class)
       .add(1908, "Delete person and file measures", DeletePersonAndFileMeasures.class)
       .add(1909, "Drop index on project_measures.person_id", DropIndexOnPersonMeasures.class)
+      .add(1910, "Add USERS.HOMEPAGE_TYPE and USERS.HOMEPAGE_KEY", AddHomepageToUsers.class)
     ;
   }
 }
