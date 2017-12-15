@@ -74,7 +74,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
       return null;
     }
     return (
-      <React.Fragment>
+      <>
         <tr>
           <td>
             <h6>
@@ -93,7 +93,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
             <td>&nbsp;</td>
           </tr>
         ))}
-      </React.Fragment>
+      </>
     );
   }
 
@@ -102,7 +102,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
       return null;
     }
     return (
-      <React.Fragment>
+      <>
         <tr>
           <td>&nbsp;</td>
           <td>
@@ -121,7 +121,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
             <td>{this.renderRule(rule, rule.severity)}</td>
           </tr>
         ))}
-      </React.Fragment>
+      </>
     );
   }
 
@@ -130,7 +130,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
       return null;
     }
     return (
-      <React.Fragment>
+      <>
         <tr>
           <td colSpan={2} className="text-center">
             <h6>
@@ -161,7 +161,7 @@ export default class ComparisonResults extends React.PureComponent<Props> {
             </td>
           </tr>
         ))}
-      </React.Fragment>
+      </>
     );
   }
 

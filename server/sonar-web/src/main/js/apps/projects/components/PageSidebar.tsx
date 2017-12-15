@@ -82,7 +82,7 @@ export default function PageSidebar(props: Props) {
       </div>
       <QualityGateFilter {...facetProps} facet={facets && facets.gate} value={query.gate} />
       {!isLeakView && (
-        <React.Fragment>
+        <>
           <ReliabilityFilter
             {...facetProps}
             facet={facets && facets.reliability}
@@ -109,10 +109,10 @@ export default function PageSidebar(props: Props) {
             value={query.duplications}
           />
           <SizeFilter {...facetProps} facet={facets && facets.size} value={query.size} />
-        </React.Fragment>
+        </>
       )}
       {isLeakView && (
-        <React.Fragment>
+        <>
           <NewReliabilityFilter
             {...facetProps}
             facet={facets && facets.new_reliability}
@@ -143,7 +143,7 @@ export default function PageSidebar(props: Props) {
             facet={facets && facets.new_lines}
             value={query.new_lines}
           />
-        </React.Fragment>
+        </>
       )}
       <LanguagesFilterContainer
         {...facetProps}
