@@ -101,12 +101,9 @@ export default function PageHeader(props: Props) {
         )}
       </div>
 
-      {props.onSonarCloud &&
-        isLoggedIn(currentUser) &&
-        props.isFavorite &&
-        !props.organization && (
-          <HomePageSelect className="huge-spacer-left" currentPage={{ type: 'my-projects' }} />
-        )}
+      {props.isFavorite && (
+        <HomePageSelect className="huge-spacer-left" currentPage={{ type: 'my-projects' }} />
+      )}
     </header>
   );
 }
