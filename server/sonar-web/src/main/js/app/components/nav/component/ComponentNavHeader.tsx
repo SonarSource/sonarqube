@@ -55,16 +55,17 @@ export function ComponentNavHeader(props: Props) {
         organization={organization && shouldOrganizationBeDisplayed ? organization : undefined}
       />
       {organization &&
-        shouldOrganizationBeDisplayed && <OrganizationAvatar organization={organization} />}
-      {organization &&
         shouldOrganizationBeDisplayed && (
-          <OrganizationLink
-            organization={organization}
-            className="link-base-color link-no-underline spacer-left">
-            {organization.name}
-          </OrganizationLink>
+          <>
+            <OrganizationAvatar organization={organization} />
+            <OrganizationLink
+              organization={organization}
+              className="link-base-color link-no-underline spacer-left">
+              {organization.name}
+            </OrganizationLink>
+            <span className="slash-separator" />
+          </>
         )}
-      {organization && shouldOrganizationBeDisplayed && <span className="slash-separator" />}
       {renderBreadcrumbs(component.breadcrumbs)}
       {component.visibility === 'private' && (
         <PrivateBadge className="spacer-left" qualifier={component.qualifier} />
@@ -83,37 +84,24 @@ export function ComponentNavHeader(props: Props) {
 }
 
 function renderBreadcrumbs(breadcrumbs: Breadcrumb[]) {
-  const items: JSX.Element[] = [];
   const lastItem = breadcrumbs[breadcrumbs.length - 1];
-  breadcrumbs.forEach((item, index) => {
+  return breadcrumbs.map((item, index) => {
     const isPath = item.qualifier === 'DIR';
     const itemName = isPath ? collapsePath(item.name, 15) : limitComponentName(item.name);
 
-    if (index === 0) {
-      items.push(
-        <QualifierIcon
-          className="spacer-right"
-          key={`qualifier-${item.key}`}
-          qualifier={lastItem.qualifier}
-        />
-      );
-    }
-
-    items.push(
-      <Link
-        className="link-base-color link-no-underline"
-        key={`name-${item.key}`}
-        title={item.name}
-        to={getProjectUrl(item.key)}>
-        {itemName}
-      </Link>
+    return (
+      <React.Fragment key={item.key}>
+        {index === 0 && <QualifierIcon className="spacer-right" qualifier={lastItem.qualifier} />}
+        <Link
+          className="link-base-color link-no-underline"
+          title={item.name}
+          to={getProjectUrl(item.key)}>
+          {itemName}
+        </Link>
+        {index < breadcrumbs.length - 1 && <span className="slash-separator" />}
+      </React.Fragment>
     );
-
-    if (index < breadcrumbs.length - 1) {
-      items.push(<span className="slash-separator" key={`separator-${item.key}`} />);
-    }
   });
-  return items;
 }
 
 const mapStateToProps = (state: any, ownProps: OwnProps): StateProps => ({
