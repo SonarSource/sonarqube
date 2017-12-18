@@ -21,7 +21,7 @@
 import React from 'react';
 import QualifierIcon from '../../../components/icons-components/QualifierIcon';
 import { splitPath } from '../../../helpers/path';
-import { getComponentUrl } from '../../../helpers/urls';
+import { getPathUrlAsString, getProjectUrl } from '../../../helpers/urls';
 /*:: import type { ComponentEnhanced } from '../types'; */
 
 /*:: type Props = {
@@ -72,7 +72,7 @@ export default class ComponentCell extends React.PureComponent {
             <a
               id={'component-measures-component-link-' + component.key}
               className="link-no-underline"
-              href={getComponentUrl(component.key, branch)}
+              href={getPathUrlAsString(getProjectUrl(component.key, branch))}
               onClick={this.handleClick}>
               {this.renderInner()}
             </a>
@@ -80,7 +80,7 @@ export default class ComponentCell extends React.PureComponent {
             <a
               id={'component-measures-component-link-' + component.key}
               className="link-no-underline"
-              href={getComponentUrl(component.refKey, branch)}>
+              href={getPathUrlAsString(getProjectUrl(component.refKey, branch))}>
               <span className="big-spacer-right">
                 <i className="icon-detach" />
               </span>

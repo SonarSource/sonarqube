@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { omitBy, isNil } from 'lodash';
 import { stringify } from 'querystring';
 import { isShortLivingBranch } from './branches';
 import { getProfilePath } from '../apps/quality-profiles/utils';
@@ -35,13 +36,8 @@ export function getBaseUrl(): string {
   return (window as any).baseUrl;
 }
 
-/**
- * Generate URL for a component's home page
- * Deprecated : use getProjectUrl
- */
-export function getComponentUrl(componentKey: string, branch?: string): string {
-  const branchQuery = branch ? `&branch=${encodeURIComponent(branch)}` : '';
-  return getBaseUrl() + '/dashboard?id=' + encodeURIComponent(componentKey) + branchQuery;
+export function getPathUrlAsString(path: Location): string {
+  return `${getBaseUrl()}${path.pathname}?${stringify(omitBy(path.query, isNil))}`;
 }
 
 export function getProjectUrl(key: string, branch?: string): Location {
@@ -77,11 +73,6 @@ export function getIssuesUrl(query: Query): Location {
  */
 export function getComponentIssuesUrl(componentKey: string, query?: Query): Location {
   return { pathname: '/project/issues', query: { ...query || {}, id: componentKey } };
-}
-
-export function getComponentIssuesUrlAsString(componentKey: string, query?: Query): string {
-  const path = getComponentIssuesUrl(componentKey, query);
-  return `${getBaseUrl()}${path.pathname}?${stringify(path.query)}`;
 }
 
 /**

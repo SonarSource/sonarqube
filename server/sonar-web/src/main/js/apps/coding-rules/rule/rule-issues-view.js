@@ -20,7 +20,7 @@
 import Marionette from 'backbone.marionette';
 import Template from '../templates/rule/coding-rules-rule-issues.hbs';
 import { searchIssues } from '../../../api/issues';
-import { getComponentIssuesUrlAsString, getBaseUrl } from '../../../helpers/urls';
+import { getPathUrlAsString, getComponentIssuesUrl, getBaseUrl } from '../../../helpers/urls';
 
 export default Marionette.ItemView.extend({
   template: Template,
@@ -68,10 +68,12 @@ export default Marionette.ItemView.extend({
           name: projectBase != null ? projectBase.longName : '',
           issuesUrl:
             projectBase != null &&
-            getComponentIssuesUrlAsString(projectBase.key, {
-              resolved: 'false',
-              rules: this.model.id
-            })
+            getPathUrlAsString(
+              getComponentIssuesUrl(projectBase.key, {
+                resolved: 'false',
+                rules: this.model.id
+              })
+            )
         };
       });
       this.projects = projects;
