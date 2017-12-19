@@ -34,6 +34,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.organization.OrganizationDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -414,6 +415,30 @@ public class UserDaoTest {
     assertThat(userReloaded.getHomepageType()).isNull();
     assertThat(userReloaded.getHomepageValue()).isNull();
     assertThat(underTest.selectUserById(session, otherUser.getId())).isNotNull();
+  }
+
+  @Test
+  public void clean_users_homepage() {
+
+    UserDto userUnderTest = newUserDto().setHomepageType("ORGANIZATION").setHomepageValue("dummy-organization-UUID");
+    underTest.insert(session, userUnderTest);
+
+    UserDto untouchedUser = newUserDto().setHomepageType("ORGANIZATION").setHomepageValue("not-so-dummy-organization-UUID");
+    underTest.insert(session, untouchedUser);
+
+    session.commit();
+
+    underTest.cleanHomepage(session, new OrganizationDto().setUuid("dummy-organization-UUID"));
+
+    UserDto userWithAHomepageReloaded = underTest.selectUserById(session, userUnderTest.getId());
+    assertThat(userWithAHomepageReloaded.getUpdatedAt()).isEqualTo(NOW);
+    assertThat(userWithAHomepageReloaded.getHomepageType()).isNull();
+    assertThat(userWithAHomepageReloaded.getHomepageValue()).isNull();
+
+    UserDto untouchedUserReloaded = underTest.selectUserById(session, untouchedUser.getId());
+    assertThat(untouchedUserReloaded.getUpdatedAt()).isEqualTo(untouchedUser.getUpdatedAt());
+    assertThat(untouchedUserReloaded.getHomepageType()).isEqualTo(untouchedUser.getHomepageType());
+    assertThat(untouchedUserReloaded.getHomepageValue()).isEqualTo(untouchedUser.getHomepageValue());
   }
 
   @Test

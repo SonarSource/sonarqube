@@ -150,6 +150,7 @@ public class DeleteAction implements OrganizationsWsAction {
     Collection<String> logins = dbClient.organizationMemberDao().selectLoginsByOrganizationUuid(dbSession, organization.getUuid());
     dbClient.organizationMemberDao().deleteByOrganizationUuid(dbSession, organization.getUuid());
     dbClient.organizationDao().deleteByUuid(dbSession, organization.getUuid());
+    dbClient.userDao().cleanHomepage(dbSession, organization);
     userIndexer.commitAndIndexByLogins(dbSession, logins);
   }
 

@@ -137,6 +137,16 @@
       login = #{login, jdbcType=VARCHAR}
   </update>
 
+  <update id="clearHomepage" parameterType="map">
+    update users set
+      homepage_type = null,
+      homepage_value = null,
+      updated_at = #{now, jdbcType=BIGINT}
+    where
+      homepage_type = #{homepageType, jdbcType=VARCHAR}
+      and homepage_value = #{homepageValue, jdbcType=VARCHAR}
+  </update>
+
   <update id="setRoot">
     update users set
       is_root = #{root, jdbcType=BOOLEAN},
