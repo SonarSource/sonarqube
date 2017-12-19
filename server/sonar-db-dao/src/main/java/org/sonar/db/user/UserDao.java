@@ -35,6 +35,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
@@ -124,6 +125,10 @@ public class UserDao implements Dao {
 
   public void cleanHomepage(DbSession dbSession, OrganizationDto organization) {
     mapper(dbSession).clearHomepage("ORGANIZATION", organization.getUuid(), system2.now());
+  }
+
+  public void cleanHomepage(DbSession dbSession, ComponentDto project) {
+    mapper(dbSession).clearHomepage("PROJECT", project.uuid(), system2.now());
   }
 
   @CheckForNull
