@@ -19,9 +19,8 @@
  */
 package org.sonar.server.setting;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
+import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;
@@ -46,12 +45,11 @@ public class DatabaseSettingLoader implements SettingLoader {
   }
 
   @Override
-  public Map<String,String> loadAll() {
+  public Map<String, String> loadAll() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      Map<String,String> result = new HashMap<>();
-      dbClient.propertiesDao().selectGlobalProperties(dbSession)
-        .forEach(p -> result.put(p.getKey(), defaultString(p.getValue())));
-      return Collections.unmodifiableMap(result);
+      return dbClient.propertiesDao().selectGlobalProperties(dbSession)
+        .stream()
+        .collect(MoreCollectors.uniqueIndex(PropertyDto::getKey, p -> defaultString(p.getValue())));
     }
   }
 
