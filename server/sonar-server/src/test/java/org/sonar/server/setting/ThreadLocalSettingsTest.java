@@ -35,11 +35,11 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.PropertyDefinitions;
 
+import static java.util.Collections.unmodifiableMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -107,6 +107,18 @@ public class ThreadLocalSettingsTest {
 
     // no more cache
     assertThat(underTest.get("foo")).isNotPresent();
+  }
+
+  /**
+   * SONAR-8216 System info page fails when a setting is defined both in sonar.properties and in DB
+   */
+  @Test
+  public void getProperties_does_not_fail_on_duplicated_key() {
+    insertPropertyIntoDb("foo", "from_db");
+    underTest = create(ImmutableMap.of("foo", "from_system"));
+
+    assertThat(underTest.get("foo")).hasValue("from_system");
+    assertThat(underTest.getProperties().get("foo")).isEqualTo("from_system");
   }
 
   @Test
@@ -259,7 +271,7 @@ public class ThreadLocalSettingsTest {
   public void getProperties_return_empty_if_DB_error_on_first_call_ever_out_of_thread_cache() {
     SettingLoader settingLoaderMock = mock(SettingLoader.class);
     PersistenceException toBeThrown = new PersistenceException("Faking an error connecting to DB");
-    doThrow(toBeThrown).when(settingLoaderMock).loadAll(any(ImmutableMap.Builder.class));
+    doThrow(toBeThrown).when(settingLoaderMock).loadAll();
     underTest = new ThreadLocalSettings(new PropertyDefinitions(), new Properties(), settingLoaderMock);
 
     assertThat(underTest.getProperties())
@@ -270,7 +282,7 @@ public class ThreadLocalSettingsTest {
   public void getProperties_returns_empty_if_DB_error_on_first_call_ever_in_thread_cache() {
     SettingLoader settingLoaderMock = mock(SettingLoader.class);
     PersistenceException toBeThrown = new PersistenceException("Faking an error connecting to DB");
-    doThrow(toBeThrown).when(settingLoaderMock).loadAll(any(ImmutableMap.Builder.class));
+    doThrow(toBeThrown).when(settingLoaderMock).loadAll();
     underTest = new ThreadLocalSettings(new PropertyDefinitions(), new Properties(), settingLoaderMock);
     underTest.load();
 
@@ -285,18 +297,11 @@ public class ThreadLocalSettingsTest {
     String value2 = randomAlphanumeric(5);
     SettingLoader settingLoaderMock = mock(SettingLoader.class);
     PersistenceException toBeThrown = new PersistenceException("Faking an error connecting to DB");
-    doAnswer(invocationOnMock -> {
-      ImmutableMap.Builder<String, String> builder = (ImmutableMap.Builder<String, String>) invocationOnMock.getArguments()[0];
-      builder.put(key, value1);
-      return null;
-    }).doThrow(toBeThrown)
-      .doAnswer(invocationOnMock -> {
-        ImmutableMap.Builder<String, String> builder = (ImmutableMap.Builder<String, String>) invocationOnMock.getArguments()[0];
-        builder.put(key, value2);
-        return null;
-      })
+    doAnswer(invocationOnMock -> ImmutableMap.of(key, value1))
+      .doThrow(toBeThrown)
+      .doAnswer(invocationOnMock -> ImmutableMap.of(key, value2))
       .when(settingLoaderMock)
-      .loadAll(any(ImmutableMap.Builder.class));
+      .loadAll();
     underTest = new ThreadLocalSettings(new PropertyDefinitions(), new Properties(), settingLoaderMock);
 
     underTest.load();
@@ -394,8 +399,8 @@ public class ThreadLocalSettingsTest {
     }
 
     @Override
-    public void loadAll(ImmutableMap.Builder<String, String> appendTo) {
-      appendTo.putAll(map);
+    public Map<String, String> loadAll() {
+      return unmodifiableMap(map);
     }
   }
 }
