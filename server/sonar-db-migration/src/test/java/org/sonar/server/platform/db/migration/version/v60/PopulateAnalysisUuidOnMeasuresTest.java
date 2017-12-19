@@ -81,7 +81,7 @@ public class PopulateAnalysisUuidOnMeasuresTest {
     assertThat(rows.get("analysisUuid")).isEqualTo(expectedAnalysisUuid);
   }
 
-  private String insertSnapshot(long id, String uuid, String qualifier, @Nullable Long rootSnapshotId) {
+  private void insertSnapshot(long id, String uuid, String qualifier, @Nullable Long rootSnapshotId) {
     int depth;
     switch (qualifier) {
       case "TRK":
@@ -108,7 +108,6 @@ public class PopulateAnalysisUuidOnMeasuresTest {
       "ROOT_SNAPSHOT_ID", rootSnapshotId != null ? valueOf(rootSnapshotId) : null,
       "QUALIFIER", qualifier,
       "DEPTH", valueOf(depth));
-    return uuid;
   }
 
   private void insertMeasure(long id, long snapshotId) {
