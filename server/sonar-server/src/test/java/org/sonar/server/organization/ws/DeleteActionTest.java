@@ -68,6 +68,7 @@ import static org.sonar.api.resources.Qualifiers.APP;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.VIEW;
 import static org.sonar.db.permission.OrganizationPermission.ADMINISTER;
+import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.organization.ws.OrganizationsWsSupport.PARAM_ORGANIZATION;
 
 public class DeleteActionTest {
@@ -91,7 +92,8 @@ public class DeleteActionTest {
   private UserIndex userIndex = new UserIndex(es.client(), System2.INSTANCE);
   private UserIndexer userIndexer = new UserIndexer(dbClient, es.client());
   private QualityGateFinder qualityGateFinder = new QualityGateFinder(dbClient);
-  private WsActionTester wsTester = new WsActionTester(new DeleteAction(userSession, dbClient, defaultOrganizationProvider, componentCleanerService, organizationFlags, userIndexer, qProfileFactory));
+  private WsActionTester wsTester = new WsActionTester(
+    new DeleteAction(userSession, dbClient, defaultOrganizationProvider, componentCleanerService, organizationFlags, userIndexer, qProfileFactory));
 
   @Test
   public void test_definition() {
@@ -110,6 +112,42 @@ public class DeleteActionTest {
       .matches(param -> param.isRequired())
       .matches(param -> "foo-company".equals(param.exampleValue()))
       .matches(param -> "Organization key".equals(param.description()));
+  }
+
+  @Test
+  public void organization_deletion_also_ensure_that_homepage_on_this_organization_if_it_exists_is_cleared() throws Exception {
+    OrganizationDto organization = db.organizations().insert();
+    UserDto user = dbClient.userDao().insert(session, newUserDto().setHomepageType("ORGANIZATION").setHomepageValue(organization.getUuid()));
+    session.commit();
+
+    userSession.logIn().addPermission(ADMINISTER, organization);
+
+    wsTester.newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .execute();
+
+    UserDto userReloaded = dbClient.userDao().selectUserById(session, user.getId());
+    assertThat(userReloaded.getHomepageType()).isNull();
+    assertThat(userReloaded.getHomepageValue()).isNull();
+  }
+
+  @Test
+  public void organization_deletion_also_ensure_that_homepage_on_project_belonging_to_this_organization_if_it_exists_is_cleared() {
+    OrganizationDto organization = db.organizations().insert();
+    ComponentDto project = db.components().insertPrivateProject(organization);
+    UserDto user = dbClient.userDao().insert(session,
+      newUserDto().setHomepageType("PROJECT").setHomepageValue(project.uuid()));
+    session.commit();
+
+    userSession.logIn().addPermission(ADMINISTER, organization);
+
+    wsTester.newRequest()
+      .setParam(PARAM_ORGANIZATION, organization.getKey())
+      .execute();
+
+    UserDto userReloaded = dbClient.userDao().selectUserById(session, user.getId());
+    assertThat(userReloaded.getHomepageType()).isNull();
+    assertThat(userReloaded.getHomepageValue()).isNull();
   }
 
   @Test
