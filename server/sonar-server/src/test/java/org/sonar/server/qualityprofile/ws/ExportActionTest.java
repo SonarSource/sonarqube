@@ -48,8 +48,8 @@ import org.sonar.server.ws.WsActionTester;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.qualityprofile.QualityProfileWsParameters.PARAM_LANGUAGE;
 
 public class ExportActionTest {
 
@@ -74,14 +74,19 @@ public class ExportActionTest {
     assertThat(definition.isPost()).isFalse();
     assertThat(definition.isInternal()).isFalse();
     assertThat(definition.params()).extracting(WebService.Param::key).containsExactlyInAnyOrder("key", "language", "qualityProfile", "organization");
+
     WebService.Param organizationParam = definition.param("organization");
     assertThat(organizationParam.since()).isEqualTo("6.4");
     assertThat(organizationParam.isInternal()).isTrue();
+
     WebService.Param key = definition.param("key");
     assertThat(key.since()).isEqualTo("6.5");
     assertThat(key.deprecatedSince()).isEqualTo("6.6");
+
     WebService.Param name = definition.param("qualityProfile");
     assertThat(name.deprecatedSince()).isNullOrEmpty();
+    assertThat(name.deprecatedKey()).isEqualTo("name");
+
     WebService.Param language = definition.param("language");
     assertThat(language.deprecatedSince()).isNullOrEmpty();
   }
