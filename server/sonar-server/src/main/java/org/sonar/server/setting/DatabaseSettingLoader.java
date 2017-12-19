@@ -19,7 +19,9 @@
  */
 package org.sonar.server.setting;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;
@@ -44,10 +46,12 @@ public class DatabaseSettingLoader implements SettingLoader {
   }
 
   @Override
-  public void loadAll(ImmutableMap.Builder<String, String> appendTo) {
+  public Map<String,String> loadAll() {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      Map<String,String> result = new HashMap<>();
       dbClient.propertiesDao().selectGlobalProperties(dbSession)
-        .forEach(p -> appendTo.put(p.getKey(), defaultString(p.getValue())));
+        .forEach(p -> result.put(p.getKey(), defaultString(p.getValue())));
+      return Collections.unmodifiableMap(result);
     }
   }
 

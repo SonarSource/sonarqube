@@ -20,7 +20,6 @@
 package org.sonar.server.setting;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,11 +35,12 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Collections.unmodifiableMap;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Merge of {@link SystemSettings} and the global properties stored in the db table "properties". These
- * settings do not contain the settings specific to a project.
+ * Merge of system settings (including conf/sonar.properties) and the global properties stored
+ * in the db table "properties". These settings do not contain the settings specific to a project.
  *
  * <p>
  * System settings have precedence on others.
@@ -167,21 +167,19 @@ public class ThreadLocalSettings extends Settings {
 
   @Override
   public Map<String, String> getProperties() {
-    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
-    loadAll(builder);
-    systemProps.forEach((key, value) -> builder.put((String) key, (String) value));
-    return builder.build();
+    Map<String, String> result = new HashMap<>();
+    loadAll(result);
+    systemProps.forEach((key, value) -> result.put((String) key, (String) value));
+    return unmodifiableMap(result);
   }
 
-  private void loadAll(ImmutableMap.Builder<String, String> builder) {
+  private void loadAll(Map<String, String> appendTo) {
     try {
-      ImmutableMap.Builder<String, String> cacheBuilder = ImmutableMap.builder();
-      settingLoader.loadAll(cacheBuilder);
-      Map<String, String> cache = cacheBuilder.build();
-      builder.putAll(cache);
+      Map<String, String> cache = settingLoader.loadAll();
+      appendTo.putAll(cache);
       getPropertiesDbFailureCache = cache;
     } catch (PersistenceException e) {
-      builder.putAll(getPropertiesDbFailureCache);
+      appendTo.putAll(getPropertiesDbFailureCache);
     }
   }
 }

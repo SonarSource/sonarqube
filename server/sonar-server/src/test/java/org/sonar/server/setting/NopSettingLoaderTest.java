@@ -19,9 +19,7 @@
  */
 package org.sonar.server.setting;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
-import org.sonar.server.setting.NopSettingLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,8 +31,6 @@ public class NopSettingLoaderTest {
   public void do_nothing() {
     assertThat(underTest.load("foo")).isNull();
 
-    ImmutableMap.Builder<String,String> map = ImmutableMap.builder();
-    underTest.loadAll(map);
-    assertThat(map.build()).isEmpty();
+    assertThat(underTest.loadAll()).isEmpty();
   }
 }
