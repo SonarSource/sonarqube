@@ -34,6 +34,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.organization.OrganizationDto;
 
 import static java.util.Arrays.asList;
@@ -418,7 +419,7 @@ public class UserDaoTest {
   }
 
   @Test
-  public void clean_users_homepage() {
+  public void clean_users_homepage_when_deleting_organization() {
 
     UserDto userUnderTest = newUserDto().setHomepageType("ORGANIZATION").setHomepageValue("dummy-organization-UUID");
     underTest.insert(session, userUnderTest);
@@ -429,6 +430,30 @@ public class UserDaoTest {
     session.commit();
 
     underTest.cleanHomepage(session, new OrganizationDto().setUuid("dummy-organization-UUID"));
+
+    UserDto userWithAHomepageReloaded = underTest.selectUserById(session, userUnderTest.getId());
+    assertThat(userWithAHomepageReloaded.getUpdatedAt()).isEqualTo(NOW);
+    assertThat(userWithAHomepageReloaded.getHomepageType()).isNull();
+    assertThat(userWithAHomepageReloaded.getHomepageValue()).isNull();
+
+    UserDto untouchedUserReloaded = underTest.selectUserById(session, untouchedUser.getId());
+    assertThat(untouchedUserReloaded.getUpdatedAt()).isEqualTo(untouchedUser.getUpdatedAt());
+    assertThat(untouchedUserReloaded.getHomepageType()).isEqualTo(untouchedUser.getHomepageType());
+    assertThat(untouchedUserReloaded.getHomepageValue()).isEqualTo(untouchedUser.getHomepageValue());
+  }
+
+  @Test
+  public void clean_users_homepage_when_deleting_project() {
+
+    UserDto userUnderTest = newUserDto().setHomepageType("PROJECT").setHomepageValue("dummy-project-UUID");
+    underTest.insert(session, userUnderTest);
+
+    UserDto untouchedUser = newUserDto().setHomepageType("PROJECT").setHomepageValue("not-so-dummy-project-UUID");
+    underTest.insert(session, untouchedUser);
+
+    session.commit();
+
+    underTest.cleanHomepage(session, new ComponentDto().setUuid("dummy-project-UUID"));
 
     UserDto userWithAHomepageReloaded = underTest.selectUserById(session, userUnderTest.getId());
     assertThat(userWithAHomepageReloaded.getUpdatedAt()).isEqualTo(NOW);
