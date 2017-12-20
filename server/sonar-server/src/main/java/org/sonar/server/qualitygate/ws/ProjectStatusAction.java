@@ -37,7 +37,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.measure.LiveMeasureDto;
 import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
 import org.sonar.server.exceptions.BadRequestException;
@@ -105,8 +104,6 @@ public class ProjectStatusAction implements QualityGatesWsAction {
       .setSince("5.4")
       .setDescription("Project key")
       .setExampleValue(KeyExamples.KEY_PROJECT_EXAMPLE_001);
-
-    wsSupport.createOrganizationParam(action);
   }
 
   @Override
@@ -121,15 +118,13 @@ public class ProjectStatusAction implements QualityGatesWsAction {
       MSG_ONE_PARAMETER_ONLY);
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      OrganizationDto organization = wsSupport.getOrganization(dbSession, request);
-      ProjectStatusResponse projectStatusResponse = doHandle(dbSession, organization, analysisId, projectId, projectKey);
+      ProjectStatusResponse projectStatusResponse = doHandle(dbSession, analysisId, projectId, projectKey);
       writeProtobuf(projectStatusResponse, request, response);
     }
   }
 
-  private ProjectStatusResponse doHandle(DbSession dbSession, OrganizationDto organization, @Nullable String analysisId, @Nullable String projectId, @Nullable String projectKey) {
+  private ProjectStatusResponse doHandle(DbSession dbSession, @Nullable String analysisId, @Nullable String projectId, @Nullable String projectKey) {
     ProjectAndSnapshot projectAndSnapshot = getProjectAndSnapshot(dbSession, analysisId, projectId, projectKey);
-    wsSupport.checkProjectBelongsToOrganization(organization, projectAndSnapshot.project);
     checkPermission(projectAndSnapshot.project);
     Optional<String> measureData = loadQualityGateDetails(dbSession, projectAndSnapshot, analysisId != null);
 

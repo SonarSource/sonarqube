@@ -185,7 +185,6 @@ public class QualitygatesService extends BaseService {
     return call(
       new GetRequest(path("project_status"))
         .setParam("analysisId", request.getAnalysisId())
-        .setParam("organization", request.getOrganization())
         .setParam("projectId", request.getProjectId())
         .setParam("projectKey", request.getProjectKey()),
       ProjectStatusResponse.parser());
