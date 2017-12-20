@@ -60,7 +60,9 @@ import org.sonar.server.issue.SetTypeAction;
 import org.sonar.server.issue.TransitionAction;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.notification.NotificationManager;
-import org.sonar.server.qualitygate.changeevent.IssueChangeTrigger;
+import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
+import org.sonar.server.qualitygate.changeevent.QGChangeEventFactory;
+import org.sonar.server.qualitygate.changeevent.QGChangeEventListeners;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues;
 
@@ -109,17 +111,20 @@ public class BulkChangeAction implements IssuesWsAction {
   private final IssueStorage issueStorage;
   private final NotificationManager notificationService;
   private final List<Action> actions;
-  private final IssueChangeTrigger issueChangeTrigger;
+  private final QGChangeEventFactory qgChangeEventFactory;
+  private final QGChangeEventListeners qgChangeEventListeners;
 
-  public BulkChangeAction(System2 system2, UserSession userSession, DbClient dbClient, IssueStorage issueStorage, NotificationManager notificationService, List<Action> actions,
-    IssueChangeTrigger issueChangeTrigger) {
+  public BulkChangeAction(System2 system2, UserSession userSession, DbClient dbClient, IssueStorage issueStorage,
+    NotificationManager notificationService, List<Action> actions,
+    QGChangeEventFactory qgChangeEventFactory, QGChangeEventListeners qgChangeEventListeners) {
     this.system2 = system2;
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.issueStorage = issueStorage;
     this.notificationService = notificationService;
     this.actions = actions;
-    this.issueChangeTrigger = issueChangeTrigger;
+    this.qgChangeEventFactory = qgChangeEventFactory;
+    this.qgChangeEventListeners = qgChangeEventListeners;
   }
 
   @Override
@@ -206,17 +211,18 @@ public class BulkChangeAction implements IssuesWsAction {
       issueStorage.save(items);
       items.forEach(sendNotification(issueChangeContext, bulkChangeData));
       buildWebhookIssueChange(bulkChangeData.propertiesByActions)
-        .ifPresent(issueChange -> issueChangeTrigger.onChange(
-          new IssueChangeTrigger.IssueChangeData(
+        .ifPresent(issueChange -> {
+          org.sonar.server.qualitygate.changeevent.QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(
             bulkChangeData.issues.stream().filter(i -> result.success.contains(i.key())).collect(MoreCollectors.toList()),
-            copyOf(bulkChangeData.componentsByUuid.values())),
-          issueChange,
-          issueChangeContext));
+            copyOf(bulkChangeData.componentsByUuid.values()));
+          List<QGChangeEvent> qgChangeEvents = qgChangeEventFactory.from(issueChangeData, issueChange, issueChangeContext);
+          qgChangeEventListeners.broadcastOnIssueChange(issueChangeData, qgChangeEvents);
+        });
       return result;
     };
   }
 
-  private static Optional<IssueChangeTrigger.IssueChange> buildWebhookIssueChange(Map<String, Map<String, Object>> propertiesByActions) {
+  private static Optional<QGChangeEventFactory.IssueChange> buildWebhookIssueChange(Map<String, Map<String, Object>> propertiesByActions) {
     RuleType ruleType = Optional.ofNullable(propertiesByActions.get(SetTypeAction.SET_TYPE_KEY))
       .map(t -> (String) t.get(SetTypeAction.TYPE_PARAMETER))
       .map(RuleType::valueOf)
@@ -227,7 +233,7 @@ public class BulkChangeAction implements IssuesWsAction {
     if (ruleType == null && transitionKey == null) {
       return Optional.empty();
     }
-    return Optional.of(new IssueChangeTrigger.IssueChange(ruleType, transitionKey));
+    return Optional.of(new QGChangeEventFactory.IssueChange(ruleType, transitionKey));
   }
 
   private static Predicate<DefaultIssue> bulkChange(IssueChangeContext issueChangeContext, BulkChangeData bulkChangeData, BulkChangeResult result) {

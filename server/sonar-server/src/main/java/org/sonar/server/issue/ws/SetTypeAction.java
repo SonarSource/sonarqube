@@ -21,6 +21,7 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
 import java.util.Date;
+import java.util.List;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -37,7 +38,9 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.IssueFieldsSetter;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
-import org.sonar.server.qualitygate.changeevent.IssueChangeTrigger;
+import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
+import org.sonar.server.qualitygate.changeevent.QGChangeEventFactory;
+import org.sonar.server.qualitygate.changeevent.QGChangeEventListeners;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.ImmutableList.copyOf;
@@ -55,10 +58,12 @@ public class SetTypeAction implements IssuesWsAction {
   private final IssueUpdater issueUpdater;
   private final OperationResponseWriter responseWriter;
   private final System2 system2;
-  private final IssueChangeTrigger issueChangeTrigger;
+  private final QGChangeEventFactory qgChangeEventFactory;
+  private final QGChangeEventListeners qgChangeEventListeners;
 
   public SetTypeAction(UserSession userSession, DbClient dbClient, IssueFinder issueFinder, IssueFieldsSetter issueFieldsSetter, IssueUpdater issueUpdater,
-    OperationResponseWriter responseWriter, System2 system2, IssueChangeTrigger issueChangeTrigger) {
+    OperationResponseWriter responseWriter, System2 system2,
+    QGChangeEventFactory qgChangeEventFactory, QGChangeEventListeners qgChangeEventListeners) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.issueFinder = issueFinder;
@@ -66,7 +71,8 @@ public class SetTypeAction implements IssuesWsAction {
     this.issueUpdater = issueUpdater;
     this.responseWriter = responseWriter;
     this.system2 = system2;
-    this.issueChangeTrigger = issueChangeTrigger;
+    this.qgChangeEventFactory = qgChangeEventFactory;
+    this.qgChangeEventListeners = qgChangeEventListeners;
   }
 
   @Override
@@ -116,12 +122,11 @@ public class SetTypeAction implements IssuesWsAction {
     IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
     if (issueFieldsSetter.setType(issue, ruleType, context)) {
       SearchResponseData searchResponseData = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, null);
-      issueChangeTrigger.onChange(
-        new IssueChangeTrigger.IssueChangeData(
-          searchResponseData.getIssues().stream().map(IssueDto::toDefaultIssue).collect(MoreCollectors.toList(searchResponseData.getIssues().size())),
-          copyOf(searchResponseData.getComponents())),
-        new IssueChangeTrigger.IssueChange(ruleType),
-        context);
+      org.sonar.server.qualitygate.changeevent.QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(
+        searchResponseData.getIssues().stream().map(IssueDto::toDefaultIssue).collect(MoreCollectors.toList(searchResponseData.getIssues().size())),
+        copyOf(searchResponseData.getComponents()));
+      List<QGChangeEvent> qgChangeEvents = qgChangeEventFactory.from(issueChangeData, new QGChangeEventFactory.IssueChange(ruleType), context);
+      qgChangeEventListeners.broadcastOnIssueChange(issueChangeData, qgChangeEvents);
       return searchResponseData;
     }
     return new SearchResponseData(issueDto);

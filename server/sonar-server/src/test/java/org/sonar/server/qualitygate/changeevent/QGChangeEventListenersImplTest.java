@@ -32,7 +32,11 @@ import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.db.component.ComponentDto;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -47,6 +51,7 @@ public class QGChangeEventListenersImplTest {
   private QGChangeEventListener listener1 = mock(QGChangeEventListener.class);
   private QGChangeEventListener listener2 = mock(QGChangeEventListener.class);
   private QGChangeEventListener listener3 = mock(QGChangeEventListener.class);
+  private QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(singletonList(new DefaultIssue()), singletonList(new ComponentDto()));
   private InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
   private List<QGChangeEvent> threeChangeEvents = Arrays.asList(mock(QGChangeEvent.class), mock(QGChangeEvent.class));
 
@@ -74,15 +79,43 @@ public class QGChangeEventListenersImplTest {
   }
 
   @Test
-  public void no_effect_when_no_changeEvent() {
-    underTest.broadcast(Trigger.ISSUE_CHANGE, Collections.emptySet());
+  public void broadcastOnIssueChange_has_no_effect_when_issueChangeData_is_empty() {
+    QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(emptyList(), emptyList());
+
+    underTest.broadcastOnIssueChange(issueChangeData, threeChangeEvents);
 
     verifyZeroInteractions(listener1, listener2, listener3);
   }
 
   @Test
-  public void broadcast_passes_Trigger_and_collection_to_all_listeners_in_order_of_addition_to_constructor() {
-    underTest.broadcast(Trigger.ISSUE_CHANGE, threeChangeEvents);
+  public void broadcastOnIssueChange_has_no_effect_when_issueChangeData_has_no_issue() {
+    QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(emptyList(), singletonList(new ComponentDto()));
+
+    underTest.broadcastOnIssueChange(issueChangeData, threeChangeEvents);
+
+    verifyZeroInteractions(listener1, listener2, listener3);
+  }
+
+  @Test
+  public void broadcastOnIssueChange_has_no_effect_when_issueChangeData_has_no_component() {
+    QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(singletonList(new DefaultIssue()), emptyList());
+
+    underTest.broadcastOnIssueChange(issueChangeData, threeChangeEvents);
+
+    verifyZeroInteractions(listener1, listener2, listener3);
+  }
+
+  @Test
+  public void broadcastOnIssueChange_has_no_effect_when_no_changeEvent() {
+
+    underTest.broadcastOnIssueChange(issueChangeData, Collections.emptySet());
+
+    verifyZeroInteractions(listener1, listener2, listener3);
+  }
+
+  @Test
+  public void broadcastOnIssueChange_passes_Trigger_and_collection_to_all_listeners_in_order_of_addition_to_constructor() {
+    underTest.broadcastOnIssueChange(issueChangeData, threeChangeEvents);
 
     inOrder.verify(listener1).onChanges(Trigger.ISSUE_CHANGE, threeChangeEvents);
     inOrder.verify(listener2).onChanges(Trigger.ISSUE_CHANGE, threeChangeEvents);
@@ -91,13 +124,13 @@ public class QGChangeEventListenersImplTest {
   }
 
   @Test
-  public void broadcast_calls_all_listeners_even_if_one_throws_an_exception() {
+  public void broadcastOnIssueChange_calls_all_listeners_even_if_one_throws_an_exception() {
     QGChangeEventListener failingListener = new QGChangeEventListener[] {listener1, listener2, listener3}[new Random().nextInt(3)];
     doThrow(new RuntimeException("Faking an exception thrown by onChanges"))
       .when(failingListener)
       .onChanges(Trigger.ISSUE_CHANGE, threeChangeEvents);
 
-    underTest.broadcast(Trigger.ISSUE_CHANGE, threeChangeEvents);
+    underTest.broadcastOnIssueChange(issueChangeData, threeChangeEvents);
 
     inOrder.verify(listener1).onChanges(Trigger.ISSUE_CHANGE, threeChangeEvents);
     inOrder.verify(listener2).onChanges(Trigger.ISSUE_CHANGE, threeChangeEvents);
@@ -108,12 +141,12 @@ public class QGChangeEventListenersImplTest {
   }
 
   @Test
-  public void broadcast_stops_calling_listeners_when_one_throws_an_ERROR() {
+  public void broadcastOnIssueChange_stops_calling_listeners_when_one_throws_an_ERROR() {
     doThrow(new Error("Faking an error thrown by a listener"))
       .when(listener2)
       .onChanges(Trigger.ISSUE_CHANGE, threeChangeEvents);
 
-    underTest.broadcast(Trigger.ISSUE_CHANGE, threeChangeEvents);
+    underTest.broadcastOnIssueChange(issueChangeData, threeChangeEvents);
 
     inOrder.verify(listener1).onChanges(Trigger.ISSUE_CHANGE, threeChangeEvents);
     inOrder.verify(listener2).onChanges(Trigger.ISSUE_CHANGE, threeChangeEvents);
@@ -123,8 +156,8 @@ public class QGChangeEventListenersImplTest {
   }
 
   @Test
-  public void broadcast_logs_each_listener_call_at_TRACE_level() {
-    underTest.broadcast(Trigger.ISSUE_CHANGE, threeChangeEvents);
+  public void broadcastOnIssueChange_logs_each_listener_call_at_TRACE_level() {
+    underTest.broadcastOnIssueChange(issueChangeData, threeChangeEvents);
 
     assertThat(logTester.logs()).hasSize(3);
     List<String> traceLogs = logTester.logs(LoggerLevel.TRACE);
@@ -136,10 +169,10 @@ public class QGChangeEventListenersImplTest {
   }
 
   @Test
-  public void broadcast_passes_immutable_list_of_events() {
+  public void broadcastOnIssueChange_passes_immutable_list_of_events() {
     QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(new QGChangeEventListener[] {listener1});
 
-    underTest.broadcast(Trigger.ISSUE_CHANGE, threeChangeEvents);
+    underTest.broadcastOnIssueChange(issueChangeData, threeChangeEvents);
 
     ArgumentCaptor<Collection> collectionCaptor = ArgumentCaptor.forClass(Collection.class);
     verify(listener1).onChanges(eq(Trigger.ISSUE_CHANGE), collectionCaptor.capture());
@@ -147,10 +180,10 @@ public class QGChangeEventListenersImplTest {
   }
 
   @Test
-  public void no_effect_when_no_listener() {
+  public void broadcastOnIssueChange_has_no_effect_when_no_listener() {
     QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl();
 
-    underTest.broadcast(Trigger.ISSUE_CHANGE, Collections.emptySet());
+    underTest.broadcastOnIssueChange(issueChangeData, threeChangeEvents);
 
     verifyZeroInteractions(listener1, listener2, listener3);
   }
