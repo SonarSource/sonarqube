@@ -18,9 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import {
-  getComponentUrl,
   getComponentIssuesUrl,
   getComponentDrilldownUrl,
+  getPathUrlAsString,
+  getProjectUrl,
   getQualityGatesUrl,
   getQualityGateUrl
 } from '../urls';
@@ -40,20 +41,22 @@ afterEach(() => {
   (window as any).baseUrl = oldBaseUrl;
 });
 
-describe('#getComponentUrl', () => {
+describe('#getPathUrlAsString', () => {
   it('should return component url', () => {
-    expect(getComponentUrl(SIMPLE_COMPONENT_KEY)).toBe('/dashboard?id=' + SIMPLE_COMPONENT_KEY);
+    expect(getPathUrlAsString(getProjectUrl(SIMPLE_COMPONENT_KEY, 'branch:7.0'))).toBe(
+      '/dashboard?id=' + SIMPLE_COMPONENT_KEY + '&branch=branch%3A7.0'
+    );
   });
 
   it('should encode component key', () => {
-    expect(getComponentUrl(COMPLEX_COMPONENT_KEY)).toBe(
+    expect(getPathUrlAsString(getProjectUrl(COMPLEX_COMPONENT_KEY))).toBe(
       '/dashboard?id=' + COMPLEX_COMPONENT_KEY_ENCODED
     );
   });
 
   it('should take baseUrl into account', () => {
     (window as any).baseUrl = '/context';
-    expect(getComponentUrl(COMPLEX_COMPONENT_KEY)).toBe(
+    expect(getPathUrlAsString(getProjectUrl(COMPLEX_COMPONENT_KEY))).toBe(
       '/context/dashboard?id=' + COMPLEX_COMPONENT_KEY_ENCODED
     );
   });
