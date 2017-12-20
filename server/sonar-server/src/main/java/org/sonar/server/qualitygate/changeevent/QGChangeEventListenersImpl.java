@@ -52,11 +52,6 @@ public class QGChangeEventListenersImpl implements QGChangeEventListeners {
   }
 
   @Override
-  public boolean isEmpty() {
-    return listeners.length == 0;
-  }
-
-  @Override
   public void broadcastOnIssueChange(QGChangeEventFactory.IssueChangeData issueChangeData, Collection<QGChangeEvent> changeEvents) {
     if (listeners.length == 0 || issueChangeData.getComponents().isEmpty() || issueChangeData.getIssues().isEmpty() || changeEvents.isEmpty()) {
       return;
