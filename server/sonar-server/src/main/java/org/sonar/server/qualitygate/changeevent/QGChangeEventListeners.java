@@ -22,7 +22,6 @@ package org.sonar.server.qualitygate.changeevent;
 import java.util.Collection;
 
 public interface QGChangeEventListeners {
-  boolean isEmpty();
 
   void broadcastOnIssueChange(QGChangeEventFactory.IssueChangeData issueChangeData, Collection<QGChangeEvent> qgChangeEvents);
 }

@@ -58,27 +58,6 @@ public class QGChangeEventListenersImplTest {
   private QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(new QGChangeEventListener[] {listener1, listener2, listener3});
 
   @Test
-  public void isEmpty_returns_true_for_constructor_without_argument() {
-    QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl();
-
-    assertThat(underTest.isEmpty()).isTrue();
-  }
-
-  @Test
-  public void isEmpty_returns_false_for_constructor_with_one_argument() {
-    QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(new QGChangeEventListener[] {listener2});
-
-    assertThat(underTest.isEmpty()).isFalse();
-  }
-
-  @Test
-  public void isEmpty_returns_false_for_constructor_with_multiple_arguments() {
-    QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(new QGChangeEventListener[] {listener2, listener3});
-
-    assertThat(underTest.isEmpty()).isFalse();
-  }
-
-  @Test
   public void broadcastOnIssueChange_has_no_effect_when_issueChangeData_is_empty() {
     QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(emptyList(), emptyList());
 
