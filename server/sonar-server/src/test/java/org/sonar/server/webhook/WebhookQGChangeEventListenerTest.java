@@ -19,12 +19,11 @@
  */
 package org.sonar.server.webhook;
 
-import com.google.common.collect.ImmutableList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.junit.Rule;
@@ -47,11 +46,10 @@ import org.sonar.server.qualitygate.EvaluatedQualityGate;
 import org.sonar.server.qualitygate.QualityGate;
 import org.sonar.server.qualitygate.ShortLivingBranchQualityGate;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
-import org.sonar.server.qualitygate.changeevent.Trigger;
+import org.sonar.server.qualitygate.changeevent.QGChangeEventListener;
 
 import static java.lang.String.valueOf;
 import static java.util.Collections.emptySet;
-import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -71,6 +69,7 @@ public class WebhookQGChangeEventListenerTest {
     .setQualityGate(new QualityGate(valueOf(ShortLivingBranchQualityGate.ID), ShortLivingBranchQualityGate.NAME, emptySet()))
     .setStatus(EvaluatedQualityGate.Status.OK)
     .build();
+  private static final Set<QGChangeEventListener.ChangedIssue> CHANGED_ISSUES_ARE_IGNORED = emptySet();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -85,29 +84,19 @@ public class WebhookQGChangeEventListenerTest {
   private WebhookQGChangeEventListener mockedUnderTest = new WebhookQGChangeEventListener(webHooks, webhookPayloadFactory, mockedDbClient);
 
   @Test
-  public void onChanges_has_no_effect_if_changeEvents_is_empty() {
-    mockedUnderTest.onChanges(Trigger.ISSUE_CHANGE, Collections.emptyList());
-
-    verifyZeroInteractions(webHooks, webhookPayloadFactory, mockedDbClient);
-  }
-
-  @Test
-  public void onChanges_has_no_effect_if_no_webhook_is_configured() {
+  public void onIssueChanges_has_no_effect_if_no_webhook_is_configured() {
     Configuration configuration1 = mock(Configuration.class);
-    Configuration configuration2 = mock(Configuration.class);
-    mockWebhookDisabled(configuration1, configuration2);
+    mockWebhookDisabled(configuration1);
+    QGChangeEvent qualityGateEvent = new QGChangeEvent(new ComponentDto(), new BranchDto(), new SnapshotDto(), configuration1, Optional::empty);
 
-    mockedUnderTest.onChanges(Trigger.ISSUE_CHANGE, ImmutableList.of(
-      new QGChangeEvent(new ComponentDto(), new BranchDto(), new SnapshotDto(), configuration1, Optional::empty),
-      new QGChangeEvent(new ComponentDto(), new BranchDto(), new SnapshotDto(), configuration2, Optional::empty)));
+    mockedUnderTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
 
     verify(webHooks).isEnabled(configuration1);
-    verify(webHooks).isEnabled(configuration2);
     verifyZeroInteractions(webhookPayloadFactory, mockedDbClient);
   }
 
   @Test
-  public void onChanges_calls_webhook_for_changeEvent_with_webhook_enabled() {
+  public void onIssueChanges_calls_webhook_for_changeEvent_with_webhook_enabled() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentDto project = dbTester.components().insertPublicProject(organization);
     ComponentAndBranch branch = insertProjectBranch(project, BranchType.SHORT, "foo");
@@ -119,8 +108,9 @@ public class WebhookQGChangeEventListenerTest {
     properties.put("sonar.analysis.test1", randomAlphanumeric(50));
     properties.put("sonar.analysis.test2", randomAlphanumeric(5000));
     insertPropertiesFor(analysis.getUuid(), properties);
+    QGChangeEvent qualityGateEvent = newQGChangeEvent(branch, analysis, configuration, EVALUATED_QUALITY_GATE_1);
 
-    underTest.onChanges(Trigger.ISSUE_CHANGE, singletonList(newQGChangeEvent(branch, analysis, configuration, EVALUATED_QUALITY_GATE_1)));
+    underTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
 
     ProjectAnalysis projectAnalysis = verifyWebhookCalledAndExtractPayloadFactoryArgument(branch, configuration, analysis);
     assertThat(projectAnalysis).isEqualTo(
@@ -135,68 +125,41 @@ public class WebhookQGChangeEventListenerTest {
   }
 
   @Test
-  public void onChanges_does_not_call_webhook_if_disabled_for_QGChangeEvent() {
-    OrganizationDto organization = dbTester.organizations().insert();
-    ComponentDto project = dbTester.components().insertPublicProject(organization);
-    ComponentAndBranch branch1 = insertProjectBranch(project, BranchType.SHORT, "foo");
-    ComponentAndBranch branch2 = insertProjectBranch(project, BranchType.SHORT, "bar");
-    SnapshotDto analysis1 = insertAnalysisTask(branch1);
-    SnapshotDto analysis2 = insertAnalysisTask(branch2);
-    Configuration configuration1 = mock(Configuration.class);
-    Configuration configuration2 = mock(Configuration.class);
-    mockWebhookDisabled(configuration1);
-    mockWebhookEnabled(configuration2);
-    mockPayloadSupplierConsumedByWebhooks();
-
-    underTest.onChanges(
-      Trigger.ISSUE_CHANGE,
-      ImmutableList.of(
-        newQGChangeEvent(branch1, analysis1, configuration1, null),
-        newQGChangeEvent(branch2, analysis2, configuration2, EVALUATED_QUALITY_GATE_1)));
-
-    verifyWebhookNotCalled(branch1, analysis1, configuration1);
-    verifyWebhookCalled(branch2, analysis2, configuration2);
-  }
-
-  @Test
-  public void onChanges_calls_webhook_for_any_type_of_branch() {
+  public void onIssueChanges_calls_webhook_on_main_branch() {
     OrganizationDto organization = dbTester.organizations().insert();
     ComponentAndBranch mainBranch = insertMainBranch(organization);
-    ComponentAndBranch longBranch = insertProjectBranch(mainBranch.component, BranchType.LONG, "foo");
-    SnapshotDto analysis1 = insertAnalysisTask(mainBranch);
-    SnapshotDto analysis2 = insertAnalysisTask(longBranch);
-    Configuration configuration1 = mock(Configuration.class);
-    Configuration configuration2 = mock(Configuration.class);
-    mockWebhookEnabled(configuration1, configuration2);
+    SnapshotDto analysis = insertAnalysisTask(mainBranch);
+    Configuration configuration = mock(Configuration.class);
+    mockWebhookEnabled(configuration);
+    QGChangeEvent qualityGateEvent = newQGChangeEvent(mainBranch, analysis, configuration, EVALUATED_QUALITY_GATE_1);
 
-    underTest.onChanges(Trigger.ISSUE_CHANGE, ImmutableList.of(
-      newQGChangeEvent(mainBranch, analysis1, configuration1, EVALUATED_QUALITY_GATE_1),
-      newQGChangeEvent(longBranch, analysis2, configuration2, null)));
+    underTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
 
-    verifyWebhookCalled(mainBranch, analysis1, configuration1);
-    verifyWebhookCalled(longBranch, analysis2, configuration2);
+    verifyWebhookCalled(mainBranch, analysis, configuration);
   }
 
   @Test
-  public void onChanges_calls_webhook_once_per_QGChangeEvent_even_for_same_branch_and_configuration() {
+  public void onIssueChanges_calls_webhook_on_long_branch() {
+    onIssueChangesCallsWebhookOnBranch(BranchType.LONG);
+  }
+
+  @Test
+  public void onIssueChanges_calls_webhook_on_short_branch() {
+    onIssueChangesCallsWebhookOnBranch(BranchType.SHORT);
+  }
+
+  public void onIssueChangesCallsWebhookOnBranch(BranchType branchType) {
     OrganizationDto organization = dbTester.organizations().insert();
-    ComponentAndBranch branch1 = insertPrivateBranch(organization, BranchType.SHORT);
-    SnapshotDto analysis1 = insertAnalysisTask(branch1);
-    Configuration configuration1 = mock(Configuration.class);
-    mockWebhookEnabled(configuration1);
-    mockPayloadSupplierConsumedByWebhooks();
+    ComponentAndBranch mainBranch = insertMainBranch(organization);
+    ComponentAndBranch longBranch = insertProjectBranch(mainBranch.component, branchType, "foo");
+    SnapshotDto analysis = insertAnalysisTask(longBranch);
+    Configuration configuration = mock(Configuration.class);
+    mockWebhookEnabled(configuration);
+    QGChangeEvent qualityGateEvent = newQGChangeEvent(longBranch, analysis, configuration, null);
 
-    underTest.onChanges(Trigger.ISSUE_CHANGE, ImmutableList.of(
-      newQGChangeEvent(branch1, analysis1, configuration1, null),
-      newQGChangeEvent(branch1, analysis1, configuration1, EVALUATED_QUALITY_GATE_1),
-      newQGChangeEvent(branch1, analysis1, configuration1, null)));
+    underTest.onIssueChanges(qualityGateEvent, CHANGED_ISSUES_ARE_IGNORED);
 
-    verify(webHooks, times(3)).isEnabled(configuration1);
-    verify(webHooks, times(3)).sendProjectAnalysisUpdate(
-      Matchers.same(configuration1),
-      Matchers.eq(new WebHooks.Analysis(branch1.uuid(), analysis1.getUuid(), null)),
-      any(Supplier.class));
-    extractPayloadFactoryArguments(3);
+    verifyWebhookCalled(longBranch, analysis, configuration);
   }
 
   private void mockWebhookEnabled(Configuration... configurations) {

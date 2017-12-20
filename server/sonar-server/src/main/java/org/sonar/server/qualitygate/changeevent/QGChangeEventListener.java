@@ -19,8 +19,28 @@
  */
 package org.sonar.server.qualitygate.changeevent;
 
-import java.util.Collection;
+import java.util.Set;
+import org.sonar.api.rules.RuleType;
 
 public interface QGChangeEventListener {
-  void onChanges(Trigger trigger, Collection<QGChangeEvent> changeEvents);
+
+  /**
+   * Called consequently to a change done on one or more issue of a given project.
+   *
+   * @param qualityGateEvent can not be {@code null}
+   * @param changedIssues can not be {@code null} nor empty
+   */
+  void onIssueChanges(QGChangeEvent qualityGateEvent, Set<ChangedIssue> changedIssues);
+
+  interface ChangedIssue {
+    String getKey();
+
+    Status getStatus();
+
+    RuleType getType();
+  }
+
+  enum Status {
+    OPEN, CONFIRMED, REOPENED, RESOLVED, CLOSED
+  }
 }
