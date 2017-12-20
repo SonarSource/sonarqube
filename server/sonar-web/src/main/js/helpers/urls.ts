@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { omitBy, isNil } from 'lodash';
 import { stringify } from 'querystring';
+import { omitBy, isNil } from 'lodash';
 import { isShortLivingBranch } from './branches';
 import { getProfilePath } from '../apps/quality-profiles/utils';
 import { Branch } from '../app/types';
