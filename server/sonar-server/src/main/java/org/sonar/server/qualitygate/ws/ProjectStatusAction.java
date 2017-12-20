@@ -63,13 +63,11 @@ public class ProjectStatusAction implements QualityGatesWsAction {
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
   private final UserSession userSession;
-  private final QualityGatesWsSupport wsSupport;
 
-  public ProjectStatusAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession, QualityGatesWsSupport wsSupport) {
+  public ProjectStatusAction(DbClient dbClient, ComponentFinder componentFinder, UserSession userSession) {
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
     this.userSession = userSession;
-    this.wsSupport = wsSupport;
   }
 
   @Override
