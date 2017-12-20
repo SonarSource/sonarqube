@@ -42,12 +42,15 @@ public class ComponentTreeQuery {
   // SONAR-7681 a public implementation of List must be used in MyBatis - potential concurrency exceptions otherwise
   @CheckForNull
   private final ArrayList<String> qualifiers;
+  @CheckForNull
+  private final ArrayList<String> scopes;
   private final String baseUuid;
   private final Strategy strategy;
 
   private ComponentTreeQuery(Builder builder) {
     this.nameOrKeyQuery = builder.nameOrKeyQuery;
     this.qualifiers = builder.qualifiers == null ? null : newArrayList(builder.qualifiers);
+    this.scopes = builder.scopes == null ? null : newArrayList(builder.scopes);
     this.baseUuid = builder.baseUuid;
     this.strategy = requireNonNull(builder.strategy);
   }
@@ -55,6 +58,11 @@ public class ComponentTreeQuery {
   @CheckForNull
   public Collection<String> getQualifiers() {
     return qualifiers;
+  }
+
+  @CheckForNull
+  public Collection<String> getScopes() {
+    return scopes;
   }
 
   @CheckForNull
@@ -98,6 +106,8 @@ public class ComponentTreeQuery {
     private String nameOrKeyQuery;
     @CheckForNull
     private Collection<String> qualifiers;
+    @CheckForNull
+    private Collection<String> scopes;
     private String baseUuid;
     private Strategy strategy;
 
@@ -117,6 +127,11 @@ public class ComponentTreeQuery {
 
     public Builder setQualifiers(Collection<String> qualifiers) {
       this.qualifiers = qualifiers;
+      return this;
+    }
+
+    public Builder setScopes(Collection<String> scopes) {
+      this.scopes = scopes;
       return this;
     }
 

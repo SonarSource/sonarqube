@@ -21,9 +21,9 @@
     inner join metrics m on m.id = pm.metric_id
     inner join snapshots s on s.uuid = pm.analysis_uuid
     where
-      pm.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
-      m.name = #{metricKey,jdbcType=VARCHAR} and
-      s.islast= ${_true}
+    pm.component_uuid = #{componentUuid,jdbcType=VARCHAR} and
+    m.name = #{metricKey,jdbcType=VARCHAR} and
+    s.islast= ${_true}
   </select>
 
   <select id="selectMeasure" parameterType="map" resultType="Measure">
@@ -65,7 +65,7 @@
     select <include refid="measureColumns"/> from project_measures pm
     <include refid="selectByQueryCommonJoins"/>
     inner join projects p on p.project_uuid=analysis.component_uuid
-      and p.uuid=pm.component_uuid
+    and p.uuid=pm.component_uuid
     where
     <include refid="selectByQueryCommonFilters"/>
     and pm.component_uuid=#{query.componentUuid,jdbcType=VARCHAR}
@@ -102,15 +102,15 @@
     from project_measures pm
     inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
     where
-      pm.component_uuid = #{componentUuid,jdbcType=VARCHAR}
-      and analysis.uuid = #{analysisUuid,jdbcType=VARCHAR}
-      and pm.metric_id in <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">#{metricId}</foreach>
+    pm.component_uuid = #{componentUuid,jdbcType=VARCHAR}
+    and analysis.uuid = #{analysisUuid,jdbcType=VARCHAR}
+    and pm.metric_id in <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">#{metricId}</foreach>
   </select>
 
   <select id="selectPastMeasuresOnSeveralAnalyses" parameterType="map" resultType="Measure">
     select <include refid="measureColumns"/>
     from project_measures pm
-      inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
+    inner join snapshots analysis on analysis.uuid = pm.analysis_uuid
     where
     pm.component_uuid = #{query.componentUuid, jdbcType=VARCHAR}
     <if test="query.from!= null">

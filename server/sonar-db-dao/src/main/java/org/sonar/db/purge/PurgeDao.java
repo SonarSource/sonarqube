@@ -21,7 +21,6 @@ package org.sonar.db.purge;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -64,7 +63,7 @@ public class PurgeDao implements Dao {
     PurgeCommands commands = new PurgeCommands(session, mapper, profiler);
     String rootUuid = conf.rootProjectIdUuid().getUuid();
     deleteAbortedAnalyses(rootUuid, commands);
-    deleteDataOfComponentsWithoutHistoricalData(session, rootUuid, conf.scopesWithoutHistoricalData(), commands);
+    deleteDataOfComponentsWithoutHistoricalData(session, rootUuid, conf.getScopesWithoutHistoricalData(), commands);
     purgeAnalyses(commands, rootUuid);
     purgeDisabledComponents(session, conf, listener);
     deleteOldClosedIssues(conf, mapper, listener);
@@ -119,8 +118,8 @@ public class PurgeDao implements Dao {
     commands.deleteAnalyses(query);
   }
 
-  private void deleteDataOfComponentsWithoutHistoricalData(DbSession dbSession, String rootUuid, String[] scopesWithoutHistoricalData, PurgeCommands purgeCommands) {
-    if (scopesWithoutHistoricalData.length == 0) {
+  private void deleteDataOfComponentsWithoutHistoricalData(DbSession dbSession, String rootUuid, Collection<String> scopesWithoutHistoricalData, PurgeCommands purgeCommands) {
+    if (scopesWithoutHistoricalData.isEmpty()) {
       return;
     }
 
@@ -134,7 +133,7 @@ public class PurgeDao implements Dao {
         dbSession,
         ComponentTreeQuery.builder()
           .setBaseUuid(rootUuid)
-          .setQualifiers(Arrays.asList(scopesWithoutHistoricalData))
+          .setScopes(scopesWithoutHistoricalData)
           .setStrategy(Strategy.LEAVES)
           .build())
       .stream().map(ComponentDto::uuid)

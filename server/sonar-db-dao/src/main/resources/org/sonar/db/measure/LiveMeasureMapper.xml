@@ -92,7 +92,20 @@
         lm.metric_id in
         <foreach item="metricId" collection="query.getMetricIds()" open="(" separator="," close=")">#{metricId,jdbcType=INTEGER}</foreach>
       </if>
-      <include refid="org.sonar.db.component.ComponentMapper.selectDescendantsFilters"/>
+      and p.enabled = ${_true}
+      <if test="query.qualifiers != null">
+        and p.qualifier in
+        <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
+          #{qualifier,jdbcType=VARCHAR}
+        </foreach>
+      </if>
+      <if test="query.nameOrKeyQuery != null">
+        and (
+        p.kee = #{query.nameOrKeyQuery,jdbcType=VARCHAR}
+        or
+        upper(p.name) like #{query.nameOrKeyUpperLikeQuery,jdbcType=VARCHAR} escape '/'
+        )
+      </if>
     </where>
 
     -- Add measures of base component
@@ -104,7 +117,20 @@
         lm.metric_id in
         <foreach item="metricId" collection="query.getMetricIds()" open="(" separator="," close=")">#{metricId,jdbcType=INTEGER}</foreach>
       </if>
-      <include refid="org.sonar.db.component.ComponentMapper.selectDescendantsFilters"/>
+      and p.enabled = ${_true}
+      <if test="query.qualifiers != null">
+        and p.qualifier in
+        <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
+          #{qualifier,jdbcType=VARCHAR}
+        </foreach>
+      </if>
+      <if test="query.nameOrKeyQuery != null">
+        and (
+        p.kee = #{query.nameOrKeyQuery,jdbcType=VARCHAR}
+        or
+        upper(p.name) like #{query.nameOrKeyUpperLikeQuery,jdbcType=VARCHAR} escape '/'
+        )
+      </if>
     </where>
   </select>
 </mapper>

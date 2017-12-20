@@ -373,6 +373,12 @@
         #{qualifier,jdbcType=VARCHAR}
       </foreach>
     </if>
+    <if test="query.scopes != null">
+      and p.scope in
+      <foreach collection="query.scopes" item="scope" open="(" close=")" separator=",">
+        #{scope,jdbcType=VARCHAR}
+      </foreach>
+    </if>
     <if test="query.nameOrKeyQuery != null">
       and (
         p.kee = #{query.nameOrKeyQuery,jdbcType=VARCHAR}
