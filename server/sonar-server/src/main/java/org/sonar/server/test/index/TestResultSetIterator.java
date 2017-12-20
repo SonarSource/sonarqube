@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
@@ -134,8 +135,8 @@ public class TestResultSetIterator extends ResultSetIterator<Row> {
       byte[] jsonDoc = bytes.toByteArray();
       UpdateRequest updateRequest = new UpdateRequest(INDEX_TYPE_TEST.getIndex(), INDEX_TYPE_TEST.getType(), test.getUuid())
         .routing(projectUuid)
-        .doc(jsonDoc)
-        .upsert(jsonDoc);
+        .doc(jsonDoc, XContentType.JSON)
+        .upsert(jsonDoc, XContentType.JSON);
       result.getUpdateRequests().add(updateRequest);
     }
     return result;
