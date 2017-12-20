@@ -212,7 +212,7 @@ public class BulkChangeAction implements IssuesWsAction {
       items.forEach(sendNotification(issueChangeContext, bulkChangeData));
       buildWebhookIssueChange(bulkChangeData.propertiesByActions)
         .ifPresent(issueChange -> {
-          org.sonar.server.qualitygate.changeevent.QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(
+          QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(
             bulkChangeData.issues.stream().filter(i -> result.success.contains(i.key())).collect(MoreCollectors.toList()),
             copyOf(bulkChangeData.componentsByUuid.values()));
           List<QGChangeEvent> qgChangeEvents = qgChangeEventFactory.from(issueChangeData, issueChange, issueChangeContext);

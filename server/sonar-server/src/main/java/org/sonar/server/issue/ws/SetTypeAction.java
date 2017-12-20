@@ -122,7 +122,7 @@ public class SetTypeAction implements IssuesWsAction {
     IssueChangeContext context = IssueChangeContext.createUser(new Date(system2.now()), userSession.getLogin());
     if (issueFieldsSetter.setType(issue, ruleType, context)) {
       SearchResponseData searchResponseData = issueUpdater.saveIssueAndPreloadSearchResponseData(session, issue, context, null);
-      org.sonar.server.qualitygate.changeevent.QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(
+      QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(
         searchResponseData.getIssues().stream().map(IssueDto::toDefaultIssue).collect(MoreCollectors.toList(searchResponseData.getIssues().size())),
         copyOf(searchResponseData.getComponents()));
       List<QGChangeEvent> qgChangeEvents = qgChangeEventFactory.from(issueChangeData, new QGChangeEventFactory.IssueChange(ruleType), context);
