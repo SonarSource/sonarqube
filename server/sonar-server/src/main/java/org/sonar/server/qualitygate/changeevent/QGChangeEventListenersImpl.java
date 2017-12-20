@@ -19,14 +19,19 @@
  */
 package org.sonar.server.qualitygate.changeevent;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
+import java.util.Set;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.util.stream.MoreCollectors;
+import org.sonar.server.qualitygate.changeevent.QGChangeEventListener.ChangedIssue;
 
 import static java.lang.String.format;
+import static org.sonar.core.util.stream.MoreCollectors.toSet;
 
 /**
  * Broadcast a given collection of {@link QGChangeEvent} for a specific trigger to all the registered
@@ -58,20 +63,71 @@ public class QGChangeEventListenersImpl implements QGChangeEventListeners {
     }
 
     try {
-      List<QGChangeEvent> immutableChangeEvents = ImmutableList.copyOf(changeEvents);
-      Arrays.stream(listeners)
-        .forEach(listener -> broadcastTo(Trigger.ISSUE_CHANGE, immutableChangeEvents, listener));
+      Multimap<String, QGChangeEvent> eventsByComponentUuid = changeEvents.stream()
+        .collect(MoreCollectors.index(t -> t.getProject().uuid()));
+      Multimap<String, DefaultIssue> issueByComponentUuid = issueChangeData.getIssues().stream()
+        .collect(MoreCollectors.index(DefaultIssue::projectUuid));
+
+      issueByComponentUuid.asMap()
+        .forEach((componentUuid, value) -> {
+          Collection<QGChangeEvent> qgChangeEvents = eventsByComponentUuid.get(componentUuid);
+          if (!qgChangeEvents.isEmpty()) {
+            Set<ChangedIssue> changedIssues = value.stream()
+              .map(ChangedIssueImpl::new)
+              .collect(toSet());
+            qgChangeEvents
+              .forEach(changeEvent -> Arrays.stream(listeners)
+                .forEach(listener -> broadcastTo(changedIssues, changeEvent, listener)));
+          }
+        });
     } catch (Error e) {
       LOG.warn(format("Broadcasting to listeners failed for %s events", changeEvents.size()), e);
     }
   }
 
-  private static void broadcastTo(Trigger trigger, Collection<QGChangeEvent> changeEvents, QGChangeEventListener listener) {
+  private static void broadcastTo(Set<ChangedIssue> changedIssues, QGChangeEvent changeEvent, QGChangeEventListener listener) {
     try {
-      LOG.trace("calling onChange() on listener {} for events {}...", listener.getClass().getName(), changeEvents);
-      listener.onChanges(trigger, changeEvents);
+      LOG.trace("calling onChange() on listener {} for events {}...", listener.getClass().getName(), changeEvent);
+      listener.onIssueChanges(changeEvent, changedIssues);
     } catch (Exception e) {
-      LOG.warn(format("onChange() call failed on listener %s for events %s", listener.getClass().getName(), changeEvents), e);
+      LOG.warn(format("onChange() call failed on listener %s for events %s", listener.getClass().getName(), changeEvent), e);
     }
   }
+
+  private static class ChangedIssueImpl implements ChangedIssue {
+    private final String key;
+    private final QGChangeEventListener.Status status;
+    private final RuleType type;
+
+    private ChangedIssueImpl(DefaultIssue issue) {
+      this.key = issue.key();
+      this.status = QGChangeEventListener.Status.valueOf(issue.getStatus());
+      this.type = issue.type();
+    }
+
+    @Override
+    public String getKey() {
+      return key;
+    }
+
+    @Override
+    public QGChangeEventListener.Status getStatus() {
+      return status;
+    }
+
+    @Override
+    public RuleType getType() {
+      return type;
+    }
+
+    @Override
+    public String toString() {
+      return "ChangedIssueImpl{" +
+        "key='" + key + '\'' +
+        ", status=" + status +
+        ", type=" + type +
+        '}';
+    }
+  }
+
 }
