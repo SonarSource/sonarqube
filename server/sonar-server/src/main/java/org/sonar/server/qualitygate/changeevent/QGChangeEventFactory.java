@@ -32,12 +32,12 @@ import org.sonar.server.issue.ws.SearchResponseData;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-public interface IssueChangeTrigger {
+public interface QGChangeEventFactory {
   /**
    * Will call webhooks once for any short living branch which has at least one issue in {@link SearchResponseData} and
    * if change described in {@link IssueChange} can alter the status of the short living branch.
    */
-  void onChange(IssueChangeData issueChangeData, IssueChange issueChange, IssueChangeContext context);
+  List<QGChangeEvent> from(IssueChangeData issueChangeData, IssueChange issueChange, IssueChangeContext context);
 
   final class IssueChange {
     private final RuleType ruleType;
