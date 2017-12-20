@@ -19,7 +19,7 @@
  */
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Organization } from '../../../app/types';
+import { Organization, HomePageType } from '../../../app/types';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import { translate } from '../../../helpers/l10n';
 import { getGlobalSettingValue } from '../../../store/rootReducer';
@@ -47,7 +47,9 @@ export function OrganizationNavigationMeta({ onSonarCloud, organization }: Props
       </div>
       {onSonarCloud && (
         <div className="navbar-context-meta-secondary">
-          <HomePageSelect currentPage={{ type: 'organization', key: organization.key }} />
+          <HomePageSelect
+            currentPage={{ type: HomePageType.Organization, key: organization.key }}
+          />
         </div>
       )}
     </div>

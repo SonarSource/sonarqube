@@ -23,7 +23,7 @@ import SearchFilterContainer from '../filters/SearchFilterContainer';
 import Tooltip from '../../../components/controls/Tooltip';
 import PerspectiveSelect from './PerspectiveSelect';
 import ProjectsSortingSelect from './ProjectsSortingSelect';
-import { CurrentUser, isLoggedIn } from '../../../app/types';
+import { CurrentUser, isLoggedIn, HomePageType } from '../../../app/types';
 import HomePageSelect from '../../../components/controls/HomePageSelect';
 import { translate } from '../../../helpers/l10n';
 import { RawQuery } from '../../../helpers/query';
@@ -102,7 +102,10 @@ export default function PageHeader(props: Props) {
       </div>
 
       {props.isFavorite && (
-        <HomePageSelect className="huge-spacer-left" currentPage={{ type: 'my-projects' }} />
+        <HomePageSelect
+          className="huge-spacer-left"
+          currentPage={{ type: HomePageType.MyProjects }}
+        />
       )}
     </header>
   );

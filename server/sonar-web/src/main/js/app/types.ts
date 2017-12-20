@@ -143,9 +143,16 @@ export interface CurrentUser {
   showOnboardingTutorial?: boolean;
 }
 
+export enum HomePageType {
+  Project = 'PROJECT',
+  Organization = 'ORGANIZATION',
+  MyProjects = 'MY_PROJECTS',
+  MyIssues = 'MY_ISSUES'
+}
+
 export interface HomePage {
   key?: string;
-  type: string;
+  type: HomePageType;
 }
 
 export function isSameHomePage(a: HomePage, b: HomePage) {
