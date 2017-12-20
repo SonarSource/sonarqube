@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
-import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Rule;
 import org.junit.Test;
@@ -137,16 +137,13 @@ public class TestIndexerTest {
   }
 
   private void indexTest(String projectUuid, String fileUuid, String testName, String uuid) throws IOException {
+    String json = IOUtils.toString(getClass().getResource(format("%s/%s_%s_%s.json", getClass().getSimpleName(), projectUuid, fileUuid, testName)));
     es.client().prepareIndex(INDEX_TYPE_TEST)
       .setId(uuid)
       .setRouting(projectUuid)
-      .setSource(IOUtils.toString(getClass().getResource(format("%s/%s_%s_%s.json", getClass().getSimpleName(), projectUuid, fileUuid, testName))))
+      .setSource(json, XContentType.JSON)
       .setRefreshPolicy(REFRESH_IMMEDIATE)
       .get();
-  }
-
-  private SearchRequestBuilder prepareSearch() {
-    return es.client().prepareSearch(INDEX_TYPE_TEST);
   }
 
   private List<SearchHit> getDocuments() {
