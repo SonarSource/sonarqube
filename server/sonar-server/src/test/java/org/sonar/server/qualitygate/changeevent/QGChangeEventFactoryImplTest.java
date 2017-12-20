@@ -41,7 +41,6 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.sonar.api.config.Configuration;
@@ -67,7 +66,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.server.qualitygate.LiveQualityGateFactory;
-import org.sonar.server.qualitygate.changeevent.IssueChangeTrigger.IssueChange;
+import org.sonar.server.qualitygate.changeevent.QGChangeEventFactory.IssueChange;
 import org.sonar.server.settings.ProjectConfigurationLoader;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.webhook.WebhookPayloadFactory;
@@ -85,7 +84,7 @@ import static org.sonar.core.util.stream.MoreCollectors.toArrayList;
 import static org.sonar.db.component.ComponentTesting.newBranchDto;
 
 @RunWith(DataProviderRunner.class)
-public class IssueChangeTriggerImplTest {
+public class QGChangeEventFactoryImplTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @Rule
@@ -101,29 +100,28 @@ public class IssueChangeTriggerImplTest {
   private WebhookPayloadFactory webhookPayloadFactory = mock(WebhookPayloadFactory.class);
   private DbClient spiedOnDbClient = Mockito.spy(dbClient);
   private ProjectConfigurationLoader projectConfigurationLoader = mock(ProjectConfigurationLoader.class);
-  private QGChangeEventListeners qgChangeEventListeners = mock(QGChangeEventListeners.class);
   private LiveQualityGateFactory liveQualityGateFactory = mock(LiveQualityGateFactory.class);
-  private IssueChangeTriggerImpl underTest = new IssueChangeTriggerImpl(spiedOnDbClient, projectConfigurationLoader, qgChangeEventListeners, liveQualityGateFactory);
+  private QGChangeEventFactoryImpl underTest = new QGChangeEventFactoryImpl(spiedOnDbClient, projectConfigurationLoader, liveQualityGateFactory);
   private DbClient mockedDbClient = mock(DbClient.class);
-  private IssueChangeTriggerImpl mockedUnderTest = new IssueChangeTriggerImpl(mockedDbClient, projectConfigurationLoader, qgChangeEventListeners, liveQualityGateFactory);
+  private QGChangeEventFactoryImpl mockedUnderTest = new QGChangeEventFactoryImpl(mockedDbClient, projectConfigurationLoader, liveQualityGateFactory);
 
   @Test
   public void on_type_change_has_no_effect_if_SearchResponseData_has_no_issue() {
-    mockedUnderTest.onChange(issueChangeData(), new IssueChange(randomRuleType), userChangeContext);
+    mockedUnderTest.from(issueChangeData(), new IssueChange(randomRuleType), userChangeContext);
 
     Mockito.verifyZeroInteractions(mockedDbClient, projectConfigurationLoader, webhookPayloadFactory);
   }
 
   @Test
   public void on_type_change_has_no_effect_if_scan_IssueChangeContext() {
-    mockedUnderTest.onChange(issueChangeData(), new IssueChange(randomRuleType), scanChangeContext);
+    mockedUnderTest.from(issueChangeData(), new IssueChange(randomRuleType), scanChangeContext);
 
     Mockito.verifyZeroInteractions(mockedDbClient, projectConfigurationLoader, webhookPayloadFactory);
   }
 
   @Test
   public void on_transition_change_has_no_effect_if_SearchResponseData_has_no_issue() {
-    mockedUnderTest.onChange(issueChangeData(), new IssueChange(randomAlphanumeric(12)), userChangeContext);
+    mockedUnderTest.from(issueChangeData(), new IssueChange(randomAlphanumeric(12)), userChangeContext);
 
     Mockito.verifyZeroInteractions(mockedDbClient, projectConfigurationLoader, webhookPayloadFactory);
   }
@@ -150,28 +148,28 @@ public class IssueChangeTriggerImplTest {
   private void on_transition_changeHasNoEffectForTransitionKey(@Nullable String transitionKey) {
     Mockito.reset(mockedDbClient, projectConfigurationLoader, webhookPayloadFactory);
 
-    mockedUnderTest.onChange(issueChangeData(newIssueDto()), new IssueChange(transitionKey), userChangeContext);
+    mockedUnderTest.from(issueChangeData(newIssueDto()), new IssueChange(transitionKey), userChangeContext);
 
     Mockito.verifyZeroInteractions(mockedDbClient, projectConfigurationLoader, webhookPayloadFactory);
   }
 
   @Test
   public void on_transition_change_has_no_effect_if_scan_IssueChangeContext() {
-    mockedUnderTest.onChange(issueChangeData(newIssueDto()), new IssueChange(randomAlphanumeric(12)), scanChangeContext);
+    mockedUnderTest.from(issueChangeData(newIssueDto()), new IssueChange(randomAlphanumeric(12)), scanChangeContext);
 
     Mockito.verifyZeroInteractions(mockedDbClient, projectConfigurationLoader, webhookPayloadFactory);
   }
 
   @Test
   public void on_type_and_transition_change_has_no_effect_if_SearchResponseData_has_no_issue() {
-    mockedUnderTest.onChange(issueChangeData(), new IssueChange(randomRuleType, randomAlphanumeric(3)), userChangeContext);
+    mockedUnderTest.from(issueChangeData(), new IssueChange(randomRuleType, randomAlphanumeric(3)), userChangeContext);
 
     Mockito.verifyZeroInteractions(mockedDbClient, projectConfigurationLoader, webhookPayloadFactory);
   }
 
   @Test
   public void on_type_and_transition_change_has_no_effect_if_scan_IssueChangeContext() {
-    mockedUnderTest.onChange(issueChangeData(), new IssueChange(randomRuleType, randomAlphanumeric(3)), scanChangeContext);
+    mockedUnderTest.from(issueChangeData(), new IssueChange(randomRuleType, randomAlphanumeric(3)), scanChangeContext);
 
     Mockito.verifyZeroInteractions(mockedDbClient, projectConfigurationLoader, webhookPayloadFactory);
   }
@@ -198,7 +196,7 @@ public class IssueChangeTriggerImplTest {
   private void on_type_and_transition_changeHasNoEffectForTransitionKey(@Nullable String transitionKey) {
     Mockito.reset(mockedDbClient, projectConfigurationLoader, webhookPayloadFactory);
 
-    mockedUnderTest.onChange(issueChangeData(newIssueDto()), new IssueChange(randomRuleType, transitionKey), userChangeContext);
+    mockedUnderTest.from(issueChangeData(newIssueDto()), new IssueChange(randomRuleType, transitionKey), userChangeContext);
 
     Mockito.verifyZeroInteractions(mockedDbClient, projectConfigurationLoader, webhookPayloadFactory);
   }
@@ -217,9 +215,8 @@ public class IssueChangeTriggerImplTest {
     properties.put("sonar.analysis.test2", randomAlphanumeric(5000));
     insertPropertiesFor(analysis.getUuid(), properties);
 
-    underTest.onChange(issueChangeData(newIssueDto(branch)), issueChange, userChangeContext);
+    Collection<QGChangeEvent> events = underTest.from(issueChangeData(newIssueDto(branch)), issueChange, userChangeContext);
 
-    Collection<QGChangeEvent> events = verifyListenersBroadcastedTo();
     assertThat(events).hasSize(1);
     QGChangeEvent event = events.iterator().next();
     assertThat(event.getProject()).isEqualTo(branch.component);
@@ -238,7 +235,7 @@ public class IssueChangeTriggerImplTest {
 
     SnapshotDao snapshotDaoSpy = Mockito.spy(dbClient.snapshotDao());
     Mockito.when(spiedOnDbClient.snapshotDao()).thenReturn(snapshotDaoSpy);
-    underTest.onChange(issueChangeData(issueDtos), new IssueChange(randomRuleType), userChangeContext);
+    underTest.from(issueChangeData(issueDtos), new IssueChange(randomRuleType), userChangeContext);
 
     Mockito.verifyZeroInteractions(projectConfigurationLoader);
     Mockito.verify(snapshotDaoSpy, Mockito.times(0)).selectLastAnalysesByRootComponentUuids(Matchers.any(DbSession.class), Matchers.anyCollectionOf(String.class));
@@ -276,9 +273,9 @@ public class IssueChangeTriggerImplTest {
     Mockito.when(spiedOnDbClient.componentDao()).thenReturn(componentDaoSpy);
     Mockito.when(spiedOnDbClient.branchDao()).thenReturn(branchDaoSpy);
     Mockito.when(spiedOnDbClient.snapshotDao()).thenReturn(snapshotDaoSpy);
-    underTest.onChange(issueChangeData(issueDtos), new IssueChange(randomRuleType), userChangeContext);
+    Collection<QGChangeEvent> qgChangeEvents = underTest.from(issueChangeData(issueDtos),
+      new IssueChange(randomRuleType), userChangeContext);
 
-    Collection<QGChangeEvent> qgChangeEvents = verifyListenersBroadcastedTo();
     assertThat(qgChangeEvents)
       .hasSize(3)
       .extracting(QGChangeEvent::getBranch, QGChangeEvent::getProjectConfiguration, QGChangeEvent::getAnalysis)
@@ -314,12 +311,11 @@ public class IssueChangeTriggerImplTest {
     Mockito.when(spiedOnDbClient.componentDao()).thenReturn(componentDaoSpy);
     Mockito.when(spiedOnDbClient.branchDao()).thenReturn(branchDaoSpy);
     Mockito.when(spiedOnDbClient.snapshotDao()).thenReturn(snapshotDaoSpy);
-    underTest.onChange(
+    Collection<QGChangeEvent> qgChangeEvents = underTest.from(
       issueChangeData(asList(newIssueDto(shortBranch), newIssueDto(longBranch))),
       new IssueChange(randomRuleType),
       userChangeContext);
 
-    Collection<QGChangeEvent> qgChangeEvents = verifyListenersBroadcastedTo();
     assertThat(qgChangeEvents)
       .hasSize(1)
       .extracting(QGChangeEvent::getBranch, QGChangeEvent::getProjectConfiguration, QGChangeEvent::getAnalysis)
@@ -352,12 +348,11 @@ public class IssueChangeTriggerImplTest {
 
     ComponentDao componentDaoSpy = Mockito.spy(dbClient.componentDao());
     Mockito.when(spiedOnDbClient.componentDao()).thenReturn(componentDaoSpy);
-    underTest.onChange(
+    Collection<QGChangeEvent> qgChangeEvents = underTest.from(
       issueChangeData(issueDtos, branch1, branch2, branch3),
       new IssueChange(randomRuleType),
       userChangeContext);
 
-    Collection<QGChangeEvent> qgChangeEvents = verifyListenersBroadcastedTo();
     assertThat(qgChangeEvents)
       .hasSize(3)
       .extracting(QGChangeEvent::getBranch, QGChangeEvent::getProjectConfiguration, QGChangeEvent::getAnalysis)
@@ -394,12 +389,12 @@ public class IssueChangeTriggerImplTest {
     Mockito.when(spiedOnDbClient.componentDao()).thenReturn(componentDaoSpy);
     Mockito.when(spiedOnDbClient.branchDao()).thenReturn(branchDaoSpy);
     Mockito.when(spiedOnDbClient.snapshotDao()).thenReturn(snapshotDaoSpy);
-    underTest.onChange(
+    Collection<QGChangeEvent> qgChangeEvents = underTest.from(
       issueChangeData(issueDtos, branch1, branch3),
       new IssueChange(randomRuleType),
       userChangeContext);
 
-    assertThat(verifyListenersBroadcastedTo()).hasSize(3);
+    assertThat(qgChangeEvents).hasSize(3);
 
     Set<String> uuids = ImmutableSet.of(branch1.uuid(), branch2.uuid(), branch3.uuid());
     Mockito.verify(componentDaoSpy).selectByUuids(Matchers.any(DbSession.class), Matchers.eq(ImmutableSet.of(branch2.uuid())));
@@ -432,9 +427,9 @@ public class IssueChangeTriggerImplTest {
     Mockito.when(spiedOnDbClient.componentDao()).thenReturn(componentDaoSpy);
     Mockito.when(spiedOnDbClient.branchDao()).thenReturn(branchDaoSpy);
     Mockito.when(spiedOnDbClient.snapshotDao()).thenReturn(snapshotDaoSpy);
-    underTest.onChange(issueChangeData(issueDtos), new IssueChange(randomRuleType), userChangeContext);
+    Collection<QGChangeEvent> qgChangeEvents = underTest.from(issueChangeData(issueDtos),
+      new IssueChange(randomRuleType), userChangeContext);
 
-    Collection<QGChangeEvent> qgChangeEvents = verifyListenersBroadcastedTo();
     assertThat(qgChangeEvents)
       .hasSize(1)
       .extracting(QGChangeEvent::getBranch, QGChangeEvent::getProjectConfiguration, QGChangeEvent::getAnalysis)
@@ -526,15 +521,6 @@ public class IssueChangeTriggerImplTest {
     return dbTester.components().insertSnapshot(component);
   }
 
-  private Collection<QGChangeEvent> verifyListenersBroadcastedTo() {
-    Class<Collection<QGChangeEvent>> clazz = (Class<Collection<QGChangeEvent>>) (Class) Collection.class;
-    ArgumentCaptor<Collection<QGChangeEvent>> supplierCaptor = ArgumentCaptor.forClass(clazz);
-    Mockito.verify(qgChangeEventListeners).broadcast(
-      Matchers.same(Trigger.ISSUE_CHANGE),
-      supplierCaptor.capture());
-    return supplierCaptor.getValue();
-  }
-
   @DataProvider
   public static Object[][] validIssueChanges() {
     return new Object[][] {
@@ -560,16 +546,16 @@ public class IssueChangeTriggerImplTest {
     };
   }
 
-  private IssueChangeTrigger.IssueChangeData issueChangeData() {
-    return new IssueChangeTrigger.IssueChangeData(emptyList(), emptyList());
+  private QGChangeEventFactory.IssueChangeData issueChangeData() {
+    return new QGChangeEventFactory.IssueChangeData(emptyList(), emptyList());
   }
 
-  private IssueChangeTrigger.IssueChangeData issueChangeData(IssueDto issueDto) {
-    return new IssueChangeTrigger.IssueChangeData(singletonList(issueDto.toDefaultIssue()), emptyList());
+  private QGChangeEventFactory.IssueChangeData issueChangeData(IssueDto issueDto) {
+    return new QGChangeEventFactory.IssueChangeData(singletonList(issueDto.toDefaultIssue()), emptyList());
   }
 
-  private IssueChangeTrigger.IssueChangeData issueChangeData(Collection<IssueDto> issueDtos, ComponentAndBranch... components) {
-    return new IssueChangeTrigger.IssueChangeData(
+  private QGChangeEventFactory.IssueChangeData issueChangeData(Collection<IssueDto> issueDtos, ComponentAndBranch... components) {
+    return new QGChangeEventFactory.IssueChangeData(
       issueDtos.stream().map(IssueDto::toDefaultIssue).collect(Collectors.toList()),
       Arrays.stream(components).map(ComponentAndBranch::getComponent).collect(Collectors.toList()));
   }

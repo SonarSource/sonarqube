@@ -24,5 +24,5 @@ import java.util.Collection;
 public interface QGChangeEventListeners {
   boolean isEmpty();
 
-  void broadcast(Trigger trigger, Collection<QGChangeEvent> changeEvents);
+  void broadcastOnIssueChange(QGChangeEventFactory.IssueChangeData issueChangeData, Collection<QGChangeEvent> qgChangeEvents);
 }

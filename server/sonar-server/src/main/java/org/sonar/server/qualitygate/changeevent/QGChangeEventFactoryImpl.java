@@ -42,36 +42,35 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.qualitygate.LiveQualityGateFactory;
 import org.sonar.server.settings.ProjectConfigurationLoader;
 
+import static java.util.Collections.emptyList;
 import static org.sonar.core.util.stream.MoreCollectors.toSet;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
-public class IssueChangeTriggerImpl implements IssueChangeTrigger {
+public class QGChangeEventFactoryImpl implements QGChangeEventFactory {
   private static final Set<String> MEANINGFUL_TRANSITIONS = ImmutableSet.of(
     DefaultTransitions.RESOLVE, DefaultTransitions.FALSE_POSITIVE, DefaultTransitions.WONT_FIX, DefaultTransitions.REOPEN);
   private final DbClient dbClient;
   private final ProjectConfigurationLoader projectConfigurationLoader;
-  private final QGChangeEventListeners qgEventListeners;
   private final LiveQualityGateFactory liveQualityGateFactory;
 
-  public IssueChangeTriggerImpl(DbClient dbClient, ProjectConfigurationLoader projectConfigurationLoader,
-    QGChangeEventListeners qgEventListeners, LiveQualityGateFactory liveQualityGateFactory) {
+  public QGChangeEventFactoryImpl(DbClient dbClient, ProjectConfigurationLoader projectConfigurationLoader,
+    LiveQualityGateFactory liveQualityGateFactory) {
     this.dbClient = dbClient;
     this.projectConfigurationLoader = projectConfigurationLoader;
-    this.qgEventListeners = qgEventListeners;
     this.liveQualityGateFactory = liveQualityGateFactory;
   }
 
   @Override
-  public void onChange(IssueChangeData issueChangeData, IssueChange issueChange, IssueChangeContext context) {
-    if (isEmpty(issueChangeData) || !isUserChangeContext(context) || !isRelevant(issueChange) || qgEventListeners.isEmpty()) {
-      return;
+  public List<QGChangeEvent> from(IssueChangeData issueChangeData, IssueChange issueChange, IssueChangeContext context) {
+    if (isEmpty(issueChangeData) || !isUserChangeContext(context) || !isRelevant(issueChange)) {
+      return emptyList();
     }
 
-    broadcastToListeners(issueChangeData);
+    return from(issueChangeData);
   }
 
   private static boolean isRelevant(IssueChange issueChange) {
-    return issueChange.getTransitionKey().map(IssueChangeTriggerImpl::isMeaningfulTransition).orElse(true);
+    return issueChange.getTransitionKey().map(QGChangeEventFactoryImpl::isMeaningfulTransition).orElse(true);
   }
 
   private static boolean isEmpty(IssueChangeData issueChangeData) {
@@ -86,11 +85,11 @@ public class IssueChangeTriggerImpl implements IssueChangeTrigger {
     return MEANINGFUL_TRANSITIONS.contains(transitionKey);
   }
 
-  private void broadcastToListeners(IssueChangeData issueChangeData) {
+  private List<QGChangeEvent> from(IssueChangeData issueChangeData) {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Map<String, ComponentDto> branchesByUuid = getBranchComponents(dbSession, issueChangeData);
       if (branchesByUuid.isEmpty()) {
-        return;
+        return emptyList();
       }
 
       Set<String> branchProjectUuids = branchesByUuid.values().stream()
@@ -101,7 +100,7 @@ public class IssueChangeTriggerImpl implements IssueChangeTrigger {
         .filter(branchDto -> branchDto.getBranchType() == BranchType.SHORT)
         .collect(toSet(branchesByUuid.size()));
       if (shortBranches.isEmpty()) {
-        return;
+        return emptyList();
       }
 
       Map<String, Configuration> configurationByUuid = projectConfigurationLoader.loadProjectConfigurations(dbSession,
@@ -113,7 +112,7 @@ public class IssueChangeTriggerImpl implements IssueChangeTrigger {
         .stream()
         .collect(uniqueIndex(SnapshotDto::getComponentUuid));
 
-      List<QGChangeEvent> qgChangeEvents = shortBranches
+      return shortBranches
         .stream()
         .map(shortBranch -> {
           ComponentDto branch = branchesByUuid.get(shortBranch.getUuid());
@@ -128,7 +127,6 @@ public class IssueChangeTriggerImpl implements IssueChangeTrigger {
         })
         .filter(Objects::nonNull)
         .collect(MoreCollectors.toList(shortBranches.size()));
-      qgEventListeners.broadcast(Trigger.ISSUE_CHANGE, qgChangeEvents);
     }
   }
 

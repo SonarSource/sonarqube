@@ -57,14 +57,15 @@ public class QGChangeEventListenersImpl implements QGChangeEventListeners {
   }
 
   @Override
-  public void broadcast(Trigger trigger, Collection<QGChangeEvent> changeEvents) {
-    if (changeEvents.isEmpty()) {
+  public void broadcastOnIssueChange(QGChangeEventFactory.IssueChangeData issueChangeData, Collection<QGChangeEvent> changeEvents) {
+    if (listeners.length == 0 || issueChangeData.getComponents().isEmpty() || issueChangeData.getIssues().isEmpty() || changeEvents.isEmpty()) {
       return;
     }
 
     try {
       List<QGChangeEvent> immutableChangeEvents = ImmutableList.copyOf(changeEvents);
-      Arrays.stream(listeners).forEach(listener -> broadcastTo(trigger, immutableChangeEvents, listener));
+      Arrays.stream(listeners)
+        .forEach(listener -> broadcastTo(Trigger.ISSUE_CHANGE, immutableChangeEvents, listener));
     } catch (Error e) {
       LOG.warn(format("Broadcasting to listeners failed for %s events", changeEvents.size()), e);
     }
