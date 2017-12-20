@@ -85,8 +85,7 @@ public class ProjectStatusActionTest {
       .containsExactlyInAnyOrder(
         tuple("analysisId", false),
         tuple("projectKey", false),
-        tuple("projectId", false),
-        tuple("organization", false));
+        tuple("projectId", false));
   }
 
   @Test
@@ -107,7 +106,6 @@ public class ProjectStatusActionTest {
 
     String response = ws.newRequest()
       .setParam("analysisId", snapshot.getUuid())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("project_status-example.json"));
@@ -139,7 +137,6 @@ public class ProjectStatusActionTest {
 
     String response = ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, pastAnalysis.getUuid())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("project_status-example.json"));
@@ -162,7 +159,6 @@ public class ProjectStatusActionTest {
 
     String response = ws.newRequest()
       .setParam(PARAM_PROJECT_ID, project.uuid())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("project_status-example.json"));
@@ -185,7 +181,6 @@ public class ProjectStatusActionTest {
 
     String response = ws.newRequest()
       .setParam(PARAM_PROJECT_KEY, project.getKey())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("project_status-example.json"));
@@ -201,7 +196,6 @@ public class ProjectStatusActionTest {
 
     ProjectStatusResponse result = ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .executeProtobuf(ProjectStatusResponse.class);
 
     assertThat(result.getProjectStatus().getStatus()).isEqualTo(Status.NONE);
@@ -216,7 +210,6 @@ public class ProjectStatusActionTest {
 
     ProjectStatusResponse result = ws.newRequest()
       .setParam(PARAM_PROJECT_ID, project.uuid())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .executeProtobuf(ProjectStatusResponse.class);
 
     assertThat(result.getProjectStatus().getStatus()).isEqualTo(Status.NONE);
@@ -233,7 +226,6 @@ public class ProjectStatusActionTest {
 
     ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .executeProtobuf(ProjectStatusResponse.class);
   }
 
@@ -247,7 +239,6 @@ public class ProjectStatusActionTest {
 
     ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .executeProtobuf(ProjectStatusResponse.class);
   }
 
@@ -265,24 +256,6 @@ public class ProjectStatusActionTest {
   }
 
   @Test
-  public void fail_when_project_does_not_not_belong_to_organization() {
-    OrganizationDto organization = db.organizations().insert();
-    OrganizationDto otherOrganization = db.organizations().insert();
-    ComponentDto project = db.components().insertPrivateProject(otherOrganization);
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newAnalysis(project));
-    dbSession.commit();
-    userSession.addProjectPermission(UserRole.ADMIN, project);
-
-    expectedException.expect(NotFoundException.class);
-    expectedException.expectMessage(String.format("Project '%s' doesn't exist in organization '%s'", project.getKey(), organization.getKey()));
-
-    ws.newRequest()
-      .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
-      .executeProtobuf(ProjectStatusResponse.class);
-  }
-
-  @Test
   public void fail_if_no_snapshot_id_found() {
     OrganizationDto organization = db.organizations().insert();
     logInAsSystemAdministrator();
@@ -292,7 +265,6 @@ public class ProjectStatusActionTest {
 
     ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, ANALYSIS_ID)
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .executeProtobuf(ProjectStatusResponse.class);
   }
 
@@ -308,7 +280,6 @@ public class ProjectStatusActionTest {
 
     ws.newRequest()
       .setParam(PARAM_ANALYSIS_ID, snapshot.getUuid())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .executeProtobuf(ProjectStatusResponse.class);
   }
 
@@ -370,7 +341,6 @@ public class ProjectStatusActionTest {
 
     ws.newRequest()
       .setParam("projectId", branch.uuid())
-      .setParam(PARAM_ORGANIZATION, organization.getKey())
       .execute();
   }
 
