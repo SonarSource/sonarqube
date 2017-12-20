@@ -136,6 +136,19 @@ public class TestIndexerTest {
     assertThat(document.get(FIELD_FILE_UUID)).isEqualTo("F1");
   }
 
+  @Test
+  public void long_name_can_be_indexed() throws Exception {
+    indexTest("P3", "F1", "long_name", "U111");
+
+    assertThat(countDocuments()).isEqualTo(1);
+
+    List<SearchHit> hits = getDocuments();
+    Map<String, Object> document = hits.get(0).getSource();
+    assertThat(hits).hasSize(1);
+    assertThat(document.get(FIELD_NAME).toString()).hasSize(50000);
+    assertThat(document.get(FIELD_FILE_UUID)).isEqualTo("F1");
+  }
+
   private void indexTest(String projectUuid, String fileUuid, String testName, String uuid) throws IOException {
     String json = IOUtils.toString(getClass().getResource(format("%s/%s_%s_%s.json", getClass().getSimpleName(), projectUuid, fileUuid, testName)));
     es.client().prepareIndex(INDEX_TYPE_TEST)
