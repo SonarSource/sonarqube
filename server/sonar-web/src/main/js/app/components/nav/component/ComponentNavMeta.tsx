@@ -67,7 +67,7 @@ export function ComponentNavMeta({ branch, component, currentUser }: Props) {
             />
             <HomePageSelect
               className="spacer-left"
-              currentPage={{ type: HomePageType.Project, key: component.key }}
+              currentPage={{ type: HomePageType.Project, parameter: component.key }}
             />
           </div>
         )}

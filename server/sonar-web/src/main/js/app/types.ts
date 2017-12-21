@@ -151,12 +151,12 @@ export enum HomePageType {
 }
 
 export interface HomePage {
-  key?: string;
+  parameter?: string;
   type: HomePageType;
 }
 
 export function isSameHomePage(a: HomePage, b: HomePage) {
-  return a.type === b.type && a.key === b.key;
+  return a.type === b.type && a.parameter === b.parameter;
 }
 
 export interface LoggedInUser extends CurrentUser {

@@ -48,7 +48,7 @@ export function OrganizationNavigationMeta({ onSonarCloud, organization }: Props
       {onSonarCloud && (
         <div className="navbar-context-meta-secondary">
           <HomePageSelect
-            currentPage={{ type: HomePageType.Organization, key: organization.key }}
+            currentPage={{ type: HomePageType.Organization, parameter: organization.key }}
           />
         </div>
       )}

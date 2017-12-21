@@ -184,9 +184,9 @@ export function getOrganizationUrl(organization: string) {
 export function getHomePageUrl(homepage: HomePage) {
   switch (homepage.type) {
     case HomePageType.Project:
-      return getProjectUrl(homepage.key!);
+      return getProjectUrl(homepage.parameter!);
     case HomePageType.Organization:
-      return getOrganizationUrl(homepage.key!);
+      return getOrganizationUrl(homepage.parameter!);
     case HomePageType.MyProjects:
       return '/projects';
     case HomePageType.MyIssues:
