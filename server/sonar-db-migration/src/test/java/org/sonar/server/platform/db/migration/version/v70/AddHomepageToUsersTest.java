@@ -46,7 +46,7 @@ public class AddHomepageToUsersTest {
     underTest.execute();
 
     dbTester.assertColumnDefinition("users", "homepage_type", VARCHAR, 40, true);
-    dbTester.assertColumnDefinition("users", "homepage_value", VARCHAR, 40, true);
+    dbTester.assertColumnDefinition("users", "homepage_parameter", VARCHAR, 40, true);
   }
 
   @Test

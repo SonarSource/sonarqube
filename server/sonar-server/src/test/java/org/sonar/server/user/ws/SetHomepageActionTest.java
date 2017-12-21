@@ -38,8 +38,8 @@ import org.sonar.server.ws.WsActionTester;
 import static org.apache.http.HttpStatus.SC_NO_CONTENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newPrivateProjectDto;
+import static org.sonar.server.user.ws.SetHomepageAction.PARAM_PARAMETER;
 import static org.sonar.server.user.ws.SetHomepageAction.PARAM_TYPE;
-import static org.sonar.server.user.ws.SetHomepageAction.PARAM_VALUE;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.MY_ISSUES;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.MY_PROJECTS;
 import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.ORGANIZATION;
@@ -82,7 +82,7 @@ public class SetHomepageActionTest {
     assertThat(typeParam.deprecatedSince()).isNull();
     assertThat(typeParam.deprecatedKey()).isNull();
 
-    WebService.Param keyParam = action.param("value");
+    WebService.Param keyParam = action.param("parameter");
     assertThat(keyParam.isRequired()).isFalse();
     assertThat(keyParam.description()).isEqualTo("Additional information to identify the page (project or organization key)");
     assertThat(keyParam.exampleValue()).isEqualTo("my_project");
@@ -103,13 +103,13 @@ public class SetHomepageActionTest {
     ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_TYPE, PROJECT.toString())
-      .setParam(PARAM_VALUE, project.getKey())
+      .setParam(PARAM_PARAMETER, project.getKey())
       .execute();
 
     UserDto actual = db.getDbClient().userDao().selectByLogin(db.getSession(), user.getLogin());
     assertThat(actual).isNotNull();
     assertThat(actual.getHomepageType()).isEqualTo(PROJECT.toString());
-    assertThat(actual.getHomepageValue()).isEqualTo(project.uuid());
+    assertThat(actual.getHomepageParameter()).isEqualTo(project.uuid());
   }
 
   @Test
@@ -122,13 +122,13 @@ public class SetHomepageActionTest {
     ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_TYPE, ORGANIZATION.toString())
-      .setParam(PARAM_VALUE, organization.getKey())
+      .setParam(PARAM_PARAMETER, organization.getKey())
       .execute();
 
     UserDto actual = db.getDbClient().userDao().selectByLogin(db.getSession(), user.getLogin());
     assertThat(actual).isNotNull();
     assertThat(actual.getHomepageType()).isEqualTo(ORGANIZATION.toString());
-    assertThat(actual.getHomepageValue()).isEqualTo(organization.getUuid());
+    assertThat(actual.getHomepageParameter()).isEqualTo(organization.getUuid());
   }
 
   @Test
@@ -144,7 +144,7 @@ public class SetHomepageActionTest {
     UserDto actual = db.getDbClient().userDao().selectByLogin(db.getSession(), user.getLogin());
     assertThat(actual).isNotNull();
     assertThat(actual.getHomepageType()).isEqualTo(MY_ISSUES.toString());
-    assertThat(actual.getHomepageValue()).isNullOrEmpty();
+    assertThat(actual.getHomepageParameter()).isNullOrEmpty();
   }
 
   @Test
@@ -160,7 +160,7 @@ public class SetHomepageActionTest {
     UserDto actual = db.getDbClient().userDao().selectByLogin(db.getSession(), user.getLogin());
     assertThat(actual).isNotNull();
     assertThat(actual.getHomepageType()).isEqualTo(MY_PROJECTS.toString());
-    assertThat(actual.getHomepageValue()).isNullOrEmpty();
+    assertThat(actual.getHomepageParameter()).isNullOrEmpty();
   }
 
   @Test
@@ -181,7 +181,7 @@ public class SetHomepageActionTest {
   public void fail_when_missing_project_id_when_requesting_project_type() {
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Type PROJECT requires a value");
+    expectedException.expectMessage("Type PROJECT requires a parameter");
 
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
@@ -189,7 +189,7 @@ public class SetHomepageActionTest {
     ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_TYPE, PROJECT.toString())
-      .setParam(PARAM_VALUE, "")
+      .setParam(PARAM_PARAMETER, "")
       .execute();
 
   }
@@ -198,7 +198,7 @@ public class SetHomepageActionTest {
   public void fail_when_missing_organization_id_when_requesting_organization_type() {
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Type ORGANIZATION requires a value");
+    expectedException.expectMessage("Type ORGANIZATION requires a parameter");
 
     UserDto user = db.users().insertUser();
     userSession.logIn(user);
@@ -206,7 +206,7 @@ public class SetHomepageActionTest {
     ws.newRequest()
       .setMethod("POST")
       .setParam(PARAM_TYPE, ORGANIZATION.toString())
-      .setParam(PARAM_VALUE, "")
+      .setParam(PARAM_PARAMETER, "")
       .execute();
 
   }

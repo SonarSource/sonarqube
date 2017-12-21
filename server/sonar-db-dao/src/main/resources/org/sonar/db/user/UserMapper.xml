@@ -20,7 +20,7 @@
     u.created_at as "createdAt",
     u.updated_at as "updatedAt",
     u.homepage_type as "homepageType",
-    u.homepage_value as "homepageValue"
+    u.homepage_parameter as "homepageParameter"
   </sql>
 
   <select id="selectByLogin" parameterType="String" resultType="User">
@@ -140,11 +140,11 @@
   <update id="clearHomepage" parameterType="map">
     update users set
       homepage_type = null,
-      homepage_value = null,
+      homepage_parameter = null,
       updated_at = #{now, jdbcType=BIGINT}
     where
       homepage_type = #{homepageType, jdbcType=VARCHAR}
-      and homepage_value = #{homepageValue, jdbcType=VARCHAR}
+      and homepage_parameter = #{homepageParameter, jdbcType=VARCHAR}
   </update>
 
   <update id="setRoot">
@@ -173,7 +173,7 @@
       created_at,
       updated_at,
       homepage_type,
-      homepage_value
+      homepage_parameter
     ) values (
       #{user.login,jdbcType=VARCHAR},
       #{user.name,jdbcType=VARCHAR},
@@ -190,7 +190,7 @@
       #{now,jdbcType=BIGINT},
       #{now,jdbcType=BIGINT},
       #{user.homepageType,jdbcType=VARCHAR},
-      #{user.homepageValue,jdbcType=VARCHAR}
+      #{user.homepageParameter,jdbcType=VARCHAR}
     )
   </insert>
 
@@ -208,7 +208,7 @@
       crypted_password = #{user.cryptedPassword, jdbcType=BIGINT},
       updated_at = #{now, jdbcType=BIGINT},
       homepage_type = #{user.homepageType, jdbcType=VARCHAR},
-      homepage_value = #{user.homepageValue, jdbcType=VARCHAR}
+      homepage_parameter = #{user.homepageParameter, jdbcType=VARCHAR}
     where
       login = #{user.login, jdbcType=VARCHAR}
   </update>
