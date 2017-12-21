@@ -49,7 +49,7 @@ public class UserDto {
   private Long createdAt;
   private Long updatedAt;
   private String homepageType;
-  private String homepageValue;
+  private String homepageParameter;
   private boolean local = true;
   private boolean root = false;
   private boolean onboarded = false;
@@ -215,12 +215,12 @@ public class UserDto {
   }
 
   @CheckForNull
-  public String getHomepageValue() {
-    return homepageValue;
+  public String getHomepageParameter() {
+    return homepageParameter;
   }
 
-  public UserDto setHomepageValue(@Nullable String homepageValue) {
-    this.homepageValue = homepageValue;
+  public UserDto setHomepageParameter(@Nullable String homepageParameter) {
+    this.homepageParameter = homepageParameter;
     return this;
   }
 

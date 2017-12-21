@@ -125,31 +125,30 @@ public class CurrentAction implements UsersWsAction {
     if (user.getHomepageType() == null) {
       return defaultHomepageOf();
     }
-    String homepageValue = getHomepageValue(dbSession, user.getHomepageType(), user.getHomepageValue());
+    String homepageParameter = getHomepageParameter(dbSession, user.getHomepageType(), user.getHomepageParameter());
     CurrentWsResponse.Homepage.Builder homepage = CurrentWsResponse.Homepage.newBuilder()
       .setType(CurrentWsResponse.HomepageType.valueOf(user.getHomepageType()));
-    setNullable(homepageValue, homepage::setValue);
+    setNullable(homepageParameter, homepage::setParameter);
     return homepage.build();
   }
 
   @CheckForNull
-  private String getHomepageValue(DbSession dbSession, String homepageType, String homepageValue) {
+  private String getHomepageParameter(DbSession dbSession, String homepageType, String homepageParameter) {
     if (PROJECT.toString().equals(homepageType)) {
-      return dbClient.componentDao().selectByUuid(dbSession, homepageValue)
+      return dbClient.componentDao().selectByUuid(dbSession, homepageParameter)
         .transform(ComponentDto::getKey)
         .or(() -> {
-          throw new IllegalStateException(format("Unknown component '%s' for homepageValue", homepageValue));
+          throw new IllegalStateException(format("Unknown component '%s' for homepageParameter", homepageParameter));
         });
     }
     if (ORGANIZATION.toString().equals(homepageType)) {
-      return dbClient.organizationDao().selectByUuid(dbSession, homepageValue)
+      return dbClient.organizationDao().selectByUuid(dbSession, homepageParameter)
         .map(OrganizationDto::getKey)
-        .orElseThrow(() -> new IllegalStateException(format("Unknown organization '%s' for homepageValue", homepageValue)));
+        .orElseThrow(() -> new IllegalStateException(format("Unknown organization '%s' for homepageParameter", homepageParameter)));
     }
     return null;
   }
 
-  // Default WIP implementation to be done in SONAR-10185
   private static CurrentWsResponse.Homepage defaultHomepageOf() {
     return CurrentWsResponse.Homepage.newBuilder()
       .setType(MY_PROJECTS)

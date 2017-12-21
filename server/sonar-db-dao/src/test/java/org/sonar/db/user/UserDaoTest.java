@@ -325,7 +325,7 @@ public class UserDaoTest {
       .setCreatedAt(date)
       .setUpdatedAt(date)
       .setHomepageType("project")
-      .setHomepageValue("OB1");
+      .setHomepageParameter("OB1");
     underTest.insert(db.getSession(), userDto);
     db.getSession().commit();
 
@@ -345,7 +345,7 @@ public class UserDaoTest {
     assertThat(user.isLocal()).isTrue();
     assertThat(user.isRoot()).isFalse();
     assertThat(user.getHomepageType()).isEqualTo("project");
-    assertThat(user.getHomepageValue()).isEqualTo("OB1");
+    assertThat(user.getHomepageParameter()).isEqualTo("OB1");
   }
 
   @Test
@@ -372,7 +372,7 @@ public class UserDaoTest {
       .setExternalIdentityProvider("github")
       .setLocal(false)
       .setHomepageType("project")
-      .setHomepageValue("OB1");
+      .setHomepageParameter("OB1");
     underTest.update(db.getSession(), userUpdate);
 
     UserDto reloaded = underTest.selectByLogin(db.getSession(), user.getLogin());
@@ -391,7 +391,7 @@ public class UserDaoTest {
     assertThat(reloaded.isLocal()).isFalse();
     assertThat(reloaded.isRoot()).isFalse();
     assertThat(reloaded.getHomepageType()).isEqualTo("project");
-    assertThat(reloaded.getHomepageValue()).isEqualTo("OB1");
+    assertThat(reloaded.getHomepageParameter()).isEqualTo("OB1");
   }
 
   @Test
@@ -414,17 +414,17 @@ public class UserDaoTest {
     assertThat(userReloaded.isRoot()).isFalse();
     assertThat(userReloaded.getUpdatedAt()).isEqualTo(NOW);
     assertThat(userReloaded.getHomepageType()).isNull();
-    assertThat(userReloaded.getHomepageValue()).isNull();
+    assertThat(userReloaded.getHomepageParameter()).isNull();
     assertThat(underTest.selectUserById(session, otherUser.getId())).isNotNull();
   }
 
   @Test
   public void clean_users_homepage_when_deleting_organization() {
 
-    UserDto userUnderTest = newUserDto().setHomepageType("ORGANIZATION").setHomepageValue("dummy-organization-UUID");
+    UserDto userUnderTest = newUserDto().setHomepageType("ORGANIZATION").setHomepageParameter("dummy-organization-UUID");
     underTest.insert(session, userUnderTest);
 
-    UserDto untouchedUser = newUserDto().setHomepageType("ORGANIZATION").setHomepageValue("not-so-dummy-organization-UUID");
+    UserDto untouchedUser = newUserDto().setHomepageType("ORGANIZATION").setHomepageParameter("not-so-dummy-organization-UUID");
     underTest.insert(session, untouchedUser);
 
     session.commit();
@@ -434,21 +434,21 @@ public class UserDaoTest {
     UserDto userWithAHomepageReloaded = underTest.selectUserById(session, userUnderTest.getId());
     assertThat(userWithAHomepageReloaded.getUpdatedAt()).isEqualTo(NOW);
     assertThat(userWithAHomepageReloaded.getHomepageType()).isNull();
-    assertThat(userWithAHomepageReloaded.getHomepageValue()).isNull();
+    assertThat(userWithAHomepageReloaded.getHomepageParameter()).isNull();
 
     UserDto untouchedUserReloaded = underTest.selectUserById(session, untouchedUser.getId());
     assertThat(untouchedUserReloaded.getUpdatedAt()).isEqualTo(untouchedUser.getUpdatedAt());
     assertThat(untouchedUserReloaded.getHomepageType()).isEqualTo(untouchedUser.getHomepageType());
-    assertThat(untouchedUserReloaded.getHomepageValue()).isEqualTo(untouchedUser.getHomepageValue());
+    assertThat(untouchedUserReloaded.getHomepageParameter()).isEqualTo(untouchedUser.getHomepageParameter());
   }
 
   @Test
   public void clean_users_homepage_when_deleting_project() {
 
-    UserDto userUnderTest = newUserDto().setHomepageType("PROJECT").setHomepageValue("dummy-project-UUID");
+    UserDto userUnderTest = newUserDto().setHomepageType("PROJECT").setHomepageParameter("dummy-project-UUID");
     underTest.insert(session, userUnderTest);
 
-    UserDto untouchedUser = newUserDto().setHomepageType("PROJECT").setHomepageValue("not-so-dummy-project-UUID");
+    UserDto untouchedUser = newUserDto().setHomepageType("PROJECT").setHomepageParameter("not-so-dummy-project-UUID");
     underTest.insert(session, untouchedUser);
 
     session.commit();
@@ -458,12 +458,12 @@ public class UserDaoTest {
     UserDto userWithAHomepageReloaded = underTest.selectUserById(session, userUnderTest.getId());
     assertThat(userWithAHomepageReloaded.getUpdatedAt()).isEqualTo(NOW);
     assertThat(userWithAHomepageReloaded.getHomepageType()).isNull();
-    assertThat(userWithAHomepageReloaded.getHomepageValue()).isNull();
+    assertThat(userWithAHomepageReloaded.getHomepageParameter()).isNull();
 
     UserDto untouchedUserReloaded = underTest.selectUserById(session, untouchedUser.getId());
     assertThat(untouchedUserReloaded.getUpdatedAt()).isEqualTo(untouchedUser.getUpdatedAt());
     assertThat(untouchedUserReloaded.getHomepageType()).isEqualTo(untouchedUser.getHomepageType());
-    assertThat(untouchedUserReloaded.getHomepageValue()).isEqualTo(untouchedUser.getHomepageValue());
+    assertThat(untouchedUserReloaded.getHomepageParameter()).isEqualTo(untouchedUser.getHomepageParameter());
   }
 
   @Test
@@ -482,7 +482,7 @@ public class UserDaoTest {
       .setSalt("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365")
       .setCryptedPassword("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg")
       .setHomepageType("project")
-      .setHomepageValue("OB1"));
+      .setHomepageParameter("OB1"));
     UserDto user2 = db.users().insertUser();
     underTest.setRoot(session, user2.getLogin(), true);
 
@@ -499,7 +499,7 @@ public class UserDaoTest {
     assertThat(dto.getCreatedAt()).isEqualTo(user1.getCreatedAt());
     assertThat(dto.getUpdatedAt()).isEqualTo(user1.getUpdatedAt());
     assertThat(dto.getHomepageType()).isEqualTo("project");
-    assertThat(dto.getHomepageValue()).isEqualTo("OB1");
+    assertThat(dto.getHomepageParameter()).isEqualTo("OB1");
 
     dto = underTest.selectOrFailByLogin(session, user2.getLogin());
     assertThat(dto.isRoot()).isTrue();

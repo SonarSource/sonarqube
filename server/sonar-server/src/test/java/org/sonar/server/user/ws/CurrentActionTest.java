@@ -26,7 +26,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.ws.AvatarResolverImpl;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -196,7 +195,7 @@ public class CurrentActionTest {
       .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket"))
       .setOnboarded(true)
       .setHomepageType("PROJECT")
-      .setHomepageValue("UUID-of-the-death-star"));
+      .setHomepageParameter("UUID-of-the-death-star"));
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Jedi")), obiwan);
     db.users().insertMember(db.users().insertGroup(newGroupDto().setName("Rebel")), obiwan);
 
@@ -226,22 +225,22 @@ public class CurrentActionTest {
 
   @Test
   public void fail_with_ISE_when_user_homepage_project_does_not_exist_in_db() {
-    UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageValue("not-existing-project-uuid"));
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("PROJECT").setHomepageParameter("not-existing-project-uuid"));
     userSessionRule.logIn(user.getLogin());
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Unknown component 'not-existing-project-uuid' for homepageValue");
+    expectedException.expectMessage("Unknown component 'not-existing-project-uuid' for homepageParameter");
 
     call();
   }
 
   @Test
   public void fail_with_ISE_when_user_homepage_organization_does_not_exist_in_db() {
-    UserDto user = db.users().insertUser(u -> u.setHomepageType("ORGANIZATION").setHomepageValue("not-existing-organization-uuid"));
+    UserDto user = db.users().insertUser(u -> u.setHomepageType("ORGANIZATION").setHomepageParameter("not-existing-organization-uuid"));
     userSessionRule.logIn(user.getLogin());
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Unknown organization 'not-existing-organization-uuid' for homepageValue");
+    expectedException.expectMessage("Unknown organization 'not-existing-organization-uuid' for homepageParameter");
 
     call();
   }

@@ -117,7 +117,7 @@ public class DeleteActionTest {
   @Test
   public void organization_deletion_also_ensure_that_homepage_on_this_organization_if_it_exists_is_cleared() throws Exception {
     OrganizationDto organization = db.organizations().insert();
-    UserDto user = dbClient.userDao().insert(session, newUserDto().setHomepageType("ORGANIZATION").setHomepageValue(organization.getUuid()));
+    UserDto user = dbClient.userDao().insert(session, newUserDto().setHomepageType("ORGANIZATION").setHomepageParameter(organization.getUuid()));
     session.commit();
 
     userSession.logIn().addPermission(ADMINISTER, organization);
@@ -128,7 +128,7 @@ public class DeleteActionTest {
 
     UserDto userReloaded = dbClient.userDao().selectUserById(session, user.getId());
     assertThat(userReloaded.getHomepageType()).isNull();
-    assertThat(userReloaded.getHomepageValue()).isNull();
+    assertThat(userReloaded.getHomepageParameter()).isNull();
   }
 
   @Test
@@ -136,7 +136,7 @@ public class DeleteActionTest {
     OrganizationDto organization = db.organizations().insert();
     ComponentDto project = db.components().insertPrivateProject(organization);
     UserDto user = dbClient.userDao().insert(session,
-      newUserDto().setHomepageType("PROJECT").setHomepageValue(project.uuid()));
+      newUserDto().setHomepageType("PROJECT").setHomepageParameter(project.uuid()));
     session.commit();
 
     userSession.logIn().addPermission(ADMINISTER, organization);
@@ -147,7 +147,7 @@ public class DeleteActionTest {
 
     UserDto userReloaded = dbClient.userDao().selectUserById(session, user.getId());
     assertThat(userReloaded.getHomepageType()).isNull();
-    assertThat(userReloaded.getHomepageValue()).isNull();
+    assertThat(userReloaded.getHomepageParameter()).isNull();
   }
 
   @Test
