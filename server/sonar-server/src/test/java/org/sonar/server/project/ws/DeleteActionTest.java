@@ -139,7 +139,7 @@ public class DeleteActionTest {
 
     ComponentDto project = componentDbTester.insertPrivateProject();
     UserDto insert = dbClient.userDao().insert(dbSession,
-      newUserDto().setHomepageType("PROJECT").setHomepageValue(project.uuid()));
+      newUserDto().setHomepageType("PROJECT").setHomepageParameter(project.uuid()));
     dbSession.commit();
 
     userSessionRule.logIn().addProjectPermission(ADMIN, project);
@@ -154,7 +154,7 @@ public class DeleteActionTest {
 
     UserDto userReloaded = dbClient.userDao().selectUserById(dbSession, insert.getId());
     assertThat(userReloaded.getHomepageType()).isNull();
-    assertThat(userReloaded.getHomepageValue()).isNull();
+    assertThat(userReloaded.getHomepageParameter()).isNull();
   }
 
   @Test

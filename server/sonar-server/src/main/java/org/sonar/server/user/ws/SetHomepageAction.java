@@ -44,7 +44,7 @@ import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PROJECT;
 public class SetHomepageAction implements UsersWsAction {
 
   static final String PARAM_TYPE = "type";
-  static final String PARAM_VALUE = "value";
+  static final String PARAM_PARAMETER = "parameter";
   static final String ACTION = "set_homepage";
 
   private final UserSession userSession;
@@ -71,7 +71,7 @@ public class SetHomepageAction implements UsersWsAction {
       .setRequired(true)
       .setPossibleValues(HomepageTypes.keys());
 
-    action.createParam(PARAM_VALUE)
+    action.createParam(PARAM_PARAMETER)
       .setDescription("Additional information to identify the page (project or organization key)")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
@@ -82,9 +82,9 @@ public class SetHomepageAction implements UsersWsAction {
     userSession.checkLoggedIn();
 
     String type = request.mandatoryParam(PARAM_TYPE);
-    String value = request.param(PARAM_VALUE);
+    String parameter = request.param(PARAM_PARAMETER);
 
-    checkRequest(type, value);
+    checkRequest(type, parameter);
 
     String login = userSession.getLogin();
 
@@ -94,7 +94,7 @@ public class SetHomepageAction implements UsersWsAction {
       checkState(user != null, "User login '%s' cannot be found", login);
 
       user.setHomepageType(type);
-      user.setHomepageValue(findHomepageValue(dbSession, type, value));
+      user.setHomepageParameter(findHomepageParameter(dbSession, type, parameter));
 
       dbClient.userDao().update(dbSession, user);
       dbSession.commit();
@@ -104,27 +104,27 @@ public class SetHomepageAction implements UsersWsAction {
   }
 
   @CheckForNull
-  private String findHomepageValue(DbSession dbSession, String type, String value) {
+  private String findHomepageParameter(DbSession dbSession, String type, String parameter) {
 
     if (PROJECT.toString().equals(type)) {
-      return componentFinder.getByKey(dbSession, value).uuid();
+      return componentFinder.getByKey(dbSession, parameter).uuid();
     }
 
     if (ORGANIZATION.toString().equals(type)) {
-      return checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, value), "No organizationDto with key '%s'", value).getUuid();
+      return checkFoundWithOptional(dbClient.organizationDao().selectByKey(dbSession, parameter), "No organizationDto with key '%s'", parameter).getUuid();
     }
 
     return null;
   }
 
-  private static void checkRequest(String type, @Nullable String value) {
+  private static void checkRequest(String type, @Nullable String parameter) {
 
     if (PROJECT.toString().equals(type) || ORGANIZATION.toString().equals(type)) {
-      checkArgument(isNotBlank(value), "Type %s requires a value", type);
+      checkArgument(isNotBlank(parameter), "Type %s requires a parameter", type);
     }
 
     if (MY_PROJECTS.toString().equals(type) || MY_ISSUES.toString().equals(type)) {
-      checkArgument(isBlank(value), "Parameter value must not be provided when type is %s", type);
+      checkArgument(isBlank(parameter), "Parameter parameter must not be provided when type is %s", type);
     }
 
   }
