@@ -26,7 +26,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.issue.ws.AvatarResolverImpl;
 import org.sonar.server.organization.DefaultOrganizationProvider;
@@ -230,7 +229,7 @@ public class CurrentActionTest {
     userSessionRule.logIn(user.getLogin());
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Unknown component 'not-existing-project-uuid' for homepageValue");
+    expectedException.expectMessage("Unknown component 'not-existing-project-uuid' for homepageParameter");
 
     call();
   }
@@ -241,7 +240,7 @@ public class CurrentActionTest {
     userSessionRule.logIn(user.getLogin());
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Unknown organization 'not-existing-organization-uuid' for homepageValue");
+    expectedException.expectMessage("Unknown organization 'not-existing-organization-uuid' for homepageParameter");
 
     call();
   }

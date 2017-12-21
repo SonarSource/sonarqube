@@ -44,7 +44,7 @@ import static org.sonarqube.ws.Users.CurrentWsResponse.HomepageType.PROJECT;
 public class SetHomepageAction implements UsersWsAction {
 
   static final String PARAM_TYPE = "type";
-  static final String PARAM_VALUE = "value";
+  static final String PARAM_PARAMETER = "parameter";
   static final String ACTION = "set_homepage";
 
   private final UserSession userSession;
@@ -71,7 +71,7 @@ public class SetHomepageAction implements UsersWsAction {
       .setRequired(true)
       .setPossibleValues(HomepageTypes.keys());
 
-    action.createParam(PARAM_VALUE)
+    action.createParam(PARAM_PARAMETER)
       .setDescription("Additional information to identify the page (project or organization key)")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
@@ -82,7 +82,7 @@ public class SetHomepageAction implements UsersWsAction {
     userSession.checkLoggedIn();
 
     String type = request.mandatoryParam(PARAM_TYPE);
-    String value = request.param(PARAM_VALUE);
+    String value = request.param(PARAM_PARAMETER);
 
     checkRequest(type, value);
 
