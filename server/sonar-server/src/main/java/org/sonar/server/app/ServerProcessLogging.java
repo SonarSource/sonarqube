@@ -67,6 +67,7 @@ public abstract class ServerProcessLogging {
   private LogLevelConfig createLogLevelConfiguration(ProcessId processId) {
     LogLevelConfig.Builder builder = LogLevelConfig.newBuilder(helper.getRootLoggerName());
     builder.rootLevelFor(processId);
+    builder.immutableLevel("com.microsoft.aad.adal4j.AuthenticationAuthority", Level.WARN);
     builder.immutableLevel("org.apache.ibatis", Level.WARN);
     builder.immutableLevel("java.sql", Level.WARN);
     builder.immutableLevel("java.sql.ResultSet", Level.WARN);
