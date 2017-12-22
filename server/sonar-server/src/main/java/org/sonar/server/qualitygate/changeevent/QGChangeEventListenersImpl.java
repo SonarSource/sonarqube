@@ -66,7 +66,7 @@ public class QGChangeEventListenersImpl implements QGChangeEventListeners {
       Multimap<String, QGChangeEvent> eventsByComponentUuid = changeEvents.stream()
         .collect(MoreCollectors.index(t -> t.getProject().uuid()));
       Multimap<String, DefaultIssue> issueByComponentUuid = issueChangeData.getIssues().stream()
-        .collect(MoreCollectors.index(DefaultIssue::componentUuid));
+        .collect(MoreCollectors.index(DefaultIssue::projectUuid));
 
       issueByComponentUuid.asMap()
         .forEach((componentUuid, value) -> {
