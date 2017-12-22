@@ -21,6 +21,7 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.io.Resources;
 import java.util.Date;
+import java.util.List;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
@@ -30,17 +31,19 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.util.Uuids;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.server.issue.IssueFinder;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.TransitionService;
-import org.sonar.server.qualitygate.changeevent.IssueChangeTrigger;
+import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
+import org.sonar.server.qualitygate.changeevent.QGChangeEventFactory;
+import org.sonar.server.qualitygate.changeevent.QGChangeEventListeners;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.ImmutableList.copyOf;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.ACTION_DO_TRANSITION;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_ISSUE;
 import static org.sonarqube.ws.client.issue.IssuesWsParameters.PARAM_TRANSITION;
@@ -54,10 +57,11 @@ public class DoTransitionAction implements IssuesWsAction {
   private final TransitionService transitionService;
   private final OperationResponseWriter responseWriter;
   private final System2 system2;
-  private final IssueChangeTrigger issueChangeTrigger;
+  private final QGChangeEventFactory qgChangeEventFactory;
+  private final QGChangeEventListeners qgChangeEventListeners;
 
   public DoTransitionAction(DbClient dbClient, UserSession userSession, IssueFinder issueFinder, IssueUpdater issueUpdater, TransitionService transitionService,
-    OperationResponseWriter responseWriter, System2 system2, IssueChangeTrigger issueChangeTrigger) {
+    OperationResponseWriter responseWriter, System2 system2, QGChangeEventFactory qgChangeEventFactory, QGChangeEventListeners qgChangeEventListeners) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.issueFinder = issueFinder;
@@ -65,7 +69,8 @@ public class DoTransitionAction implements IssuesWsAction {
     this.transitionService = transitionService;
     this.responseWriter = responseWriter;
     this.system2 = system2;
-    this.issueChangeTrigger = issueChangeTrigger;
+    this.qgChangeEventFactory = qgChangeEventFactory;
+    this.qgChangeEventListeners = qgChangeEventListeners;
   }
 
   @Override
@@ -108,12 +113,11 @@ public class DoTransitionAction implements IssuesWsAction {
     transitionService.checkTransitionPermission(transitionKey, defaultIssue);
     if (transitionService.doTransition(defaultIssue, context, transitionKey)) {
       SearchResponseData searchResponseData = issueUpdater.saveIssueAndPreloadSearchResponseData(session, defaultIssue, context, null);
-      issueChangeTrigger.onChange(
-        new IssueChangeTrigger.IssueChangeData(
-          searchResponseData.getIssues().stream().map(IssueDto::toDefaultIssue).collect(MoreCollectors.toList(searchResponseData.getIssues().size())),
-          copyOf(searchResponseData.getComponents())),
-        new IssueChangeTrigger.IssueChange(transitionKey),
-        context);
+      QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(
+        searchResponseData.getIssues().stream().map(IssueDto::toDefaultIssue).collect(toList(searchResponseData.getIssues().size())),
+        copyOf(searchResponseData.getComponents()));
+      List<QGChangeEvent> qgChangeEvents = qgChangeEventFactory.from(issueChangeData, new QGChangeEventFactory.IssueChange(transitionKey), context);
+      qgChangeEventListeners.broadcastOnIssueChange(issueChangeData, qgChangeEvents);
       return searchResponseData;
     }
     return new SearchResponseData(issueDto);

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -54,7 +55,9 @@ import org.sonar.server.issue.index.IssueIteratorFactory;
 import org.sonar.server.notification.NotificationManager;
 import org.sonar.server.organization.DefaultOrganizationProvider;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.qualitygate.changeevent.IssueChangeTrigger;
+import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
+import org.sonar.server.qualitygate.changeevent.QGChangeEventFactory;
+import org.sonar.server.qualitygate.changeevent.QGChangeEventListeners;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -97,18 +100,24 @@ public class SetTypeActionTest {
   private ArgumentCaptor<SearchResponseData> preloadedSearchResponseDataCaptor = ArgumentCaptor.forClass(SearchResponseData.class);
 
   private IssueIndexer issueIndexer = new IssueIndexer(esTester.client(), dbClient, new IssueIteratorFactory(dbClient));
-  private IssueChangeTrigger issueChangeTrigger = mock(IssueChangeTrigger.class);
+  private QGChangeEventFactory qgChangeEventFactory = mock(QGChangeEventFactory.class);
+  private QGChangeEventListeners qgChangeEventListeners = mock(QGChangeEventListeners.class);
   private WsActionTester tester = new WsActionTester(new SetTypeAction(userSession, dbClient, new IssueFinder(dbClient, userSession), new IssueFieldsSetter(),
     new IssueUpdater(dbClient,
       new ServerIssueStorage(system2, new DefaultRuleFinder(dbClient, defaultOrganizationProvider), dbClient, issueIndexer), mock(NotificationManager.class)),
-    responseWriter, system2, issueChangeTrigger));
+    responseWriter, system2, qgChangeEventFactory, qgChangeEventListeners));
 
   @Test
-  public void set_type() throws Exception {
+  public void set_type() {
     long now = 1_999_777_234L;
     when(system2.now()).thenReturn(now);
     IssueDto issueDto = issueDbTester.insertIssue(newIssue().setType(CODE_SMELL));
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
+    QGChangeEventFactory.IssueChange issueChange = new QGChangeEventFactory.IssueChange(BUG, null);
+    IssueChangeContext changeContext = IssueChangeContext.createUser(new Date(now), userSession.getLogin());
+    List<QGChangeEvent> qgChangeEvents = Collections.singletonList(mock(QGChangeEvent.class));
+    when(qgChangeEventFactory.from(any(QGChangeEventFactory.IssueChangeData.class), eq(issueChange), eq(changeContext)))
+      .thenReturn(qgChangeEvents);
 
     call(issueDto.getKey(), BUG.name());
 
@@ -117,22 +126,20 @@ public class SetTypeActionTest {
     IssueDto issueReloaded = dbClient.issueDao().selectByKey(dbTester.getSession(), issueDto.getKey()).get();
     assertThat(issueReloaded.getType()).isEqualTo(BUG.getDbConstant());
 
-    ArgumentCaptor<IssueChangeTrigger.IssueChangeData> issueChangeDataCaptor = ArgumentCaptor.forClass(IssueChangeTrigger.IssueChangeData.class);
-    verify(issueChangeTrigger).onChange(
-      issueChangeDataCaptor.capture(),
-      eq(new IssueChangeTrigger.IssueChange(BUG, null)),
-      eq(IssueChangeContext.createUser(new Date(now), userSession.getLogin())));
-    IssueChangeTrigger.IssueChangeData issueChangeData = issueChangeDataCaptor.getValue();
+    ArgumentCaptor<QGChangeEventFactory.IssueChangeData> issueChangeDataCaptor = ArgumentCaptor.forClass(QGChangeEventFactory.IssueChangeData.class);
+    verify(qgChangeEventFactory).from(issueChangeDataCaptor.capture(), eq(issueChange), eq(changeContext));
+    QGChangeEventFactory.IssueChangeData issueChangeData = issueChangeDataCaptor.getValue();
     assertThat(issueChangeData.getIssues())
       .extracting(DefaultIssue::key)
       .containsOnly(issueDto.getKey());
     assertThat(issueChangeData.getComponents())
       .extracting(ComponentDto::uuid)
       .containsOnly(issueDto.getComponentUuid(), issueDto.getProjectUuid());
+    verify(qgChangeEventListeners).broadcastOnIssueChange(issueChangeData, qgChangeEvents);
   }
 
   @Test
-  public void insert_entry_in_changelog_when_setting_type() throws Exception {
+  public void insert_entry_in_changelog_when_setting_type() {
     IssueDto issueDto = issueDbTester.insertIssue(newIssue().setType(CODE_SMELL));
     setUserWithBrowseAndAdministerIssuePermission(issueDto);
 
@@ -156,13 +163,13 @@ public class SetTypeActionTest {
   }
 
   @Test
-  public void fail_when_not_authenticated() throws Exception {
+  public void fail_when_not_authenticated() {
     expectedException.expect(UnauthorizedException.class);
     call("ABCD", BUG.name());
   }
 
   @Test
-  public void fail_when_missing_browse_permission() throws Exception {
+  public void fail_when_missing_browse_permission() {
     IssueDto issueDto = issueDbTester.insertIssue();
     String login = "john";
     String permission = ISSUE_ADMIN;
@@ -173,7 +180,7 @@ public class SetTypeActionTest {
   }
 
   @Test
-  public void fail_when_missing_administer_issue_permission() throws Exception {
+  public void fail_when_missing_administer_issue_permission() {
     IssueDto issueDto = issueDbTester.insertIssue();
     logInAndAddProjectPermission("john", issueDto, USER);
 

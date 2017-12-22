@@ -19,11 +19,9 @@
  */
 package org.sonar.server.webhook;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
-import org.sonar.core.util.stream.MoreCollectors;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.AnalysisPropertyDto;
@@ -32,7 +30,6 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.qualitygate.changeevent.QGChangeEvent;
 import org.sonar.server.qualitygate.changeevent.QGChangeEventListener;
-import org.sonar.server.qualitygate.changeevent.Trigger;
 
 public class WebhookQGChangeEventListener implements QGChangeEventListener {
   private final WebHooks webhooks;
@@ -46,20 +43,13 @@ public class WebhookQGChangeEventListener implements QGChangeEventListener {
   }
 
   @Override
-  public void onChanges(Trigger trigger, Collection<QGChangeEvent> changeEvents) {
-    if (changeEvents.isEmpty()) {
-      return;
-    }
-
-    List<QGChangeEvent> branchesWithWebhooks = changeEvents.stream()
-      .filter(changeEvent -> webhooks.isEnabled(changeEvent.getProjectConfiguration()))
-      .collect(MoreCollectors.toList());
-    if (branchesWithWebhooks.isEmpty()) {
+  public void onIssueChanges(QGChangeEvent qualityGateEvent, Set<ChangedIssue> changedIssues) {
+    if (!webhooks.isEnabled(qualityGateEvent.getProjectConfiguration())) {
       return;
     }
 
     try (DbSession dbSession = dbClient.openSession(false)) {
-      branchesWithWebhooks.forEach(event -> callWebhook(dbSession, event));
+      callWebhook(dbSession, qualityGateEvent);
     }
   }
 

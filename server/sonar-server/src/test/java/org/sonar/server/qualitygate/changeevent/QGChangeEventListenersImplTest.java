@@ -20,25 +20,42 @@
 package org.sonar.server.qualitygate.changeevent;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.apache.commons.lang.RandomStringUtils;
+import org.assertj.core.groups.Tuple;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.server.qualitygate.changeevent.QGChangeEventListener.ChangedIssue;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 public class QGChangeEventListenersImplTest {
   @Rule
@@ -47,112 +64,232 @@ public class QGChangeEventListenersImplTest {
   private QGChangeEventListener listener1 = mock(QGChangeEventListener.class);
   private QGChangeEventListener listener2 = mock(QGChangeEventListener.class);
   private QGChangeEventListener listener3 = mock(QGChangeEventListener.class);
+  private List<QGChangeEventListener> listeners = Arrays.asList(listener1, listener2, listener3);
+
+  private String component1Uuid = RandomStringUtils.randomAlphabetic(6);
+  private ComponentDto component1 = newComponentDto(component1Uuid);
+  private DefaultIssue component1Issue = newDefaultIssue(component1Uuid);
+  private QGChangeEventFactory.IssueChangeData oneIssueOnComponent1 = new QGChangeEventFactory.IssueChangeData(
+    singletonList(component1Issue),
+    singletonList(component1));
+  private QGChangeEvent component1QGChangeEvent = newQGChangeEvent(component1);
+
   private InOrder inOrder = Mockito.inOrder(listener1, listener2, listener3);
-  private List<QGChangeEvent> threeChangeEvents = Arrays.asList(mock(QGChangeEvent.class), mock(QGChangeEvent.class));
 
   private QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(new QGChangeEventListener[] {listener1, listener2, listener3});
 
   @Test
-  public void isEmpty_returns_true_for_constructor_without_argument() {
-    QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl();
+  public void broadcastOnIssueChange_has_no_effect_when_issueChangeData_is_empty() {
+    QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(emptyList(), emptyList());
 
-    assertThat(underTest.isEmpty()).isTrue();
-  }
-
-  @Test
-  public void isEmpty_returns_false_for_constructor_with_one_argument() {
-    QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(new QGChangeEventListener[] {listener2});
-
-    assertThat(underTest.isEmpty()).isFalse();
-  }
-
-  @Test
-  public void isEmpty_returns_false_for_constructor_with_multiple_arguments() {
-    QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(new QGChangeEventListener[] {listener2, listener3});
-
-    assertThat(underTest.isEmpty()).isFalse();
-  }
-
-  @Test
-  public void no_effect_when_no_changeEvent() {
-    underTest.broadcast(Trigger.ISSUE_CHANGE, Collections.emptySet());
+    underTest.broadcastOnIssueChange(issueChangeData, singletonList(component1QGChangeEvent));
 
     verifyZeroInteractions(listener1, listener2, listener3);
   }
 
   @Test
-  public void broadcast_passes_Trigger_and_collection_to_all_listeners_in_order_of_addition_to_constructor() {
-    underTest.broadcast(Trigger.ISSUE_CHANGE, threeChangeEvents);
+  public void broadcastOnIssueChange_has_no_effect_when_issueChangeData_has_no_issue() {
+    QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(
+      emptyList(), singletonList(newComponentDto(component1Uuid)));
 
-    inOrder.verify(listener1).onChanges(Trigger.ISSUE_CHANGE, threeChangeEvents);
-    inOrder.verify(listener2).onChanges(Trigger.ISSUE_CHANGE, threeChangeEvents);
-    inOrder.verify(listener3).onChanges(Trigger.ISSUE_CHANGE, threeChangeEvents);
+    underTest.broadcastOnIssueChange(issueChangeData, singletonList(component1QGChangeEvent));
+
+    verifyZeroInteractions(listener1, listener2, listener3);
+  }
+
+  @Test
+  public void broadcastOnIssueChange_has_no_effect_when_issueChangeData_has_no_component() {
+    QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(
+      singletonList(newDefaultIssue(component1Uuid)), emptyList());
+
+    underTest.broadcastOnIssueChange(issueChangeData, singletonList(component1QGChangeEvent));
+
+    verifyZeroInteractions(listener1, listener2, listener3);
+  }
+
+  @Test
+  public void broadcastOnIssueChange_has_no_effect_when_no_changeEvent() {
+    underTest.broadcastOnIssueChange(oneIssueOnComponent1, Collections.emptySet());
+
+    verifyZeroInteractions(listener1, listener2, listener3);
+  }
+
+  @Test
+  public void broadcastOnIssueChange_passes_same_arguments_to_all_listeners_in_order_of_addition_to_constructor() {
+    underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent));
+
+    ArgumentCaptor<Set<ChangedIssue>> changedIssuesCaptor = newSetCaptor();
+    inOrder.verify(listener1).onIssueChanges(same(component1QGChangeEvent), changedIssuesCaptor.capture());
+    Set<ChangedIssue> changedIssues = changedIssuesCaptor.getValue();
+    inOrder.verify(listener2).onIssueChanges(same(component1QGChangeEvent), same(changedIssues));
+    inOrder.verify(listener3).onIssueChanges(same(component1QGChangeEvent), same(changedIssues));
     inOrder.verifyNoMoreInteractions();
   }
 
   @Test
-  public void broadcast_calls_all_listeners_even_if_one_throws_an_exception() {
+  public void broadcastOnIssueChange_calls_all_listeners_even_if_one_throws_an_exception() {
     QGChangeEventListener failingListener = new QGChangeEventListener[] {listener1, listener2, listener3}[new Random().nextInt(3)];
     doThrow(new RuntimeException("Faking an exception thrown by onChanges"))
       .when(failingListener)
-      .onChanges(Trigger.ISSUE_CHANGE, threeChangeEvents);
+      .onIssueChanges(any(), any());
 
-    underTest.broadcast(Trigger.ISSUE_CHANGE, threeChangeEvents);
+    underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent));
 
-    inOrder.verify(listener1).onChanges(Trigger.ISSUE_CHANGE, threeChangeEvents);
-    inOrder.verify(listener2).onChanges(Trigger.ISSUE_CHANGE, threeChangeEvents);
-    inOrder.verify(listener3).onChanges(Trigger.ISSUE_CHANGE, threeChangeEvents);
+    ArgumentCaptor<Set<ChangedIssue>> changedIssuesCaptor = newSetCaptor();
+    inOrder.verify(listener1).onIssueChanges(same(component1QGChangeEvent), changedIssuesCaptor.capture());
+    Set<ChangedIssue> changedIssues = changedIssuesCaptor.getValue();
+    inOrder.verify(listener2).onIssueChanges(same(component1QGChangeEvent), same(changedIssues));
+    inOrder.verify(listener3).onIssueChanges(same(component1QGChangeEvent), same(changedIssues));
     inOrder.verifyNoMoreInteractions();
     assertThat(logTester.logs()).hasSize(4);
     assertThat(logTester.logs(LoggerLevel.WARN)).hasSize(1);
   }
 
   @Test
-  public void broadcast_stops_calling_listeners_when_one_throws_an_ERROR() {
+  public void broadcastOnIssueChange_stops_calling_listeners_when_one_throws_an_ERROR() {
     doThrow(new Error("Faking an error thrown by a listener"))
       .when(listener2)
-      .onChanges(Trigger.ISSUE_CHANGE, threeChangeEvents);
+      .onIssueChanges(any(), any());
 
-    underTest.broadcast(Trigger.ISSUE_CHANGE, threeChangeEvents);
+    underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent));
 
-    inOrder.verify(listener1).onChanges(Trigger.ISSUE_CHANGE, threeChangeEvents);
-    inOrder.verify(listener2).onChanges(Trigger.ISSUE_CHANGE, threeChangeEvents);
+    ArgumentCaptor<Set<ChangedIssue>> changedIssuesCaptor = newSetCaptor();
+    inOrder.verify(listener1).onIssueChanges(same(component1QGChangeEvent), changedIssuesCaptor.capture());
+    Set<ChangedIssue> changedIssues = changedIssuesCaptor.getValue();
+    inOrder.verify(listener2).onIssueChanges(same(component1QGChangeEvent), same(changedIssues));
     inOrder.verifyNoMoreInteractions();
     assertThat(logTester.logs()).hasSize(3);
     assertThat(logTester.logs(LoggerLevel.WARN)).hasSize(1);
   }
 
   @Test
-  public void broadcast_logs_each_listener_call_at_TRACE_level() {
-    underTest.broadcast(Trigger.ISSUE_CHANGE, threeChangeEvents);
+  public void broadcastOnIssueChange_logs_each_listener_call_at_TRACE_level() {
+    underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent));
 
     assertThat(logTester.logs()).hasSize(3);
     List<String> traceLogs = logTester.logs(LoggerLevel.TRACE);
     assertThat(traceLogs).hasSize(3)
       .containsOnly(
-        "calling onChange() on listener " + listener1.getClass().getName() + " for events " + threeChangeEvents.toString() + "...",
-        "calling onChange() on listener " + listener2.getClass().getName() + " for events " + threeChangeEvents.toString() + "...",
-        "calling onChange() on listener " + listener3.getClass().getName() + " for events " + threeChangeEvents.toString() + "...");
+        "calling onChange() on listener " + listener1.getClass().getName() + " for events " + component1QGChangeEvent.toString() + "...",
+        "calling onChange() on listener " + listener2.getClass().getName() + " for events " + component1QGChangeEvent.toString() + "...",
+        "calling onChange() on listener " + listener3.getClass().getName() + " for events " + component1QGChangeEvent.toString() + "...");
   }
 
   @Test
-  public void broadcast_passes_immutable_list_of_events() {
+  public void broadcastOnIssueChange_passes_immutable_set_of_ChangedIssues() {
     QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl(new QGChangeEventListener[] {listener1});
 
-    underTest.broadcast(Trigger.ISSUE_CHANGE, threeChangeEvents);
+    underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent));
 
-    ArgumentCaptor<Collection> collectionCaptor = ArgumentCaptor.forClass(Collection.class);
-    verify(listener1).onChanges(eq(Trigger.ISSUE_CHANGE), collectionCaptor.capture());
-    assertThat(collectionCaptor.getValue()).isInstanceOf(ImmutableList.class);
+    ArgumentCaptor<Set<ChangedIssue>> changedIssuesCaptor = newSetCaptor();
+    inOrder.verify(listener1).onIssueChanges(same(component1QGChangeEvent), changedIssuesCaptor.capture());
+    assertThat(changedIssuesCaptor.getValue()).isInstanceOf(ImmutableSet.class);
   }
 
   @Test
-  public void no_effect_when_no_listener() {
+  public void broadcastOnIssueChange_has_no_effect_when_no_listener() {
     QGChangeEventListenersImpl underTest = new QGChangeEventListenersImpl();
 
-    underTest.broadcast(Trigger.ISSUE_CHANGE, Collections.emptySet());
+    underTest.broadcastOnIssueChange(oneIssueOnComponent1, singletonList(component1QGChangeEvent));
 
     verifyZeroInteractions(listener1, listener2, listener3);
+  }
+
+  @Test
+  public void broadcastOnIssueChange_calls_listener_for_each_component_uuid_with_at_least_one_QGChangeEvent() {
+    // component2 has multiple issues
+    ComponentDto component2 = newComponentDto(component1Uuid + "2");
+    // component 3 has multiple QGChangeEvent and only one issue
+    ComponentDto component3 = newComponentDto(component1Uuid + "3");
+    // component 4 has multiple QGChangeEvent and multiples issues
+    ComponentDto component4 = newComponentDto(component1Uuid + "4");
+    // component 4 has no QGChangeEvent but one issue
+    ComponentDto component5 = newComponentDto(component1Uuid + "5");
+    DefaultIssue[] component2Issues = {newDefaultIssue(component2.uuid()), newDefaultIssue(component2.uuid())};
+    DefaultIssue component3Issue = newDefaultIssue(component3.uuid());
+    DefaultIssue[] component4Issues = {newDefaultIssue(component4.uuid()), newDefaultIssue(component4.uuid())};
+    DefaultIssue component5Issue = newDefaultIssue(component5.uuid());
+    QGChangeEvent component2QGChangeEvent = newQGChangeEvent(component2);
+    QGChangeEvent[] component3QGChangeEvents = {newQGChangeEvent(component3), newQGChangeEvent(component3)};
+    QGChangeEvent[] component4QGChangeEvents = {newQGChangeEvent(component4), newQGChangeEvent(component4)};
+    List<DefaultIssue> issues = Stream.of(
+      Stream.of(component1Issue),
+      Arrays.stream(component2Issues),
+      Stream.of(component3Issue),
+      Arrays.stream(component4Issues),
+      Stream.of(component5Issue))
+      .flatMap(s -> s)
+      .collect(Collectors.toList());
+    QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(
+      randomizedList(issues),
+      randomizedList(Arrays.asList(component1, component2, component3, component4)));
+    List<QGChangeEvent> qgChangeEvents = Stream.of(
+      Stream.of(component1QGChangeEvent),
+      Stream.of(component2QGChangeEvent),
+      Arrays.stream(component3QGChangeEvents),
+      Arrays.stream(component4QGChangeEvents))
+      .flatMap(s -> s)
+      .collect(Collectors.toList());
+
+    underTest.broadcastOnIssueChange(issueChangeData, randomizedList(qgChangeEvents));
+
+    listeners.forEach(listener -> {
+      verifyListenerCalled(listener, component1QGChangeEvent, component1Issue);
+      verifyListenerCalled(listener, component2QGChangeEvent, component2Issues);
+      Arrays.stream(component3QGChangeEvents)
+        .forEach(component3QGChangeEvent -> verifyListenerCalled(listener, component3QGChangeEvent, component3Issue));
+      Arrays.stream(component4QGChangeEvents)
+        .forEach(component4QGChangeEvent -> verifyListenerCalled(listener, component4QGChangeEvent, component4Issues));
+    });
+    verifyNoMoreInteractions(listener1, listener2, listener3);
+  }
+
+  private void verifyListenerCalled(QGChangeEventListener listener, QGChangeEvent changeEvent, DefaultIssue... issues) {
+    ArgumentCaptor<Set<ChangedIssue>> changedIssuesCaptor = newSetCaptor();
+    verify(listener).onIssueChanges(same(changeEvent), changedIssuesCaptor.capture());
+    Set<ChangedIssue> changedIssues = changedIssuesCaptor.getValue();
+    Tuple[] expected = Arrays.stream(issues)
+      .map(issue -> tuple(issue.key(), issue.status(), issue.type()))
+      .toArray(Tuple[]::new);
+    assertThat(changedIssues)
+      .hasSize(issues.length)
+      .extracting(ChangedIssue::getKey, t -> t.getStatus().name(), ChangedIssue::getType)
+      .containsOnly(expected);
+  }
+
+  private static final String[] STATUSES = Issue.STATUSES.stream().toArray(String[]::new);
+  private static int issueIdCounter = 0;
+
+  private static DefaultIssue newDefaultIssue(String componentUuid) {
+    DefaultIssue defaultIssue = new DefaultIssue();
+    defaultIssue.setKey("issue_" + issueIdCounter++);
+    defaultIssue.setComponentUuid(componentUuid);
+    defaultIssue.setType(RuleType.values()[new Random().nextInt(RuleType.values().length)]);
+    defaultIssue.setStatus(STATUSES[new Random().nextInt(STATUSES.length)]);
+    return defaultIssue;
+  }
+
+  private static ComponentDto newComponentDto(String uuid) {
+    ComponentDto componentDto = new ComponentDto();
+    componentDto.setUuid(uuid);
+    return componentDto;
+  }
+
+  private static QGChangeEvent newQGChangeEvent(ComponentDto componentDto) {
+    QGChangeEvent res = mock(QGChangeEvent.class);
+    when(res.getProject()).thenReturn(componentDto);
+    return res;
+  }
+
+  private static <T> ArgumentCaptor<Set<T>> newSetCaptor() {
+    Class<Set<T>> clazz = (Class<Set<T>>) (Class) Set.class;
+    return ArgumentCaptor.forClass(clazz);
+  }
+
+  private static <T> List<T> randomizedList(List<T> issues) {
+    ArrayList<T> res = new ArrayList<>(issues);
+    Collections.shuffle(res);
+    return ImmutableList.copyOf(res);
   }
 
 }
