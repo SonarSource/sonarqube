@@ -524,6 +524,7 @@ public class WebServerProcessLoggingTest {
   }
 
   private void verifyImmutableLogLevels(LoggerContext ctx) {
+    assertThat(ctx.getLogger("com.microsoft.aad.adal4j.AuthenticationAuthority").getLevel()).isEqualTo(Level.WARN);
     assertThat(ctx.getLogger("org.apache.ibatis").getLevel()).isEqualTo(Level.WARN);
     assertThat(ctx.getLogger("java.sql").getLevel()).isEqualTo(Level.WARN);
     assertThat(ctx.getLogger("java.sql.ResultSet").getLevel()).isEqualTo(Level.WARN);
