@@ -20,6 +20,7 @@
 package org.sonarqube.tests.issue;
 
 import com.sonar.orchestrator.build.SonarScanner;
+import java.util.Date;
 import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -31,7 +32,9 @@ import org.sonarqube.ws.Measures.Measure;
 import util.ItUtils;
 
 import static java.lang.Integer.parseInt;
+import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.formatDate;
 import static util.ItUtils.getLeakPeriodValue;
 import static util.ItUtils.getMeasuresWithVariationsByMetricKey;
 import static util.ItUtils.projectDir;
@@ -53,16 +56,16 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
   }
 
   @Test
-  @Ignore("unstable test")
-  public void new_issues_measures() throws Exception {
+  public void new_issues_measures() {
     setServerProperty(ORCHESTRATOR, "sonar.leak.period", "previous_version");
     ORCHESTRATOR.getServer().provisionProject("sample", "Sample");
 
     // Execute an analysis in the past with no issue to have a past snapshot
+    String past = formatDate(addDays(new Date(), -30));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "empty");
-    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")).setProperty("sonar.projectDate", "2013-01-01"));
+    ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")).setProperty("sonar.projectDate", past));
 
-    // Execute a analysis now with some issues
+    // Execute an analysis now with some issues
     ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/one-issue-per-line-profile.xml"));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line-profile");
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
@@ -74,20 +77,21 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     assertThat(ORCHESTRATOR.getServer().wsClient().issueClient().find(IssueQuery.create()).list()).isNotEmpty();
-    assertThat(getLeakPeriodValue(ORCHESTRATOR, "sample:src/main/xoo/sample/Sample.xoo", "new_violations")).isZero();
+    assertThat(getLeakPeriodValue(ORCHESTRATOR, "sample:src/main/xoo/sample/Sample.xoo", "new_violations")).isEqualTo(17);
   }
 
   @Test
-  @Ignore("unstable test")
-  public void new_issues_measures_should_be_zero_on_project_when_no_new_issues_since_x_days() throws Exception {
-    setServerProperty(ORCHESTRATOR, "sonar.leak.period", "30");
+  public void new_issues_measures_should_be_zero_on_project_when_no_new_issues_since_x_days() {
+    int leak = 30;
+    setServerProperty(ORCHESTRATOR, "sonar.leak.period", String.valueOf(leak));
     ORCHESTRATOR.getServer().provisionProject("sample", "Sample");
     ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/one-issue-per-line-profile.xml"));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line-profile");
 
+    String olderThanLeak = formatDate(addDays(new Date(), -leak-2));
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample"))
       // Analyse a project in the past, with a date older than 30 last days (second period)
-      .setProperty("sonar.projectDate", "2013-01-01"));
+      .setProperty("sonar.projectDate", olderThanLeak));
     ORCHESTRATOR.executeBuild(SonarScanner.create(projectDir("shared/xoo-sample")));
 
     // new issues measures should be to 0 on project on 2 periods as new issues has been created
@@ -98,7 +102,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
    * SONAR-3647
    */
   @Test
-  public void new_issues_measures_consistent_with_variations() throws Exception {
+  public void new_issues_measures_consistent_with_variations() {
     setServerProperty(ORCHESTRATOR, "sonar.leak.period", "previous_version");
     ORCHESTRATOR.getServer().provisionProject("sample", "Sample");
     ItUtils.restoreProfile(ORCHESTRATOR, getClass().getResource("/issue/one-issue-per-line-profile.xml"));
@@ -126,7 +130,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
   }
 
   @Test
-  public void new_issues_measures_should_be_correctly_calculated_when_adding_a_new_module() throws Exception {
+  public void new_issues_measures_should_be_correctly_calculated_when_adding_a_new_module() {
     setServerProperty(ORCHESTRATOR, "sonar.leak.period", "previous_version");
     ORCHESTRATOR.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "com.sonarsource.it.samples:multi-modules-sample");
 
