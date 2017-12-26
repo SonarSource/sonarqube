@@ -28,7 +28,7 @@ interface Props {
   appState: AppState;
   currentUser: CurrentUser;
   location: { pathname: string };
-  onSonarCloud: boolean;
+  onSonarCloud?: boolean;
 }
 
 export default class GlobalNavMenu extends React.PureComponent<Props> {

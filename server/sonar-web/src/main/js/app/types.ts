@@ -173,10 +173,10 @@ export function isLoggedIn(user: CurrentUser): user is LoggedInUser {
 
 export interface AppState {
   adminPages?: Extension[];
-  authenticationError: boolean;
-  authorizationError: boolean;
+  authenticationError?: boolean;
+  authorizationError?: boolean;
   canAdmin?: boolean;
   globalPages?: Extension[];
-  organizationsEnabled: boolean;
+  organizationsEnabled?: boolean;
   qualifiers: string[];
 }

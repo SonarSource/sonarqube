@@ -36,11 +36,13 @@ export function OrganizationNavigationMeta({ onSonarCloud, organization }: Props
   return (
     <div className="navbar-context-meta">
       {organization.url != null && (
-        <div className="spacer-right text-limited">
-          <a href={organization.url} title={organization.url} rel="nofollow">
-            {organization.url}
-          </a>
-        </div>
+        <a
+          className="spacer-right text-limited"
+          href={organization.url}
+          title={organization.url}
+          rel="nofollow">
+          {organization.url}
+        </a>
       )}
       <div className="text-muted">
         <strong>{translate('organization.key')}:</strong> {organization.key}

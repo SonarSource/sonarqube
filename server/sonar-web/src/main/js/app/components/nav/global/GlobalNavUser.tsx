@@ -31,7 +31,7 @@ import { getBaseUrl } from '../../../../helpers/urls';
 import Dropdown from '../../../../components/controls/Dropdown';
 
 interface Props {
-  appState: { organizationsEnabled: boolean };
+  appState: { organizationsEnabled?: boolean };
   currentUser: CurrentUser;
   organizations: Organization[];
 }

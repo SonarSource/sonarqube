@@ -110,6 +110,15 @@ class GlobalNav extends React.PureComponent<Props, State> {
     }, 3000);
   };
 
+  withTutorialTooltip = (element: React.ReactNode) =>
+    this.state.onboardingTutorialTooltip ? (
+      <Tooltip defaultVisible={true} overlay={translate('tutorials.follow_later')} trigger="manual">
+        {element}
+      </Tooltip>
+    ) : (
+      element
+    );
+
   render() {
     return (
       <NavBar className="navbar-global" id="global-navigation" height={theme.globalNavHeightRaw}>
@@ -121,21 +130,13 @@ class GlobalNav extends React.PureComponent<Props, State> {
           <GlobalNavExplore location={this.props.location} onSonarCloud={this.props.onSonarCloud} />
           <li>
             <a className="navbar-help" onClick={this.handleHelpClick} href="#">
-              {this.state.onboardingTutorialTooltip ? (
-                <Tooltip
-                  defaultVisible={true}
-                  overlay={translate('tutorials.follow_later')}
-                  trigger="manual">
-                  <HelpIcon />
-                </Tooltip>
-              ) : (
-                <HelpIcon />
-              )}
+              {this.props.onSonarCloud ? <HelpIcon /> : this.withTutorialTooltip(<HelpIcon />)}
             </a>
           </li>
           <Search appState={this.props.appState} currentUser={this.props.currentUser} />
           {isLoggedIn(this.props.currentUser) &&
-            this.props.onSonarCloud && (
+            this.props.onSonarCloud &&
+            this.withTutorialTooltip(
               <GlobalNavPlus openOnboardingTutorial={this.openOnboardingTutorial} />
             )}
           <GlobalNavUserContainer {...this.props} />
