@@ -33,6 +33,7 @@ public class PostProjectAnalysisTaskTesterTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
+  private Organization organization = mock(Organization.class);
   private CeTask ceTask = mock(CeTask.class);
   private Project project = mock(Project.class);
   private long someDateAsLong = 846351351684351L;
@@ -101,12 +102,13 @@ public class PostProjectAnalysisTaskTesterTest {
 
   @Test
   public void verify_getters_of_ProjectAnalysis_object_passed_to_PostProjectAnalysisTask() {
-    underTest.withCeTask(ceTask).withProject(project).withQualityGate(qualityGate).withAnalysisUuid(analysisUuid).at(someDate);
+    underTest.withOrganization(organization).withCeTask(ceTask).withProject(project).withQualityGate(qualityGate).withAnalysisUuid(analysisUuid).at(someDate);
 
     underTest.execute();
 
     PostProjectAnalysisTask.ProjectAnalysis projectAnalysis = captorPostProjectAnalysisTask.projectAnalysis;
     assertThat(projectAnalysis).isNotNull();
+    assertThat(projectAnalysis.getOrganization().get()).isSameAs(organization);
     assertThat(projectAnalysis.getCeTask()).isSameAs(ceTask);
     assertThat(projectAnalysis.getProject()).isSameAs(project);
     assertThat(projectAnalysis.getDate()).isSameAs(someDate);
@@ -116,15 +118,16 @@ public class PostProjectAnalysisTaskTesterTest {
 
   @Test
   public void verify_toString_of_ProjectAnalysis_object_passed_to_PostProjectAnalysisTask() {
+    when(organization.toString()).thenReturn("Organization");
     when(ceTask.toString()).thenReturn("CeTask");
     when(project.toString()).thenReturn("Project");
     when(qualityGate.toString()).thenReturn("QualityGate");
-    underTest.withCeTask(ceTask).withProject(project).withQualityGate(qualityGate).at(someDate);
+    underTest.withOrganization(organization).withCeTask(ceTask).withProject(project).withQualityGate(qualityGate).at(someDate);
 
     underTest.execute();
 
     assertThat(captorPostProjectAnalysisTask.projectAnalysis.toString())
-      .isEqualTo("ProjectAnalysis{ceTask=CeTask, project=Project, date=846351351684351, analysisDate=846351351684351, qualityGate=QualityGate}");
+      .isEqualTo("ProjectAnalysis{organization=Organization, ceTask=CeTask, project=Project, date=846351351684351, analysisDate=846351351684351, qualityGate=QualityGate}");
 
   }
 

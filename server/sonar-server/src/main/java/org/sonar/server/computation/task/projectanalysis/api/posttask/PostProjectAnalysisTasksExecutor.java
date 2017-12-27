@@ -29,6 +29,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.ce.posttask.Analysis;
 import org.sonar.api.ce.posttask.Branch;
 import org.sonar.api.ce.posttask.CeTask;
+import org.sonar.api.ce.posttask.Organization;
 import org.sonar.api.ce.posttask.PostProjectAnalysisTask;
 import org.sonar.api.ce.posttask.Project;
 import org.sonar.api.ce.posttask.QualityGate;
@@ -116,6 +117,7 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
 
   private ProjectAnalysisImpl createProjectAnalysis(CeTask.Status status) {
     return new ProjectAnalysisImpl(
+      createOrganization(),
       new CeTaskImpl(this.ceTask.getUuid(), status),
       createProject(this.ceTask),
       getAnalysis().orElse(null),
@@ -123,6 +125,15 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
       ScannerContextImpl.from(reportReader.readContextProperties()),
       status == SUCCESS ? createQualityGate() : null,
       createBranch());
+  }
+
+  @CheckForNull
+  private Organization createOrganization() {
+    org.sonar.server.computation.task.projectanalysis.analysis.Organization organization = analysisMetadataHolder.getOrganization();
+    if (organization.isOrganizationsEnabled()) {
+      return new OrganizationImpl(organization.getName(), organization.getKey());
+    }
+    return null;
   }
 
   private Optional<Analysis> getAnalysis() {
@@ -196,6 +207,8 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
   }
 
   private static class ProjectAnalysisImpl implements PostProjectAnalysisTask.ProjectAnalysis {
+    @Nullable
+    private final Organization organization;
     private final CeTask ceTask;
     private final Project project;
     private final long date;
@@ -207,9 +220,10 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
     @Nullable
     private final Analysis analysis;
 
-    private ProjectAnalysisImpl(CeTask ceTask, Project project,
+    private ProjectAnalysisImpl(@Nullable Organization organization, CeTask ceTask, Project project,
       @Nullable Analysis analysis, long date,
       ScannerContext scannerContext, @Nullable QualityGate qualityGate, @Nullable Branch branch) {
+      this.organization = organization;
       this.ceTask = requireNonNull(ceTask, "ceTask can not be null");
       this.project = requireNonNull(project, "project can not be null");
       this.analysis = analysis;
@@ -217,6 +231,11 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
       this.scannerContext = requireNonNull(scannerContext, "scannerContext can not be null");
       this.qualityGate = qualityGate;
       this.branch = branch;
+    }
+
+    @Override
+    public Optional<Organization> getOrganization() {
+      return Optional.ofNullable(organization);
     }
 
     @Override
@@ -291,6 +310,26 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
     @Override
     public Date getDate() {
       return new Date(date);
+    }
+  }
+
+  private static class OrganizationImpl implements Organization {
+    private final String name;
+    private final String key;
+
+    private OrganizationImpl(String name, String key) {
+      this.name = requireNonNull(name, "name can't be null");
+      this.key = requireNonNull(key, "key can't be null");
+    }
+
+    @Override
+    public String getName() {
+      return name;
+    }
+
+    @Override
+    public String getKey() {
+      return key;
     }
   }
 }
