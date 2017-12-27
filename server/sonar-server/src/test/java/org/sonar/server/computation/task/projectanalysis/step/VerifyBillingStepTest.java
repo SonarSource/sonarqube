@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.task.projectanalysis.step;
 
+import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -46,7 +47,7 @@ public class VerifyBillingStepTest {
   private OrganizationDto organization = newOrganizationDto();
   @Rule
   public MutableAnalysisMetadataHolderRule analysisMetadata = new MutableAnalysisMetadataHolderRule()
-    .setOrganization(Organization.from(organization));
+    .setOrganization(Organization.from(organization, new Random().nextBoolean()));
 
   private BillingValidationsProxy validations = mock(BillingValidationsProxy.class);
 
