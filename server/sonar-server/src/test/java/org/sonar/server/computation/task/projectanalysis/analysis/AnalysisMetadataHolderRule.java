@@ -64,7 +64,13 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
 
   public AnalysisMetadataHolderRule setOrganizationUuid(String uuid, String defaultQualityGateUuid) {
     requireNonNull(uuid, "organization uuid can't be null");
-    this.organization.setProperty(Organization.from(new OrganizationDto().setUuid(uuid).setKey("key_" + uuid).setName("name_" + uuid).setDefaultQualityGateUuid(defaultQualityGateUuid)));
+    this.organization.setProperty(Organization.from(
+      new OrganizationDto()
+        .setUuid(uuid)
+        .setKey("key_" + uuid)
+        .setName("name_" + uuid)
+        .setDefaultQualityGateUuid(defaultQualityGateUuid),
+      false));
     return this;
   }
 
