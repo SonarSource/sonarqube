@@ -48,6 +48,7 @@ import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader
 import org.sonar.server.computation.task.projectanalysis.component.BranchLoader;
 import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.qualityprofile.QualityProfile;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -66,9 +67,10 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
   private final DbClient dbClient;
   private final BranchLoader branchLoader;
   private final PluginRepository pluginRepository;
+  private final OrganizationFlags organizationFlags;
 
   public LoadReportAnalysisMetadataHolderStep(CeTask ceTask, BatchReportReader reportReader, MutableAnalysisMetadataHolder analysisMetadata,
-    DefaultOrganizationProvider defaultOrganizationProvider, DbClient dbClient, BranchLoader branchLoader, PluginRepository pluginRepository) {
+    DefaultOrganizationProvider defaultOrganizationProvider, DbClient dbClient, BranchLoader branchLoader, PluginRepository pluginRepository, OrganizationFlags organizationFlags) {
     this.ceTask = ceTask;
     this.reportReader = reportReader;
     this.analysisMetadata = analysisMetadata;
@@ -76,6 +78,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     this.dbClient = dbClient;
     this.branchLoader = branchLoader;
     this.pluginRepository = pluginRepository;
+    this.organizationFlags = organizationFlags;
   }
 
   @Override
@@ -205,7 +208,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     try (DbSession dbSession = dbClient.openSession(false)) {
       Optional<OrganizationDto> organizationDto = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid);
       checkState(organizationDto.isPresent(), "Organization with uuid '%s' can't be found", organizationUuid);
-      return Organization.from(organizationDto.get());
+      return Organization.from(organizationDto.get(), organizationFlags.isEnabled(dbSession));
     }
   }
 
