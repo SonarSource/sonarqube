@@ -109,6 +109,7 @@ import org.sonar.server.notification.email.AlertsEmailTemplate;
 import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.organization.BillingValidationsProxyImpl;
 import org.sonar.server.organization.DefaultOrganizationProviderImpl;
+import org.sonar.server.organization.OrganizationFlagsImpl;
 import org.sonar.server.permission.GroupPermissionChanger;
 import org.sonar.server.permission.PermissionTemplateService;
 import org.sonar.server.permission.PermissionUpdater;
@@ -312,7 +313,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       UriReader.class,
       ServerImpl.class,
       DefaultOrganizationProviderImpl.class,
-      SynchronousAsyncExecution.class);
+      SynchronousAsyncExecution.class,
+      OrganizationFlagsImpl.class);
   }
 
   private static void populateLevel4(ComponentContainer container, Props props) {
