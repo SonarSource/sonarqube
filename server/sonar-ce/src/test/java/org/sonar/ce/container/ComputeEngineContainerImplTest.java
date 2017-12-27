@@ -65,7 +65,7 @@ public class ComputeEngineContainerImplTest {
   private ComputeEngineContainerImpl underTest;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     underTest = new ComputeEngineContainerImpl();
     underTest.setComputeEngineStatus(mock(ComputeEngineStatus.class));
   }
@@ -105,7 +105,7 @@ public class ComputeEngineContainerImplTest {
     );
     assertThat(picoContainer.getParent().getComponentAdapters()).hasSize(
       CONTAINER_ITSELF
-        + 6 // level 3
+        + 7 // level 3
     );
     assertThat(picoContainer.getParent().getParent().getComponentAdapters()).hasSize(
       CONTAINER_ITSELF
