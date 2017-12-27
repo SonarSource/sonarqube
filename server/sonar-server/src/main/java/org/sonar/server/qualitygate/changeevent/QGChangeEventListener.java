@@ -19,10 +19,21 @@
  */
 package org.sonar.server.qualitygate.changeevent;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 import org.sonar.api.rules.RuleType;
 
 public interface QGChangeEventListener {
+  /**
+   * @deprecated use {{@link #onIssueChanges(QGChangeEvent, Set)}} instead
+   */
+  // TODO remove this method and turn default method #onIssueChanges(QGChangeEvent, Set) into an interface method when
+  // support for #onIssueChanges(QGChangeEvent, Set) have been merged into sonar-branch's master
+  @Deprecated
+  default void onChanges(Trigger trigger, Collection<QGChangeEvent> changeEvents) {
+    // do nothing
+  }
 
   /**
    * Called consequently to a change done on one or more issue of a given project.
@@ -30,7 +41,9 @@ public interface QGChangeEventListener {
    * @param qualityGateEvent can not be {@code null}
    * @param changedIssues can not be {@code null} nor empty
    */
-  void onIssueChanges(QGChangeEvent qualityGateEvent, Set<ChangedIssue> changedIssues);
+  default void onIssueChanges(QGChangeEvent qualityGateEvent, Set<ChangedIssue> changedIssues) {
+    onChanges(Trigger.ISSUE_CHANGE, Collections.singleton(qualityGateEvent));
+  }
 
   interface ChangedIssue {
     String getKey();
