@@ -23,6 +23,7 @@ import com.sonar.orchestrator.build.SonarScanner;
 import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonarqube.ws.Measures;
@@ -52,6 +53,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
   }
 
   @Test
+  @Ignore("unstable test")
   public void new_issues_measures() throws Exception {
     setServerProperty(ORCHESTRATOR, "sonar.leak.period", "previous_version");
     ORCHESTRATOR.getServer().provisionProject("sample", "Sample");
@@ -76,6 +78,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
   }
 
   @Test
+  @Ignore("unstable test")
   public void new_issues_measures_should_be_zero_on_project_when_no_new_issues_since_x_days() throws Exception {
     setServerProperty(ORCHESTRATOR, "sonar.leak.period", "30");
     ORCHESTRATOR.getServer().provisionProject("sample", "Sample");
