@@ -394,6 +394,6 @@ public class IssueQueryFactory {
 
   private static void setBranch(IssueQuery.Builder builder, ComponentDto component, @Nullable String branch) {
     builder.branchUuid(branch == null ? null : component.projectUuid());
-    builder.mainBranch(branch == null || !branch.equals(component.getBranch()));
+    builder.mainBranch(branch == null || component.equals(UNKNOWN_COMPONENT) || !branch.equals(component.getBranch()));
   }
 }

@@ -151,6 +151,19 @@ public class SearchActionTest {
       "Portfolios are not supported. If this parameter is set, 'projects' must not be set.");
   }
 
+  //SONAR-10217
+  @Test
+  public void empty_search_with_unknown_branch() throws Exception {
+    TestResponse result = ws.newRequest()
+      .setParam("onComponentOnly", "true")
+      .setParam("componentKeys", "foo")
+      .setParam("branch", "bar")
+      .execute();
+
+    assertThat(result).isNotNull();
+    result.assertJson(this.getClass(), "empty_result.json");
+  }
+
   @Test
   public void empty_search() throws Exception {
     TestResponse result = ws.newRequest()
