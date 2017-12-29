@@ -40,7 +40,7 @@ public class InfoActionTest {
 
   private SystemInfoWriter jsonWriter = new SystemInfoWriter(null) {
     @Override
-    public void write(JsonWriter json) throws Exception {
+    public void write(JsonWriter json) {
       json.prop("key", "value");
     }
   };
@@ -48,7 +48,7 @@ public class InfoActionTest {
   private WsActionTester ws = new WsActionTester(underTest);
 
   @Test
-  public void test_definition() throws Exception {
+  public void test_definition() {
     assertThat(ws.getDef().key()).isEqualTo("info");
     assertThat(ws.getDef().isInternal()).isTrue();
     assertThat(ws.getDef().responseExampleAsString()).isNotEmpty();
