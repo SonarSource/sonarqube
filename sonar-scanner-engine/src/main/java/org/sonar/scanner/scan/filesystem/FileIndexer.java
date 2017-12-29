@@ -100,7 +100,10 @@ public class FileIndexer {
 
   public void index() {
     int threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
-    this.executorService = Executors.newFixedThreadPool(threads, new ThreadFactoryBuilder().setNameFormat("FileIndexer-%d").build());
+    this.executorService = Executors.newFixedThreadPool(threads, new ThreadFactoryBuilder()
+      .setNameFormat("FileIndexer-%d")
+      .setDaemon(true)
+      .build());
 
     progressReport = new ProgressReport("Report about progress of file indexation", TimeUnit.SECONDS.toMillis(10));
     progressReport.start("Index files");
@@ -111,7 +114,7 @@ public class FileIndexer {
     indexFiles(moduleFileSystemInitializer.sources(), InputFile.Type.MAIN, progress);
     indexFiles(moduleFileSystemInitializer.tests(), InputFile.Type.TEST, progress);
 
-    waitForTasksToComplete();
+    waitForTasksToComplete(progressReport);
 
     progressReport.stop(progress.count() + " " + pluralizeFiles(progress.count()) + " indexed");
 
@@ -120,17 +123,29 @@ public class FileIndexer {
     }
   }
 
-  private void waitForTasksToComplete() {
+  private void waitForTasksToComplete(ProgressReport report) {
     executorService.shutdown();
     for (Future<Void> task : tasks) {
       try {
         task.get();
       } catch (ExecutionException e) {
         // Unwrap ExecutionException
+        stopAsap(report);
         throw e.getCause() instanceof RuntimeException ? (RuntimeException) e.getCause() : new IllegalStateException(e.getCause());
       } catch (InterruptedException e) {
+        stopAsap(report);
         throw new IllegalStateException(e);
       }
+    }
+  }
+
+  private void stopAsap(ProgressReport report) {
+    report.stop(null);
+    executorService.shutdownNow();
+    try {
+      executorService.awaitTermination(5, TimeUnit.SECONDS);
+    } catch (InterruptedException e1) {
+      // ignore, what's important is the original exception
     }
   }
 
