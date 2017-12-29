@@ -41,37 +41,34 @@ public class JsonWriterTest {
   private static final String EMPTY_STRING = "";
 
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
 
-  private StringWriter json = new StringWriter();
-  private JsonWriter writer = JsonWriter.of(json);
+  private StringWriter stringWriter = new StringWriter();
 
-  private void expect(String s) {
-    assertThat(json.toString()).isEqualTo(s);
-  }
+  private JsonWriter underTest = JsonWriter.of(stringWriter);
 
   @Test
   public void empty_object() {
-    writer.beginObject().endObject().close();
+    underTest.beginObject().endObject().close();
     expect("{}");
   }
 
   @Test
   public void empty_array() {
-    writer.beginArray().endArray().close();
+    underTest.beginArray().endArray().close();
     expect("[]");
   }
 
   @Test
   public void stop_while_streaming() {
-    writer.beginObject().name("foo").value("bar");
+    underTest.beginObject().name("foo").value("bar");
     // endObject() and close() are missing
     expect("{\"foo\":\"bar\"");
   }
 
   @Test
   public void objects_and_arrays() {
-    writer.beginObject().name("issues")
+    underTest.beginObject().name("issues")
       .beginArray()
       .beginObject().prop("key", "ABC").endObject()
       .beginObject().prop("key", "DEF").endObject()
@@ -82,14 +79,14 @@ public class JsonWriterTest {
 
   @Test
   public void array_values() {
-    writer.beginArray().values(Arrays.asList("foo", "bar", "baz")).endArray().close();
+    underTest.beginArray().values(Arrays.asList("foo", "bar", "baz")).endArray().close();
     expect("[\"foo\",\"bar\",\"baz\"]");
   }
 
   @Test
   public void type_of_values() {
     Date date = DateUtils.parseDateTime("2010-05-18T15:50:45+0100");
-    writer.beginObject()
+    underTest.beginObject()
       .prop("aBoolean", true)
       .prop("aInt", 123)
       .prop("aLong", 1000L)
@@ -103,7 +100,7 @@ public class JsonWriterTest {
 
   @Test
   public void ignore_null_values_by_default() {
-    writer.beginObject()
+    underTest.beginObject()
       .prop("nullNumber", (Number) null)
       .prop("nullString", (String) null)
       .name("nullNumber").value((Number) null)
@@ -116,8 +113,8 @@ public class JsonWriterTest {
 
   @Test
   public void serialize_null_values() {
-    writer.setSerializeNulls(true);
-    writer.beginObject()
+    underTest.setSerializeNulls(true);
+    underTest.beginObject()
       .prop("nullNumber", (Number) null)
       .prop("nullString", (String) null)
       .name("nullNumber").value((Number) null)
@@ -130,7 +127,7 @@ public class JsonWriterTest {
 
   @Test
   public void serialize_empty_strings_by_default() {
-    writer.beginObject()
+    underTest.beginObject()
       .prop("emptyString", EMPTY_STRING)
       .name("emptyStringAsObject").valueObject(EMPTY_STRING)
       .endObject().close();
@@ -142,7 +139,7 @@ public class JsonWriterTest {
 
   @Test
   public void ignore_empty_strings_when_requested() {
-    writer.setSerializeEmptys(false)
+    underTest.setSerializeEmptys(false)
       .beginObject()
       .prop("emptyString", EMPTY_STRING)
       .name("emptyStringAsObject").valueObject(EMPTY_STRING)
@@ -152,7 +149,7 @@ public class JsonWriterTest {
 
   @Test
   public void escape_values() {
-    writer.beginObject()
+    underTest.beginObject()
       .prop("foo", "<hello \"world\">")
       .endObject().close();
     expect("{\"foo\":\"<hello \\\"world\\\">\"}");
@@ -160,7 +157,7 @@ public class JsonWriterTest {
 
   @Test
   public void valueObject() {
-    writer.beginObject()
+    underTest.beginObject()
       .name("aString").valueObject("stringValue")
       .name("aBoolean").valueObject(true)
       .name("aInt").valueObject(42)
@@ -177,14 +174,14 @@ public class JsonWriterTest {
   @Test
   public void valueObject_recursive() {
     Map map = ImmutableMap.of("a", ImmutableMap.of("b", "c"));
-    writer.valueObject(map).close();
+    underTest.valueObject(map).close();
     expect("{\"a\":{\"b\":\"c\"}}");
   }
 
   @Test
   public void valueObject_unsupported_type() {
     try {
-      writer.beginObject().valueObject(new StringWriter()).endObject().close();
+      underTest.beginObject().valueObject(new StringWriter()).endObject().close();
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("class org.sonar.api.utils.text.JsonWriter does not support encoding of type: class java.io.StringWriter");
@@ -193,24 +190,28 @@ public class JsonWriterTest {
 
   @Test
   public void fail_on_NaN_value() {
-    thrown.expect(WriterException.class);
-    writer.beginObject().prop("foo", Double.NaN).endObject().close();
+    expectedException.expect(WriterException.class);
+    underTest.beginObject().prop("foo", Double.NaN).endObject().close();
   }
 
   @Test
   public void fail_if_not_valid() {
-    thrown.expect(WriterException.class);
-    writer.beginObject().endArray().close();
+    expectedException.expect(WriterException.class);
+    underTest.beginObject().endArray().close();
   }
 
   @Test
   public void fail_to_begin_array() throws Exception {
     com.google.gson.stream.JsonWriter gson = mock(com.google.gson.stream.JsonWriter.class);
     when(gson.beginArray()).thenThrow(new IOException("the reason"));
-    thrown.expect(WriterException.class);
-    thrown.expectMessage("Fail to write JSON");
+    expectedException.expect(WriterException.class);
+    expectedException.expectMessage("Fail to write JSON");
 
     new JsonWriter(gson).beginArray();
+  }
+
+  private void expect(String s) {
+    assertThat(stringWriter.toString()).isEqualTo(s);
   }
 
   private enum ColorEnum {
