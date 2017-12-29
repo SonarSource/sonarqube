@@ -46,7 +46,7 @@ import org.sonar.api.utils.DateUtils;
  *       .endObject()
  *   }
  * </pre>
- * 
+ *
  * <p>
  * By default, null objects are not serialized. To enable {@code null} serialization,
  * use {@link #setSerializeNulls(boolean)}.

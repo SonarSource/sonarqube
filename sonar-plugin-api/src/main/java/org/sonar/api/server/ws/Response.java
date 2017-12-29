@@ -40,9 +40,13 @@ public interface Response {
      * By default value is set to 200.
      */
     Stream setStatus(int httpStatus);
+
     OutputStream output();
   }
 
+  /**
+   * Non streamable {@link JsonWriter}. Response is written when resource is closed.
+   */
   JsonWriter newJsonWriter();
 
   XmlWriter newXmlWriter();
