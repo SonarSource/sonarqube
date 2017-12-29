@@ -132,6 +132,10 @@ public class WebServiceEngine implements LocalConnector, Startable {
   private static void sendErrors(Response response, int status, List<String> errors) {
     Response.Stream stream = response.stream();
     if (stream instanceof ServletResponse.ServletStream) {
+      if (((ServletResponse.ServletStream) stream).response().isCommitted()) {
+        // streaming of response. It's no more possible to clear and reformat the response
+        return;
+      }
       ((ServletResponse.ServletStream) stream).reset();
     }
     stream.setStatus(status);
