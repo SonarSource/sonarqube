@@ -202,6 +202,22 @@ public class CreateActionTest {
   }
 
   @Test
+  public void create_user_with_empty_email() throws Exception {
+    logInAsSystemAdministrator();
+
+    call(CreateRequest.builder()
+      .setLogin("john")
+      .setName("John")
+      .setPassword("1234")
+      .setEmail("")
+      .build());
+
+    assertThat(db.users().selectUserByLogin("john").get())
+      .extracting(UserDto::getExternalIdentity)
+      .containsOnly("john");
+  }
+
+  @Test
   public void create_user_with_deprecated_scmAccounts_parameter() throws Exception {
     logInAsSystemAdministrator();
 
@@ -297,6 +313,21 @@ public class CreateActionTest {
       .setName("John")
       .setPassword("1234")
       .setLocal(false)
+      .build());
+  }
+
+  @Test
+  public void fail_when_email_is_invalid() throws Exception {
+    logInAsSystemAdministrator();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Email 'invalid-email' is not valid");
+
+    call(CreateRequest.builder()
+      .setLogin("pipo")
+      .setName("John")
+      .setPassword("1234")
+      .setEmail("invalid-email")
       .build());
   }
 

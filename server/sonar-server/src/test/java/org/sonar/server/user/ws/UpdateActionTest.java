@@ -245,6 +245,19 @@ public class UpdateActionTest {
       .execute();
   }
 
+  @Test
+  public void fail_on_invalid_email() throws Exception {
+    createUser();
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Email 'invalid-email' is not valid");
+
+    ws.newRequest()
+      .setParam("login", "john")
+      .setParam("email", "invalid-email")
+      .execute();
+  }
+
   private void createUser() {
     UserDto userDto = newUserDto()
       .setEmail("john@email.com")

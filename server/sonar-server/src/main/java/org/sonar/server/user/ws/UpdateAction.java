@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -35,9 +37,6 @@ import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -46,6 +45,7 @@ import static java.util.Collections.singletonList;
 import static org.sonar.server.user.UserUpdater.EMAIL_MAX_LENGTH;
 import static org.sonar.server.user.UserUpdater.LOGIN_MAX_LENGTH;
 import static org.sonar.server.user.UserUpdater.NAME_MAX_LENGTH;
+import static org.sonar.server.user.ws.EmailValidator.isValidIfPresent;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_UPDATE;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
@@ -111,6 +111,7 @@ public class UpdateAction implements UsersWsAction {
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
     UpdateRequest updateRequest = toWsRequest(request);
+    checkArgument(isValidIfPresent(updateRequest.getEmail()), "Email '%s' is not valid", updateRequest.getEmail());
     try (DbSession dbSession = dbClient.openSession(false)) {
       doHandle(dbSession, toWsRequest(request));
       writeUser(dbSession, response, updateRequest.getLogin());
@@ -129,7 +130,8 @@ public class UpdateAction implements UsersWsAction {
     if (!request.getScmAccounts().isEmpty()) {
       updateUser.setScmAccounts(request.getScmAccounts());
     }
-    userUpdater.updateAndCommit(dbSession, updateUser, u -> {});
+    userUpdater.updateAndCommit(dbSession, updateUser, u -> {
+    });
   }
 
   private void writeUser(DbSession dbSession, Response response, String login) {
