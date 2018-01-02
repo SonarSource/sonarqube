@@ -21,6 +21,8 @@ package org.sonar.server.user.ws;
 
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Change;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -34,9 +36,6 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
 import org.sonarqube.ws.Users.CreateWsResponse;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.emptyToNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -46,6 +45,7 @@ import static org.sonar.server.user.ExternalIdentity.SQ_AUTHORITY;
 import static org.sonar.server.user.UserUpdater.EMAIL_MAX_LENGTH;
 import static org.sonar.server.user.UserUpdater.LOGIN_MAX_LENGTH;
 import static org.sonar.server.user.UserUpdater.NAME_MAX_LENGTH;
+import static org.sonar.server.user.ws.EmailValidator.isValidIfPresent;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.user.UsersWsParameters.ACTION_CREATE;
 import static org.sonarqube.ws.client.user.UsersWsParameters.PARAM_EMAIL;
@@ -124,7 +124,9 @@ public class CreateAction implements UsersWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     userSession.checkLoggedIn().checkIsSystemAdministrator();
-    writeProtobuf(doHandle(toWsRequest(request)), request, response);
+    CreateRequest createRequest = toWsRequest(request);
+    checkArgument(isValidIfPresent(createRequest.getEmail()), "Email '%s' is not valid", createRequest.getEmail());
+    writeProtobuf(doHandle(createRequest), request, response);
   }
 
   private CreateWsResponse doHandle(CreateRequest request) {
