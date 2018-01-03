@@ -254,11 +254,11 @@ public class IssueMetricFormulaFactoryImplTest {
       .assertThatValueIs(CoreMetrics.SQALE_DEBT_RATIO, 200.0)
       .assertThatValueIs(CoreMetrics.SQALE_RATING, Rating.E);
 
-    // B is 5% --> min debt is exactly 200*0.05=10
+    // A is 5% --> min debt is exactly 200*0.05=10
     with(CoreMetrics.DEVELOPMENT_COST, 200.0)
       .and(CoreMetrics.TECHNICAL_DEBT, 10.0)
       .assertThatValueIs(CoreMetrics.SQALE_DEBT_RATIO, 5.0)
-      .assertThatValueIs(CoreMetrics.SQALE_RATING, Rating.B);
+      .assertThatValueIs(CoreMetrics.SQALE_RATING, Rating.A);
 
     with(CoreMetrics.TECHNICAL_DEBT, 0.0)
       .and(CoreMetrics.DEVELOPMENT_COST, 0.0)
@@ -630,11 +630,11 @@ public class IssueMetricFormulaFactoryImplTest {
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 200.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.E);
 
-    // B is 5% --> min debt is exactly 200*0.05=10
+    // A is 5% --> min debt is exactly 200*0.05=10
     withLeak(CoreMetrics.NEW_DEVELOPMENT_COST, 200.0)
       .andLeak(CoreMetrics.NEW_TECHNICAL_DEBT, 10.0)
       .assertThatLeakValueIs(CoreMetrics.NEW_SQALE_DEBT_RATIO, 5.0)
-      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.B);
+      .assertThatLeakValueIs(CoreMetrics.NEW_MAINTAINABILITY_RATING, Rating.A);
 
     withLeak(CoreMetrics.NEW_TECHNICAL_DEBT, 0.0)
       .andLeak(CoreMetrics.NEW_DEVELOPMENT_COST, 0.0)
