@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.A;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.B;
 import static org.sonar.server.computation.task.projectanalysis.qualitymodel.Rating.C;
@@ -50,25 +49,26 @@ public class DebtRatingGridTest {
     assertThat(ratingGrid.getRatingForDensity(0)).isEqualTo(A);
     assertThat(ratingGrid.getRatingForDensity(0.05)).isEqualTo(A);
     assertThat(ratingGrid.getRatingForDensity(0.09999999)).isEqualTo(A);
-    assertThat(ratingGrid.getRatingForDensity(0.1)).isEqualTo(B);
+    assertThat(ratingGrid.getRatingForDensity(0.1)).isEqualTo(A);
     assertThat(ratingGrid.getRatingForDensity(0.15)).isEqualTo(B);
-    assertThat(ratingGrid.getRatingForDensity(0.2)).isEqualTo(C);
+    assertThat(ratingGrid.getRatingForDensity(0.2)).isEqualTo(B);
     assertThat(ratingGrid.getRatingForDensity(0.25)).isEqualTo(C);
-    assertThat(ratingGrid.getRatingForDensity(0.5)).isEqualTo(D);
+    assertThat(ratingGrid.getRatingForDensity(0.5)).isEqualTo(C);
     assertThat(ratingGrid.getRatingForDensity(0.65)).isEqualTo(D);
-    assertThat(ratingGrid.getRatingForDensity(1)).isEqualTo(E);
+    assertThat(ratingGrid.getRatingForDensity(1)).isEqualTo(D);
     assertThat(ratingGrid.getRatingForDensity(1.01)).isEqualTo(E);
   }
 
   @Test
-  public void fail_on_invalid_density() {
-    throwable.expect(RuntimeException.class);
-
-    ratingGrid.getRatingForDensity(-1);
+  public void density_matching_exact_grid_values() {
+    assertThat(ratingGrid.getRatingForDensity(0.1)).isEqualTo(A);
+    assertThat(ratingGrid.getRatingForDensity(0.2)).isEqualTo(B);
+    assertThat(ratingGrid.getRatingForDensity(0.5)).isEqualTo(C);
+    assertThat(ratingGrid.getRatingForDensity(1)).isEqualTo(D);
   }
 
   @Test
-  public void convert_int_to_rating() throws Exception {
+  public void convert_int_to_rating() {
     assertThat(Rating.valueOf(1)).isEqualTo(A);
     assertThat(Rating.valueOf(2)).isEqualTo(B);
     assertThat(Rating.valueOf(3)).isEqualTo(C);
@@ -77,8 +77,24 @@ public class DebtRatingGridTest {
   }
 
   @Test
-  public void fail_to_concert_invalid_value() throws Exception {
+  public void fail_on_invalid_density() {
+    throwable.expect(IllegalArgumentException.class);
+    throwable.expectMessage("Invalid value '-1.0'");
+
+    ratingGrid.getRatingForDensity(-1);
+  }
+
+  @Test
+  public void fail_to_concert_invalid_value() {
     throwable.expect(IllegalArgumentException.class);
     Rating.valueOf(10);
+  }
+
+  @Test
+  public void fail_on_invalid_grid() {
+    throwable.expect(IllegalStateException.class);
+    throwable.expectMessage("Rating grid should contains 4 values");
+
+    ratingGrid = new DebtRatingGrid(new double[] {0.1, 0.2, 0.5});
   }
 }
