@@ -40,6 +40,7 @@ import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricTesting;
 import org.sonar.db.organization.OrganizationDto;
+import org.sonar.db.permission.OrganizationPermission;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.component.TestComponentFinder;
 import org.sonar.server.es.EsTester;
@@ -435,8 +436,8 @@ public class CreateActionTest {
   }
 
   @Test
-  public void fail_when_not_project_administrator() throws Exception {
-    userSession.logIn();
+  public void fail_when_system_administrator() throws Exception {
+    userSession.logIn().setSystemAdministrator().addPermission(OrganizationPermission.ADMINISTER, db.getDefaultOrganization());
     MetricDto metric = insertMetric(STRING);
 
     expectedException.expect(ForbiddenException.class);
