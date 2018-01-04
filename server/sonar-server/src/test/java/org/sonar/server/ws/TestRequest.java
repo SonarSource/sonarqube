@@ -152,4 +152,9 @@ public class TestRequest extends ValidatingRequest {
   public <T extends GeneratedMessage> T executeProtobuf(Class<T> protobufClass) {
     return setMediaType(PROTOBUF).execute().getInputObject(protobufClass);
   }
+
+  @Override
+  public String toString() {
+    return path;
+  }
 }

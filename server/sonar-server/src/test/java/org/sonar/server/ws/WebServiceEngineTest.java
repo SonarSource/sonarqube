@@ -30,6 +30,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
+import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
@@ -38,8 +40,12 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonarqube.ws.MediaTypes;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class WebServiceEngineTest {
@@ -69,30 +75,33 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void execute_request() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/health");
-    DumbResponse response = new DumbResponse();
-    underTest.execute(request, response);
+  public void ws_returns_successful_response() {
+    ValidatingRequest request = new TestRequest().setPath("/api/ping");
 
-    assertThat(response.stream().outputAsString()).isEqualTo("good");
+    DumbResponse response = run(request, new PingWs());
+
+    assertThat(response.stream().outputAsString()).isEqualTo("pong");
+    assertThat(response.stream().status()).isEqualTo(200);
   }
 
   @Test
-  public void execute_request_when_path_does_not_begin_with_slash() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/health");
-    DumbResponse response = new DumbResponse();
-    underTest.execute(request, response);
+  public void accept_path_that_does_not_start_with_slash() {
+    ValidatingRequest request = new TestRequest().setPath("api/ping");
 
-    assertThat(response.stream().outputAsString()).isEqualTo("good");
+    DumbResponse response = run(request, new PingWs());
+
+    assertThat(response.stream().outputAsString()).isEqualTo("pong");
+    assertThat(response.stream().status()).isEqualTo(200);
   }
 
   @Test
-  public void execute_request_with_action_suffix() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/health");
-    DumbResponse response = new DumbResponse();
-    underTest.execute(request, response);
+  public void request_path_can_contain_valid_media_type() {
+    ValidatingRequest request = new TestRequest().setPath("api/ping.json");
 
-    assertThat(response.stream().outputAsString()).isEqualTo("good");
+    DumbResponse response = run(request, new PingWs());
+
+    assertThat(response.stream().outputAsString()).isEqualTo("pong");
+    assertThat(response.stream().status()).isEqualTo(200);
   }
 
   @Test
@@ -293,7 +302,7 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void does_not_fail_to_render_error_message_having_percent() {
+  public void return_error_message_containing_character_percent() {
     ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/error_message_having_percent");
     DumbResponse response = new DumbResponse();
 
@@ -305,7 +314,7 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void should_handle_headers() {
+  public void send_response_headers() {
     DumbResponse response = new DumbResponse();
     String name = "Content-Disposition";
     String value = "attachment; filename=sonarqube.zip";
@@ -315,17 +324,82 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void does_not_fail_when_request_is_aborted_and_response_is_committed() throws Exception {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail_with_client_abort_exception");
-    Response response = mock(Response.class);
-    ServletResponse.ServletStream servletStream = mock(ServletResponse.ServletStream.class);
-    when(response.stream()).thenReturn(servletStream);
-    HttpServletResponse httpServletResponse = mock(HttpServletResponse.class);
-    when(httpServletResponse.isCommitted()).thenReturn(true);
-    when(servletStream.response()).thenReturn(httpServletResponse);
+  public void support_aborted_request_when_response_is_already_committed() {
+    ValidatingRequest request = new TestRequest().setPath("/api/system/fail_with_client_abort_exception");
+    Response response = mockServletResponse(true);
+
     underTest.execute(request, response);
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).isNotEmpty();
+    // response is committed (status is already sent), so status can't be changed
+    verify(response.stream(), never()).setStatus(anyInt());
+
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Request /api/system/fail_with_client_abort_exception has been aborted by client");
+  }
+
+  @Test
+  public void support_aborted_request_when_response_is_not_committed() {
+    ValidatingRequest request = new TestRequest().setPath("/api/system/fail_with_client_abort_exception");
+    Response response = mockServletResponse(false);
+
+    underTest.execute(request, response);
+
+    verify(response.stream()).setStatus(299);
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Request /api/system/fail_with_client_abort_exception has been aborted by client");
+  }
+
+  @Test
+  public void internal_error_when_response_is_already_committed() {
+    ValidatingRequest request = new TestRequest().setPath("/api/system/fail");
+    Response response = mockServletResponse(true);
+
+    underTest.execute(request, response);
+
+    // response is committed (status is already sent), so status can't be changed
+    verify(response.stream(), never()).setStatus(anyInt());
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Fail to process request /api/system/fail");
+  }
+
+  @Test
+  public void internal_error_when_response_is_not_committed() {
+    ValidatingRequest request = new TestRequest().setPath("/api/system/fail");
+    Response response = mockServletResponse(false);
+
+    underTest.execute(request, response);
+
+    verify(response.stream()).setStatus(500);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Fail to process request /api/system/fail");
+  }
+
+  private static DumbResponse run(Request request, WebService... webServices) {
+    WebServiceEngine engine = new WebServiceEngine(webServices);
+    engine.start();
+    try {
+      DumbResponse response = new DumbResponse();
+      engine.execute(request, response);
+      return response;
+    } finally {
+      engine.stop();
+    }
+  }
+
+  private static Response mockServletResponse(boolean committed) {
+    Response response = mock(Response.class, Mockito.RETURNS_DEEP_STUBS);
+    ServletResponse.ServletStream servletStream = mock(ServletResponse.ServletStream.class, Mockito.RETURNS_DEEP_STUBS);
+    when(response.stream()).thenReturn(servletStream);
+    HttpServletResponse httpServletResponse = mock(HttpServletResponse.class, Mockito.RETURNS_DEEP_STUBS);
+    when(httpServletResponse.isCommitted()).thenReturn(committed);
+    when(servletStream.response()).thenReturn(httpServletResponse);
+    return response;
+  }
+
+  private static class PingWs implements WebService {
+    @Override
+    public void define(Context context) {
+      NewController newController = context.createController("api");
+      createNewDefaultAction(newController, "ping")
+        .setHandler((request, response) -> response.stream().output().write("pong".getBytes(UTF_8)));
+      newController.done();
+    }
   }
 
   static class SystemWs implements WebService {
@@ -399,6 +473,7 @@ public class WebServiceEngineTest {
         String param = request.param("required-parameter");
       });
 
+      // simulate a client abort
       createNewDefaultAction(newController, "fail_with_client_abort_exception")
         .setHandler((request, response) -> {
           throw new IllegalStateException("fail!", new ClientAbortException());
@@ -407,12 +482,13 @@ public class WebServiceEngineTest {
       newController.done();
     }
 
-    private NewAction createNewDefaultAction(NewController controller, String key) {
-      return controller
-        .createAction(key)
-        .setDescription("Dummy Description")
-        .setSince("5.3")
-        .setResponseExample(getClass().getResource("web-service-engine-test.txt"));
-    }
+  }
+
+  private static WebService.NewAction createNewDefaultAction(WebService.NewController controller, String key) {
+    return controller
+      .createAction(key)
+      .setDescription("Dummy Description")
+      .setSince("5.3")
+      .setResponseExample(WebServiceEngineTest.class.getResource("web-service-engine-test.txt"));
   }
 }
