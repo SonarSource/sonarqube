@@ -199,19 +199,23 @@ public class QGChangeEventListenersImplTest {
   public void broadcastOnIssueChange_calls_listener_for_each_component_uuid_with_at_least_one_QGChangeEvent() {
     // component2 has multiple issues
     ComponentDto component2 = newComponentDto(component1Uuid + "2");
+    DefaultIssue[] component2Issues = {newDefaultIssue(component2.uuid()), newDefaultIssue(component2.uuid())};
+    QGChangeEvent component2QGChangeEvent = newQGChangeEvent(component2);
+
     // component 3 has multiple QGChangeEvent and only one issue
     ComponentDto component3 = newComponentDto(component1Uuid + "3");
+    DefaultIssue component3Issue = newDefaultIssue(component3.uuid());
+    QGChangeEvent[] component3QGChangeEvents = {newQGChangeEvent(component3), newQGChangeEvent(component3)};
+
     // component 4 has multiple QGChangeEvent and multiples issues
     ComponentDto component4 = newComponentDto(component1Uuid + "4");
-    // component 4 has no QGChangeEvent but one issue
-    ComponentDto component5 = newComponentDto(component1Uuid + "5");
-    DefaultIssue[] component2Issues = {newDefaultIssue(component2.uuid()), newDefaultIssue(component2.uuid())};
-    DefaultIssue component3Issue = newDefaultIssue(component3.uuid());
     DefaultIssue[] component4Issues = {newDefaultIssue(component4.uuid()), newDefaultIssue(component4.uuid())};
-    DefaultIssue component5Issue = newDefaultIssue(component5.uuid());
-    QGChangeEvent component2QGChangeEvent = newQGChangeEvent(component2);
-    QGChangeEvent[] component3QGChangeEvents = {newQGChangeEvent(component3), newQGChangeEvent(component3)};
     QGChangeEvent[] component4QGChangeEvents = {newQGChangeEvent(component4), newQGChangeEvent(component4)};
+
+    // component 5 has no QGChangeEvent but one issue
+    ComponentDto component5 = newComponentDto(component1Uuid + "5");
+    DefaultIssue component5Issue = newDefaultIssue(component5.uuid());
+
     List<DefaultIssue> issues = Stream.of(
       Stream.of(component1Issue),
       Arrays.stream(component2Issues),
@@ -220,6 +224,7 @@ public class QGChangeEventListenersImplTest {
       Stream.of(component5Issue))
       .flatMap(s -> s)
       .collect(Collectors.toList());
+
     QGChangeEventFactory.IssueChangeData issueChangeData = new QGChangeEventFactory.IssueChangeData(
       randomizedList(issues),
       randomizedList(Arrays.asList(component1, component2, component3, component4)));
