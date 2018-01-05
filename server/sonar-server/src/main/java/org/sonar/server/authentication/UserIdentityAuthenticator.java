@@ -49,6 +49,7 @@ import org.sonar.server.usergroups.DefaultGroupFinder;
 
 import static java.lang.String.format;
 import static java.util.Collections.singletonList;
+import static org.sonar.core.util.stream.MoreCollectors.toList;
 import static org.sonar.core.util.stream.MoreCollectors.uniqueIndex;
 
 public class UserIdentityAuthenticator {
@@ -108,20 +109,22 @@ public class UserIdentityAuthenticator {
         .build();
     }
 
-    String userLogin = identity.getLogin();
-    return userUpdater.createAndCommit(dbSession, NewUser.builder()
-      .setLogin(userLogin)
+    NewUser user = NewUser.builder()
+      .setLogin(identity.getLogin())
       .setEmail(identity.getEmail())
       .setName(identity.getName())
       .setExternalIdentity(new ExternalIdentity(provider.getKey(), identity.getProviderLogin()))
-      .build(), u -> syncGroups(dbSession, identity, u));
+      .setSecondaryEmails(identity.getSecondaryEmails().stream().collect(toList()))
+      .build();
+    return userUpdater.createAndCommit(dbSession, user, u -> syncGroups(dbSession, identity, u));
   }
 
   private void registerExistingUser(DbSession dbSession, UserDto userDto, UserIdentity identity, IdentityProvider provider) {
     UpdateUser update = UpdateUser.create(userDto.getLogin())
       .setEmail(identity.getEmail())
       .setName(identity.getName())
-      .setExternalIdentity(new ExternalIdentity(provider.getKey(), identity.getProviderLogin()));
+      .setExternalIdentity(new ExternalIdentity(provider.getKey(), identity.getProviderLogin()))
+      .setSecondaryEmails(identity.getSecondaryEmails().stream().collect(toList()));
     userUpdater.updateAndCommit(dbSession, update, u -> syncGroups(dbSession, identity, u));
   }
 
