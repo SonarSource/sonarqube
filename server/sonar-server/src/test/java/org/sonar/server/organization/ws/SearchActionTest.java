@@ -34,6 +34,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.organization.OrganizationDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.organization.OrganizationValidationImpl;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -289,6 +290,21 @@ public class SearchActionTest {
       .containsExactlyInAnyOrder(organization.getKey())
       .doesNotContain(organizationWithoutMember.getKey());
   }
+
+  @Test
+  public void fail_if_member_is_set_to_true_but_user_is_not_authenticated(){
+    UserDto user = db.users().insertUser();
+    OrganizationDto organization = db.organizations().insert();
+    db.organizations().addMember(organization, user);
+
+    userSession.anonymous();
+
+    expectedException.expect(UnauthorizedException.class);
+    expectedException.expectMessage("Authentication is required");
+
+    call(ws.newRequest().setParam(PARAM_MEMBER, String.valueOf(true)));
+  }
+
 
   private List<Organization> executeRequestAndReturnList(@Nullable Integer page, @Nullable Integer pageSize, String... keys) {
     return call(page, pageSize, keys).getOrganizationsList();

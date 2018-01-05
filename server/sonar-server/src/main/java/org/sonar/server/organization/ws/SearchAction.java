@@ -88,6 +88,11 @@ public class SearchAction implements OrganizationsWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
+    boolean isMember = request.mandatoryParamAsBoolean(PARAM_MEMBER);
+    if (isMember){
+      userSession.checkLoggedIn();
+    }
+
     try (DbSession dbSession = dbClient.openSession(false)) {
       OrganizationQuery dbQuery = buildDbQuery(request);
       int total = dbClient.organizationDao().countByQuery(dbSession, dbQuery);
