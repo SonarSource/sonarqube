@@ -42,6 +42,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.component.index.ComponentIndex;
 import org.sonar.server.component.index.ComponentIndexDefinition;
 import org.sonar.server.component.index.ComponentIndexer;
+import org.sonar.server.component.ws.SearchAction.SearchRequest;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
@@ -50,10 +51,9 @@ import org.sonar.server.permission.index.PermissionIndexerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
-import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.Components.Component;
 import org.sonarqube.ws.Components.SearchWsResponse;
-import org.sonar.server.component.ws.SearchAction.SearchRequest;
+import org.sonarqube.ws.MediaTypes;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
@@ -122,6 +122,12 @@ public class SearchActionTest {
     assertThat(action.responseExampleAsString()).isNotEmpty();
 
     assertThat(action.params()).hasSize(6);
+
+    WebService.Param pageSize = action.param("ps");
+    assertThat(pageSize.isRequired()).isFalse();
+    assertThat(pageSize.defaultValue()).isEqualTo("100");
+    assertThat(pageSize.maximumValue()).isEqualTo(500);
+    assertThat(pageSize.description()).isEqualTo("Page size. Must be greater than 0 and less than 500");
 
     WebService.Param qualifiers = action.param("qualifiers");
     assertThat(qualifiers.isRequired()).isTrue();

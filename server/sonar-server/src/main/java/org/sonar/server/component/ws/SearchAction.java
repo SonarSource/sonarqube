@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.ResourceTypes;
@@ -43,18 +45,16 @@ import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Components;
 import org.sonarqube.ws.Components.SearchWsResponse;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toMap;
 import static org.sonar.core.util.Protobuf.setNullable;
 import static org.sonar.core.util.stream.MoreCollectors.toHashSet;
+import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.util.LanguageParamUtils.getExampleValue;
 import static org.sonar.server.util.LanguageParamUtils.getLanguageKeys;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.ACTION_SEARCH;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_LANGUAGE;
@@ -84,7 +84,7 @@ public class SearchAction implements ComponentsWsAction {
     WebService.NewAction action = context.createAction(ACTION_SEARCH)
       .setSince("6.3")
       .setDescription("Search for components")
-      .addPagingParams(100)
+      .addPagingParams(100, MAX_LIMIT)
       .setResponseExample(getClass().getResource("search-components-example.json"))
       .setHandler(this);
 
