@@ -19,12 +19,14 @@
  */
 package org.sonar.db.user;
 
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserDtoTest {
@@ -33,33 +35,50 @@ public class UserDtoTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void encode_scm_accounts() {
-    assertThat(UserDto.encodeScmAccounts(null)).isNull();
-    assertThat(UserDto.encodeScmAccounts(Collections.<String>emptyList())).isNull();
-    assertThat(UserDto.encodeScmAccounts(Arrays.asList("foo"))).isEqualTo("\nfoo\n");
-    assertThat(UserDto.encodeScmAccounts(Arrays.asList("foo", "bar"))).isEqualTo("\nfoo\nbar\n");
+  public void get_and_set_scm_accounts_as_string() {
+    assertThat(new UserDto().setScmAccounts((String) null).getScmAccounts()).isNull();
+    assertThat(new UserDto().setScmAccounts("foo").getScmAccounts()).isEqualTo("foo");
+    assertThat(new UserDto().setScmAccounts("\nfoo\nbar\n").getScmAccounts()).isEqualTo("\nfoo\nbar\n");
   }
 
   @Test
-  public void decode_scm_accounts() {
-    assertThat(UserDto.decodeScmAccounts(null)).isEmpty();
-    assertThat(UserDto.decodeScmAccounts("\nfoo\n")).containsOnly("foo");
-    assertThat(UserDto.decodeScmAccounts("\nfoo\nbar\n")).containsOnly("foo", "bar");
+  public void get_and_set_scm_accounts_as_list() {
+    assertThat(new UserDto().setScmAccounts((List<String>) null).getScmAccountsAsList()).isEmpty();
+    assertThat(new UserDto().setScmAccounts(Collections.<String>emptyList()).getScmAccountsAsList()).isEmpty();
+    assertThat(new UserDto().setScmAccounts(singletonList("foo")).getScmAccountsAsList()).containsExactlyInAnyOrder("foo");
+    assertThat(new UserDto().setScmAccounts(asList("foo", "bar")).getScmAccountsAsList()).containsExactlyInAnyOrder("foo", "bar");
+    assertThat(new UserDto().setScmAccounts("\nfoo\nbar\n").getScmAccountsAsList()).containsExactlyInAnyOrder("foo", "bar");
   }
 
   @Test
-  public void encrypt_password() throws Exception {
+  public void get_and_set_secondary_emails_as_string() {
+    assertThat(new UserDto().setSecondaryEmails((String) null).getSecondaryEmails()).isNull();
+    assertThat(new UserDto().setSecondaryEmails("foo").getSecondaryEmails()).isEqualTo("foo");
+    assertThat(new UserDto().setSecondaryEmails("\nfoo\nbar\n").getSecondaryEmails()).isEqualTo("\nfoo\nbar\n");
+  }
+
+  @Test
+  public void get_and_set_secondary_emails_as_list() {
+    assertThat(new UserDto().setSecondaryEmails((List<String>) null).getSecondaryEmailsAsList()).isEmpty();
+    assertThat(new UserDto().setSecondaryEmails(Collections.<String>emptyList()).getSecondaryEmailsAsList()).isEmpty();
+    assertThat(new UserDto().setSecondaryEmails(singletonList("foo")).getSecondaryEmailsAsList()).containsExactlyInAnyOrder("foo");
+    assertThat(new UserDto().setSecondaryEmails(asList("foo", "bar")).getSecondaryEmailsAsList()).containsExactlyInAnyOrder("foo", "bar");
+    assertThat(new UserDto().setSecondaryEmails("\nfoo\nbar\n").getSecondaryEmailsAsList()).containsExactlyInAnyOrder("foo", "bar");
+  }
+
+  @Test
+  public void encrypt_password() {
     assertThat(UserDto.encryptPassword("PASSWORD", "0242b0b4c0a93ddfe09dd886de50bc25ba000b51")).isEqualTo("540e4fc4be4e047db995bc76d18374a5b5db08cc");
   }
 
   @Test
-  public void fail_to_encrypt_password_when_password_is_null() throws Exception {
+  public void fail_to_encrypt_password_when_password_is_null() {
     expectedException.expect(NullPointerException.class);
     UserDto.encryptPassword(null, "salt");
   }
 
   @Test
-  public void fail_to_encrypt_password_when_salt_is_null() throws Exception {
+  public void fail_to_encrypt_password_when_salt_is_null() {
     expectedException.expect(NullPointerException.class);
     UserDto.encryptPassword("password", null);
   }

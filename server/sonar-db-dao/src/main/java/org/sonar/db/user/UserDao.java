@@ -40,6 +40,7 @@ import org.sonar.db.organization.OrganizationDto;
 
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
+import static org.sonar.db.user.UserDto.LINE_BREAK_SEPARATOR;
 
 public class UserDao implements Dao {
 
@@ -145,9 +146,9 @@ public class UserDao implements Dao {
   }
 
   public List<UserDto> selectByScmAccountOrLoginOrEmail(DbSession session, String scmAccountOrLoginOrEmail) {
-    String like = new StringBuilder().append("%")
-      .append(UserDto.SCM_ACCOUNTS_SEPARATOR).append(scmAccountOrLoginOrEmail)
-      .append(UserDto.SCM_ACCOUNTS_SEPARATOR).append("%").toString();
+    String like = "%" +
+      LINE_BREAK_SEPARATOR + scmAccountOrLoginOrEmail +
+      LINE_BREAK_SEPARATOR + "%";
     return mapper(session).selectNullableByScmAccountOrLoginOrEmail(scmAccountOrLoginOrEmail, like);
   }
 

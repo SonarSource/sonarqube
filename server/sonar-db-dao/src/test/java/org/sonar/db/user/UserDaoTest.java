@@ -22,15 +22,14 @@ package org.sonar.db.user;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DatabaseUtils;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
@@ -39,33 +38,24 @@ import org.sonar.db.organization.OrganizationDto;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UserDaoTest {
   private static final long NOW = 1_500_000_000_000L;
 
-  private System2 system2 = mock(System2.class);
+  private System2 system2 = new TestSystem2().setNow(NOW);
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
   @Rule
   public DbTester db = DbTester.create(system2);
 
-  private DbClient dbClient = db.getDbClient();
   private DbSession session = db.getSession();
-  private UserDao underTest = db.getDbClient().userDao();
 
-  @Before
-  public void setUp() {
-    when(system2.now()).thenReturn(NOW);
-  }
+  private UserDao underTest = db.getDbClient().userDao();
 
   @Test
   public void selectUsersIds() {
@@ -397,7 +387,8 @@ public class UserDaoTest {
   @Test
   public void deactivate_user() {
     UserDto user = insertActiveUser();
-    insertUserGroup(user);
+    GroupDto group = db.users().insertGroup(db.getDefaultOrganization());
+    db.users().insertMember(group, user);
     UserDto otherUser = insertActiveUser();
     session.commit();
 
@@ -479,6 +470,7 @@ public class UserDaoTest {
       .setEmail("marius@lesbronzes.fr")
       .setActive(true)
       .setScmAccounts("\nma\nmarius33\n")
+      .setSecondaryEmails("\nma@email.com\nmarius33@email.com\n")
       .setSalt("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365")
       .setCryptedPassword("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg")
       .setHomepageType("project")
@@ -493,6 +485,7 @@ public class UserDaoTest {
     assertThat(dto.getEmail()).isEqualTo("marius@lesbronzes.fr");
     assertThat(dto.isActive()).isTrue();
     assertThat(dto.getScmAccountsAsList()).containsOnly("ma", "marius33");
+    assertThat(dto.getSecondaryEmailsAsList()).containsOnly("ma@email.com", "marius33@email.com");
     assertThat(dto.getSalt()).isEqualTo("79bd6a8e79fb8c76ac8b121cc7e8e11ad1af8365");
     assertThat(dto.getCryptedPassword()).isEqualTo("650d2261c98361e2f67f90ce5c65a95e7d8ea2fg");
     assertThat(dto.isRoot()).isFalse();
@@ -563,35 +556,19 @@ public class UserDaoTest {
   }
 
   @Test
-  public void setRoot_set_root_flag_of_specified_user_to_specified_value_and_updates_udpateAt() {
+  public void setRoot() {
     String login = insertActiveUser().getLogin();
     UserDto otherUser = insertActiveUser();
     assertThat(underTest.selectByLogin(session, login).isRoot()).isEqualTo(false);
     assertThat(underTest.selectByLogin(session, otherUser.getLogin()).isRoot()).isEqualTo(false);
 
     // does not fail when changing to same value
-    when(system2.now()).thenReturn(15_000L);
     commit(() -> underTest.setRoot(session, login, false));
-    verifyRootAndUpdatedAt(login, false, 15_000L);
-    verifyRootAndUpdatedAt(otherUser.getLogin(), false, otherUser.getUpdatedAt());
+    verifyRootAndUpdatedAt(login, false, NOW);
 
     // change value
-    when(system2.now()).thenReturn(26_000L);
     commit(() -> underTest.setRoot(session, login, true));
-    verifyRootAndUpdatedAt(login, true, 26_000L);
-    verifyRootAndUpdatedAt(otherUser.getLogin(), false, otherUser.getUpdatedAt());
-
-    // does not fail when changing to same value
-    when(system2.now()).thenReturn(37_000L);
-    commit(() -> underTest.setRoot(session, login, true));
-    verifyRootAndUpdatedAt(login, true, 37_000L);
-    verifyRootAndUpdatedAt(otherUser.getLogin(), false, otherUser.getUpdatedAt());
-
-    // change value back
-    when(system2.now()).thenReturn(48_000L);
-    commit(() -> underTest.setRoot(session, login, false));
-    verifyRootAndUpdatedAt(login, false, 48_000L);
-    verifyRootAndUpdatedAt(otherUser.getLogin(), false, otherUser.getUpdatedAt());
+    verifyRootAndUpdatedAt(login, true, NOW);
   }
 
   private void verifyRootAndUpdatedAt(String login1, boolean root, long updatedAt) {
@@ -665,21 +642,11 @@ public class UserDaoTest {
   }
 
   private UserDto insertActiveUser() {
-    return insertUser(true);
+    return db.users().insertUser();
   }
 
   private UserDto insertUser(boolean active) {
-    UserDto dto = newUserDto().setActive(active);
-    underTest.insert(session, dto);
-    return dto;
+    return db.users().insertUser(u -> u.setActive(active));
   }
 
-  private UserGroupDto insertUserGroup(UserDto user) {
-    GroupDto group = newGroupDto().setName(randomAlphanumeric(30));
-    dbClient.groupDao().insert(session, group);
-
-    UserGroupDto dto = new UserGroupDto().setUserId(user.getId()).setGroupId(group.getId());
-    dbClient.userGroupDao().insert(session, dto);
-    return dto;
-  }
 }

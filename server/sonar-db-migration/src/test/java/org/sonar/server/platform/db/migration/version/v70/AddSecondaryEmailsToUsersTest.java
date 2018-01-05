@@ -19,23 +19,38 @@
  */
 package org.sonar.server.platform.db.migration.version.v70;
 
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.db.CoreDbTester;
 
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMigrationCount;
-import static org.sonar.server.platform.db.migration.version.DbVersionTestUtils.verifyMinimumMigrationNumber;
+import static java.sql.Types.VARCHAR;
 
-public class DbVersion70Test {
+public class AddSecondaryEmailsToUsersTest {
 
-  private DbVersion70 underTest = new DbVersion70();
+  @Rule
+  public final CoreDbTester dbTester = CoreDbTester.createForSchema(AddSecondaryEmailsToUsersTest.class, "users.sql");
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  private AddSecondaryEmailsToUsers underTest = new AddSecondaryEmailsToUsers(dbTester.database());
 
   @Test
-  public void migrationNumber_starts_at_1900() {
-    verifyMinimumMigrationNumber(underTest, 1900);
+  public void column_is_added_to_table() throws SQLException {
+    underTest.execute();
+
+    dbTester.assertColumnDefinition("users", "secondary_emails", VARCHAR, 4000, true);
   }
 
   @Test
-  public void verify_migration_count() {
-    verifyMigrationCount(underTest, 25);
+  public void migration_is_not_reentrant() throws SQLException {
+    underTest.execute();
+
+    expectedException.expect(IllegalStateException.class);
+
+    underTest.execute();
   }
 
 }

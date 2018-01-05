@@ -39,6 +39,7 @@ public class UserTesting {
       .setEmail(randomAlphanumeric(30))
       .setOnboarded(nextBoolean())
       .setScmAccounts(singletonList(randomAlphanumeric(40)))
+      .setSecondaryEmails(singletonList(randomAlphanumeric(40)))
       .setExternalIdentity(randomAlphanumeric(40))
       .setExternalIdentityProvider(randomAlphanumeric(40))
       .setSalt(randomAlphanumeric(40))
