@@ -645,6 +645,7 @@ public interface WebService extends Definable<WebService.Context> {
 
     /**
      * @since 5.3
+     * @see Param#since()
      */
     public NewParam setSince(@Nullable String since) {
       this.since = since;
@@ -673,6 +674,7 @@ public interface WebService extends Definable<WebService.Context> {
     /**
      * @param deprecatedSince Version when the old key was replaced/deprecated. Ex: 5.6
      * @since 6.4
+     * @see Param#deprecatedKey()
      */
     public NewParam setDeprecatedKey(@Nullable String key, @Nullable String deprecatedSince) {
       this.deprecatedKey = key;
@@ -687,6 +689,7 @@ public interface WebService extends Definable<WebService.Context> {
 
     /**
      * @since 5.6
+     * @see Param#description()
      */
     public NewParam setDescription(@Nullable String description, Object... descriptionArgument) {
       this.description = description == null ? null : String.format(description, descriptionArgument);
@@ -697,6 +700,7 @@ public interface WebService extends Definable<WebService.Context> {
      * Is the parameter required or optional ? Default value is false (optional).
      *
      * @since 4.4
+     * @see Param#isRequired()
      */
     public NewParam setRequired(boolean b) {
       this.required = b;
@@ -709,6 +713,7 @@ public interface WebService extends Definable<WebService.Context> {
      * a parameter is not internal.
      *
      * @since 6.2
+     * @see Param#isInternal()
      */
     public NewParam setInternal(boolean b) {
       this.internal = b;
@@ -717,6 +722,7 @@ public interface WebService extends Definable<WebService.Context> {
 
     /**
      * @since 4.4
+     * @see Param#exampleValue()
      */
     public NewParam setExampleValue(@Nullable Object s) {
       this.exampleValue = (s != null) ? s.toString() : null;
@@ -728,12 +734,14 @@ public interface WebService extends Definable<WebService.Context> {
      * list of severities.
      *
      * @since 4.4
+     * @see Param#possibleValues()
      */
     public NewParam setPossibleValues(@Nullable Object... values) {
       return setPossibleValues(values == null ? Collections.emptyList() : asList(values));
     }
 
     /**
+     * Shortcut for {@code setPossibleValues("true", "false", "yes", "no")}
      * @since 4.4
      */
     public NewParam setBooleanPossibleValues() {
@@ -745,6 +753,7 @@ public interface WebService extends Definable<WebService.Context> {
      * list of severities.
      *
      * @since 4.4
+     * @see Param#possibleValues()
      */
     public NewParam setPossibleValues(@Nullable Collection<?> values) {
       if (values == null || values.isEmpty()) {
@@ -760,6 +769,7 @@ public interface WebService extends Definable<WebService.Context> {
 
     /**
      * @since 4.4
+     * @see Param#defaultValue()
      */
     public NewParam setDefaultValue(@Nullable Object o) {
       this.defaultValue = (o != null) ? o.toString() : null;
@@ -768,6 +778,7 @@ public interface WebService extends Definable<WebService.Context> {
 
     /**
      * @since 6.4
+     * @see Param#maxValuesAllowed()
      */
     public NewParam setMaxValuesAllowed(@Nullable Integer maxValuesAllowed) {
       this.maxValuesAllowed = maxValuesAllowed;
@@ -776,6 +787,7 @@ public interface WebService extends Definable<WebService.Context> {
 
     /**
      * @since 7.0
+     * @see Param#maximumLength()
      */
     public NewParam setMaximumLength(@Nullable Integer maximumLength) {
       this.maximumLength = maximumLength;
@@ -784,6 +796,7 @@ public interface WebService extends Definable<WebService.Context> {
 
     /**
      * @since 7.0
+     * @see Param#minimumLength()
      */
     public NewParam setMinimumLength(@Nullable Integer minimumLength) {
       this.minimumLength = minimumLength;
@@ -792,6 +805,7 @@ public interface WebService extends Definable<WebService.Context> {
 
     /**
      * @since 7.0
+     * @see Param#maximumValue()
      */
     public NewParam setMaximumValue(@Nullable Integer maximumValue) {
       this.maximumValue = maximumValue;
