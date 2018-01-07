@@ -19,28 +19,25 @@
  */
 package org.sonar.server.ws;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.function.Consumer;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.ClientAbortException;
-import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonarqube.ws.MediaTypes;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.apache.commons.lang.StringUtils.substringAfterLast;
+import static org.apache.commons.lang.StringUtils.substringBeforeLast;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -56,29 +53,28 @@ public class WebServiceEngineTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private WebServiceEngine underTest = new WebServiceEngine(new WebService[] {new SystemWs()});
-
-  @Before
-  public void start() {
-    underTest.start();
-  }
-
-  @After
-  public void stop() {
-    underTest.stop();
-  }
-
   @Test
   public void load_ws_definitions_at_startup() {
-    assertThat(underTest.controllers()).hasSize(1);
-    assertThat(underTest.controllers().get(0).path()).isEqualTo("api/system");
+    WebServiceEngine underTest = new WebServiceEngine(new WebService[] {
+      newWs("api/foo/index", a -> {}),
+      newWs("api/bar/index", a -> {})
+    });
+    underTest.start();
+    try {
+      assertThat(underTest.controllers())
+        .extracting(WebService.Controller::path)
+        .containsExactlyInAnyOrder("api/foo", "api/bar");
+    } finally {
+      underTest.stop();
+    }
   }
 
   @Test
   public void ws_returns_successful_response() {
-    ValidatingRequest request = new TestRequest().setPath("/api/ping");
+    Request request = new TestRequest().setPath("/api/ping");
 
-    DumbResponse response = run(request, new PingWs());
+    DumbResponse response = run(request, newPingWs(a -> {
+    }));
 
     assertThat(response.stream().outputAsString()).isEqualTo("pong");
     assertThat(response.stream().status()).isEqualTo(200);
@@ -86,9 +82,10 @@ public class WebServiceEngineTest {
 
   @Test
   public void accept_path_that_does_not_start_with_slash() {
-    ValidatingRequest request = new TestRequest().setPath("api/ping");
+    Request request = new TestRequest().setPath("api/ping");
 
-    DumbResponse response = run(request, new PingWs());
+    DumbResponse response = run(request, newPingWs(a -> {
+    }));
 
     assertThat(response.stream().outputAsString()).isEqualTo("pong");
     assertThat(response.stream().status()).isEqualTo(200);
@@ -96,9 +93,10 @@ public class WebServiceEngineTest {
 
   @Test
   public void request_path_can_contain_valid_media_type() {
-    ValidatingRequest request = new TestRequest().setPath("api/ping.json");
+    Request request = new TestRequest().setPath("api/ping.json");
 
-    DumbResponse response = run(request, new PingWs());
+    DumbResponse response = run(request, newPingWs(a -> {
+    }));
 
     assertThat(response.stream().outputAsString()).isEqualTo("pong");
     assertThat(response.stream().status()).isEqualTo(200);
@@ -106,9 +104,10 @@ public class WebServiceEngineTest {
 
   @Test
   public void bad_request_if_action_suffix_is_not_supported() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/health.bat");
-    DumbResponse response = new DumbResponse();
-    underTest.execute(request, response);
+    Request request = new TestRequest().setPath("/api/ping.bat");
+
+    DumbResponse response = run(request, newPingWs(a -> {
+    }));
 
     assertThat(response.stream().status()).isEqualTo(400);
     assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
@@ -116,197 +115,233 @@ public class WebServiceEngineTest {
   }
 
   @Test
-  public void no_content() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/alive");
-    DumbResponse response = new DumbResponse();
-    underTest.execute(request, response);
+  public void test_response_with_no_content() {
+    Request request = new TestRequest().setPath("api/foo");
+
+    RequestHandler handler = (req, resp) -> resp.noContent();
+    DumbResponse response = run(request, newWs("api/foo", a -> a.setHandler(handler)));
 
     assertThat(response.stream().outputAsString()).isEmpty();
+    assertThat(response.stream().status()).isEqualTo(204);
   }
 
   @Test
-  public void bad_controller() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/xxx/health");
-    DumbResponse response = new DumbResponse();
-    underTest.execute(request, response);
+  public void return_404_if_controller_does_not_exist() {
+    Request request = new TestRequest().setPath("xxx/ping");
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown url : /api/xxx/health\"}]}");
+    DumbResponse response = run(request, newPingWs(a -> {
+    }));
+
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown url : xxx/ping\"}]}");
     assertThat(response.stream().status()).isEqualTo(404);
   }
 
   @Test
-  public void bad_controller_with_no_action() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/bad");
-    DumbResponse response = new DumbResponse();
-    underTest.execute(request, response);
+  public void return_404_if_action_does_not_exist() {
+    Request request = new TestRequest().setPath("api/xxx");
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown url : /api/bad\"}]}");
+    DumbResponse response = run(request, newPingWs(a -> {
+    }));
+
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown url : api/xxx\"}]}");
     assertThat(response.stream().status()).isEqualTo(404);
   }
 
   @Test
-  public void bad_action() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/xxx");
-    DumbResponse response = new DumbResponse();
-    underTest.execute(request, response);
+  public void fail_if_method_GET_is_not_allowed() {
+    Request request = new TestRequest().setMethod("GET").setPath("api/foo");
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Unknown url : /api/system/xxx\"}]}");
-    assertThat(response.stream().status()).isEqualTo(404);
-  }
-
-  @Test
-  public void method_get_not_allowed() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/ping");
-    DumbResponse response = new DumbResponse();
-    underTest.execute(request, response);
+    DumbResponse response = run(request, newWs("api/foo", a -> a.setPost(true)));
 
     assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"HTTP method POST is required\"}]}");
+    assertThat(response.stream().status()).isEqualTo(405);
   }
 
   @Test
-  public void method_put_not_allowed() {
-    ValidatingRequest request = new TestRequest().setMethod("PUT").setPath("/api/system/ping");
-    DumbResponse response = new DumbResponse();
-    underTest.execute(request, response);
+  public void POST_is_considered_as_GET_if_POST_is_not_supported() {
+    Request request = new TestRequest().setMethod("POST").setPath("api/ping");
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"HTTP method PUT is not allowed\"}]}");
-  }
-
-  @Test
-  public void method_delete_not_allowed() {
-    ValidatingRequest request = new TestRequest().setMethod("DELETE").setPath("/api/system/ping");
-    DumbResponse response = new DumbResponse();
-    underTest.execute(request, response);
-
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"HTTP method DELETE is not allowed\"}]}");
-  }
-
-  @Test
-  public void method_post_required() {
-    ValidatingRequest request = new TestRequest().setMethod("POST").setPath("/api/system/ping");
-    DumbResponse response = new DumbResponse();
-    underTest.execute(request, response);
+    DumbResponse response = run(request, newPingWs(a -> {
+    }));
 
     assertThat(response.stream().outputAsString()).isEqualTo("pong");
+    assertThat(response.stream().status()).isEqualTo(200);
   }
 
   @Test
-  public void unknown_parameter_is_set() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail_with_undeclared_parameter").setParam("unknown", "Unknown");
-    DumbResponse response = new DumbResponse();
-    underTest.execute(request, response);
+  public void method_PUT_is_not_allowed() {
+    Request request = new TestRequest().setMethod("PUT").setPath("/api/ping");
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"BUG - parameter 'unknown' is undefined for action 'fail_with_undeclared_parameter'\"}]}");
+    DumbResponse response = run(request, newPingWs(a -> {
+    }));
+
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"HTTP method PUT is not allowed\"}]}");
+    assertThat(response.stream().status()).isEqualTo(405);
   }
 
   @Test
-  public void required_parameter_is_not_set() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/print");
-    DumbResponse response = new DumbResponse();
-    underTest.execute(request, response);
+  public void method_DELETE_is_not_allowed() {
+    Request request = new TestRequest().setMethod("DELETE").setPath("api/ping");
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"The 'message' parameter is missing\"}]}");
+    DumbResponse response = run(request, newPingWs(a -> {
+    }));
+
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"HTTP method DELETE is not allowed\"}]}");
+    assertThat(response.stream().status()).isEqualTo(405);
   }
 
   @Test
-  public void required_parameter_is_not_set_but_not_called_as_mandatory() {
-    ValidatingRequest request = new TestRequest().setPath("/api/system/test-required-parameter");
+  public void method_POST_is_required() {
+    Request request = new TestRequest().setMethod("POST").setPath("api/ping");
 
-    DumbResponse response = new DumbResponse();
-    underTest.execute(request, response);
+    DumbResponse response = run(request, newPingWs(a -> a.setPost(true)));
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"The 'required-parameter' parameter is missing\"}]}");
+    assertThat(response.stream().outputAsString()).isEqualTo("pong");
+    assertThat(response.stream().status()).isEqualTo(200);
   }
 
   @Test
-  public void optional_parameter_is_not_set() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/print").setParam("message", "Hello World");
-    DumbResponse response = new DumbResponse();
-    underTest.execute(request, response);
+  public void fail_if_reading_an_undefined_parameter() {
+    Request request = new TestRequest().setPath("api/foo").setParam("unknown", "Unknown");
 
-    assertThat(response.stream().outputAsString()).isEqualTo("Hello World by -");
+    DumbResponse response = run(request, newWs("api/foo", a ->
+      a.setHandler((req, resp) -> request.param("unknown"))));
+
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"BUG - parameter 'unknown' is undefined for action 'foo'\"}]}");
+    assertThat(response.stream().status()).isEqualTo(400);
   }
 
   @Test
-  public void optional_parameter_is_set() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/print")
-      .setParam("message", "Hello World")
-      .setParam("author", "Marcel");
-    DumbResponse response = new DumbResponse();
-    underTest.execute(request, response);
+  public void fail_if_request_does_not_have_required_parameter() {
+    Request request = new TestRequest().setPath("api/foo").setParam("unknown", "Unknown");
 
-    assertThat(response.stream().outputAsString()).isEqualTo("Hello World by Marcel");
+    DumbResponse response = run(request, newWs("api/foo", a -> {
+      a.createParam("bar").setRequired(true);
+      a.setHandler((req, resp) -> request.mandatoryParam("bar"));
+    }));
+
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"The 'bar' parameter is missing\"}]}");
+    assertThat(response.stream().status()).isEqualTo(400);
   }
 
   @Test
-  public void param_value_is_in_possible_values() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/print")
-      .setParam("message", "Hello World")
-      .setParam("format", "json");
-    DumbResponse response = new DumbResponse();
-    underTest.execute(request, response);
+  public void fail_if_request_does_not_have_required_parameter_even_if_handler_does_not_require_it() {
+    Request request = new TestRequest().setPath("api/foo").setParam("unknown", "Unknown");
 
-    assertThat(response.stream().outputAsString()).isEqualTo("Hello World by -");
+    DumbResponse response = run(request, newWs("api/foo", a -> {
+      a.createParam("bar").setRequired(true);
+      // do not use mandatoryParam("bar")
+      a.setHandler((req, resp) -> request.param("bar"));
+    }));
+
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"The 'bar' parameter is missing\"}]}");
+    assertThat(response.stream().status()).isEqualTo(400);
   }
 
   @Test
-  public void param_value_is_not_in_possible_values() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/print")
-      .setParam("message", "Hello World")
-      .setParam("format", "html");
-    DumbResponse response = new DumbResponse();
-    underTest.execute(request, response);
+  public void use_default_value_of_optional_parameter() {
+    Request request = new TestRequest().setPath("api/print");
 
-    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Value of parameter 'format' (html) must be one of: [json, xml]\"}]}");
+    DumbResponse response = run(request, newWs("api/print", a -> {
+      a.createParam("message").setDefaultValue("hello");
+      a.setHandler((req, resp) -> resp.stream().output().write(req.param("message").getBytes(UTF_8)));
+    }));
+
+    assertThat(response.stream().outputAsString()).isEqualTo("hello");
+    assertThat(response.stream().status()).isEqualTo(200);
   }
 
   @Test
-  public void internal_error() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail");
-    DumbResponse response = new DumbResponse();
-    underTest.execute(request, response);
+  public void use_request_parameter_on_parameter_with_default_value() {
+    Request request = new TestRequest().setPath("api/print").setParam("message", "bar");
+
+    DumbResponse response = run(request, newWs("api/print", a -> {
+      a.createParam("message").setDefaultValue("default_value");
+      a.setHandler((req, resp) -> resp.stream().output().write(req.param("message").getBytes(UTF_8)));
+    }));
+
+    assertThat(response.stream().outputAsString()).isEqualTo("bar");
+    assertThat(response.stream().status()).isEqualTo(200);
+  }
+
+  @Test
+  public void accept_parameter_value_within_defined_possible_values() {
+    Request request = new TestRequest().setPath("api/foo").setParam("format", "json");
+
+    DumbResponse response = run(request, newWs("api/foo", a -> {
+      a.createParam("format").setPossibleValues("json", "xml");
+      a.setHandler((req, resp) -> resp.stream().output().write(req.mandatoryParam("format").getBytes(UTF_8)));
+    }));
+
+    assertThat(response.stream().outputAsString()).isEqualTo("json");
+    assertThat(response.stream().status()).isEqualTo(200);
+  }
+
+  @Test
+  public void fail_if_parameter_value_is_not_in_defined_possible_values() {
+    Request request = new TestRequest().setPath("api/foo").setParam("format", "yml");
+
+    DumbResponse response = run(request, newWs("api/foo", a -> {
+      a.createParam("format").setPossibleValues("json", "xml");
+      a.setHandler((req, resp) -> resp.stream().output().write(req.mandatoryParam("format").getBytes(UTF_8)));
+    }));
+
+    assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"Value of parameter 'format' (yml) must be one of: [json, xml]\"}]}");
+    assertThat(response.stream().status()).isEqualTo(400);
+  }
+
+  @Test
+  public void return_500_on_internal_error() {
+    Request request = new TestRequest().setPath("api/foo");
+
+    DumbResponse response = run(request, newFailWs());
 
     assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"An error has occurred. Please contact your administrator\"}]}");
     assertThat(response.stream().status()).isEqualTo(500);
     assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).filteredOn(l -> l.contains("Fail to process request")).isNotEmpty();
+    assertThat(logTester.logs(LoggerLevel.ERROR)).filteredOn(l -> l.contains("Fail to process request api/foo")).isNotEmpty();
   }
 
   @Test
-  public void bad_request() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail_bad_request").setParam("count", "3");
-    DumbResponse response = new DumbResponse();
+  public void return_400_on_BadRequestException_with_single_message() {
+    Request request = new TestRequest().setPath("api/foo");
 
-    underTest.execute(request, response);
+    DumbResponse response = run(request, newWs("api/foo", a -> a.setHandler((req, resp) -> {
+      throw BadRequestException.create("Bad request !");
+    })));
 
     assertThat(response.stream().outputAsString()).isEqualTo(
       "{\"errors\":[{\"msg\":\"Bad request !\"}]}");
     assertThat(response.stream().status()).isEqualTo(400);
     assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
   }
 
   @Test
-  public void bad_request_with_multiple_messages() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/fail_with_multiple_messages").setParam("count", "3");
-    DumbResponse response = new DumbResponse();
+  public void return_400_on_BadRequestException_with_multiple_messages() {
+    Request request = new TestRequest().setPath("api/foo");
 
-    underTest.execute(request, response);
+    DumbResponse response = run(request, newWs("api/foo", a -> a.setHandler((req, resp) -> {
+      throw BadRequestException.create("one", "two", "three");
+    })));
 
     assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":["
-      + "{\"msg\":\"Bad request reason #0\"},"
-      + "{\"msg\":\"Bad request reason #1\"},"
-      + "{\"msg\":\"Bad request reason #2\"}"
+      + "{\"msg\":\"one\"},"
+      + "{\"msg\":\"two\"},"
+      + "{\"msg\":\"three\"}"
       + "]}");
     assertThat(response.stream().status()).isEqualTo(400);
     assertThat(response.stream().mediaType()).isEqualTo(MediaTypes.JSON);
+    assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
   }
 
   @Test
   public void return_error_message_containing_character_percent() {
-    ValidatingRequest request = new TestRequest().setMethod("GET").setPath("/api/system/error_message_having_percent");
-    DumbResponse response = new DumbResponse();
+    Request request = new TestRequest().setPath("api/foo");
 
-    underTest.execute(request, response);
+    DumbResponse response = run(request, newWs("api/foo", a -> a.setHandler((req, resp) -> {
+      throw new IllegalArgumentException("this should not fail %s");
+    })));
 
     assertThat(response.stream().outputAsString()).isEqualTo("{\"errors\":[{\"msg\":\"this should not fail %s\"}]}");
     assertThat(response.stream().status()).isEqualTo(400);
@@ -315,70 +350,97 @@ public class WebServiceEngineTest {
 
   @Test
   public void send_response_headers() {
-    DumbResponse response = new DumbResponse();
-    String name = "Content-Disposition";
-    String value = "attachment; filename=sonarqube.zip";
-    response.setHeader(name, value);
-    assertThat(response.getHeaderNames()).containsExactly(name);
-    assertThat(response.getHeader(name)).isEqualTo(value);
+    Request request = new TestRequest().setPath("api/foo");
+
+    DumbResponse response = run(request, newWs("api/foo", a -> a.setHandler((req, resp) -> resp.setHeader("Content-Disposition", "attachment; filename=foo.zip"))));
+
+    assertThat(response.getHeader("Content-Disposition")).isEqualTo("attachment; filename=foo.zip");
   }
 
   @Test
   public void support_aborted_request_when_response_is_already_committed() {
-    ValidatingRequest request = new TestRequest().setPath("/api/system/fail_with_client_abort_exception");
+    Request request = new TestRequest().setPath("api/foo");
     Response response = mockServletResponse(true);
 
-    underTest.execute(request, response);
+    run(request, response, newClientAbortWs());
 
     // response is committed (status is already sent), so status can't be changed
     verify(response.stream(), never()).setStatus(anyInt());
 
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Request /api/system/fail_with_client_abort_exception has been aborted by client");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Request api/foo has been aborted by client");
   }
 
   @Test
   public void support_aborted_request_when_response_is_not_committed() {
-    ValidatingRequest request = new TestRequest().setPath("/api/system/fail_with_client_abort_exception");
+    Request request = new TestRequest().setPath("api/foo");
     Response response = mockServletResponse(false);
 
-    underTest.execute(request, response);
+    run(request, response, newClientAbortWs());
 
     verify(response.stream()).setStatus(299);
-    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Request /api/system/fail_with_client_abort_exception has been aborted by client");
+    assertThat(logTester.logs(LoggerLevel.DEBUG)).contains("Request api/foo has been aborted by client");
   }
 
   @Test
   public void internal_error_when_response_is_already_committed() {
-    ValidatingRequest request = new TestRequest().setPath("/api/system/fail");
+    Request request = new TestRequest().setPath("api/foo");
     Response response = mockServletResponse(true);
 
-    underTest.execute(request, response);
+    run(request, response, newFailWs());
 
     // response is committed (status is already sent), so status can't be changed
     verify(response.stream(), never()).setStatus(anyInt());
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Fail to process request /api/system/fail");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Fail to process request api/foo");
   }
 
   @Test
   public void internal_error_when_response_is_not_committed() {
-    ValidatingRequest request = new TestRequest().setPath("/api/system/fail");
+    Request request = new TestRequest().setPath("api/foo");
     Response response = mockServletResponse(false);
 
-    underTest.execute(request, response);
+    run(request, response, newFailWs());
 
     verify(response.stream()).setStatus(500);
-    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Fail to process request /api/system/fail");
+    assertThat(logTester.logs(LoggerLevel.ERROR)).contains("Fail to process request api/foo");
+  }
+
+  private static WebService newWs(String path, Consumer<WebService.NewAction> consumer) {
+    return context -> {
+      WebService.NewController controller = context.createController(substringBeforeLast(path, "/"));
+      WebService.NewAction action = createNewDefaultAction(controller, substringAfterLast(path, "/"));
+      action.setHandler((request, response) -> {
+      });
+      consumer.accept(action);
+      controller.done();
+    };
+  }
+
+  private static WebService newPingWs(Consumer<WebService.NewAction> consumer) {
+    return newWs("api/ping", a -> {
+      a.setHandler((request, response) -> response.stream().output().write("pong".getBytes(UTF_8)));
+      consumer.accept(a);
+    });
+  }
+
+  private static WebService newFailWs() {
+    return newWs("api/foo", a -> a.setHandler((req, resp) -> {
+      throw new IllegalStateException("BOOM");
+    }));
   }
 
   private static DumbResponse run(Request request, WebService... webServices) {
-    WebServiceEngine engine = new WebServiceEngine(webServices);
-    engine.start();
+    DumbResponse response = new DumbResponse();
+    return (DumbResponse)run(request, response, webServices);
+  }
+
+  private static Response run(Request request, Response response, WebService... webServices) {
+    WebServiceEngine underTest = new WebServiceEngine(webServices);
+    underTest.start();
     try {
-      DumbResponse response = new DumbResponse();
-      engine.execute(request, response);
+      underTest.execute(request, response);
       return response;
     } finally {
-      engine.stop();
+      underTest.stop();
     }
   }
 
@@ -392,96 +454,10 @@ public class WebServiceEngineTest {
     return response;
   }
 
-  private static class PingWs implements WebService {
-    @Override
-    public void define(Context context) {
-      NewController newController = context.createController("api");
-      createNewDefaultAction(newController, "ping")
-        .setHandler((request, response) -> response.stream().output().write("pong".getBytes(UTF_8)));
-      newController.done();
-    }
-  }
-
-  static class SystemWs implements WebService {
-    @Override
-    public void define(Context context) {
-      NewController newController = context.createController("api/system");
-      createNewDefaultAction(newController, "health")
-        .setHandler((request, response) -> {
-          try {
-            response.stream().output().write("good".getBytes());
-          } catch (IOException e) {
-            throw new IllegalStateException(e);
-          }
-        });
-      createNewDefaultAction(newController, "ping")
-        .setPost(true)
-        .setHandler((request, response) -> {
-          try {
-            response.stream().output().write("pong".getBytes());
-          } catch (IOException e) {
-            throw new IllegalStateException(e);
-          }
-        });
-      createNewDefaultAction(newController, "fail")
-        .setHandler((request, response) -> {
-          throw new IllegalStateException("Unexpected");
-        });
-      createNewDefaultAction(newController, "fail_bad_request")
-        .setHandler((request, response) -> {
-          throw BadRequestException.create("Bad request !");
-        });
-      NewAction failWithMultipleMessages = createNewDefaultAction(newController, "fail_with_multiple_messages");
-      failWithMultipleMessages.createParam("count").setDescription("Number of error messages to generate");
-      failWithMultipleMessages
-        .setHandler((request, response) -> {
-          List<String> errors = new ArrayList<>();
-          for (int count = 0; count < Integer.valueOf(request.param("count")); count++) {
-            errors.add("Bad request reason #" + count);
-          }
-          throw BadRequestException.create(errors);
-        });
-      createNewDefaultAction(newController, "error_message_having_percent")
-        .setHandler((request, response) -> {
-          throw new IllegalArgumentException("this should not fail %s");
-        });
-      createNewDefaultAction(newController, "alive")
-        .setHandler((request, response) -> response.noContent());
-
-      createNewDefaultAction(newController, "fail_with_undeclared_parameter")
-        .setHandler((request, response) -> response.newJsonWriter().prop("unknown", request.param("unknown")));
-
-      // parameter "message" is required but not "author"
-      NewAction print = createNewDefaultAction(newController, "print");
-      print.createParam("message").setDescription("required message").setRequired(true);
-      print.createParam("author").setDescription("optional author").setDefaultValue("-");
-      print.createParam("format").setDescription("optional format").setPossibleValues("json", "xml");
-      print.setHandler((request, response) -> {
-        try {
-          request.param("format");
-          IOUtils.write(
-            request.mandatoryParam("message") + " by " + request.param("author", "nobody"), response.stream().output());
-        } catch (IOException e) {
-          throw new IllegalStateException(e);
-        }
-      });
-
-      // parameter "required-parameter" is required
-      NewAction helloWorld = createNewDefaultAction(newController, "test-required-parameter");
-      helloWorld.createParam("required-parameter").setDescription("required message").setRequired(true);
-      helloWorld.setHandler((request, response) -> {
-        String param = request.param("required-parameter");
-      });
-
-      // simulate a client abort
-      createNewDefaultAction(newController, "fail_with_client_abort_exception")
-        .setHandler((request, response) -> {
-          throw new IllegalStateException("fail!", new ClientAbortException());
-        });
-
-      newController.done();
-    }
-
+  private static WebService newClientAbortWs() {
+    return newWs("api/foo", a -> a.setHandler((req, resp) -> {
+      throw new ClientAbortException();
+    }));
   }
 
   private static WebService.NewAction createNewDefaultAction(WebService.NewController controller, String key) {
