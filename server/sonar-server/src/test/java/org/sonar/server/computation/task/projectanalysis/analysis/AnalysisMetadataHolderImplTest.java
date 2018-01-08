@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.analysis;
 
-import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -63,9 +62,7 @@ public class AnalysisMetadataHolderImplTest {
 
   @Test
   public void setOrganization_throws_ISE_if_called_twice() {
-    Organization organization = Organization.from(
-      new OrganizationDto().setUuid("uuid").setKey("key").setName("name").setDefaultQualityGateUuid("anyuuidr"),
-      new Random().nextBoolean());
+    Organization organization = Organization.from(new OrganizationDto().setUuid("uuid").setKey("key").setName("name").setDefaultQualityGateUuid("anyuuidr"));
     underTest.setOrganization(organization);
 
     expectedException.expect(IllegalStateException.class);
