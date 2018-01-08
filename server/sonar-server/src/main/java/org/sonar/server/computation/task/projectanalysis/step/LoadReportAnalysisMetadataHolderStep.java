@@ -87,17 +87,10 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     ScannerReport.Metadata reportMetadata = reportReader.readMetadata();
 
     loadMetadata(reportMetadata);
-    loadOrganizationsEnabled();
     Organization organization = loadOrganization(reportMetadata);
     loadProject(reportMetadata, organization);
     loadQualityProfiles(reportMetadata, organization);
     branchLoader.load(reportMetadata);
-  }
-
-  private void loadOrganizationsEnabled() {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      analysisMetadata.setOrganizationsEnabled(organizationFlags.isEnabled(dbSession));
-    }
   }
 
   private void loadMetadata(ScannerReport.Metadata reportMetadata) {
@@ -120,10 +113,13 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
   }
 
   private Organization loadOrganization(ScannerReport.Metadata reportMetadata) {
-    Organization organization = toOrganization(ceTask.getOrganizationUuid());
-    checkOrganizationKeyConsistency(reportMetadata, organization);
-    analysisMetadata.setOrganization(organization);
-    return organization;
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Organization organization = toOrganization(dbSession, ceTask.getOrganizationUuid());
+      checkOrganizationKeyConsistency(reportMetadata, organization);
+      analysisMetadata.setOrganization(organization);
+      analysisMetadata.setOrganizationsEnabled(organizationFlags.isEnabled(dbSession));
+      return organization;
+    }
   }
 
   private void loadQualityProfiles(ScannerReport.Metadata reportMetadata, Organization organization) {
@@ -212,12 +208,10 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     return organizationKey == null || organizationKey.isEmpty();
   }
 
-  private Organization toOrganization(String organizationUuid) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      Optional<OrganizationDto> organizationDto = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid);
-      checkState(organizationDto.isPresent(), "Organization with uuid '%s' can't be found", organizationUuid);
-      return Organization.from(organizationDto.get());
-    }
+  private Organization toOrganization(DbSession dbSession, String organizationUuid) {
+    Optional<OrganizationDto> organizationDto = dbClient.organizationDao().selectByUuid(dbSession, organizationUuid);
+    checkState(organizationDto.isPresent(), "Organization with uuid '%s' can't be found", organizationUuid);
+    return Organization.from(organizationDto.get());
   }
 
   private ComponentDto toProject(String projectKey) {
