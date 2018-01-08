@@ -1,11 +1,11 @@
 <div class="bubble-popup-container">
+  <div class="bubble-popup-title">
+    {{t 'source_viewer.covered'}}
+    {{#if row.conditions}}
+      ({{default row.coveredConditions 0}} of {{row.conditions}} {{t 'source_viewer.conditions'}})
+    {{/if}}
+  </div>
   {{#each testFiles}}
-    <div class="bubble-popup-title">
-      {{t 'source_viewer.covered'}}
-      {{#if row.conditions}}
-        ({{default row.coveredConditions 0}} of {{row.conditions}} {{t 'source_viewer.conditions'}})
-      {{/if}}
-    </div>
     <div class="bubble-popup-section">
       <a class="component-viewer-popup-test-file link-action" data-key="{{file.key}}" title="{{file.longName}}">
         <span>{{collapsePath file.longName}}</span>
@@ -16,7 +16,7 @@
             <i class="component-viewer-popup-test-status {{testStatusIconClass status}}"></i>
             <span class="component-viewer-popup-test-name">
               <a class="component-viewer-popup-test-file link-action" title="{{name}}"
-                 data-key="{{../file.key}}" data-method="{{name}}">
+                data-key="{{../file.key}}" data-method="{{name}}">
                 {{name}}
               </a>
             </span>

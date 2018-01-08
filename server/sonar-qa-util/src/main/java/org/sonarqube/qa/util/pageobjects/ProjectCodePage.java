@@ -22,6 +22,8 @@ package org.sonarqube.qa.util.pageobjects;
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selenide;
 
+import static com.codeborne.selenide.Selenide.$;
+
 public class ProjectCodePage {
 
   public ProjectCodePage openFirstComponent() {
@@ -30,29 +32,33 @@ public class ProjectCodePage {
   }
 
   public ProjectCodePage search(String query) {
-    Selenide.$(".code-search .search-box-input").val(query);
+    $(".code-search .search-box-input").val(query);
     return this;
   }
 
   public ProjectCodePage shouldHaveComponent(String name) {
-    Selenide.$(".code-components").shouldHave(Condition.text(name));
+    $(".code-components").shouldHave(Condition.text(name));
     return this;
   }
 
   public ProjectCodePage shouldHaveCode(String code) {
-    Selenide.$(".code-components .source-viewer").shouldHave(Condition.text(code));
+    $(".code-components .source-viewer").shouldHave(Condition.text(code));
     return this;
   }
 
   public ProjectCodePage shouldHaveBreadcrumbs(String... breadcrumbs) {
     for (String breadcrumb : breadcrumbs) {
-      Selenide.$(".code-breadcrumbs").shouldHave(Condition.text(breadcrumb));
+      $(".code-breadcrumbs").shouldHave(Condition.text(breadcrumb));
     }
     return this;
   }
 
   public ProjectCodePage shouldSearchResult(String name) {
-    Selenide.$(".code-search-with-results").shouldHave(Condition.text(name));
+    $(".code-search-with-results").shouldHave(Condition.text(name));
     return this;
+  }
+
+  public SourceViewer getSourceViewer() {
+    return new SourceViewer($(".code-components .source-viewer"));
   }
 }

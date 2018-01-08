@@ -35,6 +35,7 @@ import org.sonarqube.qa.util.Tester;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsRequest;
 
+import static com.codeborne.selenide.Condition.text;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.getMeasuresAsDoubleByMetricKey;
 import static util.ItUtils.projectDir;
@@ -215,6 +216,17 @@ public class CoverageTest {
     assertThat(getMeasuresAsDoubleByMetricKey(orchestrator, "xoo-half-covered", ALL_COVERAGE_METRICS).get("coverage")).isNull();
 
     verifyComputeEngineTempDirIsEmpty();
+  }
+
+  @Test
+  public void component_viewer_should_show_uncovered_conditions() {
+    orchestrator.executeBuilds(SonarScanner.create(projectDir("testing/xoo-sample-new-coverage-v2")));
+
+    tester.openBrowser()
+      .openCode("sample-new-coverage", "sample-new-coverage:src/main/xoo/sample/Sample.xoo")
+      .getSourceViewer()
+      .openCoverageDetails(7)
+      .shouldHave(text("2 of 3"));
   }
 
   private void verifyComputeEngineTempDirIsEmpty() {
