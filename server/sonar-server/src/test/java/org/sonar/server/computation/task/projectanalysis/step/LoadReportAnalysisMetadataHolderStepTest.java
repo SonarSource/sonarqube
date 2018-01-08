@@ -40,6 +40,7 @@ import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader
 import org.sonar.server.computation.task.projectanalysis.component.BranchLoader;
 import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,6 +66,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
   private PluginRepository pluginRepository = mock(PluginRepository.class);
   private ComputationStep underTest;
+  private OrganizationFlags organizationFlags = mock(OrganizationFlags.class);
 
   @Before
   public void setUp() {
@@ -323,7 +325,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
   private LoadReportAnalysisMetadataHolderStep createStep(CeTask ceTask) {
     return new LoadReportAnalysisMetadataHolderStep(ceTask, reportReader, analysisMetadataHolder,
-      defaultOrganizationProvider, dbClient, new BranchLoader(analysisMetadataHolder), pluginRepository);
+      defaultOrganizationProvider, dbClient, new BranchLoader(analysisMetadataHolder), pluginRepository, organizationFlags);
   }
 
   private static ScannerReport.Metadata.Builder newBatchReportBuilder() {

@@ -48,6 +48,7 @@ import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader
 import org.sonar.server.computation.task.projectanalysis.component.BranchLoader;
 import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.qualityprofile.QualityProfile;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -66,9 +67,11 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
   private final DbClient dbClient;
   private final BranchLoader branchLoader;
   private final PluginRepository pluginRepository;
+  private final OrganizationFlags organizationFlags;
 
   public LoadReportAnalysisMetadataHolderStep(CeTask ceTask, BatchReportReader reportReader, MutableAnalysisMetadataHolder analysisMetadata,
-    DefaultOrganizationProvider defaultOrganizationProvider, DbClient dbClient, BranchLoader branchLoader, PluginRepository pluginRepository) {
+    DefaultOrganizationProvider defaultOrganizationProvider, DbClient dbClient, BranchLoader branchLoader, PluginRepository pluginRepository,
+    OrganizationFlags organizationFlags) {
     this.ceTask = ceTask;
     this.reportReader = reportReader;
     this.analysisMetadata = analysisMetadata;
@@ -76,6 +79,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     this.dbClient = dbClient;
     this.branchLoader = branchLoader;
     this.pluginRepository = pluginRepository;
+    this.organizationFlags = organizationFlags;
   }
 
   @Override
@@ -83,10 +87,17 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     ScannerReport.Metadata reportMetadata = reportReader.readMetadata();
 
     loadMetadata(reportMetadata);
+    loadOrganizationsEnabled();
     Organization organization = loadOrganization(reportMetadata);
     loadProject(reportMetadata, organization);
     loadQualityProfiles(reportMetadata, organization);
     branchLoader.load(reportMetadata);
+  }
+
+  private void loadOrganizationsEnabled() {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      analysisMetadata.setOrganizationsEnabled(organizationFlags.isEnabled(dbSession));
+    }
   }
 
   private void loadMetadata(ScannerReport.Metadata reportMetadata) {
