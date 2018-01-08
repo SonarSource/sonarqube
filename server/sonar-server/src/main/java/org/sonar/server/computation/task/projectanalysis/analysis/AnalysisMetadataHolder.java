@@ -26,6 +26,11 @@ import org.sonar.server.qualityprofile.QualityProfile;
 public interface AnalysisMetadataHolder {
 
   /**
+   * @throws IllegalStateException if organizations enabled flag has not been set
+   */
+  boolean isOrganizationsEnabled();
+
+  /**
    * Returns the organization the analysis belongs to.
    * @throws IllegalStateException if organization has not been set
    */

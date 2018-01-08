@@ -35,6 +35,8 @@ import static java.util.Objects.requireNonNull;
 
 public class AnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder {
 
+  private final InitializedProperty<Boolean> organizationsEnabled = new InitializedProperty<>();
+
   private final InitializedProperty<Organization> organization = new InitializedProperty<>();
 
   private final InitializedProperty<String> uuid = new InitializedProperty<>();
@@ -54,6 +56,18 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Muta
   private final InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
 
   private final InitializedProperty<Map<String, ScannerPlugin>> pluginsByKey = new InitializedProperty<>();
+
+  @Override
+  public AnalysisMetadataHolderRule setOrganizationsEnabled(boolean isOrganizationsEnabled) {
+    this.organizationsEnabled.setProperty(isOrganizationsEnabled);
+    return this;
+  }
+
+  @Override
+  public boolean isOrganizationsEnabled() {
+    checkState(organizationsEnabled.isInitialized(), "Organizations enabled flag has not been set");
+    return organizationsEnabled.getProperty();
+  }
 
   @Override
   public AnalysisMetadataHolderRule setOrganization(Organization organization) {

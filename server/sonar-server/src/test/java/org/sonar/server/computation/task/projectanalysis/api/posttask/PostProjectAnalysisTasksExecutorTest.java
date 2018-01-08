@@ -109,10 +109,11 @@ public class PostProjectAnalysisTasksExecutorTest {
       CONDITION_2, ConditionStatus.NO_VALUE_STATUS));
     Branch branch = mock(Branch.class);
     when(branch.getType()).thenReturn(BranchType.LONG);
-    analysisMetadataHolder.setBranch(branch);
-    analysisMetadataHolder.setOrganization(Organization.from(
-      new OrganizationDto().setKey(organizationKey).setName(organizationName).setUuid(organizationUuid).setDefaultQualityGateUuid("foo"),
-      new Random().nextBoolean()));
+    analysisMetadataHolder
+      .setBranch(branch)
+      .setOrganizationsEnabled(new Random().nextBoolean())
+      .setOrganization(Organization.from(
+      new OrganizationDto().setKey(organizationKey).setName(organizationName).setUuid(organizationUuid).setDefaultQualityGateUuid("foo")));
   }
 
   @Test
@@ -146,9 +147,10 @@ public class PostProjectAnalysisTasksExecutorTest {
   @Test
   @UseDataProvider("booleanValues")
   public void organization_is_null_when_organization_are_disabled(boolean allStepsExecuted) {
-    analysisMetadataHolder.setOrganization(Organization.from(
-      new OrganizationDto().setKey(organizationKey).setName(organizationName).setUuid(organizationUuid).setDefaultQualityGateUuid("foo"),
-      false));
+    analysisMetadataHolder
+      .setOrganizationsEnabled(false)
+      .setOrganization(Organization.from(
+      new OrganizationDto().setKey(organizationKey).setName(organizationName).setUuid(organizationUuid).setDefaultQualityGateUuid("foo")));
     underTest.finished(allStepsExecuted);
 
     verify(postProjectAnalysisTask).finished(projectAnalysisArgumentCaptor.capture());
@@ -159,9 +161,10 @@ public class PostProjectAnalysisTasksExecutorTest {
   @Test
   @UseDataProvider("booleanValues")
   public void organization_is_not_null_when_organization_are_enabled(boolean allStepsExecuted) {
-    analysisMetadataHolder.setOrganization(Organization.from(
-      new OrganizationDto().setKey(organizationKey).setName(organizationName).setUuid(organizationUuid).setDefaultQualityGateUuid("foo"),
-      true));
+    analysisMetadataHolder
+      .setOrganizationsEnabled(true)
+      .setOrganization(Organization.from(
+      new OrganizationDto().setKey(organizationKey).setName(organizationName).setUuid(organizationUuid).setDefaultQualityGateUuid("foo")));
     underTest.finished(allStepsExecuted);
 
     verify(postProjectAnalysisTask).finished(projectAnalysisArgumentCaptor.capture());

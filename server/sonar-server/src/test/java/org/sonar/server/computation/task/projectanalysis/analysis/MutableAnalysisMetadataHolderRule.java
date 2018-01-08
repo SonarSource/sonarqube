@@ -35,6 +35,17 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
+  public boolean isOrganizationsEnabled() {
+    return delegate.isOrganizationsEnabled();
+  }
+
+  @Override
+  public MutableAnalysisMetadataHolderRule setOrganizationsEnabled(boolean isOrganizationsEnabled) {
+    delegate.setOrganizationsEnabled(isOrganizationsEnabled);
+    return this;
+  }
+
+  @Override
   public MutableAnalysisMetadataHolderRule setOrganization(Organization organization) {
     delegate.setOrganization(organization);
     return this;

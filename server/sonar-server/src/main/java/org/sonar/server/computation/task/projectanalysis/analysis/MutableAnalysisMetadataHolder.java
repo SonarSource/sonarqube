@@ -26,6 +26,11 @@ import org.sonar.server.qualityprofile.QualityProfile;
 public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
 
   /**
+   * @throws IllegalStateException if organizations enabled flag has already been set
+   */
+  MutableAnalysisMetadataHolder setOrganizationsEnabled(boolean isOrganizationsEnabled);
+
+  /**
    * @throws IllegalStateException if the organization uuid has already been set
    */
   MutableAnalysisMetadataHolder setOrganization(Organization organization);

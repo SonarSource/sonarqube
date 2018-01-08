@@ -129,11 +129,11 @@ public class PostProjectAnalysisTasksExecutor implements ComputationStepExecutor
 
   @CheckForNull
   private Organization createOrganization() {
-    org.sonar.server.computation.task.projectanalysis.analysis.Organization organization = analysisMetadataHolder.getOrganization();
-    if (organization.isOrganizationsEnabled()) {
-      return new OrganizationImpl(organization.getName(), organization.getKey());
+    if (!analysisMetadataHolder.isOrganizationsEnabled()) {
+      return null;
     }
-    return null;
+    org.sonar.server.computation.task.projectanalysis.analysis.Organization organization = analysisMetadataHolder.getOrganization();
+    return new OrganizationImpl(organization.getName(), organization.getKey());
   }
 
   private Optional<Analysis> getAnalysis() {
