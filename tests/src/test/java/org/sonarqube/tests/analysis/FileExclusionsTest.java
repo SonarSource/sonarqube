@@ -80,9 +80,7 @@ public class FileExclusionsTest {
    */
   @Test
   public void include_source_files() {
-    scan(
-      "sonar.dynamicAnalysis", "false",
-      "sonar.inclusions", "**/*One.xoo,**/*Two.xoo");
+    scan("sonar.inclusions", "**/*One.xoo,**/*Two.xoo");
 
     assertThat(getMeasuresAsDouble("files").get("files")).isEqualTo(2);
 

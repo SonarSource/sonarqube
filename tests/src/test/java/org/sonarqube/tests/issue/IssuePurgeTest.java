@@ -40,7 +40,7 @@ public class IssuePurgeTest extends AbstractIssueTest {
   private ProjectAnalysis xooMultiModuleAnalysis;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     String manyRulesProfile = projectAnalysisRule.registerProfile("/issue/IssuePurgeTest/with-many-rules.xml");
     String xooSampleProjectKey = projectAnalysisRule.registerProject("shared/xoo-sample");
     this.xooSampleAnalysis = projectAnalysisRule.newProjectAnalysis(xooSampleProjectKey)
@@ -54,13 +54,11 @@ public class IssuePurgeTest extends AbstractIssueTest {
    * SONAR-4308
    */
   @Test
-  public void purge_old_closed_issues() throws Exception {
+  public void purge_old_closed_issues() {
     projectAnalysisRule.setServerProperty("sonar.dbcleaner.daysBeforeDeletingClosedIssues", "5000");
 
     // Generate some issues
-    xooSampleAnalysis.withProperties(
-      "sonar.dynamicAnalysis", "false",
-      "sonar.projectDate", "2014-10-01")
+    xooSampleAnalysis.withProperties("sonar.projectDate", "2014-10-01")
       .run();
 
     // All the issues are open
@@ -73,9 +71,7 @@ public class IssuePurgeTest extends AbstractIssueTest {
     // -> Not deleted because less than 5000 days long
     xooSampleAnalysis
       .withXooEmptyProfile()
-      .withProperties(
-        "sonar.dynamicAnalysis", "false",
-        "sonar.projectDate", "2014-10-15")
+      .withProperties("sonar.projectDate", "2014-10-15")
       .run();
     issuesList = searchIssues();
     assertThat(issuesList).isNotEmpty();
@@ -88,9 +84,7 @@ public class IssuePurgeTest extends AbstractIssueTest {
     projectAnalysisRule.setServerProperty("sonar.dbcleaner.daysBeforeDeletingClosedIssues", "1");
 
     xooSampleAnalysis.withXooEmptyProfile()
-      .withProperties(
-        "sonar.dynamicAnalysis", "false",
-        "sonar.projectDate", "2014-10-20")
+      .withProperties("sonar.projectDate", "2014-10-20")
       .run();
     Issues issues = issueClient().find(IssueQuery.create());
     assertThat(issues.list()).isEmpty();
@@ -101,13 +95,11 @@ public class IssuePurgeTest extends AbstractIssueTest {
    * SONAR-7108
    */
   @Test
-  public void purge_old_closed_issues_when_zero_closed_issues_wanted() throws Exception {
+  public void purge_old_closed_issues_when_zero_closed_issues_wanted() {
     projectAnalysisRule.setServerProperty("sonar.dbcleaner.daysBeforeDeletingClosedIssues", "5000");
 
     // Generate some issues
-    xooSampleAnalysis.withProperties(
-      "sonar.dynamicAnalysis", "false",
-      "sonar.projectDate", "2014-10-01")
+    xooSampleAnalysis.withProperties("sonar.projectDate", "2014-10-01")
       .run();
 
     // All the issues are open
@@ -120,9 +112,7 @@ public class IssuePurgeTest extends AbstractIssueTest {
     // -> Not deleted because less than 5000 days long
     xooSampleAnalysis
       .withXooEmptyProfile()
-      .withProperties(
-        "sonar.dynamicAnalysis", "false",
-        "sonar.projectDate", "2014-10-15")
+      .withProperties("sonar.projectDate", "2014-10-15")
       .run();
     issueList = searchIssues();
     assertThat(issueList).isNotEmpty();
@@ -135,9 +125,7 @@ public class IssuePurgeTest extends AbstractIssueTest {
     projectAnalysisRule.setServerProperty("sonar.dbcleaner.daysBeforeDeletingClosedIssues", "0");
 
     xooSampleAnalysis.withXooEmptyProfile()
-      .withProperties(
-        "sonar.dynamicAnalysis", "false",
-        "sonar.projectDate", "2014-10-20")
+      .withProperties("sonar.projectDate", "2014-10-20")
       .run();
 
     Issues issues = issueClient().find(IssueQuery.create());
@@ -149,11 +137,9 @@ public class IssuePurgeTest extends AbstractIssueTest {
    * SONAR-5200
    */
   @Test
-  public void resolve_issues_when_removing_module() throws Exception {
+  public void resolve_issues_when_removing_module() {
     // Generate some issues
-    xooMultiModuleAnalysis
-      .withProperties("sonar.dynamicAnalysis", "false")
-      .run();
+    xooMultiModuleAnalysis.run();
 
     // All the issues are open
     List<Issue> issues = searchIssues();
@@ -167,9 +153,7 @@ public class IssuePurgeTest extends AbstractIssueTest {
 
     // Second scan without module B -> issues on module B are resolved as removed and closed
     xooMultiModuleAnalysis
-      .withProperties(
-        "sonar.dynamicAnalysis", "false",
-        "sonar.modules", "module_a")
+      .withProperties("sonar.modules", "module_a")
       .run();
 
     // Resolved should should all be mark as REMOVED and affect to module b

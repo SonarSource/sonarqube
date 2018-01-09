@@ -48,8 +48,7 @@ public class ProjectBuilderTest {
   public void shouldDefineProjectFromPlugin() {
     MavenBuild build = MavenBuild.create(ItUtils.projectPom("analysis/project-builder"))
       .setCleanSonarGoals()
-      .setProperty("sonar.enableProjectBuilder", "true")
-      .setProperty("sonar.dynamicAnalysis", "false");
+      .setProperty("sonar.enableProjectBuilder", "true");
     orchestrator.executeBuild(build);
 
     checkProject();
