@@ -18,8 +18,8 @@ exports[`renders correctly 1`] = `
   <p>
     <a
       className="button"
-      download="build-wrapper-linux-x86.zip"
-      href="/static/cpp/build-wrapper-linux-x86.zip"
+      download="build-wrapper-win-x86.zip"
+      href="/static/cpp/build-wrapper-win-x86.zip"
       target="_blank"
     >
       download_verb
@@ -46,8 +46,8 @@ exports[`renders correctly 2`] = `
   <p>
     <a
       className="button"
-      download="build-wrapper-win-x86.zip"
-      href="/static/cpp/build-wrapper-win-x86.zip"
+      download="build-wrapper-linux-x86.zip"
+      href="/static/cpp/build-wrapper-linux-x86.zip"
       target="_blank"
     >
       download_verb
