@@ -408,7 +408,7 @@ public class ProjectReactorBuilder {
   static String[] getListFromProperty(Map<String, String> properties, String key) {
     String propValue = properties.get(key);
     if (propValue != null) {
-      return DefaultConfiguration.parseAsCsv(ProjectDefinition.SOURCES_PROPERTY, propValue);
+      return DefaultConfiguration.parseAsCsv(key, propValue);
     }
     return new String[0];
   }
