@@ -67,23 +67,26 @@ export default class ProjectWatcher extends React.PureComponent {
 
   checkProject = () => {
     const { projectKey } = this.props;
-    getTasksForComponent(projectKey).then(response => {
-      if (response.queue.length > 0) {
-        this.setState({ inQueue: true });
-      }
+    getTasksForComponent(projectKey).then(
+      response => {
+        if (response.queue.length > 0) {
+          this.setState({ inQueue: true });
+        }
 
-      if (response.current != null) {
-        const { status } = response.current;
-        this.setState({ status });
-        if (status === STATUSES.SUCCESS) {
-          this.props.onFinish();
-        } else if (status === STATUSES.PENDING || status === STATUSES.IN_PROGRESS) {
+        if (response.current != null) {
+          const { status } = response.current;
+          this.setState({ status });
+          if (status === STATUSES.SUCCESS) {
+            this.props.onFinish();
+          } else if (status === STATUSES.PENDING || status === STATUSES.IN_PROGRESS) {
+            this.watch();
+          }
+        } else {
           this.watch();
         }
-      } else {
-        this.watch();
-      }
-    });
+      },
+      () => {}
+    );
   };
 
   render() {

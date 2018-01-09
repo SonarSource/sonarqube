@@ -47,6 +47,15 @@ it('renders background task pending info correctly', () => {
   expect(getWrapper({ isPending: true })).toMatchSnapshot();
 });
 
+it('renders background task pending info correctly for admin', () => {
+  expect(
+    getWrapper({
+      component: { ...component, configuration: { showBackgroundTasks: true } },
+      isPending: true
+    })
+  ).toMatchSnapshot();
+});
+
 it('renders background task in progress info correctly', () => {
   expect(getWrapper({ isInProgress: true, isPending: true })).toMatchSnapshot();
 });

@@ -75,7 +75,8 @@ export default class ComponentNav extends React.PureComponent<Props, State> {
             isPending: r.queue.some(task => task.status === STATUSES.PENDING)
           });
         }
-      }
+      },
+      () => {}
     );
   };
 
