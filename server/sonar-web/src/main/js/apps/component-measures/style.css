@@ -120,6 +120,18 @@
   margin-right: 0;
 }
 
+.measure-details-viewer .issue-list {
+  /* no math, just a good guess */
+  min-width: 600px;
+  width: 800px;
+}
+
+@media (max-width: 1320px) {
+  .measure-details-viewer .issue-list {
+    width: calc(60vw - 80px);
+  }
+}
+
 .measure-view-select {
   width: 50px;
 }
