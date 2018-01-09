@@ -64,8 +64,8 @@ export function getProjectUrl(key: string, branch?: string): Location {
   return { pathname: '/dashboard', query: { id: key, branch } };
 }
 
-export function getComponentBackgroundTaskUrl(componentKey: string): Location {
-  return { pathname: '/project/background_tasks', query: { id: componentKey } };
+export function getComponentBackgroundTaskUrl(componentKey: string, status?: string): Location {
+  return { pathname: '/project/background_tasks', query: { id: componentKey, status } };
 }
 
 export function getProjectBranchUrl(key: string, branch: Branch): Location {

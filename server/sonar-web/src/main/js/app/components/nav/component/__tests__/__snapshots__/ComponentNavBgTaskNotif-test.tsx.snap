@@ -54,3 +54,36 @@ exports[`renders background task pending info correctly 1`] = `
   </span>
 </NavBarNotif>
 `;
+
+exports[`renders background task pending info correctly for admin 1`] = `
+<NavBarNotif
+  className="alert alert-info"
+>
+  <PendingIcon
+    className="spacer-right"
+  />
+  <FormattedMessage
+    defaultMessage="component_navigation.status.pending.admin"
+    id="component_navigation.status.pending.admin"
+    values={
+      Object {
+        "url": <Link
+          onlyActiveOnIndex={false}
+          style={Object {}}
+          to={
+            Object {
+              "pathname": "/project/background_tasks",
+              "query": Object {
+                "id": "foo",
+                "status": "__ALL__",
+              },
+            }
+          }
+        >
+          background_tasks.page
+        </Link>,
+      }
+    }
+  />
+</NavBarNotif>
+`;

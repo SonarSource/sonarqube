@@ -41,11 +41,11 @@ export default class ComponentNavBgTaskNotif extends React.PureComponent<Props> 
     canAdmin: PropTypes.bool.isRequired
   };
 
-  renderMessage(messageKey: string) {
+  renderMessage(messageKey: string, status?: string) {
     const { component } = this.props;
     const canSeeBackgroundTasks =
-      component.configuration !== undefined && component.configuration.showBackgroundTasks;
-    const bgTaskUrl = getComponentBackgroundTaskUrl(component.key);
+      component.configuration && component.configuration.showBackgroundTasks;
+    const bgTaskUrl = getComponentBackgroundTaskUrl(component.key, status);
 
     if (canSeeBackgroundTasks) {
       return (
@@ -76,7 +76,7 @@ export default class ComponentNavBgTaskNotif extends React.PureComponent<Props> 
       return (
         <NavBarNotif className="alert alert-info">
           <PendingIcon className="spacer-right" />
-          {this.renderMessage('component_navigation.status.pending')}
+          {this.renderMessage('component_navigation.status.pending', STATUSES.ALL)}
         </NavBarNotif>
       );
     } else if (currentTask && currentTask.status === STATUSES.FAILED) {
