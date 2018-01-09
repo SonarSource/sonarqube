@@ -23,10 +23,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
@@ -47,8 +45,6 @@ public class DefaultInputModule extends DefaultInputComponent implements InputMo
   private final String description;
   private final String keyWithBranch;
   private final String branch;
-  private final List<String> sources;
-  private final List<String> tests;
   private final Map<String, String> properties;
 
   private final String moduleKey;
@@ -72,8 +68,6 @@ public class DefaultInputModule extends DefaultInputComponent implements InputMo
     this.description = definition.getDescription();
     this.keyWithBranch = definition.getKeyWithBranch();
     this.branch = definition.getBranch();
-    this.sources = Collections.unmodifiableList(new ArrayList<>(definition.sources()));
-    this.tests = Collections.unmodifiableList(new ArrayList<>(definition.tests()));
     this.properties = Collections.unmodifiableMap(new HashMap<>(definition.properties()));
 
     this.definition = definition;
@@ -153,17 +147,6 @@ public class DefaultInputModule extends DefaultInputComponent implements InputMo
 
   public String getDescription() {
     return description;
-  }
-
-  /**
-   * @return Source files and folders.
-   */
-  public List<String> sources() {
-    return sources;
-  }
-
-  public List<String> tests() {
-    return tests;
   }
 
 }

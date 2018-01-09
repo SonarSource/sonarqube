@@ -21,7 +21,6 @@ package org.sonar.api.batch.fs.internal;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -60,8 +59,6 @@ public class DefaultInputModuleTest {
     assertThat(module.getOriginalVersion()).isEqualTo("version");
     assertThat(module.getDescription()).isEqualTo("desc");
     assertThat(module.getWorkDir()).isEqualTo(workDir.toPath());
-    assertThat(module.sources()).isEqualTo(Collections.singletonList("file1"));
-    assertThat(module.tests()).isEqualTo(Collections.singletonList("test1"));
 
     assertThat(module.properties()).hasSize(6);
 
