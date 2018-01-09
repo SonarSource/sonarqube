@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.task.projectanalysis.issue;
 
-import java.util.Random;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -55,8 +54,7 @@ public class DefaultAssigneeTest {
   public void setUp() throws Exception {
     organizationDto = db.organizations().insertForUuid(ORGANIZATION_UUID);
     analysisMetadataHolder.setOrganization(Organization.from(
-      new OrganizationDto().setUuid(ORGANIZATION_UUID).setKey("Organization key").setName("Organization name").setDefaultQualityGateUuid(QUALITY_GATE_UUID),
-      new Random().nextBoolean()));
+      new OrganizationDto().setUuid(ORGANIZATION_UUID).setKey("Organization key").setName("Organization name").setDefaultQualityGateUuid(QUALITY_GATE_UUID)));
   }
 
   @Test

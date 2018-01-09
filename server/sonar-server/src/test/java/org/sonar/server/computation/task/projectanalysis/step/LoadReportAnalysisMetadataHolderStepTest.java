@@ -44,11 +44,12 @@ import org.sonar.server.computation.task.projectanalysis.batch.BatchReportReader
 import org.sonar.server.computation.task.projectanalysis.component.BranchLoader;
 import org.sonar.server.computation.task.step.ComputationStep;
 import org.sonar.server.organization.DefaultOrganizationProvider;
+import org.sonar.server.organization.OrganizationFlags;
 import org.sonar.server.organization.TestDefaultOrganizationProvider;
-import org.sonar.server.organization.TestOrganizationFlags;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -69,9 +70,9 @@ public class LoadReportAnalysisMetadataHolderStepTest {
 
   private DbClient dbClient = db.getDbClient();
   private DefaultOrganizationProvider defaultOrganizationProvider = TestDefaultOrganizationProvider.from(db);
-  private TestOrganizationFlags organizationFlags = TestOrganizationFlags.standalone();
   private PluginRepository pluginRepository = mock(PluginRepository.class);
   private ComputationStep underTest;
+  private OrganizationFlags organizationFlags = mock(OrganizationFlags.class);
 
   @Before
   public void setUp() {
@@ -220,7 +221,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
       newBatchReportBuilder()
         .setOrganizationKey(db.getDefaultOrganization().getKey())
         .build());
-    organizationFlags.setEnabled(organizationEnabled);
+    when(organizationFlags.isEnabled(any())).thenReturn(organizationEnabled);
 
     underTest.execute();
 
@@ -229,7 +230,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     assertThat(organization.getUuid()).isEqualTo(defaultOrganization.getUuid());
     assertThat(organization.getKey()).isEqualTo(defaultOrganization.getKey());
     assertThat(organization.getName()).isEqualTo(defaultOrganization.getName());
-    assertThat(organization.isOrganizationsEnabled()).isEqualTo(organizationEnabled);
+    assertThat(analysisMetadataHolder.isOrganizationsEnabled()).isEqualTo(organizationEnabled);
   }
 
   @Test
@@ -242,7 +243,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
         .setOrganizationKey(nonDefaultOrganizationDto.getKey())
         .setProjectKey(project.getDbKey())
         .build());
-    organizationFlags.setEnabled(organizationEnabled);
+    when(organizationFlags.isEnabled(any())).thenReturn(organizationEnabled);
 
     ComputationStep underTest = createStep(createCeTask(project.getDbKey(), nonDefaultOrganizationDto.getUuid()));
 
@@ -252,14 +253,14 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     assertThat(organization.getUuid()).isEqualTo(nonDefaultOrganizationDto.getUuid());
     assertThat(organization.getKey()).isEqualTo(nonDefaultOrganizationDto.getKey());
     assertThat(organization.getName()).isEqualTo(nonDefaultOrganizationDto.getName());
-    assertThat(organization.isOrganizationsEnabled()).isEqualTo(organizationEnabled);
+    assertThat(analysisMetadataHolder.isOrganizationsEnabled()).isEqualTo(organizationEnabled);
   }
 
   @DataProvider
   public static Object[][] organizationEnabledFlags() {
     return new Object[][] {
-        { true },
-        { false }
+      {true},
+      {false}
     };
   }
 
