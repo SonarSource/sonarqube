@@ -34,7 +34,6 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 
 interface Props {
   component: Component;
-  customOrganizations: boolean;
 }
 
 interface State {
@@ -67,11 +66,10 @@ export default class QualityProfiles extends React.PureComponent<Props, State> {
   }
 
   fetchProfiles() {
-    const { component } = this.props;
-    const organization = this.props.customOrganizations ? component.organization : undefined;
+    const { key, organization } = this.props.component;
     Promise.all([
       searchQualityProfiles({ organization }).then(r => r.profiles),
-      searchQualityProfiles({ organization, project: component.key }).then(r => r.profiles)
+      searchQualityProfiles({ organization, project: key }).then(r => r.profiles)
     ]).then(
       ([allProfiles, profiles]) => {
         if (this.mounted) {
