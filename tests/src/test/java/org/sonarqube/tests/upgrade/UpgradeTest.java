@@ -195,7 +195,6 @@ public class UpgradeTest {
       // exclude pom.xml, otherwise it will be published in SQ 6.3+ and not in previous versions, resulting in a different number of
       // components
       .setProperty("sonar.exclusions", "**/pom.xml")
-      .setProperty("sonar.dynamicAnalysis", "false")
       .setProperty("sonar.scm.disabled", "true")
       .setProperty("sonar.cpd.cross_project", "true");
     orchestrator.executeBuild(build);
