@@ -29,8 +29,8 @@ type Props = {
 */
 
 const filenames = {
-  linux: 'build-wrapper-win-x86.zip',
-  win: 'build-wrapper-linux-x86.zip',
+  win: 'build-wrapper-win-x86.zip',
+  linux: 'build-wrapper-linux-x86.zip',
   mac: 'build-wrapper-macosx-x86.zip'
 };
 
