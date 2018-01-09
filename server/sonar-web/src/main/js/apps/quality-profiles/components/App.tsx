@@ -60,17 +60,24 @@ export default class App extends React.PureComponent<Props, State> {
 
   loadData() {
     this.setState({ loading: true });
-    Promise.all([getExporters(), this.fetchProfiles()]).then(responses => {
-      if (this.mounted) {
-        const [exporters, profilesResponse] = responses;
-        this.setState({
-          actions: profilesResponse.actions,
-          exporters,
-          profiles: sortProfiles(profilesResponse.profiles),
-          loading: false
-        });
+    Promise.all([getExporters(), this.fetchProfiles()]).then(
+      responses => {
+        if (this.mounted) {
+          const [exporters, profilesResponse] = responses;
+          this.setState({
+            actions: profilesResponse.actions,
+            exporters,
+            profiles: sortProfiles(profilesResponse.profiles),
+            loading: false
+          });
+        }
+      },
+      () => {
+        if (this.mounted) {
+          this.setState({ loading: false });
+        }
       }
-    });
+    );
   }
 
   updateProfiles = () => {

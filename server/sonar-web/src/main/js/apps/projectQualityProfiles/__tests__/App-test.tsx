@@ -66,21 +66,13 @@ const component = {
 
 it('checks permissions', () => {
   handleRequiredAuthorization.mockClear();
-  mount(<App component={{ ...component, configuration: undefined }} customOrganizations={false} />);
+  mount(<App component={{ ...component, configuration: undefined }} />);
   expect(handleRequiredAuthorization).toBeCalled();
 });
 
 it('fetches profiles', () => {
   searchQualityProfiles.mockClear();
-  mount(<App component={component} customOrganizations={false} />);
-  expect(searchQualityProfiles.mock.calls).toHaveLength(2);
-  expect(searchQualityProfiles).toBeCalledWith({ organization: undefined });
-  expect(searchQualityProfiles).toBeCalledWith({ organization: undefined, project: 'foo' });
-});
-
-it('fetches profiles with organization', () => {
-  searchQualityProfiles.mockClear();
-  mount(<App component={component} customOrganizations={true} />);
+  mount(<App component={component} />);
   expect(searchQualityProfiles.mock.calls).toHaveLength(2);
   expect(searchQualityProfiles).toBeCalledWith({ organization: 'org' });
   expect(searchQualityProfiles).toBeCalledWith({ organization: 'org', project: 'foo' });
@@ -90,7 +82,7 @@ it('changes profile', () => {
   associateProject.mockClear();
   dissociateProject.mockClear();
   addGlobalSuccessMessage.mockClear();
-  const wrapper = mount(<App component={component} customOrganizations={false} />);
+  const wrapper = mount(<App component={component} />);
 
   const fooJava = randomProfile('foo-java', 'java');
   const fooJs = randomProfile('foo-js', 'js');
