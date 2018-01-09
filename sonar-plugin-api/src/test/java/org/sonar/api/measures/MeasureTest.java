@@ -46,18 +46,6 @@ public class MeasureTest {
   }
 
   @Test
-  public void defaultPersistenceModeIsFull() {
-    assertThat(new Measure(CoreMetrics.LINES, 32.0).getPersistenceMode()).isEqualTo(PersistenceMode.FULL);
-  }
-
-  @Test
-  public void persistenceModeIsDatabaseForBigDataMeasures() {
-    Measure bigDataMeasure = new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA, "long data")
-      .setPersistenceMode(PersistenceMode.DATABASE);
-    assertThat(bigDataMeasure.getPersistenceMode()).isEqualTo(PersistenceMode.DATABASE);
-  }
-
-  @Test
   public void measureWithLevelValue() {
     assertThat(new Measure(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR).getData()).isEqualTo("ERROR");
     assertThat(new Measure(CoreMetrics.ALERT_STATUS, Metric.Level.ERROR).getDataAsLevel()).isEqualTo(Metric.Level.ERROR);
