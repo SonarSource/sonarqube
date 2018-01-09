@@ -36,16 +36,15 @@ import static java.util.Collections.emptySet;
 public class ResourceTypesRule extends ResourceTypes {
   private Set<ResourceType> allResourceTypes = emptySet();
   private Set<ResourceType> rootResourceTypes = emptySet();
-  private List<String> childrenQualifiers = emptyList();
   private List<String> leavesQualifiers = emptyList();
+
+  public ResourceTypesRule() {
+    super(new ResourceTypeTree[0]);
+  }
+
 
   @Override
   public Collection<ResourceType> getAll() {
-    return allResourceTypes;
-  }
-
-  @Override
-  public Collection<ResourceType> getAllOrdered() {
     return allResourceTypes;
   }
 
@@ -69,11 +68,6 @@ public class ResourceTypesRule extends ResourceTypes {
     return this;
   }
 
-  public ResourceTypesRule setChildrenQualifiers(String... qualifiers) {
-    childrenQualifiers = ImmutableList.copyOf(qualifiers);
-    return this;
-  }
-
   public ResourceTypesRule setAllQualifiers(String... qualifiers) {
     Set<ResourceType> resourceTypes = new HashSet<>();
     for (String qualifier : qualifiers) {
@@ -92,42 +86,7 @@ public class ResourceTypesRule extends ResourceTypes {
   }
 
   @Override
-  public Collection<ResourceType> getAllWithPropertyKey(String propertyKey) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Collection<ResourceType> getAllWithPropertyValue(String propertyKey, String propertyValue) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Collection<ResourceType> getAllWithPropertyValue(String propertyKey, boolean propertyValue) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public List<String> getChildrenQualifiers(String qualifier) {
-    return this.childrenQualifiers;
-  }
-
-  @Override
-  public List<ResourceType> getChildren(String qualifier) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public List<String> getLeavesQualifiers(String qualifier) {
     return this.leavesQualifiers;
-  }
-
-  @Override
-  public ResourceTypeTree getTree(String qualifier) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public ResourceType getRoot(String qualifier) {
-    throw new UnsupportedOperationException();
   }
 }

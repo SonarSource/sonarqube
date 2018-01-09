@@ -27,17 +27,11 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
-import static java.util.Collections.unmodifiableSet;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -48,16 +42,9 @@ import static java.util.Objects.requireNonNull;
 @ComputeEngineSide
 public class ResourceTypes {
 
-  public static final Predicate<ResourceType> AVAILABLE_FOR_FILTERS = input -> input != null && input.getBooleanProperty("supportsMeasureFilters");
-
   private final Map<String, ResourceTypeTree> treeByQualifier;
   private final Map<String, ResourceType> typeByQualifier;
-  private final Collection<ResourceType> orderedTypes;
   private final Collection<ResourceType> rootTypes;
-
-  public ResourceTypes() {
-    this(new ResourceTypeTree[0]);
-  }
 
   public ResourceTypes(ResourceTypeTree[] trees) {
     requireNonNull(trees);
@@ -79,18 +66,6 @@ public class ResourceTypes {
     treeByQualifier = unmodifiableMap(new LinkedHashMap<>(treeMap));
     typeByQualifier = unmodifiableMap(new LinkedHashMap<>(typeMap));
     rootTypes = unmodifiableList(new ArrayList<>(rootsSet));
-    orderedTypes = unmodifiableSet(orderedTypes(typeMap));
-  }
-
-  private static Set<ResourceType> orderedTypes(Map<String, ResourceType> typeByQualifier) {
-    Map<String, ResourceType> mutableTypesByQualifier = new LinkedHashMap<>(typeByQualifier);
-    ResourceType view = mutableTypesByQualifier.remove(Qualifiers.VIEW);
-    ResourceType subView = mutableTypesByQualifier.remove(Qualifiers.SUBVIEW);
-    ResourceType application = mutableTypesByQualifier.remove(Qualifiers.APP);
-
-    return Stream.concat(Stream.of(view, subView, application), mutableTypesByQualifier.values().stream())
-      .filter(Objects::nonNull)
-      .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   public ResourceType get(String qualifier) {
@@ -102,57 +77,8 @@ public class ResourceTypes {
     return typeByQualifier.values();
   }
 
-  public Collection<ResourceType> getAllOrdered() {
-    return orderedTypes;
-  }
-
   public Collection<ResourceType> getRoots() {
     return rootTypes;
-  }
-
-  public Collection<ResourceType> getAll(Predicate<ResourceType> predicate) {
-    return typeByQualifier.values().stream()
-      .filter(predicate)
-      .collect(Collectors.toList());
-  }
-
-  public Collection<ResourceType> getAllWithPropertyKey(String propertyKey) {
-    return typeByQualifier.values()
-      .stream()
-      .filter(Objects::nonNull)
-      .filter(input -> input.hasProperty(propertyKey))
-      .collect(Collectors.toList());
-  }
-
-  public Collection<ResourceType> getAllWithPropertyValue(String propertyKey, String propertyValue) {
-    return typeByQualifier.values()
-      .stream()
-      .filter(Objects::nonNull)
-      .filter(input -> Objects.equals(propertyValue, input.getStringProperty(propertyKey)))
-      .collect(Collectors.toList());
-  }
-
-  public Collection<ResourceType> getAllWithPropertyValue(String propertyKey, boolean propertyValue) {
-    return typeByQualifier.values()
-      .stream()
-      .filter(Objects::nonNull)
-      .filter(input -> input.getBooleanProperty(propertyKey) == propertyValue)
-      .collect(Collectors.toList());
-  }
-
-  public List<String> getChildrenQualifiers(String qualifier) {
-    ResourceTypeTree tree = getTree(qualifier);
-    if (tree != null) {
-      return tree.getChildren(qualifier);
-    }
-    return Collections.emptyList();
-  }
-
-  public List<ResourceType> getChildren(String qualifier) {
-    return getChildrenQualifiers(qualifier)
-      .stream()
-      .map(typeByQualifier::get)
-      .collect(Collectors.toList());
   }
 
   public List<String> getLeavesQualifiers(String qualifier) {
@@ -163,12 +89,7 @@ public class ResourceTypes {
     return Collections.emptyList();
   }
 
-  public ResourceTypeTree getTree(String qualifier) {
+  private ResourceTypeTree getTree(String qualifier) {
     return treeByQualifier.get(qualifier);
   }
-
-  public ResourceType getRoot(String qualifier) {
-    return getTree(qualifier).getRootType();
-  }
-
 }
