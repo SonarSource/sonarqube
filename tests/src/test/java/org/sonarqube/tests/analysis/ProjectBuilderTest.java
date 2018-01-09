@@ -65,7 +65,7 @@ public class ProjectBuilderTest {
     assertThat(getComponent(orchestrator, "com.sonarsource.it.projects.batch:project-builder").getName()).isEqualTo("Name changed by plugin");
 
     Map<String, Double> measures = getMeasures("com.sonarsource.it.projects.batch:project-builder");
-    assertThat(measures.get("files")).isEqualTo(2);
+    assertThat(measures.get("files")).isEqualTo(3);
     assertThat(measures.get("lines")).isGreaterThan(10);
   }
 
