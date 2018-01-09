@@ -66,7 +66,7 @@ export default ModalFormView.extend({
 
   onFormSubmit() {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
-    const url = `${window.baseUrl}/api/qualityprofiles/${this.options.action}_rules`;
+    const url = `/api/qualityprofiles/${this.options.action}_rules`;
     const options = { ...this.options.app.state.get('query'), wsAction: this.options.action };
     const profiles = this.$('#coding-rules-bulk-change-profile').val() || [this.options.param];
     this.ui.messagesContainer.empty();
