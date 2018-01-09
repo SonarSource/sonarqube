@@ -60,7 +60,6 @@ public class Measure<G extends Serializable> implements Serializable {
   protected Double variation4;
   protected Double variation5;
   protected String url;
-  protected PersistenceMode persistenceMode = PersistenceMode.FULL;
 
   public Measure(String metricKey) {
     this.metricKey = metricKey;
@@ -145,36 +144,6 @@ public class Measure<G extends Serializable> implements Serializable {
    * Creates an empty measure
    */
   public Measure() {
-  }
-
-  /**
-   * Gets the persistence mode of the measure. Default persistence mode is FULL, except when instantiating the measure with a String
-   * parameter.
-   */
-  public PersistenceMode getPersistenceMode() {
-    return persistenceMode;
-  }
-
-  /**
-   * <p>
-   * Sets the persistence mode of a measure.
-   * 
-   * <p>
-   * <b>WARNING : </b>Being able to reuse measures saved in memory is only possible within the same tree. In a multi-module project for
-   * example, a measure save in memory at the module level will not be accessible by the root project. In that case, database should be
-   * used.
-   * 
-   *
-   * @param mode the mode
-   * @return the measure object instance
-   */
-  public Measure<G> setPersistenceMode(@Nullable PersistenceMode mode) {
-    if (mode == null) {
-      this.persistenceMode = PersistenceMode.FULL;
-    } else {
-      this.persistenceMode = mode;
-    }
-    return this;
   }
 
   /**

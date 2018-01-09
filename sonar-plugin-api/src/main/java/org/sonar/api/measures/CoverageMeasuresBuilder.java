@@ -118,7 +118,7 @@ public final class CoverageMeasuresBuilder {
     if (getLinesToCover() > 0) {
       measures.add(new Measure(CoreMetrics.LINES_TO_COVER, (double) getLinesToCover()));
       measures.add(new Measure(CoreMetrics.UNCOVERED_LINES, (double) (getLinesToCover() - getCoveredLines())));
-      measures.add(new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA).setData(KeyValueFormat.format(hitsByLine)).setPersistenceMode(PersistenceMode.DATABASE));
+      measures.add(new Measure(CoreMetrics.COVERAGE_LINE_HITS_DATA).setData(KeyValueFormat.format(hitsByLine)));
     }
     if (getConditions() > 0) {
       measures.add(new Measure(CoreMetrics.CONDITIONS_TO_COVER, (double) getConditions()));
@@ -131,14 +131,12 @@ public final class CoverageMeasuresBuilder {
 
   private Measure createCoveredConditionsByLine() {
     return new Measure(CoreMetrics.COVERED_CONDITIONS_BY_LINE)
-      .setData(KeyValueFormat.format(coveredConditionsByLine))
-      .setPersistenceMode(PersistenceMode.DATABASE);
+      .setData(KeyValueFormat.format(coveredConditionsByLine));
   }
 
   private Measure createConditionsByLine() {
     return new Measure(CoreMetrics.CONDITIONS_BY_LINE)
-      .setData(KeyValueFormat.format(conditionsByLine))
-      .setPersistenceMode(PersistenceMode.DATABASE);
+      .setData(KeyValueFormat.format(conditionsByLine));
   }
 
   public static CoverageMeasuresBuilder create() {
