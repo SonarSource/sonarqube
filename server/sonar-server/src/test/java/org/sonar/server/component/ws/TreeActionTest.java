@@ -58,9 +58,7 @@ import org.sonarqube.ws.Components.TreeWsResponse;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.sonar.api.resources.Qualifiers.DIRECTORY;
 import static org.sonar.api.resources.Qualifiers.FILE;
-import static org.sonar.api.resources.Qualifiers.MODULE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.db.component.ComponentTesting.newChildComponent;
@@ -86,7 +84,6 @@ public class TreeActionTest {
 
   private ResourceTypesRule resourceTypes = new ResourceTypesRule()
     .setRootQualifiers(PROJECT)
-    .setChildrenQualifiers(MODULE, FILE, DIRECTORY)
     .setLeavesQualifiers(FILE, UNIT_TEST_FILE);
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
@@ -94,7 +91,7 @@ public class TreeActionTest {
   private WsActionTester ws = new WsActionTester(new TreeAction(dbClient, new ComponentFinder(dbClient, resourceTypes), resourceTypes, userSession, Mockito.mock(I18n.class)));
 
   @Test
-  public void verify_definition() throws Exception {
+  public void verify_definition() {
     WebService.Action action = ws.getDef();
 
     assertThat(action.since()).isEqualTo("5.4");
@@ -141,7 +138,7 @@ public class TreeActionTest {
   }
 
   @Test
-  public void return_children() throws IOException {
+  public void return_children() {
     ComponentDto project = newPrivateProjectDto(db.organizations().insert(), "project-uuid");
     componentDb.insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto("module-uuid-1", project);
@@ -171,7 +168,7 @@ public class TreeActionTest {
   }
 
   @Test
-  public void return_descendants() throws IOException {
+  public void return_descendants() {
     ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto("module-uuid-1", project);
@@ -201,7 +198,7 @@ public class TreeActionTest {
   }
 
   @Test
-  public void filter_descendants_by_qualifier() throws IOException {
+  public void filter_descendants_by_qualifier() {
     ComponentDto project = newPrivateProjectDto(db.organizations().insert(), "project-uuid");
     componentDb.insertProjectAndSnapshot(project);
     componentDb.insertComponent(newFileDto(project, 1));
@@ -219,7 +216,7 @@ public class TreeActionTest {
   }
 
   @Test
-  public void return_leaves() throws IOException {
+  public void return_leaves() {
     ComponentDto project = newPrivateProjectDto(db.getDefaultOrganization(), "project-uuid");
     componentDb.insertProjectAndSnapshot(project);
     ComponentDto module = newModuleDto("module-uuid-1", project);
@@ -243,7 +240,7 @@ public class TreeActionTest {
   }
 
   @Test
-  public void sort_descendants_by_qualifier() throws IOException {
+  public void sort_descendants_by_qualifier() {
     ComponentDto project = newPrivateProjectDto(db.organizations().insert(), "project-uuid");
     componentDb.insertProjectAndSnapshot(project);
     componentDb.insertComponent(newFileDto(project, 1));

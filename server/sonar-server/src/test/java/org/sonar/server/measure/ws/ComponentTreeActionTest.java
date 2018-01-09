@@ -63,7 +63,6 @@ import static org.sonar.api.measures.Metric.ValueType.INT;
 import static org.sonar.api.measures.Metric.ValueType.RATING;
 import static org.sonar.api.resources.Qualifiers.DIRECTORY;
 import static org.sonar.api.resources.Qualifiers.FILE;
-import static org.sonar.api.resources.Qualifiers.MODULE;
 import static org.sonar.api.resources.Qualifiers.PROJECT;
 import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.api.server.ws.WebService.Param.SORT;
@@ -73,12 +72,6 @@ import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.SnapshotTesting.newAnalysis;
-import static org.sonar.server.measure.ws.ComponentTreeAction.LEAVES_STRATEGY;
-import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_PERIOD_SORT;
-import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_SORT;
-import static org.sonar.server.measure.ws.ComponentTreeAction.NAME_SORT;
-import static org.sonar.server.measure.ws.ComponentTreeAction.WITH_MEASURES_ONLY_METRIC_SORT_FILTER;
-import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonar.server.component.ws.MeasuresWsParameters.ADDITIONAL_PERIODS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_ID;
 import static org.sonar.server.component.ws.MeasuresWsParameters.DEPRECATED_PARAM_BASE_COMPONENT_KEY;
@@ -91,6 +84,12 @@ import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_SO
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_METRIC_SORT_FILTER;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_QUALIFIERS;
 import static org.sonar.server.component.ws.MeasuresWsParameters.PARAM_STRATEGY;
+import static org.sonar.server.measure.ws.ComponentTreeAction.LEAVES_STRATEGY;
+import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_PERIOD_SORT;
+import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_SORT;
+import static org.sonar.server.measure.ws.ComponentTreeAction.NAME_SORT;
+import static org.sonar.server.measure.ws.ComponentTreeAction.WITH_MEASURES_ONLY_METRIC_SORT_FILTER;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class ComponentTreeActionTest {
   @Rule
@@ -103,7 +102,6 @@ public class ComponentTreeActionTest {
   private I18nRule i18n = new I18nRule();
   private ResourceTypesRule resourceTypes = new ResourceTypesRule()
     .setRootQualifiers(PROJECT)
-    .setChildrenQualifiers(MODULE, FILE, DIRECTORY)
     .setLeavesQualifiers(FILE, UNIT_TEST_FILE);
   private ComponentDbTester componentDb = new ComponentDbTester(db);
   private DbClient dbClient = db.getDbClient();
