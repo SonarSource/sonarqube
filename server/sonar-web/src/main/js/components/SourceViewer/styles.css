@@ -72,8 +72,16 @@
   background-color: var(--leakColor) !important;
 }
 
+.source-line-filtered:hover .source-line-code {
+  background-color: #f1e8cb !important;
+}
+
 .source-line-filtered.source-line-filtered-dark .source-line-code {
   background-color: #f9ebb7 !important;
+}
+
+.source-line-filtered.source-line-filtered-dark:hover .source-line-code {
+  background-color: #eaddb2 !important;
 }
 
 .source-line-last .source-line-code {
