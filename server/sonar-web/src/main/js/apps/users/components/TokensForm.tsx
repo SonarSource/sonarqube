@@ -18,23 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import * as React from 'react';
-import Modal from '../../../components/controls/Modal';
 import TokensFormItem from './TokensFormItem';
 import TokensFormNewToken from './TokensFormNewToken';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import { User } from '../../../api/users';
 import { getTokens, generateToken, UserToken } from '../../../api/user-tokens';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
-  user: User;
-  onClose: () => void;
-  onUpdateUsers: () => void;
+  login: string;
+  updateTokensCount?: (login: string, tokensCount: number) => void;
 }
 
 interface State {
   generating: boolean;
-  hasChanged: boolean;
   loading: boolean;
   newToken?: { name: string; token: string };
   newTokenName: string;
@@ -45,7 +41,6 @@ export default class TokensForm extends React.PureComponent<Props, State> {
   mounted: boolean;
   state: State = {
     generating: false,
-    hasChanged: false,
     loading: true,
     newTokenName: '',
     tokens: []
@@ -60,9 +55,9 @@ export default class TokensForm extends React.PureComponent<Props, State> {
     this.mounted = false;
   }
 
-  fetchTokens = ({ user } = this.props) => {
+  fetchTokens = () => {
     this.setState({ loading: true });
-    getTokens(user.login).then(
+    getTokens(this.props.login).then(
       tokens => {
         if (this.mounted) {
           this.setState({ loading: false, tokens });
@@ -76,27 +71,27 @@ export default class TokensForm extends React.PureComponent<Props, State> {
     );
   };
 
-  handleCloseClick = (evt: React.SyntheticEvent<HTMLAnchorElement>) => {
-    evt.preventDefault();
-    this.handleClose();
-  };
-
-  handleClose = () => {
-    if (this.state.hasChanged) {
-      this.props.onUpdateUsers();
-    }
-    this.props.onClose();
-  };
-
   handleGenerateToken = (evt: React.SyntheticEvent<HTMLFormElement>) => {
     evt.preventDefault();
     if (this.state.newTokenName.length > 0) {
       this.setState({ generating: true });
-      generateToken({ name: this.state.newTokenName, login: this.props.user.login }).then(
+      generateToken({ name: this.state.newTokenName, login: this.props.login }).then(
         newToken => {
           if (this.mounted) {
-            this.fetchTokens();
-            this.setState({ generating: false, hasChanged: true, newToken, newTokenName: '' });
+            this.setState(
+              state => {
+                const tokens = [
+                  ...state.tokens,
+                  { name: newToken.name, createdAt: newToken.createdAt }
+                ];
+                return { generating: false, newToken, newTokenName: '', tokens };
+              },
+              () => {
+                if (this.props.updateTokensCount) {
+                  this.props.updateTokensCount(this.props.login, this.state.tokens.length);
+                }
+              }
+            );
           }
         },
         () => {
@@ -108,9 +103,17 @@ export default class TokensForm extends React.PureComponent<Props, State> {
     }
   };
 
-  handleRevokeToken = () => {
-    this.setState({ hasChanged: true });
-    this.fetchTokens();
+  handleRevokeToken = (revokedToken: UserToken) => {
+    this.setState(
+      state => ({
+        tokens: state.tokens.filter(token => token.name !== revokedToken.name)
+      }),
+      () => {
+        if (this.props.updateTokensCount) {
+          this.props.updateTokensCount(this.props.login, this.state.tokens.length);
+        }
+      }
+    );
   };
 
   handleNewTokenChange = (evt: React.SyntheticEvent<HTMLInputElement>) =>
@@ -130,16 +133,15 @@ export default class TokensForm extends React.PureComponent<Props, State> {
     return tokens.map(token => (
       <TokensFormItem
         key={token.name}
+        login={this.props.login}
         token={token}
         onRevokeToken={this.handleRevokeToken}
-        user={this.props.user}
       />
     ));
   }
 
   render() {
     const { generating, loading, newToken, newTokenName, tokens } = this.state;
-    const header = translate('users.tokens');
     const customSpinner = (
       <tr>
         <td>
@@ -148,55 +150,43 @@ export default class TokensForm extends React.PureComponent<Props, State> {
       </tr>
     );
     return (
-      <Modal contentLabel={header} onRequestClose={this.handleClose}>
-        <header className="modal-head">
-          <h2>{header}</h2>
-        </header>
-        <div className="modal-body modal-container">
-          <h3 className="spacer-bottom">{translate('users.generate_tokens')}</h3>
-          <form id="generate-token-form" onSubmit={this.handleGenerateToken} autoComplete="off">
-            <input
-              className="spacer-right"
-              type="text"
-              maxLength={100}
-              onChange={this.handleNewTokenChange}
-              placeholder={translate('users.enter_token_name')}
-              required={true}
-              value={newTokenName}
-            />
-            <button
-              className="js-generate-token"
-              disabled={generating || newTokenName.length <= 0}
-              type="submit">
-              {translate('users.generate')}
-            </button>
-          </form>
+      <>
+        <h3 className="spacer-bottom">{translate('users.generate_tokens')}</h3>
+        <form id="generate-token-form" onSubmit={this.handleGenerateToken} autoComplete="off">
+          <input
+            className="spacer-right"
+            type="text"
+            maxLength={100}
+            onChange={this.handleNewTokenChange}
+            placeholder={translate('users.enter_token_name')}
+            required={true}
+            value={newTokenName}
+          />
+          <button
+            className="js-generate-token"
+            disabled={generating || newTokenName.length <= 0}
+            type="submit">
+            {translate('users.generate')}
+          </button>
+        </form>
 
-          {newToken && <TokensFormNewToken token={newToken} />}
+        {newToken && <TokensFormNewToken token={newToken} />}
 
-          <table className="data zebra big-spacer-top ">
-            <thead>
-              <tr>
-                <th>{translate('name')}</th>
-                <th className="text-right">{translate('created')}</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              <DeferredSpinner
-                customSpinner={customSpinner}
-                loading={loading && tokens.length <= 0}>
-                {this.renderItems()}
-              </DeferredSpinner>
-            </tbody>
-          </table>
-        </div>
-        <footer className="modal-foot">
-          <a className="js-modal-close" href="#" onClick={this.handleCloseClick}>
-            {translate('Done')}
-          </a>
-        </footer>
-      </Modal>
+        <table className="data zebra big-spacer-top ">
+          <thead>
+            <tr>
+              <th>{translate('name')}</th>
+              <th className="text-right">{translate('created')}</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            <DeferredSpinner customSpinner={customSpinner} loading={loading && tokens.length <= 0}>
+              {this.renderItems()}
+            </DeferredSpinner>
+          </tbody>
+        </table>
+      </>
     );
   }
 }

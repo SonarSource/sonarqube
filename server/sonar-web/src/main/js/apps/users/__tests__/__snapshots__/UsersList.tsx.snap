@@ -37,6 +37,7 @@ exports[`should render correctly 1`] = `
         key="luke"
         onUpdateUsers={[Function]}
         organizationsEnabled={true}
+        updateTokensCount={[Function]}
         user={
           Object {
             "active": true,
@@ -52,6 +53,7 @@ exports[`should render correctly 1`] = `
         key="obi"
         onUpdateUsers={[Function]}
         organizationsEnabled={true}
+        updateTokensCount={[Function]}
         user={
           Object {
             "active": true,

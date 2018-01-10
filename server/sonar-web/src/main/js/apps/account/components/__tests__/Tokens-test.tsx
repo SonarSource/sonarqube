@@ -17,37 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Backbone from 'backbone';
-import React, { Component } from 'react';
-import TokensView from '../tokens-view';
+import * as React from 'react';
+import { shallow } from 'enzyme';
+import Tokens from '../Tokens';
 
-export default class Tokens extends Component {
-  componentDidMount() {
-    this.renderView();
-  }
-
-  componentWillUnmount() {
-    this.destroyView();
-  }
-
-  destroyView() {
-    if (this.destroyView) {
-      this.tokensView.destroy();
-    }
-  }
-
-  renderView() {
-    const account = new Backbone.Model({
-      id: this.props.user.login
-    });
-
-    this.tokensView = new TokensView({
-      el: this.refs.container,
-      model: account
-    }).render();
-  }
-
-  render() {
-    return <div ref="container" />;
-  }
-}
+it('renders', () => {
+  expect(shallow(<Tokens login="user" />)).toMatchSnapshot();
+});

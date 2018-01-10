@@ -17,24 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import Helmet from 'react-helmet';
-import { connect } from 'react-redux';
-import Password from './Password';
-import Tokens from './Tokens';
+import * as React from 'react';
+import TokenForm from '../../users/components/TokensForm';
 import { translate } from '../../../helpers/l10n';
-import { getCurrentUser } from '../../../store/rootReducer';
 
-function Security(props) {
-  const { user } = props;
+interface Props {
+  login: string;
+}
 
+export default function Tokens({ login }: Props) {
   return (
-    <div className="account-body account-container">
-      <Helmet title={translate('my_account.security')} />
-      <Tokens login={user.login} />
-      {user.local && <Password user={user} />}
+    <div className="boxed-group">
+      <h2>{translate('users.tokens')}</h2>
+      <div className="boxed-group-inner">
+        <div className="big-spacer-bottom big-spacer-right markdown">
+          {translate('my_account.tokens_description')}
+        </div>
+
+        <TokenForm login={login} />
+      </div>
     </div>
   );
 }
-
-export default connect(state => ({ user: getCurrentUser(state) }))(Security);

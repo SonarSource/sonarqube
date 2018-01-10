@@ -184,6 +184,7 @@ export interface LoggedInUser extends CurrentUser {
   email?: string;
   homepage?: HomePage;
   isLoggedIn: true;
+  login: string;
   name: string;
 }
 

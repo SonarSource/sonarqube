@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className="boxed-group"
+>
+  <h2>
+    users.tokens
+  </h2>
+  <div
+    className="boxed-group-inner"
+  >
+    <div
+      className="big-spacer-bottom big-spacer-right markdown"
+    >
+      my_account.tokens_description
+    </div>
+    <TokensForm
+      login="user"
+    />
+  </div>
+</div>
+`;

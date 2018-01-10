@@ -21,7 +21,7 @@ import * as React from 'react';
 import Avatar from '../../../components/ui/Avatar';
 import BulletListIcon from '../../../components/icons-components/BulletListIcon';
 import { ButtonIcon } from '../../../components/ui/buttons';
-import TokensForm from './TokensForm';
+import TokensFormModal from './TokensFormModal';
 import UserActions from './UserActions';
 import UserGroups from './UserGroups';
 import UserListItemIdentity from './UserListItemIdentity';
@@ -34,6 +34,7 @@ interface Props {
   isCurrentUser: boolean;
   onUpdateUsers: () => void;
   organizationsEnabled: boolean;
+  updateTokensCount: (login: string, tokensCount: number) => void;
   user: User;
 }
 
@@ -81,10 +82,10 @@ export default class UserListItem extends React.PureComponent<Props, State> {
           />
         </td>
         {this.state.openTokenForm && (
-          <TokensForm
+          <TokensFormModal
             user={user}
             onClose={this.handleCloseTokensForm}
-            onUpdateUsers={onUpdateUsers}
+            updateTokensCount={this.props.updateTokensCount}
           />
         )}
       </tr>

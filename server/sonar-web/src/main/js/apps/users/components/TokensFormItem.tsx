@@ -21,15 +21,14 @@ import * as React from 'react';
 import Tooltip from '../../../components/controls/Tooltip';
 import DateFormatter from '../../../components/intl/DateFormatter';
 import DeferredSpinner from '../../../components/common/DeferredSpinner';
-import { User } from '../../../api/users';
 import { revokeToken, UserToken } from '../../../api/user-tokens';
 import { limitComponentName } from '../../../helpers/path';
 import { translate } from '../../../helpers/l10n';
 
 interface Props {
+  login: string;
+  onRevokeToken: (token: UserToken) => void;
   token: UserToken;
-  user: User;
-  onRevokeToken: () => void;
 }
 
 interface State {
@@ -52,8 +51,8 @@ export default class TokensFormItem extends React.PureComponent<Props, State> {
   handleRevoke = () => {
     if (this.state.deleting) {
       this.setState({ loading: true });
-      revokeToken({ login: this.props.user.login, name: this.props.token.name }).then(
-        this.props.onRevokeToken,
+      revokeToken({ login: this.props.login, name: this.props.token.name }).then(
+        () => this.props.onRevokeToken(this.props.token),
         () => {
           if (this.mounted) {
             this.setState({ loading: false, deleting: false });
