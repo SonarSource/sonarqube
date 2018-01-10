@@ -1,0 +1,56 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display marketing badge params 1`] = `
+<div>
+  <label
+    className="big-spacer-right"
+    htmlFor="badge-color"
+  >
+    color
+  </label>
+  <Select
+    className="input-medium"
+    clearable={false}
+    name="badge-color"
+    onChange={[Function]}
+    options={
+      Array [
+        Object {
+          "label": "overview.badges.options.colors.white",
+          "value": "white",
+        },
+        Object {
+          "label": "overview.badges.options.colors.black",
+          "value": "black",
+        },
+        Object {
+          "label": "overview.badges.options.colors.orange",
+          "value": "orange",
+        },
+      ]
+    }
+    searchable={false}
+    value="white"
+  />
+</div>
+`;
+
+exports[`should display measure badge params 1`] = `
+<div>
+  <label
+    className="big-spacer-right"
+    htmlFor="badge-metric"
+  >
+    overview.badges.metric
+  </label>
+  <Select
+    className="input-medium"
+    clearable={false}
+    name="badge-metric"
+    onChange={[Function]}
+    options={Array []}
+    searchable={false}
+    value="alert_status"
+  />
+</div>
+`;

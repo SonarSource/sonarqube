@@ -1,0 +1,89 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`should display the modal after click 1`] = `
+<React.Fragment>
+  <button
+    onClick={[Function]}
+  >
+    overview.badges.get_badge
+  </button>
+</React.Fragment>
+`;
+
+exports[`should display the modal after click 2`] = `
+<Modal
+  contentLabel="overview.badges.title"
+  onRequestClose={[Function]}
+>
+  <header
+    className="modal-head"
+  >
+    <h2>
+      overview.badges.title
+    </h2>
+  </header>
+  <div
+    className="modal-body"
+  >
+    <p
+      className="huge-spacer-bottom"
+    >
+      overview.badges.description
+    </p>
+    <div
+      className="badges-list spacer-bottom"
+    >
+      <BadgeButton
+        key="measure"
+        onClick={[Function]}
+        selected={true}
+        type="measure"
+        url="host/api/project_badges/measure?branch=branch-6.6&project=foo&metric=alert_status"
+      />
+      <BadgeButton
+        key="quality_gate"
+        onClick={[Function]}
+        selected={false}
+        type="quality_gate"
+        url="host/api/project_badges/quality_gate?branch=branch-6.6&project=foo"
+      />
+      <BadgeButton
+        key="marketing"
+        onClick={[Function]}
+        selected={false}
+        type="marketing"
+        url="host/images/project_badges/sonarcloud-white.svg"
+      />
+    </div>
+    <p
+      className="text-center note huge-spacer-bottom"
+    >
+      overview.badges.measure.description
+    </p>
+    <Connect(BadgeParams)
+      className="big-spacer-bottom"
+      options={
+        Object {
+          "color": "white",
+          "metric": "alert_status",
+        }
+      }
+      type="measure"
+      updateOptions={[Function]}
+    />
+    <BadgeSnippet
+      snippet="host/api/project_badges/measure?branch=branch-6.6&project=foo&metric=alert_status"
+    />
+  </div>
+  <footer
+    className="modal-foot"
+  >
+    <button
+      className="button-link js-modal-close"
+      onClick={[Function]}
+    >
+      close
+    </button>
+  </footer>
+</Modal>
+`;

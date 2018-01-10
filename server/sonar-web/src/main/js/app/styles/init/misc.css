@@ -85,6 +85,10 @@ th.nowrap {
   margin-top: 16px;
 }
 
+.huge-spacer-bottom {
+  margin-bottom: 40px;
+}
+
 .huge-spacer-top {
   margin-top: 40px;
 }
