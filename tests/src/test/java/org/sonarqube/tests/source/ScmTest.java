@@ -72,7 +72,7 @@ public class ScmTest {
         MapEntry.entry(4, new LineData("1", "2013-01-04T00:00:00+0000", "jhenry")),
         MapEntry.entry(8, new LineData("3", "2014-01-04T00:00:00+0000", "toto")));
 
-    assertThat(buildResult.getLogs()).containsSequence("1 files to be analyzed", "1/1 files analyzed");
+    assertThat(buildResult.getLogs()).containsSubsequence("1 files to be analyzed", "1/1 files analyzed");
 
     // Second run with same file should not trigger blame but SCM data are copied from previous analysis
     buildResult = orchestrator.executeBuild(build);

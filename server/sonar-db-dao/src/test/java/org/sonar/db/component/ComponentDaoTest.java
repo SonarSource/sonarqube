@@ -887,7 +887,7 @@ public class ComponentDaoTest {
 
     List<ComponentDto> components = new ArrayList<>();
     underTest.scrollForIndexing(dbSession, projectUuid, context -> components.add(context.getResultObject()));
-    return assertThat(components).extracting(ComponentDto::uuid);
+    return (ListAssert<String>)assertThat(components).extracting(ComponentDto::uuid);
   }
 
   @Test

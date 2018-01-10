@@ -133,7 +133,7 @@ public class BuiltInQualityProfilesNotificationTest {
       .containsOnly("[SONARQUBE] Built-in quality profiles have been updated");
     String url = orchestrator.getServer().getUrl();
     assertThat(messages.get(0).getMimeMessage().getContent().toString())
-      .containsSequence(
+      .containsSubsequence(
         "The following built-in profiles have been updated:",
         "\"Basic\" - Foo: " + url + "/profiles/changelog?language=foo&name=Basic&since=", "&to=",
         " 1 new rule",

@@ -173,7 +173,7 @@ public class AnalysisContextReportPublisherTest {
     String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
     assertThat(content).containsOnlyOnce(FOO);
     assertThat(content).containsOnlyOnce(BIZ);
-    assertThat(content).containsSequence(BIZ, FOO);
+    assertThat(content).containsSubsequence(BIZ, FOO);
 
     publisher.dumpModuleSettings(new DefaultInputModule(ProjectDefinition.create()
       .setBaseDir(temp.newFolder())
@@ -203,7 +203,7 @@ public class AnalysisContextReportPublisherTest {
       .setProperty("sonar.password", "azerty")
       .setProperty("sonar.cpp.license.secured", "AZERTY")));
 
-    assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog())).containsSequence(
+    assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog())).containsSubsequence(
       "sonar.cpp.license.secured=******",
       "sonar.login=******",
       "sonar.password=******",
@@ -218,7 +218,7 @@ public class AnalysisContextReportPublisherTest {
 
     publisher.init(writer);
 
-    assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog())).containsSequence(
+    assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog())).containsSubsequence(
       "sonar.cpp.license.secured=******",
       "sonar.login=******",
       "sonar.password=******");

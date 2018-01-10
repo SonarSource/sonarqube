@@ -21,7 +21,6 @@ package org.sonar.server.computation.task.projectanalysis.formula;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import org.assertj.core.api.AbstractIterableAssert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
@@ -30,7 +29,6 @@ import org.sonar.server.computation.task.projectanalysis.component.TreeRootHolde
 import org.sonar.server.computation.task.projectanalysis.component.ViewsComponent;
 import org.sonar.server.computation.task.projectanalysis.formula.counter.IntValue;
 import org.sonar.server.computation.task.projectanalysis.measure.Measure;
-import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepoEntry;
 import org.sonar.server.computation.task.projectanalysis.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.task.projectanalysis.metric.Metric;
 import org.sonar.server.computation.task.projectanalysis.metric.MetricRepositoryRule;
@@ -150,8 +148,8 @@ public class ViewsFormulaExecutorComponentVisitorTest {
     verifySingleMetricWithVariation(ROOT_REF, 23);
   }
 
-  private AbstractIterableAssert<?, ? extends Iterable<? extends MeasureRepoEntry>, MeasureRepoEntry> verifySingleMetricWithVariation(int componentRef, int variation) {
-    return assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef)))
+  private void verifySingleMetricWithVariation(int componentRef, int variation) {
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef)))
       .containsOnly(entryOf(NEW_COVERAGE_KEY, createMeasureWithVariation(variation)));
   }
 
