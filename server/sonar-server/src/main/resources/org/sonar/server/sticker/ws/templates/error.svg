@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" height="20" width="${totalWidth}">
+    <linearGradient id="b" x2="0" y2="100%">
+        <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
+        <stop offset="1" stop-opacity=".1"/>
+    </linearGradient>
+    <clipPath id="a">
+        <rect width="${totalWidth}" height="20" rx="3" fill="#fff"/>
+    </clipPath>
+    <g clip-path="url(#a)">
+        <rect fill="#e05d44" height="20" width="${totalWidth}"/>
+        <rect fill="url(#b)" height="20" width="${totalWidth}"/>
+    </g>
+    <g fill="#fff" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11" text-anchor="left">
+        <text x="4" y="15" fill="#010101" fill-opacity=".3">${label}</text>
+        <text x="4" y="14">${label}</text>
+    </g>
+</svg>
