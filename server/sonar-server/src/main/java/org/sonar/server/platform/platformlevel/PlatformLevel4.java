@@ -197,6 +197,7 @@ import org.sonar.server.source.ws.RawAction;
 import org.sonar.server.source.ws.ScmAction;
 import org.sonar.server.source.ws.SourcesWs;
 import org.sonar.server.startup.LogServerId;
+import org.sonar.server.sticker.ws.StickersWsModule;
 import org.sonar.server.telemetry.TelemetryClient;
 import org.sonar.server.telemetry.TelemetryDaemon;
 import org.sonar.server.telemetry.TelemetryDataLoader;
@@ -534,6 +535,9 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // Branch
       BranchFeatureProxyImpl.class,
+
+      // Stickers
+      StickersWsModule.class,
 
       // privileged plugins
       PrivilegedPluginsBootstraper.class,
