@@ -27,7 +27,8 @@ import MetaQualityProfiles from './MetaQualityProfiles';
 import AnalysesList from '../events/AnalysesList';
 import MetaSize from './MetaSize';
 import MetaTags from './MetaTags';
-import { areThereCustomOrganizations } from '../../../store/rootReducer';
+import StickersModal from '../stickers/StickersModal';
+import { areThereCustomOrganizations, getGlobalSettingValue } from '../../../store/rootReducer';
 
 const Meta = ({
   branch,
@@ -87,6 +88,8 @@ const Meta = ({
       <MetaKey component={component} />
 
       {hasOrganization && <MetaOrganizationKey component={component} />}
+
+      {onSonarCloud && <StickersModal />}
     </div>
   );
 };
