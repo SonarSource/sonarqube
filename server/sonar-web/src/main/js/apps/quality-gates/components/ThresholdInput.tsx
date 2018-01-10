@@ -33,7 +33,7 @@ export default class ThresholdInput extends React.PureComponent<Props> {
     this.props.onChange(e.currentTarget.value);
   };
 
-  handleSelectChange = (option: any) => {
+  handleSelectChange = (option: { value: string } | null) => {
     if (option) {
       this.props.onChange(option.value);
     } else {
@@ -54,6 +54,7 @@ export default class ThresholdInput extends React.PureComponent<Props> {
     return (
       <Select
         className="input-tiny text-middle"
+        clearable={true}
         name={name}
         onChange={this.handleSelectChange}
         options={options}
