@@ -36,6 +36,10 @@ export function getBaseUrl(): string {
   return (window as any).baseUrl;
 }
 
+export function getHostUrl(): string {
+  return window.location.origin + getBaseUrl();
+}
+
 export function getPathUrlAsString(path: Location): string {
   return `${getBaseUrl()}${path.pathname}?${stringify(omitBy(path.query, isNil))}`;
 }
