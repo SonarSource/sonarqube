@@ -30,8 +30,8 @@ import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
 public class MeasureAction implements StickersWsAction {
 
-  public static final String PARAM_COMPONENT = "component";
-  public static final String PARAM_METRIC = "metric";
+  private static final String PARAM_COMPONENT = "component";
+  private static final String PARAM_METRIC = "metric";
 
   @Override
   public void define(WebService.NewController controller) {

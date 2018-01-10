@@ -1,21 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="124" height="20">
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="20">
     <linearGradient id="b" x2="0" y2="100%">
         <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
         <stop offset="1" stop-opacity=".1"/>
     </linearGradient>
     <clipPath id="a">
-        <rect width="124" height="20" rx="3" fill="#fff"/>
+        <rect width="128" height="20" rx="3" fill="#fff"/>
     </clipPath>
     <g clip-path="url(#a)">
         <path fill="#555" d="M0 0h75v20H0z"/>
-        <path fill="#97CA00" d="M75 0h49v20H75z"/>
-        <path fill="url(#b)" d="M0 0h124v20H0z"/>
+        <path fill="#fe7d37" d="M75 0h53v20H75z"/>
+        <path fill="url(#b)" d="M0 0h128v20H0z"/>
     </g>
     <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="110">
         <text x="385" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="650">quality gate
         </text>
         <text x="385" y="140" transform="scale(.1)" textLength="650">quality gate</text>
-        <text x="985" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="390">passed</text>
-        <text x="985" y="140" transform="scale(.1)" textLength="390">passed</text>
+        <text x="1005" y="150" fill="#010101" fill-opacity=".3" transform="scale(.1)" textLength="430">warning</text>
+        <text x="1005" y="140" transform="scale(.1)" textLength="430">warning</text>
     </g>
 </svg>
