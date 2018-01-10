@@ -1,0 +1,81 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2018 SonarSource SA
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+.stickers-list {
+  display: flex;
+  justify-content: space-around;
+  justify-content: space-evenly;
+  flex-wrap: nowrap;
+}
+
+.sticker-button {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  min-width: 120px;
+  height: 100px;
+  background-color: var(--barBackgroundColor);
+  border: solid 1px var(--barBorderColor);
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.sticker-button:hover {
+  border-color: var(--blue);
+}
+
+.sticker-button.selected {
+  background-color: var(--lightBlue);
+  border-color: var(--darkBlue);
+}
+
+.sticker-snippet {
+  position: relative;
+  margin: 8px 0;
+  display: flex;
+  justify-content: space-between;
+  background: #404040;
+  color: #f0f0f0;
+  border-radius: 3px;
+}
+
+.sticker-snippet pre {
+  padding: 15px 0 15px 15px;
+  white-space: normal;
+  word-break: break-all;
+  word-wrap: break-word;
+}
+
+.sticker-snippet button {
+  margin: 13px 15px 0 13px;
+  height: 20px;
+  line-height: 18px;
+  border: 1px solid #fff;
+  color: #fff;
+  font-size: 11px;
+  font-weight: normal;
+  user-select: none;
+}
+
+.sticker-snippet button:hover,
+.sticker-snippet button:focus,
+.sticker-snippet button:active {
+  background-color: #fff;
+  color: #404040;
+}
